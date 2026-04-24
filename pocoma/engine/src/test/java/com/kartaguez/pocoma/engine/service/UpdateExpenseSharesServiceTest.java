@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
@@ -24,7 +23,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
 import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdateExpenseSharesCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -37,7 +35,7 @@ class UpdateExpenseSharesServiceTest {
 		FakeExpenseContextPort loadContextPort =
 				new FakeExpenseContextPort(fixture.context(false));
 		FakeExpenseSharesPort loadExpenseSharesPort =
-				new FakeExpenseSharesPort(fixture.versionedExpenseShares());
+				new FakeExpenseSharesPort(fixture.expenseShares());
 		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
 		FakeRecordingExpenseSharesPort replaceExpenseSharesPort = new FakeRecordingExpenseSharesPort();
 		FakeEventPublisherPort publishEventPort = new FakeEventPublisherPort();
@@ -63,12 +61,10 @@ class UpdateExpenseSharesServiceTest {
 		assertEquals(3, loadExpenseSharesPort.loadedAtVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertEquals(Set.of(fixture.aliceId), replaceExpenseSharesPort.previous.value().shares().keySet());
-		assertEquals(1, replaceExpenseSharesPort.previous.startedAtVersion());
-		assertEquals(4L, replaceExpenseSharesPort.previous.endedAtVersion());
-		assertEquals(Set.of(fixture.bobId), replaceExpenseSharesPort.next.value().shares().keySet());
-		assertEquals(4, replaceExpenseSharesPort.next.startedAtVersion());
-		assertNull(replaceExpenseSharesPort.next.endedAtVersion());
+		assertEquals(fixture.expenseId, replaceExpenseSharesPort.savedExpenseId);
+		assertEquals(Set.of(fixture.bobId), replaceExpenseSharesPort.saved.shares().keySet());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseSharesPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseSharesPort.nextVersion);
 		assertEquals(new ExpenseSharesUpdatedEvent(fixture.expenseId, fixture.potId, 4), publishEventPort.published);
 	}
 
@@ -76,7 +72,7 @@ class UpdateExpenseSharesServiceTest {
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
-				new FakeExpenseSharesPort(fixture.versionedExpenseShares());
+				new FakeExpenseSharesPort(fixture.expenseShares());
 		UpdateExpenseSharesService service = fixture.service(fixture.context(true), loadExpenseSharesPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -93,7 +89,7 @@ class UpdateExpenseSharesServiceTest {
 	void rejectsVersionConflictWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
-				new FakeExpenseSharesPort(fixture.versionedExpenseShares());
+				new FakeExpenseSharesPort(fixture.expenseShares());
 		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
 
 		VersionConflictException exception = assertThrows(
@@ -110,7 +106,7 @@ class UpdateExpenseSharesServiceTest {
 	void rejectsUnknownShareholderWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
-				new FakeExpenseSharesPort(fixture.versionedExpenseShares());
+				new FakeExpenseSharesPort(fixture.expenseShares());
 		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -127,7 +123,7 @@ class UpdateExpenseSharesServiceTest {
 	void rejectsForbiddenUserWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
-				new FakeExpenseSharesPort(fixture.versionedExpenseShares());
+				new FakeExpenseSharesPort(fixture.expenseShares());
 		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -155,11 +151,8 @@ class UpdateExpenseSharesServiceTest {
 					Set.of(aliceId, bobId));
 		}
 
-		private Versioned<ExpenseShares> versionedExpenseShares() {
-			return new Versioned<>(
-					ExpenseShares.reconstitute(potId, Set.of(expenseShare(aliceId, Weight.of(Fraction.of(1, 1))))),
-					1,
-					null);
+		private ExpenseShares expenseShares() {
+			return ExpenseShares.reconstitute(potId, Set.of(expenseShare(aliceId, Weight.of(Fraction.of(1, 1)))));
 		}
 
 		private UpdateExpenseSharesCommand command(long expectedVersion, ShareholderId shareholderId) {
@@ -206,17 +199,17 @@ class UpdateExpenseSharesServiceTest {
 	private static final class FakeExpenseSharesPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort {
 
-		private final Versioned<ExpenseShares> expenseShares;
+		private final ExpenseShares expenseShares;
 		private boolean loaded;
 		private ExpenseId loadedExpenseId;
 		private long loadedAtVersion;
 
-		private FakeExpenseSharesPort(Versioned<ExpenseShares> expenseShares) {
+		private FakeExpenseSharesPort(ExpenseShares expenseShares) {
 			this.expenseShares = expenseShares;
 		}
 
 		@Override
-		public Versioned<ExpenseShares> loadActiveAtVersion(ExpenseId expenseId, long version) {
+		public ExpenseShares loadActiveAtVersion(ExpenseId expenseId, long version) {
 			loaded = true;
 			loadedExpenseId = expenseId;
 			loadedAtVersion = version;
@@ -240,13 +233,21 @@ class UpdateExpenseSharesServiceTest {
 	private static final class FakeRecordingExpenseSharesPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort {
 
-		private Versioned<ExpenseShares> previous;
-		private Versioned<ExpenseShares> next;
+		private ExpenseShares saved;
+		private ExpenseId savedExpenseId;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
 
 		@Override
-		public void replace(Versioned<ExpenseShares> previous, Versioned<ExpenseShares> next) {
-			this.previous = previous;
-			this.next = next;
+		public void save(
+				ExpenseId expenseId,
+				ExpenseShares expenseShares,
+				PotGlobalVersion currentVersion,
+				PotGlobalVersion nextVersion) {
+			this.savedExpenseId = expenseId;
+			this.saved = expenseShares;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
 		}
 	}
 

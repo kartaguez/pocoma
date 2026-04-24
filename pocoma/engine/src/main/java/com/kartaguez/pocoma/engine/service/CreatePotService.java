@@ -10,7 +10,6 @@ import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.result.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.usecase.CreatePotUseCase;
@@ -71,7 +70,7 @@ public final class CreatePotService implements CreatePotUseCase {
 
 		// 6. Persist the version clock and the versioned domain state through output ports.
 		savePotGlobalVersionPort.save(potGlobalVersion);
-		savePotHeaderPort.save(new Versioned<>(potHeader, INITIAL_VERSION, null));
+		savePotHeaderPort.saveNew(potHeader, INITIAL_VERSION);
 
 		// 7. Publish the business event for projection workers.
 		publishPotCreatedEventPort.publish(new PotCreatedEvent(potCreated.id(), INITIAL_VERSION));

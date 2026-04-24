@@ -17,12 +17,12 @@ import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.CreateExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.CreateExpenseCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -57,14 +57,13 @@ class CreateExpenseServiceTest {
 		assertEquals(fixture.potId, loadContextPort.loadedPotId);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertEquals(4, saveExpenseHeaderPort.saved.startedAtVersion());
-		assertNull(saveExpenseHeaderPort.saved.endedAtVersion());
-		assertEquals(snapshot.expenseId(), saveExpenseHeaderPort.saved.value().id());
-		assertEquals(fixture.payerId, saveExpenseHeaderPort.saved.value().payerId());
-		assertFalse(saveExpenseHeaderPort.saved.value().deleted());
-		assertEquals(4, saveExpenseSharesPort.saved.startedAtVersion());
-		assertNull(saveExpenseSharesPort.saved.endedAtVersion());
-		assertEquals(snapshot.expenseId(), saveExpenseSharesPort.saved.value().shares().values().iterator().next().expenseId());
+		assertEquals(4, saveExpenseHeaderPort.savedVersion);
+		assertEquals(snapshot.expenseId(), saveExpenseHeaderPort.saved.id());
+		assertEquals(fixture.payerId, saveExpenseHeaderPort.saved.payerId());
+		assertFalse(saveExpenseHeaderPort.saved.deleted());
+		assertEquals(4, saveExpenseSharesPort.savedVersion);
+		assertEquals(snapshot.expenseId(), saveExpenseSharesPort.savedExpenseId);
+		assertEquals(snapshot.expenseId(), saveExpenseSharesPort.saved.shares().values().iterator().next().expenseId());
 		assertEquals(new ExpenseCreatedEvent(snapshot.expenseId(), fixture.potId, 4), publishExpenseCreatedEventPort.published);
 	}
 
@@ -215,22 +214,28 @@ class CreateExpenseServiceTest {
 	private static final class FakeExpenseHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort {
 
-		private Versioned<ExpenseHeader> saved;
+		private ExpenseHeader saved;
+		private long savedVersion;
 
 		@Override
-		public void save(Versioned<ExpenseHeader> expenseHeader) {
+		public void saveNew(ExpenseHeader expenseHeader, long version) {
 			saved = expenseHeader;
+			savedVersion = version;
 		}
 	}
 
 	private static final class FakeExpenseSharesPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort {
 
-		private Versioned<ExpenseShares> saved;
+		private ExpenseShares saved;
+		private ExpenseId savedExpenseId;
+		private long savedVersion;
 
 		@Override
-		public void save(Versioned<ExpenseShares> expenseShares) {
+		public void saveNew(ExpenseId expenseId, ExpenseShares expenseShares, long version) {
+			savedExpenseId = expenseId;
 			saved = expenseShares;
+			savedVersion = version;
 		}
 	}
 

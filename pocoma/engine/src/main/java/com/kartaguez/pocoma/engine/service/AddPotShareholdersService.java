@@ -1,7 +1,6 @@
 package com.kartaguez.pocoma.engine.service;
 
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
@@ -13,7 +12,6 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.AddPotShareholdersCommand;
 import com.kartaguez.pocoma.engine.port.in.result.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.usecase.AddPotShareholdersUseCase;
@@ -79,33 +77,23 @@ public final class AddPotShareholdersService implements AddPotShareholdersUseCas
 		addPotShareholdersAuthorizationPolicy.assertCanAddPotShareholders(userContext.userId(), context.creatorId());
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
-		Versioned<PotShareholders> currentVersionedPotShareholders = Objects.requireNonNull(
+		PotShareholders currentPotShareholders = Objects.requireNonNull(
 				loadPotShareholdersPort.loadActiveAtVersion(potId, currentVersion.version()),
 				"potShareholders must not be null");
-		PotShareholders currentPotShareholders = currentVersionedPotShareholders.value();
 
-		// 6. Capture the previous immutable version and mutate the active domain aggregate.
-		PotShareholders previousPotShareholdersValue = PotShareholders.reconstitute(
-				currentPotShareholders.potId(),
-				Set.copyOf(currentPotShareholders.shareholders().values()));
+		// 6. Mutate the active domain aggregate.
 		command.shareholders().forEach(shareholder -> currentPotShareholders.addShareholder(
 				Name.of(shareholder.name()),
 				Weight.of(Fraction.of(shareholder.weightNumerator(), shareholder.weightDenominator())),
 				null));
 
-		// 7. Increment the global version and build the replacement versioned state.
+		// 7. Increment the global version and persist the new aggregate state.
 		long nextVersionNumber = currentVersion.version() + 1;
 		PotGlobalVersion nextVersion = new PotGlobalVersion(potId, nextVersionNumber);
-		Versioned<PotShareholders> previousPotShareholders = new Versioned<>(
-				previousPotShareholdersValue,
-				currentVersionedPotShareholders.startedAtVersion(),
-				nextVersionNumber);
-		Versioned<PotShareholders> nextPotShareholders =
-				new Versioned<>(currentPotShareholders, nextVersionNumber, null);
 
 		// 8. Persist only if the explicit working version is still active.
 		updatePotGlobalVersionPort.updateIfActive(currentVersion, nextVersion);
-		replacePotShareholdersPort.replace(previousPotShareholders, nextPotShareholders);
+		replacePotShareholdersPort.save(currentPotShareholders, currentVersion, nextVersion);
 
 		// 9. Publish the business event for projection workers.
 		publishPotShareholdersAddedEventPort.publish(new PotShareholdersAddedEvent(

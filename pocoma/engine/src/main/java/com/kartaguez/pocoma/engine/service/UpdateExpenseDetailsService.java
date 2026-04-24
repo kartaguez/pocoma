@@ -13,7 +13,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdateExpenseDetailsCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.usecase.UpdateExpenseDetailsUseCase;
@@ -83,36 +82,23 @@ public final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUs
 				context.creatorId());
 
 		// 5. Load the full expense header active at the explicit working version.
-		Versioned<ExpenseHeader> currentVersionedExpenseHeader = Objects.requireNonNull(
+		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(
 				loadExpenseHeaderPort.loadActiveAtVersion(expenseId, currentVersion.version()),
 				"expenseHeader must not be null");
-		ExpenseHeader currentExpenseHeader = currentVersionedExpenseHeader.value();
 
-		// 6. Capture the previous immutable version and mutate the active domain aggregate.
-		ExpenseHeader previousExpenseHeaderValue = ExpenseHeader.reconstitute(
-				currentExpenseHeader.id(),
-				currentExpenseHeader.potId(),
-				currentExpenseHeader.payerId(),
-				currentExpenseHeader.amount(),
-				currentExpenseHeader.label(),
-				currentExpenseHeader.deleted());
+		// 6. Mutate the active domain aggregate.
 		currentExpenseHeader.updateDetails(
 				payerId,
 				Amount.of(Fraction.of(command.amountNumerator(), command.amountDenominator())),
 				Label.of(command.label()));
 
-		// 7. Increment the global version and build the replacement versioned state.
+		// 7. Increment the global version and persist the new aggregate state.
 		long nextVersionNumber = currentVersion.version() + 1;
 		PotGlobalVersion nextVersion = new PotGlobalVersion(potId, nextVersionNumber);
-		Versioned<ExpenseHeader> previousExpenseHeader = new Versioned<>(
-				previousExpenseHeaderValue,
-				currentVersionedExpenseHeader.startedAtVersion(),
-				nextVersionNumber);
-		Versioned<ExpenseHeader> nextExpenseHeader = new Versioned<>(currentExpenseHeader, nextVersionNumber, null);
 
 		// 8. Persist only if the explicit working version is still active.
 		updatePotGlobalVersionPort.updateIfActive(currentVersion, nextVersion);
-		replaceExpenseHeaderPort.replace(previousExpenseHeader, nextExpenseHeader);
+		replaceExpenseHeaderPort.save(currentExpenseHeader, currentVersion, nextVersion);
 
 		// 9. Publish the business event for projection workers.
 		publishExpenseDetailsUpdatedEventPort.publish(new ExpenseDetailsUpdatedEvent(

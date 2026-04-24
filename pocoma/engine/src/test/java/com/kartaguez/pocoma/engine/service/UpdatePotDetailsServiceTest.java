@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
@@ -19,7 +18,6 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdatePotDetailsCommand;
 import com.kartaguez.pocoma.engine.port.in.result.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -31,7 +29,7 @@ class UpdatePotDetailsServiceTest {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
 		FakePotContextPort loadUpdatePotDetailsContextPort =
 				new FakePotContextPort(fixture.context(false));
-		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.versionedPotHeader(false));
+		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
 		FakeRecordingPotHeaderPort replacePotHeaderPort = new FakeRecordingPotHeaderPort();
 		FakeEventPublisherPort publishPotDetailsUpdatedEventPort =
@@ -58,19 +56,16 @@ class UpdatePotDetailsServiceTest {
 		assertEquals(3, loadPotHeaderPort.loadedAtVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertEquals(fixture.label, replacePotHeaderPort.previous.value().label());
-		assertEquals(1, replacePotHeaderPort.previous.startedAtVersion());
-		assertEquals(4L, replacePotHeaderPort.previous.endedAtVersion());
-		assertEquals(Label.of("New trip"), replacePotHeaderPort.next.value().label());
-		assertEquals(4, replacePotHeaderPort.next.startedAtVersion());
-		assertNull(replacePotHeaderPort.next.endedAtVersion());
+		assertEquals(Label.of("New trip"), replacePotHeaderPort.saved.label());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replacePotHeaderPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replacePotHeaderPort.nextVersion);
 		assertEquals(new PotDetailsUpdatedEvent(fixture.potId, 4), publishPotDetailsUpdatedEventPort.published);
 	}
 
 	@Test
 	void rejectsAlreadyDeletedPotWithoutLoadingFullPotHeader() {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
-		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.versionedPotHeader(false));
+		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(true), loadPotHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -86,7 +81,7 @@ class UpdatePotDetailsServiceTest {
 	@Test
 	void rejectsVersionConflictWithoutLoadingFullPotHeader() {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
-		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.versionedPotHeader(false));
+		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(false), loadPotHeaderPort);
 
 		VersionConflictException exception = assertThrows(
@@ -102,7 +97,7 @@ class UpdatePotDetailsServiceTest {
 	@Test
 	void rejectsForbiddenUserWithoutLoadingFullPotHeader() {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
-		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.versionedPotHeader(false));
+		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(false), loadPotHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -157,15 +152,12 @@ class UpdatePotDetailsServiceTest {
 					creatorId);
 		}
 
-		private Versioned<PotHeader> versionedPotHeader(boolean deleted) {
-			return new Versioned<>(
-					PotHeader.reconstitute(potId, label, creatorId, deleted),
-					1,
-					null);
+		private PotHeader potHeader(boolean deleted) {
+			return PotHeader.reconstitute(potId, label, creatorId, deleted);
 		}
 
 		private UpdatePotDetailsService service(UpdatePotDetailsContext context) {
-			return service(context, new FakePotHeaderPort(versionedPotHeader(false)));
+			return service(context, new FakePotHeaderPort(potHeader(false)));
 		}
 
 		private UpdatePotDetailsService service(
@@ -200,17 +192,17 @@ class UpdatePotDetailsServiceTest {
 
 	private static final class FakePotHeaderPort implements com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort {
 
-		private final Versioned<PotHeader> potHeader;
+		private final PotHeader potHeader;
 		private boolean loaded;
 		private PotId loadedPotId;
 		private long loadedAtVersion;
 
-		private FakePotHeaderPort(Versioned<PotHeader> potHeader) {
+		private FakePotHeaderPort(PotHeader potHeader) {
 			this.potHeader = potHeader;
 		}
 
 		@Override
-		public Versioned<PotHeader> loadActiveAtVersion(PotId potId, long version) {
+		public PotHeader loadActiveAtVersion(PotId potId, long version) {
 			loaded = true;
 			loadedPotId = potId;
 			loadedAtVersion = version;
@@ -234,13 +226,15 @@ class UpdatePotDetailsServiceTest {
 	private static final class FakeRecordingPotHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort {
 
-		private Versioned<PotHeader> previous;
-		private Versioned<PotHeader> next;
+		private PotHeader saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
 
 		@Override
-		public void replace(Versioned<PotHeader> previous, Versioned<PotHeader> next) {
-			this.previous = previous;
-			this.next = next;
+		public void save(PotHeader potHeader, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = potHeader;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
 		}
 	}
 

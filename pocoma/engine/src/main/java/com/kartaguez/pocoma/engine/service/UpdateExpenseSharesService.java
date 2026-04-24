@@ -15,7 +15,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
 import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdateExpenseSharesCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.usecase.UpdateExpenseSharesUseCase;
@@ -88,29 +87,20 @@ public final class UpdateExpenseSharesService implements UpdateExpenseSharesUseC
 				context.creatorId());
 
 		// 5. Load the full expense shares aggregate active at the explicit working version.
-		Versioned<ExpenseShares> currentVersionedExpenseShares = Objects.requireNonNull(
+		ExpenseShares currentExpenseShares = Objects.requireNonNull(
 				loadExpenseSharesPort.loadActiveAtVersion(expenseId, currentVersion.version()),
 				"expenseShares must not be null");
-		ExpenseShares currentExpenseShares = currentVersionedExpenseShares.value();
 
-		// 6. Capture the previous immutable version and replace active shares with command shares.
-		ExpenseShares previousExpenseSharesValue = ExpenseShares.reconstitute(
-				currentExpenseShares.potId(),
-				Set.copyOf(currentExpenseShares.shares().values()));
+		// 6. Replace active shares with command shares.
 		currentExpenseShares.updateExpenseShares(context.shareholderIds(), requestedShares);
 
-		// 7. Increment the global version and build the replacement versioned state.
+		// 7. Increment the global version and persist the new aggregate state.
 		long nextVersionNumber = currentVersion.version() + 1;
 		PotGlobalVersion nextVersion = new PotGlobalVersion(potId, nextVersionNumber);
-		Versioned<ExpenseShares> previousExpenseShares = new Versioned<>(
-				previousExpenseSharesValue,
-				currentVersionedExpenseShares.startedAtVersion(),
-				nextVersionNumber);
-		Versioned<ExpenseShares> nextExpenseShares = new Versioned<>(currentExpenseShares, nextVersionNumber, null);
 
 		// 8. Persist only if the explicit working version is still active.
 		updatePotGlobalVersionPort.updateIfActive(currentVersion, nextVersion);
-		replaceExpenseSharesPort.replace(previousExpenseShares, nextExpenseShares);
+		replaceExpenseSharesPort.save(expenseId, currentExpenseShares, currentVersion, nextVersion);
 
 		// 9. Publish the business event for projection workers.
 		publishExpenseSharesUpdatedEventPort.publish(new ExpenseSharesUpdatedEvent(

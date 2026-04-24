@@ -20,7 +20,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.CreateExpenseCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.usecase.CreateExpenseUseCase;
@@ -119,8 +118,8 @@ public final class CreateExpenseService implements CreateExpenseUseCase {
 
 		// 8. Persist the version bump and both new aggregate instances at the same version.
 		updatePotGlobalVersionPort.updateIfActive(currentVersion, nextVersion);
-		saveExpenseHeaderPort.save(new Versioned<>(expenseHeader, nextVersionNumber, null));
-		saveExpenseSharesPort.save(new Versioned<>(expenseShares, nextVersionNumber, null));
+		saveExpenseHeaderPort.saveNew(expenseHeader, nextVersionNumber);
+		saveExpenseSharesPort.saveNew(expenseCreated.id(), expenseShares, nextVersionNumber);
 
 		// 9. Publish the business event for projection workers.
 		publishExpenseCreatedEventPort.publish(new ExpenseCreatedEvent(

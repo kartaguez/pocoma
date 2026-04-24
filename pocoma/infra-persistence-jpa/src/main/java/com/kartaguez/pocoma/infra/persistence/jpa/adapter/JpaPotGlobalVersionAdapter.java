@@ -41,7 +41,7 @@ public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
 				expectedActiveVersion.version(),
 				nextVersion.version());
 
-		if (updatedRows == 0) {
+		if (updatedRows != 1) {
 			throw new VersionConflictException("Pot global version has been modified by another operation");
 		}
 	}

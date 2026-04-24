@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,7 +23,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.DeleteExpenseCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -37,7 +35,7 @@ class DeleteExpenseServiceTest {
 		FakeExpenseContextPort loadContextPort =
 				new FakeExpenseContextPort(fixture.context(false));
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
 		FakeRecordingExpenseHeaderPort replaceExpenseHeaderPort = new FakeRecordingExpenseHeaderPort();
 		FakeEventPublisherPort publishExpenseDeletedEventPort = new FakeEventPublisherPort();
@@ -62,12 +60,9 @@ class DeleteExpenseServiceTest {
 		assertEquals(3, loadExpenseHeaderPort.loadedAtVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertFalse(replaceExpenseHeaderPort.previous.value().deleted());
-		assertEquals(1, replaceExpenseHeaderPort.previous.startedAtVersion());
-		assertEquals(4L, replaceExpenseHeaderPort.previous.endedAtVersion());
-		assertTrue(replaceExpenseHeaderPort.next.value().deleted());
-		assertEquals(4, replaceExpenseHeaderPort.next.startedAtVersion());
-		assertNull(replaceExpenseHeaderPort.next.endedAtVersion());
+		assertTrue(replaceExpenseHeaderPort.saved.deleted());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseHeaderPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseHeaderPort.nextVersion);
 		assertEquals(new ExpenseDeletedEvent(fixture.expenseId, fixture.potId, 4), publishExpenseDeletedEventPort.published);
 	}
 
@@ -75,7 +70,7 @@ class DeleteExpenseServiceTest {
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseHeader() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		DeleteExpenseService service = fixture.service(fixture.context(true), loadExpenseHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -92,7 +87,7 @@ class DeleteExpenseServiceTest {
 	void rejectsVersionConflictWithoutLoadingFullExpenseHeader() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		DeleteExpenseService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
 		VersionConflictException exception = assertThrows(
@@ -109,7 +104,7 @@ class DeleteExpenseServiceTest {
 	void rejectsForbiddenUserWithoutLoadingFullExpenseHeader() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		DeleteExpenseService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -134,11 +129,8 @@ class DeleteExpenseServiceTest {
 			return new DeleteExpenseContext(new PotGlobalVersion(potId, 3), deleted, creatorId);
 		}
 
-		private Versioned<ExpenseHeader> versionedExpenseHeader(boolean deleted) {
-			return new Versioned<>(
-					ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted),
-					1,
-					null);
+		private ExpenseHeader expenseHeader(boolean deleted) {
+			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted);
 		}
 
 		private DeleteExpenseService service(
@@ -174,17 +166,17 @@ class DeleteExpenseServiceTest {
 	private static final class FakeExpenseHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort {
 
-		private final Versioned<ExpenseHeader> expenseHeader;
+		private final ExpenseHeader expenseHeader;
 		private boolean loaded;
 		private ExpenseId loadedExpenseId;
 		private long loadedAtVersion;
 
-		private FakeExpenseHeaderPort(Versioned<ExpenseHeader> expenseHeader) {
+		private FakeExpenseHeaderPort(ExpenseHeader expenseHeader) {
 			this.expenseHeader = expenseHeader;
 		}
 
 		@Override
-		public Versioned<ExpenseHeader> loadActiveAtVersion(ExpenseId expenseId, long version) {
+		public ExpenseHeader loadActiveAtVersion(ExpenseId expenseId, long version) {
 			loaded = true;
 			loadedExpenseId = expenseId;
 			loadedAtVersion = version;
@@ -208,13 +200,15 @@ class DeleteExpenseServiceTest {
 	private static final class FakeRecordingExpenseHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort {
 
-		private Versioned<ExpenseHeader> previous;
-		private Versioned<ExpenseHeader> next;
+		private ExpenseHeader saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
 
 		@Override
-		public void replace(Versioned<ExpenseHeader> previous, Versioned<ExpenseHeader> next) {
-			this.previous = previous;
-			this.next = next;
+		public void save(ExpenseHeader expenseHeader, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = expenseHeader;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
 		}
 	}
 

@@ -206,6 +206,22 @@ class PotShareholdersTest {
 	}
 
 	@Test
+	void rejectsDeletedShareholderWhenUpdatingDetails() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		Shareholder shareholder = shareholder(potId, true);
+		PotShareholders potShareholders = new PotShareholders(potId, Set.of(shareholder));
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> potShareholders.updateShareholderDetails(
+						shareholder.id(),
+						Name.of("Bob"),
+						null));
+
+		assertEquals("SHAREHOLDER_DELETED", exception.ruleCode());
+	}
+
+	@Test
 	void rejectsNullShareholderIdWhenUpdatingWeight() {
 		PotShareholders potShareholders = new PotShareholders(PotId.of(UUID.randomUUID()), Set.of());
 
@@ -234,6 +250,21 @@ class PotShareholdersTest {
 						Weight.of(new Fraction(1, 2))));
 
 		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
+	}
+
+	@Test
+	void rejectsDeletedShareholderWhenUpdatingWeight() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		Shareholder shareholder = shareholder(potId, true);
+		PotShareholders potShareholders = new PotShareholders(potId, Set.of(shareholder));
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> potShareholders.updateShareholderWeight(
+						shareholder.id(),
+						Weight.of(new Fraction(1, 2))));
+
+		assertEquals("SHAREHOLDER_DELETED", exception.ruleCode());
 	}
 
 	@Test
@@ -273,12 +304,16 @@ class PotShareholdersTest {
 	}
 
 	private static Shareholder shareholder(PotId potId) {
+		return shareholder(potId, false);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted) {
 		return new Shareholder(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,
 				Name.of("Alice"),
 				Weight.of(new Fraction(1, 2)),
 				UserId.of(UUID.randomUUID()),
-				false);
+				deleted);
 	}
 }

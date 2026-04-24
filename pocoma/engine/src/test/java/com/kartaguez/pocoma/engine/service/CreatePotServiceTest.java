@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
@@ -16,7 +15,6 @@ import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.result.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -45,12 +43,11 @@ class CreatePotServiceTest {
 		assertFalse(snapshot.deleted());
 		assertEquals(1, snapshot.version());
 		assertEquals(new PotGlobalVersion(snapshot.id(), 1), savePotGlobalVersionPort.saved);
-		assertEquals(1, savePotHeaderPort.saved.startedAtVersion());
-		assertNull(savePotHeaderPort.saved.endedAtVersion());
-		assertEquals(snapshot.id(), savePotHeaderPort.saved.value().id());
-		assertEquals(label, savePotHeaderPort.saved.value().label());
-		assertEquals(creatorId, savePotHeaderPort.saved.value().creatorId());
-		assertFalse(savePotHeaderPort.saved.value().deleted());
+		assertEquals(1, savePotHeaderPort.savedVersion);
+		assertEquals(snapshot.id(), savePotHeaderPort.saved.id());
+		assertEquals(label, savePotHeaderPort.saved.label());
+		assertEquals(creatorId, savePotHeaderPort.saved.creatorId());
+		assertFalse(savePotHeaderPort.saved.deleted());
 		assertEquals(new PotCreatedEvent(snapshot.id(), 1), publishPotCreatedEventPort.published);
 	}
 
@@ -154,11 +151,13 @@ class CreatePotServiceTest {
 
 	private static final class FakePotHeaderPort implements com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort {
 
-		private Versioned<PotHeader> saved;
+		private PotHeader saved;
+		private long savedVersion;
 
 		@Override
-		public void save(Versioned<PotHeader> potHeader) {
+		public void saveNew(PotHeader potHeader, long version) {
 			saved = potHeader;
+			savedVersion = version;
 		}
 	}
 

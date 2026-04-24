@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
@@ -24,7 +23,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdateExpenseDetailsCommand;
 import com.kartaguez.pocoma.engine.port.in.result.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -37,7 +35,7 @@ class UpdateExpenseDetailsServiceTest {
 		FakeExpenseContextPort loadContextPort =
 				new FakeExpenseContextPort(fixture.context(false));
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
 		FakeRecordingExpenseHeaderPort replaceExpenseHeaderPort = new FakeRecordingExpenseHeaderPort();
 		FakeEventPublisherPort publishEventPort = new FakeEventPublisherPort();
@@ -65,12 +63,9 @@ class UpdateExpenseDetailsServiceTest {
 		assertEquals(3, loadExpenseHeaderPort.loadedAtVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertEquals(fixture.payerId, replaceExpenseHeaderPort.previous.value().payerId());
-		assertEquals(1, replaceExpenseHeaderPort.previous.startedAtVersion());
-		assertEquals(4L, replaceExpenseHeaderPort.previous.endedAtVersion());
-		assertEquals(fixture.nextPayerId, replaceExpenseHeaderPort.next.value().payerId());
-		assertEquals(4, replaceExpenseHeaderPort.next.startedAtVersion());
-		assertNull(replaceExpenseHeaderPort.next.endedAtVersion());
+		assertEquals(fixture.nextPayerId, replaceExpenseHeaderPort.saved.payerId());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseHeaderPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseHeaderPort.nextVersion);
 		assertEquals(new ExpenseDetailsUpdatedEvent(fixture.expenseId, fixture.potId, 4), publishEventPort.published);
 	}
 
@@ -78,7 +73,7 @@ class UpdateExpenseDetailsServiceTest {
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseHeader() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		UpdateExpenseDetailsService service = fixture.service(fixture.context(true), loadExpenseHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -95,7 +90,7 @@ class UpdateExpenseDetailsServiceTest {
 	void rejectsVersionConflictWithoutLoadingFullExpenseHeader() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
 		VersionConflictException exception = assertThrows(
@@ -112,7 +107,7 @@ class UpdateExpenseDetailsServiceTest {
 	void rejectsUnknownPayerWithoutLoadingFullExpenseHeader() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -129,7 +124,7 @@ class UpdateExpenseDetailsServiceTest {
 	void rejectsForbiddenUserWithoutLoadingFullExpenseHeader() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
-				new FakeExpenseHeaderPort(fixture.versionedExpenseHeader(false));
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -159,11 +154,8 @@ class UpdateExpenseDetailsServiceTest {
 					Set.of(payerId, nextPayerId));
 		}
 
-		private Versioned<ExpenseHeader> versionedExpenseHeader(boolean deleted) {
-			return new Versioned<>(
-					ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted),
-					1,
-					null);
+		private ExpenseHeader expenseHeader(boolean deleted) {
+			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted);
 		}
 
 		private UpdateExpenseDetailsCommand command(long expectedVersion, ShareholderId payerId) {
@@ -209,17 +201,17 @@ class UpdateExpenseDetailsServiceTest {
 	private static final class FakeExpenseHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort {
 
-		private final Versioned<ExpenseHeader> expenseHeader;
+		private final ExpenseHeader expenseHeader;
 		private boolean loaded;
 		private ExpenseId loadedExpenseId;
 		private long loadedAtVersion;
 
-		private FakeExpenseHeaderPort(Versioned<ExpenseHeader> expenseHeader) {
+		private FakeExpenseHeaderPort(ExpenseHeader expenseHeader) {
 			this.expenseHeader = expenseHeader;
 		}
 
 		@Override
-		public Versioned<ExpenseHeader> loadActiveAtVersion(ExpenseId expenseId, long version) {
+		public ExpenseHeader loadActiveAtVersion(ExpenseId expenseId, long version) {
 			loaded = true;
 			loadedExpenseId = expenseId;
 			loadedAtVersion = version;
@@ -243,13 +235,15 @@ class UpdateExpenseDetailsServiceTest {
 	private static final class FakeRecordingExpenseHeaderPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort {
 
-		private Versioned<ExpenseHeader> previous;
-		private Versioned<ExpenseHeader> next;
+		private ExpenseHeader saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
 
 		@Override
-		public void replace(Versioned<ExpenseHeader> previous, Versioned<ExpenseHeader> next) {
-			this.previous = previous;
-			this.next = next;
+		public void save(ExpenseHeader expenseHeader, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = expenseHeader;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
 		}
 	}
 

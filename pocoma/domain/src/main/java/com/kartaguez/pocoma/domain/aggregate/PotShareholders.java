@@ -106,6 +106,11 @@ public final class PotShareholders {
 					"SHAREHOLDER_NOT_PRESENT",
 					"Shareholder does not belong to this pot");
 		}
+		if (shareholder.deleted()) {
+			throw new BusinessRuleViolationException(
+					"SHAREHOLDER_DELETED",
+					"Shareholder cannot be modified because it is deleted");
+		}
 		return shareholder;
 	}
 

@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
@@ -24,7 +23,6 @@ import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.model.Versioned;
 import com.kartaguez.pocoma.engine.port.in.intent.UpdatePotShareholdersDetailsCommand;
 import com.kartaguez.pocoma.engine.port.in.result.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -37,7 +35,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		FakePotContextPort loadContextPort =
 				new FakePotContextPort(fixture.context(false));
 		FakePotShareholdersPort loadPotShareholdersPort =
-				new FakePotShareholdersPort(fixture.versionedPotShareholders());
+				new FakePotShareholdersPort(fixture.potShareholders());
 		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
 		FakeRecordingPotShareholdersPort replacePotShareholdersPort = new FakeRecordingPotShareholdersPort();
 		FakeEventPublisherPort publishEventPort =
@@ -73,10 +71,9 @@ class UpdatePotShareholdersDetailsServiceTest {
 		assertEquals(3, loadPotShareholdersPort.loadedAtVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
-		assertEquals(1, replacePotShareholdersPort.previous.value().shareholders().size());
-		assertEquals(4L, replacePotShareholdersPort.previous.endedAtVersion());
-		assertEquals(1, replacePotShareholdersPort.next.value().shareholders().size());
-		assertNull(replacePotShareholdersPort.next.endedAtVersion());
+		assertEquals(1, replacePotShareholdersPort.saved.shareholders().size());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replacePotShareholdersPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replacePotShareholdersPort.nextVersion);
 		assertEquals(new PotShareholdersDetailsUpdatedEvent(fixture.potId, Set.of(fixture.shareholderId), 4), publishEventPort.published);
 	}
 
@@ -98,7 +95,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 	void rejectsAlreadyDeletedPotWithoutLoadingFullPotShareholders() {
 		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
-				new FakePotShareholdersPort(fixture.versionedPotShareholders());
+				new FakePotShareholdersPort(fixture.potShareholders());
 		UpdatePotShareholdersDetailsService service = fixture.service(fixture.context(true), loadPotShareholdersPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -115,7 +112,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 	void rejectsVersionConflictWithoutLoadingFullPotShareholders() {
 		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
-				new FakePotShareholdersPort(fixture.versionedPotShareholders());
+				new FakePotShareholdersPort(fixture.potShareholders());
 		UpdatePotShareholdersDetailsService service = fixture.service(fixture.context(false), loadPotShareholdersPort);
 
 		VersionConflictException exception = assertThrows(
@@ -132,7 +129,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 	void rejectsForbiddenUserWithoutLoadingFullPotShareholders() {
 		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
-				new FakePotShareholdersPort(fixture.versionedPotShareholders());
+				new FakePotShareholdersPort(fixture.potShareholders());
 		UpdatePotShareholdersDetailsService service = fixture.service(fixture.context(false), loadPotShareholdersPort);
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -165,8 +162,8 @@ class UpdatePotShareholdersDetailsServiceTest {
 					Set.of(shareholderId));
 		}
 
-		private Versioned<PotShareholders> versionedPotShareholders() {
-			return new Versioned<>(PotShareholders.reconstitute(potId, Set.of(shareholder)), 1, null);
+		private PotShareholders potShareholders() {
+			return PotShareholders.reconstitute(potId, Set.of(shareholder));
 		}
 
 		private UpdatePotShareholdersDetailsCommand command(ShareholderId shareholderId, long expectedVersion) {
@@ -180,7 +177,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		}
 
 		private UpdatePotShareholdersDetailsService service(UpdatePotShareholdersDetailsContext context) {
-			return service(context, new FakePotShareholdersPort(versionedPotShareholders()));
+			return service(context, new FakePotShareholdersPort(potShareholders()));
 		}
 
 		private UpdatePotShareholdersDetailsService service(
@@ -216,17 +213,17 @@ class UpdatePotShareholdersDetailsServiceTest {
 	private static final class FakePotShareholdersPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort {
 
-		private final Versioned<PotShareholders> potShareholders;
+		private final PotShareholders potShareholders;
 		private boolean loaded;
 		private PotId loadedPotId;
 		private long loadedAtVersion;
 
-		private FakePotShareholdersPort(Versioned<PotShareholders> potShareholders) {
+		private FakePotShareholdersPort(PotShareholders potShareholders) {
 			this.potShareholders = potShareholders;
 		}
 
 		@Override
-		public Versioned<PotShareholders> loadActiveAtVersion(PotId potId, long version) {
+		public PotShareholders loadActiveAtVersion(PotId potId, long version) {
 			loaded = true;
 			loadedPotId = potId;
 			loadedAtVersion = version;
@@ -250,13 +247,15 @@ class UpdatePotShareholdersDetailsServiceTest {
 	private static final class FakeRecordingPotShareholdersPort
 			implements com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort {
 
-		private Versioned<PotShareholders> previous;
-		private Versioned<PotShareholders> next;
+		private PotShareholders saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
 
 		@Override
-		public void replace(Versioned<PotShareholders> previous, Versioned<PotShareholders> next) {
-			this.previous = previous;
-			this.next = next;
+		public void save(PotShareholders potShareholders, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = potShareholders;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
 		}
 	}
 
