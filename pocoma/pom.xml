@@ -38,7 +38,10 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
-		<module>application</module>
+		<module>supra-worker-projection-core</module>
+		<module>supra-worker-projection-spring</module>
+		<module>supra-http-rest-spring</module>
+		<module>runtime-monolith</module>
 	</modules>
 
 	<properties>

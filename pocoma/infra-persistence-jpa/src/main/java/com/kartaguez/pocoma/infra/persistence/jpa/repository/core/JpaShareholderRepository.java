@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.repository.core;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,6 +35,20 @@ public interface JpaShareholderRepository extends JpaRepository<JpaShareholderEn
 			""")
 	List<JpaShareholderEntity> findActiveNotDeletedAtVersion(
 			@Param("potId") UUID potId,
+			@Param("version") long version);
+
+	@Query("""
+			select shareholder
+			from JpaShareholderEntity shareholder
+			where shareholder.potId = :potId
+				and shareholder.userId = :userId
+				and shareholder.deleted = false
+				and shareholder.startedAtVersion <= :version
+				and (shareholder.endedAtVersion is null or :version < shareholder.endedAtVersion)
+			""")
+	Optional<JpaShareholderEntity> findLinkedUserAtVersion(
+			@Param("potId") UUID potId,
+			@Param("userId") UUID userId,
 			@Param("version") long version);
 
 	@Modifying(flushAutomatically = true, clearAutomatically = true)

@@ -31,26 +31,33 @@ final class ComputePotBalancesService implements ComputePotBalancesUseCase {
 
 	@Override
 	public PotBalances computePotBalances(PotId potId, long targetVersion) {
+		// 1. Validate the incoming projection request.
 		Objects.requireNonNull(potId, "potId must not be null");
 		if (targetVersion < 1) {
 			throw new IllegalArgumentException("targetVersion must be greater than or equal to 1");
 		}
 
+		// 2. Load the current projection state, if any.
 		PotBalanceProjectionState projectionState = potBalancesPort.loadProjectionState(potId)
 				.orElse(null);
+
+		// 3. Return the already projected balances when the requested version is covered.
 		if (projectionState != null && targetVersion <= projectionState.projectedVersion()) {
 			return potBalancesPort.loadAtVersion(potId, projectionState.projectedVersion());
 		}
 
+		// 4. Resolve the baseline balances from which the next projection will be computed.
 		PotBalances previousBalances = projectionState == null
 				? new PotBalances(potId, BASELINE_VERSION, java.util.Map.of())
 				: potBalancesPort.loadAtVersion(potId, projectionState.projectedVersion());
 
+		// 5. Persist and return the initial empty projection when the baseline is the target.
 		if (targetVersion == previousBalances.version()) {
 			potBalancesPort.saveInitial(previousBalances);
 			return previousBalances;
 		}
 
+		// 6. Load the expense changes between the previous projected version and the target version.
 		Collection<ProjectedExpense> activeAtPreviousOnly = projectedExpensePort.loadActiveAtSourceOnly(
 				potId,
 				previousBalances.version(),
@@ -59,12 +66,15 @@ final class ComputePotBalancesService implements ComputePotBalancesUseCase {
 				potId,
 				targetVersion,
 				previousBalances.version());
+
+		// 7. Compute the target balances by applying those expense changes.
 		PotBalances targetBalances = potBalancesCalculator.calculate(
 				previousBalances,
 				targetVersion,
 				activeAtPreviousOnly,
 				activeAtTargetOnly);
 
+		// 8. Persist the new projection state using optimistic progression from the previous state.
 		if (projectionState == null) {
 			potBalancesPort.saveInitial(targetBalances);
 		}
@@ -72,6 +82,7 @@ final class ComputePotBalancesService implements ComputePotBalancesUseCase {
 			potBalancesPort.save(targetBalances, projectionState.projectedVersion());
 		}
 
+		// 9. Return the computed target balances to the caller.
 		return targetBalances;
 	}
 }
