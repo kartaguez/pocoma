@@ -1,0 +1,48 @@
+meta {
+  name: 02 Update Expense Details
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/api/expenses/{{expenseId}}/details
+  body: json
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "payerId": "{{aliceShareholderId}}",
+    "amountNumerator": 84,
+    "amountDenominator": 1,
+    "label": "Lunch Bruno Updated",
+    "expectedVersion": {{potVersion}}
+  }
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400) {
+    return;
+  }
+  if (body.id) {
+    bru.setVar("expenseId", body.id);
+  }
+  if (body.potId) {
+    bru.setVar("potId", body.potId);
+  }
+  if (body.version) {
+    bru.setVar("expenseVersion", String(body.version));
+    bru.setVar("potVersion", String(body.version));
+  }
+  })();
+}

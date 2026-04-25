@@ -1,0 +1,15 @@
+meta {
+  name: 04 List Pot Expenses Current
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/pots/{{potId}}/expenses
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

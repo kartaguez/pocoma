@@ -1,0 +1,15 @@
+meta {
+  name: 03 Get Pot At Version
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/pots/{{potId}}?version={{potVersion}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

@@ -118,7 +118,7 @@ class GetPotServiceTest {
 			this.linkedUserId = linkedUserId;
 			this.shareholder = Shareholder.reconstitute(
 					ShareholderId.of(UUID.randomUUID()),
-					potId,
+					this.potId,
 					Name.of("Alice"),
 					Weight.of(Fraction.of(1, 1)),
 					linkedUserId.orElse(null),

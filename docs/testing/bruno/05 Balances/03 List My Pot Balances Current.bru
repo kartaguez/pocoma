@@ -1,0 +1,15 @@
+meta {
+  name: 03 List My Pot Balances Current
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/pots/balances/me
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

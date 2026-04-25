@@ -1,0 +1,37 @@
+meta {
+  name: 01 Get Expense Current
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/expenses/{{expenseId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400 || !body.header) {
+    return;
+  }
+  if (body.header.id) {
+    bru.setVar("expenseId", body.header.id);
+  }
+  if (body.header.potId) {
+    bru.setVar("potId", body.header.potId);
+  }
+  if (body.header.version) {
+    bru.setVar("expenseVersion", String(body.header.version));
+    bru.setVar("potVersion", String(body.header.version));
+  }
+  })();
+}

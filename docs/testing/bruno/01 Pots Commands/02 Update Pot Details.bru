@@ -1,0 +1,41 @@
+meta {
+  name: 02 Update Pot Details
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/api/pots/{{potId}}/details
+  body: json
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "label": "Trip Bruno Updated",
+    "expectedVersion": {{potVersion}}
+  }
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400) {
+    return;
+  }
+  if (body.id) {
+    bru.setVar("potId", body.id);
+  }
+  if (body.version) {
+    bru.setVar("potVersion", String(body.version));
+  }
+  })();
+}

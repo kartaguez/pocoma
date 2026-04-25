@@ -1,0 +1,15 @@
+meta {
+  name: 02 Get Expense At Version
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/expenses/{{expenseId}}?version={{expenseVersion}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

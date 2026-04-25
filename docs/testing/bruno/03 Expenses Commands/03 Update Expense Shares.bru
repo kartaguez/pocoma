@@ -1,0 +1,56 @@
+meta {
+  name: 03 Update Expense Shares
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/api/expenses/{{expenseId}}/shares
+  body: json
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "shares": [
+      {
+        "shareholderId": "{{aliceShareholderId}}",
+        "weightNumerator": 2,
+        "weightDenominator": 3
+      },
+      {
+        "shareholderId": "{{bobShareholderId}}",
+        "weightNumerator": 1,
+        "weightDenominator": 3
+      }
+    ],
+    "expectedVersion": {{potVersion}}
+  }
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400) {
+    return;
+  }
+  if (body.expenseId) {
+    bru.setVar("expenseId", body.expenseId);
+  }
+  if (body.potId) {
+    bru.setVar("potId", body.potId);
+  }
+  if (body.version) {
+    bru.setVar("expenseVersion", String(body.version));
+    bru.setVar("potVersion", String(body.version));
+  }
+  })();
+}

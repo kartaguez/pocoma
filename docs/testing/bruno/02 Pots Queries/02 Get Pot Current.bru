@@ -1,0 +1,44 @@
+meta {
+  name: 02 Get Pot Current
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/pots/{{potId}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400 || !body.header) {
+    return;
+  }
+  if (body.header.id) {
+    bru.setVar("potId", body.header.id);
+  }
+  if (body.header.version) {
+    bru.setVar("potVersion", String(body.header.version));
+  }
+  const shareholders = body.shareholders && body.shareholders.shareholders
+    ? body.shareholders.shareholders
+    : [];
+  const alice = shareholders.find((shareholder) => shareholder.name === "Alice");
+  const bob = shareholders.find((shareholder) => shareholder.name === "Bob");
+  if (alice && alice.id) {
+    bru.setVar("aliceShareholderId", alice.id);
+  }
+  if (bob && bob.id) {
+    bru.setVar("bobShareholderId", bob.id);
+  }
+  })();
+}

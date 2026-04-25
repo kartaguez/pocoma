@@ -1,0 +1,33 @@
+meta {
+  name: 01 Get Pot Balances Current
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/pots/{{potId}}/balances
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400) {
+    return;
+  }
+  if (body.potId) {
+    bru.setVar("potId", body.potId);
+  }
+  if (body.version) {
+    bru.setVar("potVersion", String(body.version));
+  }
+  })();
+}

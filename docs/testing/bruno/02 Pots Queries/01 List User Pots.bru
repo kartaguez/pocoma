@@ -1,0 +1,15 @@
+meta {
+  name: 01 List User Pots
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/pots
+  body: none
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+}

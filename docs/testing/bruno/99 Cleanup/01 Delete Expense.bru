@@ -1,0 +1,44 @@
+meta {
+  name: 01 Delete Expense
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{baseUrl}}/api/expenses/{{expenseId}}
+  body: json
+  auth: none
+}
+
+headers {
+  X-User-Id: {{userId}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "expectedVersion": {{potVersion}}
+  }
+}
+
+script:post-response {
+  (() => {
+  let body = res.getBody();
+  if (typeof body === "string") {
+    try { body = JSON.parse(body); } catch (error) { body = null; }
+  }
+  if (!body || body.status >= 400) {
+    return;
+  }
+  if (body.id) {
+    bru.setVar("expenseId", body.id);
+  }
+  if (body.potId) {
+    bru.setVar("potId", body.potId);
+  }
+  if (body.version) {
+    bru.setVar("expenseVersion", String(body.version));
+    bru.setVar("potVersion", String(body.version));
+  }
+  })();
+}
