@@ -9,23 +9,13 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>pocoma-engine</artifactId>
-	<name>pocoma-engine</name>
+	<artifactId>pocoma-domain-projection</artifactId>
+	<name>pocoma-domain-projection</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain-projection</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain-policy</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

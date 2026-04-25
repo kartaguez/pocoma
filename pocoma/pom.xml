@@ -32,8 +32,11 @@
 
 	<modules>
 		<module>domain</module>
+		<module>domain-projection</module>
 		<module>domain-policy</module>
 		<module>engine</module>
+		<module>infra-tx-spring</module>
+		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
 		<module>application</module>
 	</modules>
