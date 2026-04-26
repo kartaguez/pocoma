@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
+import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
+import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.supra.worker.projection.core.SegmentedProjectionWorker;
 
 @Configuration
@@ -16,10 +18,17 @@ public class ProjectionWorkerConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	PocomaObservation pocomaObservation() {
+		return new NoopPocomaObservation();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
 	SegmentedProjectionWorker segmentedProjectionWorker(
 			ComputePotBalancesUseCase computePotBalancesUseCase,
-			ProjectionWorkerProperties properties) {
-		return new SegmentedProjectionWorker(computePotBalancesUseCase, properties.toSettings());
+			ProjectionWorkerProperties properties,
+			PocomaObservation observation) {
+		return new SegmentedProjectionWorker(computePotBalancesUseCase, properties.toSettings(), observation);
 	}
 
 	@Bean

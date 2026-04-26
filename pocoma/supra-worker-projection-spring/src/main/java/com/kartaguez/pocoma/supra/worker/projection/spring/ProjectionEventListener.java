@@ -14,6 +14,8 @@ import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
+import com.kartaguez.pocoma.observability.event.EventMetadata;
+import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
 import com.kartaguez.pocoma.supra.worker.projection.core.ProjectionTask;
 import com.kartaguez.pocoma.supra.worker.projection.core.SegmentedProjectionWorker;
 
@@ -76,6 +78,22 @@ public class ProjectionEventListener {
 	}
 
 	private void submit(com.kartaguez.pocoma.domain.value.id.PotId potId, long version, Object event) {
-		worker.submit(new ProjectionTask(potId, version, event.getClass().getSimpleName()));
+		long submittedAtNanos = System.nanoTime();
+		ProjectionTask task = TraceContextHolder.current()
+				.map(context -> new ProjectionTask(
+						potId,
+						version,
+						EventMetadata.type(event),
+						context.traceId(),
+						context.commandCommittedAtNanos(),
+						submittedAtNanos))
+				.orElseGet(() -> new ProjectionTask(
+						potId,
+						version,
+						EventMetadata.type(event),
+						null,
+						null,
+						submittedAtNanos));
+		worker.submit(task);
 	}
 }

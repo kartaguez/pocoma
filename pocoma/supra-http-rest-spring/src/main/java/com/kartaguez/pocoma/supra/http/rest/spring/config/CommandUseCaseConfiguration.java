@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.supra.http.rest.spring.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -41,6 +42,9 @@ import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.command.CommandUseCaseFactory;
 import com.kartaguez.pocoma.engine.service.projection.ProjectionUseCaseFactory;
+import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
+import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
+import com.kartaguez.pocoma.observability.api.PocomaObservation;
 
 @Configuration
 public class CommandUseCaseConfiguration {
@@ -67,8 +71,17 @@ public class CommandUseCaseConfiguration {
 	@Primary
 	EventPublisherPort transactionAwareEventPublisherPort(
 			@Qualifier("springEventPublisherAdapter") EventPublisherPort delegate,
-			TransactionRunner transactionRunner) {
-		return new TransactionAwareEventPublisherPort(delegate, transactionRunner);
+			TransactionRunner transactionRunner,
+			PocomaObservation observation) {
+		return new TransactionAwareEventPublisherPort(
+				new ObservedEventPublisherPort(delegate, observation),
+				transactionRunner);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(PocomaObservation.class)
+	PocomaObservation pocomaObservation() {
+		return new NoopPocomaObservation();
 	}
 
 	@Bean

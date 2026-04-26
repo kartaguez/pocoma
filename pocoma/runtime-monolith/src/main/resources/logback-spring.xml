@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+			<includeMdcKeyName>traceId</includeMdcKeyName>
+			<includeMdcKeyName>userId</includeMdcKeyName>
+			<includeMdcKeyName>http.method</includeMdcKeyName>
+			<includeMdcKeyName>http.path</includeMdcKeyName>
+			<includeMdcKeyName>http.status</includeMdcKeyName>
+			<includeMdcKeyName>duration_ms</includeMdcKeyName>
+			<includeMdcKeyName>operation</includeMdcKeyName>
+			<includeMdcKeyName>potId</includeMdcKeyName>
+			<includeMdcKeyName>expenseId</includeMdcKeyName>
+			<includeMdcKeyName>version</includeMdcKeyName>
+			<includeMdcKeyName>eventType</includeMdcKeyName>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>

@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pocoma
+      POSTGRES_USER: pocoma
+      POSTGRES_PASSWORD: pocoma
+    volumes:
+      - pocoma-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pocoma -d pocoma"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  runtime-monolith:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POCOMA_POSTGRES_URL: jdbc:postgresql://postgres:5432/pocoma
+      POCOMA_POSTGRES_USER: pocoma
+      POCOMA_POSTGRES_PASSWORD: pocoma
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - pocoma-prometheus-data:/prometheus
+    depends_on:
+      - runtime-monolith
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - pocoma-grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  pocoma-postgres-data:
+  pocoma-prometheus-data:
+  pocoma-grafana-data:

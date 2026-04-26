@@ -10,12 +10,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
+import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
+import com.kartaguez.pocoma.observability.api.PocomaObservation;
+import com.kartaguez.pocoma.observability.projection.ProjectionObservationContext;
 
 public class SegmentedProjectionWorker {
 
 	private static final System.Logger LOGGER = System.getLogger(SegmentedProjectionWorker.class.getName());
 
 	private final ComputePotBalancesUseCase computePotBalancesUseCase;
+	private final PocomaObservation observation;
 	private final int threadCount;
 	private final int maxRetries;
 	private final Duration initialBackoff;
@@ -26,9 +30,17 @@ public class SegmentedProjectionWorker {
 	public SegmentedProjectionWorker(
 			ComputePotBalancesUseCase computePotBalancesUseCase,
 			ProjectionWorkerSettings settings) {
+		this(computePotBalancesUseCase, settings, new NoopPocomaObservation());
+	}
+
+	public SegmentedProjectionWorker(
+			ComputePotBalancesUseCase computePotBalancesUseCase,
+			ProjectionWorkerSettings settings,
+			PocomaObservation observation) {
 		this.computePotBalancesUseCase = Objects.requireNonNull(
 				computePotBalancesUseCase,
 				"computePotBalancesUseCase must not be null");
+		this.observation = Objects.requireNonNull(observation, "observation must not be null");
 		Objects.requireNonNull(settings, "settings must not be null");
 		this.threadCount = settings.threadCount();
 		this.maxRetries = settings.maxRetries();
@@ -45,6 +57,7 @@ public class SegmentedProjectionWorker {
 
 		try {
 			segments.get(segmentIndex(task.potId())).queue.put(task);
+			observation.eventSubmitted(task.toObservationContext(), task.eventSubmittedAtNanos());
 		}
 		catch (InterruptedException exception) {
 			Thread.currentThread().interrupt();
@@ -108,13 +121,18 @@ public class SegmentedProjectionWorker {
 	private void processWithRetry(ProjectionTask task) throws InterruptedException {
 		int attempt = 0;
 		Duration backoff = initialBackoff;
+		ProjectionObservationContext context = task.toObservationContext();
 		while (true) {
-			try {
+			long startedAtNanos = System.nanoTime();
+			try (PocomaObservation.Scope ignored = observation.openProjectionScope(context)) {
+				observation.projectionStarted(context, startedAtNanos);
 				computePotBalancesUseCase.computePotBalances(task.potId(), task.targetVersion());
+				observation.projectionSucceeded(context, startedAtNanos, System.nanoTime());
 				return;
 			}
 			catch (RuntimeException exception) {
 				if (attempt >= maxRetries) {
+					observation.projectionFailed(context, startedAtNanos, System.nanoTime());
 					LOGGER.log(
 							System.Logger.Level.ERROR,
 							"Projection task failed after " + (attempt + 1)
@@ -125,6 +143,7 @@ public class SegmentedProjectionWorker {
 					return;
 				}
 				attempt++;
+				observation.projectionRetry(context, attempt);
 				LOGGER.log(
 						System.Logger.Level.WARNING,
 						"Projection task failed, retrying for potId=" + task.potId()

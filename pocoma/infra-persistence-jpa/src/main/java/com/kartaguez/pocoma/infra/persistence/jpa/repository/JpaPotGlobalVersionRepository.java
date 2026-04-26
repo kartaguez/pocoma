@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,14 @@ public interface JpaPotGlobalVersionRepository extends JpaRepository<JpaPotGloba
 			@Param("potId") UUID potId,
 			@Param("expectedVersion") long expectedVersion,
 			@Param("nextVersion") long nextVersion);
+
+	@Query("""
+			select potGlobalVersion.potId as potId,
+				potGlobalVersion.version as currentVersion,
+				projectionState.projectedVersion as projectedVersion
+			from JpaPotGlobalVersionEntity potGlobalVersion
+			left join JpaPotBalanceProjectionStateEntity projectionState
+				on projectionState.potId = potGlobalVersion.potId
+			""")
+	List<ProjectionVersionGapRow> findProjectionVersionGaps();
 }

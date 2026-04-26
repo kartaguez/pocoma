@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pocoma
+      POSTGRES_USER: pocoma
+      POSTGRES_PASSWORD: pocoma
+    volumes:
+      - pocoma-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  pocoma-postgres-data:
