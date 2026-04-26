@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.http.rest.spring.config;
+package com.kartaguez.pocoma.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,8 +43,8 @@ import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.command.CommandUseCaseFactory;
 import com.kartaguez.pocoma.engine.service.projection.ProjectionUseCaseFactory;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
-import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
+import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
 
 @Configuration
 public class CommandUseCaseConfiguration {

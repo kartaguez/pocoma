@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.http.rest.spring.config;
+package com.kartaguez.pocoma.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
