@@ -8,7 +8,7 @@ Suite de tests de charge pour le serveur HTTP Pocoma. Les scripts créent leurs 
 - Monolith Pocoma lancé, de préférence avec PostgreSQL :
 
 ```bash
-cd pocoma
+cd app
 docker compose -f docker-compose.postgres.yml up -d
 ./mvnw -pl runtime-monolith -am install -DskipTests
 ./mvnw -pl runtime-monolith spring-boot:run -Dspring-boot.run.profiles=postgres
@@ -21,8 +21,8 @@ docker compose -f docker-compose.postgres.yml up -d
 Profil court pour vérifier que les scénarios, le scraping Prometheus et les conflits attendus fonctionnent.
 
 ```bash
-cd pocoma
-k6 run ../docs/testing/k6/smoke.js
+cd app
+k6 run ../scripts/k6/smoke.js
 ```
 
 Variables utiles :
@@ -31,7 +31,7 @@ Variables utiles :
 BASE_URL=http://localhost:8080 \
 SEED_POTS=3 \
 SMOKE_DURATION=30s \
-k6 run ../docs/testing/k6/smoke.js
+k6 run ../scripts/k6/smoke.js
 ```
 
 ## Stress
@@ -39,8 +39,8 @@ k6 run ../docs/testing/k6/smoke.js
 Profil plus long avec montée progressive. La répartition par défaut vise environ 70% de commandes valides, 20% de conflits concurrents et 10% de requêtes incohérentes.
 
 ```bash
-cd pocoma
-k6 run ../docs/testing/k6/stress.js
+cd app
+k6 run ../scripts/k6/stress.js
 ```
 
 Variables utiles :
@@ -57,7 +57,7 @@ STRESS_RAMP_UP=1m \
 STRESS_PLATEAU=4m \
 STRESS_RAMP_DOWN=1m \
 SCRAPE_INTERVAL_SECONDS=10 \
-k6 run ../docs/testing/k6/stress.js
+k6 run ../scripts/k6/stress.js
 ```
 
 ## Utilisateurs

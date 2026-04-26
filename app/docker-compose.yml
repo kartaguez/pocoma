@@ -35,7 +35,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - pocoma-prometheus-data:/prometheus
     depends_on:
       - runtime-monolith
@@ -49,8 +49,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - pocoma-grafana-data:/var/lib/grafana
-      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ../docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
 

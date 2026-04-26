@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Local environment overrides
+.env
+.env.*
+
+# Logs and temporary files
+*.log
+*.tmp
