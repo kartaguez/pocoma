@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.worker.projection.core;
+package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -7,45 +7,64 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
+import com.kartaguez.pocoma.engine.port.in.projection.intent.ExecuteProjectionTaskCommand;
+import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.projection.ProjectionObservationContext;
+import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
 
-public class SegmentedProjectionWorker {
+public class SegmentedProjectionTaskExecutor {
 
-	private static final System.Logger LOGGER = System.getLogger(SegmentedProjectionWorker.class.getName());
+	private static final System.Logger LOGGER = System.getLogger(SegmentedProjectionTaskExecutor.class.getName());
 
-	private final ComputePotBalancesUseCase computePotBalancesUseCase;
+	private final ExecuteProjectionTasksUseCase executeProjectionTasksUseCase;
 	private final PocomaObservation observation;
 	private final int threadCount;
 	private final int maxRetries;
 	private final Duration initialBackoff;
 	private final Duration maxBackoff;
+	private final Duration capacityWakeupMinInterval;
+	private final java.util.function.Consumer<PotId> capacityAvailableNotifier;
 	private final AtomicBoolean running = new AtomicBoolean(false);
+	private final AtomicLong lastCapacityWakeupNanos = new AtomicLong(Long.MIN_VALUE);
 	private final List<Segment> segments;
 
-	public SegmentedProjectionWorker(
-			ComputePotBalancesUseCase computePotBalancesUseCase,
-			ProjectionWorkerSettings settings) {
-		this(computePotBalancesUseCase, settings, new NoopPocomaObservation());
+	public SegmentedProjectionTaskExecutor(
+			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
+			ProjectionTaskExecutorSettings settings) {
+		this(executeProjectionTasksUseCase, settings, new NoopPocomaObservation());
 	}
 
-	public SegmentedProjectionWorker(
-			ComputePotBalancesUseCase computePotBalancesUseCase,
-			ProjectionWorkerSettings settings,
+	public SegmentedProjectionTaskExecutor(
+			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
+			ProjectionTaskExecutorSettings settings,
 			PocomaObservation observation) {
-		this.computePotBalancesUseCase = Objects.requireNonNull(
-				computePotBalancesUseCase,
-				"computePotBalancesUseCase must not be null");
+		this(executeProjectionTasksUseCase, settings, observation, ignored -> {
+		});
+	}
+
+	public SegmentedProjectionTaskExecutor(
+			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
+			ProjectionTaskExecutorSettings settings,
+			PocomaObservation observation,
+			java.util.function.Consumer<PotId> capacityAvailableNotifier) {
+		this.executeProjectionTasksUseCase = Objects.requireNonNull(
+				executeProjectionTasksUseCase,
+				"executeProjectionTasksUseCase must not be null");
 		this.observation = Objects.requireNonNull(observation, "observation must not be null");
+		this.capacityAvailableNotifier = Objects.requireNonNull(
+				capacityAvailableNotifier,
+				"capacityAvailableNotifier must not be null");
 		Objects.requireNonNull(settings, "settings must not be null");
 		this.threadCount = settings.threadCount();
 		this.maxRetries = settings.maxRetries();
 		this.initialBackoff = settings.initialBackoff();
 		this.maxBackoff = settings.maxBackoff();
+		this.capacityWakeupMinInterval = settings.capacityWakeupMinInterval();
 		this.segments = createSegments(settings.threadCount(), settings.queueCapacity());
 	}
 
@@ -63,6 +82,29 @@ public class SegmentedProjectionWorker {
 			Thread.currentThread().interrupt();
 			throw new IllegalStateException("Projection task submission was interrupted", exception);
 		}
+	}
+
+	public boolean trySubmit(ProjectionTask task) {
+		Objects.requireNonNull(task, "task must not be null");
+		if (!running.get()) {
+			throw new IllegalStateException("Projection worker is not running");
+		}
+
+		boolean accepted = segments.get(segmentIndex(task.potId())).queue.offer(task);
+		if (accepted) {
+			observation.eventSubmitted(task.toObservationContext(), task.eventSubmittedAtNanos());
+		}
+		return accepted;
+	}
+
+	public int availableCapacity() {
+		return segments.stream()
+				.mapToInt(segment -> segment.queue.remainingCapacity())
+				.sum();
+	}
+
+	public int availableCapacity(PotId potId) {
+		return segments.get(segmentIndex(potId)).queue.remainingCapacity();
 	}
 
 	public int segmentIndex(PotId potId) {
@@ -107,7 +149,13 @@ public class SegmentedProjectionWorker {
 		while (running.get() || !queue.isEmpty()) {
 			try {
 				ProjectionTask task = queue.take();
-				processWithRetry(task);
+				notifyCapacityAvailable(task.potId());
+				try {
+					processWithRetry(task);
+				}
+				finally {
+					notifyCapacityAvailable(task.potId());
+				}
 			}
 			catch (InterruptedException exception) {
 				if (!running.get()) {
@@ -126,13 +174,17 @@ public class SegmentedProjectionWorker {
 			long startedAtNanos = System.nanoTime();
 			try (PocomaObservation.Scope ignored = observation.openProjectionScope(context)) {
 				observation.projectionStarted(context, startedAtNanos);
-				computePotBalancesUseCase.computePotBalances(task.potId(), task.targetVersion());
+				markRunning(task);
+				executeProjectionTasksUseCase.executeProjectionTask(
+						new ExecuteProjectionTaskCommand(task.potId(), task.targetVersion()));
 				observation.projectionSucceeded(context, startedAtNanos, System.nanoTime());
+				markDone(task);
 				return;
 			}
 			catch (RuntimeException exception) {
 				if (attempt >= maxRetries) {
 					observation.projectionFailed(context, startedAtNanos, System.nanoTime());
+					markFailed(task, exception);
 					LOGGER.log(
 							System.Logger.Level.ERROR,
 							"Projection task failed after " + (attempt + 1)
@@ -157,12 +209,50 @@ public class SegmentedProjectionWorker {
 		}
 	}
 
+	private void markRunning(ProjectionTask task) {
+		if (task.taskId() != null && task.claimToken() != null) {
+			executeProjectionTasksUseCase.markRunning(task.taskId(), task.claimToken());
+		}
+	}
+
+	private void markDone(ProjectionTask task) {
+		if (task.taskId() != null && task.claimToken() != null) {
+			executeProjectionTasksUseCase.markDone(task.taskId(), task.claimToken());
+		}
+	}
+
+	private void markFailed(ProjectionTask task, RuntimeException exception) {
+		if (task.taskId() != null && task.claimToken() != null) {
+			executeProjectionTasksUseCase.markFailed(task.taskId(), task.claimToken(), exception.getMessage());
+		}
+	}
+
 	private Duration nextBackoff(Duration currentBackoff) {
 		Duration doubled = currentBackoff.multipliedBy(2);
 		if (doubled.compareTo(maxBackoff) > 0) {
 			return maxBackoff;
 		}
 		return doubled;
+	}
+
+	private void notifyCapacityAvailable(PotId potId) {
+		long now = System.nanoTime();
+		long minIntervalNanos = capacityWakeupMinInterval.toNanos();
+		while (true) {
+			long previous = lastCapacityWakeupNanos.get();
+			if (previous != Long.MIN_VALUE && now - previous < minIntervalNanos) {
+				return;
+			}
+			if (lastCapacityWakeupNanos.compareAndSet(previous, now)) {
+				try {
+					capacityAvailableNotifier.accept(potId);
+				}
+				catch (RuntimeException exception) {
+					LOGGER.log(System.Logger.Level.WARNING, "Capacity wake signal failed", exception);
+				}
+				return;
+			}
+		}
 	}
 
 	private static void sleep(Duration backoff) throws InterruptedException {

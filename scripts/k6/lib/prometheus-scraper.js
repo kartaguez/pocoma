@@ -17,6 +17,8 @@ const timerTrends = {
 
 export const projectionGapRatio = new Gauge('pocoma_observed_projection_gap_ratio');
 export const projectionRetryTotal = new Gauge('pocoma_observed_projection_retry_total');
+export const projectionOutboxPending = new Gauge('pocoma_observed_projection_outbox_pending');
+export const projectionTasksPending = new Gauge('pocoma_observed_projection_tasks_pending');
 export const prometheusScrapeSuccess = new Gauge('pocoma_prometheus_scrape_success');
 
 export function newPrometheusState() {
@@ -39,6 +41,7 @@ export function scrapePrometheus(baseUrl, state) {
   recordTimers(samples, state);
   recordGaps(samples);
   recordRetries(samples);
+  recordBackPressure(samples);
   return true;
 }
 
@@ -134,6 +137,17 @@ function recordRetries(samples) {
   for (const sample of samples) {
     if (sample.name === 'pocoma_projection_retry_total') {
       projectionRetryTotal.add(sample.value, sample.labels);
+    }
+  }
+}
+
+function recordBackPressure(samples) {
+  for (const sample of samples) {
+    if (sample.name === 'pocoma_projection_outbox_pending') {
+      projectionOutboxPending.add(sample.value, sample.labels);
+    }
+    if (sample.name === 'pocoma_projection_tasks_pending') {
+      projectionTasksPending.add(sample.value, sample.labels);
     }
   }
 }

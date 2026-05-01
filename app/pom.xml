@@ -42,6 +42,9 @@
 		<module>supra-worker-projection-core</module>
 		<module>supra-worker-projection-spring</module>
 		<module>supra-http-rest-spring</module>
+		<module>runtime-spring-config</module>
+		<module>runtime-web-api</module>
+		<module>runtime-worker</module>
 		<module>runtime-monolith</module>
 	</modules>
 

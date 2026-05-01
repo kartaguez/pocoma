@@ -8,7 +8,7 @@ The application exposes a Spring Boot HTTP API. Commands mutate the versioned st
 
 Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Reads can target a specific version or, by default, the current version. Lists hide deleted elements; direct views can return a deleted entity with its `deleted` flag.
 
-Balances are projections. A command first persists the business state, then publishes an event after commit. The worker consumes that event and computes the balance projection. This keeps commands fast and makes projection lag explicit by measuring the difference between the current pot version and the projected version.
+Balances are projections. A command persists the business state and writes a business event into `business_event_outbox`. Task-builder workers coalesce those events into `projection_tasks`, and projection workers poll those tasks to compute balances. This keeps commands fast, makes back pressure explicit in the database, and makes projection lag measurable.
 
 ## Architecture
 
@@ -22,10 +22,12 @@ app/
   engine/                         Use cases, ports, events, logical transactions
   infra-persistence-jpa/          JPA adapters for H2/PostgreSQL
   infra-tx-spring/                Spring transaction adapter
-  infra-event-publisher-spring/   Spring event publishing adapter
+  infra-event-publisher-spring/   Legacy Spring event publishing adapter
   observability/                  Trace and measurement abstractions
   supra-http-rest-spring/         REST controllers and DTOs
   supra-worker-projection-*/      Projection worker
+  runtime-web-api/                API-only Spring Boot runtime
+  runtime-worker/                 Projection-worker Spring Boot runtime
   runtime-monolith/               Spring Boot monolith composition
 
 docker/                           Prometheus and Grafana
@@ -33,14 +35,14 @@ scripts/bruno/                    Bruno HTTP collection
 scripts/k6/                       k6 load tests
 ```
 
-The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-monolith` is the composition root: it wires persistence ports, policies, use cases, worker, HTTP API, and observability.
+The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` wires the HTTP/API role, `runtime-worker` wires the projection role, and `runtime-monolith` remains the local all-in-one composition root.
 
 This separation addresses several technical challenges:
 
 - Keep business rules testable without Spring, JPA, or HTTP.
 - Make optimistic concurrency explicit through pot versions.
 - Support versioned reads without mixing the write model and projections.
-- Publish events only after commit so the worker never observes uncommitted state.
+- Store projection work durably so workers can absorb bursts with back pressure.
 - Observe projection lag instead of hiding it.
 
 ## Local Run
@@ -61,6 +63,23 @@ docker compose -f docker-compose.postgres.yml up -d
 ./mvnw -pl runtime-monolith -am install -DskipTests
 ./mvnw -pl runtime-monolith spring-boot:run -Dspring-boot.run.profiles=postgres
 ```
+
+Split API/worker mode:
+
+```bash
+cd app
+./mvnw -pl runtime-web-api spring-boot:run -Dspring-boot.run.profiles=postgres
+
+./mvnw -pl runtime-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=0 --pocoma.projection.worker.segment-count=2"
+
+./mvnw -pl runtime-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=1 --pocoma.projection.worker.segment-count=2"
+```
+
+`runtime-monolith` still supports the `api` and `worker` profiles for local experiments, but the dedicated runtimes match the target deployment shape.
 
 Full stack with PostgreSQL, application, Prometheus, and Grafana:
 
@@ -95,9 +114,10 @@ The k6 tests in `scripts/k6` exercise concurrency and projection behavior:
 cd app
 k6 run ../scripts/k6/smoke.js
 k6 run ../scripts/k6/stress.js
+k6 run ../scripts/k6/projection_backpressure.js
 ```
 
-They cover valid commands, concurrent conflicts, inconsistent requests, and queries under load. They also scrape `/actuator/prometheus` to track the key application metrics.
+They cover valid commands, concurrent conflicts, inconsistent requests, queries under load, and projection back pressure. The backpressure scenario can be run while multiple `runtime-worker` processes own different `segment-index` values; it scrapes `/actuator/prometheus` on the API runtime to track backlog and latency.
 
 ## Observability
 
@@ -106,6 +126,7 @@ Each HTTP request receives a `traceId`, propagated through logs and projection t
 Prometheus metrics track, among other things:
 
 - command persistence latency;
+- projection outbox and task backlog;
 - delay between command commit and worker processing start;
 - projection processing duration;
 - end-to-end latency from persisted command to persisted projection;
@@ -116,7 +137,9 @@ These metrics address the main risk of the asynchronous projection architecture:
 
 ## Design Notes
 
-- Commands are transactional and publish events after commit through `TransactionAwareEventPublisherPort`.
+- Commands are transactional and write business events to `business_event_outbox`.
+- Projection workers are documented in `docs/projection-workers.md`.
+- Dedicated workers are partitioned by stable `potId` hash through `pocoma.projection.worker.segment-index` and `segment-count`.
 - Queries are read-only and apply the same read policies as direct views.
 - PostgreSQL is enabled with the Spring `postgres` profile; H2 remains the default local mode.
 - Flyway is the source of truth for the PostgreSQL schema, while Hibernate validates the schema in PostgreSQL mode.

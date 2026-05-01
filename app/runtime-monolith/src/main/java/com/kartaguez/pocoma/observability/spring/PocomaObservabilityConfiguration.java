@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.projection.ProjectionLagProvider;
 import com.kartaguez.pocoma.observability.spring.ProjectionLagMetrics.GapBucket;
@@ -32,5 +34,21 @@ public class PocomaObservabilityConfiguration {
 					.register(meterRegistry);
 		}
 		return metrics;
+	}
+
+	@Bean
+	Object projectionBackPressureMetrics(
+			MeterRegistry meterRegistry,
+			BusinessEventOutboxPort businessEventOutboxPort,
+			ProjectionTaskPort projectionTaskPort) {
+		Gauge.builder("pocoma.projection.outbox.pending", businessEventOutboxPort,
+				BusinessEventOutboxPort::countPendingOrClaimed)
+				.description("Number of business outbox events pending or claimed by task builders.")
+				.register(meterRegistry);
+		Gauge.builder("pocoma.projection.tasks.pending", projectionTaskPort,
+				ProjectionTaskPort::countPendingOrInProgress)
+				.description("Number of projection tasks pending or in progress.")
+				.register(meterRegistry);
+		return new Object();
 	}
 }

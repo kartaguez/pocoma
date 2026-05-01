@@ -87,6 +87,8 @@ Le scraper transforme aussi les métriques applicatives Prometheus en métriques
 - `pocoma_observed_projection_end_to_end_latency`
 - `pocoma_observed_projection_gap_ratio`
 - `pocoma_observed_projection_retry_total`
+- `pocoma_observed_projection_outbox_pending`
+- `pocoma_observed_projection_tasks_pending`
 
 Les timers Prometheus sont échantillonnés par delta `sum/count` entre deux scrapes, en millisecondes. Les métriques `*_max` sont ajoutées avec le tag `aggregate=max`.
 
@@ -97,6 +99,23 @@ Les timers Prometheus sont échantillonnés par delta `sum/count` entre deux scr
 - `incoherent_requests` : génère version obsolète, pot inconnu, user interdit et payload invalide.
 - `queries_and_balances` : intercale les lectures pots/dépenses/balances pendant la charge.
 - `scrape_metrics` : interroge `/actuator/prometheus` périodiquement.
+
+## Projection Back Pressure
+
+Ce scénario cible spécifiquement la nouvelle chaîne `business_event_outbox` -> `projection_tasks` -> workers segmentés. Il génère un burst de commandes, tout en continuant à lire les balances et à scraper Prometheus.
+
+```bash
+cd app
+BASE_URL=http://localhost:8080 \
+SEED_POTS=8 \
+HOT_POTS=2 \
+BACKPRESSURE_PEAK_RATE=60 \
+BACKPRESSURE_PLATEAU=1m \
+SCRAPE_INTERVAL_SECONDS=2 \
+k6 run ../scripts/k6/projection_backpressure.js
+```
+
+La lecture attendue est simple : pendant le burst, `pocoma_observed_projection_outbox_pending` et/ou `pocoma_observed_projection_tasks_pending` peuvent monter. Après la fin de la charge, ces jauges doivent redescendre pendant que le gap de projection revient vers zéro.
 
 ## Nettoyage
 
