@@ -30,7 +30,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-worker-projection-spring</artifactId>
+			<artifactId>pocoma-supra-dispatcher-business-events-outbox-nats</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-dispatcher-balance-calculation-tasks-outbox-nats</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

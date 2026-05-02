@@ -42,11 +42,17 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
-		<module>supra-worker-projection-core</module>
-		<module>supra-worker-projection-spring</module>
+		<module>orchestrator-claimable-work-dispatcher</module>
+		<module>supra-worker-projection-common</module>
+		<module>supra-dispatcher-business-events-outbox-nats</module>
+		<module>supra-dispatcher-balance-calculation-tasks-outbox-nats</module>
+		<module>supra-worker-projection-direct-balances</module>
+		<module>entry-worker-projection-direct-balances-spring</module>
 		<module>supra-http-rest-spring</module>
 		<module>runtime-spring-config</module>
 		<module>runtime-web-api</module>
+		<module>runtime-business-events-outbox-dispatcher</module>
+		<module>runtime-balance-calculation-tasks-dispatcher</module>
 		<module>runtime-worker</module>
 		<module>runtime-monolith</module>
 	</modules>

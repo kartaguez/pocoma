@@ -8,10 +8,11 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
+import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 
 public interface ProjectionTaskPort {
 
-	void upsertComputeBalancesTask(BusinessEventEnvelope sourceEvent);
+	ProjectionTaskDescriptor upsertComputeBalancesTask(BusinessEventEnvelope sourceEvent);
 
 	default List<ProjectionTaskClaim> claimPending(int limit, Duration leaseDuration, String workerId) {
 		return claimPending(limit, leaseDuration, workerId, ProjectionPartition.single());

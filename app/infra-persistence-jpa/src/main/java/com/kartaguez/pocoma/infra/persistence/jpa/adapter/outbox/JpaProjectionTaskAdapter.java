@@ -13,6 +13,7 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
+import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskStatus;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskType;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
@@ -36,22 +37,24 @@ public class JpaProjectionTaskAdapter implements ProjectionTaskPort {
 
 	@Override
 	@Transactional
-	public void upsertComputeBalancesTask(BusinessEventEnvelope sourceEvent) {
+	public ProjectionTaskDescriptor upsertComputeBalancesTask(BusinessEventEnvelope sourceEvent) {
 		Objects.requireNonNull(sourceEvent, "sourceEvent must not be null");
 		Instant now = Instant.now();
-		repository.findActive(
+		JpaProjectionTaskEntity task = repository.findActive(
 				sourceEvent.potId().value(),
 				ProjectionTaskType.COMPUTE_BALANCES_FOR_VERSION,
 				ACTIVE_STATUSES)
-				.ifPresentOrElse(
-						task -> task.coalesce(
+				.map(existingTask -> {
+					existingTask.coalesce(
 								sourceEvent.version(),
 								sourceEvent.id(),
 								sourceEvent.eventType(),
 								sourceEvent.traceId(),
 								sourceEvent.commandCommittedAtNanos(),
-								now),
-						() -> repository.save(new JpaProjectionTaskEntity(
+								now);
+					return existingTask;
+				})
+				.orElseGet(() -> repository.save(new JpaProjectionTaskEntity(
 								ProjectionTaskType.COMPUTE_BALANCES_FOR_VERSION,
 								sourceEvent.potId().value(),
 								sourceEvent.version(),
@@ -60,6 +63,7 @@ public class JpaProjectionTaskAdapter implements ProjectionTaskPort {
 								sourceEvent.traceId(),
 								sourceEvent.commandCommittedAtNanos(),
 								now)));
+		return task.toDescriptor();
 	}
 
 	@Override

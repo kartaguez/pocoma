@@ -32,6 +32,8 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTas
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
+import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
+import com.kartaguez.pocoma.engine.port.out.event.TransactionAwareProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
@@ -47,6 +49,7 @@ import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.command.CommandUseCaseFactory;
 import com.kartaguez.pocoma.engine.service.projection.ProjectionUseCaseFactory;
 import com.kartaguez.pocoma.infra.event.publisher.spring.OutboxThenSpringEventPublisherAdapter;
+import com.kartaguez.pocoma.infra.event.publisher.spring.SpringProjectionEventPublisherAdapter;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
@@ -77,15 +80,29 @@ public class CommandUseCaseConfiguration {
 	@Bean
 	BuildProjectionTasksUseCase buildProjectionTasksUseCase(
 			BusinessEventOutboxPort outboxPort,
-			ProjectionTaskPort projectionTaskPort) {
-		return ProjectionUseCaseFactory.buildProjectionTasksUseCase(outboxPort, projectionTaskPort);
+			ProjectionTaskPort projectionTaskPort,
+			ProjectionEventPublisherPort projectionEventPublisherPort) {
+		return ProjectionUseCaseFactory.buildProjectionTasksUseCase(
+				outboxPort,
+				projectionTaskPort,
+				projectionEventPublisherPort);
 	}
 
 	@Bean
 	ExecuteProjectionTasksUseCase executeProjectionTasksUseCase(
-			ProjectionTaskPort projectionTaskPort,
-			ComputePotBalancesUseCase computePotBalancesUseCase) {
-		return ProjectionUseCaseFactory.executeProjectionTasksUseCase(projectionTaskPort, computePotBalancesUseCase);
+			ComputePotBalancesUseCase computePotBalancesUseCase,
+			ProjectionEventPublisherPort projectionEventPublisherPort) {
+		return ProjectionUseCaseFactory.executeProjectionTasksUseCase(
+				computePotBalancesUseCase,
+				projectionEventPublisherPort);
+	}
+
+	@Bean
+	@Primary
+	ProjectionEventPublisherPort transactionAwareProjectionEventPublisherPort(
+			SpringProjectionEventPublisherAdapter springProjectionEventPublisherAdapter,
+			TransactionRunner transactionRunner) {
+		return new TransactionAwareProjectionEventPublisherPort(springProjectionEventPublisherAdapter, transactionRunner);
 	}
 
 	@Bean

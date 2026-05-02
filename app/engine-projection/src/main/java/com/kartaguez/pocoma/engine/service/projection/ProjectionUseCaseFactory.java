@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.domain.projection.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
+import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
@@ -38,13 +39,16 @@ public final class ProjectionUseCaseFactory {
 
 	public static BuildProjectionTasksUseCase buildProjectionTasksUseCase(
 			BusinessEventOutboxPort outboxPort,
-			ProjectionTaskPort projectionTaskPort) {
-		return new BuildProjectionTasksService(outboxPort, projectionTaskPort);
+			ProjectionTaskPort projectionTaskPort,
+			ProjectionEventPublisherPort eventPublisherPort) {
+		Objects.requireNonNull(outboxPort, "outboxPort must not be null");
+		return new BuildProjectionTasksService(projectionTaskPort, eventPublisherPort);
 	}
 
 	public static ExecuteProjectionTasksUseCase executeProjectionTasksUseCase(
-			ProjectionTaskPort projectionTaskPort,
-			ComputePotBalancesUseCase computePotBalancesUseCase) {
-		return new ExecuteProjectionTasksService(projectionTaskPort, computePotBalancesUseCase);
+			ComputePotBalancesUseCase computePotBalancesUseCase,
+			ProjectionEventPublisherPort eventPublisherPort) {
+		Objects.requireNonNull(eventPublisherPort, "eventPublisherPort must not be null");
+		return new ExecuteProjectionTasksService(computePotBalancesUseCase);
 	}
 }
