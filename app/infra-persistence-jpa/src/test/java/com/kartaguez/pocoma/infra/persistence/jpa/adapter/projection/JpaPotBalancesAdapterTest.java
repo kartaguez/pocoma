@@ -98,6 +98,46 @@ class JpaPotBalancesAdapterTest {
 	}
 
 	@Test
+	void savesFullHistoricalVersionWithoutRegressingProjectionState() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
+		stateRepository.save(JpaPotBalanceProjectionStateEntity.from(new PotBalanceProjectionState(potId, 5)));
+		PotBalances potBalances = new PotBalances(
+				potId,
+				3,
+				Map.of(shareholderId, new Balance(shareholderId, Fraction.of(2, 1))));
+
+		adapter.saveFull(potBalances);
+
+		assertEquals(new PotBalanceProjectionState(potId, 5), adapter.loadProjectionState(potId).orElseThrow());
+		assertEquals(potBalances, adapter.loadAtVersion(potId, 3));
+	}
+
+	@Test
+	void savesFullFutureVersionAndAdvancesProjectionState() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		stateRepository.save(JpaPotBalanceProjectionStateEntity.from(new PotBalanceProjectionState(potId, 2)));
+		PotBalances potBalances = new PotBalances(potId, 4, Map.of());
+
+		adapter.saveFull(potBalances);
+
+		assertEquals(new PotBalanceProjectionState(potId, 4), adapter.loadProjectionState(potId).orElseThrow());
+		assertEquals(potBalances, adapter.loadAtVersion(potId, 4));
+	}
+
+	@Test
+	void saveFullIsIdempotentWhenVersionAlreadyExists() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		PotBalances potBalances = new PotBalances(potId, 1, Map.of());
+		adapter.saveFull(potBalances);
+
+		adapter.saveFull(potBalances);
+
+		assertEquals(new PotBalanceProjectionState(potId, 1), adapter.loadProjectionState(potId).orElseThrow());
+		assertEquals(potBalances, adapter.loadAtVersion(potId, 1));
+	}
+
+	@Test
 	void rejectsLoadingUnknownVersion() {
 		assertThrows(
 				BusinessEntityNotFoundException.class,

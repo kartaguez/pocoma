@@ -15,7 +15,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine</artifactId>
+			<artifactId>pocoma-engine-command</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-projection</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -20,6 +20,7 @@ import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWorker
 @Configuration
 @EnableConfigurationProperties(ProjectionWorkerProperties.class)
 @ConditionalOnProperty(prefix = "pocoma.projection.worker", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "pocoma.projection.worker", name = "mode", havingValue = "polling", matchIfMissing = true)
 public class ProjectionWorkerConfiguration {
 
 	@Bean

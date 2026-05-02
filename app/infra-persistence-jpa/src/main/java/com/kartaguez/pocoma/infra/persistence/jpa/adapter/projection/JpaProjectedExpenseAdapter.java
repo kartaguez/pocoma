@@ -37,6 +37,16 @@ public class JpaProjectedExpenseAdapter implements ProjectedExpensePort {
 
 	@Override
 	@Transactional(readOnly = true)
+	public Collection<ProjectedExpense> loadActiveAtVersion(PotId potId, long version) {
+		Objects.requireNonNull(potId, "potId must not be null");
+
+		return expenseHeaderRepository.findByPotActiveNotDeletedAtVersion(potId.value(), version).stream()
+				.map(header -> loadProjectedExpense(header.expenseId(), version))
+				.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public Collection<ProjectedExpense> loadActiveAtSourceOnly(
 			PotId potId,
 			long sourceVersion,

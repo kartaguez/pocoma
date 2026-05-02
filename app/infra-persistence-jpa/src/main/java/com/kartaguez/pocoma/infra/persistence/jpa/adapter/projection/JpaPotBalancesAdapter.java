@@ -99,6 +99,31 @@ public class JpaPotBalancesAdapter implements PotBalancesPort {
 		}
 	}
 
+	@Override
+	@Transactional
+	public void saveFull(PotBalances potBalances) {
+		Objects.requireNonNull(potBalances, "potBalances must not be null");
+		saveNewVersionIfAbsent(potBalances);
+
+		Optional<PotBalanceProjectionState> projectionState = loadProjectionState(potBalances.potId());
+		if (projectionState.isEmpty()) {
+			stateRepository.save(JpaPotBalanceProjectionStateEntity.from(new PotBalanceProjectionState(
+					potBalances.potId(),
+					potBalances.version())));
+			return;
+		}
+		long projectedVersion = projectionState.get().projectedVersion();
+		if (potBalances.version() > projectedVersion) {
+			int updatedRows = stateRepository.updateIfProjectedVersion(
+					potBalances.potId().value(),
+					projectedVersion,
+					potBalances.version());
+			if (updatedRows != 1) {
+				throw new VersionConflictException("Pot balances projection state has been modified by another operation");
+			}
+		}
+	}
+
 	private void saveNewVersion(PotBalances potBalances) {
 		try {
 			UUID potId = potBalances.potId().value();
@@ -110,6 +135,20 @@ public class JpaPotBalancesAdapter implements PotBalancesPort {
 		}
 		catch (DataIntegrityViolationException exception) {
 			throw new VersionConflictException("Pot balances already exist at requested version");
+		}
+	}
+
+	private void saveNewVersionIfAbsent(PotBalances potBalances) {
+		if (versionRepository.existsByPotIdAndVersion(potBalances.potId().value(), potBalances.version())) {
+			return;
+		}
+		try {
+			saveNewVersion(potBalances);
+		}
+		catch (VersionConflictException exception) {
+			if (!versionRepository.existsByPotIdAndVersion(potBalances.potId().value(), potBalances.version())) {
+				throw exception;
+			}
 		}
 	}
 }

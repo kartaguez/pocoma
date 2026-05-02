@@ -97,6 +97,20 @@ class JpaProjectedExpenseAdapterTest {
 		assertTrue(targetOnly.isEmpty());
 	}
 
+	@Test
+	void loadsActiveExpensesAtVersion() {
+		Fixture fixture = new Fixture();
+		saveHeader(fixture.header("Old", false), 2, 4L);
+		saveHeader(fixture.header("Current", false), 4, null);
+		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 2, 4L);
+		saveShares(fixture.potId, Set.of(fixture.share(fixture.bobId, Fraction.ONE)), 4, null);
+
+		ProjectedExpense projectedExpense = adapter.loadActiveAtVersion(fixture.potId, 4).iterator().next();
+
+		assertEquals(Label.of("Current"), projectedExpense.header().label());
+		assertEquals(Set.of(fixture.bobId), projectedExpense.shares().shares().keySet());
+	}
+
 	private void saveHeader(ExpenseHeader header, long startedAtVersion, Long endedAtVersion) {
 		expenseHeaderRepository.save(JpaExpenseHeaderEntity.from(header, startedAtVersion, endedAtVersion));
 	}

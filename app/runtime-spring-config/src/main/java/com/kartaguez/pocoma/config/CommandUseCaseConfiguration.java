@@ -63,11 +63,13 @@ public class CommandUseCaseConfiguration {
 	ComputePotBalancesUseCase computePotBalancesUseCase(
 			PotBalancesPort potBalancesPort,
 			ProjectedExpensePort projectedExpensePort,
+			PotShareholdersPort potShareholdersPort,
 			PotBalancesCalculator potBalancesCalculator,
 			TransactionRunner transactionRunner) {
 		return ProjectionUseCaseFactory.computePotBalancesUseCase(
 				potBalancesPort,
 				projectedExpensePort,
+				potShareholdersPort,
 				potBalancesCalculator,
 				transactionRunner);
 	}

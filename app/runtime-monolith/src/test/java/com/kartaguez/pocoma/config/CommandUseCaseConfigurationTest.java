@@ -9,35 +9,26 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
+import com.kartaguez.pocoma.engine.port.out.event.TransactionAwareEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.infra.event.publisher.spring.OutboxThenSpringEventPublisherAdapter;
+import com.kartaguez.pocoma.infra.event.publisher.spring.SpringEventPublisherAdapter;
 import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
 
 class CommandUseCaseConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(CommandUseCaseConfiguration.class)
-			.withBean(
-					"jpaBusinessEventOutboxAdapter",
-					BusinessEventOutboxPort.class,
-					() -> mock(BusinessEventOutboxPort.class))
-			.withBean(ProjectionTaskPort.class, () -> mock(ProjectionTaskPort.class))
+			.withBean(SpringEventPublisherAdapter.class, () -> mock(SpringEventPublisherAdapter.class))
 			.withBean(TransactionRunner.class, () -> mock(TransactionRunner.class))
 			.withBean(PotGlobalVersionPort.class, () -> mock(PotGlobalVersionPort.class))
 			.withBean(PotHeaderPort.class, () -> mock(PotHeaderPort.class))
-			.withBean(PotBalancesPort.class, () -> mock(PotBalancesPort.class))
-			.withBean(ProjectedExpensePort.class, () -> mock(ProjectedExpensePort.class))
 			.withBean(PotContextPort.class, () -> mock(PotContextPort.class))
 			.withBean(PotShareholdersPort.class, () -> mock(PotShareholdersPort.class))
 			.withBean(ExpenseContextPort.class, () -> mock(ExpenseContextPort.class))
@@ -51,7 +42,7 @@ class CommandUseCaseConfigurationTest {
 	}
 
 	@Test
-	void exposesObservedOutboxEventPublisherAsPrimaryEventPublisherPort() {
+	void exposesObservedSpringEventPublisherAsPrimaryEventPublisherPort() {
 		contextRunner
 				.run(context -> assertInstanceOf(
 						ObservedEventPublisherPort.class,
@@ -59,10 +50,10 @@ class CommandUseCaseConfigurationTest {
 	}
 
 	@Test
-	void exposesOutboxThenSpringPublisherAsObservedDelegate() {
+	void exposesTransactionAwareSpringPublisherAsObservedDelegate() {
 		contextRunner
 				.run(context -> assertInstanceOf(
-						OutboxThenSpringEventPublisherAdapter.class,
-						context.getBean("outboxThenSpringEventPublisherPort")));
+						TransactionAwareEventPublisherPort.class,
+						context.getBean("transactionAwareSpringEventPublisherPort")));
 	}
 }

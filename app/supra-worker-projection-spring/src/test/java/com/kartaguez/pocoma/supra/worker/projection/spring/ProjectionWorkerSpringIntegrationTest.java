@@ -145,6 +145,11 @@ class ProjectionWorkerSpringIntegrationTest {
 			return new PotBalances(potId, targetVersion, Map.of());
 		}
 
+		@Override
+		public PotBalances computePotBalancesFull(PotId potId, long targetVersion) {
+			return computePotBalances(potId, targetVersion);
+		}
+
 		private boolean await() throws InterruptedException {
 			return called.await(2, TimeUnit.SECONDS);
 		}

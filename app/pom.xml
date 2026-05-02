@@ -34,7 +34,10 @@
 		<module>domain</module>
 		<module>domain-projection</module>
 		<module>domain-policy</module>
-		<module>engine</module>
+		<module>engine-core</module>
+		<module>engine-command</module>
+		<module>engine-query</module>
+		<module>engine-projection</module>
 		<module>observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
