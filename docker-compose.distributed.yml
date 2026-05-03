@@ -1,0 +1,155 @@
+name: pocoma-distributed
+
+x-pocoma-java-build: &pocoma-java-build
+  context: ./app
+  dockerfile: Dockerfile
+
+x-pocoma-java-environment: &pocoma-java-environment
+  SPRING_PROFILES_ACTIVE: postgres
+  POCOMA_POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-pocoma}
+  POCOMA_POSTGRES_USER: ${POSTGRES_USER:-pocoma}
+  POCOMA_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
+  POCOMA_NATS_SERVERS: ${NATS_URL:-nats://nats:4222}
+
+x-pocoma-java-depends-on: &pocoma-java-depends-on
+  postgres:
+    condition: service_healthy
+  nats:
+    condition: service_started
+
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pocoma}
+      POSTGRES_USER: ${POSTGRES_USER:-pocoma}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
+    volumes:
+      - pocoma-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pocoma} -d ${POSTGRES_DB:-pocoma}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  nats:
+    image: nats:2
+    command: ["-js", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  pocoma-api:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-web-api
+        RUNTIME_ARTIFACT: pocoma-runtime-web-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      <<: *pocoma-java-environment
+    depends_on:
+      <<: *pocoma-java-depends-on
+
+  pocoma-business-events-dispatcher-0:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
+        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
+      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    depends_on:
+      <<: *pocoma-java-depends-on
+
+  pocoma-business-events-dispatcher-1:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
+        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
+      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    depends_on:
+      <<: *pocoma-java-depends-on
+
+  pocoma-balance-tasks-dispatcher-0:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
+      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    depends_on:
+      <<: *pocoma-java-depends-on
+
+  pocoma-balance-tasks-dispatcher-1:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
+      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    depends_on:
+      <<: *pocoma-java-depends-on
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.distributed.yml:/etc/prometheus/prometheus.yml:ro
+      - pocoma-prometheus-data:/prometheus
+    depends_on:
+      pocoma-api:
+        condition: service_started
+      pocoma-business-events-dispatcher-0:
+        condition: service_started
+      pocoma-business-events-dispatcher-1:
+        condition: service_started
+      pocoma-balance-tasks-dispatcher-0:
+        condition: service_started
+      pocoma-balance-tasks-dispatcher-1:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - pocoma-grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_started
+
+volumes:
+  pocoma-postgres-data:
+  pocoma-prometheus-data:
+  pocoma-grafana-data:

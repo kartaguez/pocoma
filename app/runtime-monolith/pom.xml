@@ -65,7 +65,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-entry-worker-projection-direct-balances-spring</artifactId>
+			<artifactId>pocoma-supra-worker-balance-calculation-events-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

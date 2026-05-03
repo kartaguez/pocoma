@@ -25,9 +25,13 @@ app/
   infra-event-publisher-spring/   Legacy Spring event publishing adapter
   observability/                  Trace and measurement abstractions
   supra-http-rest-spring/         REST controllers and DTOs
-  supra-worker-projection-*/      Projection worker
+  supra-worker-balance-calculation-events-spring/
+                                  Spring event-driven balance calculation worker
   runtime-web-api/                API-only Spring Boot runtime
-  runtime-worker/                 Projection-worker Spring Boot runtime
+  runtime-business-events-outbox-dispatcher/
+                                  Projection task builder runtime
+  runtime-balance-calculation-tasks-dispatcher/
+                                  Projection task executor runtime
   runtime-monolith/               Spring Boot monolith composition
 
 docker/                           Prometheus and Grafana
@@ -35,7 +39,7 @@ scripts/bruno/                    Bruno HTTP collection
 scripts/k6/                       k6 load tests
 ```
 
-The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` wires the HTTP/API role, `runtime-worker` wires the projection role, and `runtime-monolith` remains the local all-in-one composition root.
+The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` wires the HTTP/API role, the dispatcher runtimes split the projection pipeline, and `runtime-monolith` remains the local all-in-one composition root.
 
 This separation addresses several technical challenges:
 
@@ -70,22 +74,64 @@ Split API/worker mode:
 cd app
 ./mvnw -pl runtime-web-api spring-boot:run -Dspring-boot.run.profiles=postgres
 
-./mvnw -pl runtime-worker spring-boot:run \
-  -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=0 --pocoma.projection.worker.segment-count=2"
+./mvnw -pl runtime-business-events-outbox-dispatcher spring-boot:run \
+  -Dspring-boot.run.profiles=postgres,segment-0-of-2
 
-./mvnw -pl runtime-worker spring-boot:run \
-  -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=1 --pocoma.projection.worker.segment-count=2"
+./mvnw -pl runtime-balance-calculation-tasks-dispatcher spring-boot:run \
+  -Dspring-boot.run.profiles=postgres,segment-1-of-2
 ```
 
 `runtime-monolith` still supports the `api` and `worker` profiles for local experiments, but the dedicated runtimes match the target deployment shape.
 
-Full stack with PostgreSQL, application, Prometheus, and Grafana:
+### Docker Compose Modes
+
+The repository provides three root-level Compose files for the main runtime
+shapes. Run only one mode at a time because they all publish the same local
+ports: API `8080`, Prometheus `9090`, and Grafana `3000`.
+
+Monolith with in-memory H2, Spring events, in-process balance worker,
+Prometheus, and Grafana:
 
 ```bash
-cd app
-docker compose up -d
+docker compose -f docker-compose.monolith-h2.yml up --build
+```
+
+Monolith with PostgreSQL, Spring events, in-process balance worker, Prometheus,
+and Grafana:
+
+```bash
+docker compose -f docker-compose.monolith-postgres.yml up --build
+```
+
+Distributed mode with one API runtime, two business-event task builders, two
+balance task executors, PostgreSQL, NATS, Prometheus, and Grafana:
+
+```bash
+docker compose -f docker-compose.distributed.yml up --build
+```
+
+Before switching mode, stop the current stack:
+
+```bash
+docker compose -f <compose-file> down
+```
+
+The H2 monolith intentionally keeps data in memory. The PostgreSQL monolith and
+distributed modes use `jdbc:postgresql://postgres:5432/pocoma`. In distributed
+mode, every Java runtime uses the `postgres` Spring profile and the dispatcher
+runtimes are split by `POCOMA_PROJECTION_WORKER_SEGMENT_INDEX` with
+`POCOMA_PROJECTION_WORKER_SEGMENT_COUNT=2`, so the services ending in `-0` own
+segment `0/2` and the services ending in `-1` own segment `1/2`.
+
+Optional environment overrides:
+
+```bash
+POSTGRES_DB=pocoma
+POSTGRES_USER=pocoma
+POSTGRES_PASSWORD=pocoma
+API_PORT=8080
+NATS_URL=nats://nats:4222
+POCOMA_SEGMENT_COUNT=2
 ```
 
 Useful endpoints:
@@ -117,7 +163,7 @@ k6 run ../scripts/k6/stress.js
 k6 run ../scripts/k6/projection_backpressure.js
 ```
 
-They cover valid commands, concurrent conflicts, inconsistent requests, queries under load, and projection back pressure. The backpressure scenario can be run while multiple `runtime-worker` processes own different `segment-index` values; it scrapes `/actuator/prometheus` on the API runtime to track backlog and latency.
+They cover valid commands, concurrent conflicts, inconsistent requests, queries under load, and projection back pressure. The backpressure scenario can be run while multiple projection dispatcher processes own different `segment-index` values; it scrapes `/actuator/prometheus` on the API runtime to track backlog and latency.
 
 ## Observability
 

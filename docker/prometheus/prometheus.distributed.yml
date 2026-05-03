@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: pocoma-api
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["pocoma-api:8080"]
+
+  - job_name: pocoma-business-events-dispatchers
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - pocoma-business-events-dispatcher-0:8080
+          - pocoma-business-events-dispatcher-1:8080
+
+  - job_name: pocoma-balance-tasks-dispatchers
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - pocoma-balance-tasks-dispatcher-0:8080
+          - pocoma-balance-tasks-dispatcher-1:8080

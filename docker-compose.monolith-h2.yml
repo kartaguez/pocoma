@@ -1,0 +1,45 @@
+name: pocoma-monolith-h2
+
+x-pocoma-monolith-build: &pocoma-monolith-build
+  context: ./app
+  dockerfile: Dockerfile
+  args:
+    RUNTIME_MODULE: runtime-monolith
+    RUNTIME_ARTIFACT: pocoma-runtime-monolith
+
+services:
+  pocoma-monolith:
+    build:
+      <<: *pocoma-monolith-build
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.monolith.yml:/etc/prometheus/prometheus.yml:ro
+      - pocoma-prometheus-data:/prometheus
+    depends_on:
+      pocoma-monolith:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - pocoma-grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_started
+
+volumes:
+  pocoma-prometheus-data:
+  pocoma-grafana-data:

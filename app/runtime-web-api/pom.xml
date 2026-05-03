@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-runtime-spring-config</artifactId>
+			<artifactId>pocoma-shared-runtime-spring-config</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
