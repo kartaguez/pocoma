@@ -15,7 +15,6 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
-@ConditionalOnBean(MeterRegistry.class)
 public class PocomaObservabilityConfiguration {
 
 	@Bean
@@ -25,6 +24,7 @@ public class PocomaObservabilityConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnBean(ProjectionLagProvider.class)
 	ProjectionLagMetrics projectionLagMetrics(
 			MeterRegistry meterRegistry,
 			ProjectionLagProvider projectionLagProvider) {
@@ -39,6 +39,7 @@ public class PocomaObservabilityConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnBean({ BusinessEventOutboxPort.class, ProjectionTaskPort.class })
 	Object projectionBackPressureMetrics(
 			MeterRegistry meterRegistry,
 			BusinessEventOutboxPort businessEventOutboxPort,

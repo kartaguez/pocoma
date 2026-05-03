@@ -11,12 +11,6 @@ x-pocoma-java-environment: &pocoma-java-environment
   POCOMA_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
   POCOMA_NATS_SERVERS: ${NATS_URL:-nats://nats:4222}
 
-x-pocoma-java-depends-on: &pocoma-java-depends-on
-  postgres:
-    condition: service_healthy
-  nats:
-    condition: service_started
-
 services:
   postgres:
     image: postgres:16
@@ -28,6 +22,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
     volumes:
       - pocoma-postgres-data:/var/lib/postgresql/data
+    networks:
+      pocoma-distributed:
+        aliases:
+          - postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pocoma} -d ${POSTGRES_DB:-pocoma}"]
       interval: 5s
@@ -41,6 +39,10 @@ services:
     ports:
       - "4222:4222"
       - "8222:8222"
+    networks:
+      pocoma-distributed:
+        aliases:
+          - nats
 
   pocoma-api:
     build:
@@ -52,8 +54,13 @@ services:
       - "${API_PORT:-8080}:8080"
     environment:
       <<: *pocoma-java-environment
+    networks:
+      - pocoma-distributed
     depends_on:
-      <<: *pocoma-java-depends-on
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
 
   pocoma-business-events-dispatcher-0:
     build:
@@ -67,8 +74,13 @@ services:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
       POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    networks:
+      - pocoma-distributed
     depends_on:
-      <<: *pocoma-java-depends-on
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
 
   pocoma-business-events-dispatcher-1:
     build:
@@ -82,8 +94,13 @@ services:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
       POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    networks:
+      - pocoma-distributed
     depends_on:
-      <<: *pocoma-java-depends-on
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
 
   pocoma-balance-tasks-dispatcher-0:
     build:
@@ -97,8 +114,13 @@ services:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
       POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    networks:
+      - pocoma-distributed
     depends_on:
-      <<: *pocoma-java-depends-on
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
 
   pocoma-balance-tasks-dispatcher-1:
     build:
@@ -112,8 +134,13 @@ services:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
       POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+    networks:
+      - pocoma-distributed
     depends_on:
-      <<: *pocoma-java-depends-on
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
 
   prometheus:
     image: prom/prometheus:latest
@@ -122,6 +149,8 @@ services:
     volumes:
       - ./docker/prometheus/prometheus.distributed.yml:/etc/prometheus/prometheus.yml:ro
       - pocoma-prometheus-data:/prometheus
+    networks:
+      - pocoma-distributed
     depends_on:
       pocoma-api:
         condition: service_started
@@ -145,9 +174,15 @@ services:
       - pocoma-grafana-data:/var/lib/grafana
       - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - pocoma-distributed
     depends_on:
       prometheus:
         condition: service_started
+
+networks:
+  pocoma-distributed:
+    name: pocoma-distributed-net
 
 volumes:
   pocoma-postgres-data:
