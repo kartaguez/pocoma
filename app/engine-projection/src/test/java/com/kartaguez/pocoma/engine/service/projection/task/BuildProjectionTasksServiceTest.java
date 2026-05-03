@@ -196,6 +196,11 @@ class BuildProjectionTasksServiceTest {
 		}
 
 		@Override
+		public boolean heartbeat(UUID eventId, UUID claimToken, Duration leaseDuration) {
+			return false;
+		}
+
+		@Override
 		public long countPendingOrClaimed() {
 			return 0;
 		}

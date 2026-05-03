@@ -31,5 +31,7 @@ public interface BusinessEventOutboxPort {
 
 	boolean release(UUID eventId, UUID claimToken);
 
+	boolean heartbeat(UUID eventId, UUID claimToken, Duration leaseDuration);
+
 	long countPendingOrClaimed();
 }

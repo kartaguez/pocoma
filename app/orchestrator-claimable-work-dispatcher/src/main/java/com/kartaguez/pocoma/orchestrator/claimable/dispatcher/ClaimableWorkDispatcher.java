@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkHandler;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WakeSignalWaiter;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.work.WorkKeyResolver;
 
@@ -17,7 +17,7 @@ public class ClaimableWorkDispatcher<W, K, S, C> {
 
 	private static final System.Logger LOGGER = System.getLogger(ClaimableWorkDispatcher.class.getName());
 
-	private final ClaimableWorkSource<W, C> workSource;
+	private final ClaimableWorkLifecycle<W, C> workSource;
 	private final SegmentedWorkHandler<ClaimedWork<W>, K> workHandler;
 	private final WorkKeyResolver<W, K> keyResolver;
 	private final C claimCriteria;
@@ -30,7 +30,7 @@ public class ClaimableWorkDispatcher<W, K, S, C> {
 	private Thread thread;
 
 	public ClaimableWorkDispatcher(
-			ClaimableWorkSource<W, C> workSource,
+			ClaimableWorkLifecycle<W, C> workSource,
 			SegmentedWorkHandler<ClaimedWork<W>, K> workHandler,
 			WorkKeyResolver<W, K> keyResolver,
 			C claimCriteria,

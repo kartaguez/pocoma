@@ -43,7 +43,7 @@
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
 		<module>orchestrator-claimable-work-dispatcher</module>
-		<module>supra-worker-projection-common</module>
+		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-dispatcher-business-events-outbox-nats</module>
 		<module>supra-dispatcher-balance-calculation-tasks-outbox-nats</module>
 		<module>supra-worker-projection-direct-balances</module>

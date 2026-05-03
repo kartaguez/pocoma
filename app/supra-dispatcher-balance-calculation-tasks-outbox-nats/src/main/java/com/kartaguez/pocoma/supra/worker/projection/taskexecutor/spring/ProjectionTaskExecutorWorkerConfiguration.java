@@ -14,8 +14,10 @@ import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
+import com.kartaguez.pocoma.orchestrator.claimable.wake.CapacityNotifier;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.InMemoryWorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.ProjectionTaskExecutorWorker;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.ProjectionTaskWorkSource;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.SegmentedProjectionTaskExecutor;
@@ -57,12 +59,18 @@ public class ProjectionTaskExecutorWorkerConfiguration {
 			ProjectionTaskWorkSource projectionTaskWorkSource,
 			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
 			ProjectionTaskExecutorWorkerProperties properties,
-			PocomaObservation observation) {
+			PocomaObservation observation,
+			WorkWakeBus<String, PotId> wakeBus) {
+		CapacityNotifier<PotId> capacityNotifier = new CapacityNotifier<>(
+				wakeBus,
+				ProjectionWakeSignals.CAPACITY_AVAILABLE,
+				properties.getCapacityWakeupMinInterval());
 		return new SegmentedProjectionTaskExecutor(
 				projectionTaskWorkSource,
 				executeProjectionTasksUseCase,
 				properties.toSettings(),
-				observation);
+				observation,
+				capacityNotifier);
 	}
 
 	@Bean

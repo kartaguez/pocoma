@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
 
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.ExecuteProjectionTaskCommand;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 
 class SegmentedProjectionTaskExecutorTest {
 

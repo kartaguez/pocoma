@@ -18,7 +18,7 @@ import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkHandler;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.InMemoryWorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 
 class ClaimableWorkDispatcherTest {
@@ -122,7 +122,7 @@ class ClaimableWorkDispatcherTest {
 	private record TestWork(int key) {
 	}
 
-	private static final class RecordingClaimWorkUseCase implements ClaimableWorkSource<TestWork, String> {
+	private static final class RecordingClaimWorkUseCase implements ClaimableWorkLifecycle<TestWork, String> {
 		private final Queue<TestWork> claims = new ConcurrentLinkedQueue<>();
 		private final CountDownLatch claimAttempts = new CountDownLatch(1);
 		private final List<TestWork> accepted = new ArrayList<>();
@@ -151,6 +151,11 @@ class ClaimableWorkDispatcherTest {
 
 		@Override
 		public boolean markProcessing(ClaimedWork<TestWork> work) {
+			return true;
+		}
+
+		@Override
+		public boolean heartbeat(ClaimedWork<TestWork> work, Duration leaseDuration) {
 			return true;
 		}
 

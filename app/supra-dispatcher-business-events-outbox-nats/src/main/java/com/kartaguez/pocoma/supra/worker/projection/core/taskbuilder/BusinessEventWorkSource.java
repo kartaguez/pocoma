@@ -2,16 +2,17 @@ package com.kartaguez.pocoma.supra.worker.projection.core.taskbuilder;
 
 import java.util.List;
 import java.util.Objects;
+import java.time.Duration;
 
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 
-public final class BusinessEventWorkSource implements ClaimableWorkSource<BusinessEventEnvelope, ProjectionPartition> {
+public final class BusinessEventWorkSource implements ClaimableWorkLifecycle<BusinessEventEnvelope, ProjectionPartition> {
 
 	private final BusinessEventOutboxPort outboxPort;
 
@@ -46,6 +47,11 @@ public final class BusinessEventWorkSource implements ClaimableWorkSource<Busine
 	@Override
 	public boolean markProcessing(ClaimedWork<BusinessEventEnvelope> work) {
 		return outboxPort.markRunning(work.instruction().id(), claimToken(work));
+	}
+
+	@Override
+	public boolean heartbeat(ClaimedWork<BusinessEventEnvelope> work, Duration leaseDuration) {
+		return outboxPort.heartbeat(work.instruction().id(), claimToken(work), leaseDuration);
 	}
 
 	@Override

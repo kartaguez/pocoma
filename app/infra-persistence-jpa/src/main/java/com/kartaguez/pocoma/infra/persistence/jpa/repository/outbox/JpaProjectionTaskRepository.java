@@ -21,12 +21,12 @@ public interface JpaProjectionTaskRepository extends JpaRepository<JpaProjection
 			from JpaProjectionTaskEntity task
 			where task.potId = :potId
 				and task.taskType = :taskType
-				and task.status in :activeStatuses
+				and task.status = :status
 			""")
 	Optional<JpaProjectionTaskEntity> findActive(
 			@Param("potId") UUID potId,
 			@Param("taskType") ProjectionTaskType taskType,
-			@Param("activeStatuses") List<ProjectionTaskStatus> activeStatuses);
+			@Param("status") ProjectionTaskStatus status);
 
 	@Query(
 			value = """

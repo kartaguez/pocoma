@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.worker.projection.core.model;
+package com.kartaguez.pocoma.supra.dispatcher.projection.shared.model;
 
 import java.util.Objects;
 import java.util.UUID;

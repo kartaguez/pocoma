@@ -12,11 +12,11 @@ import com.kartaguez.pocoma.engine.model.ProjectionTaskStatus;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 
-public final class ProjectionTaskWorkSource implements ClaimableWorkSource<ProjectionTask, ProjectionPartition> {
+public final class ProjectionTaskWorkSource implements ClaimableWorkLifecycle<ProjectionTask, ProjectionPartition> {
 
 	private final ProjectionTaskPort projectionTaskPort;
 	private final ProjectionEventPublisherPort eventPublisherPort;
@@ -58,6 +58,12 @@ public final class ProjectionTaskWorkSource implements ClaimableWorkSource<Proje
 	public boolean markProcessing(ClaimedWork<ProjectionTask> work) {
 		ProjectionTask task = work.instruction();
 		return projectionTaskPort.markRunning(task.taskId(), task.claimToken());
+	}
+
+	@Override
+	public boolean heartbeat(ClaimedWork<ProjectionTask> work, Duration leaseDuration) {
+		ProjectionTask task = work.instruction();
+		return projectionTaskPort.heartbeat(task.taskId(), task.claimToken(), leaseDuration);
 	}
 
 	@Override

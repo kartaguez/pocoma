@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.BuildProjectionTaskCommand;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkHandler;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkerPool;
@@ -24,7 +24,7 @@ public class SegmentedProjectionTaskBuilder implements SegmentedWorkHandler<Clai
 	}
 
 	public SegmentedProjectionTaskBuilder(
-			ClaimableWorkSource<BusinessEventEnvelope, ?> workSource,
+			ClaimableWorkLifecycle<BusinessEventEnvelope, ?> workSource,
 			BuildProjectionTasksUseCase buildProjectionTasksUseCase,
 			ProjectionTaskBuilderSettings settings) {
 		Objects.requireNonNull(settings, "settings must not be null");
@@ -38,7 +38,8 @@ public class SegmentedProjectionTaskBuilder implements SegmentedWorkHandler<Clai
 						settings.queueCapacity(),
 						settings.maxRetries(),
 						settings.initialBackoff(),
-						settings.maxBackoff()));
+						settings.maxBackoff(),
+						settings.leaseDuration()));
 	}
 
 	@Override
@@ -79,8 +80,8 @@ public class SegmentedProjectionTaskBuilder implements SegmentedWorkHandler<Clai
 		return workerPool.isRunning();
 	}
 
-	private static ClaimableWorkSource<BusinessEventEnvelope, Object> noopWorkSource() {
-		return new ClaimableWorkSource<>() {
+	private static ClaimableWorkLifecycle<BusinessEventEnvelope, Object> noopWorkSource() {
+		return new ClaimableWorkLifecycle<>() {
 			@Override
 			public java.util.List<ClaimedWork<BusinessEventEnvelope>> claim(
 					com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest<Object> request) {
@@ -98,6 +99,11 @@ public class SegmentedProjectionTaskBuilder implements SegmentedWorkHandler<Clai
 
 			@Override
 			public boolean markProcessing(ClaimedWork<BusinessEventEnvelope> work) {
+				return true;
+			}
+
+			@Override
+			public boolean heartbeat(ClaimedWork<BusinessEventEnvelope> work, java.time.Duration leaseDuration) {
 				return true;
 			}
 

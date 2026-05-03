@@ -15,7 +15,7 @@ import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.DirectSegmentedProjectionWorker;
 
 public class DirectProjectionEventListener {

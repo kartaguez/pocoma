@@ -10,7 +10,7 @@ import org.springframework.context.SmartLifecycle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 public class NatsBusinessEventsWakeSubscriber implements SmartLifecycle {
 

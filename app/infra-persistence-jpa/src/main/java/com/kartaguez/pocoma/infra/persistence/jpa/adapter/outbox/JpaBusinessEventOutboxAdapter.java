@@ -121,6 +121,18 @@ public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
 	}
 
 	@Override
+	@Transactional
+	public boolean heartbeat(UUID eventId, UUID claimToken, Duration leaseDuration) {
+		Objects.requireNonNull(eventId, "eventId must not be null");
+		Objects.requireNonNull(claimToken, "claimToken must not be null");
+		Objects.requireNonNull(leaseDuration, "leaseDuration must not be null");
+		if (leaseDuration.isNegative() || leaseDuration.isZero()) {
+			throw new IllegalArgumentException("leaseDuration must be positive");
+		}
+		return repository.heartbeat(eventId, claimToken, Instant.now().plus(leaseDuration)) == 1;
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public long countPendingOrClaimed() {
 		return repository.countPendingOrClaimed();

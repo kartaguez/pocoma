@@ -5,7 +5,7 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
-import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.ProjectionTaskExecutorSettings;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.ProjectionTaskExecutorWorkerSettings;
 
 @ConfigurationProperties(prefix = "pocoma.projection.worker")
@@ -23,6 +23,8 @@ public class ProjectionTaskExecutorWorkerProperties {
 	private int taskExecutorBatchSize = 100;
 	private Duration taskExecutorPollingInterval = Duration.ofMillis(100);
 	private Duration taskExecutorLeaseDuration = Duration.ofSeconds(30);
+	private Duration taskExecutorHeartbeatInterval;
+	private Duration capacityWakeupMinInterval = ProjectionTaskExecutorSettings.DEFAULT_CAPACITY_WAKEUP_MIN_INTERVAL;
 
 	public int getThreadCount() {
 		return threadCount;
@@ -120,8 +122,32 @@ public class ProjectionTaskExecutorWorkerProperties {
 		this.taskExecutorLeaseDuration = taskExecutorLeaseDuration;
 	}
 
+	public Duration getTaskExecutorHeartbeatInterval() {
+		return taskExecutorHeartbeatInterval;
+	}
+
+	public void setTaskExecutorHeartbeatInterval(Duration taskExecutorHeartbeatInterval) {
+		this.taskExecutorHeartbeatInterval = taskExecutorHeartbeatInterval;
+	}
+
+	public Duration getCapacityWakeupMinInterval() {
+		return capacityWakeupMinInterval;
+	}
+
+	public void setCapacityWakeupMinInterval(Duration capacityWakeupMinInterval) {
+		this.capacityWakeupMinInterval = capacityWakeupMinInterval;
+	}
+
 	ProjectionTaskExecutorSettings toSettings() {
-		return new ProjectionTaskExecutorSettings(threadCount, queueCapacity, maxRetries, initialBackoff, maxBackoff);
+		return new ProjectionTaskExecutorSettings(
+				threadCount,
+				queueCapacity,
+				maxRetries,
+				initialBackoff,
+				maxBackoff,
+				taskExecutorLeaseDuration,
+				heartbeatInterval(),
+				capacityWakeupMinInterval);
 	}
 
 	ProjectionTaskExecutorWorkerSettings toTaskExecutorSettings() {
@@ -134,5 +160,13 @@ public class ProjectionTaskExecutorWorkerProperties {
 				taskExecutorLeaseDuration,
 				partition,
 				wakeSignalsEnabled);
+	}
+
+	private Duration heartbeatInterval() {
+		if (taskExecutorHeartbeatInterval != null) {
+			return taskExecutorHeartbeatInterval;
+		}
+		Duration interval = taskExecutorLeaseDuration.dividedBy(3);
+		return interval.isZero() ? Duration.ofMillis(1) : interval;
 	}
 }

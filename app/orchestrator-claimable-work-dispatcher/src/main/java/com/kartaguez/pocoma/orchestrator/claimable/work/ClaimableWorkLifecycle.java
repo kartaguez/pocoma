@@ -1,8 +1,9 @@
 package com.kartaguez.pocoma.orchestrator.claimable.work;
 
+import java.time.Duration;
 import java.util.List;
 
-public interface ClaimableWorkSource<T, C> {
+public interface ClaimableWorkLifecycle<T, C> {
 
 	List<ClaimedWork<T>> claim(ClaimWorkRequest<C> request);
 
@@ -11,6 +12,8 @@ public interface ClaimableWorkSource<T, C> {
 	void release(ClaimedWork<T> work);
 
 	boolean markProcessing(ClaimedWork<T> work);
+
+	boolean heartbeat(ClaimedWork<T> work, Duration leaseDuration);
 
 	boolean markDone(ClaimedWork<T> work);
 

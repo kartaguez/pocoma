@@ -17,7 +17,7 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeEvent;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeSubscription;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 class NatsBusinessEventsWakeSubscriberTest {
 

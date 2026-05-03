@@ -9,7 +9,38 @@ public record SegmentedWorkerPoolSettings(
 		int queueCapacity,
 		int maxRetries,
 		Duration initialBackoff,
-		Duration maxBackoff) {
+		Duration maxBackoff,
+		Duration leaseDuration,
+		Duration heartbeatInterval) {
+
+	public SegmentedWorkerPoolSettings(
+			String workerName,
+			int threadCount,
+			int queueCapacity,
+			int maxRetries,
+			Duration initialBackoff,
+			Duration maxBackoff) {
+		this(workerName, threadCount, queueCapacity, maxRetries, initialBackoff, maxBackoff, Duration.ofSeconds(30));
+	}
+
+	public SegmentedWorkerPoolSettings(
+			String workerName,
+			int threadCount,
+			int queueCapacity,
+			int maxRetries,
+			Duration initialBackoff,
+			Duration maxBackoff,
+			Duration leaseDuration) {
+		this(
+				workerName,
+				threadCount,
+				queueCapacity,
+				maxRetries,
+				initialBackoff,
+				maxBackoff,
+				leaseDuration,
+				defaultHeartbeatInterval(leaseDuration));
+	}
 
 	public SegmentedWorkerPoolSettings {
 		requireText(workerName, "workerName");
@@ -20,6 +51,8 @@ public record SegmentedWorkerPoolSettings(
 		}
 		requireNonNegative(initialBackoff, "initialBackoff");
 		requireNonNegative(maxBackoff, "maxBackoff");
+		requirePositive(leaseDuration, "leaseDuration");
+		requirePositive(heartbeatInterval, "heartbeatInterval");
 		if (maxBackoff.compareTo(initialBackoff) < 0) {
 			throw new IllegalArgumentException("maxBackoff must be greater than or equal to initialBackoff");
 		}
@@ -43,5 +76,18 @@ public record SegmentedWorkerPoolSettings(
 		if (value.isNegative()) {
 			throw new IllegalArgumentException(name + " must not be negative");
 		}
+	}
+
+	private static void requirePositive(Duration value, String name) {
+		Objects.requireNonNull(value, name + " must not be null");
+		if (value.isNegative() || value.isZero()) {
+			throw new IllegalArgumentException(name + " must be positive");
+		}
+	}
+
+	private static Duration defaultHeartbeatInterval(Duration leaseDuration) {
+		requirePositive(leaseDuration, "leaseDuration");
+		Duration interval = leaseDuration.dividedBy(3);
+		return interval.isZero() ? Duration.ofMillis(1) : interval;
 	}
 }

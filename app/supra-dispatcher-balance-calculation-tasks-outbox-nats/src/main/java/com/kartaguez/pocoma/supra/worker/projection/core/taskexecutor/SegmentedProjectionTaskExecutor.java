@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
 
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
+
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
@@ -8,17 +10,19 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionT
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.projection.ProjectionObservationContext;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.wake.CapacityNotifier;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkerPool;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkerPoolSettings;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 
 public class SegmentedProjectionTaskExecutor {
 
 	private static final System.Logger LOGGER = System.getLogger(SegmentedProjectionTaskExecutor.class.getName());
 
 	private final PocomaObservation observation;
+	private final CapacityNotifier<PotId> capacityNotifier;
 	private final SegmentedWorkerPool<ProjectionTask, PotId> workerPool;
 
 	public SegmentedProjectionTaskExecutor(
@@ -35,13 +39,23 @@ public class SegmentedProjectionTaskExecutor {
 	}
 
 	public SegmentedProjectionTaskExecutor(
-			ClaimableWorkSource<ProjectionTask, ?> workSource,
+			ClaimableWorkLifecycle<ProjectionTask, ?> workSource,
 			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
 			ProjectionTaskExecutorSettings settings,
 			PocomaObservation observation) {
+		this(workSource, executeProjectionTasksUseCase, settings, observation, CapacityNotifier.noop());
+	}
+
+	public SegmentedProjectionTaskExecutor(
+			ClaimableWorkLifecycle<ProjectionTask, ?> workSource,
+			ExecuteProjectionTasksUseCase executeProjectionTasksUseCase,
+			ProjectionTaskExecutorSettings settings,
+			PocomaObservation observation,
+			CapacityNotifier<PotId> capacityNotifier) {
 		Objects.requireNonNull(workSource, "workSource must not be null");
 		Objects.requireNonNull(executeProjectionTasksUseCase, "executeProjectionTasksUseCase must not be null");
 		this.observation = Objects.requireNonNull(observation, "observation must not be null");
+		this.capacityNotifier = Objects.requireNonNull(capacityNotifier, "capacityNotifier must not be null");
 		Objects.requireNonNull(settings, "settings must not be null");
 		this.workerPool = new SegmentedWorkerPool<>(
 				workSource,
@@ -53,7 +67,9 @@ public class SegmentedProjectionTaskExecutor {
 						settings.queueCapacity(),
 						settings.maxRetries(),
 						settings.initialBackoff(),
-						settings.maxBackoff()));
+						settings.maxBackoff(),
+						settings.leaseDuration(),
+						settings.heartbeatInterval()));
 	}
 
 	public void submit(ProjectionTask task) {
@@ -111,10 +127,13 @@ public class SegmentedProjectionTaskExecutor {
 			observation.projectionFailed(context, startedAtNanos, System.nanoTime());
 			throw exception;
 		}
+		finally {
+			capacityNotifier.notifyCapacityAvailable(task.potId());
+		}
 	}
 
-	private static ClaimableWorkSource<ProjectionTask, Object> noopWorkSource() {
-		return new ClaimableWorkSource<>() {
+	private static ClaimableWorkLifecycle<ProjectionTask, Object> noopWorkSource() {
+		return new ClaimableWorkLifecycle<>() {
 			@Override
 			public java.util.List<ClaimedWork<ProjectionTask>> claim(
 					com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest<Object> request) {
@@ -132,6 +151,11 @@ public class SegmentedProjectionTaskExecutor {
 
 			@Override
 			public boolean markProcessing(ClaimedWork<ProjectionTask> work) {
+				return true;
+			}
+
+			@Override
+			public boolean heartbeat(ClaimedWork<ProjectionTask> work, java.time.Duration leaseDuration) {
 				return true;
 			}
 

@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 public class ProjectionEventListener {
 

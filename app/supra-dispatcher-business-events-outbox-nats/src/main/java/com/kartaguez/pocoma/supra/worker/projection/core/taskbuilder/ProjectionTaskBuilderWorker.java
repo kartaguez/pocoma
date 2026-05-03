@@ -8,25 +8,25 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcher;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcherSettings;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 public class ProjectionTaskBuilderWorker {
 
 	private final ClaimableWorkDispatcher<BusinessEventEnvelope, PotId, String, ProjectionPartition> dispatcher;
 
 	public ProjectionTaskBuilderWorker(
-			ClaimableWorkSource<BusinessEventEnvelope, ProjectionPartition> workSource,
+			ClaimableWorkLifecycle<BusinessEventEnvelope, ProjectionPartition> workSource,
 			BuildProjectionTasksUseCase buildProjectionTasksUseCase,
 			ProjectionTaskBuilderSettings settings) {
 		this(workSource, buildProjectionTasksUseCase, settings, WorkWakeBus.noop(), ignored -> true);
 	}
 
 	public ProjectionTaskBuilderWorker(
-			ClaimableWorkSource<BusinessEventEnvelope, ProjectionPartition> workSource,
+			ClaimableWorkLifecycle<BusinessEventEnvelope, ProjectionPartition> workSource,
 			BuildProjectionTasksUseCase buildProjectionTasksUseCase,
 			ProjectionTaskBuilderSettings settings,
 			WorkWakeBus<String, PotId> wakeBus,

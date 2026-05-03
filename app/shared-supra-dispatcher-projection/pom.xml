@@ -9,8 +9,8 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>pocoma-supra-worker-projection-common</artifactId>
-	<name>pocoma-supra-worker-projection-common</name>
+	<artifactId>pocoma-shared-supra-dispatcher-projection</artifactId>
+	<name>pocoma-shared-supra-dispatcher-projection</name>
 
 	<dependencies>
 		<dependency>

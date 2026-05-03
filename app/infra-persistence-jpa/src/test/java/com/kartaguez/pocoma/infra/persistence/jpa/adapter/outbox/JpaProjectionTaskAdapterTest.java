@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,7 @@ class JpaProjectionTaskAdapterTest {
 	private JpaProjectionTaskRepository repository;
 
 	@Test
-	void coalescesActiveTasksToHighestVersion() {
+	void coalescesPendingTasksToHighestVersion() {
 		PotId potId = PotId.of(UUID.randomUUID());
 
 		adapter.upsertComputeBalancesTask(event(potId, 2));
@@ -44,6 +45,66 @@ class JpaProjectionTaskAdapterTest {
 		ProjectionTaskClaim claim = adapter.claimPending(10, Duration.ofSeconds(30), "fetcher-1").getFirst();
 		assertEquals(5, claim.task().targetVersion());
 		assertEquals(1, repository.count());
+	}
+
+	@Test
+	void doesNotCoalesceRunningTask() {
+		PotId potId = PotId.of(UUID.randomUUID());
+
+		adapter.upsertComputeBalancesTask(event(potId, 2));
+		ProjectionTaskClaim runningClaim = adapter.claimPending(10, Duration.ofSeconds(30), "fetcher-1").getFirst();
+		assertTrue(adapter.markAccepted(runningClaim.task().id(), runningClaim.claimToken()));
+		assertTrue(adapter.markRunning(runningClaim.task().id(), runningClaim.claimToken()));
+
+		var newTask = adapter.upsertComputeBalancesTask(event(potId, 5));
+
+		assertNotEquals(runningClaim.task().id(), newTask.id());
+		assertEquals(2, repository.findById(runningClaim.task().id()).orElseThrow().toDescriptor().targetVersion());
+		assertEquals(5, newTask.targetVersion());
+		assertEquals(2, repository.count());
+	}
+
+	@Test
+	void createsNewTaskForNewerVersionWhilePreviousTaskIsRunning() {
+		PotId potId = PotId.of(UUID.randomUUID());
+
+		adapter.upsertComputeBalancesTask(event(potId, 2));
+		ProjectionTaskClaim runningClaim = adapter.claimPending(10, Duration.ofSeconds(30), "fetcher-1").getFirst();
+		assertTrue(adapter.markRunning(runningClaim.task().id(), runningClaim.claimToken()));
+
+		var newerTask = adapter.upsertComputeBalancesTask(event(potId, 7));
+
+		assertNotEquals(runningClaim.task().id(), newerTask.id());
+		assertEquals(7, newerTask.targetVersion());
+		assertEquals(2, repository.count());
+	}
+
+	@Test
+	void expiredLongRunningTaskCanBeReclaimedWithoutHeartbeat() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		adapter.upsertComputeBalancesTask(event(potId, 2));
+		ProjectionTaskClaim claim = adapter.claimPending(10, Duration.ofMillis(20), "fetcher-1").getFirst();
+		assertTrue(adapter.markRunning(claim.task().id(), claim.claimToken()));
+
+		sleep(Duration.ofMillis(30));
+
+		ProjectionTaskClaim reclaimed = adapter.claimPending(10, Duration.ofSeconds(30), "fetcher-2").getFirst();
+		assertEquals(claim.task().id(), reclaimed.task().id());
+		assertNotEquals(claim.claimToken(), reclaimed.claimToken());
+	}
+
+	@Test
+	void heartbeatPreventsReclaimAfterOriginalLeaseWouldHaveExpired() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		adapter.upsertComputeBalancesTask(event(potId, 2));
+		ProjectionTaskClaim claim = adapter.claimPending(10, Duration.ofMillis(20), "fetcher-1").getFirst();
+		assertTrue(adapter.markRunning(claim.task().id(), claim.claimToken()));
+
+		sleep(Duration.ofMillis(10));
+		assertTrue(adapter.heartbeat(claim.task().id(), claim.claimToken(), Duration.ofMillis(50)));
+		sleep(Duration.ofMillis(20));
+
+		assertEquals(0, adapter.claimPending(10, Duration.ofSeconds(30), "fetcher-2").size());
 	}
 
 	@Test
@@ -118,6 +179,16 @@ class JpaProjectionTaskAdapterTest {
 			}
 		}
 		throw new IllegalStateException("No potId found for segment " + segmentIndex);
+	}
+
+	private static void sleep(Duration duration) {
+		try {
+			Thread.sleep(duration.toMillis());
+		}
+		catch (InterruptedException exception) {
+			Thread.currentThread().interrupt();
+			throw new AssertionError("Interrupted while waiting", exception);
+		}
 	}
 
 	@SpringBootApplication

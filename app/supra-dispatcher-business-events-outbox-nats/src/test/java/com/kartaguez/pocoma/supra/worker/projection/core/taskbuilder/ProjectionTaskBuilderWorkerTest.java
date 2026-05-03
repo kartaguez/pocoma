@@ -21,11 +21,11 @@ import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.BuildProjectionTaskCommand;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.InMemoryWorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 class ProjectionTaskBuilderWorkerTest {
 
@@ -104,7 +104,7 @@ class ProjectionTaskBuilderWorkerTest {
 	}
 
 	private static final class RecordingBuildUseCase
-			implements BuildProjectionTasksUseCase, ClaimableWorkSource<BusinessEventEnvelope, ProjectionPartition> {
+			implements BuildProjectionTasksUseCase, ClaimableWorkLifecycle<BusinessEventEnvelope, ProjectionPartition> {
 		private final Queue<BusinessEventClaim> claims = new ConcurrentLinkedQueue<>();
 		private final CountDownLatch claimAttempts = new CountDownLatch(1);
 		private final CountDownLatch built = new CountDownLatch(1);
@@ -131,6 +131,11 @@ class ProjectionTaskBuilderWorkerTest {
 
 		@Override
 		public boolean markProcessing(ClaimedWork<BusinessEventEnvelope> work) {
+			return true;
+		}
+
+		@Override
+		public boolean heartbeat(ClaimedWork<BusinessEventEnvelope> work, Duration leaseDuration) {
 			return true;
 		}
 

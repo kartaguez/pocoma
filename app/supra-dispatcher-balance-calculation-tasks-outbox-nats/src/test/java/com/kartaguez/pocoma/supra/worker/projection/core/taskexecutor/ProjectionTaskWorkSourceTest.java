@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.engine.model.ProjectionTaskType;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 
 class ProjectionTaskWorkSourceTest {
 

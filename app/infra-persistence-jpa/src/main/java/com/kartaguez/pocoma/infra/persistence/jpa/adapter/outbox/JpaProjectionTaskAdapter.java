@@ -23,12 +23,6 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaProjectio
 @Component
 public class JpaProjectionTaskAdapter implements ProjectionTaskPort {
 
-	private static final List<ProjectionTaskStatus> ACTIVE_STATUSES = List.of(
-			ProjectionTaskStatus.PENDING,
-			ProjectionTaskStatus.CLAIMED,
-			ProjectionTaskStatus.ACCEPTED,
-			ProjectionTaskStatus.RUNNING);
-
 	private final JpaProjectionTaskRepository repository;
 
 	public JpaProjectionTaskAdapter(JpaProjectionTaskRepository repository) {
@@ -43,7 +37,7 @@ public class JpaProjectionTaskAdapter implements ProjectionTaskPort {
 		JpaProjectionTaskEntity task = repository.findActive(
 				sourceEvent.potId().value(),
 				ProjectionTaskType.COMPUTE_BALANCES_FOR_VERSION,
-				ACTIVE_STATUSES)
+				ProjectionTaskStatus.PENDING)
 				.map(existingTask -> {
 					existingTask.coalesce(
 								sourceEvent.version(),

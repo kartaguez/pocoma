@@ -50,9 +50,9 @@ create table projection_tasks (
     primary key (id)
 );
 
-create unique index uk_projection_tasks_active_pot_type
+create unique index uk_projection_tasks_pending_pot_type
     on projection_tasks (pot_id, task_type)
-    where status in ('PENDING', 'CLAIMED', 'ACCEPTED', 'RUNNING');
+    where status = 'PENDING';
 
 create index idx_business_event_outbox_claimable
     on business_event_outbox (status, lease_until, pot_partition_hash, created_at);

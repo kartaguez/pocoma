@@ -136,6 +136,22 @@ public interface JpaBusinessEventOutboxRepository extends JpaRepository<JpaBusin
 			@Param("eventId") UUID eventId,
 			@Param("claimToken") UUID claimToken);
 
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query("""
+			update JpaBusinessEventOutboxEntity event
+			set event.leaseUntil = :leaseUntil
+			where event.id = :eventId
+				and event.claimToken = :claimToken
+				and event.status in (
+					com.kartaguez.pocoma.engine.model.BusinessEventStatus.CLAIMED,
+					com.kartaguez.pocoma.engine.model.BusinessEventStatus.ACCEPTED,
+					com.kartaguez.pocoma.engine.model.BusinessEventStatus.RUNNING)
+			""")
+	int heartbeat(
+			@Param("eventId") UUID eventId,
+			@Param("claimToken") UUID claimToken,
+			@Param("leaseUntil") Instant leaseUntil);
+
 	@Query("""
 			select count(event)
 			from JpaBusinessEventOutboxEntity event

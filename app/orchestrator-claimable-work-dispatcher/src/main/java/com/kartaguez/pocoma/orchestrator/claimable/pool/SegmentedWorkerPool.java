@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.work.WorkHandler;
 
@@ -16,7 +16,7 @@ public class SegmentedWorkerPool<T, K> implements SegmentedWorkHandler<ClaimedWo
 
 	private static final System.Logger LOGGER = System.getLogger(SegmentedWorkerPool.class.getName());
 
-	private final ClaimableWorkSource<T, ?> workSource;
+	private final ClaimableWorkLifecycle<T, ?> workSource;
 	private final WorkHandler<T> workHandler;
 	private final WorkSegmenter<T, K> segmenter;
 	private final SegmentedWorkerPoolSettings settings;
@@ -24,7 +24,7 @@ public class SegmentedWorkerPool<T, K> implements SegmentedWorkHandler<ClaimedWo
 	private final List<Segment<T>> segments;
 
 	public SegmentedWorkerPool(
-			ClaimableWorkSource<T, ?> workSource,
+			ClaimableWorkLifecycle<T, ?> workSource,
 			WorkHandler<T> workHandler,
 			WorkSegmenter<T, K> segmenter,
 			SegmentedWorkerPoolSettings settings) {
@@ -122,26 +122,47 @@ public class SegmentedWorkerPool<T, K> implements SegmentedWorkHandler<ClaimedWo
 		if (!workSource.markProcessing(work)) {
 			return;
 		}
+		Heartbeat heartbeat = startHeartbeat(work);
 		int attempt = 0;
 		Duration backoff = settings.initialBackoff();
-		while (true) {
-			try {
-				workHandler.handle(work.instruction());
-				workSource.markDone(work);
-				return;
-			}
-			catch (RuntimeException exception) {
-				if (attempt >= settings.maxRetries()) {
-					workSource.markFailed(work, exception);
-					LOGGER.log(System.Logger.Level.ERROR, "Claimed work failed after " + (attempt + 1) + " attempts", exception);
+		try {
+			while (true) {
+				try {
+					workHandler.handle(work.instruction());
+					if (heartbeat.ownershipLost()) {
+						return;
+					}
+					workSource.markDone(work);
 					return;
 				}
-				attempt++;
-				LOGGER.log(System.Logger.Level.WARNING, "Claimed work failed, retrying attempt " + attempt, exception);
-				sleep(backoff);
-				backoff = nextBackoff(backoff);
+				catch (RuntimeException exception) {
+					if (heartbeat.ownershipLost()) {
+						return;
+					}
+					if (attempt >= settings.maxRetries()) {
+						workSource.markFailed(work, exception);
+						LOGGER.log(
+								System.Logger.Level.ERROR,
+								"Claimed work failed after " + (attempt + 1) + " attempts",
+								exception);
+						return;
+					}
+					attempt++;
+					LOGGER.log(System.Logger.Level.WARNING, "Claimed work failed, retrying attempt " + attempt, exception);
+					sleep(backoff);
+					backoff = nextBackoff(backoff);
+				}
 			}
 		}
+		finally {
+			heartbeat.stop();
+		}
+	}
+
+	private Heartbeat startHeartbeat(ClaimedWork<T> work) {
+		Heartbeat heartbeat = new Heartbeat(work);
+		heartbeat.start();
+		return heartbeat;
 	}
 
 	private Duration nextBackoff(Duration currentBackoff) {
@@ -170,5 +191,61 @@ public class SegmentedWorkerPool<T, K> implements SegmentedWorkHandler<ClaimedWo
 	}
 
 	private record Segment<T>(BlockingQueue<ClaimedWork<T>> queue, Thread thread) {
+	}
+
+	private final class Heartbeat {
+		private final ClaimedWork<T> work;
+		private final AtomicBoolean active = new AtomicBoolean(true);
+		private final AtomicBoolean ownershipLost = new AtomicBoolean(false);
+		private final Thread thread;
+		private final Thread processingThread;
+
+		private Heartbeat(ClaimedWork<T> work) {
+			this.work = work;
+			this.processingThread = Thread.currentThread();
+			this.thread = new Thread(this::run, settings.workerName() + "-heartbeat");
+			this.thread.setDaemon(true);
+		}
+
+		private void start() {
+			thread.start();
+		}
+
+		private boolean ownershipLost() {
+			return ownershipLost.get();
+		}
+
+		private void stop() {
+			active.set(false);
+			thread.interrupt();
+			try {
+				thread.join(500);
+			}
+			catch (InterruptedException exception) {
+				Thread.currentThread().interrupt();
+			}
+		}
+
+		private void run() {
+			while (active.get()) {
+				try {
+					sleep(settings.heartbeatInterval());
+					if (active.get() && !workSource.heartbeat(work, settings.leaseDuration())) {
+						ownershipLost.set(true);
+						active.set(false);
+						processingThread.interrupt();
+					}
+				}
+				catch (InterruptedException exception) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+				catch (RuntimeException exception) {
+					ownershipLost.set(true);
+					active.set(false);
+					LOGGER.log(System.Logger.Level.WARNING, "Claimed work heartbeat failed", exception);
+				}
+			}
+		}
 	}
 }

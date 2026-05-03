@@ -6,28 +6,28 @@ import java.util.function.Predicate;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcher;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcherSettings;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkHandler;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 public class ProjectionTaskExecutorWorker {
 
 	private final ClaimableWorkDispatcher<ProjectionTask, PotId, String, ProjectionPartition> dispatcher;
 
 	public ProjectionTaskExecutorWorker(
-			ClaimableWorkSource<ProjectionTask, ProjectionPartition> workSource,
+			ClaimableWorkLifecycle<ProjectionTask, ProjectionPartition> workSource,
 			SegmentedProjectionTaskExecutor projectionWorker,
 			ProjectionTaskExecutorWorkerSettings settings) {
 		this(workSource, projectionWorker, settings, WorkWakeBus.noop(), ignored -> true);
 	}
 
 	public ProjectionTaskExecutorWorker(
-			ClaimableWorkSource<ProjectionTask, ProjectionPartition> workSource,
+			ClaimableWorkLifecycle<ProjectionTask, ProjectionPartition> workSource,
 			SegmentedProjectionTaskExecutor projectionWorker,
 			ProjectionTaskExecutorWorkerSettings settings,
 			WorkWakeBus<String, PotId> wakeBus,
@@ -44,7 +44,7 @@ public class ProjectionTaskExecutorWorker {
 				settings.partition(),
 				toDispatcherSettings(settings),
 				wakeBus,
-				Set.of(ProjectionWakeSignals.PROJECTION_TASKS_AVAILABLE),
+				Set.of(ProjectionWakeSignals.PROJECTION_TASKS_AVAILABLE, ProjectionWakeSignals.CAPACITY_AVAILABLE),
 				wakeKeyPredicate);
 	}
 

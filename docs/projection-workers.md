@@ -30,9 +30,13 @@ The code is split into three explicit layers:
 The generic orchestrator module lives in `app/orchestrator-claimable-work-dispatcher` and is organized by responsibility:
 
 - `claimable.dispatcher`: `ClaimableWorkDispatcher`, `GenericClaimingDispatcher`, and dispatcher settings. This is the polling and admission orchestrator.
-- `claimable.work`: `ClaimableWorkSource`, `ClaimedWork`, `ClaimWorkRequest`, `WorkHandler`, and `WorkKeyResolver`. These are the contracts business-specific adapters implement.
+- `claimable.work`: `ClaimableWorkLifecycle`, `ClaimedWork`, `ClaimWorkRequest`, `WorkHandler`, and `WorkKeyResolver`. These are the contracts business-specific adapters implement.
 - `claimable.pool`: `SegmentedWorkerPool`, `SegmentedWorkHandler`, `WorkSegmenter`, and pool settings. This is the bounded local execution layer.
 - `claimable.wake`: `WorkWakeBus`, wake events/subscriptions, `WakeSignalWaiter`, and the deprecated `WakeablePollingLoop` compatibility wrapper. These classes only wake polling earlier.
+
+Projection-specific shared contracts live in `app/shared-supra-dispatcher-projection`: `ProjectionWakeSignals`,
+`ProjectionTask`, and `ProjectionTaskExecutorSettings`. They are shared by the split NATS dispatchers and the temporary
+direct-balances worker while that mode still exists.
 
 ## Tables And States
 

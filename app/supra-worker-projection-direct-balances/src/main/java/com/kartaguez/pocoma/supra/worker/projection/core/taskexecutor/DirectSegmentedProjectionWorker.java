@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
 
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalances
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.projection.ProjectionObservationContext;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 
 public class DirectSegmentedProjectionWorker {
 

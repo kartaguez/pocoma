@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
+package com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -9,6 +9,8 @@ public record ProjectionTaskExecutorSettings(
 		int maxRetries,
 		Duration initialBackoff,
 		Duration maxBackoff,
+		Duration leaseDuration,
+		Duration heartbeatInterval,
 		Duration capacityWakeupMinInterval) {
 
 	public static final int DEFAULT_THREAD_COUNT = 10;
@@ -16,6 +18,7 @@ public record ProjectionTaskExecutorSettings(
 	public static final int DEFAULT_MAX_RETRIES = 3;
 	public static final Duration DEFAULT_INITIAL_BACKOFF = Duration.ofMillis(100);
 	public static final Duration DEFAULT_MAX_BACKOFF = Duration.ofSeconds(2);
+	public static final Duration DEFAULT_LEASE_DURATION = Duration.ofSeconds(30);
 	public static final Duration DEFAULT_CAPACITY_WAKEUP_MIN_INTERVAL = Duration.ofMillis(10);
 
 	public ProjectionTaskExecutorSettings(
@@ -30,7 +33,46 @@ public record ProjectionTaskExecutorSettings(
 				maxRetries,
 				initialBackoff,
 				maxBackoff,
+				DEFAULT_LEASE_DURATION,
+				defaultHeartbeatInterval(DEFAULT_LEASE_DURATION),
 				DEFAULT_CAPACITY_WAKEUP_MIN_INTERVAL);
+	}
+
+	public ProjectionTaskExecutorSettings(
+			int threadCount,
+			int queueCapacity,
+			int maxRetries,
+			Duration initialBackoff,
+			Duration maxBackoff,
+			Duration capacityWakeupMinInterval) {
+		this(
+				threadCount,
+				queueCapacity,
+				maxRetries,
+				initialBackoff,
+				maxBackoff,
+				DEFAULT_LEASE_DURATION,
+				defaultHeartbeatInterval(DEFAULT_LEASE_DURATION),
+				capacityWakeupMinInterval);
+	}
+
+	public ProjectionTaskExecutorSettings(
+			int threadCount,
+			int queueCapacity,
+			int maxRetries,
+			Duration initialBackoff,
+			Duration maxBackoff,
+			Duration leaseDuration,
+			Duration capacityWakeupMinInterval) {
+		this(
+				threadCount,
+				queueCapacity,
+				maxRetries,
+				initialBackoff,
+				maxBackoff,
+				leaseDuration,
+				defaultHeartbeatInterval(leaseDuration),
+				capacityWakeupMinInterval);
 	}
 
 	public ProjectionTaskExecutorSettings {
@@ -39,6 +81,8 @@ public record ProjectionTaskExecutorSettings(
 		requireNotNegative(maxRetries, "maxRetries");
 		requireNotNegative(initialBackoff, "initialBackoff");
 		requireNotNegative(maxBackoff, "maxBackoff");
+		requirePositive(leaseDuration, "leaseDuration");
+		requirePositive(heartbeatInterval, "heartbeatInterval");
 		requireNotNegative(capacityWakeupMinInterval, "capacityWakeupMinInterval");
 		if (initialBackoff.compareTo(maxBackoff) > 0) {
 			throw new IllegalArgumentException("initialBackoff must be less than or equal to maxBackoff");
@@ -52,6 +96,8 @@ public record ProjectionTaskExecutorSettings(
 				DEFAULT_MAX_RETRIES,
 				DEFAULT_INITIAL_BACKOFF,
 				DEFAULT_MAX_BACKOFF,
+				DEFAULT_LEASE_DURATION,
+				defaultHeartbeatInterval(DEFAULT_LEASE_DURATION),
 				DEFAULT_CAPACITY_WAKEUP_MIN_INTERVAL);
 	}
 
@@ -72,5 +118,18 @@ public record ProjectionTaskExecutorSettings(
 		if (value.isNegative()) {
 			throw new IllegalArgumentException(name + " must be greater than or equal to 0");
 		}
+	}
+
+	private static void requirePositive(Duration value, String name) {
+		Objects.requireNonNull(value, name + " must not be null");
+		if (value.isNegative() || value.isZero()) {
+			throw new IllegalArgumentException(name + " must be positive");
+		}
+	}
+
+	private static Duration defaultHeartbeatInterval(Duration leaseDuration) {
+		requirePositive(leaseDuration, "leaseDuration");
+		Duration interval = leaseDuration.dividedBy(3);
+		return interval.isZero() ? Duration.ofMillis(1) : interval;
 	}
 }

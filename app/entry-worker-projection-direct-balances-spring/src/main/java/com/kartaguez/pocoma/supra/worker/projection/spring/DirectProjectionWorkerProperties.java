@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor.ProjectionTaskExecutorSettings;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
 
 @ConfigurationProperties(prefix = "pocoma.projection.worker")
 public class DirectProjectionWorkerProperties {

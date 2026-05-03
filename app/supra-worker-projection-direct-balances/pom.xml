@@ -25,7 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-worker-projection-common</artifactId>
+			<artifactId>pocoma-shared-supra-dispatcher-projection</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

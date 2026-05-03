@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.supra.worker.projection.core.taskexecutor;
 
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.taskexecutor.ProjectionTaskExecutorSettings;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,12 +23,12 @@ import com.kartaguez.pocoma.engine.model.ProjectionTaskType;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.ExecuteProjectionTaskCommand;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
-import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkSource;
+import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimedWork;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.InMemoryWorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
-import com.kartaguez.pocoma.supra.worker.projection.core.model.ProjectionTask;
-import com.kartaguez.pocoma.supra.worker.projection.core.wakeup.ProjectionWakeSignals;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
+import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 
 class ProjectionTaskExecutorWorkerTest {
 
@@ -141,7 +143,7 @@ class ProjectionTaskExecutorWorkerTest {
 	}
 
 	private static final class RecordingExecuteUseCase
-			implements ExecuteProjectionTasksUseCase, ClaimableWorkSource<ProjectionTask, ProjectionPartition> {
+			implements ExecuteProjectionTasksUseCase, ClaimableWorkLifecycle<ProjectionTask, ProjectionPartition> {
 		private final Queue<ProjectionTask> claims = new ConcurrentLinkedQueue<>();
 		private final CountDownLatch claimAttempts = new CountDownLatch(1);
 		private final CountDownLatch executed = new CountDownLatch(1);
@@ -168,6 +170,11 @@ class ProjectionTaskExecutorWorkerTest {
 
 		@Override
 		public boolean markProcessing(ClaimedWork<ProjectionTask> work) {
+			return true;
+		}
+
+		@Override
+		public boolean heartbeat(ClaimedWork<ProjectionTask> work, Duration leaseDuration) {
 			return true;
 		}
 
