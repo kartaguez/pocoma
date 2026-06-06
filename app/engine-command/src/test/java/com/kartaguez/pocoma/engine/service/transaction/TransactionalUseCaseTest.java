@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.security.UserContext;

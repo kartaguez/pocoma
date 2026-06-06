@@ -68,8 +68,10 @@ public class PotsQueryController {
 
 	@GetMapping
 	@Operation(summary = "List accessible pots")
-	public List<PotResponse> listUserPots(@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+	public List<PotResponse> listUserPots(
+			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes) {
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return listUserPotsUseCase.listUserPots(userContext).stream()
 				.map(RestMapper::toResponse)
 				.toList();
@@ -79,8 +81,9 @@ public class PotsQueryController {
 	@Operation(summary = "List current user's balances by pot")
 	public List<UserPotBalanceResponse> listUserPotBalances(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@RequestParam(required = false) Long version) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return listUserPotBalancesUseCase
 				.listUserPotBalances(userContext, new ListUserPotBalancesQuery(optionalVersion(version)))
 				.stream()
@@ -92,9 +95,10 @@ public class PotsQueryController {
 	@Operation(summary = "Get a pot")
 	public PotViewResponse getPot(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestParam(required = false) Long version) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return RestMapper.toResponse(getPotUseCase.getPot(
 				userContext,
 				new GetPotQuery(potId, optionalVersion(version))));
@@ -104,9 +108,10 @@ public class PotsQueryController {
 	@Operation(summary = "List pot expenses")
 	public List<ExpenseHeaderResponse> listPotExpenses(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestParam(required = false) Long version) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return listPotExpensesUseCase
 				.listPotExpenses(userContext, new ListPotExpensesQuery(potId, optionalVersion(version)))
 				.stream()
@@ -118,9 +123,10 @@ public class PotsQueryController {
 	@Operation(summary = "Get pot balances")
 	public PotBalancesResponse getPotBalances(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestParam(required = false) Long version) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return RestMapper.toResponse(getPotBalancesUseCase.getPotBalances(
 				userContext,
 				new GetPotBalancesQuery(potId, optionalVersion(version))));

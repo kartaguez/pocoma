@@ -9,12 +9,13 @@ import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.projection.Balance;
 import com.kartaguez.pocoma.domain.projection.PotBalances;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.result.BalanceSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotBalancesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.EngineSnapshotMapper;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 
 final class QuerySnapshotMapper {
 
@@ -22,38 +23,19 @@ final class QuerySnapshotMapper {
 	}
 
 	static PotHeaderSnapshot toSnapshot(PotHeader potHeader, long version) {
-		return new PotHeaderSnapshot(
-				potHeader.id(),
-				potHeader.label(),
-				potHeader.creatorId(),
-				potHeader.deleted(),
-				version);
+		return EngineSnapshotMapper.toSnapshot(potHeader, version);
 	}
 
 	static PotShareholdersSnapshot toSnapshot(PotShareholders potShareholders, long version) {
-		return new PotShareholdersSnapshot(
-				potShareholders.potId(),
-				potShareholders.shareholders().values().stream().collect(Collectors.toSet()),
-				version);
+		return EngineSnapshotMapper.toSnapshot(potShareholders, version);
 	}
 
 	static ExpenseHeaderSnapshot toSnapshot(ExpenseHeader expenseHeader, long version) {
-		return new ExpenseHeaderSnapshot(
-				expenseHeader.id(),
-				expenseHeader.potId(),
-				expenseHeader.payerId(),
-				expenseHeader.amount(),
-				expenseHeader.label(),
-				expenseHeader.deleted(),
-				version);
+		return EngineSnapshotMapper.toSnapshot(expenseHeader, version);
 	}
 
 	static ExpenseSharesSnapshot toSnapshot(ExpenseId expenseId, ExpenseShares expenseShares, long version) {
-		return new ExpenseSharesSnapshot(
-				expenseId,
-				expenseShares.potId(),
-				expenseShares.shares(),
-				version);
+		return EngineSnapshotMapper.toSnapshot(expenseId, expenseShares, version);
 	}
 
 	static PotBalancesSnapshot toSnapshot(PotBalances potBalances) {

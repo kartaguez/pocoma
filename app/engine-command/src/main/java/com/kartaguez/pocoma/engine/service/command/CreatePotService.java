@@ -11,7 +11,7 @@ import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
@@ -51,7 +51,9 @@ final class CreatePotService implements CreatePotUseCase {
 
 		// 2. Check that the current user is allowed to create a pot.
 		Objects.requireNonNull(userContext, "userContext must not be null");
-		createPotAuthorizationPolicy.assertCanCreatePot(userContext.userId());
+		createPotAuthorizationPolicy.assertCanCreatePot(
+				userContext.userId() == null ? null : userContext.userId().value().toString(),
+				userContext.scopes());
 
 		// 3. Convert simple input data into domain value objects and create the pot.
 		PotCreated potCreated = PotFactory.createPot(

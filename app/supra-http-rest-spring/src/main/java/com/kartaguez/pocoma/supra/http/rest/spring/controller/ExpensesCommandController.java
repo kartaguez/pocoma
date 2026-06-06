@@ -64,9 +64,10 @@ public class ExpensesCommandController {
 	@Operation(summary = "Update expense details")
 	public ExpenseHeaderResponse updateExpenseDetails(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID expenseId,
 			@RequestBody UpdateExpenseDetailsRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		UpdateExpenseDetailsRequest body = requireBody(request);
 
 		return RestMapper.toResponse(updateExpenseDetailsUseCase.updateExpenseDetails(
@@ -84,9 +85,10 @@ public class ExpensesCommandController {
 	@Operation(summary = "Update expense shares")
 	public ExpenseSharesResponse updateExpenseShares(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID expenseId,
 			@RequestBody UpdateExpenseSharesRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		UpdateExpenseSharesRequest body = requireBody(request);
 
 		return RestMapper.toResponse(updateExpenseSharesUseCase.updateExpenseShares(
@@ -101,9 +103,10 @@ public class ExpensesCommandController {
 	@Operation(summary = "Delete an expense")
 	public ExpenseHeaderResponse deleteExpense(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID expenseId,
 			@RequestBody ExpectedVersionRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 
 		return RestMapper.toResponse(deleteExpenseUseCase.deleteExpense(
 				userContext,

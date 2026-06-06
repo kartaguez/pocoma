@@ -7,7 +7,6 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTas
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
@@ -38,10 +37,8 @@ public final class ProjectionUseCaseFactory {
 	}
 
 	public static BuildProjectionTasksUseCase buildProjectionTasksUseCase(
-			BusinessEventOutboxPort outboxPort,
 			ProjectionTaskPort projectionTaskPort,
 			ProjectionEventPublisherPort eventPublisherPort) {
-		Objects.requireNonNull(outboxPort, "outboxPort must not be null");
 		return new BuildProjectionTasksService(projectionTaskPort, eventPublisherPort);
 	}
 

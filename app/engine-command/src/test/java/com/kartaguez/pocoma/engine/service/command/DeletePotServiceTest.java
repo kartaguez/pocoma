@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import com.kartaguez.pocoma.domain.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.DeletePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
@@ -20,7 +22,7 @@ import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeletePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class DeletePotServiceTest {
@@ -42,7 +44,7 @@ class DeletePotServiceTest {
 				new DeletePotAuthorizationPolicy());
 
 		PotHeaderSnapshot snapshot = deletePotService.deletePot(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new DeletePotCommand(fixture.potId.value(), 3));
 
 		assertEquals(fixture.potId, snapshot.id());
@@ -70,7 +72,7 @@ class DeletePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						new DeletePotCommand(fixture.potId.value(), 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -86,7 +88,7 @@ class DeletePotServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						new DeletePotCommand(fixture.potId.value(), 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -102,7 +104,7 @@ class DeletePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(UUID.randomUUID().toString()),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
 						new DeletePotCommand(fixture.potId.value(), 3)));
 
 		assertEquals("POT_DELETE_FORBIDDEN", exception.ruleCode());
@@ -114,7 +116,9 @@ class DeletePotServiceTest {
 		DeletePotFixture fixture = new DeletePotFixture();
 		DeletePotService deletePotService = fixture.service(fixture.context(false));
 
-		assertThrows(NullPointerException.class, () -> deletePotService.deletePot(new UserContext("user-id"), null));
+		assertThrows(NullPointerException.class, () -> deletePotService.deletePot(
+				new UserContext(fixture.creatorId, fixture.userScopes),
+				null));
 	}
 
 	@Test
@@ -133,7 +137,7 @@ class DeletePotServiceTest {
 		DeletePotService deletePotService = fixture.service(null);
 
 		assertThrows(NullPointerException.class, () -> deletePotService.deletePot(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new DeletePotCommand(fixture.potId.value(), 3)));
 	}
 
@@ -141,6 +145,7 @@ class DeletePotServiceTest {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final Label label = Label.of("Trip");
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
 
 		private DeletePotContext context(boolean deleted) {
 			return new DeletePotContext(

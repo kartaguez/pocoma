@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdatePotShareholdersDetailsUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
@@ -82,7 +82,9 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 		// 4. Check that the current user is allowed to update shareholders details.
 		updatePotShareholdersDetailsAuthorizationPolicy.assertCanUpdatePotShareholdersDetails(
 				userContext.userId(),
-				context.creatorId());
+				userContext.scopes(),
+				context.creatorId(),
+				null);
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
 		PotShareholders currentPotShareholders = Objects.requireNonNull(

@@ -39,10 +39,10 @@ import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreateExpenseCommand;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
@@ -108,9 +108,10 @@ class CommandControllerTest {
 
 		mockMvc.perform(post("/api/pots")
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:create")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
-								{"label":"Trip","creatorId":"00000000-0000-0000-0000-000000000000"}
+								{"label":"Trip"}
 								"""))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").value(potId.value().toString()))
@@ -121,7 +122,7 @@ class CommandControllerTest {
 		ArgumentCaptor<UserContext> userContextCaptor = ArgumentCaptor.forClass(UserContext.class);
 		ArgumentCaptor<CreatePotCommand> commandCaptor = ArgumentCaptor.forClass(CreatePotCommand.class);
 		verify(createPotUseCase).createPot(userContextCaptor.capture(), commandCaptor.capture());
-		assertEquals(userId.toString(), userContextCaptor.getValue().userId());
+		assertEquals(userId.toString(), userContextCaptor.getValue().userId().toString());
 		assertEquals(userId, commandCaptor.getValue().creatorId());
 		assertEquals("Trip", commandCaptor.getValue().label());
 	}
@@ -139,6 +140,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(patch("/api/pots/{potId}/details", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot.details:update")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"label":"Updated","expectedVersion":2}
@@ -172,6 +174,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(post("/api/pots/{potId}/expenses", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:create")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -214,6 +217,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(patch("/api/pots/{potId}/shareholders/details", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "shareholder:update")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -242,6 +246,7 @@ class CommandControllerTest {
 	void invalidUserIdHeaderReturnsBadRequest() throws Exception {
 		mockMvc.perform(post("/api/pots")
 						.header(UserContextFactory.USER_ID_HEADER, "not-a-uuid")
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:create")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"label":"Trip"}
@@ -258,6 +263,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(delete("/api/pots/{potId}", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:delete")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"expectedVersion":4}
@@ -275,6 +281,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(delete("/api/expenses/{expenseId}", expenseId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:delete")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"expectedVersion":4}
@@ -292,6 +299,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(patch("/api/expenses/{expenseId}/details", expenseId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense.details:update")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{
@@ -323,6 +331,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(delete("/api/expenses/{expenseId}", expenseId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:delete")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"expectedVersion":8}

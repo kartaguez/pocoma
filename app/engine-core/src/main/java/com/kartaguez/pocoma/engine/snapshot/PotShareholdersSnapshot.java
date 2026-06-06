@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.port.in.command.result;
+package com.kartaguez.pocoma.engine.snapshot;
 
 import java.util.Objects;
 import java.util.Set;

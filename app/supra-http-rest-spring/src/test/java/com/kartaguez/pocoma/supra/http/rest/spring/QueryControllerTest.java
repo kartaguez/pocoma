@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.kartaguez.pocoma.domain.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.entity.Shareholder;
+import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Fraction;
 import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.Name;
@@ -29,10 +31,10 @@ import com.kartaguez.pocoma.domain.value.Weight;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.domain.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotViewSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
@@ -41,6 +43,7 @@ import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListPotExpensesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotsUseCase;
+import com.kartaguez.pocoma.engine.security.UserContext;
 import com.kartaguez.pocoma.supra.http.rest.spring.controller.ExpensesQueryController;
 import com.kartaguez.pocoma.supra.http.rest.spring.controller.PotsQueryController;
 import com.kartaguez.pocoma.supra.http.rest.spring.error.RestExceptionHandler;
@@ -87,7 +90,8 @@ class QueryControllerTest {
 				new PotShareholdersSnapshot(PotId.of(potId), Set.of(shareholder), 4)));
 
 		mockMvc.perform(get("/api/pots/{potId}?version=4", potId)
-						.header(UserContextFactory.USER_ID_HEADER, userId.toString()))
+						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:read"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.header.id").value(potId.toString()))
 				.andExpect(jsonPath("$.header.version").value(4))
@@ -125,7 +129,8 @@ class QueryControllerTest {
 						2)));
 
 		mockMvc.perform(get("/api/expenses/{expenseId}", expenseId)
-						.header(UserContextFactory.USER_ID_HEADER, userId.toString()))
+						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:read"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.header.id").value(expenseId.toString()))
 				.andExpect(jsonPath("$.shares.shares[0].weight.numerator").value(1));
@@ -134,8 +139,43 @@ class QueryControllerTest {
 	@Test
 	void rejectsInvalidVersion() throws Exception {
 		mockMvc.perform(get("/api/pots/{potId}?version=0", UUID.randomUUID())
-						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString()))
+						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:read"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+	}
+
+	@Test
+	void missingUserScopesHeaderReturnsDedicatedBadRequest() throws Exception {
+		mockMvc.perform(get("/api/pots")
+						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString()))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("MISSING_USER_SCOPES"));
+	}
+
+	@Test
+	void invalidUserScopesHeaderReturnsDedicatedBadRequest() throws Exception {
+		mockMvc.perform(get("/api/pots")
+						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "not-a-scope"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("INVALID_USER_SCOPES"));
+	}
+
+	@Test
+	void listUserPotsForwardsNonReadScopeAndMapsForbidden() throws Exception {
+		when(listUserPotsUseCase.listUserPots(any())).thenAnswer(invocation -> {
+			UserContext userContext = invocation.getArgument(0);
+			if (!userContext.scopes().contains(new Scope(Scope.Resource.POT, null, Scope.Action.READ))) {
+				throw new BusinessRuleViolationException("MISSING_SCOPE", "missing read scope");
+			}
+			return java.util.List.of();
+		});
+
+		mockMvc.perform(get("/api/pots")
+						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:create"))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.code").value("MISSING_SCOPE"));
 	}
 }

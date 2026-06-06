@@ -16,6 +16,7 @@ import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.CreateExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
@@ -24,7 +25,7 @@ import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreateExpenseCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class CreateExpenseServiceTest {
@@ -47,7 +48,7 @@ class CreateExpenseServiceTest {
 				new CreateExpenseAuthorizationPolicy());
 
 		ExpenseSharesSnapshot snapshot = service.createExpense(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				fixture.command(3, fixture.payerId, fixture.shareholderId));
 
 		assertNotNull(snapshot.expenseId());
@@ -77,7 +78,7 @@ class CreateExpenseServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.createExpense(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(3, fixture.payerId, fixture.shareholderId)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -95,7 +96,7 @@ class CreateExpenseServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> service.createExpense(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(2, fixture.payerId, fixture.shareholderId)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -113,7 +114,7 @@ class CreateExpenseServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.createExpense(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(3, fixture.payerId, ShareholderId.of(UUID.randomUUID()))));
 
 		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
@@ -131,7 +132,7 @@ class CreateExpenseServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.createExpense(
-						new UserContext(UUID.randomUUID().toString()),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
 						fixture.command(3, fixture.payerId, fixture.shareholderId)));
 
 		assertEquals("EXPENSE_CREATE_FORBIDDEN", exception.ruleCode());
@@ -142,6 +143,7 @@ class CreateExpenseServiceTest {
 	private static final class CreateExpenseFixture {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.EXPENSE, null, Scope.Action.CREATE));
 		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		private final ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
 

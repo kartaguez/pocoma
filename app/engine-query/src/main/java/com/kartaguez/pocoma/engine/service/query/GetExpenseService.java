@@ -1,11 +1,14 @@
 package com.kartaguez.pocoma.engine.service.query;
 
 import java.util.Objects;
+import java.util.Set;
 
 import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetExpenseQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.ExpenseViewSnapshot;
@@ -18,7 +21,7 @@ final class GetExpenseService implements GetExpenseUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final ExpenseQueryPort expenseQueryPort;
-	private final QueryAuthorizationService authorizationService;
+	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
 
 	GetExpenseService(
 			PotQueryPort potQueryPort,
@@ -26,12 +29,15 @@ final class GetExpenseService implements GetExpenseUseCase {
 			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.expenseQueryPort = Objects.requireNonNull(expenseQueryPort, "expenseQueryPort must not be null");
-		this.authorizationService = new QueryAuthorizationService(potQueryPort, readPotAuthorizationPolicy);
+		this.readPotAuthorizationPolicy = Objects.requireNonNull(
+				readPotAuthorizationPolicy,
+				"readPotAuthorizationPolicy must not be null");
 	}
 
 	@Override
 	public ExpenseViewSnapshot getExpense(UserContext userContext, GetExpenseQuery query) {
 		// 1. Validate the incoming query and convert simple input data into domain identifiers.
+		Objects.requireNonNull(userContext, "userContext must not be null");
 		Objects.requireNonNull(query, "query must not be null");
 		ExpenseId expenseId = ExpenseId.of(query.expenseId());
 
@@ -49,7 +55,12 @@ final class GetExpenseService implements GetExpenseUseCase {
 
 		// 4. Load the pot header and check that the current user can read this pot at the requested version.
 		PotHeader potHeader = potQueryPort.loadPotHeaderAtVersion(expenseHeader.potId(), version);
-		authorizationService.assertCanRead(userContext, potHeader, expenseHeader.potId(), version);
+		PotShareholders potShareholders = potQueryPort.loadPotShareholdersAtVersion(expenseHeader.potId(), version);
+		readPotAuthorizationPolicy.assertCanReadPot(
+				userContext.userId(),
+				userContext.scopes(),
+				potHeader.creatorId(),
+				activeShareholderUserIds(potShareholders));
 
 		// 5. Load the expense shares once authorization has succeeded.
 		ExpenseShares expenseShares = expenseQueryPort.loadExpenseSharesAtVersion(expenseId, version);
@@ -58,5 +69,12 @@ final class GetExpenseService implements GetExpenseUseCase {
 		return new ExpenseViewSnapshot(
 				QuerySnapshotMapper.toSnapshot(expenseHeader, version),
 				QuerySnapshotMapper.toSnapshot(expenseId, expenseShares, version));
+	}
+
+	private static Set<UserId> activeShareholderUserIds(PotShareholders shareholders) {
+		return shareholders.shareholders().values().stream()
+				.filter(shareholder -> !shareholder.deleted())
+				.map(shareholder -> shareholder.userId())
+				.collect(java.util.stream.Collectors.toSet());
 	}
 }

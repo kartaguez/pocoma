@@ -7,9 +7,7 @@ import java.util.UUID;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 
-public interface BusinessEventOutboxPort {
-
-	void append(Object event);
+public interface BusinessEventOutboxPort extends BusinessEventOutboxAppendPort {
 
 	default List<BusinessEventClaim> claimPending(int limit, Duration leaseDuration, String workerId) {
 		return claimPending(limit, leaseDuration, workerId, ProjectionPartition.single());

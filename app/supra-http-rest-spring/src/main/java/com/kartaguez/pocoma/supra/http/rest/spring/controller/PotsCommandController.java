@@ -97,11 +97,15 @@ public class PotsCommandController {
 	@Operation(summary = "Create a pot")
 	public PotResponse createPot(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@RequestBody CreatePotRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		CreatePotCommand command = new CreatePotCommand(
 				requireBody(request).label(),
-				UserContextFactory.userId(userId));
+				//null,
+				userContext.userId().value()
+				//null
+		);
 
 		return RestMapper.toResponse(createPotUseCase.createPot(userContext, command));
 	}
@@ -110,9 +114,10 @@ public class PotsCommandController {
 	@Operation(summary = "Update pot details")
 	public PotResponse updatePotDetails(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody UpdatePotDetailsRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		UpdatePotDetailsRequest body = requireBody(request);
 
 		return RestMapper.toResponse(updatePotDetailsUseCase.updatePotDetails(
@@ -124,9 +129,10 @@ public class PotsCommandController {
 	@Operation(summary = "Delete a pot")
 	public PotResponse deletePot(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody ExpectedVersionRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 
 		return RestMapper.toResponse(deletePotUseCase.deletePot(
 				userContext,
@@ -138,9 +144,10 @@ public class PotsCommandController {
 	@Operation(summary = "Add pot shareholders")
 	public PotShareholdersResponse addPotShareholders(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody AddPotShareholdersRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		AddPotShareholdersRequest body = requireBody(request);
 
 		return RestMapper.toResponse(addPotShareholdersUseCase.addPotShareholders(
@@ -155,9 +162,10 @@ public class PotsCommandController {
 	@Operation(summary = "Update pot shareholders details")
 	public PotShareholdersResponse updatePotShareholdersDetails(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody UpdatePotShareholdersDetailsRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		UpdatePotShareholdersDetailsRequest body = requireBody(request);
 
 		return RestMapper.toResponse(updatePotShareholdersDetailsUseCase.updatePotShareholdersDetails(
@@ -172,9 +180,10 @@ public class PotsCommandController {
 	@Operation(summary = "Update pot shareholders weights")
 	public PotShareholdersResponse updatePotShareholdersWeights(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody UpdatePotShareholdersWeightsRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		UpdatePotShareholdersWeightsRequest body = requireBody(request);
 
 		return RestMapper.toResponse(updatePotShareholdersWeightsUseCase.updatePotShareholdersWeights(
@@ -190,9 +199,10 @@ public class PotsCommandController {
 	@Operation(summary = "Create an expense")
 	public ExpenseSharesResponse createExpense(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID potId,
 			@RequestBody CreateExpenseRequest request) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		CreateExpenseRequest body = requireBody(request);
 
 		return RestMapper.toResponse(createExpenseUseCase.createExpense(

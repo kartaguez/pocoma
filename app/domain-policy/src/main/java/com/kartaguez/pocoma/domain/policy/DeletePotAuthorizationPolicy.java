@@ -4,15 +4,33 @@ import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import java.util.Set;
 
 public final class DeletePotAuthorizationPolicy {
 
-	public void assertCanDeletePot(String userId, UserId creatorId) {
+	// TODO: (userId == creatorId) && userScopes.contains(pot:delete)
+	public void assertCanDeletePot(UserId userId, Set<Scope> userScopes, UserId creatorId) {
+		Objects.requireNonNull(userScopes, "userScopes must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
-		if (!creatorId.value().toString().equals(userId)) {
+
+		if (userId == null) {
+			throw new BusinessRuleViolationException(
+					"ANONYMOUS_USER",
+					"Anonymous users cannot delete the pot");
+		}
+
+		if (!creatorId.equals(userId)) {
 			throw new BusinessRuleViolationException(
 					"POT_DELETE_FORBIDDEN",
 					"Only the pot creator can delete the pot");
 		}
+		Scope requiredScope = new Scope(Scope.Resource.POT, null, Scope.Action.DELETE);
+		if (!userScopes.contains(requiredScope)) {
+			throw new BusinessRuleViolationException(
+					"MISSING_SCOPE",
+					"User is missing the required scope to delete the pot");
+		}
+
 	}
 }

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 public class OpenApiConfiguration {
 
 	public static final String USER_ID_HEADER = "X-User-Id";
+	public static final String USER_SCOPES_HEADER = "X-User-Scopes";
 
 	@Bean
 	OpenAPI pocomaOpenAPI() {
@@ -24,7 +25,13 @@ public class OpenApiConfiguration {
 						.addSecuritySchemes(USER_ID_HEADER, new SecurityScheme()
 								.type(SecurityScheme.Type.APIKEY)
 								.in(SecurityScheme.In.HEADER)
-								.name(USER_ID_HEADER)))
-				.addSecurityItem(new SecurityRequirement().addList(USER_ID_HEADER));
+								.name(USER_ID_HEADER))
+						.addSecuritySchemes(USER_SCOPES_HEADER, new SecurityScheme()
+								.type(SecurityScheme.Type.APIKEY)
+								.in(SecurityScheme.In.HEADER)
+								.name(USER_SCOPES_HEADER)))
+				.addSecurityItem(new SecurityRequirement()
+						.addList(USER_ID_HEADER)
+						.addList(USER_SCOPES_HEADER));
 	}
 }

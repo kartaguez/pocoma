@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreateExpenseCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
@@ -88,7 +88,11 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 		context.assertCreatePreconditions(command.expectedVersion(), payerId, expenseShareholderIds);
 
 		// 4. Check that the current user is allowed to create an expense in this pot.
-		createExpenseAuthorizationPolicy.assertCanCreateExpense(userContext.userId(), context.creatorId());
+		createExpenseAuthorizationPolicy.assertCanCreateExpense(
+				userContext.userId(),
+				userContext.scopes(),
+				context.creatorId(),
+				Set.of());
 
 		// 5. Create the domain creation result.
 		ExpenseCreated expenseCreated = ExpenseFactory.createExpense(

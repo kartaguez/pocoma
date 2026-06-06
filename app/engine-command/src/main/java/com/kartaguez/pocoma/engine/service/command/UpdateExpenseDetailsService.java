@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Set;
 
 import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.policy.UpdateExpenseDetailsAuthorizationPolicy;
@@ -14,7 +15,7 @@ import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdateExpenseDetailsUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
@@ -79,7 +80,9 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		// 4. Check that the current user is allowed to update this expense.
 		updateExpenseDetailsAuthorizationPolicy.assertCanUpdateExpenseDetails(
 				userContext.userId(),
-				context.creatorId());
+				userContext.scopes(),
+				context.creatorId(),
+				Set.of());
 
 		// 5. Load the full expense header active at the explicit working version.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeletePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeletePotUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
@@ -66,7 +66,7 @@ final class DeletePotService implements DeletePotUseCase {
 		context.assertDeletePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to delete this pot.
-		deletePotAuthorizationPolicy.assertCanDeletePot(userContext.userId(), context.creatorId());
+		deletePotAuthorizationPolicy.assertCanDeletePot(userContext.userId(), userContext.scopes(), context.creatorId());
 
 		// 5. Load the full pot header active at the explicit working version.
 		PotHeader currentPotHeader = Objects.requireNonNull(

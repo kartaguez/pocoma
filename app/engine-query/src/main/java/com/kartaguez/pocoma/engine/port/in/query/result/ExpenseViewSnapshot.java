@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.engine.port.in.query.result;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
 
 public record ExpenseViewSnapshot(ExpenseHeaderSnapshot header, ExpenseSharesSnapshot shares) {
 

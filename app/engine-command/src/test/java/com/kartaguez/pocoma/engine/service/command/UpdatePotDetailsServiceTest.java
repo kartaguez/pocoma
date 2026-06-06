@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import com.kartaguez.pocoma.domain.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.UpdatePotDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
@@ -19,7 +21,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class UpdatePotDetailsServiceTest {
@@ -43,7 +45,7 @@ class UpdatePotDetailsServiceTest {
 				new UpdatePotDetailsAuthorizationPolicy());
 
 		PotHeaderSnapshot snapshot = updatePotDetailsService.updatePotDetails(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3));
 
 		assertEquals(fixture.potId, snapshot.id());
@@ -71,7 +73,7 @@ class UpdatePotDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -87,7 +89,7 @@ class UpdatePotDetailsServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -103,7 +105,7 @@ class UpdatePotDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(UUID.randomUUID().toString()),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 
 		assertEquals("POT_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
@@ -116,7 +118,7 @@ class UpdatePotDetailsServiceTest {
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(false));
 
 		assertThrows(NullPointerException.class, () -> updatePotDetailsService.updatePotDetails(
-				new UserContext("user-id"),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				null));
 	}
 
@@ -136,7 +138,7 @@ class UpdatePotDetailsServiceTest {
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(null);
 
 		assertThrows(NullPointerException.class, () -> updatePotDetailsService.updatePotDetails(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 	}
 
@@ -144,6 +146,7 @@ class UpdatePotDetailsServiceTest {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final Label label = Label.of("Trip");
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
 
 		private UpdatePotDetailsContext context(boolean deleted) {
 			return new UpdatePotDetailsContext(

@@ -3,13 +3,14 @@ package com.kartaguez.pocoma.domain.policy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 
 class AddPotShareholdersAuthorizationPolicyTest {
 
@@ -18,32 +19,36 @@ class AddPotShareholdersAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToAddPotShareholders() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-
-		assertDoesNotThrow(() -> policy.assertCanAddPotShareholders(creatorId.value().toString(), creatorId));
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE));
+		assertDoesNotThrow(() -> policy.assertCanAddPotShareholders(creatorId, scopes, creatorId));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE));
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanAddPotShareholders(UUID.randomUUID().toString(), creatorId));
+				() -> policy.assertCanAddPotShareholders(UserId.of(UUID.randomUUID()), scopes, creatorId));
 
 		assertEquals("POT_SHAREHOLDERS_ADD_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsAnonymousUser() {
+		UserId creatorId = UserId.of(UUID.randomUUID());
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE));
+
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanAddPotShareholders(null, UserId.of(UUID.randomUUID())));
+				() -> policy.assertCanAddPotShareholders(null, scopes, creatorId));
 
-		assertEquals("POT_SHAREHOLDERS_ADD_FORBIDDEN", exception.ruleCode());
+		assertEquals("ANONYMOUS_USER", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		assertThrows(NullPointerException.class, () -> policy.assertCanAddPotShareholders("user-id", null));
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE));
+		assertThrows(NullPointerException.class, () -> policy.assertCanAddPotShareholders(UserId.of(UUID.randomUUID()), scopes, null));
 	}
 }

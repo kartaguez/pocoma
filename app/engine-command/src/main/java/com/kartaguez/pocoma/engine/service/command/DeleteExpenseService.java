@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Set;
 
 import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.policy.DeleteExpenseAuthorizationPolicy;
@@ -10,7 +11,7 @@ import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeleteExpenseCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeleteExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
@@ -72,7 +73,11 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		context.assertDeletePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to delete this expense.
-		deleteExpenseAuthorizationPolicy.assertCanDeleteExpense(userContext.userId(), context.creatorId());
+		deleteExpenseAuthorizationPolicy.assertCanDeleteExpense(
+				userContext.userId(),
+				userContext.scopes(),
+				Set.of(),
+				context.creatorId());
 
 		// 5. Load the full expense header active at the explicit working version.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

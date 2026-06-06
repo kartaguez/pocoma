@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -14,19 +13,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
-
-class SpringEventPublisherAdapterTest {
+class SpringApplicationEventPublisherTest {
 
 	@Test
-	void publishesEngineEventThroughSpringApplicationEventPublisher() {
+	void publishesEventThroughSpringApplicationEventPublisher() {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class)) {
-			SpringEventPublisherAdapter adapter = context.getBean(SpringEventPublisherAdapter.class);
+			SpringApplicationEventPublisher publisher = context.getBean(SpringApplicationEventPublisher.class);
 			EventCollector collector = context.getBean(EventCollector.class);
-			PotCreatedEvent event = new PotCreatedEvent(PotId.of(UUID.randomUUID()), 12);
+			TestEvent event = new TestEvent("created");
 
-			adapter.publish(event);
+			publisher.publish(event);
 
 			assertEquals(1, collector.events().size());
 			assertSame(event, collector.events().getFirst());
@@ -36,9 +32,9 @@ class SpringEventPublisherAdapterTest {
 	@Test
 	void rejectsNullEvents() {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class)) {
-			SpringEventPublisherAdapter adapter = context.getBean(SpringEventPublisherAdapter.class);
+			SpringApplicationEventPublisher publisher = context.getBean(SpringApplicationEventPublisher.class);
 
-			assertThrows(NullPointerException.class, () -> adapter.publish((PotCreatedEvent) null));
+			assertThrows(NullPointerException.class, () -> publisher.publish(null));
 		}
 	}
 
@@ -46,9 +42,9 @@ class SpringEventPublisherAdapterTest {
 	static class TestConfiguration {
 
 		@Bean
-		SpringEventPublisherAdapter springEventPublisherAdapter(
+		SpringApplicationEventPublisher springApplicationEventPublisher(
 				org.springframework.context.ApplicationEventPublisher applicationEventPublisher) {
-			return new SpringEventPublisherAdapter(applicationEventPublisher);
+			return new SpringApplicationEventPublisher(applicationEventPublisher);
 		}
 
 		@Bean
@@ -57,16 +53,19 @@ class SpringEventPublisherAdapterTest {
 		}
 	}
 
+	record TestEvent(String type) {
+	}
+
 	static class EventCollector {
 
-		private final List<PotCreatedEvent> events = new ArrayList<>();
+		private final List<TestEvent> events = new ArrayList<>();
 
 		@EventListener
-		void on(PotCreatedEvent event) {
+		void on(TestEvent event) {
 			events.add(event);
 		}
 
-		List<PotCreatedEvent> events() {
+		List<TestEvent> events() {
 			return events;
 		}
 	}

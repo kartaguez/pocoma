@@ -25,9 +25,10 @@ public final class QueryUseCaseFactory {
 
 	public static ListUserPotsUseCase listUserPotsUseCase(
 			PotQueryPort potQueryPort,
+			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalListUserPotsUseCase(
-				new ListUserPotsService(potQueryPort),
+				new ListUserPotsService(potQueryPort, readPotAuthorizationPolicy),
 				transactionRunner);
 	}
 
@@ -73,9 +74,10 @@ public final class QueryUseCaseFactory {
 	public static ListUserPotBalancesUseCase listUserPotBalancesUseCase(
 			PotQueryPort potQueryPort,
 			PotBalancesPort potBalancesPort,
+			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalListUserPotBalancesUseCase(
-				new ListUserPotBalancesService(potQueryPort, potBalancesPort),
+				new ListUserPotBalancesService(potQueryPort, potBalancesPort, readPotAuthorizationPolicy),
 				transactionRunner);
 	}
 }

@@ -14,6 +14,7 @@ import com.kartaguez.pocoma.domain.entity.Shareholder;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Fraction;
 import com.kartaguez.pocoma.domain.value.Name;
 import com.kartaguez.pocoma.domain.value.UserId;
@@ -24,7 +25,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersWeightsContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersWeightsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class UpdatePotShareholdersWeightsServiceTest {
@@ -49,7 +50,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 				new UpdatePotShareholdersWeightsAuthorizationPolicy());
 
 		PotShareholdersSnapshot snapshot = service.updatePotShareholdersWeights(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new UpdatePotShareholdersWeightsCommand(
 						fixture.potId.value(),
 						Set.of(new UpdatePotShareholdersWeightsCommand.ShareholderWeightInput(
@@ -83,7 +84,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersWeights(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(ShareholderId.of(UUID.randomUUID()), 3)));
 
 		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
@@ -99,7 +100,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersWeights(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(fixture.shareholderId, 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -116,7 +117,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> service.updatePotShareholdersWeights(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(fixture.shareholderId, 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -133,7 +134,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersWeights(
-						new UserContext(UUID.randomUUID().toString()),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
 						fixture.command(fixture.shareholderId, 3)));
 
 		assertEquals("POT_SHAREHOLDERS_WEIGHTS_UPDATE_FORBIDDEN", exception.ruleCode());
@@ -143,6 +144,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 	private static final class UpdatePotShareholdersWeightsFixture {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE));
 		private final ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
 		private final Shareholder shareholder = Shareholder.reconstitute(
 				shareholderId,

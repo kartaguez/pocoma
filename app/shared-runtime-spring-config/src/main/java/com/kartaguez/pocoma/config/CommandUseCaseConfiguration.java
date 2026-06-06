@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -34,7 +33,7 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionT
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.event.TransactionAwareProjectionEventPublisherPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxAppendPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort;
@@ -48,8 +47,10 @@ import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.command.CommandUseCaseFactory;
 import com.kartaguez.pocoma.engine.service.projection.ProjectionUseCaseFactory;
+import com.kartaguez.pocoma.config.event.CommandSpringEventPublisherAdapter;
+import com.kartaguez.pocoma.config.event.ProjectionSpringEventPublisherAdapter;
 import com.kartaguez.pocoma.infra.event.publisher.spring.OutboxThenSpringEventPublisherAdapter;
-import com.kartaguez.pocoma.infra.event.publisher.spring.SpringProjectionEventPublisherAdapter;
+import com.kartaguez.pocoma.infra.event.publisher.spring.SpringApplicationEventPublisher;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
@@ -79,11 +80,9 @@ public class CommandUseCaseConfiguration {
 
 	@Bean
 	BuildProjectionTasksUseCase buildProjectionTasksUseCase(
-			BusinessEventOutboxPort outboxPort,
 			ProjectionTaskPort projectionTaskPort,
 			ProjectionEventPublisherPort projectionEventPublisherPort) {
 		return ProjectionUseCaseFactory.buildProjectionTasksUseCase(
-				outboxPort,
 				projectionTaskPort,
 				projectionEventPublisherPort);
 	}
@@ -100,17 +99,22 @@ public class CommandUseCaseConfiguration {
 	@Bean
 	@Primary
 	ProjectionEventPublisherPort transactionAwareProjectionEventPublisherPort(
-			SpringProjectionEventPublisherAdapter springProjectionEventPublisherAdapter,
+			SpringApplicationEventPublisher springApplicationEventPublisher,
 			TransactionRunner transactionRunner) {
-		return new TransactionAwareProjectionEventPublisherPort(springProjectionEventPublisherAdapter, transactionRunner);
+		return new TransactionAwareProjectionEventPublisherPort(
+				new ProjectionSpringEventPublisherAdapter(springApplicationEventPublisher),
+				transactionRunner);
 	}
 
 	@Bean
 	EventPublisherPort outboxThenSpringEventPublisherPort(
-			@Qualifier("jpaBusinessEventOutboxAdapter") BusinessEventOutboxPort outboxPort,
-			ApplicationEventPublisher applicationEventPublisher,
+			@Qualifier("jpaBusinessEventOutboxAdapter") BusinessEventOutboxAppendPort outboxPort,
+			SpringApplicationEventPublisher springApplicationEventPublisher,
 			TransactionRunner transactionRunner) {
-		return new OutboxThenSpringEventPublisherAdapter(outboxPort, applicationEventPublisher, transactionRunner);
+		return new CommandSpringEventPublisherAdapter(new OutboxThenSpringEventPublisherAdapter(
+				outboxPort,
+				springApplicationEventPublisher,
+				transactionRunner)::publish);
 	}
 
 	@Bean

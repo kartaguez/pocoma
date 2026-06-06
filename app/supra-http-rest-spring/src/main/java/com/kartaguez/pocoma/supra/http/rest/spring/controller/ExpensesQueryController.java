@@ -39,9 +39,10 @@ public class ExpensesQueryController {
 	@Operation(summary = "Get an expense")
 	public ExpenseViewResponse getExpense(
 			@RequestHeader(UserContextFactory.USER_ID_HEADER) String userId,
+			@RequestHeader(name = UserContextFactory.USER_SCOPES_HEADER, required = false) String userScopes,
 			@PathVariable UUID expenseId,
 			@RequestParam(required = false) Long version) {
-		UserContext userContext = UserContextFactory.fromHeader(userId);
+		UserContext userContext = UserContextFactory.fromHeaders(userId, userScopes);
 		return RestMapper.toResponse(getExpenseUseCase.getExpense(
 				userContext,
 				new GetExpenseQuery(expenseId, optionalVersion(version))));

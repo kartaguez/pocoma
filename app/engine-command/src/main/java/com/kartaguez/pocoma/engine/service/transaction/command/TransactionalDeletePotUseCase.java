@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.transaction.command;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeletePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeletePotUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.security.UserContext;

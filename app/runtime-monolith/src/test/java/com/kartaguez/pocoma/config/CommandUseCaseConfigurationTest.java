@@ -18,14 +18,14 @@ import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.infra.event.publisher.spring.SpringEventPublisherAdapter;
+import com.kartaguez.pocoma.infra.event.publisher.spring.SpringApplicationEventPublisher;
 import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
 
 class CommandUseCaseConfigurationTest {
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 			.withUserConfiguration(CommandUseCaseConfiguration.class)
-			.withBean(SpringEventPublisherAdapter.class, () -> mock(SpringEventPublisherAdapter.class))
+			.withBean(SpringApplicationEventPublisher.class, () -> mock(SpringApplicationEventPublisher.class))
 			.withBean(TransactionRunner.class, () -> mock(TransactionRunner.class))
 			.withBean(PotGlobalVersionPort.class, () -> mock(PotGlobalVersionPort.class))
 			.withBean(PotHeaderPort.class, () -> mock(PotHeaderPort.class))

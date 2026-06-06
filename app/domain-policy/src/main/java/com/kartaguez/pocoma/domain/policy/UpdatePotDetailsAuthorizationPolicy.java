@@ -1,19 +1,35 @@
 package com.kartaguez.pocoma.domain.policy;
 
 import java.util.Objects;
-
+import java.util.Set;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 
 public final class UpdatePotDetailsAuthorizationPolicy {
 
-	public void assertCanUpdatePotDetails(String userId, UserId creatorId) {
-		Objects.requireNonNull(creatorId, "creatorId must not be null");
+	// TODO: (userId == creatorId) && userScopes.contains(pot.details:update)
+	public void assertCanUpdatePotDetails(UserId userId, Set<Scope> userScopes, UserId creatorId) {
+		Objects.requireNonNull(userScopes, "userScopes must not be null");
+		Objects.requireNonNull(creatorId, "creatorId must not be null"); 
 
-		if (!creatorId.value().toString().equals(userId)) {
+		if (userId == null) {
+			throw new BusinessRuleViolationException(
+					"ANONYMOUS_USER",
+					"Anonymous users cannot update pot details");
+		}
+
+		if (!creatorId.equals(userId)) {
 			throw new BusinessRuleViolationException(
 					"POT_DETAILS_UPDATE_FORBIDDEN",
 					"Only the pot creator can update pot details");
+		}
+
+		Scope requiredScope = new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE);
+		if (!userScopes.contains(requiredScope)) {
+			throw new BusinessRuleViolationException(
+					"MISSING_SCOPE",
+					"User is missing the required scope to update pot details");
 		}
 	}
 }

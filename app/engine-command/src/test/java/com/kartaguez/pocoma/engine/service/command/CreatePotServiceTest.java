@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -11,15 +12,18 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.policy.CreatePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Label;
 import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class CreatePotServiceTest {
+
+	private static final Set<Scope> CREATE_POT_SCOPES = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.CREATE));
 
 	@Test
 	void createsPotAtInitialVersion() {
@@ -35,7 +39,7 @@ class CreatePotServiceTest {
 		UserId creatorId = UserId.of(UUID.randomUUID());
 
 		PotHeaderSnapshot snapshot = createPotService.createPot(
-				new UserContext(creatorId.value().toString()),
+				new UserContext(creatorId, CREATE_POT_SCOPES),
 				new CreatePotCommand(label.value(), creatorId.value()));
 
 		assertEquals(label, snapshot.label());
@@ -59,7 +63,9 @@ class CreatePotServiceTest {
 				new FakeEventPublisherPort(),
 				new CreatePotAuthorizationPolicy());
 
-		assertThrows(NullPointerException.class, () -> createPotService.createPot(new UserContext("user-id"), null));
+		assertThrows(NullPointerException.class, () -> createPotService.createPot(
+				new UserContext(UserId.of(UUID.randomUUID()), CREATE_POT_SCOPES),
+				null));
 	}
 
 	@Test
@@ -86,7 +92,7 @@ class CreatePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> createPotService.createPot(
-						new UserContext(null),
+						new UserContext(null, CREATE_POT_SCOPES),
 						new CreatePotCommand("Trip", UUID.randomUUID())));
 
 		assertEquals("ANONYMOUS_USER", exception.ruleCode());

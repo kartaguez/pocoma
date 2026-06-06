@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.UserId;
 
 class UpdatePotShareholdersWeightsAuthorizationPolicyTest {
@@ -19,23 +21,27 @@ class UpdatePotShareholdersWeightsAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToUpdatePotShareholdersWeights() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE));
 
-		assertDoesNotThrow(() -> policy.assertCanUpdatePotShareholdersWeights(creatorId.value().toString(), creatorId));
+		assertDoesNotThrow(() -> policy.assertCanUpdatePotShareholdersWeights(creatorId, scopes, creatorId));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanUpdatePotShareholdersWeights(UUID.randomUUID().toString(), creatorId));
+				() -> policy.assertCanUpdatePotShareholdersWeights(UserId.of(UUID.randomUUID()), scopes, creatorId));
 
 		assertEquals("POT_SHAREHOLDERS_WEIGHTS_UPDATE_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotShareholdersWeights("user-id", null));
+		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE));
+
+		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotShareholdersWeights(UserId.of(UUID.randomUUID()), scopes, null));
 	}
 }

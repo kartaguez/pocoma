@@ -14,6 +14,7 @@ import com.kartaguez.pocoma.domain.entity.Shareholder;
 import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.value.Fraction;
 import com.kartaguez.pocoma.domain.value.Name;
 import com.kartaguez.pocoma.domain.value.UserId;
@@ -24,7 +25,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class UpdatePotShareholdersDetailsServiceTest {
@@ -50,7 +51,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		UUID linkedUserId = UUID.randomUUID();
 
 		PotShareholdersSnapshot snapshot = service.updatePotShareholdersDetails(
-				new UserContext(fixture.creatorId.value().toString()),
+				new UserContext(fixture.creatorId, fixture.userScopes),
 				new UpdatePotShareholdersDetailsCommand(
 						fixture.potId.value(),
 						Set.of(new UpdatePotShareholdersDetailsCommand.ShareholderDetailsInput(
@@ -85,7 +86,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersDetails(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(ShareholderId.of(UUID.randomUUID()), 3)));
 
 		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
@@ -101,7 +102,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersDetails(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(fixture.shareholderId, 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -118,7 +119,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> service.updatePotShareholdersDetails(
-						new UserContext(fixture.creatorId.value().toString()),
+						new UserContext(fixture.creatorId, fixture.userScopes),
 						fixture.command(fixture.shareholderId, 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -135,7 +136,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersDetails(
-						new UserContext(UUID.randomUUID().toString()),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
 						fixture.command(fixture.shareholderId, 3)));
 
 		assertEquals("POT_SHAREHOLDERS_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
@@ -145,6 +146,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 	private static final class UpdatePotShareholdersDetailsFixture {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
 		private final ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
 		private final Shareholder shareholder = Shareholder.reconstitute(
 				shareholderId,

@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.AddPotShareholdersCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
@@ -74,7 +74,10 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		context.assertAddPreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to add shareholders to this pot.
-		addPotShareholdersAuthorizationPolicy.assertCanAddPotShareholders(userContext.userId(), context.creatorId());
+		addPotShareholdersAuthorizationPolicy.assertCanAddPotShareholders(
+				userContext.userId(),
+				userContext.scopes(),
+				context.creatorId());
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
 		PotShareholders currentPotShareholders = Objects.requireNonNull(

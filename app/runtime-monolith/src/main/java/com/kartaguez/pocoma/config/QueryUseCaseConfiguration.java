@@ -21,7 +21,10 @@ public class QueryUseCaseConfiguration {
 
 	@Bean
 	ListUserPotsUseCase listUserPotsUseCase(PotQueryPort potQueryPort, TransactionRunner transactionRunner) {
-		return QueryUseCaseFactory.listUserPotsUseCase(potQueryPort, transactionRunner);
+		return QueryUseCaseFactory.listUserPotsUseCase(
+				potQueryPort,
+				new ReadPotAuthorizationPolicy(),
+				transactionRunner);
 	}
 
 	@Bean
@@ -73,6 +76,10 @@ public class QueryUseCaseConfiguration {
 			PotQueryPort potQueryPort,
 			PotBalancesPort potBalancesPort,
 			TransactionRunner transactionRunner) {
-		return QueryUseCaseFactory.listUserPotBalancesUseCase(potQueryPort, potBalancesPort, transactionRunner);
+		return QueryUseCaseFactory.listUserPotBalancesUseCase(
+				potQueryPort,
+				potBalancesPort,
+				new ReadPotAuthorizationPolicy(),
+				transactionRunner);
 	}
 }

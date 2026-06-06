@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.config;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,16 @@ import com.kartaguez.pocoma.domain.policy.UpdateExpenseSharesAuthorizationPolicy
 import com.kartaguez.pocoma.domain.policy.UpdatePotDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
+import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
+import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
+import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
+import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
+import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
+import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
+import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
+import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
@@ -37,7 +49,7 @@ import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.command.CommandUseCaseFactory;
-import com.kartaguez.pocoma.infra.event.publisher.spring.SpringEventPublisherAdapter;
+import com.kartaguez.pocoma.infra.event.publisher.spring.SpringApplicationEventPublisher;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
@@ -47,9 +59,11 @@ public class CommandUseCaseConfiguration {
 
 	@Bean
 	EventPublisherPort transactionAwareSpringEventPublisherPort(
-			SpringEventPublisherAdapter springEventPublisherAdapter,
+			SpringApplicationEventPublisher springApplicationEventPublisher,
 			TransactionRunner transactionRunner) {
-		return new TransactionAwareEventPublisherPort(springEventPublisherAdapter, transactionRunner);
+		return new TransactionAwareEventPublisherPort(
+				new CommandSpringEventPublisherAdapter(springApplicationEventPublisher),
+				transactionRunner);
 	}
 
 	@Bean
@@ -232,5 +246,64 @@ public class CommandUseCaseConfiguration {
 				eventPublisherPort,
 				new UpdatePotShareholdersWeightsAuthorizationPolicy(),
 				transactionRunner);
+	}
+
+	private static final class CommandSpringEventPublisherAdapter implements EventPublisherPort {
+
+		private final SpringApplicationEventPublisher delegate;
+
+		private CommandSpringEventPublisherAdapter(SpringApplicationEventPublisher delegate) {
+			this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+		}
+
+		@Override
+		public void publish(ExpenseCreatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(ExpenseDeletedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(ExpenseDetailsUpdatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(ExpenseSharesUpdatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotCreatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotDeletedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotDetailsUpdatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotShareholdersAddedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotShareholdersDetailsUpdatedEvent event) {
+			delegate.publish(event);
+		}
+
+		@Override
+		public void publish(PotShareholdersWeightsUpdatedEvent event) {
+			delegate.publish(event);
+		}
 	}
 }

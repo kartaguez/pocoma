@@ -10,7 +10,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
-import com.kartaguez.pocoma.engine.port.in.command.result.PotHeaderSnapshot;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdatePotDetailsUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
@@ -67,7 +67,10 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 		context.assertUpdatePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to update this pot.
-		updatePotDetailsAuthorizationPolicy.assertCanUpdatePotDetails(userContext.userId(), context.creatorId());
+		updatePotDetailsAuthorizationPolicy.assertCanUpdatePotDetails(
+				userContext.userId(),
+				userContext.scopes(),
+				context.creatorId());
 
 		// 5. Load the full pot header active at the explicit working version.
 		PotHeader currentPotHeader = Objects.requireNonNull(

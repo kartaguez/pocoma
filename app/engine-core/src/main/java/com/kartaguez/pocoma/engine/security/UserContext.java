@@ -1,4 +1,9 @@
 package com.kartaguez.pocoma.engine.security;
 
-public record UserContext(String userId) {
+import java.util.Set;
+
+import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.value.UserId;
+
+public record UserContext(UserId userId, Set<Scope> scopes) {
 }

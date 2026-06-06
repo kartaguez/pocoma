@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.port.in.command.result;
+package com.kartaguez.pocoma.engine.snapshot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

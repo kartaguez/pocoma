@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.engine.service.query;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.entity.Shareholder;
+import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.projection.Balance;
 import com.kartaguez.pocoma.domain.projection.PotBalances;
 import com.kartaguez.pocoma.domain.value.UserId;
@@ -20,10 +20,17 @@ final class ListUserPotBalancesService implements ListUserPotBalancesUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final PotBalancesPort potBalancesPort;
+	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
 
-	ListUserPotBalancesService(PotQueryPort potQueryPort, PotBalancesPort potBalancesPort) {
+	ListUserPotBalancesService(
+			PotQueryPort potQueryPort,
+			PotBalancesPort potBalancesPort,
+			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");
+		this.readPotAuthorizationPolicy = Objects.requireNonNull(
+				readPotAuthorizationPolicy,
+				"readPotAuthorizationPolicy must not be null");
 	}
 
 	@Override
@@ -31,9 +38,10 @@ final class ListUserPotBalancesService implements ListUserPotBalancesUseCase {
 		// 1. Validate the caller context and the incoming query.
 		Objects.requireNonNull(userContext, "userContext must not be null");
 		Objects.requireNonNull(query, "query must not be null");
+		readPotAuthorizationPolicy.assertCanListReadablePots(userContext.userId(), userContext.scopes());
 
 		// 2. Convert the caller into the domain user identifier used by persistence lookups.
-		UserId userId = UserId.of(UUID.fromString(userContext.userId()));
+		UserId userId = userContext.userId();
 
 		// 3. Start from the current, non-deleted pots accessible to the caller.
 		return potQueryPort.listAccessiblePotHeaders(userId).stream()
