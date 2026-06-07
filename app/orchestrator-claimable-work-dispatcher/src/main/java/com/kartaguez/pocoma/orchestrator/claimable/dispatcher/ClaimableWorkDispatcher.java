@@ -2,11 +2,11 @@ package com.kartaguez.pocoma.orchestrator.claimable.dispatcher;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
+import com.kartaguez.pocoma.orchestrator.claimable.polling.WakePollingRunner;
+import com.kartaguez.pocoma.orchestrator.claimable.polling.WakePollingRunnerSettings;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkHandler;
-import com.kartaguez.pocoma.orchestrator.claimable.wake.WakeSignalWaiter;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
@@ -25,9 +25,7 @@ public class ClaimableWorkDispatcher<W, K, S, C> {
 	private final WorkWakeBus<S, K> wakeBus;
 	private final Set<S> wakeSignals;
 	private final Predicate<K> wakeKeyPredicate;
-	private final AtomicBoolean running = new AtomicBoolean(false);
-	private WakeSignalWaiter<S, K> pollingLoop;
-	private Thread thread;
+	private final WakePollingRunner<S, K> pollingRunner;
 
 	public ClaimableWorkDispatcher(
 			ClaimableWorkLifecycle<W, C> workSource,
@@ -49,47 +47,39 @@ public class ClaimableWorkDispatcher<W, K, S, C> {
 			throw new IllegalArgumentException("wakeSignals must not be empty");
 		}
 		this.wakeKeyPredicate = Objects.requireNonNull(wakeKeyPredicate, "wakeKeyPredicate must not be null");
+		this.pollingRunner = new WakePollingRunner<>(
+				this::runOnce,
+				processed -> processed > 0,
+				new WakePollingRunnerSettings(
+						settings.enabled(),
+						settings.workerId(),
+						settings.pollingInterval(),
+						settings.wakeSignalsEnabled()),
+				this.wakeBus,
+				this.wakeSignals,
+				this.wakeKeyPredicate);
 	}
 
 	public void start() {
-		if (!settings.enabled() || !running.compareAndSet(false, true)) {
+		if (!settings.enabled() || pollingRunner.isRunning()) {
 			return;
 		}
 		workHandler.start();
-		pollingLoop = new WakeSignalWaiter<>(
-				wakeBus,
-				wakeSignals,
-				wakeKeyPredicate,
-				settings.pollingInterval(),
-				settings.wakeSignalsEnabled());
-		thread = new Thread(this::runLoop, "pocoma-claimable-work-dispatcher-" + settings.workerId());
-		thread.setDaemon(true);
-		thread.start();
+		pollingRunner.start();
 		LOGGER.log(System.Logger.Level.INFO, "Started claimable work dispatcher {0}", settings.workerId());
 	}
 
 	public void stop() {
-		if (!running.compareAndSet(true, false)) {
+		if (!pollingRunner.isRunning()) {
 			return;
 		}
-		if (pollingLoop != null) {
-			pollingLoop.close();
-		}
-		if (thread != null) {
-			thread.interrupt();
-			try {
-				thread.join(500);
-			}
-			catch (InterruptedException exception) {
-				Thread.currentThread().interrupt();
-			}
-		}
+		pollingRunner.stop();
 		workHandler.stop();
 		LOGGER.log(System.Logger.Level.INFO, "Stopped claimable work dispatcher {0}", settings.workerId());
 	}
 
 	public boolean isRunning() {
-		return running.get();
+		return pollingRunner.isRunning();
 	}
 
 	public int runOnce() {
@@ -127,19 +117,4 @@ public class ClaimableWorkDispatcher<W, K, S, C> {
 		return true;
 	}
 
-	private void runLoop() {
-		while (running.get()) {
-			try {
-				while (running.get() && runOnce() > 0) {
-				}
-				if (running.get()) {
-					pollingLoop.awaitWakeUp();
-				}
-			}
-			catch (RuntimeException exception) {
-				LOGGER.log(System.Logger.Level.ERROR, "Claimable work dispatcher loop failed", exception);
-				pollingLoop.awaitWakeUp();
-			}
-		}
-	}
 }
