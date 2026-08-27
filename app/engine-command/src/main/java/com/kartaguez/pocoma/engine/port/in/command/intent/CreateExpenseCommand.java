@@ -11,7 +11,7 @@ public record CreateExpenseCommand(
 		long amountDenominator,
 		String label,
 		Set<ExpenseShareInput> shares,
-		long expectedVersion) {
+		long expectedVersion) implements CommandIntent {
 
 	public CreateExpenseCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

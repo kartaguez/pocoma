@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.in.command.intent;
 import java.util.Objects;
 import java.util.UUID;
 
-public record DeletePotCommand(UUID potId, long expectedVersion) {
+public record DeletePotCommand(UUID potId, long expectedVersion) implements CommandIntent {
 
 	public DeletePotCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

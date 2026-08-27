@@ -35,7 +35,9 @@
 		<module>domain-projection</module>
 		<module>domain-pipeline-tasks</module>
 		<module>domain-policy</module>
+		<module>domain-consumption</module>
 		<module>engine-core</module>
+		<module>engine-consumption</module>
 		<module>engine-command</module>
 		<module>engine-query</module>
 		<module>engine-projection</module>
@@ -60,6 +62,7 @@
 		<module>runtime-pipeline-task-executor</module>
 		<module>runtime-balance-calculation-tasks-dispatcher</module>
 		<module>runtime-monolith</module>
+		<module>architecture-tests</module>
 	</modules>
 
 	<properties>

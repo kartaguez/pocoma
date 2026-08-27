@@ -4,7 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> shares, long expectedVersion) {
+public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> shares, long expectedVersion)
+		implements CommandIntent {
 
 	public UpdateExpenseSharesCommand {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");

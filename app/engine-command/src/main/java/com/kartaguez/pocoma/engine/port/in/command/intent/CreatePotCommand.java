@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.in.command.intent;
 import java.util.Objects;
 import java.util.UUID;
 
-public record CreatePotCommand(String label, UUID creatorId) {
+public record CreatePotCommand(String label, UUID creatorId) implements CommandIntent {
 
 	public CreatePotCommand {
 		Objects.requireNonNull(label, "label must not be null");

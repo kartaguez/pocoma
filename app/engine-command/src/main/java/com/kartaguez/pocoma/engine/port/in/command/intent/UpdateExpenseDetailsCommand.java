@@ -9,7 +9,7 @@ public record UpdateExpenseDetailsCommand(
 		long amountNumerator,
 		long amountDenominator,
 		String label,
-		long expectedVersion) {
+		long expectedVersion) implements CommandIntent {
 
 	public UpdateExpenseDetailsCommand {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");

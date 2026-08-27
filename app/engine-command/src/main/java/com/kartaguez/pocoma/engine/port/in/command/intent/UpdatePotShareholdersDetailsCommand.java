@@ -4,7 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public record UpdatePotShareholdersDetailsCommand(UUID potId, Set<ShareholderDetailsInput> shareholders, long expectedVersion) {
+public record UpdatePotShareholdersDetailsCommand(UUID potId, Set<ShareholderDetailsInput> shareholders, long expectedVersion)
+		implements CommandIntent {
 
 	public UpdatePotShareholdersDetailsCommand {
 		Objects.requireNonNull(potId, "potId must not be null");
