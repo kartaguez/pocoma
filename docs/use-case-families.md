@@ -57,8 +57,9 @@ The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, lease
 failures, and their invariants. It contains no use case, persistence concern, ordering,
 segmentation, or worker orchestration.
 
-Ordering and segmentation are technical processing concerns, temporarily held in `engine-core`
-until the specialized processing engines are introduced. Static segmentation uses a stable
+Ordering and segmentation are technical processing concerns. Command ordering belongs to
+`engine-processing-command` and Event ordering to `engine-processing-event`; Task ordering remains
+temporarily in `engine-core`. Static segmentation uses a stable
 `PartitionHash` and a configured `WorkerSegment`. Commands with
 a Pot id use the Pot id as their partition key. Commands without a Pot id are unsegmented and will
 later be made eligible to every Command worker segment; atomic claiming will select a single
@@ -127,6 +128,10 @@ that it remains callable only to keep the current workers operational.
 | `CompleteCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | `CommandPort`, generic completion | Decorator | Future Command worker | Target |
 | `FailCommandProcessingUseCase` | Command processing | command id, token, failure | `ConsumptionOutcome` | `CommandPort`, generic failure | Decorator | Future Command worker | Target |
 | `ReleaseCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | generic release | Decorator | Future Command worker | Target |
+| `ClaimNextEventUseCase` | Event processing | worker, lease, segment, pipeline | optional recorded event and claim | read-only `EventPort`, generic acquisition | Decorator | Future Event worker | Target |
+| `CompleteEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic completion | Decorator | Future Event worker | Target |
+| `FailEventProcessingUseCase` | Event processing | pipeline, event id, token, failure | `ConsumptionOutcome` | generic failure | Decorator | Future Event worker | Target |
+| `ReleaseEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic release | Decorator | Future Event worker | Target |
 | `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
 | `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
 | `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |

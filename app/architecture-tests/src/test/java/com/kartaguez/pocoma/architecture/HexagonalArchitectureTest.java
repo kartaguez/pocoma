@@ -199,6 +199,38 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void eventProcessingDependsOnlyOnEventsPipelinesAndGenericConsumption() {
+		noClasses()
+				.that().resideInAnyPackage(ROOT_PACKAGE + ".engine..processing.event..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".engine..processing.task..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".engine.taskmaterialization..",
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> recordedEventFields = CLASSES.get(ROOT_PACKAGE + ".engine.event.RecordedEvent")
+				.getAllFields().stream()
+				.map(field -> field.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of("eventId", "event", "recordedAt", "traceMetadata"), recordedEventFields,
+				"RecordedEvent must not carry pipeline consumption state");
+	}
+
+	@Test
 	void queryEngineIsIndependentFromProcessingAndFrameworks() {
 		noClasses()
 				.that().resideInAnyPackage(
@@ -253,6 +285,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.taskcreation..",
 						ROOT_PACKAGE + ".engine.service.transaction.taskcreation..")
 				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.event..",
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.context.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",

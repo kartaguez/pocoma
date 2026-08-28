@@ -1,11 +1,9 @@
-package com.kartaguez.pocoma.engine.port.in.taskcreation.input;
+package com.kartaguez.pocoma.engine.event;
 
 import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 import java.util.UUID;
-
-import com.kartaguez.pocoma.engine.event.BusinessEvent;
 
 /** Durable identity and optional technical metadata decorating a pure business event. */
 public record RecordedEvent<E extends BusinessEvent>(

@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.in.taskcreation.input;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.input.RecordedEvent;
+import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.event.BusinessEvent;
 
 public record CreateTasksForEventInput(

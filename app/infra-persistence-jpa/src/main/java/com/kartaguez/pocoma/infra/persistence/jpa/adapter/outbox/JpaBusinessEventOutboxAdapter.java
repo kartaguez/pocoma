@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.input.EventTraceMetadata;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.input.RecordedEvent;
+import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
+import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;

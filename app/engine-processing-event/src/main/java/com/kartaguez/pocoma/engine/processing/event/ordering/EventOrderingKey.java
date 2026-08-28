@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.processing.ordering;
+package com.kartaguez.pocoma.engine.processing.event.ordering;
 
 import static java.util.Objects.requireNonNull;
 
@@ -8,10 +8,10 @@ import java.util.UUID;
 /**
  * Transitional technical processing key ordering event consumptions.
  */
-public record EventConsumptionOrderingKey(long appliesAtVersion, Instant createdAt, UUID eventId)
-		implements Comparable<EventConsumptionOrderingKey> {
+public record EventOrderingKey(long appliesAtVersion, Instant createdAt, UUID eventId)
+		implements Comparable<EventOrderingKey> {
 
-	public EventConsumptionOrderingKey {
+	public EventOrderingKey {
 		if (appliesAtVersion <= 0) {
 			throw new IllegalArgumentException("appliesAtVersion must be positive");
 		}
@@ -20,7 +20,7 @@ public record EventConsumptionOrderingKey(long appliesAtVersion, Instant created
 	}
 
 	@Override
-	public int compareTo(EventConsumptionOrderingKey other) {
+	public int compareTo(EventOrderingKey other) {
 		requireNonNull(other, "other must not be null");
 		int versionComparison = Long.compare(appliesAtVersion, other.appliesAtVersion);
 		if (versionComparison != 0) {
@@ -29,6 +29,6 @@ public record EventConsumptionOrderingKey(long appliesAtVersion, Instant created
 		int creationComparison = createdAt.compareTo(other.createdAt);
 		return creationComparison != 0
 				? creationComparison
-				: OrderingComparisons.compareUuid(eventId, other.eventId);
+				: eventId.toString().compareTo(other.eventId.toString());
 	}
 }

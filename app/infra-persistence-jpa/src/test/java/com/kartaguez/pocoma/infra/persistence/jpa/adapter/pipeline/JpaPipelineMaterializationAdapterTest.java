@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.input.EventTraceMetadata;
+import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.input.RecordedEvent;
+import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotPartitioner;
