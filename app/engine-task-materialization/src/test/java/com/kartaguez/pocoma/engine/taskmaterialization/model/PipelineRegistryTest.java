@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 
 class PipelineRegistryTest {
 

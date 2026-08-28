@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.JpaPotGlobalVersionEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaPotHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;

@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseDetailsCommand;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdateExpenseDetailsUseCase;

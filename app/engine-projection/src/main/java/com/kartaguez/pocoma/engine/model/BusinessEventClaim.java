@@ -3,6 +3,8 @@ package com.kartaguez.pocoma.engine.model;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+
 public record BusinessEventClaim(BusinessEventEnvelope event, UUID claimToken) {
 
 	public BusinessEventClaim {

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;

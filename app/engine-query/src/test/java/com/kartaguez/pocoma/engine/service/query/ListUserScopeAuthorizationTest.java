@@ -15,10 +15,10 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
-import com.kartaguez.pocoma.domain.projection.Balance;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -27,7 +27,7 @@ import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListUserPotBalancesQuery;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
@@ -60,7 +60,7 @@ class ListUserScopeAuthorizationTest {
 	void listUserPotBalancesRejectsUserWithoutReadScope() {
 		ListUserPotBalancesService service = new ListUserPotBalancesService(
 				new FakePotQueryPort(),
-				new FakePotBalancesPort(),
+				new FakePotBalancesQueryPort(),
 				new ReadPotAuthorizationPolicy());
 
 		BusinessRuleViolationException exception = assertThrows(
@@ -75,7 +75,7 @@ class ListUserScopeAuthorizationTest {
 		FakePotQueryPort potQueryPort = new FakePotQueryPort();
 		ListUserPotBalancesService service = new ListUserPotBalancesService(
 				potQueryPort,
-				new FakePotBalancesPort(),
+				new FakePotBalancesQueryPort(),
 				new ReadPotAuthorizationPolicy());
 
 		assertEquals(1, service.listUserPotBalances(userContext(Set.of(POT_READ_SCOPE)), new ListUserPotBalancesQuery()).size());
@@ -120,7 +120,7 @@ class ListUserScopeAuthorizationTest {
 		}
 	}
 
-	private static final class FakePotBalancesPort implements PotBalancesPort {
+	private static final class FakePotBalancesQueryPort implements PotBalancesQueryPort {
 
 		@Override
 		public PotBalances loadAtVersion(PotId potId, long version) {

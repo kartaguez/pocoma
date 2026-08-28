@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.BuildProjectionTaskCommand;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;

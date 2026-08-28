@@ -13,15 +13,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
+import com.kartaguez.pocoma.engine.port.out.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
 
 @Component("jpaBusinessEventOutboxAdapter")
-public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
+public class JpaBusinessEventOutboxAdapter implements BusinessEventAppendPort, BusinessEventOutboxPort {
 
 	private final JpaBusinessEventOutboxRepository repository;
 	private final BusinessEventRecordMapper eventRecordMapper;
@@ -33,15 +34,12 @@ public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
 
 	@Override
 	@Transactional
-	public void append(Object event) {
+	public void append(BusinessEvent event) {
 		Objects.requireNonNull(event, "event must not be null");
-		if (!(event instanceof BusinessEvent businessEvent)) {
-			throw new IllegalArgumentException("Unsupported business event: " + event.getClass().getName());
-		}
 		TraceContext traceContext = TraceContext.fromCurrent();
 		RecordedEvent<BusinessEvent> recordedEvent = new RecordedEvent<>(
 				UUID.randomUUID(),
-				businessEvent,
+				event,
 				Instant.now(),
 				EventTraceMetadata.of(traceContext.traceId(), traceContext.commandCommittedAtNanos()));
 		repository.save(new JpaBusinessEventOutboxEntity(eventRecordMapper.toEnvelope(recordedEvent)));

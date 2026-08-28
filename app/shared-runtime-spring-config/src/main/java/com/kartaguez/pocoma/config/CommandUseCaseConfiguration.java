@@ -6,17 +6,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import com.kartaguez.pocoma.domain.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.CreateExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseSharesAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.projection.PotBalancesCalculator;
+import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
@@ -34,15 +34,16 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionT
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.event.TransactionAwareProjectionEventPublisherPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxAppendPort;
+import com.kartaguez.pocoma.engine.port.out.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotBalanceProjectionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -91,9 +92,9 @@ public class CommandUseCaseConfiguration {
 
 	@Bean
 	ComputePotBalancesUseCase computePotBalancesUseCase(
-			PotBalancesPort potBalancesPort,
+			PotBalanceProjectionPort potBalancesPort,
 			ProjectedExpensePort projectedExpensePort,
-			PotShareholdersPort potShareholdersPort,
+			PotShareholdersProjectionPort potShareholdersPort,
 			PotBalancesCalculator potBalancesCalculator,
 			TransactionRunner transactionRunner) {
 		return ProjectionUseCaseFactory.computePotBalancesUseCase(
@@ -134,7 +135,7 @@ public class CommandUseCaseConfiguration {
 
 	@Bean
 	EventPublisherPort outboxThenSpringEventPublisherPort(
-			@Qualifier("jpaBusinessEventOutboxAdapter") BusinessEventOutboxAppendPort outboxPort,
+			@Qualifier("jpaBusinessEventOutboxAdapter") BusinessEventAppendPort outboxPort,
 			SpringApplicationEventPublisher springApplicationEventPublisher,
 			TransactionRunner transactionRunner) {
 		return new CommandSpringEventPublisherAdapter(new OutboxThenSpringEventPublisherAdapter(

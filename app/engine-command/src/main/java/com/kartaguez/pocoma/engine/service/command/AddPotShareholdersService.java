@@ -4,14 +4,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.policy.AddPotShareholdersAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.AddPotShareholdersCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;

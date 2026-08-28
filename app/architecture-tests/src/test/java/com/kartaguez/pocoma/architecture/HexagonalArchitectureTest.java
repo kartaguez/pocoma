@@ -17,6 +17,9 @@ class HexagonalArchitectureTest {
 	private static final String ROOT_PACKAGE = "com.kartaguez.pocoma";
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
+	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
+	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
+			+ ".domain.projection.balance..";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
@@ -84,6 +87,50 @@ class HexagonalArchitectureTest {
 						.anyMatch(packageName::startsWith))
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), legacyPotPackages, "Pot types must live below domain.pot");
+	}
+
+	@Test
+	void potPoliciesAndBalanceProjectionRemainPureDomainCode() {
+		noClasses()
+				.that().resideInAnyPackage(POT_POLICY_PACKAGE, BALANCE_PROJECTION_DOMAIN_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> obsoleteDomainTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".domain.policy")
+						|| javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.projection"))
+				.map(javaClass -> javaClass.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), obsoleteDomainTypes,
+				"Pot policies and balance projection types must use their explicit namespaces");
+	}
+
+	@Test
+	void targetApplicationAndProcessingPackagesDoNotDependOnLegacyEngineTypes() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.service.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".engine..processing.event..",
+						ROOT_PACKAGE + ".engine..processing.task..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.legacy..")
+				.check(CLASSES);
 	}
 
 	@Test

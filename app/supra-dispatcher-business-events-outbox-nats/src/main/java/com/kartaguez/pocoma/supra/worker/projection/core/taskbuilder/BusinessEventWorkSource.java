@@ -5,8 +5,8 @@ import java.util.Objects;
 import java.time.Duration;
 
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;

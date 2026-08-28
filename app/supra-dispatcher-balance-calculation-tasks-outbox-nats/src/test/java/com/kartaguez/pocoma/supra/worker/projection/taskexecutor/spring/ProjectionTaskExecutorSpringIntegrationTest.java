@@ -19,8 +19,8 @@ import org.springframework.context.SmartLifecycle;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.event.projection.ProjectionTasksReadyEvent;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.port.in.projection.intent.ExecuteProjectionTaskCommand;

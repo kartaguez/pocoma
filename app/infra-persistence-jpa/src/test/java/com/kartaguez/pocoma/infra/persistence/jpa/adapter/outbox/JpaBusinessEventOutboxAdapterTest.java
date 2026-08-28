@@ -20,8 +20,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 
 @DataJpaTest

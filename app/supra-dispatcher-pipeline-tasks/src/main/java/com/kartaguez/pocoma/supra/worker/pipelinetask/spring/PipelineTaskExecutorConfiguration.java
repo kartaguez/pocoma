@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskUseCase;

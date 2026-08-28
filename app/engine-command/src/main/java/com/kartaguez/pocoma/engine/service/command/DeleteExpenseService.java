@@ -4,12 +4,12 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.policy.DeleteExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeleteExpenseCommand;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeleteExpenseUseCase;

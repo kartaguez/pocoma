@@ -4,7 +4,7 @@ import java.time.Duration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.supra.worker.projection.core.taskbuilder.ProjectionTaskBuilderSettings;
 
 @ConfigurationProperties(prefix = "pocoma.projection.worker")

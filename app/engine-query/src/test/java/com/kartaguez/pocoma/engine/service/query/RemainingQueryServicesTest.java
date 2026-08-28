@@ -18,10 +18,10 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
-import com.kartaguez.pocoma.domain.projection.Balance;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -32,11 +32,11 @@ import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetExpenseQuery;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListPotExpensesQuery;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -120,7 +120,7 @@ class RemainingQueryServicesTest {
 	private static final class Fixture {
 		private final InMemoryPotQueryPort pots = new InMemoryPotQueryPort();
 		private final InMemoryExpenseQueryPort expenses = new InMemoryExpenseQueryPort();
-		private final InMemoryPotBalancesPort balances = new InMemoryPotBalancesPort();
+		private final InMemoryPotBalancesQueryPort balances = new InMemoryPotBalancesQueryPort();
 	}
 
 	private static final class InMemoryPotQueryPort implements PotQueryPort {
@@ -178,7 +178,7 @@ class RemainingQueryServicesTest {
 		}
 	}
 
-	private static final class InMemoryPotBalancesPort implements PotBalancesPort {
+	private static final class InMemoryPotBalancesQueryPort implements PotBalancesQueryPort {
 
 		@Override
 		public PotBalances loadAtVersion(PotId potId, long version) {

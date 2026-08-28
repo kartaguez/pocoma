@@ -13,8 +13,8 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -23,7 +23,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersDetailsContext;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersDetailsCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 import com.kartaguez.pocoma.engine.security.UserContext;
@@ -231,6 +231,11 @@ class UpdatePotShareholdersDetailsServiceTest {
 			loadedAtVersion = version;
 			return potShareholders;
 		}
+
+		@Override
+		public void save(PotShareholders potShareholders, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private static final class FakePotGlobalVersionPort
@@ -252,6 +257,11 @@ class UpdatePotShareholdersDetailsServiceTest {
 		private PotShareholders saved;
 		private PotGlobalVersion currentVersion;
 		private PotGlobalVersion nextVersion;
+
+		@Override
+		public PotShareholders loadActiveAtVersion(PotId potId, long version) {
+			throw new UnsupportedOperationException();
+		}
 
 		@Override
 		public void save(PotShareholders potShareholders, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {

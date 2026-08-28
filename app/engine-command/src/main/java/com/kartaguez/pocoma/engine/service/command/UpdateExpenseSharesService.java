@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseSharesAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseSharesCommand;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdateExpenseSharesUseCase;

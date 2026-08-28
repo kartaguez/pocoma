@@ -32,10 +32,10 @@
 
 	<modules>
 		<module>domain-pot</module>
-		<module>domain-projection</module>
+		<module>domain-projection-balance</module>
 		<module>domain-pipeline</module>
 		<module>domain-task</module>
-		<module>domain-policy</module>
+		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>
 		<module>engine-core</module>
 		<module>engine-consumption</module>

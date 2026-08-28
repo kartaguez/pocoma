@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.config.event;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
@@ -17,9 +18,9 @@ import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 
 public final class CommandSpringEventPublisherAdapter implements EventPublisherPort {
 
-	private final Consumer<Object> delegate;
+	private final Consumer<BusinessEvent> delegate;
 
-	public CommandSpringEventPublisherAdapter(Consumer<Object> delegate) {
+	public CommandSpringEventPublisherAdapter(Consumer<BusinessEvent> delegate) {
 		this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
 	}
 

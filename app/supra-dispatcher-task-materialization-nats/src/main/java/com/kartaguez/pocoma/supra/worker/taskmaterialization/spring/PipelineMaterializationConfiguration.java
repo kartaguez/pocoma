@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationOutcome;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.PipelineRegistry;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.PipelineStrategy;

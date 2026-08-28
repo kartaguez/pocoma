@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.event.projection.ProjectionTasksReadyEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskType;
@@ -157,10 +157,6 @@ class BuildProjectionTasksServiceTest {
 	}
 
 	private static final class NoopBusinessEventOutboxPort implements BusinessEventOutboxPort {
-		@Override
-		public void append(Object event) {
-		}
-
 		@Override
 		public List<BusinessEventClaim> claimPending(
 				int limit,

@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 
 class BusinessEventRecordMapperTest {
 

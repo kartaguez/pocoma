@@ -70,7 +70,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain-projection</artifactId>
+			<artifactId>pocoma-domain-projection-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

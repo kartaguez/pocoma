@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 
 public record DeleteExpenseContext(PotGlobalVersion potGlobalVersion, boolean deleted, UserId creatorId) {
 

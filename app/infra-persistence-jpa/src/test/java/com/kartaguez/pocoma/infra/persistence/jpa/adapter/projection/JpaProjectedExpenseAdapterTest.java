@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;

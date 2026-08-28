@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 
 public record PipelineTaskClaimCriteria(
 		ProjectionPartition partition,

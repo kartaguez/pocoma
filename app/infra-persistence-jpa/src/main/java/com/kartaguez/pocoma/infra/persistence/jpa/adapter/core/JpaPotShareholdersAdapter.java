@@ -13,13 +13,14 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaShareholderRepository;
 
 @Component
-public class JpaPotShareholdersAdapter implements PotShareholdersPort {
+public class JpaPotShareholdersAdapter implements PotShareholdersPort, PotShareholdersProjectionPort {
 
 	private final JpaShareholderRepository repository;
 

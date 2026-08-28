@@ -5,33 +5,33 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.domain.projection.Balance;
-import com.kartaguez.pocoma.domain.projection.BalanceMapOperations;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
-import com.kartaguez.pocoma.domain.projection.PotBalancesCalculator;
-import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperations;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.model.PotBalanceProjectionState;
+import com.kartaguez.pocoma.engine.port.out.persistence.model.PotBalanceProjectionState;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotBalanceProjectionPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 
 final class ComputePotBalancesService implements ComputePotBalancesUseCase {
 
 	private static final long BASELINE_VERSION = 1;
 
-	private final PotBalancesPort potBalancesPort;
+	private final PotBalanceProjectionPort potBalancesPort;
 	private final ProjectedExpensePort projectedExpensePort;
-	private final PotShareholdersPort potShareholdersPort;
+	private final PotShareholdersProjectionPort potShareholdersPort;
 	private final PotBalancesCalculator potBalancesCalculator;
 
 	ComputePotBalancesService(
-			PotBalancesPort potBalancesPort,
+			PotBalanceProjectionPort potBalancesPort,
 			ProjectedExpensePort projectedExpensePort,
-			PotShareholdersPort potShareholdersPort,
+			PotShareholdersProjectionPort potShareholdersPort,
 			PotBalancesCalculator potBalancesCalculator) {
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");
 		this.projectedExpensePort = Objects.requireNonNull(projectedExpensePort, "projectedExpensePort must not be null");

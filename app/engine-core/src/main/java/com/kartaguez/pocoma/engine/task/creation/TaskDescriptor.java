@@ -8,6 +8,10 @@ import java.util.Objects;
  * <p>This serialization-ready descriptor is distinct from both a typed functional
  * task payload and a task already recorded by a persistence adapter.</p>
  */
+/**
+ * Transitional serialized instruction for creating a durable task.
+ * This is distinct from both a typed functional task payload and a persisted task.
+ */
 public record TaskDescriptor(
 		String taskType,
 		String taskKey,

@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 
 /** Maps the legacy JSON outbox representation at the infrastructure boundary only. */
 public final class BusinessEventRecordMapper {

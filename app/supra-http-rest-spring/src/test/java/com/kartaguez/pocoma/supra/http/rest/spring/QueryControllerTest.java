@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;

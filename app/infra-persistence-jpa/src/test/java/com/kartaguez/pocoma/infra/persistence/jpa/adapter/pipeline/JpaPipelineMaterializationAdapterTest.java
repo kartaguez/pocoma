@@ -21,8 +21,8 @@ import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTask
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.ConfiguredPipelineBinding;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationOutcome;

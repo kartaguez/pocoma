@@ -17,7 +17,7 @@ import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersDetailsContext;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersWeightsContext;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaPotHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.JpaPotGlobalVersionRepository;

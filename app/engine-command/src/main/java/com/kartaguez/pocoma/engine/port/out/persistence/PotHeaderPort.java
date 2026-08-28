@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.port.out.persistence;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 
 public interface PotHeaderPort {
 

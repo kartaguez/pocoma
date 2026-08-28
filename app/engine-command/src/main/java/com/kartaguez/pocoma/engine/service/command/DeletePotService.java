@@ -3,11 +3,11 @@ package com.kartaguez.pocoma.engine.service.command;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.policy.DeletePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeletePotCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeletePotUseCase;

@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 
-public interface BusinessEventOutboxPort extends BusinessEventOutboxAppendPort {
+/** Legacy lifecycle port used by the current projection-task builder worker. */
+public interface BusinessEventOutboxPort {
 
 	default List<BusinessEventClaim> claimPending(int limit, Duration leaseDuration, String workerId) {
 		return claimPending(limit, leaseDuration, workerId, ProjectionPartition.single());

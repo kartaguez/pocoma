@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import com.kartaguez.pocoma.domain.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.security.UserContext;
 

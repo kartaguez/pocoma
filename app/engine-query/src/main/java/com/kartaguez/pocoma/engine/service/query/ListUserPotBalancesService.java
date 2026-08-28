@@ -4,27 +4,27 @@ import java.util.List;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.projection.Balance;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListUserPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.UserPotBalanceSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotBalancesUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class ListUserPotBalancesService implements ListUserPotBalancesUseCase {
 
 	private final PotQueryPort potQueryPort;
-	private final PotBalancesPort potBalancesPort;
+	private final PotBalancesQueryPort potBalancesPort;
 	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
 
 	ListUserPotBalancesService(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");

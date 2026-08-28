@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.supra.worker.taskmaterialization.core;
 import java.time.Duration;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 
 public record EventToPipelineTaskMaterializerSettings(
 		boolean enabled,

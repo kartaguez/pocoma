@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.InMemoryWorkWakeBus;

@@ -5,26 +5,26 @@ import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotBalancesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class GetPotBalancesService implements GetPotBalancesUseCase {
 
 	private final PotQueryPort potQueryPort;
-	private final PotBalancesPort potBalancesPort;
+	private final PotBalancesQueryPort potBalancesPort;
 	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
 
 	GetPotBalancesService(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");

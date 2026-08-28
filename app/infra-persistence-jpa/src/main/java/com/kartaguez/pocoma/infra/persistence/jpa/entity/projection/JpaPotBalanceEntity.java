@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.infra.persistence.jpa.entity.projection;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.projection.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 

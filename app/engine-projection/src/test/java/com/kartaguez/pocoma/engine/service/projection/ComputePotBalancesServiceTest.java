@@ -18,10 +18,10 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
-import com.kartaguez.pocoma.domain.projection.Balance;
-import com.kartaguez.pocoma.domain.projection.PotBalances;
-import com.kartaguez.pocoma.domain.projection.PotBalancesCalculator;
-import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
+import com.kartaguez.pocoma.domain.projection.balance.Balance;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -30,9 +30,9 @@ import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.model.PotBalanceProjectionState;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.model.PotBalanceProjectionState;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotBalanceProjectionPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 
 class ComputePotBalancesServiceTest {
@@ -40,7 +40,7 @@ class ComputePotBalancesServiceTest {
 	@Test
 	void savesInitialBalancesWhenNoProjectionStateExists() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		FakeProjectedExpensePort projectedExpensePort = new FakeProjectedExpensePort();
 		ComputePotBalancesService service = service(potBalancesPort, projectedExpensePort);
 
@@ -59,7 +59,7 @@ class ComputePotBalancesServiceTest {
 				potId,
 				4,
 				Map.of(shareholderId, new Balance(shareholderId, Fraction.ONE)));
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		potBalancesPort.state = Optional.of(new PotBalanceProjectionState(potId, 4));
 		potBalancesPort.balances = currentBalances;
 		FakeProjectedExpensePort projectedExpensePort = new FakeProjectedExpensePort();
@@ -80,7 +80,7 @@ class ComputePotBalancesServiceTest {
 				potId,
 				2,
 				Map.of(shareholderId, new Balance(shareholderId, Fraction.of(5, 1))));
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		potBalancesPort.state = Optional.of(new PotBalanceProjectionState(potId, 2));
 		potBalancesPort.balances = previousBalances;
 		FakeProjectedExpensePort projectedExpensePort = new FakeProjectedExpensePort();
@@ -99,7 +99,7 @@ class ComputePotBalancesServiceTest {
 	void rejectsTargetVersionBelowOne() {
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> service(new FakePotBalancesPort(), new FakeProjectedExpensePort())
+				() -> service(new FakePotBalanceProjectionPort(), new FakeProjectedExpensePort())
 						.computePotBalances(PotId.of(UUID.randomUUID()), 0));
 	}
 
@@ -107,9 +107,9 @@ class ComputePotBalancesServiceTest {
 	void fullProjectionSavesZeroBalanceForActiveShareholderWithoutExpenses() {
 		PotId potId = PotId.of(UUID.randomUUID());
 		ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		FakeProjectedExpensePort projectedExpensePort = new FakeProjectedExpensePort();
-		FakePotShareholdersPort potShareholdersPort = new FakePotShareholdersPort();
+		FakePotShareholdersProjectionPort potShareholdersPort = new FakePotShareholdersProjectionPort();
 		potShareholdersPort.shareholders = PotShareholders.reconstitute(
 				potId,
 				Set.of(shareholder(potId, shareholderId)));
@@ -127,7 +127,7 @@ class ComputePotBalancesServiceTest {
 	@Test
 	void fullProjectionSavesEmptyVersionWhenNoShareholdersExist() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		ComputePotBalancesService service = service(potBalancesPort, new FakeProjectedExpensePort());
 
 		PotBalances result = service.computePotBalancesFull(potId, 1);
@@ -142,7 +142,7 @@ class ComputePotBalancesServiceTest {
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		ShareholderId participantId = ShareholderId.of(UUID.randomUUID());
 		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
-		FakePotBalancesPort potBalancesPort = new FakePotBalancesPort();
+		FakePotBalanceProjectionPort potBalancesPort = new FakePotBalanceProjectionPort();
 		FakeProjectedExpensePort projectedExpensePort = new FakeProjectedExpensePort();
 		projectedExpensePort.activeAtVersion = java.util.List.of(new ProjectedExpense(
 				ExpenseHeader.reconstitute(
@@ -155,7 +155,7 @@ class ComputePotBalancesServiceTest {
 				ExpenseShares.reconstitute(potId, Set.of(
 						new ExpenseShare(expenseId, payerId, Weight.of(Fraction.ONE)),
 						new ExpenseShare(expenseId, participantId, Weight.of(Fraction.ONE))))));
-		FakePotShareholdersPort potShareholdersPort = new FakePotShareholdersPort();
+		FakePotShareholdersProjectionPort potShareholdersPort = new FakePotShareholdersProjectionPort();
 		potShareholdersPort.shareholders = PotShareholders.reconstitute(
 				potId,
 				Set.of(shareholder(potId, payerId), shareholder(potId, participantId)));
@@ -177,20 +177,20 @@ class ComputePotBalancesServiceTest {
 	void fullProjectionRejectsTargetVersionBelowOne() {
 		assertThrows(
 				IllegalArgumentException.class,
-				() -> service(new FakePotBalancesPort(), new FakeProjectedExpensePort())
+				() -> service(new FakePotBalanceProjectionPort(), new FakeProjectedExpensePort())
 						.computePotBalancesFull(PotId.of(UUID.randomUUID()), 0));
 	}
 
 	private static ComputePotBalancesService service(
-			FakePotBalancesPort potBalancesPort,
+			FakePotBalanceProjectionPort potBalancesPort,
 			FakeProjectedExpensePort projectedExpensePort) {
-		return service(potBalancesPort, projectedExpensePort, new FakePotShareholdersPort());
+		return service(potBalancesPort, projectedExpensePort, new FakePotShareholdersProjectionPort());
 	}
 
 	private static ComputePotBalancesService service(
-			FakePotBalancesPort potBalancesPort,
+			FakePotBalanceProjectionPort potBalancesPort,
 			FakeProjectedExpensePort projectedExpensePort,
-			FakePotShareholdersPort potShareholdersPort) {
+			FakePotShareholdersProjectionPort potShareholdersPort) {
 		return new ComputePotBalancesService(
 				potBalancesPort,
 				projectedExpensePort,
@@ -208,7 +208,7 @@ class ComputePotBalancesServiceTest {
 				false);
 	}
 
-	private static final class FakePotBalancesPort implements PotBalancesPort {
+	private static final class FakePotBalanceProjectionPort implements PotBalanceProjectionPort {
 		private Optional<PotBalanceProjectionState> state = Optional.empty();
 		private PotBalances balances;
 		private PotBalances savedInitial;
@@ -270,7 +270,7 @@ class ComputePotBalancesServiceTest {
 		}
 	}
 
-	private static final class FakePotShareholdersPort implements PotShareholdersPort {
+	private static final class FakePotShareholdersProjectionPort implements PotShareholdersProjectionPort {
 		private PotShareholders shareholders = PotShareholders.reconstitute(PotId.of(UUID.randomUUID()), Set.of());
 
 		@Override

@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotBalanceProjectionState;
+import com.kartaguez.pocoma.engine.port.out.persistence.model.PotBalanceProjectionState;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

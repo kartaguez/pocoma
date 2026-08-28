@@ -12,21 +12,25 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.springframework.context.ApplicationEventPublisher;
 
-import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxAppendPort;
+import java.util.UUID;
+
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.port.out.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
 class OutboxThenSpringEventPublisherAdapterTest {
 
 	@Test
 	void writesOutboxThenPublishesSpringEventAfterCommit() {
-		BusinessEventOutboxAppendPort outboxPort = mock(BusinessEventOutboxAppendPort.class);
+		BusinessEventAppendPort outboxPort = mock(BusinessEventAppendPort.class);
 		ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
 		CapturingTransactionRunner transactionRunner = new CapturingTransactionRunner();
 		OutboxThenSpringEventPublisherAdapter adapter = new OutboxThenSpringEventPublisherAdapter(
 				outboxPort,
 				new SpringApplicationEventPublisher(applicationEventPublisher),
 				transactionRunner);
-		TestEvent event = new TestEvent("created");
+		PotCreatedEvent event = new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1);
 
 		adapter.publish(event);
 
@@ -43,14 +47,11 @@ class OutboxThenSpringEventPublisherAdapterTest {
 	@Test
 	void rejectsNullEvents() {
 		OutboxThenSpringEventPublisherAdapter adapter = new OutboxThenSpringEventPublisherAdapter(
-				mock(BusinessEventOutboxAppendPort.class),
+				mock(BusinessEventAppendPort.class),
 				new SpringApplicationEventPublisher(mock(ApplicationEventPublisher.class)),
 				new CapturingTransactionRunner());
 
 		assertThrows(NullPointerException.class, () -> adapter.publish(null));
-	}
-
-	record TestEvent(String type) {
 	}
 
 	private static final class CapturingTransactionRunner implements TransactionRunner {

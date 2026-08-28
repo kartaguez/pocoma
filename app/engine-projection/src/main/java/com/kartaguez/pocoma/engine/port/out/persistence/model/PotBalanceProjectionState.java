@@ -1,0 +1,15 @@
+package com.kartaguez.pocoma.engine.port.out.persistence.model;
+
+import java.util.Objects;
+
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+
+public record PotBalanceProjectionState(PotId potId, long projectedVersion) {
+
+	public PotBalanceProjectionState {
+		Objects.requireNonNull(potId, "potId must not be null");
+		if (projectedVersion < 1) {
+			throw new IllegalArgumentException("projectedVersion must be greater than or equal to 1");
+		}
+	}
+}

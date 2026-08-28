@@ -2,13 +2,13 @@ package com.kartaguez.pocoma.engine.service.projection;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.projection.PotBalancesCalculator;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.BuildProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ExecuteProjectionTasksUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.ProjectionEventPublisherPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotBalanceProjectionPort;
+import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectionTaskPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -22,9 +22,9 @@ public final class ProjectionUseCaseFactory {
 	}
 
 	public static ComputePotBalancesUseCase computePotBalancesUseCase(
-			PotBalancesPort potBalancesPort,
+			PotBalanceProjectionPort potBalancesPort,
 			ProjectedExpensePort projectedExpensePort,
-			PotShareholdersPort potShareholdersPort,
+			PotShareholdersProjectionPort potShareholdersPort,
 			PotBalancesCalculator potBalancesCalculator,
 			TransactionRunner transactionRunner) {
 		return new TransactionalComputePotBalancesUseCase(

@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.port.in.projection.intent;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 
 public record BuildProjectionTaskCommand(BusinessEventEnvelope event) {
 

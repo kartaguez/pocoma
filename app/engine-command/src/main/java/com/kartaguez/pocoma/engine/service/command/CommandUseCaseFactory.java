@@ -2,16 +2,16 @@ package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.CreateExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdateExpenseSharesAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;

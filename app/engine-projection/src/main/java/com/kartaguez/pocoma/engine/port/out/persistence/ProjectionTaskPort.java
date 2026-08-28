@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.engine.event.projection.ProjectionTaskProcessedEvent;
-import com.kartaguez.pocoma.engine.model.ProjectionPartition;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskStatus;

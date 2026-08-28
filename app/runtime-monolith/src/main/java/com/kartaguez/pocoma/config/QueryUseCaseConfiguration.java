@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotUseCase;
@@ -11,7 +11,7 @@ import com.kartaguez.pocoma.engine.port.in.query.usecase.ListPotExpensesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotsUseCase;
 import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.query.QueryUseCaseFactory;
@@ -62,7 +62,7 @@ public class QueryUseCaseConfiguration {
 	@Bean
 	GetPotBalancesUseCase getPotBalancesUseCase(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			TransactionRunner transactionRunner) {
 		return QueryUseCaseFactory.getPotBalancesUseCase(
 				potQueryPort,
@@ -74,7 +74,7 @@ public class QueryUseCaseConfiguration {
 	@Bean
 	ListUserPotBalancesUseCase listUserPotBalancesUseCase(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			TransactionRunner transactionRunner) {
 		return QueryUseCaseFactory.listUserPotBalancesUseCase(
 				potQueryPort,

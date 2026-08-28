@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.service.query;
 
-import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotUseCase;
@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.engine.port.in.query.usecase.ListPotExpensesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotsUseCase;
 import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.transaction.query.TransactionalGetExpenseUseCase;
@@ -63,7 +63,7 @@ public final class QueryUseCaseFactory {
 
 	public static GetPotBalancesUseCase getPotBalancesUseCase(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalGetPotBalancesUseCase(
@@ -73,7 +73,7 @@ public final class QueryUseCaseFactory {
 
 	public static ListUserPotBalancesUseCase listUserPotBalancesUseCase(
 			PotQueryPort potQueryPort,
-			PotBalancesPort potBalancesPort,
+			PotBalancesQueryPort potBalancesPort,
 			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalListUserPotBalancesUseCase(

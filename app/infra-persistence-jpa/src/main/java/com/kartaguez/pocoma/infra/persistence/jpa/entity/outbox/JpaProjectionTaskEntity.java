@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskStatus;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskType;
