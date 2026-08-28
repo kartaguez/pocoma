@@ -21,11 +21,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-command</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-consumption</artifactId>
 			<version>${project.version}</version>
 		</dependency>

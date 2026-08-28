@@ -73,6 +73,12 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.consumption..",
 						ROOT_PACKAGE + ".engine.service.transaction.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.context..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.processing..",
 						ROOT_PACKAGE + ".infra..",
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..",
@@ -80,6 +86,18 @@ class HexagonalArchitectureTest {
 						"org.springframework..",
 						"jakarta.persistence..")
 				.check(CLASSES);
+
+		Set<String> forbiddenTypeNames = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.port.in.consumption")
+						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.port.out.consumption")
+						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.consumption")
+						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.transaction.consumption"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.filter(name -> Set.of("Command", "Event", "Task", "Pot", "Pipeline").stream()
+						.anyMatch(name::contains))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbiddenTypeNames,
+				"engine-consumption must remain agnostic of consumed work families");
 	}
 
 	@Test

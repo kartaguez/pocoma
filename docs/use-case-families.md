@@ -53,10 +53,13 @@ retry, polling, and worker lifecycle remain outside the typed engine.
 
 ## Durable consumption domain — `domain-consumption`
 
-The durable processing domain owns `ClaimToken`, leases, statuses, failures, segmentation, and
-their invariants. It contains no use case, persistence concern, or worker orchestration.
+The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, leases, statuses,
+failures, and their invariants. It contains no use case, persistence concern, ordering,
+segmentation, or worker orchestration.
 
-Static segmentation uses a stable `PartitionHash` and a configured `WorkerSegment`. Commands with
+Ordering and segmentation are technical processing concerns, temporarily held in `engine-core`
+until the specialized processing engines are introduced. Static segmentation uses a stable
+`PartitionHash` and a configured `WorkerSegment`. Commands with
 a Pot id use the Pot id as their partition key. Commands without a Pot id are unsegmented and will
 later be made eligible to every Command worker segment; atomic claiming will select a single
 owner. EventConsumptions and Tasks use `(pipelineId, potId)` as their partition key.
@@ -72,9 +75,10 @@ items, not completion order between concurrent workers.
 
 ## Durable consumption use cases — `engine-consumption`
 
-Technical processing use cases own the claim/complete/fail/release operations for durable
-Commands, EventConsumptions, and Tasks. They depend on `domain-consumption`, are reusable by
-workers, and remain separate from functional use cases.
+Generic consumption use cases own only try-acquire/complete/fail/release for an opaque
+`ConsumptionKey`. They do not select work and know neither Command, Event, Task, Pot nor Pipeline.
+The specialized processing engines compose these use cases with their source-specific selection,
+ordering, segmentation and durable-object transitions.
 
 ## Incoming adapters
 
@@ -115,10 +119,10 @@ that it remains callable only to keep the current workers operational.
 | `GetExpenseUseCase` | Query | context, typed query | `ExpenseViewSnapshot` | Pot/expense query ports | Read decorator | HTTP | Target |
 | `GetPotBalancesUseCase` | Query | context, typed query | `PotBalancesSnapshot` | Pot query, balances | Read decorator | HTTP | Target |
 | `ListUserPotBalancesUseCase` | Query | context, typed query | user balances | Pot query, balances | Read decorator | HTTP | Target |
-| `ClaimNextCommandUseCase` | Consumption | worker, lease, segment | optional command and claim | `CommandPort`, `ClaimPort` | Decorator | Future command worker | Target |
-| `CompleteCommandUseCase` | Consumption | command id, token | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
-| `FailCommandUseCase` | Consumption | command id, token, failure | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
-| `ReleaseCommandUseCase` | Consumption | command id, token | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
+| `TryAcquireConsumptionUseCase` | Consumption | consumption key, worker, lease | optional claim | `ClaimPort` | Decorator | Processing engines | Target |
+| `CompleteConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
+| `FailConsumptionUseCase` | Consumption | consumption key, token, failure | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
+| `ReleaseConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
 | `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
 | `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |

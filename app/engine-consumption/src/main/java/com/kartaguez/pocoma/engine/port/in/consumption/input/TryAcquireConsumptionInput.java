@@ -4,13 +4,16 @@ import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 
-public record ClaimNextCommandInput(WorkerId workerId, ClaimLease lease, WorkerSegment segment) {
+public record TryAcquireConsumptionInput(
+		ConsumptionKey consumptionKey,
+		WorkerId workerId,
+		ClaimLease lease) {
 
-	public ClaimNextCommandInput {
+	public TryAcquireConsumptionInput {
+		requireNonNull(consumptionKey, "consumptionKey must not be null");
 		requireNonNull(workerId, "workerId must not be null");
 		requireNonNull(lease, "lease must not be null");
-		requireNonNull(segment, "segment must not be null");
 	}
 }

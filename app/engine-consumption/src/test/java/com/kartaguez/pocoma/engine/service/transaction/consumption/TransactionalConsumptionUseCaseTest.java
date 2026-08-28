@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.transaction.consumption;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,24 +13,24 @@ import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 class TransactionalConsumptionUseCaseTest {
 
 	@Test
-	void everyConsumptionMutationRunsThroughTransactionRunner() {
-		RecordingTransactionRunner transactions = new RecordingTransactionRunner();
+	void everyDecoratorRunsItsDelegateInATransaction() {
+		CountingTransactionRunner transactions = new CountingTransactionRunner();
 
-		new TransactionalClaimNextCommandUseCase(input -> Optional.empty(), transactions).claimNext(null);
-		new TransactionalCompleteCommandUseCase(input -> ConsumptionOutcome.APPLIED, transactions).complete(null);
-		new TransactionalFailCommandUseCase(input -> ConsumptionOutcome.APPLIED, transactions).fail(null);
-		new TransactionalReleaseCommandUseCase(input -> ConsumptionOutcome.APPLIED, transactions).release(null);
+		new TransactionalTryAcquireConsumptionUseCase(input -> Optional.empty(), transactions).tryAcquire(null);
+		new TransactionalCompleteConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).complete(null);
+		new TransactionalFailConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).fail(null);
+		new TransactionalReleaseConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).release(null);
 
-		assertEquals(4, transactions.invocations);
+		assertEquals(4, transactions.invocations.get());
 	}
 
-	private static final class RecordingTransactionRunner implements TransactionRunner {
-		private int invocations;
+	private static final class CountingTransactionRunner implements TransactionRunner {
+		private final AtomicInteger invocations = new AtomicInteger();
 
 		@Override
-		public <T> T runInTransaction(Supplier<T> action) {
-			invocations++;
-			return action.get();
+		public <T> T runInTransaction(java.util.function.Supplier<T> work) {
+			invocations.incrementAndGet();
+			return work.get();
 		}
 
 		@Override
