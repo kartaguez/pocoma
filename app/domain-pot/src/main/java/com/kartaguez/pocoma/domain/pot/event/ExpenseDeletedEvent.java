@@ -1,13 +1,13 @@
-package com.kartaguez.pocoma.engine.event;
+package com.kartaguez.pocoma.domain.pot.event;
 
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
-public record ExpenseSharesUpdatedEvent(ExpenseId expenseId, PotId potId, long version) implements BusinessEvent {
+public record ExpenseDeletedEvent(ExpenseId expenseId, PotId potId, long version) implements BusinessEvent {
 
-	public ExpenseSharesUpdatedEvent {
+	public ExpenseDeletedEvent {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
 		Objects.requireNonNull(potId, "potId must not be null");
 

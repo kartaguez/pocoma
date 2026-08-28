@@ -15,7 +15,7 @@ import com.kartaguez.pocoma.domain.policy.CreatePotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;

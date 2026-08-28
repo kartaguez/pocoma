@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.event;
+package com.kartaguez.pocoma.domain.pot.event;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

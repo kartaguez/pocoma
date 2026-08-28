@@ -11,7 +11,7 @@ import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersWeightsContext;
-import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersWeightsCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;

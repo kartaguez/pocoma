@@ -22,7 +22,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
-import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseSharesCommand;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;

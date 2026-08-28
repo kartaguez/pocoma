@@ -15,17 +15,17 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
-import com.kartaguez.pocoma.engine.event.BusinessEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
-import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
-import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 
 class BusinessEventRecordMapperTest {
@@ -54,8 +54,10 @@ class BusinessEventRecordMapperTest {
 			RecordedEvent<BusinessEvent> expected = new RecordedEvent<>(
 					UUID.randomUUID(), event, Instant.parse("2026-08-28T07:00:00Z"),
 					EventTraceMetadata.of("trace-1", 42L));
+			BusinessEventEnvelope envelope = mapper.toEnvelope(expected);
 
-			assertEquals(expected, mapper.toRecordedEvent(mapper.toEnvelope(expected)));
+			assertEquals(event.getClass().getSimpleName(), envelope.eventType());
+			assertEquals(expected, mapper.toRecordedEvent(envelope));
 		}
 	}
 

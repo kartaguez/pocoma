@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;
 import com.kartaguez.pocoma.observability.trace.TraceContext;

@@ -2,16 +2,16 @@ package com.kartaguez.pocoma.engine.port.out.event;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
-import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
-import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
 public final class TransactionAwareEventPublisherPort implements EventPublisherPort {

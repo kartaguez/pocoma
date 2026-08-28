@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 
 import com.kartaguez.pocoma.domain.consumption.claim.Claim;
-import com.kartaguez.pocoma.engine.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;

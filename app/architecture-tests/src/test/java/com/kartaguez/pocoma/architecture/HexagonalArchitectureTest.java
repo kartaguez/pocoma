@@ -87,6 +87,35 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void potBusinessEventsBelongToTheDomainWhileRecordingMetadataRemainsInTheEngine() {
+		Set<String> engineEventTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".engine.event"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of("EventTraceMetadata", "RecordedEvent"), engineEventTypes,
+				"engine.event must contain only application recording metadata");
+
+		Set<String> potEventTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pot.event"))
+				.filter(javaClass -> !javaClass.getSimpleName().equals("package-info"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(
+				"BusinessEvent",
+				"ExpenseCreatedEvent",
+				"ExpenseDeletedEvent",
+				"ExpenseDetailsUpdatedEvent",
+				"ExpenseSharesUpdatedEvent",
+				"PotCreatedEvent",
+				"PotDeletedEvent",
+				"PotDetailsUpdatedEvent",
+				"PotShareholdersAddedEvent",
+				"PotShareholdersDetailsUpdatedEvent",
+				"PotShareholdersWeightsUpdatedEvent"), potEventTypes,
+				"all typed Pot facts must live in domain.pot.event");
+	}
+
+	@Test
 	void engineDoesNotDependOnOuterLayersOrFrameworks() {
 		noClasses()
 				.that().resideInAPackage(ENGINE_PACKAGE)

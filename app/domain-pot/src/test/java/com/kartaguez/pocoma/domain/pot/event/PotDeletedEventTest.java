@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.event;
+package com.kartaguez.pocoma.domain.pot.event;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,27 +9,25 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
-class PotCreatedEventTest {
+class PotDeletedEventTest {
 
 	@Test
-	void createsPotCreatedEvent() {
+	void createsPotDeletedEvent() {
 		PotId potId = PotId.of(UUID.randomUUID());
 
-		PotCreatedEvent event = new PotCreatedEvent(potId, 1);
+		PotDeletedEvent event = new PotDeletedEvent(potId, 2);
 
 		assertEquals(potId, event.potId());
-		assertEquals(1, event.version());
+		assertEquals(2, event.version());
 	}
 
 	@Test
 	void rejectsNullPotId() {
-		assertThrows(NullPointerException.class, () -> new PotCreatedEvent(null, 1));
+		assertThrows(NullPointerException.class, () -> new PotDeletedEvent(null, 2));
 	}
 
 	@Test
 	void rejectsVersionLowerThanOne() {
-		PotId potId = PotId.of(UUID.randomUUID());
-
-		assertThrows(IllegalArgumentException.class, () -> new PotCreatedEvent(potId, 0));
+		assertThrows(IllegalArgumentException.class, () -> new PotDeletedEvent(PotId.of(UUID.randomUUID()), 0));
 	}
 }

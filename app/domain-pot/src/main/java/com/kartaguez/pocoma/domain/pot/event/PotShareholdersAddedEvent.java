@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.event;
+package com.kartaguez.pocoma.domain.pot.event;
 
 import java.util.Objects;
 import java.util.Set;
@@ -6,10 +6,10 @@ import java.util.Set;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
-public record PotShareholdersDetailsUpdatedEvent(PotId potId, Set<ShareholderId> shareholderIds, long version)
+public record PotShareholdersAddedEvent(PotId potId, Set<ShareholderId> shareholderIds, long version)
 		implements BusinessEvent {
 
-	public PotShareholdersDetailsUpdatedEvent {
+	public PotShareholdersAddedEvent {
 		Objects.requireNonNull(potId, "potId must not be null");
 		shareholderIds = Set.copyOf(Objects.requireNonNull(shareholderIds, "shareholderIds must not be null"));
 

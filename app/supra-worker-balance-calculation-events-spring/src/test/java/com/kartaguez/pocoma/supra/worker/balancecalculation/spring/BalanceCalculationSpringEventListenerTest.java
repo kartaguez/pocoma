@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.supra.dispatcher.projection.shared.model.ProjectionTask;
 import com.kartaguez.pocoma.supra.worker.balancecalculation.core.SegmentedBalanceCalculationWorker;
 

@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.policy.UpdatePotDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
-import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;

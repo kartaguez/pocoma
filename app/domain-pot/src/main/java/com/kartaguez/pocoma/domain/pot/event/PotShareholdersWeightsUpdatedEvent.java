@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.event;
+package com.kartaguez.pocoma.domain.pot.event;
 
 import java.util.Objects;
 import java.util.Set;
