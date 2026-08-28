@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.processing.ordering;
+package com.kartaguez.pocoma.engine.processing.task.ordering;
 
 import static java.util.Objects.requireNonNull;
 
@@ -8,12 +8,12 @@ import java.util.UUID;
 /**
  * Transitional technical processing key ordering durable tasks.
  */
-public record TaskOrderingKey(long appliesAtVersion, Instant createdAt, UUID taskId)
+public record TaskOrderingKey(long targetVersion, Instant createdAt, UUID taskId)
 		implements Comparable<TaskOrderingKey> {
 
 	public TaskOrderingKey {
-		if (appliesAtVersion <= 0) {
-			throw new IllegalArgumentException("appliesAtVersion must be positive");
+		if (targetVersion <= 0) {
+			throw new IllegalArgumentException("targetVersion must be positive");
 		}
 		requireNonNull(createdAt, "createdAt must not be null");
 		requireNonNull(taskId, "taskId must not be null");
@@ -22,13 +22,13 @@ public record TaskOrderingKey(long appliesAtVersion, Instant createdAt, UUID tas
 	@Override
 	public int compareTo(TaskOrderingKey other) {
 		requireNonNull(other, "other must not be null");
-		int versionComparison = Long.compare(appliesAtVersion, other.appliesAtVersion);
+		int versionComparison = Long.compare(targetVersion, other.targetVersion);
 		if (versionComparison != 0) {
 			return versionComparison;
 		}
 		int creationComparison = createdAt.compareTo(other.createdAt);
 		return creationComparison != 0
 				? creationComparison
-				: OrderingComparisons.compareUuid(taskId, other.taskId);
+				: taskId.toString().compareTo(other.taskId.toString());
 	}
 }

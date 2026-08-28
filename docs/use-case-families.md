@@ -57,9 +57,9 @@ The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, lease
 failures, and their invariants. It contains no use case, persistence concern, ordering,
 segmentation, or worker orchestration.
 
-Ordering and segmentation are technical processing concerns. Command ordering belongs to
-`engine-processing-command` and Event ordering to `engine-processing-event`; Task ordering remains
-temporarily in `engine-core`. Static segmentation uses a stable
+Ordering and segmentation are technical processing concerns. Chaque ordre appartient désormais à
+son module spécialisé : `engine-processing-command`, `engine-processing-event` ou
+`engine-processing-task`. Static segmentation uses a stable
 `PartitionHash` and a configured `WorkerSegment`. Commands with
 a Pot id use the Pot id as their partition key. Commands without a Pot id are unsegmented and will
 later be made eligible to every Command worker segment; atomic claiming will select a single
@@ -132,6 +132,10 @@ that it remains callable only to keep the current workers operational.
 | `CompleteEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic completion | Decorator | Future Event worker | Target |
 | `FailEventProcessingUseCase` | Event processing | pipeline, event id, token, failure | `ConsumptionOutcome` | generic failure | Decorator | Future Event worker | Target |
 | `ReleaseEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic release | Decorator | Future Event worker | Target |
+| `ClaimNextTaskUseCase` | Task processing | worker, lease, segment, pipeline | optional recorded task and claim | `TaskPort`, generic acquisition | Decorator | Future Task worker | Target |
+| `CompleteTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | `TaskPort`, generic completion | Decorator | Future Task worker | Target |
+| `FailTaskProcessingUseCase` | Task processing | task id, token, failure | `ConsumptionOutcome` | `TaskPort`, generic failure | Decorator | Future Task worker | Target |
+| `ReleaseTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | generic release | Decorator | Future Task worker | Target |
 | `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
 | `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
 | `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |
@@ -163,7 +167,8 @@ Task worker
 It becomes, during worker migration:
 
 ```text
-Task worker -> durable-to-typed mapper -> ExecuteTaskUseCase
+Task worker -> ClaimNextTaskUseCase -> durable-to-typed mapper -> ExecuteTaskUseCase
+            -> CompleteTaskProcessingUseCase / FailTaskProcessingUseCase
 ```
 
 The current event path remains:

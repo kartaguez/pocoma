@@ -3,8 +3,8 @@
 ## Objectifs
 
 - Rendre `domain-consumption` et `engine-consumption` indépendants de Command, Event et Task.
-- Introduire les engines techniques `engine-processing-command`, `engine-event-processing` et
-  `engine-task-processing`.
+- Introduire les engines techniques `engine-processing-command`, `engine-processing-event` et
+  `engine-processing-task`.
 - Renommer le domaine principal en `domain-pot` et y placer les événements métier.
 - Séparer `domain-pipeline` et `domain-task`.
 - Conserver `engine-core` pour les contrats applicatifs réellement partagés.
@@ -41,8 +41,8 @@ domain-consumption         invariants génériques slot/claim
 
 engine-consumption         réservation générique
 engine-processing-command  sélection et cycle durable Command
-engine-event-processing    sélection et cycle durable Event
-engine-task-processing     sélection et cycle durable Task
+engine-processing-event    sélection et cycle durable Event
+engine-processing-task     sélection et cycle durable Task
 ```
 
 Le slot générique ne porte que `READY`, `COMPLETED` ou `FAILED`. Une réservation en cours est

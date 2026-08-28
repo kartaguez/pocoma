@@ -231,6 +231,41 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void taskProcessingDependsOnlyOnPipelinesAndGenericConsumption() {
+		noClasses()
+				.that().resideInAnyPackage(ROOT_PACKAGE + ".engine..processing.task..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".engine..processing.event..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".engine.taskmaterialization..",
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> recordedTaskFields = CLASSES
+				.get(ROOT_PACKAGE + ".engine.port.out.processing.task.model.RecordedTask")
+				.getAllFields().stream()
+				.map(field -> field.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(
+				"taskId", "pipeline", "potId", "targetVersion", "createdAt",
+				"taskType", "serializedPayload", "traceId"), recordedTaskFields,
+				"RecordedTask must not carry claim or durable processing state");
+	}
+
+	@Test
 	void queryEngineIsIndependentFromProcessingAndFrameworks() {
 		noClasses()
 				.that().resideInAnyPackage(
@@ -308,6 +343,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
 						ROOT_PACKAGE + ".engine.service.taskexecution..")
 				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.task..",
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.context.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",

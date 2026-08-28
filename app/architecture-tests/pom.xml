@@ -40,6 +40,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-processing-task</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-task-creation</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
