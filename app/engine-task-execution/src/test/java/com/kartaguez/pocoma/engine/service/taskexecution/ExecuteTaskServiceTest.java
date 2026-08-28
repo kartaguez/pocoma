@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.domain.task.TaskPayload;
 import com.kartaguez.pocoma.engine.exception.InvalidTaskPayloadTypeException;
 import com.kartaguez.pocoma.engine.exception.MissingTaskExecutionHandlerException;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
@@ -94,10 +94,10 @@ class ExecuteTaskServiceTest {
 		return new PipelineDefinition(PipelineId.of(id), version);
 	}
 
-	private record TestPayload(String value) implements PipelineTaskPayload {
+	private record TestPayload(String value) implements TaskPayload {
 	}
 
-	private record OtherPayload() implements PipelineTaskPayload {
+	private record OtherPayload() implements TaskPayload {
 	}
 
 	private static final class RecordingHandler implements TaskExecutionHandler<TestPayload> {

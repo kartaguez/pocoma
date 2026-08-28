@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.pipeline.task;
+package com.kartaguez.pocoma.domain.pipeline;
 
 import java.util.Objects;
 

@@ -10,10 +10,10 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;
@@ -30,7 +30,7 @@ class ExecutePipelineTaskServiceTest {
 						definition,
 						List.of("COMPUTE_BALANCES_FOR_VERSION"),
 						true))));
-		PipelineTask task = task(definition, "COMPUTE_BALANCES_FOR_VERSION");
+		LegacyPipelineTask task = task(definition, "COMPUTE_BALANCES_FOR_VERSION");
 
 		service.executeTask(new ExecutePipelineTaskCommand(task));
 
@@ -68,9 +68,9 @@ class ExecutePipelineTaskServiceTest {
 		return new PipelineDefinition(PipelineId.of(pipelineId), 1);
 	}
 
-	private static PipelineTask task(PipelineDefinition definition, String taskType) {
+	private static LegacyPipelineTask task(PipelineDefinition definition, String taskType) {
 		PotId potId = PotId.of(UUID.randomUUID());
-		return new PipelineTask(
+		return new LegacyPipelineTask(
 				UUID.randomUUID(),
 				UUID.randomUUID(),
 				UUID.randomUUID(),
@@ -90,7 +90,7 @@ class ExecutePipelineTaskServiceTest {
 	private static final class RecordingStrategy implements PipelineTaskExecutionStrategy {
 		private final PipelineDefinition definition;
 		private final String taskType;
-		private final List<PipelineTask> executedTasks = new ArrayList<>();
+		private final List<LegacyPipelineTask> executedTasks = new ArrayList<>();
 		private RuntimeException failure;
 
 		private RecordingStrategy(PipelineDefinition definition, String taskType) {
@@ -109,7 +109,7 @@ class ExecutePipelineTaskServiceTest {
 		}
 
 		@Override
-		public void execute(PipelineTask task) {
+		public void execute(LegacyPipelineTask task) {
 			if (failure != null) {
 				throw failure;
 			}

@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 class RecordedTaskTest {

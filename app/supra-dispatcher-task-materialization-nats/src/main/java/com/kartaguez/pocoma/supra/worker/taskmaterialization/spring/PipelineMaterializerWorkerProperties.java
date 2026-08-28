@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.ConfiguredPipelineBinding;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.supra.worker.taskmaterialization.core.EventToPipelineTaskMaterializerSettings;
 
 @ConfigurationProperties(prefix = "pocoma.pipeline.materialization")

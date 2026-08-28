@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;
 
 public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTaskEntity, UUID> {
@@ -44,21 +44,21 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaPipelineTaskEntity task
-			set task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.ACCEPTED,
+			set task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.ACCEPTED,
 				task.updatedAt = :now,
 				task.acceptedAt = :now,
 				task.failureKind = null,
 				task.lastError = null
 			where task.id = :taskId
 				and task.claimToken = :claimToken
-				and task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.CLAIMED
+				and task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.CLAIMED
 			""")
 	int markAccepted(@Param("taskId") UUID taskId, @Param("claimToken") UUID claimToken, @Param("now") Instant now);
 
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaPipelineTaskEntity task
-			set task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.RUNNING,
+			set task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.RUNNING,
 				task.updatedAt = :now,
 				task.startedAt = :now,
 				task.failureKind = null,
@@ -66,15 +66,15 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 			where task.id = :taskId
 				and task.claimToken = :claimToken
 				and task.status in (
-					com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.CLAIMED,
-					com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.ACCEPTED)
+					com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.CLAIMED,
+					com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.ACCEPTED)
 			""")
 	int markRunning(@Param("taskId") UUID taskId, @Param("claimToken") UUID claimToken, @Param("now") Instant now);
 
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaPipelineTaskEntity task
-			set task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.DONE,
+			set task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.DONE,
 				task.claimToken = null,
 				task.claimedBy = null,
 				task.leaseUntil = null,
@@ -90,7 +90,7 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaPipelineTaskEntity task
-			set task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.FAILED,
+			set task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.FAILED,
 				task.claimToken = null,
 				task.claimedBy = null,
 				task.leaseUntil = null,
@@ -111,7 +111,7 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaPipelineTaskEntity task
-			set task.status = com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.PENDING,
+			set task.status = com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.PENDING,
 				task.claimToken = null,
 				task.claimedBy = null,
 				task.leaseUntil = null,
@@ -129,9 +129,9 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 			where task.id = :taskId
 				and task.claimToken = :claimToken
 				and task.status in (
-					com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.CLAIMED,
-					com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.ACCEPTED,
-					com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus.RUNNING)
+					com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.CLAIMED,
+					com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.ACCEPTED,
+					com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus.RUNNING)
 			""")
 	int heartbeat(
 			@Param("taskId") UUID taskId,
@@ -155,5 +155,5 @@ public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTask
 			@Param("segmentCount") int segmentCount,
 			@Param("matchEveryTaskType") boolean matchEveryTaskType,
 			@Param("taskTypes") List<String> taskTypes,
-			@Param("statuses") List<PipelineTaskStatus> statuses);
+			@Param("statuses") List<JpaPipelineTaskStatus> statuses);
 }

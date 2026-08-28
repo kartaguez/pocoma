@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.taskmaterialization.model;
 import java.util.List;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 public record ConfiguredPipelineBinding(
 		PipelineDefinition definition,

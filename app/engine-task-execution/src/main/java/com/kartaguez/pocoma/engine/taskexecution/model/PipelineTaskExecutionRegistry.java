@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 
 /** Transitional worker binding and strategy registry; not used by the typed functional router. */
 public final class PipelineTaskExecutionRegistry {
@@ -47,7 +47,7 @@ public final class PipelineTaskExecutionRegistry {
 				.toList();
 	}
 
-	public Optional<PipelineTaskExecutionStrategy> find(PipelineTask task) {
+	public Optional<PipelineTaskExecutionStrategy> find(LegacyPipelineTask task) {
 		Objects.requireNonNull(task, "task must not be null");
 		boolean enabled = bindings.stream()
 				.anyMatch(binding -> binding.matches(task.pipeline(), task.taskType()));

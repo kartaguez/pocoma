@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
 
 public record TaskCreationResult(

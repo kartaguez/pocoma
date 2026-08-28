@@ -4,8 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 
 public record TaskCreationPlan(

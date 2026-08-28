@@ -1,16 +1,16 @@
 package com.kartaguez.pocoma.supra.worker.pipelinetask.core;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 
 public interface PipelineTaskExecutionObservation {
 
-	default void taskSubmitted(PipelineTask task) {
+	default void taskSubmitted(LegacyPipelineTask task) {
 	}
 
-	default void taskSucceeded(PipelineTask task, long durationNanos) {
+	default void taskSucceeded(LegacyPipelineTask task, long durationNanos) {
 	}
 
-	default void taskFailed(PipelineTask task, long durationNanos) {
+	default void taskFailed(LegacyPipelineTask task, long durationNanos) {
 	}
 
 	default void tasksClaimed(int count) {

@@ -1,7 +1,13 @@
-package com.kartaguez.pocoma.domain.pipeline.task;
+package com.kartaguez.pocoma.engine.task.creation;
 
 import java.util.Objects;
 
+/**
+ * Application instruction for creating a durable task.
+ *
+ * <p>This serialization-ready descriptor is distinct from both a typed functional
+ * task payload and a task already recorded by a persistence adapter.</p>
+ */
 public record TaskDescriptor(
 		String taskType,
 		String taskKey,

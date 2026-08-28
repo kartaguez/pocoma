@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.PipelineMaterializationStatus;
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.engine.taskmaterialization.port.out.TaskMaterializationPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineMaterializationEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;

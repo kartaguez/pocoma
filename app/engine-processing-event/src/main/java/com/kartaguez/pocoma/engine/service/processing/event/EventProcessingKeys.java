@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 final class EventProcessingKeys {
 

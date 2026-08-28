@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 

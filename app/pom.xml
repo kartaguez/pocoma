@@ -33,7 +33,8 @@
 	<modules>
 		<module>domain-pot</module>
 		<module>domain-projection</module>
-		<module>domain-pipeline-tasks</module>
+		<module>domain-pipeline</module>
+		<module>domain-task</module>
 		<module>domain-policy</module>
 		<module>domain-consumption</module>
 		<module>engine-core</module>

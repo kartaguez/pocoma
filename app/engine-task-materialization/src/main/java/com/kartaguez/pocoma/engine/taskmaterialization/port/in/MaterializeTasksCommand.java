@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.taskmaterialization.port.in;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 public record MaterializeTasksCommand(
 		BusinessEventEnvelope event,

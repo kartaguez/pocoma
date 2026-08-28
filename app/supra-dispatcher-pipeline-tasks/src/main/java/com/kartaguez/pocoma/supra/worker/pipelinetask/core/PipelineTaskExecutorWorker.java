@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcher;
@@ -18,7 +18,7 @@ public final class PipelineTaskExecutorWorker {
 	private final PipelineTaskExecutionRegistry registry;
 	private final PipelineTaskExecutorWorkerSettings settings;
 	private final PipelineTaskExecutionObservation observation;
-	private final ClaimableWorkDispatcher<PipelineTask, PotId, String, PipelineTaskClaimCriteria> dispatcher;
+	private final ClaimableWorkDispatcher<LegacyPipelineTask, PotId, String, PipelineTaskClaimCriteria> dispatcher;
 
 	public PipelineTaskExecutorWorker(
 			PipelineTaskWorkSource workSource,
@@ -38,7 +38,7 @@ public final class PipelineTaskExecutorWorker {
 		this.dispatcher = new ClaimableWorkDispatcher<>(
 				workSource,
 				new PipelineTaskClaimHandler(executor),
-				PipelineTask::potId,
+				LegacyPipelineTask::potId,
 				claimCriteria(),
 				toDispatcherSettings(settings),
 				wakeBus,
@@ -81,7 +81,7 @@ public final class PipelineTaskExecutorWorker {
 				settings.wakeSignalsEnabled());
 	}
 
-	private static final class PipelineTaskClaimHandler implements SegmentedWorkHandler<ClaimedWork<PipelineTask>, PotId> {
+	private static final class PipelineTaskClaimHandler implements SegmentedWorkHandler<ClaimedWork<LegacyPipelineTask>, PotId> {
 		private final SegmentedPipelineTaskExecutor executor;
 
 		private PipelineTaskClaimHandler(SegmentedPipelineTaskExecutor executor) {
@@ -89,7 +89,7 @@ public final class PipelineTaskExecutorWorker {
 		}
 
 		@Override
-		public boolean trySubmit(ClaimedWork<PipelineTask> work) {
+		public boolean trySubmit(ClaimedWork<LegacyPipelineTask> work) {
 			return executor.trySubmit(work.instruction());
 		}
 

@@ -116,6 +116,36 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void pipelineAndTaskDomainsExposeOnlyTheirMinimalJdkContracts() {
+		Set<String> pipelineTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of("PipelineDefinition", "PipelineId"), pipelineTypes,
+				"domain-pipeline must contain only pipeline identity and version");
+
+		Set<String> taskTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.task"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of("TaskPayload"), taskTypes,
+				"domain-task must contain only the functional payload contract");
+
+		Set<String> nonJdkDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline")
+						|| javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.task"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass())
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> !target.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
+				.filter(target -> !target.getPackageName().equals(ROOT_PACKAGE + ".domain.task"))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), nonJdkDependencies,
+				"domain-pipeline and domain-task must depend only on the JDK");
+	}
+
+	@Test
 	void engineDoesNotDependOnOuterLayersOrFrameworks() {
 		noClasses()
 				.that().resideInAPackage(ENGINE_PACKAGE)
@@ -425,9 +455,9 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> forbiddenDurableTypes = Set.of(
-				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTask",
-				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTaskClaim",
-				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTaskStatus");
+				ROOT_PACKAGE + ".engine.taskexecution.model.LegacyPipelineTask",
+				ROOT_PACKAGE + ".engine.taskexecution.model.ConfiguredTaskExecutionBinding",
+				ROOT_PACKAGE + ".infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus");
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.port.in.taskexecution")
 						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.taskexecution"))

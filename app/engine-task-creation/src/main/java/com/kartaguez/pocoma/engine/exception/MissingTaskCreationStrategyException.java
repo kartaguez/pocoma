@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.exception;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 public final class MissingTaskCreationStrategyException extends RuntimeException {
 

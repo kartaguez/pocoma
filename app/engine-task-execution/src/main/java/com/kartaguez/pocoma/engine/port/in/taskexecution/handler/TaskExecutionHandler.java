@@ -1,9 +1,9 @@
 package com.kartaguez.pocoma.engine.port.in.taskexecution.handler;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.task.TaskPayload;
 
-public interface TaskExecutionHandler<T extends PipelineTaskPayload> {
+public interface TaskExecutionHandler<T extends TaskPayload> {
 
 	PipelineDefinition pipeline();
 

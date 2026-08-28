@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
@@ -37,7 +37,7 @@ public final class ComputeBalancesPipelineTaskExecutionStrategy implements Pipel
 	}
 
 	@Override
-	public void execute(PipelineTask task) {
+	public void execute(LegacyPipelineTask task) {
 		BalanceTaskPayload payload = readPayload(task);
 		executeTaskUseCase.executeTask(new ExecuteTaskInput<>(
 				task.pipeline(),
@@ -45,7 +45,7 @@ public final class ComputeBalancesPipelineTaskExecutionStrategy implements Pipel
 				new ComputeBalancesTask(PotId.of(UUID.fromString(payload.potId())), payload.targetVersion())));
 	}
 
-	private BalanceTaskPayload readPayload(PipelineTask task) {
+	private BalanceTaskPayload readPayload(LegacyPipelineTask task) {
 		try {
 			return objectMapper.readValue(task.taskPayload(), BalanceTaskPayload.class);
 		}

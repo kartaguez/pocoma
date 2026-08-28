@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationPlan;
 import com.kartaguez.pocoma.engine.exception.MissingTaskCreationStrategyException;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.input.PlanTasksForEventInput;

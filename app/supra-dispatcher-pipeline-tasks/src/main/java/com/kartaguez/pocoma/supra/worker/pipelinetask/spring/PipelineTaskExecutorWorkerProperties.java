@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
+import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.supra.worker.pipelinetask.core.PipelineTaskExecutorSettings;
 import com.kartaguez.pocoma.supra.worker.pipelinetask.core.PipelineTaskExecutorWorkerSettings;

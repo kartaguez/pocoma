@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 
 public final class TaskExecutionHandlerRegistry {

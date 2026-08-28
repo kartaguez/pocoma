@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.pipelinetask;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 

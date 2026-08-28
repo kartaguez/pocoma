@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.supra.worker.pipelinetask.core;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskCommand;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskUseCase;
@@ -16,17 +16,17 @@ public final class SegmentedPipelineTaskExecutor {
 
 	private final PipelineTaskExecutionObservation observation;
 	private final CapacityNotifier<PotId> capacityNotifier;
-	private final SegmentedWorkerPool<PipelineTask, PotId> workerPool;
+	private final SegmentedWorkerPool<LegacyPipelineTask, PotId> workerPool;
 
 	public SegmentedPipelineTaskExecutor(
-			ClaimableWorkLifecycle<PipelineTask, ?> workSource,
+			ClaimableWorkLifecycle<LegacyPipelineTask, ?> workSource,
 			ExecutePipelineTaskUseCase executePipelineTaskUseCase,
 			PipelineTaskExecutorSettings settings) {
 		this(workSource, executePipelineTaskUseCase, settings, new NoopPipelineTaskExecutionObservation(), CapacityNotifier.noop());
 	}
 
 	public SegmentedPipelineTaskExecutor(
-			ClaimableWorkLifecycle<PipelineTask, ?> workSource,
+			ClaimableWorkLifecycle<LegacyPipelineTask, ?> workSource,
 			ExecutePipelineTaskUseCase executePipelineTaskUseCase,
 			PipelineTaskExecutorSettings settings,
 			PipelineTaskExecutionObservation observation,
@@ -39,7 +39,7 @@ public final class SegmentedPipelineTaskExecutor {
 		this.workerPool = new SegmentedWorkerPool<>(
 				workSource,
 				task -> process(task, executePipelineTaskUseCase),
-				PipelineTask::potId,
+				LegacyPipelineTask::potId,
 				new SegmentedWorkerPoolSettings(
 						"pocoma-pipeline-task-executor",
 						settings.threadCount(),
@@ -51,7 +51,7 @@ public final class SegmentedPipelineTaskExecutor {
 						settings.heartbeatInterval()));
 	}
 
-	public boolean trySubmit(PipelineTask task) {
+	public boolean trySubmit(LegacyPipelineTask task) {
 		Objects.requireNonNull(task, "task must not be null");
 		boolean accepted = workerPool.trySubmit(new ClaimedWork<>(task));
 		if (accepted) {
@@ -80,7 +80,7 @@ public final class SegmentedPipelineTaskExecutor {
 		return workerPool.isRunning();
 	}
 
-	private void process(PipelineTask task, ExecutePipelineTaskUseCase useCase) {
+	private void process(LegacyPipelineTask task, ExecutePipelineTaskUseCase useCase) {
 		long startedAtNanos = System.nanoTime();
 		try {
 			useCase.executeTask(new ExecutePipelineTaskCommand(task));

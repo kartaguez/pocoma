@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 
 public record ClaimNextEventInput(

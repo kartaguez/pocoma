@@ -1,12 +1,14 @@
-package com.kartaguez.pocoma.domain.pipeline.task;
+package com.kartaguez.pocoma.engine.taskexecution.model;
 
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
-public record PipelineTask(
+/** Transitional durable worker representation; typed task execution must not depend on it. */
+public record LegacyPipelineTask(
 		UUID taskId,
 		UUID claimToken,
 		UUID materializationId,
@@ -22,7 +24,7 @@ public record PipelineTask(
 		Instant createdAt,
 		long taskSubmittedAtNanos) {
 
-	public PipelineTask {
+	public LegacyPipelineTask {
 		Objects.requireNonNull(taskId, "taskId must not be null");
 		Objects.requireNonNull(claimToken, "claimToken must not be null");
 		Objects.requireNonNull(materializationId, "materializationId must not be null");

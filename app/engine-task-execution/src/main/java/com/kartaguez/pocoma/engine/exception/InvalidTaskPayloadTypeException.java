@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.exception;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 public final class InvalidTaskPayloadTypeException extends RuntimeException {
 

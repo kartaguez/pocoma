@@ -2,10 +2,10 @@ package com.kartaguez.pocoma.engine.port.in.taskexecution.input;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.task.TaskPayload;
 
-public record ExecuteTaskInput<T extends PipelineTaskPayload>(
+public record ExecuteTaskInput<T extends TaskPayload>(
 		PipelineDefinition pipeline,
 		String taskType,
 		T task) {

@@ -10,9 +10,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus;
+import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimWorkRequest;
@@ -31,14 +31,14 @@ public class JpaPipelineTaskWorkSourceAdapter implements PipelineTaskWorkSource 
 
 	@Override
 	@Transactional
-	public List<ClaimedWork<PipelineTask>> claim(ClaimWorkRequest<PipelineTaskClaimCriteria> request) {
+	public List<ClaimedWork<LegacyPipelineTask>> claim(ClaimWorkRequest<PipelineTaskClaimCriteria> request) {
 		Objects.requireNonNull(request, "request must not be null");
 		requirePositive(request.limit(), "limit");
 		requirePositive(request.leaseDuration(), "leaseDuration");
 		Objects.requireNonNull(request.criteria(), "criteria must not be null");
 		requireText(request.workerId(), "workerId");
 		Instant now = Instant.now();
-		List<ClaimedWork<PipelineTask>> claimed = new ArrayList<>();
+		List<ClaimedWork<LegacyPipelineTask>> claimed = new ArrayList<>();
 		for (ConfiguredTaskExecutionBinding binding : request.criteria().activeBindings()) {
 			if (!binding.enabled()) {
 				continue;
@@ -66,45 +66,45 @@ public class JpaPipelineTaskWorkSourceAdapter implements PipelineTaskWorkSource 
 
 	@Override
 	@Transactional
-	public boolean markAccepted(ClaimedWork<PipelineTask> work) {
-		PipelineTask task = work.instruction();
+	public boolean markAccepted(ClaimedWork<LegacyPipelineTask> work) {
+		LegacyPipelineTask task = work.instruction();
 		return repository.markAccepted(task.taskId(), task.claimToken(), Instant.now()) == 1;
 	}
 
 	@Override
 	@Transactional
-	public void release(ClaimedWork<PipelineTask> work) {
-		PipelineTask task = work.instruction();
+	public void release(ClaimedWork<LegacyPipelineTask> work) {
+		LegacyPipelineTask task = work.instruction();
 		repository.release(task.taskId(), task.claimToken(), Instant.now());
 	}
 
 	@Override
 	@Transactional
-	public boolean markProcessing(ClaimedWork<PipelineTask> work) {
-		PipelineTask task = work.instruction();
+	public boolean markProcessing(ClaimedWork<LegacyPipelineTask> work) {
+		LegacyPipelineTask task = work.instruction();
 		return repository.markRunning(task.taskId(), task.claimToken(), Instant.now()) == 1;
 	}
 
 	@Override
 	@Transactional
-	public boolean heartbeat(ClaimedWork<PipelineTask> work, Duration leaseDuration) {
+	public boolean heartbeat(ClaimedWork<LegacyPipelineTask> work, Duration leaseDuration) {
 		requirePositive(leaseDuration, "leaseDuration");
-		PipelineTask task = work.instruction();
+		LegacyPipelineTask task = work.instruction();
 		Instant now = Instant.now();
 		return repository.heartbeat(task.taskId(), task.claimToken(), now.plus(leaseDuration), now) == 1;
 	}
 
 	@Override
 	@Transactional
-	public boolean markDone(ClaimedWork<PipelineTask> work) {
-		PipelineTask task = work.instruction();
+	public boolean markDone(ClaimedWork<LegacyPipelineTask> work) {
+		LegacyPipelineTask task = work.instruction();
 		return repository.markDone(task.taskId(), task.claimToken(), Instant.now()) == 1;
 	}
 
 	@Override
 	@Transactional
-	public boolean markFailed(ClaimedWork<PipelineTask> work, RuntimeException error) {
-		PipelineTask task = work.instruction();
+	public boolean markFailed(ClaimedWork<LegacyPipelineTask> work, RuntimeException error) {
+		LegacyPipelineTask task = work.instruction();
 		return repository.markFailed(
 				task.taskId(),
 				task.claimToken(),
@@ -117,19 +117,19 @@ public class JpaPipelineTaskWorkSourceAdapter implements PipelineTaskWorkSource 
 	@Transactional(readOnly = true)
 	public long countPendingOrInProgress(PipelineTaskClaimCriteria criteria) {
 		return count(criteria, List.of(
-				PipelineTaskStatus.PENDING,
-				PipelineTaskStatus.CLAIMED,
-				PipelineTaskStatus.ACCEPTED,
-				PipelineTaskStatus.RUNNING));
+				JpaPipelineTaskStatus.PENDING,
+				JpaPipelineTaskStatus.CLAIMED,
+				JpaPipelineTaskStatus.ACCEPTED,
+				JpaPipelineTaskStatus.RUNNING));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public long countFailed(PipelineTaskClaimCriteria criteria) {
-		return count(criteria, List.of(PipelineTaskStatus.FAILED));
+		return count(criteria, List.of(JpaPipelineTaskStatus.FAILED));
 	}
 
-	private long count(PipelineTaskClaimCriteria criteria, List<PipelineTaskStatus> statuses) {
+	private long count(PipelineTaskClaimCriteria criteria, List<JpaPipelineTaskStatus> statuses) {
 		Objects.requireNonNull(criteria, "criteria must not be null");
 		return criteria.activeBindings().stream()
 				.filter(ConfiguredTaskExecutionBinding::enabled)

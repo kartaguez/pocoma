@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.supra.worker.pipelinetask.core;
 import java.util.List;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
+import com.kartaguez.pocoma.engine.taskexecution.model.ConfiguredTaskExecutionBinding;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 
 public record PipelineTaskClaimCriteria(

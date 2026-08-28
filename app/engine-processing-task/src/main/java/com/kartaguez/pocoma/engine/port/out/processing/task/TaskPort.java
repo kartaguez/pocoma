@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.port.out.processing.task.model.RecordedTask;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.processing.task.ordering.TaskOrderingKey;

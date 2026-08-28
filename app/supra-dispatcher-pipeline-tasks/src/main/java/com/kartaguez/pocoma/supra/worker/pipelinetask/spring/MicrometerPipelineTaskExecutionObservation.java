@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.supra.worker.pipelinetask.spring;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 import com.kartaguez.pocoma.supra.worker.pipelinetask.core.PipelineTaskExecutionObservation;
 
 import io.micrometer.core.instrument.Counter;
@@ -28,7 +28,7 @@ final class MicrometerPipelineTaskExecutionObservation implements PipelineTaskEx
 	}
 
 	@Override
-	public void taskSubmitted(PipelineTask task) {
+	public void taskSubmitted(LegacyPipelineTask task) {
 		Counter.builder("pocoma.pipeline_task_execution.submitted.total")
 				.description("Number of claimed pipeline tasks submitted to local execution segments.")
 				.tags(tags(task, "submitted"))
@@ -37,12 +37,12 @@ final class MicrometerPipelineTaskExecutionObservation implements PipelineTaskEx
 	}
 
 	@Override
-	public void taskSucceeded(PipelineTask task, long durationNanos) {
+	public void taskSucceeded(LegacyPipelineTask task, long durationNanos) {
 		recordExecution(task, "succeeded", durationNanos);
 	}
 
 	@Override
-	public void taskFailed(PipelineTask task, long durationNanos) {
+	public void taskFailed(LegacyPipelineTask task, long durationNanos) {
 		recordExecution(task, "failed", durationNanos);
 	}
 
@@ -55,7 +55,7 @@ final class MicrometerPipelineTaskExecutionObservation implements PipelineTaskEx
 				.increment(count);
 	}
 
-	private void recordExecution(PipelineTask task, String outcome, long durationNanos) {
+	private void recordExecution(LegacyPipelineTask task, String outcome, long durationNanos) {
 		Timer.builder("pocoma.pipeline_task_execution.execution.duration")
 				.description("Duration of pipeline task execution.")
 				.tags(tags(task, outcome))
@@ -68,7 +68,7 @@ final class MicrometerPipelineTaskExecutionObservation implements PipelineTaskEx
 				.increment();
 	}
 
-	private String[] tags(PipelineTask task, String outcome) {
+	private String[] tags(LegacyPipelineTask task, String outcome) {
 		return new String[] {
 				"worker_id", workerId,
 				"segment_index", segmentIndex,

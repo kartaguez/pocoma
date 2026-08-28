@@ -12,8 +12,8 @@ import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.supra.worker.taskmaterialization.core.TaskMaterializationEventObservation;
 import com.kartaguez.pocoma.supra.worker.taskmaterialization.core.TaskMaterializationRunObservation;
 

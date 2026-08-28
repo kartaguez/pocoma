@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 
 public interface TaskMaterializationPort {
 

@@ -1,8 +1,11 @@
-package com.kartaguez.pocoma.domain.pipeline.task;
+package com.kartaguez.pocoma.engine.taskexecution.model;
 
 import java.util.List;
 import java.util.Objects;
 
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+
+/** Transitional pull-worker activation configuration. */
 public record ConfiguredTaskExecutionBinding(
 		PipelineDefinition definition,
 		List<String> taskTypes,

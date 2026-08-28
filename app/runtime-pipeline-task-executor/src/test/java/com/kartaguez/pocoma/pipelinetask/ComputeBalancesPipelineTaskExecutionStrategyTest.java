@@ -12,8 +12,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
+import com.kartaguez.pocoma.domain.task.TaskPayload;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
@@ -25,7 +25,7 @@ class ComputeBalancesPipelineTaskExecutionStrategyTest {
 		RecordingExecuteTask useCase = new RecordingExecuteTask();
 		var strategy = new ComputeBalancesPipelineTaskExecutionStrategy(useCase, new ObjectMapper());
 		PotId potId = PotId.of(UUID.randomUUID());
-		PipelineTask durableTask = task("{\"potId\":\"" + potId.value() + "\",\"targetVersion\":5}");
+		LegacyPipelineTask durableTask = task("{\"potId\":\"" + potId.value() + "\",\"targetVersion\":5}");
 
 		strategy.execute(durableTask);
 
@@ -56,9 +56,9 @@ class ComputeBalancesPipelineTaskExecutionStrategyTest {
 				() -> strategy.execute(task("{\"potId\":\"" + potId.value() + "\",\"targetVersion\":1}"))));
 	}
 
-	private static PipelineTask task(String payload) {
+	private static LegacyPipelineTask task(String payload) {
 		PotId potId = PotId.of(UUID.randomUUID());
-		return new PipelineTask(
+		return new LegacyPipelineTask(
 				UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
 				ComputeBalancesPipelineTaskExecutionStrategy.DEFINITION,
 				ComputeBalancesPipelineTaskExecutionStrategy.TASK_TYPE,
@@ -66,11 +66,11 @@ class ComputeBalancesPipelineTaskExecutionStrategyTest {
 	}
 
 	private static final class RecordingExecuteTask implements ExecuteTaskUseCase {
-		private final List<ExecuteTaskInput<? extends PipelineTaskPayload>> inputs = new ArrayList<>();
+		private final List<ExecuteTaskInput<? extends TaskPayload>> inputs = new ArrayList<>();
 		private RuntimeException failure;
 
 		@Override
-		public void executeTask(ExecuteTaskInput<? extends PipelineTaskPayload> input) {
+		public void executeTask(ExecuteTaskInput<? extends TaskPayload> input) {
 			if (failure != null) {
 				throw failure;
 			}

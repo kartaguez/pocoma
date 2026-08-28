@@ -4,12 +4,11 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus;
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
+import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,7 +54,7 @@ public class JpaPipelineTaskEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
-	private PipelineTaskStatus status;
+	private JpaPipelineTaskStatus status;
 
 	@Column(name = "attempt_count", nullable = false)
 	private int attemptCount;
@@ -116,14 +115,14 @@ public class JpaPipelineTaskEntity {
 		this.taskPayload = requireText(task.taskPayload(), "taskPayload");
 		this.partitionKey = task.partitionKey();
 		this.partitionHash = partitionHash(task.partitionKey());
-		this.status = PipelineTaskStatus.PENDING;
+		this.status = JpaPipelineTaskStatus.PENDING;
 		this.attemptCount = 0;
 		this.createdAt = Objects.requireNonNull(now, "now must not be null");
 		this.updatedAt = now;
 	}
 
 	public void claim(UUID claimToken, String workerId, Instant now, Instant leaseUntil) {
-		this.status = PipelineTaskStatus.CLAIMED;
+		this.status = JpaPipelineTaskStatus.CLAIMED;
 		this.claimToken = Objects.requireNonNull(claimToken, "claimToken must not be null");
 		this.claimedBy = requireText(workerId, "workerId");
 		this.leaseUntil = Objects.requireNonNull(leaseUntil, "leaseUntil must not be null");
@@ -134,8 +133,8 @@ public class JpaPipelineTaskEntity {
 		this.lastError = null;
 	}
 
-	public PipelineTask toTask() {
-		return new PipelineTask(
+	public LegacyPipelineTask toTask() {
+		return new LegacyPipelineTask(
 				id,
 				Objects.requireNonNull(claimToken, "claimToken must not be null"),
 				materializationId,

@@ -27,9 +27,9 @@ import com.kartaguez.pocoma.engine.taskmaterialization.model.ConfiguredPipelineB
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationOutcome;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineMaterializationRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;

@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 
 public record ReleaseEventProcessingInput(
 		PipelineDefinition pipeline,

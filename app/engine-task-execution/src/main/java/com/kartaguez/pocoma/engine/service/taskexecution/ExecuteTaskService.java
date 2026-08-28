@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.service.taskexecution;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
+import com.kartaguez.pocoma.domain.task.TaskPayload;
 import com.kartaguez.pocoma.engine.exception.InvalidTaskPayloadTypeException;
 import com.kartaguez.pocoma.engine.exception.MissingTaskExecutionHandlerException;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
@@ -18,7 +18,7 @@ public final class ExecuteTaskService implements ExecuteTaskUseCase {
 	}
 
 	@Override
-	public void executeTask(ExecuteTaskInput<? extends PipelineTaskPayload> input) {
+	public void executeTask(ExecuteTaskInput<? extends TaskPayload> input) {
 		requireNonNull(input, "input must not be null");
 		TaskExecutionHandler<?> handler = handlerRegistry.find(input.pipeline(), input.taskType())
 				.orElseThrow(() -> new MissingTaskExecutionHandlerException(input.pipeline(), input.taskType()));
@@ -29,9 +29,9 @@ public final class ExecuteTaskService implements ExecuteTaskUseCase {
 		execute(handler, input.task());
 	}
 
-	private static <T extends PipelineTaskPayload> void execute(
+	private static <T extends TaskPayload> void execute(
 			TaskExecutionHandler<T> handler,
-			PipelineTaskPayload task) {
+			TaskPayload task) {
 		handler.execute(handler.payloadType().cast(task));
 	}
 }

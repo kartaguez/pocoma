@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.port.out.taskcreation.input;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 
