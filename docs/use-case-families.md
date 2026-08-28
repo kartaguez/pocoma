@@ -25,11 +25,16 @@ Query use cases synchronously read Pot state and projections through read ports.
 from durable asynchronous processing and must not depend on command, event-consumption, or task
 workers.
 
-## Task creation — target module `engine-task-creation`
+## Task creation — `engine-task-creation`
 
-Task creation receives an immutable Event and a Pipeline definition and produces zero to many
-autonomous Task descriptors. The current `engine-task-materialization` module is transitional and
-will be migrated to this responsibility.
+Pure task planning receives a typed `BusinessEvent` and a `PipelineDefinition` and produces zero
+to many autonomous `TaskDescriptor` objects. Durable creation decorates the same event with a
+`RecordedEvent` carrying its outbox identity, timestamp, and optional trace metadata, then persists
+the plan idempotently for `(pipelineId, pipelineVersion, eventId)` — including empty plans.
+
+JSON and `BusinessEventEnvelope` remain infrastructure/legacy-outbox representations. The current
+`engine-task-materialization` module and worker remain temporarily active as the runtime bridge;
+they will be retired only after the new event-consumption worker is wired.
 
 An Event has no consumption status. Each interested pipeline has an independent EventConsumption,
 identified by `(pipelineId, pipelineVersion, eventId)`. Claiming or completing that consumption is

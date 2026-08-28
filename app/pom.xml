@@ -42,6 +42,7 @@
 		<module>engine-query</module>
 		<module>engine-projection</module>
 		<module>engine-task-materialization</module>
+		<module>engine-task-creation</module>
 		<module>engine-task-execution</module>
 		<module>observability</module>
 		<module>infra-tx-spring</module>

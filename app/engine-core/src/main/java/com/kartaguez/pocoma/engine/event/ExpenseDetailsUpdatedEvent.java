@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 
-public record ExpenseDetailsUpdatedEvent(ExpenseId expenseId, PotId potId, long version) {
+public record ExpenseDetailsUpdatedEvent(ExpenseId expenseId, PotId potId, long version) implements BusinessEvent {
 
 	public ExpenseDetailsUpdatedEvent {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");

@@ -16,6 +16,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.input.EventTraceMetadata;
+import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.input.RecordedEvent;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotPartitioner;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
@@ -31,13 +35,17 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelin
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
 
 @DataJpaTest
-@Import({ JpaPipelineMaterializationAdapter.class, JpaMaterializableEventSourceAdapter.class, JpaBusinessEventOutboxAdapter.class })
+@Import({ JpaPipelineMaterializationAdapter.class, JpaTaskCreationAdapter.class,
+		JpaMaterializableEventSourceAdapter.class, JpaBusinessEventOutboxAdapter.class })
 class JpaPipelineMaterializationAdapterTest {
 
 	private static final PipelineDefinition PIPELINE = new PipelineDefinition(PipelineId.of("test-pipeline"), 1);
 
 	@Autowired
 	private JpaPipelineMaterializationAdapter adapter;
+
+	@Autowired
+	private JpaTaskCreationAdapter taskCreationAdapter;
 
 	@Autowired
 	private JpaMaterializableEventSourceAdapter eventSource;
@@ -76,6 +84,24 @@ class JpaPipelineMaterializationAdapterTest {
 		assertEquals(MaterializationOutcome.ALREADY_MATERIALIZED, repeated.outcome());
 		assertEquals(1, materializationRepository.count());
 		assertEquals(1, taskRepository.count());
+	}
+
+	@Test
+	void typedTaskCreationRecordsAnEmptyPlanIdempotently() {
+		UUID eventId = UUID.randomUUID();
+		var recordedEvent = new RecordedEvent<>(
+				eventId,
+				new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1),
+				Instant.now(),
+				EventTraceMetadata.empty());
+		var creation = new EventPipelineTaskCreation(recordedEvent, PIPELINE);
+
+		assertEquals(TaskCreationOutcome.CREATED,
+				taskCreationAdapter.createIfAbsent(creation, List.of()).outcome());
+		assertEquals(TaskCreationOutcome.ALREADY_CREATED,
+				taskCreationAdapter.createIfAbsent(creation, List.of()).outcome());
+		assertEquals(1, materializationRepository.count());
+		assertEquals(0, taskRepository.count());
 	}
 
 	@Test

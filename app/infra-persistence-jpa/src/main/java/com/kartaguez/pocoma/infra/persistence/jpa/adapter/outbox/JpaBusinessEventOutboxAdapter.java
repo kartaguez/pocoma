@@ -9,49 +9,42 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.ExpenseSharesUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
-import com.kartaguez.pocoma.engine.event.PotDeletedEvent;
-import com.kartaguez.pocoma.engine.event.PotDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersDetailsUpdatedEvent;
-import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.input.EventTraceMetadata;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.input.RecordedEvent;
+import com.kartaguez.pocoma.engine.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.port.out.persistence.BusinessEventOutboxPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
-import com.kartaguez.pocoma.observability.event.EventMetadata;
 import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
 
 @Component("jpaBusinessEventOutboxAdapter")
 public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
 
 	private final JpaBusinessEventOutboxRepository repository;
+	private final BusinessEventRecordMapper eventRecordMapper;
 
 	public JpaBusinessEventOutboxAdapter(JpaBusinessEventOutboxRepository repository) {
 		this.repository = Objects.requireNonNull(repository, "repository must not be null");
+		this.eventRecordMapper = new BusinessEventRecordMapper(new ObjectMapper());
 	}
 
 	@Override
 	@Transactional
 	public void append(Object event) {
 		Objects.requireNonNull(event, "event must not be null");
-		EventProjection eventProjection = EventProjection.from(event);
+		if (!(event instanceof BusinessEvent businessEvent)) {
+			throw new IllegalArgumentException("Unsupported business event: " + event.getClass().getName());
+		}
 		TraceContext traceContext = TraceContext.fromCurrent();
-		repository.save(new JpaBusinessEventOutboxEntity(
-				EventMetadata.type(event),
-				eventProjection.potId().value(),
-				eventProjection.aggregateId(),
-				eventProjection.version(),
-				payloadJson(event, eventProjection),
-				traceContext.traceId(),
-				traceContext.commandCommittedAtNanos(),
-				Instant.now()));
+		RecordedEvent<BusinessEvent> recordedEvent = new RecordedEvent<>(
+				UUID.randomUUID(),
+				businessEvent,
+				Instant.now(),
+				EventTraceMetadata.of(traceContext.traceId(), traceContext.commandCommittedAtNanos()));
+		repository.save(new JpaBusinessEventOutboxEntity(eventRecordMapper.toEnvelope(recordedEvent)));
 	}
 
 	@Override
@@ -148,19 +141,6 @@ public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
 		return new BusinessEventClaim(entity.toEnvelope(), claimToken);
 	}
 
-	private static String payloadJson(Object event, EventProjection eventProjection) {
-		return "{"
-				+ "\"eventType\":\"" + escape(EventMetadata.type(event)) + "\","
-				+ "\"potId\":\"" + eventProjection.potId().value() + "\","
-				+ "\"aggregateId\":\"" + eventProjection.aggregateId() + "\","
-				+ "\"version\":" + eventProjection.version()
-				+ "}";
-	}
-
-	private static String escape(String value) {
-		return value.replace("\\", "\\\\").replace("\"", "\\\"");
-	}
-
 	private static void requirePositive(int value, String name) {
 		if (value < 1) {
 			throw new IllegalArgumentException(name + " must be greater than or equal to 1");
@@ -180,49 +160,6 @@ public class JpaBusinessEventOutboxAdapter implements BusinessEventOutboxPort {
 			return null;
 		}
 		return error.length() <= 4000 ? error : error.substring(0, 4000);
-	}
-
-	private record EventProjection(PotId potId, UUID aggregateId, long version) {
-
-		private static EventProjection from(Object event) {
-			return switch (event) {
-				case ExpenseCreatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.expenseId().value(),
-						typed.version());
-				case ExpenseDeletedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.expenseId().value(),
-						typed.version());
-				case ExpenseDetailsUpdatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.expenseId().value(),
-						typed.version());
-				case ExpenseSharesUpdatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.expenseId().value(),
-						typed.version());
-				case PotCreatedEvent typed -> new EventProjection(typed.potId(), typed.potId().value(), typed.version());
-				case PotDeletedEvent typed -> new EventProjection(typed.potId(), typed.potId().value(), typed.version());
-				case PotDetailsUpdatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.potId().value(),
-						typed.version());
-				case PotShareholdersAddedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.potId().value(),
-						typed.version());
-				case PotShareholdersDetailsUpdatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.potId().value(),
-						typed.version());
-				case PotShareholdersWeightsUpdatedEvent typed -> new EventProjection(
-						typed.potId(),
-						typed.potId().value(),
-						typed.version());
-				default -> throw new IllegalArgumentException("Unsupported business event: " + event.getClass().getName());
-			};
-		}
 	}
 
 	private record TraceContext(String traceId, Long commandCommittedAtNanos) {

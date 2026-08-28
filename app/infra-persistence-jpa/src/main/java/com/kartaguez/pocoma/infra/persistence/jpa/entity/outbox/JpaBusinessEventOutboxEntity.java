@@ -88,6 +88,19 @@ public class JpaBusinessEventOutboxEntity {
 	protected JpaBusinessEventOutboxEntity() {
 	}
 
+	public JpaBusinessEventOutboxEntity(BusinessEventEnvelope envelope) {
+		this(
+				envelope.id(),
+				envelope.eventType(),
+				envelope.potId().value(),
+				envelope.aggregateId(),
+				envelope.version(),
+				envelope.payloadJson(),
+				envelope.traceId(),
+				envelope.commandCommittedAtNanos(),
+				envelope.createdAt());
+	}
+
 	public JpaBusinessEventOutboxEntity(
 			String eventType,
 			UUID potId,
@@ -97,7 +110,21 @@ public class JpaBusinessEventOutboxEntity {
 			String traceId,
 			Long commandCommittedAtNanos,
 			Instant createdAt) {
-		this.id = UUID.randomUUID();
+		this(UUID.randomUUID(), eventType, potId, aggregateId, version, payloadJson, traceId,
+				commandCommittedAtNanos, createdAt);
+	}
+
+	private JpaBusinessEventOutboxEntity(
+			UUID id,
+			String eventType,
+			UUID potId,
+			UUID aggregateId,
+			long version,
+			String payloadJson,
+			String traceId,
+			Long commandCommittedAtNanos,
+			Instant createdAt) {
+		this.id = Objects.requireNonNull(id, "id must not be null");
 		this.eventType = requireText(eventType, "eventType");
 		this.potId = Objects.requireNonNull(potId, "potId must not be null");
 		this.potPartitionHash = PotPartitioner.partitionHash(potId);

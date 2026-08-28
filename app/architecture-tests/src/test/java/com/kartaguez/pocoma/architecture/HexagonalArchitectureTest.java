@@ -113,6 +113,30 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void taskCreationEngineUsesTypedEventsWithoutTechnicalProcessingDependencies() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.out.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.transaction.taskcreation..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.context.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.out.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine.model..",
+						ROOT_PACKAGE + ".supra.worker..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void httpControllersDoNotDependOnJpa() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..controller..")

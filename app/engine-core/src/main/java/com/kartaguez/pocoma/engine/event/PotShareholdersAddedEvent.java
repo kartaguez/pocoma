@@ -6,7 +6,8 @@ import java.util.Set;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 
-public record PotShareholdersAddedEvent(PotId potId, Set<ShareholderId> shareholderIds, long version) {
+public record PotShareholdersAddedEvent(PotId potId, Set<ShareholderId> shareholderIds, long version)
+		implements BusinessEvent {
 
 	public PotShareholdersAddedEvent {
 		Objects.requireNonNull(potId, "potId must not be null");

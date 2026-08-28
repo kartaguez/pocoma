@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.value.id.PotId;
 
-public record PotCreatedEvent(PotId potId, long version) {
+public record PotCreatedEvent(PotId potId, long version) implements BusinessEvent {
 
 	public PotCreatedEvent {
 		Objects.requireNonNull(potId, "potId must not be null");
