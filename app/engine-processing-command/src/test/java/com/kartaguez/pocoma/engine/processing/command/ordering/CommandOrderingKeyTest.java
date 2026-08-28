@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.processing.ordering;
+package com.kartaguez.pocoma.engine.processing.command.ordering;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

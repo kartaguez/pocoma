@@ -157,6 +157,45 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..")
 				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.context..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.port.out.persistence..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.out.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void commandProcessingDependsOnlyOnCommandAndGenericProcessingContracts() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.command..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.service.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".engine.taskmaterialization..",
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
 	}
 
 	@Test

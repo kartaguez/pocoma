@@ -25,7 +25,7 @@ dépendance Maven vers `engine-command`.
 ## Limite avec la 2.3
 
 La sélection, l’ordre, la segmentation et les transitions de la Command ne sont pas recréés ici.
-Ils seront portés par `engine-command-processing` en 2.3, qui composera son port Command avec les
+Ils seront portés par `engine-processing-command` en 2.3, qui composera son port Command avec les
 use cases génériques de consommation.
 
 ## Tests

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.processing.ordering;
+package com.kartaguez.pocoma.engine.processing.command.ordering;
 
 import static java.util.Objects.requireNonNull;
 
@@ -22,6 +22,6 @@ public record CommandOrderingKey(Instant createdAt, UUID commandId)
 		int creationComparison = createdAt.compareTo(other.createdAt);
 		return creationComparison != 0
 				? creationComparison
-				: OrderingComparisons.compareUuid(commandId, other.commandId);
+				: commandId.toString().compareTo(other.commandId.toString());
 	}
 }

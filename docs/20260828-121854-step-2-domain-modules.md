@@ -3,7 +3,7 @@
 ## Objectifs
 
 - Rendre `domain-consumption` et `engine-consumption` indépendants de Command, Event et Task.
-- Introduire les engines techniques `engine-command-processing`, `engine-event-processing` et
+- Introduire les engines techniques `engine-processing-command`, `engine-event-processing` et
   `engine-task-processing`.
 - Renommer le domaine principal en `domain-pot` et y placer les événements métier.
 - Séparer `domain-pipeline` et `domain-task`.
@@ -16,7 +16,7 @@
    historique de claims, sortie des concepts d’ordre et de segmentation.
 2. **2.2 — Engine de consommation générique** : remplacer les use cases Command par
    tryAcquire/complete/fail/release fondés uniquement sur `ConsumptionKey`.
-3. **2.3 — Command processing** : créer `engine-command-processing` et y placer sélection,
+3. **2.3 — Command processing** : créer `engine-processing-command` et y placer sélection,
    ordre, segmentation et transaction Command + Claim.
 4. **2.4 — Event et Task processing** : créer les engines techniques spécialisés et y maintenir
    temporairement les routes legacy des workers.
@@ -40,7 +40,7 @@ domain-task                tâches fonctionnelles typées
 domain-consumption         invariants génériques slot/claim
 
 engine-consumption         réservation générique
-engine-command-processing  sélection et cycle durable Command
+engine-processing-command  sélection et cycle durable Command
 engine-event-processing    sélection et cycle durable Event
 engine-task-processing     sélection et cycle durable Task
 ```

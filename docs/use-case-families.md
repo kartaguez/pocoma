@@ -123,6 +123,10 @@ that it remains callable only to keep the current workers operational.
 | `CompleteConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `FailConsumptionUseCase` | Consumption | consumption key, token, failure | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `ReleaseConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
+| `ClaimNextCommandUseCase` | Command processing | worker, lease, segment | optional durable command and claim | `CommandPort`, generic acquisition | Decorator | Future Command worker | Target |
+| `CompleteCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | `CommandPort`, generic completion | Decorator | Future Command worker | Target |
+| `FailCommandProcessingUseCase` | Command processing | command id, token, failure | `ConsumptionOutcome` | `CommandPort`, generic failure | Decorator | Future Command worker | Target |
+| `ReleaseCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | generic release | Decorator | Future Command worker | Target |
 | `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
 | `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
 | `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |
@@ -133,6 +137,12 @@ that it remains callable only to keep the current workers operational.
 | `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | projected expenses/balances | Decorator | Typed balance handler | Target; domain placement decided in step 2 |
 
 ## Transitional runtime paths
+
+The future command path is now defined at application level but is not wired to persistence yet:
+
+```text
+Command worker -> ClaimNextCommandUseCase -> ExecuteCommandUseCase -> complete/fail/release
+```
 
 The current task path is intentionally bridged:
 

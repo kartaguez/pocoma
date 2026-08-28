@@ -1,5 +1,6 @@
 /**
- * Transitional technical ordering objects used by durable processing engines.
+ * Transitional technical ordering objects still shared by durable processing
+ * engines. Command ordering is owned by engine-processing-command.
  *
  * <p>These keys define claim priority, not completion order.</p>
  */

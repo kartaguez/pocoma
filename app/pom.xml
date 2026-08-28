@@ -38,6 +38,7 @@
 		<module>domain-consumption</module>
 		<module>engine-core</module>
 		<module>engine-consumption</module>
+		<module>engine-processing-command</module>
 		<module>engine-command</module>
 		<module>engine-query</module>
 		<module>engine-projection</module>
