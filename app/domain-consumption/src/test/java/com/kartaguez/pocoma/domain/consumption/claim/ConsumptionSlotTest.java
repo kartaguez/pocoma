@@ -26,15 +26,21 @@ class ConsumptionSlotTest {
 		assertEquals(1, acquired.revision());
 		assertEquals(ConsumptionStatus.READY, released.status());
 		assertEquals(2, released.revision());
-		assertEquals(ConsumptionStatus.COMPLETED, initial.completed().status());
-		assertEquals(ConsumptionStatus.FAILED, initial.failed().status());
+		assertEquals(new ConsumptionSlot(KEY, 1, ConsumptionStatus.COMPLETED), initial.completed());
+		assertEquals(new ConsumptionSlot(KEY, 1, ConsumptionStatus.FAILED), initial.failed());
 	}
 
 	@Test
 	void rejectsNegativeRevisionAndTransitionsFromTerminalStates() {
 		assertThrows(IllegalArgumentException.class,
 				() -> new ConsumptionSlot(KEY, -1, ConsumptionStatus.READY));
-		assertThrows(IllegalStateException.class, () -> ConsumptionSlot.initial(KEY).completed().released());
-		assertThrows(IllegalStateException.class, () -> ConsumptionSlot.initial(KEY).failed().acquired());
+		for (ConsumptionSlot terminal : List.of(
+				ConsumptionSlot.initial(KEY).completed(),
+				ConsumptionSlot.initial(KEY).failed())) {
+			assertThrows(IllegalStateException.class, terminal::acquired);
+			assertThrows(IllegalStateException.class, terminal::released);
+			assertThrows(IllegalStateException.class, terminal::completed);
+			assertThrows(IllegalStateException.class, terminal::failed);
+		}
 	}
 }

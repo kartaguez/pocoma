@@ -76,6 +76,23 @@ class EventProcessingServicesTest {
 	}
 
 	@Test
+	void segmentationUsesPipelineIdAndPotButNotPipelineVersion() {
+		RecordedEvent<PotCreatedEvent> event = event(1, 1, NOW);
+		int ownerV1 = owner(BALANCES_V1, event, 7);
+		int ownerV2 = owner(BALANCES_V2, event, 7);
+		int settlementsOwner = owner(SETTLEMENTS_V1, event, 7);
+
+		assertEquals(ownerV1, ownerV2);
+		InMemoryEventPort events = new InMemoryEventPort(event);
+		for (int index = 0; index < 7; index++) {
+			assertEquals(index == ownerV1, events.findNextCandidate(
+					BALANCES_V1, new WorkerSegment(index, 7), Optional.empty()).isPresent());
+		}
+		assertEquals(Math.floorMod(PartitionHash.forPipelinePot(
+				SETTLEMENTS_V1.pipelineId().value(), event.event().potId().value()).value(), 7), settlementsOwner);
+	}
+
+	@Test
 	void aCasLoserContinuesInBusinessVersionCreationAndIdOrder() {
 		RecordedEvent<PotCreatedEvent> first = event(1, 1, NOW.plusSeconds(10));
 		RecordedEvent<PotCreatedEvent> second = event(2, 2, NOW);
@@ -164,6 +181,12 @@ class EventProcessingServicesTest {
 
 	private static EventOrderingKey ordering(RecordedEvent<? extends BusinessEvent> event) {
 		return new EventOrderingKey(event.event().version(), event.recordedAt(), event.eventId());
+	}
+
+	private static int owner(PipelineDefinition pipeline,
+			RecordedEvent<? extends BusinessEvent> event, int segmentCount) {
+		return Math.floorMod(PartitionHash.forPipelinePot(
+				pipeline.pipelineId().value(), event.event().potId().value()).value(), segmentCount);
 	}
 
 	private static UUID uuid(int suffix) {

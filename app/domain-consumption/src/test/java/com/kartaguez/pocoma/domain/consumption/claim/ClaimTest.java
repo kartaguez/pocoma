@@ -28,8 +28,16 @@ class ClaimTest {
 		assertTrue(claim.isOwnedBy(token, NOW.plusSeconds(29)));
 		assertFalse(claim.isOwnedBy(ClaimToken.generate(), NOW.plusSeconds(1)));
 		assertFalse(claim.isOwnedBy(token, NOW.plusSeconds(30)));
-		assertTrue(claim.endAt(NOW.plusSeconds(2)).failure().isEmpty());
-		assertEquals(failure, claim.failAt(NOW.plusSeconds(2), failure).failure().orElseThrow());
-		assertFalse(claim.invalidateAt(NOW.plusSeconds(2)).isActiveAt(NOW.plusSeconds(3)));
+		Claim ended = claim.endAt(NOW.plusSeconds(2));
+		Claim failed = claim.failAt(NOW.plusSeconds(2), failure);
+		Claim invalidated = claim.invalidateAt(NOW.plusSeconds(30));
+		assertTrue(ended.failure().isEmpty());
+		assertFalse(ended.isActiveAt(NOW.plusSeconds(3)));
+		assertEquals(failure, failed.failure().orElseThrow());
+		assertFalse(failed.isActiveAt(NOW.plusSeconds(3)));
+		assertFalse(invalidated.isActiveAt(NOW.plusSeconds(30)));
+		assertEquals(claim.claimId(), invalidated.claimId());
+		assertEquals(token, invalidated.token());
+		assertEquals(claim.leaseUntil(), invalidated.leaseUntil());
 	}
 }
