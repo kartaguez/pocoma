@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotBalancesSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class GetPotBalancesService implements GetPotBalancesUseCase {

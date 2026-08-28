@@ -11,7 +11,7 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotViewSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class GetPotService implements GetPotUseCase {

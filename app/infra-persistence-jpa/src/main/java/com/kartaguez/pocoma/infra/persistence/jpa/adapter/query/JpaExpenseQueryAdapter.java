@@ -12,7 +12,7 @@ import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseShareEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;

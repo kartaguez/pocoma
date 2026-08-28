@@ -55,6 +55,17 @@ class ExecuteTaskServiceTest {
 	}
 
 	@Test
+	void executesDirectlyWithoutAnyWorkerBinding() {
+		PipelineDefinition pipeline = pipeline("balances", 1);
+		RecordingHandler handler = new RecordingHandler(pipeline, "compute");
+		TestPayload payload = new TestPayload("direct work");
+
+		service(handler).executeTask(new ExecuteTaskInput<>(pipeline, "compute", payload));
+
+		assertEquals(List.of(payload), handler.executed);
+	}
+
+	@Test
 	void rejectsPayloadOfUnexpectedType() {
 		PipelineDefinition pipeline = pipeline("balances", 1);
 		var service = service(new RecordingHandler(pipeline, "compute"));

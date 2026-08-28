@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.port.out.persistence;
+package com.kartaguez.pocoma.engine.port.out.query;
 
 import java.util.List;
 

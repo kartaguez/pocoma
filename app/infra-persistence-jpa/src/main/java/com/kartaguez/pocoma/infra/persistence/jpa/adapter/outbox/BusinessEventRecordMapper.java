@@ -5,8 +5,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +29,6 @@ import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 
 /** Maps the legacy JSON outbox representation at the infrastructure boundary only. */
-@Component
 public final class BusinessEventRecordMapper {
 
 	private final ObjectMapper objectMapper;

@@ -28,7 +28,7 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.domain.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListUserPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotBalancesPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 class ListUserScopeAuthorizationTest {

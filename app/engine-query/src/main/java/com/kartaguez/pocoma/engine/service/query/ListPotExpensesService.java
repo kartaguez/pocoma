@@ -12,8 +12,8 @@ import com.kartaguez.pocoma.domain.value.id.PotId;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListPotExpensesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListPotExpensesUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseQueryPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class ListPotExpensesService implements ListPotExpensesUseCase {

@@ -113,6 +113,52 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void queryEngineIsIndependentFromProcessingAndFrameworks() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.out.query..",
+						ROOT_PACKAGE + ".engine.service.query..",
+						ROOT_PACKAGE + ".engine.service.transaction.query..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.context.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.taskexecution..",
+						ROOT_PACKAGE + ".engine.taskmaterialization..",
+						ROOT_PACKAGE + ".supra.worker..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void functionalUseCaseFamiliesDoNotDependOnConsumptionDomain() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..",
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.out.query..",
+						ROOT_PACKAGE + ".engine.service.query..",
+						ROOT_PACKAGE + ".engine.service.transaction.query..",
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.out.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.transaction.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".domain.consumption..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void taskCreationEngineUsesTypedEventsWithoutTechnicalProcessingDependencies() {
 		noClasses()
 				.that().resideInAnyPackage(

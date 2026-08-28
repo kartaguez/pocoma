@@ -90,3 +90,76 @@ The concepts are deliberately distinct:
 - EventConsumption: independent processing state for one Event and one Pipeline version;
 - Task: autonomous pipeline work item;
 - Claim: temporary ownership represented by a fencing token.
+
+## Use-case inventory at the end of step 1
+
+`Target` means that the contract already expresses its intended responsibility. `Legacy` means
+that it remains callable only to keep the current workers operational.
+
+| Use case | Family | Input | Output | Outgoing ports | Transaction | Current callers | State / migration |
+|---|---|---|---|---|---|---|---|
+| `CreatePotUseCase` | Command | `UserContext`, `CreatePotCommand` | `PotHeaderSnapshot` | Pot header/version, events | Decorator | HTTP, command router | Target |
+| `CreateExpenseUseCase` | Command | context, `CreateExpenseCommand` | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
+| `DeletePotUseCase` | Command | context, `DeletePotCommand` | `PotHeaderSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
+| `DeleteExpenseUseCase` | Command | context, `DeleteExpenseCommand` | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
+| `UpdatePotDetailsUseCase` | Command | context, typed command | `PotHeaderSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
+| `AddPotShareholdersUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
+| `UpdatePotShareholdersDetailsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
+| `UpdatePotShareholdersWeightsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
+| `UpdateExpenseDetailsUseCase` | Command | context, typed command | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
+| `UpdateExpenseSharesUseCase` | Command | context, typed command | `ExpenseSharesSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
+| `ExecuteCommandUseCase` | Command routing | `ExecuteCommandInput` | specialized result | None directly | Delegate owns it | Generic incoming adapters | Target |
+| `ListUserPotsUseCase` | Query | `UserContext` | pot headers | `PotQueryPort` | Read decorator | HTTP | Target |
+| `GetPotUseCase` | Query | context, `GetPotQuery` | `PotViewSnapshot` | `PotQueryPort` | Read decorator | HTTP | Target |
+| `ListPotExpensesUseCase` | Query | context, typed query | expense headers | Pot/expense query ports | Read decorator | HTTP | Target |
+| `GetExpenseUseCase` | Query | context, typed query | `ExpenseViewSnapshot` | Pot/expense query ports | Read decorator | HTTP | Target |
+| `GetPotBalancesUseCase` | Query | context, typed query | `PotBalancesSnapshot` | Pot query, balances | Read decorator | HTTP | Target |
+| `ListUserPotBalancesUseCase` | Query | context, typed query | user balances | Pot query, balances | Read decorator | HTTP | Target |
+| `ClaimNextCommandUseCase` | Consumption | worker, lease, segment | optional command and claim | `CommandPort`, `ClaimPort` | Decorator | Future command worker | Target |
+| `CompleteCommandUseCase` | Consumption | command id, token | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
+| `FailCommandUseCase` | Consumption | command id, token, failure | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
+| `ReleaseCommandUseCase` | Consumption | command id, token | `ConsumptionOutcome` | command and claim ports | Decorator | Future command worker | Target |
+| `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
+| `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
+| `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |
+| `MaterializeTasksUseCase` | Event-to-task legacy | outbox envelope | materialization result | materialization persistence | Service-specific | Current materialization worker | Legacy; remove with event worker |
+| `ExecutePipelineTaskUseCase` | Task execution legacy | durable `PipelineTask` | none | Legacy strategy registry | Worker flow | Current task worker | Legacy; remove with task worker |
+| `BuildProjectionTasksUseCase` | Projection legacy | outbox envelope | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by task creation |
+| `ExecuteProjectionTasksUseCase` | Projection legacy | Pot/version command | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by typed task execution |
+| `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | projected expenses/balances | Decorator | Typed balance handler | Target; domain placement decided in step 2 |
+
+## Transitional runtime paths
+
+The current task path is intentionally bridged:
+
+```text
+Task worker
+  -> ExecutePipelineTaskUseCase (legacy)
+  -> ComputeBalancesPipelineTaskExecutionStrategy (JSON adapter)
+  -> ExecuteTaskUseCase (typed target)
+  -> ExecuteBalanceProjectionTaskHandler
+  -> ComputePotBalancesUseCase
+```
+
+It becomes, during worker migration:
+
+```text
+Task worker -> durable-to-typed mapper -> ExecuteTaskUseCase
+```
+
+The current event path remains:
+
+```text
+Materialization worker -> engine-task-materialization -> current materialization storage
+```
+
+It becomes:
+
+```text
+Event worker -> claim EventConsumption -> CreateTasksForEventUseCase -> complete consumption
+```
+
+The legacy task-execution package can be deleted only after the task worker uses the typed route.
+The materialization package can be deleted only after event consumption is independently stored
+per `(pipelineId, pipelineVersion, eventId)`. Projection task orchestration can be deleted after
+both target workers are active; `ComputePotBalancesUseCase` remains functional.

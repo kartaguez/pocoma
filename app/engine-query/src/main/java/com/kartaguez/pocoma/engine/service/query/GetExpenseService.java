@@ -13,8 +13,8 @@ import com.kartaguez.pocoma.domain.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetExpenseQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.ExpenseViewSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseQueryPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.ExpenseQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class GetExpenseService implements GetExpenseUseCase {

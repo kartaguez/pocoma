@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.value.UserId;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotsUseCase;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotQueryPort;
+import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class ListUserPotsService implements ListUserPotsUseCase {
