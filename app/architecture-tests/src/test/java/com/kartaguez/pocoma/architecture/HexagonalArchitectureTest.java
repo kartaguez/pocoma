@@ -98,6 +98,21 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void functionalCommandUseCasesDoNotDependOnDurableConsumption() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.out.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void httpControllersDoNotDependOnJpa() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..controller..")

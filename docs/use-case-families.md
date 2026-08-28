@@ -14,6 +14,11 @@ Command use cases may load and persist Pot state, enforce business policies and 
 concurrency, and append immutable business events. They must not know about polling, workers,
 claims, leases, processing statuses, or command-queue persistence.
 
+Generic incoming adapters can invoke `ExecuteCommandUseCase`, which routes a `CommandIntent` to
+the matching specialized use case. Typed incoming adapters remain free to invoke the specialized
+use case directly. The routing facade adds neither business logic nor a transaction boundary: its
+delegates are the same transactionally configured use cases exposed to direct callers.
+
 ## Queries — `engine-query`
 
 Query use cases synchronously read Pot state and projections through read ports. They are separate

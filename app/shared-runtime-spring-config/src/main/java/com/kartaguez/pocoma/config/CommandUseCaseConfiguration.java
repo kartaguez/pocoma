@@ -22,6 +22,7 @@ import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeleteExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.DeletePotUseCase;
+import com.kartaguez.pocoma.engine.port.in.command.usecase.ExecuteCommandUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdateExpenseDetailsUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdateExpenseSharesUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.UpdatePotDetailsUseCase;
@@ -57,6 +58,31 @@ import com.kartaguez.pocoma.observability.event.ObservedEventPublisherPort;
 
 @Configuration
 public class CommandUseCaseConfiguration {
+
+	@Bean
+	ExecuteCommandUseCase executeCommandUseCase(
+			CreatePotUseCase createPotUseCase,
+			CreateExpenseUseCase createExpenseUseCase,
+			AddPotShareholdersUseCase addPotShareholdersUseCase,
+			DeletePotUseCase deletePotUseCase,
+			DeleteExpenseUseCase deleteExpenseUseCase,
+			UpdatePotDetailsUseCase updatePotDetailsUseCase,
+			UpdateExpenseDetailsUseCase updateExpenseDetailsUseCase,
+			UpdateExpenseSharesUseCase updateExpenseSharesUseCase,
+			UpdatePotShareholdersDetailsUseCase updatePotShareholdersDetailsUseCase,
+			UpdatePotShareholdersWeightsUseCase updatePotShareholdersWeightsUseCase) {
+		return CommandUseCaseFactory.executeCommandUseCase(
+				createPotUseCase,
+				createExpenseUseCase,
+				addPotShareholdersUseCase,
+				deletePotUseCase,
+				deleteExpenseUseCase,
+				updatePotDetailsUseCase,
+				updateExpenseDetailsUseCase,
+				updateExpenseSharesUseCase,
+				updatePotShareholdersDetailsUseCase,
+				updatePotShareholdersWeightsUseCase);
+	}
 
 	@Bean
 	PotBalancesCalculator potBalancesCalculator() {

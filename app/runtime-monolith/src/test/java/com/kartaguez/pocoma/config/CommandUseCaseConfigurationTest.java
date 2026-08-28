@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
+import com.kartaguez.pocoma.engine.port.in.command.usecase.ExecuteCommandUseCase;
 import com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.event.TransactionAwareEventPublisherPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
@@ -38,7 +39,10 @@ class CommandUseCaseConfigurationTest {
 	@Test
 	void createsCommandUseCasesWhenPortsAndPoliciesAreAvailable() {
 		contextRunner
-				.run(context -> assertNotNull(context.getBean(CreatePotUseCase.class)));
+				.run(context -> {
+					assertNotNull(context.getBean(CreatePotUseCase.class));
+					assertNotNull(context.getBean(ExecuteCommandUseCase.class));
+				});
 	}
 
 	@Test
