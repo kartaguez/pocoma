@@ -42,9 +42,14 @@ technical processing and is not part of the Event-to-Task use case.
 
 ## Task execution — `engine-task-execution`
 
-Task execution resolves the handler identified by pipeline id, pipeline version, and task type,
-then invokes the pipeline-specific functional use case. It does not claim, complete, fail, release,
-retry, or poll Tasks.
+Typed task execution receives `ExecuteTaskInput`, resolves the handler identified by pipeline id,
+pipeline version, and task type, then invokes the pipeline-specific functional use case. Its
+`PipelineTaskPayload` contains only the work to perform: no durable id, claim, lease, trace, status,
+or JSON. Worker bindings affect only pull eligibility and never direct functional execution.
+
+The current worker-facing `PipelineTask` route remains transitional. Its runtime strategy decodes
+the persisted JSON into a typed payload and delegates to `ExecuteTaskUseCase`; completion, failure,
+retry, polling, and worker lifecycle remain outside the typed engine.
 
 ## Durable consumption domain — `domain-consumption`
 

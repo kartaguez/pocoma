@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
 
+/** Transitional input carrying durable worker state. Use {@code ExecuteTaskInput} for direct execution. */
 public record ExecutePipelineTaskCommand(PipelineTask task) {
 
 	public ExecutePipelineTaskCommand {

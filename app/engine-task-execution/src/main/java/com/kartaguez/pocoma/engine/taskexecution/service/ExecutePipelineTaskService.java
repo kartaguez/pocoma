@@ -8,6 +8,7 @@ import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStra
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskCommand;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskUseCase;
 
+/** Transitional router retained until workers map durable tasks before entering the functional engine. */
 public final class ExecutePipelineTaskService implements ExecutePipelineTaskUseCase {
 
 	private final PipelineTaskExecutionRegistry registry;

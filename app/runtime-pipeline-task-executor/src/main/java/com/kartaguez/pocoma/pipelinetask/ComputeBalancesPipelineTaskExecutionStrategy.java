@@ -5,26 +5,24 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
 import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
+import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
+import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;
 
 public final class ComputeBalancesPipelineTaskExecutionStrategy implements PipelineTaskExecutionStrategy {
 
-	public static final PipelineDefinition DEFINITION = new PipelineDefinition(PipelineId.of("balance-projection"), 1);
-	public static final String TASK_TYPE = "COMPUTE_BALANCES_FOR_VERSION";
+	public static final PipelineDefinition DEFINITION = ComputeBalancesTask.PIPELINE;
+	public static final String TASK_TYPE = ComputeBalancesTask.TASK_TYPE;
 
-	private final ComputePotBalancesUseCase computePotBalancesUseCase;
+	private final ExecuteTaskUseCase executeTaskUseCase;
 	private final ObjectMapper objectMapper;
 
 	public ComputeBalancesPipelineTaskExecutionStrategy(
-			ComputePotBalancesUseCase computePotBalancesUseCase,
+			ExecuteTaskUseCase executeTaskUseCase,
 			ObjectMapper objectMapper) {
-		this.computePotBalancesUseCase = Objects.requireNonNull(
-				computePotBalancesUseCase,
-				"computePotBalancesUseCase must not be null");
+		this.executeTaskUseCase = Objects.requireNonNull(executeTaskUseCase, "executeTaskUseCase must not be null");
 		this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper must not be null");
 	}
 
@@ -41,7 +39,10 @@ public final class ComputeBalancesPipelineTaskExecutionStrategy implements Pipel
 	@Override
 	public void execute(PipelineTask task) {
 		BalanceTaskPayload payload = readPayload(task);
-		computePotBalancesUseCase.computePotBalances(PotId.of(UUID.fromString(payload.potId())), payload.targetVersion());
+		executeTaskUseCase.executeTask(new ExecuteTaskInput<>(
+				task.pipeline(),
+				task.taskType(),
+				new ComputeBalancesTask(PotId.of(UUID.fromString(payload.potId())), payload.targetVersion())));
 	}
 
 	private BalanceTaskPayload readPayload(PipelineTask task) {

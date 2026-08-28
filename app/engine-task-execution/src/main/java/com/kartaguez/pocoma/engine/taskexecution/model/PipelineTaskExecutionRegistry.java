@@ -13,6 +13,7 @@ import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
 
+/** Transitional worker binding and strategy registry; not used by the typed functional router. */
 public final class PipelineTaskExecutionRegistry {
 
 	private final Map<PipelineDefinition, PipelineTaskExecutionStrategy> strategies;

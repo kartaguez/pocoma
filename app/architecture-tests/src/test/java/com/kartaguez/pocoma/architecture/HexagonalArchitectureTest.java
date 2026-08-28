@@ -137,6 +137,42 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void typedTaskExecutionDoesNotDependOnDurableProcessingOrFrameworks() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.context.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.out.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine.taskexecution..",
+						ROOT_PACKAGE + ".supra.worker..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> forbiddenDurableTypes = Set.of(
+				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTask",
+				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTaskClaim",
+				ROOT_PACKAGE + ".domain.pipeline.task.PipelineTaskStatus");
+		Set<String> actualDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.port.in.taskexecution")
+						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.taskexecution"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(forbiddenDurableTypes::contains)
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), actualDependencies,
+				"Typed task execution must not expose durable task or claim state");
+	}
+
+	@Test
 	void httpControllersDoNotDependOnJpa() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..controller..")
