@@ -112,6 +112,18 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), obsoleteDomainTypes,
 				"Pot policies and balance projection types must use their explicit namespaces");
+
+		Set<String> policyDependenciesOutsidePot = dependenciesOutside(
+				POT_POLICY_PACKAGE.substring(0, POT_POLICY_PACKAGE.length() - 2),
+				Set.of(ROOT_PACKAGE + ".domain.pot", ROOT_PACKAGE + ".domain.pot.policy"));
+		assertEquals(Set.of(), policyDependenciesOutsidePot,
+				"domain-pot-policy may depend only on domain-pot and the JDK");
+
+		Set<String> balanceDependenciesOutsidePot = dependenciesOutside(
+				BALANCE_PROJECTION_DOMAIN_PACKAGE.substring(0, BALANCE_PROJECTION_DOMAIN_PACKAGE.length() - 2),
+				Set.of(ROOT_PACKAGE + ".domain.projection.balance", ROOT_PACKAGE + ".domain.pot"));
+		assertEquals(Set.of(), balanceDependenciesOutsidePot,
+				"domain-projection-balance may depend only on domain-pot and the JDK");
 	}
 
 	@Test
@@ -315,6 +327,20 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..")
 				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".engine..processing.event..",
+						ROOT_PACKAGE + ".engine..processing.task..")
+				.check(CLASSES);
 	}
 
 	@Test
@@ -409,6 +435,18 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void recordedProcessingModelsDoNotCarryClaimOrLeaseState() {
+		assertEquals(Set.of("commandId", "potId", "createdAt", "userContext", "commandIntent"),
+				fieldNames(ROOT_PACKAGE + ".engine.port.out.processing.command.model.RecordedCommand"));
+		assertEquals(Set.of("eventId", "event", "recordedAt", "traceMetadata"),
+				fieldNames(ROOT_PACKAGE + ".engine.event.RecordedEvent"));
+		assertEquals(Set.of(
+				"taskId", "pipeline", "potId", "targetVersion", "createdAt",
+				"taskType", "serializedPayload", "traceId"),
+				fieldNames(ROOT_PACKAGE + ".engine.port.out.processing.task.model.RecordedTask"));
+	}
+
+	@Test
 	void queryEngineIsIndependentFromProcessingAndFrameworks() {
 		noClasses()
 				.that().resideInAnyPackage(
@@ -470,12 +508,27 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..",
 						ROOT_PACKAGE + ".engine.model..",
+						ROOT_PACKAGE + ".engine.taskmaterialization..",
 						ROOT_PACKAGE + ".supra.worker..",
 						ROOT_PACKAGE + ".orchestrator..",
 						"org.springframework..",
 						"jakarta.persistence..",
 						"com.fasterxml.jackson..",
 						"io.nats..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".engine.service.projection")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine..processing..",
+						ROOT_PACKAGE + ".supra.worker..",
+						ROOT_PACKAGE + ".orchestrator..")
 				.check(CLASSES);
 	}
 
@@ -553,5 +606,24 @@ class HexagonalArchitectureTest {
 
 	private static String dependencyKey(Dependency dependency) {
 		return dependency.getOriginClass().getName() + " -> " + dependency.getTargetClass().getName();
+	}
+
+	private static Set<String> fieldNames(String className) {
+		return CLASSES.get(className).getAllFields().stream()
+				.map(field -> field.getName())
+				.collect(Collectors.toUnmodifiableSet());
+	}
+
+	private static Set<String> dependenciesOutside(String sourcePackage, Set<String> allowedPackages) {
+		return CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(sourcePackage))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass())
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> allowedPackages.stream()
+						.noneMatch(allowed -> target.getPackageName().equals(allowed)
+								|| target.getPackageName().startsWith(allowed + ".")))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
 	}
 }

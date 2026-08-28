@@ -44,7 +44,7 @@ technical processing and is not part of the Event-to-Task use case.
 
 Typed task execution receives `ExecuteTaskInput`, resolves the handler identified by pipeline id,
 pipeline version, and task type, then invokes the pipeline-specific functional use case. Its
-`PipelineTaskPayload` contains only the work to perform: no durable id, claim, lease, trace, status,
+`TaskPayload` contains only the work to perform: no durable id, claim, lease, trace, status,
 or JSON. Worker bindings affect only pull eligibility and never direct functional execution.
 
 The current worker-facing `PipelineTask` route remains transitional. Its runtime strategy decodes
@@ -68,8 +68,8 @@ owner. EventConsumptions and Tasks use `(pipelineId, potId)` as their partition 
 Claim ordering is also explicit and is independent from segmentation:
 
 - Commands are ordered by `(createdAt, commandId)` only;
-- EventConsumptions are ordered by `(appliesAtVersion, createdAt, eventId)`;
-- Tasks are ordered by `(appliesAtVersion, createdAt, taskId)`.
+- EventConsumptions are ordered by `(event.version(), recordedAt, eventId)`;
+- Tasks are ordered by `(targetVersion, createdAt, taskId)`.
 
 The identifier is a deterministic tie-breaker. These rules guarantee claim priority among eligible
 items, not completion order between concurrent workers.
@@ -143,7 +143,7 @@ that it remains callable only to keep the current workers operational.
 | `ExecutePipelineTaskUseCase` | Task execution legacy | durable `PipelineTask` | none | Legacy strategy registry | Worker flow | Current task worker | Legacy; remove with task worker |
 | `BuildProjectionTasksUseCase` | Projection legacy | outbox envelope | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by task creation |
 | `ExecuteProjectionTasksUseCase` | Projection legacy | Pot/version command | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by typed task execution |
-| `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | projected expenses/balances | Decorator | Typed balance handler | Target; domain placement decided in step 2 |
+| `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | `PotBalanceProjectionPort`, `PotShareholdersProjectionPort` | Decorator | Typed balance handler | Target; calculation model in `domain-projection-balance` |
 
 ## Transitional runtime paths
 
@@ -187,3 +187,26 @@ The legacy task-execution package can be deleted only after the task worker uses
 The materialization package can be deleted only after event consumption is independently stored
 per `(pipelineId, pipelineVersion, eventId)`. Projection task orchestration can be deleted after
 both target workers are active; `ComputePotBalancesUseCase` remains functional.
+
+## Result of step 2
+
+The domain modules now have explicit ownership: Pot and its events, Pot authorization policies,
+the Balance projection calculation, pipeline identity, typed task payloads, and generic durable
+consumption. `engine-core` contains only shared application contracts plus explicitly isolated
+legacy types.
+
+Functional engines own business Commands, Queries, typed Event-to-Task planning, typed Task
+execution, and Balance projection. Their ports are consumer-oriented: queries use
+`PotBalancesQueryPort`; Balance calculation uses `PotBalanceProjectionPort` and
+`PotShareholdersProjectionPort`; Commands use their writable `PotShareholdersPort` and the typed
+`BusinessEventAppendPort`.
+
+`engine-consumption` owns generic acquire/complete/fail/release operations. The three specialized
+processing engines add only source selection, ordering, segmentation, consumption-key construction
+and durable Command/Task terminal transitions. They never execute the business Command, create
+Tasks from an Event, or execute a typed Task.
+
+The deterministic concurrent tests added in step 2.9 prove the in-memory contracts for lazy slot
+creation, fencing, terminal states, Command/Task mono-consumption and Event multi-consumption.
+They do not prove SQL atomicity: CAS and rollback guarantees must be verified against the future
+PostgreSQL `ClaimPort` adapter.
