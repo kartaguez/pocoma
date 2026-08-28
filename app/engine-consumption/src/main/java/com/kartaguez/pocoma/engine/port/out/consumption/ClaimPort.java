@@ -8,6 +8,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 
 /**
  * Atomic persistence boundary for consumption slots and claim history.
@@ -24,6 +25,9 @@ public interface ClaimPort {
 	Optional<Claim> tryAcquire(ConsumptionSlot observedSlot, Claim proposedClaim, Instant now);
 
 	ConsumptionOutcome endCurrentClaim(ConsumptionKey key, ClaimToken token, Instant now);
+
+	ConsumptionOutcome failCurrentClaim(
+			ConsumptionKey key, ClaimToken token, ProcessingFailure failure, Instant now);
 
 	ConsumptionOutcome releaseCurrentClaim(ConsumptionKey key, ClaimToken token, Instant now);
 }

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,15 +27,13 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.domain.consumption.key.CommandConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
-import com.kartaguez.pocoma.domain.consumption.key.EventConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
-import com.kartaguez.pocoma.domain.consumption.ordering.CommandOrderingKey;
-import com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHash;
-import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.engine.processing.ordering.CommandOrderingKey;
+import com.kartaguez.pocoma.engine.processing.segmentation.PartitionHash;
+import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.context.consumption.ConsumableCommand;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ClaimNextCommandInput;
@@ -68,7 +67,7 @@ class ConsumptionServicesTest {
 	@Test
 	void onlyOneConcurrentCasCanAcquireAnInitiallyAbsentSlot() throws Exception {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
-		ConsumptionKey key = new CommandConsumptionKey(uuid(1));
+		ConsumptionKey key = commandKey(uuid(1));
 		ConsumptionSlot absentSnapshot = ConsumptionSlot.initial(key);
 		CountDownLatch start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {
@@ -155,8 +154,10 @@ class ConsumptionServicesTest {
 	@Test
 	void sameEventHasIndependentSlotsForEachPipeline() {
 		UUID eventId = uuid(42);
-		ConsumptionKey firstPipeline = new EventConsumptionKey("balances", 1, eventId);
-		ConsumptionKey secondPipeline = new EventConsumptionKey("notifications", 1, eventId);
+		ConsumptionKey firstPipeline = new ConsumptionKey(
+				"event", List.of("balances", "1", eventId.toString()));
+		ConsumptionKey secondPipeline = new ConsumptionKey(
+				"event", List.of("notifications", "1", eventId.toString()));
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 
 		assertTrue(claims.tryAcquire(ConsumptionSlot.initial(firstPipeline), claim(firstPipeline, "w1", NOW), NOW).isPresent());
@@ -184,6 +185,10 @@ class ConsumptionServicesTest {
 
 	private static UUID uuid(int suffix) {
 		return UUID.fromString("00000000-0000-0000-0000-" + String.format("%012d", suffix));
+	}
+
+	private static ConsumptionKey commandKey(UUID commandId) {
+		return new ConsumptionKey("command", List.of(commandId.toString()));
 	}
 
 	private static final class InMemoryCommandPort implements CommandPort {
@@ -243,43 +248,70 @@ class ConsumptionServicesTest {
 		public synchronized Optional<Claim> tryAcquire(
 				ConsumptionSlot observedSlot, Claim proposedClaim, Instant now) {
 			ConsumptionSlot actual = slots.computeIfAbsent(observedSlot.consumptionKey(), ConsumptionSlot::initial);
-			if (actual.revision() != observedSlot.revision()) {
+			if (actual.revision() != observedSlot.revision()
+					|| actual.status() != ConsumptionStatus.READY) {
 				return Optional.empty();
 			}
-			Optional<Claim> current = actual.currentClaimId().flatMap(id -> Optional.ofNullable(claims.get(id)));
+			Optional<Claim> current = currentClaim(actual.consumptionKey());
 			if (current.map(claim -> claim.isActiveAt(now)).orElse(false)) {
 				return Optional.empty();
 			}
+			current.filter(claim -> claim.invalidatedAt().isEmpty() && claim.endedAt().isEmpty())
+					.ifPresent(claim -> claims.put(claim.claimId(), claim.invalidateAt(now)));
 			claims.put(proposedClaim.claimId(), proposedClaim);
-			slots.put(actual.consumptionKey(), actual.acquiredBy(proposedClaim.claimId()));
+			slots.put(actual.consumptionKey(), actual.acquired());
 			return Optional.of(proposedClaim);
 		}
 
 		@Override
 		public synchronized ConsumptionOutcome endCurrentClaim(ConsumptionKey key, ClaimToken token, Instant now) {
-			return mutateCurrent(key, token, now, false);
+			return mutateCurrent(key, token, now, ClaimMutation.COMPLETE, null);
+		}
+
+		@Override
+		public synchronized ConsumptionOutcome failCurrentClaim(
+				ConsumptionKey key, ClaimToken token, ProcessingFailure failure, Instant now) {
+			return mutateCurrent(key, token, now, ClaimMutation.FAIL, failure);
 		}
 
 		@Override
 		public synchronized ConsumptionOutcome releaseCurrentClaim(ConsumptionKey key, ClaimToken token, Instant now) {
-			return mutateCurrent(key, token, now, true);
+			return mutateCurrent(key, token, now, ClaimMutation.RELEASE, null);
 		}
 
-		private ConsumptionOutcome mutateCurrent(ConsumptionKey key, ClaimToken token, Instant now, boolean release) {
+		private ConsumptionOutcome mutateCurrent(
+				ConsumptionKey key, ClaimToken token, Instant now,
+				ClaimMutation mutation, ProcessingFailure failure) {
 			ConsumptionSlot slot = slots.get(key);
-			if (slot == null || slot.currentClaimId().isEmpty()) {
+			if (slot == null || slot.status() != ConsumptionStatus.READY) {
 				return ConsumptionOutcome.CLAIM_OWNERSHIP_LOST;
 			}
-			Claim claim = claims.get(slot.currentClaimId().orElseThrow());
+			Claim claim = currentClaim(key).orElse(null);
 			if (claim == null || !claim.isOwnedBy(token, now)) {
 				return ConsumptionOutcome.CLAIM_OWNERSHIP_LOST;
 			}
-			claims.put(claim.claimId(), release ? claim.invalidateAt(now) : claim.endAt(now));
-			if (release) {
-				slots.put(key, slot.withoutCurrentClaim());
-			}
+			Claim updated = switch (mutation) {
+				case COMPLETE -> claim.endAt(now);
+				case FAIL -> claim.failAt(now, failure);
+				case RELEASE -> claim.invalidateAt(now);
+			};
+			claims.put(claim.claimId(), updated);
+			slots.put(key, switch (mutation) {
+				case COMPLETE -> slot.completed();
+				case FAIL -> slot.failed();
+				case RELEASE -> slot.released();
+			});
 			return ConsumptionOutcome.APPLIED;
 		}
+
+		private Optional<Claim> currentClaim(ConsumptionKey key) {
+			return claims.values().stream()
+					.filter(claim -> claim.consumptionKey().equals(key))
+					.filter(claim -> claim.invalidatedAt().isEmpty() && claim.endedAt().isEmpty())
+					.max(Comparator.comparing(Claim::claimedAt));
+		}
+
+		private enum ClaimMutation { COMPLETE, FAIL, RELEASE }
 
 		private synchronized int slotCount() {
 			return slots.size();

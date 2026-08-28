@@ -2,22 +2,42 @@ package com.kartaguez.pocoma.domain.consumption.key;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 class ConsumptionKeyTest {
 
 	@Test
-	void eventConsumptionsAreIndependentPerPipelineAndVersion() {
-		UUID eventId = UUID.randomUUID();
+	void validatesNamespaceAndComponents() {
+		assertThrows(NullPointerException.class, () -> new ConsumptionKey(null, List.of("id")));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey(" ", List.of("id")));
+		assertThrows(NullPointerException.class, () -> new ConsumptionKey("work", null));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey("work", List.of()));
+		assertThrows(NullPointerException.class, () -> new ConsumptionKey("work", java.util.Arrays.asList("id", null)));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey("work", List.of("id", " ")));
+	}
 
-		EventConsumptionKey balances = new EventConsumptionKey("balances", 1, eventId);
-		EventConsumptionKey notifications = new EventConsumptionKey("notifications", 1, eventId);
+	@Test
+	void defensivelyCopiesComponents() {
+		List<String> mutable = new ArrayList<>(List.of("one"));
+		ConsumptionKey key = new ConsumptionKey("work", mutable);
 
-		assertNotEquals(balances, notifications);
-		assertEquals(balances, new EventConsumptionKey("balances", 1, eventId));
-		assertNotEquals(balances, new EventConsumptionKey("balances", 2, eventId));
+		mutable.add("two");
+
+		assertEquals(List.of("one"), key.components());
+		assertThrows(UnsupportedOperationException.class, () -> key.components().add("two"));
+	}
+
+	@Test
+	void equalityIsStructuralAndNamespacesRemainIndependent() {
+		ConsumptionKey first = new ConsumptionKey("event", List.of("balances", "1", "event-1"));
+
+		assertEquals(first, new ConsumptionKey("event", List.of("balances", "1", "event-1")));
+		assertNotEquals(first, new ConsumptionKey("task", List.of("balances", "1", "event-1")));
+		assertNotEquals(first, new ConsumptionKey("event", List.of("notifications", "1", "event-1")));
 	}
 }

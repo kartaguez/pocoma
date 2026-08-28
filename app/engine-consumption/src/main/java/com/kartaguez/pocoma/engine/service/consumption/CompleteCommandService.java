@@ -3,8 +3,9 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.List;
 
-import com.kartaguez.pocoma.domain.consumption.key.CommandConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteCommandInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteCommandUseCase;
@@ -27,7 +28,8 @@ public final class CompleteCommandService implements CompleteCommandUseCase {
 	public ConsumptionOutcome complete(CompleteCommandInput input) {
 		requireNonNull(input, "input must not be null");
 		ConsumptionOutcome outcome = claimPort.endCurrentClaim(
-				new CommandConsumptionKey(input.commandId()), input.claimToken(), clock.instant());
+				new ConsumptionKey("command", List.of(input.commandId().toString())),
+				input.claimToken(), clock.instant());
 		if (outcome == ConsumptionOutcome.APPLIED) {
 			commandPort.markCompleted(input.commandId());
 		}

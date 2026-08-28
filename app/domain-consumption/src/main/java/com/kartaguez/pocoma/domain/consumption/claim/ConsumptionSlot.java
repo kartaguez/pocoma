@@ -2,31 +2,44 @@ package com.kartaguez.pocoma.domain.consumption.claim;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Optional;
-
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 
 /** Versioned optimistic-concurrency pivot for one consumption. */
-public record ConsumptionSlot(ConsumptionKey consumptionKey, long revision, Optional<ClaimId> currentClaimId) {
+public record ConsumptionSlot(ConsumptionKey consumptionKey, long revision, ConsumptionStatus status) {
 
 	public ConsumptionSlot {
 		requireNonNull(consumptionKey, "consumptionKey must not be null");
 		if (revision < 0) {
 			throw new IllegalArgumentException("revision must not be negative");
 		}
-		currentClaimId = requireNonNull(currentClaimId, "currentClaimId must not be null");
+		requireNonNull(status, "status must not be null");
 	}
 
 	public static ConsumptionSlot initial(ConsumptionKey key) {
-		return new ConsumptionSlot(key, 0, Optional.empty());
+		return new ConsumptionSlot(key, 0, ConsumptionStatus.READY);
 	}
 
-	public ConsumptionSlot acquiredBy(ClaimId claimId) {
-		return new ConsumptionSlot(consumptionKey, revision + 1,
-				Optional.of(requireNonNull(claimId, "claimId must not be null")));
+	public ConsumptionSlot acquired() {
+		return transitionTo(ConsumptionStatus.READY);
 	}
 
-	public ConsumptionSlot withoutCurrentClaim() {
-		return new ConsumptionSlot(consumptionKey, revision + 1, Optional.empty());
+	public ConsumptionSlot completed() {
+		return transitionTo(ConsumptionStatus.COMPLETED);
+	}
+
+	public ConsumptionSlot failed() {
+		return transitionTo(ConsumptionStatus.FAILED);
+	}
+
+	public ConsumptionSlot released() {
+		return transitionTo(ConsumptionStatus.READY);
+	}
+
+	private ConsumptionSlot transitionTo(ConsumptionStatus target) {
+		if (status != ConsumptionStatus.READY) {
+			throw new IllegalStateException("a terminal consumption slot cannot transition");
+		}
+		return new ConsumptionSlot(consumptionKey, revision + 1, target);
 	}
 }

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.consumption.ordering;
+package com.kartaguez.pocoma.engine.processing.ordering;
 
 import static java.util.Objects.requireNonNull;
 
@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Claim ordering key for a durable Command.
+ * Transitional technical processing key ordering durable commands.
  */
 public record CommandOrderingKey(Instant createdAt, UUID commandId)
 		implements Comparable<CommandOrderingKey> {

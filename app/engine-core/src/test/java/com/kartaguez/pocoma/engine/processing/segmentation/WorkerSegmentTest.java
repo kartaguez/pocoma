@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.consumption.segmentation;
+package com.kartaguez.pocoma.engine.processing.segmentation;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,9 +1,9 @@
-package com.kartaguez.pocoma.domain.consumption.segmentation;
+package com.kartaguez.pocoma.engine.processing.segmentation;
 
 import static java.util.Objects.requireNonNull;
 
 /**
- * Static segment assigned to a worker instance.
+ * Transitional technical segment assigned to a worker instance.
  */
 public record WorkerSegment(int segmentIndex, int segmentCount) {
 

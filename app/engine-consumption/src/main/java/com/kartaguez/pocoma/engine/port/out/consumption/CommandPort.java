@@ -4,8 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
-import com.kartaguez.pocoma.domain.consumption.ordering.CommandOrderingKey;
-import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.engine.processing.ordering.CommandOrderingKey;
+import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.context.consumption.ConsumableCommand;
 
 /** Persistence operations for durable commands, without claim orchestration. */

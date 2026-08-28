@@ -3,8 +3,9 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.List;
 
-import com.kartaguez.pocoma.domain.consumption.key.CommandConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseCommandInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseCommandUseCase;
@@ -23,7 +24,8 @@ public final class ReleaseCommandService implements ReleaseCommandUseCase {
 	@Override
 	public ConsumptionOutcome release(ReleaseCommandInput input) {
 		requireNonNull(input, "input must not be null");
-		return claimPort.releaseCurrentClaim(new CommandConsumptionKey(input.commandId()),
+		return claimPort.releaseCurrentClaim(
+				new ConsumptionKey("command", List.of(input.commandId().toString())),
 				input.claimToken(), clock.instant());
 	}
 }

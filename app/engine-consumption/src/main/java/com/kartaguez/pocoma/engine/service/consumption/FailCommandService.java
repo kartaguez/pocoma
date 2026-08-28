@@ -3,8 +3,9 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.List;
 
-import com.kartaguez.pocoma.domain.consumption.key.CommandConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailCommandInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailCommandUseCase;
@@ -26,8 +27,9 @@ public final class FailCommandService implements FailCommandUseCase {
 	@Override
 	public ConsumptionOutcome fail(FailCommandInput input) {
 		requireNonNull(input, "input must not be null");
-		ConsumptionOutcome outcome = claimPort.endCurrentClaim(
-				new CommandConsumptionKey(input.commandId()), input.claimToken(), clock.instant());
+		ConsumptionOutcome outcome = claimPort.failCurrentClaim(
+				new ConsumptionKey("command", List.of(input.commandId().toString())),
+				input.claimToken(), input.failure(), clock.instant());
 		if (outcome == ConsumptionOutcome.APPLIED) {
 			commandPort.markFailed(input.commandId(), input.failure());
 		}

@@ -1,11 +1,11 @@
-package com.kartaguez.pocoma.domain.consumption.segmentation;
+package com.kartaguez.pocoma.engine.processing.segmentation;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.UUID;
 
 /**
- * Stable hash used to assign durable work to a worker segment.
+ * Transitional technical hash used to assign durable work to a worker segment.
  */
 public record PartitionHash(int value) {
 

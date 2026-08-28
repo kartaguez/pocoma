@@ -11,7 +11,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
-import com.kartaguez.pocoma.domain.consumption.ordering.CommandOrderingKey;
+import com.kartaguez.pocoma.engine.processing.ordering.CommandOrderingKey;
 import com.kartaguez.pocoma.engine.context.consumption.ConsumableCommand;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ClaimNextCommandInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.CommandClaimResult;
