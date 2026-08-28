@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.query;
 import java.util.List;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListUserPotsUseCase;

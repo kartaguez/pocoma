@@ -2,12 +2,12 @@ package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.created.PotCreated;
-import com.kartaguez.pocoma.domain.factory.PotFactory;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.created.PotCreated;
+import com.kartaguez.pocoma.domain.pot.factory.PotFactory;
 import com.kartaguez.pocoma.domain.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;

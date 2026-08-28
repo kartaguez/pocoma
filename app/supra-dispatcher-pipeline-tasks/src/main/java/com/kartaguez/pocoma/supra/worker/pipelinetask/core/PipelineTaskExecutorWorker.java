@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcher;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcherSettings;

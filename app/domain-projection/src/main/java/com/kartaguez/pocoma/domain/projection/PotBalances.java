@@ -3,8 +3,8 @@ package com.kartaguez.pocoma.domain.projection;
 import java.util.Map;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record PotBalances(PotId potId, long version, Map<ShareholderId, Balance> balances) {
 

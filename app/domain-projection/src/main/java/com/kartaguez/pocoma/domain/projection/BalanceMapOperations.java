@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public final class BalanceMapOperations {
 

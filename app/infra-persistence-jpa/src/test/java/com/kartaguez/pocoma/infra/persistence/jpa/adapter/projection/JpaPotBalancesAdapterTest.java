@@ -16,9 +16,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.kartaguez.pocoma.domain.projection.Balance;
 import com.kartaguez.pocoma.domain.projection.PotBalances;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.model.PotBalanceProjectionState;

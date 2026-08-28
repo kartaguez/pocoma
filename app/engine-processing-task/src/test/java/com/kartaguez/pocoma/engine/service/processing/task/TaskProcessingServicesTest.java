@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;

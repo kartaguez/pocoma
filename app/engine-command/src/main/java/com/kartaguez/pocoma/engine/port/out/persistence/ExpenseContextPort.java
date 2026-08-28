@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.port.out.persistence;
 
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;

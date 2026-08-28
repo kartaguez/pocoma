@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.context.DeletePotContext;

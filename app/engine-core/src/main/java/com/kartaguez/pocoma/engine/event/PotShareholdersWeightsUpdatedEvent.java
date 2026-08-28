@@ -3,8 +3,8 @@ package com.kartaguez.pocoma.engine.event;
 import java.util.Objects;
 import java.util.Set;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record PotShareholdersWeightsUpdatedEvent(PotId potId, Set<ShareholderId> shareholderIds, long version)
 		implements BusinessEvent {

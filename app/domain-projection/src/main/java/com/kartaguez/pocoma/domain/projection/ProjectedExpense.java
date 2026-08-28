@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.domain.projection;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 
 public record ProjectedExpense(ExpenseHeader header, ExpenseShares shares) {
 

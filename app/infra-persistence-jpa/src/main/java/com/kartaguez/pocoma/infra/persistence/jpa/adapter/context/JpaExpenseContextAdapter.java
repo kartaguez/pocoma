@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseDetailsContext;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;

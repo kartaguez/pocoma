@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 /** Application representation of a durable task awaiting pipeline execution. */
 public record RecordedTask(

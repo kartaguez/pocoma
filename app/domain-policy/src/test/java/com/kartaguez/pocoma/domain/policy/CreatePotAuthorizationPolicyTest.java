@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.policy.scope.Scope;
 
 class CreatePotAuthorizationPolicyTest {

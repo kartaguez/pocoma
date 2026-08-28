@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.supra.http.rest.spring.mapper;
 
 import java.util.Comparator;
 
-import com.kartaguez.pocoma.domain.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
 import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;

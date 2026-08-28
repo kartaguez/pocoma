@@ -9,9 +9,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 class PotBalancesTest {
 

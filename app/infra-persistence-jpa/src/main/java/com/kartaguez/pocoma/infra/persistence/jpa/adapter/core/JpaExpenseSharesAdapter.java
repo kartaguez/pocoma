@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
-import com.kartaguez.pocoma.domain.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;

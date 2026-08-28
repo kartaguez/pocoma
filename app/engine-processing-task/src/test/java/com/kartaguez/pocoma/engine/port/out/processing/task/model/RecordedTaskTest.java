@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 class RecordedTaskTest {
 

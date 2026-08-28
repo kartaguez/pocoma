@@ -16,10 +16,10 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;

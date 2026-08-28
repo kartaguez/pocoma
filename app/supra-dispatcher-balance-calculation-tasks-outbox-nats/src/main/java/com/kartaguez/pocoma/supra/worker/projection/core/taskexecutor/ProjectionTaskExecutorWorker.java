@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.orchestrator.claimable.work.ClaimableWorkLifecycle;
 import com.kartaguez.pocoma.orchestrator.claimable.dispatcher.ClaimableWorkDispatcher;

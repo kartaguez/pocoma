@@ -2,11 +2,11 @@ package com.kartaguez.pocoma.engine.snapshot;
 
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 
 public final class EngineSnapshotMapper {
 

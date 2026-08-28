@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.model;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record PotBalanceProjectionState(PotId potId, long projectedVersion) {
 

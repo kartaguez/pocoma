@@ -10,7 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalancesUseCase;
 import com.kartaguez.pocoma.observability.api.NoopPocomaObservation;
 import com.kartaguez.pocoma.observability.api.PocomaObservation;

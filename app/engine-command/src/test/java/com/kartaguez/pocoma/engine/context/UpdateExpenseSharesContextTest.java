@@ -9,11 +9,11 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 
 class UpdateExpenseSharesContextTest {

@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskClaim;

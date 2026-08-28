@@ -31,7 +31,7 @@
 	</scm>
 
 	<modules>
-		<module>domain</module>
+		<module>domain-pot</module>
 		<module>domain-projection</module>
 		<module>domain-pipeline-tasks</module>
 		<module>domain-policy</module>

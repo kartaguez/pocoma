@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.pipeline.task.ConfiguredTaskExecutionBinding;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskCommand;

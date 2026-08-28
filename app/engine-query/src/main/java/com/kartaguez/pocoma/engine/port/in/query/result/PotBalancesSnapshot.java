@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.in.query.result;
 import java.util.Objects;
 import java.util.Set;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record PotBalancesSnapshot(PotId potId, long version, Set<BalanceSnapshot> balances) {
 

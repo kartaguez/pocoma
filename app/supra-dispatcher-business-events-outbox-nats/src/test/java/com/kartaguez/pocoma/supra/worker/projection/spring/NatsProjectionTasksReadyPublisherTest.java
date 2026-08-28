@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.event.projection.ProjectionTasksReadyEvent;
 import com.kartaguez.pocoma.supra.dispatcher.projection.shared.wakeup.ProjectionWakeSignals;
 

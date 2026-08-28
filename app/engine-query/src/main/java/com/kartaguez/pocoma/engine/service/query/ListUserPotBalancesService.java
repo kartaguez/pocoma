@@ -3,11 +3,11 @@ package com.kartaguez.pocoma.engine.service.query;
 import java.util.List;
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.projection.Balance;
 import com.kartaguez.pocoma.domain.projection.PotBalances;
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListUserPotBalancesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.UserPotBalanceSnapshot;

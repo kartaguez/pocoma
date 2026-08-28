@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.event;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record PotDetailsUpdatedEvent(PotId potId, long version) implements BusinessEvent {
 

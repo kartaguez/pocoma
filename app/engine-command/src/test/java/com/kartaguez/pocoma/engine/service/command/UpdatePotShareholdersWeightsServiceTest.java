@@ -9,18 +9,18 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.policy.scope.Scope;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Name;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.UpdatePotShareholdersWeightsContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersWeightsUpdatedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;

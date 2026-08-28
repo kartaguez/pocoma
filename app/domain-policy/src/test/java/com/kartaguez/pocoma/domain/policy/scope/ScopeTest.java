@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.policy.AddPotShareholdersAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.policy.scope.Scope.Action;
 import com.kartaguez.pocoma.domain.policy.scope.Scope.Resource;
 import com.kartaguez.pocoma.domain.policy.scope.Scope.SubResource;
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class ScopeTest {
 

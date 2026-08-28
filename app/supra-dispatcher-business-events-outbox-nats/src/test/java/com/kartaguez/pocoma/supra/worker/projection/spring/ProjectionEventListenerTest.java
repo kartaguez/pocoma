@@ -10,9 +10,9 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;

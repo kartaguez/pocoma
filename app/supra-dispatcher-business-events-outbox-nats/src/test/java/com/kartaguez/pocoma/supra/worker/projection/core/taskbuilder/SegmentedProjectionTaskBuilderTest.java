@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;

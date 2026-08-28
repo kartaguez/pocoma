@@ -3,11 +3,11 @@ package com.kartaguez.pocoma.engine.service.query;
 import java.util.Objects;
 import java.util.Set;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetPotQuery;
 import com.kartaguez.pocoma.engine.port.in.query.result.PotViewSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotUseCase;

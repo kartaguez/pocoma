@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;

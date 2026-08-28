@@ -9,16 +9,16 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
-import com.kartaguez.pocoma.domain.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.value.Amount;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 class PotBalancesCalculatorTest {
 

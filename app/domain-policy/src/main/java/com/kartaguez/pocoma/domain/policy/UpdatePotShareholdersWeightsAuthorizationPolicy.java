@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.domain.policy;
 
 import java.util.Objects;
 import java.util.Set;
-import com.kartaguez.pocoma.domain.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.policy.scope.Scope;
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 public final class UpdatePotShareholdersWeightsAuthorizationPolicy {
 

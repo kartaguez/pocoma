@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskDescriptor;
 import com.kartaguez.pocoma.engine.model.ProjectionTaskType;

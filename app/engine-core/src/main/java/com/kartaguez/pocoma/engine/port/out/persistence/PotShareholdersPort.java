@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.port.out.persistence;
 
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 
 public interface PotShareholdersPort {

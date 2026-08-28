@@ -18,7 +18,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
 import com.kartaguez.pocoma.engine.model.PotPartitioner;
 import com.kartaguez.pocoma.engine.model.ProjectionPartition;

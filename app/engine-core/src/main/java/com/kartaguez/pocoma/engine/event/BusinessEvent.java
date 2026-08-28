@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.event;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 /** Marker for immutable, typed business facts produced inside the application. */
 public interface BusinessEvent {

@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.port.in.query.intent.ListPotExpensesQuery;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.ListPotExpensesUseCase;

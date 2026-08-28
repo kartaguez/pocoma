@@ -2,11 +2,11 @@ package com.kartaguez.pocoma.engine.snapshot;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.Amount;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record ExpenseHeaderSnapshot(
 		ExpenseId id,

@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskPayload;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record ComputeBalancesTask(PotId potId, long targetVersion) implements PipelineTaskPayload {
 

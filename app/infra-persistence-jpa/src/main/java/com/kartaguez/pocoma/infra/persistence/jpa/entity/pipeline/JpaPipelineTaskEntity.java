@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.domain.pipeline.task.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTaskStatus;
 import com.kartaguez.pocoma.domain.pipeline.task.TaskDescriptor;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

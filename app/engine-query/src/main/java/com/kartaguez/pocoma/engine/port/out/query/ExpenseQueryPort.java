@@ -2,10 +2,10 @@ package com.kartaguez.pocoma.engine.port.out.query;
 
 import java.util.List;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public interface ExpenseQueryPort {
 

@@ -16,6 +16,7 @@ class HexagonalArchitectureTest {
 
 	private static final String ROOT_PACKAGE = "com.kartaguez.pocoma";
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
+	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
@@ -47,6 +48,42 @@ class HexagonalArchitectureTest {
 						"org.springframework..",
 						"jakarta.persistence..")
 				.check(CLASSES);
+	}
+
+	@Test
+	void potDomainIsSelfContainedAndUsesItsExplicitNamespace() {
+		noClasses()
+				.that().resideInAPackage(POT_DOMAIN_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.policy..",
+						ROOT_PACKAGE + ".domain.projection..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.consumption..",
+						ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> legacyPotPackages = CLASSES.stream()
+				.map(javaClass -> javaClass.getPackageName())
+				.filter(packageName -> Set.of(
+						ROOT_PACKAGE + ".domain.aggregate",
+						ROOT_PACKAGE + ".domain.association",
+						ROOT_PACKAGE + ".domain.created",
+						ROOT_PACKAGE + ".domain.draft",
+						ROOT_PACKAGE + ".domain.entity",
+						ROOT_PACKAGE + ".domain.exception",
+						ROOT_PACKAGE + ".domain.factory",
+						ROOT_PACKAGE + ".domain.value").stream()
+						.anyMatch(packageName::startsWith))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), legacyPotPackages, "Pot types must live below domain.pot");
 	}
 
 	@Test

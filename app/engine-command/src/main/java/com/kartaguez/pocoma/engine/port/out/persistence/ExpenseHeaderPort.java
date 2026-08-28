@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.port.out.persistence;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 
 public interface ExpenseHeaderPort {

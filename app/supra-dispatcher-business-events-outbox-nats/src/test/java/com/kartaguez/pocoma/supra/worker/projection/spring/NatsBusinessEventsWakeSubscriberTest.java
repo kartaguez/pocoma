@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeBus;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeEvent;
 import com.kartaguez.pocoma.orchestrator.claimable.wake.WorkWakeSubscription;

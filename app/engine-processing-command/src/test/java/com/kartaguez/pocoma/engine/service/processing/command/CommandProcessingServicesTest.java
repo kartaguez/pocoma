@@ -27,7 +27,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.processing.command.ordering.CommandOrderingKey;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;

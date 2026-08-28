@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.event.projection;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record ProjectionTasksReadyEvent(
 		UUID taskId,

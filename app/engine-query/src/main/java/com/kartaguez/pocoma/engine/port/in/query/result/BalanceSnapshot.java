@@ -2,8 +2,8 @@ package com.kartaguez.pocoma.engine.port.in.query.result;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 
 public record BalanceSnapshot(ShareholderId shareholderId, Fraction value) {
 

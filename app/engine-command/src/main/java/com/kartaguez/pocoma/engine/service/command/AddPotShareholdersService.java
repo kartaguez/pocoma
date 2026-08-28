@@ -3,12 +3,12 @@ package com.kartaguez.pocoma.engine.service.command;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Name;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;

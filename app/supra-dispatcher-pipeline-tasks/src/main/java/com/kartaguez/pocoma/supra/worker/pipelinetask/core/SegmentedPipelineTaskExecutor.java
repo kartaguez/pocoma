@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.supra.worker.pipelinetask.core;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pipeline.task.PipelineTask;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskCommand;
 import com.kartaguez.pocoma.engine.taskexecution.port.in.ExecutePipelineTaskUseCase;
 import com.kartaguez.pocoma.orchestrator.claimable.pool.SegmentedWorkerPool;

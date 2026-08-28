@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.out.persistence;
 import java.util.Optional;
 
 import com.kartaguez.pocoma.domain.projection.PotBalances;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.PotBalanceProjectionState;
 
 public interface PotBalancesPort {

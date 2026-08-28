@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;

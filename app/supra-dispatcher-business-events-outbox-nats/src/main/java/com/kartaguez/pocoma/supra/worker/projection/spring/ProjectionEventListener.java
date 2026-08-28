@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.springframework.context.event.EventListener;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.event.ExpenseCreatedEvent;
 import com.kartaguez.pocoma.engine.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.engine.event.ExpenseDetailsUpdatedEvent;

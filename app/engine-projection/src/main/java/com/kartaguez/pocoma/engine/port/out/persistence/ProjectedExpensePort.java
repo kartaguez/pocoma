@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.out.persistence;
 import java.util.Collection;
 
 import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public interface ProjectedExpensePort {
 

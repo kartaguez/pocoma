@@ -20,7 +20,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain</artifactId>
+			<artifactId>pocoma-domain-pot</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

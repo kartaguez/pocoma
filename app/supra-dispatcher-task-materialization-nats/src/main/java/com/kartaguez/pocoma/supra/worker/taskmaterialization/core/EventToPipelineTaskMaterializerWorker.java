@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.ConfiguredPipelineBinding;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;

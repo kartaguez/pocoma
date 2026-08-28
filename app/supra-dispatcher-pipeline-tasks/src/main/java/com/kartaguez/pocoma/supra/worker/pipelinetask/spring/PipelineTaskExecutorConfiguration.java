@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.model.PotPartitioner;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionRegistry;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;

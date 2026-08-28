@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.exception.UnsupportedCommandIntentException;
 import com.kartaguez.pocoma.engine.port.in.command.input.ExecuteCommandInput;
 import com.kartaguez.pocoma.engine.port.in.command.intent.AddPotShareholdersCommand;
