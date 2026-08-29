@@ -22,6 +22,7 @@
 | Exécution effective idempotente | `ExecutionGuard<K>`, `ExecutionOutcome` | `engine-execution-guard` |
 | Orchestration pull Command | `CommandWorker`, `CommandWorkerIteration` | `supra-worker-command` |
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
+| Orchestration pull Task | `TaskWorker`, `TaskWorkerIteration`, registre de mappers durables | `supra-worker-task` |
 
 ## Distinctions obligatoires
 

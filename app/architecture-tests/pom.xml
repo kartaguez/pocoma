@@ -34,6 +34,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-worker-task</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-orchestrator-claimable-work-dispatcher</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

@@ -97,6 +97,10 @@ pipeline-specific logic.
 un segment. Il appelle la création idempotente de Tasks puis le lifecycle Event ; il ne voit jamais
 les consommations déjà terminales et ne modifie aucun statut sur l'Event source.
 
+`supra-worker-task` orchestre une seule Task durable à la fois. Son `ExecutionGuard<taskId>` englobe
+le mapping durable vers typé et `ExecuteTaskUseCase`; un journal existant contourne donc mapper et
+handler. Les slots terminaux sont réconciliés par le processing engine avant exposition au worker.
+
 The concepts are deliberately distinct:
 
 - Command: typed business intention;

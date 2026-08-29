@@ -724,6 +724,39 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void taskWorkerDependsOnTypedIncomingContractsAndNotLegacyOrOutgoingPorts() {
+		String workerPackage = ROOT_PACKAGE + ".supra.worker.task..";
+		noClasses()
+				.that().resideInAPackage(workerPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine.taskexecution..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..",
+						"io.micrometer..")
+				.check(CLASSES);
+
+		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.task"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(name -> name.endsWith(".TaskPort")
+						|| name.endsWith(".ClaimPort")
+						|| name.endsWith(".ExecutionJournalPort")
+						|| name.endsWith(".ConsumptionKey")
+						|| name.endsWith(".LegacyPipelineTask")
+						|| name.endsWith(".ConfiguredTaskExecutionBinding"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbiddenWorkerDependencies,
+				"Task worker must use typed incoming contracts without repositories, keys or legacy models");
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))
