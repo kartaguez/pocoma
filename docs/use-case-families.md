@@ -57,6 +57,12 @@ The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, lease
 failures, and their invariants. It contains no use case, persistence concern, ordering,
 segmentation, or worker orchestration.
 
+`ConsumptionSlot` is the authoritative processing lifecycle. Command and Task statuses are
+reconcilable durable materializations: a terminal slot may temporarily coexist with a READY or
+PENDING source row, but the processing services always transition the slot first and repair that
+lag while selecting subsequent work. A terminal durable status with a READY slot is never
+produced by these services.
+
 Ordering and segmentation are technical processing concerns. Chaque ordre appartient désormais à
 son module spécialisé : `engine-processing-command`, `engine-processing-event` ou
 `engine-processing-task`. Static segmentation uses a stable
@@ -120,21 +126,21 @@ that it remains callable only to keep the current workers operational.
 | `GetExpenseUseCase` | Query | context, typed query | `ExpenseViewSnapshot` | Pot/expense query ports | Read decorator | HTTP | Target |
 | `GetPotBalancesUseCase` | Query | context, typed query | `PotBalancesSnapshot` | Pot query, balances | Read decorator | HTTP | Target |
 | `ListUserPotBalancesUseCase` | Query | context, typed query | user balances | Pot query, balances | Read decorator | HTTP | Target |
-| `TryAcquireConsumptionUseCase` | Consumption | consumption key, worker, lease | optional claim | `ClaimPort` | Decorator | Processing engines | Target |
+| `TryAcquireConsumptionUseCase` | Consumption | consumption key, worker, lease | acquired, busy, already completed or already failed | `ClaimPort` | Decorator | Processing engines | Target |
 | `CompleteConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `FailConsumptionUseCase` | Consumption | consumption key, token, failure | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `ReleaseConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `ClaimNextCommandUseCase` | Command processing | worker, lease, segment | optional durable command and claim | `CommandPort`, generic acquisition | Decorator | Future Command worker | Target |
-| `CompleteCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | `CommandPort`, generic completion | Decorator | Future Command worker | Target |
-| `FailCommandProcessingUseCase` | Command processing | command id, token, failure | `ConsumptionOutcome` | `CommandPort`, generic failure | Decorator | Future Command worker | Target |
+| `CompleteCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | `CommandPort`, generic completion | Generic lifecycle transaction, then best-effort materialization | Future Command worker | Target |
+| `FailCommandProcessingUseCase` | Command processing | command id, token, failure | `ConsumptionOutcome` | `CommandPort`, generic failure | Generic lifecycle transaction, then best-effort materialization | Future Command worker | Target |
 | `ReleaseCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | generic release | Decorator | Future Command worker | Target |
 | `ClaimNextEventUseCase` | Event processing | worker, lease, segment, pipeline | optional recorded event and claim | read-only `EventPort`, generic acquisition | Decorator | Future Event worker | Target |
 | `CompleteEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic completion | Decorator | Future Event worker | Target |
 | `FailEventProcessingUseCase` | Event processing | pipeline, event id, token, failure | `ConsumptionOutcome` | generic failure | Decorator | Future Event worker | Target |
 | `ReleaseEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic release | Decorator | Future Event worker | Target |
 | `ClaimNextTaskUseCase` | Task processing | worker, lease, segment, pipeline | optional recorded task and claim | `TaskPort`, generic acquisition | Decorator | Future Task worker | Target |
-| `CompleteTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | `TaskPort`, generic completion | Decorator | Future Task worker | Target |
-| `FailTaskProcessingUseCase` | Task processing | task id, token, failure | `ConsumptionOutcome` | `TaskPort`, generic failure | Decorator | Future Task worker | Target |
+| `CompleteTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | `TaskPort`, generic completion | Generic lifecycle transaction, then best-effort materialization | Future Task worker | Target |
+| `FailTaskProcessingUseCase` | Task processing | task id, token, failure | `ConsumptionOutcome` | `TaskPort`, generic failure | Generic lifecycle transaction, then best-effort materialization | Future Task worker | Target |
 | `ReleaseTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | generic release | Decorator | Future Task worker | Target |
 | `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
 | `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |

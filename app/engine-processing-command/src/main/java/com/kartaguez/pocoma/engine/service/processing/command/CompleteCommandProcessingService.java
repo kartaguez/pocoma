@@ -9,6 +9,11 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.command.CommandPort;
 
+/**
+ * Commits the authoritative consumption lifecycle before materializing the
+ * command status. The latter is deliberately best effort and reconcilable by
+ * {@link ClaimNextCommandService}.
+ */
 public final class CompleteCommandProcessingService implements CompleteCommandProcessingUseCase {
 
 	private final CommandPort commandPort;

@@ -4,10 +4,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.processing.event.input.ClaimNextEventInput;
 import com.kartaguez.pocoma.engine.port.in.processing.event.result.EventClaimResult;
@@ -39,13 +40,13 @@ public final class ClaimNextEventService implements ClaimNextEventUseCase {
 				return Optional.empty();
 			}
 			RecordedEvent<? extends BusinessEvent> event = candidate.orElseThrow();
-			Optional<Claim> claim = tryAcquireConsumptionUseCase.tryAcquire(
+			TryAcquireConsumptionResult acquisition = tryAcquireConsumptionUseCase.tryAcquire(
 					new TryAcquireConsumptionInput(
 							EventProcessingKeys.forEvent(input.pipeline(), event.eventId()),
 							input.workerId(),
 							input.lease()));
-			if (claim.isPresent()) {
-				return Optional.of(new EventClaimResult(input.pipeline(), event, claim.orElseThrow()));
+			if (acquisition instanceof Acquired acquired) {
+				return Optional.of(new EventClaimResult(input.pipeline(), event, acquired.claim()));
 			}
 			cursor = Optional.of(new EventOrderingKey(
 					event.event().version(), event.recordedAt(), event.eventId()));

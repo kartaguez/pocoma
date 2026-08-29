@@ -69,6 +69,23 @@ propriété temporaire, protégée par son token.
 Le claim décide qui peut agir maintenant. Le journal consulté par `ExecutionGuard` décide si
 l'effet associé à l'identifiant a déjà été commité. Ces mécanismes sont indépendants.
 
+```text
+Claim
+  possession temporaire
+
+ExecutionGuard
+  effet déjà commité ou non
+
+ConsumptionSlot
+  lifecycle autoritatif du processing
+
+Command/Task status
+  matérialisation durable réconciliable, éventuellement en retard
+```
+
+La transition terminale du slot précède toujours la matérialisation. L'état temporaire
+`slot COMPLETED/FAILED + durable READY/PENDING` est réparé par le processing engine propriétaire.
+
 ## Legacy restant
 
 | Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |

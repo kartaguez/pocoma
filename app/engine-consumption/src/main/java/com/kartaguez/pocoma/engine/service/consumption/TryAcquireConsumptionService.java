@@ -5,12 +5,18 @@ import static java.util.Objects.requireNonNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
-
 import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
+import com.kartaguez.pocoma.engine.exception.MissingTerminalConsumptionFailureException;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
@@ -25,14 +31,35 @@ public final class TryAcquireConsumptionService implements TryAcquireConsumption
 	}
 
 	@Override
-	public Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
+	public TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
 		requireNonNull(input, "input must not be null");
 		Instant now = clock.instant();
 		ConsumptionSlot observedSlot = claimPort.findSlot(input.consumptionKey())
 				.orElseGet(() -> ConsumptionSlot.initial(input.consumptionKey()));
+		Optional<TryAcquireConsumptionResult> terminalResult = terminalResult(observedSlot);
+		if (terminalResult.isPresent()) {
+			return terminalResult.orElseThrow();
+		}
 		Claim proposedClaim = Claim.active(
 				ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 				input.workerId(), now, input.lease());
-		return claimPort.tryAcquire(observedSlot, proposedClaim, now);
+		Optional<Claim> acquiredClaim = claimPort.tryAcquire(observedSlot, proposedClaim, now);
+		if (acquiredClaim.isPresent()) {
+			return new Acquired(acquiredClaim.orElseThrow());
+		}
+		return claimPort.findSlot(input.consumptionKey())
+				.flatMap(this::terminalResult)
+				.orElseGet(NotAcquiredBusy::new);
+	}
+
+	private Optional<TryAcquireConsumptionResult> terminalResult(ConsumptionSlot slot) {
+		if (slot.status() == ConsumptionStatus.COMPLETED) {
+			return Optional.of(new AlreadyCompleted());
+		}
+		if (slot.status() == ConsumptionStatus.FAILED) {
+			return Optional.of(new AlreadyFailed(claimPort.findTerminalFailure(slot.consumptionKey())
+					.orElseThrow(() -> new MissingTerminalConsumptionFailureException(slot.consumptionKey()))));
+		}
+		return Optional.empty();
 	}
 }

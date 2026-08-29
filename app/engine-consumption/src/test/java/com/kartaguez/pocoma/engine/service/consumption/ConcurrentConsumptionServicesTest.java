@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
@@ -35,6 +36,10 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
 class ConcurrentConsumptionServicesTest {
@@ -51,11 +56,11 @@ class ConcurrentConsumptionServicesTest {
 		CountDownLatch start = new CountDownLatch(1);
 
 		try (var executor = Executors.newFixedThreadPool(2)) {
-			Future<Optional<Claim>> first = executor.submit(() -> acquireAfter(start, service, "worker-1", KEY));
-			Future<Optional<Claim>> second = executor.submit(() -> acquireAfter(start, service, "worker-2", KEY));
+			Future<TryAcquireConsumptionResult> first = executor.submit(() -> acquireAfter(start, service, "worker-1", KEY));
+			Future<TryAcquireConsumptionResult> second = executor.submit(() -> acquireAfter(start, service, "worker-2", KEY));
 			start.countDown();
-			int winners = (first.get(2, TimeUnit.SECONDS).isPresent() ? 1 : 0)
-					+ (second.get(2, TimeUnit.SECONDS).isPresent() ? 1 : 0);
+			int winners = (first.get(2, TimeUnit.SECONDS) instanceof Acquired ? 1 : 0)
+					+ (second.get(2, TimeUnit.SECONDS) instanceof Acquired ? 1 : 0);
 			assertEquals(1, winners);
 		}
 
@@ -73,11 +78,11 @@ class ConcurrentConsumptionServicesTest {
 		ConsumptionKey other = new ConsumptionKey("work", List.of("43"));
 
 		try (var executor = Executors.newFixedThreadPool(2)) {
-			Future<Optional<Claim>> first = executor.submit(() -> acquireAfter(start, service, "worker-1", KEY));
-			Future<Optional<Claim>> second = executor.submit(() -> acquireAfter(start, service, "worker-2", other));
+			Future<TryAcquireConsumptionResult> first = executor.submit(() -> acquireAfter(start, service, "worker-1", KEY));
+			Future<TryAcquireConsumptionResult> second = executor.submit(() -> acquireAfter(start, service, "worker-2", other));
 			start.countDown();
-			assertTrue(first.get(2, TimeUnit.SECONDS).isPresent());
-			assertTrue(second.get(2, TimeUnit.SECONDS).isPresent());
+			assertInstanceOf(Acquired.class, first.get(2, TimeUnit.SECONDS));
+			assertInstanceOf(Acquired.class, second.get(2, TimeUnit.SECONDS));
 		}
 		assertEquals(2, port.slots.size());
 	}
@@ -94,7 +99,7 @@ class ConcurrentConsumptionServicesTest {
 		TryAcquireConsumptionService service = new TryAcquireConsumptionService(port, CLOCK);
 
 		for (ConsumptionKey key : List.of(command, task, eventV1, eventV2, eventOtherPipeline)) {
-			assertTrue(service.tryAcquire(request(key, "worker")).isPresent());
+			assertInstanceOf(Acquired.class, service.tryAcquire(request(key, "worker")));
 		}
 
 		assertEquals(5, port.slots.size());
@@ -107,8 +112,8 @@ class ConcurrentConsumptionServicesTest {
 				NOW.minusSeconds(30), LEASE);
 		port.tryAcquire(ConsumptionSlot.initial(KEY), expired, NOW.minusSeconds(30));
 
-		Claim reclaimed = new TryAcquireConsumptionService(port, CLOCK)
-				.tryAcquire(request(KEY, "new")).orElseThrow();
+		Claim reclaimed = acquired(new TryAcquireConsumptionService(port, CLOCK)
+				.tryAcquire(request(KEY, "new")));
 		assertNotEquals(expired.token(), reclaimed.token());
 		assertFalse(port.findClaim(expired.claimId()).orElseThrow().isActiveAt(NOW));
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
@@ -120,24 +125,31 @@ class ConcurrentConsumptionServicesTest {
 
 		assertEquals(ConsumptionOutcome.APPLIED,
 				new ReleaseConsumptionService(port, CLOCK).release(new ReleaseConsumptionInput(KEY, reclaimed.token())));
-		Claim third = new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(KEY, "third")).orElseThrow();
+		Claim third = acquired(new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(KEY, "third")));
 		assertNotEquals(reclaimed.token(), third.token());
 		assertEquals(ConsumptionOutcome.APPLIED,
 				new CompleteConsumptionService(port, CLOCK).complete(new CompleteConsumptionInput(KEY, third.token())));
-		assertTrue(new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(KEY, "fourth")).isEmpty());
+		assertInstanceOf(AlreadyCompleted.class,
+				new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(KEY, "fourth")));
 
 		ConsumptionKey failedKey = new ConsumptionKey("work", List.of("failed"));
-		Claim failed = new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(failedKey, "worker")).orElseThrow();
+		Claim failed = acquired(new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(failedKey, "worker")));
 		assertEquals(ConsumptionOutcome.APPLIED,
 				new FailConsumptionService(port, CLOCK).fail(new FailConsumptionInput(failedKey, failed.token(), failure())));
-		assertTrue(new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(failedKey, "other")).isEmpty());
+		AlreadyFailed alreadyFailed = assertInstanceOf(AlreadyFailed.class,
+				new TryAcquireConsumptionService(port, CLOCK).tryAcquire(request(failedKey, "other")));
+		assertEquals(failure(), alreadyFailed.failure());
 	}
 
-	private static Optional<Claim> acquireAfter(
+	private static TryAcquireConsumptionResult acquireAfter(
 			CountDownLatch start, TryAcquireConsumptionService service, String worker, ConsumptionKey key)
 			throws InterruptedException {
 		start.await();
 		return service.tryAcquire(request(key, worker));
+	}
+
+	private static Claim acquired(TryAcquireConsumptionResult result) {
+		return assertInstanceOf(Acquired.class, result).claim();
 	}
 
 	private static TryAcquireConsumptionInput request(ConsumptionKey key, String worker) {
@@ -161,6 +173,15 @@ class ConcurrentConsumptionServicesTest {
 		@Override
 		public synchronized Optional<Claim> findClaim(ClaimId claimId) {
 			return Optional.ofNullable(claims.get(claimId));
+		}
+
+		@Override
+		public synchronized Optional<ProcessingFailure> findTerminalFailure(ConsumptionKey key) {
+			return claims.values().stream()
+					.filter(claim -> claim.consumptionKey().equals(key))
+					.filter(claim -> claim.invalidatedAt().isEmpty())
+					.flatMap(claim -> claim.failure().stream())
+					.findFirst();
 		}
 
 		@Override

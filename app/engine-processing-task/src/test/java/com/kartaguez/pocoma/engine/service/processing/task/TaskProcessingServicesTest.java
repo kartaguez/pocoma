@@ -3,10 +3,12 @@ package com.kartaguez.pocoma.engine.service.processing.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,11 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseConsumptionUseCase;
@@ -170,6 +177,103 @@ class TaskProcessingServicesTest {
 		assertEquals(ConsumptionStatus.READY, tasks.status(releasedTask.taskId()));
 	}
 
+	@Test
+	void reconcilesTerminalTasksAndContinuesToTheNextClaimableCandidate() {
+		RecordedTask completed = task(1, BALANCES, uuid(90), 1, NOW);
+		RecordedTask failed = task(2, BALANCES, uuid(90), 2, NOW);
+		RecordedTask claimable = task(3, BALANCES, uuid(90), 3, NOW);
+		ProcessingFailure failure = new ProcessingFailure("handler", "boom", NOW);
+		InMemoryTaskPort tasks = new InMemoryTaskPort(completed, failed, claimable);
+		TryAcquireConsumptionUseCase consumption = input -> {
+			if (input.consumptionKey().equals(TaskProcessingKeys.forTask(completed.taskId()))) {
+				return new AlreadyCompleted();
+			}
+			if (input.consumptionKey().equals(TaskProcessingKeys.forTask(failed.taskId()))) {
+				return new AlreadyFailed(failure);
+			}
+			return new Acquired(Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
+					input.workerId(), NOW, input.lease()));
+		};
+
+		TaskClaimResult result = new ClaimNextTaskService(tasks, consumption)
+				.claimNext(request(BALANCES)).orElseThrow();
+
+		assertEquals(ConsumptionStatus.COMPLETED, tasks.status(completed.taskId()));
+		assertEquals(ConsumptionStatus.FAILED, tasks.status(failed.taskId()));
+		assertEquals(failure, tasks.failures.get(failed.taskId()));
+		assertEquals(claimable.taskId(), result.task().taskId());
+	}
+
+	@Test
+	void terminalSlotSurvivesATaskMaterializationFailureAndIsReconciledLater() {
+		RecordedTask task = task(1, BALANCES, uuid(90), 1, NOW);
+		InMemoryTaskPort durable = new InMemoryTaskPort(task);
+		List<String> calls = new ArrayList<>();
+		TaskPort failingMaterialization = new TaskPort() {
+			@Override public Optional<RecordedTask> findNextReady(
+					PipelineDefinition pipeline, WorkerSegment segment, Optional<TaskOrderingKey> cursor) {
+				return durable.findNextReady(pipeline, segment, cursor);
+			}
+			@Override public void markCompleted(UUID taskId) {
+				calls.add("mark");
+				throw new IllegalStateException("storage unavailable");
+			}
+			@Override public void markFailed(UUID taskId, ProcessingFailure failure) {
+				throw new UnsupportedOperationException();
+			}
+		};
+		CompleteConsumptionUseCase lifecycle = input -> {
+			calls.add("slot");
+			return ConsumptionOutcome.APPLIED;
+		};
+
+		assertThrows(IllegalStateException.class, () -> new CompleteTaskProcessingService(
+				failingMaterialization, lifecycle).complete(
+						new CompleteTaskProcessingInput(task.taskId(), ClaimToken.generate())));
+		assertEquals(List.of("slot", "mark"), calls);
+		assertEquals(ConsumptionStatus.READY, durable.status(task.taskId()));
+
+		assertTrue(new ClaimNextTaskService(durable, input -> new AlreadyCompleted())
+				.claimNext(request(BALANCES)).isEmpty());
+		assertEquals(ConsumptionStatus.COMPLETED, durable.status(task.taskId()));
+	}
+
+	@Test
+	void failedSlotSurvivesATaskMaterializationFailureAndIsReconciledLater() {
+		RecordedTask task = task(1, BALANCES, uuid(90), 1, NOW);
+		ProcessingFailure failure = new ProcessingFailure("handler", "boom", NOW);
+		InMemoryTaskPort durable = new InMemoryTaskPort(task);
+		List<String> calls = new ArrayList<>();
+		TaskPort failingMaterialization = new TaskPort() {
+			@Override public Optional<RecordedTask> findNextReady(
+					PipelineDefinition pipeline, WorkerSegment segment, Optional<TaskOrderingKey> cursor) {
+				return durable.findNextReady(pipeline, segment, cursor);
+			}
+			@Override public void markCompleted(UUID taskId) {
+				throw new UnsupportedOperationException();
+			}
+			@Override public void markFailed(UUID taskId, ProcessingFailure processingFailure) {
+				calls.add("mark");
+				throw new IllegalStateException("storage unavailable");
+			}
+		};
+		FailConsumptionUseCase lifecycle = input -> {
+			calls.add("slot");
+			return ConsumptionOutcome.APPLIED;
+		};
+
+		assertThrows(IllegalStateException.class, () -> new FailTaskProcessingService(
+				failingMaterialization, lifecycle).fail(
+						new FailTaskProcessingInput(task.taskId(), ClaimToken.generate(), failure)));
+		assertEquals(List.of("slot", "mark"), calls);
+		assertEquals(ConsumptionStatus.READY, durable.status(task.taskId()));
+
+		assertTrue(new ClaimNextTaskService(durable, input -> new AlreadyFailed(failure))
+				.claimNext(request(BALANCES)).isEmpty());
+		assertEquals(ConsumptionStatus.FAILED, durable.status(task.taskId()));
+		assertEquals(failure, durable.failures.get(task.taskId()));
+	}
+
 	private static ClaimNextTaskInput request(PipelineDefinition pipeline) {
 		return new ClaimNextTaskInput(WORKER, LEASE, WorkerSegment.single(), pipeline);
 	}
@@ -243,20 +347,20 @@ class TaskProcessingServicesTest {
 		private final Map<ConsumptionKey, Claim> claims = new HashMap<>();
 
 		private Claim acquire(UUID taskId) {
-			return tryAcquire(new TryAcquireConsumptionInput(
-					TaskProcessingKeys.forTask(taskId), WORKER, LEASE)).orElseThrow();
+			return ((Acquired) tryAcquire(new TryAcquireConsumptionInput(
+					TaskProcessingKeys.forTask(taskId), WORKER, LEASE))).claim();
 		}
 
 		@Override
-		public synchronized Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
+		public synchronized TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
 			Claim current = claims.get(input.consumptionKey());
 			if (current != null && current.isActiveAt(NOW)) {
-				return Optional.empty();
+				return new NotAcquiredBusy();
 			}
 			Claim acquired = Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 					input.workerId(), NOW, input.lease());
 			claims.put(input.consumptionKey(), acquired);
-			return Optional.of(acquired);
+			return new Acquired(acquired);
 		}
 
 		@Override

@@ -1,5 +1,10 @@
 # Étape 3.2 — `supra-worker-command`
 
+> Correction ultérieure : `ConsumptionSlot` est autoritatif. Complete/fail commit le lifecycle
+> générique avant de matérialiser le statut Command en best effort. `ClaimNextCommandUseCase`
+> réconcilie les statuts en retard ; le worker et l'ExecutionGuard ne participent pas à cette
+> réconciliation.
+
 ## Résumé
 
 Créer le premier worker cible autour de la boucle séquentielle 3.1 :

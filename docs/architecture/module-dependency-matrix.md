@@ -41,9 +41,9 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-task-creation` | Event typé + pipeline vers zéro à N tâches | Pot events, pipeline, core | consumption, workers, materialization legacy | target |
 | `engine-task-execution` | routage d'un `TaskPayload` typé vers son handler | pipeline, task | claims, workers, JSON dans le périmètre typé | target + pont legacy |
 | `engine-consumption` | acquire/complete/fail/release d'une clé opaque | consumption, transaction core | Command, Event, Task, Pot, Pipeline | target |
-| `engine-processing-command` | sélection, ordre et transitions d'une commande durable | command, consumption, core | Event/Task processing, frameworks | target |
-| `engine-processing-event` | consommation indépendante d'un événement par pipeline/version | consumption, pipeline, Pot event, core | Command/Task processing, task creation | target |
-| `engine-processing-task` | sélection, ordre et transitions d'une tâche durable | consumption, pipeline, Pot id, core | Event/Command processing, task execution | target |
+| `engine-processing-command` | sélection, ordre, transitions et réconciliation du statut Command depuis le slot autoritatif | command, consumption, core | Event/Task processing, frameworks, execution guard | target |
+| `engine-processing-event` | consommation indépendante d'un événement par pipeline/version ; ignore les slots terminaux sans mutation source | consumption, pipeline, Pot event, core | Command/Task processing, task creation | target |
+| `engine-processing-task` | sélection, ordre, transitions et réconciliation du statut Task depuis le slot autoritatif | consumption, pipeline, Pot id, core | Event/Command processing, task execution, execution guard | target |
 | `engine-task-materialization` | ancien flux Event envelope vers tâches sérialisées | core et pipeline | nouveaux packages fonctionnels | legacy — retrait avec EventWorker |
 
 ## Adaptateurs, orchestration et composition

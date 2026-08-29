@@ -9,6 +9,11 @@ import com.kartaguez.pocoma.engine.port.in.processing.task.input.CompleteTaskPro
 import com.kartaguez.pocoma.engine.port.in.processing.task.usecase.CompleteTaskProcessingUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskPort;
 
+/**
+ * Commits the authoritative consumption lifecycle before materializing the
+ * task status. The latter is deliberately best effort and reconcilable by
+ * {@link ClaimNextTaskService}.
+ */
 public final class CompleteTaskProcessingService implements CompleteTaskProcessingUseCase {
 
 	private final TaskPort taskPort;

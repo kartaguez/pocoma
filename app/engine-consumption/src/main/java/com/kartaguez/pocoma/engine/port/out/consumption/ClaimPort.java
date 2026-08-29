@@ -22,6 +22,9 @@ public interface ClaimPort {
 
 	Optional<Claim> findClaim(com.kartaguez.pocoma.domain.consumption.claim.ClaimId claimId);
 
+	/** Returns only the immutable failure that made the current slot terminal. */
+	Optional<ProcessingFailure> findTerminalFailure(ConsumptionKey consumptionKey);
+
 	Optional<Claim> tryAcquire(ConsumptionSlot observedSlot, Claim proposedClaim, Instant now);
 
 	ConsumptionOutcome endCurrentClaim(ConsumptionKey key, ClaimToken token, Instant now);

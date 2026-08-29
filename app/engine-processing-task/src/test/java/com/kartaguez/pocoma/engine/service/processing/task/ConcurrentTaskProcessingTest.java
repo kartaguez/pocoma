@@ -29,6 +29,9 @@ import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.processing.task.input.ClaimNextTaskInput;
 import com.kartaguez.pocoma.engine.port.in.processing.task.result.TaskClaimResult;
@@ -111,9 +114,9 @@ class ConcurrentTaskProcessingTest {
 		private final java.util.Set<ConsumptionKey> acquired = new java.util.HashSet<>();
 
 		@Override
-		public synchronized Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
-			if (!acquired.add(input.consumptionKey())) return Optional.empty();
-			return Optional.of(Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
+		public synchronized TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
+			if (!acquired.add(input.consumptionKey())) return new NotAcquiredBusy();
+			return new Acquired(Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 					input.workerId(), NOW, input.lease()));
 		}
 	}

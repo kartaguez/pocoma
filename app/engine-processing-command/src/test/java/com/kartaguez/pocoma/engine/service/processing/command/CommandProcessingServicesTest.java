@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -40,6 +41,11 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseConsumptionUseCase;
@@ -170,6 +176,103 @@ class CommandProcessingServicesTest {
 		assertEquals(ConsumptionStatus.READY, commands.status(releasedCommand.commandId()));
 	}
 
+	@Test
+	void reconcilesTerminalCommandsAndContinuesToTheNextClaimableCandidate() {
+		RecordedCommand completed = global(1, NOW);
+		RecordedCommand failed = global(2, NOW.plusSeconds(1));
+		RecordedCommand claimable = global(3, NOW.plusSeconds(2));
+		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		InMemoryCommandPort commands = new InMemoryCommandPort(completed, failed, claimable);
+		TryAcquireConsumptionUseCase consumption = input -> {
+			if (input.consumptionKey().equals(CommandProcessingKeys.forCommand(completed.commandId()))) {
+				return new AlreadyCompleted();
+			}
+			if (input.consumptionKey().equals(CommandProcessingKeys.forCommand(failed.commandId()))) {
+				return new AlreadyFailed(failure);
+			}
+			return new Acquired(Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
+					input.workerId(), NOW, input.lease()));
+		};
+
+		CommandClaimResult result = new ClaimNextCommandService(commands, consumption)
+				.claimNext(request(WorkerSegment.single())).orElseThrow();
+
+		assertEquals(ConsumptionStatus.COMPLETED, commands.status(completed.commandId()));
+		assertEquals(ConsumptionStatus.FAILED, commands.status(failed.commandId()));
+		assertEquals(failure, commands.failures.get(failed.commandId()));
+		assertEquals(claimable.commandId(), result.command().commandId());
+	}
+
+	@Test
+	void terminalSlotSurvivesAMaterializationFailureAndIsReconciledLater() {
+		RecordedCommand command = global(1, NOW);
+		InMemoryCommandPort durable = new InMemoryCommandPort(command);
+		List<String> calls = new ArrayList<>();
+		CommandPort failingMaterialization = new CommandPort() {
+			@Override public Optional<RecordedCommand> findNextReady(
+					WorkerSegment segment, Optional<CommandOrderingKey> cursor) {
+				return durable.findNextReady(segment, cursor);
+			}
+			@Override public void markCompleted(UUID commandId) {
+				calls.add("mark");
+				throw new IllegalStateException("storage unavailable");
+			}
+			@Override public void markFailed(UUID commandId, ProcessingFailure failure) {
+				throw new UnsupportedOperationException();
+			}
+		};
+		CompleteConsumptionUseCase lifecycle = input -> {
+			calls.add("slot");
+			return ConsumptionOutcome.APPLIED;
+		};
+
+		assertThrows(IllegalStateException.class, () -> new CompleteCommandProcessingService(
+				failingMaterialization, lifecycle).complete(
+						new CompleteCommandProcessingInput(command.commandId(), ClaimToken.generate())));
+		assertEquals(List.of("slot", "mark"), calls);
+		assertEquals(ConsumptionStatus.READY, durable.status(command.commandId()));
+
+		assertTrue(new ClaimNextCommandService(durable, input -> new AlreadyCompleted())
+				.claimNext(request(WorkerSegment.single())).isEmpty());
+		assertEquals(ConsumptionStatus.COMPLETED, durable.status(command.commandId()));
+	}
+
+	@Test
+	void failedSlotSurvivesAMaterializationFailureAndIsReconciledLater() {
+		RecordedCommand command = global(1, NOW);
+		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		InMemoryCommandPort durable = new InMemoryCommandPort(command);
+		List<String> calls = new ArrayList<>();
+		CommandPort failingMaterialization = new CommandPort() {
+			@Override public Optional<RecordedCommand> findNextReady(
+					WorkerSegment segment, Optional<CommandOrderingKey> cursor) {
+				return durable.findNextReady(segment, cursor);
+			}
+			@Override public void markCompleted(UUID commandId) {
+				throw new UnsupportedOperationException();
+			}
+			@Override public void markFailed(UUID commandId, ProcessingFailure processingFailure) {
+				calls.add("mark");
+				throw new IllegalStateException("storage unavailable");
+			}
+		};
+		FailConsumptionUseCase lifecycle = input -> {
+			calls.add("slot");
+			return ConsumptionOutcome.APPLIED;
+		};
+
+		assertThrows(IllegalStateException.class, () -> new FailCommandProcessingService(
+				failingMaterialization, lifecycle).fail(
+						new FailCommandProcessingInput(command.commandId(), ClaimToken.generate(), failure)));
+		assertEquals(List.of("slot", "mark"), calls);
+		assertEquals(ConsumptionStatus.READY, durable.status(command.commandId()));
+
+		assertTrue(new ClaimNextCommandService(durable, input -> new AlreadyFailed(failure))
+				.claimNext(request(WorkerSegment.single())).isEmpty());
+		assertEquals(ConsumptionStatus.FAILED, durable.status(command.commandId()));
+		assertEquals(failure, durable.failures.get(command.commandId()));
+	}
+
 	private static ClaimNextCommandInput request(WorkerSegment segment) {
 		return new ClaimNextCommandInput(WORKER, LEASE, segment);
 	}
@@ -249,15 +352,15 @@ class CommandProcessingServicesTest {
 		private final Map<ConsumptionKey, Claim> claims = new HashMap<>();
 
 		@Override
-		public synchronized Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
+		public synchronized TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
 			Claim current = claims.get(input.consumptionKey());
 			if (current != null && current.isActiveAt(NOW)) {
-				return Optional.empty();
+				return new NotAcquiredBusy();
 			}
 			Claim acquired = Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 					input.workerId(), NOW, input.lease());
 			claims.put(input.consumptionKey(), acquired);
-			return Optional.of(acquired);
+			return new Acquired(acquired);
 		}
 
 		@Override
@@ -285,8 +388,8 @@ class CommandProcessingServicesTest {
 		}
 
 		private Claim acquire(UUID commandId) {
-			return tryAcquire(new TryAcquireConsumptionInput(
-					CommandProcessingKeys.forCommand(commandId), WORKER, LEASE)).orElseThrow();
+			return ((Acquired) tryAcquire(new TryAcquireConsumptionInput(
+					CommandProcessingKeys.forCommand(commandId), WORKER, LEASE))).claim();
 		}
 	}
 }

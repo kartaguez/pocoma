@@ -9,6 +9,7 @@ import com.kartaguez.pocoma.engine.port.in.processing.task.input.FailTaskProcess
 import com.kartaguez.pocoma.engine.port.in.processing.task.usecase.FailTaskProcessingUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskPort;
 
+/** Commits the authoritative failure before its best-effort Task materialization. */
 public final class FailTaskProcessingService implements FailTaskProcessingUseCase {
 
 	private final TaskPort taskPort;

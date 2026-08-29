@@ -1,11 +1,9 @@
 package com.kartaguez.pocoma.engine.port.in.consumption.usecase;
 
-import java.util.Optional;
-
-import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
 
 public interface TryAcquireConsumptionUseCase {
 
-	Optional<Claim> tryAcquire(TryAcquireConsumptionInput input);
+	TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input);
 }

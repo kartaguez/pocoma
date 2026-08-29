@@ -28,6 +28,9 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.processing.command.input.ClaimNextCommandInput;
 import com.kartaguez.pocoma.engine.port.in.processing.command.result.CommandClaimResult;
@@ -121,12 +124,12 @@ class ConcurrentCommandProcessingTest {
 		private final java.util.Map<ConsumptionKey, Claim> claims = new java.util.HashMap<>();
 
 		@Override
-		public synchronized Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
-			if (claims.containsKey(input.consumptionKey())) return Optional.empty();
+		public synchronized TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
+			if (claims.containsKey(input.consumptionKey())) return new NotAcquiredBusy();
 			Claim claim = Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 					input.workerId(), NOW, input.lease());
 			claims.put(input.consumptionKey(), claim);
-			return Optional.of(claim);
+			return new Acquired(claim);
 		}
 
 		private synchronized int claimCount() { return claims.size(); }

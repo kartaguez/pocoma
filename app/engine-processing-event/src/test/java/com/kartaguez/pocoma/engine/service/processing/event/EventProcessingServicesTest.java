@@ -36,6 +36,11 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseConsumptionUseCase;
@@ -166,6 +171,31 @@ class EventProcessingServicesTest {
 				.claimNext(request(BALANCES_V1)).isPresent());
 	}
 
+	@Test
+	void skipsTerminalPipelineConsumptionsWithoutMutatingTheSourceEvent() {
+		RecordedEvent<PotCreatedEvent> completed = event(1, 1, NOW);
+		RecordedEvent<PotCreatedEvent> failed = event(2, 2, NOW);
+		RecordedEvent<PotCreatedEvent> claimable = event(3, 3, NOW);
+		ProcessingFailure failure = new ProcessingFailure("strategy", "boom", NOW);
+		InMemoryEventPort events = new InMemoryEventPort(completed, failed, claimable);
+		TryAcquireConsumptionUseCase consumption = input -> {
+			if (input.consumptionKey().equals(EventProcessingKeys.forEvent(BALANCES_V1, completed.eventId()))) {
+				return new AlreadyCompleted();
+			}
+			if (input.consumptionKey().equals(EventProcessingKeys.forEvent(BALANCES_V1, failed.eventId()))) {
+				return new AlreadyFailed(failure);
+			}
+			return new Acquired(Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
+					input.workerId(), NOW, input.lease()));
+		};
+
+		EventClaimResult result = new ClaimNextEventService(events, consumption)
+				.claimNext(request(BALANCES_V1)).orElseThrow();
+
+		assertEquals(claimable.eventId(), result.event().eventId());
+		assertEquals(0, events.transitionInvocations);
+	}
+
 	private static ClaimNextEventInput request(PipelineDefinition pipeline) {
 		return new ClaimNextEventInput(WORKER, LEASE, WorkerSegment.single(), pipeline);
 	}
@@ -220,23 +250,23 @@ class EventProcessingServicesTest {
 		private final Set<ConsumptionKey> terminal = new HashSet<>();
 
 		private Claim acquire(PipelineDefinition pipeline, UUID eventId) {
-			return tryAcquire(new TryAcquireConsumptionInput(
-					EventProcessingKeys.forEvent(pipeline, eventId), WORKER, LEASE)).orElseThrow();
+			return ((Acquired) tryAcquire(new TryAcquireConsumptionInput(
+					EventProcessingKeys.forEvent(pipeline, eventId), WORKER, LEASE))).claim();
 		}
 
 		@Override
-		public synchronized Optional<Claim> tryAcquire(TryAcquireConsumptionInput input) {
+		public synchronized TryAcquireConsumptionResult tryAcquire(TryAcquireConsumptionInput input) {
 			if (terminal.contains(input.consumptionKey())) {
-				return Optional.empty();
+				return new AlreadyCompleted();
 			}
 			Claim current = claims.get(input.consumptionKey());
 			if (current != null && current.isActiveAt(NOW)) {
-				return Optional.empty();
+				return new NotAcquiredBusy();
 			}
 			Claim acquired = Claim.active(ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
 					input.workerId(), NOW, input.lease());
 			claims.put(input.consumptionKey(), acquired);
-			return Optional.of(acquired);
+			return new Acquired(acquired);
 		}
 
 		@Override

@@ -4,12 +4,15 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.engine.processing.command.ordering.CommandOrderingKey;
 import com.kartaguez.pocoma.engine.port.in.processing.command.input.ClaimNextCommandInput;
 import com.kartaguez.pocoma.engine.port.in.processing.command.result.CommandClaimResult;
 import com.kartaguez.pocoma.engine.port.in.processing.command.usecase.ClaimNextCommandUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.command.CommandPort;
 import com.kartaguez.pocoma.engine.port.out.processing.command.model.RecordedCommand;
@@ -37,13 +40,19 @@ public final class ClaimNextCommandService implements ClaimNextCommandUseCase {
 				return Optional.empty();
 			}
 			RecordedCommand command = candidate.orElseThrow();
-			Optional<Claim> claim = tryAcquireConsumptionUseCase.tryAcquire(
+			TryAcquireConsumptionResult acquisition = tryAcquireConsumptionUseCase.tryAcquire(
 					new TryAcquireConsumptionInput(
 							CommandProcessingKeys.forCommand(command.commandId()),
 							input.workerId(),
 							input.lease()));
-			if (claim.isPresent()) {
-				return Optional.of(new CommandClaimResult(command, claim.orElseThrow()));
+			if (acquisition instanceof Acquired acquired) {
+				return Optional.of(new CommandClaimResult(command, acquired.claim()));
+			}
+			if (acquisition instanceof AlreadyCompleted) {
+				commandPort.markCompleted(command.commandId());
+			}
+			else if (acquisition instanceof AlreadyFailed failed) {
+				commandPort.markFailed(command.commandId(), failed.failure());
 			}
 			cursor = Optional.of(new CommandOrderingKey(command.createdAt(), command.commandId()));
 		}

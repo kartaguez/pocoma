@@ -1,5 +1,9 @@
 # Étape 2.3 — Création de engine-processing-command
 
+> Décision remplacée le 2026-08-29 : `ConsumptionSlot` est désormais autoritatif. Les statuts
+> Command sont des matérialisations réconciliables et ne partagent plus une transaction commune
+> avec complete/fail. Voir `20260829-133952-consumption-slot-authoritative-reconciliation.md`.
+
 > Le nommage et la représentation de la commande enregistrée ont été précisés par
 > `20260828-142538-step-2-3-command-processing-naming-correction.md`.
 

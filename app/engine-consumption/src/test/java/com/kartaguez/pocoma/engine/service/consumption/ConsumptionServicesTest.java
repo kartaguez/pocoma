@@ -3,7 +3,9 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -34,6 +36,11 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
+import com.kartaguez.pocoma.engine.exception.MissingTerminalConsumptionFailureException;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
 class ConsumptionServicesTest {
@@ -48,7 +55,7 @@ class ConsumptionServicesTest {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 		ConsumptionKey key = key("work", "1");
 
-		Claim acquired = service(claims).tryAcquire(request(key, WORKER)).orElseThrow();
+		Claim acquired = acquired(service(claims).tryAcquire(request(key, WORKER)));
 
 		assertEquals(1, claims.slotCount());
 		assertEquals(key, acquired.consumptionKey());
@@ -62,16 +69,17 @@ class ConsumptionServicesTest {
 		ConsumptionKey key = key("work", "1");
 		CountDownLatch start = new CountDownLatch(1);
 		try (var executor = Executors.newFixedThreadPool(2)) {
-			Future<Optional<Claim>> first = executor.submit(() -> {
+			Future<TryAcquireConsumptionResult> first = executor.submit(() -> {
 				start.await();
 				return service.tryAcquire(request(key, new WorkerId("worker-1")));
 			});
-			Future<Optional<Claim>> second = executor.submit(() -> {
+			Future<TryAcquireConsumptionResult> second = executor.submit(() -> {
 				start.await();
 				return service.tryAcquire(request(key, new WorkerId("worker-2")));
 			});
 			start.countDown();
-			assertEquals(1, (first.get().isPresent() ? 1 : 0) + (second.get().isPresent() ? 1 : 0));
+			assertEquals(1, (first.get() instanceof Acquired ? 1 : 0)
+					+ (second.get() instanceof Acquired ? 1 : 0));
 		}
 		assertEquals(1, claims.slotCount());
 		assertEquals(1, claims.claimCount());
@@ -85,7 +93,7 @@ class ConsumptionServicesTest {
 				NOW.minusSeconds(31), LEASE);
 		claims.tryAcquire(ConsumptionSlot.initial(key), oldClaim, NOW.minusSeconds(31));
 
-		Claim reclaimed = service(claims).tryAcquire(request(key, new WorkerId("worker-2"))).orElseThrow();
+		Claim reclaimed = acquired(service(claims).tryAcquire(request(key, new WorkerId("worker-2"))));
 
 		assertNotEquals(oldClaim.token(), reclaimed.token());
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
@@ -100,9 +108,9 @@ class ConsumptionServicesTest {
 		ConsumptionKey completedKey = key("work", "completed");
 		ConsumptionKey failedKey = key("work", "failed");
 		ConsumptionKey releasedKey = key("work", "released");
-		Claim completed = service(claims).tryAcquire(request(completedKey, WORKER)).orElseThrow();
-		Claim failed = service(claims).tryAcquire(request(failedKey, WORKER)).orElseThrow();
-		Claim released = service(claims).tryAcquire(request(releasedKey, WORKER)).orElseThrow();
+		Claim completed = acquired(service(claims).tryAcquire(request(completedKey, WORKER)));
+		Claim failed = acquired(service(claims).tryAcquire(request(failedKey, WORKER)));
+		Claim released = acquired(service(claims).tryAcquire(request(releasedKey, WORKER)));
 		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
 
 		assertEquals(ConsumptionOutcome.APPLIED, new CompleteConsumptionService(claims, CLOCK)
@@ -123,7 +131,7 @@ class ConsumptionServicesTest {
 	void wrongTokenCannotCompleteFailOrRelease() {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 		ConsumptionKey key = key("work", "1");
-		service(claims).tryAcquire(request(key, WORKER)).orElseThrow();
+		acquired(service(claims).tryAcquire(request(key, WORKER)));
 		ClaimToken wrongToken = ClaimToken.generate();
 		ProcessingFailure failure = new ProcessingFailure("technical", "failure", NOW);
 
@@ -143,13 +151,50 @@ class ConsumptionServicesTest {
 	void identicalComponentsInDifferentNamespacesAreIndependent() {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 
-		assertTrue(service(claims).tryAcquire(request(key("alpha", "42"), WORKER)).isPresent());
-		assertTrue(service(claims).tryAcquire(request(key("beta", "42"), WORKER)).isPresent());
+		assertInstanceOf(Acquired.class, service(claims).tryAcquire(request(key("alpha", "42"), WORKER)));
+		assertInstanceOf(Acquired.class, service(claims).tryAcquire(request(key("beta", "42"), WORKER)));
 		assertEquals(2, claims.slotCount());
+	}
+
+	@Test
+	void terminalSlotsReturnTheirAuthoritativeOutcomeWithoutProposingANewClaim() {
+		InMemoryClaimPort claims = new InMemoryClaimPort();
+		ConsumptionKey completedKey = key("work", "completed");
+		ConsumptionKey failedKey = key("work", "failed");
+		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		Claim completed = acquired(service(claims).tryAcquire(request(completedKey, WORKER)));
+		Claim failed = acquired(service(claims).tryAcquire(request(failedKey, WORKER)));
+		new CompleteConsumptionService(claims, CLOCK)
+				.complete(new CompleteConsumptionInput(completedKey, completed.token()));
+		new FailConsumptionService(claims, CLOCK)
+				.fail(new FailConsumptionInput(failedKey, failed.token(), failure));
+		int claimCount = claims.claimCount();
+
+		assertInstanceOf(AlreadyCompleted.class, service(claims).tryAcquire(request(completedKey, WORKER)));
+		assertEquals(failure, assertInstanceOf(AlreadyFailed.class,
+				service(claims).tryAcquire(request(failedKey, WORKER))).failure());
+		assertEquals(claimCount, claims.claimCount());
+	}
+
+	@Test
+	void failedSlotWithoutTerminalFailureIsReportedAsCorruption() {
+		InMemoryClaimPort claims = new InMemoryClaimPort();
+		ConsumptionKey key = key("work", "corrupt");
+		claims.slots.put(key, ConsumptionSlot.initial(key).failed());
+
+		MissingTerminalConsumptionFailureException exception = assertThrows(
+				MissingTerminalConsumptionFailureException.class,
+				() -> service(claims).tryAcquire(request(key, WORKER)));
+
+		assertEquals(key, exception.consumptionKey());
 	}
 
 	private static TryAcquireConsumptionService service(InMemoryClaimPort claims) {
 		return new TryAcquireConsumptionService(claims, CLOCK);
+	}
+
+	private static Claim acquired(TryAcquireConsumptionResult result) {
+		return assertInstanceOf(Acquired.class, result).claim();
 	}
 
 	private static TryAcquireConsumptionInput request(ConsumptionKey key, WorkerId workerId) {
@@ -172,6 +217,15 @@ class ConsumptionServicesTest {
 		@Override
 		public synchronized Optional<Claim> findClaim(ClaimId claimId) {
 			return Optional.ofNullable(claims.get(claimId));
+		}
+
+		@Override
+		public synchronized Optional<ProcessingFailure> findTerminalFailure(ConsumptionKey key) {
+			return claims.values().stream()
+					.filter(claim -> claim.consumptionKey().equals(key))
+					.filter(claim -> claim.invalidatedAt().isEmpty())
+					.flatMap(claim -> claim.failure().stream())
+					.findFirst();
 		}
 
 		@Override

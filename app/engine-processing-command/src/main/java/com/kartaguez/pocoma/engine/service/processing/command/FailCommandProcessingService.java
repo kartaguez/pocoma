@@ -9,6 +9,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInpu
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.command.CommandPort;
 
+/** Commits the authoritative failure before its best-effort Command materialization. */
 public final class FailCommandProcessingService implements FailCommandProcessingUseCase {
 
 	private final CommandPort commandPort;

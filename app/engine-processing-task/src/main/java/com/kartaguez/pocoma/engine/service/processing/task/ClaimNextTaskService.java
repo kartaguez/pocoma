@@ -4,8 +4,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.Acquired;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyCompleted;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.AlreadyFailed;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.processing.task.input.ClaimNextTaskInput;
 import com.kartaguez.pocoma.engine.port.in.processing.task.result.TaskClaimResult;
@@ -36,11 +39,17 @@ public final class ClaimNextTaskService implements ClaimNextTaskUseCase {
 				return Optional.empty();
 			}
 			RecordedTask task = candidate.orElseThrow();
-			Optional<Claim> claim = tryAcquireConsumptionUseCase.tryAcquire(
+			TryAcquireConsumptionResult acquisition = tryAcquireConsumptionUseCase.tryAcquire(
 					new TryAcquireConsumptionInput(
 							TaskProcessingKeys.forTask(task.taskId()), input.workerId(), input.lease()));
-			if (claim.isPresent()) {
-				return Optional.of(new TaskClaimResult(task, claim.orElseThrow()));
+			if (acquisition instanceof Acquired acquired) {
+				return Optional.of(new TaskClaimResult(task, acquired.claim()));
+			}
+			if (acquisition instanceof AlreadyCompleted) {
+				taskPort.markCompleted(task.taskId());
+			}
+			else if (acquisition instanceof AlreadyFailed failed) {
+				taskPort.markFailed(task.taskId(), failed.failure());
 			}
 			cursor = Optional.of(new TaskOrderingKey(task.targetVersion(), task.createdAt(), task.taskId()));
 		}

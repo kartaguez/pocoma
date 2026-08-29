@@ -447,6 +447,30 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void processingReconciliationDoesNotDependOnExecutionGuardsAndObsoleteDecoratorsAreGone() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".engine..processing.event..",
+						ROOT_PACKAGE + ".engine..processing.task..")
+				.should().dependOnClassesThat().resideInAPackage(
+						ROOT_PACKAGE + ".engine..execution..")
+				.check(CLASSES);
+
+		Set<String> obsoleteDecorators = Set.of(
+				"TransactionalCompleteCommandProcessingUseCase",
+				"TransactionalFailCommandProcessingUseCase",
+				"TransactionalCompleteTaskProcessingUseCase",
+				"TransactionalFailTaskProcessingUseCase");
+		Set<String> presentObsoleteDecorators = CLASSES.stream()
+				.map(javaClass -> javaClass.getSimpleName())
+				.filter(obsoleteDecorators::contains)
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), presentObsoleteDecorators,
+				"terminal lifecycle and durable status must not share an outer processing transaction");
+	}
+
+	@Test
 	void queryEngineIsIndependentFromProcessingAndFrameworks() {
 		noClasses()
 				.that().resideInAnyPackage(

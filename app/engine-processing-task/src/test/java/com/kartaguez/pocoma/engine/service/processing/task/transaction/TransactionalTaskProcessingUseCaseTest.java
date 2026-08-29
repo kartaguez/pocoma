@@ -22,25 +22,19 @@ class TransactionalTaskProcessingUseCaseTest {
 		assertEquals(Optional.empty(),
 				new TransactionalClaimNextTaskUseCase(input -> Optional.empty(), transactions).claimNext(null));
 		assertEquals(ConsumptionOutcome.APPLIED,
-				new TransactionalCompleteTaskProcessingUseCase(
-						input -> ConsumptionOutcome.APPLIED, transactions).complete(null));
-		assertEquals(ConsumptionOutcome.APPLIED,
-				new TransactionalFailTaskProcessingUseCase(
-						input -> ConsumptionOutcome.APPLIED, transactions).fail(null));
-		assertEquals(ConsumptionOutcome.APPLIED,
 				new TransactionalReleaseTaskProcessingUseCase(
 						input -> ConsumptionOutcome.APPLIED, transactions).release(null));
-		assertEquals(4, transactions.invocations.get());
+		assertEquals(2, transactions.invocations.get());
 	}
 
 	@Test
 	void decoratorPropagatesTheDelegateExceptionUnchanged() {
 		RuntimeException failure = new RuntimeException("boom");
-		var decorated = new TransactionalCompleteTaskProcessingUseCase(input -> {
+		var decorated = new TransactionalReleaseTaskProcessingUseCase(input -> {
 			throw failure;
 		}, new CountingTransactionRunner());
 
-		assertSame(failure, assertThrows(RuntimeException.class, () -> decorated.complete(null)));
+		assertSame(failure, assertThrows(RuntimeException.class, () -> decorated.release(null)));
 	}
 
 	private static final class CountingTransactionRunner implements TransactionRunner {

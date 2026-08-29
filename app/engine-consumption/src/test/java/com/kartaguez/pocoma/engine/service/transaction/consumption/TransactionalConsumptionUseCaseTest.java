@@ -16,7 +16,9 @@ class TransactionalConsumptionUseCaseTest {
 	void everyDecoratorRunsItsDelegateInATransaction() {
 		CountingTransactionRunner transactions = new CountingTransactionRunner();
 
-		new TransactionalTryAcquireConsumptionUseCase(input -> Optional.empty(), transactions).tryAcquire(null);
+		new TransactionalTryAcquireConsumptionUseCase(
+				input -> new com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult.NotAcquiredBusy(),
+				transactions).tryAcquire(null);
 		new TransactionalCompleteConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).complete(null);
 		new TransactionalFailConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).fail(null);
 		new TransactionalReleaseConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).release(null);
