@@ -19,6 +19,8 @@
 | État de projection Balance | `PotBalanceProjectionState` | `engine-projection` |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
 | Polling et capacité | `ClaimableWorkDispatcher`, `SegmentedWorkerPool` | orchestrateur/worker |
+| Exécution effective idempotente | `ExecutionGuard<K>`, `ExecutionOutcome` | `engine-execution-guard` |
+| Orchestration pull Command | `CommandWorker`, `CommandWorkerIteration` | `supra-worker-command` |
 
 ## Distinctions obligatoires
 
@@ -57,11 +59,15 @@ LegacyPipelineTask
 CommandIntent != RecordedCommand
 ConsumptionKey != objet consommé
 Claim != statut durable de la Command ou de la Task
+Claim != journal d'exécution
 ```
 
 Une intention exprime l'opération métier. Son enregistrement ajoute l'identité et l'ordre durable.
 Une clé de consommation identifie une réservation logique. Le claim exprime uniquement la
 propriété temporaire, protégée par son token.
+
+Le claim décide qui peut agir maintenant. Le journal consulté par `ExecutionGuard` décide si
+l'effet associé à l'identifiant a déjà été commité. Ces mécanismes sont indépendants.
 
 ## Legacy restant
 

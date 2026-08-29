@@ -1,0 +1,13 @@
+package com.kartaguez.pocoma.supra.worker.command;
+
+public enum CommandWorkerRunOutcome {
+	IDLE,
+	EXECUTED_AND_COMPLETED,
+	ALREADY_EXECUTED_AND_COMPLETED,
+	EXECUTION_FAILED,
+	RELEASED_BEFORE_EXECUTION,
+	OWNERSHIP_LOST,
+	TECHNICAL_ERROR,
+	LEASE_WARNING,
+	LEASE_EXCEEDED
+}

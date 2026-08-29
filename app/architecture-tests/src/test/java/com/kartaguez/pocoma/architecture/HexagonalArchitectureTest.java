@@ -620,6 +620,54 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void executionGuardRemainsGenericAndIndependentFromConsumption() {
+		String executionPackage = ROOT_PACKAGE + ".engine..execution..";
+		noClasses()
+				.that().resideInAPackage(executionPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain..",
+						ROOT_PACKAGE + ".engine..consumption..",
+						ROOT_PACKAGE + ".engine..command..",
+						ROOT_PACKAGE + ".engine..task..",
+						ROOT_PACKAGE + ".engine..processing..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void commandWorkerDependsOnIncomingContractsAndNotInfrastructureOrOutgoingPorts() {
+		String workerPackage = ROOT_PACKAGE + ".supra.worker.command..";
+		noClasses()
+				.that().resideInAPackage(workerPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..",
+						"io.micrometer..")
+				.check(CLASSES);
+
+		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.command"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(name -> name.endsWith(".CommandPort")
+						|| name.endsWith(".ClaimPort")
+						|| name.endsWith(".ConsumptionKey"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbiddenWorkerDependencies,
+				"Command worker must orchestrate incoming use cases without repositories or consumption keys");
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))

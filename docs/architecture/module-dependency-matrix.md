@@ -34,6 +34,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | Module | Responsabilité et principaux types | Dépendances autorisées | Interdites | État |
 |---|---|---|---|---|
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction, segmentation, `TaskDescriptor` | domaines nécessaires | infra, supra, runtime | shared |
+| `engine-execution-guard` | exécution technique idempotente d'une clé et journal abstrait | engine-core, JDK | consumption, objets consommés, workers, frameworks | target |
 | `engine-command` | commandes métier typées, routeur et ports d'écriture Pot/événement | Pot, policies, core | consumption, processing, tasks, workers | target |
 | `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
@@ -50,6 +51,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | Module(s) | Responsabilité | Peut dépendre de | État / retrait |
 |---|---|---|---|
 | `orchestrator-claimable-work-dispatcher` | polling, capacité, pools segmentés et cycle d'un travail claimable | contrats de travail injectés | target, réutilisé par les futurs workers |
+| `supra-worker-command` | boucle pull Command séquentielle, guard puis lifecycle | ports entrants Command/processing, execution guard, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
 | `supra-http-rest-spring` | entrée HTTP réactive | ports entrants Command/Query | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
 | `supra-dispatcher-task-materialization-nats` | ancien déclenchement de matérialisation | task materialization legacy | legacy, remplacé par EventWorker |
@@ -73,10 +75,12 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 ## Exceptions transitoires contrôlées
 
 - Les processing engines composent les use cases génériques d'`engine-consumption`.
+- `engine-execution-guard` est un moteur technique orthogonal : il protège l'effet commité et ne
+  connaît ni claim ni type de travail. CommandWorker et le futur TaskWorker l'instancient avec des
+  journaux distincts.
 - `engine-processing-command` connaît les intentions d'`engine-command` pour reconstruire l'appel métier.
 - L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
 - Task processing connaît le pipeline durable, jamais les handlers d'exécution.
 - L'infrastructure dépend des ports sortants qu'elle implémente.
 - Trois dépendances JPA vers des contrats de supra legacy restent dans l'allow-list ArchUnit ; aucune
   nouvelle dépendance de ce sens n'est autorisée.
-
