@@ -224,3 +224,15 @@ The deterministic concurrent tests added in step 2.9 prove the in-memory contrac
 creation, fencing, terminal states, Command/Task mono-consumption and Event multi-consumption.
 They do not prove SQL atomicity: CAS and rollback guarantees must be verified against the future
 PostgreSQL `ClaimPort` adapter.
+
+## Result of step 3
+
+The target Command, Event and Task workers now share the sequential pull loop while retaining
+explicit orchestration. Command and Task protect committed effects with execution guards; Event
+protects task creation by `(pipelineId, pipelineVersion, eventId)`. A completion loss is recovered
+after reclaim without repeating the protected effect.
+
+Each worker processes one item per iteration and one active item per instance, while independent
+instances can run concurrently. Lease warnings and overruns are observed without heartbeat or
+forced interruption. Command/Task reconciliation remains in their processing engines and Event
+never receives a global consumption status. See `docs/testing/worker-contract-matrix.md`.

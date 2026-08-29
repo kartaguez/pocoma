@@ -82,6 +82,24 @@ class TaskWorkerTest {
 		assertEquals(2, sequence.get());
 	}
 
+	@Test
+	void distinctWorkerInstancesCanExecuteInParallel() throws Exception {
+		CountDownLatch entered = new CountDownLatch(2);
+		CountDownLatch release = new CountDownLatch(1);
+		Runnable execution = () -> { entered.countDown(); await(entered); await(release); };
+		TaskWorker first = worker(true, input -> Optional.of(claimedTask(10)), execution);
+		TaskWorker second = worker(true, input -> Optional.of(claimedTask(11)), execution);
+
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			var firstRun = executor.submit(first::runOnce);
+			var secondRun = executor.submit(second::runOnce);
+			assertTrue(entered.await(1, TimeUnit.SECONDS));
+			release.countDown();
+			assertTrue(firstRun.get(1, TimeUnit.SECONDS));
+			assertTrue(secondRun.get(1, TimeUnit.SECONDS));
+		}
+	}
+
 	private static TaskWorker worker(boolean enabled, ClaimNextTaskUseCase claimNext, Runnable execution) {
 		RecordedTaskExecutionMapper<Payload> mapper = new RecordedTaskExecutionMapper<>() {
 			@Override public PipelineDefinition pipeline() { return PIPELINE; }

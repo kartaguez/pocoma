@@ -88,6 +88,24 @@ class EventWorkerTest {
 		assertEquals(2, sequence.get());
 	}
 
+	@Test
+	void distinctWorkerInstancesCanCreateTasksInParallel() throws Exception {
+		CountDownLatch entered = new CountDownLatch(2);
+		CountDownLatch release = new CountDownLatch(1);
+		Runnable creation = () -> { entered.countDown(); await(entered); await(release); };
+		EventWorker first = worker(true, input -> Optional.of(claimedEvent(10)), creation);
+		EventWorker second = worker(true, input -> Optional.of(claimedEvent(11)), creation);
+
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			var firstRun = executor.submit(first::runOnce);
+			var secondRun = executor.submit(second::runOnce);
+			assertTrue(entered.await(1, TimeUnit.SECONDS));
+			release.countDown();
+			assertTrue(firstRun.get(1, TimeUnit.SECONDS));
+			assertTrue(secondRun.get(1, TimeUnit.SECONDS));
+		}
+	}
+
 	private static EventWorker worker(boolean enabled, ClaimNextEventUseCase claimNext, Runnable creation) {
 		return new EventWorker(
 				claimNext,

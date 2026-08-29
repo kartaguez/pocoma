@@ -85,6 +85,23 @@ class CommandWorkerTest {
 		assertEquals(2, sequence.get());
 	}
 
+	@Test
+	void distinctWorkerInstancesCanExecuteInParallel() throws Exception {
+		CountDownLatch entered = new CountDownLatch(2);
+		CountDownLatch release = new CountDownLatch(1);
+		Runnable execution = () -> { entered.countDown(); await(entered); await(release); };
+		CommandWorker first = worker(true, input -> Optional.of(claimedCommand(1)), execution);
+		CommandWorker second = worker(true, input -> Optional.of(claimedCommand(2)), execution);
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			var firstRun = executor.submit(first::runOnce);
+			var secondRun = executor.submit(second::runOnce);
+			assertTrue(entered.await(1, TimeUnit.SECONDS));
+			release.countDown();
+			assertTrue(firstRun.get(1, TimeUnit.SECONDS));
+			assertTrue(secondRun.get(1, TimeUnit.SECONDS));
+		}
+	}
+
 	private static CommandWorker worker(
 			boolean enabled,
 			com.kartaguez.pocoma.engine.port.in.processing.command.usecase.ClaimNextCommandUseCase claimNext,

@@ -138,6 +138,32 @@ class TaskWorkerIterationTest {
 		assertTrue(exceeded.outcomes().contains(TaskWorkerRunOutcome.LEASE_EXCEEDED));
 	}
 
+	@Test
+	void committedEffectIsNotRepeatedAfterCompletionFailureAndReclaim() {
+		AtomicBoolean journal = new AtomicBoolean();
+		AtomicInteger effects = new AtomicInteger();
+		ExecutionGuard<UUID> sharedGuard = (key, callback) -> {
+			if (!journal.compareAndSet(false, true)) return ExecutionOutcome.ALREADY_EXECUTED;
+			callback.run();
+			effects.incrementAndGet();
+			return ExecutionOutcome.EXECUTED;
+		};
+		Fixture firstOwner = fixture(claiming());
+		firstOwner.customGuard = sharedGuard;
+		firstOwner.completeFailure = new IllegalStateException("completion unavailable");
+		assertThrows(IllegalStateException.class, firstOwner.iteration::runOnce);
+
+		Fixture nextOwner = fixture(claiming());
+		nextOwner.customGuard = sharedGuard;
+		assertTrue(nextOwner.iteration.runOnce());
+
+		assertEquals(1, effects.get());
+		assertEquals(0, nextOwner.mapperCalls.get());
+		assertEquals(0, nextOwner.executions.get());
+		assertEquals(1, nextOwner.completes.get());
+		assertEquals(List.of(TaskWorkerRunOutcome.ALREADY_EXECUTED_AND_COMPLETED), nextOwner.outcomes());
+	}
+
 	private static void assertNoLifecycle(Fixture fixture) {
 		assertEquals(0, fixture.completes.get());
 		assertEquals(0, fixture.failures.get());
@@ -175,8 +201,10 @@ class TaskWorkerIterationTest {
 		private RuntimeException guardFailure;
 		private RuntimeException mappingFailure;
 		private RuntimeException executionFailure;
+		private RuntimeException completeFailure;
 		private Optional<ProcessingFailure> classification = Optional.empty();
 		private ConsumptionOutcome completionOutcome = ConsumptionOutcome.APPLIED;
+		private ExecutionGuard<UUID> customGuard;
 		private final TaskWorkerIteration iteration;
 
 		private Fixture(ClaimNextTaskUseCase claimNext) {
@@ -197,12 +225,18 @@ class TaskWorkerIterationTest {
 					return new ExecuteTaskInput<>(PIPELINE, TASK.taskType(), new Payload("mapped"));
 				}
 			};
+			ExecutionGuard<UUID> selectedGuard = (key, callback) ->
+					(customGuard == null ? guard : customGuard).executeOnce(key, callback);
 			iteration = new TaskWorkerIteration(
-					claimNext, guard, new RecordedTaskExecutionMapperRegistry(List.of(mapper)), input -> {
+					claimNext, selectedGuard, new RecordedTaskExecutionMapperRegistry(List.of(mapper)), input -> {
 						executions.incrementAndGet();
 						if (executionFailure != null) throw executionFailure;
 					},
-					input -> { completes.incrementAndGet(); return completionOutcome; },
+					input -> {
+						completes.incrementAndGet();
+						if (completeFailure != null) throw completeFailure;
+						return completionOutcome;
+					},
 					input -> { failures.incrementAndGet(); return ConsumptionOutcome.APPLIED; },
 					input -> { releases.incrementAndGet(); return ConsumptionOutcome.APPLIED; },
 					ignored -> classification,

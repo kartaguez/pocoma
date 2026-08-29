@@ -129,6 +129,29 @@ class EventWorkerIterationTest {
 		assertTrue(exceeded.outcomes().contains(EventWorkerRunOutcome.LEASE_EXCEEDED));
 	}
 
+	@Test
+	void committedTaskCreationIsNotRepeatedAfterCompletionFailureAndReclaim() {
+		AtomicBoolean creationJournal = new AtomicBoolean();
+		AtomicInteger createdTasks = new AtomicInteger();
+		CreateTasksForEventUseCase idempotentCreation = input -> {
+			if (creationJournal.compareAndSet(false, true)) {
+				createdTasks.addAndGet(2);
+				return new TaskCreationResult(EVENT.eventId(), PIPELINE, TaskCreationOutcome.CREATED, 2);
+			}
+			return new TaskCreationResult(EVENT.eventId(), PIPELINE, TaskCreationOutcome.ALREADY_CREATED, 2);
+		};
+		Fixture firstOwner = fixture(claiming(), idempotentCreation);
+		firstOwner.completeFailure = new IllegalStateException("completion unavailable");
+		assertThrows(IllegalStateException.class, firstOwner.iteration::runOnce);
+
+		Fixture nextOwner = fixture(claiming(), idempotentCreation);
+		assertTrue(nextOwner.iteration.runOnce());
+
+		assertEquals(2, createdTasks.get());
+		assertEquals(1, nextOwner.completes.get());
+		assertTrue(nextOwner.outcomes().contains(EventWorkerRunOutcome.TASKS_ALREADY_CREATED_AND_COMPLETED));
+	}
+
 	private static CreateTasksForEventUseCase successful(TaskCreationOutcome outcome, int count) {
 		return input -> new TaskCreationResult(EVENT.eventId(), PIPELINE, outcome, count);
 	}
@@ -157,6 +180,7 @@ class EventWorkerIterationTest {
 		private final AtomicInteger timeReads = new AtomicInteger();
 		private final List<EventWorkerRunObservation> observations = new ArrayList<>();
 		private Optional<ProcessingFailure> classification = Optional.empty();
+		private RuntimeException completeFailure;
 		private final EventWorkerIteration iteration;
 
 		private Fixture(ClaimNextEventUseCase claimNext, CreateTasksForEventUseCase createTasks) {
@@ -164,6 +188,7 @@ class EventWorkerIterationTest {
 				assertEquals(EVENT.eventId(), input.eventId());
 				assertEquals(PIPELINE, input.pipeline());
 				completes.incrementAndGet();
+				if (completeFailure != null) throw completeFailure;
 				return ConsumptionOutcome.APPLIED;
 			};
 			FailEventProcessingUseCase fail = input -> {

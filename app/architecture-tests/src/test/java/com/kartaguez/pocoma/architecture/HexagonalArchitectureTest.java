@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -774,6 +776,23 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void targetWorkersUseOnlyTheirExpectedFunctionalEntryPointAndGuards() {
+		Set<String> commandDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.worker.command.CommandWorkerIteration");
+		Set<String> eventDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.worker.event.EventWorkerIteration");
+		Set<String> taskDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.worker.task.TaskWorkerIteration");
+
+		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteCommandUseCase")));
+		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".CreateTasksForEventUseCase")));
+		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteTaskUseCase")));
+		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))
@@ -793,6 +812,12 @@ class HexagonalArchitectureTest {
 	private static Set<String> fieldNames(String className) {
 		return CLASSES.get(className).getAllFields().stream()
 				.map(field -> field.getName())
+				.collect(Collectors.toUnmodifiableSet());
+	}
+
+	private static Set<String> directDependencyNames(String className) {
+		return CLASSES.get(className).getDirectDependenciesFromSelf().stream()
+				.map(dependency -> dependency.getTargetClass().getName())
 				.collect(Collectors.toUnmodifiableSet());
 	}
 
