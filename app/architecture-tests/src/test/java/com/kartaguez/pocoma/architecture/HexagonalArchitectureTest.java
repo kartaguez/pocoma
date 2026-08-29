@@ -592,6 +592,34 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void singleItemPullLoopRemainsGenericAndIndependent() {
+		String pullPackage = ROOT_PACKAGE + ".orchestrator.claimable.pull";
+		noClasses()
+				.that().resideInAPackage(pullPackage + "..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain..",
+						ROOT_PACKAGE + ".engine..",
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..")
+				.check(CLASSES);
+
+		Set<String> specializedNames = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(pullPackage))
+				.map(javaClass -> javaClass.getSimpleName())
+				.filter(name -> Set.of(
+						"Command", "Event", "Task", "Claim", "Lease", "Pipeline", "Segment",
+						"Batch", "Queue", "Pool", "Retry", "Heartbeat").stream().anyMatch(name::contains))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), specializedNames,
+				"The single-item pull loop must not expose specialized work or buffering concepts");
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))
