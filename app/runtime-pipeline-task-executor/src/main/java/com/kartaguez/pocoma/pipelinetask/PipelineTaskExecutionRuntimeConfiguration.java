@@ -11,6 +11,9 @@ import com.kartaguez.pocoma.engine.port.in.projection.usecase.ComputePotBalances
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.service.taskexecution.ExecuteTaskService;
 import com.kartaguez.pocoma.engine.service.taskexecution.TaskExecutionHandlerRegistry;
+import com.kartaguez.pocoma.pipelinetask.mapping.ComputeBalancesRecordedTaskMapper;
+import com.kartaguez.pocoma.supra.worker.task.mapping.RecordedTaskExecutionMapper;
+import com.kartaguez.pocoma.supra.worker.task.mapping.RecordedTaskExecutionMapperRegistry;
 
 @Configuration
 public class PipelineTaskExecutionRuntimeConfiguration {
@@ -39,9 +42,20 @@ public class PipelineTaskExecutionRuntimeConfiguration {
 	}
 
 	@Bean
+	ComputeBalancesRecordedTaskMapper computeBalancesRecordedTaskMapper(ObjectMapper objectMapper) {
+		return new ComputeBalancesRecordedTaskMapper(objectMapper);
+	}
+
+	@Bean
+	RecordedTaskExecutionMapperRegistry recordedTaskExecutionMapperRegistry(
+			List<RecordedTaskExecutionMapper<?>> mappers) {
+		return new RecordedTaskExecutionMapperRegistry(mappers);
+	}
+
+	@Bean
 	ComputeBalancesPipelineTaskExecutionStrategy computeBalancesPipelineTaskExecutionStrategy(
 			ExecuteTaskUseCase executeTaskUseCase,
-			ObjectMapper objectMapper) {
-		return new ComputeBalancesPipelineTaskExecutionStrategy(executeTaskUseCase, objectMapper);
+			ComputeBalancesRecordedTaskMapper mapper) {
+		return new ComputeBalancesPipelineTaskExecutionStrategy(executeTaskUseCase, mapper);
 	}
 }

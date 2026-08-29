@@ -17,15 +17,17 @@ import com.kartaguez.pocoma.domain.task.TaskPayload;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
+import com.kartaguez.pocoma.pipelinetask.mapping.ComputeBalancesRecordedTaskMapper;
 
 class ComputeBalancesPipelineTaskExecutionStrategyTest {
 
 	@Test
 	void mapsLegacyJsonAndPreservesRoutingMetadata() {
 		RecordingExecuteTask useCase = new RecordingExecuteTask();
-		var strategy = new ComputeBalancesPipelineTaskExecutionStrategy(useCase, new ObjectMapper());
+		var strategy = strategy(useCase);
 		PotId potId = PotId.of(UUID.randomUUID());
-		LegacyPipelineTask durableTask = task("{\"potId\":\"" + potId.value() + "\",\"targetVersion\":5}");
+		LegacyPipelineTask durableTask = task(potId,
+				"{\"potId\":\"" + potId.value() + "\",\"targetVersion\":5}");
 
 		strategy.execute(durableTask);
 
@@ -38,9 +40,9 @@ class ComputeBalancesPipelineTaskExecutionStrategyTest {
 	@Test
 	void rejectsInvalidJsonBeforeCallingTypedUseCase() {
 		RecordingExecuteTask useCase = new RecordingExecuteTask();
-		var strategy = new ComputeBalancesPipelineTaskExecutionStrategy(useCase, new ObjectMapper());
+		var strategy = strategy(useCase);
 
-		assertThrows(IllegalArgumentException.class, () -> strategy.execute(task("not-json")));
+		assertThrows(RuntimeException.class, () -> strategy.execute(task("not-json")));
 		assertEquals(List.of(), useCase.inputs);
 	}
 
@@ -49,15 +51,42 @@ class ComputeBalancesPipelineTaskExecutionStrategyTest {
 		RecordingExecuteTask useCase = new RecordingExecuteTask();
 		RuntimeException failure = new IllegalStateException("boom");
 		useCase.failure = failure;
-		var strategy = new ComputeBalancesPipelineTaskExecutionStrategy(useCase, new ObjectMapper());
+		var strategy = strategy(useCase);
 		PotId potId = PotId.of(UUID.randomUUID());
 
 		assertSame(failure, assertThrows(RuntimeException.class,
-				() -> strategy.execute(task("{\"potId\":\"" + potId.value() + "\",\"targetVersion\":1}"))));
+				() -> strategy.execute(task(potId,
+						"{\"potId\":\"" + potId.value() + "\",\"targetVersion\":1}"))));
+	}
+
+	@Test
+	void targetAndLegacyPathsProduceTheSameTypedInput() {
+		RecordingExecuteTask useCase = new RecordingExecuteTask();
+		ComputeBalancesRecordedTaskMapper mapper = new ComputeBalancesRecordedTaskMapper(new ObjectMapper());
+		PotId potId = PotId.of(UUID.randomUUID());
+		String payload = "{\"potId\":\"" + potId.value() + "\",\"targetVersion\":7}";
+		LegacyPipelineTask legacy = task(potId, payload);
+
+		strategy(useCase, mapper).execute(legacy);
+
+		assertEquals(mapper.mapSerialized(legacy.pipeline(), legacy.taskType(), payload, potId, 7),
+				useCase.inputs.getFirst());
+	}
+
+	private static ComputeBalancesPipelineTaskExecutionStrategy strategy(RecordingExecuteTask useCase) {
+		return strategy(useCase, new ComputeBalancesRecordedTaskMapper(new ObjectMapper()));
+	}
+
+	private static ComputeBalancesPipelineTaskExecutionStrategy strategy(
+			RecordingExecuteTask useCase, ComputeBalancesRecordedTaskMapper mapper) {
+		return new ComputeBalancesPipelineTaskExecutionStrategy(useCase, mapper);
 	}
 
 	private static LegacyPipelineTask task(String payload) {
-		PotId potId = PotId.of(UUID.randomUUID());
+		return task(PotId.of(UUID.randomUUID()), payload);
+	}
+
+	private static LegacyPipelineTask task(PotId potId, String payload) {
 		return new LegacyPipelineTask(
 				UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
 				ComputeBalancesPipelineTaskExecutionStrategy.DEFINITION,

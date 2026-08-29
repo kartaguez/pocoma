@@ -1,15 +1,11 @@
 package com.kartaguez.pocoma.pipelinetask;
 
 import java.util.Objects;
-import java.util.UUID;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.taskexecution.model.LegacyPipelineTask;
-import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.taskexecution.model.PipelineTaskExecutionStrategy;
+import com.kartaguez.pocoma.pipelinetask.mapping.ComputeBalancesRecordedTaskMapper;
 
 public final class ComputeBalancesPipelineTaskExecutionStrategy implements PipelineTaskExecutionStrategy {
 
@@ -17,13 +13,13 @@ public final class ComputeBalancesPipelineTaskExecutionStrategy implements Pipel
 	public static final String TASK_TYPE = ComputeBalancesTask.TASK_TYPE;
 
 	private final ExecuteTaskUseCase executeTaskUseCase;
-	private final ObjectMapper objectMapper;
+	private final ComputeBalancesRecordedTaskMapper mapper;
 
 	public ComputeBalancesPipelineTaskExecutionStrategy(
 			ExecuteTaskUseCase executeTaskUseCase,
-			ObjectMapper objectMapper) {
+			ComputeBalancesRecordedTaskMapper mapper) {
 		this.executeTaskUseCase = Objects.requireNonNull(executeTaskUseCase, "executeTaskUseCase must not be null");
-		this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper must not be null");
+		this.mapper = Objects.requireNonNull(mapper, "mapper must not be null");
 	}
 
 	@Override
@@ -38,31 +34,6 @@ public final class ComputeBalancesPipelineTaskExecutionStrategy implements Pipel
 
 	@Override
 	public void execute(LegacyPipelineTask task) {
-		BalanceTaskPayload payload = readPayload(task);
-		executeTaskUseCase.executeTask(new ExecuteTaskInput<>(
-				task.pipeline(),
-				task.taskType(),
-				new ComputeBalancesTask(PotId.of(UUID.fromString(payload.potId())), payload.targetVersion())));
-	}
-
-	private BalanceTaskPayload readPayload(LegacyPipelineTask task) {
-		try {
-			return objectMapper.readValue(task.taskPayload(), BalanceTaskPayload.class);
-		}
-		catch (Exception exception) {
-			throw new IllegalArgumentException("Invalid balance pipeline task payload", exception);
-		}
-	}
-
-	private record BalanceTaskPayload(String potId, long targetVersion) {
-		private BalanceTaskPayload {
-			Objects.requireNonNull(potId, "potId must not be null");
-			if (potId.isBlank()) {
-				throw new IllegalArgumentException("potId must not be blank");
-			}
-			if (targetVersion < 1) {
-				throw new IllegalArgumentException("targetVersion must be greater than or equal to 1");
-			}
-		}
+		executeTaskUseCase.executeTask(mapper.mapLegacy(task));
 	}
 }

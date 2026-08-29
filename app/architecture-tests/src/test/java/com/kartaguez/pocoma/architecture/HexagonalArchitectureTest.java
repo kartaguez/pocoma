@@ -757,6 +757,23 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void balancePipelineKeepsJsonInTheRuntimeMapperAndTypedExecutionIndependent() {
+		noClasses()
+				.that().haveSimpleName("ComputeBalancesPipelineTaskExecutionStrategy")
+				.should().dependOnClassesThat().resideInAPackage("com.fasterxml.jackson..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().haveSimpleName("ExecuteBalanceProjectionTaskHandler")
+				.or().haveSimpleName("ComputeBalancesTask")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"com.fasterxml.jackson..",
+						ROOT_PACKAGE + ".supra.worker.task.mapping..",
+						ROOT_PACKAGE + ".engine.taskexecution..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))

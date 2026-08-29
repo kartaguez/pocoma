@@ -50,6 +50,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-worker-task</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-supra-dispatcher-pipeline-tasks</artifactId>
 			<version>${project.version}</version>
 		</dependency>
