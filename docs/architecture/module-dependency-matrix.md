@@ -52,6 +52,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 |---|---|---|---|
 | `orchestrator-claimable-work-dispatcher` | polling, capacité, pools segmentés et cycle d'un travail claimable | contrats de travail injectés | target, réutilisé par les futurs workers |
 | `supra-worker-command` | boucle pull Command séquentielle, guard puis lifecycle | ports entrants Command/processing, execution guard, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
+| `supra-worker-event` | boucle pull Event séquentielle par pipeline/version et segment, task creation idempotente puis lifecycle | ports entrants Event processing/task creation, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
 | `supra-http-rest-spring` | entrée HTTP réactive | ports entrants Command/Query | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
 | `supra-dispatcher-task-materialization-nats` | ancien déclenchement de matérialisation | task materialization legacy | legacy, remplacé par EventWorker |

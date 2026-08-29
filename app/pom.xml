@@ -55,6 +55,7 @@
 		<module>infra-persistence-jpa</module>
 		<module>orchestrator-claimable-work-dispatcher</module>
 		<module>supra-worker-command</module>
+		<module>supra-worker-event</module>
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-dispatcher-business-events-outbox-nats</module>
 		<module>supra-dispatcher-task-materialization-nats</module>

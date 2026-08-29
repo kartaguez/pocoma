@@ -93,6 +93,10 @@ A supra is passive and reacts to an external invocation, for example HTTP or a l
 is active and owns a polling loop. Both invoke engine use cases; neither may contain business or
 pipeline-specific logic.
 
+`supra-worker-event` orchestre une seule consommation Event à la fois pour un pipeline/version et
+un segment. Il appelle la création idempotente de Tasks puis le lifecycle Event ; il ne voit jamais
+les consommations déjà terminales et ne modifie aucun statut sur l'Event source.
+
 The concepts are deliberately distinct:
 
 - Command: typed business intention;

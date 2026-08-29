@@ -21,6 +21,7 @@
 | Polling et capacité | `ClaimableWorkDispatcher`, `SegmentedWorkerPool` | orchestrateur/worker |
 | Exécution effective idempotente | `ExecutionGuard<K>`, `ExecutionOutcome` | `engine-execution-guard` |
 | Orchestration pull Command | `CommandWorker`, `CommandWorkerIteration` | `supra-worker-command` |
+| Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 
 ## Distinctions obligatoires
 

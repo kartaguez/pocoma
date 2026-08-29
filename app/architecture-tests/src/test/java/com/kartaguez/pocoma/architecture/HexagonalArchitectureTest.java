@@ -692,6 +692,38 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void eventWorkerDependsOnIncomingContractsAndNotInfrastructureOrOutgoingPorts() {
+		String workerPackage = ROOT_PACKAGE + ".supra.worker.event..";
+		noClasses()
+				.that().resideInAPackage(workerPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine..execution..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..",
+						"io.nats..",
+						"io.micrometer..")
+				.check(CLASSES);
+
+		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.event"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(name -> name.endsWith(".EventPort")
+						|| name.endsWith(".TaskCreationPort")
+						|| name.endsWith(".ClaimPort")
+						|| name.endsWith(".ConsumptionKey")
+						|| name.contains("TaskCreationStrategy"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbiddenWorkerDependencies,
+				"Event worker must orchestrate incoming use cases without repositories, keys or strategies");
+	}
+
+	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))
