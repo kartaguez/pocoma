@@ -297,8 +297,9 @@ class HexagonalArchitectureTest {
 		assertEquals(Set.of(
 				ROOT_PACKAGE + ".domain.consumption.claim",
 				ROOT_PACKAGE + ".domain.consumption.key",
-				ROOT_PACKAGE + ".domain.consumption.lifecycle"), packages,
-				"domain-consumption must contain only claim, key and lifecycle families");
+				ROOT_PACKAGE + ".domain.consumption.lifecycle",
+				ROOT_PACKAGE + ".domain.consumption.provenance"), packages,
+				"domain-consumption must contain only claim, key, lifecycle and provenance families");
 	}
 
 	@Test

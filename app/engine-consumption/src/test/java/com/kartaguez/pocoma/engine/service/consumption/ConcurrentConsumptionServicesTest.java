@@ -189,7 +189,7 @@ class ConcurrentConsumptionServicesTest {
 				ConsumptionSlot observed, Claim proposed, Instant now) {
 			proposedTokens.add(proposed.token());
 			ConsumptionSlot actual = slots.computeIfAbsent(observed.consumptionKey(), ConsumptionSlot::initial);
-			if (actual.revision() != observed.revision() || actual.status() != ConsumptionStatus.READY) {
+			if (actual.revision() != observed.revision() || actual.status() != ConsumptionStatus.PENDING) {
 				return Optional.empty();
 			}
 			Optional<Claim> current = current(actual.consumptionKey());

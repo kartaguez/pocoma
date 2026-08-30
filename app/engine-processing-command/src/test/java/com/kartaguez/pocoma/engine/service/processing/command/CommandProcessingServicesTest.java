@@ -158,10 +158,10 @@ class CommandProcessingServicesTest {
 				new ReleaseCommandProcessingService(consumption).release(
 						new ReleaseCommandProcessingInput(releasedCommand.commandId(), released.token())));
 
-		assertEquals(ConsumptionStatus.COMPLETED, commands.status(completedCommand.commandId()));
-		assertEquals(ConsumptionStatus.FAILED, commands.status(failedCommand.commandId()));
+		assertEquals(ConsumptionStatus.DONE, commands.status(completedCommand.commandId()));
+		assertEquals(ConsumptionStatus.DONE, commands.status(failedCommand.commandId()));
 		assertEquals(failure, commands.failures.get(failedCommand.commandId()));
-		assertEquals(ConsumptionStatus.READY, commands.status(releasedCommand.commandId()));
+		assertEquals(ConsumptionStatus.PENDING, commands.status(releasedCommand.commandId()));
 
 		ClaimToken stale = ClaimToken.generate();
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
@@ -173,7 +173,7 @@ class CommandProcessingServicesTest {
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
 				new ReleaseCommandProcessingService(consumption).release(
 						new ReleaseCommandProcessingInput(releasedCommand.commandId(), stale)));
-		assertEquals(ConsumptionStatus.READY, commands.status(releasedCommand.commandId()));
+		assertEquals(ConsumptionStatus.PENDING, commands.status(releasedCommand.commandId()));
 	}
 
 	@Test
@@ -197,8 +197,8 @@ class CommandProcessingServicesTest {
 		CommandClaimResult result = new ClaimNextCommandService(commands, consumption)
 				.claimNext(request(WorkerSegment.single())).orElseThrow();
 
-		assertEquals(ConsumptionStatus.COMPLETED, commands.status(completed.commandId()));
-		assertEquals(ConsumptionStatus.FAILED, commands.status(failed.commandId()));
+		assertEquals(ConsumptionStatus.DONE, commands.status(completed.commandId()));
+		assertEquals(ConsumptionStatus.DONE, commands.status(failed.commandId()));
 		assertEquals(failure, commands.failures.get(failed.commandId()));
 		assertEquals(claimable.commandId(), result.command().commandId());
 	}
@@ -230,11 +230,11 @@ class CommandProcessingServicesTest {
 				failingMaterialization, lifecycle).complete(
 						new CompleteCommandProcessingInput(command.commandId(), ClaimToken.generate())));
 		assertEquals(List.of("slot", "mark"), calls);
-		assertEquals(ConsumptionStatus.READY, durable.status(command.commandId()));
+		assertEquals(ConsumptionStatus.PENDING, durable.status(command.commandId()));
 
 		assertTrue(new ClaimNextCommandService(durable, input -> new AlreadyCompleted())
 				.claimNext(request(WorkerSegment.single())).isEmpty());
-		assertEquals(ConsumptionStatus.COMPLETED, durable.status(command.commandId()));
+		assertEquals(ConsumptionStatus.DONE, durable.status(command.commandId()));
 	}
 
 	@Test
@@ -265,11 +265,11 @@ class CommandProcessingServicesTest {
 				failingMaterialization, lifecycle).fail(
 						new FailCommandProcessingInput(command.commandId(), ClaimToken.generate(), failure)));
 		assertEquals(List.of("slot", "mark"), calls);
-		assertEquals(ConsumptionStatus.READY, durable.status(command.commandId()));
+		assertEquals(ConsumptionStatus.PENDING, durable.status(command.commandId()));
 
 		assertTrue(new ClaimNextCommandService(durable, input -> new AlreadyFailed(failure))
 				.claimNext(request(WorkerSegment.single())).isEmpty());
-		assertEquals(ConsumptionStatus.FAILED, durable.status(command.commandId()));
+		assertEquals(ConsumptionStatus.DONE, durable.status(command.commandId()));
 		assertEquals(failure, durable.failures.get(command.commandId()));
 	}
 
@@ -307,7 +307,7 @@ class CommandProcessingServicesTest {
 		private InMemoryCommandPort(RecordedCommand... commands) {
 			for (RecordedCommand command : commands) {
 				this.commands.put(command.commandId(), command);
-				this.statuses.put(command.commandId(), ConsumptionStatus.READY);
+				this.statuses.put(command.commandId(), ConsumptionStatus.PENDING);
 			}
 		}
 
@@ -315,7 +315,7 @@ class CommandProcessingServicesTest {
 		public Optional<RecordedCommand> findNextReady(
 				WorkerSegment segment, Optional<CommandOrderingKey> afterExclusive) {
 			return commands.values().stream()
-					.filter(command -> status(command.commandId()) == ConsumptionStatus.READY)
+					.filter(command -> status(command.commandId()) == ConsumptionStatus.PENDING)
 					.filter(command -> command.potId()
 							.map(potId -> segment.owns(PartitionHash.forPot(potId))).orElse(true))
 					.filter(command -> afterExclusive
@@ -325,13 +325,13 @@ class CommandProcessingServicesTest {
 
 		@Override
 		public void markCompleted(UUID commandId) {
-			update(commandId, ConsumptionStatus.COMPLETED);
+			update(commandId, ConsumptionStatus.DONE);
 		}
 
 		@Override
 		public void markFailed(UUID commandId, ProcessingFailure failure) {
 			failures.put(commandId, failure);
-			update(commandId, ConsumptionStatus.FAILED);
+			update(commandId, ConsumptionStatus.DONE);
 		}
 
 		private void update(UUID commandId, ConsumptionStatus status) {

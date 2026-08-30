@@ -12,32 +12,44 @@ import org.junit.jupiter.api.Test;
 class ConsumptionKeyTest {
 
 	@Test
-	void validatesNamespaceAndComponents() {
-		assertThrows(NullPointerException.class, () -> new ConsumptionKey(null, List.of("id")));
-		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey(" ", List.of("id")));
-		assertThrows(NullPointerException.class, () -> new ConsumptionKey("work", null));
-		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey("work", List.of()));
-		assertThrows(NullPointerException.class, () -> new ConsumptionKey("work", java.util.Arrays.asList("id", null)));
-		assertThrows(IllegalArgumentException.class, () -> new ConsumptionKey("work", List.of("id", " ")));
+	void validatesExplicitIdentities() {
+		assertThrows(NullPointerException.class, () -> new ConsumptionKey(null,
+				new ConsumerIdentity("consumer", List.of())));
+		assertThrows(NullPointerException.class, () -> new ConsumptionKey(
+				new ConsumableIdentity("work", List.of("id")), null));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumableIdentity(" ", List.of("id")));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumableIdentity("work", List.of()));
+		assertThrows(IllegalArgumentException.class, () -> new ConsumerIdentity("consumer", List.of(" ")));
 	}
 
 	@Test
-	void defensivelyCopiesComponents() {
+	void defensivelyCopiesIdentityComponents() {
 		List<String> mutable = new ArrayList<>(List.of("one"));
-		ConsumptionKey key = new ConsumptionKey("work", mutable);
-
+		ConsumableIdentity identity = new ConsumableIdentity("work", mutable);
 		mutable.add("two");
-
-		assertEquals(List.of("one"), key.components());
-		assertThrows(UnsupportedOperationException.class, () -> key.components().add("two"));
+		assertEquals(List.of("one"), identity.components());
+		assertThrows(UnsupportedOperationException.class, () -> identity.components().add("two"));
 	}
 
 	@Test
-	void equalityIsStructuralAndNamespacesRemainIndependent() {
-		ConsumptionKey first = new ConsumptionKey("event", List.of("balances", "1", "event-1"));
+	void equalitySeparatesLogicalConsumers() {
+		ConsumableIdentity event = new ConsumableIdentity("EVENT", List.of("event-1"));
+		ConsumptionKey balances = new ConsumptionKey(event, new ConsumerIdentity("PIPELINE", List.of("balances", "1")));
+		assertEquals(balances,
+				new ConsumptionKey(event, new ConsumerIdentity("PIPELINE", List.of("balances", "1"))));
+		assertNotEquals(balances,
+				new ConsumptionKey(event, new ConsumerIdentity("PIPELINE", List.of("notifications", "1"))));
+	}
 
-		assertEquals(first, new ConsumptionKey("event", List.of("balances", "1", "event-1")));
-		assertNotEquals(first, new ConsumptionKey("task", List.of("balances", "1", "event-1")));
-		assertNotEquals(first, new ConsumptionKey("event", List.of("notifications", "1", "event-1")));
+	@Test
+	@SuppressWarnings("removal")
+	void mapsLegacyCommandEventAndTaskKeysToExplicitIdentities() {
+		assertEquals(new ConsumptionKey(new ConsumableIdentity("COMMAND", List.of("c1")),
+				new ConsumerIdentity("COMMAND_PROCESSOR", List.of())), new ConsumptionKey("command", List.of("c1")));
+		assertEquals(new ConsumptionKey(new ConsumableIdentity("EVENT", List.of("e1")),
+				new ConsumerIdentity("PIPELINE", List.of("balances", "2"))),
+				new ConsumptionKey("event", List.of("balances", "2", "e1")));
+		assertEquals(new ConsumptionKey(new ConsumableIdentity("TASK", List.of("t1")),
+				new ConsumerIdentity("TASK_EXECUTOR", List.of())), new ConsumptionKey("task", List.of("t1")));
 	}
 }

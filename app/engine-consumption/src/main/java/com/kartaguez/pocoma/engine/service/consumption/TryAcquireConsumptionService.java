@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.Optional;
 import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
-import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.engine.exception.MissingTerminalConsumptionFailureException;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.TryAcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumptionResult;
@@ -41,8 +41,7 @@ public final class TryAcquireConsumptionService implements TryAcquireConsumption
 			return terminalResult.orElseThrow();
 		}
 		Claim proposedClaim = Claim.active(
-				ClaimId.generate(), input.consumptionKey(), ClaimToken.generate(),
-				input.workerId(), now, input.lease());
+				ClaimId.generate(), input.consumptionKey(), input.workerId(), 1, now, input.lease());
 		Optional<Claim> acquiredClaim = claimPort.tryAcquire(observedSlot, proposedClaim, now);
 		if (acquiredClaim.isPresent()) {
 			return new Acquired(acquiredClaim.orElseThrow());
@@ -53,10 +52,12 @@ public final class TryAcquireConsumptionService implements TryAcquireConsumption
 	}
 
 	private Optional<TryAcquireConsumptionResult> terminalResult(ConsumptionSlot slot) {
-		if (slot.status() == ConsumptionStatus.COMPLETED) {
+		if (slot.status() == ConsumptionStatus.DONE
+				&& slot.terminalOutcome().filter(outcome -> outcome != TerminalOutcome.FAILED).isPresent()) {
 			return Optional.of(new AlreadyCompleted());
 		}
-		if (slot.status() == ConsumptionStatus.FAILED) {
+		if (slot.status() == ConsumptionStatus.DONE
+				&& slot.terminalOutcome().filter(outcome -> outcome == TerminalOutcome.FAILED).isPresent()) {
 			return Optional.of(new AlreadyFailed(claimPort.findTerminalFailure(slot.consumptionKey())
 					.orElseThrow(() -> new MissingTerminalConsumptionFailureException(slot.consumptionKey()))));
 		}

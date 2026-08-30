@@ -159,10 +159,10 @@ class TaskProcessingServicesTest {
 				new ReleaseTaskProcessingService(consumption).release(
 						new ReleaseTaskProcessingInput(releasedTask.taskId(), released.token())));
 
-		assertEquals(ConsumptionStatus.COMPLETED, tasks.status(completedTask.taskId()));
-		assertEquals(ConsumptionStatus.FAILED, tasks.status(failedTask.taskId()));
+		assertEquals(ConsumptionStatus.DONE, tasks.status(completedTask.taskId()));
+		assertEquals(ConsumptionStatus.DONE, tasks.status(failedTask.taskId()));
 		assertEquals(failure, tasks.failures.get(failedTask.taskId()));
-		assertEquals(ConsumptionStatus.READY, tasks.status(releasedTask.taskId()));
+		assertEquals(ConsumptionStatus.PENDING, tasks.status(releasedTask.taskId()));
 
 		ClaimToken stale = ClaimToken.generate();
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
@@ -174,7 +174,7 @@ class TaskProcessingServicesTest {
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
 				new ReleaseTaskProcessingService(consumption).release(
 						new ReleaseTaskProcessingInput(releasedTask.taskId(), stale)));
-		assertEquals(ConsumptionStatus.READY, tasks.status(releasedTask.taskId()));
+		assertEquals(ConsumptionStatus.PENDING, tasks.status(releasedTask.taskId()));
 	}
 
 	@Test
@@ -198,8 +198,8 @@ class TaskProcessingServicesTest {
 		TaskClaimResult result = new ClaimNextTaskService(tasks, consumption)
 				.claimNext(request(BALANCES)).orElseThrow();
 
-		assertEquals(ConsumptionStatus.COMPLETED, tasks.status(completed.taskId()));
-		assertEquals(ConsumptionStatus.FAILED, tasks.status(failed.taskId()));
+		assertEquals(ConsumptionStatus.DONE, tasks.status(completed.taskId()));
+		assertEquals(ConsumptionStatus.DONE, tasks.status(failed.taskId()));
 		assertEquals(failure, tasks.failures.get(failed.taskId()));
 		assertEquals(claimable.taskId(), result.task().taskId());
 	}
@@ -231,11 +231,11 @@ class TaskProcessingServicesTest {
 				failingMaterialization, lifecycle).complete(
 						new CompleteTaskProcessingInput(task.taskId(), ClaimToken.generate())));
 		assertEquals(List.of("slot", "mark"), calls);
-		assertEquals(ConsumptionStatus.READY, durable.status(task.taskId()));
+		assertEquals(ConsumptionStatus.PENDING, durable.status(task.taskId()));
 
 		assertTrue(new ClaimNextTaskService(durable, input -> new AlreadyCompleted())
 				.claimNext(request(BALANCES)).isEmpty());
-		assertEquals(ConsumptionStatus.COMPLETED, durable.status(task.taskId()));
+		assertEquals(ConsumptionStatus.DONE, durable.status(task.taskId()));
 	}
 
 	@Test
@@ -266,11 +266,11 @@ class TaskProcessingServicesTest {
 				failingMaterialization, lifecycle).fail(
 						new FailTaskProcessingInput(task.taskId(), ClaimToken.generate(), failure)));
 		assertEquals(List.of("slot", "mark"), calls);
-		assertEquals(ConsumptionStatus.READY, durable.status(task.taskId()));
+		assertEquals(ConsumptionStatus.PENDING, durable.status(task.taskId()));
 
 		assertTrue(new ClaimNextTaskService(durable, input -> new AlreadyFailed(failure))
 				.claimNext(request(BALANCES)).isEmpty());
-		assertEquals(ConsumptionStatus.FAILED, durable.status(task.taskId()));
+		assertEquals(ConsumptionStatus.DONE, durable.status(task.taskId()));
 		assertEquals(failure, durable.failures.get(task.taskId()));
 	}
 
@@ -309,7 +309,7 @@ class TaskProcessingServicesTest {
 		private InMemoryTaskPort(RecordedTask... tasks) {
 			for (RecordedTask task : tasks) {
 				this.tasks.put(task.taskId(), task);
-				this.statuses.put(task.taskId(), ConsumptionStatus.READY);
+				this.statuses.put(task.taskId(), ConsumptionStatus.PENDING);
 			}
 		}
 
@@ -317,7 +317,7 @@ class TaskProcessingServicesTest {
 		public Optional<RecordedTask> findNextReady(
 				PipelineDefinition pipeline, WorkerSegment segment, Optional<TaskOrderingKey> afterExclusive) {
 			return tasks.values().stream()
-					.filter(task -> status(task.taskId()) == ConsumptionStatus.READY)
+					.filter(task -> status(task.taskId()) == ConsumptionStatus.PENDING)
 					.filter(task -> task.pipeline().equals(pipeline))
 					.filter(task -> segment.owns(PartitionHash.forPipelinePot(
 							pipeline.pipelineId().value(), task.potId().value())))
@@ -327,13 +327,13 @@ class TaskProcessingServicesTest {
 
 		@Override
 		public void markCompleted(UUID taskId) {
-			statuses.put(taskId, ConsumptionStatus.COMPLETED);
+			statuses.put(taskId, ConsumptionStatus.DONE);
 		}
 
 		@Override
 		public void markFailed(UUID taskId, ProcessingFailure failure) {
 			failures.put(taskId, failure);
-			statuses.put(taskId, ConsumptionStatus.FAILED);
+			statuses.put(taskId, ConsumptionStatus.DONE);
 		}
 
 		private ConsumptionStatus status(UUID taskId) {

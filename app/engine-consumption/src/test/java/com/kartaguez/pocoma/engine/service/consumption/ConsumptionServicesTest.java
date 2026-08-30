@@ -120,9 +120,9 @@ class ConsumptionServicesTest {
 		assertEquals(ConsumptionOutcome.APPLIED, new ReleaseConsumptionService(claims, CLOCK)
 				.release(new ReleaseConsumptionInput(releasedKey, released.token())));
 
-		assertEquals(ConsumptionStatus.COMPLETED, claims.slot(completedKey).status());
-		assertEquals(ConsumptionStatus.FAILED, claims.slot(failedKey).status());
-		assertEquals(ConsumptionStatus.READY, claims.slot(releasedKey).status());
+		assertEquals(ConsumptionStatus.DONE, claims.slot(completedKey).status());
+		assertEquals(ConsumptionStatus.DONE, claims.slot(failedKey).status());
+		assertEquals(ConsumptionStatus.PENDING, claims.slot(releasedKey).status());
 		assertEquals(failure, claims.findClaim(failed.claimId()).orElseThrow().failure().orElseThrow());
 		assertFalse(claims.findClaim(released.claimId()).orElseThrow().isActiveAt(NOW));
 	}
@@ -144,7 +144,7 @@ class ConsumptionServicesTest {
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
 				new ReleaseConsumptionService(claims, CLOCK)
 						.release(new ReleaseConsumptionInput(key, wrongToken)));
-		assertEquals(ConsumptionStatus.READY, claims.slot(key).status());
+		assertEquals(ConsumptionStatus.PENDING, claims.slot(key).status());
 	}
 
 	@Test
@@ -232,7 +232,7 @@ class ConsumptionServicesTest {
 		public synchronized Optional<Claim> tryAcquire(
 				ConsumptionSlot observedSlot, Claim proposedClaim, Instant now) {
 			ConsumptionSlot actual = slots.computeIfAbsent(observedSlot.consumptionKey(), ConsumptionSlot::initial);
-			if (actual.revision() != observedSlot.revision() || actual.status() != ConsumptionStatus.READY) {
+			if (actual.revision() != observedSlot.revision() || actual.status() != ConsumptionStatus.PENDING) {
 				return Optional.empty();
 			}
 			Optional<Claim> current = currentClaim(actual.consumptionKey());
@@ -267,7 +267,7 @@ class ConsumptionServicesTest {
 				ConsumptionKey key, ClaimToken token, Instant now, Mutation mutation, ProcessingFailure failure) {
 			ConsumptionSlot slot = slots.get(key);
 			Claim claim = currentClaim(key).orElse(null);
-			if (slot == null || slot.status() != ConsumptionStatus.READY
+			if (slot == null || slot.status() != ConsumptionStatus.PENDING
 					|| claim == null || !claim.isOwnedBy(token, now)) {
 				return ConsumptionOutcome.CLAIM_OWNERSHIP_LOST;
 			}
