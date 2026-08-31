@@ -734,38 +734,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void eventWorkerDependsOnIncomingContractsAndNotInfrastructureOrOutgoingPorts() {
-		String workerPackage = ROOT_PACKAGE + ".supra.worker.event..";
-		noClasses()
-				.that().resideInAPackage(workerPackage)
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".engine.port.in.consumption..",
-						ROOT_PACKAGE + ".engine.service.consumption..",
-						ROOT_PACKAGE + ".engine..execution..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..",
-						"io.micrometer..")
-				.check(CLASSES);
-
-		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.event"))
-				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.map(dependency -> dependency.getTargetClass().getName())
-				.filter(name -> name.endsWith(".EventPort")
-						|| name.endsWith(".TaskCreationPort")
-						|| name.endsWith(".ClaimPort")
-						|| name.endsWith(".ConsumptionKey")
-						|| name.contains("TaskCreationStrategy"))
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(), forbiddenWorkerDependencies,
-				"Event worker must orchestrate incoming use cases without repositories, keys or strategies");
-	}
-
-	@Test
 	void taskWorkerDependsOnTypedIncomingContractsAndNotLegacyOrOutgoingPorts() {
 		String workerPackage = ROOT_PACKAGE + ".supra.worker.task..";
 		noClasses()
@@ -820,7 +788,7 @@ class HexagonalArchitectureTest {
 		Set<String> commandDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".supra.worker.command.CommandWorkerIteration");
 		Set<String> eventDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.worker.event.EventWorkerIteration");
+				ROOT_PACKAGE + ".locator.consumption.event.EventConsumptionLocator");
 		Set<String> taskDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".supra.worker.task.TaskWorkerIteration");
 
@@ -828,8 +796,34 @@ class HexagonalArchitectureTest {
 		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".CreateTasksForEventUseCase")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
+		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".TryAcquireConsumptionUseCase")));
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteTaskUseCase")));
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+	}
+
+	@Test
+	void genericConsumptionPullLayersStayIndependentFromWorkFamiliesAndFrameworks() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.consumption..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".engine.taskcreation..",
+						"org.springframework..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.consumption..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".locator..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.pot..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"io.nats..")
+				.check(CLASSES);
 	}
 
 	@Test

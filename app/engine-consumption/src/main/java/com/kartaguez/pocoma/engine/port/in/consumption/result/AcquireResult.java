@@ -16,7 +16,10 @@ public sealed interface AcquireResult {
 		}
 	}
 
-	record Busy() implements AcquireResult {
+	record Busy(Instant leaseUntil) implements AcquireResult {
+		public Busy {
+			requireNonNull(leaseUntil, "leaseUntil must not be null");
+		}
 	}
 
 	record NotReady(Instant nextClaimAt) implements AcquireResult {

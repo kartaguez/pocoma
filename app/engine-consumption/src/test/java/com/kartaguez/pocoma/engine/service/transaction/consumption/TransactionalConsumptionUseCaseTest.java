@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.service.transaction.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Optional;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class TransactionalConsumptionUseCaseTest {
 		new TransactionalFailConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).fail(null);
 		new TransactionalReleaseConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).release(null);
 		new TransactionalAcquireConsumptionUseCase(
-				input -> new com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Busy(),
+					input -> new com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Busy(Instant.EPOCH),
 				transactions).acquire(null);
 		new TransactionalHandleConsumptionFailureUseCase(
 				input -> com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult.LOST_CLAIM,

@@ -28,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-worker-event</artifactId>
+			<artifactId>pocoma-runtime-event-consumption-worker</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

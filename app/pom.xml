@@ -54,8 +54,10 @@
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
 		<module>orchestrator-claimable-work-dispatcher</module>
+		<module>orchestrator-consumption</module>
+		<module>supra-consumption-worker</module>
+		<module>locator-consumption-event</module>
 		<module>supra-worker-command</module>
-		<module>supra-worker-event</module>
 		<module>supra-worker-task</module>
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-dispatcher-business-events-outbox-nats</module>
@@ -69,6 +71,7 @@
 		<module>runtime-business-events-outbox-dispatcher</module>
 		<module>runtime-task-materialization-dispatcher</module>
 		<module>runtime-pipeline-task-executor</module>
+		<module>runtime-event-consumption-worker</module>
 		<module>runtime-balance-calculation-tasks-dispatcher</module>
 		<module>runtime-monolith</module>
 		<module>architecture-tests</module>

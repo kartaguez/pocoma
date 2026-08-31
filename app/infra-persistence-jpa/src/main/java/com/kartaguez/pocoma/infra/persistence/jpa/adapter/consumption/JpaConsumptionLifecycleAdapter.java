@@ -97,7 +97,7 @@ public class JpaConsumptionLifecycleAdapter
 				throw new IllegalStateException("Current Claim belongs to another slot");
 			}
 			if (current.leaseUntil().isAfter(now)) {
-				return new Busy();
+				return new Busy(current.leaseUntil());
 			}
 			requireExactlyOne(
 					claims.invalidateForTakeover(slot.slotId(), current.claimId(), now),

@@ -155,6 +155,14 @@ public class JpaPipelineTaskEntity {
 		return id;
 	}
 
+	public String taskType() {
+		return taskType;
+	}
+
+	public Instant createdAt() {
+		return createdAt;
+	}
+
 	private PotId potIdFromPartitionKey() {
 		if (partitionKey == null) {
 			throw new IllegalStateException("partitionKey must contain a pot id for executable pipeline tasks");

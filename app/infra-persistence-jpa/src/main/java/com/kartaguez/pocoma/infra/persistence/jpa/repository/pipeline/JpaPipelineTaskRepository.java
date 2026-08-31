@@ -14,6 +14,8 @@ import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTas
 
 public interface JpaPipelineTaskRepository extends JpaRepository<JpaPipelineTaskEntity, UUID> {
 
+	List<JpaPipelineTaskEntity> findByMaterializationIdOrderById(UUID materializationId);
+
 	@Query(
 			value = """
 					select *
