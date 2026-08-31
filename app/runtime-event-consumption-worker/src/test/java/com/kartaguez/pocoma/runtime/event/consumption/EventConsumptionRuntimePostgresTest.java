@@ -2,9 +2,11 @@ package com.kartaguez.pocoma.runtime.event.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.time.Clock;
+import java.time.Duration;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,6 +167,42 @@ class EventConsumptionRuntimePostgresTest {
 		assertEquals(2, tasks.count());
 	}
 
+	@Test
+	void technicalFailureRollsBackAndSchedulesRetryWithoutEarlySecondAttempt() {
+		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 3));
+		var eventId = events.findAll().getFirst().id();
+
+		orchestrator.run(input("failing-worker"));
+
+		var slot = lifecycle.findSlot(key(eventId)).orElseThrow();
+		assertEquals(java.util.Optional.empty(), slot.terminalOutcome());
+		assertEquals(java.util.Optional.empty(), slot.currentClaimId());
+		assertEquals(0, tasks.count());
+		assertEquals(List.of(), provenance.findInputs(slot.slotId()));
+		assertEquals(List.of(), provenance.findResults(slot.slotId()));
+		var claim = lifecycle.findClaims(slot.slotId()).getFirst();
+		assertEquals(ClaimEndReason.PROCESSING_FAILURE, claim.endReason().orElseThrow());
+		var failure = claim.failure().orElseThrow();
+		assertEquals("EVENT_EXECUTION_FAILURE", failure.category());
+		var scheduledDelay = Duration.between(failure.occurredAt(), slot.nextClaimAt());
+		assertTrue(scheduledDelay.compareTo(Duration.ofSeconds(1)) >= 0);
+		assertTrue(scheduledDelay.compareTo(Duration.ofMillis(1100)) < 0);
+	}
+
+	@Test
+	void zeroTaskTransformationIsStillSuccessful() {
+		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 4));
+		var eventId = events.findAll().getFirst().id();
+
+		orchestrator.run(input("empty-worker"));
+
+		var slot = lifecycle.findSlot(key(eventId)).orElseThrow();
+		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
+		assertEquals(0, tasks.count());
+		assertEquals(1, provenance.findInputs(slot.slotId()).size());
+		assertEquals(List.of(), provenance.findResults(slot.slotId()));
+	}
+
 	private static ConsumptionOrchestrationInput input(String worker) {
 		return new ConsumptionOrchestrationInput(
 				new com.kartaguez.pocoma.domain.consumption.claim.WorkerId(worker),
@@ -193,6 +231,10 @@ class EventConsumptionRuntimePostgresTest {
 					if (event.version() == 2) {
 						throw new TaskCreationRejectedException("VERSION_REJECTED", "version is rejected");
 					}
+					if (event.version() == 3) {
+						throw new IllegalStateException("temporary task planning failure");
+					}
+					if (event.version() == 4) return List.of();
 					return List.of(new TaskDescriptor("COMPUTE_BALANCES", "balances-" + event.version(),
 							"{}", event.potId().value().toString()));
 				}

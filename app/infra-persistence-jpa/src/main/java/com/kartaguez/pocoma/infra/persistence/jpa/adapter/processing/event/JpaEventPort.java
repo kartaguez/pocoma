@@ -30,9 +30,9 @@ public class JpaEventPort implements EventPort {
 	private final EntityManager entityManager;
 	private final BusinessEventRecordMapper mapper;
 
-	public JpaEventPort(EntityManager entityManager, ObjectMapper objectMapper) {
+	public JpaEventPort(EntityManager entityManager) {
 		this.entityManager = requireNonNull(entityManager, "entityManager must not be null");
-		this.mapper = new BusinessEventRecordMapper(requireNonNull(objectMapper, "objectMapper must not be null"));
+		this.mapper = new BusinessEventRecordMapper(new ObjectMapper());
 	}
 
 	@Override
