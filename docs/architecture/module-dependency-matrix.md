@@ -34,13 +34,13 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | Module | Responsabilité et principaux types | Dépendances autorisées | Interdites | État |
 |---|---|---|---|---|
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction, segmentation, `TaskDescriptor` | domaines nécessaires | infra, supra, runtime | shared |
-| `engine-execution-guard` | exécution technique idempotente d'une clé et journal abstrait | engine-core, JDK | consumption, objets consommés, workers, frameworks | target |
+| `engine-execution-guard` | ancien guard d'exécution technique par journal | engine-core, JDK | consumption, objets consommés, workers, frameworks | legacy — conservé pour Command/Task jusqu'au Lot 4 |
 | `engine-command` | commandes métier typées, routeur et ports d'écriture Pot/événement | Pot, policies, core | consumption, processing, tasks, workers | target |
 | `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
 | `engine-task-creation` | Event typé + pipeline vers zéro à N tâches | Pot events, pipeline, core | consumption, workers, materialization legacy | target |
 | `engine-task-execution` | routage d'un `TaskPayload` typé vers son handler | pipeline, task | claims, workers, JSON dans le périmètre typé | target + pont legacy |
-| `engine-consumption` | acquire/complete/fail/release d'une clé opaque | consumption, transaction core | Command, Event, Task, Pot, Pipeline | target |
+| `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
 | `engine-processing-command` | sélection, ordre, transitions et réconciliation du statut Command depuis le slot autoritatif | command, consumption, core | Event/Task processing, frameworks, execution guard | target |
 | `engine-processing-event` | consommation indépendante d'un événement par pipeline/version ; ignore les slots terminaux sans mutation source | consumption, pipeline, Pot event, core | Command/Task processing, task creation | target |
 | `engine-processing-task` | sélection, ordre, transitions et réconciliation du statut Task depuis le slot autoritatif | consumption, pipeline, Pot id, core | Event/Command processing, task execution, execution guard | target |
@@ -51,9 +51,9 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | Module(s) | Responsabilité | Peut dépendre de | État / retrait |
 |---|---|---|---|
 | `orchestrator-claimable-work-dispatcher` | polling, capacité, pools segmentés et cycle d'un travail claimable | contrats de travail injectés | target, réutilisé par les futurs workers |
-| `supra-worker-command` | boucle pull Command séquentielle, guard puis lifecycle | ports entrants Command/processing, execution guard, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
+| `supra-worker-command` | boucle pull Command séquentielle, guard puis lifecycle | ports entrants Command/processing, execution guard, orchestrateur | legacy côté guard ; migration vers l'exécution atomique au Lot 4 |
 | `supra-worker-event` | boucle pull Event séquentielle par pipeline/version et segment, task creation idempotente puis lifecycle | ports entrants Event processing/task creation, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
-| `supra-worker-task` | boucle pull Task séquentielle, mapping durable typé, guard puis lifecycle | ports entrants Task processing/execution, execution guard, orchestrateur | target, mapper Balance et wiring en étapes 3.5 puis 4–5 |
+| `supra-worker-task` | boucle pull Task séquentielle, mapping durable typé, guard puis lifecycle | ports entrants Task processing/execution, execution guard, orchestrateur | legacy côté guard ; migration vers l'exécution atomique au Lot 4 |
 | `supra-http-rest-spring` | entrée HTTP réactive | ports entrants Command/Query | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
 | `supra-dispatcher-task-materialization-nats` | ancien déclenchement de matérialisation | task materialization legacy | legacy, remplacé par EventWorker |
@@ -77,9 +77,10 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 ## Exceptions transitoires contrôlées
 
 - Les processing engines composent les use cases génériques d'`engine-consumption`.
-- `engine-execution-guard` est un moteur technique orthogonal : il protège l'effet commité et ne
-  connaît ni claim ni type de travail. CommandWorker et le futur TaskWorker l'instancient avec des
-  journaux distincts.
+- Le chemin cible protège le commit avec une transaction métier unique terminée par le CAS
+  `status=PENDING AND current_claim_id=:claimId`. `engine-execution-guard` ne participe jamais à ce
+  chemin. Il reste temporairement utilisé par les workers Command/Task non migrés, puis sera retiré
+  au Lot 4.
 - `engine-processing-command` connaît les intentions d'`engine-command` pour reconstruire l'appel métier.
 - L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
 - Task processing connaît le pipeline durable, jamais les handlers d'exécution.

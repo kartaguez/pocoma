@@ -282,6 +282,21 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void transactionalConsumptionExecutionDoesNotDependOnLegacyExecutionGuard() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.consumption.contract..",
+						ROOT_PACKAGE + ".engine.port.in.consumption.input..",
+						ROOT_PACKAGE + ".engine.port.in.consumption.result..",
+						ROOT_PACKAGE + ".engine.port.in.consumption.usecase..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine.service.transaction.consumption..")
+				.should().dependOnClassesThat().resideInAPackage(
+						ROOT_PACKAGE + ".engine..execution..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void consumptionDomainDoesNotDependOnApplicationOrOuterLayers() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".domain.consumption..")
