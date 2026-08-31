@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionI
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
+@Deprecated(forRemoval = true)
 public final class TransactionalReleaseConsumptionUseCase implements ReleaseConsumptionUseCase {
 
 	private final ReleaseConsumptionUseCase delegate;

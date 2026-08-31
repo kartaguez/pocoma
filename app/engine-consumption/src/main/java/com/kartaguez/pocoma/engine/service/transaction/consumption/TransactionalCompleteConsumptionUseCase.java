@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.CompleteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
+@Deprecated(forRemoval = true)
 public final class TransactionalCompleteConsumptionUseCase implements CompleteConsumptionUseCase {
 
 	private final CompleteConsumptionUseCase delegate;

@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInpu
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
+@Deprecated(forRemoval = true)
 public final class TransactionalFailConsumptionUseCase implements FailConsumptionUseCase {
 
 	private final FailConsumptionUseCase delegate;

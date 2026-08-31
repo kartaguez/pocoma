@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
+@Deprecated(forRemoval = true)
 public final class TransactionalTryAcquireConsumptionUseCase implements TryAcquireConsumptionUseCase {
 
 	private final TryAcquireConsumptionUseCase delegate;

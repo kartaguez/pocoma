@@ -22,8 +22,19 @@ class TransactionalConsumptionUseCaseTest {
 		new TransactionalCompleteConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).complete(null);
 		new TransactionalFailConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).fail(null);
 		new TransactionalReleaseConsumptionUseCase(input -> ConsumptionOutcome.APPLIED, transactions).release(null);
+		new TransactionalAcquireConsumptionUseCase(
+				input -> new com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Busy(),
+				transactions).acquire(null);
+		new TransactionalHandleConsumptionFailureUseCase(
+				input -> com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult.LOST_CLAIM,
+				transactions).handle(null);
+		new TransactionalAbandonConsumptionUseCase(
+				input -> new com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult.Abandoned(),
+				transactions).abandon(null);
+		new TransactionalExecuteConsumptionUseCase(
+				input -> null, transactions).execute(null);
 
-		assertEquals(4, transactions.invocations.get());
+		assertEquals(8, transactions.invocations.get());
 	}
 
 	private static final class CountingTransactionRunner implements TransactionRunner {
