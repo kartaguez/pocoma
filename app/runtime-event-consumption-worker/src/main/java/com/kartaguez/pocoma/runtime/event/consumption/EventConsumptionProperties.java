@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.eventconsumption;
+package com.kartaguez.pocoma.runtime.event.consumption;
 
 import java.time.Duration;
 

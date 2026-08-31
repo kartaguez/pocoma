@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.supra.consumption;
+package com.kartaguez.pocoma.supra.consumption.wait;
 
 import static java.util.Objects.requireNonNull;
 
@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public final class ConditionConsumptionWorkerWaitStrategy implements ConsumptionWorkerWaitStrategy {
+public final class ConditionConsumptionWaiter implements ConsumptionWaiter {
 	private final ReentrantLock lock = new ReentrantLock();
 	private final Condition signalled = lock.newCondition();
 

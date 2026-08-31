@@ -1,8 +1,8 @@
-package com.kartaguez.pocoma.supra.consumption;
+package com.kartaguez.pocoma.supra.consumption.wait;
 
 import java.time.Duration;
 
-public interface ConsumptionWorkerWaitStrategy {
+public interface ConsumptionWaiter {
 	void await(Duration duration) throws InterruptedException;
 	void signal();
 }

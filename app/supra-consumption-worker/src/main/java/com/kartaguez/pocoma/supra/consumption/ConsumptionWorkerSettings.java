@@ -6,7 +6,7 @@ import java.time.Duration;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrationBudget;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 
 public record ConsumptionWorkerSettings(
 		boolean enabled,

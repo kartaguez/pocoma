@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.orchestrator.consumption;
+package com.kartaguez.pocoma.orchestrator.consumption.model;
 
 import static java.util.Objects.requireNonNull;
 

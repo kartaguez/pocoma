@@ -4,8 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,6 +54,15 @@ public class JpaEventPort implements EventPort {
 				}
 			}
 		}
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+	public Optional<RecordedEvent<? extends BusinessEvent>> findById(UUID eventId) {
+		requireNonNull(eventId, "eventId must not be null");
+		return Optional.ofNullable(entityManager.find(JpaBusinessEventOutboxEntity.class, eventId))
+				.map(JpaBusinessEventOutboxEntity::toEnvelope)
+				.map(mapper::toRecordedEvent);
 	}
 
 	private List<JpaBusinessEventOutboxEntity> page(Optional<EventOrderingKey> cursor) {

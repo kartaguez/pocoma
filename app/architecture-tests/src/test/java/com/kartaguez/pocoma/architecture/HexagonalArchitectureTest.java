@@ -807,22 +807,53 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.task..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".engine..command..",
+						ROOT_PACKAGE + ".engine..processing.event..",
+						ROOT_PACKAGE + ".engine..taskcreation..",
+						ROOT_PACKAGE + ".engine..taskexecution..",
+						ROOT_PACKAGE + ".locator..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".infra..",
 						ROOT_PACKAGE + ".engine.taskcreation..",
 						"org.springframework..",
-						"jakarta.persistence..")
+						"jakarta.persistence..",
+						"io.nats..")
 				.check(CLASSES);
 
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".locator..",
+						ROOT_PACKAGE + ".domain.task..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".engine..processing..",
+						ROOT_PACKAGE + ".engine..taskcreation..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".infra..",
 						"org.springframework..",
 						"jakarta.persistence..",
 						"io.nats..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".locator.consumption..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".infra..",
+						"org.springframework..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.event.consumption..")
+				.should().dependOnClassesThat().resideInAPackage(
+						ROOT_PACKAGE + ".runtime.event.consumption..")
 				.check(CLASSES);
 	}
 

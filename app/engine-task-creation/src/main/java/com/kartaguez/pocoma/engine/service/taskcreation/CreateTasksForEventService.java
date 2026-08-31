@@ -10,6 +10,7 @@ import com.kartaguez.pocoma.engine.port.in.taskcreation.input.PlanTasksForEventI
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.CreateTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.PlanTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.TaskCreationPort;
+import com.kartaguez.pocoma.engine.exception.TaskCreationRejectedException;
 
 public final class CreateTasksForEventService implements CreateTasksForEventUseCase {
 
@@ -26,8 +27,15 @@ public final class CreateTasksForEventService implements CreateTasksForEventUseC
 	@Override
 	public TaskCreationResult createTasks(CreateTasksForEventInput input) {
 		requireNonNull(input, "input must not be null");
-		TaskCreationPlan plan = planTasksUseCase.planTasks(
-				new PlanTasksForEventInput(input.recordedEvent().event(), input.pipeline()));
+		TaskCreationPlan plan;
+		try {
+			plan = planTasksUseCase.planTasks(
+					new PlanTasksForEventInput(input.recordedEvent().event(), input.pipeline()));
+		}
+		catch (TaskCreationRejectedException rejection) {
+			return new TaskCreationResult.Rejected(input.recordedEvent().eventId(), input.pipeline(),
+					rejection.rejectionCode());
+		}
 		return taskCreationPort.createIfAbsent(
 				new EventPipelineTaskCreation(input.recordedEvent(), input.pipeline()), plan.tasks());
 	}

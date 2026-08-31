@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.orchestrator.consumption;
+package com.kartaguez.pocoma.orchestrator.consumption.model;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,7 +13,7 @@ public sealed interface ConsumptionOrchestrationResult {
 			implements ConsumptionOrchestrationResult {
 		public Idle { requireNonNull(nextKnownEligibility); requireNonNull(counters); }
 	}
-	record BudgetExhausted(BudgetLimit limit, Optional<Instant> nextKnownEligibility,
+	record BudgetExhausted(ConsumptionBudgetLimit limit, Optional<Instant> nextKnownEligibility,
 			ConsumptionOrchestrationCounters counters) implements ConsumptionOrchestrationResult {
 		public BudgetExhausted { requireNonNull(limit); requireNonNull(nextKnownEligibility); requireNonNull(counters); }
 	}

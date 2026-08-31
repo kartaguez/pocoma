@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.PersistedTaskReference;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult.Materialized;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.TaskCreationPort;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
@@ -44,7 +45,7 @@ public class JpaTaskCreationAdapter implements TaskCreationPort {
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public TaskCreationResult createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> descriptors) {
+	public Materialized createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> descriptors) {
 		requireNonNull(creation, "creation must not be null");
 		List<TaskDescriptor> immutable = List.copyOf(requireNonNull(descriptors, "tasks must not be null"));
 		var pipeline = creation.pipeline();

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.eventconsumption;
+package com.kartaguez.pocoma.runtime.event.consumption;
 
 import java.time.Clock;
 import java.util.List;
@@ -25,7 +25,6 @@ import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
-import com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicy;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
 import com.kartaguez.pocoma.engine.service.taskcreation.CreateTasksForEventService;
@@ -42,14 +41,15 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
-import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionFailureClassifier;
 import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionLocator;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrationBudget;
+import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionFailurePolicy;
+import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTechnicalFailureClassifier;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.consumption.DefaultConsumptionOrchestrator;
-import com.kartaguez.pocoma.supra.consumption.ConditionConsumptionWorkerWaitStrategy;
+import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.SupraConsumptionWorker;
+import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(EventConsumptionProperties.class)
@@ -96,7 +96,7 @@ public class EventConsumptionRuntimeConfiguration {
 			TransactionRunner transactions, Clock clock) {
 		return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(lifecycle, lifecycle,
-						new DefaultConsumptionFailurePolicy(), clock), transactions);
+						new EventConsumptionFailurePolicy(), clock), transactions);
 	}
 
 	@Bean
@@ -125,30 +125,30 @@ public class EventConsumptionRuntimeConfiguration {
 			EventPort events, CreateTasksForEventUseCase createTasks, Clock clock) {
 		return new EventConsumptionLocator(pipeline,
 				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), events, createTasks,
-				new EventConsumptionFailureClassifier(clock));
+				new EventConsumptionTechnicalFailureClassifier(clock));
 	}
 
 	@Bean
 	ConsumptionOrchestrator consumptionOrchestrator(EventConsumptionLocator locator,
 			AcquireConsumptionUseCase acquire, ExecuteConsumptionUseCase execute,
 			HandleConsumptionFailureUseCase handleFailure) {
-		return new DefaultConsumptionOrchestrator(locator, acquire, execute, handleFailure);
+		return new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure);
 	}
 
 	@Bean
-	SupraConsumptionWorker supraConsumptionWorker(ConsumptionOrchestrator orchestrator,
+	ConsumptionPollingWorker consumptionPollingWorker(ConsumptionOrchestrator orchestrator,
 			EventConsumptionProperties properties, Clock clock) {
 		var settings = new ConsumptionWorkerSettings(properties.isEnabled(), new WorkerId(properties.getWorkerId()),
 				new ClaimLease(properties.getClaimLease()),
 				new ConsumptionOrchestrationBudget(properties.getMaxCandidatesInspected(),
 						properties.getMaxConsumptionsExecuted()),
 				properties.getPollInterval(), properties.getRuntimeFailureBackoff());
-		return new SupraConsumptionWorker(orchestrator, settings, clock,
-				new ConditionConsumptionWorkerWaitStrategy());
+		return new ConsumptionPollingWorker(orchestrator, settings, clock,
+				new ConditionConsumptionWaiter());
 	}
 
 	@Bean
-	SmartLifecycle supraConsumptionWorkerLifecycle(SupraConsumptionWorker worker) {
-		return new SupraConsumptionWorkerLifecycle(worker);
+	SmartLifecycle eventConsumptionWorkerLifecycle(ConsumptionPollingWorker worker) {
+		return new EventConsumptionWorkerLifecycle(worker);
 	}
 }

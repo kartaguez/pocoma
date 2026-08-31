@@ -5,21 +5,22 @@ import static java.util.Objects.requireNonNull;
 import java.time.Clock;
 import java.time.Duration;
 
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrationInput;
-import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrationResult;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
+import com.kartaguez.pocoma.supra.consumption.wait.ConsumptionWaiter;
 
 /** Permanent sequential worker shell; family discovery remains in the locator. */
-public final class SupraConsumptionWorker implements AutoCloseable {
+public final class ConsumptionPollingWorker implements AutoCloseable {
 	private final ConsumptionOrchestrator orchestrator;
 	private final ConsumptionWorkerSettings settings;
 	private final Clock clock;
-	private final ConsumptionWorkerWaitStrategy waiter;
+	private final ConsumptionWaiter waiter;
 	private volatile boolean running;
 	private Thread thread;
 
-	public SupraConsumptionWorker(ConsumptionOrchestrator orchestrator, ConsumptionWorkerSettings settings,
-			Clock clock, ConsumptionWorkerWaitStrategy waiter) {
+	public ConsumptionPollingWorker(ConsumptionOrchestrator orchestrator, ConsumptionWorkerSettings settings,
+			Clock clock, ConsumptionWaiter waiter) {
 		this.orchestrator = requireNonNull(orchestrator, "orchestrator must not be null");
 		this.settings = requireNonNull(settings, "settings must not be null");
 		this.clock = requireNonNull(clock, "clock must not be null");

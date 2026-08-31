@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.orchestrator.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -28,8 +28,16 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionBudgetLimit;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 
-class DefaultConsumptionOrchestratorTest {
+class SequentialConsumptionOrchestratorTest {
 	private static final Instant NOW = Instant.parse("2026-08-31T10:00:00Z");
 	private static final WorkerId WORKER = new WorkerId("worker");
 	private static final ClaimLease LEASE = new ClaimLease(Duration.ofSeconds(30));
@@ -44,7 +52,7 @@ class DefaultConsumptionOrchestratorTest {
 		AtomicInteger opens = new AtomicInteger();
 		ConsumptionLocator locator = () -> search(opens.incrementAndGet() == 1 ? 4 : 0);
 		AtomicInteger executions = new AtomicInteger();
-		var orchestrator = new DefaultConsumptionOrchestrator(locator, input -> acquireResults.remove(), input -> {
+		var orchestrator = new SequentialConsumptionOrchestrator(locator, input -> acquireResults.remove(), input -> {
 			executions.incrementAndGet();
 			return success();
 		}, input -> FencedMutationResult.APPLIED);
@@ -68,7 +76,7 @@ class DefaultConsumptionOrchestratorTest {
 					classifications.incrementAndGet(); throw new AssertionError();
 				})) : search(0);
 		var claimed = claim();
-		var orchestrator = new DefaultConsumptionOrchestrator(locator,
+		var orchestrator = new SequentialConsumptionOrchestrator(locator,
 				input -> new AcquireResult.Acquired(claimed),
 				input -> { throw new LostClaimException(input.slotId(), input.claimId()); },
 				input -> { failures.incrementAndGet(); return FencedMutationResult.APPLIED; });
@@ -84,7 +92,7 @@ class DefaultConsumptionOrchestratorTest {
 		AtomicInteger handled = new AtomicInteger();
 		var located = new LocatedConsumption(key(1), context -> success(),
 				failure -> new ProcessingFailure("TEST", "failed", NOW));
-		var orchestrator = new DefaultConsumptionOrchestrator(
+		var orchestrator = new SequentialConsumptionOrchestrator(
 				() -> opens.incrementAndGet() == 1 ? single(located) : search(0),
 				input -> new AcquireResult.Acquired(claim()),
 				input -> { throw new IllegalStateException("boom"); },
@@ -103,13 +111,70 @@ class DefaultConsumptionOrchestratorTest {
 				reads.incrementAndGet(); return Optional.of(located(reads.get()));
 			}
 		};
-		var orchestrator = new DefaultConsumptionOrchestrator(() -> search,
+		var orchestrator = new SequentialConsumptionOrchestrator(() -> search,
 				input -> new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS), input -> success(),
 				input -> FencedMutationResult.APPLIED);
 		var result = assertInstanceOf(ConsumptionOrchestrationResult.BudgetExhausted.class,
 				orchestrator.run(input(2, 5)));
-		assertEquals(BudgetLimit.CANDIDATES, result.limit());
+		assertEquals(ConsumptionBudgetLimit.CANDIDATES, result.limit());
 		assertEquals(2, reads.get());
+	}
+
+	@Test
+	void executionBudgetIsIndependentAndWinsAfterTheLastAcquiredExecution() {
+		AtomicInteger opens = new AtomicInteger();
+		var orchestrator = new SequentialConsumptionOrchestrator(
+				() -> single(located(opens.incrementAndGet())),
+				input -> new AcquireResult.Acquired(claim()), input -> success(),
+				input -> FencedMutationResult.APPLIED);
+
+		var result = assertInstanceOf(ConsumptionOrchestrationResult.BudgetExhausted.class,
+				orchestrator.run(input(5, 1)));
+
+		assertEquals(ConsumptionBudgetLimit.EXECUTIONS, result.limit());
+		assertEquals(new ConsumptionOrchestrationCounters(1, 1), result.counters());
+		assertEquals(1, opens.get());
+	}
+
+	@Test
+	void rejectedExecutionReturnsNormallyWithoutFailureHandling() {
+		AtomicInteger handlers = new AtomicInteger();
+		AtomicInteger opens = new AtomicInteger();
+		var orchestrator = new SequentialConsumptionOrchestrator(
+				() -> opens.incrementAndGet() == 1 ? single(located(1)) : search(0),
+				input -> new AcquireResult.Acquired(claim()),
+				input -> new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Rejected("NOT_APPLICABLE"),
+						List.of(), List.of()),
+				input -> { handlers.incrementAndGet(); return FencedMutationResult.APPLIED; });
+
+		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, orchestrator.run(input(3, 3)));
+		assertEquals(0, handlers.get());
+	}
+
+	@Test
+	void closeFailureAfterAcquisitionNeverPreventsExecution() {
+		RuntimeException closeFailure = new IllegalStateException("close failed");
+		AtomicInteger executions = new AtomicInteger();
+		ConsumptionSearch search = new ConsumptionSearch() {
+			private boolean returned;
+			@Override public Optional<LocatedConsumption> next() {
+				if (returned) return Optional.empty();
+				returned = true;
+				return Optional.of(located(1));
+			}
+			@Override public void close() { throw closeFailure; }
+		};
+		var orchestrator = new SequentialConsumptionOrchestrator(() -> search,
+				input -> new AcquireResult.Acquired(claim()), input -> {
+					executions.incrementAndGet();
+					return success();
+				}, input -> FencedMutationResult.APPLIED);
+
+		var result = assertInstanceOf(ConsumptionOrchestrationResult.RuntimeFailure.class,
+				orchestrator.run(input(2, 2)));
+
+		assertEquals(1, executions.get());
+		assertSame(closeFailure, result.cause());
 	}
 
 	private static ConsumptionOrchestrationInput input(int candidates, int executions) {

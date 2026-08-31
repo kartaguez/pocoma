@@ -1,8 +1,8 @@
-package com.kartaguez.pocoma.orchestrator.consumption;
+package com.kartaguez.pocoma.orchestrator.consumption.locator;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 
 @FunctionalInterface
-public interface ConsumptionFailureClassifier {
+public interface ConsumptionTechnicalFailureClassifier {
 	ProcessingFailure classify(RuntimeException failure);
 }

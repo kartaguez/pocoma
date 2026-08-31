@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult.Materialized;
 
 /** Atomically records idempotence and zero to many durable tasks. */
 @FunctionalInterface
 public interface TaskCreationPort {
-	TaskCreationResult createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> tasks);
+	Materialized createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> tasks);
 }

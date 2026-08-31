@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.service.taskcreation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResul
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.engine.exception.MissingTaskCreationStrategyException;
+import com.kartaguez.pocoma.engine.exception.TaskCreationRejectedException;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.input.CreateTasksForEventInput;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.input.PlanTasksForEventInput;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
@@ -86,8 +88,8 @@ class TaskCreationServicesTest {
 				planner(new FixedStrategy(BALANCES_V1, false, List.of(TASK))), port);
 		var input = new CreateTasksForEventInput(recordedEvent(), BALANCES_V1);
 
-		assertEquals(TaskCreationOutcome.CREATED, service.createTasks(input).outcome());
-		assertEquals(TaskCreationOutcome.ALREADY_CREATED, service.createTasks(input).outcome());
+		assertEquals(TaskCreationOutcome.CREATED, materialized(service.createTasks(input)).outcome());
+		assertEquals(TaskCreationOutcome.ALREADY_CREATED, materialized(service.createTasks(input)).outcome());
 		assertEquals(1, port.entries.size());
 		assertEquals(List.of(), port.entries.values().iterator().next());
 	}
@@ -104,13 +106,41 @@ class TaskCreationServicesTest {
 				new FixedStrategy(notificationsV1, true, List.of(TASK))));
 		var service = new CreateTasksForEventService(new PlanTasksForEventService(registry), port);
 
-		assertEquals(TaskCreationOutcome.CREATED,
-				service.createTasks(new CreateTasksForEventInput(recordedEvent, BALANCES_V1)).outcome());
-		assertEquals(TaskCreationOutcome.CREATED,
-				service.createTasks(new CreateTasksForEventInput(recordedEvent, balancesV2)).outcome());
-		assertEquals(TaskCreationOutcome.CREATED,
-				service.createTasks(new CreateTasksForEventInput(recordedEvent, notificationsV1)).outcome());
+		assertEquals(TaskCreationOutcome.CREATED, materialized(
+				service.createTasks(new CreateTasksForEventInput(recordedEvent, BALANCES_V1))).outcome());
+		assertEquals(TaskCreationOutcome.CREATED, materialized(
+				service.createTasks(new CreateTasksForEventInput(recordedEvent, balancesV2))).outcome());
+		assertEquals(TaskCreationOutcome.CREATED, materialized(
+				service.createTasks(new CreateTasksForEventInput(recordedEvent, notificationsV1))).outcome());
 		assertEquals(3, port.entries.size());
+	}
+
+	@Test
+	void deterministicPlanningRejectionBecomesAResultBeforePersistence() {
+		TaskCreationStrategy rejecting = new FixedStrategy(BALANCES_V1, true, List.of()) {
+			@Override public List<TaskDescriptor> createTasks(BusinessEvent event) {
+				throw new TaskCreationRejectedException("UNSUPPORTED_EVENT", "unsupported event");
+			}
+		};
+		CountingPort port = new CountingPort();
+		var service = new CreateTasksForEventService(planner(rejecting), port);
+
+		var result = assertInstanceOf(TaskCreationResult.Rejected.class,
+				service.createTasks(new CreateTasksForEventInput(recordedEvent(), BALANCES_V1)));
+
+		assertEquals("UNSUPPORTED_EVENT", result.rejectionCode());
+		assertEquals(0, port.invocationCount);
+	}
+
+	@Test
+	void persistenceFailureIsNeverConvertedToARejection() {
+		RuntimeException failure = new IllegalStateException("database unavailable");
+		TaskCreationPort port = (creation, tasks) -> { throw failure; };
+		var service = new CreateTasksForEventService(
+				planner(new FixedStrategy(BALANCES_V1, true, List.of(TASK))), port);
+
+		assertSame(failure, assertThrows(RuntimeException.class,
+				() -> service.createTasks(new CreateTasksForEventInput(recordedEvent(), BALANCES_V1))));
 	}
 
 	private static PlanTasksForEventService planner(TaskCreationStrategy... strategies) {
@@ -164,9 +194,10 @@ class TaskCreationServicesTest {
 		private int invocationCount;
 
 		@Override
-		public TaskCreationResult createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> tasks) {
+		public TaskCreationResult.Materialized createIfAbsent(
+				EventPipelineTaskCreation creation, List<TaskDescriptor> tasks) {
 			invocationCount++;
-			return TaskCreationResult.created(creation, tasks.size());
+			return TaskCreationResult.created(creation, List.of());
 		}
 	}
 
@@ -174,14 +205,19 @@ class TaskCreationServicesTest {
 		private final Map<String, List<TaskDescriptor>> entries = new HashMap<>();
 
 		@Override
-		public TaskCreationResult createIfAbsent(EventPipelineTaskCreation creation, List<TaskDescriptor> tasks) {
+		public TaskCreationResult.Materialized createIfAbsent(
+				EventPipelineTaskCreation creation, List<TaskDescriptor> tasks) {
 			String key = creation.recordedEvent().eventId() + ":" + creation.pipeline().pipelineId().value()
 					+ ":" + creation.pipeline().pipelineVersion();
 			if (entries.containsKey(key)) {
-				return TaskCreationResult.alreadyCreated(creation, 0);
+				return TaskCreationResult.alreadyCreated(creation, List.of());
 			}
 			entries.put(key, List.copyOf(tasks));
-			return TaskCreationResult.created(creation, tasks.size());
+			return TaskCreationResult.created(creation, List.of());
 		}
+	}
+
+	private static TaskCreationResult.Materialized materialized(TaskCreationResult result) {
+		return assertInstanceOf(TaskCreationResult.Materialized.class, result);
 	}
 }

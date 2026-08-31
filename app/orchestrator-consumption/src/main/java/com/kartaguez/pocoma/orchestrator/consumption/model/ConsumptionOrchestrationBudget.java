@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.orchestrator.consumption;
+package com.kartaguez.pocoma.orchestrator.consumption.model;
 
 public record ConsumptionOrchestrationBudget(int maxCandidatesInspected, int maxConsumptionsExecuted) {
 	public ConsumptionOrchestrationBudget {
