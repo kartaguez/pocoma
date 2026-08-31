@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
@@ -11,7 +12,7 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 /** One immutable snapshot in the claim history of a consumption. */
 public record Claim(
 		ClaimId claimId,
-		ConsumptionKey consumptionKey,
+		UUID slotId,
 		WorkerId claimedBy,
 		int attemptNumber,
 		Instant claimedAt,
@@ -19,11 +20,12 @@ public record Claim(
 		Optional<Instant> invalidatedAt,
 		Optional<Instant> endedAt,
 		Optional<ProcessingFailure> failure,
-		Optional<ClaimEndReason> endReason) {
+		Optional<ClaimEndReason> endReason,
+		Optional<ConsumptionKey> compatibilityKey) {
 
 	public Claim {
 		requireNonNull(claimId, "claimId must not be null");
-		requireNonNull(consumptionKey, "consumptionKey must not be null");
+		requireNonNull(slotId, "slotId must not be null");
 		requireNonNull(claimedBy, "claimedBy must not be null");
 		if (attemptNumber < 1) {
 			throw new IllegalArgumentException("attemptNumber must be greater than or equal to 1");
@@ -34,6 +36,7 @@ public record Claim(
 		endedAt = requireNonNull(endedAt, "endedAt must not be null");
 		failure = requireNonNull(failure, "failure must not be null");
 		endReason = requireNonNull(endReason, "endReason must not be null");
+		compatibilityKey = requireNonNull(compatibilityKey, "compatibilityKey must not be null");
 		if (!leaseUntil.isAfter(claimedAt)) {
 			throw new IllegalArgumentException("leaseUntil must be after claimedAt");
 		}
@@ -56,14 +59,27 @@ public record Claim(
 
 	public static Claim active(
 			ClaimId claimId,
-			ConsumptionKey key,
+			UUID slotId,
 			WorkerId workerId,
 			int attemptNumber,
 			Instant claimedAt,
 			ClaimLease lease) {
 		requireNonNull(lease, "lease must not be null");
-		return new Claim(claimId, key, workerId, attemptNumber, claimedAt, claimedAt.plus(lease.duration()),
-				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+		return new Claim(claimId, slotId, workerId, attemptNumber, claimedAt, claimedAt.plus(lease.duration()),
+				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+	}
+
+	/** Compatibility factory for callers that still identify a Claim by its ConsumptionKey. */
+	@Deprecated(forRemoval = true)
+	public static Claim active(
+			ClaimId claimId,
+			ConsumptionKey key,
+			WorkerId workerId,
+			int attemptNumber,
+			Instant claimedAt,
+			ClaimLease lease) {
+		Claim claim = active(claimId, ConsumptionSlot.legacySlotIdFor(key), workerId, attemptNumber, claimedAt, lease);
+		return claim.withCompatibilityKey(key);
 	}
 
 	/** Compatibility overload. The distinct token is deliberately not retained. */
@@ -82,6 +98,20 @@ public record Claim(
 	@Deprecated(forRemoval = true)
 	public ClaimToken token() {
 		return ClaimToken.from(claimId);
+	}
+
+	/** Legacy context only. New code must navigate through {@link #slotId()}. */
+	@Deprecated(forRemoval = true)
+	public ConsumptionKey consumptionKey() {
+		return compatibilityKey.orElseThrow(() ->
+				new IllegalStateException("ConsumptionKey is not retained by target Claims; load the slot by slotId"));
+	}
+
+	/** Attaches non-persisted context for legacy processing adapters. */
+	@Deprecated(forRemoval = true)
+	public Claim withCompatibilityKey(ConsumptionKey key) {
+		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil, invalidatedAt,
+				endedAt, failure, endReason, Optional.of(requireNonNull(key, "key must not be null")));
 	}
 
 	public boolean isOpen() {
@@ -141,15 +171,15 @@ public record Claim(
 	private Claim endAt(Instant instant, ClaimEndReason reason, Optional<ProcessingFailure> processingFailure) {
 		requireOpen();
 		requireNonNull(instant, "instant must not be null");
-		return new Claim(claimId, consumptionKey, claimedBy, attemptNumber, claimedAt, leaseUntil,
-				Optional.empty(), Optional.of(instant), processingFailure, Optional.of(reason));
+		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil,
+				Optional.empty(), Optional.of(instant), processingFailure, Optional.of(reason), compatibilityKey);
 	}
 
 	private Claim invalidateAt(Instant instant, ClaimEndReason reason) {
 		requireOpen();
 		requireNonNull(instant, "instant must not be null");
-		return new Claim(claimId, consumptionKey, claimedBy, attemptNumber, claimedAt, leaseUntil,
-				Optional.of(instant), Optional.empty(), Optional.empty(), Optional.of(reason));
+		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil,
+				Optional.of(instant), Optional.empty(), Optional.empty(), Optional.of(reason), compatibilityKey);
 	}
 
 	private void requireOpen() {

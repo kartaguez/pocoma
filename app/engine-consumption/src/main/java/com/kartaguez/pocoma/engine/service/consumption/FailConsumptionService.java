@@ -9,6 +9,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInpu
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FailConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
+@Deprecated(forRemoval = true)
 public final class FailConsumptionService implements FailConsumptionUseCase {
 
 	private final ClaimPort claimPort;

@@ -61,7 +61,12 @@ public record ConsumptionSlot(
 	@Deprecated(forRemoval = true)
 	public static ConsumptionSlot initial(ConsumptionKey key) {
 		requireNonNull(key, "key must not be null");
-		return initial(UUID.nameUUIDFromBytes(key.toString().getBytes(StandardCharsets.UTF_8)), key, Instant.EPOCH);
+		return initial(legacySlotIdFor(key), key, Instant.EPOCH);
+	}
+
+	static UUID legacySlotIdFor(ConsumptionKey key) {
+		return UUID.nameUUIDFromBytes(requireNonNull(key, "key must not be null")
+				.toString().getBytes(StandardCharsets.UTF_8));
 	}
 
 	public ConsumptionSlot withCurrentClaim(ClaimId claimId) {

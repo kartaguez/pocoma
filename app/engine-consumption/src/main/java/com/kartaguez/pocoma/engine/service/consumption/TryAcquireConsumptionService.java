@@ -20,6 +20,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.TryAcquireConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.TryAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
+@Deprecated(forRemoval = true)
 public final class TryAcquireConsumptionService implements TryAcquireConsumptionUseCase {
 
 	private final ClaimPort claimPort;

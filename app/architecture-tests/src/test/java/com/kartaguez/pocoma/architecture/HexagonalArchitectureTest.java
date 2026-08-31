@@ -258,6 +258,30 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void targetConsumptionPersistenceDoesNotDependOnLegacyClaimTokens() {
+		Set<String> targetPortNames = Set.of(
+				"ConsumptionLifecyclePersistencePort",
+				"ConsumptionQueryPort",
+				"ConsumptionProvenancePersistencePort");
+		Set<String> claimTokenDependencies = CLASSES.stream()
+				.filter(javaClass -> targetPortNames.contains(javaClass.getSimpleName())
+						|| javaClass.getPackageName().startsWith(
+								ROOT_PACKAGE + ".infra.persistence.jpa.adapter.consumption")
+						|| javaClass.getPackageName().startsWith(
+								ROOT_PACKAGE + ".infra.persistence.jpa.entity.consumption")
+						|| javaClass.getPackageName().startsWith(
+								ROOT_PACKAGE + ".infra.persistence.jpa.repository.consumption"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass())
+				.filter(target -> target.getSimpleName().equals("ClaimToken"))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
+
+		assertEquals(Set.of(), claimTokenDependencies,
+				"target consumption persistence must fence exclusively with ClaimId");
+	}
+
+	@Test
 	void consumptionDomainDoesNotDependOnApplicationOrOuterLayers() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".domain.consumption..")

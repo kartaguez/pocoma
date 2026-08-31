@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 
+@Deprecated(forRemoval = true)
 public record ReleaseConsumptionInput(ConsumptionKey consumptionKey, ClaimToken claimToken) {
 
 	public ReleaseConsumptionInput {

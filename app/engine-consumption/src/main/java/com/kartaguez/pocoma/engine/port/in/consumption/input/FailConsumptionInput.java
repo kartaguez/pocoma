@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 
+@Deprecated(forRemoval = true)
 public record FailConsumptionInput(
 		ConsumptionKey consumptionKey,
 		ClaimToken claimToken,

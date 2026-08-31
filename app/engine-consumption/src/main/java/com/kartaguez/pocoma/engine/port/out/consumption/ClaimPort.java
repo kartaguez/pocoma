@@ -16,6 +16,7 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
  * <p>{@link #tryAcquire} must lazily create an absent slot and perform the
  * revision check, claim insertion, and slot update atomically.</p>
  */
+@Deprecated(forRemoval = true)
 public interface ClaimPort {
 
 	Optional<ConsumptionSlot> findSlot(ConsumptionKey key);

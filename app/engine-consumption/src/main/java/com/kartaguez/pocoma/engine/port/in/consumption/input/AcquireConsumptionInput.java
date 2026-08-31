@@ -6,13 +6,9 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 
-@Deprecated(forRemoval = true)
-public record TryAcquireConsumptionInput(
-		ConsumptionKey consumptionKey,
-		WorkerId workerId,
-		ClaimLease lease) {
+public record AcquireConsumptionInput(ConsumptionKey consumptionKey, WorkerId workerId, ClaimLease lease) {
 
-	public TryAcquireConsumptionInput {
+	public AcquireConsumptionInput {
 		requireNonNull(consumptionKey, "consumptionKey must not be null");
 		requireNonNull(workerId, "workerId must not be null");
 		requireNonNull(lease, "lease must not be null");

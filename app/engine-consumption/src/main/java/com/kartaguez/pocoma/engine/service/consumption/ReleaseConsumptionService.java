@@ -9,6 +9,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionI
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ReleaseConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ClaimPort;
 
+@Deprecated(forRemoval = true)
 public final class ReleaseConsumptionService implements ReleaseConsumptionUseCase {
 
 	private final ClaimPort claimPort;

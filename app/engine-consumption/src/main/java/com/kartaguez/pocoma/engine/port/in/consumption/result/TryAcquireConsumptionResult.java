@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 
 /** Exhaustive outcome of an attempt to acquire one logical consumption. */
+@Deprecated(forRemoval = true)
 public sealed interface TryAcquireConsumptionResult {
 
 	record Acquired(Claim claim) implements TryAcquireConsumptionResult {
