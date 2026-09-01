@@ -9,7 +9,7 @@ class TaskDescriptorTest {
 
 	@Test
 	void describesSerializationReadyWorkWithoutDurableState() {
-		TaskDescriptor descriptor = new TaskDescriptor("TYPE", "key", "{}", "partition");
+		TaskDescriptor descriptor = new TaskDescriptor("TYPE", "key", "{}", "partition", 1);
 
 		assertEquals("TYPE", descriptor.taskType());
 		assertEquals("key", descriptor.taskKey());
@@ -19,9 +19,10 @@ class TaskDescriptorTest {
 
 	@Test
 	void validatesRequiredText() {
-		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor(" ", "key", "{}", null));
-		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", " ", "{}", null));
-		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", "key", " ", null));
-		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", "key", "{}", " "));
+		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor(" ", "key", "{}", null, 1));
+		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", " ", "{}", null, 1));
+		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", "key", " ", null, 1));
+		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", "key", "{}", " ", 1));
+		assertThrows(IllegalArgumentException.class, () -> new TaskDescriptor("TYPE", "key", "{}", null, 0));
 	}
 }

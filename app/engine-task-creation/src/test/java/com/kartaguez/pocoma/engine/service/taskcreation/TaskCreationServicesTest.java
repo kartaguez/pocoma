@@ -34,7 +34,7 @@ import com.kartaguez.pocoma.engine.port.out.taskcreation.TaskCreationPort;
 class TaskCreationServicesTest {
 
 	private static final PipelineDefinition BALANCES_V1 = pipeline("balances", 1);
-	private static final TaskDescriptor TASK = new TaskDescriptor("balance", "key", "{}", null);
+	private static final TaskDescriptor TASK = new TaskDescriptor("balance", "key", "{}", null, 1);
 
 	@Test
 	void plansTasksDirectlyFromTypedBusinessEvent() {

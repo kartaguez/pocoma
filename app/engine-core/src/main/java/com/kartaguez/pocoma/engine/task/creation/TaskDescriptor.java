@@ -16,7 +16,8 @@ public record TaskDescriptor(
 		String taskType,
 		String taskKey,
 		String taskPayload,
-		String partitionKey) {
+		String partitionKey,
+		long targetVersion) {
 
 	public TaskDescriptor {
 		requireText(taskType, "taskType");
@@ -24,6 +25,9 @@ public record TaskDescriptor(
 		requireText(taskPayload, "taskPayload");
 		if (partitionKey != null && partitionKey.isBlank()) {
 			throw new IllegalArgumentException("partitionKey must not be blank when provided");
+		}
+		if (targetVersion < 1) {
+			throw new IllegalArgumentException("targetVersion must be greater than or equal to 1");
 		}
 	}
 

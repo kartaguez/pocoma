@@ -1,10 +1,8 @@
 /**
- * Legacy worker-facing execution of durable pipeline tasks.
+ * Framework-free execution of durable pipeline tasks.
  *
- * <p>This transitional package accepts {@code LegacyPipelineTask}, applies pull-worker bindings and
- * delegates through a JSON-decoding strategy. New callers must use
- * {@code com.kartaguez.pocoma.engine.port.in.taskexecution} and its typed payloads. This package
- * will be removed when the task worker performs durable-to-typed mapping before invoking the
- * engine.</p>
+ * <p>Recorded tasks are decoded to typed payloads before entering this engine. Handlers return
+ * functional reports; consumption fencing and persistence provenance remain responsibilities of
+ * the specialized locator and consumption engine.</p>
  */
 package com.kartaguez.pocoma.engine.taskexecution;

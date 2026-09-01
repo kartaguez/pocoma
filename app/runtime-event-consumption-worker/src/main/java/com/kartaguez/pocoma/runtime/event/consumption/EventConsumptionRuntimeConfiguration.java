@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +51,7 @@ import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrches
 import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.pipeline.balance.BalanceTaskCreationStrategy;
 
 @Configuration
 @EnableConfigurationProperties(EventConsumptionProperties.class)
@@ -100,22 +102,26 @@ public class EventConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
-	PipelineDefinition eventConsumptionPipeline(EventConsumptionProperties properties,
-			List<TaskCreationStrategy> strategies) {
-		PipelineDefinition definition = new PipelineDefinition(
+	PipelineDefinition eventConsumptionPipeline(EventConsumptionProperties properties) {
+		return new PipelineDefinition(
 				PipelineId.of(properties.getPipelineId()), properties.getPipelineVersion());
-		long matches = strategies.stream().filter(strategy -> strategy.definition().equals(definition)).count();
-		if (properties.isEnabled() && matches != 1) {
-			throw new IllegalStateException("Enabled Event consumption requires exactly one TaskCreationStrategy for "
-					+ definition + ", found " + matches);
-		}
-		return definition;
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = "pocoma.event-consumption", name = "pipeline-id", havingValue = "balance-projection")
+	TaskCreationStrategy balanceTaskCreationStrategy(PipelineDefinition pipeline, ObjectMapper mapper) {
+		return new BalanceTaskCreationStrategy(pipeline, mapper);
 	}
 
 	@Bean
 	CreateTasksForEventUseCase createTasksForEventUseCase(PipelineDefinition pipeline,
-			List<TaskCreationStrategy> strategies, JpaTaskCreationAdapter persistence) {
+			List<TaskCreationStrategy> strategies, JpaTaskCreationAdapter persistence,
+			EventConsumptionProperties properties) {
 		var matching = strategies.stream().filter(strategy -> strategy.definition().equals(pipeline)).toList();
+		if (properties.isEnabled() && matching.size() != 1) {
+			throw new IllegalStateException("Enabled Event consumption requires exactly one TaskCreationStrategy for "
+					+ pipeline + ", found " + matching.size());
+		}
 		return new CreateTasksForEventService(
 				new PlanTasksForEventService(new TaskCreationStrategyRegistry(matching)), persistence);
 	}

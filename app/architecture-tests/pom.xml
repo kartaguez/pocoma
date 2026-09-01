@@ -34,13 +34,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-worker-task</artifactId>
+			<artifactId>pocoma-locator-consumption-task</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-runtime-pipeline-task-executor</artifactId>
+			<artifactId>pocoma-runtime-task-consumption-worker</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

@@ -155,7 +155,7 @@ class EventConsumptionTakeoverPostgresTest {
 				@Override public List<TaskDescriptor> createTasks(
 						com.kartaguez.pocoma.domain.pot.event.BusinessEvent event) {
 					return List.of(new TaskDescriptor("TAKEOVER_TASK", "takeover-" + event.version(), "{}",
-							event.potId().value().toString()));
+							event.potId().value().toString(), event.version()));
 				}
 			};
 		}

@@ -236,7 +236,7 @@ class EventConsumptionRuntimePostgresTest {
 					}
 					if (event.version() == 4) return List.of();
 					return List.of(new TaskDescriptor("COMPUTE_BALANCES", "balances-" + event.version(),
-							"{}", event.potId().value().toString()));
+							"{}", event.potId().value().toString(), event.version()));
 				}
 			};
 		}
@@ -253,7 +253,7 @@ class EventConsumptionRuntimePostgresTest {
 				@Override public List<TaskDescriptor> createTasks(
 						com.kartaguez.pocoma.domain.pot.event.BusinessEvent event) {
 					return List.of(new TaskDescriptor("SEND_NOTIFICATION", "notification-" + event.version(),
-							"{}", event.potId().value().toString()));
+							"{}", event.potId().value().toString(), event.version()));
 				}
 			};
 		}

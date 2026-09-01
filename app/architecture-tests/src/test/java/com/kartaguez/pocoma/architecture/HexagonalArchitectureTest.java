@@ -28,16 +28,9 @@ class HexagonalArchitectureTest {
 
 	private static final String JPA_MATERIALIZABLE_EVENT_SOURCE_ADAPTER = ROOT_PACKAGE
 			+ ".infra.persistence.jpa.adapter.pipeline.JpaMaterializableEventSourceAdapter";
-	private static final String JPA_PIPELINE_TASK_WORK_SOURCE_ADAPTER = ROOT_PACKAGE
-			+ ".infra.persistence.jpa.adapter.pipeline.JpaPipelineTaskWorkSourceAdapter";
-
 	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of(
 			JPA_MATERIALIZABLE_EVENT_SOURCE_ADAPTER + " -> "
-					+ ROOT_PACKAGE + ".supra.worker.taskmaterialization.core.MaterializableEventSource",
-			JPA_PIPELINE_TASK_WORK_SOURCE_ADAPTER + " -> "
-					+ ROOT_PACKAGE + ".supra.worker.pipelinetask.core.PipelineTaskClaimCriteria",
-			JPA_PIPELINE_TASK_WORK_SOURCE_ADAPTER + " -> "
-					+ ROOT_PACKAGE + ".supra.worker.pipelinetask.core.PipelineTaskWorkSource");
+					+ ROOT_PACKAGE + ".supra.worker.taskmaterialization.core.MaterializableEventSource");
 
 	private static final JavaClasses CLASSES = new ClassFileImporter().importPackages(ROOT_PACKAGE);
 
@@ -599,19 +592,17 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void typedTaskExecutionDoesNotDependOnDurableProcessingOrFrameworks() {
+	void typedTaskExecutionDoesNotDependOnConsumptionWorkersOrFrameworks() {
 		noClasses()
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
 						ROOT_PACKAGE + ".engine.service.taskexecution..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine..processing.task..",
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.context.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..",
-						ROOT_PACKAGE + ".engine.taskexecution..",
 						ROOT_PACKAGE + ".supra.worker..",
 						ROOT_PACKAGE + ".orchestrator..",
 						"org.springframework..",
@@ -620,19 +611,10 @@ class HexagonalArchitectureTest {
 						"io.nats..")
 				.check(CLASSES);
 
-		Set<String> forbiddenDurableTypes = Set.of(
-				ROOT_PACKAGE + ".engine.taskexecution.model.LegacyPipelineTask",
-				ROOT_PACKAGE + ".engine.taskexecution.model.ConfiguredTaskExecutionBinding",
-				ROOT_PACKAGE + ".infra.persistence.jpa.entity.pipeline.JpaPipelineTaskStatus");
-		Set<String> actualDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.port.in.taskexecution")
-						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.taskexecution"))
-				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.map(dependency -> dependency.getTargetClass().getName())
-				.filter(forbiddenDurableTypes::contains)
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(), actualDependencies,
-				"Typed task execution must not expose durable task or claim state");
+		Set<String> removedLegacyTypes = Set.of("LegacyPipelineTask", "ConfiguredTaskExecutionBinding",
+				"JpaPipelineTaskStatus", "TaskExecutionRejectedException");
+		assertEquals(Set.of(), CLASSES.stream().map(javaClass -> javaClass.getSimpleName())
+				.filter(removedLegacyTypes::contains).collect(Collectors.toUnmodifiableSet()));
 	}
 
 	@Test
@@ -734,16 +716,14 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void taskWorkerDependsOnTypedIncomingContractsAndNotLegacyOrOutgoingPorts() {
-		String workerPackage = ROOT_PACKAGE + ".supra.worker.task..";
+	void taskLocatorIsSpecializedButIndependentFromRuntimeSupraAndInfrastructure() {
+		String workerPackage = ROOT_PACKAGE + ".locator.consumption.task..";
 		noClasses()
 				.that().resideInAPackage(workerPackage)
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra..",
 						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".engine.port.in.consumption..",
-						ROOT_PACKAGE + ".engine.service.consumption..",
-						ROOT_PACKAGE + ".engine.taskexecution..",
+						ROOT_PACKAGE + ".engine.execution..",
 						"org.springframework..",
 						"jakarta.persistence..",
 						"com.fasterxml.jackson..",
@@ -752,34 +732,33 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.task"))
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".locator.consumption.task"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(dependency -> dependency.getTargetClass().getName())
-				.filter(name -> name.endsWith(".TaskPort")
-						|| name.endsWith(".ClaimPort")
+				.filter(name -> name.endsWith(".ClaimPort")
 						|| name.endsWith(".ExecutionJournalPort")
-						|| name.endsWith(".ConsumptionKey")
 						|| name.endsWith(".LegacyPipelineTask")
-						|| name.endsWith(".ConfiguredTaskExecutionBinding"))
+						|| name.endsWith(".ConfiguredTaskExecutionBinding")
+						|| name.endsWith(".ClaimToken")
+						|| name.endsWith(".ExecutionGuard"))
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), forbiddenWorkerDependencies,
-				"Task worker must use typed incoming contracts without repositories, keys or legacy models");
+				"Task locator must use the generic consumption lifecycle without legacy fencing");
 	}
 
 	@Test
-	void balancePipelineKeepsJsonInTheRuntimeMapperAndTypedExecutionIndependent() {
+	void balancePipelineIsFrameworkFreeAndIndependentFromConsumption() {
 		noClasses()
-				.that().haveSimpleName("ComputeBalancesPipelineTaskExecutionStrategy")
-				.should().dependOnClassesThat().resideInAPackage("com.fasterxml.jackson..")
-				.check(CLASSES);
-
-		noClasses()
-				.that().haveSimpleName("ExecuteBalanceProjectionTaskHandler")
-				.or().haveSimpleName("ComputeBalancesTask")
+				.that().resideInAPackage(ROOT_PACKAGE + ".pipeline.balance..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						"com.fasterxml.jackson..",
-						ROOT_PACKAGE + ".supra.worker.task.mapping..",
-						ROOT_PACKAGE + ".engine.taskexecution..")
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine..consumption..",
+						ROOT_PACKAGE + ".orchestrator..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".infra..",
+						"org.springframework..",
+						"jakarta.persistence..")
 				.check(CLASSES);
 	}
 
@@ -790,7 +769,7 @@ class HexagonalArchitectureTest {
 		Set<String> eventDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.event.EventConsumptionLocator");
 		Set<String> taskDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.worker.task.TaskWorkerIteration");
+				ROOT_PACKAGE + ".locator.consumption.task.TaskConsumptionLocator");
 
 		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteCommandUseCase")));
 		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
@@ -799,7 +778,9 @@ class HexagonalArchitectureTest {
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".TryAcquireConsumptionUseCase")));
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteTaskUseCase")));
-		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".TaskPort")));
+		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
+		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
 	}
 
 	@Test
@@ -854,6 +835,12 @@ class HexagonalArchitectureTest {
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.event.consumption..")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.event.consumption..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.task.consumption..")
+				.should().dependOnClassesThat().resideInAPackage(
+						ROOT_PACKAGE + ".runtime.task.consumption..")
 				.check(CLASSES);
 	}
 

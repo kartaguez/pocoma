@@ -27,7 +27,7 @@ class MaterializeTasksServiceTest {
 	@Test
 	void materializesSupportedEvent() {
 		PipelineDefinition definition = definition();
-		TaskDescriptor task = new TaskDescriptor("ECHO", "task-1", "{}", "partition");
+		TaskDescriptor task = new TaskDescriptor("ECHO", "task-1", "{}", "partition", 1);
 		TestStrategy strategy = new TestStrategy(definition, true, List.of(task));
 		RecordingMaterializationPort port = new RecordingMaterializationPort();
 		MaterializeTasksService service = service(strategy, port);

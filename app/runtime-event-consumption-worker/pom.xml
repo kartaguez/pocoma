@@ -5,6 +5,7 @@
 	<artifactId>pocoma-runtime-event-consumption-worker</artifactId>
 	<dependencies>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-event</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-balance</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consumption-worker</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>

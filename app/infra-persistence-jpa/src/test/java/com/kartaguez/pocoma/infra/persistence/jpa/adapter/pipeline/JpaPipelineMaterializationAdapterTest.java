@@ -163,7 +163,7 @@ class JpaPipelineMaterializationAdapterTest {
 				"ECHO",
 				"event-" + candidate.event().id(),
 				"{}",
-				candidate.event().potId().value().toString());
+				candidate.event().potId().value().toString(), candidate.event().version());
 	}
 
 	private static PotId potIdForSegment(int segmentIndex, int segmentCount) {

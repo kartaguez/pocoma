@@ -75,7 +75,8 @@ Claim ordering is also explicit and is independent from segmentation:
 
 - Commands are ordered by `(createdAt, commandId)` only;
 - EventConsumptions are ordered by `(event.version(), recordedAt, eventId)`;
-- Tasks are ordered by `(targetVersion, createdAt, taskId)`.
+- Tasks are scanned by `(createdAt, taskId)`. `targetVersion` identifies an exact historical input;
+  it is not an ordering or serialization constraint.
 
 The identifier is a deterministic tie-breaker. These rules guarantee claim priority among eligible
 items, not completion order between concurrent workers.
@@ -97,9 +98,11 @@ pipeline-specific logic.
 un segment. Il appelle la création idempotente de Tasks puis le lifecycle Event ; il ne voit jamais
 les consommations déjà terminales et ne modifie aucun statut sur l'Event source.
 
-`supra-worker-task` orchestre une seule Task durable à la fois. Son `ExecutionGuard<taskId>` englobe
-le mapping durable vers typé et `ExecuteTaskUseCase`; un journal existant contourne donc mapper et
-handler. Les slots terminaux sont réconciliés par le processing engine avant exposition au worker.
+`locator-consumption-task` propose des candidates sans consulter le lifecycle Consumption. Après
+acquisition, la recette recharge la Task dans la transaction gagnante, exécute le handler typé et
+traduit son rapport fonctionnel en provenance. `ConsumptionPollingWorker` fournit uniquement la
+boucle générique. Projection, provenance et CAS final sont committés ensemble ; `ALREADY_DONE`
+permet à l'orchestrateur de passer au candidat suivant.
 
 The concepts are deliberately distinct:
 

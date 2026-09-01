@@ -8,6 +8,7 @@ import com.kartaguez.pocoma.engine.exception.MissingTaskExecutionHandlerExceptio
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
+import com.kartaguez.pocoma.engine.taskexecution.model.TaskExecutionReport;
 
 public final class ExecuteTaskService implements ExecuteTaskUseCase {
 
@@ -18,7 +19,7 @@ public final class ExecuteTaskService implements ExecuteTaskUseCase {
 	}
 
 	@Override
-	public void executeTask(ExecuteTaskInput<? extends TaskPayload> input) {
+	public TaskExecutionReport executeTask(ExecuteTaskInput<? extends TaskPayload> input) {
 		requireNonNull(input, "input must not be null");
 		TaskExecutionHandler<?> handler = handlerRegistry.find(input.pipeline(), input.taskType())
 				.orElseThrow(() -> new MissingTaskExecutionHandlerException(input.pipeline(), input.taskType()));
@@ -26,12 +27,12 @@ public final class ExecuteTaskService implements ExecuteTaskUseCase {
 			throw new InvalidTaskPayloadTypeException(
 					input.pipeline(), input.taskType(), handler.payloadType(), input.task().getClass());
 		}
-		execute(handler, input.task());
+		return execute(handler, input.task());
 	}
 
-	private static <T extends TaskPayload> void execute(
+	private static <T extends TaskPayload> TaskExecutionReport execute(
 			TaskExecutionHandler<T> handler,
 			TaskPayload task) {
-		handler.execute(handler.payloadType().cast(task));
+		return handler.execute(handler.payloadType().cast(task));
 	}
 }

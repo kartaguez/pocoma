@@ -16,6 +16,7 @@ import com.kartaguez.pocoma.engine.exception.InvalidTaskPayloadTypeException;
 import com.kartaguez.pocoma.engine.exception.MissingTaskExecutionHandlerException;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
+import com.kartaguez.pocoma.engine.taskexecution.model.TaskExecutionReport;
 
 class ExecuteTaskServiceTest {
 
@@ -127,11 +128,12 @@ class ExecuteTaskServiceTest {
 		}
 
 		@Override
-		public void execute(TestPayload task) {
+		public TaskExecutionReport execute(TestPayload task) {
 			if (failure != null) {
 				throw failure;
 			}
 			executed.add(task);
+			return new TaskExecutionReport.Succeeded(List.of(), List.of());
 		}
 	}
 }

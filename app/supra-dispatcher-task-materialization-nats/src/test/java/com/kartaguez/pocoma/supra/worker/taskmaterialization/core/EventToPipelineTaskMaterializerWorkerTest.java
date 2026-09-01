@@ -66,7 +66,7 @@ class EventToPipelineTaskMaterializerWorkerTest {
 		assertEquals(Instant.parse("2026-06-07T11:59:55Z"), source.upperBound);
 		assertEquals(List.of(new ConfiguredPipelineBinding(definition, List.of("*"), true)), source.activeBindings);
 		assertEquals(List.of(candidate), port.materializedCandidates);
-		assertEquals(List.of(new TaskDescriptor("ECHO", "event-" + candidate.event().id(), "{}", candidate.event().potId().value().toString())),
+		assertEquals(List.of(new TaskDescriptor("ECHO", "event-" + candidate.event().id(), "{}", candidate.event().potId().value().toString(), candidate.event().version())),
 				port.materializedTasks.getFirst());
 	}
 
@@ -124,7 +124,7 @@ class EventToPipelineTaskMaterializerWorkerTest {
 					"ECHO",
 					"event-" + event.id(),
 					"{}",
-					event.potId().value().toString()));
+					event.potId().value().toString(), event.version()));
 		}
 	}
 
