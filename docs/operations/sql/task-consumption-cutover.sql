@@ -25,6 +25,27 @@ begin
 	end if;
 end $$;
 
+do $$
+begin
+	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (partition_key is null or not pg_input_is_valid(partition_key, 'uuid'))
+	) then
+		raise exception 'Cannot cut over a Balance Task with a missing or non-UUID partition_key';
+	end if;
+
+	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (target_version is null or target_version < 1 or pipeline_version < 1
+		       or task_type is null or btrim(task_type) = ''
+		       or task_payload is null or btrim(task_payload) = '')
+	) then
+		raise exception 'Cannot cut over a structurally invalid Balance Task';
+	end if;
+end $$;
+
 update tasks_4_pipeline
 set status = 'PENDING',
     claim_token = null,

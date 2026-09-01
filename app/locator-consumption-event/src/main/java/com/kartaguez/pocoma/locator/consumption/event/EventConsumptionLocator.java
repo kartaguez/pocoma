@@ -23,6 +23,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecuti
 import com.kartaguez.pocoma.engine.port.in.taskcreation.input.CreateTasksForEventInput;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.CreateTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionCandidate;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
@@ -65,13 +66,13 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 
 		@Override
 		public Optional<LocatedConsumption> next() {
-			Optional<RecordedEvent<? extends BusinessEvent>> candidate =
-					discovery.findNextEligibleCandidate(pipeline, segment, now, cursor);
+			Optional<EventConsumptionCandidate> candidate = discovery.findNextEligibleCandidate(
+					pipeline, segment, now, cursor);
 			if (candidate.isEmpty()) return Optional.empty();
-			RecordedEvent<? extends BusinessEvent> event = candidate.orElseThrow();
-			cursor = Optional.of(new EventOrderingKey(event.event().version(), event.recordedAt(), event.eventId()));
+			EventConsumptionCandidate event = candidate.orElseThrow();
+			cursor = Optional.of(event.orderingKey());
 			UUID eventId = event.eventId();
-			return Optional.of(new LocatedConsumption(key(event), context -> execute(eventId, context.slotId()),
+			return Optional.of(new LocatedConsumption(key(eventId), context -> execute(eventId, context.slotId()),
 					failureClassifier));
 		}
 	}
@@ -95,9 +96,9 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 		return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(), List.of(input), results);
 	}
 
-	private ConsumptionKey key(RecordedEvent<? extends BusinessEvent> event) {
+	private ConsumptionKey key(UUID eventId) {
 		return new ConsumptionKey(
-				new ConsumableIdentity("EVENT", List.of(event.eventId().toString())),
+				new ConsumableIdentity("EVENT", List.of(eventId.toString())),
 				new ConsumerIdentity("PIPELINE", List.of(
 						pipeline.pipelineId().value(), Integer.toString(pipeline.pipelineVersion()))));
 	}

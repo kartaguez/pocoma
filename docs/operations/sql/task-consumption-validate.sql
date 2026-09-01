@@ -28,6 +28,24 @@ begin
     end if;
 
 	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (partition_key is null or not pg_input_is_valid(partition_key, 'uuid'))
+	) then
+		raise exception 'A Balance Task remains undiscoverable because partition_key is missing or non-UUID';
+	end if;
+
+	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (target_version is null or target_version < 1 or pipeline_version < 1
+		       or task_type is null or btrim(task_type) = ''
+		       or task_payload is null or btrim(task_payload) = '')
+	) then
+		raise exception 'A structurally invalid Balance Task remains after cutover';
+	end if;
+
+	if exists (
 		select 1 from tasks_4_pipeline task
 		left join consumption_slots slot
 		  on slot.consumable_type = 'TASK'

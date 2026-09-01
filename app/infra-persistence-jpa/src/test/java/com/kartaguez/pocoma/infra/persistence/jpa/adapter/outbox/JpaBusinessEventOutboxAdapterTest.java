@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -23,6 +24,7 @@ import com.kartaguez.pocoma.engine.model.BusinessEventClaim;
 import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @DataJpaTest
 @Import(JpaBusinessEventOutboxAdapter.class)
@@ -120,5 +122,10 @@ class JpaBusinessEventOutboxAdapterTest {
 	@EntityScan("com.kartaguez.pocoma.infra.persistence.jpa.entity")
 	@EnableJpaRepositories("com.kartaguez.pocoma.infra.persistence.jpa.repository")
 	static class TestApplication {
+
+		@Bean
+		ObjectMapper objectMapper() {
+			return new ObjectMapper();
+		}
 	}
 }

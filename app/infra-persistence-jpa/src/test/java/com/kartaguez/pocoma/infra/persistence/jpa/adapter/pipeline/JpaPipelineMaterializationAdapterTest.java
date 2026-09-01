@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -33,6 +34,7 @@ import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineMaterializationRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @DataJpaTest
 @Import({ JpaPipelineMaterializationAdapter.class, JpaTaskCreationAdapter.class,
@@ -181,5 +183,10 @@ class JpaPipelineMaterializationAdapterTest {
 	@EntityScan("com.kartaguez.pocoma.infra.persistence.jpa.entity")
 	@EnableJpaRepositories("com.kartaguez.pocoma.infra.persistence.jpa.repository")
 	static class TestApplication {
+
+		@Bean
+		ObjectMapper objectMapper() {
+			return new ObjectMapper();
+		}
 	}
 }

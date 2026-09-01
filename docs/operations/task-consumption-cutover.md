@@ -16,6 +16,24 @@ le curseur technique. Il ne lit plus `status`, `claim_token`, `claimed_by`, `lea
 5. Attendre la fin ou l'expiration de tous les claims signalés. Un claim sans échéance doit être
    résolu manuellement ; le script refuse de l'adopter silencieusement.
 
+Le preflight refuse également toute Task du pipeline `balance-projection` dont `partition_key`
+est absent ou n'est pas un UUID PostgreSQL valide. Il contrôle les autres champs structurels lus
+avant acquisition (`pipeline_version`, `target_version`, `task_type` et présence du payload opaque),
+mais ne décode pas le JSON métier de `task_payload` : ce décodage reste une responsabilité de
+l'exécution après acquisition.
+
+Conserver l'inventaire des lignes à corriger avant de relancer le preflight :
+
+```sql
+select id, pipeline_id, pipeline_version, task_type, partition_key, target_version
+from tasks_4_pipeline
+where pipeline_id = 'balance-projection'
+  and (partition_key is null or not pg_input_is_valid(partition_key, 'uuid')
+       or pipeline_version < 1 or target_version is null or target_version < 1
+       or task_type is null or btrim(task_type) = ''
+       or task_payload is null or btrim(task_payload) = '');
+```
+
 ## Migration logique
 
 Exécuter `sql/task-consumption-cutover.sql` dans une fenêtre sans ancien exécuteur :
@@ -31,6 +49,8 @@ compteur reste à zéro et l'audit des anciennes tentatives reste dans `tasks_4_
 
 Le script est idempotent. Il refuse cependant un slot préexistant dont l'outcome contredit l'état
 legacy : cette situation doit être investiguée, pas écrasée.
+Il répète sous transaction les contrôles structurels du preflight afin qu'un preflight ancien,
+ignoré ou devenu obsolète ne puisse laisser entrer une Task qui bloquerait le discovery.
 
 ## Activation
 

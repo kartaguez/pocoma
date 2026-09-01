@@ -40,6 +40,7 @@ public final class BusinessEventRecordMapper {
 	public RecordedEvent<? extends BusinessEvent> toRecordedEvent(BusinessEventEnvelope envelope) {
 		Objects.requireNonNull(envelope, "envelope must not be null");
 		JsonNode payload = readPayload(envelope.payloadJson());
+		verifyCoherence(envelope, payload);
 		BusinessEvent event = eventFrom(envelope, payload);
 		return new RecordedEvent<>(
 				envelope.id(),
@@ -112,6 +113,42 @@ public final class BusinessEventRecordMapper {
 		catch (JsonProcessingException exception) {
 			throw new IllegalArgumentException("Invalid business event payload", exception);
 		}
+	}
+
+	private static void verifyCoherence(BusinessEventEnvelope envelope, JsonNode payload) {
+		verifyTextIfPresent(payload, "eventType", envelope.eventType());
+		verifyUuidIfPresent(payload, "potId", envelope.potId().value());
+		verifyUuidIfPresent(payload, "aggregateId", envelope.aggregateId());
+		if (payload.has("version")
+				&& (!payload.path("version").isIntegralNumber()
+						|| payload.path("version").longValue() != envelope.version())) {
+			throw incoherent("version", payload.path("version"), Long.toString(envelope.version()));
+		}
+	}
+
+	private static void verifyTextIfPresent(JsonNode payload, String field, String expected) {
+		if (payload.has(field) && (!payload.path(field).isTextual()
+				|| !expected.equals(payload.path(field).textValue()))) {
+			throw incoherent(field, payload.path(field), expected);
+		}
+	}
+
+	private static void verifyUuidIfPresent(JsonNode payload, String field, UUID expected) {
+		if (!payload.has(field)) return;
+		JsonNode value = payload.path(field);
+		try {
+			if (!value.isTextual() || !expected.equals(UUID.fromString(value.textValue()))) {
+				throw incoherent(field, value, expected.toString());
+			}
+		}
+		catch (IllegalArgumentException exception) {
+			throw incoherent(field, value, expected.toString());
+		}
+	}
+
+	private static IllegalArgumentException incoherent(String field, JsonNode actual, String expected) {
+		return new IllegalArgumentException("Incoherent business event payload field " + field
+				+ ": expected " + expected + ", got " + actual);
 	}
 
 	private static Set<ShareholderId> shareholderIds(JsonNode payload) {

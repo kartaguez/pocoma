@@ -27,9 +27,10 @@ public class JpaBusinessEventOutboxAdapter implements BusinessEventAppendPort, B
 	private final JpaBusinessEventOutboxRepository repository;
 	private final BusinessEventRecordMapper eventRecordMapper;
 
-	public JpaBusinessEventOutboxAdapter(JpaBusinessEventOutboxRepository repository) {
+	public JpaBusinessEventOutboxAdapter(JpaBusinessEventOutboxRepository repository, ObjectMapper objectMapper) {
 		this.repository = Objects.requireNonNull(repository, "repository must not be null");
-		this.eventRecordMapper = new BusinessEventRecordMapper(new ObjectMapper());
+		this.eventRecordMapper = new BusinessEventRecordMapper(
+				Objects.requireNonNull(objectMapper, "objectMapper must not be null"));
 	}
 
 	@Override

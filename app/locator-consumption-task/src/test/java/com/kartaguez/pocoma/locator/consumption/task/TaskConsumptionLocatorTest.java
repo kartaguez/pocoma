@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.locator.consumption.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -34,6 +35,21 @@ class TaskConsumptionLocatorTest {
 	private static final PipelineDefinition PIPELINE = new PipelineDefinition(PipelineId.of("balance-projection"), 2);
 	private static final UUID TASK_ID = UUID.randomUUID();
 	private static final PotId POT_ID = PotId.of(UUID.randomUUID());
+
+	@Test
+	void discoveryKeepsTheTaskPayloadOpaqueAndDoesNotInvokeTheMapper() {
+		RecordedTask task = task(42, "{not-json");
+		ReloadingTaskPort port = new ReloadingTaskPort(task, task);
+		RecordingMapper mapper = new RecordingMapper();
+		var locator = locator(port, mapper, input -> { throw new AssertionError("execution must not start"); });
+
+		var located = locator.openSearch().next().orElseThrow();
+
+		assertEquals(List.of(TASK_ID.toString()), located.consumptionKey().consumable().components());
+		assertEquals(1, port.candidateReads);
+		assertEquals(0, port.authoritativeReads);
+		assertNull(mapper.mapped);
+	}
 
 	@Test
 	void executionReloadsAuthoritativeTaskAndBuildsProvenanceFromIt() {

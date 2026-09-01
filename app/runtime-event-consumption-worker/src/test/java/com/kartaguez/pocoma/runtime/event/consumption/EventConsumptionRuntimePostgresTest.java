@@ -2,11 +2,14 @@ package com.kartaguez.pocoma.runtime.event.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
+import java.time.Instant;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +47,7 @@ import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.pipeline.JpaTaskCreationAdapter;
@@ -95,6 +99,31 @@ class EventConsumptionRuntimePostgresTest {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
 				+ "consumption_claims, tasks_4_pipeline, event_4_pipeline_materialization_status, "
 				+ "business_event_outbox cascade");
+	}
+
+	@Test
+	void corruptEventPayloadBecomesAProcessingFailureAndDoesNotBlockTheFollowingEvent() {
+		UUID corruptPotId = UUID.randomUUID();
+		var corrupt = events.saveAndFlush(new JpaBusinessEventOutboxEntity(
+				"PotShareholdersAddedEvent", corruptPotId, corruptPotId, 5, "{not-json", null, null,
+				Instant.parse("2026-01-01T00:00:00Z")));
+		PotId validPotId = PotId.of(UUID.randomUUID());
+		outbox.append(new PotCreatedEvent(validPotId, 6));
+		var validEventId = events.findAll().stream()
+				.filter(entity -> entity.toEnvelope().version() == 6).findFirst().orElseThrow().id();
+
+		var result = orchestrator.run(input("poison-pill-worker"));
+
+		assertFalse(result instanceof ConsumptionOrchestrationResult.RuntimeFailure);
+		var corruptSlot = lifecycle.findSlot(key(corrupt.id())).orElseThrow();
+		assertEquals(java.util.Optional.empty(), corruptSlot.terminalOutcome());
+		assertEquals(ClaimEndReason.PROCESSING_FAILURE,
+				lifecycle.findClaims(corruptSlot.slotId()).getFirst().endReason().orElseThrow());
+		assertEquals("EVENT_EXECUTION_FAILURE",
+				lifecycle.findClaims(corruptSlot.slotId()).getFirst().failure().orElseThrow().category());
+		var validSlot = lifecycle.findSlot(key(validEventId)).orElseThrow();
+		assertEquals(TerminalOutcome.SUCCESS, validSlot.terminalOutcome().orElseThrow());
+		assertEquals(1, tasks.count());
 	}
 
 	@Test

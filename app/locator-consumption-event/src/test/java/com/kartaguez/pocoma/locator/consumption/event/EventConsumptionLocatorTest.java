@@ -29,6 +29,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecu
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.PersistedTaskReference;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionCandidate;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
@@ -37,6 +38,23 @@ import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTe
 
 class EventConsumptionLocatorTest {
 	private static final Instant NOW = Instant.parse("2026-08-31T10:00:00Z");
+
+	@Test
+	void discoveryBuildsAKeyWithoutReloadingOrUnderstandingTheEvent() {
+		UUID eventId = UUID.randomUUID();
+		var candidate = event(eventId, PotId.of(UUID.randomUUID()), 9);
+		var port = new StubEventPort(candidate, Optional.of(candidate));
+		var locator = new EventConsumptionLocator(
+				new PipelineDefinition(PipelineId.of("balances"), 1), WorkerSegment.single(), port, port,
+				input -> { throw new AssertionError("task creation belongs to execution"); }, classifier(),
+				Clock.fixed(NOW, ZoneOffset.UTC));
+
+		var located = locator.openSearch().next().orElseThrow();
+
+		assertEquals(List.of(eventId.toString()), located.consumptionKey().consumable().components());
+		assertEquals(1, port.candidateReads.get());
+		assertEquals(0, port.authoritativeReads.get());
+	}
 
 	@Test
 	void executionReloadsTheAuthoritativeEventAndBuildsWinningProvenanceFromIt() {
@@ -145,11 +163,14 @@ class EventConsumptionLocatorTest {
 		}
 
 		@Override
-		public Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> findNextEligibleCandidate(
+		public Optional<EventConsumptionCandidate> findNextEligibleCandidate(
 				PipelineDefinition pipeline, WorkerSegment segment, Instant now,
 				Optional<EventOrderingKey> afterExclusive) {
 			candidateReads.incrementAndGet();
-			return afterExclusive.isEmpty() ? Optional.of(candidate) : Optional.empty();
+			return afterExclusive.isEmpty()
+					? Optional.of(new EventConsumptionCandidate(candidate.eventId(), candidate.event().potId(),
+							candidate.event().version(), candidate.recordedAt()))
+					: Optional.empty();
 		}
 
 		@Override

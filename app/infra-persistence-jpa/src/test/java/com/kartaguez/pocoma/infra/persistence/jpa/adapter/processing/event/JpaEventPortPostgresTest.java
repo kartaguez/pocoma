@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,7 +26,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
@@ -53,19 +57,51 @@ class JpaEventPortPostgresTest {
 	@Autowired private JpaEventPort events;
 	@Autowired private JpaEventConsumptionDiscoveryAdapter discovery;
 	@Autowired private JpaBusinessEventOutboxAdapter outbox;
+	@Autowired private JpaBusinessEventOutboxRepository repository;
 	@Autowired private PlatformTransactionManager transactionManager;
+	@Autowired private TrackingObjectMapper objectMapper;
+
+	@BeforeEach
+	void cleanEvents() {
+		repository.deleteAll();
+		objectMapper.reset();
+	}
+
+	@Test
+	void structurallyDiscoversAnEventWhosePayloadCannotBeDeserialized() {
+		var potId = java.util.UUID.randomUUID();
+		var createdAt = Instant.parse("2026-09-01T10:00:00Z");
+		var entity = repository.saveAndFlush(new JpaBusinessEventOutboxEntity(
+				"PotShareholdersAddedEvent", potId, potId, 7, "{not-json", null, null, createdAt));
+
+		var candidate = discovery.findNextEligibleCandidate(new PipelineDefinition(PipelineId.of("balances"), 1),
+				WorkerSegment.single(), createdAt.plusSeconds(1), Optional.empty()).orElseThrow();
+
+		assertEquals(entity.id(), candidate.eventId());
+		assertEquals(PotId.of(potId), candidate.potId());
+		assertEquals(7, candidate.version());
+		assertThrows(IllegalArgumentException.class, () -> new TransactionTemplate(transactionManager)
+				.execute(status -> events.findById(candidate.eventId()).orElseThrow()));
+	}
 
 	@Test
 	void candidateReadEndsBeforeAuthoritativeMandatoryReload() {
 		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 5));
+		assertEquals(1, objectMapper.writes.get());
+		assertEquals(0, objectMapper.reads.get());
 		var candidate = discovery.findNextEligibleCandidate(new PipelineDefinition(PipelineId.of("balances"), 1),
 				WorkerSegment.single(), Instant.now(), Optional.empty()).orElseThrow();
+		assertEquals(0, objectMapper.reads.get());
 
 		assertThrows(IllegalTransactionStateException.class, () -> events.findById(candidate.eventId()));
 
 		var authoritative = new TransactionTemplate(transactionManager)
 				.execute(status -> events.findById(candidate.eventId()).orElseThrow());
-		assertEquals(candidate, authoritative);
+		assertEquals(candidate.eventId(), authoritative.eventId());
+		assertEquals(candidate.potId(), authoritative.event().potId());
+		assertEquals(candidate.version(), authoritative.event().version());
+		assertEquals(candidate.createdAt(), authoritative.recordedAt());
+		assertEquals(1, objectMapper.reads.get());
 	}
 
 	@SpringBootConfiguration
@@ -75,6 +111,20 @@ class JpaEventPortPostgresTest {
 	@Import({JpaEventPort.class, JpaEventConsumptionDiscoveryAdapter.class,
 			JpaEventConsumptionDiscoveryRepository.class, JpaBusinessEventOutboxAdapter.class})
 	static class TestApplication {
-		@Bean ObjectMapper objectMapper() { return new ObjectMapper(); }
+		@Bean TrackingObjectMapper objectMapper() { return new TrackingObjectMapper(); }
+	}
+
+	static final class TrackingObjectMapper extends ObjectMapper {
+		private final AtomicInteger reads = new AtomicInteger();
+		private final AtomicInteger writes = new AtomicInteger();
+		@Override public JsonNode readTree(String content) throws JsonProcessingException {
+			reads.incrementAndGet();
+			return super.readTree(content);
+		}
+		@Override public String writeValueAsString(Object value) throws JsonProcessingException {
+			writes.incrementAndGet();
+			return super.writeValueAsString(value);
+		}
+		void reset() { reads.set(0); writes.set(0); }
 	}
 }

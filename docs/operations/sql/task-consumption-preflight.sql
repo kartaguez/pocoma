@@ -22,6 +22,23 @@ begin
         raise exception 'A Task has no valid exact target_version';
     end if;
 
+	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (partition_key is null or not pg_input_is_valid(partition_key, 'uuid'))
+	) then
+		raise exception 'A Balance Task has a missing or non-UUID partition_key';
+	end if;
+
+	if exists (
+		select 1 from tasks_4_pipeline
+		where pipeline_id = 'balance-projection'
+		  and (pipeline_version < 1 or task_type is null or btrim(task_type) = ''
+		       or task_payload is null or btrim(task_payload) = '')
+	) then
+		raise exception 'A Balance Task has an invalid structural binding or empty opaque payload';
+	end if;
+
     if exists (
         select 1 from tasks_4_pipeline
         where status in ('DONE', 'FAILED', 'SUPERSEDED')

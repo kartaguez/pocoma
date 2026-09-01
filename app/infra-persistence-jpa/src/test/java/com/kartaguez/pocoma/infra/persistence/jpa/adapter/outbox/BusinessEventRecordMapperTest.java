@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.List;
@@ -79,5 +80,23 @@ class BusinessEventRecordMapperTest {
 		var recorded = mapper.toRecordedEvent(legacy);
 
 		assertEquals(new PotShareholdersAddedEvent(potId, Set.of(), 2), recorded.event());
+	}
+
+	@Test
+	void rejectsPayloadFieldsThatContradictTheDurableEnvelope() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		BusinessEventEnvelope incoherent = new BusinessEventEnvelope(
+				UUID.randomUUID(),
+				"PotCreatedEvent",
+				potId,
+				potId.value(),
+				2,
+				"{\"eventType\":\"PotCreatedEvent\",\"potId\":\"" + potId.value()
+						+ "\",\"aggregateId\":\"" + potId.value() + "\",\"version\":3}",
+				null,
+				null,
+				Instant.parse("2026-08-28T07:00:00Z"));
+
+		assertThrows(IllegalArgumentException.class, () -> mapper.toRecordedEvent(incoherent));
 	}
 }

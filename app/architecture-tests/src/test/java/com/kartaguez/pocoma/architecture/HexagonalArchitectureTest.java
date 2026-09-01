@@ -35,6 +35,27 @@ class HexagonalArchitectureTest {
 	private static final JavaClasses CLASSES = new ClassFileImporter().importPackages(ROOT_PACKAGE);
 
 	@Test
+	void consumptionDiscoveryDoesNotDecodeBusinessPayloads() {
+		noClasses()
+				.that().haveSimpleNameContaining("EventConsumptionDiscovery")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"com.fasterxml.jackson..",
+						ROOT_PACKAGE + ".domain.pot.event..",
+						ROOT_PACKAGE + ".engine.event..",
+						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.outbox..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().haveSimpleNameContaining("TaskConsumptionDiscovery")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"com.fasterxml.jackson..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..",
+						ROOT_PACKAGE + ".pipeline.balance..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void domainDoesNotDependOnOuterLayersOrFrameworks() {
 		noClasses()
 				.that().resideInAPackage(DOMAIN_PACKAGE)
