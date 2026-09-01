@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.out.persistence.HistoricalPotBalanceSourcePort;
-import com.kartaguez.pocoma.engine.port.out.persistence.model.HistoricalPotBalanceSource;
+import com.kartaguez.pocoma.engine.projection.balance.HistoricalPotBalanceSourcePort;
+import com.kartaguez.pocoma.engine.projection.balance.HistoricalPotBalanceSource;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotHeaderAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotShareholdersAdapter;
 

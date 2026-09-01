@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.locator.consumption.task;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -18,6 +20,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskPort;
+import com.kartaguez.pocoma.engine.port.out.processing.task.TaskConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.processing.task.ordering.TaskSearchCursor;
 import com.kartaguez.pocoma.engine.service.taskexecution.RecordedTaskExecutionMapperRegistry;
@@ -31,19 +34,23 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 	private final PipelineDefinition pipeline;
 	private final WorkerSegment segment;
 	private final Set<String> taskTypes;
+	private final TaskConsumptionDiscoveryPort discovery;
 	private final TaskPort tasks;
+	private final Clock clock;
 	private final RecordedTaskExecutionMapperRegistry mappers;
 	private final ExecuteTaskUseCase executeTask;
 	private final ConsumptionTechnicalFailureClassifier classifier;
 
 	public TaskConsumptionLocator(PipelineDefinition pipeline, WorkerSegment segment, Set<String> taskTypes,
-			TaskPort tasks, RecordedTaskExecutionMapperRegistry mappers, ExecuteTaskUseCase executeTask,
-			ConsumptionTechnicalFailureClassifier classifier) {
+			TaskConsumptionDiscoveryPort discovery, TaskPort tasks, RecordedTaskExecutionMapperRegistry mappers,
+			ExecuteTaskUseCase executeTask, ConsumptionTechnicalFailureClassifier classifier, Clock clock) {
 		this.pipeline = requireNonNull(pipeline);
 		this.segment = requireNonNull(segment);
 		this.taskTypes = Set.copyOf(requireNonNull(taskTypes));
 		if (this.taskTypes.isEmpty()) throw new IllegalArgumentException("taskTypes must not be empty");
+		this.discovery = requireNonNull(discovery);
 		this.tasks = requireNonNull(tasks);
+		this.clock = requireNonNull(clock);
 		this.mappers = requireNonNull(mappers);
 		this.executeTask = requireNonNull(executeTask);
 		this.classifier = requireNonNull(classifier);
@@ -53,9 +60,10 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 
 	private final class Search implements ConsumptionSearch {
 		private Optional<TaskSearchCursor> cursor = Optional.empty();
+		private final Instant now = clock.instant();
 		@Override public Optional<LocatedConsumption> next() {
 			while (true) {
-				var candidate = tasks.findNextCandidate(pipeline, segment, cursor);
+				var candidate = discovery.findNextEligibleCandidate(pipeline, segment, now, cursor);
 				if (candidate.isEmpty()) return Optional.empty();
 				var task = candidate.orElseThrow();
 				cursor = Optional.of(new TaskSearchCursor(task.createdAt(), task.taskId()));

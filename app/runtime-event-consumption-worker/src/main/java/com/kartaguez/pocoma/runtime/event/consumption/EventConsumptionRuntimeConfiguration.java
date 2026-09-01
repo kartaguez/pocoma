@@ -23,6 +23,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumption
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.CreateTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
@@ -128,10 +129,11 @@ public class EventConsumptionRuntimeConfiguration {
 
 	@Bean
 	EventConsumptionLocator eventConsumptionLocator(PipelineDefinition pipeline, EventConsumptionProperties properties,
-			EventPort events, CreateTasksForEventUseCase createTasks, Clock clock) {
+			EventConsumptionDiscoveryPort discovery, EventPort events,
+			CreateTasksForEventUseCase createTasks, Clock clock) {
 		return new EventConsumptionLocator(pipeline,
-				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), events, createTasks,
-				new EventConsumptionTechnicalFailureClassifier(clock));
+				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), discovery, events,
+				createTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock);
 	}
 
 	@Bean

@@ -46,6 +46,7 @@
 		<module>engine-command</module>
 		<module>engine-query</module>
 		<module>engine-projection</module>
+		<module>engine-projection-balance</module>
 		<module>engine-task-materialization</module>
 		<module>engine-task-creation</module>
 		<module>engine-task-execution</module>

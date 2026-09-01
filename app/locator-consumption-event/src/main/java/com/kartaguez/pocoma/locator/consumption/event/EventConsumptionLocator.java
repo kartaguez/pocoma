@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.locator.consumption.event;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -22,6 +24,7 @@ import com.kartaguez.pocoma.engine.port.in.taskcreation.input.CreateTasksForEven
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.CreateTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
@@ -33,15 +36,20 @@ import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;
 public final class EventConsumptionLocator implements ConsumptionLocator {
 	private final PipelineDefinition pipeline;
 	private final WorkerSegment segment;
+	private final EventConsumptionDiscoveryPort discovery;
 	private final EventPort events;
+	private final Clock clock;
 	private final CreateTasksForEventUseCase createTasks;
 	private final ConsumptionTechnicalFailureClassifier failureClassifier;
 
-	public EventConsumptionLocator(PipelineDefinition pipeline, WorkerSegment segment, EventPort events,
-			CreateTasksForEventUseCase createTasks, ConsumptionTechnicalFailureClassifier failureClassifier) {
+	public EventConsumptionLocator(PipelineDefinition pipeline, WorkerSegment segment,
+			EventConsumptionDiscoveryPort discovery, EventPort events, CreateTasksForEventUseCase createTasks,
+			ConsumptionTechnicalFailureClassifier failureClassifier, Clock clock) {
 		this.pipeline = requireNonNull(pipeline, "pipeline must not be null");
 		this.segment = requireNonNull(segment, "segment must not be null");
+		this.discovery = requireNonNull(discovery, "discovery must not be null");
 		this.events = requireNonNull(events, "events must not be null");
+		this.clock = requireNonNull(clock, "clock must not be null");
 		this.createTasks = requireNonNull(createTasks, "createTasks must not be null");
 		this.failureClassifier = requireNonNull(failureClassifier, "failureClassifier must not be null");
 	}
@@ -53,10 +61,12 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 
 	private final class Search implements ConsumptionSearch {
 		private Optional<EventOrderingKey> cursor = Optional.empty();
+		private final Instant now = clock.instant();
 
 		@Override
 		public Optional<LocatedConsumption> next() {
-			Optional<RecordedEvent<? extends BusinessEvent>> candidate = events.findNextCandidate(pipeline, segment, cursor);
+			Optional<RecordedEvent<? extends BusinessEvent>> candidate =
+					discovery.findNextEligibleCandidate(pipeline, segment, now, cursor);
 			if (candidate.isEmpty()) return Optional.empty();
 			RecordedEvent<? extends BusinessEvent> event = candidate.orElseThrow();
 			cursor = Optional.of(new EventOrderingKey(event.event().version(), event.recordedAt(), event.eventId()));

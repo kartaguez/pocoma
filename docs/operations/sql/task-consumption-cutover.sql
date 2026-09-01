@@ -1,6 +1,8 @@
 -- Execute atomically after stopping every legacy Task executor.
 begin;
 
+-- Operational prerequisite: every legacy executor is stopped and restart-disabled.
+
 do $$
 begin
     if exists (
@@ -10,6 +12,17 @@ begin
     ) then
         raise exception 'Cannot cut over while a legacy Task claim is active';
     end if;
+end $$;
+
+do $$
+begin
+	if exists (
+		select 1 from tasks_4_pipeline
+		where status in ('CLAIMED', 'ACCEPTED', 'RUNNING')
+		  and (claim_token is null or claimed_by is null or claimed_at is null or lease_until is null)
+	) then
+		raise exception 'Cannot cut over ambiguous or unbounded legacy Task claims';
+	end if;
 end $$;
 
 update tasks_4_pipeline
@@ -71,4 +84,3 @@ begin
 end $$;
 
 commit;
-

@@ -55,6 +55,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-projection-balance</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-pipeline</artifactId>
 			<version>${project.version}</version>
 		</dependency>

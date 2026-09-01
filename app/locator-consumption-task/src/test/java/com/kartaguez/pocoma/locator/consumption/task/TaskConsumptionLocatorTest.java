@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.locator.consumption.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecu
 import com.kartaguez.pocoma.engine.port.in.taskexecution.input.ExecuteTaskInput;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.mapper.RecordedTaskExecutionMapper;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskPort;
+import com.kartaguez.pocoma.engine.port.out.processing.task.TaskConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.port.out.processing.task.model.RecordedTask;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.processing.task.ordering.TaskSearchCursor;
@@ -75,9 +77,11 @@ class TaskConsumptionLocatorTest {
 
 	private static TaskConsumptionLocator locator(TaskPort tasks, RecordingMapper mapper,
 			com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase execute) {
-		return new TaskConsumptionLocator(PIPELINE, new WorkerSegment(0, 1), Set.of("COMPUTE"), tasks,
+		return new TaskConsumptionLocator(PIPELINE, new WorkerSegment(0, 1), Set.of("COMPUTE"),
+				(TaskConsumptionDiscoveryPort) tasks, tasks,
 				new RecordedTaskExecutionMapperRegistry(List.of(mapper)), execute,
-				failure -> { throw new AssertionError("classifier must not be used by the locator"); });
+				failure -> { throw new AssertionError("classifier must not be used by the locator"); },
+				Clock.systemUTC());
 	}
 
 	private static RecordedTask task(long version, String payload) {
@@ -97,7 +101,7 @@ class TaskConsumptionLocatorTest {
 		}
 	}
 
-	private static final class ReloadingTaskPort implements TaskPort {
+	private static final class ReloadingTaskPort implements TaskPort, TaskConsumptionDiscoveryPort {
 		private final RecordedTask located;
 		private final RecordedTask authoritative;
 		private int candidateReads;
@@ -106,8 +110,8 @@ class TaskConsumptionLocatorTest {
 			this.located = located;
 			this.authoritative = authoritative;
 		}
-		@Override public Optional<RecordedTask> findNextCandidate(PipelineDefinition pipeline,
-				WorkerSegment segment, Optional<TaskSearchCursor> afterExclusive) {
+		@Override public Optional<RecordedTask> findNextEligibleCandidate(PipelineDefinition pipeline,
+				WorkerSegment segment, Instant now, Optional<TaskSearchCursor> afterExclusive) {
 			candidateReads++;
 			return candidateReads == 1 ? Optional.of(located) : Optional.empty();
 		}

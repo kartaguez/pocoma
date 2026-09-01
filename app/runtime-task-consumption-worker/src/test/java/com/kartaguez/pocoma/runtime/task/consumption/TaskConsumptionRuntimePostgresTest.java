@@ -20,6 +20,9 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.engine.port.out.processing.task.TaskConsumptionDiscoveryPort;
+import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
@@ -47,6 +50,8 @@ class TaskConsumptionRuntimePostgresTest {
 
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private ConsumptionOrchestrator orchestrator;
+	@Autowired private TaskConsumptionDiscoveryPort discovery;
+	@Autowired private PipelineDefinition taskPipeline;
 	private UUID potId;
 
 	@BeforeEach
@@ -83,6 +88,41 @@ class TaskConsumptionRuntimePostgresTest {
 				+ "and object_type='POT_BALANCES' and object_version=2 and subject_version=42", Integer.class));
 		assertEquals(2, jdbc.queryForObject("select count(*) from consumption_slots where consumable_components "
 				+ "in (jsonb_build_array('" + firstTask + "'), jsonb_build_array('" + secondTask + "'))", Integer.class));
+	}
+
+	@Test
+	void tenThousandDoneSlotsDoNotHideANewEligibleTask() {
+		UUID materializationId = UUID.randomUUID();
+		UUID eventId = UUID.randomUUID();
+		Instant history = Instant.parse("2025-01-01T00:00:00Z");
+		jdbc.update("insert into event_4_pipeline_materialization_status "
+				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
+				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)", materializationId, eventId,
+				Timestamp.from(history), Timestamp.from(history), Timestamp.from(history));
+		jdbc.update("""
+				insert into tasks_4_pipeline
+				(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,
+				 partition_key,partition_hash,target_version,created_at,updated_at)
+				select (md5('done-task-' || n)::uuid), ?, ?, 'balance-projection', 2,
+				       'COMPUTE_BALANCES_FOR_VERSION', 'done-' || n,
+				       jsonb_build_object('potId', ?::text, 'targetVersion', 42)::text,
+				       ?::text, 0, 42, ?::timestamptz + n * interval '1 microsecond', ?::timestamptz
+				from generate_series(1,10000) n
+				""", materializationId, eventId, potId, potId, Timestamp.from(history), Timestamp.from(history));
+		jdbc.update("""
+				insert into consumption_slots
+				(slot_id,consumable_type,consumable_components,consumer_type,consumer_components,revision,
+				 last_attempt_number,status,terminal_outcome,current_claim_id,next_claim_at,created_at,done_at)
+				select md5(task.id::text || ':done-slot')::uuid, 'TASK', jsonb_build_array(task.id::text),
+				       'TASK_EXECUTOR','[]'::jsonb,0,0,'DONE','SUCCESS',null,task.created_at,task.created_at,task.created_at
+				from tasks_4_pipeline task where task.materialization_id=?
+				""", materializationId);
+
+		UUID eligible = insertTask("eligible-after-history");
+		var candidate = discovery.findNextEligibleCandidate(taskPipeline, WorkerSegment.single(),
+				Instant.parse("2026-02-01T00:00:00Z"), java.util.Optional.empty()).orElseThrow();
+
+		assertEquals(eligible, candidate.taskId());
 	}
 
 	private UUID insertTask(String key) {

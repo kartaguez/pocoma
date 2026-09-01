@@ -35,6 +35,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.taskcreation.CreateTasksForEventService;
 import com.kartaguez.pocoma.engine.service.taskcreation.PlanTasksForEventService;
@@ -81,6 +82,7 @@ class EventConsumptionRuntimePostgresTest {
 	@Autowired private ConsumptionOrchestrator orchestrator;
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private EventPort eventPort;
+	@Autowired private EventConsumptionDiscoveryPort eventDiscovery;
 	@Autowired private JpaTaskCreationAdapter taskCreation;
 	@Autowired private AcquireConsumptionUseCase acquire;
 	@Autowired private ExecuteConsumptionUseCase execute;
@@ -152,8 +154,8 @@ class EventConsumptionRuntimePostgresTest {
 				.filter(candidate -> candidate.definition().equals(notifications)).findFirst().orElseThrow();
 		var createTasks = new CreateTasksForEventService(
 				new PlanTasksForEventService(new TaskCreationStrategyRegistry(List.of(strategy))), taskCreation);
-		var locator = new EventConsumptionLocator(notifications, WorkerSegment.single(), eventPort, createTasks,
-				new EventConsumptionTechnicalFailureClassifier(clock));
+		var locator = new EventConsumptionLocator(notifications, WorkerSegment.single(), eventDiscovery, eventPort,
+				createTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock);
 		var second = new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure);
 		second.run(input("notifications-worker"));
 

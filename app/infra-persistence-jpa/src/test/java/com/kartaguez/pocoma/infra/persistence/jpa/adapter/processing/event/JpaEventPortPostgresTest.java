@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.event;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,8 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.consumption.JpaConsumptionSlotEntity;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaEventConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 
 @SpringBootTest(properties = { "spring.jpa.hibernate.ddl-auto=create-drop", "spring.flyway.enabled=false" })
@@ -48,14 +51,15 @@ class JpaEventPortPostgresTest {
 	}
 
 	@Autowired private JpaEventPort events;
+	@Autowired private JpaEventConsumptionDiscoveryAdapter discovery;
 	@Autowired private JpaBusinessEventOutboxAdapter outbox;
 	@Autowired private PlatformTransactionManager transactionManager;
 
 	@Test
 	void candidateReadEndsBeforeAuthoritativeMandatoryReload() {
 		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 5));
-		var candidate = events.findNextCandidate(new PipelineDefinition(PipelineId.of("balances"), 1),
-				WorkerSegment.single(), Optional.empty()).orElseThrow();
+		var candidate = discovery.findNextEligibleCandidate(new PipelineDefinition(PipelineId.of("balances"), 1),
+				WorkerSegment.single(), Instant.now(), Optional.empty()).orElseThrow();
 
 		assertThrows(IllegalTransactionStateException.class, () -> events.findById(candidate.eventId()));
 
@@ -66,9 +70,10 @@ class JpaEventPortPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackageClasses = JpaBusinessEventOutboxEntity.class)
+	@EntityScan(basePackageClasses = {JpaBusinessEventOutboxEntity.class, JpaConsumptionSlotEntity.class})
 	@EnableJpaRepositories(basePackageClasses = JpaBusinessEventOutboxRepository.class)
-	@Import({JpaEventPort.class, JpaBusinessEventOutboxAdapter.class})
+	@Import({JpaEventPort.class, JpaEventConsumptionDiscoveryAdapter.class,
+			JpaEventConsumptionDiscoveryRepository.class, JpaBusinessEventOutboxAdapter.class})
 	static class TestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper(); }
 	}

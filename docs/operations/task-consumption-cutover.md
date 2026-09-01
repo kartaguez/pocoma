@@ -9,7 +9,9 @@ le curseur technique. Il ne lit plus `status`, `claim_token`, `claimed_by`, `lea
 
 1. Déployer Flyway V5 et le runtime Task avec `pocoma.task-consumption.enabled=false`.
 2. Arrêter `runtime-pipeline-task-executor` et toute autre instance claimant `tasks_4_pipeline`.
-3. Bloquer leur redémarrage automatique.
+3. Bloquer leur redémarrage automatique dans l'orchestrateur de déploiement et conserver dans le
+   dossier de changement l'inventaire des workloads arrêtés. SQL ne peut pas prouver qu'un ancien
+   binaire ne redémarrera pas.
 4. Exécuter `sql/task-consumption-preflight.sql`.
 5. Attendre la fin ou l'expiration de tous les claims signalés. Un claim sans échéance doit être
    résolu manuellement ; le script refuse de l'adopter silencieusement.
@@ -43,3 +45,5 @@ Les colonnes lifecycle legacy restent physiquement présentes pour l'audit et le
 historiques. Leur suppression appartient à une migration SQL ultérieure. Aucun code du chemin cible
 ne doit les consulter après le cutover.
 
+La validation reproduit la clé et la condition du nouveau discovery. Elle échoue si une Task
+terminale traduite pourrait être sélectionnée, indépendamment de ses colonnes lifecycle legacy.

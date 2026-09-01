@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.engine.port.in.projection.usecase.CalculatePotBalancesAtVersionUseCase;
+import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 import com.kartaguez.pocoma.engine.taskexecution.model.BusinessObjectVersion;
 import com.kartaguez.pocoma.engine.taskexecution.model.ProducedArtifactReference;

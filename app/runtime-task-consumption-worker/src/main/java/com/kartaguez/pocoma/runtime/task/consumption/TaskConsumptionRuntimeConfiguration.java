@@ -29,7 +29,7 @@ import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
-import com.kartaguez.pocoma.engine.service.projection.CalculatePotBalancesAtVersionService;
+import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
 import com.kartaguez.pocoma.engine.service.taskexecution.ExecuteTaskService;
 import com.kartaguez.pocoma.engine.service.taskexecution.RecordedTaskExecutionMapperRegistry;
 import com.kartaguez.pocoma.engine.service.taskexecution.TaskExecutionHandlerRegistry;
@@ -39,6 +39,7 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.task.JpaTaskPort;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.task.JpaTaskConsumptionDiscoveryAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaImmutableBalanceProjectionAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
@@ -98,9 +99,11 @@ public class TaskConsumptionRuntimeConfiguration {
 		return new TaskExecutionHandlerRegistry(handlers);}
 	@Bean ExecuteTaskUseCase executeTaskUseCase(TaskExecutionHandlerRegistry handlers){return new ExecuteTaskService(handlers);}
 	@Bean TaskConsumptionLocator taskConsumptionLocator(PipelineDefinition pipeline,TaskConsumptionProperties properties,
-			JpaTaskPort tasks,RecordedTaskExecutionMapperRegistry mappers,ExecuteTaskUseCase executeTask,Clock clock){
+			JpaTaskConsumptionDiscoveryAdapter discovery,JpaTaskPort tasks,
+			RecordedTaskExecutionMapperRegistry mappers,ExecuteTaskUseCase executeTask,Clock clock){
 		return new TaskConsumptionLocator(pipeline,new WorkerSegment(properties.getSegmentIndex(),properties.getSegmentCount()),
-				Set.copyOf(properties.getTaskTypes()),tasks,mappers,executeTask,new TaskConsumptionTechnicalFailureClassifier(clock));}
+				Set.copyOf(properties.getTaskTypes()),discovery,tasks,mappers,executeTask,
+				new TaskConsumptionTechnicalFailureClassifier(clock),clock);}
 	@Bean ConsumptionOrchestrator taskConsumptionOrchestrator(TaskConsumptionLocator locator,
 			AcquireConsumptionUseCase acquire,ExecuteConsumptionUseCase execute,HandleConsumptionFailureUseCase failure){
 		return new SequentialConsumptionOrchestrator(locator,acquire,execute,failure);}

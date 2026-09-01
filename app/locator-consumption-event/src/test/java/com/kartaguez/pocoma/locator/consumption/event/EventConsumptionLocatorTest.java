@@ -30,6 +30,7 @@ import com.kartaguez.pocoma.engine.port.in.taskcreation.result.PersistedTaskRefe
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTechnicalFailureClassifier;
@@ -46,11 +47,11 @@ class EventConsumptionLocatorTest {
 		var pipeline = new PipelineDefinition(PipelineId.of("balances"), 3);
 		UUID taskId = UUID.randomUUID();
 		AtomicReference<RecordedEvent<?>> taskInput = new AtomicReference<>();
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), eventPort, input -> {
+		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), eventPort, eventPort, input -> {
 			taskInput.set(input.recordedEvent());
 			return new TaskCreationResult.Materialized(eventId, pipeline, TaskCreationOutcome.CREATED,
 					List.of(new PersistedTaskReference(taskId, "COMPUTE_BALANCES", NOW.plusSeconds(1))));
-		}, classifier());
+		}, classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
 
 		var located = locator.openSearch().next().orElseThrow();
 		assertEquals(List.of(eventId.toString()), located.consumptionKey().consumable().components());
@@ -71,10 +72,10 @@ class EventConsumptionLocatorTest {
 		UUID eventId = UUID.randomUUID();
 		var pipeline = new PipelineDefinition(PipelineId.of("empty"), 1);
 		var event = event(eventId, PotId.of(UUID.randomUUID()), 1);
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(),
-				new StubEventPort(event, Optional.of(event)),
+		var port = new StubEventPort(event, Optional.of(event));
+		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port,
 				input -> new TaskCreationResult.Materialized(eventId, pipeline,
-						TaskCreationOutcome.CREATED, List.of()), classifier());
+						TaskCreationOutcome.CREATED, List.of()), classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
 
 		var result = locator.openSearch().next().orElseThrow().execution().execute(context(UUID.randomUUID()));
 
@@ -87,9 +88,10 @@ class EventConsumptionLocatorTest {
 		UUID eventId = UUID.randomUUID();
 		var pipeline = new PipelineDefinition(PipelineId.of("rejecting"), 1);
 		var event = event(eventId, PotId.of(UUID.randomUUID()), 4);
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(),
-				new StubEventPort(event, Optional.of(event)),
-				input -> new TaskCreationResult.Rejected(eventId, pipeline, "UNSUPPORTED_EVENT"), classifier());
+		var port = new StubEventPort(event, Optional.of(event));
+		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port,
+				input -> new TaskCreationResult.Rejected(eventId, pipeline, "UNSUPPORTED_EVENT"), classifier(),
+				Clock.fixed(NOW, ZoneOffset.UTC));
 
 		var result = locator.openSearch().next().orElseThrow().execution().execute(context(UUID.randomUUID()));
 
@@ -105,11 +107,11 @@ class EventConsumptionLocatorTest {
 		var pipeline = new PipelineDefinition(PipelineId.of("missing"), 1);
 		var snapshot = event(eventId, PotId.of(UUID.randomUUID()), 1);
 		AtomicInteger taskCalls = new AtomicInteger();
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(),
-				new StubEventPort(snapshot, Optional.empty()), input -> {
+		var port = new StubEventPort(snapshot, Optional.empty());
+		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port, input -> {
 					taskCalls.incrementAndGet();
 					throw new AssertionError();
-				}, classifier());
+				}, classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
 
 		var execution = locator.openSearch().next().orElseThrow().execution();
 		assertThrows(RecordedEventNotFoundException.class,
@@ -130,7 +132,7 @@ class EventConsumptionLocatorTest {
 				EventTraceMetadata.empty());
 	}
 
-	private static final class StubEventPort implements EventPort {
+	private static final class StubEventPort implements EventPort, EventConsumptionDiscoveryPort {
 		private final RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent> candidate;
 		private final Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> authoritative;
 		private final AtomicInteger candidateReads = new AtomicInteger();
@@ -143,8 +145,9 @@ class EventConsumptionLocatorTest {
 		}
 
 		@Override
-		public Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> findNextCandidate(
-				PipelineDefinition pipeline, WorkerSegment segment, Optional<EventOrderingKey> afterExclusive) {
+		public Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> findNextEligibleCandidate(
+				PipelineDefinition pipeline, WorkerSegment segment, Instant now,
+				Optional<EventOrderingKey> afterExclusive) {
 			candidateReads.incrementAndGet();
 			return afterExclusive.isEmpty() ? Optional.of(candidate) : Optional.empty();
 		}
