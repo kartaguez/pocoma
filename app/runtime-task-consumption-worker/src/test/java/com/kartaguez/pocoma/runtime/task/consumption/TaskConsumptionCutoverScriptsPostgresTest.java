@@ -27,6 +27,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @SpringBootTest(properties = {
 		"pocoma.task-consumption.enabled=false",
+		"pocoma.task-consumption.pipeline-version=2",
 		"spring.jpa.hibernate.ddl-auto=validate"
 })
 @Testcontainers

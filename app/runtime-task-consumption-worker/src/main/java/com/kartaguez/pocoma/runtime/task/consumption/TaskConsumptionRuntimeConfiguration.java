@@ -82,6 +82,8 @@ public class TaskConsumptionRuntimeConfiguration {
 				new HandleConsumptionFailureService(lifecycle,lifecycle,new TaskConsumptionFailurePolicy(),clock),tx);}
 
 	@Bean PipelineDefinition taskPipeline(TaskConsumptionProperties properties){
+		if(properties.getPipelineVersion()==null)
+			throw new IllegalStateException("pocoma.task-consumption.pipeline-version is required");
 		PipelineDefinition pipeline=new PipelineDefinition(PipelineId.of(properties.getPipelineId()),properties.getPipelineVersion());
 		if(properties.isEnabled()&&!BalancePipeline.PIPELINE_ID.equals(properties.getPipelineId()))
 			throw new IllegalStateException("Lot 5 runtime only provides the Balance binding");

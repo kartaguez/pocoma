@@ -6,7 +6,9 @@ de reconstruire le consumer `PIPELINE[pipelineId,pipelineVersion]`. Les lignes
 
 1. Arrêter les anciens workers Event/materialization et bloquer leur redémarrage.
 2. Exécuter `event-consumption-preflight.sql`. Toute identité ambiguë, materialization `FAILED`,
-   Event absent ou ligne `SKIPPED` possédant des Tasks doit être résolu explicitement.
+   Event absent, ligne `SKIPPED` possédant des Tasks ou Task dont l'identité Event/Pipeline diffère de sa
+   materialization `MATERIALIZED` doit être résolu explicitement. Les invariants internes aux Tasks
+   (`partition_key`, `target_version`, binding structurel) restent vérifiés par le preflight Task.
 3. Exécuter `event-consumption-validate.sql`, puis activer un segment pilote du nouveau worker.
 
 `MATERIALIZED` adopte les Tasks existantes. `SKIPPED` signifie historiquement que le pipeline ne

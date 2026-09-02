@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.time.Clock;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -12,10 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+
+import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
@@ -78,6 +84,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 	}
 
 	@Autowired private JdbcTemplate jdbc;
+	@Autowired private DataSource dataSource;
 	@Autowired private ObjectMapper objectMapper;
 	@Autowired private Clock clock;
 	@Autowired private PipelineDefinition pipeline;
@@ -161,6 +168,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 		UUID first = insertLegacyTask(materializationId, eventId, potId, "legacy-1", now);
 		UUID second = insertLegacyTask(materializationId, eventId, potId, "legacy-2", now);
 
+		executePreflight();
 		eventOrchestrator.run(input("legacy-adopter"));
 
 		assertEquals(2, tasks.count());
@@ -232,6 +240,19 @@ class Lot5EventTaskBalanceChainPostgresTest {
 	private static ConsumptionOrchestrationInput input(String workerId) {
 		return new ConsumptionOrchestrationInput(new WorkerId(workerId), new ClaimLease(java.time.Duration.ofSeconds(30)),
 				new ConsumptionOrchestrationBudget(20, 10));
+	}
+
+	private void executePreflight() {
+		try {
+			String sql = new ClassPathResource("operations/sql/event-consumption-preflight.sql")
+					.getContentAsString(StandardCharsets.UTF_8);
+			try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+				statement.execute(sql);
+			}
+		}
+		catch (Exception exception) {
+			throw new IllegalStateException("Event preflight rejected a coherent legacy materialization", exception);
+		}
 	}
 
 	private ConsumptionKey eventKey(UUID eventId) {

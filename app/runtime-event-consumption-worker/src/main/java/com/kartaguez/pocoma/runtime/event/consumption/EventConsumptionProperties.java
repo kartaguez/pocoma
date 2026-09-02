@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class EventConsumptionProperties {
 	private boolean enabled;
 	private String pipelineId = "unconfigured";
-	private int pipelineVersion = 1;
+	private Integer pipelineVersion;
 	private int segmentIndex;
 	private int segmentCount = 1;
 	private String workerId = "event-consumption-worker";
@@ -22,8 +22,8 @@ public class EventConsumptionProperties {
 	public void setEnabled(boolean enabled) { this.enabled = enabled; }
 	public String getPipelineId() { return pipelineId; }
 	public void setPipelineId(String pipelineId) { this.pipelineId = pipelineId; }
-	public int getPipelineVersion() { return pipelineVersion; }
-	public void setPipelineVersion(int pipelineVersion) { this.pipelineVersion = pipelineVersion; }
+	public Integer getPipelineVersion() { return pipelineVersion; }
+	public void setPipelineVersion(Integer pipelineVersion) { this.pipelineVersion = pipelineVersion; }
 	public int getSegmentIndex() { return segmentIndex; }
 	public void setSegmentIndex(int segmentIndex) { this.segmentIndex = segmentIndex; }
 	public int getSegmentCount() { return segmentCount; }

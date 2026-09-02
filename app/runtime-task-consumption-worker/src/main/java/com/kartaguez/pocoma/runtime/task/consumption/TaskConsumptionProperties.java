@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class TaskConsumptionProperties {
 	private boolean enabled;
 	private String pipelineId = "unconfigured";
-	private int pipelineVersion = 1;
+	private Integer pipelineVersion;
 	private List<String> taskTypes = List.of("COMPUTE_BALANCES_FOR_VERSION");
 	private int segmentIndex;
 	private int segmentCount = 1;
@@ -21,7 +21,7 @@ public class TaskConsumptionProperties {
 	private Duration runtimeFailureBackoff = Duration.ofSeconds(5);
 	public boolean isEnabled(){return enabled;} public void setEnabled(boolean value){enabled=value;}
 	public String getPipelineId(){return pipelineId;} public void setPipelineId(String value){pipelineId=value;}
-	public int getPipelineVersion(){return pipelineVersion;} public void setPipelineVersion(int value){pipelineVersion=value;}
+	public Integer getPipelineVersion(){return pipelineVersion;} public void setPipelineVersion(Integer value){pipelineVersion=value;}
 	public List<String> getTaskTypes(){return taskTypes;} public void setTaskTypes(List<String> value){taskTypes=List.copyOf(value);}
 	public int getSegmentIndex(){return segmentIndex;} public void setSegmentIndex(int value){segmentIndex=value;}
 	public int getSegmentCount(){return segmentCount;} public void setSegmentCount(int value){segmentCount=value;}

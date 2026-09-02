@@ -103,11 +103,12 @@ and Grafana:
 docker compose -f docker-compose.monolith-postgres.yml up --build
 ```
 
-Distributed mode with one API runtime, two business-event task builders, two
-balance task executors, PostgreSQL, NATS, Prometheus, and Grafana:
+Distributed mode with one API runtime, two Event consumption workers, two Task
+consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
+version is part of the projection identity and must be supplied explicitly:
 
 ```bash
-docker compose -f docker-compose.distributed.yml up --build
+POCOMA_BALANCE_PIPELINE_VERSION=2 docker compose -f docker-compose.distributed.yml up --build
 ```
 
 Before switching mode, stop the current stack:
@@ -118,10 +119,10 @@ docker compose -f <compose-file> down
 
 The H2 monolith intentionally keeps data in memory. The PostgreSQL monolith and
 distributed modes use `jdbc:postgresql://postgres:5432/pocoma`. In distributed
-mode, every Java runtime uses the `postgres` Spring profile and the dispatcher
-runtimes are split by `POCOMA_PROJECTION_WORKER_SEGMENT_INDEX` with
-`POCOMA_PROJECTION_WORKER_SEGMENT_COUNT=2`, so the services ending in `-0` own
-segment `0/2` and the services ending in `-1` own segment `1/2`.
+mode, every Java runtime uses the `postgres` Spring profile. Event and Task
+consumption workers are split by their respective segment properties, sourced
+from `POCOMA_SEGMENT_COUNT`, so the services ending in `-0` and `-1` own
+segments `0/2` and `1/2` with the default count.
 
 Optional environment overrides:
 
@@ -130,9 +131,11 @@ POSTGRES_DB=pocoma
 POSTGRES_USER=pocoma
 POSTGRES_PASSWORD=pocoma
 API_PORT=8080
-NATS_URL=nats://nats:4222
 POCOMA_SEGMENT_COUNT=2
 ```
+
+`POCOMA_BALANCE_PIPELINE_VERSION` is required rather than optional for the
+distributed mode and is propagated unchanged to Event, Task, and Query.
 
 Useful endpoints:
 

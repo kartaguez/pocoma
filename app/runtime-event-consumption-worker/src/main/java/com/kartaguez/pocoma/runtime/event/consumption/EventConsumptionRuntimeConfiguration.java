@@ -104,6 +104,9 @@ public class EventConsumptionRuntimeConfiguration {
 
 	@Bean
 	PipelineDefinition eventConsumptionPipeline(EventConsumptionProperties properties) {
+		if (properties.getPipelineVersion() == null) {
+			throw new IllegalStateException("pocoma.event-consumption.pipeline-version is required");
+		}
 		return new PipelineDefinition(
 				PipelineId.of(properties.getPipelineId()), properties.getPipelineVersion());
 	}

@@ -23,7 +23,7 @@ class ImmutableBalanceQueryConfiguration {
 	@Primary
 	PotBalancesQueryPort immutablePotBalancesQueryPort(JdbcTemplate jdbc,
 			@Value("${pocoma.query.balance.pipeline-id:balance-projection}") String pipelineId,
-			@Value("${pocoma.query.balance.pipeline-version:1}") int pipelineVersion) {
+			@Value("${pocoma.query.balance.pipeline-version}") int pipelineVersion) {
 		return new JpaImmutablePotBalancesQueryAdapter(jdbc, pipelineId, pipelineVersion);
 	}
 }

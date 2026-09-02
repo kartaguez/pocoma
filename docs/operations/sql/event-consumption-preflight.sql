@@ -32,4 +32,16 @@ begin
     ) then
         raise exception 'A SKIPPED Event materialization cannot own Tasks';
     end if;
+
+    if exists (
+        select 1
+        from event_4_pipeline_materialization_status m
+        join tasks_4_pipeline task on task.materialization_id = m.id
+        where m.status = 'MATERIALIZED'
+          and (task.event_id <> m.event_id
+               or task.pipeline_id <> m.pipeline_id
+               or task.pipeline_version <> m.pipeline_version)
+    ) then
+        raise exception 'A MATERIALIZED Event materialization owns Tasks with a mismatched Event/Pipeline identity';
+    end if;
 end $$;

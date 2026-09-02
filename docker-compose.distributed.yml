@@ -9,7 +9,6 @@ x-pocoma-java-environment: &pocoma-java-environment
   POCOMA_POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-pocoma}
   POCOMA_POSTGRES_USER: ${POSTGRES_USER:-pocoma}
   POCOMA_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
-  POCOMA_NATS_SERVERS: ${NATS_URL:-nats://nats:4222}
 
 services:
   postgres:
@@ -33,17 +32,6 @@ services:
       retries: 10
       start_period: 5s
 
-  nats:
-    image: nats:2
-    command: ["-js", "-m", "8222"]
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-    networks:
-      pocoma-distributed:
-        aliases:
-          - nats
-
   pocoma-api:
     build:
       <<: *pocoma-java-build
@@ -55,14 +43,12 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_QUERY_BALANCE_PIPELINE_ID: balance-projection
-      POCOMA_QUERY_BALANCE_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_QUERY_BALANCE_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
     networks:
       - pocoma-distributed
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
   pocoma-event-consumption-worker-0:
     build:
@@ -76,7 +62,7 @@ services:
       <<: *pocoma-java-environment
       POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
       POCOMA_EVENT_CONSUMPTION_PIPELINE_ID: balance-projection
-      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
       POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 0
       POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
@@ -84,8 +70,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
   pocoma-event-consumption-worker-1:
     build:
@@ -99,7 +83,7 @@ services:
       <<: *pocoma-java-environment
       POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
       POCOMA_EVENT_CONSUMPTION_PIPELINE_ID: balance-projection
-      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
       POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 1
       POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
@@ -107,8 +91,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
   pocoma-task-consumption-worker-0:
     build:
@@ -122,7 +104,7 @@ services:
       <<: *pocoma-java-environment
       POCOMA_TASK_CONSUMPTION_ENABLED: "true"
       POCOMA_TASK_CONSUMPTION_PIPELINE_ID: balance-projection
-      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
       POCOMA_TASK_CONSUMPTION_SEGMENT_INDEX: 0
       POCOMA_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
@@ -130,8 +112,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
   pocoma-task-consumption-worker-1:
     build:
@@ -145,7 +125,7 @@ services:
       <<: *pocoma-java-environment
       POCOMA_TASK_CONSUMPTION_ENABLED: "true"
       POCOMA_TASK_CONSUMPTION_PIPELINE_ID: balance-projection
-      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
       POCOMA_TASK_CONSUMPTION_SEGMENT_INDEX: 1
       POCOMA_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
@@ -153,8 +133,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
   prometheus:
     image: prom/prometheus:latest
