@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.infra.persistence.jpa.adapter.pipeline;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -22,23 +21,18 @@ import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTask
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
-import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
-import com.kartaguez.pocoma.engine.legacy.processing.segmentation.ProjectionPartition;
-import com.kartaguez.pocoma.engine.taskmaterialization.model.ConfiguredPipelineBinding;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.EventPipelineMaterializationCandidate;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationOutcome;
 import com.kartaguez.pocoma.engine.taskmaterialization.model.MaterializationResult;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineMaterializationRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @DataJpaTest
-@Import({ JpaPipelineMaterializationAdapter.class, JpaTaskCreationAdapter.class,
-		JpaMaterializableEventSourceAdapter.class, JpaBusinessEventOutboxAdapter.class })
+@Import({ JpaPipelineMaterializationAdapter.class, JpaTaskCreationAdapter.class })
 class JpaPipelineMaterializationAdapterTest {
 
 	private static final PipelineDefinition PIPELINE = new PipelineDefinition(PipelineId.of("test-pipeline"), 1);
@@ -50,12 +44,6 @@ class JpaPipelineMaterializationAdapterTest {
 	private JpaTaskCreationAdapter taskCreationAdapter;
 
 	@Autowired
-	private JpaMaterializableEventSourceAdapter eventSource;
-
-	@Autowired
-	private JpaBusinessEventOutboxAdapter outboxAdapter;
-
-	@Autowired
 	private JpaPipelineMaterializationRepository materializationRepository;
 
 	@Autowired
@@ -63,8 +51,7 @@ class JpaPipelineMaterializationAdapterTest {
 
 	@Test
 	void materializesCandidateIntoRegistryAndTasks() {
-		outboxAdapter.append(new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1));
-		EventPipelineMaterializationCandidate candidate = candidates(binding("PotCreatedEvent")).getFirst();
+		EventPipelineMaterializationCandidate candidate = candidate(1);
 
 		MaterializationResult result = adapter.materialize(candidate, List.of(task(candidate)));
 
@@ -72,13 +59,11 @@ class JpaPipelineMaterializationAdapterTest {
 		assertEquals(1, result.taskCount());
 		assertEquals(1, materializationRepository.count());
 		assertEquals(1, taskRepository.count());
-		assertEquals(0, eventSource.countUnmaterialized(List.of(binding("PotCreatedEvent"))));
 	}
 
 	@Test
 	void repeatedMaterializationDoesNotDuplicateRows() {
-		outboxAdapter.append(new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1));
-		EventPipelineMaterializationCandidate candidate = candidates(binding("PotCreatedEvent")).getFirst();
+		EventPipelineMaterializationCandidate candidate = candidate(1);
 
 		adapter.materialize(candidate, List.of(task(candidate)));
 		MaterializationResult repeated = adapter.materialize(candidate, List.of(task(candidate)));
@@ -107,36 +92,8 @@ class JpaPipelineMaterializationAdapterTest {
 	}
 
 	@Test
-	void filtersCandidatesByEventType() {
-		outboxAdapter.append(new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1));
-
-		assertEquals(0, candidates(binding("ExpenseCreatedEvent")).size());
-		assertEquals(1, candidates(binding("PotCreatedEvent")).size());
-	}
-
-	@Test
-	void filtersCandidatesByPartition() {
-		PotId segment0PotId = potIdForSegment(0, 2);
-		PotId segment1PotId = potIdForSegment(1, 2);
-		outboxAdapter.append(new PotCreatedEvent(segment0PotId, 1));
-		outboxAdapter.append(new PotCreatedEvent(segment1PotId, 1));
-
-		List<EventPipelineMaterializationCandidate> segment0Candidates = eventSource.findUnmaterializedEventPipelinePairs(
-				10,
-				new ProjectionPartition(0, 2),
-				Instant.now().plusSeconds(1),
-				List.of(binding("PotCreatedEvent")));
-
-		assertEquals(List.of(segment0PotId), segment0Candidates.stream()
-				.map(candidate -> candidate.event().potId())
-				.toList());
-	}
-
-	@Test
 	void skippedAndFailedCandidatesWriteRegistryRows() {
-		outboxAdapter.append(new PotCreatedEvent(PotId.of(UUID.randomUUID()), 1));
-		outboxAdapter.append(new PotCreatedEvent(PotId.of(UUID.randomUUID()), 2));
-		List<EventPipelineMaterializationCandidate> candidates = candidates(binding("PotCreatedEvent"));
+		List<EventPipelineMaterializationCandidate> candidates = List.of(candidate(1), candidate(2));
 
 		assertEquals(MaterializationOutcome.SKIPPED, adapter.markSkipped(candidates.get(0)).outcome());
 		assertEquals(MaterializationOutcome.FAILED, adapter.markFailed(
@@ -148,16 +105,11 @@ class JpaPipelineMaterializationAdapterTest {
 		assertEquals(0, taskRepository.count());
 	}
 
-	private List<EventPipelineMaterializationCandidate> candidates(ConfiguredPipelineBinding binding) {
-		return eventSource.findUnmaterializedEventPipelinePairs(
-				10,
-				ProjectionPartition.single(),
-				Instant.now().plusSeconds(1),
-				List.of(binding));
-	}
-
-	private static ConfiguredPipelineBinding binding(String eventType) {
-		return new ConfiguredPipelineBinding(PIPELINE, List.of(eventType), true);
+	private static EventPipelineMaterializationCandidate candidate(long version) {
+		var event = new com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope(UUID.randomUUID(),
+				"PotCreatedEvent", PotId.of(UUID.randomUUID()), UUID.randomUUID(), version, "{}",
+				null, null, Instant.now());
+		return new EventPipelineMaterializationCandidate(event, PIPELINE);
 	}
 
 	private static TaskDescriptor task(EventPipelineMaterializationCandidate candidate) {
@@ -166,17 +118,6 @@ class JpaPipelineMaterializationAdapterTest {
 				"event-" + candidate.event().id(),
 				"{}",
 				candidate.event().potId().value().toString(), candidate.event().version());
-	}
-
-	private static PotId potIdForSegment(int segmentIndex, int segmentCount) {
-		for (int index = 0; index < 1_000; index++) {
-			PotId potId = PotId.of(UUID.nameUUIDFromBytes(
-					("pipeline-pot-" + segmentIndex + "-" + index).getBytes(StandardCharsets.UTF_8)));
-			if (PotPartitioner.segmentOf(potId, segmentCount) == segmentIndex) {
-				return potId;
-			}
-		}
-		throw new IllegalStateException("No potId found for segment " + segmentIndex);
 	}
 
 	@SpringBootApplication

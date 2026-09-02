@@ -26,11 +26,7 @@ class HexagonalArchitectureTest {
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
 
-	private static final String JPA_MATERIALIZABLE_EVENT_SOURCE_ADAPTER = ROOT_PACKAGE
-			+ ".infra.persistence.jpa.adapter.pipeline.JpaMaterializableEventSourceAdapter";
-	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of(
-			JPA_MATERIALIZABLE_EVENT_SOURCE_ADAPTER + " -> "
-					+ ROOT_PACKAGE + ".supra.worker.taskmaterialization.core.MaterializableEventSource");
+	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
 
 	private static final JavaClasses CLASSES = new ClassFileImporter().importPackages(ROOT_PACKAGE);
 

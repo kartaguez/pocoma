@@ -102,6 +102,19 @@ class JpaImmutableBalanceProjectionAdapterPostgresTest {
 				() -> projections.createOrVerify(artifact(2, Fraction.of(1, 1))));
 	}
 
+	@Test
+	void queryReadsTheArtifactProducedByTheSelectedPipelineVersion() {
+		inTransaction(() -> projections.createOrVerify(artifact(2, Fraction.of(7, 3))));
+		var query = new JpaImmutablePotBalancesQueryAdapter(jdbc, "balance-projection", 2);
+
+		var balances = query.loadAtVersion(potId, 42);
+
+		assertEquals(Fraction.of(7, 3), balances.balances().get(shareholderId).value());
+		assertThrows(IllegalStateException.class,
+				() -> new JpaImmutablePotBalancesQueryAdapter(jdbc, "balance-projection", 1)
+						.loadAtVersion(potId, 42));
+	}
+
 	private BalanceProjectionArtifact artifact(int pipelineVersion, Fraction value) {
 		var identity = new BalanceProjectionIdentity("POT_BALANCES",
 				new PipelineDefinition(PipelineId.of("balance-projection"), pipelineVersion), potId, 42);

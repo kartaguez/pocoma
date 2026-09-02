@@ -94,6 +94,10 @@ public class JpaPipelineMaterializationEntity {
 		return id;
 	}
 
+	public PipelineMaterializationStatus status() {
+		return status;
+	}
+
 	private static String requireText(String value, String name) {
 		Objects.requireNonNull(value, name + " must not be null");
 		if (value.isBlank()) {

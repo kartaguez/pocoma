@@ -147,6 +147,65 @@ class Lot5EventTaskBalanceChainPostgresTest {
 		assertEquals(java.util.OptionalLong.of(2), taskOutput.subjectVersion());
 	}
 
+	@Test
+	void adoptsLegacyMaterializedTasksWithoutDuplicationAndRemainsIdempotent() {
+		UUID potId = UUID.randomUUID();
+		outbox.append(new PotCreatedEvent(PotId.of(potId), 2));
+		UUID eventId = events.findAll().getFirst().id();
+		UUID materializationId = UUID.randomUUID();
+		var now = java.sql.Timestamp.from(clock.instant());
+		jdbc.update("insert into event_4_pipeline_materialization_status "
+				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
+				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
+				materializationId, eventId, now, now, now);
+		UUID first = insertLegacyTask(materializationId, eventId, potId, "legacy-1", now);
+		UUID second = insertLegacyTask(materializationId, eventId, potId, "legacy-2", now);
+
+		eventOrchestrator.run(input("legacy-adopter"));
+
+		assertEquals(2, tasks.count());
+		var slot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
+		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
+		assertEquals(Set.of(first.toString(), second.toString()), provenance.findResults(slot.slotId()).stream()
+				.map(result -> result.objectId()).collect(java.util.stream.Collectors.toSet()));
+
+		eventOrchestrator.run(input("legacy-adopter-retry"));
+		assertEquals(2, tasks.count());
+		assertEquals(2, provenance.findResults(slot.slotId()).size());
+	}
+
+	@Test
+	void legacySkippedMaterializationCompletesSuccessfullyWithoutTasks() {
+		UUID potId = UUID.randomUUID();
+		outbox.append(new PotCreatedEvent(PotId.of(potId), 2));
+		UUID eventId = events.findAll().getFirst().id();
+		var now = java.sql.Timestamp.from(clock.instant());
+		jdbc.update("insert into event_4_pipeline_materialization_status "
+				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,skipped_at) "
+				+ "values (?,?, 'balance-projection',2,'SKIPPED',0,?,?,?)",
+				UUID.randomUUID(), eventId, now, now, now);
+
+		eventOrchestrator.run(input("legacy-skipped"));
+
+		var slot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
+		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
+		assertEquals(0, tasks.count());
+		assertEquals(1, provenance.findInputs(slot.slotId()).size());
+		assertEquals(0, provenance.findResults(slot.slotId()).size());
+	}
+
+	private UUID insertLegacyTask(UUID materializationId, UUID eventId, UUID potId, String key,
+			java.sql.Timestamp now) {
+		UUID taskId = UUID.randomUUID();
+		jdbc.update("insert into tasks_4_pipeline "
+				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
+				+ "partition_key,partition_hash,target_version,created_at,updated_at) "
+				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,?,?,0,2,?,?)",
+				taskId, materializationId, eventId, key,
+				"{\"potId\":\"" + potId + "\",\"targetVersion\":2}", potId.toString(), now, now);
+		return taskId;
+	}
+
 	private ConsumptionOrchestrator taskOrchestrator() {
 		var mapper = new ComputeBalancesRecordedTaskMapper(pipeline, objectMapper);
 		var handler = new ExecuteBalanceProjectionTaskHandler(pipeline,

@@ -18,6 +18,7 @@ import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResul
 import com.kartaguez.pocoma.engine.port.out.taskcreation.TaskCreationPort;
 import com.kartaguez.pocoma.engine.port.out.taskcreation.input.EventPipelineTaskCreation;
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
+import com.kartaguez.pocoma.engine.taskmaterialization.model.PipelineMaterializationStatus;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineMaterializationEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineMaterializationRepository;
@@ -53,7 +54,7 @@ public class JpaTaskCreationAdapter implements TaskCreationPort {
 		var existing = materializations.findByEventIdAndPipelineIdAndPipelineVersion(
 				eventId, pipeline.pipelineId().value(), pipeline.pipelineVersion());
 		if (existing.isPresent()) {
-			return TaskCreationResult.alreadyCreated(creation, references(existing.orElseThrow().id()));
+			return adopt(creation, existing.orElseThrow());
 		}
 
 		Instant now = clock.instant();
@@ -65,13 +66,26 @@ public class JpaTaskCreationAdapter implements TaskCreationPort {
 					.findByEventIdAndPipelineIdAndPipelineVersion(
 							eventId, pipeline.pipelineId().value(), pipeline.pipelineVersion())
 					.orElseThrow(() -> new IllegalStateException("materialization winner is not visible"));
-			return TaskCreationResult.alreadyCreated(creation, references(winner.id()));
+			return adopt(creation, winner);
 		}
 		List<JpaPipelineTaskEntity> persisted = tasks.saveAllAndFlush(immutable.stream()
 				.map(task -> new JpaPipelineTaskEntity(materializationId, eventId,
 						pipeline.pipelineId().value(), pipeline.pipelineVersion(), task, now))
 				.toList());
 		return TaskCreationResult.created(creation, persisted.stream().map(JpaTaskCreationAdapter::reference).toList());
+	}
+
+	private Materialized adopt(EventPipelineTaskCreation creation, JpaPipelineMaterializationEntity materialization) {
+		if (materialization.status() == PipelineMaterializationStatus.MATERIALIZED) {
+			return TaskCreationResult.alreadyCreated(creation, references(materialization.id()));
+		}
+		if (materialization.status() == PipelineMaterializationStatus.SKIPPED) {
+			if (!references(materialization.id()).isEmpty()) {
+				throw new IllegalStateException("A SKIPPED legacy materialization cannot own Tasks");
+			}
+			return TaskCreationResult.alreadyCreated(creation, List.of());
+		}
+		throw new IllegalStateException("A FAILED legacy materialization must be resolved before cutover");
 	}
 
 	private List<PersistedTaskReference> references(UUID materializationId) {

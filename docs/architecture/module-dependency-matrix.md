@@ -68,11 +68,11 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |
-| `runtime-business-events-outbox-dispatcher` | lancement de l'ancien dispatcher outbox | supra legacy, shared config | composition legacy |
-| `runtime-task-materialization-dispatcher` | lancement de l'ancien matérialiseur | supra legacy, shared config | composition legacy |
+| `runtime-business-events-outbox-dispatcher` | ancien dispatcher outbox | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
+| `runtime-task-materialization-dispatcher` | ancien matérialiseur | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-consumption-worker` | composition du locator Task, moteur transactionnel, polling et binding Balance | locator/orchestrateur/supra/infra/pipeline Balance | composition target |
-| `runtime-balance-calculation-tasks-dispatcher` | ancien runtime des tâches Balance | supra legacy, shared config | composition legacy |
-| `runtime-monolith` | composition de l'ensemble des adapters actuels | couches précédentes | composition |
+| `runtime-balance-calculation-tasks-dispatcher` | ancien runtime des tâches Balance | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
+| `runtime-monolith` | API/Query et composition transitionnelle | couches précédentes | conservé ; profil worker legacy déprécié jusqu'au Lot 6.5 |
 | `architecture-tests` | vérification des frontières de packages | tous les modules inspectés | validation |
 
 ## Exceptions transitoires contrôlées

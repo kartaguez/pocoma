@@ -90,11 +90,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-dispatcher-task-materialization-nats</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-projection-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>

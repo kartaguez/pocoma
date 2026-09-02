@@ -54,6 +54,8 @@ services:
       - "${API_PORT:-8080}:8080"
     environment:
       <<: *pocoma-java-environment
+      POCOMA_QUERY_BALANCE_PIPELINE_ID: balance-projection
+      POCOMA_QUERY_BALANCE_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
     networks:
       - pocoma-distributed
     depends_on:
@@ -62,18 +64,21 @@ services:
       nats:
         condition: service_started
 
-  pocoma-business-events-dispatcher-0:
+  pocoma-event-consumption-worker-0:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+        RUNTIME_MODULE: runtime-event-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-event-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_ID: balance-projection
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 0
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
@@ -82,18 +87,21 @@ services:
       nats:
         condition: service_started
 
-  pocoma-business-events-dispatcher-1:
+  pocoma-event-consumption-worker-1:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+        RUNTIME_MODULE: runtime-event-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-event-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_ID: balance-projection
+      POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 1
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
@@ -102,18 +110,21 @@ services:
       nats:
         condition: service_started
 
-  pocoma-balance-tasks-dispatcher-0:
+  pocoma-task-consumption-worker-0:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_MODULE: runtime-task-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_TASK_CONSUMPTION_ENABLED: "true"
+      POCOMA_TASK_CONSUMPTION_PIPELINE_ID: balance-projection
+      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_TASK_CONSUMPTION_SEGMENT_INDEX: 0
+      POCOMA_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
@@ -122,18 +133,21 @@ services:
       nats:
         condition: service_started
 
-  pocoma-balance-tasks-dispatcher-1:
+  pocoma-task-consumption-worker-1:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_MODULE: runtime-task-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_TASK_CONSUMPTION_ENABLED: "true"
+      POCOMA_TASK_CONSUMPTION_PIPELINE_ID: balance-projection
+      POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:-1}
+      POCOMA_TASK_CONSUMPTION_SEGMENT_INDEX: 1
+      POCOMA_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
@@ -154,13 +168,13 @@ services:
     depends_on:
       pocoma-api:
         condition: service_started
-      pocoma-business-events-dispatcher-0:
+      pocoma-event-consumption-worker-0:
         condition: service_started
-      pocoma-business-events-dispatcher-1:
+      pocoma-event-consumption-worker-1:
         condition: service_started
-      pocoma-balance-tasks-dispatcher-0:
+      pocoma-task-consumption-worker-0:
         condition: service_started
-      pocoma-balance-tasks-dispatcher-1:
+      pocoma-task-consumption-worker-1:
         condition: service_started
 
   grafana:

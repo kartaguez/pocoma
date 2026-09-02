@@ -62,18 +62,12 @@
 		<module>locator-consumption-task</module>
 		<module>supra-worker-command</module>
 		<module>shared-supra-dispatcher-projection</module>
-		<module>supra-dispatcher-business-events-outbox-nats</module>
-		<module>supra-dispatcher-task-materialization-nats</module>
-		<module>supra-dispatcher-balance-calculation-tasks-outbox-nats</module>
 		<module>supra-worker-balance-calculation-events-spring</module>
 		<module>supra-http-rest-spring</module>
 		<module>shared-runtime-spring-config</module>
 		<module>runtime-web-api</module>
-		<module>runtime-business-events-outbox-dispatcher</module>
-		<module>runtime-task-materialization-dispatcher</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-task-consumption-worker</module>
-		<module>runtime-balance-calculation-tasks-dispatcher</module>
 		<module>runtime-monolith</module>
 		<module>architecture-tests</module>
 	</modules>
