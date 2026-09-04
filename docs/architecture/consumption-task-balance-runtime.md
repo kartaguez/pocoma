@@ -54,14 +54,14 @@ result = BALANCE_PROJECTION / POT_BALANCES / projectionId
 
 ## Outcomes et failures
 
-Un `TaskExecutionReport.Rejected` est traduit en `DONE/REJECTED` dans la transaction gagnante et ne
-passe jamais par le classifier. Une exception technique annule d'abord entièrement cette
+Un `TaskExecutionReport.Rejected` est traduit en `DONE/REJECTED` avec son code comme raison terminale
+dans la transaction gagnante et ne passe jamais par le classifier. Une exception technique annule d'abord entièrement cette
 transaction, puis `HandleConsumptionFailure` applique la policy dans une transaction courte
 distincte. `LostClaimException` n'est jamais classifiée.
 
 Les erreurs de configuration, d'entrée durable, de payload et les conflits de projection échouent
-immédiatement. Les autres failures techniques suivent le backoff 1 s, 5 s, 30 s, puis deviennent
-terminales.
+immédiatement avec leur catégorie comme raison terminale. Les autres failures techniques suivent le
+backoff 1 s, 5 s, 30 s sans raison sur le slot, puis deviennent terminales avec leur catégorie.
 
 ## Cutover legacy
 

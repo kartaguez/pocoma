@@ -6,7 +6,7 @@ import java.time.Clock;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.engine.exception.InvalidTaskPayloadTypeException;
-import com.kartaguez.pocoma.engine.exception.LostClaimException;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.exception.MissingTaskExecutionHandlerException;
 import com.kartaguez.pocoma.engine.taskexecution.model.NonRetryableTaskTechnicalFailure;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionTechnicalFailureClassifier;

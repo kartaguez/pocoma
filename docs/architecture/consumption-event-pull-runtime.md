@@ -26,11 +26,13 @@ execution.
 
 - SUCCESS, including a zero-Task transformation, commits Tasks, provenance and DONE/SUCCESS together.
 - A deterministic task-planning rejection becomes `BusinessConsumptionOutcome.Rejected`; it commits the
-  authoritative Event input and DONE/REJECTED without Task result, ProcessingFailure or retry.
+  authoritative Event input and DONE/REJECTED with its rejection code as terminal reason, without Task
+  result, ProcessingFailure or retry.
 - A technical exception first rolls back Execute, then is classified and passed to the independent short
   HandleFailure transaction.
 - Event execution failures follow the 1 s, 5 s and 30 s retry schedule. Missing configuration or a missing
-  authoritative Event is an invariant failure and terminates immediately as FAILED.
+  authoritative Event is an invariant failure and terminates immediately as FAILED, using the failure
+  category as terminal reason. Retryable failures leave the slot PENDING without terminal reason.
 - `LostClaimException` is never classified and never reaches HandleFailure; it only denotes a stale,
   already rolled-back execution.
 

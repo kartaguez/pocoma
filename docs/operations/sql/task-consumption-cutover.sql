@@ -65,6 +65,12 @@ with terminal_tasks as (
                when 'FAILED' then 'FAILED'
                when 'SUPERSEDED' then 'ABANDONED'
            end as target_outcome,
+           case task.status
+               when 'DONE' then null
+               when 'FAILED' then coalesce(nullif(btrim(task.failure_kind), ''),
+                                                'LEGACY_FAILURE_REASON_UNAVAILABLE')
+               when 'SUPERSEDED' then 'SUPERSEDED'
+           end as target_reason,
            md5(task.id::text || ':task-consumption-slot') as slot_hash
     from tasks_4_pipeline task
     where task.status in ('DONE', 'FAILED', 'SUPERSEDED')
@@ -77,11 +83,11 @@ with terminal_tasks as (
 )
 insert into consumption_slots (
     slot_id, consumable_type, consumable_components, consumer_type, consumer_components,
-    revision, last_attempt_number, status, terminal_outcome, current_claim_id,
+    revision, last_attempt_number, status, terminal_outcome, terminal_reason, current_claim_id,
     next_claim_at, created_at, done_at
 )
 select generated_slot_id, 'TASK', jsonb_build_array(id::text), 'TASK_EXECUTOR', '[]'::jsonb,
-       0, 0, 'DONE', target_outcome, null,
+       0, 0, 'DONE', target_outcome, target_reason, null,
        created_at, created_at, coalesce(done_at, failed_at, updated_at, created_at)
 from normalized
 on conflict (consumable_type, consumable_components, consumer_type, consumer_components) do nothing;
@@ -97,8 +103,16 @@ begin
          and slot.consumer_type = 'TASK_EXECUTOR'
          and slot.consumer_components = '[]'::jsonb
         where task.status in ('DONE', 'FAILED', 'SUPERSEDED')
-          and (slot.status <> 'DONE' or slot.terminal_outcome <>
-              case task.status when 'DONE' then 'SUCCESS' when 'FAILED' then 'FAILED' else 'ABANDONED' end)
+          and (slot.status <> 'DONE'
+               or slot.terminal_outcome <>
+                  case task.status when 'DONE' then 'SUCCESS' when 'FAILED' then 'FAILED' else 'ABANDONED' end
+               or slot.terminal_reason is distinct from
+                  case task.status
+                      when 'DONE' then null
+                      when 'FAILED' then coalesce(nullif(btrim(task.failure_kind), ''),
+                                                   'LEGACY_FAILURE_REASON_UNAVAILABLE')
+                      else 'SUPERSEDED'
+                  end)
     ) then
         raise exception 'A pre-existing consumption slot contradicts a terminal legacy Task';
     end if;

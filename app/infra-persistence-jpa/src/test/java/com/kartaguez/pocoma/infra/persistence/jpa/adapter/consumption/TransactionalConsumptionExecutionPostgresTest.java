@@ -59,6 +59,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
@@ -249,6 +250,8 @@ class TransactionalConsumptionExecutionPostgresTest {
 
 		assertEquals("VERSION_CONFLICT", ((Rejected) result.outcome()).rejectionCode());
 		assertEquals(Optional.of(TerminalOutcome.REJECTED), lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome());
+		assertEquals(Optional.of(new TerminalReason("VERSION_CONFLICT")),
+				lifecycle.findSlot(claim.slotId()).orElseThrow().terminalReason());
 		Claim ended = lifecycle.findClaim(claim.claimId()).orElseThrow();
 		assertEquals(Optional.of(ClaimEndReason.REJECTED), ended.endReason());
 		assertTrue(ended.failure().isEmpty());
@@ -296,6 +299,8 @@ class TransactionalConsumptionExecutionPostgresTest {
 
 		assertEquals(0, observedCount("lot3_business_effects"));
 		assertEquals(Optional.of(TerminalOutcome.FAILED), lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome());
+		assertEquals(Optional.of(new TerminalReason("PERMANENT")),
+				lifecycle.findSlot(claim.slotId()).orElseThrow().terminalReason());
 	}
 
 	@Test
@@ -447,10 +452,11 @@ class TransactionalConsumptionExecutionPostgresTest {
 
 		@Override
 		public boolean tryTerminalize(
-				UUID slotId, ClaimId claimId, TerminalOutcome outcome, Instant doneAt) {
+				UUID slotId, ClaimId claimId, TerminalOutcome outcome,
+				Optional<TerminalReason> reason, Instant doneAt) {
 			reached.countDown();
 			await(proceed);
-			return delegate.tryTerminalize(slotId, claimId, outcome, doneAt);
+			return delegate.tryTerminalize(slotId, claimId, outcome, reason, doneAt);
 		}
 
 		@Override
@@ -469,8 +475,8 @@ class TransactionalConsumptionExecutionPostgresTest {
 
 		@Override
 		public com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult abandon(
-				UUID slotId, Instant now) {
-			return delegate.abandon(slotId, now);
+				UUID slotId, TerminalReason reason, Instant now) {
+			return delegate.abandon(slotId, reason, now);
 		}
 	}
 

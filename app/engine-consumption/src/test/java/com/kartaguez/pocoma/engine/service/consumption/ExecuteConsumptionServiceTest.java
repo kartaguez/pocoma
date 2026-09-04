@@ -21,6 +21,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
@@ -63,6 +64,7 @@ class ExecuteConsumptionServiceTest {
 		assertSame(expected, actual);
 		assertEquals(List.of("business", "inputs", "results", "terminalize"), calls);
 		assertEquals(TerminalOutcome.SUCCESS, lifecycle.outcome);
+		assertEquals(Optional.empty(), lifecycle.reason);
 		assertEquals(NOW, lifecycle.doneAt);
 	}
 
@@ -75,6 +77,7 @@ class ExecuteConsumptionServiceTest {
 				new ExecuteConsumptionInput(SLOT_ID, CLAIM_ID, ignored -> result));
 
 		assertEquals(TerminalOutcome.REJECTED, lifecycle.outcome);
+		assertEquals(Optional.of(new TerminalReason("VERSION_CONFLICT")), lifecycle.reason);
 		assertEquals("VERSION_CONFLICT", ((Rejected) result.outcome()).rejectionCode());
 	}
 
@@ -150,6 +153,7 @@ class ExecuteConsumptionServiceTest {
 		private final List<String> calls;
 		private final boolean fencingResult;
 		private TerminalOutcome outcome;
+		private Optional<TerminalReason> reason;
 		private Instant doneAt;
 
 		private RecordingLifecycle(List<String> calls, boolean fencingResult) {
@@ -159,11 +163,13 @@ class ExecuteConsumptionServiceTest {
 
 		@Override
 		public boolean tryTerminalize(
-				UUID slotId, ClaimId claimId, TerminalOutcome terminalOutcome, Instant terminalizedAt) {
+				UUID slotId, ClaimId claimId, TerminalOutcome terminalOutcome,
+				Optional<TerminalReason> terminalReason, Instant terminalizedAt) {
 			calls.add("terminalize");
 			assertEquals(SLOT_ID, slotId);
 			assertEquals(CLAIM_ID, claimId);
 			outcome = terminalOutcome;
+			reason = terminalReason;
 			doneAt = terminalizedAt;
 			return fencingResult;
 		}
@@ -182,7 +188,7 @@ class ExecuteConsumptionServiceTest {
 		}
 
 		@Override
-		public AbandonResult abandon(UUID slotId, Instant now) {
+		public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
 			throw new UnsupportedOperationException();
 		}
 	}

@@ -180,7 +180,8 @@ class ConsumptionServicesTest {
 	void failedSlotWithoutTerminalFailureIsReportedAsCorruption() {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 		ConsumptionKey key = key("work", "corrupt");
-		claims.slots.put(key, ConsumptionSlot.initial(key).failed());
+		claims.slots.put(key, ConsumptionSlot.initial(key)
+				.failed(new ProcessingFailure("missing-claim", "missing", NOW)));
 
 		MissingTerminalConsumptionFailureException exception = assertThrows(
 				MissingTerminalConsumptionFailureException.class,
@@ -278,7 +279,7 @@ class ConsumptionServicesTest {
 			});
 			slots.put(key, switch (mutation) {
 				case COMPLETE -> slot.completed();
-				case FAIL -> slot.failed();
+				case FAIL -> slot.failed(failure);
 				case RELEASE -> slot.released();
 			});
 			return ConsumptionOutcome.APPLIED;

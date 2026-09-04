@@ -47,9 +47,8 @@ la même transaction.
 
 Le callback retourne `BusinessConsumptionOutcome.Rejected(rejectionCode)`. Il s'agit d'une décision
 métier valide : les effets prévus et la provenance sont committés, le slot passe à `DONE/REJECTED`
-et aucune failure technique n'est enregistrée. Le code de rejet n'est pas stocké par le moteur ; si
-sa conservation est nécessaire, il doit appartenir à un effet métier, un Event, une Task ou une
-outbox de l'exécution.
+avec un `terminalReason` construit depuis le code de rejet, et aucune failure technique n'est
+enregistrée. La raison reste un code générique : le moteur ne connaît pas sa signification métier.
 
 ## Échec technique
 
@@ -61,8 +60,12 @@ Seulement après ce rollback, la couche spécialisée construit un `ProcessingFa
 La policy décide alors :
 
 - `RETRY_AFTER` : le Claim est clos, le slot reste `PENDING`, sans Claim courant, avec son
-  `nextClaimAt` ;
-- `FAIL` : le Claim est clos et le slot devient `DONE/FAILED`.
+  `nextClaimAt` et sans raison terminale ;
+- `FAIL` : le Claim est clos et le slot devient `DONE/FAILED`, avec la catégorie du
+  `ProcessingFailure` comme `terminalReason`.
+
+Le message et l'horodatage du `ProcessingFailure` restent dans l'historique du Claim. Ils ne sont
+pas dupliqués sur le slot.
 
 Si le Claim a été remplacé avant cette seconde transaction, le résultat est `LOST_CLAIM` et ni le
 slot ni le Claim gagnant ne sont modifiés. `LostClaimException` issu du CAS final n'est pas une

@@ -47,7 +47,7 @@ class SequentialConsumptionOrchestratorTest {
 		var acquireResults = new ArrayDeque<AcquireResult>(List.of(
 				new AcquireResult.Busy(NOW.plusSeconds(20)),
 				new AcquireResult.NotReady(NOW.plusSeconds(10)),
-				new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS),
+				new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS, Optional.empty()),
 				new AcquireResult.Acquired(claim())));
 		AtomicInteger opens = new AtomicInteger();
 		ConsumptionLocator locator = () -> search(opens.incrementAndGet() == 1 ? 4 : 0);
@@ -112,7 +112,7 @@ class SequentialConsumptionOrchestratorTest {
 			}
 		};
 		var orchestrator = new SequentialConsumptionOrchestrator(() -> search,
-				input -> new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS), input -> success(),
+				input -> new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS, Optional.empty()), input -> success(),
 				input -> FencedMutationResult.APPLIED);
 		var result = assertInstanceOf(ConsumptionOrchestrationResult.BudgetExhausted.class,
 				orchestrator.run(input(2, 5)));

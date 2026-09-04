@@ -233,7 +233,7 @@ class ConcurrentConsumptionServicesTest {
 			}
 			Claim claim = current.orElseThrow();
 			claims.put(claim.claimId(), failed ? claim.failAt(now, failure) : claim.endAt(now));
-			slots.put(key, failed ? slots.get(key).failed() : slots.get(key).completed());
+			slots.put(key, failed ? slots.get(key).failed(failure) : slots.get(key).completed());
 			return ConsumptionOutcome.APPLIED;
 		}
 

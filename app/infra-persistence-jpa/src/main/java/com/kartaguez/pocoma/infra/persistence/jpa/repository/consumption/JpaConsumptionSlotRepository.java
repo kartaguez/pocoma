@@ -79,7 +79,8 @@ public interface JpaConsumptionSlotRepository extends JpaRepository<JpaConsumpti
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
 			update consumption_slots
-			set status = 'DONE', terminal_outcome = :outcome, current_claim_id = null,
+			set status = 'DONE', terminal_outcome = :outcome, terminal_reason = :reason,
+			    current_claim_id = null,
 			    done_at = :doneAt, revision = revision + 1
 			where slot_id = :slotId and status = 'PENDING' and current_claim_id = :claimId
 			""", nativeQuery = true)
@@ -87,6 +88,7 @@ public interface JpaConsumptionSlotRepository extends JpaRepository<JpaConsumpti
 			@Param("slotId") UUID slotId,
 			@Param("claimId") UUID claimId,
 			@Param("outcome") String outcome,
+			@Param("reason") String reason,
 			@Param("doneAt") Instant doneAt);
 
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -103,9 +105,13 @@ public interface JpaConsumptionSlotRepository extends JpaRepository<JpaConsumpti
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
 			update consumption_slots
-			set status = 'DONE', terminal_outcome = 'ABANDONED', current_claim_id = null,
+			set status = 'DONE', terminal_outcome = 'ABANDONED', terminal_reason = :reason,
+			    current_claim_id = null,
 			    done_at = :doneAt, revision = revision + 1
 			where slot_id = :slotId and status = 'PENDING'
 			""", nativeQuery = true)
-	int abandon(@Param("slotId") UUID slotId, @Param("doneAt") Instant doneAt);
+	int abandon(
+			@Param("slotId") UUID slotId,
+			@Param("reason") String reason,
+			@Param("doneAt") Instant doneAt);
 }

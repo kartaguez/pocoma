@@ -27,6 +27,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimEndReason;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
@@ -117,12 +118,14 @@ class EventConsumptionRuntimePostgresTest {
 		assertFalse(result instanceof ConsumptionOrchestrationResult.RuntimeFailure);
 		var corruptSlot = lifecycle.findSlot(key(corrupt.id())).orElseThrow();
 		assertEquals(java.util.Optional.empty(), corruptSlot.terminalOutcome());
+		assertEquals(java.util.Optional.empty(), corruptSlot.terminalReason());
 		assertEquals(ClaimEndReason.PROCESSING_FAILURE,
 				lifecycle.findClaims(corruptSlot.slotId()).getFirst().endReason().orElseThrow());
 		assertEquals("EVENT_EXECUTION_FAILURE",
 				lifecycle.findClaims(corruptSlot.slotId()).getFirst().failure().orElseThrow().category());
 		var validSlot = lifecycle.findSlot(key(validEventId)).orElseThrow();
 		assertEquals(TerminalOutcome.SUCCESS, validSlot.terminalOutcome().orElseThrow());
+		assertEquals(java.util.Optional.empty(), validSlot.terminalReason());
 		assertEquals(1, tasks.count());
 	}
 
@@ -143,6 +146,7 @@ class EventConsumptionRuntimePostgresTest {
 				new ConsumerIdentity("PIPELINE", List.of("balances", "1")));
 		var slot = lifecycle.findSlot(key).orElseThrow();
 		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
+		assertEquals(java.util.Optional.empty(), slot.terminalReason());
 		assertEquals(1, provenance.findInputs(slot.slotId()).size());
 		assertEquals(1, provenance.findResults(slot.slotId()).size());
 		assertEquals(tasks.findAll().getFirst().id().toString(),
@@ -163,6 +167,7 @@ class EventConsumptionRuntimePostgresTest {
 
 		var slot = lifecycle.findSlot(key(eventId)).orElseThrow();
 		assertEquals(TerminalOutcome.REJECTED, slot.terminalOutcome().orElseThrow());
+		assertEquals(java.util.Optional.of(new TerminalReason("VERSION_REJECTED")), slot.terminalReason());
 		assertEquals(tasksBefore, tasks.count());
 		assertEquals(1, provenance.findInputs(slot.slotId()).size());
 		assertEquals(List.of(), provenance.findResults(slot.slotId()));
@@ -207,6 +212,7 @@ class EventConsumptionRuntimePostgresTest {
 
 		var slot = lifecycle.findSlot(key(eventId)).orElseThrow();
 		assertEquals(java.util.Optional.empty(), slot.terminalOutcome());
+		assertEquals(java.util.Optional.empty(), slot.terminalReason());
 		assertEquals(java.util.Optional.empty(), slot.currentClaimId());
 		assertEquals(0, tasks.count());
 		assertEquals(List.of(), provenance.findInputs(slot.slotId()));

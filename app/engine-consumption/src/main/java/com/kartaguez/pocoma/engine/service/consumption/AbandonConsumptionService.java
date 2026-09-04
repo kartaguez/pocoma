@@ -22,6 +22,6 @@ public final class AbandonConsumptionService implements AbandonConsumptionUseCas
 	@Override
 	public AbandonResult abandon(AbandonConsumptionInput input) {
 		requireNonNull(input, "input must not be null");
-		return persistence.abandon(input.slotId(), clock.instant());
+		return persistence.abandon(input.slotId(), input.reason(), clock.instant());
 	}
 }

@@ -16,6 +16,13 @@ begin
      and slot.status = 'DONE'
      and slot.terminal_outcome =
          case task.status when 'DONE' then 'SUCCESS' when 'FAILED' then 'FAILED' else 'ABANDONED' end
+     and slot.terminal_reason is not distinct from
+         case task.status
+             when 'DONE' then null
+             when 'FAILED' then coalesce(nullif(btrim(task.failure_kind), ''),
+                                          'LEGACY_FAILURE_REASON_UNAVAILABLE')
+             else 'SUPERSEDED'
+         end
     where task.status in ('DONE', 'FAILED', 'SUPERSEDED');
 
     if terminal_task_count <> mapped_slot_count then

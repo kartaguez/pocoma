@@ -7,6 +7,7 @@ import java.time.Clock;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.engine.exception.MissingTaskCreationStrategyException;
 import com.kartaguez.pocoma.engine.exception.TaskCreationRejectedException;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionTechnicalFailureClassifier;
 
@@ -21,6 +22,9 @@ public final class EventConsumptionTechnicalFailureClassifier implements Consump
 	@Override
 	public ProcessingFailure classify(RuntimeException failure) {
 		requireNonNull(failure, "failure must not be null");
+		if (failure instanceof LostClaimException) {
+			throw new IllegalArgumentException("LostClaimException must never be classified", failure);
+		}
 		if (failure instanceof TaskCreationRejectedException) {
 			throw new IllegalArgumentException("A business rejection escaped the task-creation boundary", failure);
 		}

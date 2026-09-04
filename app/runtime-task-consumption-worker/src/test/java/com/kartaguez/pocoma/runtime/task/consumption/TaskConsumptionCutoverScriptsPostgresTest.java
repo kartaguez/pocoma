@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.runtime.task.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.StandardCharsets;
@@ -70,6 +72,22 @@ class TaskConsumptionCutoverScriptsPostgresTest {
 		assertDoesNotThrow(() -> execute("task-consumption-validate.sql"));
 	}
 
+	@Test
+	void cutoverAssignsReasonsToEveryLegacyTerminalTask() throws Exception {
+		insertTerminalTask("done", "DONE", null);
+		insertTerminalTask("failed", "FAILED", "DATABASE_UNAVAILABLE");
+		insertTerminalTask("failed-unknown", "FAILED", null);
+		insertTerminalTask("superseded", "SUPERSEDED", null);
+
+		execute("task-consumption-cutover.sql");
+		execute("task-consumption-validate.sql");
+
+		assertNull(terminalReason("done"));
+		assertEquals("DATABASE_UNAVAILABLE", terminalReason("failed"));
+		assertEquals("LEGACY_FAILURE_REASON_UNAVAILABLE", terminalReason("failed-unknown"));
+		assertEquals("SUPERSEDED", terminalReason("superseded"));
+	}
+
 	private void insertTask(String partitionKey, String key) {
 		UUID materializationId = UUID.randomUUID();
 		UUID eventId = UUID.randomUUID();
@@ -83,6 +101,36 @@ class TaskConsumptionCutoverScriptsPostgresTest {
 				+ "partition_key,partition_hash,target_version,created_at,updated_at) "
 				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?)",
 				UUID.randomUUID(), materializationId, eventId, key, partitionKey, Timestamp.from(now), Timestamp.from(now));
+	}
+
+	private void insertTerminalTask(String key, String status, String failureKind) {
+		UUID materializationId = UUID.randomUUID();
+		UUID eventId = UUID.randomUUID();
+		Instant now = Instant.parse("2026-09-01T10:00:00Z");
+		jdbc.update("insert into event_4_pipeline_materialization_status "
+				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
+				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
+				materializationId, eventId, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
+		jdbc.update("insert into tasks_4_pipeline "
+				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
+				+ "partition_key,partition_hash,target_version,status,failure_kind,created_at,updated_at,done_at,failed_at) "
+				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?,?,?,?,?)",
+				UUID.randomUUID(), materializationId, eventId, key, UUID.randomUUID().toString(), status, failureKind,
+				Timestamp.from(now), Timestamp.from(now), "DONE".equals(status) ? Timestamp.from(now) : null,
+				"FAILED".equals(status) ? Timestamp.from(now) : null);
+	}
+
+	private String terminalReason(String taskKey) {
+		return jdbc.queryForObject("""
+				select slot.terminal_reason
+				from tasks_4_pipeline task
+				join consumption_slots slot
+				  on slot.consumable_type='TASK'
+				 and slot.consumable_components=jsonb_build_array(task.id::text)
+				 and slot.consumer_type='TASK_EXECUTOR'
+				 and slot.consumer_components='[]'::jsonb
+				where task.task_key=?
+				""", String.class, taskKey);
 	}
 
 	private void execute(String scriptName) throws Exception {

@@ -56,6 +56,9 @@ public class JpaConsumptionSlotEntity {
 	@Column(name = "terminal_outcome")
 	private TerminalOutcome terminalOutcome;
 
+	@Column(name = "terminal_reason")
+	private String terminalReason;
+
 	@Column(name = "current_claim_id")
 	private UUID currentClaimId;
 
@@ -80,6 +83,7 @@ public class JpaConsumptionSlotEntity {
 	public int lastAttemptNumber() { return lastAttemptNumber; }
 	public ConsumptionStatus status() { return status; }
 	public TerminalOutcome terminalOutcome() { return terminalOutcome; }
+	public String terminalReason() { return terminalReason; }
 	public UUID currentClaimId() { return currentClaimId; }
 	public Instant nextClaimAt() { return nextClaimAt; }
 	public Instant createdAt() { return createdAt; }

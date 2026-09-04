@@ -14,7 +14,7 @@ class JpaConsumptionSlotRepositoryFencingQueryTest {
 	@Test
 	void finalCasDependsOnlyOnPendingStatusAndCurrentClaim() throws Exception {
 		Query query = JpaConsumptionSlotRepository.class
-				.getMethod("terminalize", UUID.class, UUID.class, String.class, Instant.class)
+				.getMethod("terminalize", UUID.class, UUID.class, String.class, String.class, Instant.class)
 				.getAnnotation(Query.class);
 		String sql = query.value().toLowerCase().replaceAll("\\s+", " ");
 

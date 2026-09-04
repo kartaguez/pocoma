@@ -24,6 +24,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
@@ -85,7 +86,9 @@ public class JpaConsumptionLifecycleAdapter
 				.orElseThrow(() -> new IllegalStateException("Slot disappeared after idempotent creation"));
 
 		if (slot.status() == ConsumptionStatus.DONE) {
-			return new AlreadyDone(requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"));
+			return new AlreadyDone(
+					requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"),
+					Optional.ofNullable(slot.terminalReason()).map(TerminalReason::new));
 		}
 		if (now.isBefore(slot.nextClaimAt())) {
 			return new NotReady(slot.nextClaimAt());
@@ -117,22 +120,32 @@ public class JpaConsumptionLifecycleAdapter
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
 	public boolean tryTerminalize(
-			UUID slotId, ClaimId claimId, TerminalOutcome outcome, Instant doneAt) {
+			UUID slotId,
+			ClaimId claimId,
+			TerminalOutcome outcome,
+			Optional<TerminalReason> reason,
+			Instant doneAt) {
 		requireNonNull(slotId, "slotId must not be null");
 		requireNonNull(claimId, "claimId must not be null");
 		requireNonNull(outcome, "outcome must not be null");
+		requireNonNull(reason, "reason must not be null");
 		requireNonNull(doneAt, "doneAt must not be null");
 		if (outcome != TerminalOutcome.SUCCESS && outcome != TerminalOutcome.REJECTED) {
 			throw new IllegalArgumentException("Only SUCCESS and REJECTED are execution terminal outcomes");
 		}
-		int updated = slots.terminalize(slotId, claimId.value(), outcome.name(), doneAt);
+		if (reason.isPresent() != (outcome == TerminalOutcome.REJECTED)) {
+			throw new IllegalArgumentException("execution terminal outcome and reason are inconsistent");
+		}
+		int updated = slots.terminalize(
+				slotId, claimId.value(), outcome.name(), reason.map(TerminalReason::code).orElse(null), doneAt);
 		if (updated == 0) {
 			return false;
 		}
 		requireExactlyOne(updated, "terminalize slot");
-		ClaimEndReason reason = outcome == TerminalOutcome.SUCCESS
+		ClaimEndReason claimEndReason = outcome == TerminalOutcome.SUCCESS
 				? ClaimEndReason.SUCCESS : ClaimEndReason.REJECTED;
-		requireExactlyOne(claims.end(slotId, claimId.value(), reason.name(), doneAt), "end winning Claim");
+		requireExactlyOne(
+				claims.end(slotId, claimId.value(), claimEndReason.name(), doneAt), "end winning Claim");
 		return true;
 	}
 
@@ -154,7 +167,8 @@ public class JpaConsumptionLifecycleAdapter
 		if (decision instanceof RetryAfter retry) {
 			updated = slots.scheduleRetry(slotId, claimId.value(), now.plus(retry.duration()));
 		} else if (decision instanceof Fail) {
-			updated = slots.terminalize(slotId, claimId.value(), TerminalOutcome.FAILED.name(), now);
+			updated = slots.terminalize(
+					slotId, claimId.value(), TerminalOutcome.FAILED.name(), failure.category(), now);
 		} else {
 			throw new IllegalStateException("Unsupported failure decision " + decision.getClass().getName());
 		}
@@ -174,21 +188,23 @@ public class JpaConsumptionLifecycleAdapter
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public AbandonResult abandon(UUID slotId, Instant now) {
+	public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
 		requireNonNull(slotId, "slotId must not be null");
+		requireNonNull(reason, "reason must not be null");
 		requireNonNull(now, "now must not be null");
 		JpaConsumptionSlotEntity slot = slots.findByIdForUpdate(slotId)
 				.orElseThrow(() -> new IllegalArgumentException("Unknown consumption slot " + slotId));
 		if (slot.status() == ConsumptionStatus.DONE) {
 			return new AbandonResult.AlreadyDone(
-					requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"));
+					requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"),
+					Optional.ofNullable(slot.terminalReason()).map(TerminalReason::new));
 		}
 		if (slot.currentClaimId() != null) {
 			requireExactlyOne(
 					claims.invalidateForAbandon(slotId, slot.currentClaimId(), now),
 					"invalidate current Claim for abandon");
 		}
-		requireExactlyOne(slots.abandon(slotId, now), "abandon slot");
+		requireExactlyOne(slots.abandon(slotId, reason.code(), now), "abandon slot");
 		return new Abandoned();
 	}
 
@@ -232,6 +248,7 @@ public class JpaConsumptionLifecycleAdapter
 				entity.revision(),
 				entity.status(),
 				Optional.ofNullable(entity.terminalOutcome()),
+				Optional.ofNullable(entity.terminalReason()).map(TerminalReason::new),
 				Optional.ofNullable(entity.currentClaimId()).map(ClaimId::new),
 				entity.nextClaimAt(),
 				entity.createdAt(),

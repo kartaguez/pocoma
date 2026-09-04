@@ -3,9 +3,11 @@ package com.kartaguez.pocoma.engine.service.consumption;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
@@ -44,11 +46,18 @@ public final class ExecuteConsumptionService implements ExecuteConsumptionUseCas
 
 		provenance.appendInputs(result.inputs());
 		provenance.appendResults(result.results());
-		TerminalOutcome terminalOutcome = switch (result.outcome()) {
-			case Success ignored -> TerminalOutcome.SUCCESS;
-			case Rejected ignored -> TerminalOutcome.REJECTED;
-		};
-		if (!lifecycle.tryTerminalize(input.slotId(), input.claimId(), terminalOutcome, clock.instant())) {
+		TerminalOutcome terminalOutcome;
+		Optional<TerminalReason> terminalReason;
+		if (result.outcome() instanceof Success) {
+			terminalOutcome = TerminalOutcome.SUCCESS;
+			terminalReason = Optional.empty();
+		} else {
+			Rejected rejected = (Rejected) result.outcome();
+			terminalOutcome = TerminalOutcome.REJECTED;
+			terminalReason = Optional.of(new TerminalReason(rejected.rejectionCode()));
+		}
+		if (!lifecycle.tryTerminalize(
+				input.slotId(), input.claimId(), terminalOutcome, terminalReason, clock.instant())) {
 			throw new LostClaimException(input.slotId(), input.claimId());
 		}
 		return result;

@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.port.out.consumption;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
@@ -9,6 +10,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
@@ -21,7 +23,8 @@ public interface ConsumptionLifecyclePersistencePort {
 			ConsumptionKey key, ClaimId claimId, WorkerId workerId, ClaimLease lease, Instant now);
 
 	boolean tryTerminalize(
-			UUID slotId, ClaimId claimId, TerminalOutcome outcome, Instant doneAt);
+			UUID slotId, ClaimId claimId, TerminalOutcome outcome,
+			Optional<TerminalReason> reason, Instant doneAt);
 
 	FencedMutationResult handleFailure(
 			UUID slotId,
@@ -30,5 +33,5 @@ public interface ConsumptionLifecyclePersistencePort {
 			FailureDecision decision,
 			Instant now);
 
-	AbandonResult abandon(UUID slotId, Instant now);
+	AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now);
 }
