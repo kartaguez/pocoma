@@ -40,6 +40,7 @@
 		<module>engine-core</module>
 		<module>engine-execution-guard</module>
 		<module>engine-consumption</module>
+		<module>engine-command</module>
 		<module>engine-processing-command</module>
 		<module>engine-processing-event</module>
 		<module>engine-processing-task</module>

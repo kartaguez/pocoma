@@ -396,6 +396,24 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts() {
+		String commandPackage = ROOT_PACKAGE + ".engine.command";
+		Set<String> dependenciesOutsideCommand = dependenciesOutside(
+				commandPackage,
+				Set.of(commandPackage, ROOT_PACKAGE + ".domain.consumption.lifecycle"));
+		assertEquals(Set.of(), dependenciesOutsideCommand,
+				"engine-command may depend only on its own contracts, TerminalReason and the JDK");
+
+		Set<String> forbiddenDurableExecutionTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
+				.map(javaClass -> javaClass.getSimpleName())
+				.filter(name -> Set.of("Claim", "Lease", "Slot", "WorkerSegment").stream().anyMatch(name::contains))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbiddenDurableExecutionTypes,
+				"engine-command execution contracts must not expose claiming or fencing state");
+	}
+
+	@Test
 	void commandProcessingDependsOnlyOnCommandAndGenericProcessingContracts() {
 		noClasses()
 				.that().resideInAnyPackage(
@@ -686,9 +704,11 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void executionGuardRemainsGenericAndIndependentFromConsumption() {
-		String executionPackage = ROOT_PACKAGE + ".engine..execution..";
 		noClasses()
-				.that().resideInAPackage(executionPackage)
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.execution..",
+						ROOT_PACKAGE + ".engine.port.out.execution..",
+						ROOT_PACKAGE + ".engine.service.execution..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain..",
 						ROOT_PACKAGE + ".engine..consumption..",
