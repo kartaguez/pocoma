@@ -32,6 +32,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimEndReason;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
@@ -132,6 +133,11 @@ class EventConsumptionTakeoverPostgresTest {
 			assertEquals(List.of(), provenance.findResults(staleClaim.slotId()));
 			assertEquals(ClaimEndReason.TAKEN_OVER,
 					lifecycle.findClaim(staleClaim.claimId()).orElseThrow().endReason().orElseThrow());
+			assertTrue(lifecycle.findClaim(staleClaim.claimId()).orElseThrow().failure().isEmpty());
+			var pending = lifecycle.findSlot(staleClaim.slotId()).orElseThrow();
+			assertEquals(ConsumptionStatus.PENDING, pending.status());
+			assertTrue(pending.terminalOutcome().isEmpty());
+			assertTrue(pending.terminalReason().isEmpty());
 
 			execute.execute(new ExecuteConsumptionInput(winner.slotId(), winner.claimId(), located.execution()));
 			assertEquals(1, tasks.count());

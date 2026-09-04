@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 
 class ClaimTest {
 
@@ -31,7 +32,8 @@ class ClaimTest {
 
 	@Test
 	void recordsAllClosureHistories() {
-		ProcessingFailure failure = new ProcessingFailure("technical", "failed", NOW.plusSeconds(2));
+		ProcessingFailure failure = new ProcessingFailure(
+				new ProcessingFailureCode("DEADLOCK"), "technical", "failed", NOW.plusSeconds(2));
 		assertEquals(ClaimEndReason.SUCCESS, claim().succeedAt(NOW.plusSeconds(2)).endReason().orElseThrow());
 		assertEquals(ClaimEndReason.REJECTED, claim().rejectAt(NOW.plusSeconds(2)).endReason().orElseThrow());
 		assertEquals(ClaimEndReason.RELEASED, claim().releaseAt(NOW.plusSeconds(2)).endReason().orElseThrow());

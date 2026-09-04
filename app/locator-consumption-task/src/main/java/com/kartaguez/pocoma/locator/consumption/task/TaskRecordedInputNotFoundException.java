@@ -9,5 +9,6 @@ public final class TaskRecordedInputNotFoundException extends RuntimeException
 	public TaskRecordedInputNotFoundException(UUID taskId) {
 		super("Recorded Task was not found during authoritative execution: " + taskId);
 	}
+	@Override public String failureCode() { return "RECORDED_TASK_NOT_FOUND"; }
 	@Override public String failureCategory() { return "TASK_INPUT_NOT_FOUND"; }
 }

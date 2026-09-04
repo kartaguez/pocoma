@@ -58,6 +58,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
@@ -295,11 +296,12 @@ class TransactionalConsumptionExecutionPostgresTest {
 				})));
 		clock.set(NOW.plusSeconds(1));
 		assertEquals(FencedMutationResult.APPLIED, failureHandler(context -> new Fail()).handle(
-				new HandleConsumptionFailureInput(claim.slotId(), claim.claimId(), failure("PERMANENT"))));
+				new HandleConsumptionFailureInput(
+						claim.slotId(), claim.claimId(), failure("DEADLOCK", "TRANSIENT"))));
 
 		assertEquals(0, observedCount("lot3_business_effects"));
 		assertEquals(Optional.of(TerminalOutcome.FAILED), lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome());
-		assertEquals(Optional.of(new TerminalReason("PERMANENT")),
+		assertEquals(Optional.of(new TerminalReason("DEADLOCK")),
 				lifecycle.findSlot(claim.slotId()).orElseThrow().terminalReason());
 	}
 
@@ -395,7 +397,12 @@ class TransactionalConsumptionExecutionPostgresTest {
 	}
 
 	private ProcessingFailure failure(String category) {
-		return new ProcessingFailure(category, category + " failure", clock.instant());
+		return failure(category, category);
+	}
+
+	private ProcessingFailure failure(String code, String category) {
+		return new ProcessingFailure(
+				new ProcessingFailureCode(code), category, code + " failure", clock.instant());
 	}
 
 	private int observedCount(String table) {

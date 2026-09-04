@@ -8,6 +8,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureContext;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 
@@ -32,6 +33,7 @@ class TaskConsumptionFailurePolicyTest {
 
 	private static FailureContext context(String category, int attempt) {
 		Instant now = Instant.parse("2026-01-01T00:00:00Z");
-		return new FailureContext(new ProcessingFailure(category, "failure", now), attempt, now);
+		return new FailureContext(new ProcessingFailure(
+				new ProcessingFailureCode("TEST_FAILURE"), category, "failure", now), attempt, now);
 	}
 }

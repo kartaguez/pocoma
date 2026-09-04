@@ -52,7 +52,7 @@ public interface JpaConsumptionClaimRepository extends JpaRepository<JpaConsumpt
 	@Query(value = """
 			update consumption_claims
 			set ended_at = :now, end_reason = 'PROCESSING_FAILURE',
-			    failure_category = :category, failure_message = :message,
+			    failure_code = :code, failure_category = :category, failure_message = :message,
 			    failure_occurred_at = :occurredAt
 			where claim_id = :claimId and slot_id = :slotId
 			  and ended_at is null and invalidated_at is null
@@ -60,6 +60,7 @@ public interface JpaConsumptionClaimRepository extends JpaRepository<JpaConsumpt
 	int fail(
 			@Param("slotId") UUID slotId,
 			@Param("claimId") UUID claimId,
+			@Param("code") String code,
 			@Param("category") String category,
 			@Param("message") String message,
 			@Param("occurredAt") Instant occurredAt,

@@ -23,6 +23,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
@@ -168,7 +169,7 @@ public class JpaConsumptionLifecycleAdapter
 			updated = slots.scheduleRetry(slotId, claimId.value(), now.plus(retry.duration()));
 		} else if (decision instanceof Fail) {
 			updated = slots.terminalize(
-					slotId, claimId.value(), TerminalOutcome.FAILED.name(), failure.category(), now);
+					slotId, claimId.value(), TerminalOutcome.FAILED.name(), failure.code().value(), now);
 		} else {
 			throw new IllegalStateException("Unsupported failure decision " + decision.getClass().getName());
 		}
@@ -179,6 +180,7 @@ public class JpaConsumptionLifecycleAdapter
 		requireExactlyOne(claims.fail(
 				slotId,
 				claimId.value(),
+				failure.code().value(),
 				failure.category(),
 				failure.message(),
 				failure.occurredAt(),
@@ -259,7 +261,8 @@ public class JpaConsumptionLifecycleAdapter
 		Optional<ProcessingFailure> failure = entity.failureCategory() == null
 				? Optional.empty()
 				: Optional.of(new ProcessingFailure(
-						entity.failureCategory(), entity.failureMessage(), entity.failureOccurredAt()));
+						new ProcessingFailureCode(entity.failureCode()), entity.failureCategory(),
+						entity.failureMessage(), entity.failureOccurredAt()));
 		return new Claim(
 				new ClaimId(entity.claimId()),
 				entity.slotId(),

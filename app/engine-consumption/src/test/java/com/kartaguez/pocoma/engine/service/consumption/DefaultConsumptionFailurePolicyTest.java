@@ -9,6 +9,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureContext;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
@@ -32,6 +33,7 @@ class DefaultConsumptionFailurePolicyTest {
 	}
 
 	private FailureContext context(int attempt) {
-		return new FailureContext(new ProcessingFailure("temporary", "unavailable", NOW), attempt, NOW);
+		return new FailureContext(new ProcessingFailure(
+				new ProcessingFailureCode("DATABASE_UNAVAILABLE"), "temporary", "unavailable", NOW), attempt, NOW);
 	}
 }

@@ -32,6 +32,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
@@ -157,7 +158,7 @@ class ConcurrentConsumptionServicesTest {
 	}
 
 	private static ProcessingFailure failure() {
-		return new ProcessingFailure("test", "failed", NOW);
+		return new ProcessingFailure(new ProcessingFailureCode("TEST_FAILURE"), "test", "failed", NOW);
 	}
 
 	private static final class AtomicClaimPort implements ClaimPort {

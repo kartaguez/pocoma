@@ -105,6 +105,7 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 	public static final class TaskBindingMismatchException extends RuntimeException
 			implements com.kartaguez.pocoma.engine.taskexecution.model.NonRetryableTaskTechnicalFailure {
 		public TaskBindingMismatchException() { super("Recorded Task does not match the configured binding"); }
+		@Override public String failureCode() { return "TASK_BINDING_MISMATCH"; }
 		@Override public String failureCategory() { return "TASK_CONFIGURATION"; }
 	}
 }

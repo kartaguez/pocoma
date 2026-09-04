@@ -51,6 +51,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
@@ -208,27 +209,39 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 	void retryAndTerminalFailureApplyOnlyForTheCurrentClaim() {
 		ConsumptionKey retryKey = key("TASK", "retry", "TASK_EXECUTOR");
 		Claim retryClaim = acquired(inTransaction(() -> acquire(retryKey, "worker", NOW)));
+		ProcessingFailure deadlock = failure("DEADLOCK", "TRANSIENT");
 		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				retryClaim.slotId(), retryClaim.claimId(), failure("temporary"),
+				retryClaim.slotId(), retryClaim.claimId(), deadlock,
 				new RetryAfter(Duration.ofSeconds(5)), NOW)));
 		ConsumptionSlot pending = lifecycle.findSlot(retryKey).orElseThrow();
 		assertEquals(ConsumptionStatus.PENDING, pending.status());
 		assertTrue(pending.currentClaimId().isEmpty());
 		assertEquals(NOW.plusSeconds(5), pending.nextClaimAt());
+		assertEquals(Optional.empty(), pending.terminalOutcome());
 		assertEquals(Optional.empty(), pending.terminalReason());
+		assertEquals(new ProcessingFailureCode("DEADLOCK"),
+				lifecycle.findClaim(retryClaim.claimId()).orElseThrow().failure().orElseThrow().code());
+
+		Claim finalDeadlockClaim = acquired(inTransaction(() -> acquire(retryKey, "worker-2", NOW.plusSeconds(5))));
+		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
+				finalDeadlockClaim.slotId(), finalDeadlockClaim.claimId(), deadlock, new Fail(), NOW.plusSeconds(5))));
+		ConsumptionSlot deadlockFailed = lifecycle.findSlot(retryKey).orElseThrow();
+		assertEquals(Optional.of(TerminalOutcome.FAILED), deadlockFailed.terminalOutcome());
+		assertEquals(Optional.of(new TerminalReason("DEADLOCK")), deadlockFailed.terminalReason());
 
 		ConsumptionKey failedKey = key("TASK", "failed", "TASK_EXECUTOR");
 		Claim failedClaim = acquired(inTransaction(() -> acquire(failedKey, "worker", NOW)));
 		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				failedClaim.slotId(), failedClaim.claimId(), failure("permanent"), new Fail(), NOW)));
+				failedClaim.slotId(), failedClaim.claimId(),
+				failure("DATABASE_UNAVAILABLE", "TRANSIENT"), new Fail(), NOW)));
 		ConsumptionSlot failed = lifecycle.findSlot(failedKey).orElseThrow();
 		assertEquals(ConsumptionStatus.DONE, failed.status());
 		assertEquals(Optional.of(TerminalOutcome.FAILED), failed.terminalOutcome());
-		assertEquals(Optional.of(new TerminalReason("permanent")), failed.terminalReason());
+		assertEquals(Optional.of(new TerminalReason("DATABASE_UNAVAILABLE")), failed.terminalReason());
 		AlreadyDone alreadyDone = assertInstanceOf(AlreadyDone.class,
 				inTransaction(() -> acquire(failedKey, "other", NOW.plusSeconds(60))));
 		assertEquals(TerminalOutcome.FAILED, alreadyDone.outcome());
-		assertEquals(Optional.of(new TerminalReason("permanent")), alreadyDone.reason());
+		assertEquals(Optional.of(new TerminalReason("DATABASE_UNAVAILABLE")), alreadyDone.reason());
 	}
 
 	@Test
@@ -509,7 +522,11 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 	}
 
 	private static ProcessingFailure failure(String category) {
-		return new ProcessingFailure(category, category + " failure", NOW);
+		return failure(category, category);
+	}
+
+	private static ProcessingFailure failure(String code, String category) {
+		return new ProcessingFailure(new ProcessingFailureCode(code), category, code + " failure", NOW);
 	}
 
 	private static Optional<TerminalReason> expectedReason(TerminalOutcome outcome) {

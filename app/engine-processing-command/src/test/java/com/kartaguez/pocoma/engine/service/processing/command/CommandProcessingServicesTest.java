@@ -28,6 +28,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.processing.command.ordering.CommandOrderingKey;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
@@ -146,7 +147,7 @@ class CommandProcessingServicesTest {
 		Claim completed = consumption.acquire(completedCommand.commandId());
 		Claim failed = consumption.acquire(failedCommand.commandId());
 		Claim released = consumption.acquire(releasedCommand.commandId());
-		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		ProcessingFailure failure = failure();
 
 		assertEquals(ConsumptionOutcome.APPLIED,
 				new CompleteCommandProcessingService(commands, consumption).complete(
@@ -181,7 +182,7 @@ class CommandProcessingServicesTest {
 		RecordedCommand completed = global(1, NOW);
 		RecordedCommand failed = global(2, NOW.plusSeconds(1));
 		RecordedCommand claimable = global(3, NOW.plusSeconds(2));
-		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		ProcessingFailure failure = failure();
 		InMemoryCommandPort commands = new InMemoryCommandPort(completed, failed, claimable);
 		TryAcquireConsumptionUseCase consumption = input -> {
 			if (input.consumptionKey().equals(CommandProcessingKeys.forCommand(completed.commandId()))) {
@@ -240,7 +241,7 @@ class CommandProcessingServicesTest {
 	@Test
 	void failedSlotSurvivesAMaterializationFailureAndIsReconciledLater() {
 		RecordedCommand command = global(1, NOW);
-		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		ProcessingFailure failure = failure();
 		InMemoryCommandPort durable = new InMemoryCommandPort(command);
 		List<String> calls = new ArrayList<>();
 		CommandPort failingMaterialization = new CommandPort() {
@@ -297,6 +298,11 @@ class CommandProcessingServicesTest {
 
 	private static UUID uuid(int suffix) {
 		return UUID.fromString("00000000-0000-0000-0000-" + String.format("%012d", suffix));
+	}
+
+	private static ProcessingFailure failure() {
+		return new ProcessingFailure(
+				new ProcessingFailureCode("BUSINESS_REJECTED"), "business", "rejected", NOW);
 	}
 
 	private static final class InMemoryCommandPort implements CommandPort {

@@ -57,7 +57,8 @@ result = BALANCE_PROJECTION / POT_BALANCES / projectionId
 Un `TaskExecutionReport.Rejected` est traduit en `DONE/REJECTED` avec son code comme raison terminale
 dans la transaction gagnante et ne passe jamais par le classifier. Une exception technique annule d'abord entièrement cette
 transaction, puis `HandleConsumptionFailure` applique la policy dans une transaction courte
-distincte. `LostClaimException` n'est jamais classifiée.
+distincte. Si la policy termine la consommation, le code précis de la failure devient la raison
+terminale ; sa catégorie reste utilisée uniquement pour la policy. `LostClaimException` n'est jamais classifiée.
 
 Les erreurs de configuration, d'entrée durable, de payload et les conflits de projection échouent
 immédiatement avec leur catégorie comme raison terminale. Les autres failures techniques suivent le

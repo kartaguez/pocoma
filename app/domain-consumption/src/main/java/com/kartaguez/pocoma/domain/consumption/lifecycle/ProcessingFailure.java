@@ -4,9 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
-public record ProcessingFailure(String category, String message, Instant occurredAt) {
+public record ProcessingFailure(
+		ProcessingFailureCode code,
+		String category,
+		String message,
+		Instant occurredAt) {
 
 	public ProcessingFailure {
+		requireNonNull(code, "code must not be null");
 		requireNonBlank(category, "category");
 		requireNonBlank(message, "message");
 		requireNonNull(occurredAt, "occurredAt must not be null");

@@ -31,8 +31,9 @@ execution.
 - A technical exception first rolls back Execute, then is classified and passed to the independent short
   HandleFailure transaction.
 - Event execution failures follow the 1 s, 5 s and 30 s retry schedule. Missing configuration or a missing
-  authoritative Event is an invariant failure and terminates immediately as FAILED, using the failure
-  category as terminal reason. Retryable failures leave the slot PENDING without terminal reason.
+  authoritative Event is an invariant failure and terminates immediately as FAILED, using the precise
+  failure code as terminal reason. The separate category remains the policy input. Retryable failures
+  leave the slot PENDING without terminal reason.
 - `LostClaimException` is never classified and never reaches HandleFailure; it only denotes a stale,
   already rolled-back execution.
 

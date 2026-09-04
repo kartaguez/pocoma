@@ -32,6 +32,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.CompleteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FailConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ReleaseConsumptionInput;
@@ -111,7 +112,7 @@ class ConsumptionServicesTest {
 		Claim completed = acquired(service(claims).tryAcquire(request(completedKey, WORKER)));
 		Claim failed = acquired(service(claims).tryAcquire(request(failedKey, WORKER)));
 		Claim released = acquired(service(claims).tryAcquire(request(releasedKey, WORKER)));
-		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		ProcessingFailure failure = failure("BUSINESS_REJECTED", "business", "rejected");
 
 		assertEquals(ConsumptionOutcome.APPLIED, new CompleteConsumptionService(claims, CLOCK)
 				.complete(new CompleteConsumptionInput(completedKey, completed.token())));
@@ -133,7 +134,7 @@ class ConsumptionServicesTest {
 		ConsumptionKey key = key("work", "1");
 		acquired(service(claims).tryAcquire(request(key, WORKER)));
 		ClaimToken wrongToken = ClaimToken.generate();
-		ProcessingFailure failure = new ProcessingFailure("technical", "failure", NOW);
+		ProcessingFailure failure = failure("TECHNICAL_FAILURE", "technical", "failure");
 
 		assertEquals(ConsumptionOutcome.CLAIM_OWNERSHIP_LOST,
 				new CompleteConsumptionService(claims, CLOCK)
@@ -161,7 +162,7 @@ class ConsumptionServicesTest {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 		ConsumptionKey completedKey = key("work", "completed");
 		ConsumptionKey failedKey = key("work", "failed");
-		ProcessingFailure failure = new ProcessingFailure("business", "rejected", NOW);
+		ProcessingFailure failure = failure("BUSINESS_REJECTED", "business", "rejected");
 		Claim completed = acquired(service(claims).tryAcquire(request(completedKey, WORKER)));
 		Claim failed = acquired(service(claims).tryAcquire(request(failedKey, WORKER)));
 		new CompleteConsumptionService(claims, CLOCK)
@@ -181,7 +182,7 @@ class ConsumptionServicesTest {
 		InMemoryClaimPort claims = new InMemoryClaimPort();
 		ConsumptionKey key = key("work", "corrupt");
 		claims.slots.put(key, ConsumptionSlot.initial(key)
-				.failed(new ProcessingFailure("missing-claim", "missing", NOW)));
+				.failed(failure("MISSING_CLAIM", "missing-claim", "missing")));
 
 		MissingTerminalConsumptionFailureException exception = assertThrows(
 				MissingTerminalConsumptionFailureException.class,
@@ -204,6 +205,10 @@ class ConsumptionServicesTest {
 
 	private static ConsumptionKey key(String namespace, String component) {
 		return new ConsumptionKey(namespace, List.of(component));
+	}
+
+	private static ProcessingFailure failure(String code, String category, String message) {
+		return new ProcessingFailure(new ProcessingFailureCode(code), category, message, NOW);
 	}
 
 	private static final class InMemoryClaimPort implements ClaimPort {

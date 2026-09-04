@@ -128,7 +128,7 @@ public record ConsumptionSlot(
 		requirePending();
 		requireNonNull(failure, "failure must not be null");
 		return done(revision + 1, TerminalOutcome.FAILED,
-				Optional.of(new TerminalReason(failure.category())), createdAt);
+				Optional.of(new TerminalReason(failure.code().value())), createdAt);
 	}
 
 	@Deprecated(forRemoval = true)

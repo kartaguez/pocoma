@@ -27,7 +27,7 @@ class ConsumptionMigrationsPostgresTest {
 			.withPassword("pocoma");
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV6() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV7() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -37,7 +37,7 @@ class ConsumptionMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(6, result.migrationsExecuted);
+		assertEquals(7, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -64,7 +64,7 @@ class ConsumptionMigrationsPostgresTest {
 	}
 
 	@Test
-	void migrationV6BackfillsRecoverableAndUnavailableTerminalReasons() throws Exception {
+	void migrationsV6AndV7BackfillTerminalReasonsAndProcessingFailureCodes() throws Exception {
 		Flyway throughV5 = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -109,7 +109,7 @@ class ConsumptionMigrationsPostgresTest {
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
 				.load();
-		assertEquals(1, latest.migrate().migrationsExecuted);
+		assertEquals(2, latest.migrate().migrationsExecuted);
 
 		try (Connection connection = DriverManager.getConnection(
 				POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
@@ -135,6 +135,17 @@ class ConsumptionMigrationsPostgresTest {
 				Set<String> reasons = new java.util.HashSet<>();
 				while (resultSet.next()) reasons.add(resultSet.getString(1));
 				assertEquals(Set.of("DATABASE_UNAVAILABLE", "LEGACY_FAILURE_REASON_UNAVAILABLE"), reasons);
+		}
+		try (Connection connection = DriverManager.getConnection(
+				POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement.executeQuery("""
+						select failure_code, failure_category from consumption_claims
+						where end_reason='PROCESSING_FAILURE'
+						""")) {
+			assertTrue(resultSet.next());
+			assertEquals("DATABASE_UNAVAILABLE", resultSet.getString("failure_code"));
+			assertEquals("DATABASE_UNAVAILABLE", resultSet.getString("failure_category"));
 		}
 	}
 }

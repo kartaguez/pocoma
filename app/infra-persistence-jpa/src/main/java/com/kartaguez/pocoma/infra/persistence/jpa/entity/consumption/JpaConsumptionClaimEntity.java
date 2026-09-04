@@ -44,6 +44,9 @@ public class JpaConsumptionClaimEntity {
 	@Column(name = "failure_category")
 	private String failureCategory;
 
+	@Column(name = "failure_code")
+	private String failureCode;
+
 	@Column(name = "failure_message")
 	private String failureMessage;
 
@@ -81,6 +84,7 @@ public class JpaConsumptionClaimEntity {
 	public Instant endedAt() { return endedAt; }
 	public Instant invalidatedAt() { return invalidatedAt; }
 	public String failureCategory() { return failureCategory; }
+	public String failureCode() { return failureCode; }
 	public String failureMessage() { return failureMessage; }
 	public Instant failureOccurredAt() { return failureOccurredAt; }
 	public ClaimEndReason endReason() { return endReason; }

@@ -12,9 +12,11 @@ class ProcessingFailureTest {
 	@Test
 	void describesAProcessingFailure() {
 		Instant occurredAt = Instant.parse("2026-08-27T10:00:00Z");
-		ProcessingFailure failure = new ProcessingFailure("OPTIMISTIC_CONFLICT", "Version mismatch", occurredAt);
+		ProcessingFailure failure = new ProcessingFailure(
+				new ProcessingFailureCode("DEADLOCK"), "TRANSIENT", "Version mismatch", occurredAt);
 
-		assertEquals("OPTIMISTIC_CONFLICT", failure.category());
+		assertEquals(new ProcessingFailureCode("DEADLOCK"), failure.code());
+		assertEquals("TRANSIENT", failure.category());
 		assertEquals("Version mismatch", failure.message());
 		assertEquals(occurredAt, failure.occurredAt());
 	}
@@ -23,10 +25,12 @@ class ProcessingFailureTest {
 	void rejectsIncompleteFailureDescriptions() {
 		Instant now = Instant.now();
 
-		assertThrows(NullPointerException.class, () -> new ProcessingFailure(null, "message", now));
-		assertThrows(IllegalArgumentException.class, () -> new ProcessingFailure(" ", "message", now));
-		assertThrows(NullPointerException.class, () -> new ProcessingFailure("category", null, now));
-		assertThrows(IllegalArgumentException.class, () -> new ProcessingFailure("category", " ", now));
-		assertThrows(NullPointerException.class, () -> new ProcessingFailure("category", "message", null));
+		var code = new ProcessingFailureCode("CODE");
+		assertThrows(NullPointerException.class, () -> new ProcessingFailure(null, "category", "message", now));
+		assertThrows(NullPointerException.class, () -> new ProcessingFailure(code, null, "message", now));
+		assertThrows(IllegalArgumentException.class, () -> new ProcessingFailure(code, " ", "message", now));
+		assertThrows(NullPointerException.class, () -> new ProcessingFailure(code, "category", null, now));
+		assertThrows(IllegalArgumentException.class, () -> new ProcessingFailure(code, "category", " ", now));
+		assertThrows(NullPointerException.class, () -> new ProcessingFailure(code, "category", "message", null));
 	}
 }

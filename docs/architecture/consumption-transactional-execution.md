@@ -61,11 +61,11 @@ La policy décide alors :
 
 - `RETRY_AFTER` : le Claim est clos, le slot reste `PENDING`, sans Claim courant, avec son
   `nextClaimAt` et sans raison terminale ;
-- `FAIL` : le Claim est clos et le slot devient `DONE/FAILED`, avec la catégorie du
-  `ProcessingFailure` comme `terminalReason`.
+- `FAIL` : le Claim est clos et le slot devient `DONE/FAILED`, avec le code précis du
+  `ProcessingFailure` comme `terminalReason`. Sa catégorie reste réservée à la décision de policy.
 
-Le message et l'horodatage du `ProcessingFailure` restent dans l'historique du Claim. Ils ne sont
-pas dupliqués sur le slot.
+Le code, la catégorie, le message et l'horodatage du `ProcessingFailure` restent dans l'historique
+du Claim. Seul son code est repris comme raison sur un slot `FAILED`.
 
 Si le Claim a été remplacé avant cette seconde transaction, le résultat est `LOST_CLAIM` et ni le
 slot ni le Claim gagnant ne sont modifiés. `LostClaimException` issu du CAS final n'est pas une

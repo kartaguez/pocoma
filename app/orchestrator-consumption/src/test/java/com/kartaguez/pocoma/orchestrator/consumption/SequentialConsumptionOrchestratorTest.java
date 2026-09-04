@@ -22,6 +22,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
@@ -91,7 +92,7 @@ class SequentialConsumptionOrchestratorTest {
 		AtomicInteger opens = new AtomicInteger();
 		AtomicInteger handled = new AtomicInteger();
 		var located = new LocatedConsumption(key(1), context -> success(),
-				failure -> new ProcessingFailure("TEST", "failed", NOW));
+				failure -> new ProcessingFailure(new ProcessingFailureCode("TEST_FAILURE"), "TEST", "failed", NOW));
 		var orchestrator = new SequentialConsumptionOrchestrator(
 				() -> opens.incrementAndGet() == 1 ? single(located) : search(0),
 				input -> new AcquireResult.Acquired(claim()),
@@ -196,7 +197,7 @@ class SequentialConsumptionOrchestratorTest {
 	}
 	private static LocatedConsumption located(int index) {
 		return new LocatedConsumption(key(index), context -> success(),
-				failure -> new ProcessingFailure("TEST", "failed", NOW));
+				failure -> new ProcessingFailure(new ProcessingFailureCode("TEST_FAILURE"), "TEST", "failed", NOW));
 	}
 	private static ConsumptionKey key(int index) {
 		return new ConsumptionKey(new ConsumableIdentity("TEST", List.of(Integer.toString(index))),

@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.runtime.task.consumption;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -35,6 +36,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
@@ -119,6 +121,11 @@ class TaskConsumptionTakeoverPostgresTest {
 			assertEquals(0, count("balance_projection_artifacts"));
 			assertEquals(0, count("consumption_inputs"));
 			assertEquals(0, count("consumption_results"));
+			assertTrue(lifecycle.findClaim(staleClaim.claimId()).orElseThrow().failure().isEmpty());
+			var pending = lifecycle.findSlot(staleClaim.slotId()).orElseThrow();
+			assertEquals(ConsumptionStatus.PENDING, pending.status());
+			assertTrue(pending.terminalOutcome().isEmpty());
+			assertTrue(pending.terminalReason().isEmpty());
 
 			execute.execute(new ExecuteConsumptionInput(winningClaim.slotId(), winningClaim.claimId(), context -> {
 				BalanceProjectionReference reference = projections

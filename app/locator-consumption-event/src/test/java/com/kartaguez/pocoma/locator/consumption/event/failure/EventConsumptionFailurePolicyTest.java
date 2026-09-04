@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.exception.TaskCreationRejectedException;
 import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureContext;
@@ -28,9 +29,11 @@ class EventConsumptionFailurePolicyTest {
 		ProcessingFailure technical = classifier.classify(new IllegalStateException("database unavailable"));
 
 		assertEquals(EventConsumptionFailureCategory.EVENT_INPUT_NOT_FOUND.name(), missing.category());
+		assertEquals(new ProcessingFailureCode("RECORDED_EVENT_NOT_FOUND"), missing.code());
 		assertInstanceOf(FailureDecision.Fail.class,
 				new EventConsumptionFailurePolicy().decide(new FailureContext(missing, 1, NOW)));
 		assertEquals(EventConsumptionFailureCategory.EVENT_EXECUTION_FAILURE.name(), technical.category());
+		assertEquals(new ProcessingFailureCode("ILLEGAL_STATE_EXCEPTION"), technical.code());
 		var retry = assertInstanceOf(FailureDecision.RetryAfter.class,
 				new EventConsumptionFailurePolicy().decide(new FailureContext(technical, 1, NOW)));
 		assertEquals(java.time.Duration.ofSeconds(1), retry.duration());

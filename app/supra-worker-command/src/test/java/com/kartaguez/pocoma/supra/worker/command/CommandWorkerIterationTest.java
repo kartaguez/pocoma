@@ -28,6 +28,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.ClaimToken;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.ExecuteCommandUseCase;
@@ -85,7 +86,8 @@ class CommandWorkerIterationTest {
 		assertTrue(fixture.iteration().runOnce());
 		assertEquals(1, fixture.failedCalls.get());
 		assertEquals(0, fixture.completedCalls.get());
-		assertEquals("IllegalArgumentException", fixture.failure.category());
+		assertEquals(new ProcessingFailureCode("ILLEGAL_ARGUMENT_EXCEPTION"), fixture.failure.code());
+		assertEquals("COMMAND_EXECUTION_FAILURE", fixture.failure.category());
 		assertEquals("invalid command", fixture.failure.message());
 		assertEquals(NOW, fixture.failure.occurredAt());
 	}
