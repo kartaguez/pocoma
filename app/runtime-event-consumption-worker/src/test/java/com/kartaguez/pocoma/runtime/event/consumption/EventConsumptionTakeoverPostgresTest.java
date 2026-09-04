@@ -8,9 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,9 +45,12 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
 import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
+import com.kartaguez.pocoma.engine.taskmaterialization.model.PipelineMaterializationStatus;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineMaterializationEntity;
+import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineMaterializationRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaPipelineTaskRepository;
@@ -134,6 +140,70 @@ class EventConsumptionTakeoverPostgresTest {
 			assertEquals(1, provenance.findResults(winner.slotId()).size());
 			assertEquals(TerminalOutcome.SUCCESS,
 					lifecycle.findSlot(winner.slotId()).orElseThrow().terminalOutcome().orElseThrow());
+		}
+	}
+
+	@Test
+	void takeoverDuringLegacyAdoptionKeepsOneTaskSetAndOnlyWinnerProvenance() throws Exception {
+		UUID potId = UUID.randomUUID();
+		outbox.append(new PotCreatedEvent(PotId.of(potId), 1));
+		UUID eventId = events.findAll().getFirst().id();
+		Instant now = Instant.now();
+		var materialization = materializations.saveAndFlush(new JpaPipelineMaterializationEntity(
+				eventId, "takeover", 1, PipelineMaterializationStatus.MATERIALIZED, null, null, now));
+		var first = new JpaPipelineTaskEntity(materialization.id(), eventId, "takeover", 1,
+				new TaskDescriptor("TAKEOVER_TASK", "legacy-1", "{}", potId.toString(), 1), now);
+		var second = new JpaPipelineTaskEntity(materialization.id(), eventId, "takeover", 1,
+				new TaskDescriptor("TAKEOVER_TASK", "legacy-2", "{}", potId.toString(), 1), now);
+		tasks.saveAllAndFlush(List.of(first, second));
+
+		var located = locator.openSearch().next().orElseThrow();
+		Claim staleClaim = acquired(acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+				new WorkerId("legacy-worker-a"), new ClaimLease(Duration.ofMillis(1)))));
+		CountDownLatch adoptionRead = new CountDownLatch(1);
+		CountDownLatch allowFinalCas = new CountDownLatch(1);
+		ConsumptionExecution blocked = context -> {
+			var result = located.execution().execute(context);
+			adoptionRead.countDown();
+			try {
+				if (!allowFinalCas.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("CAS was not released");
+			}
+			catch (InterruptedException interrupted) {
+				Thread.currentThread().interrupt();
+				throw new IllegalStateException("interrupted", interrupted);
+			}
+			return result;
+		};
+
+		try (var executor = Executors.newSingleThreadExecutor()) {
+			var staleExecution = executor.submit(() -> assertThrows(LostClaimException.class,
+					() -> execute.execute(new ExecuteConsumptionInput(
+							staleClaim.slotId(), staleClaim.claimId(), blocked))));
+			assertTrue(adoptionRead.await(10, TimeUnit.SECONDS));
+			while (Instant.now().isBefore(staleClaim.leaseUntil())) Thread.onSpinWait();
+			Claim winner = acquired(acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+					new WorkerId("legacy-worker-b"), new ClaimLease(Duration.ofSeconds(30)))));
+			allowFinalCas.countDown();
+			staleExecution.get(10, TimeUnit.SECONDS);
+
+			assertEquals(2, tasks.count());
+			assertEquals(1, materializations.count());
+			assertEquals(List.of(), provenance.findInputs(staleClaim.slotId()));
+			assertEquals(List.of(), provenance.findResults(staleClaim.slotId()));
+			assertEquals(ClaimEndReason.TAKEN_OVER,
+					lifecycle.findClaim(staleClaim.claimId()).orElseThrow().endReason().orElseThrow());
+
+			execute.execute(new ExecuteConsumptionInput(winner.slotId(), winner.claimId(), located.execution()));
+			assertEquals(2, tasks.count());
+			assertEquals(1, materializations.count());
+			assertEquals(1, provenance.findInputs(winner.slotId()).size());
+			assertEquals(Set.of(first.id().toString(), second.id().toString()),
+					provenance.findResults(winner.slotId()).stream()
+							.map(result -> result.objectId()).collect(Collectors.toSet()));
+			assertEquals(TerminalOutcome.SUCCESS,
+					lifecycle.findSlot(winner.slotId()).orElseThrow().terminalOutcome().orElseThrow());
+			assertEquals(ClaimEndReason.SUCCESS,
+					lifecycle.findClaim(winner.claimId()).orElseThrow().endReason().orElseThrow());
 		}
 	}
 

@@ -191,6 +191,10 @@ class Lot55HttpEventTaskBalanceQueryPostgresTest {
 		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class,
 				taskOrchestrator().run(input("lot-5.5-task-worker")));
 		assertTaskConsumptionsAndProjection(potId, shareholderId, taskIds);
+		assertEquals(0, jdbc.queryForObject("select count(*) from pot_balance_versions where pot_id=?",
+				Integer.class, potId));
+		assertEquals(0, jdbc.queryForObject("select count(*) from pot_balances where pot_id=?",
+				Integer.class, potId));
 
 		var balances = balancesQuery.loadAtVersion(PotId.of(potId), 2);
 		assertEquals(2, balances.version());
