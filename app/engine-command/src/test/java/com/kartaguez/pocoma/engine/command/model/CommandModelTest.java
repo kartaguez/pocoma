@@ -1,16 +1,23 @@
 package com.kartaguez.pocoma.engine.command.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 
 class CommandModelTest {
 
@@ -46,16 +53,22 @@ class CommandModelTest {
 	}
 
 	@Test
-	void validatesProvenanceAndProducedEventData() {
+	void validatesProvenanceArtifactsAndTypedEventResults() {
 		CommandExecutionInput subject = new CommandExecutionInput("POT", "pot-1", 7);
-		CommandProducedEvent event = new CommandProducedEvent("POT_UPDATED_V1", "{}", Optional.of(subject));
 		CommandExecutionArtifact artifact = new CommandExecutionArtifact(
-				"EVENT", event.eventType(), "event-1", OptionalLong.empty(), event.subject(), NOW);
+				"EVENT", "PotUpdated", "event-1", OptionalLong.empty(), Optional.of(subject), NOW);
+		TestBusinessEvent event = new TestBusinessEvent("updated");
+		List<BusinessEvent> mutableEvents = new ArrayList<>(List.of(event));
+		CommandUseCaseResult.Succeeded succeeded = new CommandUseCaseResult.Succeeded(List.of(subject), mutableEvents);
+		mutableEvents.clear();
 
-		assertEquals(subject, event.subject().orElseThrow());
+		assertSame(event, succeeded.events().getFirst());
+		assertThrows(UnsupportedOperationException.class,
+				() -> succeeded.events().add(new TestBusinessEvent("deleted")));
+		assertThrows(NullPointerException.class,
+				() -> new CommandUseCaseResult.Succeeded(List.of(), Collections.singletonList(null)));
 		assertEquals(Optional.of(subject), artifact.subject());
 		assertThrows(IllegalArgumentException.class, () -> new CommandExecutionInput("POT", "pot-1", 0));
-		assertThrows(IllegalArgumentException.class, () -> new CommandProducedEvent(" ", "{}", Optional.empty()));
 		assertThrows(IllegalArgumentException.class, () -> new CommandExecutionArtifact(
 				"EVENT", "TYPE", "id", OptionalLong.of(0), Optional.empty(), NOW));
 	}
@@ -64,4 +77,6 @@ class CommandModelTest {
 		return new AuthorizationSnapshot(new PocomaUserId(UUID.randomUUID()), Set.of(), NOW, NOW,
 				NOW.plusSeconds(60), "issuer");
 	}
+
+	private record TestBusinessEvent(String change) implements BusinessEvent {}
 }

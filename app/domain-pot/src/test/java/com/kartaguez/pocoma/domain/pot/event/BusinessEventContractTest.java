@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.domain.pot.event;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ class BusinessEventContractTest {
 				new ExpenseSharesUpdatedEvent(expenseId, potId, 3));
 
 		events.forEach(event -> {
+			assertTrue(event instanceof com.kartaguez.pocoma.domain.event.BusinessEvent);
 			assertEquals(potId, event.potId());
 			assertEquals(3, event.version());
 		});

@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
+import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.decode.CommandPayloadDecoder;
@@ -32,7 +33,6 @@ import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandProducedEvent;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
@@ -96,11 +96,12 @@ class ExecuteRecordedCommandServiceTest {
 	@Test
 	void successAppendsAllEventsOnceAndReturnsTheirArtifacts() {
 		CommandExecutionInput subject = new CommandExecutionInput("POT", "pot-1", 4);
-		List<CommandProducedEvent> produced = List.of(
-				new CommandProducedEvent("POT_UPDATED_V1", "{\"n\":1}", Optional.of(subject)),
-				new CommandProducedEvent("AUDIT_RECORDED_V1", "{\"n\":2}", Optional.empty()));
+		TestBusinessEvent first = new TestBusinessEvent("pot-updated");
+		TestBusinessEvent second = new TestBusinessEvent("audit-recorded");
+		List<BusinessEvent> produced = List.of(first, second);
 		List<CommandExecutionArtifact> artifacts = List.of(
-				artifact("event-1", produced.get(0)), artifact("event-2", produced.get(1)));
+				artifact("event-1", "PotUpdated", Optional.of(subject)),
+				artifact("event-2", "AuditRecorded", Optional.empty()));
 		Fixture fixture = new Fixture(Optional.of(recorded(NOW.plusSeconds(60))),
 				success(List.of(subject), produced), artifacts);
 
@@ -109,6 +110,8 @@ class ExecuteRecordedCommandServiceTest {
 
 		assertEquals(1, fixture.appendCalls.get());
 		assertEquals(produced, fixture.appendedEvents);
+		assertSame(first, fixture.appendedEvents.get(0));
+		assertSame(second, fixture.appendedEvents.get(1));
 		assertEquals(artifacts, result.artifacts());
 	}
 
@@ -129,7 +132,7 @@ class ExecuteRecordedCommandServiceTest {
 
 	@Test
 	void appendFailureAndInvalidAppendReportsRemainTechnical() {
-		CommandProducedEvent produced = new CommandProducedEvent("EVENT_V1", "{}", Optional.empty());
+		BusinessEvent produced = new TestBusinessEvent("event");
 		TechnicalFailure expected = new TechnicalFailure();
 		ExecuteRecordedCommandService failing = service(recorded(NOW.plusSeconds(60)),
 				decoderRegistry(), dispatcher(success(List.of(), List.of(produced))), eventsThrowing(expected));
@@ -142,14 +145,6 @@ class ExecuteRecordedCommandServiceTest {
 		ExecuteRecordedCommandService wrongCount = service(recorded(NOW.plusSeconds(60)),
 				decoderRegistry(), dispatcher(success(List.of(), List.of(produced))), events(List.of()));
 		assertThrows(IllegalStateException.class, () -> wrongCount.execute(COMMAND_ID));
-
-		CommandProducedEvent other = new CommandProducedEvent("OTHER_EVENT_V1", "{}", Optional.empty());
-		List<CommandProducedEvent> producedInOrder = List.of(produced, other);
-		List<CommandExecutionArtifact> artifactsOutOfOrder = List.of(
-				artifact("event-2", other), artifact("event-1", produced));
-		ExecuteRecordedCommandService wrongOrder = service(recorded(NOW.plusSeconds(60)),
-				decoderRegistry(), dispatcher(success(List.of(), producedInOrder)), events(artifactsOutOfOrder));
-		assertThrows(IllegalStateException.class, () -> wrongOrder.execute(COMMAND_ID));
 	}
 
 	@Test
@@ -181,7 +176,7 @@ class ExecuteRecordedCommandServiceTest {
 
 	private static CommandUseCaseResult.Succeeded success(
 			List<CommandExecutionInput> inputs,
-			List<CommandProducedEvent> events) {
+			List<BusinessEvent> events) {
 		return new CommandUseCaseResult.Succeeded(inputs, events);
 	}
 
@@ -228,11 +223,15 @@ class ExecuteRecordedCommandServiceTest {
 		return new ExecuteRecordedCommandService(id -> Optional.of(recorded), decoder, dispatcher, events, CLOCK);
 	}
 
-	private static CommandExecutionArtifact artifact(String id, CommandProducedEvent event) {
-		return new CommandExecutionArtifact("EVENT", event.eventType(), id, OptionalLong.empty(), event.subject(), NOW);
+	private static CommandExecutionArtifact artifact(
+			String id,
+			String type,
+			Optional<CommandExecutionInput> subject) {
+		return new CommandExecutionArtifact("EVENT", type, id, OptionalLong.empty(), subject, NOW);
 	}
 
 	private record TestCommand(String payload) implements Command {}
+	private record TestBusinessEvent(String change) implements BusinessEvent {}
 
 	@FunctionalInterface
 	private interface PayloadDecoder {
@@ -250,7 +249,7 @@ class ExecuteRecordedCommandServiceTest {
 		private final AtomicInteger decodeCalls = new AtomicInteger();
 		private final AtomicInteger dispatchCalls = new AtomicInteger();
 		private final AtomicInteger appendCalls = new AtomicInteger();
-		private List<CommandProducedEvent> appendedEvents = List.of();
+		private List<BusinessEvent> appendedEvents = List.of();
 		private final ExecuteRecordedCommandService service;
 
 		private Fixture(Optional<RecordedCommand> recorded, CommandUseCaseResult result) {

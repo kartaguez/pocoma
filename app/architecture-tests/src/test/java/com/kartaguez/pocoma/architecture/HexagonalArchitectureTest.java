@@ -400,9 +400,10 @@ class HexagonalArchitectureTest {
 		String commandPackage = ROOT_PACKAGE + ".engine.command";
 		Set<String> dependenciesOutsideCommand = dependenciesOutside(
 				commandPackage,
-				Set.of(commandPackage, ROOT_PACKAGE + ".domain.consumption.lifecycle"));
+				Set.of(commandPackage, ROOT_PACKAGE + ".domain.consumption.lifecycle",
+						ROOT_PACKAGE + ".domain.event"));
 		assertEquals(Set.of(), dependenciesOutsideCommand,
-				"engine-command may depend only on its own contracts, TerminalReason and the JDK");
+				"engine-command may depend only on its own contracts, generic BusinessEvent, TerminalReason and the JDK");
 
 		Set<String> forbiddenDurableExecutionTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))

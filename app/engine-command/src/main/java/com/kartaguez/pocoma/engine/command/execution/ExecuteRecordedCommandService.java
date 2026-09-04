@@ -12,7 +12,6 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandProducedEvent;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
@@ -66,13 +65,6 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		if (artifacts.size() != succeeded.events().size()) {
 			throw new IllegalStateException("Event append returned " + artifacts.size()
 					+ " artifacts for " + succeeded.events().size() + " events");
-		}
-		for (int index = 0; index < artifacts.size(); index++) {
-			CommandProducedEvent event = succeeded.events().get(index);
-			CommandExecutionArtifact artifact = artifacts.get(index);
-			if (!artifact.type().equals(event.eventType()) || !artifact.subject().equals(event.subject())) {
-				throw new IllegalStateException("Event append returned an artifact out of order at index " + index);
-			}
 		}
 		return new RecordedCommandExecutionResult.Succeeded(succeeded.inputs(), artifacts);
 	}

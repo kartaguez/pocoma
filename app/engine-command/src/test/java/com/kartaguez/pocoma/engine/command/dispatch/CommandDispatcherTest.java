@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
+import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
@@ -28,16 +29,18 @@ class CommandDispatcherTest {
 	@Test
 	void dispatchesTheExactCommandClassAndPassesAuthorizationUnchanged() {
 		AtomicReference<AuthorizationSnapshot> received = new AtomicReference<>();
+		TestBusinessEvent first = new TestBusinessEvent("created");
+		TestBusinessEvent second = new TestBusinessEvent("updated");
 		CommandUseCase<TestCommand> useCase = useCase((authorization, command) -> {
 			received.set(authorization);
-			return new CommandUseCaseResult.Succeeded(List.of(), List.of());
+			return new CommandUseCaseResult.Succeeded(List.of(), List.of(first, second));
 		});
 
-		CommandUseCaseResult result = new CommandDispatcher(List.of(useCase))
-				.dispatch(AUTHORIZATION, new TestCommand("value"));
+		CommandUseCaseResult.Succeeded result = assertInstanceOf(CommandUseCaseResult.Succeeded.class,
+				new CommandDispatcher(List.of(useCase)).dispatch(AUTHORIZATION, new TestCommand("value")));
 
-		assertInstanceOf(CommandUseCaseResult.Succeeded.class, result);
 		assertSame(AUTHORIZATION, received.get());
+		assertEquals(List.of(first, second), result.events());
 	}
 
 	@Test
@@ -92,5 +95,6 @@ class CommandDispatcherTest {
 	}
 
 	private record TestCommand(String value) implements Command {}
+	private record TestBusinessEvent(String change) implements BusinessEvent {}
 	private static final class TechnicalFailure extends RuntimeException {}
 }
