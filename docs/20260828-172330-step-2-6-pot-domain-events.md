@@ -16,7 +16,7 @@ porte la trace technique.
    les événements Expense, sans alias dans l'ancien package.
 2. Adapter `RecordedEvent` pour borner son type générique avec le nouveau
    `BusinessEvent` du domaine.
-3. Adapter la production d'événements dans `engine-command` sans changer les
+3. Adapter la production d'événements dans `engine-pot-command` sans changer les
    transactions ni les valeurs publiées.
 4. Adapter `engine-task-creation` et `engine-processing-event`; les stratégies
    pures manipulent l'événement métier, tandis que le processing durable utilise
@@ -42,7 +42,7 @@ porte la trace technique.
 
 ## Validation
 
-Tester successivement `domain-pot`, `engine-core`, `engine-command`,
+Tester successivement `domain-pot`, `engine-core`, `engine-pot-command`,
 `engine-task-creation`, `engine-processing-event`, `infra-persistence-jpa`,
 `observability`, `architecture-tests`, puis le reactor complet. Les tests doivent
 couvrir les invariants des dix événements, leur production, leur utilisation pure,

@@ -15,9 +15,9 @@
 2. Renommer le module et les packages du domaine de projection Balance.
 3. Remplacer `PotBalancesPort` par `PotBalancesQueryPort` et `PotBalanceProjectionPort`, puis
    déplacer `PotBalanceProjectionState` dans `engine-projection`.
-4. Déplacer le port d'écriture des shareholders dans `engine-command` et créer un port de lecture
+4. Déplacer le port d'écriture des shareholders dans `engine-pot-command` et créer un port de lecture
    dédié dans `engine-projection`.
-5. Créer `BusinessEventAppendPort` dans `engine-command`, typé par `BusinessEvent`, et découpler
+5. Créer `BusinessEventAppendPort` dans `engine-pot-command`, typé par `BusinessEvent`, et découpler
    le port d'outbox legacy.
 6. Déplacer `PotGlobalVersion` sous `engine.pot.version` et éliminer les packages génériques
    `engine.model` et `engine.port.out.persistence` d'`engine-core`.

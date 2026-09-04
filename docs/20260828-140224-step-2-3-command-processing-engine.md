@@ -34,7 +34,7 @@ ni boucle de worker ni exécution métier.
 ## Frontières
 
 Le futur worker appelle successivement claim, `ExecuteCommandUseCase`, puis complete/fail/release.
-Le module ne crée ni table, ni adapter PostgreSQL, ni controller, ni worker. `engine-command` reste
+Le module ne crée ni table, ni adapter PostgreSQL, ni controller, ni worker. `engine-pot-command` reste
 indépendant de la consommation et du processing.
 
 ## Tests

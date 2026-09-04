@@ -20,7 +20,7 @@ transitions de consommation.
 
 Retirer de ce module `ConsumableCommand`, `CommandPort`, `CommandClaimResult`, les inputs,
 use cases, services et décorateurs transactionnels spécialisés Command. Supprimer également la
-dépendance Maven vers `engine-command`.
+dépendance Maven vers `engine-pot-command`.
 
 ## Limite avec la 2.3
 

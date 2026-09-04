@@ -4,7 +4,7 @@ Pocoma separates functional application behavior from durable processing and fro
 adapters. The same functional use case must remain callable from either a reactive supra in push
 mode or an autonomous worker in pull mode.
 
-## Business commands — `engine-command`
+## Business commands — `engine-pot-command`
 
 The command records under `engine.port.in.command.intent` are typed business intentions such as
 `CreatePotCommand` or `CreateExpenseCommand`. They are inputs to business use cases; they are not

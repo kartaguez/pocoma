@@ -43,7 +43,7 @@
 		<module>engine-processing-command</module>
 		<module>engine-processing-event</module>
 		<module>engine-processing-task</module>
-		<module>engine-command</module>
+		<module>engine-pot-command</module>
 		<module>engine-query</module>
 		<module>engine-projection</module>
 		<module>engine-projection-balance</module>

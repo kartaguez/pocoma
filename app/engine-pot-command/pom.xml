@@ -9,8 +9,8 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>pocoma-engine-command</artifactId>
-	<name>pocoma-engine-command</name>
+	<artifactId>pocoma-engine-pot-command</artifactId>
+	<name>pocoma-engine-pot-command</name>
 
 	<dependencies>
 		<dependency>
