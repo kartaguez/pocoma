@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+
 public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> shares, long expectedVersion)
 		implements CommandIntent {
 
@@ -34,5 +36,6 @@ public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> 
 		if (numerator == 0 || (numerator > 0) != (denominator > 0)) {
 			throw new IllegalArgumentException("weight must be strictly positive");
 		}
+		Fraction.of(numerator, denominator);
 	}
 }

@@ -4,6 +4,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+
 public record CreateExpenseCommand(
 		UUID potId,
 		UUID payerId,
@@ -18,6 +21,7 @@ public record CreateExpenseCommand(
 		Objects.requireNonNull(payerId, "payerId must not be null");
 		Objects.requireNonNull(label, "label must not be null");
 		shares = Set.copyOf(Objects.requireNonNull(shares, "shares must not be null"));
+		Amount.of(Fraction.of(amountNumerator, amountDenominator));
 
 		if (shares.isEmpty()) {
 			throw new IllegalArgumentException("shares must not be empty");
@@ -42,5 +46,6 @@ public record CreateExpenseCommand(
 		if (numerator == 0 || (numerator > 0) != (denominator > 0)) {
 			throw new IllegalArgumentException("weight must be strictly positive");
 		}
+		Fraction.of(numerator, denominator);
 	}
 }

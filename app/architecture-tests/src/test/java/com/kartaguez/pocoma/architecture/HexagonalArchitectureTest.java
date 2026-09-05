@@ -359,7 +359,9 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.command..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".domain.consumption.claim..",
+						ROOT_PACKAGE + ".domain.consumption.key..",
+						ROOT_PACKAGE + ".domain.consumption.provenance..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..")
@@ -374,7 +376,9 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine..processing.command..",
-						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".domain.consumption.claim..",
+						ROOT_PACKAGE + ".domain.consumption.key..",
+						ROOT_PACKAGE + ".domain.consumption.provenance..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..")
@@ -393,6 +397,60 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine..processing.event..",
 						ROOT_PACKAGE + ".engine..processing.task..")
 				.check(CLASSES);
+	}
+
+	@Test
+	void potCommandAdaptersStayOutsideTransactionsInfrastructureAndEventSerialization() {
+		String commandServicePackage = ROOT_PACKAGE + ".engine.service.command..";
+		String decoderPackage = ROOT_PACKAGE + ".engine.pot.command.decode..";
+
+		noClasses()
+				.that().resideInAPackage(commandServicePackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".infra..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.context..",
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..")
+				.should().dependOnClassesThat().resideInAnyPackage("com.fasterxml.jackson..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(decoderPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".infra..",
+						"org.springframework..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+
+		Set<String> adapterTransactionDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".engine.service.command"))
+				.filter(javaClass -> javaClass.getSimpleName().endsWith("CommandUseCaseAdapter"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(name -> name.endsWith(".TransactionRunner") || name.contains(".service.transaction."))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), adapterTransactionDependencies,
+				"Pot Command adapters must join the caller transaction instead of creating one");
+
+		Set<String> commandConsumptionDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.command"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass().getName())
+				.filter(name -> name.startsWith(ROOT_PACKAGE + ".domain.consumption."))
+				.filter(name -> !name.equals(ROOT_PACKAGE + ".domain.consumption.lifecycle.TerminalReason"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), commandConsumptionDependencies,
+				"Pot Command services may use TerminalReason but no durable consumption model");
 	}
 
 	@Test
@@ -570,9 +628,6 @@ class HexagonalArchitectureTest {
 	void functionalUseCaseFamiliesDoNotDependOnConsumptionDomain() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
-						ROOT_PACKAGE + ".engine.service.transaction.command..",
 						ROOT_PACKAGE + ".engine.port.in.query..",
 						ROOT_PACKAGE + ".engine.port.out.query..",
 						ROOT_PACKAGE + ".engine.service.query..",
@@ -584,6 +639,17 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
 						ROOT_PACKAGE + ".engine.service.taskexecution..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".domain.consumption..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.service.transaction.command..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption.claim..",
+						ROOT_PACKAGE + ".domain.consumption.key..",
+						ROOT_PACKAGE + ".domain.consumption.provenance..")
 				.check(CLASSES);
 	}
 

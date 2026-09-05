@@ -49,4 +49,26 @@ class UpdateExpenseDetailsCommandTest {
 				"Dinner",
 				0));
 	}
+
+	@Test
+	void rejectsNegativeAmount() {
+		assertThrows(IllegalArgumentException.class, () -> new UpdateExpenseDetailsCommand(
+				UUID.randomUUID(),
+				UUID.randomUUID(),
+				-1,
+				1,
+				"Dinner",
+				3));
+	}
+
+	@Test
+	void rejectsZeroAmountDenominator() {
+		assertThrows(IllegalArgumentException.class, () -> new UpdateExpenseDetailsCommand(
+				UUID.randomUUID(),
+				UUID.randomUUID(),
+				42,
+				0,
+				"Dinner",
+				3));
+	}
 }

@@ -51,6 +51,30 @@ class CreateExpenseCommandTest {
 	}
 
 	@Test
+	void rejectsNegativeAmount() {
+		assertThrows(IllegalArgumentException.class, () -> new CreateExpenseCommand(
+				UUID.randomUUID(),
+				UUID.randomUUID(),
+				-1,
+				1,
+				"Dinner",
+				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)),
+				3));
+	}
+
+	@Test
+	void rejectsZeroAmountDenominator() {
+		assertThrows(IllegalArgumentException.class, () -> new CreateExpenseCommand(
+				UUID.randomUUID(),
+				UUID.randomUUID(),
+				42,
+				0,
+				"Dinner",
+				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)),
+				3));
+	}
+
+	@Test
 	void rejectsZeroExpenseShareWeight() {
 		assertThrows(IllegalArgumentException.class, () -> new CreateExpenseCommand.ExpenseShareInput(
 				UUID.randomUUID(),
