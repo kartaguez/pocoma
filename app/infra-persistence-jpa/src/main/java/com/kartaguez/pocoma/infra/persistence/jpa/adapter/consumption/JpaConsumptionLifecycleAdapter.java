@@ -72,13 +72,17 @@ public class JpaConsumptionLifecycleAdapter
 		requireNonNull(now, "now must not be null");
 
 		KeyParameters parameters = parameters(key);
-		slots.insertInitial(
+		int inserted = slots.insertInitial(
 				UUID.randomUUID(),
 				parameters.consumableType(),
 				parameters.consumableComponents(),
 				parameters.consumerType(),
 				parameters.consumerComponents(),
 				now);
+		if (inserted != 0 && inserted != 1) {
+			throw new IllegalStateException("create initial slot expected zero or one affected row but got " + inserted);
+		}
+		boolean created = inserted == 1;
 		JpaConsumptionSlotEntity slot = slots.findByKeyForUpdate(
 				parameters.consumableType(),
 				parameters.consumableComponents(),
@@ -91,7 +95,7 @@ public class JpaConsumptionLifecycleAdapter
 					requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"),
 					Optional.ofNullable(slot.terminalReason()).map(TerminalReason::new));
 		}
-		if (now.isBefore(slot.nextClaimAt())) {
+		if (!created && now.isBefore(slot.nextClaimAt())) {
 			return new NotReady(slot.nextClaimAt());
 		}
 		if (slot.currentClaimId() != null) {

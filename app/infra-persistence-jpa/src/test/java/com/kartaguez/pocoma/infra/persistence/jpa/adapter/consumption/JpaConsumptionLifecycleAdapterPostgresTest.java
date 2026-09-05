@@ -142,6 +142,19 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 	}
 
 	@Test
+	void newlyCreatedSlotIsImmediatelyAcquiredWhenPostgresRoundsItsTimestampUp() {
+		Instant subMicrosecondNow = Instant.parse("2026-08-31T08:00:00.000000999Z");
+		ConsumptionKey key = key("EVENT", "rounded-event", "PIPELINE", "balance", "v1");
+
+		Claim claim = acquired(inTransaction(() -> acquire(key, "worker", subMicrosecondNow)));
+
+		assertEquals(1, claim.attemptNumber());
+		assertEquals(subMicrosecondNow, claim.claimedAt());
+		assertEquals(1, jdbc.queryForObject("select count(*) from consumption_slots", Integer.class));
+		assertEquals(1, jdbc.queryForObject("select count(*) from consumption_claims", Integer.class));
+	}
+
+	@Test
 	void structuralConsumersOfTheSameConsumableRemainIndependent() {
 		ConsumptionKey balances = key("EVENT", "event-1", "PIPELINE", "balance", "v1");
 		ConsumptionKey notifications = key("EVENT", "event-1", "PIPELINE", "notification", "v1");
