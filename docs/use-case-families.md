@@ -19,6 +19,19 @@ the matching specialized use case. Typed incoming adapters remain free to invoke
 use case directly. The routing facade adds neither business logic nor a transaction boundary: its
 delegates are the same transactionally configured use cases exposed to direct callers.
 
+## Durable commands — `engine-command`
+
+`engine-command` owns the provider-neutral `RecordedCommand`: durable id and type, opaque payload,
+submission time and immutable authorization snapshot. `infra-persistence-jpa` stores that envelope
+in `recorded_commands` through explicit JDBC. The source row has no processing lifecycle and an
+insert never creates a consumption slot.
+
+Command discovery is a short best-effort read ordered by PostgreSQL on
+`(submittedAt, commandId)`. It may return the same candidate to multiple workers. The future
+Command locator will ask `engine-consumption.acquire()` to lazily create or claim
+`COMMAND[commandId] / COMMAND_PROCESSOR[]`; only that operation is authoritative. Locator,
+consumption integration, HTTP intake and the worker remain future Lot 6.5–6.7 work.
+
 ## Queries — `engine-query`
 
 Query use cases synchronously read Pot state and projections through read ports. They are separate
@@ -57,11 +70,10 @@ The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, lease
 failures, and their invariants. It contains no use case, persistence concern, ordering,
 segmentation, or worker orchestration.
 
-`ConsumptionSlot` is the authoritative processing lifecycle. Command and Task statuses are
-reconcilable durable materializations: a terminal slot may temporarily coexist with a READY or
-PENDING source row, but the processing services always transition the slot first and repair that
-lag while selecting subsequent work. A terminal durable status with a READY slot is never
-produced by these services.
+`ConsumptionSlot` is the authoritative processing lifecycle. The target Recorded Command carries
+no status at all. Task status and the legacy Command status remain transitional materializations;
+the target Event, Task and Command discoveries consult the generic lifecycle only as a best-effort
+prefilter before authoritative acquisition.
 
 Ordering and segmentation are technical processing concerns. Chaque ordre appartient désormais à
 son module spécialisé : `engine-processing-command`, `engine-processing-event` ou
@@ -73,7 +85,7 @@ owner. EventConsumptions and Tasks use `(pipelineId, potId)` as their partition 
 
 Claim ordering is also explicit and is independent from segmentation:
 
-- Commands are ordered by `(createdAt, commandId)` only;
+- target Recorded Commands are ordered by PostgreSQL on `(submittedAt, commandId)` only;
 - EventConsumptions are ordered by `(event.version(), recordedAt, eventId)`;
 - Tasks are scanned by `(createdAt, taskId)`. `targetVersion` identifies an exact historical input;
   it is not an ordering or serialization constraint.

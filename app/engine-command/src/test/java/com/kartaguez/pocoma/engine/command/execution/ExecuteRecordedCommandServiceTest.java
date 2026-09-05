@@ -36,6 +36,7 @@ import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 
 class ExecuteRecordedCommandServiceTest {
@@ -220,7 +221,8 @@ class ExecuteRecordedCommandServiceTest {
 			CommandDecoder decoder,
 			CommandDispatcher dispatcher,
 			EventAppendPort events) {
-		return new ExecuteRecordedCommandService(id -> Optional.of(recorded), decoder, dispatcher, events, CLOCK);
+		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
+				decoder, dispatcher, events, CLOCK);
 	}
 
 	private static CommandExecutionArtifact artifact(
@@ -283,8 +285,17 @@ class ExecuteRecordedCommandServiceTest {
 				appendedEvents = List.copyOf(produced);
 				return artifacts;
 			};
-			this.service = new ExecuteRecordedCommandService(id -> recorded, decoder,
+			this.service = new ExecuteRecordedCommandService(recordedCommands(recorded), decoder,
 					new CommandDispatcher(List.of(useCase)), events, CLOCK);
 		}
+	}
+
+	private static RecordedCommandPort recordedCommands(Optional<RecordedCommand> recorded) {
+		return new RecordedCommandPort() {
+			@Override public void insert(RecordedCommand command) {
+				throw new UnsupportedOperationException("not used by execution tests");
+			}
+			@Override public Optional<RecordedCommand> findById(CommandId commandId) { return recorded; }
+		};
 	}
 }

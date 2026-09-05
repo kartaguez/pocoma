@@ -16,9 +16,6 @@ public record RecordedCommand(
 		requireNonNull(commandId, "commandId must not be null");
 		requireNonNull(commandType, "commandType must not be null");
 		requireNonNull(serializedPayload, "serializedPayload must not be null");
-		if (serializedPayload.isBlank()) {
-			throw new IllegalArgumentException("serializedPayload must not be blank");
-		}
 		requireNonNull(submittedAt, "submittedAt must not be null");
 		requireNonNull(authorization, "authorization must not be null");
 	}

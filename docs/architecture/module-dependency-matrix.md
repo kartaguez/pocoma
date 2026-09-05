@@ -22,8 +22,10 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 
 | Module | Responsabilité et principaux types | Dépendances autorisées | Interdites | État |
 |---|---|---|---|---|
+| `domain-authorization` | Capacité provider-neutral `Permission(objectType, action)` | JDK | Pot, engines, frameworks | target |
+| `domain-event` | Marqueur générique `BusinessEvent` | JDK | domaines fonctionnels, engines, frameworks | target |
 | `domain-pot` | Modèle Pot, valeurs, agrégats et `BusinessEvent` typés | JDK | autres domaines, engines, frameworks | target |
-| `domain-pot-policy` | Policies d'autorisation Pot et `Scope` | `domain-pot`, JDK | engines, infra, runtime | target |
+| `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | `PotBalances`, `Balance`, calcul incrémental | `domain-pot`, JDK | engines, persistence, workers | target |
 | `domain-pipeline` | `PipelineId`, `PipelineDefinition` | JDK | tout module applicatif | target |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
@@ -41,7 +43,8 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-task-creation` | Event typé + pipeline vers zéro à N tâches | Pot events, pipeline, core | consumption, workers, materialization legacy | target |
 | `engine-task-execution` | mapping durable, routage d'un `TaskPayload` typé et rapport fonctionnel d'exécution | pipeline, task | consumption, claims, workers, persistence | target |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
-| `engine-processing-command` | sélection, ordre, transitions et réconciliation du statut Command depuis le slot autoritatif | command, consumption, core | Event/Task processing, frameworks, execution guard | target |
+| `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
+| `engine-processing-command` | ancien contrat de sélection et lifecycle Command | command legacy, consumption, core | Event/Task processing, frameworks, execution guard | legacy — retrait après cutover Command |
 | `engine-processing-event` | consommation indépendante d'un événement par pipeline/version ; ignore les slots terminaux sans mutation source | consumption, pipeline, Pot event, core | Command/Task processing, task creation | target |
 | `engine-processing-task` | contrat de recherche courte et de relecture autoritative des Tasks durables | pipeline, Pot id, core | consumption, Event/Command processing, task execution, execution guard | target |
 | `engine-task-materialization` | ancien flux Event envelope vers tâches sérialisées | core et pipeline | nouveaux packages fonctionnels | legacy — retrait avec EventWorker |
@@ -64,7 +67,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `shared-supra-dispatcher-projection` | contrats partagés des workers de projection actuels | engine projection/core | legacy avec les workers actuels |
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-event-publisher-spring` | outbox typée puis publication après commit | engine-pot-command/core | target |
-| `infra-persistence-jpa` | implémentations JPA des ports et stockage legacy | engines propriétaires, domaines | target + adapters legacy à migrer |
+| `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + adapters legacy à migrer |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |
@@ -81,7 +84,8 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 - Le chemin cible protège le commit avec une transaction métier unique terminée par le CAS
   `status=PENDING AND current_claim_id=:claimId`. `engine-execution-guard` ne participe jamais à ce
   chemin. Il reste temporairement utilisé par Command uniquement.
-- `engine-processing-command` connaît les intentions d'`engine-pot-command` pour reconstruire l'appel métier.
+- `engine-processing-command` connaît encore les intentions d'`engine-pot-command` sur le chemin legacy.
+- La persistence Command cible implémente uniquement les ports d'`engine-command` et ne crée aucun slot.
 - L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
 - Task processing connaît uniquement les données structurelles de la Task et ne consulte ni slot,
   ni claim, ni statut ou lease legacy.

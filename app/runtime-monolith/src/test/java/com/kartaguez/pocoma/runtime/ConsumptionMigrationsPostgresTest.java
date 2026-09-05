@@ -27,7 +27,7 @@ class ConsumptionMigrationsPostgresTest {
 			.withPassword("pocoma");
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV7() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV8() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -37,7 +37,7 @@ class ConsumptionMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(7, result.migrationsExecuted);
+		assertEquals(8, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -58,8 +58,24 @@ class ConsumptionMigrationsPostgresTest {
 					"consumption_inputs",
 					"consumption_results",
 					"balance_projection_artifacts",
-					"balance_projection_entries")),
+					"balance_projection_entries",
+					"recorded_commands")),
 					() -> "Missing consumption tables in " + tableNames.stream().sorted().collect(Collectors.joining(", ")));
+		}
+		try (Connection connection = DriverManager.getConnection(
+				POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+				Statement statement = connection.createStatement();
+				ResultSet resultSet = statement.executeQuery("""
+						select column_name
+						from information_schema.columns
+						where table_schema = 'public' and table_name = 'recorded_commands'
+						""")) {
+			Set<String> columns = new java.util.HashSet<>();
+			while (resultSet.next()) columns.add(resultSet.getString(1));
+			assertEquals(Set.of(
+					"command_id", "command_type", "payload_json", "submitted_at", "auth_user_id",
+					"auth_issuer", "auth_authenticated_at", "auth_issued_at", "auth_valid_until",
+					"auth_permissions_json"), columns);
 		}
 	}
 
@@ -108,6 +124,7 @@ class ConsumptionMigrationsPostgresTest {
 		Flyway latest = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
+				.target("7")
 				.load();
 		assertEquals(2, latest.migrate().migrationsExecuted);
 

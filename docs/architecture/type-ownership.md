@@ -6,13 +6,14 @@
 |---|---|---|
 | Pot et valeurs métier | `PotHeader`, `PotId`, `UserId` | `domain-pot` |
 | Faits métier Pot | `BusinessEvent`, `PotCreatedEvent`, `ExpenseCreatedEvent` | `domain-pot.event` |
-| Autorisation Pot | `ReadPotAuthorizationPolicy`, `Scope` | `domain-pot-policy` |
+| Autorisation générique | `Permission` | `domain-authorization` |
+| Policies d'autorisation Pot | `ReadPotAuthorizationPolicy`, `UpdatePotDetailsAuthorizationPolicy` | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
 | Pipeline versionné | `PipelineId`, `PipelineDefinition` | `domain-pipeline` |
 | Payload fonctionnel de tâche | `TaskPayload` | `domain-task` |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
-| Commande durable rejouable | `RecordedCommand` | `engine-processing-command` |
+| Commande durable rejouable cible | `engine.command.model.RecordedCommand` | `engine-command` |
 | Tâche durable enregistrée | `RecordedTask` | `engine-processing-task` |
 | Description d'une tâche à créer | `TaskDescriptor` | `engine-core`, transitoire |
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
@@ -60,7 +61,7 @@ TaskExecutionReport
 ### Commandes et consommation
 
 ```text
-CommandIntent != RecordedCommand
+Command != RecordedCommand
 ConsumptionKey != objet consommé
 Claim != statut durable de la Command ou de la Task
 ClaimId != lease et Claim != journal d'exécution
@@ -95,6 +96,7 @@ La transition terminale du slot précède toujours la matérialisation. L'état 
 
 | Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |
 |---|---|---|---|---|
+| `engine-processing-command.RecordedCommand` | worker Command legacy | `engine.command.model.RecordedCommand` | nouveau locator et worker Command actifs | Lots 6.5–6.7 |
 | `engine-task-materialization` | worker et adapters de matérialisation | EventWorker + task creation | consommations Event persistées par pipeline | Workers/infra Event |
 | `BusinessEventEnvelope` | outbox et projection legacy | `RecordedEvent<BusinessEvent>` | EventPort et mapper durable opérationnels | Infra Event |
 | `PotPartitioner` | workers de projection | `PartitionHash` | anciens workers retirés | Workers |

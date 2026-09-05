@@ -48,8 +48,12 @@ class CommandModelTest {
 		assertThrows(NullPointerException.class, () -> new PocomaUserId(null));
 		assertThrows(NullPointerException.class, () -> new CommandType(null));
 		assertThrows(IllegalArgumentException.class, () -> new CommandType(" "));
-		assertThrows(IllegalArgumentException.class, () -> new RecordedCommand(
-				new CommandId(UUID.randomUUID()), new CommandType("TYPE_V1"), " ", NOW, authorization()));
+		assertThrows(NullPointerException.class, () -> new RecordedCommand(
+				new CommandId(UUID.randomUUID()), new CommandType("TYPE_V1"), null, NOW, authorization()));
+		assertEquals("", new RecordedCommand(new CommandId(UUID.randomUUID()),
+				new CommandType("TYPE_V1"), "", NOW, authorization()).serializedPayload());
+		assertEquals(" ", new RecordedCommand(new CommandId(UUID.randomUUID()),
+				new CommandType("TYPE_V1"), " ", NOW, authorization()).serializedPayload());
 	}
 
 	@Test

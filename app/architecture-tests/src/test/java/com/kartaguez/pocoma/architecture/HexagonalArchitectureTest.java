@@ -50,6 +50,14 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.service.taskexecution..",
 						ROOT_PACKAGE + ".pipeline.balance..")
 				.check(CLASSES);
+
+		noClasses()
+				.that().haveSimpleNameContaining("CommandConsumptionDiscovery")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.pot..",
+						ROOT_PACKAGE + ".engine..processing.command..",
+						ROOT_PACKAGE + ".domain.pot..")
+				.check(CLASSES);
 	}
 
 	@Test
@@ -490,6 +498,32 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), forbiddenDurableExecutionTypes,
 				"engine-command execution contracts must not expose claiming or fencing state");
+
+		assertEquals(Set.of("commandId", "commandType", "serializedPayload", "submittedAt", "authorization"),
+				fieldNames(ROOT_PACKAGE + ".engine.command.model.RecordedCommand"),
+				"RecordedCommand must contain durable request data and no consumption lifecycle");
+	}
+
+	@Test
+	void commandPersistenceDependsInwardAndIntroducesNoJpaEntity() {
+		String persistencePackage = ROOT_PACKAGE + ".infra.persistence.jpa";
+		String commandPersistencePackage = persistencePackage + ".adapter.command";
+		String commandRepositoryPackage = persistencePackage + ".repository.command";
+		Set<String> dependencies = dependenciesOutside(
+				persistencePackage + ".adapter.command",
+				Set.of(commandPersistencePackage, commandRepositoryPackage,
+						ROOT_PACKAGE + ".engine.command", ROOT_PACKAGE + ".domain.authorization",
+						"org.springframework", "com.fasterxml.jackson"));
+		assertEquals(Set.of(), dependencies,
+				"Command persistence may depend only on generic Command contracts and infrastructure libraries");
+
+		Set<String> commandEntities = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(persistencePackage))
+				.filter(javaClass -> javaClass.getSimpleName().contains("RecordedCommandEntity"))
+				.map(javaClass -> javaClass.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), commandEntities,
+				"Recorded Commands use explicit JDBC and must not acquire a mutable JPA entity");
 	}
 
 	@Test

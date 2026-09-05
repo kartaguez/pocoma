@@ -15,6 +15,16 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-domain-authorization</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-command</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-consumption</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -159,7 +169,7 @@
 			<testResource>
 				<directory>src/test/resources</directory>
 			</testResource>
-			<!-- V4/V5 live with their adapters; isolated PostgreSQL tests still need the
+			<!-- V4+ live with their adapters; isolated PostgreSQL tests still need the
 			     production baseline owned by the runtime module. -->
 			<testResource>
 				<directory>../runtime-monolith/src/main/resources</directory>
