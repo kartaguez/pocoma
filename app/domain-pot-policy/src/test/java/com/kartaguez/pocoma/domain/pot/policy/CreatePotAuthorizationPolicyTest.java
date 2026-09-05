@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 
 class CreatePotAuthorizationPolicyTest {
 
@@ -16,9 +16,9 @@ class CreatePotAuthorizationPolicyTest {
 
 	@Test
 	void allowsAuthenticatedUser() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.CREATE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "CREATE"));
 
-		policy.assertCanCreatePot("user-id", scopes);
+		policy.assertCanCreatePot("user-id", permissions);
 	}
 
 	@Test

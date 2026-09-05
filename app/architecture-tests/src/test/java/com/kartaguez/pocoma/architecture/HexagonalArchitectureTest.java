@@ -18,6 +18,7 @@ class HexagonalArchitectureTest {
 
 	private static final String ROOT_PACKAGE = "com.kartaguez.pocoma";
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
+	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
 	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
@@ -127,15 +128,33 @@ class HexagonalArchitectureTest {
 
 		Set<String> policyDependenciesOutsidePot = dependenciesOutside(
 				POT_POLICY_PACKAGE.substring(0, POT_POLICY_PACKAGE.length() - 2),
-				Set.of(ROOT_PACKAGE + ".domain.pot", ROOT_PACKAGE + ".domain.pot.policy"));
+				Set.of(ROOT_PACKAGE + ".domain.authorization", ROOT_PACKAGE + ".domain.pot",
+						ROOT_PACKAGE + ".domain.pot.policy"));
 		assertEquals(Set.of(), policyDependenciesOutsidePot,
-				"domain-pot-policy may depend only on domain-pot and the JDK");
+				"domain-pot-policy may depend only on domain-authorization, domain-pot and the JDK");
 
 		Set<String> balanceDependenciesOutsidePot = dependenciesOutside(
 				BALANCE_PROJECTION_DOMAIN_PACKAGE.substring(0, BALANCE_PROJECTION_DOMAIN_PACKAGE.length() - 2),
 				Set.of(ROOT_PACKAGE + ".domain.projection.balance", ROOT_PACKAGE + ".domain.pot"));
 		assertEquals(Set.of(), balanceDependenciesOutsidePot,
 				"domain-projection-balance may depend only on domain-pot and the JDK");
+	}
+
+	@Test
+	void authorizationDomainIsGenericAndLegacyAuthorizationScopesAreGone() {
+		Set<String> dependenciesOutsideAuthorization = dependenciesOutside(
+				AUTHORIZATION_DOMAIN_PACKAGE.substring(0, AUTHORIZATION_DOMAIN_PACKAGE.length() - 2),
+				Set.of(ROOT_PACKAGE + ".domain.authorization"));
+		assertEquals(Set.of(), dependenciesOutsideAuthorization,
+				"domain-authorization must depend only on the JDK");
+
+		Set<String> legacyAuthorizationTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getName().equals(ROOT_PACKAGE + ".domain.pot.policy.scope.Scope")
+						|| javaClass.getName().equals(ROOT_PACKAGE + ".engine.command.model.Permission"))
+				.map(javaClass -> javaClass.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), legacyAuthorizationTypes,
+				"authorization must use only domain.authorization.Permission");
 	}
 
 	@Test
@@ -458,7 +477,8 @@ class HexagonalArchitectureTest {
 		String commandPackage = ROOT_PACKAGE + ".engine.command";
 		Set<String> dependenciesOutsideCommand = dependenciesOutside(
 				commandPackage,
-				Set.of(commandPackage, ROOT_PACKAGE + ".domain.consumption.lifecycle",
+				Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".domain.consumption.lifecycle",
 						ROOT_PACKAGE + ".domain.event"));
 		assertEquals(Set.of(), dependenciesOutsideCommand,
 				"engine-command may depend only on its own contracts, generic BusinessEvent, TerminalReason and the JDK");

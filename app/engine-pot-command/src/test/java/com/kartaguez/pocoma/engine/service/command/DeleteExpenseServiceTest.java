@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -50,7 +50,7 @@ class DeleteExpenseServiceTest {
 				new DeleteExpenseAuthorizationPolicy());
 
 		ExpenseHeaderSnapshot snapshot = service.deleteExpense(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new DeleteExpenseCommand(fixture.expenseId.value(), 3));
 
 		assertEquals(fixture.expenseId, snapshot.id());
@@ -78,7 +78,7 @@ class DeleteExpenseServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.deleteExpense(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeleteExpenseCommand(fixture.expenseId.value(), 3)));
 
 		assertEquals("EXPENSE_ALREADY_DELETED", exception.ruleCode());
@@ -95,7 +95,7 @@ class DeleteExpenseServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> service.deleteExpense(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeleteExpenseCommand(fixture.expenseId.value(), 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -112,7 +112,7 @@ class DeleteExpenseServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.deleteExpense(
-						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
 						new DeleteExpenseCommand(fixture.expenseId.value(), 3)));
 
 		assertEquals("EXPENSE_DELETE_FORBIDDEN", exception.ruleCode());
@@ -124,7 +124,7 @@ class DeleteExpenseServiceTest {
 		private final ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
 		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
-		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE));
+		private final Set<Permission> userPermissions = Set.of(new Permission("EXPENSE", "DELETE"));
 		private final Amount amount = Amount.of(Fraction.of(42, 1));
 		private final Label label = Label.of("Dinner");
 

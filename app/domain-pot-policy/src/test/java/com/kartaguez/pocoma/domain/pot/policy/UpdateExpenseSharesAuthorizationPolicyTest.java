@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class UpdateExpenseSharesAuthorizationPolicyTest {
@@ -20,27 +20,27 @@ class UpdateExpenseSharesAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToUpdateExpenseShares() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "UPDATE"));
 
-		assertDoesNotThrow(() -> policy.assertCanUpdateExpenseShares(creatorId, scopes, creatorId, Set.of()));
+		assertDoesNotThrow(() -> policy.assertCanUpdateExpenseShares(creatorId, permissions, creatorId, Set.of()));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "UPDATE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanUpdateExpenseShares(UserId.of(UUID.randomUUID()), scopes, creatorId, Set.of()));
+				() -> policy.assertCanUpdateExpenseShares(UserId.of(UUID.randomUUID()), permissions, creatorId, Set.of()));
 
 		assertEquals("EXPENSE_SHARES_UPDATE_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "UPDATE"));
 
-		assertThrows(NullPointerException.class, () -> policy.assertCanUpdateExpenseShares(UserId.of(UUID.randomUUID()), scopes, null, Set.of()));
+		assertThrows(NullPointerException.class, () -> policy.assertCanUpdateExpenseShares(UserId.of(UUID.randomUUID()), permissions, null, Set.of()));
 	}
 }

@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.service.query;
 
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
@@ -44,40 +46,40 @@ public final class QueryUseCaseFactory {
 	public static ListPotExpensesUseCase listPotExpensesUseCase(
 			PotQueryPort potQueryPort,
 			ExpenseQueryPort expenseQueryPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
+			ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalListPotExpensesUseCase(
-				new ListPotExpensesService(potQueryPort, expenseQueryPort, readPotAuthorizationPolicy),
+				new ListPotExpensesService(potQueryPort, expenseQueryPort, readExpenseAuthorizationPolicy),
 				transactionRunner);
 	}
 
 	public static GetExpenseUseCase getExpenseUseCase(
 			PotQueryPort potQueryPort,
 			ExpenseQueryPort expenseQueryPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
+			ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalGetExpenseUseCase(
-				new GetExpenseService(potQueryPort, expenseQueryPort, readPotAuthorizationPolicy),
+				new GetExpenseService(potQueryPort, expenseQueryPort, readExpenseAuthorizationPolicy),
 				transactionRunner);
 	}
 
 	public static GetPotBalancesUseCase getPotBalancesUseCase(
 			PotQueryPort potQueryPort,
 			PotBalancesQueryPort potBalancesPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
+			ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalGetPotBalancesUseCase(
-				new GetPotBalancesService(potQueryPort, potBalancesPort, readPotAuthorizationPolicy),
+				new GetPotBalancesService(potQueryPort, potBalancesPort, readBalanceAuthorizationPolicy),
 				transactionRunner);
 	}
 
 	public static ListUserPotBalancesUseCase listUserPotBalancesUseCase(
 			PotQueryPort potQueryPort,
 			PotBalancesQueryPort potBalancesPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy,
+			ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy,
 			TransactionRunner transactionRunner) {
 		return new TransactionalListUserPotBalancesUseCase(
-				new ListUserPotBalancesService(potQueryPort, potBalancesPort, readPotAuthorizationPolicy),
+				new ListUserPotBalancesService(potQueryPort, potBalancesPort, readBalanceAuthorizationPolicy),
 				transactionRunner);
 	}
 }

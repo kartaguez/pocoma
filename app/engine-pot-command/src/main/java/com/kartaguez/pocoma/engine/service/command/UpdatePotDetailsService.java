@@ -69,7 +69,7 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 		// 4. Check that the current user is allowed to update this pot.
 		updatePotDetailsAuthorizationPolicy.assertCanUpdatePotDetails(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId());
 
 		// 5. Load the full pot header active at the explicit working version.

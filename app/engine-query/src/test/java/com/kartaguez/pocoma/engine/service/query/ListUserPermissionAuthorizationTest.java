@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.service.query;
 
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.BALANCE_VIEW;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_CREATE;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_VIEW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,8 +18,9 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -31,59 +35,56 @@ import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.engine.port.out.query.PotQueryPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
 
-class ListUserScopeAuthorizationTest {
-
-	private static final Scope POT_READ_SCOPE = new Scope(Scope.Resource.POT, null, Scope.Action.READ);
-	private static final Scope POT_CREATE_SCOPE = new Scope(Scope.Resource.POT, null, Scope.Action.CREATE);
+class ListUserPermissionAuthorizationTest {
 
 	@Test
-	void listUserPotsRejectsUserWithoutReadScope() {
+	void listUserPotsRejectsUserWithoutViewPermission() {
 		ListUserPotsService service = new ListUserPotsService(new FakePotQueryPort(), new ReadPotAuthorizationPolicy());
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> service.listUserPots(userContext(Set.of(POT_CREATE_SCOPE))));
+				() -> service.listUserPots(userContext(Set.of(POT_CREATE))));
 
-		assertEquals("MISSING_SCOPE", exception.ruleCode());
+		assertEquals("MISSING_PERMISSION", exception.ruleCode());
 	}
 
 	@Test
-	void listUserPotsAcceptsUserWithReadScope() {
+	void listUserPotsAcceptsUserWithViewPermission() {
 		FakePotQueryPort potQueryPort = new FakePotQueryPort();
 		ListUserPotsService service = new ListUserPotsService(potQueryPort, new ReadPotAuthorizationPolicy());
 
-		assertEquals(1, service.listUserPots(userContext(Set.of(POT_READ_SCOPE))).size());
+		assertEquals(1, service.listUserPots(userContext(Set.of(POT_VIEW))).size());
 		assertEquals(1, potQueryPort.listAccessiblePotHeadersCount);
 	}
 
 	@Test
-	void listUserPotBalancesRejectsUserWithoutReadScope() {
+	void listUserPotBalancesRejectsUserWithoutBalanceViewPermission() {
 		ListUserPotBalancesService service = new ListUserPotBalancesService(
 				new FakePotQueryPort(),
 				new FakePotBalancesQueryPort(),
-				new ReadPotAuthorizationPolicy());
+				new ReadBalanceAuthorizationPolicy());
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> service.listUserPotBalances(userContext(Set.of(POT_CREATE_SCOPE)), new ListUserPotBalancesQuery()));
+				() -> service.listUserPotBalances(userContext(Set.of(POT_VIEW)), new ListUserPotBalancesQuery()));
 
-		assertEquals("MISSING_SCOPE", exception.ruleCode());
+		assertEquals("MISSING_PERMISSION", exception.ruleCode());
 	}
 
 	@Test
-	void listUserPotBalancesAcceptsUserWithReadScope() {
+	void listUserPotBalancesAcceptsUserWithBalanceViewPermission() {
 		FakePotQueryPort potQueryPort = new FakePotQueryPort();
 		ListUserPotBalancesService service = new ListUserPotBalancesService(
 				potQueryPort,
 				new FakePotBalancesQueryPort(),
-				new ReadPotAuthorizationPolicy());
+				new ReadBalanceAuthorizationPolicy());
 
-		assertEquals(1, service.listUserPotBalances(userContext(Set.of(POT_READ_SCOPE)), new ListUserPotBalancesQuery()).size());
+		assertEquals(1, service.listUserPotBalances(userContext(Set.of(BALANCE_VIEW)), new ListUserPotBalancesQuery()).size());
 		assertEquals(1, potQueryPort.listAccessiblePotHeadersCount);
 	}
 
-	private static UserContext userContext(Set<Scope> scopes) {
-		return new UserContext(FakePotQueryPort.USER_ID, scopes);
+	private static UserContext userContext(Set<Permission> permissions) {
+		return new UserContext(FakePotQueryPort.USER_ID, permissions);
 	}
 
 	private static final class FakePotQueryPort implements PotQueryPort {

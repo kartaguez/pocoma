@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -50,7 +50,7 @@ class AddPotShareholdersServiceTest {
 				new AddPotShareholdersAuthorizationPolicy());
 
 		PotShareholdersSnapshot snapshot = addPotShareholdersService.addPotShareholders(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new AddPotShareholdersCommand(
 						fixture.potId.value(),
 						Set.of(
@@ -84,7 +84,7 @@ class AddPotShareholdersServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> addPotShareholdersService.addPotShareholders(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -101,7 +101,7 @@ class AddPotShareholdersServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> addPotShareholdersService.addPotShareholders(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -118,7 +118,7 @@ class AddPotShareholdersServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> addPotShareholdersService.addPotShareholders(
-						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
 						fixture.command(3)));
 
 		assertEquals("POT_SHAREHOLDERS_ADD_FORBIDDEN", exception.ruleCode());
@@ -126,7 +126,7 @@ class AddPotShareholdersServiceTest {
 	}
 
 	@Test
-	void rejectsUserWithoutScopesWithoutLoadingFullPotShareholders() {
+	void rejectsUserWithoutPermissionsWithoutLoadingFullPotShareholders() {
 		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
 				new FakePotShareholdersPort(fixture.potShareholders());
@@ -135,10 +135,10 @@ class AddPotShareholdersServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> addPotShareholdersService.addPotShareholders(
-						new UserContext(fixture.creatorId, Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.DELETE))),
+						new UserContext(fixture.creatorId, Set.of(new Permission("SHAREHOLDER", "DELETE"))),
 						fixture.command(3)));
 
-		assertEquals("MISSING_SCOPE", exception.ruleCode());
+		assertEquals("MISSING_PERMISSION", exception.ruleCode());
 		assertFalse(loadPotShareholdersPort.loaded);
 	}
 
@@ -148,7 +148,7 @@ class AddPotShareholdersServiceTest {
 		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false));
 
 		assertThrows(NullPointerException.class, () -> addPotShareholdersService.addPotShareholders(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				null));
 	}
 
@@ -168,14 +168,14 @@ class AddPotShareholdersServiceTest {
 		AddPotShareholdersService addPotShareholdersService = fixture.service(null);
 
 		assertThrows(NullPointerException.class, () -> addPotShareholdersService.addPotShareholders(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				fixture.command(3)));
 	}
 
 	private static final class AddPotShareholdersFixture {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
-		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE));
+		private final Set<Permission> userPermissions = Set.of(new Permission("SHAREHOLDER", "CREATE"));
 		private final Shareholder existingShareholder = Shareholder.reconstitute(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,

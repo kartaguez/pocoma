@@ -1,16 +1,19 @@
 package com.kartaguez.pocoma.domain.pot.policy;
 
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_UPDATE;
+
 import java.util.Objects;
 import java.util.Set;
+
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 
 public final class UpdatePotDetailsAuthorizationPolicy {
 
-	// TODO: (userId == creatorId) && userScopes.contains(pot.details:update)
-	public void assertCanUpdatePotDetails(UserId userId, Set<Scope> userScopes, UserId creatorId) {
-		Objects.requireNonNull(userScopes, "userScopes must not be null");
+	// TODO: (userId == creatorId) && userPermissions.contains(POT / UPDATE)
+	public void assertCanUpdatePotDetails(UserId userId, Set<Permission> userPermissions, UserId creatorId) {
+		Objects.requireNonNull(userPermissions, "userPermissions must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null"); 
 
 		if (userId == null) {
@@ -25,11 +28,10 @@ public final class UpdatePotDetailsAuthorizationPolicy {
 					"Only the pot creator can update pot details");
 		}
 
-		Scope requiredScope = new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE);
-		if (!userScopes.contains(requiredScope)) {
+		if (!userPermissions.contains(POT_UPDATE)) {
 			throw new BusinessRuleViolationException(
-					"MISSING_SCOPE",
-					"User is missing the required scope to update pot details");
+					"MISSING_PERMISSION",
+					"User is missing the required permission to update pot details");
 		}
 	}
 }

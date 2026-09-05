@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
@@ -36,7 +37,6 @@ import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPo
 import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -47,7 +47,6 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
-import com.kartaguez.pocoma.engine.command.model.Permission;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
@@ -71,79 +70,30 @@ class PotCommandUseCaseAdapterTest {
 	private static final PotId POT_ID = PotId.of(UUID.fromString("20000000-0000-0000-0000-000000000001"));
 
 	@Test
-	void mapsOnlyCanonicalPotPermissionsAndPreservesTheUserIdentity() {
+	void passesPermissionsWithoutMappingAndPreservesTheUserIdentity() {
 		AtomicReference<UserContext> received = new AtomicReference<>();
 		TestAdapter adapter = new TestAdapter((invocation, userContext) -> received.set(userContext));
 		Set<Permission> permissions = Set.of(
 				new Permission("POT", "CREATE"),
 				new Permission("POT", "UPDATE"),
-				new Permission("EXPENSE", "UPDATE"));
+				new Permission("FUTURE_FEATURE", "VIEW"));
 
 		adapter.execute(authorization(permissions), command());
 
 		assertEquals(UserId.of(USER_ID), received.get().userId());
-		assertEquals(Set.of(
-				new Scope(Scope.Resource.POT, null, Scope.Action.CREATE),
-				new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-				new Scope(Scope.Resource.EXPENSE, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-				new Scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE)),
-				received.get().scopes());
+		assertEquals(permissions, received.get().permissions());
+		assertThrows(UnsupportedOperationException.class, () -> received.get().permissions().clear());
 	}
 
 	@Test
-	void mapsEveryGenericPermissionToItsExactLegacyScopes() {
-		List<PermissionMapping> mappings = List.of(
-				mapping("POT", "VIEW"),
-				mapping("POT", "CREATE", scope(Scope.Resource.POT, null, Scope.Action.CREATE)),
-				mapping("POT", "UPDATE", scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE)),
-				mapping("POT", "DELETE", scope(Scope.Resource.POT, null, Scope.Action.DELETE)),
-				mapping("POT", "VIEW_ARCHIVE"),
-				mapping("SHAREHOLDER", "VIEW"),
-				mapping("SHAREHOLDER", "CREATE",
-						scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE)),
-				mapping("SHAREHOLDER", "UPDATE",
-						scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-						scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE)),
-				mapping("SHAREHOLDER", "DELETE"),
-				mapping("SHAREHOLDER", "VIEW_ARCHIVE"),
-				mapping("EXPENSE", "VIEW"),
-				mapping("EXPENSE", "CREATE", scope(Scope.Resource.EXPENSE, null, Scope.Action.CREATE)),
-				mapping("EXPENSE", "UPDATE",
-						scope(Scope.Resource.EXPENSE, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-						scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE)),
-				mapping("EXPENSE", "DELETE", scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE)),
-				mapping("EXPENSE", "VIEW_ARCHIVE"),
-				mapping("BALANCE", "VIEW"));
+	void unknownPermissionsDoNotPreventExecution() {
+		AtomicBoolean invoked = new AtomicBoolean();
+		TestAdapter adapter = new TestAdapter((invocation, ignored) -> invoked.set(true));
 
-		for (PermissionMapping mapping : mappings) {
-			assertFalse(mapping.permission().objectType().contains("."));
-			UserContext context = PotAuthorizationSnapshotMapper.toUserContext(
-					authorization(Set.of(mapping.permission())));
-			assertEquals(mapping.scopes(), context.scopes(), mapping.permission().toString());
-			assertThrows(UnsupportedOperationException.class, () -> context.scopes().clear());
-		}
-	}
+		assertInstanceOf(CommandUseCaseResult.Succeeded.class,
+				adapter.execute(authorization(Set.of(new Permission("FUTURE_FEATURE", "VIEW"))), command()));
 
-	@Test
-	void rejectsUnknownPermissionsBeforeInvokingTheBusinessService() {
-		List<Permission> unsupported = List.of(
-				new Permission("POT.DETAILS", "UPDATE"),
-				new Permission("EXPENSE.SHARES", "UPDATE"),
-				new Permission("QUERY", "READ"),
-				new Permission("pot", "DELETE"),
-				new Permission("BALANCE", "VIEW_ARCHIVE"));
-
-		for (Permission permission : unsupported) {
-			AtomicBoolean invoked = new AtomicBoolean();
-			TestAdapter adapter = new TestAdapter((invocation, ignored) -> invoked.set(true));
-
-			IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-					() -> adapter.execute(authorization(Set.of(permission)), command()));
-
-			assertTrue(exception.getMessage().contains(permission.objectType()));
-			assertTrue(exception.getMessage().contains(permission.action()));
-			assertFalse(invoked.get());
-		}
+		assertTrue(invoked.get());
 	}
 
 	@Test
@@ -390,17 +340,6 @@ class PotCommandUseCaseAdapterTest {
 		assertEquals(PotId.of(expectedId), event.potId());
 	}
 
-	private static PermissionMapping mapping(String objectType, String action, Scope... scopes) {
-		return new PermissionMapping(new Permission(objectType, action), Set.of(scopes));
-	}
-
-	private static Scope scope(
-			Scope.Resource resource,
-			Scope.SubResource subResource,
-			Scope.Action action) {
-		return new Scope(resource, subResource, action);
-	}
-
 	private static CreatePotCommand command() {
 		return new CreatePotCommand("Trip", USER_ID);
 	}
@@ -417,6 +356,4 @@ class PotCommandUseCaseAdapterTest {
 	private static final class TechnicalException extends RuntimeException {
 	}
 
-	private record PermissionMapping(Permission permission, Set<Scope> scopes) {
-	}
 }

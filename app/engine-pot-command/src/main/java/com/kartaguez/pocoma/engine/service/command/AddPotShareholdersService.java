@@ -76,7 +76,7 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		// 4. Check that the current user is allowed to add shareholders to this pot.
 		addPotShareholdersAuthorizationPolicy.assertCanAddPotShareholders(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId());
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.

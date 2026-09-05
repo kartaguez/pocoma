@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -45,7 +45,7 @@ class UpdatePotDetailsServiceTest {
 				new UpdatePotDetailsAuthorizationPolicy());
 
 		PotHeaderSnapshot snapshot = updatePotDetailsService.updatePotDetails(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3));
 
 		assertEquals(fixture.potId, snapshot.id());
@@ -73,7 +73,7 @@ class UpdatePotDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -89,7 +89,7 @@ class UpdatePotDetailsServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -105,7 +105,7 @@ class UpdatePotDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> updatePotDetailsService.updatePotDetails(
-						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
 						new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 
 		assertEquals("POT_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
@@ -118,7 +118,7 @@ class UpdatePotDetailsServiceTest {
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(false));
 
 		assertThrows(NullPointerException.class, () -> updatePotDetailsService.updatePotDetails(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				null));
 	}
 
@@ -138,7 +138,7 @@ class UpdatePotDetailsServiceTest {
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(null);
 
 		assertThrows(NullPointerException.class, () -> updatePotDetailsService.updatePotDetails(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new UpdatePotDetailsCommand(fixture.potId.value(), "New trip", 3)));
 	}
 
@@ -146,7 +146,7 @@ class UpdatePotDetailsServiceTest {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final Label label = Label.of("Trip");
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
-		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		private final Set<Permission> userPermissions = Set.of(new Permission("POT", "UPDATE"));
 
 		private UpdatePotDetailsContext context(boolean deleted) {
 			return new UpdatePotDetailsContext(

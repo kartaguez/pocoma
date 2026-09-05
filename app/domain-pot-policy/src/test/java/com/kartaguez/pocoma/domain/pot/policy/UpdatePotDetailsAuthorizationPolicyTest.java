@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class UpdatePotDetailsAuthorizationPolicyTest {
@@ -20,38 +20,38 @@ class UpdatePotDetailsAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToUpdatePotDetails() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "UPDATE"));
 
-		assertDoesNotThrow(() -> policy.assertCanUpdatePotDetails(creatorId, scopes, creatorId));
+		assertDoesNotThrow(() -> policy.assertCanUpdatePotDetails(creatorId, permissions, creatorId));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "UPDATE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanUpdatePotDetails(UserId.of(UUID.randomUUID()), scopes, creatorId));
+				() -> policy.assertCanUpdatePotDetails(UserId.of(UUID.randomUUID()), permissions, creatorId));
 
 		assertEquals("POT_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsAnonymousUser() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "UPDATE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanUpdatePotDetails(null, scopes, UserId.of(UUID.randomUUID())));
+				() -> policy.assertCanUpdatePotDetails(null, permissions, UserId.of(UUID.randomUUID())));
 
 		assertEquals("ANONYMOUS_USER", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "UPDATE"));
 
-		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotDetails(UserId.of(UUID.randomUUID()), scopes, null));
+		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotDetails(UserId.of(UUID.randomUUID()), permissions, null));
 	}
 }

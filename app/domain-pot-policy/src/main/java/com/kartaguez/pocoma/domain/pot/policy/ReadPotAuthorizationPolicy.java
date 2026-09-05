@@ -1,18 +1,19 @@
 package com.kartaguez.pocoma.domain.pot.policy;
 
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_VIEW;
+
 import java.util.Objects;
 import java.util.Set;
+
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 
 public final class ReadPotAuthorizationPolicy {
 
-	private static final Scope REQUIRED_SCOPE = new Scope(Scope.Resource.POT, null, Scope.Action.READ);
-
-	// TODO:  (userId == creatorId || userId in shareholderUserIds) && userScopes.contains(pot:read)
-	public void assertCanReadPot(UserId userId, Set<Scope> userScopes, UserId creatorId, Set<UserId> shareholderUserIds) {
-		Objects.requireNonNull(userScopes, "userScopes must not be null");
+	// TODO: (userId == creatorId || userId in shareholderUserIds) && userPermissions.contains(POT / VIEW)
+	public void assertCanReadPot(UserId userId, Set<Permission> userPermissions, UserId creatorId, Set<UserId> shareholderUserIds) {
+		Objects.requireNonNull(userPermissions, "userPermissions must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
 		Objects.requireNonNull(shareholderUserIds, "shareholderUserIds must not be null");
 
@@ -24,13 +25,13 @@ public final class ReadPotAuthorizationPolicy {
 					"Only the pot creator or a shareholder can read the pot");
 		}
 
-		assertHasReadScope(userScopes, "User is missing the required scope to read the pot");
+		assertHasViewPermission(userPermissions, "User is missing the required permission to read the pot");
 	}
 
-	public void assertCanListReadablePots(UserId userId, Set<Scope> userScopes) {
-		Objects.requireNonNull(userScopes, "userScopes must not be null");
+	public void assertCanListReadablePots(UserId userId, Set<Permission> userPermissions) {
+		Objects.requireNonNull(userPermissions, "userPermissions must not be null");
 		assertAuthenticated(userId);
-		assertHasReadScope(userScopes, "User is missing the required scope to read pots");
+		assertHasViewPermission(userPermissions, "User is missing the required permission to read pots");
 	}
 
 	private static void assertAuthenticated(UserId userId) {
@@ -41,10 +42,10 @@ public final class ReadPotAuthorizationPolicy {
 		}
 	}
 
-	private static void assertHasReadScope(Set<Scope> userScopes, String message) {
-		if (!userScopes.contains(REQUIRED_SCOPE)) {
+	private static void assertHasViewPermission(Set<Permission> userPermissions, String message) {
+		if (!userPermissions.contains(POT_VIEW)) {
 			throw new BusinessRuleViolationException(
-					"MISSING_SCOPE",
+					"MISSING_PERMISSION",
 					message);
 		}
 	}

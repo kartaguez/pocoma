@@ -75,7 +75,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		// 4. Check that the current user is allowed to delete this expense.
 		deleteExpenseAuthorizationPolicy.assertCanDeleteExpense(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				Set.of(),
 				context.creatorId());
 

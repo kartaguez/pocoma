@@ -80,7 +80,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		// 4. Check that the current user is allowed to update this expense.
 		updateExpenseDetailsAuthorizationPolicy.assertCanUpdateExpenseDetails(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId(),
 				Set.of());
 

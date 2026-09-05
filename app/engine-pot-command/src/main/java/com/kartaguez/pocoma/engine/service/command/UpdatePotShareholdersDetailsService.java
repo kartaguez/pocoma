@@ -82,7 +82,7 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 		// 4. Check that the current user is allowed to update shareholders details.
 		updatePotShareholdersDetailsAuthorizationPolicy.assertCanUpdatePotShareholdersDetails(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId(),
 				null);
 

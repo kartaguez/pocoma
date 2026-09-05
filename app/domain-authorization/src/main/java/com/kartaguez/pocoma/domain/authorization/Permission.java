@@ -1,8 +1,8 @@
-package com.kartaguez.pocoma.engine.command.model;
+package com.kartaguez.pocoma.domain.authorization;
 
 import static java.util.Objects.requireNonNull;
 
-/** Provider-neutral permission captured when a Command is submitted. */
+/** Provider-neutral capability granted on an object type. */
 public record Permission(String objectType, String action) {
 
 	public Permission {

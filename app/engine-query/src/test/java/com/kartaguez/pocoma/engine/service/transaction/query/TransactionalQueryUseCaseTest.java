@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -53,7 +53,7 @@ class TransactionalQueryUseCaseTest {
 
 	private static UserContext userContext() {
 		return new UserContext(UserId.of(UUID.randomUUID()),
-				Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.READ)));
+				Set.of(new Permission("POT", "VIEW")));
 	}
 
 	private static PotViewSnapshot snapshot() {

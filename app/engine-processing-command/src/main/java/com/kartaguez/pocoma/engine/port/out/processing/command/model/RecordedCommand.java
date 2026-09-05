@@ -25,8 +25,8 @@ public record RecordedCommand(
 		requireNonNull(createdAt, "createdAt must not be null");
 		requireNonNull(userContext, "userContext must not be null");
 		requireNonNull(userContext.userId(), "userContext.userId must not be null");
-		requireNonNull(userContext.scopes(), "userContext.scopes must not be null");
-		userContext = new UserContext(userContext.userId(), Set.copyOf(userContext.scopes()));
+		requireNonNull(userContext.permissions(), "userContext.permissions must not be null");
+		userContext = new UserContext(userContext.userId(), Set.copyOf(userContext.permissions()));
 		requireNonNull(commandIntent, "commandIntent must not be null");
 	}
 

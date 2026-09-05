@@ -3,6 +3,8 @@ package com.kartaguez.pocoma.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.query.usecase.GetPotBalancesUseCase;
@@ -43,7 +45,7 @@ public class QueryUseCaseConfiguration {
 		return QueryUseCaseFactory.listPotExpensesUseCase(
 				potQueryPort,
 				expenseQueryPort,
-				new ReadPotAuthorizationPolicy(),
+				new ReadExpenseAuthorizationPolicy(),
 				transactionRunner);
 	}
 
@@ -55,7 +57,7 @@ public class QueryUseCaseConfiguration {
 		return QueryUseCaseFactory.getExpenseUseCase(
 				potQueryPort,
 				expenseQueryPort,
-				new ReadPotAuthorizationPolicy(),
+				new ReadExpenseAuthorizationPolicy(),
 				transactionRunner);
 	}
 
@@ -67,7 +69,7 @@ public class QueryUseCaseConfiguration {
 		return QueryUseCaseFactory.getPotBalancesUseCase(
 				potQueryPort,
 				potBalancesPort,
-				new ReadPotAuthorizationPolicy(),
+				new ReadBalanceAuthorizationPolicy(),
 				transactionRunner);
 	}
 
@@ -79,7 +81,7 @@ public class QueryUseCaseConfiguration {
 		return QueryUseCaseFactory.listUserPotBalancesUseCase(
 				potQueryPort,
 				potBalancesPort,
-				new ReadPotAuthorizationPolicy(),
+				new ReadBalanceAuthorizationPolicy(),
 				transactionRunner);
 	}
 }

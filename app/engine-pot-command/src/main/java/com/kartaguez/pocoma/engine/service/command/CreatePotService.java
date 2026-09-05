@@ -53,7 +53,7 @@ final class CreatePotService implements CreatePotUseCase {
 		Objects.requireNonNull(userContext, "userContext must not be null");
 		createPotAuthorizationPolicy.assertCanCreatePot(
 				userContext.userId() == null ? null : userContext.userId().value().toString(),
-				userContext.scopes());
+				userContext.permissions());
 
 		// 3. Convert simple input data into domain value objects and create the pot.
 		PotCreated potCreated = PotFactory.createPot(

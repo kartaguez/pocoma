@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class DeleteExpenseAuthorizationPolicyTest {
@@ -20,27 +20,27 @@ class DeleteExpenseAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToDeleteExpense() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "DELETE"));
 
-		assertDoesNotThrow(() -> policy.assertCanDeleteExpense(creatorId, scopes, Set.of(), creatorId));
+		assertDoesNotThrow(() -> policy.assertCanDeleteExpense(creatorId, permissions, Set.of(), creatorId));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "DELETE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanDeleteExpense(UserId.of(UUID.randomUUID()), scopes, Set.of(), creatorId));
+				() -> policy.assertCanDeleteExpense(UserId.of(UUID.randomUUID()), permissions, Set.of(), creatorId));
 
 		assertEquals("EXPENSE_DELETE_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("EXPENSE", "DELETE"));
 
-		assertThrows(NullPointerException.class, () -> policy.assertCanDeleteExpense(UserId.of(UUID.randomUUID()), scopes, Set.of(), null));
+		assertThrows(NullPointerException.class, () -> policy.assertCanDeleteExpense(UserId.of(UUID.randomUUID()), permissions, Set.of(), null));
 	}
 }

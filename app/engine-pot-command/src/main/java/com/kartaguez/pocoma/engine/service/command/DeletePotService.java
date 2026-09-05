@@ -66,7 +66,7 @@ final class DeletePotService implements DeletePotUseCase {
 		context.assertDeletePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to delete this pot.
-		deletePotAuthorizationPolicy.assertCanDeletePot(userContext.userId(), userContext.scopes(), context.creatorId());
+		deletePotAuthorizationPolicy.assertCanDeletePot(userContext.userId(), userContext.permissions(), context.creatorId());
 
 		// 5. Load the full pot header active at the explicit working version.
 		PotHeader currentPotHeader = Objects.requireNonNull(

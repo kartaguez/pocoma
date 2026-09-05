@@ -1,16 +1,19 @@
 package com.kartaguez.pocoma.domain.pot.policy;
 
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.SHAREHOLDER_CREATE;
+
 import java.util.Objects;
 import java.util.Set;
+
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
 
 public final class AddPotShareholdersAuthorizationPolicy {
 
-	// TODO: (userId == creatorId) && userScopes.contains(shareholder:create)
-	public void assertCanAddPotShareholders(UserId userId, Set<Scope> userScopes, UserId creatorId) {
-		Objects.requireNonNull(userScopes, "userScopes must not be null");
+	// TODO: (userId == creatorId) && userPermissions.contains(SHAREHOLDER / CREATE)
+	public void assertCanAddPotShareholders(UserId userId, Set<Permission> userPermissions, UserId creatorId) {
+		Objects.requireNonNull(userPermissions, "userPermissions must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
 
 		if (userId == null) {
@@ -24,11 +27,10 @@ public final class AddPotShareholdersAuthorizationPolicy {
 					"POT_SHAREHOLDERS_ADD_FORBIDDEN",
 					"Only the pot creator can add shareholders");
 		}
-		Scope requiredScope = new Scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE);
-		if (!userScopes.contains(requiredScope)) {
+		if (!userPermissions.contains(SHAREHOLDER_CREATE)) {
 			throw new BusinessRuleViolationException(
-					"MISSING_SCOPE",
-					"User is missing the required scope to add shareholders");
+					"MISSING_PERMISSION",
+					"User is missing the required permission to add shareholders");
 		}
 
 	}

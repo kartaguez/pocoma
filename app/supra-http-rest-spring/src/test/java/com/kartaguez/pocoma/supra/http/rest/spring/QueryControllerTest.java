@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -91,7 +91,7 @@ class QueryControllerTest {
 
 		mockMvc.perform(get("/api/pots/{potId}?version=4", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
-						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:read"))
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:view"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.header.id").value(potId.toString()))
 				.andExpect(jsonPath("$.header.version").value(4))
@@ -130,7 +130,7 @@ class QueryControllerTest {
 
 		mockMvc.perform(get("/api/expenses/{expenseId}", expenseId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
-						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:read"))
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:view"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.header.id").value(expenseId.toString()))
 				.andExpect(jsonPath("$.shares.shares[0].weight.numerator").value(1));
@@ -140,7 +140,7 @@ class QueryControllerTest {
 	void rejectsInvalidVersion() throws Exception {
 		mockMvc.perform(get("/api/pots/{potId}?version=0", UUID.randomUUID())
 						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString())
-						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:read"))
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:view"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
 	}
@@ -163,11 +163,11 @@ class QueryControllerTest {
 	}
 
 	@Test
-	void listUserPotsForwardsNonReadScopeAndMapsForbidden() throws Exception {
+	void listUserPotsForwardsNonViewPermissionAndMapsForbidden() throws Exception {
 		when(listUserPotsUseCase.listUserPots(any())).thenAnswer(invocation -> {
 			UserContext userContext = invocation.getArgument(0);
-			if (!userContext.scopes().contains(new Scope(Scope.Resource.POT, null, Scope.Action.READ))) {
-				throw new BusinessRuleViolationException("MISSING_SCOPE", "missing read scope");
+			if (!userContext.permissions().contains(new Permission("POT", "VIEW"))) {
+				throw new BusinessRuleViolationException("MISSING_PERMISSION", "missing view permission");
 			}
 			return java.util.List.of();
 		});
@@ -176,6 +176,24 @@ class QueryControllerTest {
 						.header(UserContextFactory.USER_ID_HEADER, UUID.randomUUID().toString())
 						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:create"))
 				.andExpect(status().isForbidden())
-				.andExpect(jsonPath("$.code").value("MISSING_SCOPE"));
+				.andExpect(jsonPath("$.code").value("MISSING_PERMISSION"));
+	}
+
+	@Test
+	void normalizesKnownPermissionsAndForwardsUnknownPermissions() throws Exception {
+		UUID userId = UUID.randomUUID();
+		when(listUserPotsUseCase.listUserPots(any())).thenReturn(java.util.List.of());
+
+		mockMvc.perform(get("/api/pots")
+						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
+						.header(UserContextFactory.USER_SCOPES_HEADER, "PoT:ViEw;Future_Feature:View"))
+				.andExpect(status().isOk());
+
+		ArgumentCaptor<UserContext> contextCaptor = ArgumentCaptor.forClass(UserContext.class);
+		verify(listUserPotsUseCase).listUserPots(contextCaptor.capture());
+		assertEquals(UserId.of(userId), contextCaptor.getValue().userId());
+		assertEquals(
+				Set.of(new Permission("POT", "VIEW"), new Permission("FUTURE_FEATURE", "VIEW")),
+				contextCaptor.getValue().permissions());
 	}
 }

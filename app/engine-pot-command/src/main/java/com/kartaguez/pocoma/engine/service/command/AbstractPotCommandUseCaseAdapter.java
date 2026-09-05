@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
@@ -20,7 +21,10 @@ abstract class AbstractPotCommandUseCaseAdapter<C extends Command> implements Co
 			AdaptedExecution execution) {
 		requireNonNull(command, "command must not be null");
 		requireNonNull(execution, "execution must not be null");
-		UserContext userContext = PotAuthorizationSnapshotMapper.toUserContext(authorization);
+		requireNonNull(authorization, "authorization must not be null");
+		UserContext userContext = new UserContext(
+				UserId.of(authorization.userId().value()),
+				authorization.permissions());
 		PotCommandInvocation invocation = new PotCommandInvocation();
 		try {
 			execution.execute(invocation, userContext);

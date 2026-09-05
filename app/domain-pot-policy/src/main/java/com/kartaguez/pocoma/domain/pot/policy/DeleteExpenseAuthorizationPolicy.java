@@ -1,18 +1,20 @@
 package com.kartaguez.pocoma.domain.pot.policy;
 
-import java.util.Objects;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.EXPENSE_DELETE;
 
+import java.util.Objects;
+import java.util.Set;
+
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
-import java.util.Set;
 
 public final class DeleteExpenseAuthorizationPolicy {
 
-	// TODO: (userId in shareholders.userId) && userScopes.contains(expense:delete)
-	public void assertCanDeleteExpense(UserId userId, Set<Scope> userScopes, Set<UserId> shareholderUserIds, UserId potCreatorId) {
+	// TODO: (userId in shareholders.userId) && userPermissions.contains(EXPENSE / DELETE)
+	public void assertCanDeleteExpense(UserId userId, Set<Permission> userPermissions, Set<UserId> shareholderUserIds, UserId potCreatorId) {
 		Objects.requireNonNull(potCreatorId, "potCreatorId must not be null");
-		Objects.requireNonNull(userScopes, "userScopes must not be null");
+		Objects.requireNonNull(userPermissions, "userPermissions must not be null");
 		Objects.requireNonNull(shareholderUserIds, "shareholderUserIds must not be null");
 
 		if (userId == null) {
@@ -27,11 +29,10 @@ public final class DeleteExpenseAuthorizationPolicy {
 					"Only the pot creator or a shareholder can delete an expense");
 		}
 
-		Scope requiredScope = new Scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE);
-		if (!userScopes.contains(requiredScope)) {
+		if (!userPermissions.contains(EXPENSE_DELETE)) {
 			throw new BusinessRuleViolationException(
-					"MISSING_SCOPE",
-					"User is missing the required scope to delete an expense");
+					"MISSING_PERMISSION",
+					"User is missing the required permission to delete an expense");
 		}
 	}
 }

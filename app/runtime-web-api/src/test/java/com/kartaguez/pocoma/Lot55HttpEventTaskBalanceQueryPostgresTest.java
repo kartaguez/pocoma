@@ -154,7 +154,7 @@ class Lot55HttpEventTaskBalanceQueryPostgresTest {
 	@Test
 	void currentHttpCommandPathReachesTheImmutableBalanceQueryWithoutLegacyWorkers() throws Exception {
 		UUID userId = UUID.randomUUID();
-		String scopes = "pot:create;shareholder:create;pot:read";
+		String scopes = "pot:create;shareholder:create;pot:view;balance:view";
 
 		String createResponse = http.perform(post("/api/pots")
 					.header(UserContextFactory.USER_ID_HEADER, userId)

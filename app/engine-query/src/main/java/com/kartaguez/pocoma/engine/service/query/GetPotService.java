@@ -45,7 +45,7 @@ final class GetPotService implements GetPotUseCase {
 		// 5. Check that the current user is allowed to read this pot at the requested version.
 		readPotAuthorizationPolicy.assertCanReadPot(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				potHeader.creatorId(),
 				activeShareholderUserIds(shareholders));
 

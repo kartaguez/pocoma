@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
@@ -23,7 +23,7 @@ import com.kartaguez.pocoma.engine.security.UserContext;
 
 class CreatePotServiceTest {
 
-	private static final Set<Scope> CREATE_POT_SCOPES = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.CREATE));
+	private static final Set<Permission> CREATE_POT_PERMISSIONS = Set.of(new Permission("POT", "CREATE"));
 
 	@Test
 	void createsPotAtInitialVersion() {
@@ -39,7 +39,7 @@ class CreatePotServiceTest {
 		UserId creatorId = UserId.of(UUID.randomUUID());
 
 		PotHeaderSnapshot snapshot = createPotService.createPot(
-				new UserContext(creatorId, CREATE_POT_SCOPES),
+				new UserContext(creatorId, CREATE_POT_PERMISSIONS),
 				new CreatePotCommand(label.value(), creatorId.value()));
 
 		assertEquals(label, snapshot.label());
@@ -64,7 +64,7 @@ class CreatePotServiceTest {
 				new CreatePotAuthorizationPolicy());
 
 		assertThrows(NullPointerException.class, () -> createPotService.createPot(
-				new UserContext(UserId.of(UUID.randomUUID()), CREATE_POT_SCOPES),
+				new UserContext(UserId.of(UUID.randomUUID()), CREATE_POT_PERMISSIONS),
 				null));
 	}
 
@@ -92,7 +92,7 @@ class CreatePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> createPotService.createPot(
-						new UserContext(null, CREATE_POT_SCOPES),
+						new UserContext(null, CREATE_POT_PERMISSIONS),
 						new CreatePotCommand("Trip", UUID.randomUUID())));
 
 		assertEquals("ANONYMOUS_USER", exception.ruleCode());

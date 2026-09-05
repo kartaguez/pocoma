@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -46,7 +46,7 @@ class GetPotServiceTest {
 				transactionRunner);
 
 		PotViewSnapshot snapshot = useCase.getPot(
-				new UserContext(creatorId, Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.READ))),
+				new UserContext(creatorId, Set.of(new Permission("POT", "VIEW"))),
 				new GetPotQuery(potId.value()));
 
 		assertEquals(potId, snapshot.header().id());
@@ -67,7 +67,7 @@ class GetPotServiceTest {
 				new FakeTransactionRunner());
 
 		PotViewSnapshot snapshot = useCase.getPot(
-				new UserContext(linkedUserId, Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.READ))),
+				new UserContext(linkedUserId, Set.of(new Permission("POT", "VIEW"))),
 				new GetPotQuery(potId.value(), java.util.OptionalLong.of(2)));
 
 		assertEquals(2, snapshot.header().version());
@@ -85,7 +85,7 @@ class GetPotServiceTest {
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> useCase.getPot(new UserContext(new UserId(UUID.randomUUID()), Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.READ))), new GetPotQuery(potId.value())));
+				() -> useCase.getPot(new UserContext(new UserId(UUID.randomUUID()), Set.of(new Permission("POT", "VIEW"))), new GetPotQuery(potId.value())));
 
 		assertEquals("POT_READ_FORBIDDEN", exception.ruleCode());
 	}

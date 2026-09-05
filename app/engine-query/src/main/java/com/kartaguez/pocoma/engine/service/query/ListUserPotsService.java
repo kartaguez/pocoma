@@ -26,7 +26,7 @@ final class ListUserPotsService implements ListUserPotsUseCase {
 	public List<PotHeaderSnapshot> listUserPots(UserContext userContext) {
 		// 1. Validate the caller context and convert it into the domain user identifier.
 		Objects.requireNonNull(userContext, "userContext must not be null");
-		readPotAuthorizationPolicy.assertCanListReadablePots(userContext.userId(), userContext.scopes());
+		readPotAuthorizationPolicy.assertCanListReadablePots(userContext.userId(), userContext.permissions());
 		UserId userId = userContext.userId();
 
 		// 2. Load the current, non-deleted pots accessible through creator or linked shareholder.

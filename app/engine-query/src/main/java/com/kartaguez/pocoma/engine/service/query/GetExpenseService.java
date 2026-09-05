@@ -7,7 +7,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.port.in.query.intent.GetExpenseQuery;
@@ -21,17 +21,17 @@ final class GetExpenseService implements GetExpenseUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final ExpenseQueryPort expenseQueryPort;
-	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
+	private final ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy;
 
 	GetExpenseService(
 			PotQueryPort potQueryPort,
 			ExpenseQueryPort expenseQueryPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
+			ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.expenseQueryPort = Objects.requireNonNull(expenseQueryPort, "expenseQueryPort must not be null");
-		this.readPotAuthorizationPolicy = Objects.requireNonNull(
-				readPotAuthorizationPolicy,
-				"readPotAuthorizationPolicy must not be null");
+		this.readExpenseAuthorizationPolicy = Objects.requireNonNull(
+				readExpenseAuthorizationPolicy,
+				"readExpenseAuthorizationPolicy must not be null");
 	}
 
 	@Override
@@ -56,9 +56,9 @@ final class GetExpenseService implements GetExpenseUseCase {
 		// 4. Load the pot header and check that the current user can read this pot at the requested version.
 		PotHeader potHeader = potQueryPort.loadPotHeaderAtVersion(expenseHeader.potId(), version);
 		PotShareholders potShareholders = potQueryPort.loadPotShareholdersAtVersion(expenseHeader.potId(), version);
-		readPotAuthorizationPolicy.assertCanReadPot(
+		readExpenseAuthorizationPolicy.assertCanReadExpense(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				potHeader.creatorId(),
 				activeShareholderUserIds(potShareholders));
 

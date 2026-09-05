@@ -16,6 +16,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.domain.authorization.Permission;
+
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 
@@ -46,8 +48,6 @@ class CommandModelTest {
 		assertThrows(NullPointerException.class, () -> new PocomaUserId(null));
 		assertThrows(NullPointerException.class, () -> new CommandType(null));
 		assertThrows(IllegalArgumentException.class, () -> new CommandType(" "));
-		assertThrows(NullPointerException.class, () -> new Permission(null, "READ"));
-		assertThrows(IllegalArgumentException.class, () -> new Permission("POT", " "));
 		assertThrows(IllegalArgumentException.class, () -> new RecordedCommand(
 				new CommandId(UUID.randomUUID()), new CommandType("TYPE_V1"), " ", NOW, authorization()));
 	}

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
-import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -20,17 +20,17 @@ final class ListUserPotBalancesService implements ListUserPotBalancesUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final PotBalancesQueryPort potBalancesPort;
-	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
+	private final ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy;
 
 	ListUserPotBalancesService(
 			PotQueryPort potQueryPort,
 			PotBalancesQueryPort potBalancesPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
+			ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");
-		this.readPotAuthorizationPolicy = Objects.requireNonNull(
-				readPotAuthorizationPolicy,
-				"readPotAuthorizationPolicy must not be null");
+		this.readBalanceAuthorizationPolicy = Objects.requireNonNull(
+				readBalanceAuthorizationPolicy,
+				"readBalanceAuthorizationPolicy must not be null");
 	}
 
 	@Override
@@ -38,7 +38,7 @@ final class ListUserPotBalancesService implements ListUserPotBalancesUseCase {
 		// 1. Validate the caller context and the incoming query.
 		Objects.requireNonNull(userContext, "userContext must not be null");
 		Objects.requireNonNull(query, "query must not be null");
-		readPotAuthorizationPolicy.assertCanListReadablePots(userContext.userId(), userContext.scopes());
+		readBalanceAuthorizationPolicy.assertCanListReadableBalances(userContext.userId(), userContext.permissions());
 
 		// 2. Convert the caller into the domain user identifier used by persistence lookups.
 		UserId userId = userContext.userId();

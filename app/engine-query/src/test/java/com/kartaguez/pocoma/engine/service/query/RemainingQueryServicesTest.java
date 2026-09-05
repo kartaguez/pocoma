@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.service.query;
 
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.BALANCE_VIEW;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.EXPENSE_VIEW;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_VIEW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -18,8 +21,9 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
@@ -47,12 +51,12 @@ class RemainingQueryServicesTest {
 	private static final PotId POT_ID = PotId.of(UUID.randomUUID());
 	private static final ShareholderId SHAREHOLDER_ID = ShareholderId.of(UUID.randomUUID());
 	private static final ExpenseId EXPENSE_ID = ExpenseId.of(UUID.randomUUID());
-	private static final Scope READ_SCOPE = new Scope(Scope.Resource.POT, null, Scope.Action.READ);
+	private static final Set<Permission> VIEW_PERMISSIONS = Set.of(POT_VIEW, EXPENSE_VIEW, BALANCE_VIEW);
 
 	@Test
 	void listsPotExpensesAtResolvedVersionWithoutInfrastructure() {
 		Fixture fixture = new Fixture();
-		var service = new ListPotExpensesService(fixture.pots, fixture.expenses, new ReadPotAuthorizationPolicy());
+		var service = new ListPotExpensesService(fixture.pots, fixture.expenses, new ReadExpenseAuthorizationPolicy());
 
 		var result = service.listPotExpenses(creator(), new ListPotExpensesQuery(POT_ID.value()));
 
@@ -64,7 +68,7 @@ class RemainingQueryServicesTest {
 	@Test
 	void getsExpenseAndItsSharesAtResolvedVersionWithoutInfrastructure() {
 		Fixture fixture = new Fixture();
-		var service = new GetExpenseService(fixture.pots, fixture.expenses, new ReadPotAuthorizationPolicy());
+		var service = new GetExpenseService(fixture.pots, fixture.expenses, new ReadExpenseAuthorizationPolicy());
 
 		var result = service.getExpense(creator(), new GetExpenseQuery(EXPENSE_ID.value()));
 
@@ -76,7 +80,7 @@ class RemainingQueryServicesTest {
 	@Test
 	void getsBalancesAtResolvedVersionWithoutInfrastructure() {
 		Fixture fixture = new Fixture();
-		var service = new GetPotBalancesService(fixture.pots, fixture.balances, new ReadPotAuthorizationPolicy());
+		var service = new GetPotBalancesService(fixture.pots, fixture.balances, new ReadBalanceAuthorizationPolicy());
 
 		var result = service.getPotBalances(creator(), new GetPotBalancesQuery(POT_ID.value()));
 
@@ -88,16 +92,16 @@ class RemainingQueryServicesTest {
 	@Test
 	void allPotScopedQueriesRejectAnUnauthorizedUserBeforeLoadingTheirResult() {
 		Fixture fixture = new Fixture();
-		UserContext unauthorized = new UserContext(UserId.of(UUID.randomUUID()), Set.of(READ_SCOPE));
+		UserContext unauthorized = new UserContext(UserId.of(UUID.randomUUID()), VIEW_PERMISSIONS);
 
 		assertThrows(BusinessRuleViolationException.class,
-				() -> new ListPotExpensesService(fixture.pots, fixture.expenses, new ReadPotAuthorizationPolicy())
+				() -> new ListPotExpensesService(fixture.pots, fixture.expenses, new ReadExpenseAuthorizationPolicy())
 						.listPotExpenses(unauthorized, new ListPotExpensesQuery(POT_ID.value())));
 		assertThrows(BusinessRuleViolationException.class,
-				() -> new GetExpenseService(fixture.pots, fixture.expenses, new ReadPotAuthorizationPolicy())
+				() -> new GetExpenseService(fixture.pots, fixture.expenses, new ReadExpenseAuthorizationPolicy())
 						.getExpense(unauthorized, new GetExpenseQuery(EXPENSE_ID.value())));
 		assertThrows(BusinessRuleViolationException.class,
-				() -> new GetPotBalancesService(fixture.pots, fixture.balances, new ReadPotAuthorizationPolicy())
+				() -> new GetPotBalancesService(fixture.pots, fixture.balances, new ReadBalanceAuthorizationPolicy())
 						.getPotBalances(unauthorized, new GetPotBalancesQuery(POT_ID.value())));
 	}
 
@@ -107,14 +111,14 @@ class RemainingQueryServicesTest {
 		fixture.pots.failure = new BusinessEntityNotFoundException("POT", "missing pot");
 
 		BusinessEntityNotFoundException exception = assertThrows(BusinessEntityNotFoundException.class,
-				() -> new GetPotBalancesService(fixture.pots, fixture.balances, new ReadPotAuthorizationPolicy())
+				() -> new GetPotBalancesService(fixture.pots, fixture.balances, new ReadBalanceAuthorizationPolicy())
 						.getPotBalances(creator(), new GetPotBalancesQuery(POT_ID.value())));
 
 		assertEquals("POT", exception.entityCode());
 	}
 
 	private static UserContext creator() {
-		return new UserContext(CREATOR_ID, Set.of(READ_SCOPE));
+		return new UserContext(CREATOR_ID, VIEW_PERMISSIONS);
 	}
 
 	private static final class Fixture {

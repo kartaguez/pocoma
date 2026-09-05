@@ -82,7 +82,7 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 		// 4. Check that the current user is allowed to update shareholders weights.
 		updatePotShareholdersWeightsAuthorizationPolicy.assertCanUpdatePotShareholdersWeights(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId());
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.

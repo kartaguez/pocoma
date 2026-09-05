@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -44,7 +44,7 @@ class DeletePotServiceTest {
 				new DeletePotAuthorizationPolicy());
 
 		PotHeaderSnapshot snapshot = deletePotService.deletePot(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new DeletePotCommand(fixture.potId.value(), 3));
 
 		assertEquals(fixture.potId, snapshot.id());
@@ -72,7 +72,7 @@ class DeletePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeletePotCommand(fixture.potId.value(), 3)));
 
 		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
@@ -88,7 +88,7 @@ class DeletePotServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeletePotCommand(fixture.potId.value(), 2)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -104,7 +104,7 @@ class DeletePotServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> deletePotService.deletePot(
-						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
 						new DeletePotCommand(fixture.potId.value(), 3)));
 
 		assertEquals("POT_DELETE_FORBIDDEN", exception.ruleCode());
@@ -117,7 +117,7 @@ class DeletePotServiceTest {
 		DeletePotService deletePotService = fixture.service(fixture.context(false));
 
 		assertThrows(NullPointerException.class, () -> deletePotService.deletePot(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				null));
 	}
 
@@ -137,7 +137,7 @@ class DeletePotServiceTest {
 		DeletePotService deletePotService = fixture.service(null);
 
 		assertThrows(NullPointerException.class, () -> deletePotService.deletePot(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				new DeletePotCommand(fixture.potId.value(), 3)));
 	}
 
@@ -145,7 +145,7 @@ class DeletePotServiceTest {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final Label label = Label.of("Trip");
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
-		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
+		private final Set<Permission> userPermissions = Set.of(new Permission("POT", "DELETE"));
 
 		private DeletePotContext context(boolean deleted) {
 			return new DeletePotContext(

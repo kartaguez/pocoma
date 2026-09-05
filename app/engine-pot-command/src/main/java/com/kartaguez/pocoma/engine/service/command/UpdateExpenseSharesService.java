@@ -84,7 +84,7 @@ final class UpdateExpenseSharesService implements UpdateExpenseSharesUseCase {
 		// 4. Check that the current user is allowed to update this expense.
 		updateExpenseSharesAuthorizationPolicy.assertCanUpdateExpenseShares(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId(),
 				Set.of());
 

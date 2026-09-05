@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class DeletePotAuthorizationPolicyTest {
@@ -19,19 +19,19 @@ class DeletePotAuthorizationPolicyTest {
 	@Test
 	void allowsCreator() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "DELETE"));
 
-		policy.assertCanDeletePot(creatorId, scopes, creatorId);
+		policy.assertCanDeletePot(creatorId, permissions, creatorId);
 	}
 
 	@Test
 	void rejectsUserThatIsNotCreator() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "DELETE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanDeletePot(UserId.of(UUID.randomUUID()), scopes, creatorId));
+				() -> policy.assertCanDeletePot(UserId.of(UUID.randomUUID()), permissions, creatorId));
 
 		assertEquals("POT_DELETE_FORBIDDEN", exception.ruleCode());
 	}
@@ -39,19 +39,19 @@ class DeletePotAuthorizationPolicyTest {
 	@Test
 	void rejectsAnonymousUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "DELETE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanDeletePot(null, scopes, creatorId));
+				() -> policy.assertCanDeletePot(null, permissions, creatorId));
 
 		assertEquals("ANONYMOUS_USER", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.POT, null, Scope.Action.DELETE));
+		Set<Permission> permissions = Set.of(new Permission("POT", "DELETE"));
 
-		assertThrows(NullPointerException.class, () -> policy.assertCanDeletePot(UserId.of(UUID.randomUUID()), scopes, null));
+		assertThrows(NullPointerException.class, () -> policy.assertCanDeletePot(UserId.of(UUID.randomUUID()), permissions, null));
 	}
 }

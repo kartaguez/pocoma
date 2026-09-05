@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
 class UpdatePotShareholdersDetailsAuthorizationPolicyTest {
@@ -21,27 +21,27 @@ class UpdatePotShareholdersDetailsAuthorizationPolicyTest {
 	@Test
 	void allowsCreatorToUpdatePotShareholdersDetails() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("SHAREHOLDER", "UPDATE"));
 
-		assertDoesNotThrow(() -> policy.assertCanUpdatePotShareholdersDetails(creatorId, scopes, creatorId, null));
+		assertDoesNotThrow(() -> policy.assertCanUpdatePotShareholdersDetails(creatorId, permissions, creatorId, null));
 	}
 
 	@Test
 	void rejectsAnotherUser() {
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("SHAREHOLDER", "UPDATE"));
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
-				() -> policy.assertCanUpdatePotShareholdersDetails(UserId.of(UUID.randomUUID()), scopes, creatorId, null));
+				() -> policy.assertCanUpdatePotShareholdersDetails(UserId.of(UUID.randomUUID()), permissions, creatorId, null));
 
 		assertEquals("POT_SHAREHOLDERS_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		Set<Scope> scopes = Set.of(new Scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		Set<Permission> permissions = Set.of(new Permission("SHAREHOLDER", "UPDATE"));
 
-		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotShareholdersDetails(UserId.of(UUID.randomUUID()), scopes, null, null));
+		assertThrows(NullPointerException.class, () -> policy.assertCanUpdatePotShareholdersDetails(UserId.of(UUID.randomUUID()), permissions, null, null));
 	}
 }

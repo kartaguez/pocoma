@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.snapshot.ExpenseHeaderSnapshot;
@@ -20,17 +20,17 @@ final class ListPotExpensesService implements ListPotExpensesUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final ExpenseQueryPort expenseQueryPort;
-	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
+	private final ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy;
 
 	ListPotExpensesService(
 			PotQueryPort potQueryPort,
 			ExpenseQueryPort expenseQueryPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
+			ReadExpenseAuthorizationPolicy readExpenseAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.expenseQueryPort = Objects.requireNonNull(expenseQueryPort, "expenseQueryPort must not be null");
-		this.readPotAuthorizationPolicy = Objects.requireNonNull(
-				readPotAuthorizationPolicy,
-				"readPotAuthorizationPolicy must not be null");
+		this.readExpenseAuthorizationPolicy = Objects.requireNonNull(
+				readExpenseAuthorizationPolicy,
+				"readExpenseAuthorizationPolicy must not be null");
 	}
 
 	@Override
@@ -48,9 +48,9 @@ final class ListPotExpensesService implements ListPotExpensesUseCase {
 		PotShareholders potShareholders = potQueryPort.loadPotShareholdersAtVersion(potId, version);
 
 		// 4. Check that the current user is allowed to read this pot at the requested version.
-		readPotAuthorizationPolicy.assertCanReadPot(
+		readExpenseAuthorizationPolicy.assertCanReadExpense(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				potHeader.creatorId(),
 				activeShareholderUserIds(potShareholders));
 

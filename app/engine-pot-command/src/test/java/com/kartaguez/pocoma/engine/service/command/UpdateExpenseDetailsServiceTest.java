@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.scope.Scope;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -49,7 +49,7 @@ class UpdateExpenseDetailsServiceTest {
 				new UpdateExpenseDetailsAuthorizationPolicy());
 
 		ExpenseHeaderSnapshot snapshot = service.updateExpenseDetails(
-				new UserContext(fixture.creatorId, fixture.userScopes),
+				new UserContext(fixture.creatorId, fixture.userPermissions),
 				fixture.command(3, fixture.nextPayerId));
 
 		assertEquals(fixture.expenseId, snapshot.id());
@@ -80,7 +80,7 @@ class UpdateExpenseDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updateExpenseDetails(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(3, fixture.nextPayerId)));
 
 		assertEquals("EXPENSE_ALREADY_DELETED", exception.ruleCode());
@@ -97,7 +97,7 @@ class UpdateExpenseDetailsServiceTest {
 		VersionConflictException exception = assertThrows(
 				VersionConflictException.class,
 				() -> service.updateExpenseDetails(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(2, fixture.nextPayerId)));
 
 		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
@@ -114,7 +114,7 @@ class UpdateExpenseDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updateExpenseDetails(
-						new UserContext(fixture.creatorId, fixture.userScopes),
+						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(3, ShareholderId.of(UUID.randomUUID()))));
 
 		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
@@ -131,7 +131,7 @@ class UpdateExpenseDetailsServiceTest {
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
 				() -> service.updateExpenseDetails(
-						new UserContext(UserId.of(UUID.randomUUID()), fixture.userScopes),
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
 						fixture.command(3, fixture.nextPayerId)));
 
 		assertEquals("EXPENSE_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
@@ -144,7 +144,7 @@ class UpdateExpenseDetailsServiceTest {
 		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		private final ShareholderId nextPayerId = ShareholderId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
-		private final Set<Scope> userScopes = Set.of(new Scope(Scope.Resource.EXPENSE, Scope.SubResource.DETAILS, Scope.Action.UPDATE));
+		private final Set<Permission> userPermissions = Set.of(new Permission("EXPENSE", "UPDATE"));
 		private final Amount amount = Amount.of(Fraction.of(42, 1));
 		private final Label label = Label.of("Dinner");
 

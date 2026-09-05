@@ -140,7 +140,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(patch("/api/pots/{potId}/details", potId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
-						.header(UserContextFactory.USER_SCOPES_HEADER, "pot.details:update")
+						.header(UserContextFactory.USER_SCOPES_HEADER, "pot:update")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{"label":"Updated","expectedVersion":2}
@@ -299,7 +299,7 @@ class CommandControllerTest {
 
 		mockMvc.perform(patch("/api/expenses/{expenseId}/details", expenseId)
 						.header(UserContextFactory.USER_ID_HEADER, userId.toString())
-						.header(UserContextFactory.USER_SCOPES_HEADER, "expense.details:update")
+						.header(UserContextFactory.USER_SCOPES_HEADER, "expense:update")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("""
 								{

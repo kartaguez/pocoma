@@ -90,7 +90,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 		// 4. Check that the current user is allowed to create an expense in this pot.
 		createExpenseAuthorizationPolicy.assertCanCreateExpense(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				context.creatorId(),
 				Set.of());
 

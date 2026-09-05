@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.ReadPotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.policy.ReadBalanceAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -20,17 +20,17 @@ final class GetPotBalancesService implements GetPotBalancesUseCase {
 
 	private final PotQueryPort potQueryPort;
 	private final PotBalancesQueryPort potBalancesPort;
-	private final ReadPotAuthorizationPolicy readPotAuthorizationPolicy;
+	private final ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy;
 
 	GetPotBalancesService(
 			PotQueryPort potQueryPort,
 			PotBalancesQueryPort potBalancesPort,
-			ReadPotAuthorizationPolicy readPotAuthorizationPolicy) {
+			ReadBalanceAuthorizationPolicy readBalanceAuthorizationPolicy) {
 		this.potQueryPort = Objects.requireNonNull(potQueryPort, "potQueryPort must not be null");
 		this.potBalancesPort = Objects.requireNonNull(potBalancesPort, "potBalancesPort must not be null");
-		this.readPotAuthorizationPolicy = Objects.requireNonNull(
-				readPotAuthorizationPolicy,
-				"readPotAuthorizationPolicy must not be null");
+		this.readBalanceAuthorizationPolicy = Objects.requireNonNull(
+				readBalanceAuthorizationPolicy,
+				"readBalanceAuthorizationPolicy must not be null");
 	}
 
 	@Override
@@ -48,9 +48,9 @@ final class GetPotBalancesService implements GetPotBalancesUseCase {
 		PotShareholders potShareholders = potQueryPort.loadPotShareholdersAtVersion(potId, version);
 
 		// 4. Check that the current user is allowed to read balances for this pot at the requested version.
-		readPotAuthorizationPolicy.assertCanReadPot(
+		readBalanceAuthorizationPolicy.assertCanReadBalance(
 				userContext.userId(),
-				userContext.scopes(),
+				userContext.permissions(),
 				potHeader.creatorId(),
 				activeShareholderUserIds(potShareholders));
 
