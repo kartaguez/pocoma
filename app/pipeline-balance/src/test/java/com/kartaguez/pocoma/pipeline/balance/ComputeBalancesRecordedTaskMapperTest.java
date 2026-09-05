@@ -33,9 +33,11 @@ class ComputeBalancesRecordedTaskMapperTest {
 	@Test
 	void rejectsPayloadWhoseVersionDiffersFromTheDurableColumn() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		assertThrows(ComputeBalancesRecordedTaskMapper.InvalidBalanceTaskException.class,
+		var exception = assertThrows(ComputeBalancesRecordedTaskMapper.InvalidBalanceTaskException.class,
 				() -> mapper.map(task(potId, 42,
 						"{\"potId\":\"" + potId.value() + "\",\"targetVersion\":50}")));
+		assertEquals("INVALID_TASK_PAYLOAD", exception.failureCode());
+		assertEquals("INVALID_TASK_PAYLOAD", exception.failureCategory());
 	}
 
 	private static RecordedTask task(PotId potId, long version, String payload) {

@@ -8,5 +8,6 @@ public final class BalanceProjectionConflictException extends RuntimeException
 	public BalanceProjectionConflictException() {
 		super("An immutable Balance projection already exists with different content");
 	}
+	@Override public String failureCode() { return CATEGORY; }
 	@Override public String failureCategory() { return CATEGORY; }
 }

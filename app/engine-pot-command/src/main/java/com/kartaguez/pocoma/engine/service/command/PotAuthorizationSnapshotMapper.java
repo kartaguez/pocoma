@@ -14,21 +14,27 @@ import com.kartaguez.pocoma.engine.security.UserContext;
 
 final class PotAuthorizationSnapshotMapper {
 
-	private static final Map<Permission, Scope> SCOPES_BY_PERMISSION = Map.ofEntries(
-			entry("POT", "CREATE", Scope.Resource.POT, null, Scope.Action.CREATE),
-			entry("POT", "DELETE", Scope.Resource.POT, null, Scope.Action.DELETE),
-			entry("POT.DETAILS", "UPDATE", Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-			entry("SHAREHOLDER", "CREATE", Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE),
-			entry("SHAREHOLDER.DETAILS", "UPDATE", Scope.Resource.SHAREHOLDER,
-					Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-			entry("SHAREHOLDER.WEIGHT", "UPDATE", Scope.Resource.SHAREHOLDER,
-					Scope.SubResource.WEIGHT, Scope.Action.UPDATE),
-			entry("EXPENSE", "CREATE", Scope.Resource.EXPENSE, null, Scope.Action.CREATE),
-			entry("EXPENSE", "DELETE", Scope.Resource.EXPENSE, null, Scope.Action.DELETE),
-			entry("EXPENSE.DETAILS", "UPDATE", Scope.Resource.EXPENSE,
-					Scope.SubResource.DETAILS, Scope.Action.UPDATE),
-			entry("EXPENSE.SHARES", "UPDATE", Scope.Resource.EXPENSE,
-					Scope.SubResource.SHARES, Scope.Action.UPDATE));
+	private static final Map<Permission, Set<Scope>> SCOPES_BY_PERMISSION = Map.ofEntries(
+			entry("POT", "VIEW"),
+			entry("POT", "CREATE", scope(Scope.Resource.POT, null, Scope.Action.CREATE)),
+			entry("POT", "UPDATE", scope(Scope.Resource.POT, Scope.SubResource.DETAILS, Scope.Action.UPDATE)),
+			entry("POT", "DELETE", scope(Scope.Resource.POT, null, Scope.Action.DELETE)),
+			entry("POT", "VIEW_ARCHIVE"),
+			entry("SHAREHOLDER", "VIEW"),
+			entry("SHAREHOLDER", "CREATE", scope(Scope.Resource.SHAREHOLDER, null, Scope.Action.CREATE)),
+			entry("SHAREHOLDER", "UPDATE",
+					scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
+					scope(Scope.Resource.SHAREHOLDER, Scope.SubResource.WEIGHT, Scope.Action.UPDATE)),
+			entry("SHAREHOLDER", "DELETE"),
+			entry("SHAREHOLDER", "VIEW_ARCHIVE"),
+			entry("EXPENSE", "VIEW"),
+			entry("EXPENSE", "CREATE", scope(Scope.Resource.EXPENSE, null, Scope.Action.CREATE)),
+			entry("EXPENSE", "UPDATE",
+					scope(Scope.Resource.EXPENSE, Scope.SubResource.DETAILS, Scope.Action.UPDATE),
+					scope(Scope.Resource.EXPENSE, Scope.SubResource.SHARES, Scope.Action.UPDATE)),
+			entry("EXPENSE", "DELETE", scope(Scope.Resource.EXPENSE, null, Scope.Action.DELETE)),
+			entry("EXPENSE", "VIEW_ARCHIVE"),
+			entry("BALANCE", "VIEW"));
 
 	private PotAuthorizationSnapshotMapper() {
 	}
@@ -36,18 +42,28 @@ final class PotAuthorizationSnapshotMapper {
 	static UserContext toUserContext(AuthorizationSnapshot authorization) {
 		requireNonNull(authorization, "authorization must not be null");
 		Set<Scope> scopes = authorization.permissions().stream()
-				.map(SCOPES_BY_PERMISSION::get)
-				.filter(java.util.Objects::nonNull)
+				.flatMap(permission -> scopesFor(permission).stream())
 				.collect(Collectors.toUnmodifiableSet());
 		return new UserContext(UserId.of(authorization.userId().value()), scopes);
 	}
 
-	private static Map.Entry<Permission, Scope> entry(
-			String objectType,
-			String action,
+	private static Set<Scope> scopesFor(Permission permission) {
+		Set<Scope> scopes = SCOPES_BY_PERMISSION.get(permission);
+		if (scopes == null) {
+			throw new IllegalArgumentException(
+					"Unsupported Pot permission: " + permission.objectType() + " / " + permission.action());
+		}
+		return scopes;
+	}
+
+	private static Map.Entry<Permission, Set<Scope>> entry(String objectType, String action, Scope... scopes) {
+		return Map.entry(new Permission(objectType, action), Set.of(scopes));
+	}
+
+	private static Scope scope(
 			Scope.Resource resource,
 			Scope.SubResource subResource,
-			Scope.Action scopeAction) {
-		return Map.entry(new Permission(objectType, action), new Scope(resource, subResource, scopeAction));
+			Scope.Action action) {
+		return new Scope(resource, subResource, action);
 	}
 }

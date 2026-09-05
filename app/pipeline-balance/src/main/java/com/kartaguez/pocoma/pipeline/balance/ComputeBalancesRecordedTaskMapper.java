@@ -47,6 +47,7 @@ public final class ComputeBalancesRecordedTaskMapper implements RecordedTaskExec
 			implements com.kartaguez.pocoma.engine.taskexecution.model.NonRetryableTaskTechnicalFailure {
 		public InvalidBalanceTaskException(String message) { super(message); }
 		public InvalidBalanceTaskException(String message, Throwable cause) { super(message, cause); }
+		@Override public String failureCode() { return "INVALID_TASK_PAYLOAD"; }
 		@Override public String failureCategory() { return "INVALID_TASK_PAYLOAD"; }
 	}
 }

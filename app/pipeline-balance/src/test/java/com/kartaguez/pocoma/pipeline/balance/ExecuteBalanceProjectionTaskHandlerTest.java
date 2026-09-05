@@ -15,10 +15,19 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
 import com.kartaguez.pocoma.engine.taskexecution.model.TaskExecutionReport;
 import com.kartaguez.pocoma.pipeline.balance.projection.BalanceProjectionArtifact;
+import com.kartaguez.pocoma.pipeline.balance.projection.BalanceProjectionConflictException;
 import com.kartaguez.pocoma.pipeline.balance.projection.BalanceProjectionPersistenceResult;
 import com.kartaguez.pocoma.pipeline.balance.projection.BalanceProjectionReference;
 
 class ExecuteBalanceProjectionTaskHandlerTest {
+	@Test
+	void exposesAStableCodeForAnImmutableProjectionConflict() {
+		var exception = new BalanceProjectionConflictException();
+
+		assertEquals("BALANCE_PROJECTION_CONFLICT", exception.failureCode());
+		assertEquals("BALANCE_PROJECTION_CONFLICT", exception.failureCategory());
+	}
+
 	@Test
 	void calculatesTheExactRequestedVersionAndReportsTheVersionedArtifact() {
 		PotId potId = PotId.of(UUID.randomUUID());

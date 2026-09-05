@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - v2-make-it-pull
+  pull_request:
+    branches:
+      - v2-make-it-pull
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Maven test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            app/pom.xml
+            app/*/pom.xml
+            app/.mvn/wrapper/maven-wrapper.properties
+      - name: Compile and test
+        run: ./mvnw --batch-mode --no-transfer-progress test
