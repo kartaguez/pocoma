@@ -58,6 +58,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `supra-worker-event` | boucle pull Event séquentielle par pipeline/version et segment, task creation idempotente puis lifecycle | ports entrants Event processing/task creation, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
 | `supra-consumption-worker` | boucle de polling générique, budgets, cadence et arrêt gracieux | orchestrateur consumption | target, ignorant des familles métier |
 | `locator-consumption-task` | localisation Task, relecture autoritative, traduction rapport/provenance et classification technique | processing/execution Task, consumption générique | target |
+| `locator-consumption-command` | convention `ConsumptionKey` Command, discovery, relecture/exécution autoritative, adaptation de provenance et classification technique conservative | engine-command, domain/engine consumption, orchestrator-consumption | target, sans runtime |
 | `pipeline-balance` | binding Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
 | `supra-http-rest-spring` | entrée HTTP réactive | ports entrants Command/Query | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
@@ -86,6 +87,10 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
   chemin. Il reste temporairement utilisé par Command uniquement.
 - `engine-processing-command` connaît encore les intentions d'`engine-pot-command` sur le chemin legacy.
 - La persistence Command cible implémente uniquement les ports d'`engine-command` et ne crée aucun slot.
+- `engine-command` ne connaît pas `ConsumptionKey`; la convention `COMMAND / COMMAND_PROCESSOR`
+  appartient exclusivement à `locator-consumption-command`.
+- Seules les erreurs Command explicitement reconnues comme transitoires sont retentées ; une
+  exception runtime inconnue est terminale.
 - L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
 - Task processing connaît uniquement les données structurelles de la Task et ne consulte ni slot,
   ni claim, ni statut ou lease legacy.

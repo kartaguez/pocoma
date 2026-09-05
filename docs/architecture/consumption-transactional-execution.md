@@ -22,6 +22,7 @@ transaction autonome.
 
 ```text
 BEGIN
+  relire l'objet durable autoritatif
   exécuter le use case métier
   écrire les effets métier rollbackables
   écrire Events, Tasks, projections et outbox
@@ -67,6 +68,13 @@ La policy décide alors :
 Le code, la catégorie, le message et l'horodatage du `ProcessingFailure` restent dans l'historique
 du Claim. Seul son code est repris comme raison sur un slot `FAILED`.
 
+Pour Command, la classification est volontairement conservatrice. `DEADLOCK`,
+`SERIALIZATION_FAILURE`, `DATABASE_UNAVAILABLE`, `TIMEOUT` et les autres erreurs JDBC explicitement
+transitoires suivent le calendrier générique de retry. Payload invalide, type inconnu, Command
+absente, invariant technique, erreur de configuration et `RuntimeException` inconnue conduisent
+immédiatement à `DONE/FAILED` avec leur code précis. Une erreur inconnue n'est jamais supposée
+transitoire.
+
 Si le Claim a été remplacé avant cette seconde transaction, le résultat est `LOST_CLAIM` et ni le
 slot ni le Claim gagnant ne sont modifiés. `LostClaimException` issu du CAS final n'est pas une
 failure technique : il ne doit pas être classifié ni soumis à la policy.
@@ -85,6 +93,18 @@ Le nouveau chemin `ExecuteConsumptionUseCase` ne dépend pas d'`engine-execution
 jamais les deux mécanismes de fencing. Le module guard et les APIs basées sur `ClaimToken` restent
 présents uniquement pour maintenir les workers historiques compilables. Les workers Command et Task
 utilisent encore le guard ; le worker Event reste sur son orchestration actuelle.
+
+## Spécialisation Command
+
+`locator-consumption-command` possède la convention de clé, la discovery, l'adaptation du résultat
+Command et la classification technique. Il réutilise sans duplication
+`SequentialConsumptionOrchestrator`, `TransactionalExecuteConsumptionUseCase` et le failure handler
+générique. Il ne recharge ni ne décode une Command avant l'acquisition.
+
+Dans la transaction gagnante, `JpaPotCommandEventAppendAdapter` convertit les Events Pot typés et
+les insère dans l'outbox avec une propagation `MANDATORY`. Un rejet n'appelle jamais ce port. Le CAS
+final fence donc ensemble mutation métier, Events et provenance. Le worker Command qui appellera ce
+locator reste réservé au Lot 6.7.
 
 ## Responsabilités du Lot 4
 

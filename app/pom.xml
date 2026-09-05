@@ -63,6 +63,7 @@
 		<module>supra-consumption-worker</module>
 		<module>locator-consumption-event</module>
 		<module>locator-consumption-task</module>
+		<module>locator-consumption-command</module>
 		<module>supra-worker-command</module>
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-worker-balance-calculation-events-spring</module>

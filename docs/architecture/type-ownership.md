@@ -24,6 +24,7 @@
 | Orchestration pull Command | `CommandWorker`, `CommandWorkerIteration` | `supra-worker-command` |
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 | Orchestration pull Task | `TaskConsumptionLocator`, `ConsumptionPollingWorker` | locator Task et supra générique |
+| Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
 | Exécution Task fonctionnelle | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution` |
 | Projection Balance immuable | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance` |
 
@@ -70,6 +71,10 @@ ClaimId != lease et Claim != journal d'exécution
 Une intention exprime l'opération métier. Son enregistrement ajoute l'identité et l'ordre durable.
 Une clé de consommation identifie une réservation logique. Le claim exprime uniquement la
 propriété temporaire, protégée par son token.
+
+Pour Command, `engine-command` reste propriétaire du décodage, du dispatch et de l'exécution
+spécialisée. `locator-consumption-command` est seul propriétaire de la traduction en
+`ConsumptionKey` (`COMMAND / [commandId]`, `COMMAND_PROCESSOR / []`) et en résultat de consommation.
 
 Le `currentClaimId` du slot décide quelle transaction peut committer. Le CAS final est exécuté dans
 la même transaction que les effets et la provenance. `ExecutionGuard` ne participe plus aux flux

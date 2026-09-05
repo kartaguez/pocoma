@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
+import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
@@ -46,7 +47,8 @@ abstract class AbstractPotCommandUseCaseAdapter<C extends Command> implements Co
 			String reasonCode,
 			RuntimeException cause) {
 		if (!invocation.events().isEmpty()) {
-			throw new IllegalStateException("A Pot Command cannot be rejected after producing an Event", cause);
+			throw new CommandExecutionInvariantViolationException(
+					"A Pot Command cannot be rejected after producing an Event", cause);
 		}
 		return new CommandUseCaseResult.Rejected(new TerminalReason(reasonCode), invocation.inputs());
 	}

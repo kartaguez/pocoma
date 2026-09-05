@@ -27,10 +27,11 @@ in `recorded_commands` through explicit JDBC. The source row has no processing l
 insert never creates a consumption slot.
 
 Command discovery is a short best-effort read ordered by PostgreSQL on
-`(submittedAt, commandId)`. It may return the same candidate to multiple workers. The future
-Command locator will ask `engine-consumption.acquire()` to lazily create or claim
-`COMMAND[commandId] / COMMAND_PROCESSOR[]`; only that operation is authoritative. Locator,
-consumption integration, HTTP intake and the worker remain future Lot 6.5–6.7 work.
+`(submittedAt, commandId)`. It may return the same candidate to multiple workers.
+`locator-consumption-command` asks `engine-consumption.acquire()` to lazily create or claim
+`COMMAND[commandId] / COMMAND_PROCESSOR[]`; only that operation is authoritative. It reloads and
+decodes the Command only after acquisition, adapts success/rejection and classifies technical
+failures. HTTP intake and the polling worker remain future Lot 6.6–6.7 work.
 
 ## Queries — `engine-query`
 
@@ -115,6 +116,12 @@ acquisition, la recette recharge la Task dans la transaction gagnante, exécute 
 traduit son rapport fonctionnel en provenance. `ConsumptionPollingWorker` fournit uniquement la
 boucle générique. Projection, provenance et CAS final sont committés ensemble ; `ALREADY_DONE`
 permet à l'orchestrateur de passer au candidat suivant.
+
+`locator-consumption-command` applique le même orchestrateur générique à la source
+`recorded_commands`. Un Search conserve son cursor uniquement pendant son cycle. Les erreurs SQL
+transitoires connues sont retryables ; les erreurs de configuration, invariants et runtimes
+inconnues sont terminales. `LostClaimException` contourne toujours le classifier et le failure
+handler.
 
 The concepts are deliberately distinct:
 

@@ -60,10 +60,16 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		if (succeeded.events().isEmpty()) {
 			return new RecordedCommandExecutionResult.Succeeded(succeeded.inputs(), List.of());
 		}
-		List<CommandExecutionArtifact> artifacts = List.copyOf(requireNonNull(
-				events.appendAll(succeeded.events()), "events.appendAll must not return null"));
+		List<CommandExecutionArtifact> appended = events.appendAll(succeeded.events());
+		if (appended == null) {
+			throw new CommandExecutionInvariantViolationException("events.appendAll must not return null");
+		}
+		if (appended.stream().anyMatch(java.util.Objects::isNull)) {
+			throw new CommandExecutionInvariantViolationException("events.appendAll must not contain null artifacts");
+		}
+		List<CommandExecutionArtifact> artifacts = List.copyOf(appended);
 		if (artifacts.size() != succeeded.events().size()) {
-			throw new IllegalStateException("Event append returned " + artifacts.size()
+			throw new CommandExecutionInvariantViolationException("Event append returned " + artifacts.size()
 					+ " artifacts for " + succeeded.events().size() + " events");
 		}
 		return new RecordedCommandExecutionResult.Succeeded(succeeded.inputs(), artifacts);

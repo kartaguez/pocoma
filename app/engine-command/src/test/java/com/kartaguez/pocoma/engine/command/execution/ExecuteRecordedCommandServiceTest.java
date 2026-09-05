@@ -141,11 +141,11 @@ class ExecuteRecordedCommandServiceTest {
 
 		ExecuteRecordedCommandService nullReport = service(recorded(NOW.plusSeconds(60)),
 				decoderRegistry(), dispatcher(success(List.of(), List.of(produced))), ignored -> null);
-		assertThrows(NullPointerException.class, () -> nullReport.execute(COMMAND_ID));
+		assertThrows(CommandExecutionInvariantViolationException.class, () -> nullReport.execute(COMMAND_ID));
 
 		ExecuteRecordedCommandService wrongCount = service(recorded(NOW.plusSeconds(60)),
 				decoderRegistry(), dispatcher(success(List.of(), List.of(produced))), events(List.of()));
-		assertThrows(IllegalStateException.class, () -> wrongCount.execute(COMMAND_ID));
+		assertThrows(CommandExecutionInvariantViolationException.class, () -> wrongCount.execute(COMMAND_ID));
 	}
 
 	@Test

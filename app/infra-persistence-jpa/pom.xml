@@ -133,6 +133,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-locator-consumption-command</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-data-jpa-test</artifactId>
 			<scope>test</scope>

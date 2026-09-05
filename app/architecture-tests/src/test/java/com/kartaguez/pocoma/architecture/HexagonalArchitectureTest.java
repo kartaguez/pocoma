@@ -491,6 +491,11 @@ class HexagonalArchitectureTest {
 		assertEquals(Set.of(), dependenciesOutsideCommand,
 				"engine-command may depend only on its own contracts, generic BusinessEvent, TerminalReason and the JDK");
 
+		noClasses()
+				.that().resideInAPackage(commandPackage + "..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".domain.consumption.key..")
+				.check(CLASSES);
+
 		Set<String> forbiddenDurableExecutionTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
 				.map(javaClass -> javaClass.getSimpleName())
@@ -902,6 +907,30 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), forbiddenWorkerDependencies,
 				"Task locator must use the generic consumption lifecycle without legacy fencing");
+	}
+
+	@Test
+	void commandLocatorOwnsConsumptionIdentityAndStaysIndependentFromPotAndOuterLayers() {
+		String locatorPackage = ROOT_PACKAGE + ".locator.consumption.command..";
+		noClasses()
+				.that().resideInAPackage(locatorPackage)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..")
+				.check(CLASSES);
+
+		Set<String> keyOwners = CLASSES.stream()
+				.filter(javaClass -> javaClass.getSimpleName().equals("CommandConsumptionKeys"))
+				.map(javaClass -> javaClass.getPackageName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(ROOT_PACKAGE + ".locator.consumption.command"), keyOwners,
+				"the Command locator specialization must own its ConsumptionKey convention");
 	}
 
 	@Test

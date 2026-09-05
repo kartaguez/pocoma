@@ -29,7 +29,7 @@ La discovery parcourt `recorded_commands` dans l'ordre PostgreSQL
 query écarte les slots `DONE`, les retries futurs et les claims dont le lease est encore actif.
 Elle ne verrouille et ne réserve rien : deux workers peuvent découvrir la même Command.
 
-L'identité future de consommation est :
+L'identité de consommation, propriété de `locator-consumption-command`, est :
 
 ```text
 ConsumableIdentity = COMMAND / [commandId]
@@ -46,16 +46,35 @@ consumption_slots       = lifecycle autoritatif
 consumption_claims      = propriété temporaire et fencing
 ```
 
-## Flux cible futur
+## Intégration Consumption
 
-Le Lot 6.4 fournit seulement la persistence et la discovery. Le flux suivant documente la cible,
-pas un runtime déjà actif :
+Le Lot 6.5 fournit le locator et la recette d'exécution applicative, mais aucun polling runtime.
+La discovery ne transporte que `commandId` et `submittedAt`. Après acquisition, la recette recharge
+la Command autoritativement, puis appelle `ExecuteRecordedCommandUseCase` dans la transaction
+gagnante. Le décodage, le dispatch, les mutations Pot, l'append des Events, la provenance, le
+fencing final et la terminalisation participent ainsi au même commit PostgreSQL.
+
+```text
+RecordedCommand
+  -> discovery best effort
+  -> acquire COMMAND / commandId, COMMAND_PROCESSOR
+  -> reload autoritatif
+  -> decode / dispatch / exécution
+  -> SUCCESS ou REJECTED, ou classification technique
+  -> fencing et terminalisation génériques
+```
+
+Une autorisation expirée n'est pas filtrée par la discovery : elle devient
+`DONE/REJECTED/AUTHORIZATION_EXPIRED` pendant l'exécution. Seules les erreurs SQL transitoires
+explicitement reconnues sont retentées. Toute erreur technique inconnue est terminale par défaut.
+
+Le flux ci-dessous reste la cible de composition des lots suivants, pas un runtime déjà actif :
 
 ```text
 HTTP (Lot 6.6)
   -> RecordedCommand
   -> discovery
-  -> ConsumptionSlot / Claim et locator (Lot 6.5)
+  -> ConsumptionSlot / Claim et locator
   -> ExecuteRecordedCommandUseCase
   -> worker Command (Lot 6.7)
 ```

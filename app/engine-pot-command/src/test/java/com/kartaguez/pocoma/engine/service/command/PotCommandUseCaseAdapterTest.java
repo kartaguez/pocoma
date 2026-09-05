@@ -46,6 +46,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
+import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
@@ -157,7 +158,8 @@ class PotCommandUseCaseAdapterTest {
 			throw new BusinessRuleViolationException("TOO_LATE", "too late");
 		});
 
-		IllegalStateException exception = assertThrows(IllegalStateException.class,
+		CommandExecutionInvariantViolationException exception = assertThrows(
+				CommandExecutionInvariantViolationException.class,
 				() -> adapter.execute(authorization(Set.of()), command()));
 		assertInstanceOf(BusinessRuleViolationException.class, exception.getCause());
 	}
