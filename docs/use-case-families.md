@@ -31,7 +31,12 @@ Command discovery is a short best-effort read ordered by PostgreSQL on
 `locator-consumption-command` asks `engine-consumption.acquire()` to lazily create or claim
 `COMMAND[commandId] / COMMAND_PROCESSOR[]`; only that operation is authoritative. It reloads and
 decodes the Command only after acquisition, adapts success/rejection and classifies technical
-failures. HTTP intake and the polling worker remain future Lot 6.6–6.7 work.
+failures. The polling worker remains future Lot 6.7 work.
+
+`orchestrator-command-admission` exposes the separate asynchronous intake use case. The Spring
+supra authenticates the bearer token, adapts it to `AuthenticatedExternalPrincipal`, and the
+orchestrator resolves identity, captures permissions and inserts the immutable envelope. A `202`
+means durable acceptance only; it never invokes this consumption path or a Pot use case.
 
 ## Queries — `engine-query`
 

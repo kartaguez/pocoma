@@ -95,7 +95,9 @@ import com.kartaguez.pocoma.supra.http.rest.spring.security.UserContextFactory;
 		"pocoma.query.balance.pipeline-id=balance-projection",
 		"pocoma.query.balance.pipeline-version=2",
 		"pocoma.projection.worker.enabled=false",
-		"spring.jpa.hibernate.ddl-auto=validate"
+		"spring.jpa.hibernate.ddl-auto=validate",
+		"spring.security.oauth2.resourceserver.jwt.issuer-uri=https://issuer.test",
+		"spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://issuer.test/jwks"
 })
 @ActiveProfiles("postgres")
 @Testcontainers

@@ -50,6 +50,9 @@ import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandAlreadyExistsException;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
+import com.kartaguez.pocoma.orchestrator.command.admission.model.ExternalIdentity;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=none",
@@ -72,6 +75,7 @@ class JpaRecordedCommandAdapterPostgresTest {
 	}
 
 	@Autowired private JpaRecordedCommandAdapter commands;
+	@Autowired private JpaExternalIdentityResolverAdapter identities;
 	@Autowired private JpaCommandConsumptionDiscoveryAdapter discovery;
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private PlatformTransactionManager transactionManager;
@@ -83,7 +87,39 @@ class JpaRecordedCommandAdapterPostgresTest {
 		jdbc.update("delete from consumption_claims");
 		jdbc.update("delete from consumption_slots");
 		jdbc.update("delete from recorded_commands");
+		jdbc.update("delete from external_identities");
 		executor = Executors.newFixedThreadPool(2);
+	}
+
+	@Test
+	void resolvesProvisionedExternalIdentitiesExactlyInsideTheCallingTransaction() {
+		UUID userId = uuid(200);
+		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
+				"https://issuer.example", "subject-1", userId);
+
+		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
+				new ExternalIdentity("https://issuer.example", "subject-1")).orElseThrow()));
+		assertTrue(inTransaction(() -> identities.findUserId(
+				new ExternalIdentity("https://issuer.example", "subject-2"))).isEmpty());
+		assertThrows(IllegalTransactionStateException.class, () -> identities.findUserId(
+				new ExternalIdentity("https://issuer.example", "subject-1")));
+	}
+
+	@Test
+	void permitsSeveralExternalIdentitiesForOneUserButKeepsEachExternalKeyUnique() {
+		UUID userId = uuid(201);
+		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
+				"https://issuer-a.example", "subject-a", userId);
+		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
+				"https://issuer-b.example", "subject-b", userId);
+
+		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
+				new ExternalIdentity("https://issuer-a.example", "subject-a")).orElseThrow()));
+		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
+				new ExternalIdentity("https://issuer-b.example", "subject-b")).orElseThrow()));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
+				"insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
+				"https://issuer-a.example", "subject-a", uuid(202)));
 	}
 
 	@AfterEach
@@ -329,6 +365,7 @@ class JpaRecordedCommandAdapterPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@Import({JpaRecordedCommandAdapter.class, JpaCommandConsumptionDiscoveryAdapter.class,
+			JpaExternalIdentityResolverAdapter.class, ExternalIdentityJdbcRepository.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class})
 	static class TestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper(); }

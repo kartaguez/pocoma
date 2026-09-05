@@ -27,7 +27,7 @@ class ConsumptionMigrationsPostgresTest {
 			.withPassword("pocoma");
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV8() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV9() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -37,7 +37,7 @@ class ConsumptionMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(8, result.migrationsExecuted);
+		assertEquals(9, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -59,7 +59,8 @@ class ConsumptionMigrationsPostgresTest {
 					"consumption_results",
 					"balance_projection_artifacts",
 					"balance_projection_entries",
-					"recorded_commands")),
+					"recorded_commands",
+					"external_identities")),
 					() -> "Missing consumption tables in " + tableNames.stream().sorted().collect(Collectors.joining(", ")));
 		}
 		try (Connection connection = DriverManager.getConnection(

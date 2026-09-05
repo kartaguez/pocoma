@@ -22,6 +22,11 @@ Le snapshot permet de rejouer exactement la décision soumise. `validUntil` est 
 `ExecuteRecordedCommandService` avant le décodage ; la persistence ne réinterprète aucune donnée
 d'autorisation.
 
+La migration V9 ajoute séparément `external_identities`, indexée par sa clé primaire composite
+`(issuer, subject)`. Elle ne duplique aucune donnée de lifecycle Command : elle résout seulement
+l'identité authentifiée vers le `PocomaUserId` capturé dans le snapshot. Aucun provisioning ou
+auto-provisioning n'est réalisé par l'admission.
+
 ## Discovery best effort
 
 La discovery parcourt `recorded_commands` dans l'ordre PostgreSQL
@@ -78,3 +83,8 @@ HTTP (Lot 6.6)
   -> ExecuteRecordedCommandUseCase
   -> worker Command (Lot 6.7)
 ```
+
+Le Lot 6.6 implémente désormais la première flèche avec `POST /api/v1/commands` : authentification
+Resource Server dans le supra Spring, résolution d'identité, capture du snapshot et insert dans
+`recorded_commands`. Cette admission ne déclenche toujours ni discovery, ni slot, ni exécution.
+Voir [recorded-command-intake.md](recorded-command-intake.md).

@@ -32,9 +32,11 @@ public final class TraceCorrelationFilter extends OncePerRequestFilter {
 			FilterChain filterChain) throws ServletException, IOException {
 		long startedAtNanos = System.nanoTime();
 		String traceId = traceId(request);
-		String userId = request.getHeader(UserContextFactory.USER_ID_HEADER);
 		String method = request.getMethod();
 		String path = request.getRequestURI();
+		String userId = "/api/v1/commands".equals(path)
+				? null
+				: request.getHeader(UserContextFactory.USER_ID_HEADER);
 		String operation = operation(method, path);
 
 		response.setHeader(TRACE_ID_HEADER, traceId);

@@ -60,6 +60,7 @@
 		<module>infra-persistence-jpa</module>
 		<module>orchestrator-claimable-work-dispatcher</module>
 		<module>orchestrator-consumption</module>
+		<module>orchestrator-command-admission</module>
 		<module>supra-consumption-worker</module>
 		<module>locator-consumption-event</module>
 		<module>locator-consumption-task</module>
@@ -68,6 +69,7 @@
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-worker-balance-calculation-events-spring</module>
 		<module>supra-http-rest-spring</module>
+		<module>supra-authentication-spring-security</module>
 		<module>shared-runtime-spring-config</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>

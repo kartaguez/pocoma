@@ -25,6 +25,8 @@
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 | Orchestration pull Task | `TaskConsumptionLocator`, `ConsumptionPollingWorker` | locator Task et supra générique |
 | Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
+| Identité externe déjà authentifiée | `AuthenticatedExternalPrincipal`, `ExternalIdentity` | `orchestrator-command-admission` |
+| Adaptation du principal Spring | `SpringSecurityExternalPrincipalAdapter` | `supra-authentication-spring-security` |
 | Exécution Task fonctionnelle | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution` |
 | Projection Balance immuable | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance` |
 

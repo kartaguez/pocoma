@@ -258,6 +258,55 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void commandAdmissionConsumesOnlyTheProviderNeutralAuthenticatedPrincipal() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.command.admission..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"org.springframework..",
+						"org.springframework.security..",
+						"org.keycloak..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".locator..")
+				.check(CLASSES);
+
+		Set<String> providerSpecificTypes = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(
+						ROOT_PACKAGE + ".orchestrator.command.admission"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.map(javaClass -> javaClass.getName())
+				.filter(name -> name.contains("Jwt") || name.contains("Keycloak")
+						|| name.contains("GrantedAuthority") || name.contains("SecurityContext"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), providerSpecificTypes,
+				"command admission must receive only AuthenticatedExternalPrincipal");
+	}
+
+	@Test
+	void springSecurityAuthenticationRemainsInTheDedicatedSupra() {
+		Set<String> springSecurityUsersOutsideSupra = CLASSES.stream()
+				.filter(javaClass -> javaClass.getDirectDependenciesFromSelf().stream()
+						.anyMatch(dependency -> dependency.getTargetClass().getPackageName()
+								.startsWith("org.springframework.security")))
+				.filter(javaClass -> !javaClass.getPackageName().startsWith(
+						ROOT_PACKAGE + ".supra.authentication.springsecurity"))
+				.filter(javaClass -> !javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".runtime"))
+				.map(javaClass -> javaClass.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), springSecurityUsersOutsideSupra,
+				"only the Spring authentication supra and runtime composition may know Spring Security");
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.rest.spring..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.pot..",
+						ROOT_PACKAGE + ".locator.consumption..",
+						ROOT_PACKAGE + ".orchestrator.consumption..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void consumptionEngineDoesNotDependOnOuterLayers() {
 		noClasses()
 				.that().resideInAnyPackage(
