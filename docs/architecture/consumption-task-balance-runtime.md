@@ -61,8 +61,9 @@ distincte. Si la policy termine la consommation, le code précis de la failure d
 terminale ; sa catégorie reste utilisée uniquement pour la policy. `LostClaimException` n'est jamais classifiée.
 
 Les erreurs de configuration, d'entrée durable, de payload et les conflits de projection échouent
-immédiatement avec leur catégorie comme raison terminale. Les autres failures techniques suivent le
-backoff 1 s, 5 s, 30 s sans raison sur le slot, puis deviennent terminales avec leur catégorie.
+immédiatement avec leur code précis comme raison terminale. Les autres failures techniques suivent le
+backoff 1 s, 5 s, 30 s sans raison sur le slot, puis deviennent terminales avec le code précis de la
+dernière failure ; leur catégorie sert uniquement à la décision de policy.
 
 ## Cutover legacy
 

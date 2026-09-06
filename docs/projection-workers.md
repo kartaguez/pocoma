@@ -1,5 +1,11 @@
 # Projection Workers
 
+> **Historical / superseded.** This document describes the former `projection_tasks` dispatcher and
+> Spring-event projection paths. The canonical distributed path is documented in
+> [`architecture/consumption-event-pull-runtime.md`](architecture/consumption-event-pull-runtime.md),
+> [`architecture/consumption-task-balance-runtime.md`](architecture/consumption-task-balance-runtime.md),
+> and [`architecture/read-side-current-state.md`](architecture/read-side-current-state.md).
+
 This document describes the projection pipeline used to compute pot balances under load.
 
 ## Overview

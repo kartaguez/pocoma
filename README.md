@@ -8,7 +8,11 @@ The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/c
 
 Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Reads can target a specific version or, by default, the current version. Lists hide deleted elements; direct views can return a deleted entity with its `deleted` flag.
 
-Balances are projections. A command persists the business state and writes a business event into `business_event_outbox`. Task-builder workers coalesce those events into `projection_tasks`, and projection workers poll those tasks to compute balances. This keeps commands fast, makes back pressure explicit in the database, and makes projection lag measurable.
+Balances are projections. A Command worker persists business state and a business Event atomically in
+`business_event_outbox`. Event consumption materializes a versioned Balance Task in
+`tasks_4_pipeline`; Task consumption reconstructs the Pot at that exact version and writes an immutable
+Balance artifact. This keeps Command admission fast, makes back pressure explicit in PostgreSQL, and
+makes projection lag measurable.
 
 ## Architecture
 
@@ -28,13 +32,17 @@ app/
   supra-http-rest-spring/         Query and asynchronous Command admission HTTP adapters
   runtime-command-consumption-worker/
                                   Durable Command processing runtime
+  runtime-event-consumption-worker/
+                                  Durable Event-to-Task consumption runtime
+  runtime-task-consumption-worker/
+                                  Durable Task-to-Balance consumption runtime
   supra-worker-balance-calculation-events-spring/
-                                  Spring event-driven balance calculation worker
+                                  Transitional Spring event-driven Balance worker
   runtime-web-api/                API-only Spring Boot runtime
   runtime-business-events-outbox-dispatcher/
-                                  Projection task builder runtime
+                                  Historical projection task builder runtime
   runtime-balance-calculation-tasks-dispatcher/
-                                  Projection task executor runtime
+                                  Historical projection task executor runtime
   runtime-monolith/               Spring Boot monolith composition
 
 docker/                           Prometheus and Grafana
@@ -75,13 +83,21 @@ Split API/worker mode:
 
 ```bash
 cd app
-./mvnw -pl runtime-web-api spring-boot:run -Dspring-boot.run.profiles=postgres
+./mvnw -pl runtime-web-api spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.query.balance.pipeline-version=2"
 
-./mvnw -pl runtime-business-events-outbox-dispatcher spring-boot:run \
-  -Dspring-boot.run.profiles=postgres,segment-0-of-2
+./mvnw -pl runtime-command-consumption-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.command-consumption.enabled=true"
 
-./mvnw -pl runtime-balance-calculation-tasks-dispatcher spring-boot:run \
-  -Dspring-boot.run.profiles=postgres,segment-1-of-2
+./mvnw -pl runtime-event-consumption-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.pipeline-version=2"
+
+./mvnw -pl runtime-task-consumption-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.task-consumption.enabled=true --pocoma.task-consumption.pipeline-version=2"
 ```
 
 `runtime-monolith` still supports the `api` and `worker` profiles for local experiments, but the dedicated runtimes match the target deployment shape.
@@ -106,8 +122,8 @@ and Grafana:
 docker compose -f docker-compose.monolith-postgres.yml up --build
 ```
 
-Distributed mode with one API runtime, two Event consumption workers, two Task
-consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
+Distributed mode with one API runtime, one Command consumption worker, two Event consumption workers,
+two Task consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
 version is part of the projection identity and must be supplied explicitly:
 
 ```bash
@@ -194,10 +210,14 @@ These metrics address the main risk of the asynchronous projection architecture:
 
 ## Design Notes
 
+- Start architecture work from `docs/README.md`, the index of current canonical documents.
 - Command admission and execution are separate transactions. The winning execution transaction writes Pot state, business Events, provenance, fencing and terminal state atomically.
 - The write-side closure is documented in `docs/architecture/write-side-closure.md`.
-- Projection workers are documented in `docs/projection-workers.md`.
-- Dedicated workers are partitioned by stable `potId` hash through `pocoma.projection.worker.segment-index` and `segment-count`.
+- The current Event/Task Balance pipeline is documented in
+  `docs/architecture/consumption-event-pull-runtime.md` and
+  `docs/architecture/consumption-task-balance-runtime.md`; `docs/projection-workers.md` is historical.
+- Event and Task Balance workers are partitioned by stable `potId` hash through
+  `pocoma.projection.worker.segment-index` and `segment-count`.
 - Queries are read-only and apply the same read policies as direct views.
 - PostgreSQL is enabled with the Spring `postgres` profile; H2 remains the default local mode.
 - Flyway is the source of truth for the PostgreSQL schema, while Hibernate validates the schema in PostgreSQL mode.
