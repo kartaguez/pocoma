@@ -36,8 +36,9 @@ public final class UpdatePotShareholdersWeightsCommandUseCaseAdapter
 			AuthorizationSnapshot authorization,
 			UpdatePotShareholdersWeightsCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new UpdatePotShareholdersWeightsService(invocation.recording(potContextPort), potShareholdersPort,
-						potGlobalVersionPort, potShareholdersPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.updateShareholderWeights(
+						invocation.recording(potContextPort), potShareholdersPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.updatePotShareholdersWeights(userContext, command));
 	}
 }

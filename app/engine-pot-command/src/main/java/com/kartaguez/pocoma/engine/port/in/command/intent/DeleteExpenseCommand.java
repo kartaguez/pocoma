@@ -3,7 +3,9 @@ package com.kartaguez.pocoma.engine.port.in.command.intent;
 import java.util.Objects;
 import java.util.UUID;
 
-public record DeleteExpenseCommand(UUID expenseId, long expectedVersion) implements CommandIntent {
+import com.kartaguez.pocoma.engine.command.model.Command;
+
+public record DeleteExpenseCommand(UUID expenseId, long expectedVersion) implements Command {
 
 	public DeleteExpenseCommand {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");

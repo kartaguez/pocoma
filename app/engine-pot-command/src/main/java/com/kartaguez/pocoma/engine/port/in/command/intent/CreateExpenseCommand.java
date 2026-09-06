@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.engine.command.model.Command;
+
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
@@ -14,7 +16,7 @@ public record CreateExpenseCommand(
 		long amountDenominator,
 		String label,
 		Set<ExpenseShareInput> shares,
-		long expectedVersion) implements CommandIntent {
+		long expectedVersion) implements Command {
 
 	public CreateExpenseCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

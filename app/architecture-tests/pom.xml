@@ -40,18 +40,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-execution-guard</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-worker-command</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-runtime-event-consumption-worker</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -88,12 +76,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-orchestrator-claimable-work-dispatcher</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-consumption</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -113,12 +95,6 @@
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-pot-command</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-processing-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -149,6 +125,12 @@
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-supra-http-rest-spring</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-runtime-web-api</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

@@ -35,7 +35,8 @@ public final class CreatePotCommandUseCaseAdapter extends AbstractPotCommandUseC
 			return new CommandUseCaseResult.Rejected(new TerminalReason("NOT_AUTHORIZED_ON_RESOURCE"), List.of());
 		}
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new CreatePotService(potGlobalVersionPort, potHeaderPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.createPot(
+						potGlobalVersionPort, potHeaderPort, invocation, authorizationPolicy)
 						.createPot(userContext, command));
 	}
 }

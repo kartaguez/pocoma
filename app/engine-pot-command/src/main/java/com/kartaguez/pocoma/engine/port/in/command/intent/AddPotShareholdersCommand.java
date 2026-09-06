@@ -4,10 +4,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.engine.command.model.Command;
+
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
 public record AddPotShareholdersCommand(UUID potId, Set<ShareholderInput> shareholders, long expectedVersion)
-		implements CommandIntent {
+		implements Command {
 
 	public AddPotShareholdersCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

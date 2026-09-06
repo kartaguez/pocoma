@@ -89,10 +89,9 @@ sa transaction ; cette sortie sera livrée et consommée ultérieurement avec so
 
 ## Frontière legacy
 
-Le nouveau chemin `ExecuteConsumptionUseCase` ne dépend pas d'`engine-execution-guard` et ne cumule
-jamais les deux mécanismes de fencing. Le module guard et les APIs basées sur `ClaimToken` restent
-présents uniquement pour maintenir les workers historiques compilables. Les workers Command et Task
-utilisent encore le guard ; le worker Event reste sur son orchestration actuelle.
+Le chemin `ExecuteConsumptionUseCase` ne dépend pas d'un execution guard séparé et ne cumule jamais
+deux mécanismes de fencing. L'ancien module guard Command a été supprimé ; les contrats legacy qui
+subsistent concernent uniquement les flux Event, Task ou projection encore conservés.
 
 ## Spécialisation Command
 
@@ -103,8 +102,8 @@ générique. Il ne recharge ni ne décode une Command avant l'acquisition.
 
 Dans la transaction gagnante, `JpaPotCommandEventAppendAdapter` convertit les Events Pot typés et
 les insère dans l'outbox avec une propagation `MANDATORY`. Un rejet n'appelle jamais ce port. Le CAS
-final fence donc ensemble mutation métier, Events et provenance. Le worker Command qui appellera ce
-locator reste réservé au Lot 6.7.
+final fence donc ensemble mutation métier, Events et provenance. Le runtime
+`runtime-command-consumption-worker` appelle désormais ce locator via la boucle générique.
 
 ## Responsabilités du Lot 4
 

@@ -3,7 +3,9 @@ package com.kartaguez.pocoma.engine.port.in.command.intent;
 import java.util.Objects;
 import java.util.UUID;
 
-public record UpdatePotDetailsCommand(UUID potId, String label, long expectedVersion) implements CommandIntent {
+import com.kartaguez.pocoma.engine.command.model.Command;
+
+public record UpdatePotDetailsCommand(UUID potId, String label, long expectedVersion) implements Command {
 
 	public UpdatePotDetailsCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

@@ -75,13 +75,16 @@ validUntil = min(token.expiresAt, submittedAt + PocomaAuthorizationTTL)
 ni timestamp client ne sont persistés. L'expiration du snapshot reste contrôlée par
 `ExecuteRecordedCommandService` au moment de la consommation.
 
-## Transaction et coexistence
+## Transaction et voie write officielle
 
 `SubmitRecordedCommandService` ouvre une transaction courte via `TransactionRunner`. La résolution
 d'identité et `RecordedCommandPort.insert` participent au même commit. Une erreur de persistence ne
 produit pas de `202`.
 
-Les endpoints synchrones historiques sous `/api/pots` et `/api/expenses` restent inchangés et
-continuent temporairement à utiliser leurs headers legacy. Le nouvel endpoint Bearer
-`/api/v1/commands` est explicitement distinct. Le worker Command, le polling, le cutover et
-l'idempotency key sont réservés aux lots ultérieurs.
+Les anciennes mutations synchrones sous `/api/pots` et `/api/expenses` ont été retirées. Les routes
+de lecture historiques peuvent encore utiliser temporairement leurs headers legacy, mais la seule
+entrée du write model primaire est désormais l'admission Bearer `/api/v1/commands`.
+
+Après le commit de l'admission, `runtime-command-consumption-worker` découvre et exécute la demande
+de façon indépendante. Le controller ne possède aucune référence vers un use case Pot, le locator
+ou le worker. L'idempotency key et un endpoint de consultation de statut restent hors scope.

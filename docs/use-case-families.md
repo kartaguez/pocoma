@@ -1,8 +1,8 @@
 # Use-case families
 
-Pocoma separates functional application behavior from durable processing and from incoming
-adapters. The same functional use case must remain callable from either a reactive supra in push
-mode or an autonomous worker in pull mode.
+Pocoma separates functional application behavior from durable processing and incoming adapters.
+Primary mutations are invoked exclusively from durable Command consumption; HTTP admission never
+calls a Pot mutation use case directly.
 
 ## Business commands — `engine-pot-command`
 
@@ -14,10 +14,10 @@ Command use cases may load and persist Pot state, enforce business policies and 
 concurrency, and append immutable business events. They must not know about polling, workers,
 claims, leases, processing statuses, or command-queue persistence.
 
-Generic incoming adapters can invoke `ExecuteCommandUseCase`, which routes a `CommandIntent` to
-the matching specialized use case. Typed incoming adapters remain free to invoke the specialized
-use case directly. The routing facade adds neither business logic nor a transaction boundary: its
-delegates are the same transactionally configured use cases exposed to direct callers.
+The ten specialized `*UseCase` interfaces are business inbound ports. Durable Command adapters
+depend on those ports and keep the concrete services package-private. `CommandIntent`, the generic
+`ExecuteCommandUseCase`/`ExecuteCommandService` router, and the synchronous transactional wrappers
+were specific to the retired write path and no longer exist.
 
 ## Durable commands — `engine-command`
 
@@ -31,7 +31,7 @@ Command discovery is a short best-effort read ordered by PostgreSQL on
 `locator-consumption-command` asks `engine-consumption.acquire()` to lazily create or claim
 `COMMAND[commandId] / COMMAND_PROCESSOR[]`; only that operation is authoritative. It reloads and
 decodes the Command only after acquisition, adapts success/rejection and classifies technical
-failures. The polling worker remains future Lot 6.7 work.
+failures. `runtime-command-consumption-worker` runs this path with the generic polling worker.
 
 `orchestrator-command-admission` exposes the separate asynchronous intake use case. The Spring
 supra authenticates the bearer token, adapts it to `AuthenticatedExternalPrincipal`, and the
@@ -76,13 +76,12 @@ The durable consumption domain owns `ConsumptionKey`, slots, `ClaimToken`, lease
 failures, and their invariants. It contains no use case, persistence concern, ordering,
 segmentation, or worker orchestration.
 
-`ConsumptionSlot` is the authoritative processing lifecycle. The target Recorded Command carries
-no status at all. Task status and the legacy Command status remain transitional materializations;
-the target Event, Task and Command discoveries consult the generic lifecycle only as a best-effort
-prefilter before authoritative acquisition.
+`ConsumptionSlot` is the authoritative processing lifecycle. `RecordedCommand` carries no status.
+Event, Task and Command discoveries consult the generic lifecycle only as a best-effort prefilter
+before authoritative acquisition.
 
 Ordering and segmentation are technical processing concerns. Chaque ordre appartient désormais à
-son module spécialisé : `engine-processing-command`, `engine-processing-event` ou
+son module spécialisé : `locator-consumption-command`, `engine-processing-event` ou
 `engine-processing-task`. Static segmentation uses a stable
 `PartitionHash` and a configured `WorkerSegment`. Commands with
 a Pot id use the Pot id as their partition key. Commands without a Pot id are unsegmented and will
@@ -144,17 +143,16 @@ that it remains callable only to keep the current workers operational.
 
 | Use case | Family | Input | Output | Outgoing ports | Transaction | Current callers | State / migration |
 |---|---|---|---|---|---|---|---|
-| `CreatePotUseCase` | Command | `UserContext`, `CreatePotCommand` | `PotHeaderSnapshot` | Pot header/version, events | Decorator | HTTP, command router | Target |
-| `CreateExpenseUseCase` | Command | context, `CreateExpenseCommand` | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
-| `DeletePotUseCase` | Command | context, `DeletePotCommand` | `PotHeaderSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
-| `DeleteExpenseUseCase` | Command | context, `DeleteExpenseCommand` | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
-| `UpdatePotDetailsUseCase` | Command | context, typed command | `PotHeaderSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
-| `AddPotShareholdersUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
-| `UpdatePotShareholdersDetailsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
-| `UpdatePotShareholdersWeightsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Decorator | HTTP, command router | Target |
-| `UpdateExpenseDetailsUseCase` | Command | context, typed command | `ExpenseHeaderSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
-| `UpdateExpenseSharesUseCase` | Command | context, typed command | `ExpenseSharesSnapshot` | Pot/expense state, events | Decorator | HTTP, command router | Target |
-| `ExecuteCommandUseCase` | Command routing | `ExecuteCommandInput` | specialized result | None directly | Delegate owns it | Generic incoming adapters | Target |
+| `CreatePotUseCase` | Command | `UserContext`, `CreatePotCommand` | `PotHeaderSnapshot` | Pot header/version, events | Winning consumption tx | durable Command adapter | Target business port |
+| `CreateExpenseUseCase` | Command | context, `CreateExpenseCommand` | `ExpenseSharesSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `DeletePotUseCase` | Command | context, `DeletePotCommand` | `PotHeaderSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `DeleteExpenseUseCase` | Command | context, `DeleteExpenseCommand` | `ExpenseHeaderSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `UpdatePotDetailsUseCase` | Command | context, typed command | `PotHeaderSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `AddPotShareholdersUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `UpdatePotShareholdersDetailsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `UpdatePotShareholdersWeightsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `UpdateExpenseDetailsUseCase` | Command | context, typed command | `ExpenseHeaderSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
+| `UpdateExpenseSharesUseCase` | Command | context, typed command | `ExpenseSharesSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
 | `ListUserPotsUseCase` | Query | `UserContext` | pot headers | `PotQueryPort` | Read decorator | HTTP | Target |
 | `GetPotUseCase` | Query | context, `GetPotQuery` | `PotViewSnapshot` | `PotQueryPort` | Read decorator | HTTP | Target |
 | `ListPotExpensesUseCase` | Query | context, typed query | expense headers | Pot/expense query ports | Read decorator | HTTP | Target |
@@ -165,10 +163,6 @@ that it remains callable only to keep the current workers operational.
 | `CompleteConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `FailConsumptionUseCase` | Consumption | consumption key, token, failure | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `ReleaseConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
-| `ClaimNextCommandUseCase` | Command processing | worker, lease, segment | optional durable command and claim | `CommandPort`, generic acquisition | Decorator | Future Command worker | Target |
-| `CompleteCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | `CommandPort`, generic completion | Generic lifecycle transaction, then best-effort materialization | Future Command worker | Target |
-| `FailCommandProcessingUseCase` | Command processing | command id, token, failure | `ConsumptionOutcome` | `CommandPort`, generic failure | Generic lifecycle transaction, then best-effort materialization | Future Command worker | Target |
-| `ReleaseCommandProcessingUseCase` | Command processing | command id, token | `ConsumptionOutcome` | generic release | Decorator | Future Command worker | Target |
 | `ClaimNextEventUseCase` | Event processing | worker, lease, segment, pipeline | optional recorded event and claim | read-only `EventPort`, generic acquisition | Decorator | Future Event worker | Target |
 | `CompleteEventProcessingUseCase` | Event processing | pipeline, event id, token | `ConsumptionOutcome` | generic completion | Decorator | Future Event worker | Target |
 | `FailEventProcessingUseCase` | Event processing | pipeline, event id, token, failure | `ConsumptionOutcome` | generic failure | Decorator | Future Event worker | Target |
@@ -186,13 +180,19 @@ that it remains callable only to keep the current workers operational.
 | `ExecuteProjectionTasksUseCase` | Projection legacy | Pot/version command | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by typed task execution |
 | `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | `PotBalanceProjectionPort`, `PotShareholdersProjectionPort` | Decorator | Typed balance handler | Target; calculation model in `domain-projection-balance` |
 
-## Transitional runtime paths
+## Runtime paths
 
-The future command path is now defined at application level but is not wired to persistence yet:
+The Command write path is closed and operational:
 
 ```text
-Command worker -> ClaimNextCommandUseCase -> ExecuteCommandUseCase -> complete/fail/release
+HTTP admission -> RecordedCommand -> generic polling/consumption
+               -> durable Command adapter -> business use-case port
+               -> Pot state + BusinessEvent + terminalization
 ```
+
+There is no synchronous HTTP mutation route or separate Command processing lifecycle. The
+remaining transitional paths below belong to Event, Task, projection and the future read-side
+redesign; they are deliberately not changed by the write-side closure.
 
 The current task path is intentionally bridged:
 

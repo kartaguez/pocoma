@@ -34,7 +34,7 @@ public final class CreateExpenseCommandUseCaseAdapter extends AbstractPotCommand
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, CreateExpenseCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new CreateExpenseService(invocation.recording(potContextPort), potGlobalVersionPort,
+				PotBusinessUseCaseFactory.createExpense(invocation.recording(potContextPort), potGlobalVersionPort,
 						expenseHeaderPort, expenseSharesPort, invocation, authorizationPolicy)
 						.createExpense(userContext, command));
 	}

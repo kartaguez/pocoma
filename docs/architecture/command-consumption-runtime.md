@@ -86,6 +86,29 @@ Le job Prometheus `pocoma-command-consumption-worker` scrape directement cet end
 Docker. La santé PostgreSQL repose sur les contributors standards Spring Boot ; un résultat durable
 `REJECTED` ou `FAILED` ne modifie pas à lui seul la santé du processus.
 
+## Fermeture du write side Command
+
+Le runtime cible n'expose plus les mutations synchrones Pot/Expense. La seule chaîne officielle est :
+
+```text
+POST /api/v1/commands
+  -> recorded_commands (commit)
+  -> runtime-command-consumption-worker
+  -> use-case port métier Pot
+  -> mutation primaire + BusinessEvent (commit atomique)
+```
+
+Les dix interfaces spécialisées `*UseCase` de `engine-pot-command` restent les inbound ports métier.
+Les adapters Command durables les invoquent sans dépendre des classes de service concrètes ; seuls le
+routeur `ExecuteCommandService`, ses wrappers transactionnels synchrones et l'ancien lifecycle
+Command ont été retirés. Les GET, Event, Task et projections existants restent inchangés.
+
+`WriteSideClosurePostgresTest` est un test d'intégration fonctionnel cross-runtime : il traverse la
+vraie admission HTTP, le commit PostgreSQL, la vraie boucle de polling, le reload autoritatif, la
+mutation Pot et l'append Event. Les deux côtés partagent uniquement l'état durable PostgreSQL. Comme
+ils sont assemblés dans un même contexte de test, ce test ne prétend pas démontrer deux JVM, le réseau
+Docker ou le scrape Prometheus ; ces propriétés relèvent des tests de composition et des runtimes.
+
 ## Sémantique opérationnelle
 
 Une Command peut aboutir ultérieurement à `SUCCESS`, `REJECTED`, `FAILED` ou rester `PENDING` avec

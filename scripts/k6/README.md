@@ -1,5 +1,10 @@
 # Pocoma k6 Load Tests
 
+> **Historical / superseded write-path suite.** The scenarios in this directory still target the
+> synchronous Pot/Expense mutation endpoints removed by Lot 6.8. They are retained as load-model
+> reference only and must not be used to validate the canonical write path. A future suite must
+> submit `POST /api/v1/commands` and observe the separate Command worker.
+
 Suite de tests de charge pour le serveur HTTP Pocoma. Les scripts créent leurs propres données de test avec des labels préfixés `K6`, exécutent des commandes valides, des conflits concurrents et des requêtes incohérentes, puis scrutent `/actuator/prometheus`.
 
 ## Prérequis

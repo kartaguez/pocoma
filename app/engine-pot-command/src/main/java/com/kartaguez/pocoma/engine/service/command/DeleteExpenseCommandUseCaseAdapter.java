@@ -30,8 +30,8 @@ public final class DeleteExpenseCommandUseCaseAdapter extends AbstractPotCommand
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, DeleteExpenseCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new DeleteExpenseService(invocation.recording(expenseContextPort), expenseHeaderPort,
-						potGlobalVersionPort, expenseHeaderPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.deleteExpense(invocation.recording(expenseContextPort), expenseHeaderPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.deleteExpense(userContext, command));
 	}
 }

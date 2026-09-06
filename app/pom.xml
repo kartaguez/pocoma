@@ -40,10 +40,8 @@
 		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>
 		<module>engine-core</module>
-		<module>engine-execution-guard</module>
 		<module>engine-consumption</module>
 		<module>engine-command</module>
-		<module>engine-processing-command</module>
 		<module>engine-processing-event</module>
 		<module>engine-processing-task</module>
 		<module>engine-pot-command</module>
@@ -58,7 +56,6 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
-		<module>orchestrator-claimable-work-dispatcher</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>
 		<module>supra-consumption-worker</module>
@@ -66,7 +63,6 @@
 		<module>locator-consumption-task</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
-		<module>supra-worker-command</module>
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-worker-balance-calculation-events-spring</module>
 		<module>supra-http-rest-spring</module>

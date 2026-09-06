@@ -4,7 +4,7 @@ Pocoma is an application for managing shared pots: a user creates a pot, adds pa
 
 ## How It Works
 
-The application exposes a Spring Boot HTTP API. Commands mutate the versioned state of a pot: creating a pot, updating details, adding or linking participants, creating or updating expenses, and deleting pots or expenses. Queries read views of that state: accessible pots, pot details, expenses, balances, and balances for the calling user.
+The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/commands`. It stores an immutable `RecordedCommand` and returns `202 Accepted`; a separate Command consumption runtime later mutates the versioned Pot state and appends a business Event atomically. Queries continue to read views of that state: accessible pots, pot details, expenses, balances, and balances for the calling user.
 
 Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Reads can target a specific version or, by default, the current version. Lists hide deleted elements; direct views can return a deleted entity with its `deleted` flag.
 
@@ -22,9 +22,12 @@ app/
   engine/                         Use cases, ports, events, logical transactions
   infra-persistence-jpa/          JPA adapters for H2/PostgreSQL
   infra-tx-spring/                Spring transaction adapter
-  infra-event-publisher-spring/   Legacy Spring event publishing adapter
+  locator-consumption-command/   Command specialization of generic consumption
+  infra-event-publisher-spring/   Spring event publishing for retained projection flows
   observability/                  Trace and measurement abstractions
-  supra-http-rest-spring/         REST controllers and DTOs
+  supra-http-rest-spring/         Query and asynchronous Command admission HTTP adapters
+  runtime-command-consumption-worker/
+                                  Durable Command processing runtime
   supra-worker-balance-calculation-events-spring/
                                   Spring event-driven balance calculation worker
   runtime-web-api/                API-only Spring Boot runtime
@@ -39,7 +42,7 @@ scripts/bruno/                    Bruno HTTP collection
 scripts/k6/                       k6 load tests
 ```
 
-The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` wires the HTTP/API role, the dispatcher runtimes split the projection pipeline, and `runtime-monolith` remains the local all-in-one composition root.
+The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` admits durable Commands and serves queries; `runtime-command-consumption-worker` is the sole runtime executor of primary mutations. The projection runtimes and `runtime-monolith` remain transitional read/projection compositions.
 
 This separation addresses several technical challenges:
 
@@ -155,9 +158,12 @@ cd app
 ./mvnw test
 ```
 
-The Bruno collection in `scripts/bruno` lets you manually run the full flow: create a pot, add participants, create expenses, run queries, inspect balances, then clean up. It stores ids and versions so requests can be chained without copying values by hand.
+The query requests in the Bruno collection remain useful for the current read API. Its mutation
+requests and the existing k6 scenarios are historical suites for the removed synchronous write
+path; their READMEs mark that limitation explicitly. They are not a supported alternative to
+`POST /api/v1/commands`.
 
-The k6 tests in `scripts/k6` exercise concurrency and projection behavior:
+The historical k6 suite can still be inspected with:
 
 ```bash
 cd app
@@ -166,7 +172,9 @@ k6 run ../scripts/k6/stress.js
 k6 run ../scripts/k6/projection_backpressure.js
 ```
 
-They cover valid commands, concurrent conflicts, inconsistent requests, queries under load, and projection back pressure. The backpressure scenario can be run while multiple projection dispatcher processes own different `segment-index` values; it scrapes `/actuator/prometheus` on the API runtime to track backlog and latency.
+Those scripts document the former valid-command, concurrent-conflict, inconsistent-request and
+projection-backpressure workloads. They require migration to asynchronous admission before they can
+serve as executable validation of the current runtime.
 
 ## Observability
 
@@ -186,10 +194,11 @@ These metrics address the main risk of the asynchronous projection architecture:
 
 ## Design Notes
 
-- Commands are transactional and write business events to `business_event_outbox`.
+- Command admission and execution are separate transactions. The winning execution transaction writes Pot state, business Events, provenance, fencing and terminal state atomically.
+- The write-side closure is documented in `docs/architecture/write-side-closure.md`.
 - Projection workers are documented in `docs/projection-workers.md`.
 - Dedicated workers are partitioned by stable `potId` hash through `pocoma.projection.worker.segment-index` and `segment-count`.
 - Queries are read-only and apply the same read policies as direct views.
 - PostgreSQL is enabled with the Spring `postgres` profile; H2 remains the default local mode.
 - Flyway is the source of truth for the PostgreSQL schema, while Hibernate validates the schema in PostgreSQL mode.
-- Calling users are identified through the `X-User-Id` header.
+- Command admission uses OAuth2 Resource Server identity; retained read endpoints still use legacy caller headers temporarily.

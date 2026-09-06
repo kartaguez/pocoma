@@ -30,7 +30,7 @@ public final class DeletePotCommandUseCaseAdapter extends AbstractPotCommandUseC
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, DeletePotCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new DeletePotService(invocation.recording(potContextPort), potHeaderPort, potGlobalVersionPort,
-						potHeaderPort, invocation, authorizationPolicy).deletePot(userContext, command));
+				PotBusinessUseCaseFactory.deletePot(invocation.recording(potContextPort), potHeaderPort,
+						potGlobalVersionPort, invocation, authorizationPolicy).deletePot(userContext, command));
 	}
 }

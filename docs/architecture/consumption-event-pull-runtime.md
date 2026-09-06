@@ -47,8 +47,9 @@ materializations are adopted lazily by reading their durable Task references and
 of the newly created slot. Do not run the legacy materializer and the new Event runtime simultaneously for
 the same pipeline during rollout.
 
-Command and Task still use their legacy workers and may still depend on `engine-execution-guard`; their
-migration and the final deletion of that guard belong to a later lot.
+Command now uses `runtime-command-consumption-worker` and the same generic consumption lifecycle;
+its former worker and `engine-execution-guard` have been removed. Task keeps its own current runtime
+until its dedicated cleanup.
 
 ## Packages
 

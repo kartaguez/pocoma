@@ -32,8 +32,8 @@ public final class AddPotShareholdersCommandUseCaseAdapter
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, AddPotShareholdersCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new AddPotShareholdersService(invocation.recording(potContextPort), potShareholdersPort,
-						potGlobalVersionPort, potShareholdersPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.addShareholders(invocation.recording(potContextPort), potShareholdersPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.addPotShareholders(userContext, command));
 	}
 }

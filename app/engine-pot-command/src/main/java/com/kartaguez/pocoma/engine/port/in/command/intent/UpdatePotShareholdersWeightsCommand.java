@@ -4,10 +4,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.engine.command.model.Command;
+
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
 public record UpdatePotShareholdersWeightsCommand(UUID potId, Set<ShareholderWeightInput> shareholders, long expectedVersion)
-		implements CommandIntent {
+		implements Command {
 
 	public UpdatePotShareholdersWeightsCommand {
 		Objects.requireNonNull(potId, "potId must not be null");

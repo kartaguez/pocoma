@@ -3,6 +3,8 @@ package com.kartaguez.pocoma.engine.port.in.command.intent;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.engine.command.model.Command;
+
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
@@ -12,7 +14,7 @@ public record UpdateExpenseDetailsCommand(
 		long amountNumerator,
 		long amountDenominator,
 		String label,
-		long expectedVersion) implements CommandIntent {
+		long expectedVersion) implements Command {
 
 	public UpdateExpenseDetailsCommand {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");

@@ -31,8 +31,8 @@ public final class UpdatePotDetailsCommandUseCaseAdapter
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, UpdatePotDetailsCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new UpdatePotDetailsService(invocation.recording(potContextPort), potHeaderPort,
-						potGlobalVersionPort, potHeaderPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.updatePotDetails(invocation.recording(potContextPort), potHeaderPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.updatePotDetails(userContext, command));
 	}
 }

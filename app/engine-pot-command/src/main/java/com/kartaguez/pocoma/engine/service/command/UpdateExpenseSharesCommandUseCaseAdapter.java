@@ -32,8 +32,8 @@ public final class UpdateExpenseSharesCommandUseCaseAdapter
 	@Override
 	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, UpdateExpenseSharesCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new UpdateExpenseSharesService(invocation.recording(expenseContextPort), expenseSharesPort,
-						potGlobalVersionPort, expenseSharesPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.updateExpenseShares(invocation.recording(expenseContextPort), expenseSharesPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.updateExpenseShares(userContext, command));
 	}
 }

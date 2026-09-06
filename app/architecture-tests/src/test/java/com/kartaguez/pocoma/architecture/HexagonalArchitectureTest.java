@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -604,30 +605,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void commandProcessingDependsOnlyOnCommandAndGenericProcessingContracts() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine..processing.command..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.query..",
-						ROOT_PACKAGE + ".engine.service.query..",
-						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
-						ROOT_PACKAGE + ".engine.service.taskexecution..",
-						ROOT_PACKAGE + ".engine.taskmaterialization..",
-						ROOT_PACKAGE + ".infra..",
-						SUPRA_PACKAGE,
-						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".orchestrator..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
-				.check(CLASSES);
-	}
-
-	@Test
 	void eventProcessingDependsOnlyOnEventsPipelinesAndGenericConsumption() {
 		noClasses()
 				.that().resideInAnyPackage(ROOT_PACKAGE + ".engine..processing.event..")
@@ -696,8 +673,6 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void recordedProcessingModelsDoNotCarryClaimOrLeaseState() {
-		assertEquals(Set.of("commandId", "potId", "createdAt", "userContext", "commandIntent"),
-				fieldNames(ROOT_PACKAGE + ".engine.port.out.processing.command.model.RecordedCommand"));
 		assertEquals(Set.of("eventId", "event", "recordedAt", "traceMetadata"),
 				fieldNames(ROOT_PACKAGE + ".engine.event.RecordedEvent"));
 		assertEquals(Set.of(
@@ -718,8 +693,6 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> obsoleteDecorators = Set.of(
-				"TransactionalCompleteCommandProcessingUseCase",
-				"TransactionalFailCommandProcessingUseCase",
 				"TransactionalCompleteTaskProcessingUseCase",
 				"TransactionalFailTaskProcessingUseCase");
 		Set<String> presentObsoleteDecorators = CLASSES.stream()
@@ -873,84 +846,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void singleItemPullLoopRemainsGenericAndIndependent() {
-		String pullPackage = ROOT_PACKAGE + ".orchestrator.claimable.pull";
-		noClasses()
-				.that().resideInAPackage(pullPackage + "..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".domain..",
-						ROOT_PACKAGE + ".engine..",
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".supra..",
-						ROOT_PACKAGE + ".runtime..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
-				.check(CLASSES);
-
-		Set<String> specializedNames = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().equals(pullPackage))
-				.map(javaClass -> javaClass.getSimpleName())
-				.filter(name -> Set.of(
-						"Command", "Event", "Task", "Claim", "Lease", "Pipeline", "Segment",
-						"Batch", "Queue", "Pool", "Retry", "Heartbeat").stream().anyMatch(name::contains))
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(), specializedNames,
-				"The single-item pull loop must not expose specialized work or buffering concepts");
-	}
-
-	@Test
-	void executionGuardRemainsGenericAndIndependentFromConsumption() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.execution..",
-						ROOT_PACKAGE + ".engine.port.out.execution..",
-						ROOT_PACKAGE + ".engine.service.execution..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".domain..",
-						ROOT_PACKAGE + ".engine..consumption..",
-						ROOT_PACKAGE + ".engine..command..",
-						ROOT_PACKAGE + ".engine..task..",
-						ROOT_PACKAGE + ".engine..processing..",
-						ROOT_PACKAGE + ".supra..",
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".runtime..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
-				.check(CLASSES);
-	}
-
-	@Test
-	void commandWorkerDependsOnIncomingContractsAndNotInfrastructureOrOutgoingPorts() {
-		String workerPackage = ROOT_PACKAGE + ".supra.worker.command..";
-		noClasses()
-				.that().resideInAPackage(workerPackage)
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".runtime..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..",
-						"io.micrometer..")
-				.check(CLASSES);
-
-		Set<String> forbiddenWorkerDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".supra.worker.command"))
-				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.map(dependency -> dependency.getTargetClass().getName())
-				.filter(name -> name.endsWith(".CommandPort")
-						|| name.endsWith(".ClaimPort")
-						|| name.endsWith(".ConsumptionKey"))
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(), forbiddenWorkerDependencies,
-				"Command worker must orchestrate incoming use cases without repositories or consumption keys");
-	}
-
-	@Test
 	void taskLocatorIsSpecializedButIndependentFromRuntimeSupraAndInfrastructure() {
 		String workerPackage = ROOT_PACKAGE + ".locator.consumption.task..";
 		noClasses()
@@ -1023,15 +918,11 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void targetWorkersUseOnlyTheirExpectedFunctionalEntryPointAndGuards() {
-		Set<String> commandDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.worker.command.CommandWorkerIteration");
 		Set<String> eventDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.event.EventConsumptionLocator");
 		Set<String> taskDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.task.TaskConsumptionLocator");
 
-		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteCommandUseCase")));
-		assertTrue(commandDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".CreateTasksForEventUseCase")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
@@ -1040,6 +931,65 @@ class HexagonalArchitectureTest {
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".TaskPort")));
 		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
+	}
+
+	@Test
+	void synchronousCommandDispatchIsGoneWhilePotBusinessPortsRemain() {
+		Set<String> legacyCommandTypes = Set.of(
+				"ExecuteCommandUseCase", "ExecuteCommandInput", "ExecuteCommandService",
+				"CommandIntent", "CommandUseCaseFactory", "UnsupportedCommandIntentException",
+				"TransactionalCreatePotUseCase", "TransactionalCreateExpenseUseCase",
+				"TransactionalAddPotShareholdersUseCase", "TransactionalDeletePotUseCase",
+				"TransactionalDeleteExpenseUseCase", "TransactionalUpdatePotDetailsUseCase",
+				"TransactionalUpdateExpenseDetailsUseCase", "TransactionalUpdateExpenseSharesUseCase",
+				"TransactionalUpdatePotShareholdersDetailsUseCase",
+				"TransactionalUpdatePotShareholdersWeightsUseCase");
+		assertEquals(Set.of(), CLASSES.stream().map(javaClass -> javaClass.getSimpleName())
+				.filter(legacyCommandTypes::contains).collect(Collectors.toUnmodifiableSet()));
+
+		Set<String> businessPorts = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(
+						ROOT_PACKAGE + ".engine.port.in.command.usecase"))
+				.map(javaClass -> javaClass.getSimpleName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(
+				"CreatePotUseCase", "CreateExpenseUseCase", "AddPotShareholdersUseCase",
+				"DeletePotUseCase", "DeleteExpenseUseCase", "UpdatePotDetailsUseCase",
+				"UpdateExpenseDetailsUseCase", "UpdateExpenseSharesUseCase",
+				"UpdatePotShareholdersDetailsUseCase", "UpdatePotShareholdersWeightsUseCase"),
+				businessPorts);
+
+		Map<String, String> adapterPorts = Map.of(
+				"CreatePotCommandUseCaseAdapter", "CreatePotUseCase",
+				"CreateExpenseCommandUseCaseAdapter", "CreateExpenseUseCase",
+				"AddPotShareholdersCommandUseCaseAdapter", "AddPotShareholdersUseCase",
+				"DeletePotCommandUseCaseAdapter", "DeletePotUseCase",
+				"DeleteExpenseCommandUseCaseAdapter", "DeleteExpenseUseCase",
+				"UpdatePotDetailsCommandUseCaseAdapter", "UpdatePotDetailsUseCase",
+				"UpdateExpenseDetailsCommandUseCaseAdapter", "UpdateExpenseDetailsUseCase",
+				"UpdateExpenseSharesCommandUseCaseAdapter", "UpdateExpenseSharesUseCase",
+				"UpdatePotShareholdersDetailsCommandUseCaseAdapter", "UpdatePotShareholdersDetailsUseCase",
+				"UpdatePotShareholdersWeightsCommandUseCaseAdapter", "UpdatePotShareholdersWeightsUseCase");
+		adapterPorts.forEach((adapter, port) -> assertTrue(directDependencyNames(
+				ROOT_PACKAGE + ".engine.service.command." + adapter).stream()
+				.anyMatch(name -> name.endsWith("." + port)), adapter + " must use " + port));
+	}
+
+	@Test
+	void httpAdmissionCannotMutateThePotWriteModelDirectly() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.rest.spring..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.command.usecase..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".binding.pot.command.spring..",
+						ROOT_PACKAGE + ".locator.consumption.command..")
+				.check(CLASSES);
+
+		Set<String> asyncControllerDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.http.rest.spring.controller.AsyncCommandController");
+		assertTrue(asyncControllerDependencies.stream()
+				.anyMatch(name -> name.endsWith(".SubmitRecordedCommandUseCase")));
 	}
 
 	@Test

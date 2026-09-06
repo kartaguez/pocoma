@@ -10,7 +10,6 @@ class ServiceVisibilityTest {
 
 	@Test
 	void rawUseCaseServicesAreNotPublic() throws ClassNotFoundException {
-		assertPackagePrivate("com.kartaguez.pocoma.engine.service.command.ExecuteCommandService");
 		assertPackagePrivate("com.kartaguez.pocoma.engine.service.command.AddPotShareholdersService");
 		assertPackagePrivate("com.kartaguez.pocoma.engine.service.command.CreateExpenseService");
 		assertPackagePrivate("com.kartaguez.pocoma.engine.service.command.CreatePotService");

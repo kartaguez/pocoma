@@ -36,8 +36,9 @@ public final class UpdatePotShareholdersDetailsCommandUseCaseAdapter
 			AuthorizationSnapshot authorization,
 			UpdatePotShareholdersDetailsCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
-				new UpdatePotShareholdersDetailsService(invocation.recording(potContextPort), potShareholdersPort,
-						potGlobalVersionPort, potShareholdersPort, invocation, authorizationPolicy)
+				PotBusinessUseCaseFactory.updateShareholderDetails(
+						invocation.recording(potContextPort), potShareholdersPort,
+						potGlobalVersionPort, invocation, authorizationPolicy)
 						.updatePotShareholdersDetails(userContext, command));
 	}
 }

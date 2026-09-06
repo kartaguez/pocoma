@@ -19,9 +19,9 @@
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
 | État de projection Balance | `PotBalanceProjectionState` | `engine-projection` |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
-| Polling et capacité | `ClaimableWorkDispatcher`, `SegmentedWorkerPool` | orchestrateur/worker |
-| Exécution effective idempotente | `ExecutionGuard<K>`, `ExecutionOutcome` | `engine-execution-guard` |
-| Orchestration pull Command | `CommandWorker`, `CommandWorkerIteration` | `supra-worker-command` |
+| Polling et capacité | `ConsumptionPollingWorker`, budgets de cycle | `supra-consumption-worker` |
+| Exécution atomique et fencing | `TransactionalExecuteConsumptionUseCase`, `currentClaimId` | `engine-consumption` / infra transactionnelle |
+| Orchestration pull Command | `CommandConsumptionLocator`, `SequentialConsumptionOrchestrator`, `ConsumptionPollingWorker` | locator/orchestrateur/supra génériques |
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 | Orchestration pull Task | `TaskConsumptionLocator`, `ConsumptionPollingWorker` | locator Task et supra générique |
 | Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
@@ -79,15 +79,11 @@ spécialisée. `locator-consumption-command` est seul propriétaire de la traduc
 `ConsumptionKey` (`COMMAND / [commandId]`, `COMMAND_PROCESSOR / []`) et en résultat de consommation.
 
 Le `currentClaimId` du slot décide quelle transaction peut committer. Le CAS final est exécuté dans
-la même transaction que les effets et la provenance. `ExecutionGuard` ne participe plus aux flux
-Event et Task.
+la même transaction que les effets et la provenance. L'ancien `ExecutionGuard` Command a été retiré.
 
 ```text
 Claim
   possession temporaire
-
-ExecutionGuard
-  effet déjà commité ou non
 
 ConsumptionSlot
   lifecycle autoritatif du processing
@@ -103,7 +99,6 @@ La transition terminale du slot précède toujours la matérialisation. L'état 
 
 | Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |
 |---|---|---|---|---|
-| `engine-processing-command.RecordedCommand` | worker Command legacy | `engine.command.model.RecordedCommand` | nouveau locator et worker Command actifs | Lots 6.5–6.7 |
 | `engine-task-materialization` | worker et adapters de matérialisation | EventWorker + task creation | consommations Event persistées par pipeline | Workers/infra Event |
 | `BusinessEventEnvelope` | outbox et projection legacy | `RecordedEvent<BusinessEvent>` | EventPort et mapper durable opérationnels | Infra Event |
 | `PotPartitioner` | workers de projection | `PartitionHash` | anciens workers retirés | Workers |
@@ -114,5 +109,5 @@ La transition terminale du slot précède toujours la matérialisation. L'état 
 | statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |
 | colonnes lifecycle de `tasks_4_pipeline` | audit après cutover | `ConsumptionSlot`/`Claim` | lot ultérieur de nettoyage physique | Infrastructure |
 
-Le legacy reste compilable, mais les packages fonctionnels et les nouveaux processing engines ne
-peuvent pas en dépendre.
+Le legacy restant appartient aux flux Event, Task, projection et read. Le lifecycle et le worker
+Command historiques ne sont plus compilés.
