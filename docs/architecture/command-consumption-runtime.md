@@ -21,6 +21,14 @@ Le runtime ne contient aucune logique métier Command. `binding-pot-command-spri
 decoders et adapters Pot derrière les contrats d'`engine-command`; le polling reste entièrement
 générique. Aucun slot n'est créé avant `acquire` et aucune queue locale ne mémorise le backlog.
 
+La composition distribuée sépare explicitement les processus `runtime-web-api`,
+`runtime-command-consumption-worker`, `runtime-event-consumption-worker` et
+`runtime-task-consumption-worker`. Le service `pocoma-command-consumption-worker` partage PostgreSQL
+avec les autres runtimes et active uniquement sa propre boucle avec
+`POCOMA_COMMAND_CONSUMPTION_ENABLED=true`. Aucun `worker-id` fixe n'est configuré : l'identité UUID
+générée au démarrage reste unique entre replicas. Le runtime Command n'est activé ni dans le web
+runtime, ni dans le monolithe, et cette topologie ne réalise aucun cutover du chemin legacy.
+
 ## Polling et configuration
 
 Les propriétés sont portées par le préfixe `pocoma.command-consumption` :
@@ -67,6 +75,16 @@ Les tags sont bornés à `family=command` et, lorsque pertinent,
 utilisé comme tag. Les outcomes durables `SUCCESS`, `REJECTED`, `FAILED` et les retries restent dans
 `ConsumptionSlot`, `Claim` et `ProcessingFailure`; le Lot 6.7 n'ajoute aucun callback à
 `SequentialConsumptionOrchestrator` ou `engine-consumption` pour les dupliquer en métriques.
+
+Dans la composition distribuée, le runtime expose sur son port interne `8080` :
+
+- `/actuator/health` ainsi que les probes `/actuator/health/liveness` et
+  `/actuator/health/readiness` ;
+- `/actuator/prometheus`, alimenté par le registre Micrometer Prometheus.
+
+Le job Prometheus `pocoma-command-consumption-worker` scrape directement cet endpoint sur le réseau
+Docker. La santé PostgreSQL repose sur les contributors standards Spring Boot ; un résultat durable
+`REJECTED` ou `FAILED` ne modifie pas à lui seul la santé du processus.
 
 ## Sémantique opérationnelle
 

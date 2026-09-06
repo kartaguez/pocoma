@@ -34,6 +34,24 @@ class DistributedComposeConfigurationTest {
 		assertFalse(compose.contains("condition: service_started\n      nats:"));
 	}
 
+	@Test
+	void distributedCompositionRunsAndScrapesTheCommandConsumptionWorker() throws IOException {
+		String compose = Files.readString(findRepositoryFile("docker-compose.distributed.yml"));
+		String prometheus = Files.readString(findRepositoryFile("docker/prometheus/prometheus.distributed.yml"));
+		String service = section(compose, "  pocoma-command-consumption-worker:\n", "\n  prometheus:\n");
+
+		assertTrue(service.contains("RUNTIME_MODULE: runtime-command-consumption-worker"));
+		assertTrue(service.contains("RUNTIME_ARTIFACT: pocoma-runtime-command-consumption-worker"));
+		assertTrue(service.contains("POCOMA_COMMAND_CONSUMPTION_ENABLED: \"true\""));
+		assertTrue(service.contains("<<: *pocoma-java-environment"));
+		assertTrue(service.contains("- \"8080\""));
+		assertTrue(service.contains("- pocoma-distributed"));
+		assertFalse(service.contains("POCOMA_COMMAND_CONSUMPTION_WORKER_ID"));
+		assertTrue(compose.contains("pocoma-command-consumption-worker:\n        condition: service_started"));
+		assertTrue(prometheus.contains("job_name: pocoma-command-consumption-worker"));
+		assertTrue(prometheus.contains("pocoma-command-consumption-worker:8080"));
+	}
+
 	private static Path findRepositoryFile(String name) {
 		Path directory = Path.of("").toAbsolutePath();
 		while (directory != null) {
@@ -52,5 +70,13 @@ class DistributedComposeConfigurationTest {
 			offset += needle.length();
 		}
 		return count;
+	}
+
+	private static String section(String value, String start, String end) {
+		int startIndex = value.indexOf(start);
+		if (startIndex < 0) throw new IllegalArgumentException("Missing section " + start);
+		int endIndex = value.indexOf(end, startIndex + start.length());
+		if (endIndex < 0) throw new IllegalArgumentException("Missing section terminator " + end);
+		return value.substring(startIndex, endIndex);
 	}
 }

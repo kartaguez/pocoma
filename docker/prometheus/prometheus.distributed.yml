@@ -12,6 +12,11 @@ scrape_configs:
     static_configs:
       - targets: ["pocoma-api:8080"]
 
+  - job_name: pocoma-command-consumption-worker
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["pocoma-command-consumption-worker:8080"]
+
   - job_name: pocoma-business-events-dispatchers
     metrics_path: /actuator/prometheus
     static_configs:
