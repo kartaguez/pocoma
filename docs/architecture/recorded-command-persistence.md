@@ -51,9 +51,8 @@ consumption_slots       = lifecycle autoritatif
 consumption_claims      = propriété temporaire et fencing
 ```
 
-## Intégration Consumption
+## Intégration Consumption et runtime
 
-Le Lot 6.5 fournit le locator et la recette d'exécution applicative, mais aucun polling runtime.
 La discovery ne transporte que `commandId` et `submittedAt`. Après acquisition, la recette recharge
 la Command autoritativement, puis appelle `ExecuteRecordedCommandUseCase` dans la transaction
 gagnante. Le décodage, le dispatch, les mutations Pot, l'append des Events, la provenance, le
@@ -73,18 +72,24 @@ Une autorisation expirée n'est pas filtrée par la discovery : elle devient
 `DONE/REJECTED/AUTHORIZATION_EXPIRED` pendant l'exécution. Seules les erreurs SQL transitoires
 explicitement reconnues sont retentées. Toute erreur technique inconnue est terminale par défaut.
 
-Le flux ci-dessous reste la cible de composition des lots suivants, pas un runtime déjà actif :
+Le runtime `runtime-command-consumption-worker` compose désormais ce chemin avec le worker de
+polling générique. Il est séparé du runtime HTTP et ne connaît ni payload Command, ni autorisation,
+ni use case Pot. Un worker exécute au plus une consommation active ; le parallélisme est obtenu en
+lançant plusieurs instances, arbitrées par les claims et le fencing génériques.
 
 ```text
-HTTP (Lot 6.6)
+HTTP
   -> RecordedCommand
-  -> discovery
-  -> ConsumptionSlot / Claim et locator
+  -> runtime Command : poll / locator / discovery
+  -> acquire / ConsumptionSlot / Claim
   -> ExecuteRecordedCommandUseCase
-  -> worker Command (Lot 6.7)
+  -> terminalisation ou retry
 ```
 
 Le Lot 6.6 implémente désormais la première flèche avec `POST /api/v1/commands` : authentification
 Resource Server dans le supra Spring, résolution d'identité, capture du snapshot et insert dans
 `recorded_commands`. Cette admission ne déclenche toujours ni discovery, ni slot, ni exécution.
 Voir [recorded-command-intake.md](recorded-command-intake.md).
+
+La configuration, le shutdown, le scaling et l'observabilité de la boucle sont détaillés dans
+[command-consumption-runtime.md](command-consumption-runtime.md).

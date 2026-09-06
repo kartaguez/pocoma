@@ -57,9 +57,10 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `orchestrator-command-admission` | principal authentifié provider-neutral, traduction des autorités, résolution d'identité, snapshot et insert transactionnel | engine-command, transaction core | target, sans Spring/JWT/Keycloak |
 | `supra-worker-command` | boucle pull Command séquentielle, guard puis lifecycle | ports entrants Command/processing, execution guard, orchestrateur | legacy côté guard ; migration vers l'exécution atomique au Lot 4 |
 | `supra-worker-event` | boucle pull Event séquentielle par pipeline/version et segment, task creation idempotente puis lifecycle | ports entrants Event processing/task creation, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
-| `supra-consumption-worker` | boucle de polling générique, budgets, cadence et arrêt gracieux | orchestrateur consumption | target, ignorant des familles métier |
+| `supra-consumption-worker` | boucle de polling générique, budgets, cadence, arrêt coopératif et observation runtime minimale | orchestrateur consumption | target, ignorant des familles métier |
 | `locator-consumption-task` | localisation Task, relecture autoritative, traduction rapport/provenance et classification technique | processing/execution Task, consumption générique | target |
 | `locator-consumption-command` | convention `ConsumptionKey` Command, discovery, relecture/exécution autoritative, adaptation de provenance et classification technique conservative | engine-command, domain/engine consumption, orchestrator-consumption | target, sans runtime |
+| `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
 | `pipeline-balance` | binding Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
 | `supra-http-rest-spring` | entrées HTTP legacy et admission Command asynchrone | ports entrants Command/Query/admission | target |
@@ -77,6 +78,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `runtime-business-events-outbox-dispatcher` | ancien dispatcher outbox | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-materialization-dispatcher` | ancien matérialiseur | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-consumption-worker` | composition du locator Task, moteur transactionnel, polling et binding Balance | locator/orchestrateur/supra/infra/pipeline Balance | composition target |
+| `runtime-command-consumption-worker` | composition du locator Command, moteur transactionnel, polling générique et binding Pot | locator/orchestrateur/supra/infra/binding Pot Command | composition target, processus distinct de l'API HTTP |
 | `runtime-balance-calculation-tasks-dispatcher` | ancien runtime des tâches Balance | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-monolith` | API/Query et composition transitionnelle | couches précédentes | conservé ; profil worker legacy déprécié jusqu'au Lot 6.5 |
 | `architecture-tests` | vérification des frontières de packages | tous les modules inspectés | validation |
@@ -93,6 +95,9 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
   appartient exclusivement à `locator-consumption-command`.
 - Seules les erreurs Command explicitement reconnues comme transitoires sont retentées ; une
   exception runtime inconnue est terminale.
+- L'observation du polling reste limitée aux cycles, budgets, délais et compteurs déjà exposés par
+  l'orchestrateur. Elle n'ajoute aucun callback métier à `engine-consumption` ou à
+  `orchestrator-consumption`.
 - L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
 - Task processing connaît uniquement les données structurelles de la Task et ne consulte ni slot,
   ni claim, ni statut ou lease legacy.

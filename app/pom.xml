@@ -65,6 +65,7 @@
 		<module>locator-consumption-event</module>
 		<module>locator-consumption-task</module>
 		<module>locator-consumption-command</module>
+		<module>binding-pot-command-spring</module>
 		<module>supra-worker-command</module>
 		<module>shared-supra-dispatcher-projection</module>
 		<module>supra-worker-balance-calculation-events-spring</module>
@@ -74,6 +75,7 @@
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-task-consumption-worker</module>
+		<module>runtime-command-consumption-worker</module>
 		<module>runtime-monolith</module>
 		<module>architecture-tests</module>
 	</modules>

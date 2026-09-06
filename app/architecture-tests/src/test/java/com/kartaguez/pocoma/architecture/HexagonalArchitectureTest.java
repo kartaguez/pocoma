@@ -559,6 +559,29 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void commandConsumptionRuntimeComposesGenericPollingWithoutKnowingCommandPayloadsOrHttp() {
+		String runtimePackage = ROOT_PACKAGE + ".runtime.command.consumption";
+		noClasses()
+				.that().resideInAPackage(runtimePackage + "..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.command.model..",
+						ROOT_PACKAGE + ".engine.command.decode..",
+						ROOT_PACKAGE + ".engine.command.dispatch..",
+						ROOT_PACKAGE + ".engine.pot..",
+						ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".supra.http..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.consumption..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.command..",
+						ROOT_PACKAGE + ".locator.consumption.command..",
+						ROOT_PACKAGE + ".engine.service.consumption..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void commandPersistenceDependsInwardAndIntroducesNoJpaEntity() {
 		String persistencePackage = ROOT_PACKAGE + ".infra.persistence.jpa";
 		String commandPersistencePackage = persistencePackage + ".adapter.command";
