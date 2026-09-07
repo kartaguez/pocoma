@@ -145,6 +145,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<skip>false</skip>
+					<classifier>exec</classifier>
 				</configuration>
 			</plugin>
 		</plugins>

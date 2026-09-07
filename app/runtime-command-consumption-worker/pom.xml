@@ -25,6 +25,6 @@
 			<resource><directory>src/main/resources</directory></resource>
 			<resource><directory>../runtime-monolith/src/main/resources</directory><includes><include>db/migration/**</include></includes></resource>
 		</resources>
-		<plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId><configuration><skip>false</skip></configuration></plugin></plugins>
+		<plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId><configuration><skip>false</skip><classifier>exec</classifier></configuration></plugin></plugins>
 	</build>
 </project>
