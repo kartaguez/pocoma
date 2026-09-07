@@ -14,7 +14,9 @@ vérifiée avant une modification.
 
 ### Read side
 
-- [État actuel du read side](architecture/read-side-current-state.md) — point de départ canonique des lots 7.x : GET, sources SQL, temporalité et Balance.
+- [État actuel du read side](architecture/read-side-current-state.md) — description factuelle de l'existant : GET, sources SQL, temporalité et Balance.
+- [Architecture cible du read side](architecture/read-side-target.md) — cible normative du Lot 7 : modèle temporel, projections, queries et invariants.
+- [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
 
 ### Consumption pipelines
 
@@ -34,6 +36,7 @@ vérifiée avant une modification.
 
 ## Historical material
 
-Les documents datés, [projection-workers.md](projection-workers.md), les plans et les runbooks de
-cutover décrivent des étapes antérieures ou des chemins transitionnels. Les consulter pour l'historique
-ou l'exploitation correspondante, jamais comme remplacement des documents canoniques ci-dessus.
+Les documents datés, [projection-workers.md](projection-workers.md), les plans clôturés ou non
+référencés ci-dessus et les runbooks de cutover décrivent des étapes antérieures ou des chemins
+transitionnels. Les consulter pour l'historique ou l'exploitation correspondante, jamais comme
+remplacement des documents canoniques ci-dessus.

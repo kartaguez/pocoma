@@ -1,7 +1,9 @@
 # État actuel du read side
 
-Ce document décrit le code exécuté au HEAD `e842f201b9f8effa9cd27d2e30a436590ccce7d5`.
-Il constitue l'état de référence du Lot 7.0, pas une architecture cible.
+Ce document décrit l'état observé au commit audité
+`e842f201b9f8effa9cd27d2e30a436590ccce7d5`. Il a été intégré à la baseline documentaire du Lot 7.0
+`24ef19fb849d53c119668193c61d66e62d07504f`. Il constitue une description factuelle de l'existant,
+pas une architecture cible.
 
 ## 1. Résumé exécutif
 
@@ -212,6 +214,10 @@ de Pots et d'Expenses les masquent explicitement. Les GET directs chargent la li
 active et peuvent donc restituer son flag `deleted`. Pour l'autorisation contextuelle, seuls les
 Shareholders non supprimés sont pris en compte.
 
+Dans le code audité, certaines mutations d'une Expense encore active restent possibles après le
+delete de son Pot et peuvent créer une nouvelle version globale. Ce constat factuel et son impact sur
+la cible sont détaillés dans la section 14 de [read-side-target.md](read-side-target.md).
+
 ## 7. Pipeline Balance actuel
 
 1. La transaction Command gagnante ajoute l'Event typé dans `business_event_outbox` avec la mutation
@@ -289,6 +295,10 @@ Ces points sont des sujets, pas des décisions de ce document.
 Le write side est clos selon [write-side-closure.md](write-side-closure.md). `POST /api/v1/commands`
 reste l'unique voie canonique de mutation : admission durable, puis exécution par le Command worker.
 Le Lot 7 ne doit réintroduire aucune mutation primaire directe depuis HTTP.
+
+La garantie « delete Pot terminal » attendue par la cible n'est toutefois pas entièrement satisfaite
+par l'état audité. Sa correction est un prérequis write-side externe au Lot 7 ; le présent document ne
+prescrit pas ce correctif.
 
 Le futur read side devra consommer ou projeter les données produites par cette chaîne sans modifier les
 invariants de `RecordedCommand`, du lifecycle générique de consumption, de la transaction gagnante ou
