@@ -114,8 +114,10 @@ externe concernant le delete terminal. Aucun audit du code n'est requis.
 
 **Changes**
 
-- Consacrer Balance `READY` + PotProjection même version absente/non `READY` comme
-  `NOT_READY`/409.
+- Consacrer toute PotProjection de contexte absente, `NOT_READY` ou `FAILED` comme
+  `NOT_READY`/409 fonctionnel, y compris lorsqu'une Balance est déjà `READY`.
+- Réserver l'exposition de `FAILED`/503 à une projection métier interprétée après disponibilité du
+  contexte d'autorisation et accès accordé.
 - Réserver le 404 à une inexistence établie ou à un refus évalué avec un contexte Pot disponible.
 - Consacrer le principal OAuth2 Resource Server comme identité cible des GET.
 - Limiter l'atomicité canonique à artifact/fragments, `READY`, head et indexes indispensables dans le
@@ -290,8 +292,11 @@ La matrice finale attendue est :
 | Duplicate divergent sur projection `READY` | Artifact inchangé, state `READY`, violation séparée |
 | Reader constate une projection absente | Aucun state créé |
 | Projector constate une intention absente | Erreur de protocole, aucun `NOT_READY` inventé |
-| Balance `READY`, PotProjection absente/non prête | `NOT_READY`/409 |
-| PotProjection prête, utilisateur refusé | `NOT_FOUND` masqué/404 |
+| PotProjection absente, `NOT_READY` ou `FAILED` comme contexte | `NOT_READY`/409 ; éventuel `FAILED` observable en interne |
+| PotProjection `READY`, utilisateur refusé | `NOT_FOUND` masqué/404 |
+| PotProjection `READY`, utilisateur autorisé, Balance `FAILED` | `FAILED`/503 |
+| PotProjection `READY`, utilisateur autorisé, Balance `NOT_READY` | `NOT_READY`/409 |
+| PotProjection `READY`, utilisateur autorisé, Balance `READY` | succès/200 |
 | Matérialisation réussie | Artifact + `READY` + head + indexes atomiques dans le read store |
 | Plusieurs workers d'un pipeline | Autorisés et fencés |
 | Deux producers logiques d'une génération | Interdits |
@@ -303,6 +308,7 @@ Recherches obligatoires sur les documents modifiés :
 - aucune attente du watermark avant acquire/exécution ;
 - aucune transition positive `READY -> FAILED` pour duplicate divergent ;
 - aucun 404 causé uniquement par une PotProjection d'autorisation indisponible ;
+- aucun `FAILED`/503 exposé avant que le contexte d'autorisation soit `READY` et l'accès accordé ;
 - aucune transaction distribuée supposée ;
 - aucune création de `ProjectionState` par un GET/reader ;
 - aucune création opportuniste de `NOT_READY` par un projector ;

@@ -288,14 +288,24 @@ Pour une version explicite `V` :
 |---|---|
 | Pot/watermark inconnu | `NOT_FOUND` |
 | `V > latestVersionSeen`, même si un artifact V existe en avance | `NOT_FOUND` |
-| `V <= latestVersionSeen` et état `FAILED` | `FAILED` |
-| `V <= latestVersionSeen` et artifact non prêt | `NOT_READY` |
-| artifact et préconditions d'exposition prêts | `READY` |
+| `V <= latestVersionSeen` et contexte d'autorisation absent, `NOT_READY` ou `FAILED` | `NOT_READY` |
+| contexte d'autorisation `READY` mais accès refusé | `NOT_FOUND` masqué |
+| contexte d'autorisation `READY`, accès accordé et projection métier `FAILED` | `FAILED` |
+| contexte d'autorisation `READY`, accès accordé et projection métier non prête | `NOT_READY` |
+| contexte d'autorisation, artifact métier et préconditions d'exposition prêts | `READY` |
 
 Une projection Balance `READY` n'est pas exposable tant que la `PotProjection` de même `potVersion`
 n'est pas disponible pour l'autorisation. Cette précondition ne crée aucune dépendance de calcul ou
-d'ordre entre les deux pipelines. Son indisponibilité produit `NOT_READY`, donc HTTP 409. Le 404 est
-réservé à une inexistence établie ou à un refus évalué depuis un contexte PotProjection disponible.
+d'ordre entre les deux pipelines. Que cette PotProjection soit absente, `NOT_READY` ou `FAILED`, son
+indisponibilité produit fonctionnellement `NOT_READY`, donc HTTP 409. Son état interne reste observable
+opérationnellement. Le 404 est réservé à une inexistence établie ou à un refus évalué depuis un
+contexte PotProjection `READY`.
+
+La même priorité s'applique aux lectures Pot, Expense et Shareholder, car leur `PotProjection` porte
+à la fois les données métier et le contexte d'autorisation versionné. Une PotProjection `FAILED` ne
+produit donc pas automatiquement un 503 côté client : tant qu'elle ne permet pas d'établir
+l'autorisation, la réponse fonctionnelle est `NOT_READY`/409. `FAILED`/503 n'est exposable pour une
+projection métier demandée qu'après disponibilité du contexte requis et autorisation accordée.
 
 L'artifact éventuellement produit en avance n'est pas consulté pour établir l'existence source : tant
 que `V > latestVersionSeen`, V reste inconnue du reader. Cette asymétrie est une conséquence assumée
@@ -307,7 +317,7 @@ de l'eventual consistency.
 |---|---:|---|
 | `NOT_FOUND` ou non autorisé | 404 | code fonctionnel stable |
 | `NOT_READY` | 409 | code, `requestedVersion`, `latestProjectedVersion` |
-| `FAILED` | 503 | code fonctionnel stable |
+| `FAILED`, après autorisation établie | 503 | code fonctionnel stable |
 | succès | 200 | représentation et `potVersion` réellement servie |
 
 Les réponses fonctionnelles n'exposent ni pipeline interne, ni worker, claim, retry count ou lag
@@ -348,9 +358,14 @@ Le current est global, jamais personnalisé. Une lecture sans version ne cherche
 version autorisée. Une ressource ou version non autorisée est masquée par un 404, jamais révélée par
 un 403.
 
-Lorsque la PotProjection nécessaire à l'autorisation n'est pas `READY`, le contexte est indisponible et
-la lecture retourne `NOT_READY`/409. Lorsque ce contexte est disponible mais refuse l'utilisateur, le
-refus est masqué en 404.
+L'ordre de résolution est impératif : établir l'existence source connue, charger les projections
+nécessaires au contexte d'autorisation, retourner `NOT_READY`/409 si ce contexte n'est pas `READY`,
+masquer en 404 un refus établi, puis seulement interpréter l'état de la projection métier demandée.
+Ainsi, une PotProjection d'autorisation absente, `NOT_READY` ou `FAILED` donne fonctionnellement
+`NOT_READY`/409 ; son éventuel `FAILED` reste visible dans l'observabilité opérationnelle. Lorsque le
+contexte est `READY` mais refuse l'utilisateur, le refus est masqué en 404. Après autorisation
+accordée, la projection métier demandée produit respectivement 409, 503 ou succès selon qu'elle est
+`NOT_READY`, `FAILED` ou `READY`.
 
 ## 10. Query models et indexes secondaires
 
@@ -554,13 +569,16 @@ implicite.
     `pipelineVersion`.
 15. Les droits contextuels sont évalués au temps de la version consultée ; un refus avec contexte
     disponible est masqué en 404.
-16. Une Balance prête sans PotProjection prête à la même version retourne `NOT_READY`/409.
-17. Les versions source sont contiguës et la suppression du Pot est terminale ; cette dernière est un
+16. La readiness du contexte d'autorisation précède l'exposition d'un échec métier : une
+    PotProjection de contexte absente, `NOT_READY` ou `FAILED` retourne fonctionnellement
+    `NOT_READY`/409 ; `FAILED`/503 n'est exposé qu'après autorisation établie.
+17. Une Balance prête sans PotProjection `READY` à la même version retourne `NOT_READY`/409.
+18. Les versions source sont contiguës et la suppression du Pot est terminale ; cette dernière est un
     prérequis write-side externe que le read side ne compense pas.
-18. Les pools de workers sont séparés par pipeline mais partagent le moteur générique. Plusieurs
+19. Les pools de workers sont séparés par pipeline mais partagent le moteur générique. Plusieurs
     workers sont autorisés, avec un seul producer logique d'intentions par génération.
-19. Backfill normal et trafic courant utilisent le même moteur de projection.
-20. Tout read model et index est reconstructible ; le read side ne devient jamais un second primaire.
+20. Backfill normal et trafic courant utilisent le même moteur de projection.
+21. Tout read model et index est reconstructible ; le read side ne devient jamais un second primaire.
 
 ## 17. Hors périmètre de cette baseline
 

@@ -170,15 +170,16 @@ Une divergence duplicate ne provoque donc jamais `READY -> FAILED`. Une éventue
 
 ### 5.4 Query Kernel commun
 
-Le Query Kernel centralise, dans un ordre stable, la résolution de version, de génération active, d'état de projection et d'autorisation :
+Le Query Kernel centralise, dans un ordre stable, la résolution de version, de génération active, du contexte d'autorisation puis de l'état de la projection métier :
 
 1. Charger la pipeline version active explicitement configurée.
 2. Résoudre la version demandée : `latestVersionSeen` pour current, valeur fournie pour une query explicite.
 3. Si aucun watermark n'existe, appliquer le contrat d'inexistence documenté ; si `V > latestVersionSeen`, retourner `NOT_FOUND`, même si un artifact V existe techniquement en avance.
-4. Lire `ProjectionState` pour l'identité exacte : `NOT_READY`/absence attendue donne `409`, `FAILED` donne `503`, `READY` exige l'artifact correspondant.
-5. Charger le contexte `PotProjection` de la même version lorsque l'autorisation de la ressource en dépend.
-6. Si ce contexte d'autorisation n'est pas `READY`, retourner `NOT_READY`/`409` ; s'il est disponible et que l'accès est refusé, masquer en `NOT_FOUND`/`404`.
-7. Servir uniquement l'artifact exact et exposer son `potVersion`.
+4. Charger le `ProjectionState` et l'artifact de la `PotProjection` de même version requise comme contexte d'autorisation, y compris lorsque la ressource demandée est le Pot lui-même.
+5. Si ce contexte est absent, `NOT_READY` ou `FAILED`, retourner fonctionnellement `NOT_READY`/`409` ; conserver un éventuel `FAILED` interne dans l'observabilité opérationnelle.
+6. Si le contexte est `READY` mais que l'accès est refusé, masquer en `NOT_FOUND`/`404`.
+7. Seulement après autorisation accordée, interpréter le `ProjectionState` de la projection métier demandée : `NOT_READY`/absence attendue donne `409`, `FAILED` donne `503`, `READY` exige l'artifact exact.
+8. Servir uniquement l'artifact exact et exposer son `potVersion`.
 
 Le kernel ne déduit pas l'existence source d'un artifact, ne recalcule pas un head avec `MAX`, ne crée aucun state et ne consulte jamais le primaire.
 
@@ -652,6 +653,7 @@ Implémenter une résolution commune des versions et états, encore utilisable e
 - Pour explicite, considérer `V > latestVersionSeen` comme inconnu, même si le projector a pris de l'avance.
 - Ne jamais choisir une version artifact plus ancienne ni sonder une génération précédente.
 - Exposer pour `NOT_READY` au minimum `requestedVersion` et `latestProjectedVersion`, sans détails techniques de pipeline.
+- N'exposer `FAILED`/503 qu'après disponibilité du contexte d'autorisation et accès accordé ; une PotProjection de contexte absente, `NOT_READY` ou `FAILED` produit fonctionnellement `NOT_READY`/409.
 - Maintenir l'état du kernel en lecture seule.
 
 **Dépendances**
@@ -661,7 +663,9 @@ Lots 7.3, 7.4 et 7.6.
 **Tests**
 
 - Version connue mais projection absente : `NOT_READY`/409.
-- Projection terminalement échouée : `FAILED`/503.
+- PotProjection `NOT_READY` : 409.
+- PotProjection `FAILED` et donc contexte d'autorisation indisponible : 409, avec échec interne observable.
+- Contexte PotProjection `READY`, utilisateur autorisé et projection métier terminalement échouée : `FAILED`/503.
 - Version supérieure au watermark : `NOT_FOUND`/404.
 - Artifact N présent et head >= N, watermark N-1 : query explicite N en 404 et current résolu à N-1.
 - Current N non prêt avec N-1 prêt : 409, jamais succès N-1.
@@ -705,7 +709,7 @@ Lots 7.3, 7.4 et 7.6.
 - Évaluer le contexte à la version consultée.
 - Rendre les scopes des ressources autonomes : Shareholder/Expense/Balance ne requièrent pas automatiquement `POT:*`.
 - Ajouter/valider `BALANCE:VIEW_ARCHIVE`.
-- Distinguer contexte indisponible (`NOT_READY`/409) et contexte disponible avec refus (`NOT_FOUND` masqué/404).
+- Distinguer contexte indisponible, que sa PotProjection soit absente, `NOT_READY` ou `FAILED` (`NOT_READY`/409), contexte disponible avec refus (`NOT_FOUND` masqué/404), et échec de la projection métier exposable après autorisation (`FAILED`/503).
 
 **Dépendances**
 
@@ -718,7 +722,8 @@ Lots 7.6 et 7.9.
 - Dernière version deleted : `VIEW_ARCHIVE`.
 - Refus réel masqué en 404.
 - OAuth2 requis sur chaque GET.
-- Absence du contexte PotProjection : 409 et non 404.
+- PotProjection absente ou `NOT_READY` : 409 et non 404.
+- PotProjection `FAILED` : contexte indisponible, donc 409 et non 503.
 
 **Critères de sortie**
 
@@ -858,8 +863,9 @@ Servir les Balances et la vue transverse utilisateur depuis les projections gén
 
 - Résoudre Balance dans la génération active exacte.
 - Charger `PotProjection` de la même `potVersion` pour l'autorisation.
-- Si Balance est `READY` mais PotProjection absent/non `READY`, retourner `NOT_READY`/409.
+- Si la PotProjection de contexte est absente, `NOT_READY` ou `FAILED`, retourner fonctionnellement `NOT_READY`/409, quel que soit l'état de Balance.
 - Si le contexte Pot est disponible et l'utilisateur non autorisé, masquer en 404.
+- Interpréter l'état de Balance seulement avec un contexte Pot `READY` et un utilisateur autorisé : Balance `NOT_READY` donne 409, `FAILED` donne 503 et `READY` donne 200.
 - Servir `balances/me` via l'index transverse, sans enchaînement user -> Pots -> N Balances.
 - Faire valider explicitement la proposition current-only de `balances/me` avant toute suppression d'un paramètre API existant.
 
@@ -870,7 +876,11 @@ Lots 7.10 et 7.12.
 **Tests**
 
 - Balance READY + PotProjection NOT_READY/absente : 409.
+- PotProjection FAILED : contexte indisponible, donc 409 quel que soit l'état de Balance.
 - Balance READY + contexte disponible + refus : 404.
+- PotProjection READY + utilisateur autorisé + Balance FAILED : 503.
+- PotProjection READY + utilisateur autorisé + Balance NOT_READY : 409.
+- PotProjection READY + utilisateur autorisé + Balance READY : 200.
 - Autorisation historique à même version.
 - `balances/me` sans N+1/scans transverses.
 - Contrat versionné ou current-only conforme à la décision produit.
@@ -1053,7 +1063,7 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 4. Même identité et contenu différent : artifact inchangé, state `READY`, violation séparée ; jamais `READY -> FAILED`.
 5. Artifact, `READY`, head et indexes atomiques dans le read store, indépendamment du choix local de coordination Task.
 6. Version connue mais projection absente : `NOT_READY`/409.
-7. Projection terminalement échouée avant succès : `FAILED`/503.
+7. PotProjection `FAILED` lorsqu'elle fournit le contexte d'autorisation : `NOT_READY`/409 côté client, `FAILED` observable en interne.
 8. Version supérieure à `latestVersionSeen` : `NOT_FOUND`/404.
 9. Artifact N projeté en avance avec watermark N-1 : N reste inconnu du Query Kernel ; l'artifact ne modifie pas le watermark.
 10. Projector N non bloqué par un watermark N-1 et lag négatif temporaire accepté.
@@ -1062,19 +1072,22 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 13. Reader strictement read-only : aucun `ProjectionState` créé par un GET.
 14. Projector sans intention durable préexistante : aucune projection attendue inventée.
 15. Task normale, backfill et réparation créent/adoptent `NOT_READY` par le même chemin durable.
-16. Balance `READY` mais PotProjection de même version absente/non prête : `NOT_READY`/409.
-17. Contexte d'autorisation disponible et accès refusé : 404 masqué.
-18. Autorisation historique évaluée à la version consultée.
-19. Delete projeté comme version terminale.
-20. Backfill et rebuild reproductibles depuis le primaire historisé.
-21. `updatedAt` et ordre de liste identiques entre rebuilds.
-22. Index transverse cohérent et atomique avec sa projection canonique.
-23. Routage Expense prouvant sans ambiguïté `NOT_FOUND` ou `NOT_READY` selon la décision du Lot 7.7.
-24. `GET /expenses/{id}` impossible à basculer tant que ce routage n'est pas validé.
-25. Pagination keyset stable selon `updatedAt DESC, potId`.
-26. Plusieurs workers d'un pipeline concurrents, fencés et idempotents.
-27. Un seul producer logique actif pour une identité/génération donnée.
-28. Tous les GET réussissent avec un compte SQL privé de `SELECT` sur le primaire.
+16. Balance `READY` mais PotProjection de même version absente, `NOT_READY` ou `FAILED` : `NOT_READY`/409.
+17. PotProjection `READY` et accès refusé : 404 masqué.
+18. PotProjection `READY`, accès accordé et Balance `FAILED` : 503.
+19. PotProjection `READY`, accès accordé et Balance `NOT_READY` : 409.
+20. PotProjection `READY`, accès accordé et Balance `READY` : 200.
+21. Autorisation historique évaluée à la version consultée.
+22. Delete projeté comme version terminale.
+23. Backfill et rebuild reproductibles depuis le primaire historisé.
+24. `updatedAt` et ordre de liste identiques entre rebuilds.
+25. Index transverse cohérent et atomique avec sa projection canonique.
+26. Routage Expense prouvant sans ambiguïté `NOT_FOUND` ou `NOT_READY` selon la décision du Lot 7.7.
+27. `GET /expenses/{id}` impossible à basculer tant que ce routage n'est pas validé.
+28. Pagination keyset stable selon `updatedAt DESC, potId`.
+29. Plusieurs workers d'un pipeline concurrents, fencés et idempotents.
+30. Un seul producer logique actif pour une identité/génération donnée.
+31. Tous les GET réussissent avec un compte SQL privé de `SELECT` sur le primaire.
 
 ## 9. Risques et décisions humaines nécessaires
 
@@ -1122,6 +1135,7 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 
 ## Revision notes
 
+- Priorité explicite de la readiness du contexte d'autorisation : une PotProjection de contexte absente, `NOT_READY` ou `FAILED` donne fonctionnellement 409 ; `FAILED`/503 n'est exposé qu'après autorisation établie.
 - Clarification de `latestVersionSeen` dans le Query Kernel : un artifact projeté en avance ne rend pas la version connue et ne bloque pas les projectors.
 - Attribution de la création/adoption de `ProjectionState=NOT_READY` au chemin durable de création/adoption de la Task ; readers et projectors ne créent pas opportunistiquement cet état.
 - Décision obligatoire en Lot 7.7 sur la sémantique et la complétude du routage `expenseId -> potId` avant le cutover de `GET /expenses/{id}`.
