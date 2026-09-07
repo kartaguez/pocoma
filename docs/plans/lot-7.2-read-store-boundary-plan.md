@@ -148,9 +148,9 @@ même DataSource
 ```
 
 L'implémentation de référence conserve l'auto-configuration primaire et introduit un migrateur
-read-side dédié utilisant le même `DataSource`. Il est préférable que ce migrateur ne soit pas exposé
-comme bean `Flyway` si les tests de contexte confirment que cette forme évite de faire reculer
-l'auto-configuration Spring Boot primaire.
+read-side dédié utilisant le même `DataSource`. Ce migrateur n'est pas exposé comme bean `Flyway`,
+ne requiert ni Flyway primaire ni bean nommé `flywayInitializer`, et peut donc fonctionner seul. Son
+activation est indépendante de l'auto-configuration des accès read-side.
 
 La classe exacte, le nom de bean, l'interface lifecycle et la dépendance de démarrage ne sont pas des
 invariants. Une autre composition Spring est acceptable si les tests prouvent qu'elle :
@@ -167,6 +167,10 @@ Le choix de référence introduit un qualifier interne `@ReadStore` et des beans
 
 - `JdbcOperations` pour les accès read-side ;
 - `TransactionOperations` pour délimiter une intention transactionnelle read-side.
+
+Ces beans d'accès dépendent uniquement du `DataSource` et du `PlatformTransactionManager`. Ils restent
+disponibles lorsque `spring.flyway.enabled=false`, afin qu'un runtime puisse utiliser un store déjà
+migré sans exécuter Flyway au démarrage.
 
 La forme exacte du qualifier et les noms de beans restent ajustables si une convention Spring déjà
 présente l'exige.
@@ -363,7 +367,7 @@ Le cycle read s'installe sans ressource primaire.
 
 Désactiver le cycle read. Le schéma vide peut rester sans impact.
 
-### Step 3 — Ajouter l'auto-configuration et les accès qualifiés
+### Step 3 — Séparer les auto-configurations de migration et d'accès qualifié
 
 **Objectif**
 
@@ -380,8 +384,11 @@ Sources Spring et déclaration d'auto-configuration du nouveau module.
 **Modification prévue**
 
 - Conserver le Flyway primaire auto-configuré.
-- Introduire le cycle read-side séparé avec le même `DataSource`.
-- Exposer les accès et transactions read-side qualifiés.
+- Introduire le cycle read-side séparé avec le même `DataSource`, sans dépendance intrinsèque à un
+  Flyway primaire ou au bean `flywayInitializer`.
+- Exposer séparément les accès et transactions read-side qualifiés dès que le `DataSource` et le
+  `PlatformTransactionManager` sont disponibles.
+- Maintenir ces accès lorsque Flyway est désactivé ; seule l'exécution des migrations disparaît.
 - Ne créer aucun repository ou port métier.
 
 **Pourquoi cette étape appartient au Lot 7.2**
@@ -395,6 +402,8 @@ Step 2.
 **Tests**
 
 - Contexte Spring avec Flyway primaire toujours actif.
+- Contexte sans Flyway primaire exécutant les migrations read-side seules.
+- Contexte avec `spring.flyway.enabled=false` conservant les accès sans exécuter de migration.
 - Deux historiques distincts.
 - Un seul `DataSource` et un seul transaction manager.
 - Résolution non ambiguë des accès qualifiés.
@@ -577,7 +586,16 @@ Ne doivent pas être modifiés :
 - Auto-configuration primaire toujours active.
 - Ordre runtime prouvé sans être requis par le module read seul.
 
-### 12.3 Isolation
+### 12.3 Découplage accès et migrations
+
+- Avec un `DataSource` mais sans Flyway primaire, le cycle read-side installe son schéma et son
+  historique de manière autonome.
+- Avec `spring.flyway.enabled=false`, `@ReadStore JdbcOperations` et
+  `@ReadStore TransactionOperations` restent disponibles, tandis qu'aucune migration read-side
+  n'est exécutée.
+- Aucun bean nommé `flywayInitializer` n'est une dépendance intrinsèque du module read-side.
+
+### 12.4 Isolation
 
 - Aucune FK read vers une table primaire.
 - Aucune vue ou vue matérialisée read reposant sur une table/vue primaire.
@@ -590,7 +608,7 @@ Les requêtes de catalogue ciblent les objets applicatifs connus. Elles excluent
 ne constituent pas un couplage métier. Le test ne bannit pas globalement toute ligne `pg_depend`
 pointant vers `public`.
 
-### 12.4 Transactions
+### 12.5 Transactions
 
 - Commit nominal dans une table créée uniquement par le test.
 - Exception après une première écriture : rollback complet.
@@ -598,7 +616,7 @@ pointant vers `public`.
 - Accès read explicitement qualifiés.
 - Un seul datasource, pool et transaction manager.
 
-### 12.5 Reactor et non-régression
+### 12.6 Reactor et non-régression
 
 - Compilation du nouveau module seul.
 - Compilation du reactor.
@@ -616,6 +634,8 @@ pointant vers `public`.
   module read.
 - Aucune dépendance structurelle applicative read vers primary n'existe.
 - Les accès read-side sont explicitement identifiables.
+- Les accès read-side ne nécessitent pas Flyway et restent disponibles lorsque celui-ci est désactivé.
+- Les migrations read-side ne nécessitent ni Flyway primaire ni bean `flywayInitializer`.
 - La transaction read-side possède une frontière d'intention claire sans prétendre fournir une
   isolation physique.
 - Aucun runtime de production n'est câblé en 7.2 ; le wiring est différé au premier consommateur.
@@ -642,6 +662,8 @@ Aucune table existante n'est déplacée ou modifiée ; aucune restauration de do
 ## 15. Risques
 
 - Le second cycle Flyway pourrait perturber l'auto-configuration primaire.
+- Un couplage accidentel entre activation des migrations et création des beans d'accès pourrait
+  empêcher l'utilisation d'un read store migré séparément.
 - Un test de contexte incomplet pourrait valider une hypothèse erronée sur Spring Boot.
 - L'ordre primaire puis read d'une composition runtime pourrait être confondu avec une dépendance
   intrinsèque du module read.
@@ -714,3 +736,11 @@ Avant validation du plan et avant clôture de son implémentation :
 - les tests PostgreSQL visent les dépendances métier interdites sans bannir aveuglément tout lien vers
   `public` ;
 - aucun modèle fonctionnel, artifact Balance, GET ou pipeline n'entre dans le Lot 7.2.
+
+## 20. Note de correction Spring/Flyway
+
+- Les accès read-side et le cycle de migration read-side sont configurés séparément.
+- La désactivation de Flyway ne supprime plus les accès `@ReadStore`.
+- Le cycle de migration read-side n'exige plus intrinsèquement un Flyway primaire ni le bean
+  `flywayInitializer` ; l'ordre primary puis read reste une responsabilité optionnelle du composition
+  root qui charge les deux cycles.

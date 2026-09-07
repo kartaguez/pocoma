@@ -1,1 +1,2 @@
-com.kartaguez.pocoma.infra.read.persistence.ReadStorePersistenceAutoConfiguration
+com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration
+com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration

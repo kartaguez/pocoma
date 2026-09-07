@@ -47,9 +47,13 @@ class ReadStorePersistencePostgresTest {
 	}
 
 	@Test
-	void readMigrationsInstallAutonomouslyAndRestartIdempotently() throws Exception {
-		ReadStoreProperties properties = new ReadStoreProperties();
-		new ReadStoreMigrator(dataSource, properties).afterPropertiesSet();
+	void readMigrationsInstallAutonomouslyWithoutPrimaryFlywayAndRestartIdempotently() {
+		autonomousMigrationContextRunner().run(context -> {
+			assertTrue(context.getStartupFailure() == null,
+					() -> "Autonomous read migration failed: " + context.getStartupFailure());
+			assertEquals(0, context.getBeansOfType(Flyway.class).size());
+			assertNotNull(context.getBean("readStoreMigrations"));
+		});
 
 		assertEquals(1, count("""
 				select count(*) from information_schema.schemata where schema_name = 'pocoma_read'
@@ -62,7 +66,8 @@ class ReadStorePersistencePostgresTest {
 				select count(*) from information_schema.tables where table_schema = 'public'
 				"""));
 
-		new ReadStoreMigrator(dataSource, properties).afterPropertiesSet();
+		autonomousMigrationContextRunner().run(context -> assertTrue(context.getStartupFailure() == null,
+				() -> "Autonomous read migration restart failed: " + context.getStartupFailure()));
 
 		assertEquals(1, count("""
 				select count(*) from pocoma_read.flyway_schema_history where success and version = '1'
@@ -70,8 +75,26 @@ class ReadStorePersistencePostgresTest {
 	}
 
 	@Test
+	void readAccessRemainsAvailableWhenFlywayIsDisabled() {
+		accessContextRunner()
+				.withPropertyValues("spring.flyway.enabled=false")
+				.run(context -> {
+					assertTrue(context.getStartupFailure() == null,
+							() -> "Context failed to start: " + context.getStartupFailure());
+					assertNotNull(context.getBean("readStoreJdbcOperations", JdbcOperations.class));
+					assertNotNull(context.getBean(
+							"readStoreTransactionOperations", TransactionOperations.class));
+					assertEquals(0, context.getBeansOfType(Flyway.class).size());
+					assertTrue(!context.containsBean("readStoreMigrations"));
+					assertEquals(0, count("""
+							select count(*) from information_schema.schemata where schema_name = 'pocoma_read'
+							"""));
+				});
+	}
+
+	@Test
 	void springCompositionKeepsPrimaryFlywayAndUsesOneDatasourceAndTransactionManager() {
-		contextRunner().run(context -> {
+		primaryAndReadContextRunner().run(context -> {
 			assertTrue(context.getStartupFailure() == null,
 					() -> "Context failed to start: " + context.getStartupFailure());
 			assertEquals(1, context.getBeansOfType(Flyway.class).size());
@@ -88,7 +111,7 @@ class ReadStorePersistencePostgresTest {
 					"""));
 		});
 
-		contextRunner().run(context -> {
+		primaryAndReadContextRunner().run(context -> {
 			assertTrue(context.getStartupFailure() == null,
 					() -> "Restarted context failed: " + context.getStartupFailure());
 			assertEquals(1, count("""
@@ -102,7 +125,7 @@ class ReadStorePersistencePostgresTest {
 
 	@Test
 	void qualifiedReadTransactionRollsBackWithoutCreatingPhysicalIsolation() {
-		contextRunner().run(context -> {
+		primaryAndReadContextRunner().run(context -> {
 			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
 			TransactionOperations readTransactions = context.getBean(
 					"readStoreTransactionOperations", TransactionOperations.class);
@@ -156,18 +179,30 @@ class ReadStorePersistencePostgresTest {
 				"""));
 	}
 
-	private ApplicationContextRunner contextRunner() {
+	private ApplicationContextRunner autonomousMigrationContextRunner() {
+		return new ApplicationContextRunner()
+				.withBean(DataSource.class, () -> dataSource)
+				.withConfiguration(AutoConfigurations.of(ReadStoreMigrationAutoConfiguration.class));
+	}
+
+	private ApplicationContextRunner accessContextRunner() {
 		return new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(
 						DataSourceAutoConfiguration.class,
 						DataSourceTransactionManagerAutoConfiguration.class,
 						FlywayAutoConfiguration.class,
-						ReadStorePersistenceAutoConfiguration.class))
+						ReadStoreAccessAutoConfiguration.class,
+						ReadStoreMigrationAutoConfiguration.class))
 				.withPropertyValues(
 						"spring.datasource.url=" + POSTGRES.getJdbcUrl(),
 						"spring.datasource.username=" + POSTGRES.getUsername(),
 						"spring.datasource.password=" + POSTGRES.getPassword(),
-						"spring.datasource.driver-class-name=org.postgresql.Driver",
+						"spring.datasource.driver-class-name=org.postgresql.Driver");
+	}
+
+	private ApplicationContextRunner primaryAndReadContextRunner() {
+		return accessContextRunner()
+				.withPropertyValues(
 						"spring.flyway.enabled=true",
 						"spring.flyway.locations=classpath:db/primary-test-migration");
 	}
