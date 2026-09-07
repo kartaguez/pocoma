@@ -124,6 +124,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-infra-read-persistence</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-supra-http-rest-spring</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

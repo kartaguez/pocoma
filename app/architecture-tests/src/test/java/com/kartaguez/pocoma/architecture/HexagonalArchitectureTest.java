@@ -26,6 +26,7 @@ class HexagonalArchitectureTest {
 			+ ".domain.projection.balance..";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
+	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
 
 	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
@@ -1064,6 +1065,17 @@ class HexagonalArchitectureTest {
 
 		assertEquals(ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES, actualDependencies,
 				"Any infra-to-supra dependency must be explicitly allow-listed for migration");
+	}
+
+	@Test
+	void readPersistenceDoesNotDependOnPrimaryPersistenceOrOuterLayers() {
+		noClasses()
+				.that().resideInAPackage(INFRA_READ_PERSISTENCE_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						INFRA_PERSISTENCE_PACKAGE,
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
 	}
 
 	private static String dependencyKey(Dependency dependency) {

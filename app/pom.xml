@@ -56,6 +56,7 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
+		<module>infra-read-persistence</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>
 		<module>supra-consumption-worker</module>

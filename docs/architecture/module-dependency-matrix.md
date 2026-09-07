@@ -68,6 +68,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + adapters legacy à migrer |
+| `infra-read-persistence` | frontière logique du read store : migrations, accès JDBC et intention transactionnelle qualifiés | Spring JDBC/transactions et Flyway ; futurs ports read-side entrants uniquement lorsqu'ils existent | target Lot 7.2, sans dépendance vers la persistence primaire |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |
