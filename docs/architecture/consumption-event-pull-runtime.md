@@ -22,6 +22,11 @@ wrapper. Tasks, provenance and the final `current_claim_id` CAS therefore commit
 failure delays around complete orchestration cycles. A stop request does not interrupt an acquired
 execution.
 
+The independently deployable source-version-watermark runtime reuses this generic lifecycle with the
+dedicated key `EVENT[eventId] / SOURCE_VERSION_WATERMARK[]`. Its locator reloads the authoritative Event
+and atomically advances the read-store watermark with `max(stored, event.version())`; it creates no Task
+and does not reuse or impersonate an Event-to-Task pipeline identity.
+
 ## Outcomes and failures
 
 - SUCCESS, including a zero-Task transformation, commits Tasks, provenance and DONE/SUCCESS together.
@@ -59,3 +64,5 @@ until its dedicated cleanup.
   technical categories, classification and policy.
 - `supra.consumption` contains the polling worker; interruptible waiting lives in `supra.consumption.wait`.
 - `runtime.event.consumption` is the Spring composition root. No internal layer depends on it.
+- `runtime.sourceversion` is the independent Spring composition root for the express source-version
+  watermark consumer. No Event-to-Task engine depends on it.

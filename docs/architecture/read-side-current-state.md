@@ -23,6 +23,10 @@ Task consumption → calcul complet de la version demandée → artifact Balance
 retry et fencing vivent dans les tables génériques de consumption ; les anciennes colonnes lifecycle
 des tables Event/Task ne font pas autorité.
 
+Un runtime express indépendant consomme également chaque Event sous l'identité
+`SOURCE_VERSION_WATERMARK` et maintient `pocoma_read.source_version_watermarks` par max-upsert
+atomique. Il ne crée aucune Task et ne participe à aucune projection métier.
+
 `runtime-monolith` est transitionnel : ses queries Balance reçoivent encore `JpaPotBalancesAdapter`
 et lisent les anciennes tables `pot_balance_*`. Le runtime web cible les remplace par un adapter
 `@Primary` immuable. Les GET utilisent encore les headers `X-User-Id` / `X-User-Scopes`, tandis que
