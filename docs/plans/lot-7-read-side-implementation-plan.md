@@ -461,7 +461,7 @@ Créer/adopter les Tasks de chaque génération applicable à partir des Events 
 
 - chemin Event -> Task ;
 - évaluation de toutes les `PipelineVersionDefinition` du `pipelineId` ;
-- identité et payload autonomes des Tasks Event→Task ;
+- payload d'exécution commun et provenances distinctes des Tasks ;
 - séparation reader/projector/intention.
 
 **Fichiers/modules probablement concernés**
@@ -477,13 +477,22 @@ Créer/adopter les Tasks de chaque génération applicable à partir des Events 
   une Task logique pour chacune telle que `appliesTo(V)` est vraie.
 - Garantir durablement l'unicité `(eventId, pipelineId, pipelineVersion)`. Deux Events partageant
   `potId + potVersion` restent indépendants et peuvent produire deux Tasks.
-- Inclure au minimum `eventId`, `pipelineId`, `pipelineVersion`, `potId` et `potVersion` dans le payload.
-  Une Task existante sous la même identité avec un Pot ou une version différente est une violation,
-  jamais un overwrite.
+- Définir conceptuellement le payload commun
+  `ProjectionExecutionPayload(pipelineId, pipelineVersion, potId, potVersion)`. Une Task Event et une
+  Task administrative partagent ce payload d'exécution, mais pas leur identité/provenance. Pour une
+  Task Event, celle-ci est `(eventId, pipelineId, pipelineVersion)` ; `eventId` n'est donc pas une
+  composante obligatoire du payload d'exécution commun. La représentation Java exacte reste ouverte.
+- Une Task Event existante sous la même identité avec un `potId` ou `potVersion` différent dans son
+  payload d'exécution est une violation technique, jamais un overwrite.
 - Ne consulter ni artifact, failure, head ni statut : une Task manquante est créée même si la
   `ProjectionIdentity` est déjà `READY`; l'executor pourra retourner `AlreadySatisfied`.
-- Évaluer les anciens Events encore candidats avec le catalogue courant. Ajouter v3 applicable
-  `[50..∞]` autorise naturellement un ancien Event V=73 à produire sa Task v3, sans replay spécial.
+- L'inspection ciblée du futur plan détaillé 7.5 doit démontrer le mécanisme réel de sélection des
+  Events candidats. Conceptuellement, un Event est candidat s'il existe au moins une
+  `PipelineVersionDefinition` applicable pour laquelle aucune Task
+  `(eventId, pipelineId, pipelineVersion)` n'existe encore. La logique ne doit jamais considérer qu'un
+  Event consommé une première fois est définitivement exclu.
+- Évaluer ainsi les anciens Events avec le catalogue courant. Ajouter v3 applicable `[50..∞]` autorise
+  naturellement un ancien Event V=73 à produire sa Task v3, sans mécanisme spécial de replay.
 - Ne consulter `latestVersionSeen` ni `PipelineSelectionStrategy` pour créer, acquérir ou exécuter une Task.
 - Ne créer aucune policy de production supplémentaire : applicabilité implique production.
 
@@ -495,9 +504,12 @@ Lot 7.3 ; connaissance ciblée des runtimes Event/Task.
 
 - Même Event et même génération : une Task ; même Event et nouvelle génération : nouvelle Task légitime.
 - Deux Events distincts à même `potVersion` peuvent créer deux Tasks.
-- Payload autonome et conflit de payload détecté sans overwrite.
+- Payload d'exécution commun sans `eventId` obligatoire, provenance Event distincte et conflit de
+  payload détecté sans overwrite.
 - Artifact déjà `READY` n'empêche pas la création de la Task manquante.
-- Ancien Event réévalué après ajout d'une définition applicable.
+- Scénario obligatoire : E existe à V=73 ; sa Task READ_POT/v1 existe ; READ_POT/v2 est ensuite ajoutée
+  et `appliesTo(73)` est vraie ; aucune Task `(E, READ_POT, v2)` n'existe. Le producer redécouvre E,
+  crée ou adopte exactement une Task v2, et ne duplique ni ne modifie la Task v1.
 - Un reader constatant une absence ne crée aucune ligne.
 - Une version non applicable ne produit aucune Task ; définition absente ou incohérente donne une erreur de configuration.
 - Task N créée/acquise/exécutée avec `latestVersionSeen=N-1`.
@@ -508,6 +520,8 @@ Lot 7.3 ; connaissance ciblée des runtimes Event/Task.
 - Le projector exécute une intention, il ne la crée pas.
 - Le Query Kernel reste strictement read-only.
 - Aucun gate watermark n'existe dans le runtime Task.
+- L'ajout d'une nouvelle `pipelineVersion` applicable rend sélectionnables les anciens Events pour
+  lesquels le triplet `(eventId, pipelineId, pipelineVersion)` manque encore.
 
 **Risques/points à vérifier**
 
@@ -660,8 +674,10 @@ Permettre le remplissage volontaire d'une génération, la reconstruction après
   portée par la matérialisation finale.
 - Rendre le déclenchement durable, reprenable et idempotent, quelle que soit l'interface retenue.
 - Distinguer campagne volontaire, rebuild complet et réparation automatique ciblée.
-- Utiliser le même contrat de payload et le même executor que les Tasks Event→Task. L'executor ignore
-  la raison administrative et revérifie l'applicabilité.
+- Utiliser le même `ProjectionExecutionPayload(pipelineId, pipelineVersion, potId, potVersion)` et le
+  même executor que les Tasks Event→Task, tout en conservant la provenance administrative
+  `(campaignId, potId, potVersion, pipelineId, pipelineVersion)`. L'executor ignore la provenance et
+  revérifie l'applicabilité. La forme Java de cette séparation n'est pas figée dans ce lot.
 - Pour un disaster rebuild, reconstruire le watermark par replay Event si disponible ou par lecture administrative autoritative ; ne jamais exposer ce chemin aux GET.
 - Fermer définitivement avant validation du rebuild la source du `updatedAt` de `GET /pots` : elle doit être déterministe, stable entre rebuilds, durable et indépendante d'un état volatile du read store.
 - Ne pas rendre le backfill dépendant de la rétention des Events.

@@ -273,8 +273,10 @@ reculer un index déjà positionné par 46.
 
 Le producer ne consulte ni artifact, failure, head, statut ni stratégie reader. L'identité durable
 d'une Task Event→Task est `(eventId, pipelineId, pipelineVersion)` ; deux Events distincts de même
-version restent indépendants. Le payload transporte l'identité complète de projection. Un conflit de
-Pot ou version sous une identité existante est une violation sans overwrite.
+version restent indépendants. Toutes les Tasks partagent le payload d'exécution conceptuel
+`ProjectionExecutionPayload(pipelineId, pipelineVersion, potId, potVersion)`, distinct de leur
+provenance. `eventId` appartient à la provenance Event, pas au payload commun. Un conflit de Pot ou
+version sous une identité existante est une violation sans overwrite ; la représentation Java reste ouverte.
 
 Le moteur de consommation et ses garanties restent génériques. Les pools sont néanmoins isolés par
 pipeline afin d'autoriser un dimensionnement indépendant et d'empêcher l'affamement entre projections
@@ -284,8 +286,8 @@ Plusieurs workers d'un même pipeline peuvent scanner, claim et exécuter en con
 fencing : c'est le fonctionnement normal d'un pool. Un seul producer logique coordonné évalue le
 catalogue et crée/adopte les Tasks de toutes les définitions applicables.
 
-Le backfill volontaire utilise le même contrat de Task, le même executor et les mêmes garanties que le
-trafic normal. Une Task administrative a pour identité
+Le backfill volontaire utilise le même payload d'exécution, le même executor et les mêmes garanties
+que le trafic normal, avec une provenance différente. Une Task administrative a pour identité
 `(campaignId, potId, potVersion, pipelineId, pipelineVersion)` et peut exister sans Event. Deux campagnes
 peuvent viser la même ProjectionIdentity ; la matérialisation finale reste idempotente.
 
