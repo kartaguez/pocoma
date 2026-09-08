@@ -222,8 +222,10 @@ class HexagonalArchitectureTest {
 				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
 				.map(javaClass -> javaClass.getSimpleName())
 				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of("PipelineDefinition", "PipelineId"), pipelineTypes,
-				"domain-pipeline must contain only pipeline identity and version");
+		assertEquals(Set.of("PipelineDefinition", "PipelineId", "VersionApplicability",
+				"PipelineVersionDefinition", "PipelineDefinitionRegistry",
+				"PocomaPipelineDefinitions", "UnknownPipelineDefinitionException"), pipelineTypes,
+				"domain-pipeline must contain only pipeline identity, applicability, catalog and registry");
 
 		Set<String> taskTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.task"))

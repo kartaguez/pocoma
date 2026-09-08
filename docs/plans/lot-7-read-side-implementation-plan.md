@@ -161,6 +161,17 @@ Une divergence duplicate ne provoque donc jamais `READY -> FAILED`. Une éventue
 
 ### 5.4 Query Kernel commun
 
+#### Alignement Lot 7.3.1
+
+Les passages historiques de ce document relatifs à `ProjectionCoverage`, `NOT_EXPECTED` ou
+`OUT_OF_APPLICABILITY` sont supersédés. `domain-pipeline` possède désormais l'applicabilité immuable,
+le catalogue canonique et le registry exact. `domain-projection` ne possède plus de coverage et
+`engine-read-projection` résout via registry, artifact et failure.
+
+Le Lot 7.5 doit séparer l'applicabilité (`PipelineVersionDefinition.appliesTo`) du scheduling
+(Task/backfill/repair/retry) : applicable autorise la Task, non applicable l'omet, définition absente
+est une erreur de configuration. Une version source applicable sans issue reste `NOT_READY`, même sans Task.
+
 Le Query Kernel centralise, dans un ordre stable, la résolution de version, de génération active, du contexte d'autorisation puis de l'état de la projection métier :
 
 1. Charger la pipeline version active explicitement configurée.

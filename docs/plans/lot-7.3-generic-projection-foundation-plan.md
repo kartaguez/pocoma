@@ -1,5 +1,8 @@
 # Lot 7.3 — Generic projection foundation
 
+> Supersédé par le Lot 7.3.1. Les décisions relatives à `ProjectionCoverage` ci-dessous sont
+> historiques et ne doivent plus être implémentées.
+
 ## 1. Objectif
 
 Introduire la fondation fonctionnelle et persistante commune aux futures projections Pot et Balance,

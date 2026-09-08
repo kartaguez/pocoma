@@ -1,14 +1,21 @@
 package com.kartaguez.pocoma.engine.read.projection;
 
+import static java.util.Objects.requireNonNull;
+
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
 import com.kartaguez.pocoma.domain.projection.*;
 
 public final class ProjectionStatusResolver {
 	private final ProjectionMetadataPort metadata;
-	public ProjectionStatusResolver(ProjectionMetadataPort metadata) { this.metadata = metadata; }
+	private final PipelineDefinitionRegistry definitions;
+	public ProjectionStatusResolver(ProjectionMetadataPort metadata, PipelineDefinitionRegistry definitions) {
+		this.metadata = requireNonNull(metadata);
+		this.definitions = requireNonNull(definitions);
+	}
 
 	public ProjectionResolution resolve(ProjectionIdentity identity) {
-		var coverage = metadata.findCoverage(identity.generation());
-		if (coverage.isEmpty() || !coverage.get().contains(identity.potVersion())) return new ProjectionResolution.NotExpected();
+		var definition = definitions.require(identity.generation().pipeline());
+		if (!definition.appliesTo(identity.potVersion())) return new ProjectionResolution.NotApplicable();
 		boolean artifact = metadata.findArtifact(identity).isPresent();
 		boolean failure = metadata.findFailure(identity).isPresent();
 		if (artifact && failure) throw new IllegalStateException("Projection cannot have both an artifact and a failure");

@@ -15,7 +15,6 @@ import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
-import com.kartaguez.pocoma.engine.read.projection.ProjectionStatusResolver;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
@@ -47,8 +46,4 @@ public class ReadStoreAccessAutoConfiguration {
 		return new SpringReadStoreTransactionRunner(transactions);
 	}
 
-	@Bean
-	ProjectionStatusResolver projectionStatusResolver(ProjectionMetadataPort metadata) {
-		return new ProjectionStatusResolver(metadata);
-	}
 }

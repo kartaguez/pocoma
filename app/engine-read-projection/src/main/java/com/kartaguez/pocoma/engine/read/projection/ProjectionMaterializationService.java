@@ -2,7 +2,9 @@ package com.kartaguez.pocoma.engine.read.projection;
 
 import java.time.Clock;
 import java.util.UUID;
+import static java.util.Objects.requireNonNull;
 
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
 import com.kartaguez.pocoma.domain.projection.*;
 
 public final class ProjectionMaterializationService<A> {
@@ -10,10 +12,13 @@ public final class ProjectionMaterializationService<A> {
 	private final ReadStoreTransactionRunner transactions;
 	private final ProjectionArtifactWriter<A> writer;
 	private final Clock clock;
+	private final PipelineDefinitionRegistry definitions;
 
 	public ProjectionMaterializationService(ProjectionMetadataPort metadata, ReadStoreTransactionRunner transactions,
-			ProjectionArtifactWriter<A> writer, Clock clock) {
-		this.metadata = metadata; this.transactions = transactions; this.writer = writer; this.clock = clock;
+			ProjectionArtifactWriter<A> writer, Clock clock, PipelineDefinitionRegistry definitions) {
+		this.metadata = requireNonNull(metadata); this.transactions = requireNonNull(transactions);
+		this.writer = requireNonNull(writer); this.clock = requireNonNull(clock);
+		this.definitions = requireNonNull(definitions);
 	}
 
 	public ProjectionMaterializationResult materialize(ProjectionIdentity identity, A artifact) {
@@ -22,8 +27,8 @@ public final class ProjectionMaterializationService<A> {
 
 	private ProjectionMaterializationResult materializeLocked(ProjectionIdentity identity, A artifact) {
 		metadata.lock(identity);
-		var coverage = metadata.findCoverage(identity.generation());
-		if (coverage.isEmpty() || !coverage.get().contains(identity.potVersion())) return new ProjectionMaterializationResult.NotExpected();
+		var definition = definitions.require(identity.generation().pipeline());
+		if (!definition.appliesTo(identity.potVersion())) return new ProjectionMaterializationResult.NotApplicable();
 		var existing = metadata.findArtifact(identity);
 		var failure = metadata.findFailure(identity);
 		if (existing.isPresent() && failure.isPresent()) throw new IllegalStateException("Projection cannot have both an artifact and a failure");

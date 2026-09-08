@@ -37,12 +37,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition;
+import com.kartaguez.pocoma.domain.pipeline.VersionApplicability;
+import com.kartaguez.pocoma.domain.pipeline.UnknownPipelineDefinitionException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifactDescriptor;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifactId;
 import com.kartaguez.pocoma.domain.projection.ProjectionContentDigest;
-import com.kartaguez.pocoma.domain.projection.ProjectionCoverage;
 import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
@@ -97,6 +100,14 @@ class ReadStorePersistencePostgresTest {
 				"""));
 		assertEquals(0, count("""
 				select count(*) from information_schema.tables where table_schema = 'public'
+				"""));
+		assertEquals(0, count("""
+				select count(*) from information_schema.tables
+				where table_schema = 'pocoma_read' and table_name = 'projection_coverages'
+				"""));
+		assertEquals(0, count("""
+				select count(*) from information_schema.table_constraints
+				where constraint_schema = 'pocoma_read' and constraint_type = 'FOREIGN KEY'
 				"""));
 
 		autonomousMigrationContextRunner().run(context -> assertTrue(context.getStartupFailure() == null,
@@ -213,51 +224,23 @@ class ReadStorePersistencePostgresTest {
 	}
 
 	@Test
-	void coverageIsContinuousAndConcurrentExtensionsAreMonotone() {
+	void statusIsDerivedFromApplicabilityArtifactAndFailure() {
 		primaryAndReadContextRunner().run(context -> {
 			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
-			ProjectionGenerationIdentity generation = generation();
-			assertEquals(new ProjectionCoverage(generation, 10, 20),
-					metadata.createCoverage(new ProjectionCoverage(generation, 10, 20)));
-
-			var ready = new CountDownLatch(2);
-			var start = new CountDownLatch(1);
-			try (var executor = Executors.newFixedThreadPool(2)) {
-				var through101 = executor.submit(() -> {
-					ready.countDown();
-					start.await();
-					return metadata.extendCoverageThrough(generation, 101);
-				});
-				var through102 = executor.submit(() -> {
-					ready.countDown();
-					start.await();
-					return metadata.extendCoverageThrough(generation, 102);
-				});
-				assertTrue(ready.await(5, TimeUnit.SECONDS));
-				start.countDown();
-				through101.get(5, TimeUnit.SECONDS);
-				through102.get(5, TimeUnit.SECONDS);
-			}
-
-			metadata.extendCoverageFrom(generation, 5);
-			assertEquals(new ProjectionCoverage(generation, 5, 102), metadata.findCoverage(generation).orElseThrow());
-		});
-	}
-
-	@Test
-	void statusIsDerivedFromCoverageArtifactAndFailure() {
-		primaryAndReadContextRunner().run(context -> {
-			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
-			ProjectionStatusResolver resolver = context.getBean(ProjectionStatusResolver.class);
+			ProjectionStatusResolver resolver = new ProjectionStatusResolver(metadata, registry(10, 20));
 			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
 			ProjectionGenerationIdentity generation = generation();
-			metadata.createCoverage(new ProjectionCoverage(generation, 10, 20));
-
-			assertInstanceOf(ProjectionResolution.NotExpected.class, resolver.resolve(identity(generation, 9)));
+			assertInstanceOf(ProjectionResolution.NotApplicable.class, resolver.resolve(identity(generation, 9)));
+			var unknown = new ProjectionGenerationIdentity(generation.projectionType(),
+					new PipelineDefinition(PipelineId.of("UNKNOWN"), 1), generation.potId());
+			assertThrows(UnknownPipelineDefinitionException.class,
+					() -> resolver.resolve(identity(unknown, 15)));
 			assertEquals(ProjectionStatus.NOT_READY,
 					((ProjectionResolution.Resolved) resolver.resolve(identity(generation, 15))).status());
 
-			var failureService = new ProjectionFailureService(metadata, transactions);
+			var failureService = new ProjectionFailureService(metadata, transactions, registry(10, 20));
+			assertInstanceOf(ProjectionFailureResult.NotApplicable.class,
+					failureService.record(identity(generation, 9), Instant.now(), "IGNORED"));
 			assertInstanceOf(ProjectionFailureResult.Recorded.class,
 					failureService.record(identity(generation, 15), Instant.parse("2026-01-01T00:00:00Z"), "TERMINAL"));
 			assertEquals(ProjectionStatus.FAILED,
@@ -273,8 +256,9 @@ class ReadStorePersistencePostgresTest {
 			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
 			createTestArtifactTable(readJdbc);
 			ProjectionGenerationIdentity generation = generation();
-			metadata.createCoverage(new ProjectionCoverage(generation, 1, 100));
 			var service = materializationService(metadata, transactions, readJdbc);
+			assertInstanceOf(ProjectionMaterializationResult.NotApplicable.class,
+					service.materialize(identity(generation, 101), "outside"));
 
 			assertInstanceOf(ProjectionMaterializationResult.Created.class,
 					service.materialize(identity(generation, 44), "forty-four"));
@@ -293,7 +277,7 @@ class ReadStorePersistencePostgresTest {
 			assertEquals(1, readJdbc.queryForObject(
 					"select count(*) from pocoma_read.projection_invariant_violations", Integer.class));
 			assertEquals(ProjectionStatus.READY,
-					((ProjectionResolution.Resolved) context.getBean(ProjectionStatusResolver.class)
+					((ProjectionResolution.Resolved) new ProjectionStatusResolver(metadata, registry(1, 100))
 							.resolve(identity(generation, 44))).status());
 		});
 	}
@@ -306,9 +290,8 @@ class ReadStorePersistencePostgresTest {
 			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
 			createTestArtifactTable(readJdbc);
 			ProjectionGenerationIdentity generation = generation();
-			metadata.createCoverage(new ProjectionCoverage(generation, 1, 100));
 			var materialization = materializationService(metadata, transactions, readJdbc);
-			var failures = new ProjectionFailureService(metadata, transactions);
+			var failures = new ProjectionFailureService(metadata, transactions, registry(1, 100));
 
 			materialization.materialize(identity(generation, 50), "success-first");
 			assertInstanceOf(ProjectionFailureResult.AlreadyReady.class,
@@ -334,7 +317,6 @@ class ReadStorePersistencePostgresTest {
 			createTestArtifactTable(readJdbc);
 			ProjectionGenerationIdentity generation = generation();
 			ProjectionIdentity identity = identity(generation, 70);
-			metadata.createCoverage(new ProjectionCoverage(generation, 1, 100));
 			var failingWriter = new ProjectionArtifactWriter<String>() {
 				@Override public ProjectionContentDigest digest(String artifact) { return digestOf(artifact); }
 				@Override public void write(ProjectionArtifactId artifactId, ProjectionIdentity ignored, String artifact) {
@@ -346,7 +328,7 @@ class ReadStorePersistencePostgresTest {
 			};
 
 			assertThrows(ExpectedRollback.class, () -> new ProjectionMaterializationService<>(metadata, transactions,
-					failingWriter, Clock.systemUTC()).materialize(identity, "rollback"));
+					failingWriter, Clock.systemUTC(), registry(1, 100)).materialize(identity, "rollback"));
 			assertEquals(0, readJdbc.queryForObject(
 					"select count(*) from pocoma_read.test_projection_artifacts where pot_version=70", Integer.class));
 			assertTrue(metadata.findArtifact(identity).isEmpty());
@@ -363,7 +345,6 @@ class ReadStorePersistencePostgresTest {
 			createTestArtifactTable(readJdbc);
 			ProjectionGenerationIdentity generation = generation();
 			ProjectionIdentity identity = identity(generation, 60);
-			metadata.createCoverage(new ProjectionCoverage(generation, 1, 100));
 			var service = materializationService(metadata, transactions, readJdbc);
 			var start = new CountDownLatch(1);
 			try (var executor = Executors.newFixedThreadPool(2)) {
@@ -391,9 +372,8 @@ class ReadStorePersistencePostgresTest {
 			createTestArtifactTable(readJdbc);
 			ProjectionGenerationIdentity generation = generation();
 			ProjectionIdentity identity = identity(generation, 80);
-			metadata.createCoverage(new ProjectionCoverage(generation, 1, 100));
 			var materialization = materializationService(metadata, transactions, readJdbc);
-			var failures = new ProjectionFailureService(metadata, transactions);
+			var failures = new ProjectionFailureService(metadata, transactions, registry(1, 100));
 			var start = new CountDownLatch(1);
 
 			try (var executor = Executors.newFixedThreadPool(2)) {
@@ -488,7 +468,13 @@ class ReadStorePersistencePostgresTest {
 						"select content from pocoma_read.test_projection_artifacts where artifact_id=?",
 						String.class, existing.artifactId().value()));
 			}
-		}, Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC));
+		}, Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC), registry(1, 100));
+	}
+
+	private static PipelineDefinitionRegistry registry(long from, long through) {
+		return new PipelineDefinitionRegistry(java.util.List.of(new PipelineVersionDefinition(
+				new PipelineDefinition(PipelineId.of("READ_TEST"), 2),
+				VersionApplicability.between(from, through))));
 	}
 
 	private static ProjectionContentDigest digestOf(String artifact) {

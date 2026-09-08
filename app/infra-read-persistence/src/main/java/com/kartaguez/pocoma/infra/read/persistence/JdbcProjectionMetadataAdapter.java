@@ -22,32 +22,6 @@ public final class JdbcProjectionMetadataAdapter implements ProjectionMetadataPo
 		this.schema = schema;
 	}
 
-	@Override public Optional<ProjectionCoverage> findCoverage(ProjectionGenerationIdentity generation) {
-		return one(jdbc.query("select from_version, through_version from " + table("projection_coverages") + " where " + generationWhere(),
-				(rs, n) -> new ProjectionCoverage(generation, rs.getLong(1), rs.getLong(2)), generationArgs(generation)));
-	}
-
-	@Override public ProjectionCoverage createCoverage(ProjectionCoverage coverage) {
-		var g = coverage.generation();
-		jdbc.update("insert into " + table("projection_coverages") + " (projection_type,pipeline_id,pipeline_version,pot_id,from_version,through_version) values (?,?,?,?,?,?) on conflict do nothing",
-				g.projectionType().value(), g.pipeline().pipelineId().value(), g.pipeline().pipelineVersion(), g.potId().value(), coverage.fromVersion(), coverage.throughVersion());
-		var stored = findCoverage(g).orElseThrow();
-		if (!stored.equals(coverage)) throw new IllegalStateException("Projection coverage already exists with different bounds");
-		return stored;
-	}
-
-	@Override public ProjectionCoverage extendCoverageThrough(ProjectionGenerationIdentity generation, long version) {
-		if (version < 1) throw new IllegalArgumentException("version must be positive");
-		jdbc.update("update " + table("projection_coverages") + " set through_version=greatest(through_version, ?) where " + generationWhere(), prepend(version, generationArgs(generation)));
-		return findCoverage(generation).orElseThrow(() -> new IllegalStateException("Projection coverage does not exist"));
-	}
-
-	@Override public ProjectionCoverage extendCoverageFrom(ProjectionGenerationIdentity generation, long version) {
-		if (version < 1) throw new IllegalArgumentException("version must be positive");
-		jdbc.update("update " + table("projection_coverages") + " set from_version=least(from_version, ?) where " + generationWhere(), prepend(version, generationArgs(generation)));
-		return findCoverage(generation).orElseThrow(() -> new IllegalStateException("Projection coverage does not exist"));
-	}
-
 	@Override public void lock(ProjectionIdentity identity) {
 		jdbc.queryForObject("select pg_advisory_xact_lock(hashtextextended(?, 0))", Object.class, lockKey(identity));
 	}
@@ -97,7 +71,6 @@ public final class JdbcProjectionMetadataAdapter implements ProjectionMetadataPo
 	private static String identityWhere(){return generationWhere()+" and pot_version=?";}
 	private static Object[] generationArgs(ProjectionGenerationIdentity g){return new Object[]{g.projectionType().value(),g.pipeline().pipelineId().value(),g.pipeline().pipelineVersion(),g.potId().value()};}
 	private static Object[] identityArgs(ProjectionIdentity i){return append(generationArgs(i.generation()),i.potVersion());}
-	private static Object[] prepend(Object value,Object[] values){var out=new Object[values.length+1];out[0]=value;System.arraycopy(values,0,out,1,values.length);return out;}
 	private static Object[] append(Object[] values,Object value){var out=new Object[values.length+1];System.arraycopy(values,0,out,0,values.length);out[values.length]=value;return out;}
 	private static <T> Optional<T> one(java.util.List<T> values){if(values.size()>1)throw new IllegalStateException("Expected at most one row");return values.stream().findFirst();}
 	private static String lockKey(ProjectionIdentity i){var g=i.generation();return g.projectionType().value()+"\u001f"+g.pipeline().pipelineId().value()+"\u001f"+g.pipeline().pipelineVersion()+"\u001f"+g.potId().value()+"\u001f"+i.potVersion();}

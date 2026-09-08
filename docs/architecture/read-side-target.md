@@ -214,6 +214,18 @@ ou étend sa couverture, tandis que les Tasks ne portent que l'ordonnancement de
 
 ## 6. Production et reconstruction
 
+### Alignement 7.3.1 : applicabilité canonique
+
+Les passages historiques relatifs à une coverage persistée sont supersédés. L'applicabilité appartient
+à `PipelineVersionDefinition`, conservée dans le catalogue framework-free `PocomaPipelineDefinitions`.
+Chaque processus construit son registry local depuis ce catalogue : les définitions sont égales par
+valeur, sans partage d'instances, et les générations inactives restent adressables.
+
+La résolution suit strictement : existence source, applicabilité, résultat. Une source inconnue donne
+`NOT_FOUND`, une définition exacte absente une erreur de configuration, une version non applicable
+`NotApplicable`, puis artifact/failure/absence donnent `READY`/`FAILED`/`NOT_READY`. Une Task, un
+backfill ou un retry ne modifie jamais l'applicabilité et leur absence ne modifie jamais `NOT_READY`.
+
 Le pipeline canonique est celui déjà adopté pour Balance :
 
 ```text
