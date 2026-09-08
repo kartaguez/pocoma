@@ -921,6 +921,45 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void projectionNDoesNotRequireSourceVersionWatermarkAtLeastN() {
+		Set<String> projectionRuntimePackages = Set.of(
+				ROOT_PACKAGE + ".engine.port.in.taskcreation",
+				ROOT_PACKAGE + ".engine.port.out.taskcreation",
+				ROOT_PACKAGE + ".engine.service.taskcreation",
+				ROOT_PACKAGE + ".engine.service.transaction.taskcreation",
+				ROOT_PACKAGE + ".engine.port.in.taskexecution",
+				ROOT_PACKAGE + ".engine.service.taskexecution",
+				ROOT_PACKAGE + ".engine.taskexecution",
+				ROOT_PACKAGE + ".engine.port.out.processing.task",
+				ROOT_PACKAGE + ".engine.processing.task",
+				ROOT_PACKAGE + ".pipeline.balance",
+				ROOT_PACKAGE + ".locator.consumption.task",
+				ROOT_PACKAGE + ".runtime.task.consumption");
+		Set<String> watermarkTypes = Set.of(
+				ROOT_PACKAGE + ".domain.projection.SourceVersionWatermark",
+				ROOT_PACKAGE + ".engine.read.projection.ObserveSourceVersionUseCase",
+				ROOT_PACKAGE + ".engine.read.projection.SourceVersionWatermarkPersistencePort",
+				ROOT_PACKAGE + ".infra.read.persistence.JdbcSourceVersionWatermarkAdapter");
+		Set<String> materializationTypes = Set.of(
+				ROOT_PACKAGE + ".engine.read.projection.ProjectionArtifactWriter",
+				ROOT_PACKAGE + ".engine.read.projection.ProjectionMaterializationService",
+				ROOT_PACKAGE + ".engine.read.projection.ProjectionFailureService");
+
+		Set<String> forbiddenDependencies = CLASSES.stream()
+				.filter(javaClass -> projectionRuntimePackages.stream()
+						.anyMatch(prefix -> javaClass.getPackageName().startsWith(prefix))
+						|| materializationTypes.contains(javaClass.getName()))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.filter(dependency -> watermarkTypes.contains(dependency.getTargetClass().getName()))
+				.map(HexagonalArchitectureTest::dependencyKey)
+				.collect(Collectors.toUnmodifiableSet());
+
+		assertEquals(Set.of(), forbiddenDependencies,
+				"Task creation, acquisition, projector execution and artifact production must not use "
+						+ "SourceVersionWatermark as a gate: latestVersionSeen=N-1 must allow projection N");
+	}
+
+	@Test
 	void targetWorkersUseOnlyTheirExpectedFunctionalEntryPointAndGuards() {
 		Set<String> eventDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.event.EventConsumptionLocator");
