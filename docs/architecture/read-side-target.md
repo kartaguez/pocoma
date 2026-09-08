@@ -185,31 +185,32 @@ justifie.
 Pour une identité complète, le résultat est déterministe : un contenu identique peut être adopté ; un
 contenu différent viole l'invariant. Un artifact existant n'est jamais écrasé. Si l'identité est déjà
 `READY` avec un artifact A et qu'une nouvelle exécution calcule B différent, A reste inchangé, B n'est
-pas écrit et le `ProjectionState` reste `READY`. La divergence est enregistrée et remontée comme une
+pas écrit et le statut fonctionnel reste `READY`. La divergence est enregistrée et remontée comme une
 violation d'invariant séparée ; elle ne provoque jamais automatiquement `READY -> FAILED`. Une
 éventuelle quarantaine administrative serait un mécanisme distinct.
 
-### État fonctionnel et head
+### Couverture, statut fonctionnel dérivé et head
 
-Chaque identité de projection possède un `ProjectionState` fonctionnel :
+Pour un `projectionType + pipelineId + pipelineVersion + potId`, une `ProjectionCoverage` persistée
+définit une plage inclusive et continue `[fromVersion..throughVersion]`. Elle exprime les versions qui
+devraient être matérialisées pour cette génération et ce Pot ; elle ne décrit ni l'ordre des Tasks,
+ni les retries, batches ou réparations. Ses bornes sont explicites et ne peuvent être étendues que de
+manière monotone. Il n'existe ni exception interne ni ligne d'attente par `potVersion`.
 
-- `NOT_READY` : projection attendue mais non matérialisée, y compris pendant les retries temporaires ;
-- `READY` : artifact complet et visible ;
-- `FAILED` : échec durable/terminal.
+Pour une version dans cette couverture, `ProjectionStatus` est une vue fonctionnelle dérivée :
 
-Cet état est distinct de l'artifact, du head et du lifecycle technique des Tasks, claims, leases,
-slots et retries. Le reader ne déduit jamais l'état d'une projection en inspectant le moteur de
-consommation.
+- artifact complet présent : `READY` ;
+- `ProjectionFailure` terminale présente : `FAILED` ;
+- ni artifact ni failure : `NOT_READY`, y compris pendant les retries temporaires.
 
-`NOT_READY` matérialise une intention durable de projection. Cette intention est créée ou adoptée dans
-le chemin durable qui crée ou adopte la Task de projection, y compris pour backfill et réparation. Si
-le state existe déjà, ce chemin l'adopte ou effectue un no-op compatible avec son état.
+Une version hors couverture produit un résultat interne `NOT_EXPECTED`/`OUT_OF_COVERAGE`, distinct du
+statut fonctionnel. L'existence source reste déterminée séparément par le watermark. Artifact et
+failure sont mutuellement exclusifs ; une failure tardive ne dégrade jamais un artifact réussi.
 
-Un GET ou un reader ne crée et ne modifie jamais de `ProjectionState`. Un projector exécute une
-intention préexistante : il n'invente pas opportunistiquement un `NOT_READY` lorsqu'un artifact manque.
-Un retry temporaire conserve `NOT_READY`; `FAILED` désigne l'échec durable d'une projection qui n'a pas
-déjà atteint `READY`. Ces règles permettent de mesurer précisément le volume et l'âge des attentes,
-sans déduire l'état depuis le runtime technique. La forme de persistance n'est pas fixée ici.
+Le statut n'est pas persisté dans une table de state. Il est résolu sans lire le lifecycle technique
+des Tasks, claims, leases, slots ou retries. Un GET et un reader restent strictement read-only ; un
+projector ne crée pas d'attente opportuniste. Le chemin durable de préparation d'une génération crée
+ou étend sa couverture, tandis que les Tasks ne portent que l'ordonnancement de son exécution.
 
 ## 6. Production et reconstruction
 
@@ -237,12 +238,12 @@ Lors d'un succès, une unique transaction du read store rend atomiquement visibl
 
 ```text
 artifact complet et tous ses fragments
-+ ProjectionState = READY
++ descriptor d'artifact éventuel
 + max(ProjectionHead.latestProjectedVersion, potVersion)
 + indexes secondaires indispensables dérivés de cette projection
 ```
 
-Le reader ne peut donc voir ni `READY` sans artifact, ni head sans artifact visible, ni projection
+Le reader ne peut donc dériver `READY` sans artifact, ni voir un head sans artifact visible, ni projection
 canonique prête avec un index indispensable en retard.
 
 Cette transaction du read store constitue l'invariant permanent. Tant que read store et lifecycle
@@ -465,7 +466,7 @@ pas le modèle fonctionnel du reader.
 | GET autonomes du primaire | Pot/Expense lisent `pot_global_versions` et les tables historisées ; Balance y lit encore version et autorisation. |
 | PotProjection complète | Aucun snapshot Pot read-side n'existe. |
 | SourceVersionWatermark express | Aucun consumer ou store dédié n'existe. |
-| ProjectionState et ProjectionHead | La projection immuable Balance n'a ni état fonctionnel dédié ni head. |
+| ProjectionStatus et ProjectionHead | La projection immuable Balance n'a ni statut fonctionnel dérivé dédié ni head. |
 | États HTTP | Une projection Balance absente devient actuellement une erreur technique ; les autorisations donnent 403. |
 | Autorisation archive | Les policies de lecture n'utilisent que `*:VIEW`; `BALANCE:VIEW_ARCHIVE` n'existe pas encore dans les permissions canoniques. |
 | Indexes transverses | Les listes actuelles relisent le primaire et `balances/me` réalise une boucle par Pot. |
@@ -550,17 +551,17 @@ implicite.
    complètement versionnée.
 4. Toute identité de projection comprend type, pipeline, génération, Pot et version du Pot.
 5. Les artifacts sont immuables, déterministes et strictement idempotents. Un duplicate divergent
-   laisse l'artifact et le state `READY` inchangés et produit une violation séparée.
+   laisse l'artifact et le statut dérivé `READY` inchangés et produit une violation séparée.
 6. Watermark source et head de projection sont distincts, par Pot, monotones et produits séparément ;
    aucun projector n'est gaté par le watermark.
 7. `latestProjectedVersion > latestVersionSeen` est temporairement valide. Un artifact produit en
    avance ne fait pas connaître sa version au reader.
 8. Pour une query explicite, `V > latestVersionSeen` reste `NOT_FOUND`, même si un artifact V existe.
 9. Le head est canonique, peut avancer malgré des trous et ne se recalcule pas depuis les artifacts.
-10. `NOT_READY` est créé/adopté avec l'intention durable de Task ; readers et projectors n'inventent
-    aucun état attendu.
-11. Artifact, `READY`, head et indexes indispensables deviennent visibles atomiquement dans le read
-   store.
+10. La couverture continue persistée exprime l'attente fonctionnelle indépendamment des Tasks ;
+    `NOT_READY` est dérivé pour une version couverte sans artifact ni failure.
+11. Artifact, descriptor éventuel, head et indexes indispensables deviennent visibles atomiquement
+    dans le read store, de sorte que `READY` soit dérivable sans ambiguïté.
 12. La coordination éventuelle avec le lifecycle Task est un choix local ; une séparation physique
     n'implique aucune transaction distribuée.
 13. Les structures courantes dérivées sont version-fencées et ne régressent jamais lors d'un traitement

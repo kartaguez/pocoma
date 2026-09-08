@@ -65,7 +65,7 @@ L'atomicité fonctionnelle obligatoire porte sur la matérialisation dans le rea
 
 ```text
 artifact immuable
-+ ProjectionState = READY
++ descriptor d'artifact éventuel
 + avance éventuelle de ProjectionHead
 + indexes secondaires indispensables
 ```
@@ -100,9 +100,9 @@ Les écarts documentés à résorber structurent l'ordre des lots :
 |---|---|---|
 | Lectures | Certaines queries lisent encore le primaire historisé ou des adapters orientés write | Toutes les queries en production lisent uniquement le read store |
 | Projection Pot | Absence de snapshot read canonique complet | `PotProjection` immuable par version, physiquement fragmentable |
-| Balance | Projection et runtime existants avec concepts spécifiques/legacy | Même identité, state, head et règles de matérialisation que Pot |
+| Balance | Projection et runtime existants avec concepts spécifiques/legacy | Même identité, couverture, statut dérivé, head et règles de matérialisation que Pot |
 | Version source | Pas de watermark read-side spécialisé | `SourceVersionWatermark.latestVersionSeen`, alimenté par un consommateur Event express |
-| État fonctionnel | État parfois déduit de la mécanique Task | `ProjectionState` explicite : `NOT_READY`, `READY`, `FAILED` |
+| État fonctionnel | État parfois déduit de la mécanique Task | `ProjectionStatus` dérivé de la couverture, des artifacts et des failures, sans lecture des Tasks |
 | Head | Résolution potentielle par recherche dans les artifacts | `ProjectionHead.latestProjectedVersion`, monotone et canonique |
 | Queries transverses | Risque de scans ou N+1 | Indexes dérivés `user -> Pot`, `expenseId -> potId`, `user -> Balances` |
 | Autorisation | Contexte potentiellement obtenu du primaire ou incomplet | Contexte versionné embarqué dans `PotProjection` |
@@ -132,7 +132,8 @@ Les dépendances inter-projection, lorsqu'elles sont explicitement décidées, r
 ### 5.2 Structures fonctionnelles minimales
 
 - `SourceVersionWatermark` : `potId`, `latestVersionSeen` et métadonnées techniques minimales d'observation.
-- `ProjectionState` : identité complète, état fonctionnel, informations stables nécessaires au diagnostic d'un échec terminal ; les retries temporaires restent `NOT_READY`.
+- `ProjectionCoverage` : identité de génération et Pot, plage continue inclusive des versions attendues.
+- `ProjectionArtifact` et `ProjectionFailure` : issues terminales mutuellement exclusives par identité complète ; leur absence pour une version couverte donne `NOT_READY`.
 - `ProjectionHead` : identité de génération de pipeline et `potId`, avec `latestProjectedVersion`.
 - `PotProjection` : header du snapshot et fragments versionnés nécessaires aux ressources filles, à la pagination et à l'autorisation.
 - `BalanceProjection` : artifact aligné sur la même identité et le même lifecycle générique.
@@ -140,31 +141,21 @@ Les dépendances inter-projection, lorsqu'elles sont explicitement décidées, r
 - Configuration de génération active par type/pipeline.
 - Trace séparée des violations d'invariant de matérialisation.
 
-### 5.3 Lifecycle de ProjectionState
+### 5.3 Couverture et statut dérivé
 
-Une projection devient attendue dans un chemin durable qui matérialise l'intention de projection :
+Une `ProjectionCoverage` finie `[fromVersion..throughVersion]` exprime l'attente durable pour une
+génération et un Pot. Elle est indépendante de l'ordonnancement des Tasks, continue, sans exception
+interne, et ses bornes ne peuvent être étendues que de manière monotone.
 
-```text
-BusinessEvent
--> création/adoption de la Task de projection
--> création/adoption de ProjectionState NOT_READY
-```
-
-La Task et le state doivent être créés/adoptés de manière idempotente selon les garanties transactionnelles du runtime concerné. Le même principe s'applique aux Tasks issues d'un backfill ou d'une réparation.
-
-Règles d'ownership :
-
-- un GET ou un reader ne crée et ne modifie jamais un `ProjectionState` ;
-- un projector exécute une intention durable déjà matérialisée et n'invente pas au dernier moment une projection attendue ;
-- si le state existe, le chemin d'intention l'adopte ou effectue un no-op compatible avec son état ;
-- un retry transitoire conserve `NOT_READY` ;
-- un échec durable avant succès produit `FAILED` ;
-- une matérialisation réussie produit `READY` dans la transaction canonique du read store.
+Pour une identité complète dans la couverture : artifact présent donne `READY`, failure terminale
+présente donne `FAILED`, absence des deux donne `NOT_READY`. Hors couverture, le résultat interne est
+`NOT_EXPECTED`. Aucun de ces résultats n'est obtenu en lisant le lifecycle Task et aucune ligne de
+state ou d'attente unitaire par version n'est persistée.
 
 Si une identité déjà `READY` est recalculée :
 
 - contenu identique : succès idempotent/no-op ;
-- contenu différent : artifact existant inchangé, nouveau contenu non écrit, state maintenu à `READY`, violation d'invariant enregistrée et alertée.
+- contenu différent : artifact existant inchangé, nouveau contenu non écrit, statut maintenu à `READY`, violation d'invariant enregistrée et alertée.
 
 Une divergence duplicate ne provoque donc jamais `READY -> FAILED`. Une éventuelle quarantaine administrative serait un mécanisme distinct à concevoir ultérieurement.
 
@@ -175,13 +166,13 @@ Le Query Kernel centralise, dans un ordre stable, la résolution de version, de 
 1. Charger la pipeline version active explicitement configurée.
 2. Résoudre la version demandée : `latestVersionSeen` pour current, valeur fournie pour une query explicite.
 3. Si aucun watermark n'existe, appliquer le contrat d'inexistence documenté ; si `V > latestVersionSeen`, retourner `NOT_FOUND`, même si un artifact V existe techniquement en avance.
-4. Charger le `ProjectionState` et l'artifact de la `PotProjection` de même version requise comme contexte d'autorisation, y compris lorsque la ressource demandée est le Pot lui-même.
+4. Résoudre le statut dérivé et charger l'artifact de la `PotProjection` de même version requise comme contexte d'autorisation, y compris lorsque la ressource demandée est le Pot lui-même.
 5. Si ce contexte est absent, `NOT_READY` ou `FAILED`, retourner fonctionnellement `NOT_READY`/`409` ; conserver un éventuel `FAILED` interne dans l'observabilité opérationnelle.
 6. Si le contexte est `READY` mais que l'accès est refusé, masquer en `NOT_FOUND`/`404`.
-7. Seulement après autorisation accordée, interpréter le `ProjectionState` de la projection métier demandée : `NOT_READY`/absence attendue donne `409`, `FAILED` donne `503`, `READY` exige l'artifact exact.
+7. Seulement après autorisation accordée, interpréter le statut dérivé de la projection métier demandée : `NOT_READY` donne `409`, `FAILED` donne `503`, `READY` exige l'artifact exact.
 8. Servir uniquement l'artifact exact et exposer son `potVersion`.
 
-Le kernel ne déduit pas l'existence source d'un artifact, ne recalcule pas un head avec `MAX`, ne crée aucun state et ne consulte jamais le primaire.
+Le kernel ne déduit pas l'existence source d'un artifact, ne recalcule pas un head avec `MAX`, ne crée aucune donnée fonctionnelle et ne consulte jamais le primaire.
 
 ## 6. Stratégie globale de migration
 
@@ -310,7 +301,7 @@ Introduire les concepts partagés par Pot et Balance avant les artifacts métier
 **Responsabilités couvertes**
 
 - identité complète ;
-- `ProjectionState` ;
+- couverture continue et statut fonctionnel dérivé ;
 - `ProjectionHead` ;
 - immutabilité, déterminisme, idempotence et hors-ordre ;
 - violations d'invariant distinctes du state fonctionnel.
@@ -326,7 +317,7 @@ Introduire les concepts partagés par Pot et Balance avant les artifacts métier
 - Introduire les value objects et ports génériques.
 - Définir l'upsert monotone du head avec `max`.
 - Définir l'insertion immuable et la comparaison déterministe de contenu.
-- Définir les transitions légales de state, sans `READY -> FAILED` automatique.
+- Définir la résolution `NOT_EXPECTED`/`NOT_READY`/`READY`/`FAILED` depuis coverage, artifact et failure.
 - Enregistrer les divergences duplicate dans un canal d'invariant séparé.
 
 **Dépendances**
@@ -338,7 +329,7 @@ Lot 7.2.
 - Fins de projection `44 -> 46 -> 45` : head final à 46 et artifacts tous adressables.
 - Tentative de régression du head sans effet.
 - Duplicate identique idempotent.
-- Même identité et contenu différent : artifact inchangé, state `READY`, nouveau contenu rejeté, violation enregistrée.
+- Même identité et contenu différent : artifact inchangé, statut `READY`, nouveau contenu rejeté, violation enregistrée.
 - Deux identités de pipeline versions différentes coexistent.
 
 **Critères de sortie**
@@ -402,33 +393,33 @@ Lots 7.2 et 7.3 pour la persistance et le vocabulaire.
 - BusinessEvents ne portant pas directement la version nécessaire.
 - Procédure de reconstruction administrative à sécuriser hors API GET.
 
-### Lot 7.5 — Création durable des intentions de projection
+### Lot 7.5 — Scheduling durable des projections couvertes
 
 **Objectif**
 
-Faire de la création/adoption de Task le propriétaire explicite de la création/adoption de `ProjectionState=NOT_READY`.
+Créer/adopter les Tasks comme mécanisme durable d'exécution des versions déjà déclarées attendues par la couverture.
 
 **Responsabilités couvertes**
 
 - chemin Event -> Task ;
-- state fonctionnel attendu ;
+- contrôle d'appartenance à la couverture ;
 - backfill et réparation ;
 - séparation reader/projector/intention.
 
 **Fichiers/modules probablement concernés**
 
 - Event worker et builder/adopter de Tasks existants ;
-- ports/repositories `ProjectionState` ;
+- ports de lecture/extension de `ProjectionCoverage` ;
 - runtime Task générique ;
 - tests d'intégration Event/Task.
 
 **Modifications principales**
 
-- À la création ou adoption durable d'une Task, créer ou adopter idempotemment le state `NOT_READY` de l'identité complète.
-- Définir le comportement si le state est déjà `NOT_READY`, `READY` ou `FAILED` sans le faire régresser.
+- À la création/adoption durable d'une Task, vérifier que l'identité appartient à la couverture de sa génération sans créer une attente unitaire.
+- Définir le comportement idempotent selon l'issue dérivée déjà présente (`NOT_READY`, `READY` ou `FAILED`).
 - Réutiliser exactement ce chemin pour trafic normal, backfill et réparation.
-- Exiger du projector une Task et une intention existantes ; l'absence anormale est une erreur de protocole, pas l'occasion de créer un state opportuniste.
-- Interdire toute écriture de state depuis les GET et readers.
+- Exiger du projector une Task et une couverture existantes ; une version hors couverture est une erreur de protocole, pas l'occasion d'étendre opportunistiquement la couverture.
+- Interdire toute écriture de coverage, artifact ou failure depuis les GET et readers.
 - Ne consulter `latestVersionSeen` ni pour créer la Task, ni pour l'acquérir, ni pour l'exécuter.
 
 **Dépendances**
@@ -437,24 +428,24 @@ Lot 7.3 ; connaissance ciblée des runtimes Event/Task.
 
 **Tests**
 
-- BusinessEvent duplicate : une Task logique et un state adopté sans duplication.
+- BusinessEvent duplicate : une Task logique sans duplication ni ligne d'attente par version.
 - Task de backfill et Task de réparation suivent la même adoption.
-- State existant dans chaque état : comportement idempotent documenté.
+- Artifact/failure/absence pour une version couverte : comportement idempotent documenté.
 - Un reader constatant une absence ne crée aucune ligne.
-- Un projector sans Task/state préexistant n'invente ni intention, ni state, ni artifact.
+- Un projector sans Task/couverture préexistante n'invente ni intention, ni couverture, ni artifact.
 - Task N créée/acquise/exécutée avec `latestVersionSeen=N-1`.
 
 **Critères de sortie**
 
-- L'ownership de `NOT_READY` est unique et testé.
+- `NOT_READY` reste dérivé et indépendant du lifecycle Task.
 - Le projector exécute une intention, il ne la crée pas.
 - Le Query Kernel reste strictement read-only.
 - Aucun gate watermark n'existe dans le runtime Task.
 
 **Risques/points à vérifier**
 
-- Atomicité actuelle entre création de Task et adoption du state selon la colocalisation ; documenter la reprise idempotente si elle n'est pas unique.
-- Ancien producer Balance créant une Task sans le nouvel état.
+- Confusion possible entre couverture fonctionnelle et scheduling des Tasks.
+- Ancien producer Balance créant une Task hors de la future couverture.
 
 ### Lot 7.6 — PotProjection canonique en shadow mode
 
@@ -484,7 +475,7 @@ Construire, pour chaque version exacte, un snapshot logique complet du Pot sans 
 - Matérialiser un header et des fragments versionnés portant tous l'identité nécessaire.
 - Inclure statut, membres/rôles contextuels et données minimales des ressources filles.
 - Calculer depuis le primaire historisé à `potVersion` exacte, sans dépendre d'une projection précédente.
-- Mettre artifact, state `READY`, head et indexes indispensables déjà introduits dans la transaction read-store.
+- Mettre artifact, descriptor éventuel, head et indexes indispensables déjà introduits dans la transaction read-store.
 - Définir avant la fin du lot la provenance candidate du timestamp durable de tri des Pots ; `RecordedEvent.recordedAt` n'est retenu qu'après preuve d'un mapping univoque par version.
 - Ne pas inventer une règle telle que `min(recordedAt)` si plusieurs Events peuvent porter une même `potVersion` ; dans ce cas, définir une autre métadonnée durable ou renforcer explicitement l'invariant source.
 
@@ -670,7 +661,7 @@ Lots 7.3, 7.4 et 7.6.
 - Artifact N présent et head >= N, watermark N-1 : query explicite N en 404 et current résolu à N-1.
 - Current N non prêt avec N-1 prêt : 409, jamais succès N-1.
 - Génération active non prête avec ancienne génération prête : aucun fallback.
-- Reader n'insère ni ne modifie aucun `ProjectionState`.
+- Reader n'insère ni ne modifie coverage, artifact, failure ou head.
 
 **Critères de sortie**
 
@@ -680,7 +671,7 @@ Lots 7.3, 7.4 et 7.6.
 
 **Risques/points à vérifier**
 
-- Confusion entre artifact absent anormal et state absent attendu ; la création durable du state au Lot 7.5 doit rendre le diagnostic explicite.
+- Confusion entre version hors couverture et version couverte sans artifact ; la résolution dérivée doit conserver cette distinction.
 
 ### Lot 7.10 — Autorisation contextuelle et scopes
 
@@ -1060,7 +1051,7 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 1. Projections terminées `44 -> 46 -> 45`, avec head final 46 et aucun artifact perdu.
 2. Head monotone sans régression.
 3. Exécution duplicate identique idempotente.
-4. Même identité et contenu différent : artifact inchangé, state `READY`, violation séparée ; jamais `READY -> FAILED`.
+4. Même identité et contenu différent : artifact inchangé, statut dérivé `READY`, violation séparée ; jamais `READY -> FAILED`.
 5. Artifact, `READY`, head et indexes atomiques dans le read store, indépendamment du choix local de coordination Task.
 6. Version connue mais projection absente : `NOT_READY`/409.
 7. PotProjection `FAILED` lorsqu'elle fournit le contexte d'autorisation : `NOT_READY`/409 côté client, `FAILED` observable en interne.
@@ -1069,7 +1060,7 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 10. Projector N non bloqué par un watermark N-1 et lag négatif temporaire accepté.
 11. Current sans fallback vers une ancienne projection prête.
 12. PipelineVersion active sans fallback vers une ancienne génération prête.
-13. Reader strictement read-only : aucun `ProjectionState` créé par un GET.
+13. Reader strictement read-only : aucune donnée de projection créée par un GET.
 14. Projector sans intention durable préexistante : aucune projection attendue inventée.
 15. Task normale, backfill et réparation créent/adoptent `NOT_READY` par le même chemin durable.
 16. Balance `READY` mais PotProjection de même version absente, `NOT_READY` ou `FAILED` : `NOT_READY`/409.
@@ -1117,11 +1108,11 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 
 - Les GET Pot, Shareholder, Expense et Balance du périmètre lisent exclusivement le read store.
 - Un test d'intégration SQL prouve qu'ils fonctionnent sans droit de lecture sur le primaire.
-- `PotProjection` et `BalanceProjection` utilisent l'identité, le state et le head génériques.
+- `PotProjection` et `BalanceProjection` utilisent l'identité, la couverture, le statut dérivé et le head génériques.
 - Les artifacts sont immuables, les heads monotones et les materialisations read-side atomiques.
 - `latestVersionSeen` est alimenté indépendamment et n'est jamais un gate des projectors.
 - Le Query Kernel ne découvre pas une version depuis les artifacts et n'effectue aucun fallback.
-- La création/adoption de `NOT_READY` appartient au chemin durable de création/adoption des Tasks ; readers et projectors n'inventent aucun état attendu.
+- La couverture porte l'attente fonctionnelle indépendamment des Tasks ; `NOT_READY` est dérivé et readers/projectors n'étendent pas opportunistiquement cette couverture.
 - Les autorisations historiques sont évaluées depuis `PotProjection` à la version exacte.
 - Balance prête sans contexte Pot prêt retourne 409 ; un vrai refus avec contexte disponible retourne 404.
 - Le routage direct d'une Expense distingue de façon prouvée inexistence et indisponibilité.
@@ -1137,7 +1128,7 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 
 - Priorité explicite de la readiness du contexte d'autorisation : une PotProjection de contexte absente, `NOT_READY` ou `FAILED` donne fonctionnellement 409 ; `FAILED`/503 n'est exposé qu'après autorisation établie.
 - Clarification de `latestVersionSeen` dans le Query Kernel : un artifact projeté en avance ne rend pas la version connue et ne bloque pas les projectors.
-- Attribution de la création/adoption de `ProjectionState=NOT_READY` au chemin durable de création/adoption de la Task ; readers et projectors ne créent pas opportunistiquement cet état.
+- Séparation explicite entre couverture fonctionnelle et scheduling : readers et projectors n'étendent pas opportunistiquement la couverture, et `NOT_READY` reste dérivé.
 - Décision obligatoire en Lot 7.7 sur la sémantique et la complétude du routage `expenseId -> potId` avant le cutover de `GET /expenses/{id}`.
 - Validation d'un `updatedAt` durable et reconstructible rendue bloquante pour déclarer un rebuild complet.
 - Distinction explicite entre un producer logique unique par génération et plusieurs instances de workers autorisées dans le pool correspondant.

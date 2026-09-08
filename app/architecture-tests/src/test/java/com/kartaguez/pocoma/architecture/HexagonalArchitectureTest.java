@@ -24,6 +24,8 @@ class HexagonalArchitectureTest {
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
 	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
 			+ ".domain.projection.balance..";
+	private static final String PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection..";
+	private static final String READ_PROJECTION_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.projection..";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
@@ -129,12 +131,11 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> obsoleteDomainTypes = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".domain.policy")
-						|| javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.projection"))
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".domain.policy"))
 				.map(javaClass -> javaClass.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), obsoleteDomainTypes,
-				"Pot policies and balance projection types must use their explicit namespaces");
+				"Pot policies must use their explicit namespace; domain.projection owns generic contracts");
 
 		Set<String> policyDependenciesOutsidePot = dependenciesOutside(
 				POT_POLICY_PACKAGE.substring(0, POT_POLICY_PACKAGE.length() - 2),
@@ -1075,6 +1076,34 @@ class HexagonalArchitectureTest {
 						INFRA_PERSISTENCE_PACKAGE,
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void genericReadProjectionFoundationKeepsFunctionalSemanticsInside() {
+		noClasses()
+				.that().resideInAPackage(PROJECTION_DOMAIN_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						"org.springframework..",
+						"java.sql..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(READ_PROJECTION_ENGINE_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra..",
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".domain.task..",
+						"org.springframework..",
+						"java.sql..",
+						"jakarta.persistence..")
 				.check(CLASSES);
 	}
 
