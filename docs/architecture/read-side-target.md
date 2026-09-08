@@ -160,9 +160,9 @@ potVersion
 ```
 
 Plusieurs pipelines et générations peuvent coexister pour permettre backfill, comparaison, bascule,
-rollback et rétention. Le reader utilise une version active explicitement configurée par type de
-projection ; il ne choisit jamais la plus grande `pipelineVersion` et ne retombe jamais implicitement
-sur une ancienne génération.
+rollback et rétention. Toutes les générations applicables peuvent être produites. Pour l'exposition,
+le reader utilise une `PipelineSelectionStrategy` statique propre à chaque `pipelineId` ; il ne choisit
+jamais la plus grande `pipelineVersion` et ne retombe jamais implicitement sur une autre génération.
 
 Une bascule exige que toutes les projections courantes et dépendances nécessaires aux lectures
 courantes soient exposables. Le backfill historique complet n'est pas une précondition. Les anciennes
@@ -189,49 +189,50 @@ pas écrit et le statut fonctionnel reste `READY`. La divergence est enregistré
 violation d'invariant séparée ; elle ne provoque jamais automatiquement `READY -> FAILED`. Une
 éventuelle quarantaine administrative serait un mécanisme distinct.
 
-### Couverture, statut fonctionnel dérivé et head
+### Applicabilité, sélection reader, statut fonctionnel dérivé et head
 
-Pour un `projectionType + pipelineId + pipelineVersion + potId`, une `ProjectionCoverage` persistée
-définit une plage inclusive et continue `[fromVersion..throughVersion]`. Elle exprime les versions qui
-devraient être matérialisées pour cette génération et ce Pot ; elle ne décrit ni l'ordre des Tasks,
-ni les retries, batches ou réparations. Ses bornes sont explicites et ne peuvent être étendues que de
-manière monotone. Il n'existe ni exception interne ni ligne d'attente par `potVersion`.
+`PipelineVersionDefinition` associe l'identité globale `pipelineId + pipelineVersion` à une
+`VersionApplicability` continue. Une définition publiée est immuable et conservée tant que sa
+génération peut être référencée. `appliesTo(potVersion)` est l'unique règle d'applicabilité et de
+production ; aucune notion supplémentaire de génération active n'existe côté producer.
 
-Pour une version dans cette couverture, `ProjectionStatus` est une vue fonctionnelle dérivée :
+`PipelineSelectionStrategy` choisit uniquement ce que les readers exposent. Pour un `pipelineId`, elle
+contient une liste ordonnée `(fromPotVersion, pipelineVersion)` et résout le plus grand seuil inférieur
+ou égal à V. Les seuils sont positifs et strictement croissants ; les pipelineVersions peuvent revenir
+en arrière ou se répéter. La stratégie peut être vide et son premier seuil peut dépasser 1.
+
+Une stratégie absente pour un pipeline demandé est une erreur de configuration. Une stratégie vide ou
+V avant son premier seuil donne `NOT_FOUND`. Toute version référencée doit exister dans le catalogue
+pour le même pipelineId. La stratégie est statique en code, unique par pipelineId dans un build, sans
+SQL, refresh dynamique, variation par endpoint/utilisateur/scope/query ou fallback.
+
+Pour une version applicable, `ProjectionStatus` est une vue fonctionnelle dérivée :
 
 - artifact complet présent : `READY` ;
 - `ProjectionFailure` terminale présente : `FAILED` ;
 - ni artifact ni failure : `NOT_READY`, y compris pendant les retries temporaires.
 
-Une version hors couverture produit un résultat interne `NOT_EXPECTED`/`OUT_OF_COVERAGE`, distinct du
-statut fonctionnel. L'existence source reste déterminée séparément par le watermark. Artifact et
+Une définition sélectionnée mais non applicable produit `NOT_FOUND` et un signal interne, jamais un
+nouvel état fonctionnel. L'existence source reste déterminée séparément par le watermark. Artifact et
 failure sont mutuellement exclusifs ; une failure tardive ne dégrade jamais un artifact réussi.
 
 Le statut n'est pas persisté dans une table de state. Il est résolu sans lire le lifecycle technique
 des Tasks, claims, leases, slots ou retries. Un GET et un reader restent strictement read-only ; un
-projector ne crée pas d'attente opportuniste. Le chemin durable de préparation d'une génération crée
-ou étend sa couverture, tandis que les Tasks ne portent que l'ordonnancement de son exécution.
+projector ne crée pas d'attente opportuniste. Aucune expectation, state ou table parent équivalente
+n'est persistée. Les Tasks portent l'ordonnancement ; leur présence ou absence ne définit pas le statut.
 
 ## 6. Production et reconstruction
 
-### Alignement 7.3.1 : applicabilité canonique
-
-Les passages historiques relatifs à une coverage persistée sont supersédés. L'applicabilité appartient
-à `PipelineVersionDefinition`, conservée dans le catalogue framework-free `PocomaPipelineDefinitions`.
-Chaque processus construit son registry local depuis ce catalogue : les définitions sont égales par
-valeur, sans partage d'instances, et les générations inactives restent adressables.
-
-La résolution suit strictement : existence source, applicabilité, résultat. Une source inconnue donne
-`NOT_FOUND`, une définition exacte absente une erreur de configuration, une version non applicable
-`NotApplicable`, puis artifact/failure/absence donnent `READY`/`FAILED`/`NOT_READY`. Une Task, un
-backfill ou un retry ne modifie jamais l'applicabilité et leur absence ne modifie jamais `NOT_READY`.
+`PipelineVersionDefinition` est conservée dans `PocomaPipelineDefinitions`, catalogue framework-free
+et canonique. Chaque processus construit son registry local depuis ce catalogue : mêmes valeurs sans
+partage d'instances Java. Les générations inactives restent adressables jusqu'à leur GC explicite.
 
 Le pipeline canonique est celui déjà adopté pour Balance :
 
 ```text
-BusinessEvent
-  -> Event worker du pipeline
-  -> Task(projectionType, pipelineId, pipelineVersion, potId, potVersion)
+BusinessEvent(V)
+  -> toutes les PipelineVersionDefinition applicables du pipelineId
+  -> Task(eventId, pipelineId, pipelineVersion, potId, potVersion)
   -> Task worker du pipeline
   -> reconstruction primaire exacte @ potVersion
   -> calcul complet
@@ -270,22 +271,26 @@ reculer un index déjà positionné par 46.
 
 ## 7. Workers, backfill et réparation
 
+Le producer ne consulte ni artifact, failure, head, statut ni stratégie reader. L'identité durable
+d'une Task Event→Task est `(eventId, pipelineId, pipelineVersion)` ; deux Events distincts de même
+version restent indépendants. Le payload transporte l'identité complète de projection. Un conflit de
+Pot ou version sous une identité existante est une violation sans overwrite.
+
 Le moteur de consommation et ses garanties restent génériques. Les pools sont néanmoins isolés par
 pipeline afin d'autoriser un dimensionnement indépendant et d'empêcher l'affamement entre projections
 lourdes. Le nombre d'instances n'est pas un invariant d'architecture.
 
 Plusieurs workers d'un même pipeline peuvent scanner, claim et exécuter en concurrence via le
-fencing : c'est le fonctionnement normal d'un pool. En revanche, une seule stratégie logique de
-production d'intentions est active par identité et génération de pipeline. Un producer legacy et un
-nouveau producer, ou deux stratégies Event vers Task incompatibles, ne produisent jamais
-concurremment les mêmes intentions.
+fencing : c'est le fonctionnement normal d'un pool. Un seul producer logique coordonné évalue le
+catalogue et crée/adopte les Tasks de toutes les définitions applicables.
 
-Le backfill volontaire utilise les mêmes Tasks, workers, états, règles d'idempotence et garanties
-transactionnelles que le trafic normal. Il couvre nouvelle génération, rebuild complet, perte du read
-store et migration read-side ; son déclenchement est administratif et explicite.
+Le backfill volontaire utilise le même contrat de Task, le même executor et les mêmes garanties que le
+trafic normal. Une Task administrative a pour identité
+`(campaignId, potId, potVersion, pipelineId, pipelineVersion)` et peut exister sans Event. Deux campagnes
+peuvent viser la même ProjectionIdentity ; la matérialisation finale reste idempotente.
 
-La réparation automatique est distincte et limitée aux trous anormaux ou projections attendues
-absentes/défaillantes d'une pipeline active. Elle ne remplace pas un backfill ou une migration
+La réparation automatique est distincte et limitée aux trous anormaux ou projections applicables
+absentes/défaillantes. Elle ne remplace pas un backfill ou une migration
 volontaire.
 
 ## 8. Résolution des lectures unitaires
@@ -295,20 +300,29 @@ volontaire.
 Pour une query Pot sans version explicite, la cible est exactement `latestVersionSeen`. Le reader ne
 sert jamais une ancienne projection au motif qu'elle est disponible.
 
+Après détermination de V et contrôle du watermark, le reader récupère la stratégie du pipeline,
+résout V, reconstruit l'identité de génération, charge sa définition exacte et vérifie `appliesTo(V)`.
+Une stratégie absente ou une définition absente est une erreur de configuration. Une résolution vide
+ou une définition sélectionnée non applicable donne `NOT_FOUND`, cette dernière avec un signal interne.
+Current et historique suivent ce même chemin ; seule la détermination initiale de V diffère.
+
 Pour une version explicite `V` :
 
 | Condition read-side | Résultat fonctionnel |
 |---|---|
 | Pot/watermark inconnu | `NOT_FOUND` |
 | `V > latestVersionSeen`, même si un artifact V existe en avance | `NOT_FOUND` |
-| `V <= latestVersionSeen` et contexte d'autorisation absent, `NOT_READY` ou `FAILED` | `NOT_READY` |
+| stratégie vide, V avant son premier seuil ou définition sélectionnée non applicable | `NOT_FOUND` |
+| V connue et contexte d'autorisation exact absent, `NOT_READY` ou `FAILED` | `NOT_READY` |
 | contexte d'autorisation `READY` mais accès refusé | `NOT_FOUND` masqué |
 | contexte d'autorisation `READY`, accès accordé et projection métier `FAILED` | `FAILED` |
 | contexte d'autorisation `READY`, accès accordé et projection métier non prête | `NOT_READY` |
 | contexte d'autorisation, artifact métier et préconditions d'exposition prêts | `READY` |
 
-Une projection Balance `READY` n'est pas exposable tant que la `PotProjection` de même `potVersion`
-n'est pas disponible pour l'autorisation. Cette précondition ne crée aucune dépendance de calcul ou
+Une projection Balance `READY` n'est pas exposable tant que la `PotProjection` sélectionnée par la
+stratégie READ_POT à la même `potVersion` n'est pas disponible pour l'autorisation. Balance et READ_POT
+gardent leurs stratégies indépendantes ; aucune autorisation n'utilise une génération différente de
+celle sélectionnée pour l'artifact de contexte. Cette précondition ne crée aucune dépendance de calcul ou
 d'ordre entre les deux pipelines. Que cette PotProjection soit absente, `NOT_READY` ou `FAILED`, son
 indisponibilité produit fonctionnellement `NOT_READY`, donc HTTP 409. Son état interne reste observable
 opérationnellement. Le 404 est réservé à une inexistence établie ou à un refus évalué depuis un
@@ -371,8 +385,8 @@ Le current est global, jamais personnalisé. Une lecture sans version ne cherche
 version autorisée. Une ressource ou version non autorisée est masquée par un 404, jamais révélée par
 un 403.
 
-L'ordre de résolution est impératif : établir l'existence source connue, charger les projections
-nécessaires au contexte d'autorisation, retourner `NOT_READY`/409 si ce contexte n'est pas `READY`,
+L'ordre de résolution est impératif : établir l'existence source connue, sélectionner la génération,
+charger les projections exactes nécessaires au contexte d'autorisation, retourner `NOT_READY`/409 si ce contexte n'est pas `READY`,
 masquer en 404 un refus établi, puis seulement interpréter l'état de la projection métier demandée.
 Ainsi, une PotProjection d'autorisation absente, `NOT_READY` ou `FAILED` donne fonctionnellement
 `NOT_READY`/409 ; son éventuel `FAILED` reste visible dans l'observabilité opérationnelle. Lorsque le
@@ -468,7 +482,7 @@ pas le modèle fonctionnel du reader.
 | Identité complète de projection | `balance_projection_artifacts` applique déjà les cinq dimensions. |
 | Immutabilité/idempotence stricte | L'adapter Balance adopte le contenu identique et rejette un conflit. |
 | Hors-ordre des versions | Les artifacts Balance sont indépendants par version. |
-| Pipeline active explicite | Le reader Balance exige déjà `pipeline-id` et `pipeline-version`. |
+| Sélection explicite à migrer | Le reader Balance exige déjà `pipeline-id` et `pipeline-version`, mais pas encore une stratégie par version Pot. |
 | Pools séparables | Un runtime Task est configuré pour un pipeline et un ensemble de types. |
 
 ### Écarts attendus du chantier read-side
@@ -570,28 +584,34 @@ implicite.
    avance ne fait pas connaître sa version au reader.
 8. Pour une query explicite, `V > latestVersionSeen` reste `NOT_FOUND`, même si un artifact V existe.
 9. Le head est canonique, peut avancer malgré des trous et ne se recalcule pas depuis les artifacts.
-10. La couverture continue persistée exprime l'attente fonctionnelle indépendamment des Tasks ;
-    `NOT_READY` est dérivé pour une version couverte sans artifact ni failure.
-11. Artifact, descriptor éventuel, head et indexes indispensables deviennent visibles atomiquement
+10. L'applicabilité canonique implique la production de toutes les générations applicables ; la
+    sélection reader, le scheduling et le statut restent indépendants.
+11. Pour une définition applicable, `NOT_READY` est dérivé uniquement de l'absence d'artifact et de
+    failure. Une définition sélectionnée non applicable donne `NOT_FOUND`, jamais `NOT_READY`.
+12. Artifact, descriptor éventuel, head et indexes indispensables deviennent visibles atomiquement
     dans le read store, de sorte que `READY` soit dérivable sans ambiguïté.
-12. La coordination éventuelle avec le lifecycle Task est un choix local ; une séparation physique
+13. La coordination éventuelle avec le lifecycle Task est un choix local ; une séparation physique
     n'implique aucune transaction distribuée.
-13. Les structures courantes dérivées sont version-fencées et ne régressent jamais lors d'un traitement
+14. Les structures courantes dérivées sont version-fencées et ne régressent jamais lors d'un traitement
    hors ordre.
-14. Le reader ne fallback jamais vers le primaire, une ancienne `potVersion` ou une ancienne
+15. Le reader ne fallback jamais vers le primaire, une ancienne `potVersion` ou une ancienne
     `pipelineVersion`.
-15. Les droits contextuels sont évalués au temps de la version consultée ; un refus avec contexte
+16. La stratégie reader est statique, unique par pipelineId et appliquée avant l'autorisation à current
+    comme à l'historique ; toute référence est validée contre le catalogue exact.
+17. Les droits contextuels sont évalués au temps de la version consultée ; un refus avec contexte
     disponible est masqué en 404.
-16. La readiness du contexte d'autorisation précède l'exposition d'un échec métier : une
+18. La readiness du contexte d'autorisation précède l'exposition d'un échec métier : une
     PotProjection de contexte absente, `NOT_READY` ou `FAILED` retourne fonctionnellement
     `NOT_READY`/409 ; `FAILED`/503 n'est exposé qu'après autorisation établie.
-17. Une Balance prête sans PotProjection `READY` à la même version retourne `NOT_READY`/409.
-18. Les versions source sont contiguës et la suppression du Pot est terminale ; cette dernière est un
+19. Une Balance prête sans PotProjection `READY` à la même version retourne `NOT_READY`/409.
+20. Une Task Event est unique par `(eventId,pipelineId,pipelineVersion)` ; une Task administrative par
+    `(campaignId,potId,potVersion,pipelineId,pipelineVersion)`. Toutes utilisent le même executor.
+21. Les versions source sont contiguës et la suppression du Pot est terminale ; cette dernière est un
     prérequis write-side externe que le read side ne compense pas.
-19. Les pools de workers sont séparés par pipeline mais partagent le moteur générique. Plusieurs
-    workers sont autorisés, avec un seul producer logique d'intentions par génération.
-20. Backfill normal et trafic courant utilisent le même moteur de projection.
-21. Tout read model et index est reconstructible ; le read side ne devient jamais un second primaire.
+22. Les pools de workers sont séparés par pipeline mais partagent le moteur générique. Plusieurs
+    workers sont autorisés, avec un seul producer logique coordonné évaluant le catalogue.
+23. Backfill normal et trafic courant utilisent le même moteur de projection.
+24. Tout read model et index est reconstructible ; le read side ne devient jamais un second primaire.
 
 ## 17. Hors périmètre de cette baseline
 
