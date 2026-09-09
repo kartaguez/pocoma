@@ -27,7 +27,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-pot` | Modèle Pot, valeurs, agrégats et `BusinessEvent` typés | JDK | autres domaines, engines, frameworks | target |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | `PotBalances`, `Balance`, calcul incrémental | `domain-pot`, JDK | engines, persistence, workers | target |
-| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, violations et watermark source minimal | pipeline, Pot id, JDK | engines, persistence, frameworks | target Lots 7.3.1/7.4 |
+| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, watermark et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lot 7.6 |
 | `domain-pipeline` | identité, applicabilité, catalogue/registry des définitions et stratégie statique de sélection reader par pipeline | JDK | tout module applicatif | target Lots 7.3.1/7.9 |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
@@ -40,7 +40,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
 | `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
-| `engine-read-projection` | observation monotone du watermark source ; résolution future via stratégie reader, registry, artifact et failure | projection, pipeline, Pot id | Task lifecycle, infra, frameworks | target Lots 7.3.1/7.4/7.9 |
+| `engine-read-projection` | watermark, matérialisation générique et reconstruction exacte de `PotProjection` via port primaire intentionnel | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lot 7.6 |
 | `engine-task-creation` | pertinence Event→pipelineId, applicabilité canonique par génération et assurance atomique de toutes les Tasks Event-derived | Pot events, pipeline, core | consumption, workers, read store, sélection reader, materialization legacy | target Lot 7.5 |
 | `engine-task-execution` | mapping durable, routage d'un `TaskPayload` typé et rapport fonctionnel d'exécution | pipeline, task | consumption, claims, workers, persistence | target |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
@@ -61,6 +61,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `locator-consumption-source-version-watermark` | localisation Event dédiée, observation monotone du watermark, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
 | `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
 | `pipeline-balance` | binding Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
+| `pipeline-pot` | relevance Event, création/mapping Task et handler `read-pot/v1`, sans watermark ni sélection reader | domaines et engines fonctionnels | target Lot 7.6, framework-free |
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
 | `supra-http-rest-spring` | queries HTTP existantes et admission Command asynchrone ; aucune mutation Pot directe | Query/admission | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
@@ -71,7 +72,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + adapters legacy à migrer |
-| `infra-read-persistence` | frontière logique du read store : migrations, accès JDBC, adapters de métadonnées de projection et max-upsert du watermark source | ports `engine-read-projection`, Spring JDBC/transactions et Flyway | target Lots 7.2–7.4, sans dépendance vers la persistence primaire |
+| `infra-read-persistence` | frontière logique du read store : métadonnées génériques, watermark et quatre tables/writer Pot V5 | ports `engine-read-projection`, Spring JDBC/transactions et Flyway | target Lot 7.6, sans dépendance vers la persistence primaire |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |
@@ -79,7 +80,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `runtime-source-version-watermark-consumption-worker` | consumer Event express indépendant : reload autoritatif, max-upsert watermark, lifecycle générique | locator watermark/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
 | `runtime-business-events-outbox-dispatcher` | ancien dispatcher outbox | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-materialization-dispatcher` | ancien matérialiseur | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
-| `runtime-task-consumption-worker` | composition du locator Task, moteur transactionnel, polling et binding Balance | locator/orchestrateur/supra/infra/pipeline Balance | composition target |
+| `runtime-task-consumption-worker` | composition générique du locator Task et binding exact Balance ou READ_POT selon la génération configurée | locator/orchestrateur/supra/infra/pipelines | composition target Lot 7.6 |
 | `runtime-command-consumption-worker` | composition du locator Command, moteur transactionnel, polling générique et binding Pot | locator/orchestrateur/supra/infra/binding Pot Command | composition target, processus distinct de l'API HTTP |
 | `runtime-balance-calculation-tasks-dispatcher` | ancien runtime des tâches Balance | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-monolith` | composition transitionnelle Query/projection sans write path Command synchrone | couches read/projection conservées | conservé jusqu'au redesign read-side |

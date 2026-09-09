@@ -109,9 +109,9 @@ class EventConsumptionTakeoverPostgresTest {
 			assertTrue(pending.terminalOutcome().isEmpty());
 
 			execute.execute(new ExecuteConsumptionInput(winner.slotId(), winner.claimId(), located.execution()));
-			assertEquals(1, taskCount());
+			assertEquals(2, taskCount());
 			assertEquals(1, provenance.findInputs(winner.slotId()).size());
-			assertEquals(1, provenance.findResults(winner.slotId()).size());
+			assertEquals(2, provenance.findResults(winner.slotId()).size());
 			assertEquals(TerminalOutcome.SUCCESS,
 					lifecycle.findSlot(winner.slotId()).orElseThrow().terminalOutcome().orElseThrow());
 		}

@@ -265,14 +265,21 @@ transitionnel, mais ne constituent pas le chemin Balance lu par `runtime-web-api
 
 ### Factuel
 
+- Le Lot 7.6 ajoute en shadow mode `PotProjection` exact sous `read-pot/v1` (`READ_POT`) : snapshot
+  autonome, fragments Shareholder/Expense/share, descriptor générique et head. Aucun GET actif ne le lit.
+- Le reconstructeur primaire charge Pot, Shareholders, Expenses supprimées comprises et shares à la
+  version exacte ; le read store V5 matérialise quatre tables reliées par des FK internes.
+- Le runtime Event schedule désormais Balance et READ_POT selon leur applicabilité ; une instance du
+  runtime Task reste configurée pour une génération exacte mais peut composer l'un ou l'autre binding.
+
 - Quatre des six query families lisent directement le modèle primaire historisé ; les deux queries
   Balance combinent modèle primaire et projection.
 - `runtime-web-api` dépend d'`infra-persistence-jpa` et sélectionne directement son adapter Balance
   immuable dans une configuration de runtime.
 - L'identité et les permissions des GET proviennent de headers legacy librement formés ; seul le POST
   Command utilise le principal Resource Server.
-- La reconstruction temporelle assemble plusieurs sous-objets ; aucun snapshot Pot complet ne garantit
-  à lui seul la cohérence d'une version.
+- Les readers primaires historiques assemblent encore plusieurs sous-objets ; en parallèle, le snapshot
+  shadow `PotProjection@V` matérialise désormais de façon autonome leur état canonique exact à V.
 - Deux persistences Balance et deux compositions de lecture coexistent : immutable pipeline dans le
   runtime web cible, `pot_balance_*` dans le monolithe transitionnel.
 - Le pipeline cible réutilise les tables `business_event_outbox` et `tasks_4_pipeline` comme données
@@ -303,9 +310,9 @@ Le write side est clos selon [write-side-closure.md](write-side-closure.md). `PO
 reste l'unique voie canonique de mutation : admission durable, puis exécution par le Command worker.
 Le Lot 7 ne doit réintroduire aucune mutation primaire directe depuis HTTP.
 
-La garantie « delete Pot terminal » attendue par la cible n'est toutefois pas entièrement satisfaite
-par l'état audité. Sa correction est un prérequis write-side externe au Lot 7 ; le présent document ne
-prescrit pas ce correctif.
+La garantie « delete Pot terminal » est désormais appliquée par les contextes de mutation du Pot et
+par les contextes Expense create/delete/update. Une commande Expense visant un Pot supprimé est rejetée
+avant nouvelle version et Event. Le changement est le micro-correctif ciblé de clôture du Lot 7.6.
 
 Le futur read side devra consommer ou projeter les données produites par cette chaîne sans modifier les
 invariants de `RecordedCommand`, du lifecycle générique de consumption, de la transaction gagnante ou

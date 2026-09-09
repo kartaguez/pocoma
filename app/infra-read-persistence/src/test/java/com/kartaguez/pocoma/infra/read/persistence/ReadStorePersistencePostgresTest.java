@@ -12,6 +12,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.HexFormat;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -43,6 +45,10 @@ import com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition;
 import com.kartaguez.pocoma.domain.pipeline.VersionApplicability;
 import com.kartaguez.pocoma.domain.pipeline.UnknownPipelineDefinitionException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifactDescriptor;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifactId;
 import com.kartaguez.pocoma.domain.projection.ProjectionContentDigest;
@@ -50,6 +56,11 @@ import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
+import com.kartaguez.pocoma.domain.projection.PotProjection;
+import com.kartaguez.pocoma.domain.projection.PotProjectionExpense;
+import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
+import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
+import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureResult;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureService;
@@ -105,7 +116,7 @@ class ReadStorePersistencePostgresTest {
 				select count(*) from information_schema.tables
 				where table_schema = 'pocoma_read' and table_name = 'projection_coverages'
 				"""));
-		assertEquals(0, count("""
+		assertEquals(6, count("""
 				select count(*) from information_schema.table_constraints
 				where constraint_schema = 'pocoma_read' and constraint_type = 'FOREIGN KEY'
 				"""));
@@ -333,6 +344,100 @@ class ReadStorePersistencePostgresTest {
 					"select count(*) from pocoma_read.test_projection_artifacts where pot_version=70", Integer.class));
 			assertTrue(metadata.findArtifact(identity).isEmpty());
 			assertTrue(metadata.findHead(generation).isEmpty());
+		});
+	}
+
+	@Test
+	void canonicalPotArtifactIsAutonomousExactlyLoadableAndDeterministic() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcPotProjectionArtifactWriter writer = context.getBean(JdbcPotProjectionArtifactWriter.class);
+			PotId potId = PotId.of(UUID.randomUUID());
+			ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
+			ProjectionIdentity identity = new ProjectionIdentity(new ProjectionGenerationIdentity(
+					new ProjectionType("READ_POT"), new PipelineDefinition(PipelineId.of("read-pot"), 1), potId), 5);
+			PotProjection projection = new PotProjection(identity, PotProjectionStatus.DELETED, "Trip",
+					UserId.of(UUID.randomUUID()),
+					List.of(new PotProjectionShareholder(shareholderId, "Alice", Fraction.of(2, 4),
+							Optional.empty(), true)),
+					List.of(new PotProjectionExpense(ExpenseId.of(UUID.randomUUID()), shareholderId,
+							Fraction.of(15, 2), "Dinner", true,
+							List.of(new PotProjectionExpenseShare(shareholderId, Fraction.of(3, 6))))));
+			var definitions = new PipelineDefinitionRegistry(List.of(new PipelineVersionDefinition(
+					identity.generation().pipeline(), VersionApplicability.from(1))));
+			var service = new ProjectionMaterializationService<>(metadata, transactions, writer,
+					Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC), definitions);
+
+			var created = assertInstanceOf(ProjectionMaterializationResult.Created.class,
+					service.materialize(identity, projection));
+			assertEquals(projection, writer.findByArtifactId(created.descriptor().artifactId()).orElseThrow());
+			assertEquals(writer.digest(projection), writer.digest(writer.findByArtifactId(
+					created.descriptor().artifactId()).orElseThrow()));
+			assertInstanceOf(ProjectionMaterializationResult.AlreadySatisfied.class,
+					service.materialize(identity, projection));
+		});
+	}
+
+	@Test
+	void failureAfterArtifactDescriptorAndBeforeHeadRollsBackEverything() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort delegate = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
+			createTestArtifactTable(readJdbc);
+			ProjectionGenerationIdentity generation = generation();
+			ProjectionIdentity identity = identity(generation, 71);
+			ProjectionMetadataPort failingBeforeHead = new ProjectionMetadataPort() {
+				@Override public void lock(ProjectionIdentity value) { delegate.lock(value); }
+				@Override public java.util.Optional<ProjectionArtifactDescriptor> findArtifact(ProjectionIdentity value) { return delegate.findArtifact(value); }
+				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.ProjectionFailure> findFailure(ProjectionIdentity value) { return delegate.findFailure(value); }
+				@Override public void insertArtifact(ProjectionArtifactDescriptor value) { delegate.insertArtifact(value); }
+				@Override public void insertFailure(com.kartaguez.pocoma.domain.projection.ProjectionFailure value) { delegate.insertFailure(value); }
+				@Override public com.kartaguez.pocoma.domain.projection.ProjectionHead advanceHead(ProjectionGenerationIdentity value, long version, Instant at) { throw new ExpectedRollback(); }
+				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.ProjectionHead> findHead(ProjectionGenerationIdentity value) { return delegate.findHead(value); }
+				@Override public void recordViolation(com.kartaguez.pocoma.domain.projection.ProjectionInvariantViolation value) { delegate.recordViolation(value); }
+			};
+			var service = materializationService(failingBeforeHead, transactions, readJdbc);
+
+			assertThrows(ExpectedRollback.class, () -> service.materialize(identity, "rollback-before-head"));
+			assertEquals(0, readJdbc.queryForObject(
+					"select count(*) from pocoma_read.test_projection_artifacts where pot_version=71", Integer.class));
+			assertTrue(delegate.findArtifact(identity).isEmpty());
+			assertTrue(delegate.findHead(generation).isEmpty());
+		});
+	}
+
+	@Test
+	void failureAfterFirstPotFragmentLeavesNoVisibleMaterialization() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
+			ProjectionGenerationIdentity generation = new ProjectionGenerationIdentity(new ProjectionType("READ_POT"),
+					new PipelineDefinition(PipelineId.of("read-pot"), 1), PotId.of(UUID.randomUUID()));
+			ProjectionIdentity identity = new ProjectionIdentity(generation, 8);
+			ProjectionArtifactDescriptor descriptor = new ProjectionArtifactDescriptor(ProjectionArtifactId.random(),
+					identity, digestOf("partial"), Instant.parse("2026-01-01T00:00:00Z"));
+
+			assertThrows(ExpectedRollback.class, () -> transactions.run(() -> {
+				metadata.insertArtifact(descriptor);
+				readJdbc.update("insert into pocoma_read.pot_projection_snapshots "
+						+ "(artifact_id,projection_type,pipeline_id,pipeline_version,pot_id,pot_version,status,label,creator_id) "
+						+ "values (?,?,?,?,?,?,?,?,?)", descriptor.artifactId().value(), "READ_POT", "read-pot", 1,
+						generation.potId().value(), 8, "ACTIVE", "Partial", UUID.randomUUID());
+				readJdbc.update("insert into pocoma_read.pot_projection_shareholders "
+						+ "(artifact_id,shareholder_id,ordinal,name,weight_numerator,weight_denominator,user_id,deleted) "
+						+ "values (?,?,0,'Partial shareholder',1,1,null,false)",
+						descriptor.artifactId().value(), UUID.randomUUID());
+				throw new ExpectedRollback();
+			}));
+
+			assertTrue(metadata.findArtifact(identity).isEmpty());
+			assertEquals(0, readJdbc.queryForObject("select count(*) from pocoma_read.pot_projection_snapshots",
+					Integer.class));
+			assertEquals(0, readJdbc.queryForObject("select count(*) from pocoma_read.pot_projection_shareholders",
+					Integer.class));
 		});
 	}
 

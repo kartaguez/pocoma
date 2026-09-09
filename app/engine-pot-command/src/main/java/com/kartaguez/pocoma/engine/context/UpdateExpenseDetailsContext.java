@@ -12,8 +12,12 @@ import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 public record UpdateExpenseDetailsContext(
 		PotGlobalVersion potGlobalVersion,
 		boolean deleted,
+		boolean potDeleted,
 		UserId creatorId,
 		Set<ShareholderId> shareholderIds) {
+
+	public UpdateExpenseDetailsContext(PotGlobalVersion version, boolean deleted, UserId creatorId,
+			Set<ShareholderId> shareholderIds) { this(version, deleted, false, creatorId, shareholderIds); }
 
 	public UpdateExpenseDetailsContext {
 		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
@@ -23,6 +27,8 @@ public record UpdateExpenseDetailsContext(
 
 	public void assertUpdatePreconditions(long expectedVersion, ShareholderId payerId) {
 		Objects.requireNonNull(payerId, "payerId must not be null");
+		if (potDeleted) throw new BusinessRuleViolationException("POT_ALREADY_DELETED",
+				"Expense details cannot be updated because the pot is already deleted");
 
 		if (deleted) {
 			throw new BusinessRuleViolationException(

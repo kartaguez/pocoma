@@ -1,4 +1,4 @@
-# Runtime transactionnel Task et projection Balance
+# Runtime transactionnel Task multi-pipeline
 
 ## Frontière d'exécution
 
@@ -22,6 +22,18 @@ persist ConsumptionInput and ConsumptionResult
 CAS status=PENDING and current_claim_id=myClaimId
 commit
 ```
+
+Une instance reste configurée pour une unique `PipelineDefinition`. La composition accepte
+`balance-projection/v2` et `read-pot/v1`, exige pour l'identité choisie exactement un mapper et un
+handler, et échoue au démarrage sur un pipeline sans binding. READ_POT réutilise le même locator,
+orchestrateur, lifecycle, provenance et fencing ; il n'introduit aucun moteur Pot spécifique.
+
+Pour READ_POT, la transaction commune couvre la reconstruction primaire exacte, les quatre fragments
+Pot du read store, le descriptor, le head, la provenance et le CAS terminal. Les transactions Spring
+utilisent le même `PlatformTransactionManager` et le même `DataSource`; la propagation imbriquée du
+writer read-store est `REQUIRED`. Les lignes historisées applicables à une version déjà publiée ne
+sont pas réécrites : une mutation ultérieure ferme leur intervalle à une version strictement supérieure,
+ce qui conserve leur vérité à V pendant l'assemblage transactionnel.
 
 Un CAS perdu lève `LostClaimException` et annule projection, provenance et outcome. L'expiration du
 lease seule ne retire aucune autorité : seul un takeover remplaçant `currentClaimId` fence l'ancien

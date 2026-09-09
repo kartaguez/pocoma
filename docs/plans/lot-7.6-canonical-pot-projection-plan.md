@@ -33,13 +33,15 @@ Le lot est prêt à être validé lorsque :
 
 Deux réserves ne doivent pas être maquillées en hypothèses :
 
-- **[OPEN / BLOCKER]** le write side actuel ne prouve pas encore que delete Pot est terminal ; la
-  preuve « aucune version valide après delete » bloque la clôture canonique du lot tant que cette
-  précondition externe n'est pas corrigée et testée ;
+- **[BLOCKER DE CLÔTURE À RÉSOUDRE DANS 7.6]** le write side observé avant implémentation ne prouvait
+  pas encore que delete Pot était terminal. Ce
+  point ne bloque pas l'implémentation ni la validation shadow du projector : le Lot 7.6 reconstruit
+  d'abord exactement la version `DELETED`, puis porte un micro-correctif write-side strictement ciblé
+  et ses tests. Il bloque seulement la clôture canonique du lot tant que le correctif n'est pas livré ;
 - **[OPEN / BLOCKER]** aucune source fonctionnelle univoque de `updatedAt` n'existe aujourd'hui. Cette
-  valeur est exclue du snapshot 7.6 et la décision est explicitement portée au début du Lot 7.8,
-  comme l'autorise le plan directeur. Elle bloque un rebuild final et le futur tri, pas la production
-  du snapshot shadow sans `updatedAt`.
+  valeur est exclue du snapshot 7.6. Elle ne bloque ni son implémentation ni sa clôture en shadow mode,
+  mais devient un gate d'entrée du Lot 7.7 pour toute partie dépendant du tri current, des indexes
+  current ou de la pagination canonique `updatedAt DESC, potId`.
 
 ## 2. Sources documentaires consultées
 
@@ -241,6 +243,10 @@ encore à `V`, pas qu'une query GET les a filtrés.
 **[IMPLEMENTATION CHOICE]** Les Expense shares applicables sont conservées dans l'Expense, même si
 son header est supprimé. Cette représentation préserve l'état historique complet ; les futurs readers
 décideront ensuite si une ressource supprimée est exposable.
+
+**[CANONICAL INVARIANT]** Présence d'un sous-objet dans `PotProjection` ne signifie pas exposition par
+défaut dans un futur GET. Le snapshot conserve l'état historique complet ; les futurs readers décident
+séparément si le sous-objet est actif, archivé, masqué ou visible seulement avec `VIEW_ARCHIVE`.
 
 ### 6.3 Contexte d'autorisation
 
@@ -552,13 +558,23 @@ snapshots précédents.
 de delete. Une Task visant une version primaire inexistante ne peut pas être matérialisée silencieusement
 et produit une failure terminale de reconstruction.
 
-**[OPEN / BLOCKER]** Le write side permet encore certaines mutations Expense après delete Pot. Le
-Lot 7.6 ne filtre pas ces lignes pour fabriquer artificiellement une terminalité. Avant clôture :
+**[BLOCKER IDENTIFIÉ AVANT IMPLÉMENTATION, RÉSOLU EN 7.6]** Le write side permettait encore certaines
+mutations Expense après delete Pot. Le projector ne filtre pas les éventuelles lignes legacy pour
+fabriquer artificiellement une terminalité.
+Le séquencement obligatoire du Lot 7.6 est :
 
-1. corriger cette précondition dans le chantier write-side approprié ;
-2. prouver qu'une mutation après delete ne crée ni nouvelle `potVersion` ni Event ;
-3. prouver qu'aucune Task valide post-delete ne peut être schedulée ;
-4. conserver un test projector rejetant une version exacte inexistante.
+1. implémenter le projector Pot en shadow mode ;
+2. prouver la reconstruction exacte de la version `DELETED`, historique complet inclus ;
+3. relire `docs/architecture/write-side-closure.md`, puis inspecter uniquement les guards/contextes
+   métier des mutations post-delete vérifiées ;
+4. livrer un micro-correctif write-side strictement ciblé rendant delete Pot réellement terminal,
+   sans rouvrir l'architecture du Lot 6 ;
+5. prouver qu'une commande métier ultérieure visant le Pot ou ses enfants est rejetée de manière
+   cohérente, sans nouvelle `potVersion` ni `BusinessEvent` de mutation ;
+6. seulement alors déclarer le Lot 7.6 clos.
+
+Les éventuelles versions post-delete de fixtures legacy restent visibles et documentées comme
+divergence historique ; le projector ne les normalise ni ne les masque silencieusement.
 
 ## 17. Contexte d'autorisation historique
 
@@ -607,10 +623,13 @@ Events d'un append, mais cet effet d'implémentation n'est pas une garantie dura
 **[CANONICAL INVARIANT]** Ne choisir ni min, max, premier, dernier, temps de projection ou temps de
 replay. Ne pas ajouter `updatedAt` au modèle 7.6.
 
-**[OPEN / BLOCKER]** Au début du Lot 7.8 au plus tard, choisir et rendre durable une source univoque,
+**[OPEN / BLOCKER 7.7]** Avant de commencer ou valider la partie du Lot 7.7 portant l'ordre current,
+les indexes current et la pagination, choisir et rendre durable une source fonctionnelle univoque,
 par exemple une metadata de commit portée par la version Pot elle-même, puis définir sa reconstruction
-administrative. Tant que ce point reste ouvert : shadow comparison possible ; rebuild complet et
-pagination `updatedAt DESC,potId` non déclarables.
+administrative. Tant que ce gate reste ouvert : snapshot et comparaison shadow 7.6 possibles et
+clôturables ; ordre canonique `updatedAt DESC, potId`, pagination current et rebuild des indexes
+correspondants interdits. Les parties de 7.7 indépendantes pourront être planifiées séparément, sans
+prétendre valider cet ordre.
 
 ## 20. Failure semantics
 
@@ -744,8 +763,8 @@ Ajouter :
 
 ## 23. Ordre précis d'implémentation
 
-1. **Gate documentaire** — relire ce plan et la reconstruction historique ; résoudre ou accepter
-   explicitement les deux blockers selon les critères de section 1.
+1. **Gate documentaire** — relire ce plan et la reconstruction historique ; acter `updatedAt` comme
+   gate d'entrée du 7.7 et le delete terminal comme blocker de clôture, non d'implémentation shadow.
 2. **Tests de caractérisation primaire** — figer les lectures temporelles, deleted children et contexte
    utilisateur avant d'ajouter le modèle.
 3. **Modèle fonctionnel** — ajouter PotProjection/fragments/statut et tests de validation/déterminisme.
@@ -760,12 +779,15 @@ Ajouter :
 10. **Runtime Event** — enregistrer relevance/strategy Pot sans changer discovery/slots 7.5.
 11. **Runtime Task** — généraliser la composition, ajouter profil/déploiement shadow `read-pot/v1`.
 12. **Atomicité** — exécuter les injections de failure et prouver l'enlistment réel.
-13. **E2E shadow** — Event→Task→projection et comparaison au primaire ; GET inchangés.
-14. **Architecture/observabilité** — règles de dépendance et métriques bornées created/adopted/rejected/
+13. **E2E shadow** — Event→Task→projection, version `DELETED` et comparaison au primaire ; GET inchangés.
+14. **Micro-correctif terminal-delete** — après la preuve shadow, inspection ciblée des guards Expense,
+    rejet métier post-delete et tests d'absence de nouvelle version/Event.
+15. **Architecture/observabilité** — règles de dépendance et métriques bornées created/adopted/rejected/
     failed, sans tags potId/eventId.
-15. **Documentation factuelle** — mettre à jour current state, runtime Task/Event, matrice et le présent
+16. **Documentation factuelle** — mettre à jour current state, runtime Task/Event, matrice, clôture
+    write-side et le présent
     document seulement selon le code réellement livré.
-16. **Validation complète** — commandes section 27 et `git diff --check`.
+17. **Validation complète** — commandes section 27 et `git diff --check`.
 
 Chaque étape doit laisser les modules concernés compilables. Le catalogue ne doit jamais référencer
 une génération dont les deux runtimes ne savent pas construire les bindings requis.
@@ -806,15 +828,16 @@ une génération dont les deux runtimes ne savent pas construire les bindings re
 ### Explicitement non touchés fonctionnellement
 
 **[CANONICAL INVARIANT]** GET/controllers, Query Kernel, `PipelineSelectionStrategy`, watermark runtime,
-Balance calculation, Tasks administratives, backfill/rebuild/repair et write-side métier dans ce lot.
+Balance calculation, Tasks administratives et backfill/rebuild/repair. Le seul changement write-side
+autorisé est le micro-correctif terminal-delete ciblé décrit en section 16.
 
 ## 25. Risques et blockers
 
 | Point | Classification | Traitement |
 |---|---|---|
 | Expense supprimée filtrée par le reconstructeur Balance | CONFIRMED BY TARGETED CODE INSPECTION | port Pot dédié + query sans filtre |
-| delete Pot non terminal pour certaines commandes Expense | OPEN / BLOCKER | correction write-side séparée avant clôture canonique |
-| `updatedAt` non univoque | OPEN / BLOCKER | exclure du contenu ; décision Lot 7.8 avant rebuild complet |
+| delete Pot non terminal pour certaines commandes Expense | RÉSOLU EN 7.6 | projector shadow puis micro-correctif write-side ciblé et tests avant clôture |
+| `updatedAt` non univoque | OPEN / BLOCKER 7.7 | exclure du contenu 7.6 ; gate avant ordering/indexes/pagination current 7.7 |
 | ajout catalogue avant bindings | risque de configuration | changement atomique + tests de démarrage |
 | mélange provenance/payload | risque architectural | handler uniquement sur payload structurel |
 | divergence due à l'ordre JPA | risque déterministe | ordre canonique et digest versionné |
@@ -855,9 +878,8 @@ classification des blockers exige un amendement explicite du plan.
 ### Blockers à lever ou accepter explicitement
 
 - la clôture finale du Lot 7.6 exige la preuve write-side que delete Pot est terminal ;
-- `updatedAt` peut rester un blocker reporté au début du 7.8, mais doit rester absent du snapshot et
-  signalé dans l'état courant. Aucun rebuild complet ni pagination ne peut être déclaré avant sa
-  résolution.
+- `updatedAt` reste absent du snapshot et explicitement ouvert ; il est un gate d'entrée du Lot 7.7
+  avant toute réalisation ou validation de l'ordre, des indexes et de la pagination current.
 
 ## 27. Commandes de validation
 
@@ -912,6 +934,20 @@ consigner la commande exacte, sa sortie et les tests non prouvés ; ne pas décl
 
 ### OPEN / BLOCKER
 
-- terminalité write-side du delete Pot avant clôture canonique ;
-- source fonctionnelle de `updatedAt` avant rebuild complet/tri, au plus tard au début du Lot 7.8.
+- source fonctionnelle de `updatedAt`, gate d'entrée du Lot 7.7 avant ordering/indexes/pagination
+  current ; ce point n'empêche pas la clôture shadow du Lot 7.6.
 
+## 28. État réel après implémentation
+
+- Le micro-correctif write-side est livré : create, delete et updates Expense rejettent désormais un
+  Pot supprimé avec `POT_ALREADY_DELETED` avant allocation de version, persistence ou Event.
+- `read-pot/v1` et `READ_POT` sont publiés, produits par le runtime Event et exécutables par le moteur
+  Task générique configuré pour cette génération exacte.
+- La migration read-store V5 porte les quatre tables Pot et leurs FK internes ; le writer charge aussi
+  exactement un snapshot autonome par `artifactId`.
+- Le digest fonctionnel binaire versionné exclut identité d'artifact, instant technique et `updatedAt`.
+- Le read store et le primaire partagent réellement le même `DataSource`, le même transaction manager
+  et une propagation `REQUIRED`; la transaction Task englobe reconstruction, fragments, descriptor,
+  head, provenance et CAS. Les tests de takeover prouvent le rollback lorsque le CAS terminal est perdu.
+- Aucun GET actif n'est basculé. `updatedAt` reste OPEN/BLOCKER uniquement pour les parties 7.7
+  dépendantes de l'ordre current.

@@ -54,6 +54,7 @@
 		<module>engine-task-creation</module>
 		<module>engine-task-execution</module>
 		<module>pipeline-balance</module>
+		<module>pipeline-pot</module>
 		<module>observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>

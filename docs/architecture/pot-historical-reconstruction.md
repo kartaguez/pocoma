@@ -68,8 +68,8 @@ possède actuellement aucune query Pot-wide qui retourne aussi les Expenses supp
 explicitement `deleted=false`. Le reconstructeur Balance est donc une bonne preuve de lecture exacte
 pour son calcul, mais pas un reconstructeur complet de `PotProjection`.
 
-Le projector Pot devra ajouter une lecture Pot-wide appliquant seulement l'intervalle temporel, sans
-filtre sur `deleted`.
+Le projector Pot utilise désormais `JpaExpenseHeaderRepository.findByPotActiveAtVersion`, lecture
+Pot-wide appliquant seulement l'intervalle temporel, sans filtre sur `deleted`.
 
 ### Expense shares
 
@@ -122,8 +122,8 @@ Le snapshot de la version de suppression reste reconstructible : le Pot header a
 La cible architecturale exige que le delete du Pot soit terminal. L'état actuel documenté du write
 side autorise encore certaines mutations d'Expense après le delete du Pot, car leurs contextes
 valident la suppression de l'Expense mais pas celle du Pot. Le projector ne doit ni masquer ni
-réinterpréter cette divergence. La preuve « aucune version valide après delete » reste bloquée tant
-que cette précondition write-side n'est pas corrigée et testée hors du Lot 7.6.
+réinterpréter cette divergence. Le Lot 7.6 prouve d'abord la reconstruction shadow de la version
+`DELETED`, puis livre un micro-correctif write-side strictement ciblé et ses tests avant clôture.
 
 ## Source temporelle de `updatedAt`
 
@@ -143,8 +143,9 @@ absente de `PotProjection`. Les timestamps techniques de matérialisation (`crea
 restent exploitables pour le diagnostic, mais sont exclus du contenu fonctionnel, du digest et du
 futur tri métier.
 
-Cette décision doit être fermée avant de déclarer valide un rebuild complet ou le tri canonique
-`updatedAt DESC, potId`. Le plan directeur autorise de porter ce blocage au début du Lot 7.8.
+Cette décision est un gate d'entrée du Lot 7.7 : elle doit être fermée avant de commencer ou déclarer
+valides l'ordre, les indexes current et la pagination canonique `updatedAt DESC, potId`. Elle n'empêche
+pas la construction ni la clôture du snapshot shadow 7.6 sans `updatedAt`.
 
 ## Points de code vérifiés
 
@@ -157,3 +158,10 @@ Cette documentation repose sur les inspections ciblées suivantes :
 - `JpaHistoricalPotBalanceSourceAdapter` et `JpaProjectedExpenseAdapter` ;
 - `JpaPotCommandEventAppendAdapter`, `RecordedEvent` et les migrations primaires V1/V2.
 
+## Implémentation Lot 7.6
+
+`JpaHistoricalPotSnapshotSourceAdapter` exécute la lecture sous transaction read-only
+`REPEATABLE_READ`. `ReconstructPotProjectionService` vérifie les rattachements Pot/Expense/share,
+les doublons d'identité et les références de payer/share, puis canonise Shareholders, Expenses et
+shares par UUID. Les fractions restent des `Fraction` normalisées ; aucun timestamp ou UUID technique
+n'entre dans le contenu ou son digest.

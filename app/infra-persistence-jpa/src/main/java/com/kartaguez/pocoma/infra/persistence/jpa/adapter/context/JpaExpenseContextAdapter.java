@@ -56,6 +56,7 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 		return new DeleteExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
+				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()));
 	}
 
@@ -66,6 +67,7 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 		return new UpdateExpenseDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
+				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				loadShareholderIds(contextData.expenseHeader().potId(), contextData.potGlobalVersion().version()));
 	}
@@ -77,6 +79,7 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 		return new UpdateExpenseSharesContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
+				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				loadShareholderIds(contextData.expenseHeader().potId(), contextData.potGlobalVersion().version()));
 	}

@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.engine.service.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -83,6 +84,29 @@ class DeleteExpenseServiceTest {
 
 		assertEquals("EXPENSE_ALREADY_DELETED", exception.ruleCode());
 		assertFalse(loadExpenseHeaderPort.loaded);
+	}
+
+	@Test
+	void rejectsMutationAfterPotDeleteWithoutAdvancingVersionPersistingOrPublishing() {
+		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
+		FakeExpenseHeaderPort headers = new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		FakePotGlobalVersionPort versions = new FakePotGlobalVersionPort();
+		FakeRecordingExpenseHeaderPort writes = new FakeRecordingExpenseHeaderPort();
+		FakeEventPublisherPort events = new FakeEventPublisherPort();
+		DeleteExpenseService service = new DeleteExpenseService(
+				new FakeExpenseContextPort(new DeleteExpenseContext(
+						new PotGlobalVersion(fixture.potId, 3), false, true, fixture.creatorId)),
+				headers, versions, writes, events, new DeleteExpenseAuthorizationPolicy());
+
+		BusinessRuleViolationException exception = assertThrows(BusinessRuleViolationException.class,
+				() -> service.deleteExpense(new UserContext(fixture.creatorId, fixture.userPermissions),
+						new DeleteExpenseCommand(fixture.expenseId.value(), 3)));
+
+		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
+		assertFalse(headers.loaded);
+		assertNull(versions.nextVersion);
+		assertNull(writes.saved);
+		assertNull(events.published);
 	}
 
 	@Test

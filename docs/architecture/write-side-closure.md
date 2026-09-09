@@ -19,6 +19,15 @@ HTTP POST /api/v1/commands
 `202 Accepted` signifie uniquement que la Command est durable. Le succès, le rejet, le retry ou
 l'échec terminal sont produits ultérieurement par le lifecycle générique de consommation.
 
+### Delete Pot terminal
+
+Depuis le micro-correctif du Lot 7.6, `Pot.deleted=true` est terminal pour les mutations métier du Pot
+et de ses enfants. `CreateExpenseContext` portait déjà ce guard. Les contextes `DeleteExpenseContext`,
+`UpdateExpenseDetailsContext` et `UpdateExpenseSharesContext` portent désormais aussi l'état deleted
+du Pot chargé à la version courante et rejettent avec `POT_ALREADY_DELETED` avant toute allocation de
+version, écriture primaire ou émission de `BusinessEvent`. Le correctif ne modifie ni le chemin Command,
+ni le lifecycle, ni l'architecture du Lot 6.
+
 Les controllers HTTP ne peuvent pas dépendre des ports ou services de mutation Pot. Cette règle
 protège la frontière du write model sans interdire de futurs endpoints non-GET qui ne muteraient pas
 le modèle primaire (recherche, administration ou authentification, par exemple). Les anciennes

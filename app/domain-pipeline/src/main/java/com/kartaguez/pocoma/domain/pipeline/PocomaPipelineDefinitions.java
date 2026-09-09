@@ -6,6 +6,9 @@ public final class PocomaPipelineDefinitions {
 	private static final List<PipelineVersionDefinition> ALL = List.of(
 			new PipelineVersionDefinition(
 					new PipelineDefinition(PipelineId.of("balance-projection"), 2),
+					VersionApplicability.from(1)),
+			new PipelineVersionDefinition(
+					new PipelineDefinition(PipelineId.of("read-pot"), 1),
 					VersionApplicability.from(1)));
 
 	private PocomaPipelineDefinitions() {}

@@ -90,7 +90,8 @@ Les éléments suivants ne sont pas des invariants architecturaux verrouillés :
 - l'interface d'administration du backfill : une commande one-shot durable est une proposition, pas une obligation ;
 - les valeurs par défaut de pagination, par exemple `limit=50`, maximum `200`, curseur Base64URL versionné et envelope `{items,nextCursor}` ; seuls keyset, opacité du curseur et ordre déterministe sont requis ;
 - le caractère current-only de `GET /pots/balances/me`, qui reste une décision produit/API à valider ;
-- la source exacte de `updatedAt`, qui doit être fermée avant qu'un rebuild complet soit déclaré valide ;
+- la source exacte de `updatedAt`, gate d'entrée du Lot 7.7 avant toute implémentation ou validation
+  de l'ordre, des indexes et de la pagination current `updatedAt DESC, potId` ;
 - la preuve d'inexistence d'une Expense lorsque l'index `expenseId -> potId` ne contient aucune entrée, qui doit être tranchée au début du Lot 7.7 ;
 - la politique de réparation d'une projection `FAILED` ;
 - le contenu exact des stratégies de sélection READ_POT et Balance à chaque release ; leur modèle et leur sémantique sont en revanche verrouillés ;
@@ -115,7 +116,10 @@ Les écarts documentés à résorber structurent l'ordre des lots :
 | Pipeline generations | Activation implicite ou legacy | Définitions applicables produites indépendamment ; exposition décidée par une stratégie statique par `pipelineId` |
 | Read store | Colocalisation et responsabilités à clarifier | Schéma, transactions, migrations et ownership logiquement séparés |
 
-Le caractère terminal du delete et la contiguïté globale des versions sont des préconditions write-side. Toute divergence concrète constatée pendant les inspections ciblées doit être traitée comme un bloqueur explicite, sans rouvrir silencieusement le Lot 6.
+Le caractère terminal du delete et la contiguïté globale des versions sont des préconditions write-side.
+Pour le delete Pot, le Lot 7.6 suit explicitement : projector shadow, preuve de reconstruction de la
+version `DELETED`, puis micro-correctif write-side ciblé et tests avant clôture. Toute autre divergence
+concrète constatée doit rester un bloqueur explicite, sans rouvrir silencieusement le Lot 6.
 
 ## 5. Modèle cible à matérialiser
 
@@ -556,13 +560,17 @@ Construire, pour chaque version exacte, un snapshot logique complet du Pot sans 
 - Définir le contenu logique complet à partir des queries actuelles et des règles d'autorisation.
 - Matérialiser un header et des fragments versionnés portant tous l'identité nécessaire.
 - Inclure statut, membres/rôles contextuels et données minimales des ressources filles.
+- Conserver les sous-objets historiquement applicables, y compris supprimés : leur présence dans le
+  snapshot canonique ne signifie pas leur exposition par défaut par un futur GET.
 - Calculer depuis le primaire historisé à `potVersion` exacte, sans dépendre d'une projection précédente.
 - L'executor recharge la définition exacte et revérifie `appliesTo(potVersion)` avant matérialisation ;
   une Task non applicable est une erreur interne de protocole et ne produit aucun artifact.
 - Une Task Event ou administrative produit la même `ProjectionIdentity`; la sélection reader n'intervient jamais.
 - Mettre artifact, descriptor éventuel, head et indexes indispensables déjà introduits dans la transaction read-store.
-- Définir avant la fin du lot la provenance candidate du timestamp durable de tri des Pots ; `RecordedEvent.recordedAt` n'est retenu qu'après preuve d'un mapping univoque par version.
-- Ne pas inventer une règle telle que `min(recordedAt)` si plusieurs Events peuvent porter une même `potVersion` ; dans ce cas, définir une autre métadonnée durable ou renforcer explicitement l'invariant source.
+- Garder `updatedAt` hors du snapshot tant qu'aucun mapping fonctionnel univoque par version n'est
+  durablement garanti ; ne choisir ni min/max `recordedAt`, ni premier, dernier ou temps de projection.
+- Après validation shadow de la version `DELETED`, livrer dans ce lot le micro-correctif write-side
+  ciblé qui rejette toute mutation métier post-delete sans nouvelle version ni BusinessEvent.
 
 **Dépendances**
 
@@ -572,7 +580,8 @@ Lots 7.2, 7.3 et 7.5.
 
 - Reconstruction exacte de plusieurs versions, y compris ajout/retrait d'un membre et mutations d'Expense.
 - Snapshot autonome sans reconstruction au GET.
-- Version de delete projetée avec statut terminal ; absence de version future valide.
+- Version de delete projetée avec statut terminal, puis tests write-side prouvant l'absence de version
+  et de BusinessEvent de mutation futurs après le micro-correctif.
 - Données d'autorisation cohérentes avec chaque version historique.
 - Atomicité des fragments et du header.
 - Déterminisme du timestamp candidat entre deux reconstructions, si la source est déjà validée.
@@ -581,7 +590,9 @@ Lots 7.2, 7.3 et 7.5.
 
 - La projection shadow est comparable aux lectures primaires existantes.
 - Les fragments couvrent les queries Pot, Shareholder et Expense connues.
-- La source de `updatedAt` est soit définitivement fixée et testable, soit porte une décision bloquante planifiée au début du Lot 7.8 ; aucun rebuild complet ne pourra être déclaré avant sa résolution.
+- `updatedAt` reste explicitement ouvert sans empêcher la clôture shadow 7.6, et constitue le gate
+  d'entrée du Lot 7.7 pour ordering, indexes et pagination current.
+- Delete Pot est réellement terminal côté write-side après le micro-correctif ciblé.
 
 **Risques/points à vérifier**
 
@@ -612,6 +623,8 @@ Ajouter les structures transverses nécessaires aux listes et fermer, avant tout
 
 **Modifications principales**
 
+- Gate d'entrée : ne commencer ni ne valider l'ordre, les indexes current ou la pagination tant que
+  la source fonctionnelle déterministe de `updatedAt` n'est pas résolue et reconstructible.
 - Maintenir l'index utilisateur/Pot courant atomiquement avec la projection canonique.
 - Définir l'ordre strict `updatedAt DESC, potId` et un curseur opaque keyset.
 - Maintenir le routage Expense nécessaire aux accès directs.
@@ -636,6 +649,8 @@ Lot 7.6 et source durable de `updatedAt` suffisamment définie pour tester l'ord
 
 **Critères de sortie**
 
+- La source de `updatedAt` est fermée et l'ordre canonique `updatedAt DESC, potId` est déterministe ;
+  sans cela, les parties current ordering/pagination du lot ne peuvent pas être déclarées valides.
 - La stratégie A ou B est documentée comme décision vérifiée, implémentée et testée.
 - L'absence d'entrée de routage a une sémantique non ambiguë.
 - `GET /expenses/{id}` est déclaré éligible au cutover seulement après ce critère.
@@ -679,7 +694,8 @@ Permettre le remplissage volontaire d'une génération, la reconstruction après
   `(campaignId, potId, potVersion, pipelineId, pipelineVersion)`. L'executor ignore la provenance et
   revérifie l'applicabilité. La forme Java de cette séparation n'est pas figée dans ce lot.
 - Pour un disaster rebuild, reconstruire le watermark par replay Event si disponible ou par lecture administrative autoritative ; ne jamais exposer ce chemin aux GET.
-- Fermer définitivement avant validation du rebuild la source du `updatedAt` de `GET /pots` : elle doit être déterministe, stable entre rebuilds, durable et indépendante d'un état volatile du read store.
+- Réutiliser la source de `updatedAt` qui doit déjà avoir été fermée au gate d'entrée du Lot 7.7 : elle
+  doit être déterministe, stable entre rebuilds, durable et indépendante d'un état volatile du read store.
 - Ne pas rendre le backfill dépendant de la rétention des Events.
 - Prouver que artifacts, heads, indexes et métadonnées de tri sont reproductibles.
 
@@ -699,7 +715,7 @@ Lots 7.4 à 7.7.
 **Critères de sortie**
 
 - Un read store vide peut être reconstruit sans lire le primaire dans les GET.
-- La source de `updatedAt` est définitivement décidée, documentée et testée.
+- La source de `updatedAt`, prérequis hérité du Lot 7.7, reste décidée, documentée et testée pendant le rebuild.
 - Deux rebuilds produisent les mêmes métadonnées fonctionnelles et le même ordre.
 - Backfill et réparation sont déclenchables et observables séparément.
 
@@ -1202,7 +1218,9 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 
 ### Décisions à fermer avant les lots concernés
 
-- **Source de `updatedAt`** : valider une métadonnée durable par version. `RecordedEvent.recordedAt` est un candidat, sans règle arbitraire si plusieurs Events partagent une version. Décision requise au Lot 7.6 ou au début du 7.8, bloquante pour la validation du rebuild.
+- **Source de `updatedAt`** : valider une métadonnée durable par version. `RecordedEvent.recordedAt` est
+  un candidat, sans règle arbitraire si plusieurs Events partagent une version. Décision requise avant
+  le démarrage des parties ordering/indexes/pagination current du Lot 7.7.
 - **Routage Expense** : choisir A ou B après vérification ciblée des invariants d'identité/création/suppression. Décision bloquante au début du Lot 7.7 pour le cutover du GET direct.
 - **Contrat `balances/me`** : confirmer s'il reste versionnable ou devient current-only avant toute rupture API.
 - **Interface de backfill** : retenir commande, endpoint administratif ou autre orchestration durable selon les conventions d'exploitation.

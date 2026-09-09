@@ -6,6 +6,8 @@
 	<dependencies>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-task</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-balance</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-pot</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consumption-worker</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>

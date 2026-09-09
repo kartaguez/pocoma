@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.runtime.event.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.util.List;
@@ -102,7 +103,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 	}
 
 	@Test
-	void consumesOneDurableEventIntoOneTaskAndOneExactImmutableBalanceProjection() {
+	void consumesOneDurableEventIntoBothApplicableTasksAndOneExactImmutableBalanceProjection() {
 		UUID potUuid = UUID.randomUUID();
 		UUID shareholderId = UUID.randomUUID();
 		seedHistoricalPot(potUuid, shareholderId);
@@ -112,13 +113,16 @@ class Lot5EventTaskBalanceChainPostgresTest {
 		var eventResult = eventOrchestrator.run(input("event-chain-worker"));
 
 		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, eventResult, eventResult::toString);
-		assertEquals(1, tasks.count());
-		UUID taskId = tasks.findAll().getFirst().id();
+		assertEquals(2, tasks.count());
+		UUID taskId = jdbc.queryForObject("select id from tasks_4_pipeline where pipeline_id='balance-projection'",
+				UUID.class);
 		var eventSlot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
 		assertEquals(TerminalOutcome.SUCCESS, eventSlot.terminalOutcome().orElseThrow());
 		assertEquals(eventId.toString(), provenance.findInputs(eventSlot.slotId()).getFirst().subjectId());
 		assertEquals(2, provenance.findInputs(eventSlot.slotId()).getFirst().subjectVersion());
-		assertEquals(taskId.toString(), provenance.findResults(eventSlot.slotId()).getFirst().objectId());
+		assertEquals(2, provenance.findResults(eventSlot.slotId()).size());
+		assertTrue(provenance.findResults(eventSlot.slotId()).stream()
+				.anyMatch(result -> taskId.toString().equals(result.objectId())));
 
 		var taskResult = taskOrchestrator().run(input("task-chain-worker"));
 

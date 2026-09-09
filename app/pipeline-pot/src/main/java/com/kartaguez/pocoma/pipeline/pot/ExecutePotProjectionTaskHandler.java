@@ -1,0 +1,14 @@
+package com.kartaguez.pocoma.pipeline.pot;
+import java.time.Clock;import java.util.*;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
+import com.kartaguez.pocoma.engine.read.projection.*;
+import com.kartaguez.pocoma.engine.taskexecution.model.*;
+public final class ExecutePotProjectionTaskHandler implements TaskExecutionHandler<ProjectPotTask>{
+	private final PipelineDefinition pipeline;private final ReconstructPotProjectionService reconstruct;private final ProjectionMaterializationService<PotProjection> materialize;private final ProjectionFailureService failures;private final Clock clock;
+	public ExecutePotProjectionTaskHandler(PipelineDefinition p,ReconstructPotProjectionService r,ProjectionMaterializationService<PotProjection> m,ProjectionFailureService f,Clock c){pipeline=Objects.requireNonNull(p);reconstruct=Objects.requireNonNull(r);materialize=Objects.requireNonNull(m);failures=Objects.requireNonNull(f);clock=Objects.requireNonNull(c);}
+	@Override public PipelineDefinition pipeline(){return pipeline;}@Override public String taskType(){return PotProjectionPipeline.TASK_TYPE;}@Override public Class<ProjectPotTask> payloadType(){return ProjectPotTask.class;}
+	@Override public TaskExecutionReport execute(ProjectPotTask t){var identity=new ProjectionIdentity(new ProjectionGenerationIdentity(PotProjectionPipeline.TYPE,pipeline,t.potId()),t.potVersion());var input=new BusinessObjectVersion("POT",t.potId().value().toString(),t.potVersion());try{var result=materialize.materialize(identity,reconstruct.reconstruct(identity));if(result instanceof ProjectionMaterializationResult.Created c)return success(input,c.descriptor());if(result instanceof ProjectionMaterializationResult.AlreadySatisfied a)return success(input,a.descriptor());if(result instanceof ProjectionMaterializationResult.DivergentDuplicate)return new TaskExecutionReport.Rejected("PROJECTION_DIVERGENT_DUPLICATE",List.of(input),List.of());if(result instanceof ProjectionMaterializationResult.AlreadyFailed)return new TaskExecutionReport.Rejected("PROJECTION_ALREADY_FAILED",List.of(input),List.of());return new TaskExecutionReport.Rejected("PROJECTION_NOT_APPLICABLE",List.of(input),List.of());}catch(HistoricalPotReconstructionException e){failures.record(identity,clock.instant(),e.failureCode());return new TaskExecutionReport.Rejected(e.failureCode(),List.of(input),List.of());}}
+	private TaskExecutionReport success(BusinessObjectVersion input,ProjectionArtifactDescriptor d){return new TaskExecutionReport.Succeeded(List.of(input),List.of(new ProducedArtifactReference("POT_PROJECTION",PotProjectionPipeline.PROJECTION_TYPE,d.artifactId().value().toString(),OptionalLong.of(pipeline.pipelineVersion()),Optional.of(input),d.createdAt())));}
+}

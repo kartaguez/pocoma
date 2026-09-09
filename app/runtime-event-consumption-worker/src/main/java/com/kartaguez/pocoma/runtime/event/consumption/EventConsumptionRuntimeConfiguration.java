@@ -54,6 +54,9 @@ import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
 import com.kartaguez.pocoma.pipeline.balance.BalanceTaskCreationStrategy;
 import com.kartaguez.pocoma.pipeline.balance.BalanceEventPipelineRelevance;
 import com.kartaguez.pocoma.pipeline.balance.BalancePipeline;
+import com.kartaguez.pocoma.pipeline.pot.PotProjectionPipeline;
+import com.kartaguez.pocoma.pipeline.pot.PotTaskCreationStrategy;
+import com.kartaguez.pocoma.pipeline.pot.PotEventPipelineRelevance;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
@@ -114,17 +117,19 @@ public class EventConsumptionRuntimeConfiguration {
 			ObjectMapper mapper) {
 		var strategies = definitions.all().stream().map(definition -> {
 			PipelineDefinition identity = definition.identity();
-			if (!BalancePipeline.PIPELINE_ID.equals(identity.pipelineId().value())) {
-				throw new IllegalStateException("No Event Task binding for " + identity);
-			}
-			return (TaskCreationStrategy) new BalanceTaskCreationStrategy(identity, mapper);
+			if (BalancePipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
+				return (TaskCreationStrategy) new BalanceTaskCreationStrategy(identity, mapper);
+			if (PotProjectionPipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
+				return (TaskCreationStrategy) new PotTaskCreationStrategy(identity, mapper);
+			throw new IllegalStateException("No Event Task binding for " + identity);
 		}).toList();
 		return new TaskCreationStrategyRegistry(strategies);
 	}
 
 	@Bean
 	EventPipelineRelevanceRegistry eventPipelineRelevances() {
-		return new EventPipelineRelevanceRegistry(java.util.List.of(new BalanceEventPipelineRelevance()));
+		return new EventPipelineRelevanceRegistry(java.util.List.of(new BalanceEventPipelineRelevance(),
+				new PotEventPipelineRelevance()));
 	}
 
 	@Bean

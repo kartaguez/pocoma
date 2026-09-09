@@ -17,6 +17,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.SourceVersionWatermarkPersistencePort;
+import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
+import com.kartaguez.pocoma.domain.projection.PotProjection;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
 @ConditionalOnClass(JdbcOperations.class)
@@ -51,6 +53,12 @@ public class ReadStoreAccessAutoConfiguration {
 	SourceVersionWatermarkPersistencePort sourceVersionWatermarkPersistencePort(
 			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
 		return new JdbcSourceVersionWatermarkAdapter(jdbc, properties.getSchema());
+	}
+
+	@Bean
+	JdbcPotProjectionArtifactWriter potProjectionArtifactWriter(
+			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
+		return new JdbcPotProjectionArtifactWriter(jdbc, properties.getSchema());
 	}
 
 }

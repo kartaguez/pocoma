@@ -76,6 +76,18 @@ public interface JpaExpenseHeaderRepository extends JpaRepository<JpaExpenseHead
 			@Param("potId") UUID potId,
 			@Param("version") long version);
 
+	@Query("""
+			select expenseHeader
+			from JpaExpenseHeaderEntity expenseHeader
+			where expenseHeader.potId = :potId
+				and expenseHeader.startedAtVersion <= :version
+				and (expenseHeader.endedAtVersion is null or :version < expenseHeader.endedAtVersion)
+			order by expenseHeader.expenseId asc
+			""")
+	List<JpaExpenseHeaderEntity> findByPotActiveAtVersion(
+			@Param("potId") UUID potId,
+			@Param("version") long version);
+
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query("""
 			update JpaExpenseHeaderEntity expenseHeader
