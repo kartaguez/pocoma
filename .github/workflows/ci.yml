@@ -1,4 +1,4 @@
-name: CI
+name: Pocoma CI
 
 on:
   push:
@@ -9,8 +9,8 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Maven test
+  build-and-test:
+    name: build-and-test
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
@@ -29,5 +29,10 @@ jobs:
             app/pom.xml
             app/*/pom.xml
             app/.mvn/wrapper/maven-wrapper.properties
+      - name: Verify Maven Wrapper
+        run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
       - name: Compile and test
         run: ./mvnw --batch-mode --no-transfer-progress test
+      - name: Check whitespace errors
+        working-directory: .
+        run: git diff --check HEAD^ HEAD

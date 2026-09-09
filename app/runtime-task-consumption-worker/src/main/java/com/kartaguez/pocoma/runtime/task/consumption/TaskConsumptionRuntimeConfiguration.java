@@ -16,11 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.PipelineId;
-import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
-import com.kartaguez.pocoma.domain.projection.PotProjection;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
+import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.PocomaPipelineDefinitions;
+import com.kartaguez.pocoma.domain.projection.PotProjection;
+import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
@@ -29,10 +29,17 @@ import com.kartaguez.pocoma.engine.port.in.taskexecution.mapper.RecordedTaskExec
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
+import com.kartaguez.pocoma.engine.read.projection.HistoricalPotSnapshotSource;
+import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
+import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureService;
+import com.kartaguez.pocoma.engine.read.projection.ProjectionMaterializationService;
+import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
+import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
+import com.kartaguez.pocoma.engine.read.projection.ReconstructPotProjectionService;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
-import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
 import com.kartaguez.pocoma.engine.service.taskexecution.ExecuteTaskService;
 import com.kartaguez.pocoma.engine.service.taskexecution.RecordedTaskExecutionMapperRegistry;
 import com.kartaguez.pocoma.engine.service.taskexecution.TaskExecutionHandlerRegistry;
@@ -59,8 +66,9 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 import com.kartaguez.pocoma.pipeline.balance.BalancePipeline;
 import com.kartaguez.pocoma.pipeline.balance.ComputeBalancesRecordedTaskMapper;
 import com.kartaguez.pocoma.pipeline.balance.ExecuteBalanceProjectionTaskHandler;
-import com.kartaguez.pocoma.pipeline.pot.*;
-import com.kartaguez.pocoma.engine.read.projection.*;
+import com.kartaguez.pocoma.pipeline.pot.ExecutePotProjectionTaskHandler;
+import com.kartaguez.pocoma.pipeline.pot.PotProjectionPipeline;
+import com.kartaguez.pocoma.pipeline.pot.ProjectPotRecordedTaskMapper;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
@@ -68,8 +76,18 @@ import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
 @Configuration
 @EnableConfigurationProperties(TaskConsumptionProperties.class)
 public class TaskConsumptionRuntimeConfiguration {
-	@Bean @ConditionalOnMissingBean Clock taskConsumptionClock(){return Clock.systemUTC();}
-	@Bean @ConditionalOnMissingBean ObjectMapper taskConsumptionObjectMapper(){return new ObjectMapper();}
+	@Bean
+	@ConditionalOnMissingBean
+	Clock taskConsumptionClock() {
+		return Clock.systemUTC();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	ObjectMapper taskConsumptionObjectMapper() {
+		return new ObjectMapper();
+	}
+
 	@Bean TransactionRunner taskConsumptionTransactionRunner(PlatformTransactionManager manager){
 		return new SpringTransactionRunner(new TransactionTemplate(manager));
 	}
@@ -86,33 +104,76 @@ public class TaskConsumptionRuntimeConfiguration {
 			TransactionRunner tx,Clock clock){return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(lifecycle,lifecycle,new TaskConsumptionFailurePolicy(),clock),tx);}
 
-	@Bean PipelineDefinition taskPipeline(TaskConsumptionProperties properties){
-		if(properties.getPipelineVersion()==null)
+	@Bean
+	PipelineDefinition taskPipeline(TaskConsumptionProperties properties) {
+		if (properties.getPipelineVersion() == null) {
 			throw new IllegalStateException("pocoma.task-consumption.pipeline-version is required");
+		}
 		String configuredId = !properties.isEnabled() && "unconfigured".equals(properties.getPipelineId())
-				? BalancePipeline.PIPELINE_ID : properties.getPipelineId();
-		PipelineDefinition pipeline=new PipelineDefinition(PipelineId.of(configuredId),properties.getPipelineVersion());
-		if(properties.isEnabled()&&!BalancePipeline.PIPELINE_ID.equals(properties.getPipelineId())
-				&&!PotProjectionPipeline.PIPELINE_ID.equals(properties.getPipelineId()))
-			throw new IllegalStateException("No Task runtime binding for "+properties.getPipelineId());
+				? BalancePipeline.PIPELINE_ID
+				: properties.getPipelineId();
+		var pipeline = new PipelineDefinition(
+				PipelineId.of(configuredId),
+				properties.getPipelineVersion());
+		if (properties.isEnabled()
+				&& !BalancePipeline.PIPELINE_ID.equals(properties.getPipelineId())
+				&& !PotProjectionPipeline.PIPELINE_ID.equals(properties.getPipelineId())) {
+			throw new IllegalStateException(
+					"No Task runtime binding for " + properties.getPipelineId());
+		}
 		return pipeline;
 	}
-	@Bean PipelineDefinitionRegistry taskPipelineDefinitions(){return new PipelineDefinitionRegistry(PocomaPipelineDefinitions.all());}
-	@Bean RecordedTaskExecutionMapper<?> balanceTaskMapper(PipelineDefinition pipeline,ObjectMapper mapper){
-		if(BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value()))return new ComputeBalancesRecordedTaskMapper(pipeline,mapper);
-		if(PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value()))return new ProjectPotRecordedTaskMapper(pipeline,mapper);
-		throw new IllegalStateException("Mapper absent for "+pipeline);}
-	@Bean TaskExecutionHandler<?> balanceTaskHandler(PipelineDefinition pipeline,
-			JpaHistoricalPotBalanceSourceAdapter balanceSources,JpaImmutableBalanceProjectionAdapter balanceProjections,
-			HistoricalPotSnapshotSource potSource, ProjectionMetadataPort metadata,
-			ReadStoreTransactionRunner readTransactions, ProjectionArtifactWriter<PotProjection> potWriter,
-			PipelineDefinitionRegistry definitions, Clock clock){
-		if(BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value()))return new ExecuteBalanceProjectionTaskHandler(pipeline,
-				new CalculatePotBalancesAtVersionService(balanceSources,new PotBalancesCalculator()),balanceProjections);
-		if(PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value()))return new ExecutePotProjectionTaskHandler(pipeline,
-				new ReconstructPotProjectionService(potSource),new ProjectionMaterializationService<>(metadata,readTransactions,potWriter,clock,definitions),
-				new ProjectionFailureService(metadata,readTransactions,definitions),clock);
-		throw new IllegalStateException("Handler absent for "+pipeline);}
+
+	@Bean
+	PipelineDefinitionRegistry taskPipelineDefinitions() {
+		return new PipelineDefinitionRegistry(PocomaPipelineDefinitions.all());
+	}
+
+	@Bean
+	RecordedTaskExecutionMapper<?> balanceTaskMapper(
+			PipelineDefinition pipeline,
+			ObjectMapper mapper) {
+		if (BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+			return new ComputeBalancesRecordedTaskMapper(pipeline, mapper);
+		}
+		if (PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+			return new ProjectPotRecordedTaskMapper(pipeline, mapper);
+		}
+		throw new IllegalStateException("Mapper absent for " + pipeline);
+	}
+
+	@Bean
+	TaskExecutionHandler<?> balanceTaskHandler(
+			PipelineDefinition pipeline,
+			JpaHistoricalPotBalanceSourceAdapter balanceSources,
+			JpaImmutableBalanceProjectionAdapter balanceProjections,
+			HistoricalPotSnapshotSource potSource,
+			ProjectionMetadataPort metadata,
+			ReadStoreTransactionRunner readTransactions,
+			ProjectionArtifactWriter<PotProjection> potWriter,
+			PipelineDefinitionRegistry definitions,
+			Clock clock) {
+		if (BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+			return new ExecuteBalanceProjectionTaskHandler(
+					pipeline,
+					new CalculatePotBalancesAtVersionService(
+							balanceSources,
+							new PotBalancesCalculator()),
+					balanceProjections);
+		}
+		if (PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+			var materialization = new ProjectionMaterializationService<>(
+					metadata, readTransactions, potWriter, clock, definitions);
+			var failures = new ProjectionFailureService(metadata, readTransactions, definitions);
+			return new ExecutePotProjectionTaskHandler(
+					pipeline,
+					new ReconstructPotProjectionService(potSource),
+					materialization,
+					failures,
+					clock);
+		}
+		throw new IllegalStateException("Handler absent for " + pipeline);
+	}
 	@Bean RecordedTaskExecutionMapperRegistry taskMapperRegistry(List<RecordedTaskExecutionMapper<?>> mappers){
 		return new RecordedTaskExecutionMapperRegistry(mappers);}
 	@Bean TaskExecutionHandlerRegistry taskHandlerRegistry(List<TaskExecutionHandler<?>> handlers){

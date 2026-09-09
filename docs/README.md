@@ -30,6 +30,10 @@ vérifiée avant une modification.
 - [Ownership des types](architecture/type-ownership.md) — propriétaire canonique des principaux contrats et types.
 - [Familles de use cases](use-case-families.md) — inventaire transversal des familles fonctionnelles.
 
+### Development
+
+- [Continuous integration](development/ci.md) — workflow GitHub permanent, validation Maven complète et protection de branche.
+
 ### Command persistence and intake
 
 - [Admission des Recorded Commands](architecture/recorded-command-intake.md) — frontière HTTP/authentification et sémantique `202 Accepted`.
