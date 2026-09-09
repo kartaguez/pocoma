@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.time.Clock;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -15,13 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-
-import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
@@ -67,8 +61,6 @@ import com.kartaguez.pocoma.pipeline.balance.ExecuteBalanceProjectionTaskHandler
 
 @SpringBootTest(properties = {
 		"pocoma.event-consumption.enabled=false",
-		"pocoma.event-consumption.pipeline-id=balance-projection",
-		"pocoma.event-consumption.pipeline-version=2",
 		"spring.jpa.hibernate.ddl-auto=validate"
 })
 class Lot5EventTaskBalanceChainPostgresTest {
@@ -84,10 +76,9 @@ class Lot5EventTaskBalanceChainPostgresTest {
 	}
 
 	@Autowired private JdbcTemplate jdbc;
-	@Autowired private DataSource dataSource;
 	@Autowired private ObjectMapper objectMapper;
 	@Autowired private Clock clock;
-	@Autowired private PipelineDefinition pipeline;
+	private final PipelineDefinition pipeline = BalancePipeline.definition(2);
 	@Autowired private ConsumptionOrchestrator eventOrchestrator;
 	@Autowired private AcquireConsumptionUseCase acquire;
 	@Autowired private ExecuteConsumptionUseCase execute;
@@ -106,7 +97,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 	void cleanDatabase() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
 				+ "consumption_claims, balance_projection_entries, balance_projection_artifacts, "
-				+ "tasks_4_pipeline, event_4_pipeline_materialization_status, business_event_outbox, "
+				+ "tasks_4_pipeline, business_event_outbox, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 	}
 
@@ -120,7 +111,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 
 		var eventResult = eventOrchestrator.run(input("event-chain-worker"));
 
-		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, eventResult);
+		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, eventResult, eventResult::toString);
 		assertEquals(1, tasks.count());
 		UUID taskId = tasks.findAll().getFirst().id();
 		var eventSlot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
@@ -131,7 +122,7 @@ class Lot5EventTaskBalanceChainPostgresTest {
 
 		var taskResult = taskOrchestrator().run(input("task-chain-worker"));
 
-		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, taskResult);
+		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, taskResult, taskResult::toString);
 		var taskSlot = lifecycle.findSlot(taskKey(taskId)).orElseThrow();
 		assertEquals(TerminalOutcome.SUCCESS, taskSlot.terminalOutcome().orElseThrow());
 		var taskInput = provenance.findInputs(taskSlot.slotId()).getFirst();
@@ -152,66 +143,6 @@ class Lot5EventTaskBalanceChainPostgresTest {
 		assertEquals(java.util.Optional.of("POT"), taskOutput.subjectType());
 		assertEquals(java.util.Optional.of(potUuid.toString()), taskOutput.subjectId());
 		assertEquals(java.util.OptionalLong.of(2), taskOutput.subjectVersion());
-	}
-
-	@Test
-	void adoptsLegacyMaterializedTasksWithoutDuplicationAndRemainsIdempotent() {
-		UUID potId = UUID.randomUUID();
-		outbox.append(new PotCreatedEvent(PotId.of(potId), 2));
-		UUID eventId = events.findAll().getFirst().id();
-		UUID materializationId = UUID.randomUUID();
-		var now = java.sql.Timestamp.from(clock.instant());
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
-				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
-				materializationId, eventId, now, now, now);
-		UUID first = insertLegacyTask(materializationId, eventId, potId, "legacy-1", now);
-		UUID second = insertLegacyTask(materializationId, eventId, potId, "legacy-2", now);
-
-		executePreflight();
-		eventOrchestrator.run(input("legacy-adopter"));
-
-		assertEquals(2, tasks.count());
-		var slot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
-		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
-		assertEquals(Set.of(first.toString(), second.toString()), provenance.findResults(slot.slotId()).stream()
-				.map(result -> result.objectId()).collect(java.util.stream.Collectors.toSet()));
-
-		eventOrchestrator.run(input("legacy-adopter-retry"));
-		assertEquals(2, tasks.count());
-		assertEquals(2, provenance.findResults(slot.slotId()).size());
-	}
-
-	@Test
-	void legacySkippedMaterializationCompletesSuccessfullyWithoutTasks() {
-		UUID potId = UUID.randomUUID();
-		outbox.append(new PotCreatedEvent(PotId.of(potId), 2));
-		UUID eventId = events.findAll().getFirst().id();
-		var now = java.sql.Timestamp.from(clock.instant());
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,skipped_at) "
-				+ "values (?,?, 'balance-projection',2,'SKIPPED',0,?,?,?)",
-				UUID.randomUUID(), eventId, now, now, now);
-
-		eventOrchestrator.run(input("legacy-skipped"));
-
-		var slot = lifecycle.findSlot(eventKey(eventId)).orElseThrow();
-		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
-		assertEquals(0, tasks.count());
-		assertEquals(1, provenance.findInputs(slot.slotId()).size());
-		assertEquals(0, provenance.findResults(slot.slotId()).size());
-	}
-
-	private UUID insertLegacyTask(UUID materializationId, UUID eventId, UUID potId, String key,
-			java.sql.Timestamp now) {
-		UUID taskId = UUID.randomUUID();
-		jdbc.update("insert into tasks_4_pipeline "
-				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
-				+ "partition_key,partition_hash,target_version,created_at,updated_at) "
-				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,?,?,0,2,?,?)",
-				taskId, materializationId, eventId, key,
-				"{\"potId\":\"" + potId + "\",\"targetVersion\":2}", potId.toString(), now, now);
-		return taskId;
 	}
 
 	private ConsumptionOrchestrator taskOrchestrator() {
@@ -242,22 +173,9 @@ class Lot5EventTaskBalanceChainPostgresTest {
 				new ConsumptionOrchestrationBudget(20, 10));
 	}
 
-	private void executePreflight() {
-		try {
-			String sql = new ClassPathResource("operations/sql/event-consumption-preflight.sql")
-					.getContentAsString(StandardCharsets.UTF_8);
-			try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-				statement.execute(sql);
-			}
-		}
-		catch (Exception exception) {
-			throw new IllegalStateException("Event preflight rejected a coherent legacy materialization", exception);
-		}
-	}
-
 	private ConsumptionKey eventKey(UUID eventId) {
 		return new ConsumptionKey(new ConsumableIdentity("EVENT", List.of(eventId.toString())),
-				new ConsumerIdentity("PIPELINE", List.of(
+				new ConsumerIdentity("PROJECTION_TASK_SCHEDULER", List.of(
 						pipeline.pipelineId().value(), Integer.toString(pipeline.pipelineVersion()))));
 	}
 

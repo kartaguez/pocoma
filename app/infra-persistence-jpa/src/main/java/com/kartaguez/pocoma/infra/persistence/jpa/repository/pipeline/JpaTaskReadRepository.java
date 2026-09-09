@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JpaTaskReadRepository {
 	public static final String SELECT_BY_ID = """
-			select id, pipeline_id, pipeline_version, partition_key, target_version,
+			select id, pipeline_id, pipeline_version, pot_id, partition_key, target_version,
 			       created_at, task_type, task_payload
 			from tasks_4_pipeline where id = ?
 			""";
@@ -27,11 +27,12 @@ public class JpaTaskReadRepository {
 
 	public static TaskRow map(ResultSet result, int rowNumber) throws SQLException {
 		return new TaskRow(result.getObject("id", UUID.class), result.getString("pipeline_id"),
-				result.getInt("pipeline_version"), result.getString("partition_key"),
+				result.getInt("pipeline_version"), result.getObject("pot_id", UUID.class),
+				result.getString("partition_key"),
 				result.getLong("target_version"), result.getTimestamp("created_at").toInstant(),
 				result.getString("task_type"), result.getString("task_payload"));
 	}
 
-	public record TaskRow(UUID taskId, String pipelineId, int pipelineVersion, String partitionKey,
+	public record TaskRow(UUID taskId, String pipelineId, int pipelineVersion, UUID potId, String partitionKey,
 			long targetVersion, Instant createdAt, String taskType, String taskPayload) {}
 }

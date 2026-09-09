@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,165 +18,130 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition;
+import com.kartaguez.pocoma.domain.pipeline.VersionApplicability;
+import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
-import com.kartaguez.pocoma.engine.exception.TaskCreationRejectedException;
 import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.result.EventTaskSchedulingResult;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.PersistedTaskReference;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationOutcome;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.TaskCreationResult;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionCandidate;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
-import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.engine.port.out.processing.event.EventSchedulingCandidate;
+import com.kartaguez.pocoma.engine.processing.event.ordering.EventSchedulingOrderingKey;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTechnicalFailureClassifier;
 
 class EventConsumptionLocatorTest {
 	private static final Instant NOW = Instant.parse("2026-08-31T10:00:00Z");
+	private static final PipelineDefinition PIPELINE = new PipelineDefinition(PipelineId.of("balances"), 3);
+	private static final PipelineDefinitionRegistry DEFINITIONS = new PipelineDefinitionRegistry(List.of(
+			new PipelineVersionDefinition(PIPELINE, VersionApplicability.from(1))));
 
 	@Test
-	void discoveryBuildsAKeyWithoutReloadingOrUnderstandingTheEvent() {
+	void discoveryBuildsTheExactSchedulerGenerationKeyWithoutReloadingTheEvent() {
 		UUID eventId = UUID.randomUUID();
-		var candidate = event(eventId, PotId.of(UUID.randomUUID()), 9);
-		var port = new StubEventPort(candidate, Optional.of(candidate));
-		var locator = new EventConsumptionLocator(
-				new PipelineDefinition(PipelineId.of("balances"), 1), WorkerSegment.single(), port, port,
-				input -> { throw new AssertionError("task creation belongs to execution"); }, classifier(),
-				Clock.fixed(NOW, ZoneOffset.UTC));
+		var snapshot = event(eventId, PotId.of(UUID.randomUUID()), 9);
+		var port = new StubEventPort(snapshot, Optional.of(snapshot));
+		var locator = locator(port, ignored -> { throw new AssertionError("scheduling belongs to execution"); });
 
 		var located = locator.openSearch().next().orElseThrow();
 
 		assertEquals(List.of(eventId.toString()), located.consumptionKey().consumable().components());
+		assertEquals("PROJECTION_TASK_SCHEDULER", located.consumptionKey().consumer().type());
+		assertEquals(List.of("balances", "3"), located.consumptionKey().consumer().components());
 		assertEquals(1, port.candidateReads.get());
 		assertEquals(0, port.authoritativeReads.get());
 	}
 
 	@Test
-	void executionReloadsTheAuthoritativeEventAndBuildsWinningProvenanceFromIt() {
+	void executionReloadsTheEventAndPersistsProvenanceForEveryEnsuredTask() {
 		UUID eventId = UUID.randomUUID();
-		var locatedSnapshot = event(eventId, PotId.of(UUID.randomUUID()), 3);
+		var snapshot = event(eventId, PotId.of(UUID.randomUUID()), 3);
 		var authoritative = event(eventId, PotId.of(UUID.randomUUID()), 7);
-		var eventPort = new StubEventPort(locatedSnapshot, Optional.of(authoritative));
-		var pipeline = new PipelineDefinition(PipelineId.of("balances"), 3);
+		var port = new StubEventPort(snapshot, Optional.of(authoritative));
 		UUID taskId = UUID.randomUUID();
-		AtomicReference<RecordedEvent<?>> taskInput = new AtomicReference<>();
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), eventPort, eventPort, input -> {
-			taskInput.set(input.recordedEvent());
-			return new TaskCreationResult.Materialized(eventId, pipeline, TaskCreationOutcome.CREATED,
-					List.of(new PersistedTaskReference(taskId, "COMPUTE_BALANCES", NOW.plusSeconds(1))));
-		}, classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
+		AtomicReference<RecordedEvent<?>> scheduled = new AtomicReference<>();
+		var locator = locator(port, input -> {
+			scheduled.set(input);
+			var task = new TaskCreationResult.Materialized(eventId, PIPELINE, TaskCreationOutcome.ALREADY_CREATED,
+					List.of(new PersistedTaskReference(taskId, "COMPUTE_BALANCES", NOW)));
+			return new EventTaskSchedulingResult.Scheduled(eventId, List.of(task));
+		});
 
-		var located = locator.openSearch().next().orElseThrow();
-		assertEquals(List.of(eventId.toString()), located.consumptionKey().consumable().components());
-		UUID slotId = UUID.randomUUID();
-		var result = located.execution().execute(context(slotId));
+		var result = locator.openSearch().next().orElseThrow().execution().execute(context());
 
-		assertEquals(1, eventPort.candidateReads.get());
-		assertEquals(1, eventPort.authoritativeReads.get());
-		assertEquals(authoritative, taskInput.get());
-		assertEquals(7, result.inputs().getFirst().subjectVersion());
-		assertEquals(Optional.of(authoritative.event().potId().value().toString()),
-				result.results().getFirst().subjectId());
-		assertEquals(java.util.OptionalLong.of(7), result.results().getFirst().subjectVersion());
-	}
-
-	@Test
-	void zeroTaskPlanIsStillSuccess() {
-		UUID eventId = UUID.randomUUID();
-		var pipeline = new PipelineDefinition(PipelineId.of("empty"), 1);
-		var event = event(eventId, PotId.of(UUID.randomUUID()), 1);
-		var port = new StubEventPort(event, Optional.of(event));
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port,
-				input -> new TaskCreationResult.Materialized(eventId, pipeline,
-						TaskCreationOutcome.CREATED, List.of()), classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
-
-		var result = locator.openSearch().next().orElseThrow().execution().execute(context(UUID.randomUUID()));
-
+		assertEquals(authoritative, scheduled.get());
 		assertInstanceOf(BusinessConsumptionOutcome.Success.class, result.outcome());
-		assertEquals(List.of(), result.results());
+		assertEquals(7, result.inputs().getFirst().subjectVersion());
+		assertEquals(taskId.toString(), result.results().getFirst().objectId());
 	}
 
 	@Test
-	void deterministicRejectionBecomesARejectedBusinessOutcome() {
+	void missingAuthoritativeEventFailsBeforeScheduling() {
 		UUID eventId = UUID.randomUUID();
-		var pipeline = new PipelineDefinition(PipelineId.of("rejecting"), 1);
-		var event = event(eventId, PotId.of(UUID.randomUUID()), 4);
-		var port = new StubEventPort(event, Optional.of(event));
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port,
-				input -> new TaskCreationResult.Rejected(eventId, pipeline, "UNSUPPORTED_EVENT"), classifier(),
-				Clock.fixed(NOW, ZoneOffset.UTC));
-
-		var result = locator.openSearch().next().orElseThrow().execution().execute(context(UUID.randomUUID()));
-
-		var rejected = assertInstanceOf(BusinessConsumptionOutcome.Rejected.class, result.outcome());
-		assertEquals("UNSUPPORTED_EVENT", rejected.rejectionCode());
-		assertEquals(4, result.inputs().getFirst().subjectVersion());
-		assertEquals(List.of(), result.results());
-	}
-
-	@Test
-	void missingAuthoritativeEventFailsBeforeTaskCreation() {
-		UUID eventId = UUID.randomUUID();
-		var pipeline = new PipelineDefinition(PipelineId.of("missing"), 1);
 		var snapshot = event(eventId, PotId.of(UUID.randomUUID()), 1);
-		AtomicInteger taskCalls = new AtomicInteger();
 		var port = new StubEventPort(snapshot, Optional.empty());
-		var locator = new EventConsumptionLocator(pipeline, WorkerSegment.single(), port, port, input -> {
-					taskCalls.incrementAndGet();
-					throw new AssertionError();
-				}, classifier(), Clock.fixed(NOW, ZoneOffset.UTC));
+		AtomicInteger calls = new AtomicInteger();
+		var locator = locator(port, ignored -> {
+			calls.incrementAndGet();
+			throw new AssertionError();
+		});
 
 		var execution = locator.openSearch().next().orElseThrow().execution();
-		assertThrows(RecordedEventNotFoundException.class,
-				() -> execution.execute(context(UUID.randomUUID())));
-		assertEquals(0, taskCalls.get());
+		assertThrows(RecordedEventNotFoundException.class, () -> execution.execute(context()));
+		assertEquals(0, calls.get());
 	}
 
-	private static EventConsumptionTechnicalFailureClassifier classifier() {
-		return new EventConsumptionTechnicalFailureClassifier(Clock.fixed(NOW, ZoneOffset.UTC));
+	private static EventConsumptionLocator locator(StubEventPort port, ScheduleProjectionTasksForEventUseCase scheduler) {
+		return new EventConsumptionLocator(DEFINITIONS, WorkerSegment.single(), port, port, scheduler,
+				new EventConsumptionTechnicalFailureClassifier(Clock.fixed(NOW, ZoneOffset.UTC)),
+				Clock.fixed(NOW, ZoneOffset.UTC));
 	}
 
-	private static ConsumptionExecutionContext context(UUID slotId) {
-		return new ConsumptionExecutionContext(slotId, new ClaimId(UUID.randomUUID()));
+	private static ConsumptionExecutionContext context() {
+		return new ConsumptionExecutionContext(UUID.randomUUID(), new ClaimId(UUID.randomUUID()));
 	}
 
 	private static RecordedEvent<PotCreatedEvent> event(UUID eventId, PotId potId, long version) {
-		return new RecordedEvent<>(eventId, new PotCreatedEvent(potId, version), NOW,
-				EventTraceMetadata.empty());
+		return new RecordedEvent<>(eventId, new PotCreatedEvent(potId, version), NOW, EventTraceMetadata.empty());
 	}
 
 	private static final class StubEventPort implements EventPort, EventConsumptionDiscoveryPort {
-		private final RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent> candidate;
-		private final Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> authoritative;
+		private final RecordedEvent<? extends BusinessEvent> candidate;
+		private final Optional<RecordedEvent<? extends BusinessEvent>> authoritative;
 		private final AtomicInteger candidateReads = new AtomicInteger();
 		private final AtomicInteger authoritativeReads = new AtomicInteger();
 
-		private StubEventPort(RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent> candidate,
-				Optional<? extends RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> authoritative) {
+		private StubEventPort(RecordedEvent<? extends BusinessEvent> candidate,
+				Optional<? extends RecordedEvent<? extends BusinessEvent>> authoritative) {
 			this.candidate = candidate;
 			this.authoritative = authoritative.map(value -> value);
 		}
 
 		@Override
-		public Optional<EventConsumptionCandidate> findNextEligibleCandidate(
-				PipelineDefinition pipeline, WorkerSegment segment, Instant now,
-				Optional<EventOrderingKey> afterExclusive) {
+		public Optional<EventSchedulingCandidate> findNextEligibleCandidate(
+				Collection<PipelineVersionDefinition> definitions, WorkerSegment segment, Instant now,
+				Optional<EventSchedulingOrderingKey> afterExclusive) {
 			candidateReads.incrementAndGet();
 			return afterExclusive.isEmpty()
-					? Optional.of(new EventConsumptionCandidate(candidate.eventId(), candidate.event().potId(),
-							candidate.event().version(), candidate.recordedAt()))
+					? Optional.of(new EventSchedulingCandidate(candidate.eventId(), candidate.event().potId(),
+							candidate.event().version(), candidate.recordedAt(), PIPELINE))
 					: Optional.empty();
 		}
 
 		@Override
-		public Optional<RecordedEvent<? extends com.kartaguez.pocoma.domain.pot.event.BusinessEvent>> findById(
-				UUID eventId) {
+		public Optional<RecordedEvent<? extends BusinessEvent>> findById(UUID eventId) {
 			authoritativeReads.incrementAndGet();
 			return authoritative;
 		}

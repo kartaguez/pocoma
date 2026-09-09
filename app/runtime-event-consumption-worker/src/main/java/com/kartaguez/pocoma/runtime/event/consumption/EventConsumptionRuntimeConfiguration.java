@@ -1,10 +1,8 @@
 package com.kartaguez.pocoma.runtime.event.consumption;
 
 import java.time.Clock;
-import java.util.List;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +14,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.PipelineId;
+import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
+import com.kartaguez.pocoma.domain.pipeline.PocomaPipelineDefinitions;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.CreateTasksForEventUseCase;
+import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -29,8 +28,8 @@ import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
-import com.kartaguez.pocoma.engine.service.taskcreation.CreateTasksForEventService;
-import com.kartaguez.pocoma.engine.service.taskcreation.PlanTasksForEventService;
+import com.kartaguez.pocoma.engine.service.taskcreation.EventPipelineRelevanceRegistry;
+import com.kartaguez.pocoma.engine.service.taskcreation.ScheduleProjectionTasksForEventService;
 import com.kartaguez.pocoma.engine.service.taskcreation.TaskCreationStrategyRegistry;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalExecuteConsumptionUseCase;
@@ -53,6 +52,9 @@ import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
 import com.kartaguez.pocoma.pipeline.balance.BalanceTaskCreationStrategy;
+import com.kartaguez.pocoma.pipeline.balance.BalanceEventPipelineRelevance;
+import com.kartaguez.pocoma.pipeline.balance.BalancePipeline;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 @EnableConfigurationProperties(EventConsumptionProperties.class)
@@ -103,40 +105,44 @@ public class EventConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
-	PipelineDefinition eventConsumptionPipeline(EventConsumptionProperties properties) {
-		if (properties.getPipelineVersion() == null) {
-			throw new IllegalStateException("pocoma.event-consumption.pipeline-version is required");
-		}
-		return new PipelineDefinition(
-				PipelineId.of(properties.getPipelineId()), properties.getPipelineVersion());
+	PipelineDefinitionRegistry eventConsumptionPipelineDefinitions() {
+		return new PipelineDefinitionRegistry(PocomaPipelineDefinitions.all());
 	}
 
 	@Bean
-	@ConditionalOnProperty(prefix = "pocoma.event-consumption", name = "pipeline-id", havingValue = "balance-projection")
-	TaskCreationStrategy balanceTaskCreationStrategy(PipelineDefinition pipeline, ObjectMapper mapper) {
-		return new BalanceTaskCreationStrategy(pipeline, mapper);
+	TaskCreationStrategyRegistry eventTaskCreationStrategies(PipelineDefinitionRegistry definitions,
+			ObjectMapper mapper) {
+		var strategies = definitions.all().stream().map(definition -> {
+			PipelineDefinition identity = definition.identity();
+			if (!BalancePipeline.PIPELINE_ID.equals(identity.pipelineId().value())) {
+				throw new IllegalStateException("No Event Task binding for " + identity);
+			}
+			return (TaskCreationStrategy) new BalanceTaskCreationStrategy(identity, mapper);
+		}).toList();
+		return new TaskCreationStrategyRegistry(strategies);
 	}
 
 	@Bean
-	CreateTasksForEventUseCase createTasksForEventUseCase(PipelineDefinition pipeline,
-			List<TaskCreationStrategy> strategies, JpaTaskCreationAdapter persistence,
-			EventConsumptionProperties properties) {
-		var matching = strategies.stream().filter(strategy -> strategy.definition().equals(pipeline)).toList();
-		if (properties.isEnabled() && matching.size() != 1) {
-			throw new IllegalStateException("Enabled Event consumption requires exactly one TaskCreationStrategy for "
-					+ pipeline + ", found " + matching.size());
-		}
-		return new CreateTasksForEventService(
-				new PlanTasksForEventService(new TaskCreationStrategyRegistry(matching)), persistence);
+	EventPipelineRelevanceRegistry eventPipelineRelevances() {
+		return new EventPipelineRelevanceRegistry(java.util.List.of(new BalanceEventPipelineRelevance()));
 	}
 
 	@Bean
-	EventConsumptionLocator eventConsumptionLocator(PipelineDefinition pipeline, EventConsumptionProperties properties,
+	ScheduleProjectionTasksForEventUseCase scheduleProjectionTasksForEventUseCase(
+			PipelineDefinitionRegistry definitions, EventPipelineRelevanceRegistry relevances,
+			TaskCreationStrategyRegistry strategies, JpaTaskCreationAdapter persistence, MeterRegistry meters) {
+		return new MeteredProjectionTaskScheduler(
+				new ScheduleProjectionTasksForEventService(definitions, relevances, strategies, persistence), meters);
+	}
+
+	@Bean
+	EventConsumptionLocator eventConsumptionLocator(PipelineDefinitionRegistry definitions,
+			EventConsumptionProperties properties,
 			EventConsumptionDiscoveryPort discovery, EventPort events,
-			CreateTasksForEventUseCase createTasks, Clock clock) {
-		return new EventConsumptionLocator(pipeline,
+			ScheduleProjectionTasksForEventUseCase scheduleTasks, Clock clock) {
+		return new EventConsumptionLocator(definitions,
 				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), discovery, events,
-				createTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock);
+				scheduleTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock);
 	}
 
 	@Bean

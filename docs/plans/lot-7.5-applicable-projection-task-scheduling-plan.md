@@ -9,8 +9,8 @@ et applicable à V.
 
 ```text
 BusinessEvent E @ V
-  -> catalogue canonique courant
-  -> définitions pertinentes dont appliesTo(V) == true
+  -> pipelineIds pertinents pour E
+  -> définitions canoniques de ces pipelineIds dont appliesTo(V) == true
   -> une Task durable par (eventId, pipelineId, pipelineVersion)
 ```
 
@@ -87,8 +87,9 @@ satisfait pas la cible catalog-driven du Lot 7.5.
 
 ### 3.3 Planning et création actuels
 
-- `TaskCreationStrategy` est indexée par `PipelineDefinition` exacte et porte déjà le mapping
-  fonctionnel via `supports(BusinessEvent)`.
+- `TaskCreationStrategy` est indexée par `PipelineDefinition` exacte et porte actuellement aussi le
+  mapping fonctionnel via `supports(BusinessEvent)`. Cette forme mélange pertinence du pipeline et
+  construction propre à une génération ; le Lot 7.5 doit séparer ces responsabilités.
 - `PlanTasksForEventService` choisit une stratégie exacte et retourne actuellement zéro à N
   `TaskDescriptor`.
 - `CreateTasksForEventService` planifie puis appelle `TaskCreationPort.createIfAbsent` pour une seule
@@ -135,7 +136,8 @@ du runtime Event prouvent déjà l'atomicité d'une génération, le retry et le
 Ce qui est réutilisable :
 
 - catalogue, registry et `appliesTo` ;
-- `TaskCreationStrategy.supports` comme mapping Event→pipeline/génération ;
+- le comportement métier actuellement contenu dans `TaskCreationStrategy.supports`, à extraire ou
+  encadrer comme relation stable Event→`pipelineId` ;
 - moteur générique de consumption, claims, leases, fencing et provenance ;
 - relecture autoritative de l'Event ;
 - transaction Execute et adoption concurrente PostgreSQL ;
@@ -153,22 +155,26 @@ Ce qui doit changer :
 ## 4. Invariants verrouillés
 
 1. `PipelineVersionDefinition.appliesTo(potVersion)` est l'unique règle de production.
-2. `PipelineSelectionStrategy` est reader-only et n'est importée par aucun chemin du producer.
-3. Il n'existe aucune policy `active`, `preferred`, `enabledForProduction` ou sélection par `MAX`.
-4. L'identité Event-derived est `(eventId, pipelineId, pipelineVersion)`.
-5. Deux Events distincts restent distincts, même avec les mêmes `potId` et `potVersion`.
-6. Une même génération applicable produit au plus une Task physique pour un Event.
-7. La Task porte structurellement `pipelineId`, `pipelineVersion`, `potId` et `potVersion` ; `eventId`
+2. La pertinence est une relation `(BusinessEvent, pipelineId)`, identique pour toutes les générations
+   d'un même pipeline. Elle ne constitue pas une policy par génération.
+3. `PipelineSelectionStrategy` est reader-only et n'est importée par aucun chemin du producer.
+4. Il n'existe aucune policy `active`, `preferred`, `enabledForProduction` ou sélection par `MAX`.
+5. L'identité Event-derived est `(eventId, pipelineId, pipelineVersion)`.
+6. Cette identité n'est pas universelle : les futures Tasks administratives auront une provenance et
+   une identité propres, sans `eventId`.
+7. Deux Events distincts restent distincts, même avec les mêmes `potId` et `potVersion`.
+8. Une même génération applicable produit au plus une Task physique pour un Event.
+9. La Task porte structurellement `pipelineId`, `pipelineVersion`, `potId` et `potVersion` ; `eventId`
    reste son origine/identité Event-derived, pas une composante du payload d'exécution commun.
-8. Une adoption avec un autre `potId` ou une autre `potVersion` échoue sans overwrite.
-9. Le producer ne consulte jamais artifact, failure, head, status, watermark, Query Kernel ou read
+10. Une adoption avec un autre `potId` ou une autre `potVersion` échoue sans overwrite.
+11. Le producer ne consulte jamais artifact, failure, head, status, watermark, Query Kernel ou read
    selection.
-10. Une exécution de scheduling n'est `SUCCESS` qu'après assurance de toutes les intentions
+12. Une exécution de scheduling n'est `SUCCESS` qu'après assurance de toutes les intentions
     pertinentes et applicables calculées depuis le catalogue courant.
-11. Un Event sans génération applicable ne crée aucune Task et ne boucle pas inutilement.
-12. Une nouvelle définition crée naturellement une nouvelle identité de consommation pour tout ancien
+13. Un Event sans génération applicable ne crée aucune Task et ne boucle pas inutilement.
+14. Une nouvelle définition crée naturellement une nouvelle identité de consommation pour tout ancien
     Event auquel elle s'applique.
-13. Les projectors et le runtime Task ne sont pas modifiés pour attendre le watermark.
+15. Les projectors et le runtime Task ne sont pas modifiés pour attendre le watermark.
 
 ## 5. Modèle cible Event→Tasks
 
@@ -178,10 +184,11 @@ une génération fournie par le runtime :
 ```text
 schedule(RecordedEvent E, triggerDefinition)
   -> reload déjà effectué par le locator
+  -> déterminer une fois les pipelineIds pertinents pour E
   -> registry.all(), ordre déterministe pipelineId puis pipelineVersion
+  -> conserver les définitions de ces pipelineIds
   -> filtrer appliesTo(E.version)
-  -> récupérer la TaskCreationStrategy exacte
-  -> filtrer supports(E.event)
+  -> récupérer le builder exact de chaque génération
   -> planifier toutes les intentions sans écrire
   -> si toutes sont valides, ensure/adopt toutes les Tasks
   -> résultat par génération : Created ou Adopted
@@ -196,10 +203,12 @@ configuration ne doit donc jamais laisser v1 créée alors que v2 a échoué. Un
 le début des writes est couverte par le rollback de la transaction Execute.
 
 Le contrat existant zéro-à-N doit converger, pour les Tasks de projection Event-derived, vers zéro ou
-une Task par définition :
+une Task par définition applicable d'un pipeline pertinent :
 
-- `supports(event) == false` : zéro intention pour cette définition ;
-- `supports(event) == true` : exactement une intention ;
+- pipeline non pertinent pour l'Event : zéro intention pour toutes ses générations ;
+- pipeline pertinent et définition non applicable : zéro intention pour cette définition ;
+- pipeline pertinent et définition applicable : exactement une intention construite par le binding
+  exact de la génération ;
 - une stratégie retournant plus d'une Task pour une définition est une erreur de configuration.
 
 La forme Java peut conserver temporairement `TaskCreationPlan` et sa liste si la cardinalité est
@@ -221,18 +230,34 @@ version ne doit être ajoutée. L'ordre du `Map.copyOf` n'étant pas un contrat 
 trie une copie locale par `pipelineId.value()` puis `pipelineVersion` uniquement pour obtenir des
 résultats et tests déterministes ; cet ordre n'est pas une priorité fonctionnelle.
 
-Le mapping Event→pipelines est porté au plus petit coût par les `TaskCreationStrategy` existantes :
+Le mapping Event→pipelines doit être explicite et stable au niveau `pipelineId` :
 
-- chaque stratégie reste liée à une `PipelineDefinition` exacte ;
-- `supports(BusinessEvent)` décide si cet Event intéresse cette définition ;
-- le runtime assemble exactement une stratégie pour chaque définition canonique qu'il doit produire ;
-- l'absence ou le doublon d'une stratégie pour une définition cataloguée est rejeté au démarrage.
+- un composant de pertinence associe un `BusinessEvent` à zéro ou plusieurs `pipelineId` ;
+- toutes les définitions d'un même `pipelineId` héritent de cette unique décision ;
+- chaque binding exact par `PipelineDefinition` construit ensuite la forme de Task/payload de sa
+  génération, sans pouvoir rejeter l'Event pour une raison de pertinence ;
+- le runtime assemble exactement un composant de pertinence par `pipelineId` supporté et exactement
+  un binding de construction pour chaque définition canonique qu'il doit produire ;
+- absence ou doublon à l'un de ces deux niveaux est rejeté au démarrage.
 
-Cette solution n'introduit pas de nouveau registry ou de policy de production. Elle ne suppose pas un
-seul pipeline : la liste peut contenir Balance, READ_POT et toute future famille, chacune avec ses
-stratégies exactes. Pour le catalogue de production actuel, le runtime construit la stratégie Balance
-pour chaque définition dont le `pipelineId` vaut `BalancePipeline.PIPELINE_ID`. L'ajout futur de
-READ_POT ajoutera son binding lors du lot qui fixe son identité ; il ne doit pas être anticipé ici.
+L'implémentation peut adapter les `TaskCreationStrategy` existantes sans refonte large, mais leur
+`supports(BusinessEvent)` ne doit plus être une décision libre par version. Si la méthode est conservée
+temporairement, un wrapper de famille calcule la pertinence une seule fois et un garde-fou de wiring
+vérifie que toutes les stratégies d'un même `pipelineId` partagent le même objet/contrat de pertinence.
+Un test doit rendre impossible `v1.supports(E) != v2.supports(E)` sous le même `pipelineId`.
+
+Cette séparation n'introduit pas une troisième policy de production :
+
+```text
+relevant(Event, pipelineId) AND definition.appliesTo(Event.version)
+  -> construire/assurer la Task de cette définition
+```
+
+Elle ne suppose pas un seul pipeline : Balance, READ_POT et toute future famille possèdent chacune
+leur pertinence stable et leurs bindings exacts. Pour le catalogue actuel, le runtime assemble la
+famille Balance et un binding pour chaque définition dont le `pipelineId` vaut
+`BalancePipeline.PIPELINE_ID`. L'ajout futur de READ_POT ajoutera sa famille lors du lot qui fixe son
+identité ; il ne doit pas être anticipé ici.
 
 Le service revérifie toujours `definition.appliesTo(event.version())` après le reload. Les bornes
 éventuellement utilisées par le discovery ne sont qu'une présélection structurelle issue de la même
@@ -296,9 +321,10 @@ recalcule pas l'applicabilité et ne charge aucun catalogue depuis SQL : les bor
 issues des objets canoniques. Une alternative avec une courte requête par définition n'est acceptable
 que si elle conserve l'ordre global et la fairness décrits ci-dessous.
 
-La décision autoritative reste dans le callback : reload de E, lookup exact de D, `appliesTo`, puis
-`supports`. Un candidat devenu obsolète entre discovery et Execute est adopté/idempotent ou termine
-en succès sans Task si aucune définition n'est finalement pertinente.
+La décision autoritative reste dans le callback : reload de E, calcul de la pertinence par
+`pipelineId`, lookup exact de D, puis `appliesTo`. Un candidat devenu obsolète entre discovery et
+Execute est adopté/idempotent ou termine en succès sans Task si son pipeline n'est finalement pas
+pertinent.
 
 La Task Event-derived est une intention durable : le Lot 7.5 ne prévoit aucune suppression courante
 de ces lignes. Grâce au commit commun Task + slot terminal, un slot scheduler `DONE` avec la Task du
@@ -362,6 +388,14 @@ La Task physique Event-derived est directement unique sur :
 
 `task_id` reste sa clé technique pour le runtime Task. `task_key` peut rester comme donnée de binding
 pendant la transition, mais ne participe plus à l'identité logique Event→Task.
+
+Cette contrainte est celle du sous-type Event-derived introduit par le Lot 7.5, pas l'identité
+universelle des Projection Tasks. Le Lot 7.8 doit pouvoir ajouter des Tasks administratives sans
+Event, identifiées par `(campaignId,potId,potVersion,pipelineId,pipelineVersion)`. Le schéma et les
+mappings ne doivent donc pas ensevelir l'hypothèse `event_id` dans le payload ou dans l'identité
+commune du runtime Task. Si `event_id NOT NULL` reste en 7.5, cette contrainte est explicitement
+transitoire et limitée aux lignes Event-derived ; son évolution future ne changera pas le payload
+d'exécution commun.
 
 ### 9.2 Payload d'exécution
 
@@ -489,6 +523,12 @@ Elle doit :
 10. vérifier que l'unique index de Task couvre l'anti-join Event/définition avant d'ajouter tout index
     supplémentaire.
 
+L'unicité de l'étape 5 est explicitement partielle au modèle Event-derived du Lot 7.5. Elle ne doit
+pas être nommée ni documentée comme identité universelle d'une Projection Task. `event_id` peut rester
+`NOT NULL` dans ce lot parce qu'aucune Task administrative n'est créée, mais le mapping commun et les
+ports d'exécution doivent rester centrés sur `(pipelineId,pipelineVersion,potId,potVersion)`. Le Lot
+7.8 pourra introduire une provenance administrative et son unicité propre sans réécrire ce payload.
+
 La suppression de `event_4_pipeline_materialization_status` ne réintroduit ni coverage, expectation,
 projection state ou state par version. Les `consumption_slots` restent exclusivement un lifecycle
 technique.
@@ -567,7 +607,9 @@ stratégie n'est pas chargée dans le process.
 - V73 avec v1 et v2 toutes deux applicables : deux intentions.
 - aucune définition applicable : zéro intention et zéro appel persistence.
 - plusieurs pipelineIds pertinents : chacun est évalué indépendamment.
-- stratégie `supports=false` : aucune Task pour cette définition.
+- pipeline non pertinent : aucune Task pour aucune de ses générations.
+- v1 et v2 du même `pipelineId` partagent obligatoirement la même relation de pertinence ; un wiring
+  permettant des réponses divergentes est rejeté.
 - définition cataloguée sans stratégie exacte : erreur de configuration, idéalement au wiring.
 - ordre d'énumération déterministe sans signification de priorité.
 - changement de `PipelineSelectionStrategy`, si une fixture la rend visible : aucun changement du
@@ -645,25 +687,29 @@ critère principal du lot.
 
 1. Ajouter les tests unitaires de sélection applicabilité et old-catalog/new-catalog autour d'un
    registry de fixture.
-2. Faire évoluer le modèle candidat/cursor du scheduling pour inclure la définition déclencheuse.
-3. Ajouter le discovery catalog-driven et ses tests repository PostgreSQL, sans toucher encore au
+2. Séparer la pertinence Event→`pipelineId` des bindings exacts de construction et ajouter les
+   garde-fous de wiring inter-générations.
+3. Faire évoluer le modèle candidat/cursor du scheduling pour inclure la définition déclencheuse.
+4. Ajouter le discovery catalog-driven et ses tests repository PostgreSQL, sans toucher encore au
    runtime actif.
-4. Refactorer le planning en deux phases : planifier toutes les définitions, puis persister le batch.
-5. Restreindre la cardinalité à zéro/une Task par définition et ajouter les résultats
+5. Refactorer le planning en deux phases : déterminer les pipelineIds pertinents, filtrer leurs
+   définitions applicables, planifier toutes les intentions, puis persister le batch.
+6. Restreindre la cardinalité à zéro/une Task par définition et ajouter les résultats
    `Created`/`Adopted`.
-6. Écrire le preflight V10 et ses tests sur les données legacy conformes/incohérentes.
-7. Ajouter V10, la colonne `pot_id`, l'unicité directe, puis retirer le parent materialization legacy.
-8. Réécrire `JpaTaskCreationAdapter` en ensure/adopt direct avec validation de payload.
-9. Adapter `JpaTaskReadRepository`, `RecordedTask` mapping et le mapper Balance à `pot_id` structurel,
+7. Écrire le preflight V10 et ses tests sur les données legacy conformes/incohérentes.
+8. Ajouter V10, la colonne `pot_id`, l'unicité Event-derived directe, puis retirer le parent
+   materialization legacy, sans fermer le futur sous-type administratif.
+9. Réécrire `JpaTaskCreationAdapter` en ensure/adopt direct avec validation de payload.
+10. Adapter `JpaTaskReadRepository`, `RecordedTask` mapping et le mapper Balance à `pot_id` structurel,
    sans modifier la logique du projector.
-10. Refactorer `EventConsumptionLocator` pour la clé scheduler et l'exécution catalog-driven.
-11. Refactorer `EventConsumptionRuntimeConfiguration` : registry depuis le catalogue, toutes les
-    stratégies exactes, suppression des propriétés pipeline/version.
-12. Ajouter les tests runtime old Event→new definition, zéro applicable et no replay.
-13. Ajouter les tests transactionnels batch, concurrence, adoption et payload divergent.
-14. Ajouter les règles d'architecture/no-read-store et les métriques bornées.
-15. Mettre à jour les scripts/runbooks de cutover Event et la documentation factuelle.
-16. Exécuter tests ciblés, migrations, architecture, suite complète et `git diff --check`.
+11. Refactorer `EventConsumptionLocator` pour la clé scheduler et l'exécution catalog-driven.
+12. Refactorer `EventConsumptionRuntimeConfiguration` : registry depuis le catalogue, pertinences par
+    pipelineId, tous les bindings exacts, suppression des propriétés pipeline/version.
+13. Ajouter les tests runtime old Event→new definition, zéro applicable et no replay.
+14. Ajouter les tests transactionnels batch, concurrence, adoption et payload divergent.
+15. Ajouter les règles d'architecture/no-read-store et les métriques bornées.
+16. Mettre à jour les scripts/runbooks de cutover Event et la documentation factuelle.
+17. Exécuter tests ciblés, migrations, architecture, suite complète et `git diff --check`.
 
 Chaque étape doit laisser les modules compilables. La migration et le changement de mapping sont
 livrés dans le même déploiement mais le runtime reste désactivé jusqu'au preflight/cutover.
@@ -744,9 +790,13 @@ Ils ne doivent modifier aucun invariant ci-dessus.
 ## 19. Critères de sortie
 
 - Le producer utilise exclusivement `PocomaPipelineDefinitions.all()` via un registry local.
+- La pertinence est calculée une fois par `(Event,pipelineId)` et ne peut pas diverger entre
+  générations ; `appliesTo` reste l'unique filtre propre à une `pipelineVersion`.
 - Toutes les définitions pertinentes satisfaisant `appliesTo(V)` produisent une intention.
 - Plusieurs générations applicables coexistent sans priorité ni fallback.
 - Une seule Task durable existe par `(eventId,pipelineId,pipelineVersion)`.
+- Cette unicité est explicitement Event-derived ; le payload et les mappings restent extensibles aux
+  identités administratives du Lot 7.8.
 - Une Task adoptée est comparée à l'Event autoritatif ; toute divergence Pot/version échoue sans
   overwrite.
 - Deux Events identiques en Pot/version restent indépendants.

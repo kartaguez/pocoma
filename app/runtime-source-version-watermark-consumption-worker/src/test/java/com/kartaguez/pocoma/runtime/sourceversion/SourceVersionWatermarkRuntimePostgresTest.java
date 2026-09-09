@@ -67,7 +67,7 @@ class SourceVersionWatermarkRuntimePostgresTest {
 	@BeforeEach
 	void cleanDatabase() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
-				+ "consumption_claims, tasks_4_pipeline, event_4_pipeline_materialization_status, "
+				+ "consumption_claims, tasks_4_pipeline, "
 				+ "business_event_outbox cascade");
 		jdbc.execute("truncate table pocoma_read.source_version_watermarks");
 	}

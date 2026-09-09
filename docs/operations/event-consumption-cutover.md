@@ -1,17 +1,31 @@
-# Cutover Event vers `engine-consumption`
+# Cutover du scheduler Event vers les Tasks de projection applicables
 
-L'ancien statut global de `business_event_outbox` n'est jamais converti en slot : il ne permet pas
-de reconstruire le consumer `PIPELINE[pipelineId,pipelineVersion]`. Les lignes
-`event_4_pipeline_materialization_status` restent un bridge d'adoption par identité exacte.
+Le scheduler Event du Lot 7.5 est piloté par le catalogue canonique. Il découvre une combinaison
+`Event + PipelineVersionDefinition` tant que la Task Event-derived exacte
+`(eventId, pipelineId, pipelineVersion)` manque. Son slot porte la même génération exacte :
+
+```text
+consumable = EVENT[eventId]
+consumer   = PROJECTION_TASK_SCHEDULER[pipelineId,pipelineVersion]
+```
+
+Un slot terminal d'une ancienne génération ne ferme donc pas l'Event aux générations ajoutées plus
+tard. Le runtime ne requiert plus de propriétés `pipeline-id` ou `pipeline-version`.
+
+## Procédure
 
 1. Arrêter les anciens workers Event/materialization et bloquer leur redémarrage.
-2. Exécuter `event-consumption-preflight.sql`. Toute identité ambiguë, materialization `FAILED`,
-   Event absent, ligne `SKIPPED` possédant des Tasks ou Task dont l'identité Event/Pipeline diffère de sa
-   materialization `MATERIALIZED` doit être résolu explicitement. Les invariants internes aux Tasks
-   (`partition_key`, `target_version`, binding structurel) restent vérifiés par le preflight Task.
-3. Exécuter `event-consumption-validate.sql`, puis activer un segment pilote du nouveau worker.
+2. Appliquer la migration V10. Son preflight doit échouer plutôt que dédupliquer des Tasks ambiguës.
+3. Exécuter `event-consumption-preflight.sql`. Il vérifie la disparition du parent legacy, la cohérence
+   Event/Pot/version et l'unicité Event-derived directe.
+4. Exécuter `event-consumption-validate.sql`, puis activer un segment pilote du scheduler catalog-driven.
+5. Contrôler que les slots créés utilisent `PROJECTION_TASK_SCHEDULER[pipelineId,pipelineVersion]` et
+   que chaque Task porte directement `event_id`, `pipeline_id`, `pipeline_version`, `pot_id` et
+   `target_version`.
 
-`MATERIALIZED` adopte les Tasks existantes. `SKIPPED` signifie historiquement que le pipeline ne
-s'appliquait pas : il devient une consommation `SUCCESS` sans Task. L'adoption est volontairement
-lazy afin que le slot et la provenance soient écrits par la transaction authoritative normale.
-Aucun fallback vers `balance-projection/v1` n'est autorisé.
+Le scheduler ne consulte ni le read store ni `PipelineSelectionStrategy`. Une définition applicable
+ajoutée au catalogue rend naturellement les anciens Events éligibles si leur Task exacte manque ;
+aucun reset de slot et aucune API de replay ne sont nécessaires.
+
+L'unicité actuelle vise les Tasks Event-derived. Elle ne définit pas l'identité universelle des futures
+Tasks administratives du Lot 7.8.

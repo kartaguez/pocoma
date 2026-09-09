@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.pipeline.JpaTaskRea
 @Repository
 public class JpaTaskConsumptionDiscoveryRepository {
 	public static final String SELECT_ELIGIBLE = """
-			select task.id, task.pipeline_id, task.pipeline_version, task.partition_key,
+			select task.id, task.pipeline_id, task.pipeline_version, task.pot_id, task.partition_key,
 			       task.target_version, task.created_at, task.task_type, task.task_payload
 			from tasks_4_pipeline task
 			left join consumption_slots slot

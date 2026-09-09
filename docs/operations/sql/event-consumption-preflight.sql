@@ -1,47 +1,26 @@
--- Read-only preflight. Run after every legacy Event/materialization worker is stopped.
+-- Read-only Lot 7.5 preflight after V10 and before enabling the catalog-driven scheduler.
 do $$
 begin
-    if exists (
-        select 1 from event_4_pipeline_materialization_status m
-        where m.pipeline_id is null or btrim(m.pipeline_id) = '' or m.pipeline_version is null
-           or m.pipeline_version < 1
-    ) then
-        raise exception 'Cannot reconstruct the exact Event consumer identity';
+    if to_regclass('event_4_pipeline_materialization_status') is not null then
+        raise exception 'V10 is not complete: the legacy Event materialization table still exists';
     end if;
 
     if exists (
-        select 1 from event_4_pipeline_materialization_status m
-        left join business_event_outbox e on e.id = m.event_id
-        where e.id is null
+        select 1 from tasks_4_pipeline task
+        left join business_event_outbox event on event.id = task.event_id
+        where event.id is null
+           or task.pot_id <> event.pot_id
+           or task.target_version <> event.version
+           or task.pipeline_id is null or btrim(task.pipeline_id) = ''
+           or task.pipeline_version < 1
     ) then
-        raise exception 'A legacy materialization references a missing Event';
+        raise exception 'An Event-derived Task has an invalid Event, Pot, version or pipeline binding';
     end if;
 
     if exists (
-        select 1 from event_4_pipeline_materialization_status m
-        where m.status = 'FAILED'
+        select 1 from tasks_4_pipeline
+        group by event_id, pipeline_id, pipeline_version having count(*) > 1
     ) then
-        raise exception 'FAILED Event materializations require explicit resolution before cutover';
-    end if;
-
-    if exists (
-        select 1
-        from event_4_pipeline_materialization_status m
-        join tasks_4_pipeline task on task.materialization_id = m.id
-        where m.status = 'SKIPPED'
-    ) then
-        raise exception 'A SKIPPED Event materialization cannot own Tasks';
-    end if;
-
-    if exists (
-        select 1
-        from event_4_pipeline_materialization_status m
-        join tasks_4_pipeline task on task.materialization_id = m.id
-        where m.status = 'MATERIALIZED'
-          and (task.event_id <> m.event_id
-               or task.pipeline_id <> m.pipeline_id
-               or task.pipeline_version <> m.pipeline_version)
-    ) then
-        raise exception 'A MATERIALIZED Event materialization owns Tasks with a mismatched Event/Pipeline identity';
+        raise exception 'Multiple Tasks share one Event-derived scheduling identity';
     end if;
 end $$;

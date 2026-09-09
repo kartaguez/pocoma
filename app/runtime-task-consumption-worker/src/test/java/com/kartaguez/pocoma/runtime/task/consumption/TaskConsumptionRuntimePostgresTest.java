@@ -58,7 +58,7 @@ class TaskConsumptionRuntimePostgresTest {
 	void seedHistoricalPot() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
 				+ "consumption_claims, balance_projection_entries, balance_projection_artifacts, "
-				+ "tasks_4_pipeline, event_4_pipeline_materialization_status, expense_shares, "
+				+ "tasks_4_pipeline, expense_shares, "
 				+ "expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 		potId = UUID.randomUUID();
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 50)", potId);
@@ -92,31 +92,25 @@ class TaskConsumptionRuntimePostgresTest {
 
 	@Test
 	void tenThousandDoneSlotsDoNotHideANewEligibleTask() {
-		UUID materializationId = UUID.randomUUID();
-		UUID eventId = UUID.randomUUID();
 		Instant history = Instant.parse("2025-01-01T00:00:00Z");
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
-				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)", materializationId, eventId,
-				Timestamp.from(history), Timestamp.from(history), Timestamp.from(history));
 		jdbc.update("""
 				insert into tasks_4_pipeline
-				(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,
+				(id,event_id,pipeline_id,pipeline_version,pot_id,task_type,task_key,task_payload,
 				 partition_key,partition_hash,target_version,created_at,updated_at)
-				select (md5('done-task-' || n)::uuid), ?, ?, 'balance-projection', 2,
+				select (md5('done-task-' || n)::uuid), (md5('done-event-' || n)::uuid), 'balance-projection', 2, ?,
 				       'COMPUTE_BALANCES_FOR_VERSION', 'done-' || n,
 				       jsonb_build_object('potId', ?::text, 'targetVersion', 42)::text,
 				       ?::text, 0, 42, ?::timestamptz + n * interval '1 microsecond', ?::timestamptz
 				from generate_series(1,10000) n
-				""", materializationId, eventId, potId, potId, Timestamp.from(history), Timestamp.from(history));
+				""", potId, potId, potId, Timestamp.from(history), Timestamp.from(history));
 		jdbc.update("""
 				insert into consumption_slots
 				(slot_id,consumable_type,consumable_components,consumer_type,consumer_components,revision,
 				 last_attempt_number,status,terminal_outcome,current_claim_id,next_claim_at,created_at,done_at)
 				select md5(task.id::text || ':done-slot')::uuid, 'TASK', jsonb_build_array(task.id::text),
 				       'TASK_EXECUTOR','[]'::jsonb,0,0,'DONE','SUCCESS',null,task.created_at,task.created_at,task.created_at
-				from tasks_4_pipeline task where task.materialization_id=?
-				""", materializationId);
+				from tasks_4_pipeline task where task.task_key like 'done-%'
+				""");
 
 		UUID eligible = insertTask("eligible-after-history");
 		var candidate = discovery.findNextEligibleCandidate(taskPipeline, WorkerSegment.single(),
@@ -126,19 +120,14 @@ class TaskConsumptionRuntimePostgresTest {
 	}
 
 	private UUID insertTask(String key) {
-		UUID materializationId = UUID.randomUUID();
 		UUID eventId = UUID.randomUUID();
 		UUID taskId = UUID.randomUUID();
 		Instant now = Instant.parse("2026-01-01T00:00:00Z").plusMillis(Math.abs(key.hashCode()));
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
-				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
-				materializationId, eventId, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
 		jdbc.update("insert into tasks_4_pipeline "
-				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
+				+ "(id,event_id,pipeline_id,pipeline_version,pot_id,task_type,task_key,task_payload,"
 				+ "partition_key,partition_hash,target_version,created_at,updated_at) "
-				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,?,?,0,42,?,?)",
-				taskId, materializationId, eventId, key,
+				+ "values (?,?,'balance-projection',2,?,'COMPUTE_BALANCES_FOR_VERSION',?,?,?,0,42,?,?)",
+				taskId, eventId, potId, key,
 				"{\"potId\":\"" + potId + "\",\"targetVersion\":42}", potId.toString(),
 				Timestamp.from(now), Timestamp.from(now));
 		return taskId;

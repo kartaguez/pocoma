@@ -58,9 +58,11 @@ Dans `runtime-monolith`, le dernier adapter Balance est au contraire `JpaPotBala
 BusinessEvent durable dans business_event_outbox
   -> runtime-event-consumption-worker
   -> EventConsumptionLocator
-  -> CreateTasksForEventService
-  -> BalanceTaskCreationStrategy
-  -> event_4_pipeline_materialization_status + tasks_4_pipeline
+  -> ScheduleProjectionTasksForEventService
+  -> EventPipelineRelevanceRegistry (pertinence stable par pipelineId)
+  -> PipelineDefinitionRegistry + PipelineVersionDefinition.appliesTo
+  -> stratégie de construction exacte par génération
+  -> tasks_4_pipeline
   -> runtime-task-consumption-worker
   -> TaskConsumptionLocator
   -> ComputeBalancesRecordedTaskMapper
@@ -182,8 +184,8 @@ des projections parce qu'elles sont interrogées par `engine-query`.
 | `balance_projection_artifacts`, `balance_projection_entries` | Task Balance cible | `JpaImmutablePotBalancesQueryAdapter` dans `runtime-web-api` | Projection cible, immuable et versionnée par pipeline/Pot |
 | `pot_balance_projection_states`, `pot_balance_versions`, `pot_balances` | ancien moteur/worker Balance | `JpaPotBalancesAdapter` dans `runtime-monolith` | Projection legacy encore câblée dans le monolithe |
 
-`business_event_outbox`, `event_4_pipeline_materialization_status` et `tasks_4_pipeline` sont des
-données durables de transport/pipeline, pas des read models HTTP. `consumption_slots`,
+`business_event_outbox` et `tasks_4_pipeline` sont des données durables de transport/pipeline, pas des
+read models HTTP. `consumption_slots`,
 `consumption_claims` et la provenance portent le lifecycle technique, pas une vue métier.
 
 ### Calculs dérivés
@@ -226,15 +228,16 @@ la cible sont détaillés dans la section 14 de [read-side-target.md](read-side-
 
 1. La transaction Command gagnante ajoute l'Event typé dans `business_event_outbox` avec la mutation
    primaire.
-2. `runtime-event-consumption-worker` découvre l'Event pour le pipeline configuré sans utiliser le
-   statut lifecycle legacy de l'outbox. `AcquireConsumption` arbitre avec la clé
-   `EVENT[eventId] / PIPELINE[pipelineId,pipelineVersion]`.
-3. Après acquire, `EventConsumptionLocator` recharge l'Event. `BalanceTaskCreationStrategy` accepte
-   actuellement tout `BusinessEvent` Pot et produit une Task `COMPUTE_BALANCES_FOR_VERSION` dont la
-   cible est `potId:eventVersion`.
-4. `JpaTaskCreationAdapter` matérialise idempotemment le couple Event/pipeline dans
-   `event_4_pipeline_materialization_status` et la Task dans `tasks_4_pipeline`. Une matérialisation
-   legacy existante peut être adoptée.
+2. `runtime-event-consumption-worker` découvre les couples Event/génération applicables dont la Task
+   directe manque. `AcquireConsumption` arbitre avec la clé exacte
+   `EVENT[eventId] / PROJECTION_TASK_SCHEDULER[pipelineId,pipelineVersion]`.
+3. Après acquire, `EventConsumptionLocator` recharge l'Event et réévalue tout le catalogue courant.
+   `BalanceEventPipelineRelevance` décide une seule fois la pertinence pour `balance-projection`, puis
+   `PipelineVersionDefinition.appliesTo(event.version())` est l'unique règle de production par génération.
+4. `JpaTaskCreationAdapter` crée ou adopte chaque Task Event-derived sous l'identité durable
+   `(event_id,pipeline_id,pipeline_version)`, vérifie intégralement son payload et n'overwrite jamais une
+   divergence. `pot_id` est structurel ; `partition_key` n'est qu'une dérivation technique. La migration
+   V10 a supprimé le parent legacy `event_4_pipeline_materialization_status`.
 5. `runtime-task-consumption-worker` découvre les Tasks structurelles de ce pipeline/type ; leurs
    colonnes `status`, claim et lease legacy ne sont pas l'autorité. La clé générique est
    `TASK[taskId] / TASK_EXECUTOR[]`.

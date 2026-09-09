@@ -30,11 +30,7 @@ public class JpaTaskPort implements TaskPort {
 	static RecordedTask toDomain(TaskRow row) {
 		return new RecordedTask(row.taskId(),
 				new PipelineDefinition(PipelineId.of(row.pipelineId()), row.pipelineVersion()),
-				potId(row), row.targetVersion(), row.createdAt(), row.taskType(), row.taskPayload(), Optional.empty());
-	}
-
-	private static PotId potId(TaskRow row) {
-		if (row.partitionKey() == null) throw new IllegalStateException("Task partitionKey must contain its Pot id");
-		return PotId.of(UUID.fromString(row.partitionKey()));
+				PotId.of(row.potId()), row.targetVersion(), row.createdAt(), row.taskType(), row.taskPayload(),
+				Optional.empty());
 	}
 }

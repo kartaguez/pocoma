@@ -4,10 +4,12 @@ The Event family is the first production path built exclusively on the target co
 
 ## Boundaries
 
-`EventConsumptionLocator` discovers one Event/pipeline pair at a time and supplies a structural key, an
+`EventConsumptionLocator` discovers one Event/generation scheduling trigger at a time and supplies a structural key, an
 atomic callback and a technical-failure classifier. Discovery is best-effort: the callback captures the
 Event id, not the `RecordedEvent` snapshot. Once Execute has opened its transaction, the callback reloads
-the Event by id and derives Tasks and provenance exclusively from that authoritative read.
+the Event by id, re-evaluates the complete canonical catalogue, and ensures Tasks and provenance exclusively
+from that authoritative read. Event relevance is decided once per `pipelineId`; generation production is
+then decided only by `PipelineVersionDefinition.appliesTo(event.version())`.
 
 A `ConsumptionSearch` owns only its cursor, pagination state and local resources. It never retains a
 transaction, lock or JPA session between `next()` and acquisition, and it is always closed before an
@@ -47,10 +49,13 @@ by a durable Task/outbox row.
 
 ## Migration
 
-The old Event worker and its TryAcquire/ClaimToken/Complete/Fail/Release services are removed. Existing
-materializations are adopted lazily by reading their durable Task references and recording them as results
-of the newly created slot. Do not run the legacy materializer and the new Event runtime simultaneously for
-the same pipeline during rollout.
+The scheduler key is
+`EVENT[eventId] / PROJECTION_TASK_SCHEDULER[pipelineId,pipelineVersion]`. A terminal slot closes only that
+exact generation: when the append-only catalogue gains another applicable generation, normal discovery
+finds the old Event again through the missing direct Task identity. `tasks_4_pipeline` is uniquely identified
+for this Event-derived subtype by `(event_id,pipeline_id,pipeline_version)`; V10 removes the legacy
+materialization parent. This Event-derived identity deliberately remains extensible to future administrative
+Tasks, whose provenance will not require an Event.
 
 Command now uses `runtime-command-consumption-worker` and the same generic consumption lifecycle;
 its former worker and `engine-execution-guard` have been removed. Task keeps its own current runtime

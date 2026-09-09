@@ -51,7 +51,7 @@ class TaskConsumptionCutoverScriptsPostgresTest {
 	@BeforeEach
 	void cleanDatabase() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
-				+ "consumption_claims, tasks_4_pipeline, event_4_pipeline_materialization_status cascade");
+				+ "consumption_claims, tasks_4_pipeline cascade");
 	}
 
 	@Test
@@ -89,33 +89,26 @@ class TaskConsumptionCutoverScriptsPostgresTest {
 	}
 
 	private void insertTask(String partitionKey, String key) {
-		UUID materializationId = UUID.randomUUID();
 		UUID eventId = UUID.randomUUID();
+		UUID potId = partitionKey != null && partitionKey.matches("[0-9a-fA-F-]{36}")
+				? UUID.fromString(partitionKey) : UUID.randomUUID();
 		Instant now = Instant.parse("2026-09-01T10:00:00Z");
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
-				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
-				materializationId, eventId, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
 		jdbc.update("insert into tasks_4_pipeline "
-				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
+				+ "(id,event_id,pipeline_id,pipeline_version,pot_id,task_type,task_key,task_payload,"
 				+ "partition_key,partition_hash,target_version,created_at,updated_at) "
-				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?)",
-				UUID.randomUUID(), materializationId, eventId, key, partitionKey, Timestamp.from(now), Timestamp.from(now));
+				+ "values (?,?,'balance-projection',2,?,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?)",
+				UUID.randomUUID(), eventId, potId, key, partitionKey, Timestamp.from(now), Timestamp.from(now));
 	}
 
 	private void insertTerminalTask(String key, String status, String failureKind) {
-		UUID materializationId = UUID.randomUUID();
 		UUID eventId = UUID.randomUUID();
+		UUID potId = UUID.randomUUID();
 		Instant now = Instant.parse("2026-09-01T10:00:00Z");
-		jdbc.update("insert into event_4_pipeline_materialization_status "
-				+ "(id,event_id,pipeline_id,pipeline_version,status,attempt_count,created_at,updated_at,materialized_at) "
-				+ "values (?,?, 'balance-projection',2,'MATERIALIZED',0,?,?,?)",
-				materializationId, eventId, Timestamp.from(now), Timestamp.from(now), Timestamp.from(now));
 		jdbc.update("insert into tasks_4_pipeline "
-				+ "(id,materialization_id,event_id,pipeline_id,pipeline_version,task_type,task_key,task_payload,"
+				+ "(id,event_id,pipeline_id,pipeline_version,pot_id,task_type,task_key,task_payload,"
 				+ "partition_key,partition_hash,target_version,status,failure_kind,created_at,updated_at,done_at,failed_at) "
-				+ "values (?,?,?,'balance-projection',2,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?,?,?,?,?)",
-				UUID.randomUUID(), materializationId, eventId, key, UUID.randomUUID().toString(), status, failureKind,
+				+ "values (?,?,'balance-projection',2,?,'COMPUTE_BALANCES_FOR_VERSION',?,'{}',?,0,42,?,?,?,?,?,?)",
+				UUID.randomUUID(), eventId, potId, key, potId.toString(), status, failureKind,
 				Timestamp.from(now), Timestamp.from(now), "DONE".equals(status) ? Timestamp.from(now) : null,
 				"FAILED".equals(status) ? Timestamp.from(now) : null);
 	}

@@ -966,7 +966,7 @@ class HexagonalArchitectureTest {
 		Set<String> taskDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.task.TaskConsumptionLocator");
 
-		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".CreateTasksForEventUseCase")));
+		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".ScheduleProjectionTasksForEventUseCase")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
 		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".TryAcquireConsumptionUseCase")));
@@ -974,6 +974,29 @@ class HexagonalArchitectureTest {
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".TaskPort")));
 		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
 		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
+	}
+
+	@Test
+	void eventTaskSchedulerIsIndependentFromReaderPolicyAndReadStore() {
+		Set<String> schedulerPackages = Set.of(
+				ROOT_PACKAGE + ".engine.service.taskcreation",
+				ROOT_PACKAGE + ".locator.consumption.event");
+		Set<String> forbiddenPrefixes = Set.of(
+				ROOT_PACKAGE + ".engine.read.projection",
+				ROOT_PACKAGE + ".infra.read.persistence");
+
+		Set<String> forbiddenDependencies = CLASSES.stream()
+				.filter(javaClass -> schedulerPackages.stream()
+						.anyMatch(prefix -> javaClass.getPackageName().startsWith(prefix)))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.filter(dependency -> forbiddenPrefixes.stream()
+						.anyMatch(prefix -> dependency.getTargetClass().getPackageName().startsWith(prefix))
+						|| dependency.getTargetClass().getSimpleName().equals("PipelineSelectionStrategy"))
+				.map(HexagonalArchitectureTest::dependencyKey)
+				.collect(Collectors.toUnmodifiableSet());
+
+		assertEquals(Set.of(), forbiddenDependencies,
+				"Event scheduling must depend only on Events, canonical applicability and Task intentions");
 	}
 
 	@Test

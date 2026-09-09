@@ -16,10 +16,10 @@ import jakarta.persistence.Table;
 @Table(name = "tasks_4_pipeline")
 public class JpaPipelineTaskEntity {
 	@Id @Column(name = "id", nullable = false, updatable = false) private UUID id;
-	@Column(name = "materialization_id", nullable = false, updatable = false) private UUID materializationId;
 	@Column(name = "event_id", nullable = false, updatable = false) private UUID eventId;
 	@Column(name = "pipeline_id", nullable = false, updatable = false) private String pipelineId;
 	@Column(name = "pipeline_version", nullable = false, updatable = false) private int pipelineVersion;
+	@Column(name = "pot_id", nullable = false, updatable = false) private UUID potId;
 	@Column(name = "task_type", nullable = false, updatable = false) private String taskType;
 	@Column(name = "task_key", nullable = false, updatable = false) private String taskKey;
 	@Column(name = "task_payload", nullable = false, updatable = false) private String taskPayload;
@@ -31,13 +31,13 @@ public class JpaPipelineTaskEntity {
 
 	protected JpaPipelineTaskEntity() {}
 
-	public JpaPipelineTaskEntity(UUID materializationId, UUID eventId, String pipelineId,
+	public JpaPipelineTaskEntity(UUID eventId, String pipelineId,
 			int pipelineVersion, TaskDescriptor task, Instant now) {
 		this.id = UUID.randomUUID();
-		this.materializationId = Objects.requireNonNull(materializationId);
 		this.eventId = Objects.requireNonNull(eventId);
 		this.pipelineId = requireText(pipelineId, "pipelineId");
 		this.pipelineVersion = pipelineVersion;
+		this.potId = UUID.fromString(Objects.requireNonNull(task.partitionKey(), "Task pot id must not be null"));
 		this.taskType = task.taskType();
 		this.taskKey = task.taskKey();
 		this.taskPayload = task.taskPayload();
@@ -50,6 +50,7 @@ public class JpaPipelineTaskEntity {
 
 	public UUID id() { return id; }
 	public String taskType() { return taskType; }
+	public UUID potId() { return potId; }
 	public long targetVersion() { return targetVersion; }
 	public Instant createdAt() { return createdAt; }
 
