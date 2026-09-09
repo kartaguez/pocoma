@@ -10,8 +10,9 @@ The repository workflow is `.github/workflows/ci.yml`.
 - Runner: `ubuntu-24.04` with Temurin Java 21, matching `app/pom.xml`.
 - Build root: `app`.
 - Build command: `./mvnw --batch-mode --no-transfer-progress test`.
-- Repository validation: `git show --check --format= HEAD` from the repository root. This form works
-  with the shallow checkout used by GitHub Actions.
+- Repository validation: `git diff --check HEAD^ HEAD` from the repository root. Checkout retains the
+  Git history (`fetch-depth: 0`) so the check examines only the pushed commit rather than treating the
+  entire tree as a root commit.
 
 The complete Maven reactor includes `architecture-tests` and the PostgreSQL integration tests backed
 by Testcontainers. Those tests are not disabled in CI. GitHub-hosted Linux runners provide the Docker
