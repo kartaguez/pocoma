@@ -90,9 +90,8 @@ Les éléments suivants ne sont pas des invariants architecturaux verrouillés :
 - l'interface d'administration du backfill : une commande one-shot durable est une proposition, pas une obligation ;
 - les valeurs par défaut de pagination, par exemple `limit=50`, maximum `200`, curseur Base64URL versionné et envelope `{items,nextCursor}` ; seuls keyset, opacité du curseur et ordre déterministe sont requis ;
 - le caractère current-only de `GET /pots/balances/me`, qui reste une décision produit/API à valider ;
-- la source exacte de `updatedAt`, gate d'entrée du Lot 7.7 avant toute implémentation ou validation
-  de l'ordre, des indexes et de la pagination current `updatedAt DESC, potId` ;
-- la preuve d'inexistence d'une Expense lorsque l'index `expenseId -> potId` ne contient aucune entrée, qui doit être tranchée au début du Lot 7.7 ;
+- les détails physiques de `PotVersionMetadata.createdAt`, dont la source primaire durable est
+  verrouillée et constitue le gate d'entrée du Lot 7.7 pour l'ordre et la pagination ;
 - la politique de réparation d'une projection `FAILED` ;
 - le contenu exact des stratégies de sélection READ_POT et Balance à chaque release ; leur modèle et leur sémantique sont en revanche verrouillés ;
 - la durée de coexistence du legacy et la politique de garbage collection des anciennes générations.
@@ -111,7 +110,7 @@ Les écarts documentés à résorber structurent l'ordre des lots :
 | Version source | Pas de watermark read-side spécialisé | `SourceVersionWatermark.latestVersionSeen`, alimenté par un consommateur Event express |
 | État fonctionnel | État parfois déduit de la mécanique Task | Pour une version applicable : artifact/failure/absence donnent `READY`/`FAILED`/`NOT_READY`, sans lecture des Tasks |
 | Head | Résolution potentielle par recherche dans les artifacts | `ProjectionHead.latestProjectedVersion`, monotone et canonique |
-| Queries transverses | Risque de scans ou N+1 | Indexes dérivés `user -> Pot`, `expenseId -> potId`, `user -> Balances` |
+| Queries transverses | Risque de scans ou N+1 | Indexes dérivés `user -> Pot` et `user -> Balances` ; sous-ressources adressées sous leur Pot parent |
 | Autorisation | Contexte potentiellement obtenu du primaire ou incomplet | Contexte versionné embarqué dans `PotProjection` |
 | Pipeline generations | Activation implicite ou legacy | Définitions applicables produites indépendamment ; exposition décidée par une stratégie statique par `pipelineId` |
 | Read store | Colocalisation et responsabilités à clarifier | Schéma, transactions, migrations et ownership logiquement séparés |
@@ -148,7 +147,8 @@ Les dépendances inter-projection, lorsqu'elles sont explicitement décidées, r
 - `ProjectionHead` : identité de génération de pipeline et `potId`, avec `latestProjectedVersion`.
 - `PotProjection` : header du snapshot et fragments versionnés nécessaires aux ressources filles, à la pagination et à l'autorisation.
 - `BalanceProjection` : artifact aligné sur la même identité et le même lifecycle générique.
-- Indexes courants dérivés : `user -> Pot`, routage Expense, `user -> Balances`.
+- Indexes dérivés versionnés : `user -> Pot` et `user -> Balances`. Les sous-ressources se résolvent
+  dans la projection exacte de leur Pot parent, sans routage transverse.
 - Catalogue canonique des définitions et stratégies de sélection statiques.
 - Trace séparée des violations d'invariant de matérialisation.
 
@@ -600,17 +600,18 @@ Lots 7.2, 7.3 et 7.5.
 - Timestamp write/Event non univoque par version.
 - Snapshot trop couplé aux DTO HTTP.
 
-### Lot 7.7 — Indexes Pot/Expense et décision de routage
+### Lot 7.7 — Métadonnées de version Pot, index utilisateur et pagination keyset
 
 **Objectif**
 
-Ajouter les structures transverses nécessaires aux listes et fermer, avant tout cutover Expense, la sémantique de l'absence dans `expenseId -> potId`.
+Matérialiser le timestamp fonctionnel de chaque Pot version et les structures historisées nécessaires
+aux listes multi-Pots déterministes.
 
 **Responsabilités couvertes**
 
-- index `userId -> Pot` ;
-- statut courant et tri ;
-- routage `expenseId -> potId` ;
+- `PotVersionMetadata.createdAt` primaire et sa copie read-side exacte ;
+- index versionné `userId -> PotProjection@V` ;
+- résolution de la version cible par watermark individuel ;
 - pagination keyset ;
 - cohérence atomique avec `PotProjection`.
 
@@ -619,24 +620,25 @@ Ajouter les structures transverses nécessaires aux listes et fermer, avant tout
 - transaction de matérialisation Pot ;
 - repositories d'indexes read ;
 - query adapters shadow ;
-- code write/domain Expense consulté seulement pour vérifier identité, création, suppression et éventuelle réutilisation d'identifiant.
+- allocation primaire des Pot versions et reconstruction historique.
 
 **Modifications principales**
 
-- Gate d'entrée : ne commencer ni ne valider l'ordre, les indexes current ou la pagination tant que
-  la source fonctionnelle déterministe de `updatedAt` n'est pas résolue et reconstructible.
-- Maintenir l'index utilisateur/Pot courant atomiquement avec la projection canonique.
-- Définir l'ordre strict `updatedAt DESC, potId` et un curseur opaque keyset.
-- Maintenir le routage Expense nécessaire aux accès directs.
-- Au début du lot, prendre et documenter obligatoirement l'une des décisions suivantes après vérification ciblée des invariants Expense :
-  - **Option A** : l'absence du routage prouve `NOT_FOUND`, uniquement si l'index est garanti complet, atomiquement maintenu avec toutes les PotProjections concernées, et si création/suppression/réutilisation d'identité ne laisse aucun état ambigu ;
-  - **Option B** : l'absence est indéterminée ; introduire une structure minimale reconstructible distinguant `Expense inexistante` de `Expense existante mais routage/projection non prête`.
-- Définir les effets d'une version de suppression et la temporalité exacte du routage, sans créer de timeline Expense indépendante.
-- Bloquer explicitement le cutover de `GET /expenses/{id}` tant que la décision, la preuve et les tests ne sont pas validés.
+- Créer exactement un `createdAt` durable dans la transaction primaire qui crée chaque Pot version.
+- Refuser tout backfill approximatif des versions legacy.
+- Propager cette metadata dans la transaction de matérialisation de PotProjection.
+- Maintenir l'index utilisateur/Pot versionné et scopé par génération, sans ligne current.
+- Résoudre chaque candidat par `latestVersionSeen(potId)` puis génération sélectionnée à la lecture.
+- Définir l'ordre strict `updatedAt DESC, potId ASC` et un curseur opaque keyset.
+- Conserver le consumer SourceVersionWatermark pur : Event vers max version, sans route ni index.
+- Documenter le cas d'une appartenance nouvelle portée par une PotProjection NOT_READY ; ne pas créer
+  implicitement une structure source-membership supplémentaire.
+- Préparer les contrats des sous-ressources imbriquées : projection exacte absente = `NOT_READY`,
+  enfant absent dans une projection READY = `NOT_FOUND`.
 
 **Dépendances**
 
-Lot 7.6 et source durable de `updatedAt` suffisamment définie pour tester l'ordre.
+Lot 7.6. La matérialisation primaire de `PotVersionMetadata.createdAt` est la première étape du lot.
 
 **Tests**
 
@@ -644,22 +646,24 @@ Lot 7.6 et source durable de `updatedAt` suffisamment définie pour tester l'ord
 - Pagination stable avec timestamps égaux grâce au tie-breaker `potId`.
 - Pas de doublon ni omission entre pages lors d'un parcours sur un snapshot de données stable.
 - Rebuild des indexes à partir des sources canoniques.
-- Scénarios création, mutation, suppression et, si possible, réutilisation d'Expense.
-- Tests propres à l'Option A ou B prouvant la distinction `NOT_FOUND`/`NOT_READY`.
+- Projections hors ordre et générations isolées.
+- Version source connue + projection requise absente = `NOT_READY`, sans fallback.
+- PotProjection READY + Expense/Shareholder absent = `NOT_FOUND`.
+- Appartenance user nouvelle à une version NOT_READY explicitement couverte.
 
 **Critères de sortie**
 
-- La source de `updatedAt` est fermée et l'ordre canonique `updatedAt DESC, potId` est déterministe ;
-  sans cela, les parties current ordering/pagination du lot ne peuvent pas être déclarées valides.
-- La stratégie A ou B est documentée comme décision vérifiée, implémentée et testée.
-- L'absence d'entrée de routage a une sémantique non ambiguë.
-- `GET /expenses/{id}` est déclaré éligible au cutover seulement après ce critère.
-- Les indexes restent dérivés, atomiques et reconstructibles.
+- `updatedAt` est durable, exact et stable entre rebuilds.
+- L'ordre canonique `updatedAt DESC, potId ASC` est déterministe.
+- Les indexes restent versionnés, génération-scopés, dérivés, atomiques et reconstructibles.
+- Aucun routage global Expense/Shareholder et aucun current fonctionnel ne sont introduits.
+- Le SourceVersionWatermark conserve sa responsabilité unique.
 
 **Risques/points à vérifier**
 
-- Index courant incapable de répondre à une requête historique sans information de routage complémentaire.
-- Réutilisation éventuelle d'un `expenseId` entre Pots.
+- Coût du join entre candidats versionnés, watermarks individuels et plages de générations.
+- Une appartenance apparaissant dans une projection NOT_READY n'est pas découvrable par l'index
+  dérivé ; la sémantique produit de la liste doit être fermée au Lot 7.9 avant cutover.
 
 ### Lot 7.8 — Tasks administratives, rebuild et validation de reconstructibilité
 
@@ -856,8 +860,8 @@ Basculer query par query vers le read store après validation shadow, sans suppr
 - `GET /pots` ;
 - `GET /pots/{id}` ;
 - `GET /pots/{id}/expenses` ;
-- `GET /expenses/{id}` ;
-- queries Shareholder existantes concernées.
+- `GET /pots/{potId}/expenses/{expenseId}` ;
+- `GET /pots/{potId}/shareholders/{shareholderId}` et autres queries Shareholder imbriquées concernées.
 
 **Fichiers/modules probablement concernés**
 
@@ -870,28 +874,31 @@ Basculer query par query vers le read store après validation shadow, sans suppr
 
 - Basculer d'abord les queries directement résolubles dans un Pot connu.
 - Basculer `GET /pots` avec actifs par défaut, archives seulement sur demande explicite et pagination keyset.
-- Basculer `GET /expenses/{id}` uniquement après satisfaction du gate de routage du Lot 7.7.
+- Ne pas migrer le endpoint global legacy Expense vers la cible : les sous-ressources sont adressées
+  sous leur Pot parent.
 - Retourner `potVersion` dans chaque succès versionné.
 - Utiliser la même sélection de génération pour current et historique.
 - Conserver un rollback explicite vers le reader legacy pendant la période d'observation, sans fallback par requête.
 
 **Dépendances**
 
-Lots 7.7, 7.9 et 7.10. Le critère de routage Expense est bloquant pour le seul GET Expense direct.
+Lots 7.7, 7.9 et 7.10. La sémantique de liste face à une appartenance nouvelle NOT_READY doit être
+fermée avant le cutover de `GET /pots`.
 
 **Tests**
 
 - Contrats 404/409/503 pour current et explicite.
 - Liste active par défaut et inclusion archive explicite.
 - Pagination keyset déterministe.
-- Expense directe : inexistante vs existante non prête selon la décision 7.7.
+- Sous-ressource imbriquée : projection Pot absente pour une version connue = `NOT_READY`, enfant
+  absent dans une projection READY = `NOT_FOUND`.
 - Test d'intégration exécutant les GET avec un compte SQL sans droit `SELECT` sur le primaire.
 - Comparaison shadow et tests de rollback de configuration.
 
 **Critères de sortie**
 
 - Chaque GET basculé n'utilise que le read store.
-- Aucun GET Expense direct n'est activé avant preuve de routage.
+- Aucun GET global Expense/Shareholder n'est introduit dans la cible.
 - Le legacy reste isolé et désactivable, pas consulté en fallback.
 
 **Risques/points à vérifier**
@@ -1198,8 +1205,8 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 23. Backfill et rebuild reproductibles depuis le primaire historisé.
 24. `updatedAt` et ordre de liste identiques entre rebuilds.
 25. Index transverse cohérent et atomique avec sa projection canonique.
-26. Routage Expense prouvant sans ambiguïté `NOT_FOUND` ou `NOT_READY` selon la décision du Lot 7.7.
-27. `GET /expenses/{id}` impossible à basculer tant que ce routage n'est pas validé.
+26. Sous-ressource imbriquée : PotProjection exacte absente pour une version connue, `NOT_READY`.
+27. Sous-ressource imbriquée : PotProjection READY mais Expense/Shareholder absent, `NOT_FOUND`.
 28. Pagination keyset stable selon `updatedAt DESC, potId`.
 29. Plusieurs workers d'un pipeline concurrents, fencés et idempotents.
 30. Un seul producer logique actif pour une identité/génération donnée.
@@ -1257,7 +1264,8 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 - Aucune coverage, expectation ou state de projection n'existe.
 - Les autorisations historiques sont évaluées depuis `PotProjection` à la version exacte.
 - Balance prête sans contexte Pot prêt retourne 409 ; un vrai refus avec contexte disponible retourne 404.
-- Le routage direct d'une Expense distingue de façon prouvée inexistence et indisponibilité.
+- Les sous-ressources sont adressées sous leur Pot parent ; projection exacte absente et enfant absent
+  ont des sémantiques `NOT_READY`/`NOT_FOUND` distinctes et testées.
 - Les indexes transverses sont atomiques, dérivés et reconstructibles.
 - `GET /pots` utilise une pagination keyset déterministe et un `updatedAt` durable, stable et reconstructible.
 - Un read store vide peut être reconstruit, y compris watermarks, artifacts, failures, heads, indexes et métadonnées de query.
@@ -1281,5 +1289,5 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 
 Aucun point architectural n'est bloquant avant le plan détaillé de 7.4. La forme concrète du consumer
 express et la procédure administrative de reconstruction du watermark sont des décisions internes à
-ce lot. Les seuils des stratégies reader, l'identité exacte READ_POT, le routage Expense, `updatedAt`,
-Balance et le contrat des Tasks administratives ne bloquent pas 7.4 et restent attachés à leurs lots.
+ce lot. Les seuils des stratégies reader, l'identité exacte READ_POT, `updatedAt`, Balance et le
+contrat des Tasks administratives ne bloquent pas 7.4 et restent attachés à leurs lots.

@@ -406,33 +406,30 @@ créent pas de nouvelle projection canonique.
 `GET /pots` retourne par défaut uniquement les Pots actifs. L'inclusion des supprimés/archivés exige
 un paramètre explicite en plus du scope adéquat.
 
-La query utilise un index courant `userId -> Pot` contenant au minimum le `potId`, le statut, la
-version de provenance et les données de tri/résolution. Il n'est pas historisé. La pagination est par
-curseur/keyset sur un ordre strict :
+La query utilise un index historisé `userId -> PotProjection@V`, immuable et scopé par génération.
+Elle joint chaque candidat au `latestVersionSeen` individuel de son Pot, puis applique la génération
+sélectionnée pour cette version exacte. Aucune ligne fonctionnelle `current` n'est persistée. La
+pagination est par curseur/keyset sur un ordre strict :
 
 ```text
 updatedAt DESC, potId
 ```
 
-`updatedAt` doit être une donnée source stable associée à la version métier, et non l'heure de fin de
-projection, faute de quoi un rebuild ou le hors-ordre modifierait l'ordre visible. Le code actuel ne
-porte pas encore ce timestamp dans `PotHeader`; sa définition exacte reste à confirmer.
+`updatedAt` est le `createdAt` durable et immuable de `PotVersionMetadata(potId, potVersion)`, créé
+dans la transaction primaire qui crée la version. Il ne provient ni des Events, ni des Tasks, ni du
+projector. Les données legacy sans timestamp exact ne reçoivent aucun backfill approximatif.
 
 ### Expenses et Shareholders
 
-`GET /pots/{id}/expenses` lit et pagine les fragments indexés de la PotProjection exacte, sans
-projection Expenses séparée.
+Une sous-ressource est toujours adressée dans le contexte explicite de son Pot parent :
+`GET /pots/{potId}/expenses/{expenseId}` et
+`GET /pots/{potId}/shareholders/{shareholderId}`. Aucun GET global Expense ou Shareholder
+n'appartient au contrat cible.
 
-`GET /expenses/{id}` utilise un index `expenseId -> potId`, puis résout la version globale du Pot et
-lit l'Expense dans la PotProjection correspondante. L'index doit conserver la résolution nécessaire
-aux lectures historiques même après suppression de l'Expense ou du Pot.
-
-Les Shareholders appartiennent de la même manière au snapshot global du Pot et n'ont pas de timeline
-read-side indépendante.
-
-Le comportement d'un GET direct par `expenseId` lorsque l'index de routage n'est pas encore
-matérialisé, mais que la version source existe, reste à préciser : sans `potId`, le reader ne peut
-actuellement distinguer `NOT_FOUND` de `NOT_READY`.
+Le reader résout d'abord la version et la génération du Pot, puis la PotProjection exacte. Une
+version source connue dont la projection requise est absente donne `NOT_READY`. Une Expense ou un
+Shareholder absent ne donne `NOT_FOUND` qu'après chargement d'une PotProjection exacte READY. Aucun
+index transverse enfant vers Pot n'est nécessaire ni autorisé pour conclure à l'inexistence.
 
 ### Balances transverses
 
@@ -549,20 +546,17 @@ Les invariants d'autorisation, d'indépendance des consumers et d'atomicité rea
 dans les sections précédentes. Les points ci-dessous restent volontairement à décider dans les lots
 qui en dépendent ; ils ne bloquent pas la conception conceptuelle du Lot 7.2.
 
-### Routage d'une ressource enfant encore non projetée
+### Adressage des sous-ressources
 
-Un GET direct par `expenseId` a besoin de `potId` avant de consulter le watermark et le snapshot. Si
-l'index `expenseId -> potId` est créé seulement avec la PotProjection, l'absence d'index ne permet pas
-de distinguer une Expense inexistante d'une Expense connue du write side mais non encore projetée.
-Le contrat `NOT_FOUND`/`NOT_READY` et le producteur de cette information de routage doivent être
-alignés au plus tard au début du Lot 7.7, avant la migration du GET direct Expense.
+La décision est fermée : toute sous-ressource est adressée sous son Pot parent. Le `potId` est donc
+disponible avant la résolution du watermark et du snapshot exact. Aucun routage global
+`expenseId -> potId` ou `shareholderId -> potId` n'est requis par le read side cible.
 
 ### Sémantique de `updatedAt`
 
-Le tri keyset cible dépend d'`updatedAt`, absent du modèle Pot actuel. Une date de projection serait
-non déterministe lors d'un retry/backfill et incorrecte en cas de hors-ordre. La cible doit consacrer
-une date stable issue du fait source ou une autre clé de tri métier stable. Cette source doit être
-fermée au Lot 7.6 ou au début du Lot 7.8 avant qu'un rebuild complet soit déclaré valide.
+Le tri keyset cible dépend de `PotVersionMetadata.createdAt`, créé une fois dans la transaction
+primaire de création de la version. Cette source exacte doit être matérialisée au Lot 7.7 avant que
+l'ordre et la pagination puissent être déclarés valides.
 
 ### Protocole d'une séparation physique future
 
