@@ -35,4 +35,4 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress test
       - name: Check whitespace errors
         working-directory: .
-        run: git diff --check HEAD^ HEAD
+        run: git show --check --format= HEAD
