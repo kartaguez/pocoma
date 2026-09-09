@@ -307,8 +307,9 @@ Indexes strictement 7.6 :
 - les PK de fragments, suffisantes pour charger un artifact exact ;
 - éventuellement `(artifact_id, expense_id)` déjà couvert par la PK de shares.
 
-**[CANONICAL INVARIANT]** Les indexes `user→Pot`, pagination `updatedAt`, routage transversal
-`expenseId→potId` et autres accès current appartiennent au Lot 7.7 et ne sont pas introduits ici.
+**[CANONICAL INVARIANT]** Les indexes `user→Pot` et la pagination `updatedAt` appartiennent au
+Lot 7.7 et ne sont pas introduits ici. Les sous-ressources Expense et Shareholder sont toujours
+adressées sous leur Pot parent ; aucun routage transversal enfant vers Pot n'est requis.
 
 ## 8. Reconstruction historique primaire
 

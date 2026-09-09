@@ -91,6 +91,11 @@ terminalisation sont transactionnelles.
 | `GET /api/pots/{potId}/balances` | `GetPotBalancesUseCase` | primaire pour version/autorisation, puis artifacts Balance immuables | Oui, `?version=` ; sinon courante | Oui |
 | `GET /api/pots/balances/me` | `ListUserPotBalancesUseCase` | Pots/shareholder primaires, puis artifacts Balance immuables | Oui, la même version demandée pour chaque Pot ; sinon courante par Pot | Oui |
 
+Le endpoint global `GET /api/expenses/{expenseId}` est un constat legacy, pas un contrat cible. La
+cible adresse toujours une sous-ressource sous son Pot parent, par exemple
+`GET /pots/{potId}/expenses/{expenseId}` ; aucun routing transverse Expense vers Pot ne doit être
+ajouté pour migrer le endpoint legacy.
+
 Il n'existe actuellement aucun GET autonome pour un Shareholder, aucune route de lecture d'archive et
 aucun endpoint utilisateur distinct. Les DTO sont construits par `RestMapper`; celui-ci stabilise
 notamment l'ordre des collections Shareholder, ExpenseShare et Balance dans les réponses.
