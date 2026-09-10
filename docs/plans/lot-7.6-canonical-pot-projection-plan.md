@@ -952,3 +952,9 @@ consigner la commande exacte, sa sortie et les tests non prouvés ; ne pas décl
   head, provenance et CAS. Les tests de takeover prouvent le rollback lorsque le CAS terminal est perdu.
 - Aucun GET actif n'est basculé. `updatedAt` reste OPEN/BLOCKER uniquement pour les parties 7.7
   dépendantes de l'ordre current.
+
+### Mise à jour après Lot 7.7
+
+Le gate `updatedAt` est fermé par `PotVersionMetadata.createdAt`, créé une fois dans la transaction
+primaire de chaque version et relu exactement par le reconstructeur. Le digest fonctionnel publié de
+`read-pot/v1` reste inchangé ; la metadata est propagée de façon adjacente et atomique au read store.

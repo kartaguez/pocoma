@@ -55,10 +55,13 @@ class PotProjectionTaskRuntimePostgresTest {
 				+ "tasks_4_pipeline, expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 		jdbc.execute("truncate table pocoma_read.pot_projection_expense_shares, pocoma_read.pot_projection_expenses, "
 				+ "pocoma_read.pot_projection_shareholders, pocoma_read.pot_projection_snapshots, "
-				+ "pocoma_read.projection_artifacts, pocoma_read.projection_heads cascade");
+				+ "pocoma_read.pot_version_metadata, pocoma_read.projection_artifacts, "
+				+ "pocoma_read.projection_heads cascade");
 		potId = UUID.randomUUID();
 		UUID creator = UUID.randomUUID();
 		jdbc.update("insert into pot_global_versions(pot_id,version) values (?,7)", potId);
+		jdbc.update("insert into pot_version_metadata(pot_id,version,created_at) values (?,7,?)",
+				potId, Timestamp.from(Instant.parse("2025-12-31T23:59:59Z")));
 		jdbc.update("insert into pot_headers(id,pot_id,started_at_version,ended_at_version,label,creator_id,deleted) "
 				+ "values (?,?,1,null,'Deleted historical Pot',?,true)", UUID.randomUUID(), potId, creator);
 		UUID taskId = UUID.randomUUID();

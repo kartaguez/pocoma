@@ -602,6 +602,10 @@ Lots 7.2, 7.3 et 7.5.
 
 ### Lot 7.7 — Métadonnées de version Pot, index utilisateur et pagination keyset
 
+**État : implémenté en shadow mode.** La source exacte `PotVersionMetadata.createdAt`, l'index
+user/Pot versionné et génération-scopé, ainsi que les primitives PostgreSQL/keyset sont en place.
+Aucun GET actif, routage enfant-parent ou current fonctionnel n'a été ajouté.
+
 **Objectif**
 
 Matérialiser le timestamp fonctionnel de chaque Pot version et les structures historisées nécessaires

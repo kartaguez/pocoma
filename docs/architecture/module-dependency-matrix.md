@@ -27,7 +27,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-pot` | Modèle Pot, valeurs, agrégats et `BusinessEvent` typés | JDK | autres domaines, engines, frameworks | target |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | `PotBalances`, `Balance`, calcul incrémental | `domain-pot`, JDK | engines, persistence, workers | target |
-| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, watermark et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lot 7.6 |
+| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, watermark, `PotVersionMetadata` et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.6/7.7 |
 | `domain-pipeline` | identité, applicabilité, catalogue/registry des définitions et stratégie statique de sélection reader par pipeline | JDK | tout module applicatif | target Lots 7.3.1/7.9 |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
@@ -40,7 +40,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
 | `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
-| `engine-read-projection` | watermark, matérialisation générique et reconstruction exacte de `PotProjection` via port primaire intentionnel | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lot 7.6 |
+| `engine-read-projection` | watermark, matérialisation générique, reconstruction exacte de `PotProjection`, contrat d'index user/Pot et primitives de curseur keyset | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lots 7.6/7.7 |
 | `engine-task-creation` | pertinence Event→pipelineId, applicabilité canonique par génération et assurance atomique de toutes les Tasks Event-derived | Pot events, pipeline, core | consumption, workers, read store, sélection reader, materialization legacy | target Lot 7.5 |
 | `engine-task-execution` | mapping durable, routage d'un `TaskPayload` typé et rapport fonctionnel d'exécution | pipeline, task | consumption, claims, workers, persistence | target |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |

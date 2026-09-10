@@ -12,6 +12,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.jdbc.Sql;
 
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -20,6 +21,9 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.JpaPotGlobalVersion
 
 @DataJpaTest
 @Import(JpaPotGlobalVersionAdapter.class)
+@Sql(statements = "create table if not exists pot_version_metadata "
+		+ "(pot_id uuid not null, version bigint not null, created_at timestamp with time zone not null, "
+		+ "primary key (pot_id, version))")
 class JpaPotGlobalVersionAdapterTest {
 
 	@Autowired
@@ -35,6 +39,7 @@ class JpaPotGlobalVersionAdapterTest {
 		adapter.save(new PotGlobalVersion(potId, 1));
 
 		assertEquals(1, repository.findById(potId.value()).orElseThrow().version());
+		repository.findVersionCreatedAt(potId.value(), 1).orElseThrow();
 	}
 
 	@Test
@@ -45,6 +50,8 @@ class JpaPotGlobalVersionAdapterTest {
 		adapter.updateIfActive(new PotGlobalVersion(potId, 3), new PotGlobalVersion(potId, 4));
 
 		assertEquals(4, repository.findById(potId.value()).orElseThrow().version());
+		repository.findVersionCreatedAt(potId.value(), 3).orElseThrow();
+		repository.findVersionCreatedAt(potId.value(), 4).orElseThrow();
 	}
 
 	@Test

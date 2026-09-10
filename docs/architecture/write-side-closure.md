@@ -33,6 +33,17 @@ protège la frontière du write model sans interdire de futurs endpoints non-GET
 le modèle primaire (recherche, administration ou authentification, par exemple). Les anciennes
 routes synchrones de mutation sont en plus vérifiées explicitement comme absentes de l'OpenAPI.
 
+### Timestamp fonctionnel des versions Pot
+
+Depuis le Lot 7.7, toute création ou avance de `PotGlobalVersion` insère également
+`PotVersionMetadata(potId, version, createdAt)` dans la même transaction primaire. PostgreSQL fixe
+`createdAt` avec son timestamp transactionnel ; les retries et les BusinessEvents ne peuvent donc ni
+le recalculer ni le remplacer. La table est protégée contre UPDATE et DELETE. Une allocation sans
+metadata fait échouer et rollbacker la mutation entière.
+
+La migration refuse explicitement une base possédant des compteurs Pot legacy sans metadata exacte :
+ces données de développement doivent être reset, jamais complétées depuis un timestamp Event estimé.
+
 ## Frontières métier conservées
 
 Les dix interfaces spécialisées de `engine.port.in.command.usecase` expriment des capacités métier

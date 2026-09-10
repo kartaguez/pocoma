@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.projection.PotProjection;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifactDescriptor;
 import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
@@ -17,6 +16,7 @@ import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureService;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMaterializationResult;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMaterializationService;
 import com.kartaguez.pocoma.engine.read.projection.ReconstructPotProjectionService;
+import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
 import com.kartaguez.pocoma.engine.taskexecution.model.BusinessObjectVersion;
 import com.kartaguez.pocoma.engine.taskexecution.model.ProducedArtifactReference;
 import com.kartaguez.pocoma.engine.taskexecution.model.TaskExecutionReport;
@@ -25,14 +25,14 @@ public final class ExecutePotProjectionTaskHandler implements TaskExecutionHandl
 
 	private final PipelineDefinition pipeline;
 	private final ReconstructPotProjectionService reconstruct;
-	private final ProjectionMaterializationService<PotProjection> materialize;
+	private final ProjectionMaterializationService<ReconstructedPotProjection> materialize;
 	private final ProjectionFailureService failures;
 	private final Clock clock;
 
 	public ExecutePotProjectionTaskHandler(
 			PipelineDefinition pipeline,
 			ReconstructPotProjectionService reconstruct,
-			ProjectionMaterializationService<PotProjection> materialize,
+			ProjectionMaterializationService<ReconstructedPotProjection> materialize,
 			ProjectionFailureService failures,
 			Clock clock) {
 		this.pipeline = Objects.requireNonNull(pipeline);

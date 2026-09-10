@@ -61,7 +61,10 @@ import com.kartaguez.pocoma.domain.projection.PotProjectionExpense;
 import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
 import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
 import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
+import com.kartaguez.pocoma.engine.read.projection.PotUserIndexQuery;
+import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureResult;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureService;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMaterializationResult;
@@ -70,6 +73,8 @@ import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionResolution;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionStatusResolver;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
+import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
+import com.kartaguez.pocoma.engine.read.projection.SelectedPotPipelineRange;
 
 @Testcontainers
 class ReadStorePersistencePostgresTest {
@@ -116,7 +121,7 @@ class ReadStorePersistencePostgresTest {
 				select count(*) from information_schema.tables
 				where table_schema = 'pocoma_read' and table_name = 'projection_coverages'
 				"""));
-		assertEquals(6, count("""
+		assertEquals(7, count("""
 				select count(*) from information_schema.table_constraints
 				where constraint_schema = 'pocoma_read' and constraint_type = 'FOREIGN KEY'
 				"""));
@@ -353,6 +358,7 @@ class ReadStorePersistencePostgresTest {
 			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
 			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
 			JdbcPotProjectionArtifactWriter writer = context.getBean(JdbcPotProjectionArtifactWriter.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
 			PotId potId = PotId.of(UUID.randomUUID());
 			ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
 			ProjectionIdentity identity = new ProjectionIdentity(new ProjectionGenerationIdentity(
@@ -368,14 +374,139 @@ class ReadStorePersistencePostgresTest {
 					identity.generation().pipeline(), VersionApplicability.from(1))));
 			var service = new ProjectionMaterializationService<>(metadata, transactions, writer,
 					Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC), definitions);
+			var reconstructed = new ReconstructedPotProjection(
+					projection,
+					new PotVersionMetadata(potId, 5, Instant.parse("2025-12-31T23:59:59Z")));
 
 			var created = assertInstanceOf(ProjectionMaterializationResult.Created.class,
-					service.materialize(identity, projection));
+					service.materialize(identity, reconstructed));
 			assertEquals(projection, writer.findByArtifactId(created.descriptor().artifactId()).orElseThrow());
-			assertEquals(writer.digest(projection), writer.digest(writer.findByArtifactId(
+			assertEquals(writer.digestProjection(projection), writer.digestProjection(writer.findByArtifactId(
 					created.descriptor().artifactId()).orElseThrow()));
 			assertInstanceOf(ProjectionMaterializationResult.AlreadySatisfied.class,
-					service.materialize(identity, projection));
+					service.materialize(identity, reconstructed));
+			var divergentMetadata = new ReconstructedPotProjection(
+					projection,
+					new PotVersionMetadata(potId, 5, Instant.parse("2026-01-01T00:00:01Z")));
+			assertInstanceOf(ProjectionMaterializationResult.DivergentDuplicate.class,
+					service.materialize(identity, divergentMetadata));
+			assertEquals(1, readJdbc.queryForObject(
+					"select count(*) from pocoma_read.pot_version_metadata where pot_id=? and pot_version=5",
+					Integer.class, potId.value()));
+			assertEquals(1, readJdbc.queryForObject(
+					"select count(*) from pocoma_read.pot_projection_user_index "
+							+ "where artifact_id=? and user_id=? and pot_status='DELETED'",
+					Integer.class, created.descriptor().artifactId().value(), projection.creatorId().value()));
+			assertEquals(Instant.parse("2025-12-31T23:59:59Z"), readJdbc.queryForObject(
+					"select created_at from pocoma_read.pot_version_metadata where pot_id=? and pot_version=5",
+					(rs, row) -> rs.getTimestamp(1).toInstant(), potId.value()));
+			assertThrows(RuntimeException.class, () -> readJdbc.update(
+					"update pocoma_read.pot_version_metadata set created_at=? where pot_id=? and pot_version=5",
+					java.sql.Timestamp.from(Instant.EPOCH), potId.value()));
+		});
+	}
+
+	@Test
+	void currentUserIndexUsesIndividualWatermarksGenerationRangesAndKeysetOrder() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcPotProjectionArtifactWriter writer = context.getBean(JdbcPotProjectionArtifactWriter.class);
+			PotUserIndexReader reader = context.getBean(PotUserIndexReader.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
+			UserId userId = UserId.of(UUID.fromString("00000000-0000-0000-0000-000000000099"));
+			Instant newest = Instant.parse("2026-09-10T06:00:00Z");
+			Instant tied = Instant.parse("2026-09-10T05:00:00Z");
+			PotId firstId = PotId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+			PotId secondId = PotId.of(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+			PotId newestId = PotId.of(UUID.fromString("00000000-0000-0000-0000-000000000003"));
+			var definition = new PipelineDefinition(PipelineId.of("read-pot"), 1);
+			var secondGenerationDefinition = new PipelineDefinition(PipelineId.of("read-pot"), 2);
+			var definitions = new PipelineDefinitionRegistry(List.of(
+					new PipelineVersionDefinition(definition, VersionApplicability.from(1)),
+					new PipelineVersionDefinition(secondGenerationDefinition, VersionApplicability.from(1))));
+			var service = new ProjectionMaterializationService<>(metadata, transactions, writer,
+					Clock.systemUTC(), definitions);
+
+			materializeMinimalPot(service, definition, firstId, 2, userId, newest.plusSeconds(1));
+			materializeMinimalPot(service, definition, firstId, 1, userId, tied);
+			materializeMinimalPot(service, definition, secondId, 1, userId, tied);
+			materializeMinimalPot(service, definition, newestId, 1, userId, newest);
+			materializeMinimalPot(service, secondGenerationDefinition, firstId, 1, userId, tied);
+			for (PotId potId : List.of(firstId, secondId, newestId)) {
+				readJdbc.update("insert into pocoma_read.source_version_watermarks "
+						+ "(pot_id,latest_version_seen,advanced_at) values (?,1,?)",
+						potId.value(), java.sql.Timestamp.from(newest));
+			}
+
+			var range = new SelectedPotPipelineRange(1, 1, java.util.OptionalLong.empty());
+			var firstPage = reader.findProjectedPots(new PotUserIndexQuery(
+					userId, definition.pipelineId(), List.of(range), false, 2, Optional.empty()));
+			assertEquals(List.of(newestId, firstId), firstPage.entries().stream()
+					.map(entry -> entry.potId()).toList());
+			assertTrue(firstPage.entries().stream().allMatch(entry -> entry.pipeline().pipelineVersion() == 1));
+			assertEquals(3, readJdbc.queryForObject(
+					"select count(*) from pocoma_read.pot_projection_user_index where pot_id=? and user_id=?",
+					Integer.class, firstId.value(), userId.value()));
+			var firstGeneration = new ProjectionGenerationIdentity(
+					new ProjectionType("READ_POT"), definition, firstId);
+			assertEquals(2, metadata.findHead(firstGeneration).orElseThrow().latestProjectedVersion());
+			assertTrue(firstPage.nextCursor().isPresent());
+
+			var secondPage = reader.findProjectedPots(new PotUserIndexQuery(
+					userId, definition.pipelineId(), List.of(range), false, 2, firstPage.nextCursor()));
+			assertEquals(List.of(secondId), secondPage.entries().stream()
+					.map(entry -> entry.potId()).toList());
+			assertTrue(secondPage.nextCursor().isEmpty());
+		});
+	}
+
+	@Test
+	void failureDuringUserIndexWriteRollsBackMetadataFragmentsArtifactAndHead() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcPotProjectionArtifactWriter writer = context.getBean(JdbcPotProjectionArtifactWriter.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
+			PotId potId = PotId.of(UUID.randomUUID());
+			UserId creator = UserId.of(UUID.fromString("00000000-0000-0000-0000-000000000010"));
+			UserId rejectedUser = UserId.of(UUID.fromString("00000000-0000-0000-0000-000000000020"));
+			ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
+			var definition = new PipelineDefinition(PipelineId.of("read-pot"), 1);
+			var generation = new ProjectionGenerationIdentity(new ProjectionType("READ_POT"), definition, potId);
+			var identity = new ProjectionIdentity(generation, 1);
+			var projection = new PotProjection(identity, PotProjectionStatus.ACTIVE, "Rollback", creator,
+					List.of(new PotProjectionShareholder(shareholderId, "Rejected", Fraction.ONE,
+							Optional.of(rejectedUser), false)), List.of());
+			var reconstructed = new ReconstructedPotProjection(projection,
+					new PotVersionMetadata(potId, 1, Instant.parse("2026-09-10T05:00:00Z")));
+			readJdbc.execute("""
+					create function pocoma_read.reject_selected_user() returns trigger language plpgsql as $$
+					begin
+					  if new.user_id = '00000000-0000-0000-0000-000000000020'::uuid then
+					    raise exception 'injected user index failure';
+					  end if;
+					  return new;
+					end $$
+					""");
+			readJdbc.execute("""
+					create trigger reject_selected_user before insert on pocoma_read.pot_projection_user_index
+					for each row execute function pocoma_read.reject_selected_user()
+					""");
+			var definitions = new PipelineDefinitionRegistry(List.of(
+					new PipelineVersionDefinition(definition, VersionApplicability.from(1))));
+			var service = new ProjectionMaterializationService<>(metadata, transactions, writer,
+					Clock.systemUTC(), definitions);
+
+			assertThrows(RuntimeException.class, () -> service.materialize(identity, reconstructed));
+			assertEquals(0, readJdbc.queryForObject("select count(*) from pocoma_read.pot_version_metadata",
+					Integer.class));
+			assertEquals(0, readJdbc.queryForObject("select count(*) from pocoma_read.pot_projection_snapshots",
+					Integer.class));
+			assertEquals(0, readJdbc.queryForObject("select count(*) from pocoma_read.pot_projection_user_index",
+					Integer.class));
+			assertTrue(metadata.findArtifact(identity).isEmpty());
+			assertTrue(metadata.findHead(generation).isEmpty());
 		});
 	}
 
@@ -590,6 +721,22 @@ class ReadStorePersistencePostgresTest {
 		catch (Exception exception) {
 			throw new IllegalStateException(exception);
 		}
+	}
+
+	private static void materializeMinimalPot(
+			ProjectionMaterializationService<ReconstructedPotProjection> service,
+			PipelineDefinition definition,
+			PotId potId,
+			long version,
+			UserId userId,
+			Instant createdAt) {
+		var identity = new ProjectionIdentity(new ProjectionGenerationIdentity(
+				new ProjectionType("READ_POT"), definition, potId), version);
+		var projection = new PotProjection(
+				identity, PotProjectionStatus.ACTIVE, "Pot " + potId.value(), userId, List.of(), List.of());
+		assertInstanceOf(ProjectionMaterializationResult.Created.class, service.materialize(
+				identity, new ReconstructedPotProjection(
+						projection, new PotVersionMetadata(potId, version, createdAt))));
 	}
 
 	private static final class ExpectedRollback extends RuntimeException {

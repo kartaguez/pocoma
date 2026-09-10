@@ -417,7 +417,8 @@ updatedAt DESC, potId
 
 `updatedAt` est le `createdAt` durable et immuable de `PotVersionMetadata(potId, potVersion)`, créé
 dans la transaction primaire qui crée la version. Il ne provient ni des Events, ni des Tasks, ni du
-projector. Les données legacy sans timestamp exact ne reçoivent aucun backfill approximatif.
+projector. Cet invariant est matérialisé depuis le Lot 7.7 par les migrations primaire V11 et
+read-store V6. Les données legacy sans timestamp exact ne reçoivent aucun backfill approximatif.
 
 ### Expenses et Shareholders
 
@@ -555,8 +556,8 @@ disponible avant la résolution du watermark et du snapshot exact. Aucun routage
 ### Sémantique de `updatedAt`
 
 Le tri keyset cible dépend de `PotVersionMetadata.createdAt`, créé une fois dans la transaction
-primaire de création de la version. Cette source exacte doit être matérialisée au Lot 7.7 avant que
-l'ordre et la pagination puissent être déclarés valides.
+primaire de création de la version. Le Lot 7.7 a fermé cette source exacte et fourni les primitives
+shadow de pagination ; leur branchement HTTP appartient au Query Kernel et au cutover ultérieurs.
 
 ### Protocole d'une séparation physique future
 

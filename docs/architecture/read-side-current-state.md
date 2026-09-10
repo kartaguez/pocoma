@@ -274,6 +274,13 @@ transitionnel, mais ne constituent pas le chemin Balance lu par `runtime-web-api
   autonome, fragments Shareholder/Expense/share, descriptor générique et head. Aucun GET actif ne le lit.
 - Le reconstructeur primaire charge Pot, Shareholders, Expenses supprimées comprises et shares à la
   version exacte ; le read store V5 matérialise quatre tables reliées par des FK internes.
+- Le Lot 7.7 ajoute `pot_version_metadata` au primaire (V11) et au read store (V6), ainsi que
+  `pot_projection_user_index`. Le timestamp exact de la version et l'index user/Pot sont matérialisés
+  atomiquement avec le snapshot, l'artifact et le head.
+- `PotUserIndexReader` est un adapter shadow : il joint l'index versionné au watermark individuel de
+  chaque Pot, reçoit explicitement les plages de générations sélectionnées et applique la keyset
+  `updatedAt DESC, potId ASC`. Il n'existe toujours aucune ligne fonctionnelle `current` et aucun GET
+  actif ne consomme encore cet adapter.
 - Le runtime Event schedule désormais Balance et READ_POT selon leur applicabilité ; une instance du
   runtime Task reste configurée pour une génération exacte mais peut composer l'un ou l'autre binding.
 

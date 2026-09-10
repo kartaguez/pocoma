@@ -127,25 +127,24 @@ réinterpréter cette divergence. Le Lot 7.6 prouve d'abord la reconstruction sh
 
 ## Source temporelle de `updatedAt`
 
-Les tables `pot_global_versions`, `pot_headers`, `shareholders`, `expense_headers` et
-`expense_shares` ne stockent aucun timestamp métier ou de commit associé à une `potVersion`.
+Depuis le Lot 7.7, `pot_version_metadata` porte exactement une ligne append-only par
+`(pot_id, version)`. Son `created_at` est fixé par PostgreSQL avec `CURRENT_TIMESTAMP` dans la même
+transaction que l'allocation de la version globale. La relation autoritative est donc désormais :
 
-`business_event_outbox.created_at` et `RecordedEvent.recordedAt` sont des métadonnées durables
-candidates, mais elles ne constituent pas aujourd'hui une source canonique de `PotProjection.updatedAt` :
+```text
+potId + potVersion -> exactly one durable createdAt
+```
 
-- plusieurs BusinessEvents distincts peuvent légitimement porter la même `potVersion` ;
-- aucune contrainte ne garantit `potVersion -> exactly one recordedAt` ;
-- choisir `min`, `max`, premier ou dernier Event introduirait une règle métier non documentée.
+Le reconstructeur relit cette ligne exacte avec le header et les fragments historiques. Il échoue
+terminalement avec `POT_VERSION_METADATA_ABSENT` si elle manque. `business_event_outbox.created_at`,
+`RecordedEvent.recordedAt`, l'horloge worker et l'heure de projection restent interdits comme
+substituts. Les bases legacy contenant déjà des versions sans source exacte doivent être reset
+explicitement avant la migration V11 ; aucun backfill approximatif n'est exécuté.
 
-Classification actuelle : **B — source candidate nécessitant un invariant supplémentaire**. Sans
-nouvel invariant ou métadonnée durable versionnée, la valeur fonctionnelle `updatedAt` doit rester
-absente de `PotProjection`. Les timestamps techniques de matérialisation (`created_at` des artifacts)
-restent exploitables pour le diagnostic, mais sont exclus du contenu fonctionnel, du digest et du
-futur tri métier.
-
-Cette décision est un gate d'entrée du Lot 7.7 : elle doit être fermée avant de commencer ou déclarer
-valides l'ordre, les indexes current et la pagination canonique `updatedAt DESC, potId`. Elle n'empêche
-pas la construction ni la clôture du snapshot shadow 7.6 sans `updatedAt`.
+Le read store adopte ou vérifie la copie exacte dans sa propre `pot_version_metadata` lors de la
+matérialisation. Cette metadata alimente `updatedAt` dans l'index utilisateur/Pot. Le digest publié de
+`read-pot/v1` reste inchangé : la metadata est adjacente au snapshot canonique, stable entre rebuilds
+et vérifiée par l'idempotence de la matérialisation.
 
 ## Points de code vérifiés
 
@@ -157,6 +156,7 @@ Cette documentation repose sur les inspections ciblées suivantes :
   `JpaExpenseShareRepository` ;
 - `JpaHistoricalPotBalanceSourceAdapter` et `JpaProjectedExpenseAdapter` ;
 - `JpaPotCommandEventAppendAdapter`, `RecordedEvent` et les migrations primaires V1/V2.
+- `JpaPotGlobalVersionAdapter`, `JpaPotGlobalVersionRepository` et la migration primaire V11.
 
 ## Implémentation Lot 7.6
 

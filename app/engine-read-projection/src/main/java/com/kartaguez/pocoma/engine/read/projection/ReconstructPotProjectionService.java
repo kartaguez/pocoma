@@ -18,7 +18,7 @@ public final class ReconstructPotProjectionService {
 		this.source = requireNonNull(source);
 	}
 
-	public PotProjection reconstruct(ProjectionIdentity identity) {
+	public ReconstructedPotProjection reconstruct(ProjectionIdentity identity) {
 		var data = source.load(identity.generation().potId(), identity.potVersion());
 		var header = data.header();
 		if (!header.id().equals(identity.generation().potId())) {
@@ -53,13 +53,14 @@ public final class ReconstructPotProjectionService {
 		}).toList();
 
 		try {
-			return new PotProjection(
+			var projection = new PotProjection(
 					identity,
 					header.deleted() ? PotProjectionStatus.DELETED : PotProjectionStatus.ACTIVE,
 					header.label().value(),
 					header.creatorId(),
 					shareholders,
 					expenses);
+			return new ReconstructedPotProjection(projection, data.versionMetadata());
 		} catch (IllegalArgumentException exception) {
 			throw failure("INCOHERENT_POT_HISTORY", exception.getMessage());
 		}
