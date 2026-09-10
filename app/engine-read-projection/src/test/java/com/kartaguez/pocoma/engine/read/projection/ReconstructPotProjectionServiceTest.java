@@ -31,7 +31,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
 import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
 import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
-import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
+import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
 import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;

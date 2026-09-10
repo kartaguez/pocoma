@@ -24,9 +24,6 @@ public record PotUserIndexQuery(
 		requireNonNull(pipelineId, "pipelineId must not be null");
 		selectedRanges = List.copyOf(requireNonNull(selectedRanges, "selectedRanges must not be null"));
 		after = requireNonNull(after, "after must not be null");
-		if (selectedRanges.isEmpty()) {
-			throw new IllegalArgumentException("at least one selected pipeline range is required");
-		}
 		validateNonOverlappingRanges(selectedRanges);
 		if (limit < 1 || limit > MAX_LIMIT) {
 			throw new IllegalArgumentException("limit must be between 1 and " + MAX_LIMIT);

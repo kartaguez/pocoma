@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.projection;
+package com.kartaguez.pocoma.domain.pot.version;
 
 import static java.util.Objects.requireNonNull;
 

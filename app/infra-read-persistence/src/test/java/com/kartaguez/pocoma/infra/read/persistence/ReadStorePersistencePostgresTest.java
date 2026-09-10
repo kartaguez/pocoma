@@ -61,7 +61,7 @@ import com.kartaguez.pocoma.domain.projection.PotProjectionExpense;
 import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
 import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
 import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
-import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
+import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
 import com.kartaguez.pocoma.engine.read.projection.PotUserIndexQuery;
 import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
@@ -458,6 +458,62 @@ class ReadStorePersistencePostgresTest {
 			assertEquals(List.of(secondId), secondPage.entries().stream()
 					.map(entry -> entry.potId()).toList());
 			assertTrue(secondPage.nextCursor().isEmpty());
+		});
+	}
+
+	@Test
+	void potUserIndexAdoptsIdenticalContentAndRejectsEveryFunctionalDivergence() {
+		primaryAndReadContextRunner().run(context -> {
+			ProjectionMetadataPort metadata = context.getBean(ProjectionMetadataPort.class);
+			ReadStoreTransactionRunner transactions = context.getBean(ReadStoreTransactionRunner.class);
+			JdbcPotProjectionArtifactWriter writer = context.getBean(JdbcPotProjectionArtifactWriter.class);
+			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
+			var definition = new PipelineDefinition(PipelineId.of("read-pot"), 1);
+			PotId potId = PotId.of(UUID.randomUUID());
+			UserId userId = UserId.of(UUID.randomUUID());
+			Instant updatedAt = Instant.parse("2026-09-10T07:00:00Z");
+			var identity = new ProjectionIdentity(new ProjectionGenerationIdentity(
+					new ProjectionType("READ_POT"), definition, potId), 1);
+			var projection = new PotProjection(
+					identity, PotProjectionStatus.ACTIVE, "Indexed Pot", userId, List.of(), List.of());
+			var definitions = new PipelineDefinitionRegistry(List.of(
+					new PipelineVersionDefinition(definition, VersionApplicability.from(1))));
+			var service = new ProjectionMaterializationService<>(metadata, transactions, writer,
+					Clock.systemUTC(), definitions);
+			var created = assertInstanceOf(ProjectionMaterializationResult.Created.class,
+					service.materialize(identity, new ReconstructedPotProjection(
+							projection, new PotVersionMetadata(potId, 1, updatedAt))));
+			ProjectionArtifactId artifactId = created.descriptor().artifactId();
+
+			writer.ensureUserIndexEntry(
+					artifactId, identity, userId.value(), updatedAt, PotProjectionStatus.ACTIVE);
+			assertThrows(IllegalStateException.class, () -> writer.ensureUserIndexEntry(
+					ProjectionArtifactId.random(), identity, userId.value(), updatedAt, PotProjectionStatus.ACTIVE));
+			assertThrows(IllegalStateException.class, () -> writer.ensureUserIndexEntry(
+					artifactId, identity, userId.value(), updatedAt.plusSeconds(1), PotProjectionStatus.ACTIVE));
+			assertThrows(IllegalStateException.class, () -> writer.ensureUserIndexEntry(
+					artifactId, identity, userId.value(), updatedAt, PotProjectionStatus.DELETED));
+
+			var retained = readJdbc.queryForMap(
+					"select artifact_id,updated_at,pot_status from pocoma_read.pot_projection_user_index "
+							+ "where pipeline_id='read-pot' and pipeline_version=1 and pot_id=? "
+							+ "and pot_version=1 and user_id=?",
+					potId.value(), userId.value());
+			assertEquals(artifactId.value(), retained.get("artifact_id"));
+			assertEquals(updatedAt, ((java.sql.Timestamp) retained.get("updated_at")).toInstant());
+			assertEquals("ACTIVE", retained.get("pot_status"));
+		});
+	}
+
+	@Test
+	void emptyPipelineSelectionReturnsAnEmptyPageWithoutFallback() {
+		primaryAndReadContextRunner().run(context -> {
+			PotUserIndexReader reader = context.getBean(PotUserIndexReader.class);
+			var page = reader.findProjectedPots(new PotUserIndexQuery(
+					UserId.of(UUID.randomUUID()), PipelineId.of("read-pot"), List.of(), false, Optional.empty()));
+
+			assertTrue(page.entries().isEmpty());
+			assertTrue(page.nextCursor().isEmpty());
 		});
 	}
 

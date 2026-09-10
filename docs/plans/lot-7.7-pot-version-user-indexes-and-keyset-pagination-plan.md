@@ -86,6 +86,10 @@ Le `potId` fourni par le chemin suffit pour résoudre version cible, génératio
 
 ## 7. Design de `PotVersionMetadata.createdAt`
 
+`PotVersionMetadata` est une vérité temporelle canonique du Pot, possédée par `domain-pot` dans
+`domain.pot.version`. Elle naît sur le write-side primaire et reste indépendante de toute projection ;
+`domain-projection` ne fait que consommer cette vérité via la reconstruction.
+
 **IMPLEMENTATION CHOICE —** créer sur le primaire un registre append-only distinct du compteur courant :
 
 ```text
@@ -471,13 +475,16 @@ Tout commit passe par la PR protégée et doit obtenir `Pocoma CI / build-and-te
   le digest publié de `read-pot/v1`.
 - La migration read-store V6 crée la copie exacte des metadata et
   `pot_projection_user_index`. Le writer indexe creator et Shareholders actifs liés à un user,
-  déduplique les identités et conserve les lignes des anciennes versions et générations.
+  déduplique les identités et conserve les lignes des anciennes versions et générations. Chaque ligne
+  d'index applique localement `insert / conflict / reload / complete-content comparison` : contenu
+  identique adopté, contenu divergent rejeté sans overwrite.
 - Snapshot/fragments, metadata, index user, descriptor, head, provenance Task et terminal CAS restent
   dans la transaction locale existante. Les tests PostgreSQL injectent un échec au cours de l'écriture
   de l'index et prouvent l'absence de matérialisation partielle.
 - `JdbcPotUserIndexReader` joint l'index exact au watermark individuel, reçoit les plages de pipeline
   sélectionnées par le futur reader et applique l'ordre/keyset `updatedAt DESC, potId ASC`, limite 50
-  par défaut et maximum 200. Aucun état current n'est matérialisé.
+  par défaut et maximum 200. Une sélection de plages vide retourne immédiatement une page vide, sans
+  fallback de génération ni SQL. Aucun état current n'est matérialisé.
 - Aucun routage Expense/Shareholder, aucun endpoint HTTP et aucune modification du consumer watermark
   n'ont été introduits. Le comportement produit d'une appartenance nouvelle encore NOT_READY reste un
   sujet du Query Kernel/cutover, pas un écart de matérialisation 7.7.
