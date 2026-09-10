@@ -112,6 +112,13 @@ class HexagonalArchitectureTest {
 						.anyMatch(packageName::startsWith))
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), legacyPotPackages, "Pot types must live below domain.pot");
+
+		Set<String> potVersionMetadataOwners = CLASSES.stream()
+				.filter(javaClass -> javaClass.getSimpleName().equals("PotVersionMetadata"))
+				.map(javaClass -> javaClass.getPackageName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(ROOT_PACKAGE + ".domain.pot.version"), potVersionMetadataOwners,
+				"PotVersionMetadata is a canonical Pot temporal concept owned only by domain-pot");
 	}
 
 	@Test

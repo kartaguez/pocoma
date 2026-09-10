@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.read.projection;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.projection.PotProjection;
-import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
+import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
 
 public record ReconstructedPotProjection(
 		PotProjection projection,

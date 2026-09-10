@@ -160,19 +160,57 @@ public final class JdbcPotProjectionArtifactWriter
 
 		var generation = identity.generation();
 		for (var userId : users) {
-			jdbc.update(
-					"insert into " + table("pot_projection_user_index")
-							+ " (artifact_id,pipeline_id,pipeline_version,pot_id,pot_version,user_id,updated_at,pot_status)"
-							+ " values (?,?,?,?,?,?,?,?)",
-					artifactId.value(),
-					generation.pipeline().pipelineId().value(),
-					generation.pipeline().pipelineVersion(),
-					generation.potId().value(),
-					identity.potVersion(),
+			ensureUserIndexEntry(
+					artifactId,
+					identity,
 					userId,
-					java.sql.Timestamp.from(reconstructed.versionMetadata().createdAt()),
-					projection.status().name());
+					reconstructed.versionMetadata().createdAt(),
+					projection.status());
 		}
+	}
+
+	void ensureUserIndexEntry(
+			ProjectionArtifactId artifactId,
+			ProjectionIdentity identity,
+			UUID userId,
+			java.time.Instant updatedAt,
+			PotProjectionStatus potStatus) {
+		var generation = identity.generation();
+		int inserted = jdbc.update(
+				"insert into " + table("pot_projection_user_index")
+						+ " (artifact_id,pipeline_id,pipeline_version,pot_id,pot_version,user_id,updated_at,pot_status)"
+						+ " values (?,?,?,?,?,?,?,?) on conflict do nothing",
+				artifactId.value(),
+				generation.pipeline().pipelineId().value(),
+				generation.pipeline().pipelineVersion(),
+				generation.potId().value(),
+				identity.potVersion(),
+				userId,
+				java.sql.Timestamp.from(updatedAt),
+				potStatus.name());
+		if (inserted == 1) {
+			return;
+		}
+
+		var existing = jdbc.query(
+				"select artifact_id,updated_at,pot_status from " + table("pot_projection_user_index")
+						+ " where pipeline_id=? and pipeline_version=? and pot_id=? and pot_version=? and user_id=?",
+				(rs, row) -> new UserIndexContent(
+						rs.getObject(1, UUID.class),
+						rs.getTimestamp(2).toInstant(),
+						PotProjectionStatus.valueOf(rs.getString(3))),
+				generation.pipeline().pipelineId().value(),
+				generation.pipeline().pipelineVersion(),
+				generation.potId().value(),
+				identity.potVersion(),
+				userId);
+		var expected = new UserIndexContent(artifactId.value(), updatedAt, potStatus);
+		if (existing.size() != 1 || !expected.equals(existing.getFirst())) {
+			throw new IllegalStateException("divergent Pot user index entry");
+		}
+	}
+
+	private record UserIndexContent(UUID artifactId, java.time.Instant updatedAt, PotProjectionStatus potStatus) {
 	}
 
 	private void insertSnapshot(

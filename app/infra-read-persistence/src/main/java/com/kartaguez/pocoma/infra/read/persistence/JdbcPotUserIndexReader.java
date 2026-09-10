@@ -35,6 +35,10 @@ public final class JdbcPotUserIndexReader implements PotUserIndexReader {
 
 	@Override
 	public PotUserIndexPage findProjectedPots(PotUserIndexQuery query) {
+		if (query.selectedRanges().isEmpty()) {
+			return new PotUserIndexPage(List.of(), Optional.empty());
+		}
+
 		var sql = new StringBuilder("""
 				select i.pipeline_version,i.pot_id,i.pot_version,i.updated_at,i.pot_status,i.artifact_id
 				from %s.pot_projection_user_index i
