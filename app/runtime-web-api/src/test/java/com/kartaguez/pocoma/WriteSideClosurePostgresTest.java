@@ -156,6 +156,9 @@ class WriteSideClosurePostgresTest {
 		await(() -> count("pot_headers", "label", label) == 1);
 
 		assertEquals(1, count("pot_headers", "label", label));
+		assertEquals(1, jdbc.queryForObject(
+				"select count(*) from pot_version_metadata where version=1 and created_at is not null",
+				Integer.class));
 		assertEquals(1, jdbc.queryForObject("select count(*) from business_event_outbox", Integer.class));
 		assertEquals("DONE", jdbc.queryForObject(
 				"select status from consumption_slots where consumable_type='COMMAND'", String.class));

@@ -7,11 +7,13 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
 
 public interface HistoricalPotSnapshotSource {
 	HistoricalPotSnapshot load(PotId potId, long potVersion) throws HistoricalPotReconstructionException;
 
 	record HistoricalPotSnapshot(
+			PotVersionMetadata versionMetadata,
 			PotHeader header,
 			List<Shareholder> shareholders,
 			List<HistoricalExpense> expenses) {

@@ -460,3 +460,24 @@ Le lot est clos si :
 Validation locale depuis `app` : tests ciblés des modules touchés, `./mvnw -pl architecture-tests -am test`, puis `./mvnw test`. Depuis la racine : `git diff --check`.
 
 Tout commit passe par la PR protégée et doit obtenir `Pocoma CI / build-and-test` green. Les tests PostgreSQL/Testcontainers ne sont ni désactivés ni remplacés par H2/mocks.
+
+## 36. État réel après implémentation
+
+- La migration primaire V11 crée `pot_version_metadata` append-only et refuse les compteurs legacy
+  sans timestamp exact. `JpaPotGlobalVersionAdapter` rend allocation du compteur et metadata
+  transactionnellement indivisibles avec le timestamp transactionnel PostgreSQL.
+- `JpaHistoricalPotSnapshotSourceAdapter` relit la metadata exacte ; son absence est une erreur de
+  reconstruction. `ReconstructedPotProjection` la transporte sans modifier le contenu fonctionnel ni
+  le digest publié de `read-pot/v1`.
+- La migration read-store V6 crée la copie exacte des metadata et
+  `pot_projection_user_index`. Le writer indexe creator et Shareholders actifs liés à un user,
+  déduplique les identités et conserve les lignes des anciennes versions et générations.
+- Snapshot/fragments, metadata, index user, descriptor, head, provenance Task et terminal CAS restent
+  dans la transaction locale existante. Les tests PostgreSQL injectent un échec au cours de l'écriture
+  de l'index et prouvent l'absence de matérialisation partielle.
+- `JdbcPotUserIndexReader` joint l'index exact au watermark individuel, reçoit les plages de pipeline
+  sélectionnées par le futur reader et applique l'ordre/keyset `updatedAt DESC, potId ASC`, limite 50
+  par défaut et maximum 200. Aucun état current n'est matérialisé.
+- Aucun routage Expense/Shareholder, aucun endpoint HTTP et aucune modification du consumer watermark
+  n'ont été introduits. Le comportement produit d'une appartenance nouvelle encore NOT_READY reste un
+  sujet du Query Kernel/cutover, pas un écart de matérialisation 7.7.

@@ -17,6 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.SourceVersionWatermarkPersistencePort;
+import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
 import com.kartaguez.pocoma.domain.projection.PotProjection;
 
@@ -59,6 +60,12 @@ public class ReadStoreAccessAutoConfiguration {
 	JdbcPotProjectionArtifactWriter potProjectionArtifactWriter(
 			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
 		return new JdbcPotProjectionArtifactWriter(jdbc, properties.getSchema());
+	}
+
+	@Bean
+	PotUserIndexReader potUserIndexReader(
+			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
+		return new JdbcPotUserIndexReader(jdbc, properties.getSchema());
 	}
 
 }

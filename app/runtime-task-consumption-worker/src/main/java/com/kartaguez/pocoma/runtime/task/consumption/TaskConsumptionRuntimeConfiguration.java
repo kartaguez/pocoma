@@ -19,7 +19,6 @@ import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pipeline.PocomaPipelineDefinitions;
-import com.kartaguez.pocoma.domain.projection.PotProjection;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
@@ -37,6 +36,7 @@ import com.kartaguez.pocoma.engine.read.projection.ProjectionMaterializationServ
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.ReconstructPotProjectionService;
+import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
@@ -150,7 +150,7 @@ public class TaskConsumptionRuntimeConfiguration {
 			HistoricalPotSnapshotSource potSource,
 			ProjectionMetadataPort metadata,
 			ReadStoreTransactionRunner readTransactions,
-			ProjectionArtifactWriter<PotProjection> potWriter,
+			ProjectionArtifactWriter<ReconstructedPotProjection> potWriter,
 			PipelineDefinitionRegistry definitions,
 			Clock clock) {
 		if (BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {

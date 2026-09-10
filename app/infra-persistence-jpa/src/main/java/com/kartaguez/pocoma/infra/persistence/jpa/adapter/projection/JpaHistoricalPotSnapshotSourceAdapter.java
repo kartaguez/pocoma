@@ -11,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotSnapshotSource;
+import com.kartaguez.pocoma.domain.projection.PotVersionMetadata;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseShareRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaPotHeaderRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaShareholderRepository;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.JpaPotGlobalVersionRepository;
 
 @Component
 public class JpaHistoricalPotSnapshotSourceAdapter implements HistoricalPotSnapshotSource {
@@ -23,21 +25,28 @@ public class JpaHistoricalPotSnapshotSourceAdapter implements HistoricalPotSnaps
 	private final JpaShareholderRepository shareholders;
 	private final JpaExpenseHeaderRepository expenses;
 	private final JpaExpenseShareRepository shares;
+	private final JpaPotGlobalVersionRepository versions;
 
 	public JpaHistoricalPotSnapshotSourceAdapter(
 			JpaPotHeaderRepository pots,
 			JpaShareholderRepository shareholders,
 			JpaExpenseHeaderRepository expenses,
-			JpaExpenseShareRepository shares) {
+			JpaExpenseShareRepository shares,
+			JpaPotGlobalVersionRepository versions) {
 		this.pots = pots;
 		this.shareholders = shareholders;
 		this.expenses = expenses;
 		this.shares = shares;
+		this.versions = versions;
 	}
 
 	@Override
 	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
 	public HistoricalPotSnapshot load(PotId potId, long version) {
+		var createdAt = versions.findVersionCreatedAt(potId.value(), version)
+				.orElseThrow(() -> new HistoricalPotReconstructionException(
+						"POT_VERSION_METADATA_ABSENT",
+						"No Pot version metadata at requested version"));
 		var header = pots.findActiveAtVersion(potId.value(), version)
 				.orElseThrow(() -> new HistoricalPotReconstructionException(
 						"POT_HEADER_ABSENT",
@@ -76,6 +85,7 @@ public class JpaHistoricalPotSnapshotSourceAdapter implements HistoricalPotSnaps
 		}).toList();
 
 		return new HistoricalPotSnapshot(
+				new PotVersionMetadata(potId, version, createdAt),
 				header.toDomain(),
 				shareholderRows.stream().map(row -> row.toDomain()).toList(),
 				historicalExpenses);

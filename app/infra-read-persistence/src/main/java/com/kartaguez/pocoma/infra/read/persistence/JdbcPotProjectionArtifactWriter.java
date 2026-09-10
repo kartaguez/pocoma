@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,9 +34,10 @@ import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.read.projection.PotProjectionArtifactReader;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
+import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
 
 public final class JdbcPotProjectionArtifactWriter
-		implements ProjectionArtifactWriter<PotProjection>, PotProjectionArtifactReader {
+		implements ProjectionArtifactWriter<ReconstructedPotProjection>, PotProjectionArtifactReader {
 
 	private static final int DIGEST_FORMAT_VERSION = 1;
 	private static final String VALID_SCHEMA_NAME = "[A-Za-z_][A-Za-z0-9_]*";
@@ -52,7 +54,11 @@ public final class JdbcPotProjectionArtifactWriter
 	}
 
 	@Override
-	public ProjectionContentDigest digest(PotProjection projection) {
+	public ProjectionContentDigest digest(ReconstructedPotProjection reconstructed) {
+		return digestProjection(reconstructed.projection());
+	}
+
+	public ProjectionContentDigest digestProjection(PotProjection projection) {
 		try {
 			var bytes = new ByteArrayOutputStream();
 			var output = new DataOutputStream(bytes);
@@ -103,14 +109,70 @@ public final class JdbcPotProjectionArtifactWriter
 	public void write(
 			ProjectionArtifactId artifactId,
 			ProjectionIdentity identity,
-			PotProjection projection) {
+			ReconstructedPotProjection reconstructed) {
+		var projection = reconstructed.projection();
 		if (!identity.equals(projection.identity())) {
 			throw new IllegalArgumentException("artifact identity mismatch");
 		}
 
+		ensureVersionMetadata(reconstructed);
 		insertSnapshot(artifactId, identity, projection);
 		insertShareholders(artifactId, projection);
 		insertExpenses(artifactId, projection);
+		insertUserIndex(artifactId, identity, reconstructed);
+	}
+
+	private void ensureVersionMetadata(ReconstructedPotProjection reconstructed) {
+		var metadata = reconstructed.versionMetadata();
+		int inserted = jdbc.update(
+				"insert into " + table("pot_version_metadata")
+						+ " (pot_id,pot_version,created_at) values (?,?,?) on conflict do nothing",
+				metadata.potId().value(),
+				metadata.version(),
+				java.sql.Timestamp.from(metadata.createdAt()));
+		if (inserted == 1) {
+			return;
+		}
+		var existing = jdbc.queryForObject(
+				"select created_at from " + table("pot_version_metadata")
+						+ " where pot_id=? and pot_version=?",
+				(rs, row) -> rs.getTimestamp(1).toInstant(),
+				metadata.potId().value(),
+				metadata.version());
+		if (!metadata.createdAt().equals(existing)) {
+			throw new IllegalStateException("divergent Pot version metadata");
+		}
+	}
+
+	private void insertUserIndex(
+			ProjectionArtifactId artifactId,
+			ProjectionIdentity identity,
+			ReconstructedPotProjection reconstructed) {
+		var projection = reconstructed.projection();
+		var users = new LinkedHashSet<UUID>();
+		users.add(projection.creatorId().value());
+		projection.shareholders().stream()
+				.filter(shareholder -> !shareholder.deleted())
+				.flatMap(shareholder -> shareholder.userId().stream())
+				.map(UserId::value)
+				.sorted()
+				.forEach(users::add);
+
+		var generation = identity.generation();
+		for (var userId : users) {
+			jdbc.update(
+					"insert into " + table("pot_projection_user_index")
+							+ " (artifact_id,pipeline_id,pipeline_version,pot_id,pot_version,user_id,updated_at,pot_status)"
+							+ " values (?,?,?,?,?,?,?,?)",
+					artifactId.value(),
+					generation.pipeline().pipelineId().value(),
+					generation.pipeline().pipelineVersion(),
+					generation.potId().value(),
+					identity.potVersion(),
+					userId,
+					java.sql.Timestamp.from(reconstructed.versionMetadata().createdAt()),
+					projection.status().name());
+		}
 	}
 
 	private void insertSnapshot(
@@ -189,8 +251,18 @@ public final class JdbcPotProjectionArtifactWriter
 	@Override
 	public boolean hasSameContent(
 			ProjectionArtifactDescriptor existing,
-			PotProjection proposed) {
-		return existing.digest().equals(digest(proposed));
+			ReconstructedPotProjection proposed) {
+		if (!existing.digest().equals(digest(proposed))) {
+			return false;
+		}
+		var metadata = proposed.versionMetadata();
+		var stored = jdbc.query(
+				"select created_at from " + table("pot_version_metadata")
+						+ " where pot_id=? and pot_version=?",
+				(rs, row) -> rs.getTimestamp(1).toInstant(),
+				metadata.potId().value(),
+				metadata.version());
+		return stored.size() == 1 && stored.getFirst().equals(metadata.createdAt());
 	}
 
 	@Override
