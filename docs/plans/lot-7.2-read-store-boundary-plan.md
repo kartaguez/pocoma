@@ -678,7 +678,7 @@ Aucune table existante n'est déplacée ou modifiée ; aucune restauration de do
 ## 16. Hors scope
 
 - Modèle générique de projection.
-- `ProjectionState`, `ProjectionHead` et `SourceVersionWatermark`.
+- `ProjectionState`, `ProjectionHead` et `LatestKnownVersion`.
 - PotProjection et ses fragments.
 - Indexes utilisateurs, Expense ou Balance.
 - Nouveau consumer Event ou Task worker.

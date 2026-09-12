@@ -24,10 +24,16 @@ wrapper. Tasks, provenance and the final `current_claim_id` CAS therefore commit
 failure delays around complete orchestration cycles. A stop request does not interrupt an acquired
 execution.
 
-The independently deployable source-version-watermark runtime reuses this generic lifecycle with the
-dedicated key `EVENT[eventId] / SOURCE_VERSION_WATERMARK[]`. Its locator reloads the authoritative Event
-and atomically advances the read-store watermark with `max(stored, event.version())`; it creates no Task
-and does not reuse or impersonate an Event-to-Task pipeline identity.
+The independently deployable latest-known-version runtime reuses this generic lifecycle with the
+compatibility key `EVENT[eventId] / SOURCE_VERSION_WATERMARK[]`. Its locator reloads the authoritative
+Event and atomically advances the read-side state with `max(stored, event.version())`; it creates no
+Task and does not reuse or impersonate an Event-to-Task pipeline identity. The max-upsert, Event input
+provenance and fenced terminal CAS are one PostgreSQL transaction.
+
+Direct read-side materialization is allowed only for a deterministic or naturally idempotent effect
+that is bounded, short, local to the slot's transactional resource, has no external call and needs no
+autonomous durable handoff. Otherwise Event consumption must hand off to a durable Task. Therefore
+latest-known-version uses the direct mode, while versioned projections use Event -> Task -> Executor.
 
 ## Outcomes and failures
 
@@ -44,8 +50,8 @@ and does not reuse or impersonate an Event-to-Task pipeline identity.
 - `LostClaimException` is never classified and never reaches HandleFailure; it only denotes a stale,
   already rolled-back execution.
 
-Direct HTTP, email or second-database effects are forbidden inside the callback. They must be represented
-by a durable Task/outbox row.
+Direct HTTP, email, long-running or second-database effects are forbidden inside the callback. They
+must be represented by a durable Task/outbox row.
 
 ## Migration
 
@@ -69,5 +75,5 @@ until its dedicated cleanup.
   technical categories, classification and policy.
 - `supra.consumption` contains the polling worker; interruptible waiting lives in `supra.consumption.wait`.
 - `runtime.event.consumption` is the Spring composition root. No internal layer depends on it.
-- `runtime.sourceversion` is the independent Spring composition root for the express source-version
-  watermark consumer. No Event-to-Task engine depends on it.
+- `runtime.latestknownversion` is the independent Spring composition root for the direct transactional
+  latest-known-version consumer. No Event-to-Task engine depends on it.

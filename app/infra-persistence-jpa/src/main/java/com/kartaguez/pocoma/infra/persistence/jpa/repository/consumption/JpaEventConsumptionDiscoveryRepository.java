@@ -93,7 +93,7 @@ public class JpaEventConsumptionDiscoveryRepository {
 				parameters.toArray());
 	}
 
-	public List<EventCandidateRow> findNextEligibleForSourceVersionWatermark(Instant now,
+	public List<EventCandidateRow> findNextEligibleForLatestKnownVersion(Instant now,
 			Optional<EventOrderingKey> afterExclusive, int limit) {
 		String cursor = afterExclusive.isPresent() ? """
 				and ((event.version > ?)

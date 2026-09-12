@@ -58,6 +58,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-locator-consumption-latest-known-version</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-runtime-task-consumption-worker</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

@@ -151,6 +151,26 @@ services:
       postgres:
         condition: service_healthy
 
+  pocoma-latest-known-version-consumption-worker:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-latest-known-version-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-latest-known-version-consumption-worker
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_ENABLED: "true"
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_POLL_INTERVAL: ${POCOMA_LATEST_KNOWN_VERSION_POLL_INTERVAL:-250ms}
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_MAX_CANDIDATES_INSPECTED: ${POCOMA_LATEST_KNOWN_VERSION_MAX_CANDIDATES:-200}
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_MAX_CONSUMPTIONS_EXECUTED: ${POCOMA_LATEST_KNOWN_VERSION_MAX_CONSUMPTIONS:-50}
+    networks:
+      - pocoma-distributed
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -172,6 +192,8 @@ services:
       pocoma-task-consumption-worker-1:
         condition: service_started
       pocoma-command-consumption-worker:
+        condition: service_started
+      pocoma-latest-known-version-consumption-worker:
         condition: service_started
 
   grafana:

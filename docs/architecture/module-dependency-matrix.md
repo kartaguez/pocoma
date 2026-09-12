@@ -27,7 +27,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-pot` | Modèle Pot, valeurs, agrégats, `BusinessEvent` typés et vérité temporelle canonique `PotVersionMetadata` | JDK | autres domaines, engines, frameworks | target Lots 6/7.7 |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | `PotBalances`, `Balance`, calcul incrémental | `domain-pot`, JDK | engines, persistence, workers | target |
-| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, watermark et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.6/7.7 |
+| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, `LatestKnownVersion` et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
 | `domain-pipeline` | identité, applicabilité, catalogue/registry des définitions et stratégie statique de sélection reader par pipeline | JDK | tout module applicatif | target Lots 7.3.1/7.9 |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
@@ -40,7 +40,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
 | `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
-| `engine-read-projection` | watermark, matérialisation générique, reconstruction exacte de `PotProjection`, contrat d'index user/Pot et primitives de curseur keyset | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lots 7.6/7.7 |
+| `engine-read-projection` | avance monotone de `LatestKnownVersion`, matérialisation générique, reconstruction exacte de `PotProjection`, contrat d'index user/Pot et primitives de curseur keyset | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lots 7.4/7.6/7.7 |
 | `engine-task-creation` | pertinence Event→pipelineId, applicabilité canonique par génération et assurance atomique de toutes les Tasks Event-derived | Pot events, pipeline, core | consumption, workers, read store, sélection reader, materialization legacy | target Lot 7.5 |
 | `engine-task-execution` | mapping durable, routage d'un `TaskPayload` typé et rapport fonctionnel d'exécution | pipeline, task | consumption, claims, workers, persistence | target |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
@@ -58,7 +58,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `supra-consumption-worker` | boucle de polling générique, budgets, cadence, arrêt coopératif et observation runtime minimale | orchestrateur consumption | target, ignorant des familles métier |
 | `locator-consumption-task` | localisation Task, relecture autoritative, traduction rapport/provenance et classification technique | processing/execution Task, consumption générique | target |
 | `locator-consumption-command` | convention `ConsumptionKey` Command, discovery, relecture/exécution autoritative, adaptation de provenance et classification technique conservative | engine-command, domain/engine consumption, orchestrator-consumption | target, sans runtime |
-| `locator-consumption-source-version-watermark` | localisation Event dédiée, observation monotone du watermark, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
+| `locator-consumption-latest-known-version` | localisation Event dédiée, max-upsert monotone, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
 | `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
 | `pipeline-balance` | binding Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
 | `pipeline-pot` | relevance Event, création/mapping Task et handler `read-pot/v1`, sans watermark ni sélection reader | domaines et engines fonctionnels | target Lot 7.6, framework-free |
@@ -77,7 +77,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |
 | `runtime-event-consumption-worker` | composition du locator Event→Task, moteur transactionnel et polling générique | locator/orchestrateur/supra/infra | composition target |
-| `runtime-source-version-watermark-consumption-worker` | consumer Event express indépendant : reload autoritatif, max-upsert watermark, lifecycle générique | locator watermark/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
+| `runtime-latest-known-version-consumption-worker` | consumer Event direct transactionnel indépendant : reload autoritatif, max-upsert latest-known, lifecycle générique | locator latest-known/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
 | `runtime-business-events-outbox-dispatcher` | ancien dispatcher outbox | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-materialization-dispatcher` | ancien matérialiseur | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-consumption-worker` | composition générique du locator Task et binding exact Balance ou READ_POT selon la génération configurée | locator/orchestrateur/supra/infra/pipelines | composition target Lot 7.6 |

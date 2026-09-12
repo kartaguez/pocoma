@@ -19,7 +19,7 @@ Le registry recherche exactement `pipelineId + pipelineVersion`, refuse tout dou
 ## Résolution et scheduling
 
 L'ordre est existence source, applicabilité, résultat. Le futur Query Kernel renvoie d'abord
-`NOT_FOUND` lorsque `V > latestVersionSeen`. Ensuite : définition absente = erreur de configuration ;
+`NOT_FOUND` lorsque `V > latestKnownVersion`. Ensuite : définition absente = erreur de configuration ;
 non applicable = `NotApplicable` ; applicable avec artifact, failure ou aucun résultat = `READY`,
 `FAILED` ou `NOT_READY`.
 

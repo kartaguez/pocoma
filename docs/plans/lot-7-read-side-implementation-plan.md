@@ -29,8 +29,8 @@ En cas de contradiction, `read-side-target.md` demeure la cible. La contradictio
 - Le chemin normal d'un GET ne lit jamais le primaire et ne joint jamais le read store au primaire.
 - Une projection canonique est un snapshot logique complet, autonome, versionné et immuable ; son stockage physique peut être éclaté.
 - Pot et Balance partagent le même modèle générique d'identité, d'état et de head de projection.
-- `latestVersionSeen` et `latestProjectedVersion` ont des sémantiques, des stockages logiques et des producteurs distincts.
-- Le consommateur express de `latestVersionSeen` ne crée aucune Task.
+- `latestKnownVersion` et `latestProjectedVersion` ont des sémantiques, des stockages logiques et des producteurs distincts.
+- Le consumer direct transactionnel de `latestKnownVersion` ne crée aucune Task.
 - Les projections métier suivent `BusinessEvent -> Task -> Task worker`.
 - `PipelineVersionDefinition.appliesTo(potVersion)` est l'unique règle d'applicabilité et toute génération applicable est éligible à la production.
 - `PipelineSelectionStrategy` est reader-only et choisit, pour un `pipelineId` et une `potVersion`, l'unique `pipelineVersion` à exposer.
@@ -45,24 +45,33 @@ En cas de contradiction, `read-side-target.md` demeure la cible. La contradictio
 
 ### 3.2 Existence connue et projectors indépendants
 
-`latestVersionSeen` est la référence du Query Kernel pour l'existence source connue côté read. Les versions d'un Pot étant contiguës, une requête explicite pour `V > latestVersionSeen` retourne `NOT_FOUND`, soit HTTP `404`.
+`latestKnownVersion` est la plus haute version d'Event effectivement matérialisée par son consumer.
+Elle n'est ni une preuve de continuité, ni une preuve de projection, ni une coordination des readers.
+La dépendance historique du Query Kernel qui l'utilise comme vérité d'existence ou cible `current`
+doit être refondue séparément et ne fait pas partie du renommage 7.4.
 
 Cette règle de lecture ne crée aucune dépendance d'ordonnancement pour les projectors. Un BusinessEvent ou une Task légitime portant `potVersion=N` suffit à autoriser le calcul de la projection N. Il est donc valide d'observer temporairement :
 
 ```text
-latestVersionSeen = N - 1
+latestKnownVersion = N - 1
 latestProjectedVersion >= N
 artifact N présent
 ```
 
-Dans ce cas, l'artifact N produit en avance ne met pas à jour `latestVersionSeen` et le reader ne « découvre » pas N en inspectant l'artifact ou le head. Une query explicite pour N retourne encore `NOT_FOUND` jusqu'à l'avancement du watermark. Cette asymétrie est une forme acceptée d'eventual consistency.
+Dans ce cas, l'artifact N produit en avance ne met pas à jour `latestKnownVersion`. Inversement,
+latest-known N ne prouve pas que l'artifact N existe. Les deux pipelines convergent indépendamment.
 
 En conséquence :
 
-- aucun acquire, claim ou projector n'est bloqué par `latestVersionSeen` ;
-- `latestProjectedVersion` peut temporairement être supérieur à `latestVersionSeen` ;
-- un lag calculé comme `latestVersionSeen - latestProjectedVersion` peut temporairement être négatif sans constituer une violation ;
-- seul le consommateur express, ou une procédure administrative explicite de reconstruction, fait évoluer `latestVersionSeen`.
+- aucun acquire, claim ou projector n'est bloqué par `latestKnownVersion` ;
+- `latestProjectedVersion` peut temporairement être supérieur à `latestKnownVersion` ;
+- un lag calculé comme `latestKnownVersion - latestProjectedVersion` peut temporairement être négatif sans constituer une violation ;
+- seul le consumer direct transactionnel, ou une réparation administrative explicite, fait évoluer `latestKnownVersion`.
+
+Un effet read-side direct n'est autorisé que si l'effet métier, sa provenance et le CAS terminal
+fencé peuvent être atomiques dans une même transaction durable. Il doit être déterministe ou
+idempotent, borné, court, local, sans appel externe et sans besoin de handoff autonome. Tout travail
+long, découplé ou multi-ressource passe par une Task durable.
 
 ### 3.3 Atomicité canonique et coordination des Tasks
 
@@ -96,7 +105,7 @@ Les éléments suivants ne sont pas des invariants architecturaux verrouillés :
 - le contenu exact des stratégies de sélection READ_POT et Balance à chaque release ; leur modèle et leur sémantique sont en revanche verrouillés ;
 - la durée de coexistence du legacy et la politique de garbage collection des anciennes générations.
 
-La rétention des BusinessEvents peut aider la provenance, le replay du consommateur express et le diagnostic. Elle ne constitue pas une obligation de rétention éternelle pour reconstruire le read store : les projections se reconstruisent depuis le primaire historisé et un disaster rebuild du watermark peut utiliser une lecture administrative explicite du primaire autoritatif, hors chemin des GET.
+La rétention des BusinessEvents peut aider la provenance, le replay du consumer direct et le diagnostic. Le cutover 7.4 réutilise l'état existant comme initialisation puis laisse les Events réellement sans slot suivre le lifecycle normal ; il ne fabrique aucun slot terminal.
 
 ## 4. Écarts actuels vers la cible
 
@@ -107,7 +116,7 @@ Les écarts documentés à résorber structurent l'ordre des lots :
 | Lectures | Certaines queries lisent encore le primaire historisé ou des adapters orientés write | Toutes les queries en production lisent uniquement le read store |
 | Projection Pot | Absence de snapshot read canonique complet | `PotProjection` immuable par version, physiquement fragmentable |
 | Balance | Projection et runtime existants avec concepts spécifiques/legacy | Même identité, applicabilité, statut dérivé, head et règles de matérialisation que Pot ; stratégie reader propre |
-| Version source | Pas de watermark read-side spécialisé | `SourceVersionWatermark.latestVersionSeen`, alimenté par un consommateur Event express |
+| Version source | Vocabulaire historique de watermark | `LatestKnownVersion.latestKnownVersion`, alimenté par un consumer Event direct transactionnel |
 | État fonctionnel | État parfois déduit de la mécanique Task | Pour une version applicable : artifact/failure/absence donnent `READY`/`FAILED`/`NOT_READY`, sans lecture des Tasks |
 | Head | Résolution potentielle par recherche dans les artifacts | `ProjectionHead.latestProjectedVersion`, monotone et canonique |
 | Queries transverses | Risque de scans ou N+1 | Indexes dérivés `user -> Pot` et `user -> Balances` ; sous-ressources adressées sous leur Pot parent |
@@ -140,7 +149,7 @@ Les dépendances inter-projection, lorsqu'elles sont explicitement décidées, r
 
 ### 5.2 Structures fonctionnelles minimales
 
-- `SourceVersionWatermark` : `potId`, `latestVersionSeen` et métadonnées techniques minimales d'observation.
+- `LatestKnownVersion` : `potId`, `latestKnownVersion` et métadonnées techniques minimales d'observation.
 - `PipelineVersionDefinition` : identité de génération et `VersionApplicability` immuable ; `appliesTo` décide si cette génération peut produire une version Pot.
 - `PipelineSelectionStrategy` : stratégie statique reader-only, propre à un `pipelineId`, qui choisit la génération à servir pour une version Pot.
 - `ProjectionArtifact` et `ProjectionFailure` : issues terminales mutuellement exclusives par identité complète ; leur absence pour une version applicable donne `NOT_READY`.
@@ -201,27 +210,29 @@ Une divergence duplicate ne provoque donc jamais `READY -> FAILED`. Une éventue
 
 ### 5.4 Query Kernel commun
 
-Current et historique utilisent exactement la même stratégie. Current fixe d'abord
-`targetPotVersion = latestVersionSeen`; une query explicite utilise la version demandée. Le kernel suit
-ensuite cet ordre canonique :
+Current et historique réutilisent la même stratégie une fois leur version cible déterminée. La règle
+antérieure `targetPotVersion = latestKnownVersion` est désormais identifiée comme legacy : elle doit
+être remplacée dans un lot reader distinct par une sélection explicite de la meilleure version
+exposable. Une query explicite utilise sa version demandée et ne traite pas latest-known comme preuve
+de continuité ou d'artifact.
 
-1. déterminer `targetPotVersion` ; sans watermark pour current, retourner `NOT_FOUND` ;
-2. vérifier via `SourceVersionWatermark` que la source est connue ; `V > latestVersionSeen` donne `NOT_FOUND` ;
-3. récupérer la `PipelineSelectionStrategy` du `pipelineId` ; son absence est une erreur de configuration ;
-4. appeler `resolve(V)` ; `empty` donne `NOT_FOUND` ;
-5. reconstruire `PipelineDefinition(pipelineId, selectedPipelineVersion)` ;
-6. charger la `PipelineVersionDefinition` exacte ; son absence est une erreur de configuration ;
-7. vérifier `appliesTo(V)` ; `false` donne `NOT_FOUND` et une observabilité interne dédiée, sans nouvel état fonctionnel ;
-8. résoudre artifact/failure/absence en `READY`/`FAILED`/`NOT_READY` ;
-9. charger la `PotProjection` exacte requise pour l'autorisation. Si la ressource demandée relève de
+Après détermination de la version par la source propre au reader, le kernel suit cet ordre :
+
+1. récupérer la `PipelineSelectionStrategy` du `pipelineId` ; son absence est une erreur de configuration ;
+2. appeler `resolve(V)` ; `empty` donne `NOT_FOUND` ;
+3. reconstruire `PipelineDefinition(pipelineId, selectedPipelineVersion)` ;
+4. charger la `PipelineVersionDefinition` exacte ; son absence est une erreur de configuration ;
+5. vérifier `appliesTo(V)` ; `false` donne `NOT_FOUND` et une observabilité interne dédiée, sans nouvel état fonctionnel ;
+6. résoudre artifact/failure/absence en `READY`/`FAILED`/`NOT_READY` ;
+7. charger la `PotProjection` exacte requise pour l'autorisation. Si la ressource demandée relève de
    READ_POT, elle porte l'identité sélectionnée aux étapes précédentes ; sinon le kernel applique la
    stratégie READ_POT au même V et utilise exactement cette génération de contexte. Chaque projection
    requise est ainsi autorisée et servie avec sa propre stratégie, sans mélange de générations ;
-10. appliquer les règles d'autorisation canoniques.
+8. appliquer les règles d'autorisation canoniques.
 
 La sélection précède donc toujours l'autorisation. Une policy ne peut jamais utiliser une génération
-différente de celle servie. Avec `latestVersionSeen=135` et `(1,v1),(50,v2),(120,v3)`, current sert v3
-à V=135 et une query explicite V=73 sert v2.
+différente de celle servie. Avec `(1,v1),(50,v2),(120,v3)`, une cible V=135 utilise v3 et une query
+explicite V=73 utilise v2, indépendamment de l'instant auquel latest-known converge.
 
 Après contexte d'autorisation `READY`, un refus est masqué en 404 ; pour une projection métier
 autorisée, `NOT_READY` donne 409, `FAILED` donne 503 et `READY` exige l'artifact exact. Si la
@@ -404,7 +415,7 @@ Lot 7.2.
 - Confusion entre échec terminal d'une projection non prête et divergence d'un artifact déjà prêt.
 - Confusion entre applicabilité, sélection reader et scheduling.
 
-### Lot 7.4 — Consommateur express de latestVersionSeen
+### Lot 7.4 — Consumer direct transactionnel de LatestKnownVersion
 
 **Objectif**
 
@@ -412,25 +423,28 @@ Alimenter rapidement la connaissance read-side de la version source sans Task ni
 
 **Responsabilités couvertes**
 
-- `SourceVersionWatermark` ;
-- consommation Event minimale ;
+- `LatestKnownVersion` ;
+- consommation Event fiable via slot, claim, lease, fencing et retry ;
 - idempotence et hors-ordre ;
 - indépendance du pipeline de projection.
 
 **Fichiers/modules probablement concernés**
 
-- runtime Event existant ;
-- nouveau consumer/admission handler spécialisé ;
-- adapter du watermark dans le read store ;
+- locator `LatestKnownVersion` ;
+- runtime dédié `runtime-latest-known-version-consumption-worker` ;
+- adapter max-upsert dans le read store ;
 - configuration et métriques du consumer.
 
 **Modifications principales**
 
 - Sur chaque BusinessEvent portant une version Pot, appliquer `max(current, event.potVersion)`.
 - N'effectuer aucune reconstruction, aucun calcul métier, aucun snapshot et aucune création de Task.
-- Ne jamais faire participer `latestVersionSeen` à `appliesTo` ni à la sélection des Tasks à produire.
-- Configurer une identité/slot de consommation dédiée selon le runtime Event existant.
-- Prévoir replay Event si disponible et procédure administrative de reconstruction du watermark depuis le primaire autoritatif pour disaster rebuild.
+- Ne jamais faire participer `latestKnownVersion` à `appliesTo` ni à la sélection des Tasks à produire.
+- Conserver l'identité persistée opaque `SOURCE_VERSION_WATERMARK` et les slots existants.
+- Committer atomiquement max-upsert, provenance Event et CAS terminal fencé.
+- Conserver `source_version_watermarks.latest_version_seen` sans migration Flyway de renommage.
+- Réutiliser l'état existant puis laisser les Events sans slot suivre le lifecycle normal, sans slots
+  `DONE` administratifs.
 
 **Dépendances**
 
@@ -439,7 +453,7 @@ Lots 7.2 et 7.3 pour la persistance et le vocabulaire.
 **Tests**
 
 - Events dupliqués et hors ordre.
-- Reprise après crash autour du commit du watermark.
+- Crash avant commit, perte du claim, succès complet et second passage après commit.
 - Aucun enregistrement de Task créé.
 - Un projector peut matérialiser N alors que le watermark vaut N-1.
 - Le passage du head devant le watermark est accepté.
@@ -447,13 +461,14 @@ Lots 7.2 et 7.3 pour la persistance et le vocabulaire.
 **Critères de sortie**
 
 - Le watermark progresse monotoniquement.
-- Le consumer express est déployable/observable séparément.
+- Le consumer direct transactionnel est déployable/observable séparément.
 - Aucune policy d'éligibilité des Tasks ne dépend du watermark.
 
 **Risques/points à vérifier**
 
 - BusinessEvents ne portant pas directement la version nécessaire.
-- Procédure de reconstruction administrative à sécuriser hors API GET.
+- Toute réparation administrative reste exceptionnelle et privilégie l'état dérivé plutôt que la
+  fabrication d'un historique de slots.
 
 ### Lot 7.5 — Scheduling durable des projections applicables
 
@@ -497,7 +512,7 @@ Créer/adopter les Tasks de chaque génération applicable à partir des Events 
   Event consommé une première fois est définitivement exclu.
 - Évaluer ainsi les anciens Events avec le catalogue courant. Ajouter v3 applicable `[50..∞]` autorise
   naturellement un ancien Event V=73 à produire sa Task v3, sans mécanisme spécial de replay.
-- Ne consulter `latestVersionSeen` ni `PipelineSelectionStrategy` pour créer, acquérir ou exécuter une Task.
+- Ne consulter `latestKnownVersion` ni `PipelineSelectionStrategy` pour créer, acquérir ou exécuter une Task.
 - Ne créer aucune policy de production supplémentaire : applicabilité implique production.
 
 **Dépendances**
@@ -516,7 +531,7 @@ Lot 7.3 ; connaissance ciblée des runtimes Event/Task.
   crée ou adopte exactement une Task v2, et ne duplique ni ne modifie la Task v1.
 - Un reader constatant une absence ne crée aucune ligne.
 - Une version non applicable ne produit aucune Task ; définition absente ou incohérente donne une erreur de configuration.
-- Task N créée/acquise/exécutée avec `latestVersionSeen=N-1`.
+- Task N créée/acquise/exécutée avec `latestKnownVersion=N-1`.
 
 **Critères de sortie**
 
@@ -632,9 +647,9 @@ aux listes multi-Pots déterministes.
 - Refuser tout backfill approximatif des versions legacy.
 - Propager cette metadata dans la transaction de matérialisation de PotProjection.
 - Maintenir l'index utilisateur/Pot versionné et scopé par génération, sans ligne current.
-- Résoudre chaque candidat par `latestVersionSeen(potId)` puis génération sélectionnée à la lecture.
+- Résoudre chaque candidat par `latestKnownVersion(potId)` puis génération sélectionnée à la lecture.
 - Définir l'ordre strict `updatedAt DESC, potId ASC` et un curseur opaque keyset.
-- Conserver le consumer SourceVersionWatermark pur : Event vers max version, sans route ni index.
+- Conserver le consumer LatestKnownVersion pur : Event vers max version, sans route ni index.
 - Documenter le cas d'une appartenance nouvelle portée par une PotProjection NOT_READY ; ne pas créer
   implicitement une structure source-membership supplémentaire.
 - Préparer les contrats des sous-ressources imbriquées : projection exacte absente = `NOT_READY`,
@@ -661,7 +676,7 @@ Lot 7.6. La matérialisation primaire de `PotVersionMetadata.createdAt` est la p
 - L'ordre canonique `updatedAt DESC, potId ASC` est déterministe.
 - Les indexes restent versionnés, génération-scopés, dérivés, atomiques et reconstructibles.
 - Aucun routage global Expense/Shareholder et aucun current fonctionnel ne sont introduits.
-- Le SourceVersionWatermark conserve sa responsabilité unique.
+- Le LatestKnownVersion conserve sa responsabilité unique.
 
 **Risques/points à vérifier**
 
@@ -758,7 +773,7 @@ Implémenter une résolution commune des versions et états, encore utilisable e
 **Modifications principales**
 
 - Implémenter l'ordre décrit en section 5.4.
-- Déterminer d'abord V : `latestVersionSeen` pour current, version fournie pour explicite ; appliquer
+- Déterminer d'abord V : `latestKnownVersion` pour current, version fournie pour explicite ; appliquer
   ensuite exactement la même stratégie de sélection.
 - Distinguer stratégie absente (erreur de configuration) et stratégie présente retournant `empty`
   (`NOT_FOUND`), que celle-ci soit vide ou que V précède son premier seuil.
@@ -780,8 +795,8 @@ Lots 7.3, 7.4 et 7.6.
 - PotProjection `NOT_READY` : 409.
 - PotProjection `FAILED` et donc contexte d'autorisation indisponible : 409, avec échec interne observable.
 - Contexte PotProjection `READY`, utilisateur autorisé et projection métier terminalement échouée : `FAILED`/503.
-- Version supérieure au watermark : `NOT_FOUND`/404.
-- Artifact N présent et head >= N, watermark N-1 : query explicite N en 404 et current résolu à N-1.
+- Latest-known en avance ou en retard sur la meilleure projection : aucun des deux ne coordonne l'autre.
+- La refonte du choix `current` ne suppose jamais `latestKnownVersion == bestProjectedVersion`.
 - Current N non prêt avec N-1 prêt : 409, jamais succès N-1.
 - Génération sélectionnée non prête avec une autre génération prête : aucun fallback.
 - Stratégie vide, V avant premier seuil et stratégie absente suivent leurs contrats distincts.
@@ -791,7 +806,7 @@ Lots 7.3, 7.4 et 7.6.
 **Critères de sortie**
 
 - Tous les états ont un contrat stable.
-- L'existence source connue est exclusivement résolue via le watermark.
+- La résolution d'existence et de `current` ne confond pas latest-known et projection disponible.
 - Les projectors restent indépendants de cette règle de query.
 
 **Risques/points à vérifier**
@@ -1099,9 +1114,9 @@ Rendre visibles lag, états, trous, backfills et violations sans exposer la méc
 
 **Modifications principales**
 
-- Exposer `latestVersionSeen - latestProjectedVersion` par Pot/pipeline ou agrégats appropriés, en acceptant temporairement une valeur négative.
+- Exposer `latestKnownVersion - latestProjectedVersion` par Pot/pipeline ou agrégats appropriés, en acceptant temporairement une valeur négative.
 - Exposer nombres `NOT_READY` et `FAILED` sur les définitions applicables, trous visibles et progression de backfill.
-- Distinguer lag du consumer express, lag de projection et artifact projeté en avance.
+- Distinguer lag du consumer direct transactionnel, lag de projection et artifact projeté en avance.
 - Alerter séparément les divergences de contenu d'une identité `READY` sans changer son statut dérivé.
 - Garder claims, leases et retries dans les métriques techniques du runtime.
 
@@ -1191,8 +1206,8 @@ Le Lot 7 ne peut être déclaré achevé sans une suite couvrant au minimum :
 5. Artifact, `READY`, head et indexes atomiques dans le read store, indépendamment du choix local de coordination Task.
 6. Version connue mais projection absente : `NOT_READY`/409.
 7. PotProjection `FAILED` lorsqu'elle fournit le contexte d'autorisation : `NOT_READY`/409 côté client, `FAILED` observable en interne.
-8. Version supérieure à `latestVersionSeen` : `NOT_FOUND`/404.
-9. Artifact N projeté en avance avec watermark N-1 : N reste inconnu du Query Kernel ; l'artifact ne modifie pas le watermark.
+8. Latest-known N avec meilleure projection N-2 ne crée aucune fausse disponibilité.
+9. Artifact N projeté avec latest-known N-1 ne modifie pas latest-known et reste un état asynchrone normal.
 10. Projector N non bloqué par un watermark N-1 et lag négatif temporaire accepté.
 11. Current sans fallback vers une ancienne projection prête.
 12. PipelineVersion sélectionnée sans fallback vers une autre génération prête.
@@ -1261,7 +1276,7 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 - Un test d'intégration SQL prouve qu'ils fonctionnent sans droit de lecture sur le primaire.
 - `PotProjection` et `BalanceProjection` utilisent l'identité, l'applicabilité, le statut dérivé et le head génériques.
 - Les artifacts sont immuables, les heads monotones et les materialisations read-side atomiques.
-- `latestVersionSeen` est alimenté indépendamment et n'est jamais un gate des projectors.
+- `latestKnownVersion` est alimenté indépendamment et n'est jamais un gate des projectors.
 - Le Query Kernel ne découvre pas une version depuis les artifacts et n'effectue aucun fallback.
 - Toutes les générations applicables sont produites ; la stratégie reader ne participe jamais au scheduling.
 - `NOT_READY` est dérivé uniquement de l'absence d'artifact et de failure pour une définition applicable.
@@ -1283,7 +1298,7 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 
 ## 11. Dépendances structurantes entre lots
 
-- 7.4 dépend seulement des fondations 7.2/7.3.1 : watermark express, sans Task, stratégie reader ni Lot 7.5.
+- 7.4 dépend seulement des fondations 7.2/7.3.1 : latest-known-version direct, sans Task, stratégie reader ni Lot 7.5.
 - 7.5 dépend du catalogue 7.3.1 et établit le contrat durable Event→Task avant tout projector métier.
 - 7.6 et 7.12 partagent le même executor défensif et ne connaissent aucune sélection reader.
 - 7.8 réutilise ce contrat via une identité administrative distincte et ne dépend pas des Events retenus.
@@ -1291,7 +1306,7 @@ Le Lot 7 est terminé lorsque toutes les conditions suivantes sont satisfaites :
 - 7.10 impose la sélection avant l'autorisation ; 7.11 et 7.13 réutilisent ensuite le même chemin current/historique.
 - 7.14 formalise les changements de stratégie seulement après production shadow et vérification opérationnelle.
 
-Aucun point architectural n'est bloquant avant le plan détaillé de 7.4. La forme concrète du consumer
-express et la procédure administrative de reconstruction du watermark sont des décisions internes à
-ce lot. Les seuils des stratégies reader, l'identité exacte READ_POT, `updatedAt`, Balance et le
+Aucun point architectural n'est bloquant avant le plan détaillé de 7.4. Le consumer direct atomique,
+son identité persistée compatible et son cutover sans slots artificiels sont fixés par ce lot. Les
+seuils des stratégies reader, l'identité exacte READ_POT, `updatedAt`, Balance et le
 contrat des Tasks administratives ne bloquent pas 7.4 et restent attachés à leurs lots.

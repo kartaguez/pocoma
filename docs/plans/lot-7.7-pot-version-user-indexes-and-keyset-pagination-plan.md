@@ -51,7 +51,7 @@ La recherche ciblée de `/expenses/{id}`, `expenseId -> potId`, `routing Expense
 
 **CONFIRMED BY TARGETED CODE INSPECTION —** `ProjectionMaterializationService` écrit déjà fragments, artifact et head dans une transaction read-store commune. La dernière migration read-store PotProjection est V5.
 
-**CONFIRMED BY TARGETED CODE INSPECTION —** `source_version_watermarks` porte `latestVersionSeen` par Pot et son consumer express ne fait aujourd'hui que l'observation monotone des versions source.
+**CONFIRMED BY TARGETED CODE INSPECTION —** `source_version_watermarks` porte `latestKnownVersion` par Pot et son consumer direct transactionnel ne fait aujourd'hui que l'observation monotone des versions source.
 
 ## 5. Invariants canoniques
 
@@ -64,7 +64,7 @@ La recherche ciblée de `/expenses/{id}`, `expenseId -> potId`, `routing Expense
 - **CANONICAL INVARIANT —** `PipelineSelectionStrategy` intervient uniquement à la lecture.
 - **CANONICAL INVARIANT —** l'ordre total est `updatedAt DESC, potId ASC`.
 - **CANONICAL INVARIANT —** un index secondaire absent ne prouve jamais l'inexistence d'une sous-ressource.
-- **CANONICAL INVARIANT —** le SourceVersionWatermark reste un consumer indépendant et pur.
+- **CANONICAL INVARIANT —** le LatestKnownVersion reste un consumer indépendant et pur.
 
 ## 6. Adressage des sous-ressources
 
@@ -225,10 +225,10 @@ PotProjection snapshot/fragments
 
 **IMPLEMENTATION CHOICE —** étendre le writer/materializer existant, sans moteur parallèle. Une défaillance après metadata, première ligne user, artifact ou avant head/CAS doit tout rollbacker. Aucun index indispensable ne devient visible après un artifact READY.
 
-## 16. SourceVersionWatermark pur
+## 16. LatestKnownVersion pur
 
 ```text
-BusinessEvent -> latestVersionSeen = max(existing, event.potVersion)
+BusinessEvent -> latestKnownVersion = max(existing, event.potVersion)
 ```
 
 et rien d'autre.
@@ -241,7 +241,7 @@ Le futur reader :
 
 1. cherche les entrées candidates du user ;
 2. joint `source_version_watermarks` par `potId` ;
-3. retient `index.potVersion = latestVersionSeen(potId)` ;
+3. retient `index.potVersion = latestKnownVersion(potId)` ;
 4. applique la génération sélectionnée pour cette version ;
 5. applique actif/archive ;
 6. ordonne et pagine.
@@ -301,8 +301,8 @@ Défaut 50, maximum 200, lecture `limit+1`, aucun OFFSET. Sur dataset stable : a
 
 Pour `/pots/{potId}/expenses/{expenseId}?version=V` ou le Shareholder équivalent :
 
-1. résoudre V et lire `latestVersionSeen(potId)` ;
-2. si `V > latestVersionSeen`, `NOT_FOUND` ;
+1. résoudre V et lire `latestKnownVersion(potId)` ;
+2. si `V > latestKnownVersion`, `NOT_FOUND` ;
 3. sélectionner `READ_POT` pour V ;
 4. source connue + projection exacte absente sans failure terminale : `NOT_READY` ;
 5. projection READY + enfant absent : `NOT_FOUND` ;
@@ -423,7 +423,7 @@ Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'in
 - `infra-read-persistence` : migration, writer et query keyset ;
 - `architecture-tests` et tests PostgreSQL/Testcontainers.
 
-**IMPLEMENTATION CHOICE —** le runtime SourceVersionWatermark n'est pas modifié. Les moteurs Event/Task et transaction runners existants sont réutilisés.
+**IMPLEMENTATION CHOICE —** le runtime LatestKnownVersion n'est pas modifié. Les moteurs Event/Task et transaction runners existants sont réutilisés.
 
 ## 33. Documentation à aligner après implémentation
 
@@ -453,7 +453,7 @@ Le lot est clos si :
 - une metadata exacte/immuable existe pour chaque Pot version, sans fallback legacy ;
 - l'index user/Pot est atomique, versionné et génération-scopé ;
 - aucune route enfant-parent ou dépendance route/watermark n'existe ;
-- le SourceVersionWatermark reste pur ;
+- le LatestKnownVersion reste pur ;
 - aucun current fonctionnel n'est persisté ;
 - ordre/keyset sont déterministes sur PostgreSQL ;
 - source connue + projection requise absente donne NOT_READY ;

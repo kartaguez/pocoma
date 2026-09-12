@@ -55,7 +55,7 @@ Deux réserves ne doivent pas être maquillées en hypothèses :
 - `docs/plans/lot-7-read-side-implementation-plan.md` ;
 - `docs/plans/lot-7.3-generic-projection-foundation-plan.md` ;
 - `docs/plans/lot-7.3.1-pipeline-applicability-alignment-plan.md` ;
-- `docs/plans/lot-7.4-source-version-watermark-plan.md` ;
+- `docs/plans/lot-7.4-latest-known-version-plan.md` ;
 - `docs/plans/lot-7.5-applicable-projection-task-scheduling-plan.md` ;
 - `docs/architecture/consumption-task-balance-runtime.md` ;
 - `docs/architecture/consumption-event-pull-runtime.md`.
@@ -266,7 +266,7 @@ ne sont jamais persistés dans PotProjection.
 - ids techniques et bornes des lignes temporelles primaires ;
 - `eventId`, Task id, campaign id ou autre provenance ;
 - timestamps d'exécution/matérialisation ;
-- `SourceVersionWatermark` ;
+- `LatestKnownVersion` ;
 - `PipelineSelectionStrategy` ;
 - `updatedAt` tant que sa source n'est pas fermée ;
 - DTO et codes HTTP.
@@ -458,7 +458,7 @@ non retryable : aucun fragment, descriptor, failure fonctionnelle ni head n'est 
 `ProjectionMaterializationResult.NotApplicable`, s'il survient malgré la prévalidation, est traité
 comme violation de protocole et jamais comme un statut reader.
 
-**[CANONICAL INVARIANT]** `PipelineSelectionStrategy` et `SourceVersionWatermark` ne sont injectés dans
+**[CANONICAL INVARIANT]** `PipelineSelectionStrategy` et `LatestKnownVersion` ne sont injectés dans
 aucun mapper, handler, reconstructeur ou writer Pot.
 
 ## 12. Matérialisation générique
@@ -547,7 +547,7 @@ latestProjectedVersion = max(existing, potVersion)
 `V5 → V3 → V7` produit un head à 7. Une adoption identique ou une divergence ne régresse pas le head.
 Aucun trou n'est synthétisé ni considéré comme erreur.
 
-Le head peut dépasser `SourceVersionWatermark`; le runtime Pot ne lit pas ce watermark.
+Le head peut dépasser `LatestKnownVersion`; le runtime Pot ne lit pas ce watermark.
 
 ## 16. ACTIVE / DELETED
 

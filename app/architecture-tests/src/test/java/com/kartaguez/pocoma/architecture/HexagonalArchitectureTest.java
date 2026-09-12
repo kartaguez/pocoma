@@ -928,7 +928,7 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void projectionNDoesNotRequireSourceVersionWatermarkAtLeastN() {
+	void projectionNDoesNotRequireLatestKnownVersionAtLeastN() {
 		Set<String> projectionRuntimePackages = Set.of(
 				ROOT_PACKAGE + ".engine.port.in.taskcreation",
 				ROOT_PACKAGE + ".engine.port.out.taskcreation",
@@ -942,11 +942,11 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".pipeline.balance",
 				ROOT_PACKAGE + ".locator.consumption.task",
 				ROOT_PACKAGE + ".runtime.task.consumption");
-		Set<String> watermarkTypes = Set.of(
-				ROOT_PACKAGE + ".domain.projection.SourceVersionWatermark",
-				ROOT_PACKAGE + ".engine.read.projection.ObserveSourceVersionUseCase",
-				ROOT_PACKAGE + ".engine.read.projection.SourceVersionWatermarkPersistencePort",
-				ROOT_PACKAGE + ".infra.read.persistence.JdbcSourceVersionWatermarkAdapter");
+		Set<String> latestKnownVersionTypes = Set.of(
+				ROOT_PACKAGE + ".domain.projection.LatestKnownVersion",
+				ROOT_PACKAGE + ".engine.read.projection.AdvanceLatestKnownVersionUseCase",
+				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersionPersistencePort",
+				ROOT_PACKAGE + ".infra.read.persistence.JdbcLatestKnownVersionAdapter");
 		Set<String> materializationTypes = Set.of(
 				ROOT_PACKAGE + ".engine.read.projection.ProjectionArtifactWriter",
 				ROOT_PACKAGE + ".engine.read.projection.ProjectionMaterializationService",
@@ -957,13 +957,28 @@ class HexagonalArchitectureTest {
 						.anyMatch(prefix -> javaClass.getPackageName().startsWith(prefix))
 						|| materializationTypes.contains(javaClass.getName()))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.filter(dependency -> watermarkTypes.contains(dependency.getTargetClass().getName()))
+				.filter(dependency -> latestKnownVersionTypes.contains(dependency.getTargetClass().getName()))
 				.map(HexagonalArchitectureTest::dependencyKey)
 				.collect(Collectors.toUnmodifiableSet());
 
 		assertEquals(Set.of(), forbiddenDependencies,
 				"Task creation, acquisition, projector execution and artifact production must not use "
-						+ "SourceVersionWatermark as a gate: latestVersionSeen=N-1 must allow projection N");
+						+ "LatestKnownVersion as a gate: latestKnownVersion=N-1 must allow projection N");
+	}
+
+	@Test
+	void latestKnownVersionIsADirectGenericConsumptionWithoutTaskOrProjectionArtifacts() {
+		String locator = ROOT_PACKAGE
+				+ ".locator.consumption.latestknownversion.LatestKnownVersionConsumptionLocator";
+		Set<String> dependencies = directDependencyNames(locator);
+
+		assertTrue(dependencies.stream().anyMatch(name -> name.endsWith(".ConsumptionLocator")));
+		assertTrue(dependencies.stream().anyMatch(name -> name.endsWith(".AdvanceLatestKnownVersionUseCase")));
+		assertTrue(dependencies.stream().anyMatch(name -> name.endsWith(".LatestKnownVersionEventDiscoveryPort")));
+		assertFalse(dependencies.stream().anyMatch(name -> name.contains(".task.")));
+		assertFalse(dependencies.stream().anyMatch(name -> name.endsWith(".ProjectionHead")));
+		assertFalse(dependencies.stream().anyMatch(name -> name.contains("ProjectionArtifact")));
+		assertFalse(dependencies.stream().anyMatch(name -> name.contains("TaskExecutionReport")));
 	}
 
 	@Test

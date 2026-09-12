@@ -38,7 +38,7 @@ Documents lus avant l'inspection du code :
 - `docs/plans/lot-7-read-side-implementation-plan.md` ;
 - `docs/plans/lot-7.3-generic-projection-foundation-plan.md` ;
 - `docs/plans/lot-7.3.1-pipeline-applicability-alignment-plan.md` ;
-- `docs/plans/lot-7.4-source-version-watermark-plan.md` ;
+- `docs/plans/lot-7.4-latest-known-version-plan.md` ;
 - `docs/README.md` ;
 - `docs/architecture/consumption-event-pull-runtime.md` ;
 - `docs/architecture/consumption-task-balance-runtime.md`.
@@ -569,13 +569,13 @@ pocoma_read.source_version_watermarks
 Un artifact déjà `READY` ne supprime jamais une intention manquante. De même :
 
 ```text
-latestVersionSeen = 72
+latestKnownVersion = 72
 Event E @ 73
 definition.appliesTo(73) == true
   -> Task E/definition créée normalement
 ```
 
-Le test d'architecture `projectionNDoesNotRequireSourceVersionWatermarkAtLeastN` existe déjà pour le
+Le test d'architecture `projectionNDoesNotRequireLatestKnownVersionAtLeastN` existe déjà pour le
 runtime Task/projector. Le Lot 7.5 doit l'étendre au nouveau scheduler ou ajouter une règle sœur
 interdisant au producer de dépendre de `engine-read-projection` et `infra-read-persistence`.
 
@@ -750,7 +750,7 @@ livrés dans le même déploiement mais le runtime reste désactivé jusqu'au pr
 ### À ne pas modifier fonctionnellement
 
 - `domain-projection`, `engine-read-projection`, `infra-read-persistence` ;
-- runtime SourceVersionWatermark ;
+- runtime LatestKnownVersion ;
 - calcul et matérialisation des projections ;
 - Query Kernel, GET, autorisation et stratégies reader ;
 - write-side Pot/Command ;
@@ -807,7 +807,7 @@ Ils ne doivent modifier aucun invariant ci-dessus.
 - Aucun mode replay, offset durable ou reset de slot n'est nécessaire.
 - Aucun applicable crée zéro Task et ne ferme pas l'Event aux définitions futures.
 - Aucun artifact, failure, head, watermark, status read-side ou stratégie reader n'est consulté.
-- `latestVersionSeen=N-1` n'empêche pas le scheduling de N.
+- `latestKnownVersion=N-1` n'empêche pas le scheduling de N.
 - `event_4_pipeline_materialization_status` et `materialization_id` ont disparu après V10.
 - Le runtime Task/projector continue à exécuter les Tasks sans changement de règle métier.
 - Les métriques sont bornées et les documents factuels/runbooks sont alignés.

@@ -64,7 +64,7 @@
 		<module>orchestrator-command-admission</module>
 		<module>supra-consumption-worker</module>
 		<module>locator-consumption-event</module>
-		<module>locator-consumption-source-version-watermark</module>
+		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-task</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
@@ -75,7 +75,7 @@
 		<module>shared-runtime-spring-config</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
-		<module>runtime-source-version-watermark-consumption-worker</module>
+		<module>runtime-latest-known-version-consumption-worker</module>
 		<module>runtime-task-consumption-worker</module>
 		<module>runtime-command-consumption-worker</module>
 		<module>runtime-monolith</module>

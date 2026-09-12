@@ -60,19 +60,19 @@ externe concernant le delete terminal. Aucun audit du code n'est requis.
 **Changes**
 
 - Identifier le document comme cible normative et référencer le plan directeur existant.
-- Énoncer que consumer express et pipeline de projection sont deux chemins indépendants.
-- Interdire tout gate d'acquire, claim ou projector sur `latestVersionSeen`.
-- Autoriser explicitement `latestProjectedVersion > latestVersionSeen` de manière transitoire.
+- Énoncer que consumer direct transactionnel et pipeline de projection sont deux chemins indépendants.
+- Interdire tout gate d'acquire, claim ou projector sur `latestKnownVersion`.
+- Autoriser explicitement `latestProjectedVersion > latestKnownVersion` de manière transitoire.
 - Préciser qu'un artifact produit en avance ne fait pas progresser le watermark et ne fait pas
   découvrir une version au reader.
-- Conserver `V > latestVersionSeen -> NOT_FOUND`, même si l'artifact V existe.
+- Conserver `V > latestKnownVersion -> NOT_FOUND`, même si l'artifact V existe.
 - Maintenir le lag négatif transitoire comme état observable valide.
 
 **Verification**
 
 - Aucune phrase ne conditionne une projection à l'avancement du watermark.
 - Artifact, head ou `MAX(version)` ne servent jamais à établir l'existence source.
-- Current cible toujours exactement `latestVersionSeen`.
+- Current cible toujours exactement `latestKnownVersion`.
 
 ### Step 2 — Fermer le lifecycle fonctionnel de ProjectionState
 
@@ -180,9 +180,9 @@ externe concernant le delete terminal. Aucun audit du code n'est requis.
 Faire apparaître explicitement dans la liste :
 
 1. indépendance watermark/projectors ;
-2. possibilité temporaire `latestProjectedVersion > latestVersionSeen` ;
+2. possibilité temporaire `latestProjectedVersion > latestKnownVersion` ;
 3. artifact en avance sans effet sur la connaissance source ;
-4. `V > latestVersionSeen -> NOT_FOUND`, artifact éventuel ignoré ;
+4. `V > latestKnownVersion -> NOT_FOUND`, artifact éventuel ignoré ;
 5. ownership durable de `NOT_READY` par la création/adoption de Task ;
 6. reader sans création de state ;
 7. projector sans invention d'intention ;
@@ -288,7 +288,7 @@ La matrice finale attendue est :
 |---|---|
 | Projector reçoit une Task N avec watermark N-1 | Projection autorisée |
 | Artifact N existe, watermark N-1, query explicite N | `NOT_FOUND`/404 |
-| Artifact N existe en avance | Aucun changement de `latestVersionSeen` |
+| Artifact N existe en avance | Aucun changement de `latestKnownVersion` |
 | Duplicate divergent sur projection `READY` | Artifact inchangé, state `READY`, violation séparée |
 | Reader constate une projection absente | Aucun state créé |
 | Projector constate une intention absente | Erreur de protocole, aucun `NOT_READY` inventé |
@@ -304,7 +304,7 @@ La matrice finale attendue est :
 
 Recherches obligatoires sur les documents modifiés :
 
-- aucune règle d'éligibilité `latestVersionSeen >= targetVersion` ;
+- aucune règle d'éligibilité `latestKnownVersion >= targetVersion` ;
 - aucune attente du watermark avant acquire/exécution ;
 - aucune transition positive `READY -> FAILED` pour duplicate divergent ;
 - aucun 404 causé uniquement par une PotProjection d'autorisation indisponible ;
@@ -312,7 +312,7 @@ Recherches obligatoires sur les documents modifiés :
 - aucune transaction distribuée supposée ;
 - aucune création de `ProjectionState` par un GET/reader ;
 - aucune création opportuniste de `NOT_READY` par un projector ;
-- présence de `latestProjectedVersion > latestVersionSeen` ;
+- présence de `latestProjectedVersion > latestKnownVersion` ;
 - présence du prérequis delete terminal ;
 - présence de la liste complète des choix non canoniques.
 

@@ -18,12 +18,14 @@ vérifiée avant une modification.
 - [Architecture cible du read side](architecture/read-side-target.md) — cible normative du Lot 7 : modèle temporel, projections, queries et invariants.
 - [Reconstruction historique d'un Pot](architecture/pot-historical-reconstruction.md) — temporalité primaire exacte, fragments reconstructibles et limite `updatedAt`.
 - [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
+- [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — architecture directe transactionnelle, compatibilité et tests du consumer.
 - [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — metadata de version Pot, index utilisateur historisé et pagination keyset.
 
 ### Consumption pipelines
 
 - [Event pull runtime](architecture/consumption-event-pull-runtime.md) — Event durable vers matérialisation de Tasks.
 - [Task Balance runtime](architecture/consumption-task-balance-runtime.md) — Task durable vers projection Balance immuable.
+- [Cutover LatestKnownVersion](operations/latest-known-version-cutover.md) — préflight read-only et bascule sans slots terminaux artificiels.
 
 ### Structural references
 

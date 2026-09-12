@@ -36,13 +36,14 @@ POST /api/v1/commands
   -> état primaire historisé + BusinessEvent atomique
 ```
 
-Le read side est un ensemble autonome de matérialisations déterministes, reconstructibles,
-versionnées et immuables. Il ne reçoit aucune écriture directe du write side et apprend ses évolutions
-uniquement par les Business Events.
+Le read side est un ensemble autonome d'états dérivés. Les projections sont déterministes,
+reconstructibles, versionnées et immuables ; `LatestKnownVersion` est au contraire un état mutable
+monotone. Tous apprennent les évolutions par les Business Events et un lifecycle de consumption
+durable.
 
 ```text
-                                      +-> SourceVersionWatermark
-BusinessEvent durable ----------------|       latestVersionSeen
+                                      +-> LatestKnownVersion
+BusinessEvent durable ----------------|       latestKnownVersion
                                       |
                                       +-> Event -> Task -> Task worker
                                                 -> primaire historisé @ potVersion
@@ -81,36 +82,48 @@ permettant des schémas, datasources, migrations, transactions et ownership dist
 doit contenir aucune FK, vue ou jointure exigeant que read et primary résident dans la même base.
 
 Le déplacement futur du read store vers une autre instance ne doit pas changer le modèle fonctionnel.
-Il nécessitera cependant un protocole de commit idempotent et fencé entre le lifecycle Task et le read
-store, sans transaction distribuée implicite. Le protocole concret est une décision d'implémentation
-future, distincte de l'atomicité fonctionnelle exigée dans le read store.
+Il nécessitera cependant un protocole idempotent et fencé entre le lifecycle de consumption et le read
+store, sans transaction distribuée implicite. Un effet direct n'est autorisé aujourd'hui que lorsque
+sa mutation et le CAS terminal partagent la même transaction PostgreSQL.
+
+Deux modes de dérivation sont autorisés :
+
+```text
+Event -> consumption fiable -> petit effet local atomique
+Event -> consumption fiable -> Task -> Task Executor -> travail autonome durable
+```
+
+Le premier est réservé à un effet déterministe ou idempotent, borné, court, sans appel externe et
+local à la transaction du slot. Le second est requis pour un travail long, découplé en capacité, non
+atomique avec la consumption ou dépendant d'une autre ressource. `LatestKnownVersion` relève du
+premier ; les projections versionnées relèvent du second.
 
 ## 4. Modèle temporel
 
 ### Version source observée
 
 La version autoritative n'est jamais lue synchroniquement par le read side. Pour chaque `potId`, le
-read store maintient un `SourceVersionWatermark.latestVersionSeen` : la plus haute `potVersion`
-observée dans un Business Event.
+read store maintient un `LatestKnownVersion.latestKnownVersion` : la plus haute `potVersion`
+effectivement matérialisée par son consumer depuis un Business Event.
 
 La mise à jour est idempotente et hors-ordre :
 
 ```text
-latestVersionSeen = max(latestVersionSeen, event.potVersion)
+latestKnownVersion = max(latestKnownVersion, event.potVersion)
 ```
 
-Un consommateur Event express et spécialisé porte cette seule responsabilité. Il ne crée pas de
-Task, ne relit pas le primaire et ne matérialise aucune projection. C'est l'unique exception au chemin
-général Event vers Task.
+Un consumer Event direct transactionnel porte cette seule responsabilité. Il ne crée pas de Task, ne
+relit pas le primaire et ne matérialise aucune projection. Son max-upsert, sa provenance et le CAS
+terminal fencé committent ou rollbackent ensemble.
 
-Une courte fenêtre où le write side est en `N` et le read side en `N-1` est admise. Les versions d'un
-Pot étant supposées contiguës, `latestVersionSeen=N` prouve l'existence source de toutes les versions
-de `1` à `N` sans registre unitaire supplémentaire.
+Une courte fenêtre où le write side est en `N` et le read side en `N-1` est admise.
+`latestKnownVersion=N` ne prouve ni la continuité de 1 à N, ni le traitement des versions antérieures,
+ni l'existence d'une projection N. C'est une connaissance read-side asynchrone, pas une lecture
+synchrone absolue du write side.
 
-L'identité logique du watermark est au minimum `potId`. Son mécanisme de reprise après perte du read
-store doit rester reconstructible ; le cadrage ne fixe pas encore si cette reconstruction repose sur
-la rétention/relecture complète des Events ou sur une initialisation administrative depuis le
-primaire.
+L'identité fonctionnelle est `potId`. Le consumer conserve pour compatibilité l'identité protocolaire
+opaque `SOURCE_VERSION_WATERMARK` ainsi que les noms SQL historiques
+`source_version_watermarks.latest_version_seen`.
 
 ### Version projetée
 
@@ -125,18 +138,17 @@ Le head est une donnée fonctionnelle canonique, pas un cache de `MAX(artifact.v
 monotone et peut avancer malgré des trous : si 44 et 46 sont `READY` mais 45 ne l'est pas,
 `latestProjectedVersion=46`.
 
-`latestVersionSeen` et `latestProjectedVersion` restent dans des objets distincts, avec des producteurs
+`latestKnownVersion` et `latestProjectedVersion` restent dans des objets distincts, avec des producteurs
 distincts. Aucun ordre d'arrivée entre ces producteurs ne peut être supposé.
 
 Les deux chemins issus d'un Business Event sont indépendants. Un Event ou une Task de projection
 légitime portant `potVersion=N` suffit à établir l'intention de projeter N : aucun acquire, claim ou
-projector n'attend que `latestVersionSeen` atteigne N. Il est donc valide que
-`latestProjectedVersion > latestVersionSeen` de manière transitoire.
+projector n'attend que `latestKnownVersion` atteigne N. Il est donc valide que
+`latestProjectedVersion > latestKnownVersion` de manière transitoire.
 
-Un artifact produit en avance ne fait pas progresser `latestVersionSeen`, ne modifie pas la
-connaissance source du reader et ne constitue jamais un mécanisme implicite de découverte d'une
-version. Seul le consumer express, ou une reconstruction administrative explicite du watermark, fait
-évoluer cette connaissance.
+Un artifact produit en avance ne fait pas progresser `latestKnownVersion`. Seul le consumer direct
+transactionnel, ou une réparation administrative explicite de l'état dérivé, fait évoluer cette
+connaissance.
 
 ### Version exposable
 
@@ -213,8 +225,9 @@ Pour une version applicable, `ProjectionStatus` est une vue fonctionnelle dériv
 - ni artifact ni failure : `NOT_READY`, y compris pendant les retries temporaires.
 
 Une définition sélectionnée mais non applicable produit `NOT_FOUND` et un signal interne, jamais un
-nouvel état fonctionnel. L'existence source reste déterminée séparément par le watermark. Artifact et
-failure sont mutuellement exclusifs ; une failure tardive ne dégrade jamais un artifact réussi.
+nouvel état fonctionnel. L'existence et le choix de version relèvent des sources propres au reader,
+pas du seul latest-known. Artifact et failure sont mutuellement exclusifs ; une failure tardive ne
+dégrade jamais un artifact réussi.
 
 Le statut n'est pas persisté dans une table de state. Il est résolu sans lire le lifecycle technique
 des Tasks, claims, leases, slots ou retries. Un GET et un reader restent strictement read-only ; un
@@ -297,10 +310,13 @@ volontaire.
 
 ## 8. Résolution des lectures unitaires
 
-### Choix de la version
+### Choix de la version et dépendance legacy
 
-Pour une query Pot sans version explicite, la cible est exactement `latestVersionSeen`. Le reader ne
-sert jamais une ancienne projection au motif qu'elle est disponible.
+La règle historique qui assimilait la version `current` à `latestKnownVersion` est une dépendance
+legacy à refondre dans un lot reader séparé. Elle est incompatible avec la sémantique désormais
+explicite : latest-known peut être 15 avec la meilleure projection à 13, et la meilleure projection
+peut temporairement être 15 avec latest-known à 14. Ce refactor ne modifie pas le reader, mais aucun
+nouveau code ne doit renforcer cette égalité.
 
 Après détermination de V et contrôle du watermark, le reader récupère la stratégie du pipeline,
 résout V, reconstruit l'identité de génération, charge sa définition exacte et vérifie `appliesTo(V)`.
@@ -312,8 +328,8 @@ Pour une version explicite `V` :
 
 | Condition read-side | Résultat fonctionnel |
 |---|---|
-| Pot/watermark inconnu | `NOT_FOUND` |
-| `V > latestVersionSeen`, même si un artifact V existe en avance | `NOT_FOUND` |
+| Pot ou version absente selon les sources propres au reader | `NOT_FOUND` |
+| `LatestKnownVersion` en retard ou en avance sur les projections | aucune décision à lui seul |
 | stratégie vide, V avant son premier seuil ou définition sélectionnée non applicable | `NOT_FOUND` |
 | V connue et contexte d'autorisation exact absent, `NOT_READY` ou `FAILED` | `NOT_READY` |
 | contexte d'autorisation `READY` mais accès refusé | `NOT_FOUND` masqué |
@@ -336,9 +352,9 @@ produit donc pas automatiquement un 503 côté client : tant qu'elle ne permet p
 l'autorisation, la réponse fonctionnelle est `NOT_READY`/409. `FAILED`/503 n'est exposable pour une
 projection métier demandée qu'après disponibilité du contexte requis et autorisation accordée.
 
-L'artifact éventuellement produit en avance n'est pas consulté pour établir l'existence source : tant
-que `V > latestVersionSeen`, V reste inconnue du reader. Cette asymétrie est une conséquence assumée
-de l'eventual consistency.
+La présence ou l'absence d'un artifact et la connaissance latest-known sont deux signaux indépendants.
+Le contrat `current` futur devra sélectionner explicitement la meilleure version exposable sans
+transformer latest-known en preuve d'existence ou de continuité.
 
 ### Contrat HTTP
 
@@ -350,7 +366,7 @@ de l'eventual consistency.
 | succès | 200 | représentation et `potVersion` réellement servie |
 
 Les réponses fonctionnelles n'exposent ni pipeline interne, ni worker, claim, retry count ou lag
-technique. Un succès n'expose pas systématiquement `latestVersionSeen` ou le lag.
+technique. Un succès n'expose pas systématiquement `latestKnownVersion` ou le lag.
 
 Le préfixe d'URL du code actuel est `/api` (`/api/pots`, `/api/expenses`) alors que le cadrage emploie
 la notation `/pots`. Ce document considère les routes du cadrage comme des noms fonctionnels et ne
@@ -381,7 +397,7 @@ Pour un Pot actif, une version égale au `latestProjectedVersion` de la projecti
 requiert `VIEW`; une version inférieure requiert `VIEW_ARCHIVE`. Un snapshot dont le statut est
 `DELETED`/archivé requiert toujours `VIEW_ARCHIVE`, y compris s'il est le plus récent projeté.
 Cette classification reste volontairement fondée sur le head même lorsque celui-ci devance
-temporairement `latestVersionSeen`.
+temporairement `latestKnownVersion`.
 
 Le current est global, jamais personnalisé. Une lecture sans version ne cherche pas une ancienne
 version autorisée. Une ressource ou version non autorisée est masquée par un 404, jamais révélée par
@@ -407,7 +423,7 @@ créent pas de nouvelle projection canonique.
 un paramètre explicite en plus du scope adéquat.
 
 La query utilise un index historisé `userId -> PotProjection@V`, immuable et scopé par génération.
-Elle joint chaque candidat au `latestVersionSeen` individuel de son Pot, puis applique la génération
+Elle joint chaque candidat au `latestKnownVersion` individuel de son Pot, puis applique la génération
 sélectionnée pour cette version exacte. Aucune ligne fonctionnelle `current` n'est persistée. La
 pagination est par curseur/keyset sur un ordre strict :
 
@@ -447,8 +463,8 @@ La suppression du Pot est une version métier normale mais terminale : elle incr
 reste consultable dans l'historique, interdit toute version future et requiert `VIEW_ARCHIVE` à la
 lecture. Ainsi, si 46 est la suppression, 46 existe et 47+ n'existe pas.
 
-Cet invariant est nécessaire à la règle d'existence fondée uniquement sur `latestVersionSeen` et à
-la stabilité des indexes courants.
+Cet invariant est nécessaire à la stabilité des indexes courants ; il ne confère aucune sémantique de
+continuité à `LatestKnownVersion`.
 
 La terminalité est une précondition produite par le write side. Le read side ne filtre, ne
 réinterprète et ne compense jamais des versions que le primaire aurait produites après le delete.
@@ -457,13 +473,13 @@ réinterprète et ne compense jamais des versions que le primaire aurait produit
 
 Le read side expose au minimum, par pipeline et Pot ou sous forme agrégée adaptée :
 
-- l'écart `latestVersionSeen - latestProjectedVersion` ;
+- l'écart `latestKnownVersion - latestProjectedVersion` ;
 - le nombre de projections `NOT_READY` ;
 - le nombre de projections `FAILED` ;
 - l'âge de la plus ancienne projection attendue.
 
-Comme les consumers du watermark et des projections sont indépendants, l'écart brut peut être
-négatif transitoirement si une projection termine avant l'observation express du même Event. Ce cas
+Comme les consumers latest-known et projection sont indépendants, l'écart brut peut être
+négatif transitoirement si une projection termine avant l'observation directe du même Event. Ce cas
 doit être distingué d'un lag de projection positif ; ni la monotonie ni l'ordre relatif des deux
 watermarks ne permettent de l'exclure.
 
@@ -491,7 +507,7 @@ pas le modèle fonctionnel du reader.
 |---|---|
 | GET autonomes du primaire | Pot/Expense lisent `pot_global_versions` et les tables historisées ; Balance y lit encore version et autorisation. |
 | PotProjection complète | Aucun snapshot Pot read-side n'existe. |
-| SourceVersionWatermark express | Aucun consumer ou store dédié n'existe. |
+| LatestKnownVersion direct transactionnel | Consumer et store dédiés présents ; renommage conceptuel sans migration SQL. |
 | ProjectionStatus et ProjectionHead | La projection immuable Balance n'a ni statut fonctionnel dérivé dédié ni head. |
 | États HTTP | Une projection Balance absente devient actuellement une erreur technique ; les autorisations donnent 403. |
 | Autorisation archive | Les policies de lecture n'utilisent que `*:VIEW`; `BALANCE:VIEW_ARCHIVE` n'existe pas encore dans les permissions canoniques. |
@@ -577,9 +593,10 @@ implicite.
    laisse l'artifact et le statut dérivé `READY` inchangés et produit une violation séparée.
 6. Watermark source et head de projection sont distincts, par Pot, monotones et produits séparément ;
    aucun projector n'est gaté par le watermark.
-7. `latestProjectedVersion > latestVersionSeen` est temporairement valide. Un artifact produit en
-   avance ne fait pas connaître sa version au reader.
-8. Pour une query explicite, `V > latestVersionSeen` reste `NOT_FOUND`, même si un artifact V existe.
+7. `latestProjectedVersion > latestKnownVersion` et l'inverse sont temporairement valides ; aucun des
+   deux pipelines ne coordonne l'autre.
+8. `LatestKnownVersion` n'est ni une preuve de continuité, ni une preuve d'artifact, ni à lui seul une
+   règle de sélection du reader `current`.
 9. Le head est canonique, peut avancer malgré des trous et ne se recalcule pas depuis les artifacts.
 10. L'applicabilité canonique implique la production de toutes les générations applicables ; la
     sélection reader, le scheduling et le statut restent indépendants.

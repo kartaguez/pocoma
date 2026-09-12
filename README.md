@@ -34,6 +34,8 @@ app/
                                   Durable Command processing runtime
   runtime-event-consumption-worker/
                                   Durable Event-to-Task consumption runtime
+  runtime-latest-known-version-consumption-worker/
+                                  Direct transactional Event-to-latest-known runtime
   runtime-task-consumption-worker/
                                   Durable Task-to-Balance consumption runtime
   supra-worker-balance-calculation-events-spring/
@@ -95,6 +97,10 @@ cd app
   -Dspring-boot.run.profiles=postgres \
   -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.pipeline-version=2"
 
+./mvnw -pl runtime-latest-known-version-consumption-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.latest-known-version-consumption.enabled=true --pocoma.latest-known-version-consumption.poll-interval=250ms"
+
 ./mvnw -pl runtime-task-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
   -Dspring-boot.run.arguments="--pocoma.task-consumption.enabled=true --pocoma.task-consumption.pipeline-version=2"
@@ -122,8 +128,8 @@ and Grafana:
 docker compose -f docker-compose.monolith-postgres.yml up --build
 ```
 
-Distributed mode with one API runtime, one Command consumption worker, two Event consumption workers,
-two Task consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
+Distributed mode with one API runtime, one Command consumption worker, one dedicated latest-known
+consumer, two Event consumption workers, two Task consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
 version is part of the projection identity and must be supplied explicitly:
 
 ```bash
