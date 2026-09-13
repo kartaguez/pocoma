@@ -288,9 +288,11 @@ public record QueryPipelineSelection(
 }
 ```
 
-Le constructeur compact exige une map non nulle et non vide, sans clé ou valeur nulle, puis en prend
-une copie immuable. `requireFor` rejette un composant nul et lève explicitement une
-`IllegalArgumentException` si la sélection ne le contient pas.
+Le constructeur compact exige une map non nulle, sans clé ou valeur nulle, puis en prend une copie
+immuable. Une map vide est valide : elle signifie uniquement qu'aucun composant projeté n'est requis
+par cette query. Elle n'introduit aucun cas spécial de serving ou de résolution. `requireFor` rejette
+un composant nul et lève explicitement une `IllegalArgumentException` si la sélection ne le contient
+pas.
 
 La map conserve exactement la `PipelineVersionDefinition` fournie. Elle ne calcule aucun maximum,
 n'inspecte pas l'applicabilité, ne choisit pas serving et ne prouve pas que le pipeline produit le
@@ -426,8 +428,8 @@ runtime, supra ou processing.
 
 - Créer `QueryPipelineSelection` avec copie immuable et `requireFor`.
 - Ne consulter aucun catalogue et ne coder aucun choix serving.
-- Critère de fin : une sélection fournie est conservée exactement et une entrée absente échoue
-  explicitement.
+- Critère de fin : une sélection fournie, y compris vide, est conservée exactement et une entrée
+  absente demandée par `requireFor` échoue explicitement.
 
 ### E. Ports read-only
 
@@ -501,9 +503,17 @@ Ajouter les cas suivants :
 - association explicite retrouvée par `ProjectionType` ;
 - `PipelineVersionDefinition` exacte conservée, y compris son applicabilité ;
 - composant absent détecté explicitement ;
-- map/clé/valeur nulle et map vide refusées ;
+- map, clé ou valeur nulle refusée ;
+- map vide acceptée ;
 - mutation de la map source sans effet et map exposée immuable ;
 - aucun comportement de `MAX(pipelineVersion)` ou de sélection serving.
+
+Vérifier aussi le scénario cohérent, sans ajouter de resolver :
+
+```text
+QueryViewDefinition.unprotectedView({}) -> requiredComponents = {}
+QueryPipelineSelection({})              -> valide
+```
 
 Ne pas écrire de test affirmant que ce type prouve la relation producteur/projection : aucun catalogue
 ne lui fournit cette information et la garantie appartient à 7.14.1.
@@ -601,8 +611,9 @@ contrats prévus ici appliquent déjà ses invariants.
    parallèle n'est créé.
 7. `ProjectionType` et `PipelineId` restent distincts, tandis qu'une génération de projection possède
    exactement un pipeline producteur.
-8. `QueryPipelineSelection` reçoit explicitement le producteur serving cohérent fourni par 7.14.1 et
-   ne sélectionne, ne maximise ni ne redécouvre aucune pipelineVersion.
+8. `QueryPipelineSelection` reçoit explicitement les producteurs serving cohérents fournis par
+   7.14.1, peut être vide lorsqu'aucun composant n'est requis par la vue et ne sélectionne, ne
+   maximise ni ne redécouvre aucune pipelineVersion.
 9. Les identités composites existantes sont utilisées seulement pour readiness et statut exact.
 10. Le Query Kernel peut rechercher la plus haute version READY sous une borne sans demander tout
     l'historique et sans supposer de continuité.
