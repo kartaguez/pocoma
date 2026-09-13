@@ -1,8 +1,9 @@
 # Pocoma — Lot 7.1 — Consolidation documentaire et prérequis
 
 > **Dossier de réalisation clôturé.** Ce document conserve la trace du cadrage appliqué lors de 7.1.
-> La sémantique `current = latestKnownVersion` ci-dessous a depuis été superseded par `CURRENT =`
-> meilleure intersection READY dans `read-side-target.md`. Le plan directeur courant prévaut.
+> La sémantique `current = latestKnownVersion` ci-dessous a depuis été superseded. La cible actuelle
+> est la plus grande businessVersion `V <= latestKnownVersion` où AUTH(V) et tous les composants
+> métier requis sont READY. `read-side-target.md` et le plan directeur courant prévalent.
 
 ## 1. Objectif du Lot 7.1
 
@@ -69,8 +70,9 @@ externe concernant le delete terminal. Aucun audit du code n'est requis.
 - Autoriser explicitement `latestProjectedVersion > latestKnownVersion` de manière transitoire.
 - Préciser qu'un artifact produit en avance ne fait pas progresser le watermark et ne fait pas
   découvrir une version au reader.
-- Décision historique superseded : `V > latestKnownVersion -> NOT_FOUND`. Latest-known est désormais
-  informatif et ne décide plus seul de l'existence ou de la servabilité.
+- Décision historique superseded : `V > latestKnownVersion -> NOT_FOUND`. Latest-known ne prouve ni
+  continuité ni readiness, mais borne désormais l'exposition : une query EXACT au-delà de cette borne
+  répond `NOT_READY`.
 - Maintenir le lag négatif transitoire comme état observable valide.
 
 **Verification**
@@ -187,7 +189,8 @@ Faire apparaître explicitement dans la liste :
 1. indépendance watermark/projectors ;
 2. possibilité temporaire `latestProjectedVersion > latestKnownVersion` ;
 3. artifact en avance sans effet sur la connaissance source ;
-4. latest-known informatif, sans décision autonome d'existence ou de servabilité ;
+4. latest-known sans preuve de continuité/readiness, indépendant de la production mais borne haute
+   obligatoire de l'exposition ;
 5. `NOT_READY` dérivé de l'absence d'artifact/failure pour une identité applicable ;
 6. reader sans création de state ;
 7. projector sans invention d'intention ;
@@ -292,16 +295,16 @@ La matrice finale attendue est :
 | Situation | Résultat canonique |
 |---|---|
 | Projector reçoit une Task N avec watermark N-1 | Projection autorisée |
-| Artifact N existe, latest-known N-1, query EXACT(N) autorisée | latest-known ne bloque pas ; l'identité exacte gouverne |
+| Artifact N existe, latest-known N-1, query EXACT(N) | `NOT_READY` ; l'artifact interne est au-delà de la borne d'exposition |
 | Artifact N existe en avance | Aucun changement de `latestKnownVersion` |
 | Duplicate divergent sur projection `READY` | Artifact inchangé, state `READY`, violation séparée |
 | Reader constate une projection absente | Aucun state créé |
 | Projector constate une intention absente | Erreur de protocole, aucun `NOT_READY` inventé |
-| AUTH current insuffisamment fraîche | `AUTH_NOT_READY`, sans révéler l'état métier |
-| AUTH établit un refus | refus masqué sans révéler existence/readiness/failure métier |
-| AUTH autorise, composant exact `FAILED` | `PROJECTION_FAILED` selon le contrat HTTP commun |
-| AUTH autorise, composant exact `NOT_READY` | `NOT_READY` selon le contrat HTTP commun |
-| AUTH autorise, intersection CURRENT non vide | succès à la meilleure version READY commune |
+| AUTH(V) ou composant requis absent de l'intersection CURRENT | chercher une V commune antérieure dans la borne latest-known, sinon `NOT_READY` |
+| AUTH(V) établit un refus à la version servie | refus masqué sans révéler existence/readiness/failure métier |
+| AUTH(V) autorise, composant exact `FAILED` | `PROJECTION_FAILED` selon le contrat HTTP commun |
+| AUTH(V) autorise, composant exact `NOT_READY` | `NOT_READY` selon le contrat HTTP commun |
+| AUTH et composants requis ont une intersection CURRENT non vide | succès à la meilleure businessVersion READY commune dans la borne latest-known |
 | Matérialisation réussie | Artifact + `READY` + head + indexes atomiques dans le read store |
 | Plusieurs workers d'un pipeline | Autorisés et fencés |
 | Deux producers logiques d'une génération | Interdits |
@@ -309,7 +312,7 @@ La matrice finale attendue est :
 
 Recherches obligatoires sur les documents modifiés :
 
-- aucune règle d'éligibilité `latestKnownVersion >= targetVersion` ;
+- aucune règle de production exigeant `latestKnownVersion >= targetVersion` ;
 - aucune attente du watermark avant acquire/exécution ;
 - aucune transition positive `READY -> FAILED` pour duplicate divergent ;
 - aucun 404 causé uniquement par une PotProjection d'autorisation indisponible ;

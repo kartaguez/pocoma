@@ -21,7 +21,7 @@ Le read side est en transition :
   `pocoma_read` ;
 - l'index versionné user→Pot et la pagination keyset existent en shadow, sans GET actif ;
 - `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
-- le Query Kernel, l'Authorization Kernel, AUTH, `VersionedQueryResponse`, les états
+- le Query Kernel, l'Authorization Kernel, `AUTH(V)`, `VersionedQueryResponse`, les états
   declared/active/serving et le cutover serving n'existent pas encore.
 
 ## 3. GET réellement exposés
@@ -45,7 +45,8 @@ Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
 partent également des données primaires courantes.
 
 Le code actif ne connaît donc pas encore les intentions `CURRENT` et `EXACT(V)` de la cible. Il ne
-calcule pas la meilleure intersection d'artifacts `READY` et ne retourne pas encore
+calcule pas la meilleure intersection bornée par latest-known d'`AUTH(V)` et des artifacts métier
+`READY`, et ne retourne pas encore
 `VersionedQueryResponse`.
 
 Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
@@ -144,8 +145,10 @@ updatedAt DESC, potId ASC
 ```
 
 `JdbcPotUserIndexReader` est seulement shadow. Sa requête actuelle impose encore
-`index.potVersion = source_version_watermarks.latest_version_seen`. Cette égalité ne correspond plus
-à la cible `CURRENT`, et aucun GET actif ne dépend encore de ce reader.
+`index.potVersion = source_version_watermarks.latest_version_seen`. La cible conserve latest-known
+comme borne d'exposition, mais ne traite plus cette égalité comme la sélection CURRENT : chaque ligne
+d'index n'est qu'un candidat, à résoudre et autoriser avec AUTH à une businessVersion commune. Aucun
+GET actif ne dépend encore de ce reader.
 
 ### BALANCE immuable
 
@@ -175,9 +178,7 @@ respecte pas la cible hors ordre. Il reste legacy actif jusqu'au cutover.
 
 Il n'existe actuellement :
 
-- ni projection AUTH dédiée ;
-- ni `AUTH_HISTORY` ou `AUTH_CURRENT` ;
-- ni `latestAuthRelevantVersion` ;
+- ni projection complète `AUTH(V)` par businessVersion ;
 - ni projection Expense ou Shareholder autonome ;
 - ni index transverse Balance pour remplacer le N+1 de `balances/me`.
 
@@ -213,19 +214,19 @@ primaire. Elles ne séparent pas encore explicitement `TokenCapabilities` et
 `PotAuthorizationAtVersion`.
 
 Les permissions `VIEW_ARCHIVE` cibles ne sont pas toutes définies, notamment pour Balance. Aucun
-consumer auth-relevant, artifact AUTH ou freshness gate n'existe. Les GET peuvent donc encore révéler
-existence/readiness selon leur logique legacy avant le futur gate AUTH.
+pipeline ou artifact AUTH exact n'existe. Les GET peuvent donc encore révéler existence/readiness
+selon leur logique legacy avant la future résolution commune AUTH + composants métier.
 
 ## 10. Écarts restants vers la cible
 
 | Cible | État actuel |
 |---|---|
 | Query Kernel `CURRENT` / `EXACT(V)` | Absent |
-| Meilleure intersection de composants READY | Absente |
+| Meilleure intersection AUTH + composants métier READY bornée par latest-known | Absente |
 | `VersionedQueryResponse` | Absent |
 | Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
 | AUTH indépendante | Absente |
-| Freshness AUTH current | Absente |
+| AUTH complet à chaque businessVersion | Absent |
 | GET sans lecture primaire | Aucun cutover effectué |
 | Balance sur fondation générique | Production immuable présente, persistence générique absente |
 | declared/active/serving | Non modélisé |

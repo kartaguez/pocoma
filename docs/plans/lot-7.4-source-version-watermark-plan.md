@@ -3,6 +3,7 @@
 > **Dossier de réalisation clôturé.** La sémantique canonique courante se trouve dans
 > `docs/architecture/read-side-target.md`. Les termes watermark, `SOURCE_VERSION_WATERMARK` et
 > `latest_version_seen` conservés ici désignent les identifiants de compatibilité, pas une continuité.
+> La valeur ne bloque aucune production, mais borne désormais l'exposition des queries versionnées.
 
 Ce fichier remplace le plan historique « SourceVersionWatermark express ». Son chemin est conservé
 pour ne pas casser les liens documentaires ; le concept Java et documentaire est désormais
@@ -148,7 +149,9 @@ bestProjectedVersion = 15, latestKnownVersion = 14
 ```
 
 Les pipelines étant indépendants et asynchrones, cette connaissance read-side n'est pas une lecture
-synchrone absolue du write side. Aucun reader ou projector ne doit utiliser la valeur comme barrière.
+synchrone absolue du write side. Aucun scheduler, Task ou projector ne doit utiliser la valeur comme
+barrière de production. Le Query Kernel l'utilise séparément comme borne supérieure d'exposition et
+répond `NOT_READY` lorsqu'elle est absente ou que la version exacte demandée la dépasse.
 
 ## 4. Modèle, ports et persistance
 

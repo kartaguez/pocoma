@@ -2,8 +2,9 @@
 
 > **Dossier de réalisation clôturé.** L'index, la metadata et la pagination restent canoniques. La
 > sélection shadow par `index.potVersion = latestKnownVersion` décrite dans ce dossier est superseded :
-> les listes cibles lisent l'index convergent sans join latest-known, conformément à
-> `docs/architecture/read-side-target.md` et au plan directeur courant.
+> les listes cibles utilisent l'index comme source de candidats seulement, puis résolvent pour chaque
+> Pot un CURRENT borné par latest-known et autorisé par AUTH à la businessVersion servie,
+> conformément à `docs/architecture/read-side-target.md` et au plan directeur courant.
 
 ## 1. Scope
 
@@ -254,7 +255,9 @@ L'adapter shadow livré en 7.7 :
 Chaque Pot a son latest-known individuel ; aucune version globale n'existe. Cette sélection n'est
 plus le contrat du futur reader CURRENT.
 
-**SUPERSEDED —** le reader cible lit le read model d'index convergent et ne joint pas latest-known.
+**SUPERSEDED —** le scan cible de l'index ne déduit plus CURRENT de cette jointure. Il fournit des
+candidats ; le Query Kernel résout ensuite, pour chaque Pot, une businessVersion commune
+`V <= latestKnownVersion` où AUTH(V) et les composants requis sont READY.
 
 **IMPLEMENTATION CHOICE —** l'adapter shadow reçoit du futur Query Kernel les plages applicables `(fromVersion, toVersion, pipelineVersion)` et les traduit en prédicats SQL. `PipelineSelectionStrategy` n'intervient jamais lors de la production des lignes.
 
@@ -273,10 +276,11 @@ L'index dérivé ne peut pas contenir `A -> X@13` avant la matérialisation atom
 
 **IMPLEMENTATION CHOICE —** le contrat shadow 7.7 retourne uniquement les Pots dont l'entrée exacte sélectionnée est matérialisée et exposable. Il ne crée pas une structure source-membership séparée.
 
-**DECISION CLOSED AFTER 7.7 —** la liste cible expose l'état convergent de son index. Un nouveau Pot
-peut être temporairement absent et un ancien Pot temporairement présent. Elle ne crée aucune
-connaissance source-membership supplémentaire et n'essaie pas de signaler NOT_READY pour une entrée
-qui n'existe pas encore dans l'index.
+**DECISION CLOSED AFTER 7.7 —** la liste cible découvre ses candidats dans l'état convergent de
+l'index. Un nouveau Pot peut être temporairement absent et un ancien Pot rester candidat. Chaque
+candidat est toutefois résolu en CURRENT et filtré par AUTH à la businessVersion servie avant toute
+exposition. La liste ne crée aucune connaissance source-membership supplémentaire et n'essaie pas de
+signaler NOT_READY pour une entrée qui n'existe pas encore dans l'index.
 
 ## 19. Accélération éventuelle
 
@@ -316,7 +320,8 @@ Défaut 50, maximum 200, lecture `limit+1`, aucun OFFSET. Sur dataset stable : a
 Pour `/pots/{potId}/expenses/{expenseId}?version=V` ou le Shareholder équivalent :
 
 1. établir d'abord l'autorisation correspondant à l'intention, sans révéler existence/readiness ;
-2. pour `EXACT(V)`, demander exactement READ_POT(V), sans décision fondée sur latest-known ;
+2. pour `EXACT(V)`, exiger latest-known présent et V dans sa borne, puis demander exactement AUTH(V)
+   et READ_POT(V) ;
 3. projection exacte absente sans failure terminale : `NOT_READY` ;
 4. projection READY + enfant absent : `NOT_FOUND` ;
 5. projection READY + enfant présent : retourner la sous-ressource à V.
@@ -413,7 +418,8 @@ pas dans les labels métriques.
 - AUTH autorise + READ_POT@V applicable absente : `NOT_READY` ;
 - READ_POT@V READY + Expense absente : `NOT_FOUND` ;
 - READ_POT@V READY + Shareholder absent : `NOT_FOUND` ;
-- latest-known en avance ou en retard : aucune décision à lui seul ;
+- latest-known en avance ou en retard : aucune incidence sur la production, mais borne haute
+  obligatoire de l'exposition ;
 - failure terminale : sémantique FAILED dédiée, pas NOT_READY ;
 - Balance @12 absente malgré Balance @13 READY : NOT_READY sans fallback.
 
@@ -458,10 +464,13 @@ pas dans les labels métriques.
 - Bypass de l'allocator : port unique et architecture tests.
 - Overwrite concurrent : insert/reload/compare et rollback.
 - Join coûteux : index PostgreSQL et mesures avant accélération.
-- Index confondu avec ACL : autorisation toujours sur projection exacte.
-- Relation nouvelle dans une projection NOT_READY : décision produit 7.9 à fermer avant cutover de la liste.
+- Index confondu avec ACL : autorisation toujours depuis AUTH à la businessVersion servie.
+- Relation nouvelle sans snapshot CURRENT servable : candidat non exposé ; la pagination poursuit son
+  scan borné selon le contrat cible.
 
-**BLOCKER —** aucun blocker pour implémenter 7.7. Le seul point produit ouvert concerne le comportement futur de `GET /pots` face à une appartenance nouvelle encore NOT_READY ; il bloque le cutover 7.11, pas les artefacts shadow 7.7.
+**BLOCKER —** aucun blocker pour implémenter 7.7. Le comportement cible de `GET /pots` est désormais
+fermé par le Query Kernel mono-version et le filtrage AUTH ; son implémentation appartient à 7.11,
+pas aux artifacts shadow 7.7.
 
 ## 35. Critères de sortie, validation et CI
 
