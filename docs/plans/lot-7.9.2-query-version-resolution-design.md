@@ -1,35 +1,71 @@
-# Lot 7.9.2 — Conception de la résolution CURRENT / EXACT du Query Kernel
+# Lot 7.9.2 — Conception de la résolution CURRENT / EXACT du Query Kernel monoprojection
 
-> **SUPERSEDED — repose sur l'ancien modèle multi-projection.**
->
-> Ne pas utiliser ce document pour implémenter 7.9.2. Une nouvelle conception monoprojection sera
-> produite après audit des contrats 7.9.1 révisés. Le contenu ci-dessous est conservé uniquement comme
-> trace de la décision antérieure.
+Statut : **DESIGN READY**.
 
-Statut : **SUPERSEDED**.
+Ce document remplace intégralement l'ancien design 7.9.2 multi-projection, désormais abandonné.
+Il constitue la référence de conception entre les contrats livrés par le Lot 7.9.1 et le futur plan
+d'implémentation de 7.9.2. Il fige les décisions fonctionnelles et la forme conceptuelle de l'API,
+sans constituer un plan d'implémentation et sans livrer de code.
 
-Ce document est la référence intermédiaire entre l’architecture cible du read side, les contrats livrés par le Lot 7.9.1 et le futur plan d’implémentation du Lot 7.9.2. Il décrit les décisions fonctionnelles déjà fermées, puis les choix de conception proposés. Il ne constitue ni un plan d’implémentation ni une implémentation.
+## 1. Statut et objectif
 
-## 1. Contexte et autorité
+Le Lot 7.9.2 doit concevoir un resolver framework-free qui répond à une seule question :
 
-Les sources relues pour cette conception sont, par ordre d’autorité dans leur domaine :
+> Pour un Pot, une intention `CURRENT` ou `EXACT(V)` et l'unique génération de projection métier
+> sélectionnée pour serving, quelle businessVersion peut être servie, ou quel état fonctionnel empêche
+> cette résolution ?
 
-- `docs/architecture/read-side-target.md` pour la cible normative du read side ;
-- `docs/plans/lot-7-read-side-implementation-plan.md` pour le périmètre et les dépendances du Lot 7 ;
-- `docs/architecture/read-side-current-state.md` pour l’état réellement livré ;
-- `docs/plans/lot-7.9.1-versioned-query-contracts-plan.md` pour les contrats préparatoires ;
-- `docs/architecture/type-ownership.md` et `docs/architecture/module-dependency-matrix.md` pour l’ownership et les dépendances de modules.
+La signature conceptuelle cible est :
 
-Le code du Lot 7.9.1 confirme les contrats suivants dans `engine-query` :
+```java
+QueryVersionResolution resolve(
+    PotId potId,
+    QueryVersionIntent requestedVersion,
+    QueryProjectionSelection projectionSelection);
+```
 
-- `QueryVersionIntent` distingue `Current` et `Exact(long businessVersion)` ;
-- `QueryViewDefinition` distingue les vues protégées et non protégées et expose `requiredComponents()` ;
-- `QueryPipelineSelection` fournit explicitement une `PipelineVersionDefinition` par `ProjectionType` requis et autorise une sélection vide ;
-- `ProjectionReadinessQueryPort` expose une recherche du plus haut `READY` sous une borne et le statut d’une `ProjectionIdentity` exacte ;
-- `LatestKnownVersionQueryPort` lit la borne d’exposition d’un Pot ;
-- `VersionedQueryResponse<T>` est l’enveloppe d’une réponse réussie, pas le résultat du resolver.
+Le resolver dépend uniquement de :
 
-Les types existants ont les responsabilités suivantes :
+```text
+LatestKnownVersionQueryPort
+ProjectionReadinessQueryPort
+```
+
+Il expose une seule méthode publique `resolve(...)`. Le dispatch entre `CURRENT` et `EXACT(V)` reste
+un détail interne.
+
+Sources vérifiées pour cette conception :
+
+- `docs/architecture/read-side-target.md` ;
+- `docs/architecture/read-side-current-state.md` ;
+- `docs/plans/lot-7-read-side-implementation-plan.md` ;
+- `docs/plans/lot-7.9.1-versioned-query-contracts-plan.md` ;
+- `docs/plans/lot-7.9.1-monoprojection-contract-revision-plan.md` ;
+- `docs/architecture/type-ownership.md` ;
+- `docs/architecture/module-dependency-matrix.md` ;
+- les contrats Java réellement livrés dans `engine-query`, `domain-projection` et
+  `domain-pipeline`.
+
+## 2. Contexte et décisions héritées de 7.9.1
+
+Le repository livre déjà les contrats préparatoires suivants :
+
+- `QueryVersionIntent` représente `Current` ou `Exact(long businessVersion)` et garantit qu'une
+  version exacte est positive ;
+- `QueryProjectionSelection` lie exactement un `ProjectionType` métier à la
+  `PipelineVersionDefinition` serving fournie par l'appelant ;
+- `ProjectionReadinessQueryPort.findHighestTerminalAtOrBelow(...)` retourne le plus haut état
+  terminal réellement présent dans une génération exacte, sous une borne inclusive ;
+- `TerminalProjectionState` associe une businessVersion positive à `READY` ou `FAILED`, jamais à
+  `NOT_READY` ;
+- `ProjectionReadinessQueryPort.statusAt(...)` retourne le statut d'une `ProjectionIdentity`
+  exacte ;
+- `LatestKnownVersionQueryPort.findByPotId(...)` retourne éventuellement la borne d'exposition du
+  Pot ;
+- `VersionedQueryResponse<T>` reste l'enveloppe d'une réponse réussie produite après lecture des
+  données. Il n'est pas le résultat du resolver.
+
+Les identités existantes sont réutilisées sans duplication :
 
 ```text
 ProjectionGenerationIdentity
@@ -39,102 +75,682 @@ ProjectionIdentity
 = ProjectionGenerationIdentity + businessVersion
 
 PipelineVersionDefinition
-= PipelineDefinition + VersionApplicability
+= PipelineDefinition identity + VersionApplicability
 ```
 
-`PipelineDefinition.pipelineVersion` est une **pipelineVersion**. `ProjectionIdentity.potVersion` et les versions résolues sont des **businessVersions**. Elles ne sont jamais interchangeables.
+`PipelineDefinition.pipelineVersion` est une **pipelineVersion**. Les versions portées par
+`QueryVersionIntent.Exact`, `TerminalProjectionState`, `ProjectionIdentity.potVersion` et les
+résultats de résolution sont des **businessVersions**. Ces deux axes ne sont jamais interchangeables.
 
-## 2. Objectif
+Invariant principal :
 
-Le Lot 7.9.2 doit fournir un resolver framework-free réalisant :
+> Toute query versionnée porte exactement une projection métier, jamais zéro et jamais plusieurs.
 
-```text
-PotId
-+ QueryVersionIntent
-+ QueryViewDefinition
-+ QueryPipelineSelection
-+ LatestKnownVersionQueryPort
-+ ProjectionReadinessQueryPort
-→ QueryVersionResolution
-```
+## 3. Responsabilités et non-responsabilités
 
-Il répond uniquement à la question :
+### 3.1 Responsabilités
 
-> Quelle businessVersion peut être servie, ou pour quelle cause typée aucune businessVersion ne peut-elle être résolue ?
+Le resolver doit seulement :
 
-Il produit une décision de version. Il ne produit pas encore de `VersionedQueryResponse<T>`, car il ne lit aucune donnée et ne possède ni `data` ni l’instant final de génération de la réponse.
+1. valider ses trois entrées ;
+2. lire latest-known pour le Pot ;
+3. construire l'identité de la génération serving ;
+4. dispatcher en interne selon `CURRENT` ou `EXACT(V)` ;
+5. consulter le port de readiness terminale ou exacte ;
+6. vérifier l'applicabilité pour `EXACT(V)` ;
+7. produire l'un des quatre variants de `QueryVersionResolution`.
 
-## 3. Non-objectifs
+Le service est sans état métier mutable. Ses seules collaborations sont les deux ports read-only.
 
-Le Lot 7.9.2 ne doit pas :
+### 3.2 Non-responsabilités
 
-- lire ou composer les données métier ;
-- lire le contenu d’un artifact `AUTH(V)` ni évaluer une permission ;
-- construire la réponse HTTP ou masquer les informations pour un client ;
-- créer `TokenCapabilities` ou une policy d’autorisation ;
-- choisir la pipelineVersion serving ;
-- implémenter le lifecycle `declared / active / serving` ;
-- lire `ProjectionHead`, des Tasks, Slots, Claims, leases ou tout état de processing ;
-- créer un adapter de persistence ;
-- créer `AUTH(V)` ;
-- modifier les GET existants ;
-- charger en mémoire l’ensemble de l’historique des versions `READY` ;
-- exposer les diagnostics internes comme un contrat HTTP ;
-- introduire un registry global de composants ou de producteurs ;
-- dépendre de Spring, JPA, HTTP, d’un runtime, d’une infrastructure ou d’un moteur de processing.
+Le resolver ne doit pas :
 
-La séquence de sécurité, la lecture d’`AUTH(servedVersion)` et la lecture/composition des données appartiennent au Lot 7.9.3.
+- lire ou composer les données métier de projection ;
+- charger un artifact ;
+- construire `VersionedQueryResponse<T>` ;
+- connaître AUTH, des droits, une policy ou `TokenCapabilities` ;
+- sélectionner la pipelineVersion serving ;
+- interroger un catalogue ou un registry de producteurs ;
+- consulter une autre génération que celle fournie ;
+- lire `ProjectionHead` ;
+- inspecter Tasks, Slots, Claims, leases ou tout état de processing ;
+- diagnostiquer ou exposer `ProjectionFailure` ;
+- mapper vers HTTP ;
+- lire le write side primaire ;
+- déclencher une projection ou attendre sa convergence ;
+- gérer pagination, listes ou scan de candidats ;
+- dépendre de Spring, JPA, HTTP, d'une infrastructure, d'un runtime ou d'un processing engine.
 
-## 4. Invariants structurants
+Ces exclusions séparent strictement 7.9.2 de la composition et de l'autorisation ultérieures de
+7.9.3.
 
-### 4.1 Versions et exposition
+## 4. Entrée du resolver
 
-- Les Events et Tasks peuvent être traités hors ordre.
-- `ProjectionHead` ne prouve aucune continuité et n’est pas une entrée du resolver.
-- `pipelineVersion != businessVersion`.
-- `latestKnownVersion` ne bloque jamais la production.
-- L’exposition ne sert jamais une businessVersion supérieure à `latestKnownVersion`.
-- L’absence de latest-known produit `LATEST_KNOWN_ABSENT` pour `CURRENT` comme pour `EXACT`.
-- `EXACT(V)` ne fallback jamais vers une autre businessVersion.
-- `CURRENT` résout une seule businessVersion commune à tous les composants requis.
-
-### 4.2 Vues protégées et non protégées
-
-Pour une vue protégée, `requiredComponents()` contient le composant d’autorisation et les composants métier. La readiness d’`AUTH(V)` participe donc à la résolution exactement comme celle des autres artifacts.
-
-Le contenu des droits d’`AUTH(V)` ne participe jamais à la recherche. Après résolution, le Lot 7.9.3 décidera depuis `AUTH(servedVersion)` ; un refus sera terminal et n’entraînera aucun fallback vers une version plus ancienne.
-
-Pour une vue non protégée, `requiredComponents()` ne contient que les composants métier. Le resolver n’impose ni AUTH ni `TokenCapabilities`.
-
-Pour `QueryViewDefinition.unprotectedView(Set.of())`, aucun lookup de readiness n’est requis :
-
-- `CURRENT` résout `latestKnownVersion` lorsqu’elle existe ;
-- `EXACT(V)` résout `V` si `V <= latestKnownVersion` ;
-- `servedVersion` situe alors la réponse sous la borne d’exposition sans prétendre qu’un artifact existe à cette version.
-
-Une vue protégée AUTH-only n’est pas vide : son ensemble requis contient AUTH.
-
-### 4.3 Applicabilité, readiness et configuration
-
-- Une pipeline non applicable à V n’est pas `NOT_READY` à V : aucun artifact n’est attendu pour cette génération à V.
-- Une sélection ne contenant pas un composant requis est une erreur de configuration/programmation. Le resolver échoue immédiatement via `QueryPipelineSelection.requireFor(...)` ; il ne traduit pas cette erreur en résultat fonctionnel.
-- Une version `FAILED`, `NOT_READY` ou non applicable n’empêche jamais `CURRENT` de trouver une version servable plus ancienne.
-
-## 5. API proposée
-
-### 5.1 Resolver
-
-Nom recommandé : `QueryVersionResolver`.
-
-Package recommandé :
-
-```text
-com.kartaguez.pocoma.engine.service.query.version
-```
-
-Signature publique proposée :
+Le resolver reçoit directement :
 
 ```java
+PotId potId
+QueryVersionIntent requestedVersion
+QueryProjectionSelection projectionSelection
+```
+
+Les trois valeurs sont obligatoires et refusées si elles sont nulles.
+
+`QueryProjectionSelection` contient :
+
+```text
+projectionType
+servingPipeline
+```
+
+La sélection est déjà établie par l'appelant. Le resolver ne fait aucun `MAX(pipelineVersion)`, ne
+cherche pas de génération alternative et ne vérifie pas la relation producteur/projection dans un
+registry. La cohérence de cette sélection est la précondition garantie par le futur fournisseur
+serving du Lot 7.14.1.
+
+Une query protégée n'ajoute aucune entrée au resolver : l'autorisation sera orchestrée après une
+résolution métier réussie.
+
+## 5. `QueryVersionResolution`
+
+### 5.1 Forme scellée proposée
+
+Le résultat est un type scellé possédant exactement quatre variants :
+
+```java
+public sealed interface QueryVersionResolution {
+
+    PotId potId();
+
+    QueryVersionIntent requestedVersion();
+
+    record Resolved(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long servedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record ProjectionFailed(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long failedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record NotReady(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        OptionalLong latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record NotApplicable(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+}
+```
+
+Les records imbriqués maintiennent une petite surface publique et rendent les quatre issues visibles
+au même endroit. Aucun variant additionnel n'est prévu.
+
+### 5.2 Champs communs
+
+Tous les résultats portent :
+
+- le `PotId` résolu ;
+- l'intention `QueryVersionIntent` originale.
+
+`requestedVersion` reste `CURRENT` ou `EXACT(V)` exactement comme demandé. Il n'est jamais remplacé
+par la version servie, échouée ou latest-known.
+
+### 5.3 Asymétrie latest-known
+
+L'asymétrie suivante est volontaire :
+
+```text
+Resolved         -> latestKnownVersion obligatoire
+ProjectionFailed -> latestKnownVersion obligatoire
+NotApplicable    -> latestKnownVersion obligatoire
+NotReady         -> OptionalLong latestKnownVersion
+```
+
+`NotReady` est le seul résultat possible quand latest-known est absent. Il doit donc pouvoir porter
+explicitement cette absence. Les trois autres variants ne peuvent être produits qu'après lecture
+d'une borne existante.
+
+L'interface ne doit pas introduire un accesseur commun `OptionalLong latestKnownVersion()` seulement
+pour uniformiser artificiellement les variants.
+
+## 6. Invariants des quatre variants
+
+### 6.1 Invariants communs
+
+Tous les records valident localement :
+
+```text
+potId != null
+requestedVersion != null
+```
+
+Les constructeurs compacts utilisent les conventions existantes : `requireNonNull` pour les
+références et `IllegalArgumentException` pour les versions invalides.
+
+### 6.2 `Resolved`
+
+`Resolved` signifie qu'une businessVersion exposable est `READY` dans la génération serving.
+
+Validations :
+
+```text
+servedVersion >= 1
+latestKnownVersion >= 1
+servedVersion <= latestKnownVersion
+requestedVersion == EXACT(V) => servedVersion == V
+```
+
+`CURRENT` peut naturellement résoudre une version plus basse que latest-known.
+
+### 6.3 `ProjectionFailed`
+
+`ProjectionFailed` signifie que la businessVersion choisie par la sémantique de la requête est
+terminale `FAILED` dans la génération serving.
+
+Validations :
+
+```text
+failedVersion >= 1
+latestKnownVersion >= 1
+failedVersion <= latestKnownVersion
+requestedVersion == EXACT(V) => failedVersion == V
+```
+
+Le résultat ne transporte ni `ProjectionFailure`, ni message d'infrastructure, ni diagnostic de
+processing. La businessVersion échouée suffit à la décision de résolution.
+
+### 6.4 `NotReady`
+
+`NotReady` agrège volontairement les cas suivants :
+
+- latest-known absent ;
+- `EXACT(V)` au-dessus de latest-known ;
+- statut exact `NOT_READY` ;
+- aucune version terminale dans la génération serving sous la borne pour `CURRENT`.
+
+Validations :
+
+```text
+latestKnownVersion != null
+latestKnownVersion présent => valeur >= 1
+```
+
+Il n'existe pas de variants `LatestKnownAbsent`, `ExactAboveLatestKnown` ou
+`NoTerminalVersion`.
+
+### 6.5 `NotApplicable`
+
+`NotApplicable` signifie exclusivement que la pipelineVersion serving ne s'applique pas à la
+businessVersion demandée par `EXACT(V)`.
+
+Validations :
+
+```text
+latestKnownVersion >= 1
+requestedVersion est QueryVersionIntent.Exact
+requestedVersion.businessVersion <= latestKnownVersion
+```
+
+La validation rend `NotApplicable(CURRENT, ...)` impossible. La version exacte n'est pas dupliquée
+dans un champ supplémentaire : elle est déjà portée par `QueryVersionIntent.Exact`.
+
+Le résultat n'expose ni `ProjectionType`, ni `PipelineVersionDefinition`, ni
+`VersionApplicability`.
+
+## 7. Génération serving
+
+Pour chaque appel, le resolver construit exactement une génération :
+
+```java
+ProjectionGenerationIdentity generation = new ProjectionGenerationIdentity(
+    projectionSelection.projectionType(),
+    projectionSelection.servingPipeline().identity(),
+    potId);
+```
+
+La `PipelineVersionDefinition` complète reste disponible séparément pour le contrôle
+d'applicabilité de `EXACT(V)`. Son `identity()` fournit le `PipelineDefinition` inclus dans
+`ProjectionGenerationIdentity`.
+
+La pipelineVersion serving fait autorité pour les lectures récentes **et historiques**. Les états
+d'une ancienne génération ne sont jamais consultés.
+
+Exemple canonique :
+
+```text
+latestKnown = 100
+serving = P/v3
+
+P/v3 : V100 NOT_READY, V99 NOT_READY, V98 READY
+P/v2 : V100 READY, V99 READY
+
+CURRENT -> P/v3 / V98 -> RESOLVED(98)
+```
+
+Le resolver ne sert jamais `P/v2 / V100`. Si `P/v3` n'a aucun état terminal sous la borne, le
+résultat est `NOT_READY`, même si une ancienne génération est `READY`.
+
+## 8. Algorithme `CURRENT`
+
+Algorithme normatif :
+
+```text
+1. latestKnown = latestKnownVersionQueryPort.findByPotId(potId)
+
+2. si absent
+   -> NotReady(potId, CURRENT, OptionalLong.empty())
+
+3. sinon L = latestKnown.latestKnownVersion
+
+4. construire la ProjectionGenerationIdentity serving
+
+5. terminal = projectionReadinessQueryPort.findHighestTerminalAtOrBelow(generation, L)
+
+6. si terminal absent
+   -> NotReady(potId, CURRENT, OptionalLong.of(L))
+
+7. si terminal = TerminalProjectionState(V, READY)
+   -> Resolved(potId, CURRENT, V, L)
+
+8. si terminal = TerminalProjectionState(V, FAILED)
+   -> ProjectionFailed(potId, CURRENT, V, L)
+```
+
+`CURRENT` sélectionne le plus haut état **terminal**, pas le plus haut `READY` :
+
+```text
+latestKnown = 15
+V15 NOT_READY
+V14 FAILED
+V13 READY
+
+CURRENT -> PROJECTION_FAILED(14)
+```
+
+Le `FAILED` terminal plus récent ne peut jamais être masqué par l'ancien `READY` à V13. Les trous
+sont normaux et aucune continuité n'est supposée.
+
+Le resolver ne scanne pas numériquement `L, L-1, ...`. Un unique appel au lookup terminal confie au
+stockage la recherche efficace de la plus haute version terminale réelle. Le resolver ne connaît ni
+profondeur de recherche, ni `maxDepth`, ni `maxFallback`, ni `lookback`.
+
+## 9. Algorithme `EXACT(V)`
+
+La businessVersion `V` vient de `QueryVersionIntent.Exact`, qui garantit déjà `V >= 1`.
+
+Algorithme normatif :
+
+```text
+1. latestKnown = latestKnownVersionQueryPort.findByPotId(potId)
+
+2. si absent
+   -> NotReady(potId, EXACT(V), OptionalLong.empty())
+
+3. sinon L = latestKnown.latestKnownVersion
+
+4. si V > L
+   -> NotReady(potId, EXACT(V), OptionalLong.of(L))
+
+5. construire la ProjectionGenerationIdentity serving
+
+6. si projectionSelection.servingPipeline().appliesTo(V) == false
+   -> NotApplicable(potId, EXACT(V), L)
+
+7. identity = new ProjectionIdentity(generation, V)
+
+8. status = projectionReadinessQueryPort.statusAt(identity)
+
+9. READY
+   -> Resolved(potId, EXACT(V), V, L)
+
+10. FAILED
+    -> ProjectionFailed(potId, EXACT(V), V, L)
+
+11. NOT_READY
+    -> NotReady(potId, EXACT(V), OptionalLong.of(L))
+```
+
+`EXACT(V)` ne consulte aucune autre businessVersion et aucune autre pipelineVersion.
+
+## 10. Ordre des contrôles
+
+### 10.1 Ordre commun
+
+Les validations structurelles des arguments ont lieu à l'entrée. La lecture latest-known précède
+toute consultation de readiness ou d'applicabilité fonctionnelle.
+
+### 10.2 Ordre normatif pour `EXACT(V)`
+
+L'ordre suivant est figé :
+
+```text
+1. latest-known présent ?
+2. V <= latest-known ?
+3. pipelineVersion serving applicable à V ?
+4. statusAt(V)
+```
+
+Cet ordre porte une sémantique d'exposition. Exemple :
+
+```text
+latestKnown = 14
+EXACT(15)
+pipeline non applicable à 15
+
+-> NOT_READY(14)
+```
+
+Le résultat n'est pas `NOT_APPLICABLE`, car V15 n'est pas encore exposable. Le resolver ne révèle
+pas une propriété interne de la génération au-delà de la borne latest-known.
+
+Pour la même raison, `statusAt(V)` n'est jamais appelé avant les trois premiers contrôles.
+
+## 11. `latestKnownVersion`
+
+`latestKnownVersion` est uniquement une borne d'exposition :
+
+```text
+production possible > latestKnownVersion
+exposition toujours <= latestKnownVersion
+```
+
+Il ne prouve :
+
+- ni `READY` ;
+- ni `FAILED` ;
+- ni continuité ;
+- ni existence d'une projection ;
+- ni position d'un head.
+
+Son absence produit toujours `NotReady(..., OptionalLong.empty())`. Lorsqu'elle existe, elle est
+recopiée dans tous les résultats, y compris `NotReady`.
+
+Le resolver ne participe pas à sa production et ne l'utilise jamais pour bloquer scheduling,
+Tasks ou materialization.
+
+## 12. Applicabilité
+
+`VersionApplicability` appartient à la `PipelineVersionDefinition` serving fournie. Une pipeline non
+applicable à V n'est pas `NOT_READY` à V : elle ne désigne aucun artifact attendu pour cette
+génération à cette businessVersion.
+
+Pour `EXACT(V)`, après validation de la borne d'exposition :
+
+```java
+projectionSelection.servingPipeline().appliesTo(V)
+```
+
+retourne `false` -> `NotApplicable`.
+
+Pour `CURRENT`, le resolver ne produit jamais `NotApplicable`. Il demande le plus haut terminal
+réel de la génération serving sous latest-known :
+
+- aucun terminal -> `NotReady` ;
+- terminal `READY` -> `Resolved` ;
+- terminal `FAILED` -> `ProjectionFailed`.
+
+Un artifact persisté hors de la plage d'applicabilité de sa génération constitue une violation de
+production. `CURRENT` ne la compense ni par un scan, ni par un fallback, ni par une nouvelle
+classification fonctionnelle.
+
+## 13. Absence de fallback
+
+Le resolver n'effectue aucun fallback :
+
+- `EXACT(V)` n'essaie jamais une autre businessVersion ;
+- `CURRENT` respecte le plus haut terminal, y compris quand il est `FAILED` ;
+- aucune ancienne pipelineVersion n'est consultée ;
+- aucune génération alternative n'est construite ;
+- aucun `ProjectionHead` n'est utilisé pour proposer une version ;
+- aucun trou n'est interprété comme une preuve de continuité ou d'absence globale.
+
+`findHighestTerminalAtOrBelow(generation, L)` est une recherche dans l'unique génération serving,
+pas une permission de basculer entre générations.
+
+## 14. AUTH hors du resolver
+
+Le Query Version Resolver ne connaît pas AUTH.
+
+Pour une query protégée, l'enchaînement futur est :
+
+```text
+business resolver
+-> Resolved(servedVersion = V)
+-> AUTH demandé en EXACT(V)
+-> décision d'autorisation depuis AUTH(V)
+-> lecture métier à V si autorisée
+```
+
+La readiness et le contenu d'AUTH ne participent pas à la sélection de la businessVersion métier.
+Si AUTH(V) est `NOT_READY`, `FAILED` ou refuse l'accès, aucun fallback vers une businessVersion
+métier plus ancienne n'est permis.
+
+Cette orchestration appartient à une étape ultérieure. 7.9.2 n'introduit ni `AUTH ProjectionType`,
+ni `authorizationComponent`, ni `requiredComponents`, ni intersection business/AUTH, ni policy.
+
+## 15. Placement, ownership et dépendances
+
+Les conventions actuelles d'`engine-query` séparent les contrats exposés sous `port.in.query` des
+services sous `service.query`. Le placement recommandé est :
+
+| Type | Module | Package | Responsabilité |
+| --- | --- | --- | --- |
+| `QueryVersionResolution` | `engine-query` | `com.kartaguez.pocoma.engine.port.in.query.version` | Résultat fonctionnel scellé de la résolution |
+| `QueryVersionResolver` | `engine-query` | `com.kartaguez.pocoma.engine.service.query.version` | Résolution CURRENT/EXACT monoprojection |
+
+`QueryVersionResolver` est un service framework-free construit avec
+`LatestKnownVersionQueryPort` et `ProjectionReadinessQueryPort`. Son API publique unique est
+`resolve(...)`.
+
+Les dépendances Maven déjà présentes d'`engine-query` vers `domain-pot`, `domain-projection` et
+`domain-pipeline` suffisent. Aucune nouvelle dépendance Maven n'est nécessaire.
+
+Les dépendances autorisées des nouveaux types sont limitées à :
+
+- JDK (`OptionalLong`) ;
+- `PotId` ;
+- les contrats 7.9.1 d'`engine-query` ;
+- `ProjectionGenerationIdentity`, `ProjectionIdentity` et `ProjectionStatus` ;
+- `PipelineVersionDefinition` par l'intermédiaire de `QueryProjectionSelection`.
+
+Sont interdits : Spring, JPA, HTTP, Jackson, infrastructure, runtime, moteurs de processing,
+`engine-read-projection`, policy AUTH et reader de `ProjectionHead`.
+
+## 16. Matrice de tests de conception
+
+Cette matrice est normative pour le futur plan d'implémentation. Elle ne demande aucun test dans la
+présente passe documentaire.
+
+### 16.1 `CURRENT`
+
+| Cas | État | Résultat attendu | Accès importants |
+| --- | --- | --- | --- |
+| latest-known absent | aucun latest-known | `NotReady(CURRENT, empty)` | aucun lookup terminal |
+| aucun terminal | latest-known 15 | `NotReady(CURRENT, 15)` | lookup génération serving seulement |
+| terminal READY à la borne | V15 READY | `Resolved(CURRENT, 15, 15)` | un lookup terminal |
+| terminal FAILED à la borne | V15 FAILED | `ProjectionFailed(CURRENT, 15, 15)` | un lookup terminal |
+| FAILED récent, READY ancien | V15 NOT_READY, V14 FAILED, V13 READY | `ProjectionFailed(CURRENT, 14, 15)` | aucun fallback V13 |
+| READY sparse | V15 NOT_READY, V13 READY | `Resolved(CURRENT, 13, 15)` | trous acceptés |
+| terminal au-dessus de la borne | V16 FAILED, latest-known 15, V13 READY | `Resolved(CURRENT, 13, 15)` | V16 ignoré |
+| ancienne génération plus avancée | serving v3 V98 READY, v2 V100 READY | `Resolved(CURRENT, 98, 100)` | v2 jamais consultée |
+| serving sans terminal | v3 vide, v2 V100 READY | `NotReady(CURRENT, 100)` | aucun fallback inter-génération |
+| ordre de persistance différent | mêmes terminaux insérés hors ordre | résultat identique | ordre non fonctionnel |
+
+### 16.2 `EXACT(V)`
+
+| Cas | État | Résultat attendu | Accès importants |
+| --- | --- | --- | --- |
+| latest-known absent | EXACT(15) | `NotReady(EXACT(15), empty)` | aucune applicabilité/readiness |
+| au-dessus latest-known | EXACT(15), latest-known 14 | `NotReady(EXACT(15), 14)` | aucun `appliesTo`, aucun `statusAt` |
+| non applicable | EXACT(15), latest-known 15 | `NotApplicable(EXACT(15), 15)` | aucun `statusAt` |
+| READY exact | EXACT(15), V15 READY | `Resolved(EXACT(15), 15, 15)` | `statusAt` serving V15 |
+| FAILED exact | EXACT(15), V15 FAILED | `ProjectionFailed(EXACT(15), 15, 15)` | aucun fallback |
+| NOT_READY exact | EXACT(15), V15 NOT_READY | `NotReady(EXACT(15), 15)` | aucun fallback |
+| ancienne génération READY | serving V15 NOT_READY, ancienne V15 READY | `NotReady(EXACT(15), 15)` | ancienne génération ignorée |
+
+### 16.3 Invariants des résultats
+
+Tester séparément les quatre variants :
+
+- `potId` null refusé ;
+- `requestedVersion` null refusée ;
+- versions servie, échouée ou latest-known inférieures à 1 refusées ;
+- `servedVersion > latestKnownVersion` refusé ;
+- `failedVersion > latestKnownVersion` refusé ;
+- `Resolved(EXACT(V))` avec `servedVersion != V` refusé ;
+- `ProjectionFailed(EXACT(V))` avec `failedVersion != V` refusé ;
+- `NotApplicable(CURRENT, ...)` refusé ;
+- `NotApplicable(EXACT(V), latestKnown < V)` refusé ;
+- `NotReady` accepte `OptionalLong.empty()` ;
+- `NotReady` accepte un latest-known positif présent ;
+- `NotReady` refuse un `OptionalLong` null ou une valeur présente non positive ;
+- value semantics naturelles des records ;
+- exactement quatre variants permis.
+
+### 16.4 Resolver et architecture
+
+Les tests du resolver doivent également prouver :
+
+- une seule méthode publique de résolution ;
+- construction avec les deux seuls ports read-only ;
+- même `PotId`, `ProjectionType`, `PipelineId` et pipelineVersion exacte dans la génération ;
+- isolation stricte entre générations ;
+- aucun appel readiness lorsque latest-known est absent ;
+- aucun appel `statusAt` pour `CURRENT` ;
+- aucun appel terminal pour `EXACT` ;
+- respect de l'ordre des contrôles EXACT ;
+- aucun scan numérique ;
+- aucune dépendance à `ProjectionHead`, AUTH, Spring, JPA, HTTP, infrastructure, runtime ou
+  processing.
+
+## 17. Risques et pièges
+
+1. **Chercher le plus haut READY** au lieu du plus haut terminal masquerait un `FAILED` récent.
+2. **Scanner V par V** réintroduirait une hypothèse de continuité et une complexité dépendante de
+   latest-known.
+3. **Consulter une ancienne génération** contredirait le caractère autoritatif du serving pour
+   l'historique.
+4. **Tester l'applicabilité avant latest-known** pourrait révéler un état interne au-delà de la borne
+   d'exposition.
+5. **Transformer la non-applicabilité en NOT_READY** confondrait absence d'artifact attendu et retard
+   de production.
+6. **Produire NotApplicable en CURRENT** ajouterait une catégorie que le lookup terminal n'a pas à
+   inventer.
+7. **Inclure AUTH dans la sélection** recréerait le modèle multi-projection abandonné.
+8. **Exposer ProjectionFailure** étendrait 7.9.2 au diagnostic de processing.
+9. **Uniformiser latest-known en OptionalLong sur tous les variants** affaiblirait les invariants des
+   issues qui exigent une borne existante.
+10. **Confondre pipelineVersion et businessVersion** construirait une identité ou un contrôle
+    d'applicabilité incorrect.
+
+## 18. Critères de conception fermée
+
+La conception est fermée lorsque les affirmations suivantes sont acceptées comme normatives :
+
+1. le resolver traite exactement une projection métier ;
+2. il reçoit la sélection serving et ne la calcule pas ;
+3. il expose une seule méthode publique `resolve(...)` ;
+4. il dépend uniquement des deux ports read-only 7.9.1 ;
+5. il construit une unique `ProjectionGenerationIdentity` serving ;
+6. `CURRENT` retourne le plus haut terminal `READY|FAILED` sous latest-known ;
+7. un terminal `FAILED` récent masque tout ancien `READY` ;
+8. `EXACT(V)` ne lit que le statut exact de V après les contrôles de borne et d'applicabilité ;
+9. `NotApplicable` est réservé à `EXACT(V)` ;
+10. latest-known absent, EXACT au-dessus de la borne, statut NOT_READY et absence de terminal sont
+    tous représentés par `NotReady` ;
+11. aucune businessVersion supérieure à latest-known n'est exposée ;
+12. aucune autre businessVersion ou pipelineVersion ne sert de fallback ;
+13. `ProjectionHead` n'est jamais lu ;
+14. aucun scan numérique n'est réalisé ;
+15. AUTH est entièrement hors du resolver ;
+16. les quatre variants portent `PotId` et l'intention originale ;
+17. `OptionalLong latestKnownVersion` existe uniquement dans `NotReady` ;
+18. aucune nouvelle dépendance Maven ou framework n'est nécessaire.
+
+## 19. Questions ouvertes / blockers
+
+L'inspection du repository n'a révélé aucune contradiction entre les contrats 7.9.1 livrés, les
+frontières de modules et cette conception.
+
+```text
+OPEN QUESTIONS / BLOCKERS
+NONE
+```
+
+## DECISIONS CONFIRMED
+
+- Toute query versionnée porte exactement une projection métier, jamais zéro ni plusieurs.
+- AUTH et les policies d'autorisation sont hors du Query Version Resolver.
+- Le resolver expose une seule méthode publique `resolve(...)`.
+- L'entrée est `PotId + QueryVersionIntent + QueryProjectionSelection`.
+- La pipelineVersion serving fournie est autoritative pour les lectures récentes et historiques.
+- `CURRENT` choisit le plus haut terminal `READY|FAILED` sous latest-known.
+- Un `FAILED` récent n'est jamais masqué par un ancien `READY`.
+- `CURRENT` sans terminal et toute résolution sans latest-known produisent `NotReady`.
+- `EXACT(V)` au-dessus de latest-known produit `NotReady`.
+- `NotApplicable` est réservé à `EXACT(V)` exposable mais hors applicabilité serving.
+- `EXACT(V)` n'effectue aucun fallback de businessVersion.
+- Aucun fallback inter-pipelineVersion n'existe.
+- `PotId` et l'intention originale figurent dans tous les résultats.
+- latest-known figure dans tous les résultats lorsqu'il existe ; seul `NotReady` le porte en
+  `OptionalLong`.
+- Le résultat contient exactement `Resolved`, `ProjectionFailed`, `NotReady` et `NotApplicable`.
+- Aucun diagnostic détaillé de failure ou de pipeline n'est exposé.
+- `ProjectionHead` n'est pas consulté et aucun scan numérique n'est permis.
+
+## PROPOSED TYPES
+
+```java
+package com.kartaguez.pocoma.engine.port.in.query.version;
+
+public sealed interface QueryVersionResolution {
+
+    PotId potId();
+
+    QueryVersionIntent requestedVersion();
+
+    record Resolved(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long servedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record ProjectionFailed(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long failedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record NotReady(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        OptionalLong latestKnownVersion)
+        implements QueryVersionResolution {}
+
+    record NotApplicable(
+        PotId potId,
+        QueryVersionIntent requestedVersion,
+        long latestKnownVersion)
+        implements QueryVersionResolution {}
+}
+```
+
+```java
+package com.kartaguez.pocoma.engine.service.query.version;
+
 public final class QueryVersionResolver {
 
     public QueryVersionResolver(
@@ -143,444 +759,66 @@ public final class QueryVersionResolver {
 
     public QueryVersionResolution resolve(
         PotId potId,
-        QueryVersionIntent intent,
-        QueryViewDefinition view,
-        QueryPipelineSelection pipelineSelection);
+        QueryVersionIntent requestedVersion,
+        QueryProjectionSelection projectionSelection);
 }
 ```
 
-Le nom `Resolver` décrit mieux sa responsabilité qu’un use case public : ce service est une brique interne du futur Query Kernel, appelée ensuite par la composition 7.9.3.
+## ALGORITHMS
 
-Le resolver est stateless. Il reçoit les deux ports read-only par construction et tous les éléments propres à une requête dans `resolve(...)`. Il ne reçoit ni Clock, ni reader métier, ni policy d’autorisation.
-
-### 5.2 Prévalidation structurelle commune
-
-Avant toute lecture d’état fonctionnel, le resolver :
-
-1. refuse les arguments nuls ;
-2. obtient `requiredComponents()` ;
-3. appelle `pipelineSelection.requireFor(component)` pour chaque composant requis ;
-4. construit les contextes de génération avec le même `PotId`.
-
-Cette étape est indépendante de CURRENT/EXACT et précède la lecture latest-known. Elle garantit que l’erreur de configuration est immédiate et ne dépend pas de l’état courant du Pot. Pour une vue non protégée vide, elle n’effectue naturellement aucune recherche de pipeline.
-
-Chaque contexte interne contient seulement :
+### CURRENT
 
 ```text
-ProjectionType
-PipelineVersionDefinition fournie
-ProjectionGenerationIdentity correspondante
+latest-known absent
+-> NotReady(CURRENT, empty)
+
+terminal = highest READY|FAILED in serving generation <= latest-known
+
+terminal absent
+-> NotReady(CURRENT, latest-known)
+
+terminal READY(V)
+-> Resolved(CURRENT, V, latest-known)
+
+terminal FAILED(V)
+-> ProjectionFailed(CURRENT, V, latest-known)
 ```
 
-Il ne constitue pas un nouveau contrat public ni un registry.
-
-## 6. Résultat typé
-
-### 6.1 Forme recommandée
-
-Créer un contrat scellé dans :
+### EXACT(V)
 
 ```text
-module  : engine-query
-package : com.kartaguez.pocoma.engine.port.in.query.version
-type    : QueryVersionResolution
+latest-known absent
+-> NotReady(EXACT(V), empty)
+
+V > latest-known
+-> NotReady(EXACT(V), latest-known)
+
+serving pipeline not applicable to V
+-> NotApplicable(EXACT(V), latest-known)
+
+statusAt(serving generation, V) == READY
+-> Resolved(EXACT(V), V, latest-known)
+
+statusAt(serving generation, V) == FAILED
+-> ProjectionFailed(EXACT(V), V, latest-known)
+
+statusAt(serving generation, V) == NOT_READY
+-> NotReady(EXACT(V), latest-known)
 ```
 
-Forme conceptuelle précise :
-
-```java
-public sealed interface QueryVersionResolution {
-
-    PotId potId();
-
-    record Resolved(
-        PotId potId,
-        long servedVersion,
-        long latestKnownVersion)
-        implements QueryVersionResolution {}
-
-    record LatestKnownAbsent(
-        PotId potId)
-        implements QueryVersionResolution {}
-
-    record ExactAboveLatestKnown(
-        PotId potId,
-        long requestedVersion,
-        long latestKnownVersion)
-        implements QueryVersionResolution {}
-
-    record ProjectionFailed(
-        PotId potId,
-        long latestKnownVersion,
-        long businessVersion,
-        Set<ProjectionFailureDetail> failures)
-        implements QueryVersionResolution {}
-
-    record PipelineNotApplicable(
-        PotId potId,
-        long latestKnownVersion,
-        long businessVersion,
-        Set<PipelineNotApplicableDetail> details)
-        implements QueryVersionResolution {}
-
-    record NoCommonReadyVersion(
-        PotId potId,
-        long latestKnownVersion)
-        implements QueryVersionResolution {}
-
-    record ProjectionFailureDetail(
-        ProjectionType projectionType,
-        PipelineDefinition pipeline,
-        long businessVersion) {}
-
-    record PipelineNotApplicableDetail(
-        ProjectionType projectionType,
-        PipelineVersionDefinition pipeline,
-        long businessVersion) {}
-}
-```
-
-Les records imbriqués limitent la surface de fichiers et gardent les diagnostics attachés au résultat qui les porte. Ils ne changent pas l’ownership des types domaine réutilisés.
-
-### 6.2 Validations locales
-
-Tous les records refusent les références nulles et toute version inférieure à 1.
-
-Validations supplémentaires :
-
-- `Resolved` exige `servedVersion <= latestKnownVersion` ;
-- `ExactAboveLatestKnown` exige `requestedVersion > latestKnownVersion` ;
-- les résultats diagnostiques exigent `businessVersion <= latestKnownVersion` ;
-- `failures` et `details` sont non vides, sans null, copiés défensivement et immuables ;
-- chaque détail porte la même `businessVersion` que le résultat global ;
-- un diagnostic ne contient pas deux détails pour le même `ProjectionType` ;
-- `ProjectionFailureDetail` porte la `PipelineDefinition` productrice, sans format d’erreur d’infrastructure ;
-- `PipelineNotApplicableDetail` porte la `PipelineVersionDefinition` complète, puisque `VersionApplicability` fait partie du diagnostic.
-
-Le `PotId` est présent une seule fois au niveau global. `NoCommonReadyVersion` reste volontairement léger et ne liste pas les versions `NOT_READY`.
-
-## 7. Algorithme EXACT
-
-Après la prévalidation structurelle décrite en 5.2 :
-
-1. lire latest-known pour le Pot ;
-2. si elle est absente, retourner `LatestKnownAbsent(potId)` ;
-3. si la version exacte demandée est supérieure à latest-known, retourner `ExactAboveLatestKnown` ;
-4. si `requiredComponents()` est vide, retourner `Resolved(potId, requestedVersion, latestKnownVersion)` sans lookup readiness ;
-5. évaluer `PipelineVersionDefinition.appliesTo(requestedVersion)` pour tous les composants ;
-6. si au moins une pipeline est non applicable, retourner un unique `PipelineNotApplicable` contenant tous les composants non applicables à V ;
-7. construire les `ProjectionIdentity` exactes et lire tous les `statusAt(...)` ;
-8. si au moins un statut est `FAILED`, retourner un unique `ProjectionFailed` contenant tous les composants `FAILED` à V ;
-9. sinon, si au moins un statut est `NOT_READY`, retourner `NoCommonReadyVersion` ;
-10. sinon tous les composants sont `READY` : retourner `Resolved` à V.
-
-L’ordre applicabilité puis statuts n’affaiblit pas la priorité `PROJECTION_FAILED > PIPELINE_NOT_APPLICABLE` : une version comportant une pipeline non applicable ne satisfait pas la définition d’une version terminalement bloquée par projection, laquelle exige que toutes les pipelines soient applicables.
-
-EXACT effectue au plus une lecture latest-known et un `statusAt` par composant applicable. Il n’appelle jamais `findHighestReadyBusinessVersionAtOrBelow`.
-
-## 8. Algorithme CURRENT
-
-CURRENT comporte deux phases conceptuellement distinctes :
-
-1. recherche optimisée de la plus haute version servable ;
-2. uniquement en l’absence de succès, classification canonique indépendante du parcours.
-
-### 8.1 Recherche d’un succès
-
-Après prévalidation :
-
-1. lire latest-known ; si absente, retourner `LatestKnownAbsent` ;
-2. si aucun composant n’est requis, retourner `Resolved` à latest-known sans lookup readiness ;
-3. choisir un composant d’ancrage parmi les composants requis ;
-4. appeler `findHighestReadyBusinessVersionAtOrBelow(anchorGeneration, upperBound)` avec `upperBound = latestKnownVersion` ;
-5. pour la candidate V retournée, vérifier l’applicabilité de **toutes** les pipelines requises ;
-6. si toutes sont applicables, lire les statuts exacts de tous les composants à V ;
-7. si tous sont `READY`, retourner `Resolved(V)` ;
-8. sinon, reprendre la recherche de l’ancre strictement sous V, avec la borne `V - 1` ;
-9. si l’ancre n’a plus de version READY sous la borne, passer à la classification finale.
-
-Cette stratégie ne suppose aucun trou rempli et ne synthétise jamais V-1 : `V - 1` est seulement la nouvelle **borne exclusive traduite en borne inclusive**, et le port retourne la prochaine version réellement `READY`, par exemple 15 puis 13 puis 8.
-
-La première candidate servable trouvée est la plus haute version commune servable : toute version servable doit avoir l’ancre `READY`, et les versions réellement `READY` de l’ancre sont visitées en ordre décroissant.
-
-### 8.2 Choix de l’ancre
-
-Le choix de l’ancre est une optimisation interne. Une implémentation simple peut prendre le premier composant selon un ordre canonique stable de `ProjectionType`, mais cet ordre ne devient pas une règle fonctionnelle.
-
-La preuve précédente vaut pour n’importe quel composant requis. Par conséquent, changer l’ancre peut changer le nombre d’appels aux ports, jamais :
-
-- la `servedVersion` ;
-- la catégorie finale ;
-- la businessVersion diagnostique ;
-- les détails retournés à cette version.
-
-Pour rendre cette propriété testable sans exposer une stratégie dans l’API publique, la conception recommande d’isoler la recherche CURRENT dans un collaborateur package-private ou une fonction pure package-private qui accepte explicitement le contexte d’ancrage. Les tests peuvent alors exécuter le même état avec chaque ancre. Ce seam reste interne à `engine-query` et n’est ni un registry ni un mécanisme de configuration.
-
-## 9. Classification des échecs
-
-### 9.1 Ordre canonique
-
-Si aucune version servable n’existe, la catégorie est choisie selon :
-
-```text
-PROJECTION_FAILED
-> PIPELINE_NOT_APPLICABLE
-> NO_COMMON_READY_VERSION
-```
-
-Les erreurs structurelles de sélection ont déjà échoué avant cette classification. `LATEST_KNOWN_ABSENT` et `EXACT_ABOVE_LATEST_KNOWN` sont traitées avant l’exploration fonctionnelle, après la prévalidation structurelle.
-
-La priorité s’applique d’abord à la catégorie, puis à la version : dans la catégorie gagnante, le diagnostic porte la plus haute businessVersion qui la matérialise.
-
-### 9.2 Version terminalement FAILED
-
-Une businessVersion V matérialise `PROJECTION_FAILED` si et seulement si :
-
-```text
-toutes les pipelines requises sont applicables à V
-ET
-tous les statuts exacts sont dans {READY, FAILED}
-ET
-au moins un statut est FAILED
-```
-
-Ainsi :
-
-```text
-READ_POT FAILED + AUTH READY     → PROJECTION_FAILED à V
-READ_POT FAILED + AUTH NOT_READY → pas de PROJECTION_FAILED à V
-```
-
-Un `FAILED` récent n’interrompt jamais la recherche d’un succès plus ancien. La catégorie `PROJECTION_FAILED` n’est produite qu’après avoir prouvé qu’aucune version servable n’existe.
-
-À la version canonique retenue, le résultat contient tous les composants `FAILED`, mais aucune failure d’une autre version.
-
-### 9.3 Pipeline non applicable
-
-Une businessVersion V matérialise la catégorie `PIPELINE_NOT_APPLICABLE` lorsqu’au moins une pipeline requise n’est pas applicable à V. Le diagnostic canonique contient toutes les pipelines non applicables à la plus haute V matérialisant cette catégorie, jamais l’historique complet.
-
-La structure actuelle de `VersionApplicability` est un intervalle contigu. La plus haute version non applicable sous latest-known peut donc être calculée depuis les bornes des définitions, sans transformer cette absence d’applicabilité en statut et sans interroger la persistence. Les détails sont ensuite recomputés exhaustivement à cette seule version.
-
-Cette catégorie n’est retenue que si aucune version servable et aucune version `PROJECTION_FAILED` pertinente n’existent.
-
-### 9.4 Absence de cause plus prioritaire
-
-Si aucune version n’est servable, qu’aucune version ne matérialise `PROJECTION_FAILED` et qu’aucune version ne matérialise `PIPELINE_NOT_APPLICABLE`, le résultat est `NoCommonReadyVersion(potId, latestKnownVersion)`.
-
-Il ne contient pas d’inventaire de statuts : une telle exhaustivité serait coûteuse, instable et inutile au contrat.
-
-## 10. Applicabilité
-
-Pour chaque candidate V, l’ordre obligatoire est :
-
-```text
-PipelineVersionDefinition.appliesTo(V)
-  false → génération non candidate à V ; aucun statusAt pour cet artifact
-  true  → construire ProjectionIdentity puis consulter statusAt
-```
-
-La `ProjectionGenerationIdentity` utilise `PipelineVersionDefinition.identity()`, donc la `PipelineDefinition` exacte fournie par la sélection serving. Le resolver ne compare pas les pipelineVersions, ne cherche pas un `MAX` et ne substitue jamais une autre génération lorsqu’une définition n’est pas applicable.
-
-Pour EXACT, toute non-applicabilité à V produit immédiatement la catégorie dédiée avec l’ensemble des détails à V. Pour CURRENT, elle élimine seulement la candidate de la recherche de succès ; une version plus ancienne peut rester servable.
-
-## 11. Indépendance du parcours
-
-Le résultat ne doit pas être dérivé des seuls états rencontrés pendant la recherche optimisée. La conception impose les propriétés suivantes :
-
-1. **Prévalidation exhaustive des composants requis** : une sélection incomplète échoue indépendamment de l’ordre.
-2. **Recherche de succès complète sur l’ancre** : toute version servable appartient à l’ensemble READY de chaque ancre possible.
-3. **Relecture exhaustive de la candidate** : à V, tous les composants sont contrôlés ; aucune décision ne dépend du premier statut rencontré.
-4. **Classification séparée** : si la recherche échoue, les observations accidentelles de cette recherche sont ignorées comme source de vérité du diagnostic.
-5. **Catégorie puis version** : la classification cherche d’abord toute occurrence de la catégorie la plus prioritaire, puis retient sa version maximale.
-6. **Diagnostic recomputé à V** : tous les détails de la version canonique, et seulement eux, sont collectés.
-7. **Collections sans ordre fonctionnel** : les sorties diagnostics sont des ensembles à value semantics ; les tests comparent leur contenu, pas leur ordre.
-
-Ces règles donnent, pour les mêmes ports et entrées, le même résultat quelle que soit l’ancre, l’ordre des composants ou l’ordre d’insertion dans les fakes/adapters.
-
-## 12. Complexité et accès aux ports
-
-Soient :
-
-- `C` le nombre de composants requis ;
-- `R` le nombre de versions READY de l’ancre visitées avant succès ou épuisement ;
-- `L` la valeur numérique de latest-known ;
-- `D` le nombre de versions terminalement matérialisées (`READY` ou `FAILED`) d’une génération sous la borne.
-
-### 12.1 Chemins sans ambiguïté de contrat
-
-- vue vide : une lecture latest-known, aucun lookup readiness ;
-- EXACT : une lecture latest-known et au plus `C` appels `statusAt`, soit `O(C)` ;
-- recherche de succès CURRENT : `R + 1` recherches descendantes au maximum et au plus `R × C` lectures exactes, mémoire `O(C)` ;
-- diagnostic de non-applicabilité : calcul sur les `C` intervalles puis détails à une version, `O(C)` et aucun accès readiness nécessaire.
-
-Le resolver ne charge jamais un `Set<Long>` de tout l’historique READY et ne lit jamais de head.
-
-### 12.2 Limite factuelle du port 7.9.1
-
-Le port livré sait énumérer implicitement les versions `READY` d’une génération, mais pas ses versions `FAILED` :
-
-```java
-OptionalLong findHighestReadyBusinessVersionAtOrBelow(...);
-ProjectionStatus statusAt(ProjectionIdentity identity);
-```
-
-Or une version canonique `PROJECTION_FAILED` peut avoir tous ses composants `FAILED`. Elle n’apparaît alors dans la recherche READY d’aucune ancre. Avec le seul contrat actuel, la seule méthode générale correcte pour prouver l’existence ou l’absence de la plus haute version terminalement FAILED consiste à sonder les businessVersions une par une de latest-known jusqu’à 1 avec `statusAt`.
-
-Cette solution de référence serait déterministe et n’exposerait pas tout l’historique en mémoire, mais son coût maximal serait `O(L × C)` appels. Elle parcourt potentiellement toute la plage numérique, y compris les trous, ce qui est contraire à l’objectif opérationnel de recherche bornée efficace qui a motivé le port 7.9.1.
-
-Une extension minimale possible serait une opération descendante sur les versions **terminalement matérialisées**, sans retourner leur ensemble :
-
-```java
-OptionalLong findHighestDeterminedBusinessVersionAtOrBelow(
-    ProjectionGenerationIdentity generation,
-    long upperBoundInclusive);
-```
-
-Ici, `determined` signifie exactement `status ∈ {READY, FAILED}`. Cela ne suppose aucune continuité. Une candidate `PROJECTION_FAILED` étant déterminée pour tous les composants, elle figure nécessairement dans la suite descendante de n’importe quelle ancre ; le resolver peut la vérifier exactement comme il vérifie une candidate READY. La complexité devient `O(D × C)` dans le pire cas, sans matérialiser l’historique.
-
-Cette extension modifierait un contrat livré en 7.9.1. Elle n’est donc **pas décidée ni appliquée dans cette passe**. L’arbitrage entre cette extension et l’acceptation explicite du scan numérique exhaustif est le blocker décrit en section 16.
-
-## 13. Placement modules et packages
-
-| Élément proposé | Module | Package | Responsabilité | Dépendances |
-| --- | --- | --- | --- | --- |
-| `QueryVersionResolver` | `engine-query` | `com.kartaguez.pocoma.engine.service.query.version` | Orchestrer latest-known, applicabilité et readiness | ports 7.9.1, types domain Pot/projection/pipeline |
-| `QueryVersionResolution` et variantes | `engine-query` | `com.kartaguez.pocoma.engine.port.in.query.version` | Résultat framework-free consommable par 7.9.3 | `PotId`, `ProjectionType`, `PipelineDefinition`, `PipelineVersionDefinition` |
-| collaborateur CURRENT package-private éventuel | `engine-query` | `com.kartaguez.pocoma.engine.service.query.version` | Isoler et tester recherche/ancre sans API publique | mêmes contrats que le resolver |
-
-Le graphe reste :
-
-```text
-engine-query
-→ domain-projection
-→ domain-pipeline
-→ domain (PotId, selon le graphe Maven existant)
-```
-
-Aucune dépendance vers `engine-read-projection`, un runtime, un module de processing, Spring, JPA ou HTTP n’est nécessaire.
-
-## 14. Stratégie de tests
-
-Les tests doivent utiliser des fakes in-memory des deux ports, sans adapter de production et sans head.
-
-### 14.1 Validation et structure
-
-- arguments nuls refusés ;
-- sélection pipeline incomplète : exception explicite avant lecture latest-known/readiness ;
-- invariants de chaque variante du résultat ;
-- copies défensives, immutabilité et détails non dupliqués ;
-- distinction stricte entre pipelineVersion et businessVersion dans les fixtures.
-
-### 14.2 EXACT
-
-- latest-known absent ;
-- version demandée au-dessus de latest-known ;
-- tous les composants READY ;
-- un ou plusieurs composants FAILED, tous retournés ;
-- composant NOT_READY ;
-- une ou plusieurs pipelines non applicables, toutes retournées ;
-- aucun fallback vers une autre businessVersion ;
-- vue protégée AUTH-only ;
-- vue non protégée avec composant métier ;
-- vue non protégée vide résolue sous borne sans appel readiness.
-
-### 14.3 CURRENT — succès
-
-- un composant simple ;
-- intersection sparse multi-composants ;
-- FAILED récent puis version commune READY plus ancienne ;
-- non-applicabilité récente puis version commune READY plus ancienne ;
-- sélection systématique de la plus haute version réellement servable ;
-- vue protégée AUTH-only ;
-- vue non protégée avec composant métier ;
-- vue non protégée vide : `latestKnown=15 → Resolved(15)` sans lookup readiness ;
-- latest-known absent.
-
-### 14.4 CURRENT — classification finale
-
-- seulement des situations NOT_READY → `NO_COMMON_READY_VERSION` ;
-- `FAILED + READY` à la version canonique → `PROJECTION_FAILED` ;
-- `FAILED + NOT_READY` ne matérialise pas cette catégorie ;
-- plusieurs versions FAILED : seule la plus haute de la catégorie et tous ses failures ;
-- présence simultanée d’une cause FAILED et d’une cause non applicable : priorité FAILED ;
-- aucune cause FAILED mais plusieurs versions non applicables : plus haute version de cette catégorie et tous ses détails ;
-- diagnostics bornés à une seule businessVersion.
-
-### 14.5 Indépendance du parcours
-
-Exécuter les mêmes scénarios avec :
-
-- ordre inverse des composants ;
-- chaque composant utilisé comme ancre ;
-- ordres d’insertion différents dans les maps des fakes ;
-- statuses identiques mais parcours internes différents.
-
-Les assertions portent sur la variante, la businessVersion canonique et l’ensemble complet des détails. Elles doivent être strictement identiques.
-
-Les tests de ports 7.9.1 restent des tests de contrat ; les tests du resolver vérifient l’orchestration sans inventer d’algorithme dans les fakes.
-
-## 15. Risques et pièges à éviter
-
-- **Confondre succès et diagnostic** : les versions rencontrées par l’ancre ne suffisent pas à classifier un échec global.
-- **Arrêter CURRENT sur FAILED** : un succès plus ancien doit encore être recherché.
-- **Assimiler non-applicable à NOT_READY** : l’applicabilité doit être vérifiée avant `statusAt`.
-- **Rendre l’ancre fonctionnelle** : une optimisation ne doit pas affecter la sortie.
-- **Dépendre de l’ordre d’un Set/Map** : toute collecte à une version doit être exhaustive.
-- **Supposer V-1 présent** : V-1 est une borne de reprise, jamais une version synthétisée.
-- **Utiliser `ProjectionHead`** : il ne prouve ni readiness exacte ni continuité.
-- **Retourner le premier échec observé** : la catégorie et la version doivent être canoniques.
-- **Confondre readiness AUTH et droits AUTH** : seul le statut de l’artifact intervient en 7.9.2.
-- **Transformer un résultat interne en mapping HTTP** : cette responsabilité vient plus tard.
-- **Masquer une sélection incomplète en NOT_READY** : il s’agit d’une erreur de programmation.
-- **Accepter implicitement un scan O(latestKnown)** : ce coût doit être décidé explicitement si le port n’est pas étendu.
-
-## 16. Questions ouvertes / blockers
-
-### BLOCKER — découverte canonique des versions PROJECTION_FAILED
-
-**Contradiction exacte**
-
-La sémantique demandée exige de trouver la plus haute version `PROJECTION_FAILED`, y compris lorsqu’aucun composant n’est READY à cette version, tout en préservant une recherche descendante bornée qui ne parcourt pas toute la plage historique. Le port 7.9.1 permet de rechercher seulement la plus haute version READY ; `statusAt` exige de connaître préalablement la businessVersion à sonder.
-
-**Fichiers concernés**
-
-- `app/engine-query/src/main/java/com/kartaguez/pocoma/engine/port/out/query/ProjectionReadinessQueryPort.java` ;
-- `docs/plans/lot-7.9.1-versioned-query-contracts-plan.md` ;
-- le futur plan et l’implémentation 7.9.2.
-
-**Options possibles**
-
-1. conserver le port et accepter/documenter un scan décroissant de chaque businessVersion jusqu’à 1 pour la classification finale (`O(latestKnown × composants)`) ;
-2. amender minimalement le port avec une recherche descendante de la plus haute version dont le statut est terminal (`READY` ou `FAILED`), puis conserver `statusAt` pour la vérification exacte multi-composants.
-
-**Recommandation**
-
-Choisir l’option 2 avant de rédiger le plan d’implémentation. Elle conserve les trous, l’absence de continuité, les diagnostics bornés et l’indépendance de l’ancre, tout en évitant de scanner chaque entier historique. Elle constitue toutefois une modification explicite du contrat 7.9.1 et nécessite donc un arbitrage préalable.
-
-## DECISIONS CONFIRMED
-
-- latest-known est une borne d’exposition obligatoire et ne bloque jamais la production ;
-- CURRENT cherche la plus haute businessVersion commune applicable et READY ;
-- EXACT ne fallback jamais ;
-- AUTH intervient uniquement pour une vue protégée et seulement par sa readiness en 7.9.2 ;
-- une vue non protégée vide se résout directement sous latest-known sans lookup readiness ;
-- non-applicable, NOT_READY, FAILED et erreur de configuration restent distincts ;
-- la priorité finale est `PROJECTION_FAILED > PIPELINE_NOT_APPLICABLE > NO_COMMON_READY_VERSION` ;
-- le diagnostic est exhaustif à une seule version canonique, jamais sur tout l’historique ;
-- l’ancre et l’ordre de parcours ne doivent pas modifier le résultat ;
-- la pipelineVersion serving est fournie et n’est jamais choisie par le resolver.
-
-## DESIGN PROPOSALS
-
-- service stateless `QueryVersionResolver` dans `engine-query` ;
-- sealed result `QueryVersionResolution` avec six variantes et diagnostics à value semantics ;
-- prévalidation structurelle avant toute résolution fonctionnelle ;
-- EXACT en une évaluation exacte de l’applicabilité puis des statuts ;
-- CURRENT en deux phases : recherche optimisée du succès, puis classification canonique indépendante ;
-- ancre injectable uniquement par un seam package-private de test, sans stratégie publique ;
-- calcul analytique du diagnostic de non-applicabilité depuis `VersionApplicability` ;
-- extension minimale recommandée du port pour parcourir les versions terminalement déterminées.
+## TEST MATRIX
+
+- CURRENT : latest-known absent, aucun terminal, READY/FAILED à la borne, trous, FAILED récent avec
+  READY ancien, terminal au-dessus de la borne, génération serving isolée des anciennes générations.
+- EXACT : latest-known absent, V au-dessus de la borne, non-applicabilité, READY, FAILED, NOT_READY,
+  ancienne génération ignorée et ordre de contrôle vérifié.
+- Résultats : nulls, versions invalides, incohérences avec latest-known ou EXACT, asymétrie de
+  latest-known et exactement quatre variants.
+- Architecture : deux ports seulement, aucune dépendance interdite, aucun head, aucun scan numérique,
+  aucun AUTH et aucune sélection serving interne.
 
 ## OPEN QUESTIONS / BLOCKERS
 
-- Arbitrer entre l’extension descendante `READY ou FAILED` du port 7.9.1 et l’acceptation explicite d’un scan numérique exhaustif pour classifier `PROJECTION_FAILED`.
+```text
+NONE
+```
