@@ -6,7 +6,7 @@ Pocoma is an application for managing shared pots: a user creates a pot, adds pa
 
 The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/commands`. It stores an immutable `RecordedCommand` and returns `202 Accepted`; a separate Command consumption runtime later mutates the versioned Pot state and appends a business Event atomically. Queries continue to read views of that state: accessible pots, pot details, expenses, balances, and balances for the calling user.
 
-Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Reads can target a specific version or, by default, the current version. Lists hide deleted elements; direct views can return a deleted entity with its `deleted` flag.
+Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. The retained read API can target a specific primary version or, by default, that primary current version. The Lot 7 target replaces this legacy behavior with explicit `CURRENT` and `EXACT(V)` read-side intents.
 
 Balances are projections. A Command worker persists business state and a business Event atomically in
 `business_event_outbox`. Event consumption materializes a versioned Balance Task in
@@ -209,7 +209,7 @@ Prometheus metrics track, among other things:
 - delay between command commit and worker processing start;
 - projection processing duration;
 - end-to-end latency from persisted command to persisted projection;
-- distribution of gaps between current version and projected version;
+- distribution of the signed distance between known and projected versions, without interpreting it as continuity or readiness;
 - retries and failures observed by the worker or load tests.
 
 These metrics address the main risk of the asynchronous projection architecture: a projection can temporarily lag behind. Rather than assuming this lag is negligible, the application measures it.

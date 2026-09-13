@@ -1,333 +1,235 @@
 # État actuel du read side
 
-Ce document décrit l'état observé au commit audité
-`e842f201b9f8effa9cd27d2e30a436590ccce7d5`. Il a été intégré à la baseline documentaire du Lot 7.0
-`24ef19fb849d53c119668193c61d66e62d07504f`. Il constitue une description factuelle de l'existant,
-pas une architecture cible.
+## 1. Portée de l'observation
 
-## 1. Résumé exécutif
+Ce document décrit le repository au commit `34df9348dd0823d4e977859048aaf8b9ef44db6c`.
+Il est factuel : les décisions normatives appartiennent à
+[read-side-target.md](read-side-target.md), et leur séquencement au
+[plan directeur du Lot 7](../plans/lot-7-read-side-implementation-plan.md).
 
-Le read side HTTP expose six GET, tous dans `supra-http-rest-spring`. Les détails Pot et Expense ne
-proviennent pas d'un read model dédié : `engine-query` reconstitue des vues à partir des tables
-historisées du modèle primaire (`pot_headers`, `shareholders`, `expense_headers`, `expense_shares`),
-avec `pot_global_versions` pour résoudre la version courante.
+La suite Maven complète observée sur ce commit exécute 869 tests sans échec ni erreur.
 
-Les balances sont différentes : elles sont calculées de façon asynchrone à partir du même historique
-primaire, puis matérialisées par version. Dans le runtime cible `runtime-web-api`, elles sont lues dans
-les artifacts immuables `balance_projection_artifacts` et `balance_projection_entries` du pipeline
-Balance configuré. Les queries Balance mélangent donc données primaires pour la version et
-l'autorisation, puis projection pour le résultat.
+## 2. Résumé
 
-Le pipeline cible est durable : `business_event_outbox` → Event consumption → `tasks_4_pipeline` →
-Task consumption → calcul complet de la version demandée → artifact Balance immuable. Slots, claims,
-retry et fencing vivent dans les tables génériques de consumption ; les anciennes colonnes lifecycle
-des tables Event/Task ne font pas autorité.
+Le read side est en transition :
 
-Un runtime direct transactionnel indépendant consomme également chaque Event sous l'identité
-`SOURCE_VERSION_WATERMARK` et maintient `pocoma_read.source_version_watermarks` par max-upsert
-atomique. Cette valeur est la plus haute version effectivement matérialisée par ce consumer, sans
-garantie de continuité ni de projection correspondante. Il ne crée aucune Task et ne participe à
-aucune projection métier.
+- les six GET existants restent basés sur `engine-query` et lisent encore le primaire pour Pot,
+  Expense, version courante et autorisation ;
+- `runtime-web-api` lit les résultats Balance dans des artifacts immuables dédiés, mais demande encore
+  au primaire la version et le contexte Pot ;
+- le pipeline `read-pot/v1` matérialise en shadow un `PotProjection` canonique complet dans
+  `pocoma_read` ;
+- l'index versionné user→Pot et la pagination keyset existent en shadow, sans GET actif ;
+- `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
+- le Query Kernel, l'Authorization Kernel, AUTH, `VersionedQueryResponse`, les états
+  declared/active/serving et le cutover serving n'existent pas encore.
 
-`runtime-monolith` est transitionnel : ses queries Balance reçoivent encore `JpaPotBalancesAdapter`
-et lisent les anciennes tables `pot_balance_*`. Le runtime web cible les remplace par un adapter
-`@Primary` immuable. Les GET utilisent encore les headers `X-User-Id` / `X-User-Scopes`, tandis que
-l'admission Command utilise OAuth2 Resource Server.
+## 3. GET réellement exposés
 
-## 2. Carte globale
-
-### Lecture HTTP actuelle
-
-```text
-PotsQueryController / ExpensesQueryController                 supra-http-rest-spring
-  -> UserContextFactory (X-User-Id + X-User-Scopes)
-  -> six ports entrants de query                               engine-query
-  -> wrappers transactionnels + services de query             engine-query
-  -> PotQueryPort / ExpenseQueryPort / PotBalancesQueryPort
-  -> JpaPotQueryAdapter / JpaExpenseQueryAdapter               infra-persistence-jpa
-       -> pot_global_versions + tables primaires historisées
-  -> JpaImmutablePotBalancesQueryAdapter                       runtime-web-api, @Primary
-       -> balance_projection_artifacts + balance_projection_entries
-  -> RestMapper + DTO HTTP                                     supra-http-rest-spring
-```
-
-Dans `runtime-monolith`, le dernier adapter Balance est au contraire `JpaPotBalancesAdapter`, qui lit
-`pot_balance_versions` et `pot_balances`.
-
-### Projection Balance cible actuellement exécutée
-
-```text
-BusinessEvent durable dans business_event_outbox
-  -> runtime-event-consumption-worker
-  -> EventConsumptionLocator
-  -> ScheduleProjectionTasksForEventService
-  -> EventPipelineRelevanceRegistry (pertinence stable par pipelineId)
-  -> PipelineDefinitionRegistry + PipelineVersionDefinition.appliesTo
-  -> stratégie de construction exacte par génération
-  -> tasks_4_pipeline
-  -> runtime-task-consumption-worker
-  -> TaskConsumptionLocator
-  -> ComputeBalancesRecordedTaskMapper
-  -> ExecuteTaskService
-  -> ExecuteBalanceProjectionTaskHandler
-  -> CalculatePotBalancesAtVersionService
-  -> JpaHistoricalPotBalanceSourceAdapter
-       -> pot_headers + shareholders + expense_headers + expense_shares @ targetVersion
-  -> PotBalancesCalculator (calcul en mémoire)
-  -> JpaImmutableBalanceProjectionAdapter
-       -> balance_projection_artifacts + balance_projection_entries
-```
-
-Les deux locators utilisent `SequentialConsumptionOrchestrator` et le lifecycle générique
-`ConsumptionSlot`/`Claim`. La découverte est best effort ; la relecture autoritative et la
-terminalisation sont transactionnelles.
-
-## 3. Inventaire des endpoints
-
-| Endpoint | Use case | Source réellement lue dans `runtime-web-api` | Versionnable ? | Projection ? |
-|---|---|---|---|---|
-| `GET /api/pots` | `ListUserPotsUseCase` | `pot_headers`, `pot_global_versions`, `shareholders` | Non : version courante de chaque Pot | Non |
-| `GET /api/pots/{potId}` | `GetPotUseCase` | `pot_global_versions`, `pot_headers`, `shareholders` | Oui, `?version=` ; sinon courante | Non |
-| `GET /api/pots/{potId}/expenses` | `ListPotExpensesUseCase` | `pot_global_versions`, `pot_headers`, `shareholders`, `expense_headers` | Oui, `?version=` ; sinon courante | Non |
-| `GET /api/expenses/{expenseId}` | `GetExpenseUseCase` | `expense_headers`, `pot_global_versions`, `pot_headers`, `shareholders`, `expense_shares` | Oui, `?version=` ; sinon version courante du Pot | Non |
-| `GET /api/pots/{potId}/balances` | `GetPotBalancesUseCase` | primaire pour version/autorisation, puis artifacts Balance immuables | Oui, `?version=` ; sinon courante | Oui |
-| `GET /api/pots/balances/me` | `ListUserPotBalancesUseCase` | Pots/shareholder primaires, puis artifacts Balance immuables | Oui, la même version demandée pour chaque Pot ; sinon courante par Pot | Oui |
-
-Le endpoint global `GET /api/expenses/{expenseId}` est un constat legacy, pas un contrat cible. La
-cible adresse toujours une sous-ressource sous son Pot parent, par exemple
-`GET /pots/{potId}/expenses/{expenseId}` ; aucun routing transverse Expense vers Pot ne doit être
-ajouté pour migrer le endpoint legacy.
-
-Il n'existe actuellement aucun GET autonome pour un Shareholder, aucune route de lecture d'archive et
-aucun endpoint utilisateur distinct. Les DTO sont construits par `RestMapper`; celui-ci stabilise
-notamment l'ordre des collections Shareholder, ExpenseShare et Balance dans les réponses.
-
-Tous ces GET construisent un `UserContext` depuis les headers legacy requis `X-User-Id` et
-`X-User-Scopes` (permissions séparées par `;`, au format `OBJECT:ACTION`). Le Resource Server protège
-`POST /api/v1/commands`; sa configuration laisse les autres routes au mécanisme de headers actuel.
-
-## 4. Inventaire des queries
-
-### `ListUserPotsUseCase`
-
-- Service : `ListUserPotsService`.
-- Port : `PotQueryPort.listAccessiblePotHeaders`.
-- Adapter : `JpaPotQueryAdapter`.
-- Sources : header actif à la version courante jointe via `pot_global_versions`, plus existence d'un
-  Shareholder actif lié à l'utilisateur. Les Pots supprimés et liens Shareholder supprimés sont exclus.
-- Résultat : headers courants accessibles, ordonnés par label puis `potId`.
-
-### `GetPotUseCase`
-
-- Service : `GetPotService`.
-- Ports : `PotQueryPort.currentVersion`, `loadPotHeaderAtVersion`,
-  `loadPotShareholdersAtVersion`.
-- Sources : `pot_global_versions`, `pot_headers`, `shareholders`.
-- Reconstruction : un header et toutes les lignes Shareholder temporellement actives à la même version.
-  Les enregistrements portant `deleted=true` restent présents dans la vue directe ; seuls les
-  Shareholders non supprimés participent à la décision d'autorisation contextuelle.
-
-### `ListPotExpensesUseCase`
-
-- Service : `ListPotExpensesService`.
-- Ports : `PotQueryPort` pour version et autorisation, puis
-  `ExpenseQueryPort.listExpenseHeadersByPotAtVersion`.
-- Sources : tables Pot/Shareholder primaires et `expense_headers`.
-- Reconstruction : uniquement les Expense headers temporellement actifs et `deleted=false`, ordonnés
-  par version de début puis `expenseId`.
-
-### `GetExpenseUseCase`
-
-- Service : `GetExpenseService`.
-- Ports : `ExpenseQueryPort` et `PotQueryPort`.
-- Sources : `expense_headers`, `expense_shares`, `pot_global_versions`, `pot_headers`, `shareholders`.
-- Version explicite : le header Expense détermine le Pot ; tous les éléments sont chargés à cette
-  version.
-- Version absente : le header Expense courant identifie le Pot, la version globale courante du Pot est
-  résolue, puis le header et les shares sont relus à cette version.
-- Comme le GET Pot, le GET direct ne filtre pas le flag `deleted` du header chargé.
-
-### `GetPotBalancesUseCase`
-
-- Service : `GetPotBalancesService`.
-- Ports : `PotQueryPort` pour version et autorisation, puis `PotBalancesQueryPort.loadAtVersion`.
-- Runtime web cible : `JpaImmutablePotBalancesQueryAdapter`, configuré par
-  `pocoma.query.balance.pipeline-id` (défaut `balance-projection`) et la version de pipeline obligatoire.
-- Sources : tables primaires Pot/Shareholder puis identité exacte dans
-  `balance_projection_artifacts`, et entrées dans `balance_projection_entries`.
-- Aucun calcul Balance n'est effectué pendant le GET.
-
-### `ListUserPotBalancesUseCase`
-
-- Service : `ListUserPotBalancesService`.
-- Départ : Pots courants, accessibles et non supprimés.
-- Pour chaque Pot : choisit la version explicite commune ou sa version courante, cherche le Shareholder
-  actif lié à l'utilisateur, charge la projection exacte et ne renvoie que son entrée Balance.
-- Un Pot sans lien Shareholder ou sans entrée Balance est omis.
-- Le service prévoit aussi d'omettre une projection absente lorsqu'elle est signalée par
-  `BusinessEntityNotFoundException`. L'adapter immuable du runtime web signale actuellement une
-  cardinalité différente de un par `IllegalStateException` : une projection absente y produit donc une
-  erreur technique au lieu de cette omission. C'est un écart factuel à traiter dans un lot ultérieur.
-
-## 5. Sources de vérité actuelles
-
-### Modèle primaire d'écriture, également lu
-
-| Table | Rôle de lecture actuel |
-|---|---|
-| `pot_global_versions` | Version courante autoritative de chaque Pot |
-| `pot_headers` | Versions temporelles des attributs et du flag de suppression du Pot |
-| `shareholders` | Versions temporelles des Shareholders, liens utilisateur, poids et suppression |
-| `expense_headers` | Versions temporelles des attributs Expense et suppression |
-| `expense_shares` | Versions temporelles des répartitions d'une Expense |
-
-Ces tables sont le modèle primaire mutable par ajout/fermeture de versions. Elles ne deviennent pas
-des projections parce qu'elles sont interrogées par `engine-query`.
-
-### Modèles de lecture/projection
-
-| Tables | Producteur | Lecteur actuel | Statut |
+| Endpoint | Source actuelle dans `runtime-web-api` | Version courante | État cible |
 |---|---|---|---|
-| `balance_projection_artifacts`, `balance_projection_entries` | Task Balance cible | `JpaImmutablePotBalancesQueryAdapter` dans `runtime-web-api` | Projection cible, immuable et versionnée par pipeline/Pot |
-| `pot_balance_projection_states`, `pot_balance_versions`, `pot_balances` | ancien moteur/worker Balance | `JpaPotBalancesAdapter` dans `runtime-monolith` | Projection legacy encore câblée dans le monolithe |
+| `GET /api/pots` | headers/shareholders primaires | une version primaire par Pot | Pas migré |
+| `GET /api/pots/{potId}` | primaire historisé | `pot_global_versions` | Pas migré |
+| `GET /api/pots/{potId}/expenses` | primaire historisé | `pot_global_versions` | Pas migré |
+| `GET /api/expenses/{expenseId}` | primaire historisé | Pot retrouvé depuis l'Expense | Route globale legacy |
+| `GET /api/pots/{potId}/balances` | primaire pour version/auth, artifact Balance pour data | `pot_global_versions` | Partiellement migré |
+| `GET /api/pots/balances/me` | liste primaire puis lookup Balance par Pot | une version primaire par Pot | Partiellement migré, N+1 |
 
-`business_event_outbox` et `tasks_4_pipeline` sont des données durables de transport/pipeline, pas des
-read models HTTP. `consumption_slots`,
-`consumption_claims` et la provenance portent le lifecycle technique, pas une vue métier.
+Tous ces GET construisent encore un `UserContext` depuis `X-User-Id` et `X-User-Scopes`. Le Resource
+Server OAuth2 protège l'admission Command, pas encore les reads.
 
-### Calculs dérivés
+### Sémantique current réellement exécutée
 
-Les vues Pot et Expense sont assemblées à la demande à partir de plusieurs familles de lignes
-historiques ; aucun snapshot Pot complet n'est stocké. Les balances, en revanche, sont calculées hors
-requête par `PotBalancesCalculator` à partir d'un ensemble historique complet, puis matérialisées.
-Le GET Balance ne recalcule jamais le résultat.
+Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
+`GetPotBalancesService` choisissent la version primaire lorsque le paramètre est absent. Les listes
+partent également des données primaires courantes.
 
-## 6. Modèle temporel
+Le code actif ne connaît donc pas encore les intentions `CURRENT` et `EXACT(V)` de la cible. Il ne
+calcule pas la meilleure intersection d'artifacts `READY` et ne retourne pas encore
+`VersionedQueryResponse`.
 
-La version globale d'un Pot est un entier positif dans `pot_global_versions`. Les autres objets sont
-des fragments historisés portant `started_at_version` inclusif et `ended_at_version` exclusif. Une
-ligne est active pour `v` lorsque :
+Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
+`IllegalStateException`. Elle n'est pas encore traduite en état normal de Query Kernel.
+
+## 4. Pipelines et consumers présents
+
+### LatestKnownVersion
+
+`runtime-latest-known-version-consumption-worker` consomme directement les Business Events sous la
+clé de compatibilité :
 
 ```text
-started_at_version <= v
-and (ended_at_version is null or v < ended_at_version)
+EVENT[eventId] / SOURCE_VERSION_WATERMARK[]
 ```
 
-Une mutation ferme les lignes affectées à la version suivante et insère leurs nouvelles versions.
-Le read side reconstruit donc un Pot à `v` en sélectionnant séparément le header, les Shareholders,
-les Expense headers et/ou les Expense shares actifs à `v`. Il n'existe pas de snapshot complet par
-version.
+Le locator recharge l'Event autoritatif et avance
+`pocoma_read.source_version_watermarks.latest_version_seen` par max-upsert. Update, provenance et CAS
+terminal sont transactionnels. Aucun Task ou artifact métier n'est créé.
 
-Sans paramètre `version`, les queries Pot prennent `pot_global_versions.version`. Le GET Expense doit
-d'abord retrouver le Pot depuis son header courant avant d'utiliser cette version globale. Une version
-explicite n'est pas ramenée automatiquement à la version courante.
+Le nom Java canonique est `LatestKnownVersion`; les noms consumer/SQL restent legacy pour
+compatibilité. Les tests couvrent duplicate, traitement hors ordre, rollback, retry et fencing.
 
-Les suppressions sont des états historisés (`deleted=true`), pas des suppressions physiques. Les listes
-de Pots et d'Expenses les masquent explicitement. Les GET directs chargent la ligne temporellement
-active et peuvent donc restituer son flag `deleted`. Pour l'autorisation contextuelle, seuls les
-Shareholders non supprimés sont pris en compte.
+### Event vers Tasks de projection
 
-Dans le code audité, certaines mutations d'une Expense encore active restent possibles après le
-delete de son Pot et peuvent créer une nouvelle version globale. Ce constat factuel et son impact sur
-la cible sont détaillés dans la section 14 de [read-side-target.md](read-side-target.md).
+`runtime-event-consumption-worker` découvre les couples Event/génération applicables sans Task
+directe. Après acquire, il recharge l'Event, réévalue le catalogue complet et crée exactement une
+Task pour chaque génération pertinente et applicable.
 
-## 7. Pipeline Balance actuel
+La discovery ne consulte ni latest-known, ni artifact, ni failure, ni head, ni stratégie reader. Une
+nouvelle `pipelineVersion` applicable redécouvre automatiquement les anciens Events dont sa Task
+exacte n'existe pas. Les Tasks existantes des anciennes générations ne sont pas rouvertes.
 
-1. La transaction Command gagnante ajoute l'Event typé dans `business_event_outbox` avec la mutation
-   primaire.
-2. `runtime-event-consumption-worker` découvre les couples Event/génération applicables dont la Task
-   directe manque. `AcquireConsumption` arbitre avec la clé exacte
-   `EVENT[eventId] / PROJECTION_TASK_SCHEDULER[pipelineId,pipelineVersion]`.
-3. Après acquire, `EventConsumptionLocator` recharge l'Event et réévalue tout le catalogue courant.
-   `BalanceEventPipelineRelevance` décide une seule fois la pertinence pour `balance-projection`, puis
-   `PipelineVersionDefinition.appliesTo(event.version())` est l'unique règle de production par génération.
-4. `JpaTaskCreationAdapter` crée ou adopte chaque Task Event-derived sous l'identité durable
-   `(event_id,pipeline_id,pipeline_version)`, vérifie intégralement son payload et n'overwrite jamais une
-   divergence. `pot_id` est structurel ; `partition_key` n'est qu'une dérivation technique. La migration
-   V10 a supprimé le parent legacy `event_4_pipeline_materialization_status`.
-5. `runtime-task-consumption-worker` découvre les Tasks structurelles de ce pipeline/type ; leurs
-   colonnes `status`, claim et lease legacy ne sont pas l'autorité. La clé générique est
-   `TASK[taskId] / TASK_EXECUTOR[]`.
-6. Après acquire, `TaskConsumptionLocator` recharge la Task. `ComputeBalancesRecordedTaskMapper`
-   valide que son payload correspond au `potId` et à `targetVersion` durables.
-7. `ExecuteBalanceProjectionTaskHandler` appelle `CalculatePotBalancesAtVersionService`.
-   `JpaHistoricalPotBalanceSourceAdapter` relit le header, les Shareholders et toutes les Expenses non
-   supprimées avec leurs shares à la version cible. `PotBalancesCalculator` effectue alors un calcul
-   complet en mémoire ; ce n'est ni un delta ni un calcul pendant le GET.
-8. `JpaImmutableBalanceProjectionAdapter` crée ou vérifie l'artifact identifié par
-   `(POT_BALANCES, pipelineId, pipelineVersion, potId, potVersion)` et ses entrées. Un contenu différent
-   sous la même identité est une erreur d'invariant.
-9. Projection, provenance, fencing et `DONE/SUCCESS` sont atomiques. Des versions différentes d'un Pot
-   peuvent terminer hors ordre, car chaque artifact est immuable et indépendant.
-10. `runtime-web-api` relit uniquement l'artifact de la version de pipeline configurée. Une nouvelle
-    version de pipeline ne remplace pas implicitement les artifacts d'une autre version.
+### Exécution Task multi-pipeline
 
-Les runtimes `runtime-event-consumption-worker` et `runtime-task-consumption-worker` sont la chaîne
-distribuée cible. Les anciens runtimes fondés sur les colonnes lifecycle de `business_event_outbox`,
-sur `projection_tasks` et sur le worker Spring Balance restent présents dans le repository à titre
-transitionnel, mais ne constituent pas le chemin Balance lu par `runtime-web-api`. La table
-`business_event_outbox` elle-même reste la source durable active des Events pour la chaîne cible.
+`runtime-task-consumption-worker` utilise la clé générique :
 
-## 8. Couplages et limites actuelles
+```text
+TASK[taskId] / TASK_EXECUTOR[]
+```
 
-### Factuel
+Une instance est configurée pour une génération exacte et accepte actuellement les bindings
+`balance-projection/v2` ou `read-pot/v1`. Reload, calcul, persistence, provenance et terminalisation
+fencée sont atomiques dans la composition déployée.
 
-- Le Lot 7.6 ajoute en shadow mode `PotProjection` exact sous `read-pot/v1` (`READ_POT`) : snapshot
-  autonome, fragments Shareholder/Expense/share, descriptor générique et head. Aucun GET actif ne le lit.
-- Le reconstructeur primaire charge Pot, Shareholders, Expenses supprimées comprises et shares à la
-  version exacte ; le read store V5 matérialise quatre tables reliées par des FK internes.
-- Le Lot 7.7 ajoute `pot_version_metadata` au primaire (V11) et au read store (V6), ainsi que
-  `pot_projection_user_index`. Le timestamp exact de la version et l'index user/Pot sont matérialisés
-  atomiquement avec le snapshot, l'artifact et le head.
-- `PotUserIndexReader` est un adapter shadow : il joint l'index versionné au watermark individuel de
-  chaque Pot, reçoit explicitement les plages de générations sélectionnées et applique la keyset
-  `updatedAt DESC, potId ASC`. Il n'existe toujours aucune ligne fonctionnelle `current` et aucun GET
-  actif ne consomme encore cet adapter.
-- Le runtime Event schedule désormais Balance et READ_POT selon leur applicabilité ; une instance du
-  runtime Task reste configurée pour une génération exacte mais peut composer l'un ou l'autre binding.
+## 5. Modèle générique effectivement livré
 
-- Quatre des six query families lisent directement le modèle primaire historisé ; les deux queries
-  Balance combinent modèle primaire et projection.
-- `runtime-web-api` dépend d'`infra-persistence-jpa` et sélectionne directement son adapter Balance
-  immuable dans une configuration de runtime.
-- L'identité et les permissions des GET proviennent de headers legacy librement formés ; seul le POST
-  Command utilise le principal Resource Server.
-- Les readers primaires historiques assemblent encore plusieurs sous-objets ; en parallèle, le snapshot
-  shadow `PotProjection@V` matérialise désormais de façon autonome leur état canonique exact à V.
-- Deux persistences Balance et deux compositions de lecture coexistent : immutable pipeline dans le
-  runtime web cible, `pot_balance_*` dans le monolithe transitionnel.
-- Le pipeline cible réutilise les tables `business_event_outbox` et `tasks_4_pipeline` comme données
-  structurelles tout en ignorant leurs colonnes lifecycle legacy.
-- L'absence d'artifact immuable n'est pas traduite de la même manière que l'absence de projection prévue
-  par `ListUserPotBalancesService`.
-- Les anciens modules et tables `projection_tasks`/workers restent dans le reactor et dans des
-  compositions historiques, mais ne sont pas utilisés par le chemin distribué cible
-  Event→Task→Balance.
+Le module `domain-projection` contient :
 
-### Candidats pour les lots 7.x
+- `ProjectionIdentity` et `ProjectionGenerationIdentity` ;
+- `ProjectionArtifactDescriptor` ;
+- `ProjectionFailure` ;
+- `ProjectionHead` ;
+- `ProjectionInvariantViolation` ;
+- `ProjectionStatus` ;
+- `LatestKnownVersion` et `PotProjection`.
 
-- Définir la source canonique des vues Pot/Expense au lieu de maintenir implicitement un read side sur
-  le write store.
-- Unifier la lecture Balance et décider du devenir de la projection `pot_balance_*` du monolithe.
-- Définir la sémantique explicite d'une projection absente ou en retard.
-- Remplacer la confiance dans les headers GET par une frontière d'identité authentifiée cohérente.
-- Décider si les vues temporelles restent reconstruites par fragments ou deviennent des snapshots/read
-  models dédiés.
-- Après choix de la cible, isoler puis retirer les composants de projection legacy réellement devenus
-  sans consommateurs.
+`ProjectionMaterializationService` vérifie l'applicabilité exacte, adopte un contenu identique,
+conserve l'artifact READY et enregistre une violation sur duplicate divergent, refuse de remplacer
+une failure terminale et écrit artifact, descriptor et head dans la transaction read-store.
 
-Ces points sont des sujets, pas des décisions de ce document.
+`ProjectionStatusResolver` dérive `READY`, `FAILED` ou `NOT_READY` depuis artifact/failure. Il ne lit
+aucun lifecycle Task/Slot. Le head avance par maximum et accepte les trous.
 
-## 9. Frontière avec le Lot 6
+La table `projection_coverages`, introduite dans une première migration, est supprimée par V3. Aucun
+coverage persisté ou curseur de continuité n'est actif.
 
-Le write side est clos selon [write-side-closure.md](write-side-closure.md). `POST /api/v1/commands`
-reste l'unique voie canonique de mutation : admission durable, puis exécution par le Command worker.
-Le Lot 7 ne doit réintroduire aucune mutation primaire directe depuis HTTP.
+## 6. Projections et read models disponibles
 
-La garantie « delete Pot terminal » est désormais appliquée par les contextes de mutation du Pot et
-par les contextes Expense create/delete/update. Une commande Expense visant un Pot supprimé est rejetée
-avant nouvelle version et Event. Le changement est le micro-correctif ciblé de clôture du Lot 7.6.
+### READ_POT
 
-Le futur read side devra consommer ou projeter les données produites par cette chaîne sans modifier les
-invariants de `RecordedCommand`, du lifecycle générique de consumption, de la transaction gagnante ou
-de l'append atomique des Business Events. Le présent audit n'a modifié aucun de ces composants.
+Le pipeline `read-pot/v1` produit un artifact logique `READ_POT` complet à une business version exacte :
+
+- statut Pot, label et creator ;
+- Shareholders, user links, poids et deleted ;
+- Expenses, payers, montants et deleted ;
+- Expense shares ;
+- `PotVersionMetadata.createdAt` exact.
+
+La représentation physique utilise quatre tables V5 dans `pocoma_read`, mais constitue un seul
+composant logique. `JpaHistoricalPotSnapshotSourceAdapter` relit le primaire à la version exacte ;
+`JdbcPotProjectionArtifactWriter` matérialise le snapshot, les fragments, le descriptor, le head et
+les index nécessaires.
+
+Le delete du Pot est terminal côté write depuis le correctif 7.6 ; le snapshot de suppression reste
+matérialisable avec le statut `DELETED`.
+
+### Index user→Pot
+
+La migration read-store V6 ajoute `pot_version_metadata` et
+`pot_projection_user_index`. L'index est versionné, scopé par génération et produit atomiquement avec
+READ_POT. Son ordre keyset est :
+
+```text
+updatedAt DESC, potId ASC
+```
+
+`JdbcPotUserIndexReader` est seulement shadow. Sa requête actuelle impose encore
+`index.potVersion = source_version_watermarks.latest_version_seen`. Cette égalité ne correspond plus
+à la cible `CURRENT`, et aucun GET actif ne dépend encore de ce reader.
+
+### BALANCE immuable
+
+Le pipeline distribué `balance-projection/v2` :
+
+```text
+BusinessEvent -> Task -> CalculatePotBalancesAtVersionService
+              -> balance_projection_artifacts / entries
+```
+
+Le calcul recharge l'état primaire exact et recalcule entièrement la Balance à V. Il ne dépend pas de
+Balance(V-1), supporte l'exécution hors ordre et couvre toutes les business versions pertinentes du
+catalogue actuel.
+
+Cette persistence reste toutefois spécifique : elle vit dans le schéma primaire, possède sa propre
+identité/adoption et n'utilise pas encore artifact/failure/head/index génériques. Son reader choisit
+une pipelineVersion par configuration statique de runtime, pas par état serving canonique.
+
+### BALANCE legacy
+
+`runtime-monolith` utilise toujours `JpaPotBalancesAdapter`, les tables mutables
+`pot_balance_projection_states`, `pot_balance_versions` et `pot_balances`, ainsi que le calcul
+incrémental qui part du précédent head. Ce chemin dépend fonctionnellement d'un état antérieur et ne
+respecte pas la cible hors ordre. Il reste legacy actif jusqu'au cutover.
+
+### Projections absentes
+
+Il n'existe actuellement :
+
+- ni projection AUTH dédiée ;
+- ni `AUTH_HISTORY` ou `AUTH_CURRENT` ;
+- ni `latestAuthRelevantVersion` ;
+- ni projection Expense ou Shareholder autonome ;
+- ni index transverse Balance pour remplacer le N+1 de `balances/me`.
+
+## 7. Ordre et indépendance observés
+
+Les tris des discoveries Event/Task et des collections sont utilisés pour pagination, fairness ou
+déterminisme. Aucun chemin cible READ_POT, BALANCE immuable ou latest-known n'attend N-1 avant N.
+
+Les pipelines READ_POT, BALANCE et latest-known ne consultent ni le head ni la fin d'un autre
+pipeline. Leur production converge indépendamment. Le futur besoin d'AUTH pour autoriser une réponse
+sera une composition de query, pas une dépendance de production.
+
+Le seul chemin métier encore séquentiel est le calcul Balance legacy du monolithe.
+
+## 8. Reconstruction réellement disponible
+
+Le mécanisme générique déjà présent couvre la propriété canonique attendue : ajouter une nouvelle
+`pipelineVersion` applicable entraîne la redécouverte de l'historique Event correspondant et la
+création de Tasks propres à cette génération.
+
+Il n'existe aucun système autonome de rebuild/replay/backfill, aucune campagne administrative et
+aucun reset de Tasks/Slots/Claims. Cette absence est conforme à la cible réconciliée : une perte ou une
+rematérialisation doit utiliser une nouvelle pipelineVersion.
+
+La reconstruction suppose que l'historique durable nécessaire est conservé. La migration primaire
+V11 refuse une base legacy possédant des versions sans `PotVersionMetadata.createdAt` exact ; elle
+demande un reset de ces données de développement plutôt qu'un timestamp approximatif.
+
+## 9. Sécurité réellement disponible
+
+Les policies actuelles évaluent les permissions passées dans le `UserContext` et les faits Pot lus du
+primaire. Elles ne séparent pas encore explicitement `TokenCapabilities` et
+`PotAuthorizationAtVersion`.
+
+Les permissions `VIEW_ARCHIVE` cibles ne sont pas toutes définies, notamment pour Balance. Aucun
+consumer auth-relevant, artifact AUTH ou freshness gate n'existe. Les GET peuvent donc encore révéler
+existence/readiness selon leur logique legacy avant le futur gate AUTH.
+
+## 10. Écarts restants vers la cible
+
+| Cible | État actuel |
+|---|---|
+| Query Kernel `CURRENT` / `EXACT(V)` | Absent |
+| Meilleure intersection de composants READY | Absente |
+| `VersionedQueryResponse` | Absent |
+| Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
+| AUTH indépendante | Absente |
+| Freshness AUTH current | Absente |
+| GET sans lecture primaire | Aucun cutover effectué |
+| Balance sur fondation générique | Production immuable présente, persistence générique absente |
+| declared/active/serving | Non modélisé |
+| `eligibleForServing` | Absent |
+| Cutover manuel gouverné | Absent |
+| Observabilité cible | Partielle ; consumption et métriques legacy seulement |
+| Extinction legacy | Non commencée |

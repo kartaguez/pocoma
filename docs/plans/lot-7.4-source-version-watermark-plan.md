@@ -1,5 +1,9 @@
 # Pocoma — Lot 7.4 — LatestKnownVersion
 
+> **Dossier de réalisation clôturé.** La sémantique canonique courante se trouve dans
+> `docs/architecture/read-side-target.md`. Les termes watermark, `SOURCE_VERSION_WATERMARK` et
+> `latest_version_seen` conservés ici désignent les identifiants de compatibilité, pas une continuité.
+
 Ce fichier remplace le plan historique « SourceVersionWatermark express ». Son chemin est conservé
 pour ne pas casser les liens documentaires ; le concept Java et documentaire est désormais
 `LatestKnownVersion`.

@@ -1,5 +1,8 @@
 # Lot 7.6 — PotProjection canonique en shadow mode
 
+> **Dossier de réalisation clôturé.** Les références prospectives à un rebuild ou à des Tasks
+> administratives 7.8 sont superseded : une reconstruction utilise une nouvelle `pipelineVersion`.
+
 ## 1. Objectif et définition du done
 
 **[CANONICAL INVARIANT]** Pour toute Task portant le payload d'exécution commun :

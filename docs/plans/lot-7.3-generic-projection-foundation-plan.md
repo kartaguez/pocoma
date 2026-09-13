@@ -1,7 +1,8 @@
 # Lot 7.3 — Generic projection foundation
 
-> Supersédé par le Lot 7.3.1. Les décisions relatives à `ProjectionCoverage` ci-dessous sont
-> historiques et ne doivent plus être implémentées.
+> **Dossier de réalisation clôturé avec amendement 7.3.1.** L'identité, artifact, failure, head,
+> violation, statut dérivé et atomicité sont livrés. Seules les décisions relatives à
+> `ProjectionCoverage` ci-dessous sont superseded et ne doivent plus être implémentées.
 
 ## 1. Objectif
 

@@ -27,5 +27,6 @@ Le scheduler ne consulte ni le read store ni `PipelineSelectionStrategy`. Une d�
 ajoutée au catalogue rend naturellement les anciens Events éligibles si leur Task exacte manque ;
 aucun reset de slot et aucune API de replay ne sont nécessaires.
 
-L'unicité actuelle vise les Tasks Event-derived. Elle ne définit pas l'identité universelle des futures
-Tasks administratives du Lot 7.8.
+L'unicité vise les Tasks Event-derived d'une génération exacte. Une reconstruction read-side déclare
+une nouvelle pipelineVersion et réutilise cette même identité ; elle ne nécessite aucune Task
+administrative 7.8.

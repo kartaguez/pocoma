@@ -1,5 +1,9 @@
 # Pocoma — Lot 7.5 — Scheduling durable des projections applicables
 
+> **Dossier de réalisation clôturé.** La redécouverte normale des Events pour une nouvelle
+> `pipelineVersion` est désormais l'unique mécanisme canonique de reconstruction. Les références
+> prospectives à des Tasks administratives 7.8 sont superseded par le plan directeur courant.
+
 ## 1. Objectif et définition du done
 
 Le Lot 7.5 remplace le producer Event→Task configuré génération par génération par un unique

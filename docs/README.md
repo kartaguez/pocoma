@@ -18,8 +18,8 @@ vérifiée avant une modification.
 - [Architecture cible du read side](architecture/read-side-target.md) — cible normative du Lot 7 : modèle temporel, projections, queries et invariants.
 - [Reconstruction historique d'un Pot](architecture/pot-historical-reconstruction.md) — temporalité primaire exacte, fragments reconstructibles et limite `updatedAt`.
 - [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
-- [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — architecture directe transactionnelle, compatibilité et tests du consumer.
-- [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — metadata de version Pot, index utilisateur historisé et pagination keyset.
+- [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — dossier de réalisation du consumer direct ; les noms watermark qui y subsistent sont de compatibilité.
+- [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — dossier de réalisation de la metadata et de l'index shadow. Sa sélection current par latest-known est superseded par la cible normative.
 
 ### Consumption pipelines
 
@@ -44,7 +44,7 @@ vérifiée avant une modification.
 
 ## Historical material
 
-Les documents datés, [projection-workers.md](projection-workers.md), les plans clôturés ou non
-référencés ci-dessus et les runbooks de cutover décrivent des étapes antérieures ou des chemins
-transitionnels. Les consulter pour l'historique ou l'exploitation correspondante, jamais comme
-remplacement des documents canoniques ci-dessus.
+Les documents datés, [projection-workers.md](projection-workers.md), les plans détaillés clôturés et
+les runbooks de cutover décrivent des décisions de réalisation antérieures ou des chemins
+transitionnels. Lorsqu'un dossier de réalisation conserve un vocabulaire ou un comportement shadow
+superseded, la cible normative et le plan directeur courant prévalent.

@@ -55,6 +55,10 @@ Une projection absente est insérée. Une projection identique est adoptée sans
 différent pour la même identité viole un invariant et produit la failure terminale
 `BALANCE_PROJECTION_CONFLICT`.
 
+Cette persistence et cette classification de conflit sont encore spécifiques à BALANCE. Le Lot 7.12
+doit les aligner sur artifact/failure/head/violation génériques, où un duplicate divergent laisse
+l'artifact READY existant intact et produit une violation séparée.
+
 La provenance fonctionnelle nominale est :
 
 ```text
@@ -83,3 +87,7 @@ Le nouveau runtime ne lit et n'écrit aucun état lifecycle legacy de `tasks_4_p
 est une opération explicite : arrêt de l'ancien runtime, extinction des claims, backfill des slots
 terminaux, validation, puis activation du nouveau runtime. Les scripts et le runbook se trouvent
 dans `docs/operations`.
+
+Ce cutover de lifecycle Task ne définit pas un mécanisme de reconstruction read-side. Une
+rematérialisation fonctionnelle utilise une nouvelle `pipelineVersion`, ses propres Tasks et ses
+propres Slots ; elle ne rouvre jamais les identités terminales décrites ici.

@@ -63,6 +63,11 @@ for this Event-derived subtype by `(event_id,pipeline_id,pipeline_version)`; V10
 materialization parent. This Event-derived identity deliberately remains extensible to future administrative
 Tasks, whose provenance will not require an Event.
 
+This normal rediscovery is also the canonical reconstruction mechanism for read projections. Data loss,
+an implementation correction or a functional evolution is handled by declaring another pipeline version
+with the required applicability range. Existing Tasks, Slots and Claims of an older generation are never
+reopened or reset.
+
 Command now uses `runtime-command-consumption-worker` and the same generic consumption lifecycle;
 its former worker and `engine-execution-guard` have been removed. Task keeps its own current runtime
 until its dedicated cleanup.

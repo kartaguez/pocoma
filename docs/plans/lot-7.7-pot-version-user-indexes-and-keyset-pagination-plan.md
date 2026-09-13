@@ -1,5 +1,10 @@
 # Lot 7.7 — Métadonnées de version Pot, index utilisateur et pagination keyset
 
+> **Dossier de réalisation clôturé.** L'index, la metadata et la pagination restent canoniques. La
+> sélection shadow par `index.potVersion = latestKnownVersion` décrite dans ce dossier est superseded :
+> les listes cibles lisent l'index convergent sans join latest-known, conformément à
+> `docs/architecture/read-side-target.md` et au plan directeur courant.
+
 ## 1. Scope
 
 Le Lot 7.7 ferme les prérequis read-side des futures listes de Pots, sans activer de GET :
@@ -9,7 +14,7 @@ Le Lot 7.7 ferme les prérequis read-side des futures listes de Pots, sans activ
 - l'index immuable et historisé `userId -> PotProjection@V` ;
 - l'ordre `updatedAt DESC, potId ASC` ;
 - la pagination keyset et son curseur opaque ;
-- la résolution efficace d'une liste multi-Pots à partir des watermarks individuels ;
+- la résolution shadow alors retenue à partir des watermarks individuels, désormais superseded ;
 - atomicité, reconstructibilité, concurrence, idempotence et tests shadow.
 
 **CANONICAL INVARIANT —** `read-pot/v1` reste shadow. Aucun reader HTTP ne bascule dans ce lot.
@@ -21,7 +26,7 @@ Sont hors périmètre :
 - tout routing global `expenseId -> potId` ou `shareholderId -> potId` ;
 - `expense_identities`, `expense_routes`, consumer de route et réplication de route ;
 - Option A/Option B et toute preuve d'existence par absence d'un index secondaire ;
-- moteur administratif de rebuild 7.8 ;
+- reconstruction par une nouvelle pipelineVersion, absorbée par le mécanisme générique ;
 - Query Kernel et contrats HTTP complets 7.9 ;
 - autorisation 7.10 et cutover 7.11 ;
 - activation d'une génération reader ;
@@ -235,9 +240,9 @@ et rien d'autre.
 
 **CANONICAL INVARIANT —** ce consumer ne crée ni route, ni index, ni projection ; il ne dépend d'aucun autre consumer et ne garantit aucun ordre causal avec eux. Les chemins Event restent indépendants.
 
-## 17. Résolution d'une liste current multi-Pots
+## 17. Résolution shadow historique d'une liste current multi-Pots
 
-Le futur reader :
+L'adapter shadow livré en 7.7 :
 
 1. cherche les entrées candidates du user ;
 2. joint `source_version_watermarks` par `potId` ;
@@ -246,7 +251,10 @@ Le futur reader :
 5. applique actif/archive ;
 6. ordonne et pagine.
 
-Chaque Pot a son watermark ; aucune version globale n'existe.
+Chaque Pot a son latest-known individuel ; aucune version globale n'existe. Cette sélection n'est
+plus le contrat du futur reader CURRENT.
+
+**SUPERSEDED —** le reader cible lit le read model d'index convergent et ne joint pas latest-known.
 
 **IMPLEMENTATION CHOICE —** l'adapter shadow reçoit du futur Query Kernel les plages applicables `(fromVersion, toVersion, pipelineVersion)` et les traduit en prédicats SQL. `PipelineSelectionStrategy` n'intervient jamais lors de la production des lignes.
 
@@ -265,11 +273,16 @@ L'index dérivé ne peut pas contenir `A -> X@13` avant la matérialisation atom
 
 **IMPLEMENTATION CHOICE —** le contrat shadow 7.7 retourne uniquement les Pots dont l'entrée exacte sélectionnée est matérialisée et exposable. Il ne crée pas une structure source-membership séparée.
 
-**BLOCKER —** avant cutover de `GET /pots`, le Lot 7.9 doit fermer la décision produit : liste des seuls Pots exposables, ou signalement des appartenances source connues mais NOT_READY. La seconde sémantique exigerait une connaissance supplémentaire explicitement conçue ; elle ne doit pas être ajoutée implicitement à 7.7.
+**DECISION CLOSED AFTER 7.7 —** la liste cible expose l'état convergent de son index. Un nouveau Pot
+peut être temporairement absent et un ancien Pot temporairement présent. Elle ne crée aucune
+connaissance source-membership supplémentaire et n'essaie pas de signaler NOT_READY pour une entrée
+qui n'existe pas encore dans l'index.
 
 ## 19. Accélération éventuelle
 
-**IMPLEMENTATION CHOICE —** aucune table current fonctionnelle ou technique n'est créée initialement. Index versionné + watermark sont d'abord validés avec PostgreSQL et `EXPLAIN`.
+**IMPLEMENTATION CHOICE —** aucune table current fonctionnelle ou technique n'est créée initialement.
+L'index versionné a été validé en shadow ; latest-known ne participe plus à la reconstruction cible
+de la liste.
 
 Toute accélération ultérieure porte obligatoirement :
 
@@ -278,7 +291,8 @@ TECHNICAL ACCELERATION
 NOT FUNCTIONAL SOURCE OF TRUTH
 ```
 
-Elle est reconstructible depuis metadata, index versionné et watermarks, et ne change ni READY/NOT_READY ni sélection de génération.
+Elle est reconstructible depuis metadata et index versionné, et ne change ni READY/NOT_READY ni
+sélection de génération.
 
 ## 20. Pagination keyset
 
@@ -301,12 +315,11 @@ Défaut 50, maximum 200, lecture `limit+1`, aucun OFFSET. Sur dataset stable : a
 
 Pour `/pots/{potId}/expenses/{expenseId}?version=V` ou le Shareholder équivalent :
 
-1. résoudre V et lire `latestKnownVersion(potId)` ;
-2. si `V > latestKnownVersion`, `NOT_FOUND` ;
-3. sélectionner `READ_POT` pour V ;
-4. source connue + projection exacte absente sans failure terminale : `NOT_READY` ;
-5. projection READY + enfant absent : `NOT_FOUND` ;
-6. projection READY + enfant présent : appliquer statut ACTIVE/DELETED puis autorisation future.
+1. établir d'abord l'autorisation correspondant à l'intention, sans révéler existence/readiness ;
+2. pour `EXACT(V)`, demander exactement READ_POT(V), sans décision fondée sur latest-known ;
+3. projection exacte absente sans failure terminale : `NOT_READY` ;
+4. projection READY + enfant absent : `NOT_FOUND` ;
+5. projection READY + enfant présent : retourner la sous-ressource à V.
 
 **CANONICAL INVARIANT —** l'absence d'un index secondaire n'entre jamais dans cette décision. La traduction HTTP finale reste 7.9.
 
@@ -315,7 +328,6 @@ Pour `/pots/{potId}/expenses/{expenseId}?version=V` ou le Shareholder équivalen
 Cas contractuel à préserver :
 
 ```text
-watermark=13
 READ_POT@12 READY
 READ_POT@13 READY
 BALANCES@13 READY
@@ -324,7 +336,8 @@ BALANCES@12 absent
 
 Une query Balance @12 sélectionne BALANCES applicable à 12 puis conclut `NOT_READY`. Elle ne tombe ni sur BALANCES@13, ni sur une autre version/génération READY.
 
-**CANONICAL INVARIANT —** source connue + artifact requis absent = NOT_READY ; aucun fallback temporel ou inter-génération.
+**CANONICAL INVARIANT —** après autorisation, EXACT(12) constate l'absence du composant requis à 12 ;
+aucun fallback temporel ou inter-génération.
 
 ## 23. Concurrence et idempotence
 
@@ -341,20 +354,24 @@ Les tests PostgreSQL prouvent : PK metadata, timestamps non null, versions posit
 
 Il n'existe aucune FK ou contrainte de routing enfant-parent ajoutée pour les GET.
 
-## 25. Rebuild
+## 25. Rematérialisation
 
 Sources exactes :
 
 - metadata read-side depuis `pot_version_metadata` primaire ;
 - index user/Pot depuis PotProjection exacte + metadata exacte ;
 - pagination depuis les mêmes lignes versionnées ;
-- accélération future depuis metadata, indexes versionnés et watermarks.
+- accélération future depuis metadata et indexes versionnés.
 
-Un rebuild ne consulte ni horloge courante, ni timestamps Task/Event, ni projection V-1. L'orchestration en masse reste 7.8.
+Une rematérialisation par nouvelle `pipelineVersion` ne consulte ni horloge courante, ni timestamps
+Task/Event, ni projection V-1. La redécouverte normale 7.5 remplace toute orchestration 7.8 autonome.
 
 ## 26. Observabilité
 
-Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'index, lignes créées/adoptées, curseur invalide, lag watermark/artifact et résultat des audits. IDs uniquement dans les logs corrélés, pas dans les labels métriques.
+Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'index, lignes
+créées/adoptées, curseur invalide et résultat des audits. La distance signée latest-known/artifact
+reste informative et ne prouve ni continuité ni readiness. IDs uniquement dans les logs corrélés,
+pas dans les labels métriques.
 
 ## 27. Tests `createdAt`
 
@@ -362,7 +379,7 @@ Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'in
 - même version : timestamp stable et non modifiable ;
 - plusieurs Events : aucun effet ;
 - rollback/retry : aucun orphelin ;
-- projection/rebuild : même valeur ;
+- deux matérialisations par des pipelineVersions distinctes : même valeur ;
 - deux Pots peuvent partager un timestamp ;
 - heure de projection différente : `updatedAt` inchangé ;
 - metadata absente/divergente : échec explicite.
@@ -378,9 +395,9 @@ Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'in
 - rollback après chaque point d'injection ;
 - aucune utilisation de l'index comme ACL.
 
-## 29. Tests liste et pagination
+## 29. Tests shadow livrés pour la liste et la pagination
 
-- join sur watermark individuel de chaque Pot ;
+- join shadow historique sur latest-known individuel de chaque Pot, superseded pour le reader cible ;
 - génération sélectionnée selon chaque version ;
 - ordre `updatedAt DESC, potId ASC`, y compris timestamps égaux ;
 - pages sans doublon/omission sur dataset stable ;
@@ -389,18 +406,18 @@ Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'in
 - relation A apparue à V13 NOT_READY : absence explicite du résultat shadow, sans fausse entrée ni structure auxiliaire ;
 - `EXPLAIN` sur PostgreSQL/Testcontainers.
 
-## 30. Contract tests readiness/sous-ressources
+## 30. Contract tests readiness/sous-ressources réattribués à 7.9
 
 À préparer pour 7.9, avec fixtures/adapters 7.7 :
 
-- V connue + READ_POT@V absente : `NOT_READY` ;
+- AUTH autorise + READ_POT@V applicable absente : `NOT_READY` ;
 - READ_POT@V READY + Expense absente : `NOT_FOUND` ;
 - READ_POT@V READY + Shareholder absent : `NOT_FOUND` ;
-- V au-delà du watermark : `NOT_FOUND` ;
+- latest-known en avance ou en retard : aucune décision à lui seul ;
 - failure terminale : sémantique FAILED dédiée, pas NOT_READY ;
 - Balance @12 absente malgré Balance @13 READY : NOT_READY sans fallback.
 
-## 31. Séquence d'implémentation
+## 31. Séquence d'implémentation historique exécutée
 
 1. Revalider numéros Flyway et bases legacy.
 2. Ajouter metadata/version primaire append-only.
@@ -410,7 +427,7 @@ Prévoir métriques/logs structurés pour metadata absente/conflit, conflit d'in
 6. Ajouter schéma/writer user-Pot dans la transaction PotProjection.
 7. Ajouter adapter shadow de liste par watermark et génération explicites.
 8. Ajouter codec et requête keyset PostgreSQL, sans endpoint public.
-9. Tester concurrence, hors-ordre, rebuild et non-régression 7.6.
+9. Tester concurrence, hors-ordre, rematérialisation et non-régression 7.6.
 10. Préparer les contract tests de sous-ressources sans routing.
 11. Mettre à jour la documentation canonique factuelle.
 12. Valider localement, pousser via PR protégée et attendre la CI verte.

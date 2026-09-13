@@ -113,17 +113,16 @@ canoniques :
 actuel. Les permissions globales et scopes appartiennent au principal d'appel futur et ne sont pas
 des données du snapshot Pot.
 
-## Delete Pot : divergence write-side connue
+## Delete Pot terminal
 
 Le snapshot de la version de suppression reste reconstructible : le Pot header applicable porte
 `deleted=true` et les fragments enfants demeurent historisés. Il doit produire un statut projeté
 `DELETED`, sans effacer les versions antérieures.
 
-La cible architecturale exige que le delete du Pot soit terminal. L'état actuel documenté du write
-side autorise encore certaines mutations d'Expense après le delete du Pot, car leurs contextes
-valident la suppression de l'Expense mais pas celle du Pot. Le projector ne doit ni masquer ni
-réinterpréter cette divergence. Le Lot 7.6 prouve d'abord la reconstruction shadow de la version
-`DELETED`, puis livre un micro-correctif write-side strictement ciblé et ses tests avant clôture.
+Depuis le micro-correctif du Lot 7.6, le delete du Pot est terminal. Les contextes de création,
+suppression et modification d'Expense vérifient l'état deleted du Pot avant toute allocation de
+version, écriture primaire ou émission d'Event. Le projector conserve néanmoins la responsabilité de
+reconstruire exactement la version de suppression et ne supprime aucun historique antérieur.
 
 ## Source temporelle de `updatedAt`
 
@@ -143,7 +142,8 @@ explicitement avant la migration V11 ; aucun backfill approximatif n'est exécut
 
 Le read store adopte ou vérifie la copie exacte dans sa propre `pot_version_metadata` lors de la
 matérialisation. Cette metadata alimente `updatedAt` dans l'index utilisateur/Pot. Le digest publié de
-`read-pot/v1` reste inchangé : la metadata est adjacente au snapshot canonique, stable entre rebuilds
+`read-pot/v1` reste inchangé : la metadata est adjacente au snapshot canonique, stable entre
+matérialisations par une nouvelle pipelineVersion
 et vérifiée par l'idempotence de la matérialisation.
 
 ## Points de code vérifiés

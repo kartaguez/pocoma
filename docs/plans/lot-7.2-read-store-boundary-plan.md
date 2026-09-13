@@ -1,5 +1,9 @@
 # Pocoma — Lot 7.2 — Séparation logique du read store
 
+> **Dossier de réalisation partiellement satisfait.** Module, schéma, migrations et transactions
+> read-store sont livrés. L'isolation des permissions SQL GET et la sortie complète de BALANCE du
+> primaire restent ouvertes dans le plan directeur courant.
+
 ## 1. Objectif
 
 Le Lot 7.2 crée la frontière logique et technique de persistence du read side, sans introduire de

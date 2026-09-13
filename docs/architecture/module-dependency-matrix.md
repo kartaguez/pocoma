@@ -26,9 +26,9 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-event` | Marqueur générique `BusinessEvent` | JDK | domaines fonctionnels, engines, frameworks | target |
 | `domain-pot` | Modèle Pot, valeurs, agrégats, `BusinessEvent` typés et vérité temporelle canonique `PotVersionMetadata` | JDK | autres domaines, engines, frameworks | target Lots 6/7.7 |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
-| `domain-projection-balance` | `PotBalances`, `Balance`, calcul incrémental | `domain-pot`, JDK | engines, persistence, workers | target |
+| `domain-projection-balance` | Valeurs `PotBalances` et `Balance` ; calculs exacts ou legacy orchestrés par les engines | `domain-pot`, JDK | engines, persistence, workers | target values + legacy consumers |
 | `domain-projection` | identité générique, statut dérivé, artifact/failure/head, `LatestKnownVersion` et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
-| `domain-pipeline` | identité, applicabilité, catalogue/registry des définitions et stratégie statique de sélection reader par pipeline | JDK | tout module applicatif | target Lots 7.3.1/7.9 |
+| `domain-pipeline` | identité, applicabilité et catalogue/registry des définitions ; le lifecycle declared/active/serving reste à créer | JDK | tout module applicatif | target Lot 7.3.1 livré, Lot 7.14 restant |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
 
@@ -38,7 +38,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 |---|---|---|---|---|
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction, segmentation, `TaskDescriptor` | domaines nécessaires | infra, supra, runtime | shared |
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
-| `engine-query` | six lectures Pot/balances et ports query | Pot, policies, balance, core | command processing, consumption, workers | target |
+| `engine-query` | six lectures Pot/balances actuelles et ports query encore branchés au primaire | Pot, policies, balance, core | command processing, consumption, workers | legacy read path — remplacement Lots 7.9 à 7.13 |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
 | `engine-read-projection` | avance monotone de `LatestKnownVersion`, matérialisation générique, reconstruction exacte de `PotProjection`, contrat d'index user/Pot et primitives de curseur keyset | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lots 7.4/7.6/7.7 |
 | `engine-task-creation` | pertinence Event→pipelineId, applicabilité canonique par génération et assurance atomique de toutes les Tasks Event-derived | Pot events, pipeline, core | consumption, workers, read store, sélection reader, materialization legacy | target Lot 7.5 |
@@ -72,7 +72,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + adapters legacy à migrer |
-| `infra-read-persistence` | frontière logique du read store : métadonnées génériques, watermark et quatre tables/writer Pot V5 | ports `engine-read-projection`, Spring JDBC/transactions et Flyway | target Lot 7.6, sans dépendance vers la persistence primaire |
+| `infra-read-persistence` | frontière logique du read store : métadonnées génériques, latest-known sous noms SQL legacy, quatre tables/writer Pot V5, metadata/index user V6 | ports `engine-read-projection`, Spring JDBC/transactions et Flyway | target Lots 7.2–7.7, sans dépendance vers l'adapter primaire |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |

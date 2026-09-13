@@ -1,167 +1,109 @@
 # Architecture cible du read side
 
-## 1. Statut et périmètre
+## 1. Autorité et périmètre
 
-Ce document formalise la cible normative du Lot 7 pour le read side de Pocoma. Il synthétise le
-cadrage validé et le confronte au code au HEAD `24ef19fb849d53c119668193c61d66e62d07504f`.
-Le plan directeur de réalisation est désormais porté par
-[`lot-7-read-side-implementation-plan.md`](../plans/lot-7-read-side-implementation-plan.md). Les
-choix encore ouverts sont des décisions d'implémentation ou de produit différées aux lots concernés,
-pas des ambiguïtés sur les invariants consolidés ici.
+Ce document est la référence normative du Lot 7. Il décrit la cible décidée, pas nécessairement le
+code déjà livré. L'[état actuel](read-side-current-state.md) inventorie l'implémentation réellement
+présente et le [plan directeur](../plans/lot-7-read-side-implementation-plan.md) séquence l'écart restant.
 
-Il constitue la baseline canonique pour les analyses et le découpage des Lots 7.x. Il ne décrit
-ni un ordre de réalisation, ni des migrations, ni des classes ou tables définitives.
+En cas de contradiction, le présent document prévaut pour l'architecture read-side. Les invariants
+du write side restent définis dans [write-side-closure.md](write-side-closure.md).
 
-Documents complémentaires :
+La cible couvre :
 
-- [État actuel du read side](read-side-current-state.md), pour l'inventaire factuel des GET, des
-  sources SQL et des deux persistences Balance existantes ;
-- [Clôture du write side](write-side-closure.md), pour la voie canonique de mutation ;
-- [Runtime Task Balance](consumption-task-balance-runtime.md), pour les garanties actuelles du moteur
-  générique de consommation et de la projection Balance.
+- la consommation indépendante des Business Events et Tasks ;
+- les projections versionnées et leurs indexes dérivés ;
+- les lectures `CURRENT` et `EXACT(V)` ;
+- l'autorisation courante et historique ;
+- la coexistence et le cutover des versions de pipeline ;
+- l'observabilité et l'extinction du legacy.
 
-Le write side du Lot 6 reste hors périmètre fonctionnel du Lot 7. Une incohérence constatée avec
-l'invariant de delete terminal est néanmoins signalée en section 14 : elle ne peut pas être compensée
-correctement par le read side.
+## 2. Invariant transversal d'ordre et de convergence
 
-## 2. Résumé de la cible
+Le read side doit rester correct quel que soit l'ordre de traitement des Events et des Tasks.
 
-Le write side conserve seul la vérité métier historisée. Toute mutation canonique suit :
+- Aucune projection ne dépend fonctionnellement de `N-1` pour produire `N`.
+- Aucune FIFO globale ou par Pot n'est requise pour la correction.
+- Les trous sont autorisés.
+- Retry, duplicate et traitement hors ordre convergent par identité exacte.
+- Les artifacts sont immuables et idempotents ; un contenu divergent sous la même identité est une
+  violation, jamais un overwrite.
+- Les heads et autres états courants monotones avancent par maximum et ne prouvent aucune continuité.
+- Chaque pipeline produit et converge indépendamment des autres pipelines.
 
-```text
-POST /api/v1/commands
-  -> RecordedCommand durable
-  -> Command consumption worker
-  -> use case Pot
-  -> état primaire historisé + BusinessEvent atomique
-```
+L'ordre peut être utilisé pour la pagination, la fairness, la reproductibilité d'un digest ou
+l'efficacité d'un parcours. Il ne devient pas pour autant une précondition fonctionnelle.
 
-Le read side est un ensemble autonome d'états dérivés. Les projections sont déterministes,
-reconstructibles, versionnées et immuables ; `LatestKnownVersion` est au contraire un état mutable
-monotone. Tous apprennent les évolutions par les Business Events et un lifecycle de consumption
-durable.
+## 3. Sources et frontière du read store
 
-```text
-                                      +-> LatestKnownVersion
-BusinessEvent durable ----------------|       latestKnownVersion
-                                      |
-                                      +-> Event -> Task -> Task worker
-                                                -> primaire historisé @ potVersion
-                                                -> projection immuable
-                                                -> état + head + indexes atomiques
+Le write side versionné et les Business Events durables restent les sources autoritatives. Le read
+store ne devient jamais un second primaire : tout état métier qu'il contient est dérivé et
+reconstructible depuis l'historique durable.
 
-GET -> read store uniquement -> version exacte ou état explicite
-```
+Le chemin normal d'un GET cible ne lit ni ne joint le modèle primaire. Les projectors peuvent relire
+l'historique primaire exact afin de matérialiser une projection. Le write side n'écrit jamais une
+projection ou un index read-side.
 
-Le primaire historisé est une source de reconstruction des projections, jamais une dépendance du
-chemin normal des GET. Il n'existe ni jointure runtime read/primary, ni fallback silencieux vers le
-primaire, une ancienne version du Pot ou une ancienne version de pipeline.
-
-## 3. Frontières et ownership
-
-### Write store
-
-Le write store possède :
-
-- la version source autoritative du Pot ;
-- les fragments historisés du modèle primaire ;
-- les Business Events atomiques avec les mutations métier.
-
-### Read store
-
-Le read store possède :
-
-- les watermarks de versions source observées ;
-- les artifacts de projection et leurs fragments physiques ;
-- les états fonctionnels et heads de projection ;
-- les indexes secondaires nécessaires aux queries ;
-- les données contextuelles nécessaires aux autorisations de lecture.
-
-Le déploiement initial peut utiliser la même instance PostgreSQL, mais avec une séparation logique
-permettant des schémas, datasources, migrations, transactions et ownership distincts. Le modèle ne
-doit contenir aucune FK, vue ou jointure exigeant que read et primary résident dans la même base.
-
-Le déplacement futur du read store vers une autre instance ne doit pas changer le modèle fonctionnel.
-Il nécessitera cependant un protocole idempotent et fencé entre le lifecycle de consumption et le read
-store, sans transaction distribuée implicite. Un effet direct n'est autorisé aujourd'hui que lorsque
-sa mutation et le CAS terminal partagent la même transaction PostgreSQL.
-
-Deux modes de dérivation sont autorisés :
+Une matérialisation rend atomiquement visibles, dans la frontière transactionnelle retenue :
 
 ```text
-Event -> consumption fiable -> petit effet local atomique
-Event -> consumption fiable -> Task -> Task Executor -> travail autonome durable
+artifact logique complet
++ descriptor
++ ProjectionHead éventuel
++ indexes indispensables à son exposition
 ```
 
-Le premier est réservé à un effet déterministe ou idempotent, borné, court, sans appel externe et
-local à la transaction du slot. Le second est requis pour un travail long, découplé en capacité, non
-atomique avec la consumption ou dépendant d'une autre ressource. `LatestKnownVersion` relève du
-premier ; les projections versionnées relèvent du second.
+Un reader ne doit jamais observer `READY` sans artifact complet ni un index fonctionnel pointant vers
+un artifact invisible.
 
-## 4. Modèle temporel
+## 4. LatestKnownVersion
 
-### Version source observée
-
-La version autoritative n'est jamais lue synchroniquement par le read side. Pour chaque `potId`, le
-read store maintient un `LatestKnownVersion.latestKnownVersion` : la plus haute `potVersion`
-effectivement matérialisée par son consumer depuis un Business Event.
-
-La mise à jour est idempotente et hors-ordre :
+Pour un Pot :
 
 ```text
-latestKnownVersion = max(latestKnownVersion, event.potVersion)
+latestKnownVersion
+= plus grande business version dont le read side connaît l'existence
 ```
 
-Un consumer Event direct transactionnel porte cette seule responsabilité. Il ne crée pas de Task, ne
-relit pas le primaire et ne matérialise aucune projection. Son max-upsert, sa provenance et le CAS
-terminal fencé committent ou rollbackent ensemble.
-
-Une courte fenêtre où le write side est en `N` et le read side en `N-1` est admise.
-`latestKnownVersion=N` ne prouve ni la continuité de 1 à N, ni le traitement des versions antérieures,
-ni l'existence d'une projection N. C'est une connaissance read-side asynchrone, pas une lecture
-synchrone absolue du write side.
-
-L'identité fonctionnelle est `potId`. Le consumer conserve pour compatibilité l'identité protocolaire
-opaque `SOURCE_VERSION_WATERMARK` ainsi que les noms SQL historiques
-`source_version_watermarks.latest_version_seen`.
-
-### Version projetée
-
-Pour chaque couple Pot/pipeline, un `ProjectionHead.latestProjectedVersion` désigne la plus haute
-version dont l'artifact a été matérialisé avec succès. L'identité logique du head est :
+La connaissance est matérialisée par un consumer Event direct, court et transactionnel :
 
 ```text
-projectionType + pipelineId + pipelineVersion + potId
+BusinessEvent
+  -> consumer latest-known-version
+  -> moteur générique de consumption
+  -> claim / lease / fencing / retry
+  -> max-upsert(potId, event.version)
 ```
 
-Le head est une donnée fonctionnelle canonique, pas un cache de `MAX(artifact.version)`. Il est
-monotone et peut avancer malgré des trous : si 44 et 46 sont `READY` mais 45 ne l'est pas,
-`latestProjectedVersion=46`.
+Le consumer ne crée aucune Task, ne produit aucune projection métier et n'appelle aucun service
+externe. Sa mise à jour, sa provenance et sa terminalisation fencée commit ou rollback ensemble.
 
-`latestKnownVersion` et `latestProjectedVersion` restent dans des objets distincts, avec des producteurs
-distincts. Aucun ordre d'arrivée entre ces producteurs ne peut être supposé.
+`latestKnownVersion` est unique par Pot, mutable, monotone, idempotent, sûr hors ordre et indépendant
+de tous les pipelines métier.
 
-Les deux chemins issus d'un Business Event sont indépendants. Un Event ou une Task de projection
-légitime portant `potVersion=N` suffit à établir l'intention de projeter N : aucun acquire, claim ou
-projector n'attend que `latestKnownVersion` atteigne N. Il est donc valide que
-`latestProjectedVersion > latestKnownVersion` de manière transitoire.
+Il ne prouve pas :
 
-Un artifact produit en avance ne fait pas progresser `latestKnownVersion`. Seul le consumer direct
-transactionnel, ou une réparation administrative explicite de l'état dérivé, fait évoluer cette
-connaissance.
+- que toutes les versions inférieures ou égales ont été observées ;
+- qu'un artifact existe à cette version ;
+- qu'une projection ou une autorisation est prête ;
+- qu'un autre consumer a progressé.
 
-### Version exposable
+Il ne doit jamais servir de gate au scheduling, à l'acquire ou à l'exécution d'une Task. Ces états
+sont normaux :
 
-`latestExposableVersion` est une notion dérivée : la plus haute version servable compte tenu de la
-projection demandée, des projections nécessaires à l'autorisation et des indexes indispensables. Elle
-n'est pas stockée dans un head générique. Un index secondaire courant peut, par construction, ne
-référencer que des versions exposables.
+```text
+latestKnownVersion = 15, best READY READ_POT = 13
+best READY READ_POT = 15, latestKnownVersion = 14
+```
 
-## 5. Modèle de projection
+Les identifiants persistés `SOURCE_VERSION_WATERMARK` et
+`source_version_watermarks.latest_version_seen` restent compatibles avec le code et les données
+existantes. Ce sont des noms physiques legacy ; ils ne définissent plus une sémantique de watermark
+de continuité.
 
-### Identité et générations
+## 5. Modèle générique de projection
 
-Toute projection canonique, Pot comme Balance, utilise l'identité complète :
+L'identité d'un artifact est complète :
 
 ```text
 projectionType
@@ -171,472 +113,378 @@ potId
 potVersion
 ```
 
-Plusieurs pipelines et générations peuvent coexister pour permettre backfill, comparaison, bascule,
-rollback et rétention. Toutes les générations applicables peuvent être produites. Pour l'exposition,
-le reader utilise une `PipelineSelectionStrategy` statique propre à chaque `pipelineId` ; il ne choisit
-jamais la plus grande `pipelineVersion` et ne retombe jamais implicitement sur une autre génération.
+Une `PipelineVersionDefinition` associe `pipelineId + pipelineVersion` à sa plage d'applicabilité sur
+les business versions. Toute définition applicable produit sa propre Task et son propre artifact,
+indépendamment de la version éventuellement exposée aux clients.
 
-Une bascule exige que toutes les projections courantes et dépendances nécessaires aux lectures
-courantes soient exposables. Le backfill historique complet n'est pas une précondition. Les anciennes
-générations restent présentes jusqu'à application d'une politique explicite de rétention/GC.
-
-### Artifact immuable et snapshot logique
-
-`PotProjection(potVersion=N)` est le snapshot canonique complet, autonome et immuable du Pot en `N`.
-Il porte notamment le header, le statut métier, les Shareholders, les Expenses, leurs shares et le
-contexte d'autorisation versionné nécessaire aux ressources contenues.
-
-La complétude est logique, pas physique. Header et collections peuvent être répartis dans plusieurs
-tables afin de permettre pagination, indexation, lecture partielle et accès direct. Chaque fragment
-conserve les éléments d'identité nécessaires pour appartenir sans ambiguïté au snapshot.
-
-Il n'existe initialement ni `PotDetailsProjection`, ni `PotExpensesProjection`, ni timeline autonome
-d'Expense ou de Shareholder. Une nouvelle projection spécialisée exige une query concrète qui la
-justifie.
-
-Pour une identité complète, le résultat est déterministe : un contenu identique peut être adopté ; un
-contenu différent viole l'invariant. Un artifact existant n'est jamais écrasé. Si l'identité est déjà
-`READY` avec un artifact A et qu'une nouvelle exécution calcule B différent, A reste inchangé, B n'est
-pas écrit et le statut fonctionnel reste `READY`. La divergence est enregistrée et remontée comme une
-violation d'invariant séparée ; elle ne provoque jamais automatiquement `READY -> FAILED`. Une
-éventuelle quarantaine administrative serait un mécanisme distinct.
-
-### Applicabilité, sélection reader, statut fonctionnel dérivé et head
-
-`PipelineVersionDefinition` associe l'identité globale `pipelineId + pipelineVersion` à une
-`VersionApplicability` continue. Une définition publiée est immuable et conservée tant que sa
-génération peut être référencée. `appliesTo(potVersion)` est l'unique règle d'applicabilité et de
-production ; aucune notion supplémentaire de génération active n'existe côté producer.
-
-`PipelineSelectionStrategy` choisit uniquement ce que les readers exposent. Pour un `pipelineId`, elle
-contient une liste ordonnée `(fromPotVersion, pipelineVersion)` et résout le plus grand seuil inférieur
-ou égal à V. Les seuils sont positifs et strictement croissants ; les pipelineVersions peuvent revenir
-en arrière ou se répéter. La stratégie peut être vide et son premier seuil peut dépasser 1.
-
-Une stratégie absente pour un pipeline demandé est une erreur de configuration. Une stratégie vide ou
-V avant son premier seuil donne `NOT_FOUND`. Toute version référencée doit exister dans le catalogue
-pour le même pipelineId. La stratégie est statique en code, unique par pipelineId dans un build, sans
-SQL, refresh dynamique, variation par endpoint/utilisateur/scope/query ou fallback.
-
-Pour une version applicable, `ProjectionStatus` est une vue fonctionnelle dérivée :
+Pour une identité applicable, le statut est dérivé :
 
 - artifact complet présent : `READY` ;
-- `ProjectionFailure` terminale présente : `FAILED` ;
-- ni artifact ni failure : `NOT_READY`, y compris pendant les retries temporaires.
+- failure terminale présente : `FAILED` ;
+- ni artifact ni failure : `NOT_READY`.
 
-Une définition sélectionnée mais non applicable produit `NOT_FOUND` et un signal interne, jamais un
-nouvel état fonctionnel. L'existence et le choix de version relèvent des sources propres au reader,
-pas du seul latest-known. Artifact et failure sont mutuellement exclusifs ; une failure tardive ne
-dégrade jamais un artifact réussi.
+Une définition non applicable n'est pas `NOT_READY` : elle ne désigne pas de projection attendue à
+cette version. Tasks, slots, claims, leases et retries restent des états opérationnels et ne sont
+jamais consultés pour dériver ce statut.
 
-Le statut n'est pas persisté dans une table de state. Il est résolu sans lire le lifecycle technique
-des Tasks, claims, leases, slots ou retries. Un GET et un reader restent strictement read-only ; un
-projector ne crée pas d'attente opportuniste. Aucune expectation, state ou table parent équivalente
-n'est persistée. Les Tasks portent l'ordonnancement ; leur présence ou absence ne définit pas le statut.
+### ProjectionHead
 
-## 6. Production et reconstruction
-
-`PipelineVersionDefinition` est conservée dans `PocomaPipelineDefinitions`, catalogue framework-free
-et canonique. Chaque processus construit son registry local depuis ce catalogue : mêmes valeurs sans
-partage d'instances Java. Les générations inactives restent adressables jusqu'à leur GC explicite.
-
-Le pipeline canonique est celui déjà adopté pour Balance :
+`ProjectionHead.latestProjectedVersion` est la plus grande business version matérialisée avec succès
+pour une identité de génération :
 
 ```text
-BusinessEvent(V)
-  -> toutes les PipelineVersionDefinition applicables du pipelineId
-  -> Task(eventId, pipelineId, pipelineVersion, potId, potVersion)
-  -> Task worker du pipeline
-  -> reconstruction primaire exacte @ potVersion
-  -> calcul complet
-  -> matérialisation read-side
+projectionType + pipelineId + pipelineVersion + potId
 ```
 
-Par défaut, chaque projection repart directement du primaire historisé à la version exacte. Elle ne
-rejoue pas les Commands, ne dépend pas d'une projection précédente et n'a pas besoin de rejouer tous
-les Events.
+Le head est un maximum observé, pas un watermark de continuité. Si 44 et 46 sont `READY` mais 45 ne
+l'est pas, le head vaut 46. Il sert à l'observabilité et à certaines classifications explicites ; il
+ne suffit jamais à prouver qu'une version intermédiaire est prête, qu'une convergence initiale est
+complète ou qu'une vue composée est servable.
 
-Une dépendance inter-projection est admise uniquement si elle est explicite et porte l'identité
-complète de l'artifact source. Le calcul reste alors reproductible et ne dépend jamais de « la version
-actuellement active » d'un pipeline source.
+## 6. Composants logiques et vues composées
 
-Lors d'un succès, une unique transaction du read store rend atomiquement visibles :
+Une query déclare statiquement ses composants requis. Un composant est un artifact logique versionné
+produit par un pipeline. Ce n'est ni une table, ni un fragment SQL.
+
+`READ_POT`, par exemple, reste un seul composant même si son artifact est physiquement réparti entre
+snapshot, Shareholders, Expenses et shares. Il n'existe pas de projection Expense ou Shareholder
+autonome tant qu'une query concrète ne le justifie pas.
+
+Une réponse composée respecte une mono-version interne : tous ses composants sont lus à la même
+business version. Deux endpoints indépendants peuvent néanmoins servir des versions différentes :
 
 ```text
-artifact complet et tous ses fragments
-+ descriptor d'artifact éventuel
-+ max(ProjectionHead.latestProjectedVersion, potVersion)
-+ indexes secondaires indispensables dérivés de cette projection
+GET /pots/42           -> servedVersion = 15
+GET /pots/42/balances  -> servedVersion = 13
 ```
 
-Le reader ne peut donc dériver `READY` sans artifact, ni voir un head sans artifact visible, ni projection
-canonique prête avec un index indispensable en retard.
+## 7. Intentions de lecture CURRENT et EXACT
 
-Cette transaction du read store constitue l'invariant permanent. Tant que read store et lifecycle
-Task sont colocalisés dans PostgreSQL, le Lot 7 peut également coordonner la terminalisation de la Task
-dans la même transaction locale. C'est un choix d'implémentation, pas une extension de l'invariant
-fonctionnel. Une séparation physique future devra obtenir une reprise équivalente par idempotence et
-fencing, sans supposer de commit distribué atomique.
-
-Les pipelines peuvent terminer hors ordre. Les heads et tout index secondaire représentant le courant
-doivent donc être protégés par la version : une matérialisation tardive de 45 ne peut pas faire
-reculer un index déjà positionné par 46.
-
-## 7. Workers, backfill et réparation
-
-Le producer ne consulte ni artifact, failure, head, statut ni stratégie reader. L'identité durable
-d'une Task Event→Task est `(eventId, pipelineId, pipelineVersion)` ; deux Events distincts de même
-version restent indépendants. Toutes les Tasks partagent le payload d'exécution conceptuel
-`ProjectionExecutionPayload(pipelineId, pipelineVersion, potId, potVersion)`, distinct de leur
-provenance. `eventId` appartient à la provenance Event, pas au payload commun. Un conflit de Pot ou
-version sous une identité existante est une violation sans overwrite ; la représentation Java reste ouverte.
-
-Le moteur de consommation et ses garanties restent génériques. Les pools sont néanmoins isolés par
-pipeline afin d'autoriser un dimensionnement indépendant et d'empêcher l'affamement entre projections
-lourdes. Le nombre d'instances n'est pas un invariant d'architecture.
-
-Plusieurs workers d'un même pipeline peuvent scanner, claim et exécuter en concurrence via le
-fencing : c'est le fonctionnement normal d'un pool. Un seul producer logique coordonné évalue le
-catalogue et crée/adopte les Tasks de toutes les définitions applicables.
-
-Le backfill volontaire utilise le même payload d'exécution, le même executor et les mêmes garanties
-que le trafic normal, avec une provenance différente. Une Task administrative a pour identité
-`(campaignId, potId, potVersion, pipelineId, pipelineVersion)` et peut exister sans Event. Deux campagnes
-peuvent viser la même ProjectionIdentity ; la matérialisation finale reste idempotente.
-
-La réparation automatique est distincte et limitée aux trous anormaux ou projections applicables
-absentes/défaillantes. Elle ne remplace pas un backfill ou une migration
-volontaire.
-
-## 8. Résolution des lectures unitaires
-
-### Choix de la version et dépendance legacy
-
-La règle historique qui assimilait la version `current` à `latestKnownVersion` est une dépendance
-legacy à refondre dans un lot reader séparé. Elle est incompatible avec la sémantique désormais
-explicite : latest-known peut être 15 avec la meilleure projection à 13, et la meilleure projection
-peut temporairement être 15 avec latest-known à 14. Ce refactor ne modifie pas le reader, mais aucun
-nouveau code ne doit renforcer cette égalité.
-
-Après détermination de V et contrôle du watermark, le reader récupère la stratégie du pipeline,
-résout V, reconstruit l'identité de génération, charge sa définition exacte et vérifie `appliesTo(V)`.
-Une stratégie absente ou une définition absente est une erreur de configuration. Une résolution vide
-ou une définition sélectionnée non applicable donne `NOT_FOUND`, cette dernière avec un signal interne.
-Current et historique suivent ce même chemin ; seule la détermination initiale de V diffère.
-
-Pour une version explicite `V` :
-
-| Condition read-side | Résultat fonctionnel |
-|---|---|
-| Pot ou version absente selon les sources propres au reader | `NOT_FOUND` |
-| `LatestKnownVersion` en retard ou en avance sur les projections | aucune décision à lui seul |
-| stratégie vide, V avant son premier seuil ou définition sélectionnée non applicable | `NOT_FOUND` |
-| V connue et contexte d'autorisation exact absent, `NOT_READY` ou `FAILED` | `NOT_READY` |
-| contexte d'autorisation `READY` mais accès refusé | `NOT_FOUND` masqué |
-| contexte d'autorisation `READY`, accès accordé et projection métier `FAILED` | `FAILED` |
-| contexte d'autorisation `READY`, accès accordé et projection métier non prête | `NOT_READY` |
-| contexte d'autorisation, artifact métier et préconditions d'exposition prêts | `READY` |
-
-Une projection Balance `READY` n'est pas exposable tant que la `PotProjection` sélectionnée par la
-stratégie READ_POT à la même `potVersion` n'est pas disponible pour l'autorisation. Balance et READ_POT
-gardent leurs stratégies indépendantes ; aucune autorisation n'utilise une génération différente de
-celle sélectionnée pour l'artifact de contexte. Cette précondition ne crée aucune dépendance de calcul ou
-d'ordre entre les deux pipelines. Que cette PotProjection soit absente, `NOT_READY` ou `FAILED`, son
-indisponibilité produit fonctionnellement `NOT_READY`, donc HTTP 409. Son état interne reste observable
-opérationnellement. Le 404 est réservé à une inexistence établie ou à un refus évalué depuis un
-contexte PotProjection `READY`.
-
-La même priorité s'applique aux lectures Pot, Expense et Shareholder, car leur `PotProjection` porte
-à la fois les données métier et le contexte d'autorisation versionné. Une PotProjection `FAILED` ne
-produit donc pas automatiquement un 503 côté client : tant qu'elle ne permet pas d'établir
-l'autorisation, la réponse fonctionnelle est `NOT_READY`/409. `FAILED`/503 n'est exposable pour une
-projection métier demandée qu'après disponibilité du contexte requis et autorisation accordée.
-
-La présence ou l'absence d'un artifact et la connaissance latest-known sont deux signaux indépendants.
-Le contrat `current` futur devra sélectionner explicitement la meilleure version exposable sans
-transformer latest-known en preuve d'existence ou de continuité.
-
-### Contrat HTTP
-
-| État fonctionnel | HTTP | Contenu minimal |
-|---|---:|---|
-| `NOT_FOUND` ou non autorisé | 404 | code fonctionnel stable |
-| `NOT_READY` | 409 | code, `requestedVersion`, `latestProjectedVersion` |
-| `FAILED`, après autorisation établie | 503 | code fonctionnel stable |
-| succès | 200 | représentation et `potVersion` réellement servie |
-
-Les réponses fonctionnelles n'exposent ni pipeline interne, ni worker, claim, retry count ou lag
-technique. Un succès n'expose pas systématiquement `latestKnownVersion` ou le lag.
-
-Le préfixe d'URL du code actuel est `/api` (`/api/pots`, `/api/expenses`) alors que le cadrage emploie
-la notation `/pots`. Ce document considère les routes du cadrage comme des noms fonctionnels et ne
-décide pas d'une rupture d'URI ou d'une version d'API.
-
-## 9. Autorisation temporelle
-
-Le read side évalue les droits contextuels exclusivement à partir des snapshots de la version
-consultée. Un utilisateur ajouté en version 50 n'acquiert donc pas rétroactivement un accès en 42.
-
-L'identité des GET provient du principal OAuth2 Resource Server. Les headers libres
-`X-User-Id`/`X-User-Scopes` décrits dans l'état courant sont un mécanisme legacy à retirer, pas une
-frontière d'identité cible.
-
-Les permissions de ressources sont autonomes :
+Le Query Kernel reçoit une intention explicite :
 
 ```text
-POT:VIEW                  POT:VIEW_ARCHIVE
-SHAREHOLDER:VIEW          SHAREHOLDER:VIEW_ARCHIVE
-EXPENSE:VIEW              EXPENSE:VIEW_ARCHIVE
-BALANCE:VIEW              BALANCE:VIEW_ARCHIVE
+CURRENT
+EXACT(V)
 ```
 
-Lire une Expense ne requiert pas en plus `POT:*`, même si le contexte de la PotProjection sert à
-évaluer l'accès. La même règle vaut pour Shareholder et Balance.
+### CURRENT
 
-Pour un Pot actif, une version égale au `latestProjectedVersion` de la projection servant la ressource
-requiert `VIEW`; une version inférieure requiert `VIEW_ARCHIVE`. Un snapshot dont le statut est
-`DELETED`/archivé requiert toujours `VIEW_ARCHIVE`, y compris s'il est le plus récent projeté.
-Cette classification reste volontairement fondée sur le head même lorsque celui-ci devance
-temporairement `latestKnownVersion`.
-
-Le current est global, jamais personnalisé. Une lecture sans version ne cherche pas une ancienne
-version autorisée. Une ressource ou version non autorisée est masquée par un 404, jamais révélée par
-un 403.
-
-L'ordre de résolution est impératif : établir l'existence source connue, sélectionner la génération,
-charger les projections exactes nécessaires au contexte d'autorisation, retourner `NOT_READY`/409 si ce contexte n'est pas `READY`,
-masquer en 404 un refus établi, puis seulement interpréter l'état de la projection métier demandée.
-Ainsi, une PotProjection d'autorisation absente, `NOT_READY` ou `FAILED` donne fonctionnellement
-`NOT_READY`/409 ; son éventuel `FAILED` reste visible dans l'observabilité opérationnelle. Lorsque le
-contexte est `READY` mais refuse l'utilisateur, le refus est masqué en 404. Après autorisation
-accordée, la projection métier demandée produit respectivement 409, 503 ou succès selon qu'elle est
-`NOT_READY`, `FAILED` ou `READY`.
-
-## 10. Query models et indexes secondaires
-
-Les indexes sont des structures read-side dérivées, non autoritatives et reconstructibles. Ils ne
-créent pas de nouvelle projection canonique.
-
-### Liste des Pots
-
-`GET /pots` retourne par défaut uniquement les Pots actifs. L'inclusion des supprimés/archivés exige
-un paramètre explicite en plus du scope adéquat.
-
-La query utilise un index historisé `userId -> PotProjection@V`, immuable et scopé par génération.
-Elle joint chaque candidat au `latestKnownVersion` individuel de son Pot, puis applique la génération
-sélectionnée pour cette version exacte. Aucune ligne fonctionnelle `current` n'est persistée. La
-pagination est par curseur/keyset sur un ordre strict :
+`CURRENT` sert la meilleure version exploitable déjà `READY`. Pour une vue dont les composants requis
+sont `C1 ... Cn` :
 
 ```text
-updatedAt DESC, potId
+servedVersion = max(intersection(READY(C1), ..., READY(Cn)))
 ```
 
-`updatedAt` est le `createdAt` durable et immuable de `PotVersionMetadata(potId, potVersion)`, créé
-dans la transaction primaire qui crée la version. Il ne provient ni des Events, ni des Tasks, ni du
-projector. Cet invariant est matérialisé depuis le Lot 7.7 par les migrations primaire V11 et
-read-store V6. Les données legacy sans timestamp exact ne reçoivent aucun backfill approximatif.
+L'intersection est calculée depuis les identités/artifacts exacts. Elle n'est jamais déduite des
+heads. `latestKnownVersion` est informatif et ne bloque pas la lecture.
 
-### Expenses et Shareholders
+Une version plus récente `FAILED` ou `NOT_READY` ne masque donc pas une version plus ancienne `READY` :
 
-Une sous-ressource est toujours adressée dans le contexte explicite de son Pot parent :
-`GET /pots/{potId}/expenses/{expenseId}` et
-`GET /pots/{potId}/shareholders/{shareholderId}`. Aucun GET global Expense ou Shareholder
-n'appartient au contrat cible.
+```text
+latestKnownVersion = 15
+READ_POT(15) = NOT_READY
+READ_POT(13) = READY
+CURRENT READ_POT -> serve 13
+```
 
-Le reader résout d'abord la version et la génération du Pot, puis la PotProjection exacte. Une
-version source connue dont la projection requise est absente donne `NOT_READY`. Une Expense ou un
-Shareholder absent ne donne `NOT_FOUND` qu'après chargement d'une PotProjection exacte READY. Aucun
-index transverse enfant vers Pot n'est nécessaire ni autorisé pour conclure à l'inexistence.
+Il n'existe aucun fallback opportuniste après la sélection : la recherche de la meilleure
+intersection `READY` est la définition même de `CURRENT`.
 
-### Balances transverses
+### EXACT(V)
 
-`GET /pots/balances/me` utilise un index/read model courant `userId -> Balances`. Il ne réalise ni
-N+1 Pot vers Balance, ni scan transverse au moment du GET. Cet index est mis à jour atomiquement avec
-la BalanceProjection dont il dérive et respecte le fencing monotone des versions.
+`EXACT(V)` exige que tous les composants requis soient `READY` exactement à V. Il ne sonde ni une
+business version antérieure, ni une autre version de pipeline. L'absence d'un composant exact est un
+état normal du Query Kernel, jamais une exception technique de cardinalité.
 
-## 11. Delete et statut métier
+### Sélection de la version de pipeline
 
-Chaque PotProjection porte son statut `ACTIVE`, `DELETED` ou futur équivalent. Aucun head mutable de
-statut n'est ajouté sans query concrète.
+La business version servie et la version de pipeline serving sont deux axes distincts. Pour chaque
+famille de composant, le reader utilise la version de pipeline explicitement `serving`. Il ne choisit
+jamais automatiquement la plus grande `pipelineVersion` et ne mélange pas plusieurs générations du
+même composant dans une réponse.
 
-La suppression du Pot est une version métier normale mais terminale : elle incrémente la version,
-reste consultable dans l'historique, interdit toute version future et requiert `VIEW_ARCHIVE` à la
-lecture. Ainsi, si 46 est la suppression, 46 existe et 47+ n'existe pas.
+## 8. Enveloppe versionnée
 
-Cet invariant est nécessaire à la stabilité des indexes courants ; il ne confère aucune sémantique de
-continuité à `LatestKnownVersion`.
+Toute réponse versionnée, `CURRENT` ou `EXACT`, utilise :
 
-La terminalité est une précondition produite par le write side. Le read side ne filtre, ne
-réinterprète et ne compense jamais des versions que le primaire aurait produites après le delete.
+```text
+VersionedQueryResponse<T>
+  requestedVersion
+  servedVersion
+  latestKnownVersion
+  generatedAt
+  data
+```
 
-## 12. Observabilité fonctionnelle
+- `requestedVersion` vaut exactement `CURRENT` ou le numéro demandé par le client.
+- `servedVersion` est la business version exacte et commune aux données retournées.
+- `latestKnownVersion` est la plus grande business version connue du read side ; ce champ est
+  informatif uniquement.
+- `generatedAt` est l'instant de génération de l'enveloppe, pas celui de la projection.
 
-Le read side expose au minimum, par pipeline et Pot ou sous forme agrégée adaptée :
+Aucun champ `stale` n'est exposé. Le client peut comparer `servedVersion` et `latestKnownVersion` sans
+que cette comparaison constitue une preuve de continuité ou de readiness.
 
-- l'écart `latestKnownVersion - latestProjectedVersion` ;
-- le nombre de projections `NOT_READY` ;
-- le nombre de projections `FAILED` ;
-- l'âge de la plus ancienne projection attendue.
+## 9. Listes et indexes secondaires
 
-Comme les consumers latest-known et projection sont indépendants, l'écart brut peut être
-négatif transitoirement si une projection termine avant l'observation directe du même Event. Ce cas
-doit être distingué d'un lag de projection positif ; ni la monotonie ni l'ordre relatif des deux
-watermarks ne permettent de l'exclure.
+Une liste est une vue convergente, pas un snapshot global atomique. Le read model
+`user -> PotProjection@V` est produit avec `READ_POT` et reste reconstructible.
 
-Claims, leases, retries et slots restent dans l'observabilité technique du runtime et ne contaminent
-pas le modèle fonctionnel du reader.
+Conséquences acceptées en V1 :
 
-## 13. Compatibilité avec le code existant
+- un nouveau Pot peut être temporairement absent ;
+- un ancien Pot peut rester temporairement visible ;
+- la collection peut changer entre deux pages ;
+- la pagination keyset garantit un parcours déterministe de l'état observé, pas un snapshot global.
 
-### Fondations directement réutilisables conceptuellement
+Le reader de liste ne relit ni le primaire ni `latestKnownVersion` pour reconstruire une collection.
+Il lit exclusivement l'index dérivé et les artifacts auxquels celui-ci se rattache. L'ordre canonique
+reste :
 
-| Cible | État actuel |
-|---|---|
-| Business Event portant `potId` et `version` | Tous les Events Pot typés exposent déjà ces deux valeurs. |
-| Reconstruction exacte depuis le primaire | Balance relit déjà l'état historisé à `targetVersion`. |
-| Pipeline Event -> Task -> worker générique | Chemin distribué Balance déjà actif. |
-| Identité complète de projection | `balance_projection_artifacts` applique déjà les cinq dimensions. |
-| Immutabilité/idempotence stricte | L'adapter Balance adopte le contenu identique et rejette un conflit. |
-| Hors-ordre des versions | Les artifacts Balance sont indépendants par version. |
-| Sélection explicite à migrer | Le reader Balance exige déjà `pipeline-id` et `pipeline-version`, mais pas encore une stratégie par version Pot. |
-| Pools séparables | Un runtime Task est configuré pour un pipeline et un ensemble de types. |
+```text
+updatedAt DESC, potId ASC
+```
 
-### Écarts attendus du chantier read-side
+`updatedAt` provient du `PotVersionMetadata.createdAt` durable de la business version, jamais de
+l'heure du worker, de l'Event ou de l'enveloppe HTTP.
 
-| Cible | Écart actuel |
-|---|---|
-| GET autonomes du primaire | Pot/Expense lisent `pot_global_versions` et les tables historisées ; Balance y lit encore version et autorisation. |
-| PotProjection complète | Aucun snapshot Pot read-side n'existe. |
-| LatestKnownVersion direct transactionnel | Consumer et store dédiés présents ; renommage conceptuel sans migration SQL. |
-| ProjectionStatus et ProjectionHead | La projection immuable Balance n'a ni statut fonctionnel dérivé dédié ni head. |
-| États HTTP | Une projection Balance absente devient actuellement une erreur technique ; les autorisations donnent 403. |
-| Autorisation archive | Les policies de lecture n'utilisent que `*:VIEW`; `BALANCE:VIEW_ARCHIVE` n'existe pas encore dans les permissions canoniques. |
-| Indexes transverses | Les listes actuelles relisent le primaire et `balances/me` réalise une boucle par Pot. |
-| Pagination keyset | La liste Pot actuelle est non paginée et triée par label. |
-| Identité authentifiée homogène | Les GET utilisent encore `X-User-Id` et `X-User-Scopes`, contrairement au POST Command protégé par Resource Server. |
-| Read store logique | Migrations, datasource et transactions sont aujourd'hui partagées ; `balance_projection_artifacts.pot_id` référence directement `pot_global_versions`. |
-| Legacy Balance unique | Le monolithe utilise encore les tables mutables `pot_balance_*` en parallèle des artifacts immuables. |
+## 10. Sécurité et autorisation
 
-### Points d'ancrage dans le code audité
+### Deux couches strictement distinctes
 
-Ces fichiers suffisent à retrouver les preuves principales sans nouveau crawl global :
+`TokenCapabilities` représente les scopes/capacités du token présenté au moment de la requête. Ces
+capacités sont toujours courantes et ne sont jamais historisées.
 
-- `domain-pot/.../event/BusinessEvent.java` : contrat commun `potId()`/`version()` ;
-- `infra-persistence-jpa/.../projection/JpaHistoricalPotBalanceSourceAdapter.java` : reconstruction
-  Balance à la version exacte ;
-- `infra-persistence-jpa/.../projection/JpaImmutableBalanceProjectionAdapter.java` : identité,
-  adoption idempotente et détection de conflit ;
-- `infra-persistence-jpa/.../db/migration/V5__transactional_task_consumption.sql` : schéma des
-  artifacts et FK actuelle vers `pot_global_versions` ;
-- `engine-query/.../GetPotService.java`, `GetExpenseService.java` et `GetPotBalancesService.java` :
-  résolution actuelle depuis le primaire et autorisation avant lecture Balance ;
-- `supra-http-rest-spring/.../RestExceptionHandler.java` : mapping actuel des refus en 403 et absence
-  de statuts read-side dédiés ;
-- `runtime-task-consumption-worker/.../TaskConsumptionRuntimeConfiguration.java` : binding Balance
-  et pool configuré par pipeline.
+`PotAuthorizationAtVersion` représente uniquement les faits métier du Pot à une business version :
 
-## 14. Incompatibilité du delete terminal avec le write side actuel
+```text
+isMember(userId, potId, version)
+isCreator(userId, potId, version)
+```
 
-Le cadrage suppose qu'aucune mutation ne peut créer une version après la suppression d'un Pot. Cette
-propriété n'est pas entièrement vraie au HEAD audité.
+Les droits fins sont dérivés de ces faits par la même policy métier que côté write. Le read side ne
+persiste pas une matrice de permissions déterministes et ne parle jamais de « scope historique ».
 
-Les preconditions Pot et la création d'Expense contrôlent bien `PotHeader.deleted`. En revanche,
-`DeleteExpenseContext`, `UpdateExpenseDetailsContext` et `UpdateExpenseSharesContext` reçoivent un
-booléen `deleted` alimenté par `ExpenseHeader.deleted`. Ils chargent aussi le PotHeader courant mais
-n'en propagent pas le statut supprimé. Une Expense encore active peut donc être supprimée ou modifiée
-après la suppression de son Pot, ce qui incrémente `pot_global_versions` et produit un nouvel Event.
+### Projection AUTH dédiée
 
-Conséquences :
+AUTH est une projection indépendante de `READ_POT`. La readiness de l'une ne prouve jamais celle de
+l'autre.
 
-- la version de delete Pot n'est pas nécessairement la dernière version ;
-- l'invariant 15 du cadrage est faux pour les données que le code peut produire ;
-- le read side ne peut pas réparer cette contradiction sans inventer une vérité différente du primaire.
+Comme toute projection métier durable, sa voie normale est :
 
-La cible conserve l'invariant « delete Pot terminal ». Sa mise en cohérence est un prérequis write-side
-externe au Lot 7 malgré la clôture annoncée du Lot 6. Tant que le correctif n'est pas effectif et
-validé, aucun lot dépendant de la terminalité du delete ne peut satisfaire ses critères de sortie. Le
-read side ne doit pas masquer cette contradiction par une règle locale.
+```text
+BusinessEvent -> Event vers Task -> Task AUTH durable -> executor AUTH
+              -> AUTH_HISTORY + AUTH_CURRENT
+```
 
-## 15. Décisions d'implémentation différées
+Le consumer express décrit plus bas ne remplace pas cette projection : il maintient seulement la
+frontière monotone `latestAuthRelevantVersion`.
 
-Les invariants d'autorisation, d'indépendance des consumers et d'atomicité read-store sont consolidés
-dans les sections précédentes. Les points ci-dessous restent volontairement à décider dans les lots
-qui en dépendent ; ils ne bloquent pas la conception conceptuelle du Lot 7.2.
+`AUTH_HISTORY` matérialise uniquement les changements pertinents de membership/creator. Il n'est pas
+nécessaire de produire un snapshot AUTH à chaque business version : pour `EXACT(V)`, le reader résout
+l'état effectif applicable à V.
 
-### Adressage des sous-ressources
+`AUTH_CURRENT` représente le dernier état AUTH current matérialisé et exploitable. Son avancement est
+sûr hors ordre et ne régresse jamais lorsqu'un Event plus ancien termine après un Event plus récent.
 
-La décision est fermée : toute sous-ressource est adressée sous son Pot parent. Le `potId` est donc
-disponible avant la résolution du watermark et du snapshot exact. Aucun routage global
-`expenseId -> potId` ou `shareholderId -> potId` n'est requis par le read side cible.
+### LatestAuthRelevantVersion
 
-### Sémantique de `updatedAt`
+`latestAuthRelevantVersion` est la plus grande version connue d'un Event susceptible de modifier
+`isMember` ou `isCreator`. Il est alimenté par un consumer Event direct, court, transactionnel et
+indépendant :
 
-Le tri keyset cible dépend de `PotVersionMetadata.createdAt`, créé une fois dans la transaction
-primaire de création de la version. Le Lot 7.7 a fermé cette source exacte et fourni les primitives
-shadow de pagination ; leur branchement HTTP appartient au Query Kernel et au cutover ultérieurs.
+```text
+BusinessEvent
+  |- LatestKnownVersionConsumer
+  `- LatestAuthRelevantVersionConsumer
+```
 
-### Protocole d'une séparation physique future
+Comme latest-known, il utilise un max-upsert, supporte duplicates et traitement hors ordre et ne crée
+aucune Task.
 
-L'atomicité à l'intérieur du read store est fixée. Le protocole concret qui coordonnera ultérieurement
-un lifecycle Task et un read store placés dans deux PostgreSQL distincts reste une décision
-d'implémentation future ; il devra respecter idempotence et fencing sans transaction distribuée
-implicite.
+### Autorisation CURRENT
 
-## 16. Invariants canoniques consolidés
+Une requête current combine les `TokenCapabilities` actuelles et les droits métier current du Pot.
+Avant toute révélation d'existence ou de readiness métier :
 
-1. Le write side n'écrit jamais dans le read store.
-2. Le chemin normal des GET ne lit ni ne joint le primaire.
-3. Une projection repart du primaire historisé exact, sauf dépendance inter-projection explicite et
-   complètement versionnée.
-4. Toute identité de projection comprend type, pipeline, génération, Pot et version du Pot.
-5. Les artifacts sont immuables, déterministes et strictement idempotents. Un duplicate divergent
-   laisse l'artifact et le statut dérivé `READY` inchangés et produit une violation séparée.
-6. Watermark source et head de projection sont distincts, par Pot, monotones et produits séparément ;
-   aucun projector n'est gaté par le watermark.
-7. `latestProjectedVersion > latestKnownVersion` et l'inverse sont temporairement valides ; aucun des
-   deux pipelines ne coordonne l'autre.
-8. `LatestKnownVersion` n'est ni une preuve de continuité, ni une preuve d'artifact, ni à lui seul une
-   règle de sélection du reader `current`.
-9. Le head est canonique, peut avancer malgré des trous et ne se recalcule pas depuis les artifacts.
-10. L'applicabilité canonique implique la production de toutes les générations applicables ; la
-    sélection reader, le scheduling et le statut restent indépendants.
-11. Pour une définition applicable, `NOT_READY` est dérivé uniquement de l'absence d'artifact et de
-    failure. Une définition sélectionnée non applicable donne `NOT_FOUND`, jamais `NOT_READY`.
-12. Artifact, descriptor éventuel, head et indexes indispensables deviennent visibles atomiquement
-    dans le read store, de sorte que `READY` soit dérivable sans ambiguïté.
-13. La coordination éventuelle avec le lifecycle Task est un choix local ; une séparation physique
-    n'implique aucune transaction distribuée.
-14. Les structures courantes dérivées sont version-fencées et ne régressent jamais lors d'un traitement
-   hors ordre.
-15. Le reader ne fallback jamais vers le primaire, une ancienne `potVersion` ou une ancienne
-    `pipelineVersion`.
-16. La stratégie reader est statique, unique par pipelineId et appliquée avant l'autorisation à current
-    comme à l'historique ; toute référence est validée contre le catalogue exact.
-17. Les droits contextuels sont évalués au temps de la version consultée ; un refus avec contexte
-    disponible est masqué en 404.
-18. La readiness du contexte d'autorisation précède l'exposition d'un échec métier : une
-    PotProjection de contexte absente, `NOT_READY` ou `FAILED` retourne fonctionnellement
-    `NOT_READY`/409 ; `FAILED`/503 n'est exposé qu'après autorisation établie.
-19. Une Balance prête sans PotProjection `READY` à la même version retourne `NOT_READY`/409.
-20. Une Task Event est unique par `(eventId,pipelineId,pipelineVersion)` ; une Task administrative par
-    `(campaignId,potId,potVersion,pipelineId,pipelineVersion)`. Toutes utilisent le même executor.
-21. Les versions source sont contiguës et la suppression du Pot est terminale ; cette dernière est un
-    prérequis write-side externe que le read side ne compense pas.
-22. Les pools de workers sont séparés par pipeline mais partagent le moteur générique. Plusieurs
-    workers sont autorisés, avec un seul producer logique coordonné évaluant le catalogue.
-23. Backfill normal et trafic courant utilisent le même moteur de projection.
-24. Tout read model et index est reconstructible ; le read side ne devient jamais un second primaire.
+```text
+currentAuthVersion >= latestAuthRelevantVersion
+```
 
-## 17. Hors périmètre de cette baseline
+Si cette condition n'est pas établie, la requête échoue fermée avec `AUTH_NOT_READY`.
 
-Ce document ne choisit pas les noms Java, packages, ports/adapters, tables, migrations, indexes SQL,
-source exacte de `updatedAt`, sérialisation des curseurs, valeurs par défaut/maximales de `limit`, forme
-des envelopes HTTP, tailles de batch, nombres de workers, politique de retries ou de réparation des
-`FAILED`, interface CLI ou autre mécanisme administratif de backfill, noms exacts des pipelines,
-premières `pipelineVersion`, caractère current-only ou historique de `balances/me`, durée de
-coexistence legacy, politique de GC ou découpage détaillé des Lots 7.x.
+### Autorisation EXACT(V)
 
-Il ne décide pas non plus du retrait physique du legacy, du moment du déplacement vers une seconde
-instance PostgreSQL ni du protocole concret de coordination avec cette seconde instance. Ces choix
-seront fermés dans les lots qui en dépendent. Le prérequis externe de la section 14 reste à corriger
-côté write avant validation des comportements fondés sur le delete terminal.
+Une requête historique combine :
+
+```text
+current TokenCapabilities avec VIEW_ARCHIVE
++ Pot business rights effectifs à V
+```
+
+Donc :
+
+```text
+historicalAccessAllowed
+= hasCurrentVIEW_ARCHIVE && businessRightsAt(V)
+```
+
+### Ordre sans fuite du Query Kernel
+
+Aucune information sur l'existence, la présence d'une version, la readiness ou la failure d'une
+projection métier n'est révélée avant l'autorisation correspondante.
+
+Ordre conceptuel :
+
+```text
+AUTH gate pour l'intention demandée
+  -> sélection/résolution de la business version
+  -> readiness des composants métier exacts
+  -> lecture et composition des artifacts
+```
+
+Le gate AUTH peut utiliser la version explicitement demandée ou l'état AUTH current sans sonder les
+artifacts métier de la ressource. Un refus établi est masqué selon le contrat HTTP ; une fraîcheur AUTH
+insuffisante reste distincte d'un refus.
+
+## 11. Endpoints cibles
+
+### Pot, Expense et sous-objets
+
+```text
+HTTP
+  -> Query Kernel
+  -> Authorization Kernel
+  -> CURRENT | EXACT(V)
+  -> READ_POT reader
+  -> VersionedQueryResponse
+```
+
+Expense et Shareholder sont lus à l'intérieur de `READ_POT(servedVersion)`. Aucun routing global
+Expense/Shareholder ni lecture primaire n'est requis dans la cible.
+
+### Balance
+
+```text
+GET /pots/{potId}/balances
+  -> Query Kernel
+  -> Authorization Kernel
+  -> CURRENT | EXACT(V)
+  -> BALANCE reader
+  -> VersionedQueryResponse
+```
+
+`CURRENT` sert la meilleure version BALANCE `READY` autorisable. `EXACT(V)` sert seulement BALANCE(V).
+L'absence exacte est un état Query Kernel normal. Le pipeline BALANCE couvre toutes les business
+versions du Pot et calcule chaque version indépendamment de BALANCE(V-1).
+
+## 12. Versions de pipeline et reconstruction
+
+Une famille de pipeline peut avoir plusieurs versions coexistantes :
+
+```text
+declared -> active -> serving
+```
+
+- `declared` : définition publiée et connue du catalogue ;
+- `active` : génération produite sur sa plage d'applicabilité ;
+- `serving` : génération sélectionnée par les readers de cette famille.
+
+Une seule version est `serving` par famille à un instant donné. Le passage à serving est toujours
+manuel. Le système calcule et expose seulement son éligibilité.
+
+### Reconstruction sans mécanisme spécial
+
+Il n'existe pas de protocole architectural distinct de rebuild, replay ou backfill. Une
+reconstruction est l'effet normal de l'activation d'une nouvelle version de pipeline sur l'historique
+durable existant :
+
+```text
+nouvelle pipelineVersion déclarée/active
+  -> redécouverte automatique de tout Event applicable
+  -> Tasks et ConsumptionKeys propres à la nouvelle génération
+  -> exécution indépendante
+  -> convergence
+```
+
+La motivation humaine — évolution, perte de données, correction ou rematérialisation identique — ne
+change pas le mécanisme. Une reconstruction ne rouvre, ne reset et ne réutilise jamais les Tasks,
+Slots ou Claims d'une ancienne `pipelineVersion`.
+
+Les bornes d'applicabilité définissent l'historique à redécouvrir. La conservation de l'historique
+source nécessaire est donc un prérequis durable du système.
+
+### Éligibilité au cutover
+
+Avant qu'une version active puisse devenir serving, la convergence initiale complète est exigée :
+
+```text
+structural readiness
++ historical catchup complete
++ no known holes
++ no unresolved failures
+```
+
+Un head maximal ne suffit pas. Après le cutover manuel, un retard asynchrone normal est accepté et
+`CURRENT` continue de servir la meilleure version exploitable déjà prête.
+
+## 13. Observabilité
+
+L'observabilité expose les états réels, sans créer de modèle parallèle.
+
+Par famille/version de pipeline :
+
+- `declared`, `active`, `serving` et plage d'applicabilité ;
+- head comme maximum matérialisé ;
+- backlog, trous connus et failures ;
+- `eligibleForServing` et raisons structurées lorsque faux.
+
+Fraîcheur :
+
+- `latestKnownVersion` ;
+- `latestAuthRelevantVersion` ;
+- `currentAuthVersion` ;
+- meilleure version `READY` par pipeline.
+
+Traitement : latences Event→pickup, Event→Task et Task→completion, retries, claims expirés et failures.
+
+Queries : `requestedVersion`, `servedVersion`, `latestKnownVersion`, `NOT_READY`,
+`PROJECTION_FAILED` et `AUTH_NOT_READY`.
+
+```text
+eligibleForServing = true
+!= becomeServing()
+```
+
+## 14. Extinction du legacy
+
+Le legacy devient supprimable uniquement lorsque :
+
+- aucun endpoint client ne lit ses structures ;
+- aucun worker legacy ne participe aux réponses ;
+- les pipelines cibles sont serving ;
+- les readers passent par Query Kernel et Authorization Kernel ;
+- les anciennes tables ne sont plus nécessaires ;
+- l'observabilité confirme l'absence de dépendance runtime.
+
+L'extinction se fait en deux temps : désactivation avec structures encore présentes, période
+d'observation et rollback possible, puis suppression physique explicite.
+
+## 15. Invariants consolidés
+
+1. Events et Tasks peuvent terminer dans n'importe quel ordre.
+2. Toute projection métier N est indépendante de N-1 et de latest-known.
+3. `latestKnownVersion` est une connaissance monotone, pas un watermark de continuité.
+4. Un head est un maximum observé, jamais une preuve de complétude.
+5. `CURRENT` sélectionne la meilleure intersection de composants `READY`.
+6. `EXACT(V)` ne fallback jamais.
+7. Deux endpoints indépendants peuvent servir des versions différentes.
+8. Une liste est convergente et exclusivement read-side ; aucun snapshot global V1 n'est promis.
+9. Toute réponse versionnée utilise `VersionedQueryResponse` sans champ `stale`.
+10. Les capacités du token sont courantes ; seuls les faits métier Pot sont historisés.
+11. AUTH est indépendante de READ_POT et fail closed quand sa fraîcheur current n'est pas établie.
+12. L'autorisation précède toute révélation d'existence ou de readiness métier.
+13. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
+14. Une seule pipelineVersion est serving par famille et le cutover reste manuel.
+15. L'éligibilité serving exige une convergence initiale complète, jamais un head seul.

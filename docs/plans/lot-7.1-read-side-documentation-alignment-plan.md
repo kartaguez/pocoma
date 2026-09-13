@@ -1,5 +1,9 @@
 # Pocoma — Lot 7.1 — Consolidation documentaire et prérequis
 
+> **Dossier de réalisation clôturé.** Ce document conserve la trace du cadrage appliqué lors de 7.1.
+> La sémantique `current = latestKnownVersion` ci-dessous a depuis été superseded par `CURRENT =`
+> meilleure intersection READY dans `read-side-target.md`. Le plan directeur courant prévaut.
+
 ## 1. Objectif du Lot 7.1
 
 Le Lot 7.1 aligne la cible normative, l'état courant et le plan directeur avant toute modification du
@@ -65,14 +69,15 @@ externe concernant le delete terminal. Aucun audit du code n'est requis.
 - Autoriser explicitement `latestProjectedVersion > latestKnownVersion` de manière transitoire.
 - Préciser qu'un artifact produit en avance ne fait pas progresser le watermark et ne fait pas
   découvrir une version au reader.
-- Conserver `V > latestKnownVersion -> NOT_FOUND`, même si l'artifact V existe.
+- Décision historique superseded : `V > latestKnownVersion -> NOT_FOUND`. Latest-known est désormais
+  informatif et ne décide plus seul de l'existence ou de la servabilité.
 - Maintenir le lag négatif transitoire comme état observable valide.
 
 **Verification**
 
 - Aucune phrase ne conditionne une projection à l'avancement du watermark.
 - Artifact, head ou `MAX(version)` ne servent jamais à établir l'existence source.
-- Current cible toujours exactement `latestKnownVersion`.
+- Constat historique superseded : 7.1 ciblait encore current exactement à latest-known.
 
 ### Step 2 — Fermer le lifecycle fonctionnel de ProjectionState
 
@@ -182,12 +187,12 @@ Faire apparaître explicitement dans la liste :
 1. indépendance watermark/projectors ;
 2. possibilité temporaire `latestProjectedVersion > latestKnownVersion` ;
 3. artifact en avance sans effet sur la connaissance source ;
-4. `V > latestKnownVersion -> NOT_FOUND`, artifact éventuel ignoré ;
-5. ownership durable de `NOT_READY` par la création/adoption de Task ;
+4. latest-known informatif, sans décision autonome d'existence ou de servabilité ;
+5. `NOT_READY` dérivé de l'absence d'artifact/failure pour une identité applicable ;
 6. reader sans création de state ;
 7. projector sans invention d'intention ;
 8. duplicate divergent laissant artifact et state `READY` inchangés ;
-9. Balance sans contexte Pot prêt donnant 409 ;
+9. AUTH dédiée, indépendante des projections métier et évaluée avant leur état ;
 10. atomicité limitée au read store ;
 11. producer logique unique et workers multiples ;
 12. delete terminal comme prérequis write-side externe.
@@ -287,16 +292,16 @@ La matrice finale attendue est :
 | Situation | Résultat canonique |
 |---|---|
 | Projector reçoit une Task N avec watermark N-1 | Projection autorisée |
-| Artifact N existe, watermark N-1, query explicite N | `NOT_FOUND`/404 |
+| Artifact N existe, latest-known N-1, query EXACT(N) autorisée | latest-known ne bloque pas ; l'identité exacte gouverne |
 | Artifact N existe en avance | Aucun changement de `latestKnownVersion` |
 | Duplicate divergent sur projection `READY` | Artifact inchangé, state `READY`, violation séparée |
 | Reader constate une projection absente | Aucun state créé |
 | Projector constate une intention absente | Erreur de protocole, aucun `NOT_READY` inventé |
-| PotProjection absente, `NOT_READY` ou `FAILED` comme contexte | `NOT_READY`/409 ; éventuel `FAILED` observable en interne |
-| PotProjection `READY`, utilisateur refusé | `NOT_FOUND` masqué/404 |
-| PotProjection `READY`, utilisateur autorisé, Balance `FAILED` | `FAILED`/503 |
-| PotProjection `READY`, utilisateur autorisé, Balance `NOT_READY` | `NOT_READY`/409 |
-| PotProjection `READY`, utilisateur autorisé, Balance `READY` | succès/200 |
+| AUTH current insuffisamment fraîche | `AUTH_NOT_READY`, sans révéler l'état métier |
+| AUTH établit un refus | refus masqué sans révéler existence/readiness/failure métier |
+| AUTH autorise, composant exact `FAILED` | `PROJECTION_FAILED` selon le contrat HTTP commun |
+| AUTH autorise, composant exact `NOT_READY` | `NOT_READY` selon le contrat HTTP commun |
+| AUTH autorise, intersection CURRENT non vide | succès à la meilleure version READY commune |
 | Matérialisation réussie | Artifact + `READY` + head + indexes atomiques dans le read store |
 | Plusieurs workers d'un pipeline | Autorisés et fencés |
 | Deux producers logiques d'une génération | Interdits |

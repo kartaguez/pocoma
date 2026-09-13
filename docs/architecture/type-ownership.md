@@ -9,7 +9,13 @@
 | Autorisation générique | `Permission` | `domain-authorization` |
 | Policies d'autorisation Pot | `ReadPotAuthorizationPolicy`, `UpdatePotDetailsAuthorizationPolicy` | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
-| Pipeline versionné | `PipelineId`, `PipelineDefinition` | `domain-pipeline` |
+| Pipeline versionné | `PipelineId`, `PipelineDefinition`, `PipelineVersionDefinition` | `domain-pipeline` |
+| Lifecycle serving d'une pipelineVersion | Types non créés ; ownership à fermer en 7.14.1 | Lot 7.14 |
+| Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
+| Connaissance de version | `LatestKnownVersion` | `domain-projection` |
+| Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
+| Contrats de query versionnée | Types non créés (`CURRENT`, `EXACT`, composants, enveloppe) | ownership à fermer en 7.9.1 |
+| Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`) | ownership à fermer en 7.10.1 |
 | Payload fonctionnel de tâche | `TaskPayload` | `domain-task` |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
@@ -17,7 +23,7 @@
 | Tâche durable enregistrée | `RecordedTask` | `engine-processing-task` |
 | Description d'une tâche à créer | `TaskDescriptor` | `engine-core`, transitoire |
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
-| État de projection Balance | `PotBalanceProjectionState` | `engine-projection` |
+| État mutable de projection Balance | `PotBalanceProjectionState` | `engine-projection`, legacy |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
 | Polling et capacité | `ConsumptionPollingWorker`, budgets de cycle | `supra-consumption-worker` |
 | Exécution atomique et fencing | `TransactionalExecuteConsumptionUseCase`, `currentClaimId` | `engine-consumption` / infra transactionnelle |
@@ -28,7 +34,7 @@
 | Identité externe déjà authentifiée | `AuthenticatedExternalPrincipal`, `ExternalIdentity` | `orchestrator-command-admission` |
 | Adaptation du principal Spring | `SpringSecurityExternalPrincipalAdapter` | `supra-authentication-spring-security` |
 | Exécution Task fonctionnelle | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution` |
-| Projection Balance immuable | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance` |
+| Projection Balance immuable spécifique | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance`, transition avant 7.12 |
 
 ## Distinctions obligatoires
 
@@ -92,8 +98,9 @@ Colonnes lifecycle Task legacy
   audit temporaire, non consulté par le nouveau provider
 ```
 
-La transition terminale du slot précède toujours la matérialisation. L'état temporaire
-`slot COMPLETED/FAILED + durable READY/PENDING` est réparé par le processing engine propriétaire.
+Les effets métier, la provenance et le CAS terminal gagnant appartiennent à la même transaction
+d'exécution. Ils deviennent visibles atomiquement au commit ; aucun ordre de visibilité intermédiaire
+n'est un contrat fonctionnel.
 
 ## Legacy restant
 
@@ -108,6 +115,10 @@ La transition terminale du slot précède toujours la matérialisation. L'état 
 | `engine.model.*` de projection | adapters JPA et workers legacy | modèles processing/infra propriétaires | anciens ports outbox retirés | Workers/infra |
 | statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |
 | colonnes lifecycle de `tasks_4_pipeline` | audit après cutover | `ConsumptionSlot`/`Claim` | lot ultérieur de nettoyage physique | Infrastructure |
+| `PotBalanceProjectionState` et `pot_balance_*` | runtime monolith et calcul incrémental | artifact/failure/head BALANCE génériques | 7.12/7.13 serving et observation | Lot 7.16 |
+| `engine-query` + readers primaires GET | six GET actuels | Query/Authorization Kernel et readers read-store | 7.11/7.13 serving | Lot 7.16 |
+| artifact Balance spécifique au primaire | runtime web et Task Balance | persistence générique read-store | compatibilité 7.12 puis cutover 7.13 | Lots 7.12/7.16 |
+| sélection latest-known de `JdbcPotUserIndexReader` | shadow uniquement | lecture de l'index convergent | remplacement au cutover liste | Lot 7.11 |
 
 Le legacy restant appartient aux flux Event, Task, projection et read. Le lifecycle et le worker
 Command historiques ne sont plus compilés.

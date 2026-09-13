@@ -1,5 +1,8 @@
 # Lot 7.3.1 — Alignement sur l'applicabilité des pipelines
 
+> **Dossier de réalisation clôturé.** L'applicabilité et le statut exact restent canoniques. L'ancien
+> pré-contrôle Query Kernel `V > latestKnownVersion` est superseded : latest-known est informatif.
+
 Ce lot remplace la coverage read-side par une règle fonctionnelle canonique partagée, sans câbler de runtime.
 
 ## Modèle et catalogue
@@ -18,10 +21,10 @@ Le registry recherche exactement `pipelineId + pipelineVersion`, refuse tout dou
 
 ## Résolution et scheduling
 
-L'ordre est existence source, applicabilité, résultat. Le futur Query Kernel renvoie d'abord
-`NOT_FOUND` lorsque `V > latestKnownVersion`. Ensuite : définition absente = erreur de configuration ;
-non applicable = `NotApplicable` ; applicable avec artifact, failure ou aucun résultat = `READY`,
-`FAILED` ou `NOT_READY`.
+Après le gate AUTH et la résolution de l'intention par le futur Query Kernel : définition absente =
+erreur de configuration ; non applicable = `NotApplicable` ; applicable avec artifact, failure ou
+aucun résultat = `READY`, `FAILED` ou `NOT_READY`. Latest-known ne décide seul ni existence ni
+servabilité.
 
 Tasks, backfills, repairs et retries décrivent ce qui est exécuté maintenant, jamais l'applicabilité.
 Un backfill `90..100` d'une définition `[37..∞]` ne change donc pas la version 42. Le Lot 7.5 réutilisera
