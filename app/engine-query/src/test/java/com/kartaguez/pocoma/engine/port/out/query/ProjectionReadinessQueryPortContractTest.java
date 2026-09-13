@@ -1,9 +1,10 @@
 package com.kartaguez.pocoma.engine.port.out.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -22,7 +23,8 @@ class ProjectionReadinessQueryPortContractTest {
 
 	@Test
 	void findsHighestActualReadyVersionAtOrBelowBoundWithoutAssumingContinuity() {
-		ProjectionGenerationIdentity generation = generation("READ_POT", "read-pot", 1);
+		ProjectionGenerationIdentity generation = generation(
+				"READ_POT", "read-pot", 1, PotId.of(UUID.randomUUID()));
 		FakeProjectionReadinessQueryPort port = new FakeProjectionReadinessQueryPort(Map.of(
 				new ProjectionIdentity(generation, 15), ProjectionStatus.READY,
 				new ProjectionIdentity(generation, 13), ProjectionStatus.READY,
@@ -38,20 +40,52 @@ class ProjectionReadinessQueryPortContractTest {
 	}
 
 	@Test
-	void isolatesReadinessByProjectionGeneration() {
-		ProjectionGenerationIdentity first = generation("READ_POT", "read-pot", 1);
-		ProjectionGenerationIdentity second = generation("READ_POT", "read-pot", 2);
+	void isolatesReadinessByPipelineVersionWithinTheSamePotAndProjectionType() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		ProjectionGenerationIdentity first = generation("READ_POT", "read-pot", 1, potId);
+		ProjectionGenerationIdentity second = generation("READ_POT", "read-pot", 2, potId);
 		FakeProjectionReadinessQueryPort port = new FakeProjectionReadinessQueryPort(Map.of(
 				new ProjectionIdentity(first, 13), ProjectionStatus.READY,
-				new ProjectionIdentity(second, 11), ProjectionStatus.READY));
+				new ProjectionIdentity(second, 15), ProjectionStatus.READY));
 
+		assertEquals(first.projectionType(), second.projectionType());
+		assertEquals(first.pipeline().pipelineId(), second.pipeline().pipelineId());
+		assertEquals(first.potId(), second.potId());
+		assertNotEquals(first.pipeline().pipelineVersion(), second.pipeline().pipelineVersion());
 		assertEquals(OptionalLong.of(13), port.findHighestReadyBusinessVersionAtOrBelow(first, 15));
-		assertEquals(OptionalLong.of(11), port.findHighestReadyBusinessVersionAtOrBelow(second, 15));
+		assertEquals(OptionalLong.of(15), port.findHighestReadyBusinessVersionAtOrBelow(second, 15));
+		assertEquals(ProjectionStatus.NOT_READY, port.statusAt(new ProjectionIdentity(first, 15)));
+		assertEquals(ProjectionStatus.NOT_READY, port.statusAt(new ProjectionIdentity(second, 13)));
+	}
+
+	@Test
+	void insertionOrderDoesNotAffectSparseReadinessLookup() {
+		ProjectionGenerationIdentity generation = generation(
+				"READ_POT", "read-pot", 1, PotId.of(UUID.randomUUID()));
+		Map<ProjectionIdentity, ProjectionStatus> ascending = new LinkedHashMap<>();
+		ascending.put(new ProjectionIdentity(generation, 8), ProjectionStatus.READY);
+		ascending.put(new ProjectionIdentity(generation, 12), ProjectionStatus.FAILED);
+		ascending.put(new ProjectionIdentity(generation, 13), ProjectionStatus.READY);
+		ascending.put(new ProjectionIdentity(generation, 15), ProjectionStatus.READY);
+		Map<ProjectionIdentity, ProjectionStatus> descending = new LinkedHashMap<>();
+		descending.put(new ProjectionIdentity(generation, 15), ProjectionStatus.READY);
+		descending.put(new ProjectionIdentity(generation, 13), ProjectionStatus.READY);
+		descending.put(new ProjectionIdentity(generation, 12), ProjectionStatus.FAILED);
+		descending.put(new ProjectionIdentity(generation, 8), ProjectionStatus.READY);
+
+		FakeProjectionReadinessQueryPort first = new FakeProjectionReadinessQueryPort(ascending);
+		FakeProjectionReadinessQueryPort second = new FakeProjectionReadinessQueryPort(descending);
+
+		assertSameSparseReadiness(first, second, generation, 15, OptionalLong.of(15));
+		assertSameSparseReadiness(first, second, generation, 14, OptionalLong.of(13));
+		assertSameSparseReadiness(first, second, generation, 12, OptionalLong.of(8));
+		assertSameSparseReadiness(first, second, generation, 7, OptionalLong.empty());
 	}
 
 	@Test
 	void fakeEnforcesDocumentedInputPreconditions() {
-		ProjectionGenerationIdentity generation = generation("READ_POT", "read-pot", 1);
+		ProjectionGenerationIdentity generation = generation(
+				"READ_POT", "read-pot", 1, PotId.of(UUID.randomUUID()));
 		FakeProjectionReadinessQueryPort port = new FakeProjectionReadinessQueryPort(Map.of());
 
 		assertThrows(NullPointerException.class,
@@ -61,11 +95,25 @@ class ProjectionReadinessQueryPortContractTest {
 		assertThrows(NullPointerException.class, () -> port.statusAt(null));
 	}
 
-	private static ProjectionGenerationIdentity generation(String projectionType, String pipelineId, int version) {
+	private static void assertSameSparseReadiness(
+			ProjectionReadinessQueryPort first,
+			ProjectionReadinessQueryPort second,
+			ProjectionGenerationIdentity generation,
+			long bound,
+			OptionalLong expected) {
+		assertEquals(expected, first.findHighestReadyBusinessVersionAtOrBelow(generation, bound));
+		assertEquals(expected, second.findHighestReadyBusinessVersionAtOrBelow(generation, bound));
+	}
+
+	private static ProjectionGenerationIdentity generation(
+			String projectionType,
+			String pipelineId,
+			int version,
+			PotId potId) {
 		return new ProjectionGenerationIdentity(
 				new ProjectionType(projectionType),
 				new PipelineDefinition(new PipelineId(pipelineId), version),
-				PotId.of(UUID.randomUUID()));
+				potId);
 	}
 
 	private static final class FakeProjectionReadinessQueryPort implements ProjectionReadinessQueryPort {
@@ -73,7 +121,7 @@ class ProjectionReadinessQueryPortContractTest {
 		private final Map<ProjectionIdentity, ProjectionStatus> statuses;
 
 		private FakeProjectionReadinessQueryPort(Map<ProjectionIdentity, ProjectionStatus> statuses) {
-			this.statuses = new HashMap<>(statuses);
+			this.statuses = new LinkedHashMap<>(statuses);
 		}
 
 		@Override

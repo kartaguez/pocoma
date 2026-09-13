@@ -180,22 +180,30 @@ EXACT(V)
 
 ### CURRENT
 
-`CURRENT` sert un snapshot cohérent à une seule business version. Pour une vue dont les composants
-métier requis sont `C1 ... Cn`, AUTH participe à la même intersection :
+`CURRENT` sert un snapshot cohérent à une seule business version. Une vue protégée fait participer
+son composant AUTH et ses composants métier `C1 ... Cn` à la même intersection :
 
 ```text
+vue protégée :
 servedVersion = max V <= latestKnownVersion tel que
   AUTH(V) est READY
   et C1(V) ... Cn(V) sont READY
+
+vue non protégée :
+servedVersion = max V <= latestKnownVersion tel que
+  C1(V) ... Cn(V) sont READY
 ```
 
-Si latest-known est absent ou si cette intersection est vide, le résultat est `NOT_READY`.
-L'intersection est calculée depuis les identités/artifacts exacts, jamais depuis les heads.
-Seule la readiness d'AUTH participe à cette sélection ; le contenu des droits dans AUTH(V) n'est
-jamais un critère pour choisir V.
+Une vue non protégée ne requiert ni artifact AUTH ni décision d'autorisation métier AUTH. Dans les
+deux cas, si latest-known est absent ou si l'ensemble des versions communes READY est vide, le
+résultat est `NOT_READY`. La sélection est calculée depuis les identités/artifacts exacts, jamais
+depuis les heads.
 
-Une version plus récente `FAILED` ou `NOT_READY` ne masque pas une version plus ancienne complètement
-servable :
+Pour une vue protégée, seule la readiness d'AUTH participe à cette sélection ; le contenu des droits
+dans AUTH(V) n'est jamais un critère pour choisir V.
+
+Une version plus récente `FAILED` ou `NOT_READY` d'un composant requis ne masque pas une version plus
+ancienne complètement servable. Exemple de vue protégée :
 
 ```text
 latestKnownVersion = 15
@@ -204,15 +212,17 @@ AUTH READY     : 13
 CURRENT        : serve 13
 ```
 
-L'autorisation métier est évaluée depuis `AUTH(servedVersion)` et les données métier sont lues à cette
-même business version. Une révocation plus récente peut donc ne pas être visible tant que la business
-version correspondante n'est pas servable comme snapshot current. Cette latence asynchrone est
-acceptée ; AUTH et les données métier ne sont jamais évaluées à deux businessVersions distinctes.
+Pour une vue protégée, l'autorisation métier est évaluée depuis `AUTH(servedVersion)` et les données
+métier sont lues à cette même business version. Une révocation plus récente peut donc ne pas être
+visible tant que la business version correspondante n'est pas servable comme snapshot current. Cette
+latence asynchrone est acceptée ; AUTH et les données métier ne sont jamais évaluées à deux
+businessVersions distinctes.
 
-Une fois `servedVersion` sélectionnée, la décision d'autorisation est terminale. Si
-AUTH(servedVersion) refuse l'utilisateur, la requête est refusée. Le Query Kernel ne cherche jamais
-une businessVersion antérieure où cet utilisateur aurait encore des droits : le fallback de
-readiness appartient à la sélection de CURRENT, le fallback d'autorisation est strictement interdit.
+Pour une vue protégée, une fois `servedVersion` sélectionnée, la décision d'autorisation est
+terminale. Si AUTH(servedVersion) refuse l'utilisateur, la requête est refusée. Le Query Kernel ne
+cherche jamais une businessVersion antérieure où cet utilisateur aurait encore des droits : le
+fallback de readiness appartient à la sélection de CURRENT, le fallback d'autorisation est
+strictement interdit.
 
 ```text
 latestKnownVersion = 15
@@ -229,19 +239,28 @@ intersection READY bornée par latest-known est la définition même de `CURRENT
 
 ### EXACT(V)
 
-`EXACT(V)` exige :
+`EXACT(V)` exige dans tous les cas :
 
 ```text
 latestKnownVersion présent
 V <= latestKnownVersion
-AUTH(V) READY
-et tous les composants métier requis READY à V
+```
+
+Puis, selon la catégorie de vue :
+
+```text
+vue protégée :
+  AUTH(V) READY
+  et tous les composants métier requis READY à V
+
+vue non protégée :
+  tous les composants métier requis READY à V
 ```
 
 Si latest-known est absent ou si V le dépasse, le résultat est `NOT_READY`, même si un artifact
 interne V existe déjà. EXACT ne sonde ni une business version antérieure, ni une autre version de
 pipeline. L'absence d'un composant exact est un état normal du Query Kernel, jamais une exception
-technique de cardinalité.
+technique de cardinalité. Une vue non protégée n'exige ni artifact ni évaluation AUTH.
 
 ### Sélection de pipelineVersion versus businessVersion
 
@@ -348,10 +367,10 @@ Event direct spécialisé.
 
 ### Autorisation CURRENT
 
-Les `TokenCapabilities` actuelles doivent permettre la query. Le Query Kernel cherche ensuite une
-businessVersion commune où AUTH et tous les composants métier sont READY, puis évalue les droits
-métier depuis AUTH(servedVersion). AUTH ne possède aucune version d'autorisation distincte de la
-servedVersion.
+Pour toute vue protégée, les `TokenCapabilities` actuelles doivent permettre la query. Le Query
+Kernel cherche ensuite une businessVersion commune où AUTH et tous les composants métier sont READY,
+puis évalue les droits métier depuis AUTH(servedVersion). AUTH ne possède aucune version
+d'autorisation distincte de la servedVersion. Cette section ne s'applique pas aux vues non protégées.
 
 ### Autorisation EXACT(V)
 
@@ -369,13 +388,14 @@ historicalAccessAllowed
 = hasCurrentVIEW_ARCHIVE && businessRightsAt(V)
 ```
 
-AUTH(V) et tous les composants métier requis doivent être READY exactement à V. Aucun fallback ou
-scope historique n'existe.
+Pour une vue protégée, AUTH(V) et tous les composants métier requis doivent être READY exactement à
+V. Aucun fallback ou scope historique n'existe. Une vue non protégée ne passe pas par cette étape
+d'autorisation.
 
 ### Ordre sans fuite du Query Kernel
 
-Aucune information sur l'existence, la présence d'une version, la readiness ou la failure d'une
-projection métier n'est révélée avant l'autorisation correspondante.
+Pour une vue protégée, aucune information sur l'existence, la présence d'une version, la readiness ou
+la failure d'une projection métier n'est révélée avant l'autorisation correspondante.
 
 Ordre conceptuel : vérifier les TokenCapabilities, rechercher sans fuite externe une businessVersion
 où AUTH et les composants requis sont READY, évaluer les faits métier dans AUTH à cette même version,
@@ -515,17 +535,20 @@ d'observation et rollback possible, puis suppression physique explicite.
 2. Toute projection métier N est indépendante de N-1 et de latest-known.
 3. `latestKnownVersion` est une connaissance monotone, pas un watermark de continuité.
 4. Un head est un maximum observé, jamais une preuve de complétude.
-5. `CURRENT` sélectionne sous latest-known la meilleure intersection `READY` de AUTH et des composants métier requis.
-6. `EXACT(V)` exige latest-known >= V, AUTH(V) et les composants métier à V, sans fallback.
+5. `CURRENT` sélectionne sous latest-known la meilleure intersection `READY` des composants requis :
+   AUTH et composants métier pour une vue protégée, composants métier seuls pour une vue non protégée.
+6. `EXACT(V)` exige latest-known >= V et tous les composants requis exactement à V, dont AUTH pour
+   une vue protégée, sans fallback.
 7. Deux endpoints indépendants peuvent servir des versions différentes.
 8. Une liste est convergente et exclusivement read-side ; aucun snapshot global V1 n'est promis.
 9. Toute réponse versionnée utilise `VersionedQueryResponse` sans champ `stale` et possède un latest-known.
 10. Les capacités du token sont courantes ; seuls les faits métier Pot sont historisés.
 11. AUTH(V) est un artifact complet, indépendant et hors ordre pour chaque businessVersion applicable.
-12. AUTH et les données métier d'une réponse sont évaluées à la même servedVersion.
-13. Un refus de AUTH(servedVersion) est terminal ; aucune businessVersion antérieure n'est essayée.
+12. Pour une vue protégée, AUTH et les données métier d'une réponse sont évaluées à la même servedVersion.
+13. Pour une vue protégée, un refus de AUTH(servedVersion) est terminal ; aucune businessVersion
+    antérieure n'est essayée.
 14. L'index user→Pot découvre des candidats et ne prouve jamais l'autorisation.
-15. L'autorisation précède toute révélation externe d'existence ou de readiness métier.
+15. Pour une vue protégée, l'autorisation précède toute révélation externe d'existence ou de readiness métier.
 16. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
 17. Une seule pipelineVersion est serving par famille et le cutover reste manuel.
 18. `active` autorise le travail ; seule l'éligibilité prouve la convergence initiale requise.

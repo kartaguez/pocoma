@@ -19,9 +19,9 @@ Le read side est en transition :
   `pocoma_read` ;
 - l'index versionné user→Pot et la pagination keyset existent en shadow, sans GET actif ;
 - `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
-- les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, définition de vue, sélection de
-  producteurs, readiness, latest-known read-only et `VersionedQueryResponse`) sont présents dans
-  `engine-query`, mais leur resolver n'existe pas encore ;
+- les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, vues protégées ou non protégées,
+  sélection de producteurs, readiness, latest-known read-only et `VersionedQueryResponse`) sont
+  présents dans `engine-query`, mais leur resolver n'existe pas encore ;
 - l'Authorization Kernel, `AUTH(V)`, les états declared/active/serving et le cutover serving
   n'existent pas encore.
 
@@ -45,10 +45,11 @@ Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
 `GetPotBalancesService` choisissent la version primaire lorsque le paramètre est absent. Les listes
 partent également des données primaires courantes.
 
-Les contrats `QueryVersionIntent` et `VersionedQueryResponse` existent désormais, mais aucun GET
-actif ne les utilise. Le code ne calcule pas encore la meilleure intersection bornée par
-latest-known d'`AUTH(V)` et des artifacts métier `READY`, et ne retourne donc pas encore d'enveloppe
-versionnée en production.
+Les contrats `QueryVersionIntent`, `QueryViewDefinition` et `VersionedQueryResponse` existent
+désormais, mais aucun GET actif ne les utilise. Le code ne calcule pas encore la meilleure
+intersection bornée par latest-known des composants requis : AUTH et artifacts métier pour une vue
+protégée, artifacts métier seuls pour une vue non protégée. Il ne retourne donc pas encore
+d'enveloppe versionnée en production.
 
 Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
 `IllegalStateException`. Elle n'est pas encore traduite en état normal de Query Kernel.
@@ -224,7 +225,7 @@ selon leur logique legacy avant la future résolution commune AUTH + composants 
 |---|---|
 | Contrats Query Kernel `CURRENT` / `EXACT(V)` | Présents, framework-free, non branchés |
 | Resolver Query Kernel `CURRENT` / `EXACT(V)` | Absent |
-| Meilleure intersection AUTH + composants métier READY bornée par latest-known | Absente |
+| Meilleure intersection des composants requis bornée par latest-known, avec AUTH pour une vue protégée | Absente |
 | `VersionedQueryResponse` | Présent, non utilisé par les GET actifs |
 | Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
 | AUTH indépendante | Absente |

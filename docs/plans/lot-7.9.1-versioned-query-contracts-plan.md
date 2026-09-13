@@ -151,6 +151,11 @@ ProjectionType requis
 Il interrogera ensuite les ports read-only de readiness et de latest-known. 7.9.1 expose uniquement
 ces données et opérations ; il ne compose pas encore la recherche multi-composants.
 
+Avant de construire une `ProjectionIdentity` exacte à une candidate V, le futur 7.9.2 doit vérifier
+`PipelineVersionDefinition.appliesTo(V)`. Une définition non applicable ne représente pas un
+artifact attendu à V et ne doit donc jamais être traduite en `NOT_READY`. Lorsque la définition est
+applicable, le resolver peut construire l'identité exacte et consulter `statusAt(...)`.
+
 ### Vues protégées et non protégées
 
 `QueryViewDefinition` représente deux catégories :
@@ -364,6 +369,11 @@ bound 7  -> empty
 
 `statusAt` exige une `ProjectionIdentity` non nulle et retourne le statut dérivé exact de cet
 artifact. `V14 = NOT_READY` reste normal entre `V15 = READY` et `V13 = READY`.
+
+Ce statut exact n'est interrogé que pour une `PipelineVersionDefinition` applicable à la candidate.
+La non-applicabilité signifie qu'aucune projection de cette génération n'est attendue à V ; elle est
+distincte de `NOT_READY` et doit être traitée avant la construction de `ProjectionIdentity` par le
+futur resolver 7.9.2.
 
 Le futur 7.9.2 pourra demander une première candidate à une génération, vérifier les autres
 composants exactement avec `statusAt`, puis rechercher une candidate strictement sous la précédente

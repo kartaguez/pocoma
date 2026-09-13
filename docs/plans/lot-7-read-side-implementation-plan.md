@@ -25,10 +25,11 @@ La suite complète de la baseline exécute 869 tests sans échec ni erreur.
 3. Les artifacts sont immuables, exacts, idempotents et adressés par identité complète.
 4. Un head est un maximum matérialisé, jamais une preuve de continuité ou de convergence.
 5. Les pipelines convergent indépendamment ; leur composition intervient uniquement à la lecture.
-6. `CURRENT` sert la meilleure businessVersion inférieure ou égale à latest-known où AUTH et tous
-   les composants métier requis sont `READY`.
-7. `EXACT(V)` exige latest-known présent et supérieur ou égal à V, AUTH(V) et tous les composants
-   métier requis à V, sans fallback.
+6. `CURRENT` sert la meilleure businessVersion inférieure ou égale à latest-known où tous les
+   composants requis sont `READY` : AUTH et composants métier pour une vue protégée, composants
+   métier seuls pour une vue non protégée.
+7. `EXACT(V)` exige latest-known présent et supérieur ou égal à V et tous les composants requis à V,
+   dont AUTH(V) pour une vue protégée, sans fallback.
 8. `latestKnownVersion` ne bloque jamais la production, mais borne explicitement toute exposition.
 9. Une liste est un read model convergent ; elle ne relit ni le primaire ni latest-known pour être
    reconstruite à la volée.
@@ -223,11 +224,17 @@ absence de sélection implicite de pipelineVersion. Aucun resolver, adapter ou G
 Implémenter sans controller, avec une sélection de pipelineVersion fournie par l'appelant :
 
 - latest-known absent → `NOT_READY` pour CURRENT comme EXACT ;
-- `CURRENT = max V <= latestKnownVersion` dans l'intersection READY de AUTH et de tous les
-  composants métier requis ;
-- sélectionner V uniquement depuis latest-known et cette readiness commune, jamais depuis le résultat
-  des droits contenus dans AUTH(V) ;
-- `EXACT(V)` exige V <= latest-known, AUTH(V) et tous les composants métier requis READY à V ;
+- `CURRENT = max V <= latestKnownVersion` dans l'intersection READY de tous les composants requis :
+  AUTH et composants métier pour une vue protégée, composants métier seuls pour une vue non
+  protégée ;
+- pour une vue protégée, sélectionner V uniquement depuis latest-known et cette readiness commune,
+  jamais depuis le résultat des droits contenus dans AUTH(V) ;
+- `EXACT(V)` exige V <= latest-known et tous les composants requis READY à V, dont AUTH(V) pour une
+  vue protégée ;
+- avant toute consultation de statut exact à une candidate V, vérifier
+  `PipelineVersionDefinition.appliesTo(V)` : si faux, cette génération n'est pas candidate à V et ne
+  doit jamais être interprétée comme `NOT_READY`; si vrai, construire `ProjectionIdentity` puis
+  consulter `statusAt(...)` ;
 - résolution depuis les artifacts exacts, jamais depuis les heads ;
 - version `FAILED` plus récente n'occultant pas une version READY antérieure en CURRENT ;
 - artifact interne au-delà de latest-known jamais exposé ;
@@ -239,13 +246,17 @@ Tests obligatoires :
 
 - latest-known absent avec artifacts READY → `NOT_READY` ;
 - latest-known 15, READ_POT READY `{13,14,15}`, AUTH READY `{13}` → CURRENT sert 13 ;
+- vue non protégée, latest-known 15 et READ_POT READY `{13,14}` → CURRENT sert 14 sans requérir AUTH ;
 - latest-known 14, READ_POT/AUTH READY 15 → V15 non exposable ;
 - composants métier READY `{12,13,15}` et AUTH READY `{11,13,14}` → CURRENT sert 13 ;
 - V14 et V13 READY pour AUTH et READ_POT, utilisateur refusé par AUTH(14) mais autorisé par AUTH(13)
   → la résolution sélectionne V14 ;
 - head 15 avec trou à 14 ne prouve pas READY(14) ;
+- pipelineVersion non applicable à V14 → génération non candidate à V14, sans produire le statut
+  `NOT_READY` ;
 - EXACT(15) avec latest-known 14 → `NOT_READY`, même si tous les artifacts V15 existent ;
-- EXACT(15) avec AUTH ou composant absent/NOT_READY/FAILED ne sert aucune autre version.
+- EXACT(15) protégé avec AUTH ou composant absent/NOT_READY/FAILED ne sert aucune autre version ;
+- EXACT(15) non protégé n'exige que ses composants métier à V15.
 
 #### 7.9.3 — États fonctionnels et mapping HTTP commun
 
@@ -477,15 +488,17 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
 1. Projection 46 terminée avant 45, head final 46 et artifacts 45/46 exacts.
 2. Latest-known en retard ou en avance n'empêche aucune production de pipeline.
 3. Sans latest-known, CURRENT et EXACT répondent NOT_READY.
-4. CURRENT sert la plus grande V <= latestKnownVersion où AUTH(V) et tous les composants requis sont
-   READY, calculée sans head.
+4. CURRENT sert la plus grande V <= latestKnownVersion où tous les composants de la vue sont READY,
+   avec AUTH inclus uniquement pour une vue protégée, calculée sans head.
 5. EXACT(V) ne sert aucune version différente et répond NOT_READY si V > latestKnownVersion, même si
    un artifact interne à V existe déjà.
 6. Deux endpoints indépendants peuvent retourner deux servedVersions différentes.
-7. Une réponse composée utilise une business version unique pour AUTH et tous ses composants métier.
+7. Une réponse composée utilise une business version unique pour tous ses composants ; pour une vue
+   protégée, AUTH utilise également cette version.
 8. Une failure plus récente ne masque pas une version READY antérieure en CURRENT.
-9. CURRENT sélectionne V14 lorsque AUTH(14) et les composants métier V14 sont READY. Si AUTH(14)
-   refuse l'utilisateur, la query est refusée et ne tente jamais V13, même si AUTH(13) l'autoriserait.
+9. Pour une vue protégée, CURRENT sélectionne V14 lorsque AUTH(14) et les composants métier V14 sont
+   READY. Si AUTH(14) refuse l'utilisateur, la query est refusée et ne tente jamais V13, même si
+   AUTH(13) l'autoriserait.
 10. Une liste traite son index comme source de candidats, filtre chaque Pot via AUTH à sa
    servedVersion et peut évoluer entre pages.
 11. Le curseur d'une liste filtrée pointe le dernier candidat examiné ; une limite de scan peut
@@ -501,8 +514,10 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
 18. Un head maximal avec trou/failure n'autorise pas serving.
 19. `active` ne prouve pas la convergence et `eligibleForServing=true` ne déclenche aucun cutover.
 20. La sélection de pipelineVersion serving est fournie à 7.9.2, qui ne résout que la businessVersion.
-21. Les GET cibles fonctionnent sans permission SQL sur le primaire.
-22. Après observation, le legacy peut être désactivé puis supprimé sans modifier les réponses.
+21. Une pipelineVersion non applicable à V ne constitue pas une projection `NOT_READY` à V ; sa
+    génération n'est simplement pas candidate à cette businessVersion.
+22. Les GET cibles fonctionnent sans permission SQL sur le primaire.
+23. Après observation, le legacy peut être désactivé puis supprimé sans modifier les réponses.
 
 ## 9. Décisions encore ouvertes
 
