@@ -170,8 +170,12 @@ Pour 7.9.2, une vue protégée fera participer AUTH et tous les composants méti
 métier. `latestKnownVersion` reste la borne d'exposition dans les deux cas.
 
 Le contrat accepte des composants métier vides : vue protégée AUTH-only et vue non protégée sans
-composant métier. La sémantique précise d'une résolution sans composant READY appartient à 7.9.2 ;
-7.9.1 n'ajoute aucune règle de sélection implicite.
+composant métier. Pour la future résolution de `unprotectedView({})`, la condition de readiness sur
+les composants requis est trivialement satisfaite : CURRENT sert `latestKnownVersion` lorsqu'il est
+présent, et EXACT(V) sert V lorsque latest-known est présent et supérieur ou égal à V. Aucun lookup
+readiness n'est requis. `servedVersion` place alors la réponse à une businessVersion sous la borne
+d'exposition sans prouver qu'un artifact a été matérialisé. Une vue protégée AUTH-only conserve
+`requiredComponents() = {AUTH}` et dépend donc toujours de la readiness d'AUTH.
 
 ### Sélection du pipeline producteur
 

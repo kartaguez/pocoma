@@ -195,9 +195,17 @@ servedVersion = max V <= latestKnownVersion tel que
 ```
 
 Une vue non protégée ne requiert ni artifact AUTH ni décision d'autorisation métier AUTH. Dans les
-deux cas, si latest-known est absent ou si l'ensemble des versions communes READY est vide, le
-résultat est `NOT_READY`. La sélection est calculée depuis les identités/artifacts exacts, jamais
-depuis les heads.
+deux cas, si latest-known est absent, le résultat est `NOT_READY`. Lorsqu'au moins un composant est
+requis, l'absence de version commune READY produit également `NOT_READY`. La sélection est calculée
+depuis les identités/artifacts exacts, jamais depuis les heads.
+
+Pour `unprotectedView({})`, `requiredComponents()` est vide : la condition « tous les composants
+requis sont READY » est trivialement satisfaite pour toute candidate sous la borne. Si latest-known
+est présent, `CURRENT` sert donc exactement `latestKnownVersion`, sans lookup de readiness ni
+artifact AUTH ou métier. Dans ce cas, `servedVersion` désigne uniquement la businessVersion à
+laquelle la réponse se place sous la borne d'exposition ; elle ne prouve pas qu'une projection a été
+matérialisée à cette version. Une vue protégée AUTH-only n'est pas vide : AUTH reste son composant
+requis et sa readiness participe normalement à la sélection.
 
 Pour une vue protégée, seule la readiness d'AUTH participe à cette sélection ; le contenu des droits
 dans AUTH(V) n'est jamais un critère pour choisir V.
@@ -261,6 +269,11 @@ Si latest-known est absent ou si V le dépasse, le résultat est `NOT_READY`, m�
 interne V existe déjà. EXACT ne sonde ni une business version antérieure, ni une autre version de
 pipeline. L'absence d'un composant exact est un état normal du Query Kernel, jamais une exception
 technique de cardinalité. Une vue non protégée n'exige ni artifact ni évaluation AUTH.
+
+Pour `unprotectedView({})`, si latest-known est présent et V est sous cette borne, `EXACT(V)` sert V
+sans lookup de readiness. Si latest-known est absent ou si V le dépasse, le résultat reste
+`NOT_READY`. Ici encore, `servedVersion = V` place la réponse à cette businessVersion sans attester
+la matérialisation d'une projection.
 
 ### Sélection de pipelineVersion versus businessVersion
 
@@ -397,10 +410,14 @@ d'autorisation.
 Pour une vue protégée, aucune information sur l'existence, la présence d'une version, la readiness ou
 la failure d'une projection métier n'est révélée avant l'autorisation correspondante.
 
-Ordre conceptuel : vérifier les TokenCapabilities, rechercher sans fuite externe une businessVersion
-où AUTH et les composants requis sont READY, évaluer les faits métier dans AUTH à cette même version,
-puis lire et composer les données. Un refus établi est masqué selon le contrat HTTP ; l'absence d'un
-snapshot commun servable reste distincte d'un refus.
+Pour une vue protégée, l'ordre conceptuel est : vérifier les TokenCapabilities, rechercher sans fuite
+externe une businessVersion où AUTH et les composants requis sont READY, évaluer les faits métier
+dans AUTH à cette même version, puis lire et composer les données. Un refus établi est masqué selon
+le contrat HTTP ; l'absence d'un snapshot commun servable reste distincte d'un refus.
+
+Pour une vue non protégée, l'ordre générique omet TokenCapabilities et AUTH : rechercher la
+businessVersion commune, puis lire et composer les données. Le contrat n'introduit aucun autre
+mécanisme d'autorisation pour cette catégorie de vue.
 
 La sélection de version et la décision d'autorisation sont deux étapes distinctes. Un refus termine
 la requête et ne relance jamais la sélection avec une businessVersion plus ancienne.

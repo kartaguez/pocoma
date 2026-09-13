@@ -231,6 +231,8 @@ Implémenter sans controller, avec une sélection de pipelineVersion fournie par
   jamais depuis le résultat des droits contenus dans AUTH(V) ;
 - `EXACT(V)` exige V <= latest-known et tous les composants requis READY à V, dont AUTH(V) pour une
   vue protégée ;
+- pour `unprotectedView({})`, aucun lookup readiness n'est requis : CURRENT sert latest-known s'il
+  existe, et EXACT(V) sert V si latest-known existe et borne V ;
 - avant toute consultation de statut exact à une candidate V, vérifier
   `PipelineVersionDefinition.appliesTo(V)` : si faux, cette génération n'est pas candidate à V et ne
   doit jamais être interprétée comme `NOT_READY`; si vrai, construire `ProjectionIdentity` puis
@@ -247,6 +249,12 @@ Tests obligatoires :
 - latest-known absent avec artifacts READY → `NOT_READY` ;
 - latest-known 15, READ_POT READY `{13,14,15}`, AUTH READY `{13}` → CURRENT sert 13 ;
 - vue non protégée, latest-known 15 et READ_POT READY `{13,14}` → CURRENT sert 14 sans requérir AUTH ;
+- vue non protégée vide, latest-known absent → `NOT_READY` ;
+- vue non protégée vide, latest-known 15 et CURRENT → sert 15 sans lookup readiness ;
+- vue non protégée vide, latest-known 14 et EXACT(15) → `NOT_READY` sans lookup readiness ;
+- vue non protégée vide, latest-known 15 et EXACT(15) → sert 15 sans lookup readiness ;
+- vue non protégée vide, latest-known 15 et EXACT(12) → sert 12 sans lookup readiness ;
+- vue non protégée vide, latest-known 15 et EXACT(16) → `NOT_READY` sans lookup readiness ;
 - latest-known 14, READ_POT/AUTH READY 15 → V15 non exposable ;
 - composants métier READY `{12,13,15}` et AUTH READY `{11,13,14}` → CURRENT sert 13 ;
 - V14 et V13 READY pour AUTH et READ_POT, utilisateur refusé par AUTH(14) mais autorisé par AUTH(13)
@@ -260,11 +268,18 @@ Tests obligatoires :
 
 #### 7.9.3 — États fonctionnels et mapping HTTP commun
 
-Après le pipeline et les policies AUTH du 7.10, assembler l'ordre sans fuite : TokenCapabilities,
-recherche interne de la businessVersion commune, décision depuis AUTH(servedVersion), puis lecture.
-Un refus depuis AUTH(servedVersion) termine la requête : ne jamais relancer 7.9.2 pour chercher une
-businessVersion antérieure qui autoriserait l'utilisateur. Le fallback de readiness définit CURRENT ;
-aucun fallback d'autorisation n'existe.
+Après le pipeline et les policies AUTH du 7.10, assembler deux séquences explicites.
+
+Pour une vue protégée : TokenCapabilities, recherche interne de la businessVersion commune, décision
+depuis AUTH(servedVersion), puis lecture et composition des données. Le contenu d'AUTH ne participe
+jamais au choix de servedVersion. Un refus depuis AUTH(servedVersion) termine la requête : ne jamais
+relancer 7.9.2 pour chercher une businessVersion antérieure qui autoriserait l'utilisateur. Le
+fallback de readiness définit CURRENT ; aucun fallback d'autorisation n'existe. Aucune information
+d'existence, de readiness ou de failure ne doit fuiter avant la décision d'autorisation appropriée.
+
+Pour une vue non protégée : recherche interne de la businessVersion commune, puis lecture et
+composition des données. Le contrat générique n'impose ni étape AUTH, ni TokenCapabilities propres
+au mécanisme AUTH, ni mécanisme d'autorisation alternatif.
 
 Stabiliser `NOT_READY`, `PROJECTION_FAILED`, masquage des refus et enveloppes de succès. Aucun détail
 de claim/Task/pipeline interne ne doit fuir.
@@ -490,8 +505,11 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
 3. Sans latest-known, CURRENT et EXACT répondent NOT_READY.
 4. CURRENT sert la plus grande V <= latestKnownVersion où tous les composants de la vue sont READY,
    avec AUTH inclus uniquement pour une vue protégée, calculée sans head.
+   Pour une vue non protégée vide, cette condition est trivialement satisfaite et CURRENT sert
+   latestKnownVersion sans lookup readiness.
 5. EXACT(V) ne sert aucune version différente et répond NOT_READY si V > latestKnownVersion, même si
    un artifact interne à V existe déjà.
+   Pour une vue non protégée vide, EXACT(V) sert V sous la borne sans lookup readiness.
 6. Deux endpoints indépendants peuvent retourner deux servedVersions différentes.
 7. Une réponse composée utilise une business version unique pour tous ses composants ; pour une vue
    protégée, AUTH utilise également cette version.
