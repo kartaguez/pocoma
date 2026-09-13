@@ -725,6 +725,7 @@ class HexagonalArchitectureTest {
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.context.consumption..",
+						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.command..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",

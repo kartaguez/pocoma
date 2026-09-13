@@ -1,8 +1,8 @@
 # Lot 7.9.1 — Contrats de query versionnée
 
-> **Dossier de conception, non implémenté.** Ce document décrit uniquement les contrats
-> framework-free à introduire pour préparer le Query Kernel versionné. Il ne livre ni résolution
-> `CURRENT`/`EXACT`, ni autorisation, ni adapter, ni migration des GET existants.
+> **Dossier de réalisation clôturé.** Les contrats framework-free du Query Kernel versionné sont
+> livrés dans `engine-query`. Ce lot ne livre volontairement ni résolution `CURRENT`/`EXACT`, ni
+> autorisation, ni adapter, ni migration des GET existants.
 
 ## 1. Contexte et sources
 
@@ -28,7 +28,10 @@ Le code inspecté couvre les domaines `domain-projection`, `domain-pipeline` et 
 ports de `engine-read-projection`, les contrats et tests actuels de `engine-query`, son POM Maven et
 `HexagonalArchitectureTest`.
 
-## 2. État actuel vérifié dans le code
+## 2. État initial vérifié dans le code
+
+Les constats de cette section décrivent la baseline observée avant l'implémentation de 7.9.1. Le
+statut de livraison courant est résumé en tête du document.
 
 **CONFIRMED BY CODE INSPECTION —** `engine-query` expose aujourd'hui des intentions spécifiques
 (`GetPotQuery`, `GetExpenseQuery`, `GetPotBalancesQuery`, listes associées), dont certaines utilisent
@@ -561,10 +564,9 @@ Un test d'architecture ne doit pas figer les noms de valeurs `READ_POT`, `AUTH` 
 transformer `ProjectionType` en enum fermé. Il protège les directions de dépendances, pas un registry
 de composants.
 
-## 12. Documentation à mettre à jour après implémentation
+## 12. Documentation mise à jour après implémentation
 
-Ces modifications sont hors de la présente création de plan et appartiennent à la livraison future
-de 7.9.1 :
+La livraison de 7.9.1 aligne :
 
 - `docs/architecture/read-side-current-state.md` : déclarer les contrats réellement présents, tout en
   maintenant resolver et adapters comme absents ;
@@ -627,7 +629,7 @@ contrats prévus ici appliquent déjà ses invariants.
 
 ## 15. Fichiers attendus
 
-### Créés pendant l'implémentation future
+### Créés par l'implémentation
 
 ```text
 app/engine-query/src/main/java/com/kartaguez/pocoma/engine/port/in/query/version/QueryVersionIntent.java
@@ -646,7 +648,7 @@ app/engine-query/src/test/java/com/kartaguez/pocoma/engine/port/in/query/result/
 app/engine-query/src/test/java/com/kartaguez/pocoma/engine/port/out/query/
 ```
 
-### Modifiés pendant l'implémentation future
+### Modifiés par l'implémentation
 
 ```text
 app/engine-query/pom.xml
@@ -658,7 +660,8 @@ docs/plans/lot-7-read-side-implementation-plan.md
 docs/README.md (seulement si l'indexation des plans détaillés le requiert)
 ```
 
-La présente passe crée uniquement ce document de plan.
+Le plan initial a été créé dans une passe documentaire séparée ; la livraison de 7.9.1 réalise les
+fichiers et alignements ci-dessus sans implémenter 7.9.2.
 
 ## 16. OPEN QUESTIONS / BLOCKERS
 

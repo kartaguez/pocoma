@@ -55,7 +55,7 @@ requièrent. Ils portent `latestKnownVersion`, pas une continuité.
 | 7.6 READ_POT shadow | `DONE` | Snapshot canonique complet et delete terminal. |
 | 7.7 Metadata/index/keyset | `DONE` | Metadata exacte et index atomique ; reader shadow current désormais legacy. |
 | 7.8 Rebuild administratif | `ABSORBED` | Absorbé par 7.5 et 7.14 : nouvelle pipelineVersion, jamais de reset/replay spécial. |
-| 7.9 Query Kernel | `NOT_STARTED` | Intentions, composants, sélection READY et enveloppe à implémenter. |
+| 7.9 Query Kernel | `PARTIAL` | Contrats 7.9.1 livrés ; resolver CURRENT/EXACT et composition restent à implémenter. |
 | 7.10 Authorization Kernel/AUTH | `NOT_STARTED` | TokenCapabilities et artifact complet AUTH(V) à implémenter. |
 | 7.11 GET Pot/Expense | `NOT_STARTED` | Lot d'intégration après 7.9/7.10. |
 | 7.12 Balance générique | `PARTIAL` | Calcul exact/hors ordre livré ; persistence/statut/head génériques manquants. |
@@ -195,25 +195,28 @@ d'éligibilité appartiennent à 7.14/7.15.
 
 ### 7.9 — Query Kernel, composants et enveloppe versionnée
 
-**Statut : `NOT_STARTED`**
+**Statut : `PARTIAL`**
 
 Ce lot ne migre encore aucun controller. Il fournit le moteur read-only commun.
 
 #### 7.9.1 — Contrats de query versionnée
 
-Définir :
+**Statut : `DONE`**
+
+Livré dans `engine-query` :
 
 - `QueryVersionIntent` avec `CURRENT` et `EXACT(V)` ;
 - `VersionedQueryResponse<T>` avec `requestedVersion`, `servedVersion`, `latestKnownVersion`,
   `generatedAt`, `data`, sans champ `stale` ;
-- identité d'un composant logique de vue ;
-- déclaration statique des composants métier requis par une query, AUTH étant toujours requis ;
-- contrat de sélection injectée d'une pipelineVersion par famille ;
-- contrat de lecture des businessVersions `READY` exactes dans les pipelineVersions fournies.
+- `QueryViewDefinition` réutilisant `ProjectionType`, avec AUTH obligatoire uniquement pour une vue
+  protégée et composants métier éventuellement vides ;
+- `QueryPipelineSelection` explicite, éventuellement vide, fournie par le futur serving provider ;
+- port de recherche descendante de la plus haute businessVersion réellement `READY` sous une borne
+  et lecture du statut exact ;
+- port read-only distinct pour `LatestKnownVersion`.
 
-Tests : validation de V positif, fidélité de `requestedVersion`, distinction generatedAt/projection
-time, un seul READ_POT malgré plusieurs tables et absence de dépendance HTTP/persistence dans les
-contrats.
+Les tests couvrent validations, immutabilité, trous de versions, isolation des générations et
+absence de sélection implicite de pipelineVersion. Aucun resolver, adapter ou GET n'est branché.
 
 #### 7.9.2 — Résolution CURRENT et EXACT
 
@@ -535,17 +538,18 @@ Le Lot 7 est terminé lorsque :
 
 ## Lot / sous-lot exact
 
-**7.9.1 — Contrats de query versionnée**
+**7.9.2 — Résolution CURRENT et EXACT**
 
 ## Pourquoi
 
-Le code possède déjà artifacts exacts, status dérivé, heads, READ_POT, latest-known et index shadow.
-Il ne possède aucun contrat commun exprimant `CURRENT`, `EXACT(V)`, une vue composée incluant AUTH ou
-l'enveloppe versionnée. Ces contrats sont nécessaires à 7.9.2, à AUTH, aux états serving et aux deux
-lots d'intégration, tout en pouvant être implémentés sans décision de persistence AUTH ou de cutover.
+Le Lot 7.9.1 fournit désormais les intentions, définitions de vues protégées ou non, sélections de
+producteurs fournies, ports read-only de readiness/latest-known et enveloppe versionnée. L'étape
+suivante consiste à les composer pour résoudre une businessVersion sans dépendance HTTP, AUTH
+concret ou lifecycle serving.
 
-7.8 n'est pas le prochain lot : son objectif est déjà absorbé par la redécouverte native des nouvelles
-pipelineVersions. 7.12 peut avancer en parallèle, mais ne débloque pas le chemin commun des GET.
+7.10 pourra ensuite fournir l'artifact AUTH exact consommé par les vues protégées. 7.14.1 fournira
+plus tard les sélections serving réelles ; 7.9.2 reçoit déjà cette sélection comme donnée et n'a pas
+à implémenter ce lifecycle.
 
 ## Pré-requis déjà satisfaits
 
@@ -554,29 +558,29 @@ pipelineVersions. 7.12 peut avancer en parallèle, mais ne débloque pas le chem
 - artifacts immuables et head monotone ;
 - READ_POT complet et index versionné ;
 - latest-known indépendant ;
-- architecture CURRENT/EXACT et enveloppe désormais canonique.
+- architecture CURRENT/EXACT et enveloppe canonique ;
+- contrats framework-free du Lot 7.9.1 et leurs validations.
 
 ## Décisions encore nécessaires avant implémentation
 
-Aucune décision d'architecture supplémentaire ne bloque 7.9.1. Les noms Java exacts et la forme des
-types sont des choix locaux au sous-lot, sous réserve de préserver la séparation entre
-pipelineVersion fournie et businessVersion résolue. La représentation physique d'AUTH(V), la limite
-de scan des listes et la forme HTTP des erreurs ne sont pas des prérequis de 7.9.1.
+Aucune décision d'architecture supplémentaire ne bloque 7.9.2. Le resolver doit rester paramétré par
+une sélection de pipelineVersions fournie et peut être testé avec un composant AUTH logique sans que
+la représentation physique d'AUTH(V) soit déjà livrée.
 
 ## Travail concret restant
 
-- définir les types framework-free d'intention et d'enveloppe ;
-- définir composant logique et déclaration statique d'une vue ;
-- exprimer AUTH comme composant obligatoire de toute vue protégée, à la même businessVersion que les
-  composants métier ;
-- porter la sélection de pipelineVersion par famille comme donnée fournie au résolveur, sans la
-  choisir dans 7.9.2 ;
-- définir le port read-only d'énumération/résolution des identités READY exactes ;
-- fixer les invariants de validation et les tests unitaires ;
-- ne brancher encore ni controller, ni primary reader, ni policy AUTH.
+- implémenter le resolver framework-free de `CURRENT` et `EXACT(V)` ;
+- construire les `ProjectionGenerationIdentity` depuis les composants requis, le Pot et la sélection
+  de producteurs fournie ;
+- borner toute recherche par `latestKnownVersion` et gérer son absence ;
+- rechercher la meilleure businessVersion commune READY sans supposer de continuité ;
+- vérifier exactement tous les composants à la candidate, y compris AUTH pour une vue protégée ;
+- distinguer les issues ready/not-ready/failed sans mapping HTTP ;
+- ne lire aucun droit AUTH, ne choisir aucune pipelineVersion serving et ne brancher aucun GET.
 
 ## Docs canoniques à utiliser
 
 - [Architecture cible du read side](../architecture/read-side-target.md), sections 5 à 10 ;
-- [État actuel du read side](../architecture/read-side-current-state.md), sections 5, 6 et 10 ;
-- le présent plan, sections 2 et 5.
+- [État actuel du read side](../architecture/read-side-current-state.md), sections 2, 3 et 10 ;
+- [Plan détaillé 7.9.1](lot-7.9.1-versioned-query-contracts-plan.md), contrats livrés ;
+- le présent plan, section 7.9.2 et scénarios transverses.

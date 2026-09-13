@@ -18,6 +18,7 @@ vérifiée avant une modification.
 - [Architecture cible du read side](architecture/read-side-target.md) — cible normative du Lot 7 : modèle temporel, projections, queries et invariants.
 - [Reconstruction historique d'un Pot](architecture/pot-historical-reconstruction.md) — temporalité primaire exacte, fragments reconstructibles et limite `updatedAt`.
 - [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
+- [Plan détaillé du Lot 7.9.1](plans/lot-7.9.1-versioned-query-contracts-plan.md) — contrats framework-free d'intention, de vue, de sélection producteur, de readiness et d'enveloppe versionnée.
 - [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — dossier de réalisation du consumer direct ; les noms watermark qui y subsistent sont de compatibilité.
 - [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — dossier de réalisation de la metadata et de l'index shadow. Sa sélection current par égalité à latest-known est superseded : l'index cible ne fournit que des candidats, ensuite résolus et autorisés à une businessVersion commune.
 

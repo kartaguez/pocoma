@@ -14,7 +14,7 @@
 | Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
 | Connaissance de version | `LatestKnownVersion` | `domain-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
-| Contrats de query versionnée | Types non créés (`CURRENT`, `EXACT`, composants, enveloppe, sélection de pipelineVersion fournie) | ownership à fermer en 7.9.1 |
+| Contrats de query versionnée | `QueryVersionIntent`, `QueryViewDefinition`, `QueryPipelineSelection`, `VersionedQueryResponse`, ports read-only readiness/latest-known | `engine-query` |
 | Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
 | Payload fonctionnel de tâche | `TaskPayload` | `domain-task` |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |

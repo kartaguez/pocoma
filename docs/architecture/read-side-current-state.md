@@ -2,12 +2,10 @@
 
 ## 1. Portée de l'observation
 
-Ce document décrit le repository au commit `34df9348dd0823d4e977859048aaf8b9ef44db6c`.
+Ce document décrit l'état courant du repository après livraison des contrats du Lot 7.9.1.
 Il est factuel : les décisions normatives appartiennent à
 [read-side-target.md](read-side-target.md), et leur séquencement au
 [plan directeur du Lot 7](../plans/lot-7-read-side-implementation-plan.md).
-
-La suite Maven complète observée sur ce commit exécute 869 tests sans échec ni erreur.
 
 ## 2. Résumé
 
@@ -21,8 +19,11 @@ Le read side est en transition :
   `pocoma_read` ;
 - l'index versionné user→Pot et la pagination keyset existent en shadow, sans GET actif ;
 - `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
-- le Query Kernel, l'Authorization Kernel, `AUTH(V)`, `VersionedQueryResponse`, les états
-  declared/active/serving et le cutover serving n'existent pas encore.
+- les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, définition de vue, sélection de
+  producteurs, readiness, latest-known read-only et `VersionedQueryResponse`) sont présents dans
+  `engine-query`, mais leur resolver n'existe pas encore ;
+- l'Authorization Kernel, `AUTH(V)`, les états declared/active/serving et le cutover serving
+  n'existent pas encore.
 
 ## 3. GET réellement exposés
 
@@ -44,10 +45,10 @@ Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
 `GetPotBalancesService` choisissent la version primaire lorsque le paramètre est absent. Les listes
 partent également des données primaires courantes.
 
-Le code actif ne connaît donc pas encore les intentions `CURRENT` et `EXACT(V)` de la cible. Il ne
-calcule pas la meilleure intersection bornée par latest-known d'`AUTH(V)` et des artifacts métier
-`READY`, et ne retourne pas encore
-`VersionedQueryResponse`.
+Les contrats `QueryVersionIntent` et `VersionedQueryResponse` existent désormais, mais aucun GET
+actif ne les utilise. Le code ne calcule pas encore la meilleure intersection bornée par
+latest-known d'`AUTH(V)` et des artifacts métier `READY`, et ne retourne donc pas encore d'enveloppe
+versionnée en production.
 
 Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
 `IllegalStateException`. Elle n'est pas encore traduite en état normal de Query Kernel.
@@ -221,9 +222,10 @@ selon leur logique legacy avant la future résolution commune AUTH + composants 
 
 | Cible | État actuel |
 |---|---|
-| Query Kernel `CURRENT` / `EXACT(V)` | Absent |
+| Contrats Query Kernel `CURRENT` / `EXACT(V)` | Présents, framework-free, non branchés |
+| Resolver Query Kernel `CURRENT` / `EXACT(V)` | Absent |
 | Meilleure intersection AUTH + composants métier READY bornée par latest-known | Absente |
-| `VersionedQueryResponse` | Absent |
+| `VersionedQueryResponse` | Présent, non utilisé par les GET actifs |
 | Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
 | AUTH indépendante | Absente |
 | AUTH complet à chaque businessVersion | Absent |
