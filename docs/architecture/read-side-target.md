@@ -191,6 +191,8 @@ servedVersion = max V <= latestKnownVersion tel que
 
 Si latest-known est absent ou si cette intersection est vide, le résultat est `NOT_READY`.
 L'intersection est calculée depuis les identités/artifacts exacts, jamais depuis les heads.
+Seule la readiness d'AUTH participe à cette sélection ; le contenu des droits dans AUTH(V) n'est
+jamais un critère pour choisir V.
 
 Une version plus récente `FAILED` ou `NOT_READY` ne masque pas une version plus ancienne complètement
 servable :
@@ -207,8 +209,23 @@ même business version. Une révocation plus récente peut donc ne pas être vis
 version correspondante n'est pas servable comme snapshot current. Cette latence asynchrone est
 acceptée ; AUTH et les données métier ne sont jamais évaluées à deux businessVersions distinctes.
 
-Il n'existe aucun fallback opportuniste après la sélection : rechercher la meilleure intersection
-READY bornée par latest-known est la définition même de `CURRENT`.
+Une fois `servedVersion` sélectionnée, la décision d'autorisation est terminale. Si
+AUTH(servedVersion) refuse l'utilisateur, la requête est refusée. Le Query Kernel ne cherche jamais
+une businessVersion antérieure où cet utilisateur aurait encore des droits : le fallback de
+readiness appartient à la sélection de CURRENT, le fallback d'autorisation est strictement interdit.
+
+```text
+latestKnownVersion = 15
+V14 : READ_POT READY, AUTH READY, utilisateur refusé
+V13 : READ_POT READY, AUTH READY, utilisateur autorisé
+
+servedVersion = 14
+AUTH(14) => refus
+résultat    => requête refusée, sans tentative à V13
+```
+
+Il n'existe aucun autre fallback opportuniste après la sélection : rechercher la meilleure
+intersection READY bornée par latest-known est la définition même de `CURRENT`.
 
 ### EXACT(V)
 
@@ -365,6 +382,9 @@ où AUTH et les composants requis sont READY, évaluer les faits métier dans AU
 puis lire et composer les données. Un refus établi est masqué selon le contrat HTTP ; l'absence d'un
 snapshot commun servable reste distincte d'un refus.
 
+La sélection de version et la décision d'autorisation sont deux étapes distinctes. Un refus termine
+la requête et ne relance jamais la sélection avec une businessVersion plus ancienne.
+
 ## 11. Endpoints cibles
 
 ### Pot, Expense et sous-objets
@@ -503,9 +523,10 @@ d'observation et rollback possible, puis suppression physique explicite.
 10. Les capacités du token sont courantes ; seuls les faits métier Pot sont historisés.
 11. AUTH(V) est un artifact complet, indépendant et hors ordre pour chaque businessVersion applicable.
 12. AUTH et les données métier d'une réponse sont évaluées à la même servedVersion.
-13. L'index user→Pot découvre des candidats et ne prouve jamais l'autorisation.
-14. L'autorisation précède toute révélation externe d'existence ou de readiness métier.
-15. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
-16. Une seule pipelineVersion est serving par famille et le cutover reste manuel.
-17. `active` autorise le travail ; seule l'éligibilité prouve la convergence initiale requise.
-18. L'éligibilité serving exige une convergence initiale complète, jamais un head seul.
+13. Un refus de AUTH(servedVersion) est terminal ; aucune businessVersion antérieure n'est essayée.
+14. L'index user→Pot découvre des candidats et ne prouve jamais l'autorisation.
+15. L'autorisation précède toute révélation externe d'existence ou de readiness métier.
+16. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
+17. Une seule pipelineVersion est serving par famille et le cutover reste manuel.
+18. `active` autorise le travail ; seule l'éligibilité prouve la convergence initiale requise.
+19. L'éligibilité serving exige une convergence initiale complète, jamais un head seul.

@@ -222,6 +222,8 @@ Implémenter sans controller, avec une sélection de pipelineVersion fournie par
 - latest-known absent → `NOT_READY` pour CURRENT comme EXACT ;
 - `CURRENT = max V <= latestKnownVersion` dans l'intersection READY de AUTH et de tous les
   composants métier requis ;
+- sélectionner V uniquement depuis latest-known et cette readiness commune, jamais depuis le résultat
+  des droits contenus dans AUTH(V) ;
 - `EXACT(V)` exige V <= latest-known, AUTH(V) et tous les composants métier requis READY à V ;
 - résolution depuis les artifacts exacts, jamais depuis les heads ;
 - version `FAILED` plus récente n'occultant pas une version READY antérieure en CURRENT ;
@@ -236,6 +238,8 @@ Tests obligatoires :
 - latest-known 15, READ_POT READY `{13,14,15}`, AUTH READY `{13}` → CURRENT sert 13 ;
 - latest-known 14, READ_POT/AUTH READY 15 → V15 non exposable ;
 - composants métier READY `{12,13,15}` et AUTH READY `{11,13,14}` → CURRENT sert 13 ;
+- V14 et V13 READY pour AUTH et READ_POT, utilisateur refusé par AUTH(14) mais autorisé par AUTH(13)
+  → la résolution sélectionne V14 ;
 - head 15 avec trou à 14 ne prouve pas READY(14) ;
 - EXACT(15) avec latest-known 14 → `NOT_READY`, même si tous les artifacts V15 existent ;
 - EXACT(15) avec AUTH ou composant absent/NOT_READY/FAILED ne sert aucune autre version.
@@ -244,6 +248,10 @@ Tests obligatoires :
 
 Après le pipeline et les policies AUTH du 7.10, assembler l'ordre sans fuite : TokenCapabilities,
 recherche interne de la businessVersion commune, décision depuis AUTH(servedVersion), puis lecture.
+Un refus depuis AUTH(servedVersion) termine la requête : ne jamais relancer 7.9.2 pour chercher une
+businessVersion antérieure qui autoriserait l'utilisateur. Le fallback de readiness définit CURRENT ;
+aucun fallback d'autorisation n'existe.
+
 Stabiliser `NOT_READY`, `PROJECTION_FAILED`, masquage des refus et enveloppes de succès. Aucun détail
 de claim/Task/pipeline interne ne doit fuir.
 
@@ -473,23 +481,25 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
 6. Deux endpoints indépendants peuvent retourner deux servedVersions différentes.
 7. Une réponse composée utilise une business version unique pour AUTH et tous ses composants métier.
 8. Une failure plus récente ne masque pas une version READY antérieure en CURRENT.
-9. Une liste traite son index comme source de candidats, filtre chaque Pot via AUTH à sa
+9. CURRENT sélectionne V14 lorsque AUTH(14) et les composants métier V14 sont READY. Si AUTH(14)
+   refuse l'utilisateur, la query est refusée et ne tente jamais V13, même si AUTH(13) l'autoriserait.
+10. Une liste traite son index comme source de candidats, filtre chaque Pot via AUTH à sa
    servedVersion et peut évoluer entre pages.
-10. Le curseur d'une liste filtrée pointe le dernier candidat examiné ; une limite de scan peut
+11. Le curseur d'une liste filtrée pointe le dernier candidat examiné ; une limite de scan peut
     produire une page partielle sans rescanner les candidats filtrés.
-11. `requestedVersion`, `servedVersion`, latest-known et generatedAt respectent leur sémantique ; une
+12. `requestedVersion`, `servedVersion`, latest-known et generatedAt respectent leur sémantique ; une
     réponse réussie possède toujours latestKnownVersion.
-12. Aucun champ `stale` n'est exposé.
-13. Aucun scope de token n'est historisé ; member/creator le sont dans chaque AUTH(V) complet.
-14. EXACT historique exige la capacité actuelle VIEW_ARCHIVE et les droits métier de AUTH(V).
-15. AUTH(V), READ_POT(V) et BALANCE(V) peuvent progresser dans n'importe quel ordre et sans dépendre
+13. Aucun champ `stale` n'est exposé.
+14. Aucun scope de token n'est historisé ; member/creator le sont dans chaque AUTH(V) complet.
+15. EXACT historique exige la capacité actuelle VIEW_ARCHIVE et les droits métier de AUTH(V).
+16. AUTH(V), READ_POT(V) et BALANCE(V) peuvent progresser dans n'importe quel ordre et sans dépendre
     de leur version précédente.
-16. Une nouvelle pipelineVersion redécouvre son historique sans rouvrir l'ancienne génération.
-17. Un head maximal avec trou/failure n'autorise pas serving.
-18. `active` ne prouve pas la convergence et `eligibleForServing=true` ne déclenche aucun cutover.
-19. La sélection de pipelineVersion serving est fournie à 7.9.2, qui ne résout que la businessVersion.
-20. Les GET cibles fonctionnent sans permission SQL sur le primaire.
-21. Après observation, le legacy peut être désactivé puis supprimé sans modifier les réponses.
+17. Une nouvelle pipelineVersion redécouvre son historique sans rouvrir l'ancienne génération.
+18. Un head maximal avec trou/failure n'autorise pas serving.
+19. `active` ne prouve pas la convergence et `eligibleForServing=true` ne déclenche aucun cutover.
+20. La sélection de pipelineVersion serving est fournie à 7.9.2, qui ne résout que la businessVersion.
+21. Les GET cibles fonctionnent sans permission SQL sur le primaire.
+22. Après observation, le legacy peut être désactivé puis supprimé sans modifier les réponses.
 
 ## 9. Décisions encore ouvertes
 
