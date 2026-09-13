@@ -300,11 +300,11 @@ La matrice finale attendue est :
 | Duplicate divergent sur projection `READY` | Artifact inchangé, state `READY`, violation séparée |
 | Reader constate une projection absente | Aucun state créé |
 | Projector constate une intention absente | Erreur de protocole, aucun `NOT_READY` inventé |
-| AUTH(V) ou composant requis absent de l'intersection CURRENT | chercher une V commune antérieure dans la borne latest-known, sinon `NOT_READY` |
+| **SUPERSEDED par le cadrage monoprojection 7.9.1** : ancien cas AUTH/composants en intersection CURRENT | Le resolver métier consulte désormais le plus haut état terminal de son unique génération serving ; AUTH est demandé séparément en EXACT(servedVersion) |
 | AUTH(V) établit un refus à la version servie | refus masqué sans révéler existence/readiness/failure métier |
 | AUTH(V) autorise, composant exact `FAILED` | `PROJECTION_FAILED` selon le contrat HTTP commun |
 | AUTH(V) autorise, composant exact `NOT_READY` | `NOT_READY` selon le contrat HTTP commun |
-| AUTH et composants requis ont une intersection CURRENT non vide | succès à la meilleure businessVersion READY commune dans la borne latest-known |
+| **SUPERSEDED par le cadrage monoprojection 7.9.1** : ancienne intersection AUTH/composants | Aucun contrat multi-projection ; CURRENT utilise le plus haut terminal de la génération métier serving |
 | Matérialisation réussie | Artifact + `READY` + head + indexes atomiques dans le read store |
 | Plusieurs workers d'un pipeline | Autorisés et fencés |
 | Deux producers logiques d'une génération | Interdits |

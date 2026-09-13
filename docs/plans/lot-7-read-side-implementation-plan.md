@@ -25,11 +25,10 @@ La suite complète de la baseline exécute 869 tests sans échec ni erreur.
 3. Les artifacts sont immuables, exacts, idempotents et adressés par identité complète.
 4. Un head est un maximum matérialisé, jamais une preuve de continuité ou de convergence.
 5. Les pipelines convergent indépendamment ; leur composition intervient uniquement à la lecture.
-6. `CURRENT` sert la meilleure businessVersion inférieure ou égale à latest-known où tous les
-   composants requis sont `READY` : AUTH et composants métier pour une vue protégée, composants
-   métier seuls pour une vue non protégée.
-7. `EXACT(V)` exige latest-known présent et supérieur ou égal à V et tous les composants requis à V,
-   dont AUTH(V) pour une vue protégée, sans fallback.
+6. Toute query versionnée porte exactement une projection métier. `CURRENT` utilise son plus haut
+   état terminal `READY | FAILED` sous latest-known dans la génération serving.
+7. `EXACT(V)` consulte uniquement V dans la génération serving, après contrôle de latest-known et de
+   l'applicabilité, sans fallback de businessVersion ou de pipelineVersion.
 8. `latestKnownVersion` ne bloque jamais la production, mais borne explicitement toute exposition.
 9. Une liste est un read model convergent ; elle ne relit ni le primaire ni latest-known pour être
    reconstruite à la volée.
@@ -74,7 +73,7 @@ requièrent. Ils portent `latestKnownVersion`, pas une continuité.
 Livré :
 
 - séparation explicite cible/état courant/plan ;
-- définition canonique de latest-known, CURRENT/EXACT, composants, listes, AUTH et pipeline lifecycle ;
+- définition canonique de latest-known, CURRENT/EXACT, projections, listes, AUTH et pipeline lifecycle ;
 - correction des contradictions current, rebuild, head et scope historique ;
 - alignement avec le delete Pot terminal et `PotVersionMetadata.createdAt`.
 
@@ -194,7 +193,7 @@ d'éligibilité appartiennent à 7.14/7.15.
 
 ## 5. Lots architecturaux restants
 
-### 7.9 — Query Kernel, composants et enveloppe versionnée
+### 7.9 — Query Kernel monoprojection et enveloppe versionnée
 
 **Statut : `PARTIAL`**
 
@@ -209,77 +208,59 @@ Livré dans `engine-query` :
 - `QueryVersionIntent` avec `CURRENT` et `EXACT(V)` ;
 - `VersionedQueryResponse<T>` avec `requestedVersion`, `servedVersion`, `latestKnownVersion`,
   `generatedAt`, `data`, sans champ `stale` ;
-- `QueryViewDefinition` réutilisant `ProjectionType`, avec AUTH obligatoire uniquement pour une vue
-  protégée et composants métier éventuellement vides ;
-- `QueryPipelineSelection` explicite, éventuellement vide, fournie par le futur serving provider ;
-- port de recherche descendante de la plus haute businessVersion réellement `READY` sous une borne
-  et lecture du statut exact ;
+- `QueryProjectionSelection` associant l'unique `ProjectionType` métier à la
+  `PipelineVersionDefinition` serving de son producteur ;
+- `TerminalProjectionState` associant une businessVersion à son statut terminal `READY | FAILED` ;
+- port de recherche descendante du plus haut état terminal sous une borne et lecture du statut exact ;
 - port read-only distinct pour `LatestKnownVersion`.
 
-Les tests couvrent validations, immutabilité, trous de versions, isolation des générations et
-absence de sélection implicite de pipelineVersion. Aucun resolver, adapter ou GET n'est branché.
+La génération serving fait autorité pour les lectures récentes et historiques. Les tests couvrent
+validations, trous de versions, statuts FAILED, isolation complète des générations et absence de
+fallback vers une ancienne pipelineVersion. Aucun resolver, adapter ou GET n'est branché.
 
 #### 7.9.2 — Résolution CURRENT et EXACT
 
-Implémenter sans controller, avec une sélection de pipelineVersion fournie par l'appelant :
+Le design précédent de 7.9.2 est `SUPERSEDED`. La nouvelle conception, à rédiger après audit de la
+révision 7.9.1, devra implémenter sans controller :
 
+- exactement une projection métier et sa pipelineVersion serving fournie ;
 - latest-known absent → `NOT_READY` pour CURRENT comme EXACT ;
-- `CURRENT = max V <= latestKnownVersion` dans l'intersection READY de tous les composants requis :
-  AUTH et composants métier pour une vue protégée, composants métier seuls pour une vue non
-  protégée ;
-- pour une vue protégée, sélectionner V uniquement depuis latest-known et cette readiness commune,
-  jamais depuis le résultat des droits contenus dans AUTH(V) ;
-- `EXACT(V)` exige V <= latest-known et tous les composants requis READY à V, dont AUTH(V) pour une
-  vue protégée ;
-- pour `unprotectedView({})`, aucun lookup readiness n'est requis : CURRENT sert latest-known s'il
-  existe, et EXACT(V) sert V si latest-known existe et borne V ;
-- avant toute consultation de statut exact à une candidate V, vérifier
-  `PipelineVersionDefinition.appliesTo(V)` : si faux, cette génération n'est pas candidate à V et ne
-  doit jamais être interprétée comme `NOT_READY`; si vrai, construire `ProjectionIdentity` puis
-  consulter `statusAt(...)` ;
-- résolution depuis les artifacts exacts, jamais depuis les heads ;
-- version `FAILED` plus récente n'occultant pas une version READY antérieure en CURRENT ;
-- artifact interne au-delà de latest-known jamais exposé ;
-- aucun fallback en EXACT ;
-- aucune sélection implicite de pipelineVersion serving dans 7.9.2 ;
-- deux endpoints autorisés à converger vers des servedVersions différentes.
+- CURRENT → plus haut état terminal `READY | FAILED` de la génération serving sous latest-known ;
+- terminal READY → `RESOLVED(V)` ; terminal FAILED → `PROJECTION_FAILED(V)` ; aucun terminal →
+  `NOT_READY` ;
+- EXACT(V) → `NOT_READY` si V dépasse latest-known, `NOT_APPLICABLE` si la pipeline serving ne
+  s'applique pas à V, sinon résolution depuis `statusAt(ProjectionIdentity(..., V))` ;
+- résolution depuis les identités exactes, jamais depuis les heads ;
+- aucune sélection implicite de pipelineVersion serving ;
+- aucun fallback vers une ancienne pipelineVersion, y compris pour une lecture historique ;
+- deux endpoints autorisés à converger vers des servedVersions différentes ;
+- aucune connaissance d'AUTH ou des droits dans le Query Version Resolver.
 
 Tests obligatoires :
 
-- latest-known absent avec artifacts READY → `NOT_READY` ;
-- latest-known 15, READ_POT READY `{13,14,15}`, AUTH READY `{13}` → CURRENT sert 13 ;
-- vue non protégée, latest-known 15 et READ_POT READY `{13,14}` → CURRENT sert 14 sans requérir AUTH ;
-- vue non protégée vide, latest-known absent → `NOT_READY` ;
-- vue non protégée vide, latest-known 15 et CURRENT → sert 15 sans lookup readiness ;
-- vue non protégée vide, latest-known 14 et EXACT(15) → `NOT_READY` sans lookup readiness ;
-- vue non protégée vide, latest-known 15 et EXACT(15) → sert 15 sans lookup readiness ;
-- vue non protégée vide, latest-known 15 et EXACT(12) → sert 12 sans lookup readiness ;
-- vue non protégée vide, latest-known 15 et EXACT(16) → `NOT_READY` sans lookup readiness ;
-- latest-known 14, READ_POT/AUTH READY 15 → V15 non exposable ;
-- composants métier READY `{12,13,15}` et AUTH READY `{11,13,14}` → CURRENT sert 13 ;
-- V14 et V13 READY pour AUTH et READ_POT, utilisateur refusé par AUTH(14) mais autorisé par AUTH(13)
-  → la résolution sélectionne V14 ;
+- latest-known absent avec artifact READY → `NOT_READY` ;
+- latest-known 15, V15 NOT_READY, V14 FAILED, V13 READY → `PROJECTION_FAILED(14)` ;
+- aucune version terminale sous latest-known → `NOT_READY` ;
+- latest-known 14 et artifact READY 15 → V15 non exposable ;
 - head 15 avec trou à 14 ne prouve pas READY(14) ;
-- pipelineVersion non applicable à V14 → génération non candidate à V14, sans produire le statut
-  `NOT_READY` ;
-- EXACT(15) avec latest-known 14 → `NOT_READY`, même si tous les artifacts V15 existent ;
-- EXACT(15) protégé avec AUTH ou composant absent/NOT_READY/FAILED ne sert aucune autre version ;
-- EXACT(15) non protégé n'exige que ses composants métier à V15.
+- EXACT(15) avec latest-known 14 → `NOT_READY`, même si l'artifact V15 existe ;
+- EXACT(15) non applicable → `NOT_APPLICABLE` ;
+- EXACT READY/FAILED/NOT_READY → résultat correspondant sans fallback ;
+- génération serving v3 READY seulement à V13 et ancienne v2 READY à V15 → CURRENT sert v3/V13 ;
+- génération serving sans terminal et ancienne génération READY → `NOT_READY`.
 
 #### 7.9.3 — États fonctionnels et mapping HTTP commun
 
 Après le pipeline et les policies AUTH du 7.10, assembler deux séquences explicites.
 
-Pour une vue protégée : TokenCapabilities, recherche interne de la businessVersion commune, décision
-depuis AUTH(servedVersion), puis lecture et composition des données. Le contenu d'AUTH ne participe
-jamais au choix de servedVersion. Un refus depuis AUTH(servedVersion) termine la requête : ne jamais
-relancer 7.9.2 pour chercher une businessVersion antérieure qui autoriserait l'utilisateur. Le
-fallback de readiness définit CURRENT ; aucun fallback d'autorisation n'existe. Aucune information
+Pour une query protégée : TokenCapabilities, résolution de l'unique projection métier, demande AUTH
+en `EXACT(servedVersion)`, décision depuis AUTH à cette version, puis lecture des données. Un refus ou
+une absence AUTH ne relance jamais 7.9.2 à une businessVersion antérieure. Aucune information
 d'existence, de readiness ou de failure ne doit fuiter avant la décision d'autorisation appropriée.
 
-Pour une vue non protégée : recherche interne de la businessVersion commune, puis lecture et
-composition des données. Le contrat générique n'impose ni étape AUTH, ni TokenCapabilities propres
-au mécanisme AUTH, ni mécanisme d'autorisation alternatif.
+Pour une query non protégée : résolution de l'unique projection métier, puis lecture des données. Le
+contrat générique n'impose ni étape AUTH, ni TokenCapabilities propres au mécanisme AUTH, ni mécanisme
+d'autorisation alternatif.
 
 Stabiliser `NOT_READY`, `PROJECTION_FAILED`, masquage des refus et enveloppes de succès. Aucun détail
 de claim/Task/pipeline interne ne doit fuir.
@@ -385,8 +366,8 @@ legacy.
 Restant :
 
 - declared/active/serving, applicabilité, head-max, backlog, holes, failures et eligibleForServing ;
-- latest-known, meilleures businessVersions READY par pipeline et meilleure businessVersion commune
-  servable pour une vue ;
+- latest-known, plus haute businessVersion terminale et statut `READY | FAILED` par génération
+  serving ;
 - latences Event→pickup, Event→Task et Task→completion ;
 - requestedVersion, servedVersion, NOT_READY et PROJECTION_FAILED ;
 - raisons structurées d'inéligibilité, sans cardinalité Pot incontrôlée.
@@ -403,8 +384,9 @@ preuve de retard continu ou de readiness.
 Pour chaque endpoint retenu :
 
 ```text
-HTTP -> Query Kernel -> Authorization Kernel
-     -> CURRENT | EXACT(V) -> READ_POT reader
+HTTP -> Query Version Resolver : CURRENT | EXACT(V) sur READ_POT
+     -> si protégée : Authorization Kernel, AUTH EXACT(servedVersion)
+     -> READ_POT reader
      -> VersionedQueryResponse
 ```
 
@@ -439,17 +421,18 @@ technique.
 Cible :
 
 ```text
-HTTP -> Query Kernel -> Authorization Kernel
-     -> CURRENT | EXACT(V) -> BALANCE reader
+HTTP -> Query Version Resolver : CURRENT | EXACT(V) sur BALANCE
+     -> si protégée : Authorization Kernel, AUTH EXACT(servedVersion)
+     -> BALANCE reader
      -> VersionedQueryResponse
 ```
 
-CURRENT choisit la plus grande businessVersion V inférieure ou égale à latestKnownVersion pour
-laquelle AUTH(V) et BALANCE(V) sont READY dans les pipelineVersions fournies. L'autorisation et la
-balance sont lues à cette même V. EXACT(V) exige latest-known présent, V dans sa borne, AUTH(V) et
-BALANCE(V) READY. Aucun endpoint Pot distinct n'impose la même servedVersion. `balances/me` utilise
-un index transverse de découverte, puis applique cette résolution et ce filtrage par Pot ; il ne
-boucle plus sur une liste primaire de Pots.
+CURRENT résout le plus haut état terminal sous latestKnownVersion dans l'unique génération BALANCE
+serving. Un terminal FAILED produit `PROJECTION_FAILED` sans fallback vers un ancien READY. Pour une
+query protégée, AUTH est ensuite demandé séparément en `EXACT(servedVersion)`. Aucun endpoint Pot
+distinct n'impose la même servedVersion. `balances/me` utilise un index transverse de découverte,
+puis applique cette résolution et ce filtrage par Pot ; il ne boucle plus sur une liste primaire de
+Pots.
 
 Décision API encore requise : conserver ou non le paramètre de version de `balances/me`. Aucune
 rupture ne doit être introduite implicitement.
@@ -503,20 +486,16 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
 1. Projection 46 terminée avant 45, head final 46 et artifacts 45/46 exacts.
 2. Latest-known en retard ou en avance n'empêche aucune production de pipeline.
 3. Sans latest-known, CURRENT et EXACT répondent NOT_READY.
-4. CURRENT sert la plus grande V <= latestKnownVersion où tous les composants de la vue sont READY,
-   avec AUTH inclus uniquement pour une vue protégée, calculée sans head.
-   Pour une vue non protégée vide, cette condition est trivialement satisfaite et CURRENT sert
-   latestKnownVersion sans lookup readiness.
+4. CURRENT inspecte uniquement la génération serving de l'unique projection métier et retient son
+   plus haut état terminal `READY | FAILED` sous latest-known, calculé sans head.
 5. EXACT(V) ne sert aucune version différente et répond NOT_READY si V > latestKnownVersion, même si
    un artifact interne à V existe déjà.
-   Pour une vue non protégée vide, EXACT(V) sert V sous la borne sans lookup readiness.
 6. Deux endpoints indépendants peuvent retourner deux servedVersions différentes.
-7. Une réponse composée utilise une business version unique pour tous ses composants ; pour une vue
-   protégée, AUTH utilise également cette version.
-8. Une failure plus récente ne masque pas une version READY antérieure en CURRENT.
-9. Pour une vue protégée, CURRENT sélectionne V14 lorsque AUTH(14) et les composants métier V14 sont
-   READY. Si AUTH(14) refuse l'utilisateur, la query est refusée et ne tente jamais V13, même si
-   AUTH(13) l'autoriserait.
+7. V15 NOT_READY, V14 FAILED et V13 READY produisent `PROJECTION_FAILED(14)` en CURRENT.
+8. Pour une query protégée, AUTH est demandé séparément en `EXACT(servedVersion)` ; un refus ne
+   relance jamais la résolution métier à une version plus ancienne.
+9. Une génération serving sans terminal répond NOT_READY même si une ancienne pipelineVersion possède
+   des artifacts READY ; le serving vaut également pour les lectures historiques.
 10. Une liste traite son index comme source de candidats, filtre chaque Pot via AUTH à sa
    servedVersion et peut évoluer entre pages.
 11. Le curseur d'une liste filtrée pointe le dernier candidat examiné ; une limite de scan peut
@@ -571,18 +550,18 @@ Le Lot 7 est terminé lorsque :
 
 ## Lot / sous-lot exact
 
-**7.9.2 — Résolution CURRENT et EXACT**
+**Audit de la révision 7.9.1, puis nouvelle conception 7.9.2**
 
 ## Pourquoi
 
-Le Lot 7.9.1 fournit désormais les intentions, définitions de vues protégées ou non, sélections de
-producteurs fournies, ports read-only de readiness/latest-known et enveloppe versionnée. L'étape
-suivante consiste à les composer pour résoudre une businessVersion sans dépendance HTTP, AUTH
-concret ou lifecycle serving.
+Le Lot 7.9.1 fournit désormais l'intention, l'unique projection métier avec sa génération serving,
+la recherche du plus haut état terminal, la lecture exacte, latest-known et l'enveloppe versionnée.
+Le design 7.9.2 précédent est superseded car il reposait sur une intersection multi-projections.
 
-7.10 pourra ensuite fournir l'artifact AUTH exact consommé par les vues protégées. 7.14.1 fournira
-plus tard les sélections serving réelles ; 7.9.2 reçoit déjà cette sélection comme donnée et n'a pas
-à implémenter ce lifecycle.
+La prochaine passe doit auditer les contrats révisés, puis produire une nouvelle conception 7.9.2
+monoprojection. 7.10 fournira ensuite AUTH exact, demandé séparément en `EXACT(servedVersion)` par
+7.9.3. 7.14.1 fournira les sélections serving réelles ; le resolver ne choisira jamais une
+pipelineVersion et ne fallbackera pas vers une ancienne génération.
 
 ## Pré-requis déjà satisfaits
 
@@ -591,29 +570,29 @@ plus tard les sélections serving réelles ; 7.9.2 reçoit déjà cette sélecti
 - artifacts immuables et head monotone ;
 - READ_POT complet et index versionné ;
 - latest-known indépendant ;
-- architecture CURRENT/EXACT et enveloppe canonique ;
-- contrats framework-free du Lot 7.9.1 et leurs validations.
+- architecture CURRENT/EXACT monoprojection et enveloppe canonique ;
+- contrats framework-free révisés du Lot 7.9.1 et leurs validations ;
+- design 7.9.2 précédent explicitement superseded.
 
 ## Décisions encore nécessaires avant implémentation
 
-Aucune décision d'architecture supplémentaire ne bloque 7.9.2. Le resolver doit rester paramétré par
-une sélection de pipelineVersions fournie et peut être testé avec un composant AUTH logique sans que
-la représentation physique d'AUTH(V) soit déjà livrée.
+Aucune décision d'architecture supplémentaire ne bloque la nouvelle conception. Le resolver devra
+rester paramétré par une unique génération serving fournie et entièrement agnostique d'AUTH.
 
 ## Travail concret restant
 
-- implémenter le resolver framework-free de `CURRENT` et `EXACT(V)` ;
-- construire les `ProjectionGenerationIdentity` depuis les composants requis, le Pot et la sélection
-  de producteurs fournie ;
-- borner toute recherche par `latestKnownVersion` et gérer son absence ;
-- rechercher la meilleure businessVersion commune READY sans supposer de continuité ;
-- vérifier exactement tous les composants à la candidate, y compris AUTH pour une vue protégée ;
-- distinguer les issues ready/not-ready/failed sans mapping HTTP ;
-- ne lire aucun droit AUTH, ne choisir aucune pipelineVersion serving et ne brancher aucun GET.
+- auditer `QueryProjectionSelection`, `TerminalProjectionState` et les deux opérations du port ;
+- réécrire le design 7.9.2 autour d'une seule `ProjectionGenerationIdentity` serving ;
+- définir CURRENT depuis le plus haut état terminal sous latest-known ;
+- définir EXACT depuis applicabilité et `statusAt` exact ;
+- définir les quatre résultats `RESOLVED`, `PROJECTION_FAILED`, `NOT_READY`, `NOT_APPLICABLE` ;
+- exclure AUTH, tout fallback inter-pipelineVersion, Task, Slot, Claim et head ;
+- ne commencer ni resolver ni GET durant la passe de conception.
 
 ## Docs canoniques à utiliser
 
 - [Architecture cible du read side](../architecture/read-side-target.md), sections 5 à 10 ;
 - [État actuel du read side](../architecture/read-side-current-state.md), sections 2, 3 et 10 ;
-- [Plan détaillé 7.9.1](lot-7.9.1-versioned-query-contracts-plan.md), contrats livrés ;
+- [Plan détaillé 7.9.1](lot-7.9.1-versioned-query-contracts-plan.md), contrats révisés ;
+- [Plan de révision monoprojection 7.9.1](lot-7.9.1-monoprojection-contract-revision-plan.md) ;
 - le présent plan, section 7.9.2 et scénarios transverses.

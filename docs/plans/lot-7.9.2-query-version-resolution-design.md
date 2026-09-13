@@ -1,6 +1,12 @@
 # Lot 7.9.2 — Conception de la résolution CURRENT / EXACT du Query Kernel
 
-Statut : **conception proposée — un arbitrage de port reste requis avant le plan d’implémentation**.
+> **SUPERSEDED — repose sur l'ancien modèle multi-projection.**
+>
+> Ne pas utiliser ce document pour implémenter 7.9.2. Une nouvelle conception monoprojection sera
+> produite après audit des contrats 7.9.1 révisés. Le contenu ci-dessous est conservé uniquement comme
+> trace de la décision antérieure.
+
+Statut : **SUPERSEDED**.
 
 Ce document est la référence intermédiaire entre l’architecture cible du read side, les contrats livrés par le Lot 7.9.1 et le futur plan d’implémentation du Lot 7.9.2. Il décrit les décisions fonctionnelles déjà fermées, puis les choix de conception proposés. Il ne constitue ni un plan d’implémentation ni une implémentation.
 

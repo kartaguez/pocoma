@@ -1,6 +1,10 @@
 # Lot 7.9.1 — Plan de révision des contrats monoprojection
 
-Statut : **plan de révision à exécuter — aucune implémentation incluse dans ce document**.
+Statut : **DONE — révision exécutée**.
+
+Résultat livré : `QueryProjectionSelection` et `TerminalProjectionState` remplacent les contrats
+multi-composants ; le port recherche désormais le plus haut état terminal dans l'unique génération
+serving. Les documents canoniques ont été alignés et l'ancien design 7.9.2 est marqué `SUPERSEDED`.
 
 Ce plan remplace le cadrage multi-projection des contrats préparatoires du Query Kernel. Il décrit la
 révision du code, des tests et de la documentation nécessaire avant de reconcevoir le Lot 7.9.2. Il

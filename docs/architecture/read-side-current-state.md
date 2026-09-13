@@ -19,8 +19,8 @@ Le read side est en transition :
   `pocoma_read` ;
 - l'index versionné user→Pot et la pagination keyset existent en shadow, sans GET actif ;
 - `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
-- les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, vues protégées ou non protégées,
-  sélection de producteurs, readiness, latest-known read-only et `VersionedQueryResponse`) sont
+- les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, sélection monoprojection de la
+  génération serving, état terminal, latest-known read-only et `VersionedQueryResponse`) sont
   présents dans `engine-query`, mais leur resolver n'existe pas encore ;
 - l'Authorization Kernel, `AUTH(V)`, les états declared/active/serving et le cutover serving
   n'existent pas encore.
@@ -45,11 +45,11 @@ Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
 `GetPotBalancesService` choisissent la version primaire lorsque le paramètre est absent. Les listes
 partent également des données primaires courantes.
 
-Les contrats `QueryVersionIntent`, `QueryViewDefinition` et `VersionedQueryResponse` existent
-désormais, mais aucun GET actif ne les utilise. Le code ne calcule pas encore la meilleure
-intersection bornée par latest-known des composants requis : AUTH et artifacts métier pour une vue
-protégée, artifacts métier seuls pour une vue non protégée. Il ne retourne donc pas encore
-d'enveloppe versionnée en production.
+Les contrats `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState` et
+`VersionedQueryResponse` existent désormais, mais aucun GET actif ne les utilise. Le port read-only
+permet de rechercher le plus haut état terminal `READY | FAILED` d'une génération exacte sous une
+borne et de lire un statut exact. Aucun resolver CURRENT/EXACT ni adapter de ce port n'est encore
+branché, et aucune enveloppe versionnée n'est retournée en production.
 
 Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
 `IllegalStateException`. Elle n'est pas encore traduite en état normal de Query Kernel.
@@ -149,8 +149,8 @@ updatedAt DESC, potId ASC
 `JdbcPotUserIndexReader` est seulement shadow. Sa requête actuelle impose encore
 `index.potVersion = source_version_watermarks.latest_version_seen`. La cible conserve latest-known
 comme borne d'exposition, mais ne traite plus cette égalité comme la sélection CURRENT : chaque ligne
-d'index n'est qu'un candidat, à résoudre et autoriser avec AUTH à une businessVersion commune. Aucun
-GET actif ne dépend encore de ce reader.
+d'index n'est qu'un candidat. Sa projection métier doit être résolue en CURRENT, puis AUTH demandé
+séparément en `EXACT(servedVersion)`. Aucun GET actif ne dépend encore de ce reader.
 
 ### BALANCE immuable
 
@@ -217,7 +217,8 @@ primaire. Elles ne séparent pas encore explicitement `TokenCapabilities` et
 
 Les permissions `VIEW_ARCHIVE` cibles ne sont pas toutes définies, notamment pour Balance. Aucun
 pipeline ou artifact AUTH exact n'existe. Les GET peuvent donc encore révéler existence/readiness
-selon leur logique legacy avant la future résolution commune AUTH + composants métier.
+selon leur logique legacy avant la future résolution métier suivie, pour une query protégée, d'AUTH
+en `EXACT(servedVersion)`.
 
 ## 10. Écarts restants vers la cible
 
@@ -225,7 +226,7 @@ selon leur logique legacy avant la future résolution commune AUTH + composants 
 |---|---|
 | Contrats Query Kernel `CURRENT` / `EXACT(V)` | Présents, framework-free, non branchés |
 | Resolver Query Kernel `CURRENT` / `EXACT(V)` | Absent |
-| Meilleure intersection des composants requis bornée par latest-known, avec AUTH pour une vue protégée | Absente |
+| Plus haut état terminal de l'unique génération serving, borné par latest-known | Port présent, resolver et adapter absents |
 | `VersionedQueryResponse` | Présent, non utilisé par les GET actifs |
 | Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
 | AUTH indépendante | Absente |

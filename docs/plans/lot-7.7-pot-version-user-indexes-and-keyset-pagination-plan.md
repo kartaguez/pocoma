@@ -256,8 +256,9 @@ Chaque Pot a son latest-known individuel ; aucune version globale n'existe. Cett
 plus le contrat du futur reader CURRENT.
 
 **SUPERSEDED —** le scan cible de l'index ne déduit plus CURRENT de cette jointure. Il fournit des
-candidats ; le Query Kernel résout ensuite, pour chaque Pot, une businessVersion commune
-`V <= latestKnownVersion` où AUTH(V) et les composants requis sont READY.
+candidats ; le Query Kernel résout ensuite, pour chaque Pot, le plus haut état terminal de l'unique
+projection métier dans sa génération serving. Pour une query protégée, AUTH est demandé séparément
+en `EXACT(servedVersion)`.
 
 **IMPLEMENTATION CHOICE —** l'adapter shadow reçoit du futur Query Kernel les plages applicables `(fromVersion, toVersion, pipelineVersion)` et les traduit en prédicats SQL. `PipelineSelectionStrategy` n'intervient jamais lors de la production des lignes.
 

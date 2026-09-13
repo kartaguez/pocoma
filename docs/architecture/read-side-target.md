@@ -150,28 +150,28 @@ projectionType + pipelineId + pipelineVersion + potId
 Le head est un maximum observé, pas un watermark de continuité. Si 44 et 46 sont `READY` mais 45 ne
 l'est pas, le head vaut 46. Il sert à l'observabilité et à certaines classifications explicites ; il
 ne suffit jamais à prouver qu'une version intermédiaire est prête, qu'une convergence initiale est
-complète ou qu'une vue composée est servable.
+complète ou qu'une projection est servable.
 
-## 6. Composants logiques et vues composées
+## 6. Queries versionnées monoprojection
 
-Une query déclare statiquement ses composants requis. Un composant est un artifact logique versionné
-produit par un pipeline. Ce n'est ni une table, ni un fragment SQL.
+Toute query versionnée porte exactement une projection métier logique, jamais zéro ni plusieurs.
+Une projection est un artifact logique versionné produit par un pipeline ; ce n'est ni une table, ni
+un fragment SQL.
 
-`READ_POT`, par exemple, reste un seul composant même si son artifact est physiquement réparti entre
-snapshot, Shareholders, Expenses et shares. Il n'existe pas de projection Expense ou Shareholder
-autonome tant qu'une query concrète ne le justifie pas.
+`READ_POT`, par exemple, reste une seule projection même si son artifact est physiquement réparti
+entre snapshot, Shareholders, Expenses et shares. Il n'existe pas de projection Expense ou
+Shareholder autonome tant qu'une query concrète ne le justifie pas.
 
-Une réponse composée respecte une mono-version interne : tous ses composants sont lus à la même
-business version. Deux endpoints indépendants peuvent néanmoins servir des versions différentes :
+Deux endpoints indépendants peuvent servir des versions différentes :
 
 ```text
-GET /pots/42           -> servedVersion = 15
-GET /pots/42/balances  -> servedVersion = 13
+GET /pots/42           -> READ_POT servedVersion = 15
+GET /pots/42/balances  -> BALANCE  servedVersion = 13
 ```
 
 ## 7. Intentions de lecture CURRENT et EXACT
 
-Le Query Kernel reçoit une intention explicite :
+Le Query Version Resolver reçoit une intention explicite pour l'unique projection métier :
 
 ```text
 CURRENT
@@ -180,108 +180,66 @@ EXACT(V)
 
 ### CURRENT
 
-`CURRENT` sert un snapshot cohérent à une seule business version. Une vue protégée fait participer
-son composant AUTH et ses composants métier `C1 ... Cn` à la même intersection :
+CURRENT cherche exclusivement dans la génération serving de cette projection :
 
 ```text
-vue protégée :
-servedVersion = max V <= latestKnownVersion tel que
-  AUTH(V) est READY
-  et C1(V) ... Cn(V) sont READY
+servedVersion = plus haute V <= latestKnownVersion
+                dont le statut est terminal
 
-vue non protégée :
-servedVersion = max V <= latestKnownVersion tel que
-  C1(V) ... Cn(V) sont READY
+terminal = READY | FAILED
 ```
 
-Une vue non protégée ne requiert ni artifact AUTH ni décision d'autorisation métier AUTH. Dans les
-deux cas, si latest-known est absent, le résultat est `NOT_READY`. Lorsqu'au moins un composant est
-requis, l'absence de version commune READY produit également `NOT_READY`. La sélection est calculée
-depuis les identités/artifacts exacts, jamais depuis les heads.
-
-Pour `unprotectedView({})`, `requiredComponents()` est vide : la condition « tous les composants
-requis sont READY » est trivialement satisfaite pour toute candidate sous la borne. Si latest-known
-est présent, `CURRENT` sert donc exactement `latestKnownVersion`, sans lookup de readiness ni
-artifact AUTH ou métier. Dans ce cas, `servedVersion` désigne uniquement la businessVersion à
-laquelle la réponse se place sous la borne d'exposition ; elle ne prouve pas qu'une projection a été
-matérialisée à cette version. Une vue protégée AUTH-only n'est pas vide : AUTH reste son composant
-requis et sa readiness participe normalement à la sélection.
-
-Pour une vue protégée, seule la readiness d'AUTH participe à cette sélection ; le contenu des droits
-dans AUTH(V) n'est jamais un critère pour choisir V.
-
-Une version plus récente `FAILED` ou `NOT_READY` d'un composant requis ne masque pas une version plus
-ancienne complètement servable. Exemple de vue protégée :
+Si latest-known est absent ou si aucune version terminale de la génération serving n'existe sous la
+borne, le résultat est `NOT_READY`. Si la plus haute version terminale est `READY`, CURRENT la résout.
+Si elle est `FAILED`, CURRENT produit `PROJECTION_FAILED` à cette version. Un `FAILED` récent n'est
+jamais masqué par un ancien `READY` :
 
 ```text
 latestKnownVersion = 15
-READ_POT READY : 15, 14, 13
-AUTH READY     : 13
-CURRENT        : serve 13
+READ_POT(15) NOT_READY
+READ_POT(14) FAILED
+READ_POT(13) READY
+
+CURRENT -> PROJECTION_FAILED(14)
 ```
 
-Pour une vue protégée, l'autorisation métier est évaluée depuis `AUTH(servedVersion)` et les données
-métier sont lues à cette même business version. Une révocation plus récente peut donc ne pas être
-visible tant que la business version correspondante n'est pas servable comme snapshot current. Cette
-latence asynchrone est acceptée ; AUTH et les données métier ne sont jamais évaluées à deux
-businessVersions distinctes.
-
-Pour une vue protégée, une fois `servedVersion` sélectionnée, la décision d'autorisation est
-terminale. Si AUTH(servedVersion) refuse l'utilisateur, la requête est refusée. Le Query Kernel ne
-cherche jamais une businessVersion antérieure où cet utilisateur aurait encore des droits : le
-fallback de readiness appartient à la sélection de CURRENT, le fallback d'autorisation est
-strictement interdit.
-
-```text
-latestKnownVersion = 15
-V14 : READ_POT READY, AUTH READY, utilisateur refusé
-V13 : READ_POT READY, AUTH READY, utilisateur autorisé
-
-servedVersion = 14
-AUTH(14) => refus
-résultat    => requête refusée, sans tentative à V13
-```
-
-Il n'existe aucun autre fallback opportuniste après la sélection : rechercher la meilleure
-intersection READY bornée par latest-known est la définition même de `CURRENT`.
+La sélection est calculée depuis les états terminaux exacts, jamais depuis les heads et sans scanner
+les businessVersions une par une.
 
 ### EXACT(V)
 
-`EXACT(V)` exige dans tous les cas :
+EXACT ne sonde aucune autre businessVersion :
 
 ```text
-latestKnownVersion présent
-V <= latestKnownVersion
+latestKnownVersion absent           -> NOT_READY
+V > latestKnownVersion              -> NOT_READY
+pipeline serving non applicable à V -> NOT_APPLICABLE
+status(V) = READY                    -> RESOLVED(V)
+status(V) = FAILED                   -> PROJECTION_FAILED(V)
+status(V) = NOT_READY                -> NOT_READY
 ```
 
-Puis, selon la catégorie de vue :
-
-```text
-vue protégée :
-  AUTH(V) READY
-  et tous les composants métier requis READY à V
-
-vue non protégée :
-  tous les composants métier requis READY à V
-```
-
-Si latest-known est absent ou si V le dépasse, le résultat est `NOT_READY`, même si un artifact
-interne V existe déjà. EXACT ne sonde ni une business version antérieure, ni une autre version de
-pipeline. L'absence d'un composant exact est un état normal du Query Kernel, jamais une exception
-technique de cardinalité. Une vue non protégée n'exige ni artifact ni évaluation AUTH.
-
-Pour `unprotectedView({})`, si latest-known est présent et V est sous cette borne, `EXACT(V)` sert V
-sans lookup de readiness. Si latest-known est absent ou si V le dépasse, le résultat reste
-`NOT_READY`. Ici encore, `servedVersion = V` place la réponse à cette businessVersion sans attester
-la matérialisation d'une projection.
+Un artifact interne supérieur à latest-known n'est jamais exposé. L'absence exacte est un état normal
+du Query Kernel, jamais une exception technique de cardinalité.
 
 ### Sélection de pipelineVersion versus businessVersion
 
-La `businessVersion` servie et la `pipelineVersion` serving sont deux axes distincts. Le rôle du
-lifecycle de pipeline est de fournir au Query Kernel une pipelineVersion serving par famille de
-composant. Dans cette sélection injectée, le Query Kernel détermine ensuite la businessVersion
-servable. Il ne choisit jamais lui-même la pipelineVersion serving et ne mélange pas plusieurs
-générations du même composant dans une réponse.
+La `businessVersion` servie et la `pipelineVersion` serving sont deux axes distincts. Le lifecycle de
+pipeline fournit au Query Kernel l'unique pipelineVersion serving de la `ProjectionType` demandée.
+Cette génération fait autorité pour les lectures récentes et historiques. Le Query Kernel ne choisit
+jamais lui-même la pipelineVersion et ne fallback jamais vers une ancienne génération, même si
+celle-ci possède un artifact READY plus récent.
+
+```text
+latestKnownVersion = 100
+READ_POT serving P/v3 : V100 NOT_READY, V99 NOT_READY, V98 READY
+READ_POT ancienne P/v2 : V100 READY
+
+CURRENT -> P/v3 / V98
+```
+
+Si P/v3 ne possède aucun état terminal sous la borne, le résultat est `NOT_READY`, sans consultation
+de P/v2.
 
 ## 8. Enveloppe versionnée
 
@@ -318,10 +276,10 @@ Conséquences acceptées en V1 :
 - la collection peut changer entre deux pages ;
 - la pagination keyset garantit un parcours déterministe de l'état observé, pas un snapshot global.
 
-Pour `/pots`, le reader parcourt l'index, puis résout `CURRENT` séparément pour chaque candidat. Il
-vérifie donc la borne latest-known, la readiness d'AUTH et de READ_POT à la même servedVersion, puis
-évalue les droits depuis AUTH(servedVersion). Un index stale peut encore référencer un Pot désormais
-interdit ; ce Pot est filtré et n'est jamais exposé.
+Pour `/pots`, le reader parcourt l'index, puis résout `CURRENT` pour la projection métier de chaque
+candidat. Une fois `servedVersion` obtenue, il demande AUTH en `EXACT(servedVersion)` et évalue les
+droits à cette version. Un index stale peut encore référencer un Pot désormais interdit ; ce Pot est
+filtré et n'est jamais exposé.
 
 Le reader ne relit pas le primaire. L'ordre canonique de l'index reste :
 
@@ -378,12 +336,13 @@ peut être produit avant AUTH(13) sans compromettre aucun des deux artifacts. La
 se limite à ces artifacts versionnés ; elle n'ajoute aucun état mutable d'autorisation ni consumer
 Event direct spécialisé.
 
-### Autorisation CURRENT
+### Autorisation après résolution CURRENT
 
-Pour toute vue protégée, les `TokenCapabilities` actuelles doivent permettre la query. Le Query
-Kernel cherche ensuite une businessVersion commune où AUTH et tous les composants métier sont READY,
-puis évalue les droits métier depuis AUTH(servedVersion). AUTH ne possède aucune version
-d'autorisation distincte de la servedVersion. Cette section ne s'applique pas aux vues non protégées.
+Pour toute query protégée, les `TokenCapabilities` actuelles doivent permettre la query. Le Query
+Version Resolver résout ensuite la seule projection métier sans connaître AUTH. Après un succès à
+`servedVersion`, l'Authorization Kernel demande AUTH en `EXACT(servedVersion)` et évalue les droits
+métier depuis cet artifact. AUTH ne possède aucune version d'autorisation distincte de la
+servedVersion.
 
 ### Autorisation EXACT(V)
 
@@ -401,26 +360,22 @@ historicalAccessAllowed
 = hasCurrentVIEW_ARCHIVE && businessRightsAt(V)
 ```
 
-Pour une vue protégée, AUTH(V) et tous les composants métier requis doivent être READY exactement à
-V. Aucun fallback ou scope historique n'existe. Une vue non protégée ne passe pas par cette étape
-d'autorisation.
+La projection métier est d'abord résolue en `EXACT(V)`. Pour une query protégée, AUTH est ensuite
+demandé séparément en `EXACT(V)`. Aucun fallback de businessVersion, de pipelineVersion ou de scope
+historique n'existe. Une query non protégée ne passe pas par cette étape d'autorisation.
 
 ### Ordre sans fuite du Query Kernel
 
-Pour une vue protégée, aucune information sur l'existence, la présence d'une version, la readiness ou
-la failure d'une projection métier n'est révélée avant l'autorisation correspondante.
+Pour une query protégée, aucune information sur l'existence, la readiness ou la failure d'une
+projection métier n'est révélée avant la décision d'autorisation appropriée.
 
-Pour une vue protégée, l'ordre conceptuel est : vérifier les TokenCapabilities, rechercher sans fuite
-externe une businessVersion où AUTH et les composants requis sont READY, évaluer les faits métier
-dans AUTH à cette même version, puis lire et composer les données. Un refus établi est masqué selon
-le contrat HTTP ; l'absence d'un snapshot commun servable reste distincte d'un refus.
+L'ordre conceptuel est : vérifier les TokenCapabilities, résoudre sans fuite externe la projection
+métier, demander AUTH en `EXACT(servedVersion)`, évaluer les faits métier à cette version, puis lire
+les données. Un refus établi est masqué selon le contrat HTTP. Le résultat d'AUTH ne relance jamais la
+résolution métier à une businessVersion plus ancienne.
 
-Pour une vue non protégée, l'ordre générique omet TokenCapabilities et AUTH : rechercher la
-businessVersion commune, puis lire et composer les données. Le contrat n'introduit aucun autre
-mécanisme d'autorisation pour cette catégorie de vue.
-
-La sélection de version et la décision d'autorisation sont deux étapes distinctes. Un refus termine
-la requête et ne relance jamais la sélection avec une businessVersion plus ancienne.
+Une query non protégée omet simplement les étapes TokenCapabilities et AUTH ; le contrat générique
+n'introduit aucun mécanisme d'autorisation alternatif.
 
 ## 11. Endpoints cibles
 
@@ -428,9 +383,8 @@ la requête et ne relance jamais la sélection avec une businessVersion plus anc
 
 ```text
 HTTP
-  -> Query Kernel
-  -> Authorization Kernel
-  -> CURRENT | EXACT(V)
+  -> Query Version Resolver : CURRENT | EXACT(V) sur READ_POT
+  -> si protégée : Authorization Kernel, AUTH EXACT(servedVersion)
   -> READ_POT reader
   -> VersionedQueryResponse
 ```
@@ -442,17 +396,16 @@ Expense/Shareholder ni lecture primaire n'est requis dans la cible.
 
 ```text
 GET /pots/{potId}/balances
-  -> Query Kernel
-  -> Authorization Kernel
-  -> CURRENT | EXACT(V)
+  -> Query Version Resolver : CURRENT | EXACT(V) sur BALANCE
+  -> si protégée : Authorization Kernel, AUTH EXACT(servedVersion)
   -> BALANCE reader
   -> VersionedQueryResponse
 ```
 
-`CURRENT` sert la plus grande businessVersion inférieure ou égale à latest-known où AUTH et BALANCE
-sont toutes deux READY, puis décide l'accès depuis AUTH à cette version. `EXACT(V)` exige AUTH(V) et
-BALANCE(V). L'absence exacte est un état Query Kernel normal. Le pipeline BALANCE couvre toutes les
-business versions du Pot et calcule chaque version indépendamment de BALANCE(V-1).
+CURRENT résout la plus haute businessVersion terminale de la génération BALANCE serving. Un statut
+`FAILED` à cette version produit `PROJECTION_FAILED` et n'est pas masqué par une ancienne balance
+READY. Pour une query protégée, AUTH est ensuite demandé en `EXACT(servedVersion)`. Le pipeline
+BALANCE calcule chaque version indépendamment de BALANCE(V-1).
 
 ## 12. Versions de pipeline et reconstruction
 
@@ -464,9 +417,11 @@ declared -> active -> serving
 
 - `declared` : définition connue du système ;
 - `active` : pipeline activé, autorisé à travailler et converger sur sa plage d'applicabilité ;
-- `serving` : pipelineVersion explicitement sélectionnée pour servir les queries de cette famille.
+- `serving` : pipelineVersion explicitement sélectionnée pour servir les queries de cette famille,
+  pour les businessVersions récentes comme historiques.
 
-Une seule version est `serving` par famille à un instant donné. Le passage à serving est toujours
+Une seule version est `serving` par famille à un instant donné. Elle est l'unique génération
+autoritative : aucune ancienne pipelineVersion ne sert de fallback. Le passage à serving est toujours
 manuel. `active` ne signifie jamais que la convergence est terminée. Le système calcule et expose
 séparément l'éligibilité au serving.
 
@@ -502,8 +457,8 @@ structural readiness
 + no unresolved failures
 ```
 
-Un head maximal ne suffit pas. Après le cutover manuel, un retard asynchrone normal est accepté et
-`CURRENT` continue de servir la meilleure version exploitable déjà prête.
+Un head maximal ne suffit pas. Après le cutover manuel, CURRENT consulte exclusivement la génération
+serving et respecte son plus haut état terminal sous latest-known.
 
 ## 13. Observabilité
 
@@ -519,8 +474,8 @@ Par famille/version de pipeline :
 Fraîcheur :
 
 - `latestKnownVersion` ;
-- meilleures business versions `READY` de AUTH et de chaque pipeline métier ;
-- meilleure business version commune servable par type de vue.
+- plus haute businessVersion terminale de chaque génération serving ;
+- statut `READY` ou `FAILED` de cette version terminale.
 
 Traitement : latences Event→pickup, Event→Task et Task→completion, retries, claims expirés et failures.
 
@@ -552,21 +507,24 @@ d'observation et rollback possible, puis suppression physique explicite.
 2. Toute projection métier N est indépendante de N-1 et de latest-known.
 3. `latestKnownVersion` est une connaissance monotone, pas un watermark de continuité.
 4. Un head est un maximum observé, jamais une preuve de complétude.
-5. `CURRENT` sélectionne sous latest-known la meilleure intersection `READY` des composants requis :
-   AUTH et composants métier pour une vue protégée, composants métier seuls pour une vue non protégée.
-6. `EXACT(V)` exige latest-known >= V et tous les composants requis exactement à V, dont AUTH pour
-   une vue protégée, sans fallback.
-7. Deux endpoints indépendants peuvent servir des versions différentes.
-8. Une liste est convergente et exclusivement read-side ; aucun snapshot global V1 n'est promis.
-9. Toute réponse versionnée utilise `VersionedQueryResponse` sans champ `stale` et possède un latest-known.
-10. Les capacités du token sont courantes ; seuls les faits métier Pot sont historisés.
-11. AUTH(V) est un artifact complet, indépendant et hors ordre pour chaque businessVersion applicable.
-12. Pour une vue protégée, AUTH et les données métier d'une réponse sont évaluées à la même servedVersion.
-13. Pour une vue protégée, un refus de AUTH(servedVersion) est terminal ; aucune businessVersion
+5. Toute query versionnée porte exactement une projection métier.
+6. `CURRENT` sélectionne sous latest-known le plus haut état terminal `READY` ou `FAILED` de la
+   génération serving ; un `FAILED` récent n'est jamais masqué par un ancien `READY`.
+7. `EXACT(V)` consulte uniquement V dans la génération serving, après contrôle de latest-known et de
+   l'applicabilité, sans fallback.
+8. Deux endpoints indépendants peuvent servir des versions différentes.
+9. Une liste est convergente et exclusivement read-side ; aucun snapshot global V1 n'est promis.
+10. Toute réponse versionnée utilise `VersionedQueryResponse` sans champ `stale` et possède un latest-known.
+11. Les capacités du token sont courantes ; seuls les faits métier Pot sont historisés.
+12. AUTH(V) est un artifact complet, indépendant et hors ordre pour chaque businessVersion applicable.
+13. Pour une query protégée, AUTH est demandé en EXACT(servedVersion) après résolution métier.
+14. Pour une query protégée, un refus de AUTH(servedVersion) est terminal ; aucune businessVersion
     antérieure n'est essayée.
-14. L'index user→Pot découvre des candidats et ne prouve jamais l'autorisation.
-15. Pour une vue protégée, l'autorisation précède toute révélation externe d'existence ou de readiness métier.
-16. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
-17. Une seule pipelineVersion est serving par famille et le cutover reste manuel.
-18. `active` autorise le travail ; seule l'éligibilité prouve la convergence initiale requise.
-19. L'éligibilité serving exige une convergence initiale complète, jamais un head seul.
+15. L'index user→Pot découvre des candidats et ne prouve jamais l'autorisation.
+16. Pour une query protégée, l'autorisation précède toute révélation externe d'existence ou de
+    readiness métier.
+17. Une nouvelle pipelineVersion est l'unique mécanisme de reconstruction/rematérialisation.
+18. Une seule pipelineVersion est serving par famille et le cutover reste manuel ; elle fait autorité
+    pour les lectures récentes et historiques, sans fallback vers une ancienne génération.
+19. `active` autorise le travail ; seule l'éligibilité prouve la convergence initiale requise.
+20. L'éligibilité serving exige une convergence initiale complète, jamais un head seul.

@@ -14,7 +14,7 @@
 | Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
 | Connaissance de version | `LatestKnownVersion` | `domain-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
-| Contrats de query versionnée | `QueryVersionIntent`, `QueryViewDefinition`, `QueryPipelineSelection`, `VersionedQueryResponse`, ports read-only readiness/latest-known | `engine-query` |
+| Contrats de query versionnée | `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState`, `VersionedQueryResponse`, ports read-only readiness/latest-known | `engine-query` |
 | Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
 | Payload fonctionnel de tâche | `TaskPayload` | `domain-task` |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
@@ -118,7 +118,7 @@ n'est un contrat fonctionnel.
 | `PotBalanceProjectionState` et `pot_balance_*` | runtime monolith et calcul incrémental | artifact/failure/head BALANCE génériques | 7.12/7.13 serving et observation | Lot 7.16 |
 | `engine-query` + readers primaires GET | six GET actuels | Query/Authorization Kernel et readers read-store | 7.11/7.13 serving | Lot 7.16 |
 | artifact Balance spécifique au primaire | runtime web et Task Balance | persistence générique read-store | compatibilité 7.12 puis cutover 7.13 | Lots 7.12/7.16 |
-| sélection par égalité latest-known de `JdbcPotUserIndexReader` | shadow uniquement | index de candidats, puis résolution CURRENT et AUTH à une businessVersion commune | remplacement au cutover liste | Lot 7.11 |
+| sélection par égalité latest-known de `JdbcPotUserIndexReader` | shadow uniquement | index de candidats, puis résolution CURRENT métier et AUTH en EXACT(servedVersion) | remplacement au cutover liste | Lot 7.11 |
 
 Le legacy restant appartient aux flux Event, Task, projection et read. Le lifecycle et le worker
 Command historiques ne sont plus compilés.
