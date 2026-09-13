@@ -220,8 +220,9 @@ fallback vers une ancienne pipelineVersion. Aucun resolver, adapter ou GET n'est
 
 #### 7.9.2 — Résolution CURRENT et EXACT
 
-Le design précédent de 7.9.2 est `SUPERSEDED`. La nouvelle conception, à rédiger après audit de la
-révision 7.9.1, devra implémenter sans controller :
+**Statut : `DONE`**
+
+Livré dans `engine-query`, sans controller ni adapter :
 
 - exactement une projection métier et sa pipelineVersion serving fournie ;
 - latest-known absent → `NOT_READY` pour CURRENT comme EXACT ;
@@ -235,6 +236,11 @@ révision 7.9.1, devra implémenter sans controller :
 - aucun fallback vers une ancienne pipelineVersion, y compris pour une lecture historique ;
 - deux endpoints autorisés à converger vers des servedVersions différentes ;
 - aucune connaissance d'AUTH ou des droits dans le Query Version Resolver.
+
+`QueryVersionResolution` expose exactement `Resolved`, `ProjectionFailed`, `NotReady` et
+`NotApplicable`. `QueryVersionResolver` possède une seule méthode publique `resolve(...)`, dépend
+uniquement des ports read-only latest-known/readiness, et conserve l'intention CURRENT ou EXACT
+originale dans chaque résultat.
 
 Tests obligatoires :
 
@@ -550,49 +556,41 @@ Le Lot 7 est terminé lorsque :
 
 ## Lot / sous-lot exact
 
-**Audit de la révision 7.9.1, puis nouvelle conception 7.9.2**
+**7.10.1 — Contrats d'autorisation**
 
 ## Pourquoi
 
-Le Lot 7.9.1 fournit désormais l'intention, l'unique projection métier avec sa génération serving,
-la recherche du plus haut état terminal, la lecture exacte, latest-known et l'enveloppe versionnée.
-Le design 7.9.2 précédent est superseded car il reposait sur une intersection multi-projections.
-
-La prochaine passe doit auditer les contrats révisés, puis produire une nouvelle conception 7.9.2
-monoprojection. 7.10 fournira ensuite AUTH exact, demandé séparément en `EXACT(servedVersion)` par
-7.9.3. 7.14.1 fournira les sélections serving réelles ; le resolver ne choisira jamais une
-pipelineVersion et ne fallbackera pas vers une ancienne génération.
+Les contrats 7.9.1 et le resolver monoprojection 7.9.2 sont désormais livrés. Le Query Version
+Resolver détermine la businessVersion métier sans connaître AUTH. Pour assembler ensuite une query
+protégée en 7.9.3, il faut disposer du contrat d'autorisation versionnée et des capacités actuelles
+qui seront alimentés par AUTH(V).
 
 ## Pré-requis déjà satisfaits
 
 - identité et applicabilité génériques ;
-- statut exact READY/FAILED/NOT_READY ;
-- artifacts immuables et head monotone ;
-- READ_POT complet et index versionné ;
-- latest-known indépendant ;
-- architecture CURRENT/EXACT monoprojection et enveloppe canonique ;
-- contrats framework-free révisés du Lot 7.9.1 et leurs validations ;
-- design 7.9.2 précédent explicitement superseded.
+- statut exact READY/FAILED/NOT_READY et recherche du plus haut terminal ;
+- latest-known indépendant et utilisé uniquement comme borne d'exposition ;
+- sélection monoprojection de la génération serving ;
+- quatre résultats fonctionnels de résolution ;
+- CURRENT et EXACT sans head, scan numérique ni fallback inter-génération ;
+- resolver entièrement agnostique d'AUTH.
 
 ## Décisions encore nécessaires avant implémentation
 
-Aucune décision d'architecture supplémentaire ne bloque la nouvelle conception. Le resolver devra
-rester paramétré par une unique génération serving fournie et entièrement agnostique d'AUTH.
+Le sous-lot 7.10.1 doit préciser la forme exacte de `TokenCapabilities` et de
+`PotAuthorizationAtVersion` sans réintroduire de scope historique ni d'état AUTH_CURRENT.
 
 ## Travail concret restant
 
-- auditer `QueryProjectionSelection`, `TerminalProjectionState` et les deux opérations du port ;
-- réécrire le design 7.9.2 autour d'une seule `ProjectionGenerationIdentity` serving ;
-- définir CURRENT depuis le plus haut état terminal sous latest-known ;
-- définir EXACT depuis applicabilité et `statusAt` exact ;
-- définir les quatre résultats `RESOLVED`, `PROJECTION_FAILED`, `NOT_READY`, `NOT_APPLICABLE` ;
-- exclure AUTH, tout fallback inter-pipelineVersion, Task, Slot, Claim et head ;
-- ne commencer ni resolver ni GET durant la passe de conception.
+- concevoir les contrats séparant capacités courantes et faits métier versionnés ;
+- conserver uniquement `isMember` et `isCreator` dans AUTH(V) ;
+- définir l'évaluation des permissions via les policies métier partagées ;
+- cadrer `VIEW_ARCHIVE` comme capacité actuelle ;
+- préserver l'appel AUTH en `EXACT(servedVersion)` sans fallback métier.
 
 ## Docs canoniques à utiliser
 
-- [Architecture cible du read side](../architecture/read-side-target.md), sections 5 à 10 ;
-- [État actuel du read side](../architecture/read-side-current-state.md), sections 2, 3 et 10 ;
-- [Plan détaillé 7.9.1](lot-7.9.1-versioned-query-contracts-plan.md), contrats révisés ;
-- [Plan de révision monoprojection 7.9.1](lot-7.9.1-monoprojection-contract-revision-plan.md) ;
-- le présent plan, section 7.9.2 et scénarios transverses.
+- [Architecture cible du read side](../architecture/read-side-target.md), sections AUTH et Query Kernel ;
+- [État actuel du read side](../architecture/read-side-current-state.md) ;
+- [Design livré 7.9.2](lot-7.9.2-query-version-resolution-design.md) ;
+- le présent plan, sections 7.9.3 et 7.10.

@@ -1,11 +1,14 @@
 # Lot 7.9.2 — Conception de la résolution CURRENT / EXACT du Query Kernel monoprojection
 
-Statut : **DESIGN READY**.
+Statut : **IMPLEMENTED**.
 
 Ce document remplace intégralement l'ancien design 7.9.2 multi-projection, désormais abandonné.
 Il constitue la référence de conception entre les contrats livrés par le Lot 7.9.1 et le futur plan
 d'implémentation de 7.9.2. Il fige les décisions fonctionnelles et la forme conceptuelle de l'API,
 sans constituer un plan d'implémentation et sans livrer de code.
+
+État du repository : le design est livré dans `engine-query` par `QueryVersionResolution` et
+`QueryVersionResolver`, avec sa matrice de tests comportementaux et ses contraintes d'architecture.
 
 ## 1. Statut et objectif
 

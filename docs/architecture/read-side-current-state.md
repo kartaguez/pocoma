@@ -2,7 +2,7 @@
 
 ## 1. Portée de l'observation
 
-Ce document décrit l'état courant du repository après livraison des contrats du Lot 7.9.1.
+Ce document décrit l'état courant du repository après livraison du resolver du Lot 7.9.2.
 Il est factuel : les décisions normatives appartiennent à
 [read-side-target.md](read-side-target.md), et leur séquencement au
 [plan directeur du Lot 7](../plans/lot-7-read-side-implementation-plan.md).
@@ -21,7 +21,8 @@ Le read side est en transition :
 - `latestKnownVersion` est produit par son consumer Event direct et indépendant ;
 - les contrats framework-free du Query Kernel (`CURRENT`/`EXACT`, sélection monoprojection de la
   génération serving, état terminal, latest-known read-only et `VersionedQueryResponse`) sont
-  présents dans `engine-query`, mais leur resolver n'existe pas encore ;
+  présents dans `engine-query` ; le resolver monoprojection CURRENT/EXACT et ses quatre résultats
+  typés sont livrés, sans adapter de persistence ni branchement aux GET actifs ;
 - l'Authorization Kernel, `AUTH(V)`, les états declared/active/serving et le cutover serving
   n'existent pas encore.
 
@@ -45,11 +46,12 @@ Les services `GetPotService`, `ListPotExpensesService`, `GetExpenseService` et
 `GetPotBalancesService` choisissent la version primaire lorsque le paramètre est absent. Les listes
 partent également des données primaires courantes.
 
-Les contrats `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState` et
-`VersionedQueryResponse` existent désormais, mais aucun GET actif ne les utilise. Le port read-only
-permet de rechercher le plus haut état terminal `READY | FAILED` d'une génération exacte sous une
-borne et de lire un statut exact. Aucun resolver CURRENT/EXACT ni adapter de ce port n'est encore
-branché, et aucune enveloppe versionnée n'est retournée en production.
+Les contrats `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState`,
+`QueryVersionResolution` et `VersionedQueryResponse` existent désormais, mais aucun GET actif ne les
+utilise. `QueryVersionResolver` résout CURRENT depuis le plus haut état terminal `READY | FAILED`
+d'une génération serving exacte sous latest-known, et EXACT depuis l'applicabilité puis le statut
+exact. Aucun adapter des ports read-only n'est encore branché et aucune enveloppe versionnée n'est
+retournée en production.
 
 Une Balance exacte absente dans `JpaImmutablePotBalancesQueryAdapter` produit actuellement une
 `IllegalStateException`. Elle n'est pas encore traduite en état normal de Query Kernel.

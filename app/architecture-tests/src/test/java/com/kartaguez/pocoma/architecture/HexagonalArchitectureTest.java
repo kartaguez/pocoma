@@ -741,6 +741,28 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void queryVersionResolverIsAFrameworkFreeVersionDecisionService() {
+		noClasses()
+				.that().haveSimpleName("QueryVersionResolver")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						AUTHORIZATION_DOMAIN_PACKAGE,
+						POT_POLICY_PACKAGE,
+						READ_PROJECTION_ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".engine..processing..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().haveSimpleName("QueryVersionResolver")
+				.should().dependOnClassesThat().haveSimpleName("ProjectionHead")
+				.check(CLASSES);
+	}
+
+	@Test
 	void functionalUseCaseFamiliesDoNotDependOnConsumptionDomain() {
 		noClasses()
 				.that().resideInAnyPackage(
