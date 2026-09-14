@@ -273,9 +273,15 @@ configuration détectée au bootstrap et à la lecture. Elle ne déclenche jamai
 
 ### 9.3 Relation producteur/projection
 
-Le repository ne possède pas encore de catalogue canonique reliant `ProjectionType` et producteur.
-Les informations sont présentes dans les bindings `pipeline-pot` et `pipeline-balance`, mais restent
-dispersées. La précondition de `selectServing` impose une vue minimale :
+Le repository ne possède pas encore d'abstraction commune reliant `ProjectionType` et producteur.
+L'information existe de façon dispersée dans les bindings `pipeline-pot` et `pipeline-balance` :
+`PotProjectionPipeline` expose déjà un `ProjectionType` typé, tandis que `BalancePipeline` conserve
+encore son type de projection sous forme de constante texte, à côté de l'identité du pipeline.
+`PipelineDefinitionRegistry` ne porte que l'identité et l'applicabilité des définitions ; lui ajouter
+la relation producteur/projection mélangerait le catalogue générique des pipelines avec une propriété
+qui n'existe pas pour tous les pipelines.
+
+La précondition de `selectServing` impose donc une vue minimale :
 
 ```java
 record ProjectionProducerBinding(
@@ -287,10 +293,17 @@ interface ProjectionProducerCatalog {
 }
 ```
 
-Ce catalogue n'est ni un registry dynamique de projections, ni un choix de serving. Il est assemblé
-à partir des bindings framework-free des pipelines et répond uniquement à la question « cette
-pipelineVersion déclarée produit-elle ce ProjectionType ? ». Un pipeline peut produire plusieurs
-effets ou ne produire aucune projection ; `PipelineId` et `ProjectionType` restent distincts.
+`ProjectionProducerCatalog` devient l'unique autorité agrégée pour cette relation. Ses entrées sont
+les déclarations framework-free fournies par les bindings de pipelines ; elles ne sont jamais
+recopiées dans une configuration, une table lifecycle ou un second mapping maintenu séparément. La
+composition construit une seule instance à partir de ces déclarations et les consumers consultent
+cette instance.
+
+Ce catalogue n'est ni un registry dynamique de projections, ni un choix de serving. Il répond
+uniquement à la question « cette pipelineVersion déclarée produit-elle ce ProjectionType ? ». Un
+pipeline peut produire plusieurs effets ou ne produire aucune projection ; `PipelineId` et
+`ProjectionType` restent distincts. Le futur plan d'implémentation devra faire évoluer les bindings
+vers cette déclaration commune, puis interdire toute autre source de la relation.
 
 ## 10. Cardinalité et unicité
 
@@ -315,13 +328,32 @@ serving => active
 Le lien `active => declared` est vérifié contre le catalogue code/configuration, qui n'est pas une
 table du lifecycle.
 
-## 11. Modèle persistant minimal
+## 11. Modèle persistant minimal et frontière d'autorité
 
-Le modèle SQL conceptuel recommandé réside dans le schéma logique `pocoma_read`, derrière un adapter
-JDBC d'`infra-read-persistence` :
+`active` et `serving` sont un control state autoritatif. Ils ne sont ni des projections dérivées, ni
+des artifacts métier, et ils ne sont pas reconstructibles automatiquement depuis les Business
+Events, Tasks, `ProjectionHead`, artifacts ou latest-known. Leur perte ferait perdre les décisions
+opérationnelles « quelles générations produisent » et « quelle génération sert ».
+
+La frontière canonique est donc :
+
+```text
+read store
+  état métier dérivé et reconstructible
+
+pipeline lifecycle control store
+  état active/serving autoritatif et non dérivable
+```
+
+Le lifecycle control store porte ensemble activations et sélections serving. Le séparer en deux
+stores empêcherait de garantir localement la FK `serving -> active` et les transitions atomiques.
+
+Le schéma SQL suivant est conceptuel. `pocoma_control` illustre une frontière logique dédiée ; son
+nom physique n'est pas un invariant fonctionnel et sera arrêté dans le plan d'implémentation selon
+les conventions de déploiement :
 
 ```sql
-create table pocoma_read.pipeline_version_activations (
+create table pocoma_control.pipeline_version_activations (
     pipeline_id       varchar(...) not null,
     pipeline_version  integer      not null,
     activated_at      timestamptz  not null,
@@ -329,13 +361,13 @@ create table pocoma_read.pipeline_version_activations (
     check (pipeline_version >= 1)
 );
 
-create table pocoma_read.projection_serving_selections (
+create table pocoma_control.projection_serving_selections (
     projection_type   varchar(...) not null primary key,
     pipeline_id       varchar(...) not null,
     pipeline_version  integer      not null,
     selected_at       timestamptz  not null,
     foreign key (pipeline_id, pipeline_version)
-        references pocoma_read.pipeline_version_activations
+        references pocoma_control.pipeline_version_activations
             (pipeline_id, pipeline_version)
         on delete restrict
 );
@@ -354,11 +386,17 @@ Propriétés :
 - aucune copie de `VersionApplicability` ;
 - aucune colonne `declared`, `eligible`, `head`, `latest_known` ou `serving` sur l'activation.
 
-Le choix de `pocoma_read` garde le control plane du read side hors des tables métier primaires et
-permet au futur runtime de query de lire serving sans permission sur le write-side métier. Les
-workers Event et Task devront composer le même adapter read-store ; le datasource actuel permet une
-transaction PostgreSQL locale entre schémas lorsque la création/exécution doit se sérialiser avec une
-désactivation.
+La persistance lifecycle doit vivre dans une frontière transactionnelle compatible avec les
+mutations de production qu'elle gouverne. Création de Task, effet de Task et contrôle d'activation
+doivent pouvoir être sérialisés par transaction locale et verrouillage, sans transaction distribuée.
+Le fait que le déploiement actuel puisse partager un PostgreSQL entre plusieurs schémas est une
+facilité d'implémentation présente, pas la justification ni l'autorité du modèle.
+
+En conséquence, une future séparation physique du read store dérivé ne déplace pas le lifecycle avec
+lui. Le control store doit rester colocalisé transactionnellement avec le store durable de
+production/consumption qu'il gouverne, ou conserver une frontière offrant les mêmes garanties
+locales. Le Query Kernel peut lire `ServingSelection` dans ce control store : cette lecture d'une
+décision runtime sur le chemin d'un GET ne transforme pas le lifecycle en read model métier.
 
 ## 12. Primitives de lifecycle
 
@@ -419,16 +457,12 @@ Précondition : `ProjectionType` non null.
 Effet : suppression de la sélection. L'absence préalable est un succès idempotent. Aucune activation
 n'est modifiée.
 
-### 12.6 Ports persistants
+### 12.6 Ports persistants et lectures orthogonales
 
-Les services utilisent deux ports framework-free :
+Le port de mutation persistant peut regrouper les primitives qui doivent partager les garanties
+transactionnelles :
 
 ```java
-interface PipelineLifecycleStateQueryPort {
-    boolean isActive(PipelineDefinition pipeline);
-    Optional<ServingSelection> findServing(ProjectionType projectionType);
-}
-
 interface PipelineLifecycleStateMutationPort {
     void activate(PipelineDefinition pipeline);
     void deactivateIfNotServing(PipelineDefinition pipeline);
@@ -438,22 +472,31 @@ interface PipelineLifecycleStateMutationPort {
 ```
 
 Les méthodes `deactivateIfNotServing` et `selectServingIfActive` expriment des garanties atomiques du
-port, pas des séquences read-then-write race-prone. L'adapter JDBC mappe les violations de FK ou de
-précondition concurrente vers les erreurs applicatives prévues.
+port, pas des séquences read-then-write race-prone. L'adapter du control store mappe les violations
+de FK ou de précondition concurrente vers les erreurs applicatives prévues.
 
-Le port de lecture public du serving reste dédié :
+Les lectures consommées par production et query restent deux contrats orthogonaux :
 
 ```java
+interface PipelineActivationQuery {
+    boolean isActive(PipelineDefinition pipeline);
+}
+
 interface ServingSelectionQuery {
     Optional<ServingSelection> findServing(ProjectionType projectionType);
 }
 ```
 
-Il restitue la décision persistée sans choisir, classer ou fallback.
+`PipelineActivationQuery` est le gate opérationnel de production. `ServingSelectionQuery` restitue la
+décision autoritative de lecture sans choisir, classer ou fallback. Aucun port de lecture agrégé ne
+regroupe artificiellement ces deux usages et aucune seconde abstraction ne définit `findServing`.
 
 ## 13. Atomicité et concurrence
 
-Toutes les mutations d'un état lifecycle sont des transactions PostgreSQL locales.
+Toutes les mutations d'un état lifecycle sont des transactions locales du control store. La
+technologie physique peut être PostgreSQL, comme aujourd'hui, mais la garantie requise est la
+compatibilité transactionnelle locale avec les mutations de production, non l'appartenance au read
+store.
 
 ### 13.1 Deux `selectServing` concurrents
 
@@ -480,7 +523,8 @@ désactiver v2. L'opération de sélection ne désactive jamais automatiquement 
 ### 13.4 Production contre désactivation
 
 La transaction autoritative qui crée une Task ou exécute son effet acquiert un verrou de lecture sur
-la ligne d'activation exacte. La désactivation prend le verrou incompatible avant suppression :
+la ligne d'activation exacte dans la même frontière transactionnelle. La désactivation prend le
+verrou incompatible avant suppression :
 
 - une production déjà entrée sous activation commit avant la désactivation ;
 - une production entrée après la désactivation observe inactive et ne crée/exécute rien.
@@ -588,7 +632,9 @@ Le bootstrap conserve trois sources distinctes :
 3. les lignes `projection_serving_selections` fournissent serving.
 
 Le système peut démarrer avec zéro sélection serving. Aucun ordre du catalogue, aucune plus grande
-pipelineVersion et aucune activation ne crée implicitement une sélection.
+pipelineVersion et aucune activation ne crée implicitement une sélection. Le bootstrap lit le
+control store autoritatif ; il ne tente jamais de reconstruire active ou serving depuis les artifacts
+du read store, les Events ou les Tasks.
 
 Une migration de déploiement ou une configuration explicite peut initialiser idempotemment les
 activations des générations connues pour préserver la production existante. Une sélection serving
@@ -635,6 +681,10 @@ Pour une sélection présente, la définition complète fournie à `QueryProject
 exactement celle dont l'identité est persistée. Le resolver consulte ensuite cette génération pour
 les lectures récentes et historiques.
 
+`ServingSelectionQuery` lit ici une décision du lifecycle control store. Cette dépendance dans le
+chemin d'un GET est normale : elle choisit l'autorité de lecture, mais ne lit aucun artifact métier et
+ne fait pas du control state une projection reconstructible.
+
 ## 19. Ownership et modules
 
 Le lifecycle gouverne production et query ; il ne doit donc vivre ni dans `engine-query`, ni dans un
@@ -653,7 +703,7 @@ Créer ultérieurement un module framework-free `engine-pipeline-lifecycle` :
 | `PipelineVersionLifecycleUseCase` | `com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle` | Quatre mutations minimales |
 | `ServingSelectionQuery` | `com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle` | Lecture serving publique |
 | `PipelineActivationQuery` | `com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle` | Gate active public pour production |
-| state query/mutation ports | `com.kartaguez.pocoma.engine.port.out.pipeline.lifecycle` | Persistence lifecycle atomique |
+| state mutation port | `com.kartaguez.pocoma.engine.port.out.pipeline.lifecycle` | Mutations lifecycle atomiques |
 | services lifecycle | `com.kartaguez.pocoma.engine.service.pipeline.lifecycle` | Préconditions catalogue/producteur et transactions |
 
 Le module dépend de `domain-pipeline`, `domain-projection` et du contrat transactionnel minimal
@@ -665,15 +715,23 @@ processing ou pipeline métier.
 
 ### 19.2 Adaptation persistante
 
-`infra-read-persistence` possède l'adapter JDBC et les migrations du schéma `pocoma_read`. Il
-implémente les ports query/mutation lifecycle et les garanties atomiques décrites plus haut.
+Le lifecycle ne doit pas être ajouté à `infra-read-persistence`, dont l'ownership reste le read store
+dérivé et reconstructible. Le futur plan d'implémentation doit créer une frontière d'adaptation
+explicite, par exemple `infra-pipeline-lifecycle-persistence`, propriétaire du control store et des
+ports lifecycle.
+
+Cette frontière logique est déployée sur la ressource transactionnelle compatible avec le store
+durable de production/consumption. Le nom de module clarifie l'ownership ; il n'impose ni une base
+physique séparée ni le nom illustratif `pocoma_control`. Elle implémente les lectures activation et
+serving, les mutations atomiques, l'unicité et la FK décrites plus haut.
 
 ### 19.3 Consommateurs
 
 - `engine-processing-event`/`locator-consumption-event` consomment la vue active pour la discovery ;
 - `engine-task-creation` consomme le gate active autoritatif ;
 - `engine-processing-task`/`locator-consumption-task` consomment la vue active et le gate d'exécution ;
-- la composition du Query Kernel consomme `ServingSelectionQuery` et le catalogue déclaré ;
+- la composition du Query Kernel consomme `ServingSelectionQuery` depuis le control store et le
+  catalogue déclaré ;
 - les runtimes ne font que câbler ces contrats et adapters.
 
 Cette orientation évite toute dépendance du moteur lifecycle vers ses consommateurs.
@@ -750,9 +808,13 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
 
 - v2 active+serving et v3 active+non-serving produisent toutes deux ; les reads restent sur v2 ;
 - une nouvelle version active redécouvre l'historique applicable sans mécanisme de rebuild séparé ;
+- Event historique déjà consommé, v3 declared mais inactive : aucune Task v3 ; après `activate(v3)`,
+  l'Event est redécouvert, sa Task v3 propre est créée puis traitée par le flux normal ;
 - lifecycle indépendant d'AUTH, HTTP, controller, latest-known, `ProjectionHead`, Task ordering et
   continuité de businessVersion ;
-- module engine sans Spring/JPA/JDBC ; adapter seul propriétaire du SQL ;
+- module engine sans Spring/JPA/JDBC ; adapter du control store seul propriétaire du SQL lifecycle ;
+- read store dérivé et lifecycle control store ont des ownerships distincts ; perte du read store ne
+  reconstruit ni ne réinitialise active/serving ;
 - aucune dépendance d'`engine-pipeline-lifecycle` vers query, processing, locators, runtimes ou
   pipelines métier.
 
@@ -777,6 +839,10 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
     deux opérations.
 15. Traiter inactive comme failure/rejet terminal empêcherait la reprise après réactivation.
 16. Placer le lifecycle dans `engine-query` ferait dépendre la production d'un moteur de lecture.
+17. Persister active/serving dans le read store dérivé ferait croire à tort que ces décisions sont
+    reconstructibles et couplerait leur autorité à son déploiement physique.
+18. Maintenir la relation producteur/projection dans plusieurs mappings indépendants créerait des
+    autorités concurrentes.
 
 ## 22. Hors périmètre
 
@@ -841,30 +907,56 @@ Le design est fermé lorsque les assertions suivantes sont normatives :
 5. inactive bloque création et exécution sans détruire ni terminaliser ;
 6. serving est une sélection `ProjectionType -> PipelineDefinition` séparée ;
 7. cardinalité serving `0..1` garantie par PK ;
-8. FK et transactions garantissent `serving => active` ;
-9. catalogue et bootstrap garantissent `active => declared` ;
-10. select exige declared+active+producer ;
-11. deactivate serving échoue ;
-12. activation, re-activation, sélection identique et clear sont idempotents ;
-13. discovery filtre active pour l'efficacité ; création/exécution revalident sous verrou pour la
+8. activations et serving résident ensemble dans un control store autoritatif distinct du read store
+   dérivé ;
+9. FK et transactions garantissent `serving => active` ;
+10. catalogue et bootstrap garantissent `active => declared` ;
+11. `ProjectionProducerCatalog` est l'unique vue agrégée de déclarations issues des bindings, jamais
+    une configuration parallèle ;
+12. select exige declared+active+producer ;
+13. deactivate serving échoue ;
+14. activation, re-activation, sélection identique et clear sont idempotents ;
+15. discovery filtre active pour l'efficacité ; création/exécution revalident sous verrou pour la
     correction ;
-14. une désactivation concurrente ne peut produire ni Task postérieure ni effet Task postérieur ;
-15. v2 serving et v3 active non-serving produisent en parallèle ;
-16. le Query Kernel reçoit la définition serving canonique sans modifier `QueryVersionResolver` ;
-17. aucune sélection implicite ou fallback n'existe ;
-18. `VersionApplicability` reste dans le catalogue ;
-19. le modèle n'utilise ni latest-known ni head ;
-20. éligibilité, cutover et rollback restent hors 7.14.1.
+16. une désactivation concurrente ne peut produire ni Task postérieure ni effet Task postérieur ;
+17. la frontière transactionnelle lifecycle reste compatible avec création/exécution sans dépendre
+    d'une colocalisation future avec le read store ;
+18. v2 serving et v3 active non-serving produisent en parallèle ;
+19. une activation permet de redécouvrir les Events historiques déjà consommés pour cette nouvelle
+    génération ;
+20. le Query Kernel reçoit la définition serving canonique sans modifier `QueryVersionResolver` ;
+21. aucune sélection implicite ou fallback n'existe ;
+22. `VersionApplicability` reste dans le catalogue ;
+23. le modèle n'utilise ni latest-known ni head ;
+24. éligibilité, cutover et rollback restent hors 7.14.1.
+
+État de fermeture du design :
+
+| Sujet | État |
+|---|---|
+| Declared semantics | `CLOSED` |
+| Active semantics | `CLOSED` |
+| Serving semantics | `CLOSED` |
+| Serving uniqueness | `CLOSED` |
+| Production gating | `CLOSED` |
+| Task preservation | `CLOSED` |
+| Query integration | `CLOSED` |
+| Reconstruction | `CLOSED` |
+| Concurrency | `CLOSED` |
+| Query ports | `CLOSED` |
+| Persistence boundary | `CLOSED` |
 
 ## 25. Questions ouvertes / blockers
 
 L'inspection révèle des adaptations futures nécessaires, mais aucune contradiction bloquante :
 
 - le catalogue déclaré existe déjà ;
-- le catalogue producteur étroit est absent mais les bindings possèdent l'information nécessaire ;
+- le catalogue producteur étroit est absent mais peut être assemblé comme unique vue des déclarations
+  déjà possédées par les bindings, sans seconde configuration ;
 - le release de Claim existe, même si l'orchestrateur Task ne possède pas encore la branche de
   déférencement lifecycle ;
-- les deux schémas utilisent le même socle transactionnel PostgreSQL dans les runtimes concernés.
+- la frontière d'adaptation du control store reste à créer et doit partager une ressource
+  transactionnelle compatible avec les mutations de production qu'elle gouverne.
 
 Ces éléments sont du travail d'implémentation cadré par le présent design, pas des arbitrages
 fonctionnels.
@@ -887,6 +979,9 @@ NONE
 - Serving est autoritatif pour les lectures présentes et historiques.
 - Event discovery dépend d'active, jamais de serving.
 - Une génération active non-serving produit normalement.
+- Les lectures lifecycle sont séparées entre `PipelineActivationQuery` et `ServingSelectionQuery`.
+- Active et serving résident ensemble dans un control store autoritatif distinct du read store dérivé.
+- La relation producteur/projection possède une unique vue agrégée issue des bindings de pipelines.
 - `eligibleForServing`, cutover, rollback et auto-switch sont hors périmètre.
 
 ## PROPOSED TYPES
@@ -945,6 +1040,7 @@ active != eligibleForServing
 active != serving
 inactive => no task creation and no task execution
 serving cardinality per ProjectionType = 0..1
+active/serving authority = lifecycle control store, not derived read store
 ```
 
 ## TRANSITIONS
@@ -976,6 +1072,10 @@ clearServing(type)
 - Query : `ServingSelection` + catalogue produit exactement `QueryProjectionSelection`, sans MAX ni
   fallback.
 - Reconstruction : ancienne serving et nouvelle active produisent ensemble, reads sur serving seule.
+- Reconstruction après activation : un Event historique déjà consommé est redécouvert pour v3 et
+  produit la Task propre à v3 ; inactive n'en produit aucune.
+- Persistence : active et serving partagent le control store et sa transaction locale ; le read store
+  dérivé n'en est ni propriétaire ni source de reconstruction.
 - Architecture : aucune dépendance à AUTH, HTTP, latest-known, head, ordre ou continuité.
 
 ## OPEN QUESTIONS / BLOCKERS
