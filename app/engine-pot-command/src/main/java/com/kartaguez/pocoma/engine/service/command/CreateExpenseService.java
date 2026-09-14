@@ -10,7 +10,9 @@ import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.created.ExpenseCreated;
 import com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraft;
 import com.kartaguez.pocoma.domain.pot.factory.ExpenseFactory;
-import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -37,7 +39,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 	private final ExpenseHeaderPort saveExpenseHeaderPort;
 	private final ExpenseSharesPort saveExpenseSharesPort;
 	private final EventPublisherPort publishExpenseCreatedEventPort;
-	private final CreateExpenseAuthorizationPolicy createExpenseAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	CreateExpenseService(
 			PotContextPort loadCreateExpenseContextPort,
@@ -45,7 +47,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 			ExpenseHeaderPort saveExpenseHeaderPort,
 			ExpenseSharesPort saveExpenseSharesPort,
 			EventPublisherPort publishExpenseCreatedEventPort,
-			CreateExpenseAuthorizationPolicy createExpenseAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadCreateExpenseContextPort = Objects.requireNonNull(
 				loadCreateExpenseContextPort,
 				"loadCreateExpenseContextPort must not be null");
@@ -61,9 +63,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 		this.publishExpenseCreatedEventPort = Objects.requireNonNull(
 				publishExpenseCreatedEventPort,
 				"publishExpenseCreatedEventPort must not be null");
-		this.createExpenseAuthorizationPolicy = Objects.requireNonNull(
-				createExpenseAuthorizationPolicy,
-				"createExpenseAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -88,11 +88,14 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 		context.assertCreatePreconditions(command.expectedVersion(), payerId, expenseShareholderIds);
 
 		// 4. Check that the current user is allowed to create an expense in this pot.
-		createExpenseAuthorizationPolicy.assertCanCreateExpense(
+		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
-				context.creatorId(),
-				Set.of());
+				new PotAuthorizationRelations(potId, context.creatorId(), context.shareholderUsers()),
+				AuthorizationTarget.prospectiveExpense(),
+				PotAction.CREATE_EXPENSE,
+				"EXPENSE_CREATE_FORBIDDEN",
+				"Only the pot creator or a shareholder can create an expense");
 
 		// 5. Create the domain creation result.
 		ExpenseCreated expenseCreated = ExpenseFactory.createExpense(

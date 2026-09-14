@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -42,7 +41,7 @@ class UpdatePotDetailsServiceTest {
 				updatePotGlobalVersionPort,
 				replacePotHeaderPort,
 				publishPotDetailsUpdatedEventPort,
-				new UpdatePotDetailsAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		PotHeaderSnapshot snapshot = updatePotDetailsService.updatePotDetails(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -172,7 +171,7 @@ class UpdatePotDetailsServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingPotHeaderPort(),
 					new FakeEventPublisherPort(),
-					new UpdatePotDetailsAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

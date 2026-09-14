@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,8 @@ class JpaPotContextAdapterTest {
 	void loadsCreateExpenseContextFromCurrentPotVersion() {
 		PotId potId = PotId.of(UUID.randomUUID());
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Shareholder activeShareholder = shareholder(potId);
+		UserId memberId = UserId.of(UUID.randomUUID());
+		Shareholder activeShareholder = shareholder(potId, false, memberId);
 		Shareholder inactiveShareholder = shareholder(potId);
 		Shareholder deletedShareholder = shareholder(potId, true);
 		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 3)));
@@ -76,6 +78,7 @@ class JpaPotContextAdapterTest {
 		assertEquals(false, context.deleted());
 		assertEquals(creatorId, context.creatorId());
 		assertEquals(Set.of(activeShareholder.id()), context.shareholderIds());
+		assertEquals(Map.of(activeShareholder.id(), memberId), context.shareholderUsers());
 	}
 
 	@Test
@@ -107,12 +110,16 @@ class JpaPotContextAdapterTest {
 	}
 
 	private static Shareholder shareholder(PotId potId, boolean deleted) {
+		return shareholder(potId, deleted, null);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted, UserId userId) {
 		return Shareholder.reconstitute(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,
 				Name.of("Alice"),
 				Weight.of(Fraction.of(1, 1)),
-				null,
+				userId,
 				deleted);
 	}
 

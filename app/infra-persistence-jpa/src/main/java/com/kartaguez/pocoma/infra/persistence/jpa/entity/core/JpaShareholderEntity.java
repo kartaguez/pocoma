@@ -113,6 +113,10 @@ public class JpaShareholderEntity {
 		return potId;
 	}
 
+	public UUID userId() {
+		return userId;
+	}
+
 	public long startedAtVersion() {
 		return startedAtVersion;
 	}

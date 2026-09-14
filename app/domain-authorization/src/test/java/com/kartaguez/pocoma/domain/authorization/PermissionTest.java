@@ -23,19 +23,19 @@ class PermissionTest {
 	}
 
 	@Test
-	void exposesTheCanonicalCatalogWithoutBalanceArchive() {
+	void exposesTheCanonicalCurrentCapabilityCatalog() {
 		Set<Permission> permissions = Arrays.stream(PocomaPermissions.class.getFields())
 				.filter(field -> Modifier.isStatic(field.getModifiers()))
 				.filter(field -> field.getType().equals(Permission.class))
 				.map(PermissionTest::read)
 				.collect(Collectors.toUnmodifiableSet());
 
-		assertEquals(16, permissions.size());
+		assertEquals(14, permissions.size());
 		assertEquals(Set.of("VIEW", "CREATE", "UPDATE", "DELETE", "VIEW_ARCHIVE"),
 				actionsFor(permissions, "POT"));
-		assertEquals(Set.of("VIEW", "CREATE", "UPDATE", "DELETE", "VIEW_ARCHIVE"),
+		assertEquals(Set.of("VIEW", "CREATE", "UPDATE", "DELETE"),
 				actionsFor(permissions, "SHAREHOLDER"));
-		assertEquals(Set.of("VIEW", "CREATE", "UPDATE", "DELETE", "VIEW_ARCHIVE"),
+		assertEquals(Set.of("VIEW", "CREATE", "UPDATE", "DELETE"),
 				actionsFor(permissions, "EXPENSE"));
 		assertEquals(Set.of("VIEW"), actionsFor(permissions, "BALANCE"));
 		assertFalse(permissions.contains(new Permission("BALANCE", "VIEW_ARCHIVE")));

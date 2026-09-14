@@ -13,7 +13,6 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -46,7 +45,7 @@ class UpdateExpenseSharesServiceTest {
 				updatePotGlobalVersionPort,
 				replaceExpenseSharesPort,
 				publishEventPort,
-				new UpdateExpenseSharesAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		ExpenseSharesSnapshot snapshot = service.updateExpenseShares(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -177,7 +176,7 @@ class UpdateExpenseSharesServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingExpenseSharesPort(),
 					new FakeEventPublisherPort(),
-					new UpdateExpenseSharesAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

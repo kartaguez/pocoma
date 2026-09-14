@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.context;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
@@ -13,12 +14,19 @@ public record CreateExpenseContext(
 		PotGlobalVersion potGlobalVersion,
 		boolean deleted,
 		UserId creatorId,
-		Set<ShareholderId> shareholderIds) {
+		Set<ShareholderId> shareholderIds,
+		Map<ShareholderId, UserId> shareholderUsers) {
+
+	public CreateExpenseContext(PotGlobalVersion potGlobalVersion, boolean deleted, UserId creatorId,
+			Set<ShareholderId> shareholderIds) {
+		this(potGlobalVersion, deleted, creatorId, shareholderIds, Map.of());
+	}
 
 	public CreateExpenseContext {
 		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
 		shareholderIds = Set.copyOf(Objects.requireNonNull(shareholderIds, "shareholderIds must not be null"));
+		shareholderUsers = Map.copyOf(Objects.requireNonNull(shareholderUsers, "shareholderUsers must not be null"));
 	}
 
 	public void assertCreatePreconditions(

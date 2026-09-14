@@ -1,6 +1,6 @@
 # Lot 7.10.1 — Plan d'implémentation du kernel d'autorisation
 
-Statut : **PLANNED**.
+Statut : **IMPLEMENTED**.
 
 ## 1. Objet, autorité et dépendance documentaire
 
@@ -20,11 +20,9 @@ Le cadrage complémentaire acté après l'étude d'impact abandonne la préalloc
 IDs pour les actions de création. Il distingue désormais une cible existante, identifiée, d'une
 cible prospective dont l'identité métier n'existe pas encore.
 
-Une incohérence documentaire reste à corriger séparément : la section 7 du document canonique exige
-encore un `targetId` pour toute cible et interdit actuellement un `ALLOW` sans identité. La décision
-du présent plan est sans ambiguïté, mais l'exécution de 7.10.1.B doit être précédée par l'alignement de
-cette formulation canonique afin que l'implémentation ne possède pas deux sources normatives
-contradictoires. Cet alignement documentaire n'est pas réalisé par le présent plan.
+Le document canonique a été aligné avant l'implémentation : il distingue désormais les cibles
+existantes des cibles prospectives et rend l'identité obligatoire seulement lorsque le contrat de
+l'action ou la dérivation d'un fact l'exige.
 
 ## 2. Résultat attendu
 
@@ -770,10 +768,9 @@ sortie 7.10.1 exige ensuite le build complet du reactor et les tests d'architect
 17. Une future source read-side `AUTH(V)` peut alimenter le même resolver et la même business policy.
 18. Aucun artifact AUTH, générateur d'ID ou changement de Command de création n'est introduit.
 
-## 11. Point ouvert avant exécution
+## 11. Clôture documentaire
 
-Il ne subsiste aucune ambiguïté fonctionnelle sur le modèle à implémenter. Le seul préalable bloquant
-est documentaire : `authorization-kernel-contracts.md` doit être amendé pour reconnaître les cibles
-prospectives et remplacer son invariant d'identité universelle par l'invariant conditionnel défini
-dans ce plan. Une fois cette source spécialisée alignée, les sous-lots A à G ne requièrent plus de
-décision d'architecture.
+Le préalable documentaire a été résolu dans `authorization-kernel-contracts.md` avant l'exécution.
+Les sous-lots A à G sont implémentés sans décision d'architecture résiduelle pour 7.10.1. Les façades
+query conservées restent volontairement temporaires jusqu'à l'intégration complète du Query Kernel
+prévue en 7.10.4.

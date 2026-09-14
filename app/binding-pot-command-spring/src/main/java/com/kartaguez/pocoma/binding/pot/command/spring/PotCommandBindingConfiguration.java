@@ -7,16 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.engine.service.command.PotAuthorizationGuard;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
@@ -61,26 +53,27 @@ public class PotCommandBindingConfiguration {
 			PotShareholdersPort shareholders,
 			ExpenseHeaderPort expenseHeaders,
 			ExpenseSharesPort expenseShares) {
+		PotAuthorizationGuard authorizationGuard = new PotAuthorizationGuard();
 		return new CommandDispatcher(List.of(
 				new CreatePotCommandUseCaseAdapter(versions, potHeaders, new CreatePotAuthorizationPolicy()),
 				new CreateExpenseCommandUseCaseAdapter(potContexts, versions, expenseHeaders, expenseShares,
-						new CreateExpenseAuthorizationPolicy()),
+						authorizationGuard),
 				new AddPotShareholdersCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new AddPotShareholdersAuthorizationPolicy()),
+						authorizationGuard),
 				new DeletePotCommandUseCaseAdapter(potContexts, potHeaders, versions,
-						new DeletePotAuthorizationPolicy()),
+						authorizationGuard),
 				new DeleteExpenseCommandUseCaseAdapter(expenseContexts, expenseHeaders, versions,
-						new DeleteExpenseAuthorizationPolicy()),
+						authorizationGuard),
 				new UpdatePotDetailsCommandUseCaseAdapter(potContexts, potHeaders, versions,
-						new UpdatePotDetailsAuthorizationPolicy()),
+						authorizationGuard),
 				new UpdateExpenseDetailsCommandUseCaseAdapter(expenseContexts, expenseHeaders, versions,
-						new UpdateExpenseDetailsAuthorizationPolicy()),
+						authorizationGuard),
 				new UpdateExpenseSharesCommandUseCaseAdapter(expenseContexts, expenseShares, versions,
-						new UpdateExpenseSharesAuthorizationPolicy()),
+						authorizationGuard),
 				new UpdatePotShareholdersDetailsCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new UpdatePotShareholdersDetailsAuthorizationPolicy()),
+						authorizationGuard),
 				new UpdatePotShareholdersWeightsCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new UpdatePotShareholdersWeightsAuthorizationPolicy())));
+						authorizationGuard)));
 	}
 
 	@Bean

@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Map;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
@@ -25,7 +28,7 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final PotHeaderPort replacePotHeaderPort;
 	private final EventPublisherPort publishPotDetailsUpdatedEventPort;
-	private final UpdatePotDetailsAuthorizationPolicy updatePotDetailsAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	UpdatePotDetailsService(
 			PotContextPort loadUpdatePotDetailsContextPort,
@@ -33,7 +36,7 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			PotHeaderPort replacePotHeaderPort,
 			EventPublisherPort publishPotDetailsUpdatedEventPort,
-			UpdatePotDetailsAuthorizationPolicy updatePotDetailsAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadUpdatePotDetailsContextPort = Objects.requireNonNull(
 				loadUpdatePotDetailsContextPort,
 				"loadUpdatePotDetailsContextPort must not be null");
@@ -45,9 +48,7 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 		this.publishPotDetailsUpdatedEventPort = Objects.requireNonNull(
 				publishPotDetailsUpdatedEventPort,
 				"publishPotDetailsUpdatedEventPort must not be null");
-		this.updatePotDetailsAuthorizationPolicy = Objects.requireNonNull(
-				updatePotDetailsAuthorizationPolicy,
-				"updatePotDetailsAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -67,10 +68,10 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 		context.assertUpdatePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to update this pot.
-		updatePotDetailsAuthorizationPolicy.assertCanUpdatePotDetails(
-				userContext.userId(),
-				userContext.permissions(),
-				context.creatorId());
+		authorizationGuard.assertAuthorized(userContext.userId(), userContext.permissions(),
+				new PotAuthorizationRelations(potId, context.creatorId(), Map.of()),
+				AuthorizationTarget.existing(potId), PotAction.UPDATE_POT_DETAILS,
+				"POT_DETAILS_UPDATE_FORBIDDEN", "Only the pot creator can update pot details");
 
 		// 5. Load the full pot header active at the explicit working version.
 		PotHeader currentPotHeader = Objects.requireNonNull(

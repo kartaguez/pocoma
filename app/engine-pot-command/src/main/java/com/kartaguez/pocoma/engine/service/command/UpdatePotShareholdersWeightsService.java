@@ -1,11 +1,14 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -29,7 +32,7 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final PotShareholdersPort replacePotShareholdersPort;
 	private final EventPublisherPort publishPotShareholdersWeightsUpdatedEventPort;
-	private final UpdatePotShareholdersWeightsAuthorizationPolicy updatePotShareholdersWeightsAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	UpdatePotShareholdersWeightsService(
 			PotContextPort loadUpdatePotShareholdersWeightsContextPort,
@@ -37,7 +40,7 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			PotShareholdersPort replacePotShareholdersPort,
 			EventPublisherPort publishPotShareholdersWeightsUpdatedEventPort,
-			UpdatePotShareholdersWeightsAuthorizationPolicy updatePotShareholdersWeightsAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadUpdatePotShareholdersWeightsContextPort = Objects.requireNonNull(
 				loadUpdatePotShareholdersWeightsContextPort,
 				"loadUpdatePotShareholdersWeightsContextPort must not be null");
@@ -53,9 +56,7 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 		this.publishPotShareholdersWeightsUpdatedEventPort = Objects.requireNonNull(
 				publishPotShareholdersWeightsUpdatedEventPort,
 				"publishPotShareholdersWeightsUpdatedEventPort must not be null");
-		this.updatePotShareholdersWeightsAuthorizationPolicy = Objects.requireNonNull(
-				updatePotShareholdersWeightsAuthorizationPolicy,
-				"updatePotShareholdersWeightsAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -80,10 +81,18 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 		context.assertUpdatePreconditions(command.expectedVersion(), updatedShareholderIds);
 
 		// 4. Check that the current user is allowed to update shareholders weights.
-		updatePotShareholdersWeightsAuthorizationPolicy.assertCanUpdatePotShareholdersWeights(
-				userContext.userId(),
-				userContext.permissions(),
-				context.creatorId());
+		PotAuthorizationRelations authorizationRelations = new PotAuthorizationRelations(
+				potId, context.creatorId(), Map.of());
+		for (ShareholderId shareholderId : updatedShareholderIds) {
+			authorizationGuard.assertAuthorized(
+					userContext.userId(),
+					userContext.permissions(),
+					authorizationRelations,
+					AuthorizationTarget.existing(shareholderId),
+					PotAction.UPDATE_SHAREHOLDER_WEIGHTS,
+					"POT_SHAREHOLDERS_WEIGHTS_UPDATE_FORBIDDEN",
+					"Only the pot creator can update shareholder weights");
+		}
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
 		PotShareholders currentPotShareholders = Objects.requireNonNull(

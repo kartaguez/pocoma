@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.context;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,11 +59,14 @@ public class JpaPotContextAdapter implements PotContextPort {
 	@Transactional(readOnly = true)
 	public CreateExpenseContext loadCreateExpenseContext(PotId potId) {
 		PotContextData contextData = loadPotContextData(potId);
+		ShareholderRelations shareholderRelations = loadShareholderRelations(
+				potId, contextData.potGlobalVersion().version());
 		return new CreateExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				loadShareholderIds(potId, contextData.potGlobalVersion().version()));
+				shareholderRelations.shareholderIds(),
+				shareholderRelations.shareholderUsers());
 	}
 
 	@Override
@@ -89,11 +93,14 @@ public class JpaPotContextAdapter implements PotContextPort {
 	@Transactional(readOnly = true)
 	public UpdatePotShareholdersDetailsContext loadUpdatePotShareholdersDetailsContext(PotId potId) {
 		PotContextData contextData = loadPotContextData(potId);
+		ShareholderRelations shareholderRelations = loadShareholderRelations(
+				potId, contextData.potGlobalVersion().version());
 		return new UpdatePotShareholdersDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				loadShareholderIds(potId, contextData.potGlobalVersion().version()));
+				shareholderRelations.shareholderIds(),
+				shareholderRelations.shareholderUsers());
 	}
 
 	@Override
@@ -128,6 +135,24 @@ public class JpaPotContextAdapter implements PotContextPort {
 				.collect(Collectors.toUnmodifiableSet());
 	}
 
+	private ShareholderRelations loadShareholderRelations(PotId potId, long version) {
+		var shareholders = shareholderRepository.findActiveNotDeletedAtVersion(potId.value(), version);
+		Set<ShareholderId> shareholderIds = shareholders.stream()
+				.map(shareholder -> ShareholderId.of(shareholder.shareholderId()))
+				.collect(Collectors.toUnmodifiableSet());
+		Map<ShareholderId, UserId> shareholderUsers = shareholders.stream()
+				.filter(shareholder -> shareholder.userId() != null)
+				.collect(Collectors.toUnmodifiableMap(
+						shareholder -> ShareholderId.of(shareholder.shareholderId()),
+						shareholder -> UserId.of(shareholder.userId())));
+		return new ShareholderRelations(shareholderIds, shareholderUsers);
+	}
+
 	private record PotContextData(PotGlobalVersion potGlobalVersion, JpaPotHeaderEntity potHeader) {
+	}
+
+	private record ShareholderRelations(
+			Set<ShareholderId> shareholderIds,
+			Map<ShareholderId, UserId> shareholderUsers) {
 	}
 }

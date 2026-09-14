@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
@@ -45,7 +45,7 @@ class CreateExpenseServiceTest {
 				saveExpenseHeaderPort,
 				saveExpenseSharesPort,
 				publishExpenseCreatedEventPort,
-				new CreateExpenseAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		ExpenseSharesSnapshot snapshot = service.createExpense(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -66,6 +66,23 @@ class CreateExpenseServiceTest {
 		assertEquals(snapshot.expenseId(), saveExpenseSharesPort.savedExpenseId);
 		assertEquals(snapshot.expenseId(), saveExpenseSharesPort.saved.shares().values().iterator().next().expenseId());
 		assertEquals(new ExpenseCreatedEvent(snapshot.expenseId(), fixture.potId, 4), publishExpenseCreatedEventPort.published);
+	}
+
+	@Test
+	void allowsAnActiveShareholderToCreateAnExpenseOnAProspectiveTarget() {
+		CreateExpenseFixture fixture = new CreateExpenseFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		CreateExpenseContext context = new CreateExpenseContext(
+				new PotGlobalVersion(fixture.potId, 3), false, fixture.creatorId,
+				Set.of(fixture.payerId, fixture.shareholderId), Map.of(fixture.shareholderId, memberId));
+		CreateExpenseService service = fixture.service(
+				context, new FakeExpenseHeaderPort(), new FakeExpenseSharesPort());
+
+		ExpenseSharesSnapshot snapshot = service.createExpense(
+				new UserContext(memberId, fixture.userPermissions),
+				fixture.command(3, fixture.payerId, fixture.shareholderId));
+
+		assertNotNull(snapshot.expenseId());
 	}
 
 	@Test
@@ -179,7 +196,7 @@ class CreateExpenseServiceTest {
 					saveExpenseHeaderPort,
 					saveExpenseSharesPort,
 					new FakeEventPublisherPort(),
-					new CreateExpenseAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

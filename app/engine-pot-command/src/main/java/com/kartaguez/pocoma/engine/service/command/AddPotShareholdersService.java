@@ -1,10 +1,13 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
@@ -28,7 +31,7 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final PotShareholdersPort replacePotShareholdersPort;
 	private final EventPublisherPort publishPotShareholdersAddedEventPort;
-	private final AddPotShareholdersAuthorizationPolicy addPotShareholdersAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	AddPotShareholdersService(
 			PotContextPort loadAddPotShareholdersContextPort,
@@ -36,7 +39,7 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			PotShareholdersPort replacePotShareholdersPort,
 			EventPublisherPort publishPotShareholdersAddedEventPort,
-			AddPotShareholdersAuthorizationPolicy addPotShareholdersAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadAddPotShareholdersContextPort = Objects.requireNonNull(
 				loadAddPotShareholdersContextPort,
 				"loadAddPotShareholdersContextPort must not be null");
@@ -52,9 +55,7 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		this.publishPotShareholdersAddedEventPort = Objects.requireNonNull(
 				publishPotShareholdersAddedEventPort,
 				"publishPotShareholdersAddedEventPort must not be null");
-		this.addPotShareholdersAuthorizationPolicy = Objects.requireNonNull(
-				addPotShareholdersAuthorizationPolicy,
-				"addPotShareholdersAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -74,10 +75,14 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		context.assertAddPreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to add shareholders to this pot.
-		addPotShareholdersAuthorizationPolicy.assertCanAddPotShareholders(
+		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
-				context.creatorId());
+				new PotAuthorizationRelations(potId, context.creatorId(), Map.of()),
+				AuthorizationTarget.prospectiveShareholder(),
+				PotAction.ADD_SHAREHOLDER,
+				"POT_SHAREHOLDERS_ADD_FORBIDDEN",
+				"Only the pot creator can add shareholders");
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
 		PotShareholders currentPotShareholders = Objects.requireNonNull(

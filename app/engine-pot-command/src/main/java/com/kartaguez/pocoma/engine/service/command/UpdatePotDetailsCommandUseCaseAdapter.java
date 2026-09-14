@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.service.command;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
@@ -16,10 +15,10 @@ public final class UpdatePotDetailsCommandUseCaseAdapter
 	private final PotContextPort potContextPort;
 	private final PotHeaderPort potHeaderPort;
 	private final PotGlobalVersionPort potGlobalVersionPort;
-	private final UpdatePotDetailsAuthorizationPolicy authorizationPolicy;
+	private final PotAuthorizationGuard authorizationPolicy;
 
 	public UpdatePotDetailsCommandUseCaseAdapter(PotContextPort potContextPort, PotHeaderPort potHeaderPort,
-			PotGlobalVersionPort potGlobalVersionPort, UpdatePotDetailsAuthorizationPolicy authorizationPolicy) {
+			PotGlobalVersionPort potGlobalVersionPort, PotAuthorizationGuard authorizationPolicy) {
 		this.potContextPort = requireNonNull(potContextPort, "potContextPort must not be null");
 		this.potHeaderPort = requireNonNull(potHeaderPort, "potHeaderPort must not be null");
 		this.potGlobalVersionPort = requireNonNull(potGlobalVersionPort, "potGlobalVersionPort must not be null");

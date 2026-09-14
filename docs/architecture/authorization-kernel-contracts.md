@@ -45,7 +45,7 @@ d'implémentation détaillé.
    ```text
    current TokenCapabilities
    + required current capabilities
-   + AuthorizationTargetType
+   + AuthorizationTarget
    + AuthorizationFacts
    + PotAction
    -> AuthorizationDecision
@@ -220,7 +220,7 @@ PotAuthorizationAtVersion
   userId
   target
     targetType
-    targetId
+    targetIdentity when required by the action contract
   facts
     Set<AuthorizationFact>
 ```
@@ -274,22 +274,39 @@ que les policies visant directement un Pot.
 possède pas de modèle d'autorisation autonome. `VIEW_BALANCE` reste une `PotAction` distincte dont la
 cible d'autorisation est `AuthorizationTargetType.POT`.
 
-Le contrat logique peut être représenté conceptuellement par :
+Une cible est soit existante et identifiée, soit prospective lorsque l'objet métier n'a pas encore
+été créé :
 
 ```text
 AuthorizationTarget
-  targetType
-  targetId
+  Existing
+    targetType
+    targetId
+  Prospective
+    targetType
 
-POT         -> potId
-EXPENSE     -> expenseId
-SHAREHOLDER -> shareholderId
+Existing POT         -> potId
+Existing EXPENSE     -> expenseId
+Existing SHAREHOLDER -> shareholderId
+Prospective EXPENSE
+Prospective SHAREHOLDER
 ```
 
-Le type et l'identité logique de la cible sont obligatoires. La représentation Java exacte et le
-type technique de `targetId` ne sont pas fixés ici. La cohérence entre `targetType` et l'identité
-fournie est un invariant de contrat ; une cible sans identité exploitable ne peut pas produire une
-autorisation positive.
+`CREATE_POT` restant hors du kernel Pot-scoped, aucune cible `POT` prospective n'est requise.
+
+> **Invariant :** une identité de cible est obligatoire uniquement lorsqu'elle est nécessaire pour
+> satisfaire le contrat de l'action ou dériver les faits requis par sa policy.
+
+La représentation Java exacte et le type technique de `targetId` ne sont pas fixés ici. La cohérence
+entre le type, l'état existant ou prospectif et l'identité éventuellement fournie est un invariant de
+contrat. Une action exigeant une cible existante mais recevant une cible prospective est refusée par
+défaut avec un diagnostic de configuration.
+
+`CREATE_EXPENSE` accepte une cible `EXPENSE` prospective : ses faits sont les faits Pot courants et,
+après `ALLOW`, le domaine choisit l'`ExpenseId` comme aujourd'hui. `ADD_SHAREHOLDER` accepte de même
+une cible `SHAREHOLDER` prospective et le domaine choisit ensuite le ou les `ShareholderId`. La
+préallocation reste possible si une future policy réelle exige l'identité avant création, mais elle
+n'est pas une exigence de 7.10.1.
 
 ### Catalogue de faits
 
@@ -346,9 +363,12 @@ IS_POT_MEMBER
 = currentUserId appartient aux userId des activeShareholders
 
 IS_TARGET_SHAREHOLDER
-= target.targetType == SHAREHOLDER
+= target is Existing SHAREHOLDER
   && relationModel.activeShareholders[target.targetId] == currentUserId
 ```
+
+Une cible `SHAREHOLDER` prospective ne produit jamais `IS_TARGET_SHAREHOLDER`. Cette absence n'est
+pas une erreur pour `ADD_SHAREHOLDER`, dont la règle ne dépend pas de l'identité du futur objet.
 
 > **Invariant :** `AuthorizationFacts` est une vue éphémère calculée pour une décision à partir du
 > modèle de relations d'autorisation, de l'utilisateur courant et de la cible.
@@ -418,22 +438,22 @@ opérations SQL/JPA et variantes `CURRENT`/`EXACT`.
 
 Le mapping canonique initial est :
 
-| `PotAction` | `AuthorizationTargetType` | Capability courante de base |
-|---|---|---|
-| `VIEW_POT` | `POT` | `POT_VIEW` |
-| `UPDATE_POT_DETAILS` | `POT` | `POT_UPDATE` |
-| `DELETE_POT` | `POT` | `POT_DELETE` |
-| `VIEW_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_VIEW` |
-| `ADD_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_CREATE` |
-| `UPDATE_SHAREHOLDER_DETAILS` | `SHAREHOLDER` | `SHAREHOLDER_UPDATE` |
-| `UPDATE_SHAREHOLDER_WEIGHTS` | `SHAREHOLDER` | `SHAREHOLDER_UPDATE` |
-| `REMOVE_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_DELETE` |
-| `VIEW_EXPENSE` | `EXPENSE` | `EXPENSE_VIEW` |
-| `CREATE_EXPENSE` | `EXPENSE` | `EXPENSE_CREATE` |
-| `UPDATE_EXPENSE_DETAILS` | `EXPENSE` | `EXPENSE_UPDATE` |
-| `UPDATE_EXPENSE_SHARES` | `EXPENSE` | `EXPENSE_UPDATE` |
-| `DELETE_EXPENSE` | `EXPENSE` | `EXPENSE_DELETE` |
-| `VIEW_BALANCE` | `POT` | `BALANCE_VIEW` |
+| `PotAction` | `AuthorizationTargetType` | Capability courante de base | Contrat de cible |
+|---|---|---|---|
+| `VIEW_POT` | `POT` | `POT_VIEW` | existante |
+| `UPDATE_POT_DETAILS` | `POT` | `POT_UPDATE` | existante |
+| `DELETE_POT` | `POT` | `POT_DELETE` | existante |
+| `VIEW_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_VIEW` | existante |
+| `ADD_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_CREATE` | prospective admise |
+| `UPDATE_SHAREHOLDER_DETAILS` | `SHAREHOLDER` | `SHAREHOLDER_UPDATE` | existante |
+| `UPDATE_SHAREHOLDER_WEIGHTS` | `SHAREHOLDER` | `SHAREHOLDER_UPDATE` | existante |
+| `REMOVE_SHAREHOLDER` | `SHAREHOLDER` | `SHAREHOLDER_DELETE` | existante |
+| `VIEW_EXPENSE` | `EXPENSE` | `EXPENSE_VIEW` | existante |
+| `CREATE_EXPENSE` | `EXPENSE` | `EXPENSE_CREATE` | prospective admise |
+| `UPDATE_EXPENSE_DETAILS` | `EXPENSE` | `EXPENSE_UPDATE` | existante |
+| `UPDATE_EXPENSE_SHARES` | `EXPENSE` | `EXPENSE_UPDATE` | existante |
+| `DELETE_EXPENSE` | `EXPENSE` | `EXPENSE_DELETE` | existante |
+| `VIEW_BALANCE` | `POT` | `BALANCE_VIEW` | existante |
 
 Chaque action possède une entrée explicite. Il n'existe ni héritage implicite de capability entre
 actions, ni valeur signifiant « aucune capability requise ». Le mapping appartient à la frontière
@@ -460,6 +480,10 @@ Elle :
 - ne connaît ni l'origine ni la raison d'une capability requise ;
 - ne déduit jamais qu'une capability absente est implicitement accordée ;
 - retourne une décision exploitable par le kernel, notamment `MISSING_CAPABILITY`.
+
+Toutes les capabilities de l'ensemble requis sont obligatoires. Le kernel ignore leur origine, pas
+leur présence : si l'orchestration transmet par exemple `EXPENSE_VIEW` et `VIEW_ARCHIVE`, le token
+doit posséder les deux.
 
 ## 10. `PotBusinessAuthorizationPolicy`
 
@@ -510,7 +534,7 @@ cible.
 ```text
 TokenCapabilities
 required current capabilities
-AuthorizationTargetType
+AuthorizationTarget
 AuthorizationFacts
 PotAction
 ```
@@ -525,6 +549,7 @@ Il orchestre, sans I/O :
 Le kernel ne reçoit et ne connaît jamais `CURRENT`, `EXACT(V)`, une businessVersion à sélectionner,
 un mode historique ou un mode archive. Il ne décide jamais d'ajouter `VIEW_ARCHIVE`. Il ignore si une
 capability requise provient du mapping de l'action ou a été ajoutée par l'orchestration applicative.
+Il vérifie néanmoins chacune des capabilities reçues comme requise.
 
 Le kernel ne charge ni token, ni Pot, ni artifact `AUTH(V)`. Les capacités et les faits demeurent deux
 entrées distinctes ; aucun modèle persistant ou objet opaque ne doit les fusionner.
@@ -538,16 +563,18 @@ ALLOW
 DENY(reason)
 ```
 
-Les raisons internes peuvent notamment distinguer :
+Le contrat principal conserve un ensemble minimal de raisons :
 
 ```text
 MISSING_CAPABILITY
-NOT_MEMBER
-NOT_CREATOR
-NOT_TARGET_SHAREHOLDER
 BUSINESS_POLICY_DENIED
 CONFIGURATION_ERROR
 ```
+
+Une policy disjonctive telle que `IS_POT_CREATOR || IS_POT_MEMBER` ne choisit pas arbitrairement une
+raison élémentaire lorsque les deux prédicats échouent. Un diagnostic interne plus détaillé peut être
+produit pour les tests ou l'observabilité sans complexifier `AuthorizationDecision` ni gouverner son
+mapping HTTP.
 
 Une raison sert aux tests, au diagnostic et éventuellement à l'observabilité. Elle ne définit jamais
 directement le statut ou le corps HTTP public.
@@ -606,7 +633,8 @@ known PotAction
 ```
 
 Une absence de mapping ne signifie jamais « aucune capability requise ». Une combinaison action/cible
-incompatible suit la même règle fail-closed. Le diagnostic de configuration doit être distinguable
+incompatible, notamment une cible prospective pour une action exigeant un objet existant, suit la
+même règle fail-closed. Le diagnostic de configuration doit être distinguable
 en interne d'un refus métier normal et testable comme tel. Sa traduction externe peut rester
 indistinguable d'un refus ordinaire ; ce choix relève de 7.9.3.
 
@@ -665,7 +693,8 @@ Une implémentation conforme devra :
 - séparer des policies actuelles la vérification des capacités et la règle métier Pot ;
 - remplacer toute duplication write/read de la matrice métier par la policy pure partagée ;
 - représenter les types de cible et les faits par des catalogues typés, sans propriétés dynamiques ;
-- porter le type et l'identité logique dans chaque `AuthorizationTarget` ;
+- représenter explicitement les cibles existantes identifiées et les cibles prospectives admises par
+  les actions de création ;
 - dériver les faits d'une décision depuis le modèle de relations, l'utilisateur et la cible sans les
   assimiler au contenu persistant de l'artifact complet `AUTH(V)` ;
 - limiter AUTH aux relations structurelles d'identité, de propriété et d'appartenance nécessaires,
@@ -691,8 +720,9 @@ Ces conséquences sont des critères architecturaux, pas un découpage de commit
    dérive `IS_TARGET_SHAREHOLDER`.
 7. La cible est `SHAREHOLDER(S8)` et la relation active vaut `S8 -> U3` ; une décision pour `U2` ne
    dérive pas `IS_TARGET_SHAREHOLDER`.
-8. Une cible `SHAREHOLDER` sans identité exploitable est une erreur de contrat, jamais un `ALLOW`.
-9. L'identité logique de la cible est obligatoire pour toute règle target-specific.
+8. Une cible `SHAREHOLDER` prospective est valide pour `ADD_SHAREHOLDER`, mais ne dérive jamais
+   `IS_TARGET_SHAREHOLDER`.
+9. L'identité logique de la cible est obligatoire pour toute règle target-specific qui en dépend.
 10. `AuthorizationFacts` n'est jamais persisté comme matrice de faits ou de permissions dans
     `AUTH(V)`.
 11. L'ajout d'une nouvelle `PotAction` réutilisant les relations existantes ne force aucune
@@ -735,3 +765,16 @@ Ces conséquences sont des critères architecturaux, pas un découpage de commit
     contexte logique d'une décision en est dérivé sans que 7.10.1 en fixe la granularité physique.
 35. À target type, faits et action identiques, les chemins write et read produisent la même décision
     métier.
+36. `CREATE_EXPENSE` avec une cible `EXPENSE` prospective et des faits Pot suffisants : `ALLOW` si
+    toutes les capabilities requises sont présentes ; l'ID est choisi ensuite par le domaine.
+37. `ADD_SHAREHOLDER` avec une cible `SHAREHOLDER` prospective et `IS_POT_CREATOR` : `ALLOW` si
+    toutes les capabilities requises sont présentes ; un batch ne nécessite qu'une décision.
+38. `UPDATE_SHAREHOLDER_DETAILS` avec une cible prospective : `DENY(CONFIGURATION_ERROR)`.
+39. Une action visant une Expense existante mais recevant une cible prospective :
+    `DENY(CONFIGURATION_ERROR)`.
+40. Une capability supplémentaire présente dans `RequiredCurrentCapabilities` mais absente du token :
+    `DENY(MISSING_CAPABILITY)`.
+41. Aucun test du lot n'exige de préallouer un `ExpenseId` ou un `ShareholderId` avant une action de
+    création.
+42. Pour un batch target-specific visant des objets existants, toutes les décisions sont calculées
+    depuis le même état pré-mutation et aucune mutation ne précède leur réussite complète.

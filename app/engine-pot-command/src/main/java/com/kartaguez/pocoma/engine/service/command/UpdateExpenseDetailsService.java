@@ -4,7 +4,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Label;
@@ -30,7 +32,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final ExpenseHeaderPort replaceExpenseHeaderPort;
 	private final EventPublisherPort publishExpenseDetailsUpdatedEventPort;
-	private final UpdateExpenseDetailsAuthorizationPolicy updateExpenseDetailsAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	UpdateExpenseDetailsService(
 			ExpenseContextPort loadUpdateExpenseDetailsContextPort,
@@ -38,7 +40,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			ExpenseHeaderPort replaceExpenseHeaderPort,
 			EventPublisherPort publishExpenseDetailsUpdatedEventPort,
-			UpdateExpenseDetailsAuthorizationPolicy updateExpenseDetailsAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadUpdateExpenseDetailsContextPort = Objects.requireNonNull(
 				loadUpdateExpenseDetailsContextPort,
 				"loadUpdateExpenseDetailsContextPort must not be null");
@@ -54,9 +56,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		this.publishExpenseDetailsUpdatedEventPort = Objects.requireNonNull(
 				publishExpenseDetailsUpdatedEventPort,
 				"publishExpenseDetailsUpdatedEventPort must not be null");
-		this.updateExpenseDetailsAuthorizationPolicy = Objects.requireNonNull(
-				updateExpenseDetailsAuthorizationPolicy,
-				"updateExpenseDetailsAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -78,11 +78,14 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		context.assertUpdatePreconditions(command.expectedVersion(), payerId);
 
 		// 4. Check that the current user is allowed to update this expense.
-		updateExpenseDetailsAuthorizationPolicy.assertCanUpdateExpenseDetails(
+		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
-				context.creatorId(),
-				Set.of());
+				new PotAuthorizationRelations(potId, context.creatorId(), context.shareholderUsers()),
+				AuthorizationTarget.existing(expenseId),
+				PotAction.UPDATE_EXPENSE_DETAILS,
+				"EXPENSE_DETAILS_UPDATE_FORBIDDEN",
+				"Only the pot creator or a shareholder can update expense details");
 
 		// 5. Load the full expense header active at the explicit working version.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

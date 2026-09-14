@@ -1,9 +1,12 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
+import java.util.Map;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
@@ -24,7 +27,7 @@ final class DeletePotService implements DeletePotUseCase {
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final PotHeaderPort replacePotHeaderPort;
 	private final EventPublisherPort publishPotDeletedEventPort;
-	private final DeletePotAuthorizationPolicy deletePotAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	DeletePotService(
 			PotContextPort loadDeletePotContextPort,
@@ -32,7 +35,7 @@ final class DeletePotService implements DeletePotUseCase {
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			PotHeaderPort replacePotHeaderPort,
 			EventPublisherPort publishPotDeletedEventPort,
-			DeletePotAuthorizationPolicy deletePotAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadDeletePotContextPort = Objects.requireNonNull(
 				loadDeletePotContextPort,
 				"loadDeletePotContextPort must not be null");
@@ -44,9 +47,7 @@ final class DeletePotService implements DeletePotUseCase {
 		this.publishPotDeletedEventPort = Objects.requireNonNull(
 				publishPotDeletedEventPort,
 				"publishPotDeletedEventPort must not be null");
-		this.deletePotAuthorizationPolicy = Objects.requireNonNull(
-				deletePotAuthorizationPolicy,
-				"deletePotAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -66,7 +67,10 @@ final class DeletePotService implements DeletePotUseCase {
 		context.assertDeletePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to delete this pot.
-		deletePotAuthorizationPolicy.assertCanDeletePot(userContext.userId(), userContext.permissions(), context.creatorId());
+		authorizationGuard.assertAuthorized(userContext.userId(), userContext.permissions(),
+				new PotAuthorizationRelations(potId, context.creatorId(), Map.of()),
+				AuthorizationTarget.existing(potId), PotAction.DELETE_POT,
+				"POT_DELETE_FORBIDDEN", "Only the pot creator can delete the pot");
 
 		// 5. Load the full pot header active at the explicit working version.
 		PotHeader currentPotHeader = Objects.requireNonNull(

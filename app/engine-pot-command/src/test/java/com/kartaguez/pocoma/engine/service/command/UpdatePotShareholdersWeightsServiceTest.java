@@ -13,7 +13,6 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -47,7 +46,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 				updatePotGlobalVersionPort,
 				replacePotShareholdersPort,
 				publishEventPort,
-				new UpdatePotShareholdersWeightsAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		PotShareholdersSnapshot snapshot = service.updatePotShareholdersWeights(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -189,7 +188,7 @@ class UpdatePotShareholdersWeightsServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingPotShareholdersPort(),
 					new FakeEventPublisherPort(),
-					new UpdatePotShareholdersWeightsAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

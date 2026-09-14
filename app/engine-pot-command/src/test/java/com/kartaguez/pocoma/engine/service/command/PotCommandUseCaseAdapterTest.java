@@ -27,16 +27,7 @@ import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -230,7 +221,7 @@ class PotCommandUseCaseAdapterTest {
 					}
 				}, shareholders, new PotGlobalVersionPort() {
 					@Override public void updateIfActive(PotGlobalVersion current, PotGlobalVersion next) { }
-				}, new AddPotShareholdersAuthorizationPolicy());
+				}, new PotAuthorizationGuard());
 
 		CommandUseCaseResult.Succeeded result = assertInstanceOf(CommandUseCaseResult.Succeeded.class,
 				adapter.execute(authorization(Set.of(new Permission("SHAREHOLDER", "CREATE"))),
@@ -259,22 +250,22 @@ class PotCommandUseCaseAdapterTest {
 		List<CommandUseCase<?>> adapters = List.of(
 				new CreatePotCommandUseCaseAdapter(versions, potHeaders, new CreatePotAuthorizationPolicy()),
 				new CreateExpenseCommandUseCaseAdapter(potContexts, versions, expenseHeaders, expenseShares,
-						new CreateExpenseAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new AddPotShareholdersCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new AddPotShareholdersAuthorizationPolicy()),
-				new DeletePotCommandUseCaseAdapter(potContexts, potHeaders, versions, new DeletePotAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
+				new DeletePotCommandUseCaseAdapter(potContexts, potHeaders, versions, new PotAuthorizationGuard()),
 				new DeleteExpenseCommandUseCaseAdapter(expenseContexts, expenseHeaders, versions,
-						new DeleteExpenseAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new UpdatePotDetailsCommandUseCaseAdapter(potContexts, potHeaders, versions,
-						new UpdatePotDetailsAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new UpdateExpenseDetailsCommandUseCaseAdapter(expenseContexts, expenseHeaders, versions,
-						new UpdateExpenseDetailsAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new UpdateExpenseSharesCommandUseCaseAdapter(expenseContexts, expenseShares, versions,
-						new UpdateExpenseSharesAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new UpdatePotShareholdersDetailsCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new UpdatePotShareholdersDetailsAuthorizationPolicy()),
+						new PotAuthorizationGuard()),
 				new UpdatePotShareholdersWeightsCommandUseCaseAdapter(potContexts, shareholders, versions,
-						new UpdatePotShareholdersWeightsAuthorizationPolicy()));
+						new PotAuthorizationGuard()));
 
 		new CommandDispatcher(adapters);
 		assertEquals(10, adapters.stream().map(CommandUseCase::commandClass).distinct().count());

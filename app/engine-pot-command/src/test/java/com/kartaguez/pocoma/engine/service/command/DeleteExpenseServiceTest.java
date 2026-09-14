@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -48,7 +47,7 @@ class DeleteExpenseServiceTest {
 				updatePotGlobalVersionPort,
 				replaceExpenseHeaderPort,
 				publishExpenseDeletedEventPort,
-				new DeleteExpenseAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		ExpenseHeaderSnapshot snapshot = service.deleteExpense(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -96,7 +95,7 @@ class DeleteExpenseServiceTest {
 		DeleteExpenseService service = new DeleteExpenseService(
 				new FakeExpenseContextPort(new DeleteExpenseContext(
 						new PotGlobalVersion(fixture.potId, 3), false, true, fixture.creatorId)),
-				headers, versions, writes, events, new DeleteExpenseAuthorizationPolicy());
+				headers, versions, writes, events, new PotAuthorizationGuard());
 
 		BusinessRuleViolationException exception = assertThrows(BusinessRuleViolationException.class,
 				() -> service.deleteExpense(new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -169,7 +168,7 @@ class DeleteExpenseServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingExpenseHeaderPort(),
 					new FakeEventPublisherPort(),
-					new DeleteExpenseAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

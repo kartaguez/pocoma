@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.context;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,35 +54,44 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 	@Transactional(readOnly = true)
 	public DeleteExpenseContext loadDeleteExpenseContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+		ShareholderRelations shareholderRelations = loadShareholderRelations(
+				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
 		return new DeleteExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()));
+				UserId.of(contextData.potHeader().creatorId()),
+				shareholderRelations.shareholderUsers());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+		ShareholderRelations shareholderRelations = loadShareholderRelations(
+				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
 		return new UpdateExpenseDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				loadShareholderIds(contextData.expenseHeader().potId(), contextData.potGlobalVersion().version()));
+				shareholderRelations.shareholderIds(),
+				shareholderRelations.shareholderUsers());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public UpdateExpenseSharesContext loadUpdateExpenseSharesContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+		ShareholderRelations shareholderRelations = loadShareholderRelations(
+				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
 		return new UpdateExpenseSharesContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				loadShareholderIds(contextData.expenseHeader().potId(), contextData.potGlobalVersion().version()));
+				shareholderRelations.shareholderIds(),
+				shareholderRelations.shareholderUsers());
 	}
 
 	private ExpenseContextData loadExpenseContextData(ExpenseId expenseId) {
@@ -104,15 +114,27 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 		return new ExpenseContextData(potGlobalVersion, expenseHeader, potHeader);
 	}
 
-	private Set<ShareholderId> loadShareholderIds(PotId potId, long version) {
-		return shareholderRepository.findActiveNotDeletedAtVersion(potId.value(), version).stream()
+	private ShareholderRelations loadShareholderRelations(PotId potId, long version) {
+		var shareholders = shareholderRepository.findActiveNotDeletedAtVersion(potId.value(), version);
+		Set<ShareholderId> shareholderIds = shareholders.stream()
 				.map(shareholder -> ShareholderId.of(shareholder.shareholderId()))
 				.collect(Collectors.toUnmodifiableSet());
+		Map<ShareholderId, UserId> shareholderUsers = shareholders.stream()
+				.filter(shareholder -> shareholder.userId() != null)
+				.collect(Collectors.toUnmodifiableMap(
+						shareholder -> ShareholderId.of(shareholder.shareholderId()),
+						shareholder -> UserId.of(shareholder.userId())));
+		return new ShareholderRelations(shareholderIds, shareholderUsers);
 	}
 
 	private record ExpenseContextData(
 			PotGlobalVersion potGlobalVersion,
 			ExpenseHeader expenseHeader,
 			JpaPotHeaderEntity potHeader) {
+	}
+
+	private record ShareholderRelations(
+			Set<ShareholderId> shareholderIds,
+			Map<ShareholderId, UserId> shareholderUsers) {
 	}
 }

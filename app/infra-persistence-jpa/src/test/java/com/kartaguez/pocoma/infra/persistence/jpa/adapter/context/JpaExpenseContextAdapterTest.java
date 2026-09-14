@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,9 @@ class JpaExpenseContextAdapterTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
 		UserId creatorId = UserId.of(UUID.randomUUID());
+		UserId memberId = UserId.of(UUID.randomUUID());
 		Shareholder payer = shareholder(potId);
-		Shareholder activeShareholder = shareholder(potId);
+		Shareholder activeShareholder = shareholder(potId, false, memberId);
 		Shareholder inactiveShareholder = shareholder(potId);
 		Shareholder deletedShareholder = shareholder(potId, true);
 		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 4)));
@@ -93,6 +95,7 @@ class JpaExpenseContextAdapterTest {
 		assertEquals(false, context.deleted());
 		assertEquals(creatorId, context.creatorId());
 		assertEquals(Set.of(payer.id(), activeShareholder.id()), context.shareholderIds());
+		assertEquals(Map.of(activeShareholder.id(), memberId), context.shareholderUsers());
 	}
 
 	@Test
@@ -136,12 +139,16 @@ class JpaExpenseContextAdapterTest {
 	}
 
 	private static Shareholder shareholder(PotId potId, boolean deleted) {
+		return shareholder(potId, deleted, null);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted, UserId userId) {
 		return Shareholder.reconstitute(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,
 				Name.of("Alice"),
 				Weight.of(Fraction.of(1, 1)),
-				null,
+				userId,
 				deleted);
 	}
 

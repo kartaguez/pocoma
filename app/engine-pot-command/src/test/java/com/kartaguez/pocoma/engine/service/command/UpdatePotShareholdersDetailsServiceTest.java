@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -47,7 +47,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 				updatePotGlobalVersionPort,
 				replacePotShareholdersPort,
 				publishEventPort,
-				new UpdatePotShareholdersDetailsAuthorizationPolicy());
+				new PotAuthorizationGuard());
 		UUID linkedUserId = UUID.randomUUID();
 
 		PotShareholdersSnapshot snapshot = service.updatePotShareholdersDetails(
@@ -143,6 +143,22 @@ class UpdatePotShareholdersDetailsServiceTest {
 		assertFalse(loadPotShareholdersPort.loaded);
 	}
 
+	@Test
+	void allowsTheLinkedShareholderToUpdateTheirOwnExistingTarget() {
+		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
+		UserId linkedUser = UserId.of(UUID.randomUUID());
+		UpdatePotShareholdersDetailsContext context = new UpdatePotShareholdersDetailsContext(
+				new PotGlobalVersion(fixture.potId, 3), false, fixture.creatorId,
+				Set.of(fixture.shareholderId), Map.of(fixture.shareholderId, linkedUser));
+		UpdatePotShareholdersDetailsService service = fixture.service(context);
+
+		PotShareholdersSnapshot snapshot = service.updatePotShareholdersDetails(
+				new UserContext(linkedUser, fixture.userPermissions),
+				fixture.command(fixture.shareholderId, 3));
+
+		assertEquals(4, snapshot.version());
+	}
+
 	private static final class UpdatePotShareholdersDetailsFixture {
 		private final PotId potId = PotId.of(UUID.randomUUID());
 		private final UserId creatorId = UserId.of(UUID.randomUUID());
@@ -191,7 +207,7 @@ class UpdatePotShareholdersDetailsServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingPotShareholdersPort(),
 					new FakeEventPublisherPort(),
-					new UpdatePotShareholdersDetailsAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

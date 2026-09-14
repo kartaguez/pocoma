@@ -22,6 +22,7 @@ class HexagonalArchitectureTest {
 	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
+	private static final String POT_AUTHORIZATION_PACKAGE = ROOT_PACKAGE + ".domain.pot.authorization..";
 	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
 			+ ".domain.projection.balance..";
 	private static final String PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection..";
@@ -75,6 +76,23 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".runtime..",
 						"org.springframework..",
 						"jakarta.persistence..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void potAuthorizationKernelRemainsPureAndProviderNeutral() {
+		noClasses()
+				.that().resideInAPackage(POT_AUTHORIZATION_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".orchestrator..",
+						ROOT_PACKAGE + ".pipeline..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"com.fasterxml.jackson..")
 				.check(CLASSES);
 	}
 

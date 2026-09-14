@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -46,7 +45,7 @@ class UpdateExpenseDetailsServiceTest {
 				updatePotGlobalVersionPort,
 				replaceExpenseHeaderPort,
 				publishEventPort,
-				new UpdateExpenseDetailsAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		ExpenseHeaderSnapshot snapshot = service.updateExpenseDetails(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -179,7 +178,7 @@ class UpdateExpenseDetailsServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingExpenseHeaderPort(),
 					new FakeEventPublisherPort(),
-					new UpdateExpenseDetailsAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

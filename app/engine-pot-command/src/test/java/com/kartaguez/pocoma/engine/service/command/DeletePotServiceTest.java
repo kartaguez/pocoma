@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -41,7 +40,7 @@ class DeletePotServiceTest {
 				updatePotGlobalVersionPort,
 				replacePotHeaderPort,
 				publishPotDeletedEventPort,
-				new DeletePotAuthorizationPolicy());
+				new PotAuthorizationGuard());
 
 		PotHeaderSnapshot snapshot = deletePotService.deletePot(
 				new UserContext(fixture.creatorId, fixture.userPermissions),
@@ -169,7 +168,7 @@ class DeletePotServiceTest {
 					new FakePotGlobalVersionPort(),
 					new FakeRecordingPotHeaderPort(),
 					new FakeEventPublisherPort(),
-					new DeletePotAuthorizationPolicy());
+					new PotAuthorizationGuard());
 		}
 	}
 

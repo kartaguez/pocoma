@@ -1,10 +1,11 @@
 package com.kartaguez.pocoma.engine.service.command;
 
 import java.util.Objects;
-import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
@@ -26,7 +27,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final ExpenseHeaderPort replaceExpenseHeaderPort;
 	private final EventPublisherPort publishExpenseDeletedEventPort;
-	private final DeleteExpenseAuthorizationPolicy deleteExpenseAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	DeleteExpenseService(
 			ExpenseContextPort loadDeleteExpenseContextPort,
@@ -34,7 +35,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			ExpenseHeaderPort replaceExpenseHeaderPort,
 			EventPublisherPort publishExpenseDeletedEventPort,
-			DeleteExpenseAuthorizationPolicy deleteExpenseAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadDeleteExpenseContextPort = Objects.requireNonNull(
 				loadDeleteExpenseContextPort,
 				"loadDeleteExpenseContextPort must not be null");
@@ -50,9 +51,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		this.publishExpenseDeletedEventPort = Objects.requireNonNull(
 				publishExpenseDeletedEventPort,
 				"publishExpenseDeletedEventPort must not be null");
-		this.deleteExpenseAuthorizationPolicy = Objects.requireNonNull(
-				deleteExpenseAuthorizationPolicy,
-				"deleteExpenseAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -73,11 +72,14 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		context.assertDeletePreconditions(command.expectedVersion());
 
 		// 4. Check that the current user is allowed to delete this expense.
-		deleteExpenseAuthorizationPolicy.assertCanDeleteExpense(
+		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
-				Set.of(),
-				context.creatorId());
+				new PotAuthorizationRelations(potId, context.creatorId(), context.shareholderUsers()),
+				AuthorizationTarget.existing(expenseId),
+				PotAction.DELETE_EXPENSE,
+				"EXPENSE_DELETE_FORBIDDEN",
+				"Only the pot creator or a shareholder can delete an expense");
 
 		// 5. Load the full expense header active at the explicit working version.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

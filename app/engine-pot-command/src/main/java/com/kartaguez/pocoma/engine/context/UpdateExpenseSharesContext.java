@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.engine.context;
 
 import java.util.Objects;
+import java.util.Map;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
@@ -14,15 +15,22 @@ public record UpdateExpenseSharesContext(
 		boolean deleted,
 		boolean potDeleted,
 		UserId creatorId,
-		Set<ShareholderId> shareholderIds) {
+		Set<ShareholderId> shareholderIds,
+		Map<ShareholderId, UserId> shareholderUsers) {
 
 	public UpdateExpenseSharesContext(PotGlobalVersion version, boolean deleted, UserId creatorId,
-			Set<ShareholderId> shareholderIds) { this(version, deleted, false, creatorId, shareholderIds); }
+			Set<ShareholderId> shareholderIds) { this(version, deleted, false, creatorId, shareholderIds, Map.of()); }
+
+	public UpdateExpenseSharesContext(PotGlobalVersion version, boolean deleted, boolean potDeleted,
+			UserId creatorId, Set<ShareholderId> shareholderIds) {
+		this(version, deleted, potDeleted, creatorId, shareholderIds, Map.of());
+	}
 
 	public UpdateExpenseSharesContext {
 		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
 		shareholderIds = Set.copyOf(Objects.requireNonNull(shareholderIds, "shareholderIds must not be null"));
+		shareholderUsers = Map.copyOf(Objects.requireNonNull(shareholderUsers, "shareholderUsers must not be null"));
 	}
 
 	public void assertUpdatePreconditions(long expectedVersion, Set<ShareholderId> expenseShareholderIds) {

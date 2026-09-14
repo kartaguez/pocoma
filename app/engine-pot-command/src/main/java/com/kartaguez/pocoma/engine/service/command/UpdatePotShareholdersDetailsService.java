@@ -5,7 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
+import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
+import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -29,7 +31,7 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 	private final PotGlobalVersionPort updatePotGlobalVersionPort;
 	private final PotShareholdersPort replacePotShareholdersPort;
 	private final EventPublisherPort publishPotShareholdersDetailsUpdatedEventPort;
-	private final UpdatePotShareholdersDetailsAuthorizationPolicy updatePotShareholdersDetailsAuthorizationPolicy;
+	private final PotAuthorizationGuard authorizationGuard;
 
 	UpdatePotShareholdersDetailsService(
 			PotContextPort loadUpdatePotShareholdersDetailsContextPort,
@@ -37,7 +39,7 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 			PotGlobalVersionPort updatePotGlobalVersionPort,
 			PotShareholdersPort replacePotShareholdersPort,
 			EventPublisherPort publishPotShareholdersDetailsUpdatedEventPort,
-			UpdatePotShareholdersDetailsAuthorizationPolicy updatePotShareholdersDetailsAuthorizationPolicy) {
+			PotAuthorizationGuard authorizationGuard) {
 		this.loadUpdatePotShareholdersDetailsContextPort = Objects.requireNonNull(
 				loadUpdatePotShareholdersDetailsContextPort,
 				"loadUpdatePotShareholdersDetailsContextPort must not be null");
@@ -53,9 +55,7 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 		this.publishPotShareholdersDetailsUpdatedEventPort = Objects.requireNonNull(
 				publishPotShareholdersDetailsUpdatedEventPort,
 				"publishPotShareholdersDetailsUpdatedEventPort must not be null");
-		this.updatePotShareholdersDetailsAuthorizationPolicy = Objects.requireNonNull(
-				updatePotShareholdersDetailsAuthorizationPolicy,
-				"updatePotShareholdersDetailsAuthorizationPolicy must not be null");
+		this.authorizationGuard = Objects.requireNonNull(authorizationGuard, "authorizationGuard must not be null");
 	}
 
 	@Override
@@ -80,11 +80,18 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 		context.assertUpdatePreconditions(command.expectedVersion(), updatedShareholderIds);
 
 		// 4. Check that the current user is allowed to update shareholders details.
-		updatePotShareholdersDetailsAuthorizationPolicy.assertCanUpdatePotShareholdersDetails(
-				userContext.userId(),
-				userContext.permissions(),
-				context.creatorId(),
-				null);
+		PotAuthorizationRelations authorizationRelations = new PotAuthorizationRelations(
+				potId, context.creatorId(), context.shareholderUsers());
+		for (ShareholderId shareholderId : updatedShareholderIds) {
+			authorizationGuard.assertAuthorized(
+					userContext.userId(),
+					userContext.permissions(),
+					authorizationRelations,
+					AuthorizationTarget.existing(shareholderId),
+					PotAction.UPDATE_SHAREHOLDER_DETAILS,
+					"POT_SHAREHOLDERS_DETAILS_UPDATE_FORBIDDEN",
+					"Only the pot creator or the shareholder themselves can update shareholder details");
+		}
 
 		// 5. Load the full pot shareholders aggregate active at the explicit working version.
 		PotShareholders currentPotShareholders = Objects.requireNonNull(

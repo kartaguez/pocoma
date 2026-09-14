@@ -1,15 +1,6 @@
 package com.kartaguez.pocoma.engine.service.command;
 
-import com.kartaguez.pocoma.domain.pot.policy.AddPotShareholdersAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.CreateExpenseAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeleteExpenseAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.DeletePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdateExpenseSharesAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersDetailsAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.pot.policy.UpdatePotShareholdersWeightsAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.AddPotShareholdersUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreateExpenseUseCase;
 import com.kartaguez.pocoma.engine.port.in.command.usecase.CreatePotUseCase;
@@ -49,7 +40,7 @@ final class PotBusinessUseCaseFactory {
 			ExpenseHeaderPort headers,
 			ExpenseSharesPort shares,
 			EventPublisherPort events,
-			CreateExpenseAuthorizationPolicy policy) {
+			PotAuthorizationGuard policy) {
 		return new CreateExpenseService(contexts, versions, headers, shares, events, policy);
 	}
 
@@ -58,45 +49,45 @@ final class PotBusinessUseCaseFactory {
 			PotShareholdersPort shareholders,
 			PotGlobalVersionPort versions,
 			EventPublisherPort events,
-			AddPotShareholdersAuthorizationPolicy policy) {
+			PotAuthorizationGuard policy) {
 		return new AddPotShareholdersService(contexts, shareholders, versions, shareholders, events, policy);
 	}
 
 	static DeletePotUseCase deletePot(PotContextPort contexts, PotHeaderPort headers,
-			PotGlobalVersionPort versions, EventPublisherPort events, DeletePotAuthorizationPolicy policy) {
+			PotGlobalVersionPort versions, EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new DeletePotService(contexts, headers, versions, headers, events, policy);
 	}
 
 	static DeleteExpenseUseCase deleteExpense(ExpenseContextPort contexts, ExpenseHeaderPort headers,
-			PotGlobalVersionPort versions, EventPublisherPort events, DeleteExpenseAuthorizationPolicy policy) {
+			PotGlobalVersionPort versions, EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new DeleteExpenseService(contexts, headers, versions, headers, events, policy);
 	}
 
 	static UpdatePotDetailsUseCase updatePotDetails(PotContextPort contexts, PotHeaderPort headers,
-			PotGlobalVersionPort versions, EventPublisherPort events, UpdatePotDetailsAuthorizationPolicy policy) {
+			PotGlobalVersionPort versions, EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new UpdatePotDetailsService(contexts, headers, versions, headers, events, policy);
 	}
 
 	static UpdateExpenseDetailsUseCase updateExpenseDetails(ExpenseContextPort contexts, ExpenseHeaderPort headers,
-			PotGlobalVersionPort versions, EventPublisherPort events, UpdateExpenseDetailsAuthorizationPolicy policy) {
+			PotGlobalVersionPort versions, EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new UpdateExpenseDetailsService(contexts, headers, versions, headers, events, policy);
 	}
 
 	static UpdateExpenseSharesUseCase updateExpenseShares(ExpenseContextPort contexts, ExpenseSharesPort shares,
-			PotGlobalVersionPort versions, EventPublisherPort events, UpdateExpenseSharesAuthorizationPolicy policy) {
+			PotGlobalVersionPort versions, EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new UpdateExpenseSharesService(contexts, shares, versions, shares, events, policy);
 	}
 
 	static UpdatePotShareholdersDetailsUseCase updateShareholderDetails(
 			PotContextPort contexts, PotShareholdersPort shareholders, PotGlobalVersionPort versions,
-			EventPublisherPort events, UpdatePotShareholdersDetailsAuthorizationPolicy policy) {
+			EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new UpdatePotShareholdersDetailsService(
 				contexts, shareholders, versions, shareholders, events, policy);
 	}
 
 	static UpdatePotShareholdersWeightsUseCase updateShareholderWeights(
 			PotContextPort contexts, PotShareholdersPort shareholders, PotGlobalVersionPort versions,
-			EventPublisherPort events, UpdatePotShareholdersWeightsAuthorizationPolicy policy) {
+			EventPublisherPort events, PotAuthorizationGuard policy) {
 		return new UpdatePotShareholdersWeightsService(
 				contexts, shareholders, versions, shareholders, events, policy);
 	}
