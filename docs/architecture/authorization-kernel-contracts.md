@@ -27,6 +27,7 @@ une raison de contredire la cible.
 Le lot définit uniquement :
 
 - les capacités courantes présentées à une requête ;
+- le petit modèle de relations historiques que `AUTH(V)` doit représenter conceptuellement ;
 - les types de cibles et les faits métier nécessaires à l'autorisation ;
 - le contrat logique des faits résolus pour une décision à une version ;
 - les intentions métier autorisables ;
@@ -54,24 +55,28 @@ d'implémentation détaillé.
    un moteur RBAC générique.
 3. Les capacités du token sont courantes et provider-neutral. Elles ne sont jamais historisées par
    businessVersion et ne sont jamais persistées dans `AUTH(V)`.
-4. `AUTH(V)` historise des faits métier nécessaires à l'autorisation, jamais le résultat d'une
-   policy d'autorisation.
+4. `AUTH(V)` historise les relations structurelles nécessaires à l'autorisation, jamais une liste
+   croissante de faits dérivés ni le résultat d'une policy d'autorisation.
 5. Le contrat logique des faits sélectionnés pour une décision ne préjuge ni de la granularité ni du
    layout physique de l'artifact complet `AUTH(V)`.
 6. Aucun scope, rôle IAM, capability, droit dérivé ou résultat de policy n'appartient à `AUTH(V)`.
-7. Le catalogue des faits d'autorisation peut évoluer lorsque de nouvelles règles métier l'exigent,
+7. `AuthorizationFacts` est une vue éphémère calculée pour une décision à partir du modèle de
+   relations d'autorisation, de l'utilisateur courant et de la cible.
+8. Une donnée métier n'entre pas dans `AUTH(V)` simplement parce qu'une future règle d'autorisation
+   pourrait la consulter.
+9. Le catalogue des faits d'autorisation peut évoluer lorsque de nouvelles règles métier l'exigent,
    mais chaque fait est explicitement typé, possède une sémantique métier stable et n'est introduit
    que s'il est nécessaire à au moins une policy réelle.
-8. La policy métier Pot est pure, unique et partagée entre write side et read side.
-9. Une action est une intention métier stable. Elle n'encode ni endpoint, ni scope, ni mécanisme
+10. La policy métier Pot est pure, unique et partagée entre write side et read side.
+11. Une action est une intention métier stable. Elle n'encode ni endpoint, ni scope, ni mécanisme
    technique, ni historicité.
-10. L'historicité est une propriété de la requête et des capacités courantes requises, pas une
+12. L'historicité est une propriété de la requête et des capacités courantes requises, pas une
     variante de l'action métier.
-11. `AuthorizationKernel`, `TokenCapabilityPolicy` et `PotBusinessAuthorizationPolicy` ne reçoivent
+13. `AuthorizationKernel`, `TokenCapabilityPolicy` et `PotBusinessAuthorizationPolicy` ne reçoivent
     jamais `CURRENT`, `EXACT(V)`, un mode historique ou une businessVersion à sélectionner.
-12. Une action sans mapping explicite vers ses capacités requises est refusée par défaut et produit
+14. Une action sans mapping explicite vers ses capacités requises est refusée par défaut et produit
     un diagnostic interne de configuration.
-13. `AuthorizationDecision` exprime uniquement le résultat de la policy d'autorisation sur des
+15. `AuthorizationDecision` exprime uniquement le résultat de la policy d'autorisation sur des
     entrées déjà disponibles. Elle ne transporte aucun état de projection ou de convergence.
 
 ## 4. Modèle conceptuel
@@ -87,11 +92,17 @@ application orchestration
   ajoute VIEW_ARCHIVE lorsque l'intention de requête l'exige
   -> required current capabilities
 
-source de faits
-  write side courant -> AuthorizationTargetType + AuthorizationFacts
-  read side AUTH(V)  -> sélection pour user + target
-                     -> PotAuthorizationAtVersion
-                     -> AuthorizationTargetType + AuthorizationFacts
+source de relations et dérivation des faits
+  write side current domain state
+    -> current authorization relation model
+    -> derive(current userId, AuthorizationTarget)
+    -> AuthorizationFacts
+
+  read side AUTH(V)
+    -> historical authorization relation model at V
+    -> derive(current userId, AuthorizationTarget)
+    -> PotAuthorizationAtVersion
+    -> AuthorizationFacts
 
 AuthorizationKernel
   TokenCapabilityPolicy(TokenCapabilities, required current capabilities)
@@ -99,7 +110,8 @@ AuthorizationKernel
   -> AuthorizationDecision
 ```
 
-La résolution de version, le chargement des données et la sélection des faits précèdent la décision.
+La résolution de version, le chargement du modèle de relations et la dérivation des faits précèdent
+la décision.
 Le kernel ne charge ni token, ni Pot, ni artifact et ne résout aucune version. Il reçoit l'ensemble
 des capacités requises déjà déterminé et ignore pourquoi chacune d'elles est requise.
 
@@ -143,15 +155,60 @@ autorisant des « scopes historiques » par businessVersion.
 
 ## 6. `AUTH(V)` et `PotAuthorizationAtVersion`
 
-`AUTH(V)` est l'artifact read-side complet et exact du Pot à la businessVersion V, conformément à
-`read-side-target.md` :
+### Modèle historique de relations d'autorisation
+
+`AUTH(V)` est l'artifact read-side complet et exact du modèle relationnel historique d'autorisation
+du Pot à la businessVersion V. Son contenu conceptuel minimal est :
 
 ```text
 AUTH(V)
-= snapshot complet et exact de isMember/isCreator à V
+  potId
+  businessVersion
+  creatorUserId
+  activeShareholders
+    shareholderId -> userId
 ```
 
-Le présent document ne redéfinit pas la granularité physique de cet artifact.
+Ce petit modèle conserve les relations d'identité, de propriété et d'appartenance nécessaires aux
+policies actuelles. Il permet d'établir au minimum `IS_POT_CREATOR`, `IS_POT_MEMBER` et
+`IS_TARGET_SHAREHOLDER` sans persister ces booléens comme une matrice de faits ou de droits.
+
+La formulation de `read-side-target.md` — « snapshot complet et exact de isMember/isCreator à V » —
+reste vraie au niveau fonctionnel : la relation `creatorUserId` établit la qualité de créateur et les
+relations `shareholderId -> userId` des Shareholders actifs établissent l'appartenance. Le présent
+document spécialisé précise le modèle relationnel minimal qui permet de dériver ces qualités ; il ne
+change ni l'autorité ni les invariants de l'architecture read-side.
+
+La représentation physique de l'artifact n'est pas fixée ici. En particulier, 7.10.1 ne décide ni sa
+structure SQL, ni son nombre de lignes, ni sa forme sérialisée, ni son layout, ni son indexation.
+
+> **Invariant :** `AUTH(V)` persiste les relations structurelles historiques nécessaires à
+> l'autorisation, pas une liste croissante de faits dérivés ni de résultats de policy.
+
+### Frontière avec le modèle métier
+
+Une donnée appartient à `AUTH(V)` si elle décrit une relation structurelle d'autorisation entre une
+identité et le Pot ou l'un de ses sous-objets. Le modèle actuel admet donc :
+
+- `creatorUserId` ;
+- les identités utilisateur membres du Pot ;
+- la relation `shareholderId -> userId` pour les Shareholders actifs.
+
+Restent explicitement hors d'`AUTH(V)` :
+
+- montant, statut ou catégorie d'une Expense ;
+- poids d'un Shareholder ;
+- devise, nom ou autre valeur métier du Pot sans rapport avec identité, propriété ou appartenance ;
+- toute autre valeur métier générale sans relation structurelle d'autorisation.
+
+Même si une future policy pouvait consulter l'une de ces données, ce seul usage potentiel ne justifie
+pas son ajout à `AUTH(V)`. Une évolution de policy doit d'abord établir le besoin et la bonne frontière
+du modèle ; elle ne transforme jamais automatiquement AUTH en réplique du domaine Pot.
+
+> **Invariant :** une donnée métier n'entre pas dans `AUTH(V)` simplement parce qu'une future règle
+> d'autorisation pourrait la consulter.
+
+### Contexte logique d'une décision historique
 
 `PotAuthorizationAtVersion` est un contrat logique de faits déjà sélectionnés pour une décision
 concernant un utilisateur, un Pot, une businessVersion et une cible :
@@ -163,6 +220,7 @@ PotAuthorizationAtVersion
   userId
   target
     targetType
+    targetId
   facts
     Set<AuthorizationFact>
 ```
@@ -172,10 +230,13 @@ un document sérialisé ni l'artifact persistant lui-même. `potId`, `businessVe
 cible permettent de désigner et de vérifier les bons faits ; la policy métier reçoit ensuite
 seulement `targetType`, les faits sélectionnés et l'action.
 
-Le contrat des faits d'autorisation pour une décision ne préjuge pas de la granularité physique de
-l'artifact `AUTH(V)`. `AUTH(V)` reste un snapshot complet du Pot à V conformément à
-`read-side-target.md`. La sélection des faits pertinents pour un utilisateur et une cible intervient
-lors de la lecture ou de la résolution de cet artifact.
+Les `AuthorizationFacts` de ce contrat sont dérivés de l'artifact, de `userId` et de la cible. Ils ne
+définissent pas la persistence d'`AUTH(V)` et ne doivent pas y être recopiés comme une matrice par
+utilisateur, cible et action.
+
+Le contrat logique d'une décision ne préjuge pas de la granularité physique de l'artifact. La
+sélection et la dérivation des faits pertinents pour un utilisateur et une cible interviennent lors
+de la lecture ou de la résolution d'`AUTH(V)`.
 
 Le contrat logique et l'artifact ne contiennent jamais :
 
@@ -184,13 +245,14 @@ Le contrat logique et l'artifact ne contiennent jamais :
 - résultat ou version d'une policy ;
 - état de readiness, failure, pipeline ou convergence.
 
-Conformément à la reconstruction historique canonique, la qualité de créateur est dérivable du
-`creator_id` du Pot à V et l'appartenance au Pot d'un Shareholder applicable à V, non supprimé et lié
-au `userId`. La production, la persistence, la structure SQL, la forme sérialisée, le nombre de lignes,
-le layout et l'indexation exacte de `AUTH(V)` appartiennent au Lot 7.10.3.
+Conformément à la reconstruction historique canonique, `creatorUserId` est reconstructible depuis le
+`creator_id` du Pot à V. Les relations actives `shareholderId -> userId` sont reconstructibles depuis
+les Shareholders applicables à V, non supprimés et liés à un utilisateur. Leur production et leur
+persistence exactes appartiennent au Lot 7.10.3.
 
-> **Invariant :** `AUTH(V)` historise des faits métier nécessaires à l'autorisation, jamais le
-> résultat d'une policy d'autorisation.
+> **Invariant :** `AUTH(V)` historise le petit modèle de relations métier nécessaire à
+> l'autorisation, jamais des capacités courantes, des faits dérivés persistés ou le résultat d'une
+> policy.
 
 ## 7. `AuthorizationTargetType` et `AuthorizationFacts`
 
@@ -217,14 +279,22 @@ Le contrat logique peut être représenté conceptuellement par :
 ```text
 AuthorizationTarget
   targetType
+  targetId
+
+POT         -> potId
+EXPENSE     -> expenseId
+SHAREHOLDER -> shareholderId
 ```
 
-La représentation physique Java et l'éventuelle identité portée par la cible ne sont pas fixées ici.
+Le type et l'identité logique de la cible sont obligatoires. La représentation Java exacte et le
+type technique de `targetId` ne sont pas fixés ici. La cohérence entre `targetType` et l'identité
+fournie est un invariant de contrat ; une cible sans identité exploitable ne peut pas produire une
+autorisation positive.
 
 ### Catalogue de faits
 
-`AuthorizationFacts` est un ensemble typé de faits métier établis pour l'utilisateur et la cible de
-la décision :
+`AuthorizationFacts` est une vue éphémère et typée des faits métier établis pour un utilisateur et
+une cible précis :
 
 ```text
 AuthorizationFacts
@@ -250,6 +320,39 @@ Pot exprimée par `IS_POT_MEMBER`.
 Le catalogue minimal n'inclut pas `IS_EXPENSE_CREATOR` : aucune règle métier actuelle n'en a besoin.
 Aucun fait spéculatif ne doit être introduit.
 
+Les faits sont calculés, jamais persistés comme matrice, à partir de :
+
+```text
+historical authorization relation model from AUTH(V)
++ current userId
++ AuthorizationTarget
+-> AuthorizationFacts
+
+ou, côté write :
+
+current authorization relation model from domain state
++ current userId
++ AuthorizationTarget
+-> AuthorizationFacts
+```
+
+Par exemple :
+
+```text
+IS_POT_CREATOR
+= relationModel.creatorUserId == currentUserId
+
+IS_POT_MEMBER
+= currentUserId appartient aux userId des activeShareholders
+
+IS_TARGET_SHAREHOLDER
+= target.targetType == SHAREHOLDER
+  && relationModel.activeShareholders[target.targetId] == currentUserId
+```
+
+> **Invariant :** `AuthorizationFacts` est une vue éphémère calculée pour une décision à partir du
+> modèle de relations d'autorisation, de l'utilisateur courant et de la cible.
+
 ### Faits attendus par type de cible
 
 ```text
@@ -274,9 +377,10 @@ Un fait absent est faux pour la décision. La source des faits doit néanmoins d
 établie d'une impossibilité à charger ou résoudre les faits : cette dernière est un état amont et ne
 doit pas être convertie silencieusement en décision métier.
 
-Le write side construit ces faits depuis l'état métier courant. Le read side les sélectionne depuis
-`AUTH(V)` pour l'utilisateur et la cible concernés. Les deux chemins doivent produire les mêmes faits
-pour une situation métier équivalente.
+Le write side construit d'abord le modèle courant de relations depuis l'état métier, puis en dérive
+les faits. Le read side lit le modèle historique depuis `AUTH(V)`, puis applique la même dérivation
+logique. Les deux chemins doivent produire les mêmes faits pour des relations, un utilisateur et une
+cible équivalents.
 
 ## 8. `PotAction`
 
@@ -370,7 +474,8 @@ AuthorizationTargetType
 
 Elle ne lit aucune base ni aucun token ; elle ne connaît ni HTTP, ni Keycloak, ni `CURRENT`, ni
 `EXACT`, ni mode historique, ni projection `AUTH`, ni readiness, ni convergence. Elle ne reçoit
-aucune capability.
+aucune capability. Elle ne dépend directement ni de l'artifact `AUTH(V)`, ni du modèle courant du
+write side : ces sources sont ramenées aux mêmes `AuthorizationFacts` avant son invocation.
 
 La matrice métier de base reprend les règles exprimées par les policies Pot actuelles :
 
@@ -510,28 +615,39 @@ elles ne produisent jamais un `ALLOW` par défaut.
 
 ## 15. Partage write/read
 
-Le partage porte sur la règle métier et ses entrées logiques, pas sur les mécanismes d'acquisition des
-données :
+Le partage porte sur la dérivation logique des faits et sur la policy métier, pas sur les mécanismes
+d'acquisition ou les représentations persistantes :
 
 ```text
 write side current Pot state
-  -> AuthorizationTargetType + AuthorizationFacts --+
-                                                      +-> PotBusinessAuthorizationPolicy
+  -> current authorization relation model
+  -> derive(current userId, AuthorizationTarget)
+  -> AuthorizationFacts -----------------------------+
+                                                      |
 read side AUTH(V)
+  -> historical authorization relation model
+  -> derive(current userId, AuthorizationTarget)
   -> PotAuthorizationAtVersion
-  -> AuthorizationTargetType + AuthorizationFacts --+
+  -> AuthorizationFacts -----------------------------+
+                                                      |
+                                                      v
+  AuthorizationTargetType + AuthorizationFacts + PotAction
+  -> PotBusinessAuthorizationPolicy
 ```
 
-À target type, faits et action identiques, les deux chemins doivent produire la même décision métier.
-Le write side peut conserver ses contraintes propres d'admission et de Command, mais il ne duplique
-pas la matrice métier. Le read side ne dépend pas d'un objet write-side ni l'inverse.
+À relations structurelles, utilisateur, cible et action équivalents, les deux chemins doivent produire
+les mêmes `AuthorizationFacts` et la même décision métier. Le write side peut conserver ses
+contraintes propres d'admission et de Command, mais il ne duplique ni la dérivation des faits ni la
+matrice métier. Le read side ne dépend pas d'un objet write-side ni l'inverse. La policy ne dépend
+jamais directement de l'artifact AUTH.
 
 ## 16. Ce qui est explicitement hors périmètre
 
 N'appartiennent pas au Lot 7.10.1 :
 
 - déclaration et scheduling du pipeline AUTH : 7.10.2 ;
-- production, reconstruction exacte et persistence de l'artifact complet `AUTH(V)` : 7.10.3 ;
+- production, reconstruction exacte et persistence du modèle historique de relations dans
+  l'artifact complet `AUTH(V)` : 7.10.3 ;
 - structure SQL, nombre de lignes, forme sérialisée, layout physique et indexation d'`AUTH(V)` :
   7.10.3 ;
 - lifecycle, éligibilité et sélection de la `pipelineVersion` serving d'AUTH : 7.10.4 avec 7.14 ;
@@ -549,11 +665,15 @@ Une implémentation conforme devra :
 - séparer des policies actuelles la vérification des capacités et la règle métier Pot ;
 - remplacer toute duplication write/read de la matrice métier par la policy pure partagée ;
 - représenter les types de cible et les faits par des catalogues typés, sans propriétés dynamiques ;
-- sélectionner les faits d'une décision sans assimiler ce contrat logique à l'artifact complet
-  `AUTH(V)` ;
+- porter le type et l'identité logique dans chaque `AuthorizationTarget` ;
+- dériver les faits d'une décision depuis le modèle de relations, l'utilisateur et la cible sans les
+  assimiler au contenu persistant de l'artifact complet `AUTH(V)` ;
+- limiter AUTH aux relations structurelles d'identité, de propriété et d'appartenance nécessaires,
+  sans y recopier les valeurs générales du domaine Pot ;
 - rendre le mapping de chaque `PotAction` explicite, central et exhaustivement testé ;
 - construire les capacités requises, y compris `VIEW_ARCHIVE`, avant l'appel au kernel ;
-- empêcher structurellement toute persistence de capacités ou de droits dérivés dans AUTH ;
+- empêcher structurellement toute persistence de capacités, de faits dérivés ou de droits calculés
+  dans AUTH ;
 - conserver les états opérationnels hors d'`AuthorizationDecision`.
 
 Ces conséquences sont des critères architecturaux, pas un découpage de commits ou de classes.
@@ -563,37 +683,55 @@ Ces conséquences sont des critères architecturaux, pas un découpage de commit
 1. Token sans capability requise et faits métier autorisés : `DENY(MISSING_CAPABILITY)`.
 2. Token avec capability requise et faits métier insuffisants : `DENY` métier.
 3. Token avec capability requise et faits métier autorisés : `ALLOW`.
-4. Cible `POT`, fait `IS_POT_MEMBER`, action `VIEW_POT` : autorisation selon la policy de lecture.
-5. Cible `EXPENSE`, fait `IS_POT_MEMBER`, action Expense autorisée par la règle actuelle : `ALLOW` si
-   la capability requise est présente.
-6. Cible `SHAREHOLDER`, simple `IS_POT_MEMBER` sans `IS_TARGET_SHAREHOLDER`, action
-   `UPDATE_SHAREHOLDER_DETAILS` : `DENY` métier.
-7. Cible `SHAREHOLDER`, fait `IS_TARGET_SHAREHOLDER`, action `UPDATE_SHAREHOLDER_DETAILS` : `ALLOW` si
-   la capability requise est présente.
-8. Cible `SHAREHOLDER`, fait `IS_POT_CREATOR` sans `IS_TARGET_SHAREHOLDER`, action
-   `UPDATE_SHAREHOLDER_DETAILS` : `ALLOW` si la capability requise est présente.
-9. Aucune règle et aucun test ne dépend d'`IS_EXPENSE_CREATOR`.
-10. `VIEW_BALANCE` utilise `AuthorizationTargetType.POT` et les faits Pot.
-11. Une nouvelle règle nécessitant un nouveau fait provoque une évolution explicite du catalogue
+4. `AUTH(V)` contient `creatorUserId = U1` ; une décision pour `userId = U1` dérive
+   `IS_POT_CREATOR`.
+5. `AUTH(V)` contient un Shareholder actif lié à `U2` ; une décision pour `userId = U2` dérive
+   `IS_POT_MEMBER`.
+6. La cible est `SHAREHOLDER(S7)` et la relation active vaut `S7 -> U2` ; une décision pour `U2`
+   dérive `IS_TARGET_SHAREHOLDER`.
+7. La cible est `SHAREHOLDER(S8)` et la relation active vaut `S8 -> U3` ; une décision pour `U2` ne
+   dérive pas `IS_TARGET_SHAREHOLDER`.
+8. Une cible `SHAREHOLDER` sans identité exploitable est une erreur de contrat, jamais un `ALLOW`.
+9. L'identité logique de la cible est obligatoire pour toute règle target-specific.
+10. `AuthorizationFacts` n'est jamais persisté comme matrice de faits ou de permissions dans
+    `AUTH(V)`.
+11. L'ajout d'une nouvelle `PotAction` réutilisant les relations existantes ne force aucune
+    modification d'`AUTH(V)`.
+12. Une future policy nécessitant une donnée métier non relationnelle ne provoque pas automatiquement
+    l'ajout de cette donnée à `AUTH(V)`.
+13. Des relations structurelles, un utilisateur et une cible identiques produisent les mêmes
+    `AuthorizationFacts` depuis l'état write-side courant et depuis `AUTH(V)`.
+14. Cible `POT`, fait `IS_POT_MEMBER`, action `VIEW_POT` : autorisation selon la policy de lecture.
+15. Cible `EXPENSE`, fait `IS_POT_MEMBER`, action Expense autorisée par la règle actuelle : `ALLOW` si
+    la capability requise est présente.
+16. Cible `SHAREHOLDER`, simple `IS_POT_MEMBER` sans `IS_TARGET_SHAREHOLDER`, action
+    `UPDATE_SHAREHOLDER_DETAILS` : `DENY` métier.
+17. Cible `SHAREHOLDER`, fait `IS_TARGET_SHAREHOLDER`, action `UPDATE_SHAREHOLDER_DETAILS` : `ALLOW` si
+    la capability requise est présente.
+18. Cible `SHAREHOLDER`, fait `IS_POT_CREATOR` sans `IS_TARGET_SHAREHOLDER`, action
+    `UPDATE_SHAREHOLDER_DETAILS` : `ALLOW` si la capability requise est présente.
+19. Aucune règle et aucun test ne dépend d'`IS_EXPENSE_CREATOR`.
+20. `VIEW_BALANCE` utilise `AuthorizationTargetType.POT` et les faits Pot.
+21. Une nouvelle règle nécessitant un nouveau fait provoque une évolution explicite du catalogue
     typé ; aucune clé dynamique n'est ajoutée silencieusement.
-12. `EXACT(V)` sans `VIEW_ARCHIVE` dans les capacités requises construites en amont :
+22. `EXACT(V)` sans `VIEW_ARCHIVE` dans les capacités requises construites en amont :
     `DENY(MISSING_CAPABILITY)` avant toute autorisation historique effective.
-13. `EXACT(V)` avec `VIEW_ARCHIVE`, mais faits métier à V insuffisants : `DENY` métier.
-14. `EXACT(V)` avec `VIEW_ARCHIVE` et faits métier à V autorisés : `ALLOW`.
-15. À entrées identiques, `AuthorizationKernel` produit la même décision quelle que soit la raison
+23. `EXACT(V)` avec `VIEW_ARCHIVE`, mais faits métier à V insuffisants : `DENY` métier.
+24. `EXACT(V)` avec `VIEW_ARCHIVE` et faits métier à V autorisés : `ALLOW`.
+25. À entrées identiques, `AuthorizationKernel` produit la même décision quelle que soit la raison
     pour laquelle l'orchestration a inclus `VIEW_ARCHIVE` ; le kernel n'en connaît pas l'origine.
-16. Les capabilities courantes ne sont jamais lues depuis `AUTH(V)`.
-17. Une modification des capabilities courantes peut modifier l'accès à une ancienne businessVersion
+26. Les capabilities courantes ne sont jamais lues depuis `AUTH(V)`.
+27. Une modification des capabilities courantes peut modifier l'accès à une ancienne businessVersion
     sans reconstruire `AUTH(V)`.
-18. Une nouvelle `PotAction` sans mapping explicite : fail-closed avec diagnostic
+28. Une nouvelle `PotAction` sans mapping explicite : fail-closed avec diagnostic
     `CONFIGURATION_ERROR`.
-19. La même implémentation de `PotBusinessAuthorizationPolicy` accepte des faits issus du write side
-    courant ou sélectionnés depuis un artifact AUTH read-side.
-20. Aucune policy ni le kernel ne reçoit d'information `CURRENT`, `EXACT`, historique ou archive.
-21. `VIEW_ARCHIVE` n'est jamais persisté comme fait historique.
-22. Aucun droit dérivé (`canView`, `canUpdate`, etc.) n'est persisté dans AUTH.
-23. `AuthorizationDecision` ne contient aucun état opérationnel de projection.
-24. `AUTH(V)` reste conceptuellement un artifact complet ; les faits utilisés par une décision en
-    sont extraits sans que 7.10.1 en redéfinisse la granularité physique.
-25. À target type, faits et action identiques, les chemins write et read produisent la même décision
+29. La même implémentation de `PotBusinessAuthorizationPolicy` accepte des faits dérivés du write side
+    courant ou du modèle relationnel historique read-side.
+30. Aucune policy ni le kernel ne reçoit d'information `CURRENT`, `EXACT`, historique ou archive.
+31. `VIEW_ARCHIVE` n'est jamais persisté comme fait historique.
+32. Aucun droit dérivé (`canView`, `canUpdate`, etc.) n'est persisté dans AUTH.
+33. `AuthorizationDecision` ne contient aucun état opérationnel de projection.
+34. `AUTH(V)` reste conceptuellement un artifact complet du petit modèle relationnel historique ; le
+    contexte logique d'une décision en est dérivé sans que 7.10.1 en fixe la granularité physique.
+35. À target type, faits et action identiques, les chemins write et read produisent la même décision
     métier.
