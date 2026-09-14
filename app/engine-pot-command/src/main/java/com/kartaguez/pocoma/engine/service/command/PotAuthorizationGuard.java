@@ -21,7 +21,13 @@ import com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicy;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 
-/** Adapts the pure authorization kernel to the write-side exception contract. */
+/**
+ * Write-side-only adapter from command {@link UserContext} data to the pure authorization kernel.
+ *
+ * <p>This guard deliberately derives only the base capability of a Pot-scoped command. It must not
+ * be reused by query orchestration: it knows neither version selection nor historical capabilities,
+ * masking or Query Kernel concerns.</p>
+ */
 public final class PotAuthorizationGuard {
 
 	private final PotActionRequirements requirements;

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -69,6 +70,23 @@ class DeleteExpenseServiceTest {
 	}
 
 	@Test
+	void allowsPotMemberToDeleteExpense() {
+		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		DeleteExpenseContext context = fixture.context(false, Map.of(fixture.payerId, memberId));
+
+		ExpenseHeaderSnapshot snapshot = fixture.service(
+				context,
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false)))
+				.deleteExpense(
+						new UserContext(memberId, fixture.userPermissions),
+						new DeleteExpenseCommand(fixture.expenseId.value(), 3));
+
+		assertEquals(fixture.expenseId, snapshot.id());
+		assertTrue(snapshot.deleted());
+	}
+
+	@Test
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseHeader() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
@@ -126,7 +144,7 @@ class DeleteExpenseServiceTest {
 	}
 
 	@Test
-	void rejectsForbiddenUserWithoutLoadingFullExpenseHeader() {
+	void rejectsForbiddenUserAfterValidatingExpensePotCoherence() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
 				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
@@ -139,7 +157,7 @@ class DeleteExpenseServiceTest {
 						new DeleteExpenseCommand(fixture.expenseId.value(), 3)));
 
 		assertEquals("EXPENSE_DELETE_FORBIDDEN", exception.ruleCode());
-		assertFalse(loadExpenseHeaderPort.loaded);
+		assertTrue(loadExpenseHeaderPort.loaded);
 	}
 
 	private static final class DeleteExpenseFixture {
@@ -152,7 +170,14 @@ class DeleteExpenseServiceTest {
 		private final Label label = Label.of("Dinner");
 
 		private DeleteExpenseContext context(boolean deleted) {
-			return new DeleteExpenseContext(new PotGlobalVersion(potId, 3), deleted, creatorId);
+			return context(deleted, Map.of());
+		}
+
+		private DeleteExpenseContext context(
+				boolean deleted,
+				Map<ShareholderId, UserId> shareholderUsers) {
+			return new DeleteExpenseContext(
+					new PotGlobalVersion(potId, 3), deleted, false, creatorId, shareholderUsers);
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {

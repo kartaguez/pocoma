@@ -77,7 +77,13 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		// 3. Check expense state, optimistic version and payer membership.
 		context.assertUpdatePreconditions(command.expectedVersion(), payerId);
 
-		// 4. Check that the current user is allowed to update this expense.
+		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
+		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(
+				loadExpenseHeaderPort.loadActiveAtVersion(expenseId, currentVersion.version()),
+				"expenseHeader must not be null");
+		ExistingExpenseAuthorizationContext.assertConsistent(expenseId, potId, currentExpenseHeader);
+
+		// 5. Check that the current user is allowed to update this expense.
 		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
@@ -86,11 +92,6 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 				PotAction.UPDATE_EXPENSE_DETAILS,
 				"EXPENSE_DETAILS_UPDATE_FORBIDDEN",
 				"Only the pot creator or a shareholder can update expense details");
-
-		// 5. Load the full expense header active at the explicit working version.
-		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(
-				loadExpenseHeaderPort.loadActiveAtVersion(expenseId, currentVersion.version()),
-				"expenseHeader must not be null");
 
 		// 6. Mutate the active domain aggregate.
 		currentExpenseHeader.updateDetails(

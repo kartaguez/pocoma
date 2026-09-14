@@ -2,8 +2,11 @@ package com.kartaguez.pocoma.engine.service.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,6 +73,56 @@ class UpdateExpenseDetailsServiceTest {
 	}
 
 	@Test
+	void allowsPotMemberToUpdateExpenseDetails() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		UpdateExpenseDetailsContext context = fixture.context(false, Map.of(fixture.payerId, memberId));
+
+		ExpenseHeaderSnapshot snapshot = fixture.service(
+				context,
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false)))
+				.updateExpenseDetails(
+						new UserContext(memberId, fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId));
+
+		assertEquals(fixture.expenseId, snapshot.id());
+	}
+
+	@Test
+	void rejectsExpenseWhosePotDoesNotMatchAuthorizationRelations() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		PotId unrelatedPotId = PotId.of(UUID.randomUUID());
+		UpdateExpenseDetailsContext unrelatedContext = new UpdateExpenseDetailsContext(
+				new PotGlobalVersion(unrelatedPotId, 3),
+				false,
+				fixture.creatorId,
+				Set.of(fixture.payerId, fixture.nextPayerId));
+		FakeExpenseHeaderPort expenseHeaders = new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		FakePotGlobalVersionPort versions = new FakePotGlobalVersionPort();
+		FakeRecordingExpenseHeaderPort writes = new FakeRecordingExpenseHeaderPort();
+		FakeEventPublisherPort events = new FakeEventPublisherPort();
+		UpdateExpenseDetailsService service = new UpdateExpenseDetailsService(
+				new FakeExpenseContextPort(unrelatedContext),
+				expenseHeaders,
+				versions,
+				writes,
+				events,
+				new PotAuthorizationGuard());
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId)));
+
+		assertEquals("AUTHORIZATION_CONFIGURATION_ERROR", exception.ruleCode());
+		assertTrue(expenseHeaders.loaded);
+		assertNull(versions.nextVersion);
+		assertNull(writes.saved);
+		assertNull(events.published);
+	}
+
+	@Test
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseHeader() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
@@ -121,7 +174,7 @@ class UpdateExpenseDetailsServiceTest {
 	}
 
 	@Test
-	void rejectsForbiddenUserWithoutLoadingFullExpenseHeader() {
+	void rejectsForbiddenUserAfterValidatingExpensePotCoherence() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
 				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
@@ -134,7 +187,7 @@ class UpdateExpenseDetailsServiceTest {
 						fixture.command(3, fixture.nextPayerId)));
 
 		assertEquals("EXPENSE_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
-		assertFalse(loadExpenseHeaderPort.loaded);
+		assertTrue(loadExpenseHeaderPort.loaded);
 	}
 
 	private static final class UpdateExpenseDetailsFixture {
@@ -148,11 +201,19 @@ class UpdateExpenseDetailsServiceTest {
 		private final Label label = Label.of("Dinner");
 
 		private UpdateExpenseDetailsContext context(boolean deleted) {
+			return context(deleted, Map.of());
+		}
+
+		private UpdateExpenseDetailsContext context(
+				boolean deleted,
+				Map<ShareholderId, UserId> shareholderUsers) {
 			return new UpdateExpenseDetailsContext(
 					new PotGlobalVersion(potId, 3),
 					deleted,
+					false,
 					creatorId,
-					Set.of(payerId, nextPayerId));
+					Set.of(payerId, nextPayerId),
+					shareholderUsers);
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {

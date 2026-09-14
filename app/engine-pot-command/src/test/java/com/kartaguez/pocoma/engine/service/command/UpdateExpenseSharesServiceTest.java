@@ -3,7 +3,9 @@ package com.kartaguez.pocoma.engine.service.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -69,6 +71,22 @@ class UpdateExpenseSharesServiceTest {
 	}
 
 	@Test
+	void allowsPotMemberToUpdateExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		UpdateExpenseSharesContext context = fixture.context(false, Map.of(fixture.aliceId, memberId));
+
+		ExpenseSharesSnapshot snapshot = fixture.service(
+				context,
+				new FakeExpenseSharesPort(fixture.expenseShares()))
+				.updateExpenseShares(
+						new UserContext(memberId, fixture.userPermissions),
+						fixture.command(3, fixture.bobId));
+
+		assertEquals(fixture.expenseId, snapshot.expenseId());
+	}
+
+	@Test
 	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
@@ -120,7 +138,7 @@ class UpdateExpenseSharesServiceTest {
 	}
 
 	@Test
-	void rejectsForbiddenUserWithoutLoadingFullExpenseShares() {
+	void rejectsForbiddenUserAfterValidatingExpensePotCoherence() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
 				new FakeExpenseSharesPort(fixture.expenseShares());
@@ -133,7 +151,7 @@ class UpdateExpenseSharesServiceTest {
 						fixture.command(3, fixture.bobId)));
 
 		assertEquals("EXPENSE_SHARES_UPDATE_FORBIDDEN", exception.ruleCode());
-		assertFalse(loadExpenseSharesPort.loaded);
+		assertTrue(loadExpenseSharesPort.loaded);
 	}
 
 	private static final class UpdateExpenseSharesFixture {
@@ -145,11 +163,19 @@ class UpdateExpenseSharesServiceTest {
 		private final Set<Permission> userPermissions = Set.of(new Permission("EXPENSE", "UPDATE"));
 
 		private UpdateExpenseSharesContext context(boolean deleted) {
+			return context(deleted, Map.of());
+		}
+
+		private UpdateExpenseSharesContext context(
+				boolean deleted,
+				Map<ShareholderId, UserId> shareholderUsers) {
 			return new UpdateExpenseSharesContext(
 					new PotGlobalVersion(potId, 3),
 					deleted,
+					false,
 					creatorId,
-					Set.of(aliceId, bobId));
+					Set.of(aliceId, bobId),
+					shareholderUsers);
 		}
 
 		private ExpenseShares expenseShares() {

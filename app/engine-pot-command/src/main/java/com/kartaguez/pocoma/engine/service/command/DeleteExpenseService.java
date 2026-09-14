@@ -71,7 +71,13 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		// 3. Check state and optimistic version preconditions.
 		context.assertDeletePreconditions(command.expectedVersion());
 
-		// 4. Check that the current user is allowed to delete this expense.
+		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
+		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(
+				loadExpenseHeaderPort.loadActiveAtVersion(expenseId, currentVersion.version()),
+				"expenseHeader must not be null");
+		ExistingExpenseAuthorizationContext.assertConsistent(expenseId, potId, currentExpenseHeader);
+
+		// 5. Check that the current user is allowed to delete this expense.
 		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
@@ -80,11 +86,6 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 				PotAction.DELETE_EXPENSE,
 				"EXPENSE_DELETE_FORBIDDEN",
 				"Only the pot creator or a shareholder can delete an expense");
-
-		// 5. Load the full expense header active at the explicit working version.
-		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(
-				loadExpenseHeaderPort.loadActiveAtVersion(expenseId, currentVersion.version()),
-				"expenseHeader must not be null");
 
 		// 6. Mutate the active domain aggregate.
 		currentExpenseHeader.markAsDeleted();

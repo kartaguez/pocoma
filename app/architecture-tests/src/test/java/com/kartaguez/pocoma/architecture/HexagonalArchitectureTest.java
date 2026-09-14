@@ -97,6 +97,19 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void queryEngineDoesNotUseTheWriteSideAuthorizationGuard() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.port.in.query..",
+						ROOT_PACKAGE + ".engine.port.out.query..",
+						ROOT_PACKAGE + ".engine.service.query..",
+						ROOT_PACKAGE + ".engine.service.transaction.query..")
+				.should().dependOnClassesThat().haveFullyQualifiedName(
+						ROOT_PACKAGE + ".engine.service.command.PotAuthorizationGuard")
+				.check(CLASSES);
+	}
+
+	@Test
 	void potDomainIsSelfContainedAndUsesItsExplicitNamespace() {
 		noClasses()
 				.that().resideInAPackage(POT_DOMAIN_PACKAGE)

@@ -81,7 +81,13 @@ final class UpdateExpenseSharesService implements UpdateExpenseSharesUseCase {
 		// 3. Check expense state, optimistic version and shares membership.
 		context.assertUpdatePreconditions(command.expectedVersion(), expenseShareholderIds);
 
-		// 4. Check that the current user is allowed to update this expense.
+		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
+		ExpenseShares currentExpenseShares = Objects.requireNonNull(
+				loadExpenseSharesPort.loadActiveAtVersion(expenseId, currentVersion.version()),
+				"expenseShares must not be null");
+		ExistingExpenseAuthorizationContext.assertConsistent(expenseId, potId, currentExpenseShares);
+
+		// 5. Check that the current user is allowed to update this expense.
 		authorizationGuard.assertAuthorized(
 				userContext.userId(),
 				userContext.permissions(),
@@ -90,11 +96,6 @@ final class UpdateExpenseSharesService implements UpdateExpenseSharesUseCase {
 				PotAction.UPDATE_EXPENSE_SHARES,
 				"EXPENSE_SHARES_UPDATE_FORBIDDEN",
 				"Only the pot creator or a shareholder can update expense shares");
-
-		// 5. Load the full expense shares aggregate active at the explicit working version.
-		ExpenseShares currentExpenseShares = Objects.requireNonNull(
-				loadExpenseSharesPort.loadActiveAtVersion(expenseId, currentVersion.version()),
-				"expenseShares must not be null");
 
 		// 6. Replace active shares with command shares.
 		currentExpenseShares.updateExpenseShares(context.shareholderIds(), requestedShares);
