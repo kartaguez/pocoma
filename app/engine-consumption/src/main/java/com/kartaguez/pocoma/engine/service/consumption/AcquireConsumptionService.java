@@ -23,6 +23,7 @@ public final class AcquireConsumptionService implements AcquireConsumptionUseCas
 	@Override
 	public AcquireResult acquire(AcquireConsumptionInput input) {
 		requireNonNull(input, "input must not be null");
+		if (!input.precondition().lockAndCheck()) return new AcquireResult.NotEligible();
 		return persistence.acquire(
 				input.consumptionKey(), ClaimId.generate(), input.workerId(), input.lease(), clock.instant());
 	}

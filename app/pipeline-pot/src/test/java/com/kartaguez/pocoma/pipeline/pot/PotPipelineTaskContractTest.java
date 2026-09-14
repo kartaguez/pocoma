@@ -46,4 +46,11 @@ class PotPipelineTaskContractTest {
 		assertThrows(ProjectPotRecordedTaskMapper.InvalidPotTaskException.class,
 				() -> new ProjectPotRecordedTaskMapper(PIPELINE, json).map(task));
 	}
+
+	@Test
+	void declaresItsCanonicalProjectionProducerBinding() {
+		var binding = PotProjectionPipeline.producerBinding(PIPELINE);
+		assertEquals(PotProjectionPipeline.TYPE, binding.projectionType());
+		assertEquals(PIPELINE, binding.producer());
+	}
 }

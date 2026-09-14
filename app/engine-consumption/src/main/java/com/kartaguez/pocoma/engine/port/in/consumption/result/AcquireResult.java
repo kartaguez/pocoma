@@ -30,6 +30,8 @@ public sealed interface AcquireResult {
 		}
 	}
 
+	record NotEligible() implements AcquireResult {}
+
 	record AlreadyDone(TerminalOutcome outcome, Optional<TerminalReason> reason) implements AcquireResult {
 		public AlreadyDone {
 			requireNonNull(outcome, "outcome must not be null");

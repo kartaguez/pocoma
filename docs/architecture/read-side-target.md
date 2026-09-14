@@ -416,7 +416,7 @@ declared -> active -> serving
 ```
 
 - `declared` : définition connue du système ;
-- `active` : pipeline activé, autorisé à travailler et converger sur sa plage d'applicabilité ;
+- `active` : pipeline dont de nouvelles consommations Event/Task peuvent acquérir un Claim ;
 - `serving` : pipelineVersion explicitement sélectionnée pour servir les queries de cette famille,
   pour les businessVersions récentes comme historiques.
 
@@ -424,6 +424,11 @@ Une seule version est `serving` par famille à un instant donné. Elle est l'uni
 autoritative : aucune ancienne pipelineVersion ne sert de fallback. Le passage à serving est toujours
 manuel. `active` ne signifie jamais que la convergence est terminée. Le système calcule et expose
 séparément l'éligibilité au serving.
+
+La discovery filtre les générations inactives en best effort. Le contrôle autoritatif est effectué
+dans la transaction d'acquisition du Claim. Un Claim committé avant `deactivate` conserve le droit de
+terminer normalement ; après le commit de `deactivate`, aucun nouveau Claim de cette génération ne
+peut être acquis. Aucun contrôle lifecycle n'est rejoué pendant l'exécution.
 
 ### Reconstruction sans mécanisme spécial
 

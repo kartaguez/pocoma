@@ -1,6 +1,6 @@
 # Lot 7.14.1 — Plan d'implémentation du lifecycle minimal des pipelineVersions
 
-Statut : **READY FOR IMPLEMENTATION**.
+Statut : **DONE**.
 
 Ce document est le plan d'implémentation courant du Lot 7.14.1. Aucun autre plan d'implémentation
 7.14.1 n'était versionné dans `docs/plans` lors de sa création. Il applique le design canonique
@@ -170,9 +170,10 @@ control existante ou `pocoma_control` sans déplacer cet état dans `infra-read-
 Implémenter :
 
 - présence de ligne = active ; absence = inactive ;
-- insert idempotent pour `activate` ;
+- insert idempotent pour `activate`, sans réécrire `activated_at` si la ligne existe ;
 - suppression de l'activation uniquement si aucune serving ne la référence ;
-- upsert serving atomique sous PK `projection_type` ;
+- upsert serving atomique sous PK `projection_type`, sans réécrire `selected_at` pour une sélection
+  identique ;
 - clear idempotent ;
 - queries séparées activation/serving ;
 - lecture/verrouillage d'activation pour Claim.

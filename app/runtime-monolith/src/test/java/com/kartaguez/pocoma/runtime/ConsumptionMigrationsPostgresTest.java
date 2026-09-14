@@ -27,7 +27,7 @@ class ConsumptionMigrationsPostgresTest {
 			.withPassword("pocoma");
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV11() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV12() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -37,7 +37,7 @@ class ConsumptionMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(11, result.migrationsExecuted);
+		assertEquals(12, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(

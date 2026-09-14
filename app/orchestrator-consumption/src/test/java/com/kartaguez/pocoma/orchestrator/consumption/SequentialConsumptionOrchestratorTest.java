@@ -48,10 +48,11 @@ class SequentialConsumptionOrchestratorTest {
 		var acquireResults = new ArrayDeque<AcquireResult>(List.of(
 				new AcquireResult.Busy(NOW.plusSeconds(20)),
 				new AcquireResult.NotReady(NOW.plusSeconds(10)),
+				new AcquireResult.NotEligible(),
 				new AcquireResult.AlreadyDone(TerminalOutcome.SUCCESS, Optional.empty()),
 				new AcquireResult.Acquired(claim())));
 		AtomicInteger opens = new AtomicInteger();
-		ConsumptionLocator locator = () -> search(opens.incrementAndGet() == 1 ? 4 : 0);
+		ConsumptionLocator locator = () -> search(opens.incrementAndGet() == 1 ? 5 : 0);
 		AtomicInteger executions = new AtomicInteger();
 		var orchestrator = new SequentialConsumptionOrchestrator(locator, input -> acquireResults.remove(), input -> {
 			executions.incrementAndGet();
@@ -63,7 +64,7 @@ class SequentialConsumptionOrchestratorTest {
 
 		assertEquals(2, opens.get());
 		assertEquals(1, executions.get());
-		assertEquals(new ConsumptionOrchestrationCounters(4, 1), result.counters());
+		assertEquals(new ConsumptionOrchestrationCounters(5, 1), result.counters());
 		assertEquals(Optional.of(NOW.plusSeconds(10)), result.nextKnownEligibility());
 	}
 

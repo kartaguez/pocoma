@@ -60,7 +60,7 @@ requièrent. Ils portent `latestKnownVersion`, pas une continuité.
 | 7.11 GET Pot/Expense | `NOT_STARTED` | Lot d'intégration après 7.9/7.10. |
 | 7.12 Balance générique | `PARTIAL` | Calcul exact/hors ordre livré ; persistence/statut/head génériques manquants. |
 | 7.13 GET Balance | `PARTIAL` | Artifact immuable déjà lu, mais primary/auth/N+1/erreur technique restent. |
-| 7.14 Lifecycle pipeline/cutover | `NOT_STARTED` | declared/active/serving et éligibilité absents. |
+| 7.14 Lifecycle pipeline/cutover | `PARTIAL` | 7.14.1 lifecycle minimal livré ; éligibilité et cutover restent à faire. |
 | 7.15 Observabilité | `PARTIAL` | Consumption/latest-known/legacy instrumentés ; signaux read-side cibles incomplets. |
 | 7.16 Extinction legacy | `NOT_STARTED` | Legacy toujours actif dans GET et monolithe. |
 
@@ -333,9 +333,11 @@ Dépendances : 7.2/7.3/7.5 déjà suffisants. Ce lot peut progresser en parallè
 
 ### 7.14 — Lifecycle des pipelineVersions et cutover manuel
 
-**Statut : `NOT_STARTED`**
+**Statut : `PARTIAL`**
 
 #### 7.14.1 — Modèle declared/active/serving
+
+**Statut : `DONE`**
 
 - distinguer `declared` (définition connue), `active` (pipeline activé, capable de travailler et de
   converger sur sa plage d'applicabilité) et `serving` (pipelineVersion explicitement sélectionnée
@@ -347,13 +349,22 @@ Dépendances : 7.2/7.3/7.5 déjà suffisants. Ce lot peut progresser en parallè
 - laisser 7.9.2 résoudre uniquement la businessVersion dans les pipelineVersions fournies ;
 - ne modifier aucune règle producer `appliesTo`.
 
+Livré : `engine-pipeline-lifecycle`, control store `pocoma_control`, activations exactes, sélection
+serving 0..1, catalogue producteur, provider `QueryProjectionSelection`, bootstrap/intégrité et gate
+autoritatif dans la transaction de Claim. La discovery filtre `active` en best effort ; une
+consommation acquise avant désactivation termine sans autre dépendance lifecycle.
+
 #### 7.14.2 — Éligibilité au serving
+
+**Statut : `NOT_STARTED`**
 
 Calculer `eligibleForServing` et ses raisons depuis les états existants : structural readiness,
 historical catchup complet, aucun trou connu, aucune failure non résolue. Ne jamais inférer cette
 éligibilité d'un head seul.
 
 #### 7.14.3 — Cutover/rollback
+
+**Statut : `NOT_STARTED`**
 
 Le changement serving est manuel. Documenter et tester préflight, changement explicite, observation
 et rollback vers une génération conservée. Aucun état `eligible` ne déclenche automatiquement le

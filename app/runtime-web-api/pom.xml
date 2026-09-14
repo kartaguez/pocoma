@@ -40,6 +40,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-infra-pipeline-lifecycle-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-supra-http-rest-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>

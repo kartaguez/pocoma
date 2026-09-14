@@ -40,6 +40,13 @@ class ComputeBalancesRecordedTaskMapperTest {
 		assertEquals("INVALID_TASK_PAYLOAD", exception.failureCategory());
 	}
 
+	@Test
+	void declaresItsCanonicalProjectionProducerBinding() {
+		var binding = BalancePipeline.producerBinding(PIPELINE);
+		assertEquals(BalancePipeline.TYPE, binding.projectionType());
+		assertEquals(PIPELINE, binding.producer());
+	}
+
 	private static RecordedTask task(PotId potId, long version, String payload) {
 		return new RecordedTask(UUID.randomUUID(), PIPELINE, potId, version,
 				Instant.parse("2026-01-01T00:00:00Z"), BalancePipeline.TASK_TYPE, payload, Optional.empty());

@@ -18,6 +18,8 @@ import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
+import com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineActivationQuery;
+import com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineClaimActivationGate;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskPort;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskConsumptionDiscoveryPort;
@@ -40,10 +42,20 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 	private final RecordedTaskExecutionMapperRegistry mappers;
 	private final ExecuteTaskUseCase executeTask;
 	private final ConsumptionTechnicalFailureClassifier classifier;
+	private final PipelineActivationQuery activations;
+	private final PipelineClaimActivationGate claimGate;
 
 	public TaskConsumptionLocator(PipelineDefinition pipeline, WorkerSegment segment, Set<String> taskTypes,
 			TaskConsumptionDiscoveryPort discovery, TaskPort tasks, RecordedTaskExecutionMapperRegistry mappers,
 			ExecuteTaskUseCase executeTask, ConsumptionTechnicalFailureClassifier classifier, Clock clock) {
+		this(pipeline, segment, taskTypes, discovery, tasks, mappers, executeTask, classifier, clock,
+				candidate -> true, candidate -> true);
+	}
+
+	public TaskConsumptionLocator(PipelineDefinition pipeline, WorkerSegment segment, Set<String> taskTypes,
+			TaskConsumptionDiscoveryPort discovery, TaskPort tasks, RecordedTaskExecutionMapperRegistry mappers,
+			ExecuteTaskUseCase executeTask, ConsumptionTechnicalFailureClassifier classifier, Clock clock,
+			PipelineActivationQuery activations, PipelineClaimActivationGate claimGate) {
 		this.pipeline = requireNonNull(pipeline);
 		this.segment = requireNonNull(segment);
 		this.taskTypes = Set.copyOf(requireNonNull(taskTypes));
@@ -54,9 +66,14 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 		this.mappers = requireNonNull(mappers);
 		this.executeTask = requireNonNull(executeTask);
 		this.classifier = requireNonNull(classifier);
+		this.activations = requireNonNull(activations);
+		this.claimGate = requireNonNull(claimGate);
 	}
 
-	@Override public ConsumptionSearch openSearch() { return new Search(); }
+	@Override public ConsumptionSearch openSearch() {
+		if (!activations.isActive(pipeline)) return () -> Optional.empty();
+		return new Search();
+	}
 
 	private final class Search implements ConsumptionSearch {
 		private Optional<TaskSearchCursor> cursor = Optional.empty();
@@ -70,6 +87,7 @@ public final class TaskConsumptionLocator implements ConsumptionLocator {
 				if (!taskTypes.contains(task.taskType())) continue;
 				UUID taskId = task.taskId();
 				return Optional.of(new LocatedConsumption(key(taskId),
+						() -> claimGate.lockIfActive(pipeline),
 						context -> execute(taskId, context.slotId()), classifier));
 			}
 		}

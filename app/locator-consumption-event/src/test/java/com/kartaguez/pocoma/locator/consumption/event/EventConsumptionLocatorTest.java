@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.locator.consumption.event;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -103,10 +104,36 @@ class EventConsumptionLocatorTest {
 		assertEquals(0, calls.get());
 	}
 
+	@Test
+	void inactiveGenerationIsFilteredAndClaimGateRemainsAuthoritative() {
+		UUID eventId = UUID.randomUUID();
+		var snapshot = event(eventId, PotId.of(UUID.randomUUID()), 9);
+		var inactivePort = new StubEventPort(snapshot, Optional.of(snapshot));
+		var inactiveLocator = locator(inactivePort, ignored -> { throw new AssertionError(); },
+				pipeline -> false, pipeline -> true);
+
+		assertEquals(Optional.empty(), inactiveLocator.openSearch().next());
+		assertEquals(List.of(), inactivePort.discoveredDefinitions);
+
+		var activePort = new StubEventPort(snapshot, Optional.of(snapshot));
+		var located = locator(activePort, ignored -> { throw new AssertionError(); },
+				pipeline -> true, pipeline -> false).openSearch().next().orElseThrow();
+		assertEquals(List.of(DEFINITIONS.require(PIPELINE)), activePort.discoveredDefinitions);
+		assertFalse(located.acquisitionPrecondition().lockAndCheck());
+	}
+
 	private static EventConsumptionLocator locator(StubEventPort port, ScheduleProjectionTasksForEventUseCase scheduler) {
 		return new EventConsumptionLocator(DEFINITIONS, WorkerSegment.single(), port, port, scheduler,
 				new EventConsumptionTechnicalFailureClassifier(Clock.fixed(NOW, ZoneOffset.UTC)),
 				Clock.fixed(NOW, ZoneOffset.UTC));
+	}
+
+	private static EventConsumptionLocator locator(StubEventPort port, ScheduleProjectionTasksForEventUseCase scheduler,
+			com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineActivationQuery activations,
+			com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineClaimActivationGate claimGate) {
+		return new EventConsumptionLocator(DEFINITIONS, WorkerSegment.single(), port, port, scheduler,
+				new EventConsumptionTechnicalFailureClassifier(Clock.fixed(NOW, ZoneOffset.UTC)),
+				Clock.fixed(NOW, ZoneOffset.UTC), activations, claimGate);
 	}
 
 	private static ConsumptionExecutionContext context() {
@@ -122,6 +149,7 @@ class EventConsumptionLocatorTest {
 		private final Optional<RecordedEvent<? extends BusinessEvent>> authoritative;
 		private final AtomicInteger candidateReads = new AtomicInteger();
 		private final AtomicInteger authoritativeReads = new AtomicInteger();
+		private List<PipelineVersionDefinition> discoveredDefinitions = List.of();
 
 		private StubEventPort(RecordedEvent<? extends BusinessEvent> candidate,
 				Optional<? extends RecordedEvent<? extends BusinessEvent>> authoritative) {
@@ -134,6 +162,8 @@ class EventConsumptionLocatorTest {
 				Collection<PipelineVersionDefinition> definitions, WorkerSegment segment, Instant now,
 				Optional<EventSchedulingOrderingKey> afterExclusive) {
 			candidateReads.incrementAndGet();
+			discoveredDefinitions = List.copyOf(definitions);
+			if (definitions.isEmpty()) return Optional.empty();
 			return afterExclusive.isEmpty()
 					? Optional.of(new EventSchedulingCandidate(candidate.eventId(), candidate.event().potId(),
 							candidate.event().version(), candidate.recordedAt(), PIPELINE))

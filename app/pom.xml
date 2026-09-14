@@ -47,6 +47,7 @@
 		<module>engine-processing-task</module>
 		<module>engine-pot-command</module>
 		<module>engine-query</module>
+		<module>engine-pipeline-lifecycle</module>
 		<module>engine-projection</module>
 		<module>engine-projection-balance</module>
 		<module>engine-read-projection</module>
@@ -59,6 +60,7 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
+		<module>infra-pipeline-lifecycle-persistence</module>
 		<module>infra-read-persistence</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>

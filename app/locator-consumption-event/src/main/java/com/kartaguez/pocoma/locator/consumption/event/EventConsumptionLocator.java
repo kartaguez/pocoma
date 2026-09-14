@@ -21,6 +21,8 @@ import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
+import com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineActivationQuery;
+import com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineClaimActivationGate;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.result.EventTaskSchedulingResult;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventSchedulingCandidate;
@@ -42,11 +44,22 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 	private final Clock clock;
 	private final ScheduleProjectionTasksForEventUseCase scheduleTasks;
 	private final ConsumptionTechnicalFailureClassifier failureClassifier;
+	private final PipelineActivationQuery activations;
+	private final PipelineClaimActivationGate claimGate;
 
 	public EventConsumptionLocator(PipelineDefinitionRegistry definitions, WorkerSegment segment,
 			EventConsumptionDiscoveryPort discovery, EventPort events,
 			ScheduleProjectionTasksForEventUseCase scheduleTasks,
 			ConsumptionTechnicalFailureClassifier failureClassifier, Clock clock) {
+		this(definitions, segment, discovery, events, scheduleTasks, failureClassifier, clock,
+				pipeline -> true, pipeline -> true);
+	}
+
+	public EventConsumptionLocator(PipelineDefinitionRegistry definitions, WorkerSegment segment,
+			EventConsumptionDiscoveryPort discovery, EventPort events,
+			ScheduleProjectionTasksForEventUseCase scheduleTasks,
+			ConsumptionTechnicalFailureClassifier failureClassifier, Clock clock,
+			PipelineActivationQuery activations, PipelineClaimActivationGate claimGate) {
 		this.definitions = requireNonNull(definitions, "definitions must not be null");
 		this.segment = requireNonNull(segment, "segment must not be null");
 		this.discovery = requireNonNull(discovery, "discovery must not be null");
@@ -54,6 +67,8 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 		this.clock = requireNonNull(clock, "clock must not be null");
 		this.scheduleTasks = requireNonNull(scheduleTasks, "scheduleTasks must not be null");
 		this.failureClassifier = requireNonNull(failureClassifier, "failureClassifier must not be null");
+		this.activations = requireNonNull(activations, "activations must not be null");
+		this.claimGate = requireNonNull(claimGate, "claimGate must not be null");
 	}
 
 	@Override
@@ -64,16 +79,19 @@ public final class EventConsumptionLocator implements ConsumptionLocator {
 	private final class Search implements ConsumptionSearch {
 		private Optional<EventSchedulingOrderingKey> cursor = Optional.empty();
 		private final Instant now = clock.instant();
+		private final List<com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition> activeDefinitions =
+				definitions.all().stream().filter(definition -> activations.isActive(definition.identity())).toList();
 
 		@Override
 		public Optional<LocatedConsumption> next() {
 			Optional<EventSchedulingCandidate> candidate = discovery.findNextEligibleCandidate(
-					definitions.all(), segment, now, cursor);
+					activeDefinitions, segment, now, cursor);
 			if (candidate.isEmpty()) return Optional.empty();
 			EventSchedulingCandidate event = candidate.orElseThrow();
 			cursor = Optional.of(event.orderingKey());
 			UUID eventId = event.eventId();
 			return Optional.of(new LocatedConsumption(key(eventId, event.trigger()),
+					() -> claimGate.lockIfActive(event.trigger()),
 					context -> execute(eventId, context.slotId()),
 					failureClassifier));
 		}

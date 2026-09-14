@@ -41,6 +41,7 @@ import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
 import com.kartaguez.pocoma.engine.service.taskexecution.ExecuteTaskService;
+import com.kartaguez.pocoma.engine.pipeline.lifecycle.catalog.ProjectionProducerCatalog;
 import com.kartaguez.pocoma.engine.service.taskexecution.RecordedTaskExecutionMapperRegistry;
 import com.kartaguez.pocoma.engine.service.taskexecution.TaskExecutionHandlerRegistry;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
@@ -56,6 +57,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.infra.pipeline.lifecycle.persistence.JdbcPipelineLifecycleAdapter;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.locator.consumption.task.TaskConsumptionLocator;
 import com.kartaguez.pocoma.locator.consumption.task.failure.TaskConsumptionFailurePolicy;
@@ -129,6 +131,17 @@ public class TaskConsumptionRuntimeConfiguration {
 		return new PipelineDefinitionRegistry(PocomaPipelineDefinitions.all());
 	}
 
+	@Bean ProjectionProducerCatalog projectionProducerCatalog(PipelineDefinitionRegistry definitions) {
+		return new ProjectionProducerCatalog(definitions.all().stream().map(definition -> {
+			var identity = definition.identity();
+			if (BalancePipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
+				return BalancePipeline.producerBinding(identity);
+			if (PotProjectionPipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
+				return PotProjectionPipeline.producerBinding(identity);
+			throw new IllegalStateException("No projection producer binding for " + identity);
+		}).toList());
+	}
+
 	@Bean
 	RecordedTaskExecutionMapper<?> balanceTaskMapper(
 			PipelineDefinition pipeline,
@@ -181,10 +194,11 @@ public class TaskConsumptionRuntimeConfiguration {
 	@Bean ExecuteTaskUseCase executeTaskUseCase(TaskExecutionHandlerRegistry handlers){return new ExecuteTaskService(handlers);}
 	@Bean TaskConsumptionLocator taskConsumptionLocator(PipelineDefinition pipeline,TaskConsumptionProperties properties,
 			JpaTaskConsumptionDiscoveryAdapter discovery,JpaTaskPort tasks,
-			RecordedTaskExecutionMapperRegistry mappers,ExecuteTaskUseCase executeTask,Clock clock){
+			RecordedTaskExecutionMapperRegistry mappers,ExecuteTaskUseCase executeTask,Clock clock,
+			JdbcPipelineLifecycleAdapter pipelineLifecycle){
 		return new TaskConsumptionLocator(pipeline,new WorkerSegment(properties.getSegmentIndex(),properties.getSegmentCount()),
 				Set.copyOf(properties.getTaskTypes()),discovery,tasks,mappers,executeTask,
-				new TaskConsumptionTechnicalFailureClassifier(clock),clock);}
+				new TaskConsumptionTechnicalFailureClassifier(clock),clock,pipelineLifecycle,pipelineLifecycle);}
 	@Bean ConsumptionOrchestrator taskConsumptionOrchestrator(TaskConsumptionLocator locator,
 			AcquireConsumptionUseCase acquire,ExecuteConsumptionUseCase execute,HandleConsumptionFailureUseCase failure){
 		return new SequentialConsumptionOrchestrator(locator,acquire,execute,failure);}

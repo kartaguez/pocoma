@@ -270,6 +270,29 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void pipelineLifecycleEngineIsFrameworkFreeAndExecutionDoesNotDependOnIt() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".engine..pipeline.lifecycle..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..",
+						ROOT_PACKAGE + ".locator..",
+						ROOT_PACKAGE + ".orchestrator..",
+						"org.springframework..",
+						"jakarta.persistence..",
+						"java.sql..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.service.taskcreation..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..")
+				.should().dependOnClassesThat().resideInAPackage(
+						ROOT_PACKAGE + ".engine..pipeline.lifecycle..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void commandAdmissionConsumesOnlyTheProviderNeutralAuthenticatedPrincipal() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.command.admission..")

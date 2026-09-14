@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.runtime.event.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,6 +40,9 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.EventPipelineRelevance;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
@@ -53,6 +57,7 @@ import com.kartaguez.pocoma.engine.task.creation.TaskDescriptor;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.pipeline.JpaTaskCreationAdapter;
+import com.kartaguez.pocoma.infra.pipeline.lifecycle.persistence.JdbcPipelineLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionLocator;
 import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTechnicalFailureClassifier;
@@ -90,6 +95,8 @@ class EventConsumptionRuntimePostgresTest {
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private Clock clock;
 	@Autowired private TransactionRunner transactions;
+	@Autowired private EventConsumptionLocator runtimeLocator;
+	@Autowired private JdbcPipelineLifecycleAdapter pipelineLifecycle;
 
 	@BeforeEach
 	void cleanDatabase() {
@@ -101,6 +108,10 @@ class EventConsumptionRuntimePostgresTest {
 		jdbc.execute("create table if not exists pocoma_read.projection_artifacts "
 				+ "(pipeline_id varchar not null, pipeline_version integer not null, pot_id uuid not null, pot_version bigint not null)");
 		jdbc.execute("truncate table pocoma_read.source_version_watermarks, pocoma_read.projection_artifacts");
+		jdbc.execute("delete from pocoma_control.projection_serving_selections");
+		jdbc.execute("delete from pocoma_control.pipeline_version_activations");
+		pipelineLifecycle.activate(new PipelineDefinition(PipelineId.of("read-pot"), 1), Instant.parse("2026-01-01T00:00:00Z"));
+		pipelineLifecycle.activate(new PipelineDefinition(PipelineId.of("balance-projection"), 2), Instant.parse("2026-01-01T00:00:00Z"));
 	}
 
 	@Test
@@ -115,6 +126,10 @@ class EventConsumptionRuntimePostgresTest {
 		TaskSnapshot originalV1 = task(eventId, 1);
 		assertEquals(TerminalOutcome.SUCCESS, lifecycle.findSlot(key(eventId, 1)).orElseThrow()
 				.terminalOutcome().orElseThrow());
+		orchestrator(List.of(v1, v2)).run(input("catalog-v2-inactive"));
+		assertEquals(1, taskCount(eventId));
+
+		pipelineLifecycle.activate(v2.identity(), Instant.parse("2026-01-01T00:02:00Z"));
 
 		try (var workers = Executors.newFixedThreadPool(2)) {
 			var first = workers.submit(() -> orchestrator(List.of(v1, v2)).run(input("catalog-v2-a")));
@@ -211,11 +226,43 @@ class EventConsumptionRuntimePostgresTest {
 		assertEquals(1, taskCount(eventId));
 	}
 
+	@Test
+	void lifecycleIsAuthoritativeAtEventClaimAndAbsentAfterAcquisition() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		outbox.append(new PotCreatedEvent(potId, 73));
+		UUID eventId = events.findAll().getFirst().id();
+		var located = runtimeLocator.openSearch().next().orElseThrow();
+		var components = located.consumptionKey().consumer().components();
+		var trigger = new PipelineDefinition(PipelineId.of(components.get(0)), Integer.parseInt(components.get(1)));
+
+		pipelineLifecycle.deactivateIfNotServing(trigger);
+		var refused = acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+				new WorkerId("inactive-event"), new ClaimLease(Duration.ofSeconds(30)),
+				located.acquisitionPrecondition()));
+		assertInstanceOf(AcquireResult.NotEligible.class, refused);
+		assertEquals(0, jdbc.queryForObject("select count(*) from consumption_slots", Integer.class));
+
+		pipelineLifecycle.activate(trigger, Instant.parse("2026-01-01T00:01:00Z"));
+		var acquired = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+						new WorkerId("active-event"), new ClaimLease(Duration.ofSeconds(30)),
+						located.acquisitionPrecondition())));
+		pipelineLifecycle.deactivateIfNotServing(trigger);
+
+		execute.execute(new ExecuteConsumptionInput(acquired.claim().slotId(), acquired.claim().claimId(),
+				located.execution()));
+
+		assertEquals(2, taskCount(eventId));
+		assertEquals(TerminalOutcome.SUCCESS, lifecycle.findSlot(located.consumptionKey()).orElseThrow()
+				.terminalOutcome().orElseThrow());
+	}
+
 	private ConsumptionOrchestrator orchestrator(List<PipelineVersionDefinition> definitions) {
 		var definitionRegistry = new PipelineDefinitionRegistry(definitions);
 		var scheduler = scheduler(definitions, taskCreation);
 		var locator = new EventConsumptionLocator(definitionRegistry, WorkerSegment.single(), discovery, eventPort,
-				scheduler, new EventConsumptionTechnicalFailureClassifier(clock), clock);
+				scheduler, new EventConsumptionTechnicalFailureClassifier(clock), clock,
+				pipelineLifecycle, pipelineLifecycle);
 		return new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure);
 	}
 

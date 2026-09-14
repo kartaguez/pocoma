@@ -21,8 +21,15 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.task.TaskConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.infra.pipeline.lifecycle.persistence.JdbcPipelineLifecycleAdapter;
+import com.kartaguez.pocoma.locator.consumption.task.TaskConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
@@ -52,6 +59,10 @@ class TaskConsumptionRuntimePostgresTest {
 	@Autowired private ConsumptionOrchestrator orchestrator;
 	@Autowired private TaskConsumptionDiscoveryPort discovery;
 	@Autowired private PipelineDefinition taskPipeline;
+	@Autowired private TaskConsumptionLocator locator;
+	@Autowired private AcquireConsumptionUseCase acquire;
+	@Autowired private ExecuteConsumptionUseCase execute;
+	@Autowired private JdbcPipelineLifecycleAdapter pipelineLifecycle;
 	private UUID potId;
 
 	@BeforeEach
@@ -64,6 +75,9 @@ class TaskConsumptionRuntimePostgresTest {
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 50)", potId);
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
 				+ "values (?, ?, 1, null, 'Historical Pot', ?, false)", UUID.randomUUID(), potId, UUID.randomUUID());
+		jdbc.execute("delete from pocoma_control.projection_serving_selections");
+		jdbc.execute("delete from pocoma_control.pipeline_version_activations");
+		pipelineLifecycle.activate(taskPipeline, Instant.parse("2026-01-01T00:00:00Z"));
 	}
 
 	@Test
@@ -117,6 +131,35 @@ class TaskConsumptionRuntimePostgresTest {
 				Instant.parse("2026-02-01T00:00:00Z"), java.util.Optional.empty()).orElseThrow();
 
 		assertEquals(eligible, candidate.taskId());
+	}
+
+	@Test
+	void lifecycleIsAuthoritativeAtClaimAndAbsentAfterAcquisition() {
+		insertTask("claim-boundary");
+		var located = locator.openSearch().next().orElseThrow();
+
+		pipelineLifecycle.deactivateIfNotServing(taskPipeline);
+		var refused = acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+				new WorkerId("inactive-task"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+				located.acquisitionPrecondition()));
+		assertInstanceOf(AcquireResult.NotEligible.class, refused);
+		assertEquals(0, jdbc.queryForObject("select count(*) from consumption_slots", Integer.class));
+
+		pipelineLifecycle.activate(taskPipeline, Instant.parse("2026-01-01T00:01:00Z"));
+		var acquired = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),
+						new WorkerId("active-task"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						located.acquisitionPrecondition())));
+		pipelineLifecycle.deactivateIfNotServing(taskPipeline);
+
+		execute.execute(new ExecuteConsumptionInput(acquired.claim().slotId(), acquired.claim().claimId(),
+				located.execution()));
+
+		assertEquals(1, jdbc.queryForObject("select count(*) from consumption_slots where status='DONE' "
+				+ "and terminal_outcome='SUCCESS' and consumable_type='TASK'", Integer.class));
+		assertEquals(1, jdbc.queryForObject("select count(*) from balance_projection_artifacts "
+				+ "where pipeline_id='balance-projection' and pipeline_version=2 and pot_id='" + potId
+				+ "' and pot_version=42", Integer.class));
 	}
 
 	private UUID insertTask(String key) {

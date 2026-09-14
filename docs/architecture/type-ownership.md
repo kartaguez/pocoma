@@ -10,7 +10,7 @@
 | Policies d'autorisation Pot | `ReadPotAuthorizationPolicy`, `UpdatePotDetailsAuthorizationPolicy` | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
 | Pipeline versionné | `PipelineId`, `PipelineDefinition`, `PipelineVersionDefinition` | `domain-pipeline` |
-| Lifecycle serving d'une pipelineVersion | Types non créés ; ownership à fermer en 7.14.1 | Lot 7.14 |
+| Lifecycle d'une pipelineVersion | `PipelineVersionActivation`, `ServingSelection`, `ProjectionProducerBinding`, ports et use cases lifecycle | `engine-pipeline-lifecycle` |
 | Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
 | Connaissance de version | `LatestKnownVersion` | `domain-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
@@ -27,6 +27,7 @@
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
 | Polling et capacité | `ConsumptionPollingWorker`, budgets de cycle | `supra-consumption-worker` |
 | Exécution atomique et fencing | `TransactionalExecuteConsumptionUseCase`, `currentClaimId` | `engine-consumption` / infra transactionnelle |
+| Précondition générique d'acquisition | `ConsumptionAcquisitionPrecondition`, évaluée avant toute mutation Slot/Claim | `engine-consumption` |
 | Orchestration pull Command | `CommandConsumptionLocator`, `SequentialConsumptionOrchestrator`, `ConsumptionPollingWorker` | locator/orchestrateur/supra génériques |
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 | Orchestration pull Task | `TaskConsumptionLocator`, `ConsumptionPollingWorker` | locator Task et supra générique |

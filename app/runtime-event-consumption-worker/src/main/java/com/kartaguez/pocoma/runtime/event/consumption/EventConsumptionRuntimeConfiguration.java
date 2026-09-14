@@ -21,6 +21,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
 import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
+import com.kartaguez.pocoma.engine.pipeline.lifecycle.catalog.ProjectionProducerCatalog;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -41,6 +42,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.infra.pipeline.lifecycle.persistence.JdbcPipelineLifecycleAdapter;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionLocator;
 import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionFailurePolicy;
@@ -113,6 +115,20 @@ public class EventConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
+	ProjectionProducerCatalog projectionProducerCatalog(PipelineDefinitionRegistry definitions) {
+		return new ProjectionProducerCatalog(definitions.all().stream().map(definition -> {
+			var pipeline = definition.identity();
+			if (BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+				return BalancePipeline.producerBinding(pipeline);
+			}
+			if (PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
+				return PotProjectionPipeline.producerBinding(pipeline);
+			}
+			throw new IllegalStateException("No projection producer binding for " + pipeline);
+		}).toList());
+	}
+
+	@Bean
 	TaskCreationStrategyRegistry eventTaskCreationStrategies(PipelineDefinitionRegistry definitions,
 			ObjectMapper mapper) {
 		var strategies = definitions.all().stream().map(definition -> {
@@ -144,10 +160,12 @@ public class EventConsumptionRuntimeConfiguration {
 	EventConsumptionLocator eventConsumptionLocator(PipelineDefinitionRegistry definitions,
 			EventConsumptionProperties properties,
 			EventConsumptionDiscoveryPort discovery, EventPort events,
-			ScheduleProjectionTasksForEventUseCase scheduleTasks, Clock clock) {
+			ScheduleProjectionTasksForEventUseCase scheduleTasks, Clock clock,
+			JdbcPipelineLifecycleAdapter pipelineLifecycle) {
 		return new EventConsumptionLocator(definitions,
 				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), discovery, events,
-				scheduleTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock);
+				scheduleTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock,
+				pipelineLifecycle, pipelineLifecycle);
 	}
 
 	@Bean

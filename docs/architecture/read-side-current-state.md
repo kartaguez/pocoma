@@ -2,7 +2,7 @@
 
 ## 1. Portée de l'observation
 
-Ce document décrit l'état courant du repository après livraison du resolver du Lot 7.9.2.
+Ce document décrit l'état courant du repository après livraison du lifecycle minimal du Lot 7.14.1.
 Il est factuel : les décisions normatives appartiennent à
 [read-side-target.md](read-side-target.md), et leur séquencement au
 [plan directeur du Lot 7](../plans/lot-7-read-side-implementation-plan.md).
@@ -23,8 +23,10 @@ Le read side est en transition :
   génération serving, état terminal, latest-known read-only et `VersionedQueryResponse`) sont
   présents dans `engine-query` ; le resolver monoprojection CURRENT/EXACT et ses quatre résultats
   typés sont livrés, sans adapter de persistence ni branchement aux GET actifs ;
-- l'Authorization Kernel, `AUTH(V)`, les états declared/active/serving et le cutover serving
-  n'existent pas encore.
+- le control store autoritatif `pocoma_control` persiste les activations et la sélection serving ;
+  Event et Task filtrent les générations inactives en discovery et verrouillent leur activation dans
+  la transaction de Claim ; après acquisition, l'exécution est indépendante du lifecycle ;
+- l'Authorization Kernel, `AUTH(V)`, l'éligibilité serving et le cutover gouverné n'existent pas encore.
 
 ## 3. GET réellement exposés
 
@@ -83,6 +85,11 @@ Task pour chaque génération pertinente et applicable.
 La discovery ne consulte ni latest-known, ni artifact, ni failure, ni head, ni stratégie reader. Une
 nouvelle `pipelineVersion` applicable redécouvre automatiquement les anciens Events dont sa Task
 exacte n'existe pas. Les Tasks existantes des anciennes générations ne sont pas rouvertes.
+
+Depuis 7.14.1, la discovery Event/Task filtre `active` en best effort. L'autorité est le Claim :
+le verrou d'activation partage la transaction qui crée le Claim. Une désactivation committée avant
+l'acquisition l'interdit ; un Claim committé avant la désactivation peut terminer, créer ses Tasks
+ou matérialiser son artifact sans nouveau contrôle lifecycle.
 
 ### Exécution Task multi-pipeline
 
@@ -168,8 +175,9 @@ Balance(V-1), supporte l'exécution hors ordre et couvre toutes les business ver
 catalogue actuel.
 
 Cette persistence reste toutefois spécifique : elle vit dans le schéma primaire, possède sa propre
-identité/adoption et n'utilise pas encore artifact/failure/head/index génériques. Son reader choisit
-une pipelineVersion par configuration statique de runtime, pas par état serving canonique.
+identité/adoption et n'utilise pas encore artifact/failure/head/index génériques. Le provider serving
+canonique sait construire `QueryProjectionSelection` depuis le control store ; les GET actifs ne
+l'utilisent toutefois pas encore.
 
 ### BALANCE legacy
 
@@ -227,15 +235,15 @@ en `EXACT(servedVersion)`.
 | Cible | État actuel |
 |---|---|
 | Contrats Query Kernel `CURRENT` / `EXACT(V)` | Présents, framework-free, non branchés |
-| Resolver Query Kernel `CURRENT` / `EXACT(V)` | Absent |
-| Plus haut état terminal de l'unique génération serving, borné par latest-known | Port présent, resolver et adapter absents |
+| Resolver Query Kernel `CURRENT` / `EXACT(V)` | Présent, non branché aux GET |
+| Plus haut état terminal de l'unique génération serving, borné par latest-known | Resolver présent ; adapters readiness/latest-known encore non branchés |
 | `VersionedQueryResponse` | Présent, non utilisé par les GET actifs |
 | Liste exclusivement issue de l'index convergent | Reader shadow encore joint à latest-known |
 | AUTH indépendante | Absente |
 | AUTH complet à chaque businessVersion | Absent |
 | GET sans lecture primaire | Aucun cutover effectué |
 | Balance sur fondation générique | Production immuable présente, persistence générique absente |
-| declared/active/serving | Non modélisé |
+| declared/active/serving | Lifecycle minimal livré : catalogue declared, activations et serving persistés, gates Claim actifs |
 | `eligibleForServing` | Absent |
 | Cutover manuel gouverné | Absent |
 | Observabilité cible | Partielle ; consumption et métriques legacy seulement |

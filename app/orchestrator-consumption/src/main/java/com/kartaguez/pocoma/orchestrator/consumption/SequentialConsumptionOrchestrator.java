@@ -78,7 +78,8 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 			AcquireResult acquired;
 			try {
 				acquired = acquire.acquire(new AcquireConsumptionInput(
-						located.consumptionKey(), input.workerId(), input.claimLease()));
+						located.consumptionKey(), input.workerId(), input.claimLease(),
+						located.acquisitionPrecondition()));
 			}
 			catch (RuntimeException failure) {
 				return closeThenReturn(search, state.failed(failure), state);
@@ -92,6 +93,7 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 				continue;
 			}
 			if (acquired instanceof AcquireResult.AlreadyDone) continue;
+			if (acquired instanceof AcquireResult.NotEligible) continue;
 
 			AcquireResult.Acquired claim = (AcquireResult.Acquired) acquired;
 			RuntimeException closeFailure = closeFailure(search);

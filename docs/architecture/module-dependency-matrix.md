@@ -28,7 +28,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | Valeurs `PotBalances` et `Balance` ; calculs exacts ou legacy orchestrés par les engines | `domain-pot`, JDK | engines, persistence, workers | target values + legacy consumers |
 | `domain-projection` | identité générique, statut dérivé, artifact/failure/head, `LatestKnownVersion` et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
-| `domain-pipeline` | identité, applicabilité et catalogue/registry des définitions ; le lifecycle declared/active/serving reste à créer | JDK | tout module applicatif | target Lot 7.3.1 livré, Lot 7.14 restant |
+| `domain-pipeline` | identité, applicabilité et catalogue/registry des définitions declared | JDK | tout module applicatif | target Lot 7.3.1 livré |
 | `domain-task` | marqueur fonctionnel `TaskPayload` | JDK | pipeline, Pot, engines, persistence | target |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
 
@@ -47,6 +47,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
 | `engine-processing-event` | discovery catalog-driven des couples Event/génération manquants et pagination stable | consumption, pipeline, Pot event, core | Command/Task processing, task creation, read store | target Lot 7.5 |
 | `engine-processing-task` | contrat de recherche courte et de relecture autoritative des Tasks durables | pipeline, Pot id, core | consumption, Event/Command processing, task execution, execution guard | target |
+| `engine-pipeline-lifecycle` | control state framework-free active/serving, catalogue producteur, gates de Claim, use cases et validation d'intégrité | pipeline, projection, JDK | Spring, JDBC/JPA, runtime, locators, query, AUTH, latest-known/head | target Lot 7.14.1 |
 | `engine-task-materialization` | ancien flux Event envelope vers tâches sérialisées | core et pipeline | nouveaux packages fonctionnels | legacy — retrait avec EventWorker |
 
 ## Adaptateurs, orchestration et composition
@@ -73,6 +74,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + adapters legacy à migrer |
 | `infra-read-persistence` | frontière logique du read store : métadonnées génériques, latest-known sous noms SQL legacy, quatre tables/writer Pot V5, metadata/index user V6 | ports `engine-read-projection`, Spring JDBC/transactions et Flyway | target Lots 7.2–7.7, sans dépendance vers l'adapter primaire |
+| `infra-pipeline-lifecycle-persistence` | control store autoritatif `pocoma_control`, activation/serving, verrou d'activation partagé avec l'acquisition des Claims et bootstrap explicite | ports `engine-pipeline-lifecycle`, Spring JDBC/transactions, Flyway | target Lot 7.14.1, distinct du read store dérivé |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'API HTTP | shared config, supra HTTP | composition |

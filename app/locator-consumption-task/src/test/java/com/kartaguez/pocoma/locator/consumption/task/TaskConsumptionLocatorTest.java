@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.locator.consumption.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -91,6 +92,22 @@ class TaskConsumptionLocatorTest {
 		assertEquals(List.of(), result.results());
 	}
 
+	@Test
+	void inactivePipelineIsFilteredAndClaimGateRemainsAuthoritative() {
+		RecordedTask task = task(42, "{}");
+		var inactivePort = new ReloadingTaskPort(task, task);
+		var inactive = locator(inactivePort, new RecordingMapper(), input -> { throw new AssertionError(); },
+				pipeline -> false, pipeline -> true);
+		assertEquals(Optional.empty(), inactive.openSearch().next());
+		assertEquals(0, inactivePort.candidateReads);
+
+		var activePort = new ReloadingTaskPort(task, task);
+		var located = locator(activePort, new RecordingMapper(), input -> { throw new AssertionError(); },
+				pipeline -> true, pipeline -> false).openSearch().next().orElseThrow();
+		assertFalse(located.acquisitionPrecondition().lockAndCheck());
+		assertEquals(1, activePort.candidateReads);
+	}
+
 	private static TaskConsumptionLocator locator(TaskPort tasks, RecordingMapper mapper,
 			com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase execute) {
 		return new TaskConsumptionLocator(PIPELINE, new WorkerSegment(0, 1), Set.of("COMPUTE"),
@@ -98,6 +115,17 @@ class TaskConsumptionLocatorTest {
 				new RecordedTaskExecutionMapperRegistry(List.of(mapper)), execute,
 				failure -> { throw new AssertionError("classifier must not be used by the locator"); },
 				Clock.systemUTC());
+	}
+
+	private static TaskConsumptionLocator locator(TaskPort tasks, RecordingMapper mapper,
+			com.kartaguez.pocoma.engine.port.in.taskexecution.usecase.ExecuteTaskUseCase execute,
+			com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineActivationQuery activations,
+			com.kartaguez.pocoma.engine.port.in.pipeline.lifecycle.PipelineClaimActivationGate claimGate) {
+		return new TaskConsumptionLocator(PIPELINE, new WorkerSegment(0, 1), Set.of("COMPUTE"),
+				(TaskConsumptionDiscoveryPort) tasks, tasks,
+				new RecordedTaskExecutionMapperRegistry(List.of(mapper)), execute,
+				failure -> { throw new AssertionError("classifier must not be used by the locator"); },
+				Clock.systemUTC(), activations, claimGate);
 	}
 
 	private static RecordedTask task(long version, String payload) {

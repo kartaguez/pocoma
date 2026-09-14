@@ -21,6 +21,8 @@ vérifiée avant une modification.
 - [Plan détaillé du Lot 7.9.1](plans/lot-7.9.1-versioned-query-contracts-plan.md) — contrats framework-free monoprojection, génération serving, état terminal et enveloppe versionnée.
 - [Plan de révision monoprojection du Lot 7.9.1](plans/lot-7.9.1-monoprojection-contract-revision-plan.md) — justification, migration et critères de la révision livrée.
 - [Design du Lot 7.9.2](plans/lot-7.9.2-query-version-resolution-design.md) — resolver monoprojection CURRENT/EXACT, résultats typés et absence de fallback.
+- [Design du Lot 7.14.1](plans/lot-7.14.1-pipeline-version-lifecycle-design.md) — lifecycle minimal declared/active/serving, frontière Claim et control store autoritatif.
+- [Plan d'implémentation du Lot 7.14.1](plans/lot-7.14.1-pipeline-version-lifecycle-implementation-plan.md) — réalisation livrée, tests de concurrence et intégration Query Kernel.
 - [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — dossier de réalisation du consumer direct ; les noms watermark qui y subsistent sont de compatibilité.
 - [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — dossier de réalisation de la metadata et de l'index shadow. Sa sélection current par égalité à latest-known est superseded : l'index cible ne fournit que des candidats, ensuite résolus et autorisés à une businessVersion commune.
 

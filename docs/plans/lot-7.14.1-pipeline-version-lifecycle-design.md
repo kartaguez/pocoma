@@ -1,5 +1,7 @@
 # Lot 7.14.1 — Conception du lifecycle minimal des pipelineVersions
 
+Statut : **IMPLEMENTED**.
+
 Statut : **DESIGN READY**.
 
 Ce document est la référence de conception du modèle minimal `declared / active / serving`. Il doit
@@ -388,7 +390,10 @@ create table pocoma_control.projection_serving_selections (
 ```
 
 Les timestamps servent l'audit opérationnel minimal ; ils ne participent pas aux décisions et ne
-portent aucun ordre fonctionnel.
+portent aucun ordre fonctionnel. Ils datent une transition réelle : répéter `activate` sur une ligne
+présente ne modifie pas `activated_at`, et répéter la même sélection ne modifie pas `selected_at`.
+Une réactivation après suppression ou un changement effectif de serving produit en revanche un
+nouveau timestamp.
 
 Propriétés :
 
@@ -445,7 +450,7 @@ Préconditions :
 - définition declared dans `PipelineDefinitionRegistry`.
 
 Effet : insertion de l'activation. Si elle existe déjà, l'opération réussit sans changement :
-`activate` est idempotent.
+`activate` est idempotent et conserve le `activated_at` initial de cette période d'activation.
 
 ### 12.3 `deactivate`
 
@@ -468,7 +473,8 @@ Préconditions :
 - `ProjectionProducerCatalog.produces(pipeline, projectionType)` vrai.
 
 Effet : insertion ou remplacement atomique de la sélection pour ce `ProjectionType`. Sélectionner la
-même identité est idempotent. Aucune éligibilité n'est calculée dans 7.14.1.
+même identité est idempotent et conserve `selected_at`. Un remplacement effectif actualise ce
+timestamp. Aucune éligibilité n'est calculée dans 7.14.1.
 
 ### 12.5 `clearServing`
 
