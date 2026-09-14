@@ -14,7 +14,7 @@ Le Lot 7.14.1 doit fournir le contrôle minimal nécessaire pour :
 - autoriser plusieurs pipelineVersions actives à converger en parallèle ;
 - conserver au plus une pipelineVersion serving par `ProjectionType` ;
 - fournir au Query Kernel la décision serving autoritative attendue par `QueryProjectionSelection` ;
-- empêcher une pipelineVersion inactive de créer ou d'exécuter des Tasks ;
+- empêcher une pipelineVersion inactive d'acquérir de nouvelles consommations Event ou Task ;
 - préserver les Tasks, Slots, Claims, artifacts et historiques déjà produits.
 
 Il ne décide ni si une génération est suffisamment convergée pour servir, ni quand effectuer un
@@ -96,21 +96,22 @@ deux axes.
 2. Une définition présente est declared ; aucun booléen declared n'est persisté.
 3. L'activation est persistée par `PipelineDefinition` exacte.
 4. Plusieurs pipelineVersions d'un même `PipelineId` peuvent être actives simultanément.
-5. Active autorise le flux normal de production sur la plage d'applicabilité ; il ne prouve aucune
-   convergence.
-6. Inactive interdit la création de nouvelles Tasks et l'exécution des Tasks existantes de cette
-   génération.
-7. Une désactivation ne supprime ni ne terminalise aucune Task, Slot ou Claim.
-8. Serving est une sélection séparée par `ProjectionType`, jamais un booléen par pipelineVersion.
-9. Pour un `ProjectionType`, la cardinalité serving est `0..1`.
-10. Une sélection serving ne peut cibler qu'une pipelineVersion declared, active et productrice du
+5. Active autorise l'acquisition de nouvelles consommations Event ou Task sur la plage
+   d'applicabilité ; il ne prouve aucune convergence.
+6. Inactive interdit toute nouvelle acquisition Event ou Task de cette génération.
+7. Un Claim acquis pendant que la génération était active autorise la consommation à atteindre son
+   issue normale, même si la génération devient ensuite inactive.
+8. Une désactivation ne supprime ni ne terminalise aucune Task, Slot ou Claim.
+9. Serving est une sélection séparée par `ProjectionType`, jamais un booléen par pipelineVersion.
+10. Pour un `ProjectionType`, la cardinalité serving est `0..1`.
+11. Une sélection serving ne peut cibler qu'une pipelineVersion declared, active et productrice du
     `ProjectionType`.
-11. Une pipelineVersion serving ne peut pas être désactivée.
-12. Le serving est autoritatif pour les lectures présentes et historiques.
-13. Aucune sélection par `MAX(pipelineVersion)`, dernière active, première declared ou fallback
+12. Une pipelineVersion serving ne peut pas être désactivée.
+13. Le serving est autoritatif pour les lectures présentes et historiques.
+14. Aucune sélection par `MAX(pipelineVersion)`, dernière active, première declared ou fallback
     d'ancienne génération n'est permise.
-14. Production et serving restent indépendants : une version active non-serving produit normalement.
-15. Serving, active et declared ne dépendent ni de latest-known, ni d'un `ProjectionHead`, ni de
+15. Production et serving restent indépendants : une version active non-serving produit normalement.
+16. Serving, active et declared ne dépendent ni de latest-known, ni d'un `ProjectionHead`, ni de
     l'ordre des Tasks ou des Events.
 
 Exemple valide :
@@ -168,11 +169,13 @@ ligne absente  -> inactive
 
 Une pipeline active est autorisée à :
 
-- être considérée par la discovery Event→Task ;
-- créer ses Tasks applicables ;
-- faire découvrir et exécuter ses Tasks existantes ;
+- exposer de nouveaux candidats à la discovery Event et Task ;
+- acquérir de nouvelles consommations Event et Task ;
 - redécouvrir l'historique durable applicable ;
 - converger indépendamment des autres générations.
+
+La décision autoritative est prise au Claim. La discovery peut consulter `active` pour éviter de
+remonter du travail inutile, mais son résultat est seulement une optimisation best effort.
 
 Active ne signifie jamais :
 
@@ -185,15 +188,25 @@ Active ne signifie jamais :
 
 ## 7. `inactive`
 
-Une pipelineVersion inactive ne participe plus à la production :
+Une pipelineVersion inactive n'autorise aucune nouvelle acquisition :
 
 ```text
 inactive
--> aucune nouvelle Task créée pour cette génération
--> aucune Task de cette génération exécutée
+-> aucune nouvelle consommation Event acquise
+-> aucune nouvelle consommation Task acquise
 ```
 
-La désactivation est un gate opérationnel réversible. Elle ne produit aucun événement fonctionnel et
+La frontière autoritative est le Claim. Dès qu'un Claim a été acquis pendant que la génération était
+active, la consommation est in flight et conserve le droit de s'achever normalement. Une
+désactivation postérieure ne provoque ni interruption, ni rollback, ni release, ni retry, ni
+déférencement spécifique au lifecycle.
+
+Une consommation Event déjà acquise peut donc créer ses Tasks applicables après la désactivation.
+Ces Tasks sont persistées normalement ; si elles n'ont pas encore de Claim, elles restent non
+acquérables jusqu'à la réactivation. De même, une Task déjà claimée exécute son handler, persiste son
+effet et atteint son issue normale après la désactivation.
+
+La désactivation est un gate d'acquisition réversible. Elle ne produit aucun événement fonctionnel et
 ne modifie pas l'histoire passée :
 
 - les Tasks restent persistées ;
@@ -203,8 +216,9 @@ ne modifie pas l'histoire passée :
 - les artifacts et failures déjà matérialisés restent intacts ;
 - aucune Task déjà existante n'est recréée.
 
-Après réactivation, les Events sans Task et les Tasks non terminales redeviennent éligibles selon les
-règles normales d'applicabilité, de discovery, de claim, de retry et de fencing.
+Après réactivation, les Events et Tasks durables non terminalisés redeviennent acquérables selon les
+règles normales d'applicabilité, de discovery, de claim, de retry et de fencing, sans reset ni rebuild
+spécifique.
 
 Une pipelineVersion serving ne peut jamais devenir inactive. Pour la retirer :
 
@@ -386,16 +400,22 @@ Propriétés :
 - aucune copie de `VersionApplicability` ;
 - aucune colonne `declared`, `eligible`, `head`, `latest_known` ou `serving` sur l'activation.
 
-La persistance lifecycle doit vivre dans une frontière transactionnelle compatible avec les
-mutations de production qu'elle gouverne. Création de Task, effet de Task et contrôle d'activation
-doivent pouvoir être sérialisés par transaction locale et verrouillage, sans transaction distribuée.
+La persistance lifecycle doit vivre dans une frontière transactionnelle compatible avec le store qui
+porte l'acquisition des Slots et Claims. Le contrôle d'activation et le CAS d'acquisition doivent
+pouvoir être sérialisés dans une transaction locale courte, sans transaction distribuée. Après le
+commit du Claim, le lifecycle ne participe plus à la transaction d'exécution : création de Task,
+effet métier et read store suivent leurs frontières existantes.
+
 Le fait que le déploiement actuel puisse partager un PostgreSQL entre plusieurs schémas est une
-facilité d'implémentation présente, pas la justification ni l'autorité du modèle.
+facilité d'implémentation présente, pas la justification ni l'autorité du modèle. Le mécanisme SQL de
+verrouillage reste un détail d'adapter ; l'invariant fonctionnel porte sur l'ordre des commits du
+Claim et de `deactivate`.
 
 En conséquence, une future séparation physique du read store dérivé ne déplace pas le lifecycle avec
-lui. Le control store doit rester colocalisé transactionnellement avec le store durable de
-production/consumption qu'il gouverne, ou conserver une frontière offrant les mêmes garanties
-locales. Le Query Kernel peut lire `ServingSelection` dans ce control store : cette lecture d'une
+lui. Le control store doit rester colocalisé transactionnellement avec le store de
+consumption qui porte Slots et Claims, ou conserver une frontière offrant les mêmes garanties
+locales d'acquisition. Il n'a pas besoin d'être colocalisé avec les effets complets Event/Task ou le
+read store. Le Query Kernel peut lire `ServingSelection` dans ce control store : cette lecture d'une
 décision runtime sur le chemin d'un GET ne transforme pas le lifecycle en read model métier.
 
 ## 12. Primitives de lifecycle
@@ -487,16 +507,17 @@ interface ServingSelectionQuery {
 }
 ```
 
-`PipelineActivationQuery` est le gate opérationnel de production. `ServingSelectionQuery` restitue la
-décision autoritative de lecture sans choisir, classer ou fallback. Aucun port de lecture agrégé ne
+`PipelineActivationQuery` alimente le filtre best effort de discovery ; le verrou autoritatif est
+pris dans la transaction d'acquisition. `ServingSelectionQuery` restitue la décision autoritative de
+lecture sans choisir, classer ou fallback. Aucun port de lecture agrégé ne
 regroupe artificiellement ces deux usages et aucune seconde abstraction ne définit `findServing`.
 
 ## 13. Atomicité et concurrence
 
 Toutes les mutations d'un état lifecycle sont des transactions locales du control store. La
 technologie physique peut être PostgreSQL, comme aujourd'hui, mais la garantie requise est la
-compatibilité transactionnelle locale avec les mutations de production, non l'appartenance au read
-store.
+compatibilité transactionnelle locale avec l'acquisition des Slots/Claims, non l'appartenance au
+read store.
 
 ### 13.1 Deux `selectServing` concurrents
 
@@ -520,16 +541,25 @@ activation absente.
 `selectServing(type, v3)` remplace atomiquement v2 par v3. Une transaction ultérieure peut alors
 désactiver v2. L'opération de sélection ne désactive jamais automatiquement l'ancienne génération.
 
-### 13.4 Production contre désactivation
+### 13.4 Acquisition contre désactivation
 
-La transaction autoritative qui crée une Task ou exécute son effet acquiert un verrou de lecture sur
-la ligne d'activation exacte dans la même frontière transactionnelle. La désactivation prend le
-verrou incompatible avant suppression :
+La transaction autoritative d'acquisition vérifie et verrouille la ligne d'activation exacte avant le
+CAS du Slot et l'insertion du Claim. Sur PostgreSQL, la stratégie proposée est un
+`SELECT ... FOR KEY SHARE` sur `pipeline_version_activations`, tenu uniquement jusqu'au commit de la
+transaction d'acquisition. `deactivate` supprime la ligne sous un verrou incompatible :
 
-- une production déjà entrée sous activation commit avant la désactivation ;
-- une production entrée après la désactivation observe inactive et ne crée/exécute rien.
+- si le Claim commit avant `deactivate`, la consommation est acquise et peut atteindre son issue
+  normale sans autre contrôle lifecycle ;
+- si `deactivate` commit avant la tentative de Claim, la ligne est absente et aucun Claim n'est
+  acquis.
 
-Cette sérialisation locale ferme la race sans coordination distribuée.
+L'absence de ligne ne fournit pas de gap lock. Une activation concurrente postérieure à une tentative
+refusée ne rend donc pas cette tentative rétroactivement valide : le travail redevient candidat au
+cycle suivant. Le plan d'implémentation devra confirmer par un test PostgreSQL réel que la matrice de
+conflit retenue sérialise bien `FOR KEY SHARE` et la suppression comme attendu.
+
+La sérialisation ne couvre jamais l'exécution complète. Aucun verrou lifecycle n'est maintenu pendant
+le scheduling d'un Event, le handler d'une Task, l'effet métier ou la terminalisation.
 
 ## 14. Event→Task discovery et création
 
@@ -546,21 +576,20 @@ declared + active + applicable -> candidate normale
 Ce filtre évite de créer des Slots/Claims inutiles. Il reste best effort comme la discovery actuelle
 et ne constitue pas l'autorité finale.
 
-### 14.2 Gate autoritatif de création
+### 14.2 Gate autoritatif au Claim Event
 
-`ScheduleProjectionTasksForEventService` parcourt aujourd'hui toutes les définitions applicables. La
-cible ne planifie que les générations actives et le `TaskCreationPort` vérifie atomiquement
-l'activation de chaque génération dans la transaction d'insertion.
+Le contrôle autoritatif intervient pendant l'acquisition du Claim Event, avant le CAS du Slot. Il
+ferme la course entre discovery et acquisition sans modifier `ScheduleProjectionTasksForEventService`
+ni `TaskCreationPort`.
 
-Ce second contrôle n'est pas un doublon inutile : il ferme la course entre discovery et création.
+Si la génération devient inactive avant le commit du Claim, aucun Claim n'est acquis et le traitement
+Event ne commence pas. Si le Claim commit avant la désactivation, `ScheduleProjectionTasksForEventService`
+parcourt normalement les définitions applicables et peut créer les Tasks après la désactivation. Le
+Claim et le Slot suivent ensuite leur issue normale ; aucune release ou failure lifecycle n'est
+produite.
+
 L'applicabilité continue d'être évaluée par `PipelineVersionDefinition.appliesTo(businessVersion)` et
 reste indépendante d'active/serving.
-
-Si une génération devient inactive après discovery mais avant l'effet autoritatif, aucune Task n'est
-créée pour elle. Le cycle de consommation Event ne doit pas être terminalisé comme un succès vide qui
-empêcherait la redécouverte après réactivation : le Claim est relâché et le Slot reste non terminal.
-Le mécanisme existant de release doit être utilisé ; l'inactivité n'est ni un rejet métier ni une
-processing failure.
 
 La discovery et la création ne consultent jamais serving, latest-known, `ProjectionHead` ou
 `eligibleForServing`. Une génération active non-serving produit normalement.
@@ -575,24 +604,18 @@ retourner de Task lorsque cette identité est inactive.
 
 Ainsi un worker n'acquiert normalement aucun nouveau Claim pour une génération désactivée.
 
-### 15.2 Gate d'exécution
+### 15.2 Gate autoritatif au Claim Task
 
-La discovery restant best effort, l'exécution relit la Task autoritative puis vérifie son activation
-exacte avant le mapper/handler. Ce gate est effectué dans la transaction d'effet et se sérialise avec
-`deactivate` comme décrit en section 13.4.
+La discovery restant best effort, la transaction d'acquisition vérifie l'activation exacte avant le
+CAS du Slot et l'insertion du Claim. Si la désactivation gagne, aucun Claim n'est acquis et le handler
+n'est jamais invoqué.
 
-Si la pipeline a été désactivée après acquisition :
+Après un Claim réussi, l'exécution ne consulte plus le lifecycle. Une désactivation postérieure
+n'empêche ni le mapper/handler, ni l'artifact, ni la provenance, ni le fencing, ni la terminalisation
+normale. Elle ne déclenche aucun release, retry, rollback ou failure spécifique.
 
-- le handler n'est pas invoqué ;
-- aucun artifact ni failure de projection n'est écrit ;
-- le Claim est relâché via le lifecycle de consommation existant ;
-- le Slot reste non terminal et la Task reste disponible pour une réactivation future.
-
-Le `SequentialConsumptionOrchestrator` ne possède pas aujourd'hui de branche de déférencement
-lifecycle après acquisition. Le futur plan d'implémentation devra ajouter une intégration minimale
-vers `ReleaseConsumptionUseCase`, distincte de `BusinessConsumptionOutcome.Rejected` et du traitement
-des failures. Cette adaptation est une conséquence technique identifiée, pas une nouvelle sémantique
-de Task.
+Une Task persistée mais non claimée lors de la désactivation reste durable et non terminale. Elle
+redevient naturellement acquérable au cycle suivant après réactivation.
 
 Serving ne participe jamais à cette décision. v2 active+serving et v3 active+non-serving sont toutes
 deux exécutables.
@@ -720,16 +743,17 @@ dérivé et reconstructible. Le futur plan d'implémentation doit créer une fro
 explicite, par exemple `infra-pipeline-lifecycle-persistence`, propriétaire du control store et des
 ports lifecycle.
 
-Cette frontière logique est déployée sur la ressource transactionnelle compatible avec le store
-durable de production/consumption. Le nom de module clarifie l'ownership ; il n'impose ni une base
-physique séparée ni le nom illustratif `pocoma_control`. Elle implémente les lectures activation et
-serving, les mutations atomiques, l'unicité et la FK décrites plus haut.
+Cette frontière logique est déployée sur la ressource transactionnelle qui porte l'acquisition des
+Slots et Claims. Le nom de module clarifie l'ownership ; il n'impose ni une base physique séparée ni
+le nom illustratif `pocoma_control`. Elle implémente les lectures activation et serving, le verrou
+d'acquisition, les mutations atomiques, l'unicité et la FK décrites plus haut.
 
 ### 19.3 Consommateurs
 
-- `engine-processing-event`/`locator-consumption-event` consomment la vue active pour la discovery ;
-- `engine-task-creation` consomme le gate active autoritatif ;
-- `engine-processing-task`/`locator-consumption-task` consomment la vue active et le gate d'exécution ;
+- `locator-consumption-event` et `locator-consumption-task` consomment la vue active pour la discovery
+  best effort et attachent le contrôle autoritatif à l'acquisition ;
+- le moteur de consommation évalue cette précondition dans la transaction existante d'acquisition ;
+- `engine-task-creation` et `engine-processing-task` ne dépendent pas du lifecycle après le Claim ;
 - la composition du Query Kernel consomme `ServingSelectionQuery` depuis le control store et le
   catalogue déclaré ;
 - les runtimes ne font que câbler ces contrats et adapters.
@@ -762,12 +786,14 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
 
 | Cas | Résultat attendu |
 |---|---|
-| declared inactive | aucune nouvelle Task |
-| active applicable | génération candidate et Task idempotente normale |
+| declared inactive | aucune nouvelle consommation Event ou Task acquise |
+| active applicable | génération candidate et Claim normal |
 | active non-serving | production normale |
-| Task préexistante + inactive | non découverte/non exécutée, non terminalisée |
-| désactivation après discovery | gate autoritatif bloque l'effet et relâche le Claim |
-| réactivation | discovery/création/exécution redeviennent possibles |
+| Task préexistante + inactive | non acquérable, persistée et non terminalisée |
+| désactivation après discovery, avant Claim | aucun Claim, aucune exécution |
+| désactivation après Claim Event | Event termine et peut créer ses Tasks |
+| désactivation après Claim Task | handler, effets et terminalisation normaux |
+| réactivation | discovery et acquisition redeviennent possibles sans reset |
 | activation/désactivation | aucune mutation des Tasks/Slots/Claims/artifacts historiques |
 
 ### 20.4 Serving
@@ -790,8 +816,9 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
 |---|---|
 | deux selectServing concurrents | jamais deux lignes pour le ProjectionType |
 | selectServing(v3) vs deactivate(v3) | jamais serving+inactive |
-| task creation vs deactivate | effet entièrement avant désactivation ou bloqué après |
-| task execution vs deactivate | handler entièrement avant désactivation ou non invoqué |
+| Claim Event vs deactivate | Claim committé avant : Event termine ; deactivate avant : aucun Claim |
+| Claim Task vs deactivate | Claim committé avant : Task termine ; deactivate avant : aucun Claim |
+| absence de ligne puis activate | tentative courante refusée, cycle suivant acquérable |
 
 ### 20.6 Query Kernel
 
@@ -808,8 +835,9 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
 
 - v2 active+serving et v3 active+non-serving produisent toutes deux ; les reads restent sur v2 ;
 - une nouvelle version active redécouvre l'historique applicable sans mécanisme de rebuild séparé ;
-- Event historique déjà consommé, v3 declared mais inactive : aucune Task v3 ; après `activate(v3)`,
-  l'Event est redécouvert, sa Task v3 propre est créée puis traitée par le flux normal ;
+- Event historique durable et v3 inactive : aucune consommation Event v3 n'est acquise ; après
+  `activate(v3)`, l'Event peut être redécouvert et claimé. Si une Task v3 avait déjà été créée par un
+  Event en vol, elle devient directement acquérable ; sinon le scheduling normal la crée ;
 - lifecycle indépendant d'AUTH, HTTP, controller, latest-known, `ProjectionHead`, Task ordering et
   continuité de businessVersion ;
 - module engine sans Spring/JPA/JDBC ; adapter du control store seul propriétaire du SQL lifecycle ;
@@ -834,14 +862,16 @@ Cette orientation évite toute dépendance du moteur lifecycle vers ses consomma
     et lifecycle.
 11. Dupliquer `VersionApplicability` dans les tables lifecycle créerait deux autorités concurrentes.
 12. Introduire un rebuild séparé contournerait la redécouverte normale Event→Task.
-13. Vérifier active seulement en discovery laisserait une race jusqu'à la création/exécution.
-14. Vérifier active puis écrire sans verrou atomique laisserait la désactivation gagner entre les
-    deux opérations.
-15. Traiter inactive comme failure/rejet terminal empêcherait la reprise après réactivation.
-16. Placer le lifecycle dans `engine-query` ferait dépendre la production d'un moteur de lecture.
-17. Persister active/serving dans le read store dérivé ferait croire à tort que ces décisions sont
+13. Vérifier active seulement en discovery laisserait une race jusqu'au Claim.
+14. Vérifier active puis acquérir sans transaction/verrou compatible laisserait la désactivation
+    gagner entre les deux opérations.
+15. Recontrôler active après le Claim ferait dépendre une consommation in flight d'un changement de
+    lifecycle postérieur et introduirait rollback/release artificiels.
+16. Traiter inactive comme failure/rejet terminal empêcherait la reprise après réactivation.
+17. Placer le lifecycle dans `engine-query` ferait dépendre la production d'un moteur de lecture.
+18. Persister active/serving dans le read store dérivé ferait croire à tort que ces décisions sont
     reconstructibles et couplerait leur autorité à son déploiement physique.
-18. Maintenir la relation producteur/projection dans plusieurs mappings indépendants créerait des
+19. Maintenir la relation producteur/projection dans plusieurs mappings indépendants créerait des
     autorités concurrentes.
 
 ## 22. Hors périmètre
@@ -875,7 +905,7 @@ serving.
   serving selection persistée
   invariants minimaux et concurrence
   primitives de mutation
-  gates de production
+  gates d'acquisition
   port de lecture serving
 
 7.14.2
@@ -904,7 +934,7 @@ Le design est fermé lorsque les assertions suivantes sont normatives :
 2. aucune colonne declared n'existe ;
 3. active = présence persistée par identité exacte ;
 4. plusieurs versions peuvent être actives ;
-5. inactive bloque création et exécution sans détruire ni terminaliser ;
+5. inactive bloque toute nouvelle acquisition Event ou Task sans détruire ni terminaliser ;
 6. serving est une sélection `ProjectionType -> PipelineDefinition` séparée ;
 7. cardinalité serving `0..1` garantie par PK ;
 8. activations et serving résident ensemble dans un control store autoritatif distinct du read store
@@ -916,11 +946,11 @@ Le design est fermé lorsque les assertions suivantes sont normatives :
 12. select exige declared+active+producer ;
 13. deactivate serving échoue ;
 14. activation, re-activation, sélection identique et clear sont idempotents ;
-15. discovery filtre active pour l'efficacité ; création/exécution revalident sous verrou pour la
-    correction ;
-16. une désactivation concurrente ne peut produire ni Task postérieure ni effet Task postérieur ;
-17. la frontière transactionnelle lifecycle reste compatible avec création/exécution sans dépendre
-    d'une colocalisation future avec le read store ;
+15. discovery filtre active pour l'efficacité ; le Claim revalide sous verrou pour la correction ;
+16. Claim et désactivation sont sérialisés par leur ordre de commit ; un Claim déjà acquis autorise
+    l'achèvement normal sans nouveau contrôle lifecycle ;
+17. la frontière transactionnelle lifecycle est compatible avec l'acquisition des Slots/Claims sans
+    dépendre d'une colocalisation avec les effets métier ou le read store ;
 18. v2 serving et v3 active non-serving produisent en parallèle ;
 19. une activation permet de redécouvrir les Events historiques déjà consommés pour cette nouvelle
     génération ;
@@ -953,10 +983,10 @@ L'inspection révèle des adaptations futures nécessaires, mais aucune contradi
 - le catalogue déclaré existe déjà ;
 - le catalogue producteur étroit est absent mais peut être assemblé comme unique vue des déclarations
   déjà possédées par les bindings, sans seconde configuration ;
-- le release de Claim existe, même si l'orchestrateur Task ne possède pas encore la branche de
-  déférencement lifecycle ;
 - la frontière d'adaptation du control store reste à créer et doit partager une ressource
-  transactionnelle compatible avec les mutations de production qu'elle gouverne.
+  transactionnelle compatible avec l'acquisition des Slots/Claims qu'elle gouverne ;
+- le contrat d'acquisition devra transporter une précondition lifecycle sans coupler le moteur de
+  consommation générique à `domain-pipeline`.
 
 Ces éléments sont du travail d'implémentation cadré par le présent design, pas des arbitrages
 fonctionnels.
@@ -971,8 +1001,9 @@ NONE
 - `declared / active / serving` ne forment pas un enum exclusif.
 - Declared est l'existence d'une `PipelineVersionDefinition` dans le catalogue.
 - Active est un état runtime persistant par pipelineVersion ; plusieurs versions peuvent être actives.
-- Active autorise la production mais ne prouve ni convergence, ni éligibilité, ni serving.
-- Inactive bloque toute nouvelle Task et toute exécution sans effacer l'historique.
+- Active autorise l'acquisition de nouvelles consommations mais ne prouve ni convergence, ni
+  éligibilité, ni serving.
+- Inactive bloque les nouveaux Claims Event/Task sans interrompre les Claims déjà acquis.
 - Serving est une sélection séparée par `ProjectionType`, de cardinalité `0..1`.
 - L'absence de serving est valide et aucun défaut n'est calculé.
 - `serving => active => declared` ; select inactive et deactivate serving sont interdits.
@@ -1038,7 +1069,8 @@ serving(type) = identity
 
 active != eligibleForServing
 active != serving
-inactive => no task creation and no task execution
+inactive => no new Event or Task Claim
+Claim committed while active => execution may complete after deactivation
 serving cardinality per ProjectionType = 0..1
 active/serving authority = lifecycle control store, not derived read store
 ```
@@ -1066,16 +1098,18 @@ clearServing(type)
 
 - Declared : définition présente/absente et intégrité de bootstrap.
 - Active : activate/deactivate idempotents, plusieurs versions actives, serving non désactivable.
-- Production : inactive exclue de discovery, création et exécution ; réactivation reprend sans reset.
+- Production : inactive exclue de discovery best effort et des nouveaux Claims ; un Claim acquis
+  termine normalement ; réactivation reprend sans reset.
 - Serving : zéro ou une sélection, active+declared+producer requis, remplacement atomique.
 - Concurrence : double select et select/deactivate ne violent jamais les invariants.
 - Query : `ServingSelection` + catalogue produit exactement `QueryProjectionSelection`, sans MAX ni
   fallback.
 - Reconstruction : ancienne serving et nouvelle active produisent ensemble, reads sur serving seule.
-- Reconstruction après activation : un Event historique déjà consommé est redécouvert pour v3 et
-  produit la Task propre à v3 ; inactive n'en produit aucune.
-- Persistence : active et serving partagent le control store et sa transaction locale ; le read store
-  dérivé n'en est ni propriétaire ni source de reconstruction.
+- Reconstruction après activation : l'Event historique ou la Task durable redevient acquérable au
+  cycle suivant, sans mécanisme parallèle.
+- Persistence : active et serving partagent le control store ; l'activation partage uniquement la
+  transaction locale d'acquisition des Claims. Le read store dérivé n'en est ni propriétaire ni
+  source de reconstruction.
 - Architecture : aucune dépendance à AUTH, HTTP, latest-known, head, ordre ou continuité.
 
 ## OPEN QUESTIONS / BLOCKERS
