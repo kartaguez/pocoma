@@ -15,7 +15,7 @@ vérifiée avant une modification.
 ### Read side
 
 - [État actuel du read side](architecture/read-side-current-state.md) — description factuelle de l'existant : GET, sources SQL, temporalité et Balance.
-- [Architecture cible du read side](architecture/read-side-target.md) — cible normative du Lot 7 : modèle temporel, projections, queries et invariants.
+- [Architecture canonique du Read side et des projections](architecture/read-side-target.md) — cible normative root/artifacts/result, contrats partagés, ports universels et plan de refonte challengeable.
 - [Reconstruction historique d'un Pot](architecture/pot-historical-reconstruction.md) — temporalité primaire exacte, fragments reconstructibles et limite `updatedAt`.
 - [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
 - [Plan détaillé du Lot 7.9.1](plans/lot-7.9.1-versioned-query-contracts-plan.md) — contrats framework-free monoprojection, génération serving, état terminal et enveloppe versionnée.
