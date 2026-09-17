@@ -267,6 +267,35 @@ Une republication strictement équivalente peut être adoptée comme succès ide
 divergent sous la même identité est une violation de déterminisme et doit être rejeté et observable,
 jamais écrasé silencieusement.
 
+### 4.6 Indépendance vis-à-vis de l'observabilité
+
+Les composants fonctionnels de traitement introduits par cette architecture restent indépendants des
+mécanismes d'observabilité. Cette règle s'applique notamment à la création
+`Event -> ProjectionTask`, à la matérialisation `ProjectionTask -> Projection`, aux `Projector`, à la
+validation de projection et aux use cases de lecture.
+
+Ces composants ne dépendent directement ni de SLF4J, ni de Micrometer, ni d'OpenTelemetry, ni d'un
+tracer, ni d'un `MeterRegistry`, ni d'une API d'observation injectée uniquement pour produire des
+logs, métriques ou traces. Un composant fonctionnel doit pouvoir être exécuté et testé intégralement
+sans infrastructure d'observabilité.
+
+L'observation est ajoutée extérieurement, par décoration ou composition à une frontière appropriée :
+
+```text
+functional component
+        ^
+observed decorator
+```
+
+et non par une dépendance sortante du traitement fonctionnel :
+
+```text
+functional component -> Observation API
+```
+
+Une panne ou une absence de l'observabilité ne modifie jamais le résultat fonctionnel, la
+transaction, la classification d'échec ou la décision de retry du traitement observé.
+
 ## 5. Frontières d'architecture
 
 | Couche | Responsabilités | Ne connaît pas |
@@ -310,7 +339,9 @@ ce contrat minimal.
 
 Un `Projector` est sélectionné par `ProjectionType` dans une map immuable. Il reçoit l'identité cible
 et l'état canonique exact nécessaire, puis retourne une collection d'artifacts candidats. Il ne
-persiste rien et ne connaît pas l'orchestration.
+persiste rien et ne connaît ni l'orchestration ni l'observabilité. Son instrumentation ne peut pas
+l'obliger à recevoir `sourceEventType`, un contexte Event ou toute autre donnée absente de son besoin
+fonctionnel.
 
 Les sources versionnées existantes sont réutilisées derrière leurs ports :
 
@@ -449,6 +480,14 @@ l'ensemble.
 Le domaine projection ne connaît aucune de ces classes. Inversement, l'orchestrateur traite le
 succès ou l'échec du use case sans interpréter root, artifacts, cardinalités ou schémas JSON.
 
+L'observabilité générique existante autour de la mécanique de consommation est réutilisée lorsqu'elle
+reste pertinente. Une observation spécifique indispensable au test, à la migration ou à
+l'exploitation du nouveau chemin est ajoutée dans les supra/runtimes par un décorateur ou un
+composant d'observation simple. Elle ne justifie ni une dépendance depuis le domaine ou les use cases,
+ni un framework générique d'observabilité. Les métadonnées techniques de corrélation peuvent rester
+dans les enveloppes et frontières d'orchestration ; elles ne deviennent pas des champs fonctionnels
+de `ProjectionTask` et ne sont pas transmises au `Projector` sans besoin métier.
+
 ## 10. Lecture métier et exposition
 
 Le chemin cible d'une lecture est :
@@ -484,8 +523,18 @@ complet ait atteint la parité fonctionnelle. Le cutover HTTP est un lot ultéri
 - le déploiement/cutover et la suppression physique immédiate des tables legacy ;
 - une stratégie générale de versionnement de schémas au-delà des besoins des premiers
   `ProjectionType` ;
-- l'observabilité détaillée au-delà des erreurs d'intégrité et des métriques de consommation déjà
-  disponibles.
+- une architecture générale d'observabilité commune au Write, au Read, à la consommation et aux
+  runtimes.
+
+La reconstructibilité depuis l'état canonique exact `X@V` est l'invariant nécessaire de cette
+refonte. Aucun moteur opérationnel général de refill, replay ou rebuild n'est ajouté aux lots.
+
+Une revue puis, si nécessaire, une refonte transversale de l'observabilité seront réalisées après la
+stabilisation de la nouvelle architecture Read et la suppression de son legacy. Cette revue future
+auditera les frontières alors réellement restantes du Write, du Read, de la consommation et des
+runtimes avant de décider quelles abstractions sont effectivement communes. Elle n'appartient pas aux
+lots fonctionnels ci-dessous. D'ici là, seules les observations extérieures strictement nécessaires
+au test, à la migration, à l'exploitation et au rollback du nouveau chemin sont ajoutées.
 
 ## 12. Legacy et candidats à suppression
 
@@ -536,14 +585,15 @@ nouvelles migrations après cutover et validation de l'absence de reader/writer 
 POMs pour retirer progressivement `domain-pipeline`/`domain-pot` des primitives génériques.
 
 **Invariants établis.** Identité sans pipeline ; cardinalités/types/clés/payloads vérifiables ; root
-sans statut ; résultat distinct ; même validation appelable en écriture et lecture.
+sans statut ; résultat distinct ; même validation appelable en écriture et lecture ; domaine et
+validateur sans dépendance d'observabilité.
 
 **Tests à ajouter.** Construction des valeurs ; registry duplicate/missing ; artifact interdit ;
 cardinalités min/max ; clé dupliquée ; JSON invalide ; validation transverse ; projection à zéro
 artifact valide lorsque la définition l'autorise.
 
-**Critères de fin.** API domaine framework-free stabilisée, tests unitaires verts, aucune composition
-runtime modifiée, définitions revues avec des exemples JSON réels.
+**Critères de fin.** API domaine framework-free stabilisée, tests unitaires verts sans infrastructure
+d'observabilité, aucune composition runtime modifiée, définitions revues avec des exemples JSON réels.
 
 **Dépendances avec les lots suivants.** Bloque tous les autres lots ; n'en dépend pas.
 
@@ -581,14 +631,16 @@ puis adapter `READ_POT` et `POT_BALANCES` en appels directs de test ou shadow.
 `infra-persistence-jpa`.
 
 **Invariants établis.** `P(X,V)` ne dépend que de `X@V` et du contrat ; aucune dépendance Event/N-1/
-autre projection/ordre ; validation obligatoire avant write ; échec sans artifact canonique.
+autre projection/ordre ; validation obligatoire avant write ; échec sans artifact canonique ; tâche,
+projectors et use case sans dépendance d'observabilité.
 
 **Tests à ajouter.** Projector manquant ; mauvais target type ; source exacte absente/incohérente ;
 production déterministe hors ordre ; validation rejetée ; propagation `FAILED` ; retry identique ;
 test de non-interaction avec Event et projection précédente.
 
 **Critères de fin.** Les deux types sont matérialisables directement via le même use case et le même
-port ; aucun nouveau loader générique ; tests d'intégration shadow verts.
+port ; aucun nouveau loader générique ; tests d'intégration shadow verts sans logger, tracer,
+`MeterRegistry` ou API d'observation requis par le traitement fonctionnel.
 
 **Dépendances avec les lots suivants.** Dépend des lots 1–2 ; débloque Event/Task et parité données.
 
@@ -604,7 +656,8 @@ retourne `READY`, `FAILED`, `NOT_READY` ou corruption interne.
 tests de contrat ; aucun endpoint actif.
 
 **Invariants établis.** Aucune projection invalide servie ; root corrompu jamais assimilé à
-`NOT_READY` ; définition identique à celle de la production.
+`NOT_READY` ; définition identique à celle de la production ; service de lecture indépendant de
+l'observabilité.
 
 **Tests à ajouter.** Mutation SQL volontaire de chaque composant ; mauvais schéma/cardinalité/clé ;
 root sans result ; success sans root ; failure ; absence totale ; lecture valide pour les deux types.
@@ -626,7 +679,8 @@ lot 3 ; bloque le use case Read métier.
 `pipeline-pot`, `pipeline-balance`, `infra-persistence-jpa` pour l'idempotence des Tasks.
 
 **Invariants établis.** Event utilisé uniquement pour cibler la tâche ; un même Event peut produire
-plusieurs types ; aucun payload Event requis à l'exécution ; mapping exhaustif et déterministe.
+plusieurs types ; aucun payload Event requis à l'exécution ; mapping exhaustif et déterministe ;
+création fonctionnelle des tâches indépendante de l'observabilité.
 
 **Tests à ajouter.** Chaque EventType connu ; zéro/un/plusieurs types ; duplicate Event ; Tasks déjà
 présentes ; mapping absent ; identité objet/version correcte ; aucune consultation du read store.
@@ -655,7 +709,9 @@ lost claim rollback ; retry idempotent ; domaine projection indépendant de cons
 retry ; duplicate ; exécution hors ordre ; deux ProjectionType ; failure terminale.
 
 **Critères de fin.** Tests runtime existants et nouveaux verts ; feature flag/configuration de retour
-à l'ancien handler pendant observation ; aucune modification sémantique du moteur générique.
+à l'ancien handler pendant observation ; observation générique de consumption réutilisée et toute
+observation spécifique ajoutée par décoration dans les supra/runtimes ; aucune modification
+sémantique du moteur générique ni du résultat fonctionnel en cas d'échec d'observation.
 
 **Dépendances avec les lots suivants.** Dépend des lots 3 et 5 ; fournit les données pour le Read
 métier et le cutover.
@@ -672,7 +728,8 @@ explicite, le reader générique, la revalidation, le mapping de réponse et l'a
 snapshots et tests de policy ; reader primaire conservé pour comparaison/rollback.
 
 **Invariants établis.** Le résultat métier ne lit pas le primaire ; version exposée explicite ;
-corruption non masquée ; autorisation évaluée sur les données/version servies.
+corruption non masquée ; autorisation évaluée sur les données/version servies ; use case Read
+exécutable et testable sans infrastructure d'observabilité.
 
 **Tests à ajouter.** Parité legacy/cible ; exact ready/failed/not-ready/corrupt ; deleted ; accès
 autorisé/refusé ; absence de lecture primaire ; version retournée.
@@ -698,8 +755,10 @@ publique cohérente des états ; rollback de configuration possible.
 **Tests à ajouter.** Contrats HTTP, auth, exact/current décidé, concurrence pendant production,
 projection corrompue, compatibilité des réponses, smoke et charge ciblée.
 
-**Critères de fin.** Endpoint pilote activé puis observé ; critères de rollback documentés ; chaque
-endpoint suivant migre dans un sous-lot indépendant.
+**Critères de fin.** Endpoint pilote activé puis observé par des composants extérieurs au use case ;
+métriques nécessaires à l'exploitation et critères de rollback documentés ; chaque endpoint suivant
+migre dans un sous-lot indépendant ; aucune instrumentation ne réintroduit de contexte Event dans la
+matérialisation fonctionnelle.
 
 **Dépendances avec les lots suivants.** Dépend du lot 7 ; conditionne les suppressions physiques.
 
@@ -729,6 +788,10 @@ doit dépendre de ce nettoyage.
 
 **Legacy supprimable après validation.** Tous les candidats de la section 12 dont les conditions sont
 satisfaites, par sous-lots séparés et réversibles avant le drop physique final.
+
+La stabilisation et le nettoyage de ce lot rendent possible la revue transversale ultérieure de
+l'observabilité. Cette revue constitue un chantier distinct et ne prolonge pas le séquencement
+fonctionnel de la refonte Read.
 
 ## 14. Open implementation decisions
 
