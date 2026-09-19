@@ -35,6 +35,7 @@ class HexagonalArchitectureTest {
 			+ ".engine.service.projection.read";
 	private static final String PROJECTION_READ_EXCEPTION_PACKAGE = ROOT_PACKAGE
 			+ ".engine.exception.projection.read";
+	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.pot.read";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
@@ -368,6 +369,21 @@ class HexagonalArchitectureTest {
 		assertEquals(Set.of(), dependenciesOutsideProjectionRead,
 				"engine-projection-read must depend only on the JDK, domain-projection "
 						+ "and engine-projection-contracts");
+	}
+
+	@Test
+	void potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts() {
+		Set<String> dependenciesOutsidePotRead = dependenciesOutside(
+				POT_READ_ENGINE_PACKAGE,
+				Set.of(
+						POT_READ_ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".domain.pot",
+						ROOT_PACKAGE + ".domain.projection",
+						PROJECTION_READ_PORT_PACKAGE));
+		assertEquals(Set.of(), dependenciesOutsidePotRead,
+				"engine-pot-read must depend only on the JDK, domain-authorization, domain-pot, "
+						+ "domain-projection and engine-projection-read");
 	}
 
 	private static boolean isProjectionReadEnginePackage(String packageName) {

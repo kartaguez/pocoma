@@ -9,8 +9,9 @@ antérieurs restent utiles comme historique, mais ne prévalent pas sur cette ci
 
 Le premier lot stabilise le noyau de domaine générique. Le deuxième lot ajoute les ports
 universels et leur stockage relationnel canonique. Le troisième lot ajoute la lecture applicative
-exacte et la revalidation des projections stockées, toujours sans projector, worker, registre
-runtime de définitions ni projection métier concrète.
+exacte et la revalidation des projections stockées. Le quatrième lot définit la lecture métier
+versionnée d'un Pot à partir des projections `AUTH` et `READ_POT`, toujours sans projector, worker,
+registre runtime de définitions ni wiring.
 
 ## 2. Modèle canonique
 
@@ -189,7 +190,69 @@ Le caller fournit directement la définition. Aucun registre, resolver ou catalo
 n'est introduit. Le service reçoit un `ProjectionValidator` déjà assemblé et ne connaît ni
 `JsonSchemaValidator`, ni persistence, ni framework.
 
-## 7. Invariants de production et de lecture futurs
+## 7. Lecture métier versionnée d'un Pot
+
+Le module Java pur `engine-pot-read` porte le use case :
+
+```java
+GetPotAtVersionResult get(
+    UserId userId,
+    Set<Permission> permissions,
+    PotId potId,
+    long version
+)
+```
+
+Ses états normaux sont exclusivement `Ready`, `Forbidden`, `AuthFailed`, `AuthNotReady`,
+`ReadPotFailed` et `ReadPotNotReady`. Une violation du contrat du store ou d'un invariant transverse
+AUTH/READ_POT reste une exception interne et n'est jamais transformée en état normal.
+
+L'autorisation combine obligatoirement deux barrières distinctes :
+
+```text
+PocomaPermissions.POT_VIEW
+    AND
+(créateur OR shareholder lié dans AUTH à la version demandée)
+```
+
+`POT_VIEW` autorise globalement l'exercice de l'action de lecture d'un pot ; elle ne donne pas accès
+à tous les pots. La projection `AUTH(potId, version)` porte l'autorisation métier de lire ce pot à
+cette version. Le contrôle suit toujours cet ordre :
+
+```text
+POT_VIEW
+    -> AUTH(potId, version)
+    -> créateur OR shareholder lié
+    -> READ_POT(potId, version)
+```
+
+Sans `POT_VIEW`, aucune projection n'est lue. Lorsque AUTH est absente ou en échec, READ_POT n'est
+pas lue. Lorsque l'utilisateur n'est ni créateur ni shareholder à la version demandée, le résultat
+est `Forbidden` et READ_POT n'est pas lue.
+
+AUTH déclare un artifact `CREATOR` obligatoire et des artifacts `SHAREHOLDER_USER` optionnels. Leur
+clé est le `UserId`. Le payload doit répéter ce même identifiant. Deux utilisateurs différents ne
+peuvent pas désigner le même `ShareholderId` dans une projection AUTH.
+
+READ_POT déclare un artifact `POT` obligatoire ainsi que zéro ou plusieurs artifacts `SHAREHOLDER`
+et `EXPENSE`. Pour l'artifact POT, l'égalité suivante est volontaire :
+
+```text
+ArtifactKey == payload.potId == ProjectionKey.targetObjectId
+```
+
+Dans un shareholder, le champ `userId` est toujours présent : une chaîne UUID représente un
+rattachement et JSON `null` son absence. Une omission n'est pas une seconde représentation valide.
+Les montants et parts utilisent des fractions entières exactes dont le numérateur est positif ou
+nul et le dénominateur strictement positif. Un tableau `shares` vide est structurellement valide,
+mais viole l'invariant métier de `ReadPotInterpreter`.
+
+`ProjectionDefinition` et `ProjectionValidator` garantissent la structure locale. Les interpreters
+ne répètent pas ces contrôles : ils vérifient les égalités entre clés et payloads ainsi que les
+références entre artifacts. Les schemas restent exprimés en `JsonValue`; l'adapter réel de
+`JsonSchemaValidator` et le wiring du chemin Read appartiennent à un lot ultérieur.
+
+## 8. Invariants de production et de lecture futurs
 
 Une projection `P(X,V)` doit pouvoir être recalculée uniquement à partir de l'état canonique de
 `X@V`, de la définition de `P` et du projector associé. Elle ne dépend pas :
@@ -223,7 +286,7 @@ ou un timestamp différent après normalisation constitue une violation d'invari
 indépendants, sans promesse de snapshot commun. L'interprétation future reste : projection présente
 donc `READY`, sinon failure présente donc `FAILED`, sinon `NOT_READY`.
 
-## 8. Frontières d'architecture
+## 9. Frontières d'architecture
 
 Le package cœur `com.kartaguez.pocoma.domain.projection` dépend uniquement du JDK et de lui-même. Il
 ne dépend notamment ni de `domain-pot`, ni de `domain-pipeline`, ni de Jackson, SQL/JPA, Spring,
@@ -239,6 +302,11 @@ dans `engine-projection-read`. Ce module dépend uniquement du JDK, de `domain-p
 d'`engine-projection-contracts`. Son service reste package-private tant qu'aucune composition
 externe n'est introduite ; cette visibilité pourra être revue au moment d'un futur wiring.
 
+Le use case métier versionné, ses six résultats, ses vues, ses définitions et ses interpreters
+vivent dans `engine-pot-read`. Ce module dépend uniquement du JDK, de `domain-authorization`,
+`domain-pot`, `domain-projection` et `engine-projection-read`. Il ne contient aucun framework,
+adapter JSON Schema, accès au store, runtime ou dépendance legacy.
+
 Le codec `JsonValue`/JSONB et l'adapter JDBC qui implémente les deux ports vivent dans
 `infra-read-persistence`. Les clés primaires `BIGINT IDENTITY` de `projection_root` et
 `projection_artifact` sont exclusivement relationnelles : elles ne quittent jamais
@@ -247,7 +315,7 @@ l'infrastructure et aucun type de domaine ou d'engine ne les représente.
 Les mécanismes d'observation seront ajoutés extérieurement par décoration ou composition. Les
 objets métier ne portent aucune metadata destinée aux logs, métriques ou traces.
 
-## 9. Isolation transitoire du legacy
+## 10. Isolation transitoire du legacy
 
 Le module `pocoma-domain-projection-legacy` contient, sous
 `com.kartaguez.pocoma.domain.projection.legacy`, les anciens types nécessaires aux flux actifs :
