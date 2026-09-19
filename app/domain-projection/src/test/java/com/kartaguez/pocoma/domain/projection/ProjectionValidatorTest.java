@@ -15,6 +15,7 @@ class ProjectionValidatorTest {
 	private static final ProjectionType TYPE = new ProjectionType("READ_POT");
 	private static final TargetObjectType TARGET_TYPE = new TargetObjectType("POT");
 	private static final ArtifactType HEADER = new ArtifactType("HEADER");
+	private static final ArtifactType EXPENSE = new ArtifactType("EXPENSE");
 	private static final JsonValue SCHEMA = new JsonObject(java.util.Map.of("type", new JsonString("object")));
 	private static final JsonValue PAYLOAD = new JsonObject(java.util.Map.of("label", new JsonString("Trip")));
 
@@ -47,6 +48,47 @@ class ProjectionValidatorTest {
 	void rejectsDuplicateKeysWithinTheSameArtifactType() {
 		assertInvalid(definition(new Cardinality(0, null)), projection(TYPE, TARGET_TYPE, List.of(
 				artifact(HEADER, "same", PAYLOAD), artifact(HEADER, "same", PAYLOAD))));
+	}
+
+	@Test
+	void acceptsTheSameArtifactKeyForDifferentArtifactTypes() {
+		var definition = new ProjectionDefinition(TYPE, TARGET_TYPE, List.of(
+				new ArtifactDefinition(HEADER, new Cardinality(1, 1), SCHEMA),
+				new ArtifactDefinition(EXPENSE, new Cardinality(1, 1), SCHEMA)));
+		var projection = projection(TYPE, TARGET_TYPE, List.of(
+				artifact(HEADER, "same", PAYLOAD), artifact(EXPENSE, "same", PAYLOAD)));
+
+		var validated = new ProjectionValidator((schema, payload) -> true).validate(definition, projection);
+
+		assertSame(projection, validated.projection());
+	}
+
+	@Test
+	void acceptsZeroArtifactsWhenCardinalityAllowsIt() {
+		var projection = projection(TYPE, TARGET_TYPE, List.of());
+
+		var validated = new ProjectionValidator((schema, payload) -> true)
+				.validate(definition(new Cardinality(0, null)), projection);
+
+		assertSame(projection, validated.projection());
+	}
+
+	@Test
+	void evaluatesCardinalitiesIndependentlyForEachArtifactType() {
+		var definition = new ProjectionDefinition(TYPE, TARGET_TYPE, List.of(
+				new ArtifactDefinition(HEADER, new Cardinality(1, 1), SCHEMA),
+				new ArtifactDefinition(EXPENSE, new Cardinality(0, null), SCHEMA)));
+		var validProjection = projection(TYPE, TARGET_TYPE, List.of(
+				artifact(HEADER, "main", PAYLOAD),
+				artifact(EXPENSE, "first", PAYLOAD),
+				artifact(EXPENSE, "second", PAYLOAD)));
+		var invalidProjection = projection(TYPE, TARGET_TYPE, List.of(
+				artifact(EXPENSE, "first", PAYLOAD),
+				artifact(EXPENSE, "second", PAYLOAD)));
+		var validator = new ProjectionValidator((schema, payload) -> true);
+
+		assertSame(validProjection, validator.validate(definition, validProjection).projection());
+		assertThrows(ProjectionValidationException.class, () -> validator.validate(definition, invalidProjection));
 	}
 
 	@Test

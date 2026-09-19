@@ -36,13 +36,16 @@ noyau à `domain-pot` ou à un autre domaine métier.
 
 ### 2.2 Projection
 
-`Projection` représente à elle seule une production réussie. Elle porte exactement une
-`ProjectionKey` et une liste immuable de `ProjectionArtifact`.
+`Projection` est une valeur candidate complète, structurellement saine et profondément immuable.
+Elle porte exactement une `ProjectionKey` et une liste immuable de `ProjectionArtifact`, mais peut
+encore ne pas satisfaire sa `ProjectionDefinition`. `ValidatedProjection` est la preuve typée que
+cette valeur candidate satisfait le contrat déclaré.
 
-Il n'existe ni `ProjectionRoot` métier, ni `ProjectionResult`. La présence d'une `Projection` est le
-marqueur fonctionnel de complétude. Un futur stockage relationnel pourra employer une table nommée
-`projection_root` pour normaliser la clé et rattacher les artifacts, mais ce détail physique
-n'introduira ni type métier `ProjectionRoot`, ni statut propre.
+Il n'existe ni `ProjectionRoot` métier, ni `ProjectionResult`. Dans le futur Read store, l'existence
+d'une projection validée et publiée sera le marqueur fonctionnel de complétude. Un futur stockage
+relationnel pourra employer une table nommée `projection_root` pour normaliser la clé et rattacher
+les artifacts, mais ce détail physique n'introduira ni type métier `ProjectionRoot`, ni statut
+propre.
 
 ### 2.3 Artifacts
 
@@ -79,12 +82,12 @@ consommation.
 
 L'état d'une clé sera dérivé à l'avenir avec cette priorité permanente :
 
-1. une `Projection` est présente : `READY` ;
+1. une projection validée et publiée est présente : `READY` ;
 2. sinon, au moins une `ProjectionFailure` est présente : `FAILED` ;
 3. sinon : `NOT_READY`.
 
-La présence d'une projection prévaut donc toujours sur un échec antérieur. Aucun statut n'est stocké
-dans `Projection` ou `ProjectionFailure`.
+La présence d'une projection validée et publiée prévaut donc toujours sur un échec antérieur. Aucun
+statut n'est stocké dans `Projection` ou `ProjectionFailure`.
 
 ## 3. JSON immuable
 
@@ -109,6 +112,8 @@ boolean JsonSchemaValidator.isValid(JsonValue schema, JsonValue payload)
 ```
 
 L'implémentation concrète et la version de JSON Schema seront choisies dans un adapter ultérieur.
+Cet adapter devra distinguer un schéma canonique invalide d'un payload non conforme à un schéma
+valide, sans modifier l'API du lot 1.
 
 ## 4. Définition déclarative
 
@@ -139,8 +144,10 @@ pour des règles transverses arbitraires.
 Tout échec lève une `ProjectionValidationException`. Aucun objet validé n'est alors produit.
 
 Le succès retourne un `ValidatedProjection`. Cette classe est publique et immuable, mais son
-constructeur est package-private : l'API normale ne permet d'obtenir la preuve qu'après le passage
-complet dans `ProjectionValidator`.
+constructeur est package-private : le code extérieur au package
+`com.kartaguez.pocoma.domain.projection` ne peut pas construire directement cette preuve via l'API
+publique normale. Par convention d'architecture, `ProjectionValidator` ne la produit qu'après le
+passage complet des six contrôles.
 
 Le futur `ProjectionWritePort.publish` acceptera une `ValidatedProjection`, jamais une `Projection`
 brute. La lecture rechargera une `Projection` complète puis appliquera la même définition et le même

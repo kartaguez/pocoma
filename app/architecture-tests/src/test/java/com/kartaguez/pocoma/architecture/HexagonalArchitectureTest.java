@@ -288,17 +288,27 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void projectionCoreDependsOnlyOnTheJdkAndItself() {
-		String projectionCorePackage = ROOT_PACKAGE + ".domain.projection";
 		Set<String> dependenciesOutsideProjectionCore = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().equals(projectionCorePackage))
+				.filter(javaClass -> isProjectionCorePackage(javaClass.getPackageName()))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(Dependency::getTargetClass)
 				.filter(target -> !target.getPackageName().startsWith("java."))
-				.filter(target -> !target.getPackageName().equals(projectionCorePackage))
+				.filter(target -> !isProjectionCorePackage(target.getPackageName()))
 				.map(target -> target.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideProjectionCore,
 				"domain-projection core must depend only on the JDK and itself");
+	}
+
+	private static boolean isProjectionCorePackage(String packageName) {
+		String projectionCorePackage = ROOT_PACKAGE + ".domain.projection";
+		String projectionLegacyPackage = projectionCorePackage + ".legacy";
+		String balanceProjectionPackage = projectionCorePackage + ".balance";
+		return (packageName.equals(projectionCorePackage) || packageName.startsWith(projectionCorePackage + "."))
+				&& !packageName.equals(projectionLegacyPackage)
+				&& !packageName.startsWith(projectionLegacyPackage + ".")
+				&& !packageName.equals(balanceProjectionPackage)
+				&& !packageName.startsWith(balanceProjectionPackage + ".");
 	}
 
 	@Test
