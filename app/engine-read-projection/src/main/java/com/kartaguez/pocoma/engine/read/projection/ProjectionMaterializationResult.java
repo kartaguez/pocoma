@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.read.projection;
 
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.legacy.*;
 
 public sealed interface ProjectionMaterializationResult {
 	record Created(ProjectionArtifactDescriptor descriptor) implements ProjectionMaterializationResult {}

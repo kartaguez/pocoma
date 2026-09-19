@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.read.projection;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.legacy.*;
 
 public final class ProjectionStatusResolver {
 	private final ProjectionMetadataPort metadata;

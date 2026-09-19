@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
 
 class AdvanceLatestKnownVersionServiceTest {
 

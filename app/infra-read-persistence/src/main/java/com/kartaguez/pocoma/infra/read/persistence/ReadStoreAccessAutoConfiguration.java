@@ -19,7 +19,7 @@ import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
 import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
-import com.kartaguez.pocoma.domain.projection.PotProjection;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjection;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
 @ConditionalOnClass(JdbcOperations.class)

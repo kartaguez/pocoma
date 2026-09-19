@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.engine.port.out.query;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 
 public interface ProjectionReadinessQueryPort {
 

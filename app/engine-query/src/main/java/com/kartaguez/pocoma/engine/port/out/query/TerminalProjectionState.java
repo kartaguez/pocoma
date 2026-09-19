@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.port.out.query;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 
 /** A concrete business version whose projection processing ended in READY or FAILED. */
 public record TerminalProjectionState(long businessVersion, ProjectionStatus status) {

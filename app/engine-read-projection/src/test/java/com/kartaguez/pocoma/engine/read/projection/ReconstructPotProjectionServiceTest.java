@@ -28,12 +28,12 @@ import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
-import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
-import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionExpenseShare;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionShareholder;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionStatus;
 import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 
 class ReconstructPotProjectionServiceTest {

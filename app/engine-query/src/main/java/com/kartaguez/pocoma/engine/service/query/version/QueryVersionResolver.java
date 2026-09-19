@@ -7,10 +7,10 @@ import java.util.OptionalLong;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 import com.kartaguez.pocoma.engine.port.in.query.version.QueryProjectionSelection;
 import com.kartaguez.pocoma.engine.port.in.query.version.QueryVersionIntent;
 import com.kartaguez.pocoma.engine.port.in.query.version.QueryVersionResolution;

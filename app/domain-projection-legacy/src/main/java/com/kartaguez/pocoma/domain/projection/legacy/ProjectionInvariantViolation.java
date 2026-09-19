@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.projection;
+package com.kartaguez.pocoma.domain.projection.legacy;
 
 import java.time.Instant;
 import java.util.UUID;

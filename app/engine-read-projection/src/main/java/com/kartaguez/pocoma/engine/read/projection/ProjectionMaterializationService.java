@@ -5,7 +5,7 @@ import java.util.UUID;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.legacy.*;
 
 public final class ProjectionMaterializationService<A> {
 	private final ProjectionMetadataPort metadata;

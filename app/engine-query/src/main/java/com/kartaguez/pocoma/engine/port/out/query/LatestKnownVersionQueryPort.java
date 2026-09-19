@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.port.out.query;
 import java.util.Optional;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
 
 public interface LatestKnownVersionQueryPort {
 

@@ -16,7 +16,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain-projection</artifactId>
+			<artifactId>pocoma-domain-projection-legacy</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

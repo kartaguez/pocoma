@@ -287,6 +287,21 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void projectionCoreDependsOnlyOnTheJdkAndItself() {
+		String projectionCorePackage = ROOT_PACKAGE + ".domain.projection";
+		Set<String> dependenciesOutsideProjectionCore = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().equals(projectionCorePackage))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> !target.getPackageName().equals(projectionCorePackage))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), dependenciesOutsideProjectionCore,
+				"domain-projection core must depend only on the JDK and itself");
+	}
+
+	@Test
 	void engineDoesNotDependOnOuterLayersOrFrameworks() {
 		noClasses()
 				.that().resideInAPackage(ENGINE_PACKAGE)
@@ -1020,7 +1035,7 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".locator.consumption.task",
 				ROOT_PACKAGE + ".runtime.task.consumption");
 		Set<String> latestKnownVersionTypes = Set.of(
-				ROOT_PACKAGE + ".domain.projection.LatestKnownVersion",
+				ROOT_PACKAGE + ".domain.projection.legacy.LatestKnownVersion",
 				ROOT_PACKAGE + ".engine.read.projection.AdvanceLatestKnownVersionUseCase",
 				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersionPersistencePort",
 				ROOT_PACKAGE + ".infra.read.persistence.JdbcLatestKnownVersionAdapter");

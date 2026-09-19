@@ -15,9 +15,9 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pipeline.PipelineId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 
 class ProjectionReadinessQueryPortContractTest {

@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.read.projection;
 
 import static java.util.Objects.requireNonNull;
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 
 public sealed interface ProjectionResolution {
 	record NotApplicable() implements ProjectionResolution {}

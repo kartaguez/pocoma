@@ -49,18 +49,18 @@ import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.domain.projection.ProjectionArtifactDescriptor;
-import com.kartaguez.pocoma.domain.projection.ProjectionArtifactId;
-import com.kartaguez.pocoma.domain.projection.ProjectionContentDigest;
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionArtifactDescriptor;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionArtifactId;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionContentDigest;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionStatus;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.domain.projection.PotProjection;
-import com.kartaguez.pocoma.domain.projection.PotProjectionExpense;
-import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
-import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
-import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjection;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionExpense;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionExpenseShare;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionShareholder;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionStatus;
 import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
 import com.kartaguez.pocoma.engine.read.projection.PotUserIndexQuery;
@@ -578,12 +578,12 @@ class ReadStorePersistencePostgresTest {
 			ProjectionMetadataPort failingBeforeHead = new ProjectionMetadataPort() {
 				@Override public void lock(ProjectionIdentity value) { delegate.lock(value); }
 				@Override public java.util.Optional<ProjectionArtifactDescriptor> findArtifact(ProjectionIdentity value) { return delegate.findArtifact(value); }
-				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.ProjectionFailure> findFailure(ProjectionIdentity value) { return delegate.findFailure(value); }
+				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.legacy.ProjectionFailure> findFailure(ProjectionIdentity value) { return delegate.findFailure(value); }
 				@Override public void insertArtifact(ProjectionArtifactDescriptor value) { delegate.insertArtifact(value); }
-				@Override public void insertFailure(com.kartaguez.pocoma.domain.projection.ProjectionFailure value) { delegate.insertFailure(value); }
-				@Override public com.kartaguez.pocoma.domain.projection.ProjectionHead advanceHead(ProjectionGenerationIdentity value, long version, Instant at) { throw new ExpectedRollback(); }
-				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.ProjectionHead> findHead(ProjectionGenerationIdentity value) { return delegate.findHead(value); }
-				@Override public void recordViolation(com.kartaguez.pocoma.domain.projection.ProjectionInvariantViolation value) { delegate.recordViolation(value); }
+				@Override public void insertFailure(com.kartaguez.pocoma.domain.projection.legacy.ProjectionFailure value) { delegate.insertFailure(value); }
+				@Override public com.kartaguez.pocoma.domain.projection.legacy.ProjectionHead advanceHead(ProjectionGenerationIdentity value, long version, Instant at) { throw new ExpectedRollback(); }
+				@Override public java.util.Optional<com.kartaguez.pocoma.domain.projection.legacy.ProjectionHead> findHead(ProjectionGenerationIdentity value) { return delegate.findHead(value); }
+				@Override public void recordViolation(com.kartaguez.pocoma.domain.projection.legacy.ProjectionInvariantViolation value) { delegate.recordViolation(value); }
 			};
 			var service = materializationService(failingBeforeHead, transactions, readJdbc);
 

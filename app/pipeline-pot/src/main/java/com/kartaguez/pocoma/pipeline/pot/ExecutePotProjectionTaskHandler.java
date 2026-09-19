@@ -7,9 +7,9 @@ import java.util.Optional;
 import java.util.OptionalLong;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.projection.ProjectionArtifactDescriptor;
-import com.kartaguez.pocoma.domain.projection.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionArtifactDescriptor;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
 import com.kartaguez.pocoma.engine.port.in.taskexecution.handler.TaskExecutionHandler;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionFailureService;

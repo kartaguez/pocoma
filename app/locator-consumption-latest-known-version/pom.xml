@@ -7,6 +7,7 @@
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-processing-event</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-projection</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-projection-legacy</artifactId><version>${project.version}</version><scope>test</scope></dependency>
 		<dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
 	</dependencies>
 </project>

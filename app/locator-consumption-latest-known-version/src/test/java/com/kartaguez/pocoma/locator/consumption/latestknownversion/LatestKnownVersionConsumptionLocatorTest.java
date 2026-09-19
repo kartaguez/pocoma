@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;

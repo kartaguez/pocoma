@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionUpdate;

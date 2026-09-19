@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcOperations;
 
 import com.kartaguez.pocoma.domain.pipeline.*;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.legacy.*;
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 
 public final class JdbcProjectionMetadataAdapter implements ProjectionMetadataPort {

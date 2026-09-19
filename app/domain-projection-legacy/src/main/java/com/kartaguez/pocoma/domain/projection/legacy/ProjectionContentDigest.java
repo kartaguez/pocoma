@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.projection;
+package com.kartaguez.pocoma.domain.projection.legacy;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

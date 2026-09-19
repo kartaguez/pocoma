@@ -6,8 +6,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
-import com.kartaguez.pocoma.domain.projection.ProjectionArtifactId;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionArtifactId;
 
 public record PotUserIndexEntry(
 		PipelineDefinition pipeline,

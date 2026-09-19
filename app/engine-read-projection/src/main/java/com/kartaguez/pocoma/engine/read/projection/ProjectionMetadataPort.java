@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.read.projection;
 import java.time.Instant;
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.projection.*;
+import com.kartaguez.pocoma.domain.projection.legacy.*;
 
 public interface ProjectionMetadataPort {
 	void lock(ProjectionIdentity identity);

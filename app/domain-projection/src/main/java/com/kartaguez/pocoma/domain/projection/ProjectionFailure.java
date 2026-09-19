@@ -1,11 +1,13 @@
 package com.kartaguez.pocoma.domain.projection;
 
-import java.time.Instant;
 import static java.util.Objects.requireNonNull;
 
-public record ProjectionFailure(ProjectionIdentity identity, Instant failedAt, String terminalFailureCode) {
+import java.time.Instant;
+
+public record ProjectionFailure(ProjectionFailureId id, ProjectionKey projectionKey, Instant failedAt) {
 	public ProjectionFailure {
-		requireNonNull(identity); requireNonNull(failedAt); requireNonNull(terminalFailureCode);
-		if (terminalFailureCode.isBlank()) throw new IllegalArgumentException("terminalFailureCode must not be blank");
+		requireNonNull(id, "id must not be null");
+		requireNonNull(projectionKey, "projectionKey must not be null");
+		requireNonNull(failedAt, "failedAt must not be null");
 	}
 }

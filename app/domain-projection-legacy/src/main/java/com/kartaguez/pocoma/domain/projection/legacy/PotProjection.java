@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.projection;
+package com.kartaguez.pocoma.domain.projection.legacy;
 
 import static java.util.Objects.requireNonNull;
 import java.util.Comparator;

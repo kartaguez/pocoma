@@ -4,12 +4,12 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.domain.projection.PotProjection;
-import com.kartaguez.pocoma.domain.projection.PotProjectionExpense;
-import com.kartaguez.pocoma.domain.projection.PotProjectionExpenseShare;
-import com.kartaguez.pocoma.domain.projection.PotProjectionShareholder;
-import com.kartaguez.pocoma.domain.projection.PotProjectionStatus;
-import com.kartaguez.pocoma.domain.projection.ProjectionIdentity;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjection;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionExpense;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionExpenseShare;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionShareholder;
+import com.kartaguez.pocoma.domain.projection.legacy.PotProjectionStatus;
+import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
 
 public final class ReconstructPotProjectionService {
 	private final HistoricalPotSnapshotSource source;

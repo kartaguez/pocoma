@@ -37,6 +37,7 @@
 		<module>domain-projection-balance</module>
 		<module>domain-pipeline</module>
 		<module>domain-projection</module>
+		<module>domain-projection-legacy</module>
 		<module>domain-task</module>
 		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>

@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.read.projection;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.domain.projection.LatestKnownVersion;
+import com.kartaguez.pocoma.domain.projection.legacy.LatestKnownVersion;
 
 public sealed interface LatestKnownVersionUpdate {
 
