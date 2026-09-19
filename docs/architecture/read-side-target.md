@@ -8,8 +8,9 @@ Ce document est la référence normative pour la refonte du Read side à partir 
 antérieurs restent utiles comme historique, mais ne prévalent pas sur cette cible.
 
 Le premier lot stabilise le noyau de domaine générique. Le deuxième lot ajoute les ports
-universels et leur stockage relationnel canonique, sans projector, worker, registre runtime de
-définitions ni projection métier concrète.
+universels et leur stockage relationnel canonique. Le troisième lot ajoute la lecture applicative
+exacte et la revalidation des projections stockées, toujours sans projector, worker, registre
+runtime de définitions ni projection métier concrète.
 
 ## 2. Modèle canonique
 
@@ -107,6 +108,16 @@ Le noyau représente le JSON par le sealed type `JsonValue` et six variantes :
 immuables ; le graphe complet l'est donc profondément. Une référence Java null est interdite à tous
 les niveaux. Une valeur JSON `null` s'exprime uniquement par `JsonNull.INSTANCE`.
 
+`JsonNumber` conserve pour ce lot la sémantique native de `BigDecimal.equals`, sensible à la
+scale. Le round-trip du store n'est donc pas garanti de préserver cette égalité représentationnelle.
+Les tests PostgreSQL 17 montrent notamment que JSONB restitue `1E+2` sous la forme `100` ; le
+décodage Jackson actuel réduit également certaines échelles, par exemple `100.0` vers `1E+2` et
+`0.00000100` vers `0.000001`. Ces valeurs restent numériquement équivalentes, mais les
+`JsonNumber` correspondants ne sont pas nécessairement égaux au sens Java. Un lot ultérieur devra
+choisir explicitement une représentation canonique à la construction — probablement via une
+normalisation cohérente de `BigDecimal` — ou une égalité numérique dédiée avant que l'égalité exacte
+des payloads ne devienne un contrat fonctionnel.
+
 Le noyau ne choisit aucun format texte, mapper ou vocabulaire de schéma. La frontière technique
 unique est :
 
@@ -156,7 +167,29 @@ passage complet des six contrôles.
 Dans le lot 2, `ProjectionReadPort.findProjection` recharge uniquement une `Projection` brute et
 complète. La revalidation avant exposition métier appartient à un lot ultérieur.
 
-## 6. Invariants de production et de lecture futurs
+## 6. Lecture applicative exacte
+
+`ExactProjectionReadUseCase` reçoit explicitement une `ProjectionKey` et une
+`ProjectionDefinition`. Avant tout accès au store, les types de projection et d'objet cible de la
+clé doivent correspondre à ceux de la définition ; une incohérence est une erreur d'appel et non un
+état de lecture.
+
+Lorsqu'une projection est trouvée, sa clé doit être exactement celle demandée, y compris
+`targetObjectId` et `targetVersion`. Cette vérification précède la revalidation, car la définition
+ne porte pas ces deux composants. Une autre clé retournée ou une projection incompatible avec sa
+définition provoque une `StoredProjectionInvariantViolationException`. Dans les deux cas, les
+failures historiques ne sont pas consultées et aucune écriture n'est effectuée.
+
+Une projection de la bonne clé et validée produit `ProjectionReadResult.Ready`, qui transporte la
+`ValidatedProjection` et en dérive sa clé. Si aucune projection n'existe, la présence d'au moins une
+failure produit `Failed` ; son absence produit `NotReady`. `Failed` et `NotReady` transportent la
+clé demandée. Ces trois résultats sont les seuls états normaux du use case.
+
+Le caller fournit directement la définition. Aucun registre, resolver ou catalogue de définitions
+n'est introduit. Le service reçoit un `ProjectionValidator` déjà assemblé et ne connaît ni
+`JsonSchemaValidator`, ni persistence, ni framework.
+
+## 7. Invariants de production et de lecture futurs
 
 Une projection `P(X,V)` doit pouvoir être recalculée uniquement à partir de l'état canonique de
 `X@V`, de la définition de `P` et du projector associé. Elle ne dépend pas :
@@ -190,7 +223,7 @@ ou un timestamp différent après normalisation constitue une violation d'invari
 indépendants, sans promesse de snapshot commun. L'interprétation future reste : projection présente
 donc `READY`, sinon failure présente donc `FAILED`, sinon `NOT_READY`.
 
-## 7. Frontières d'architecture
+## 8. Frontières d'architecture
 
 Le package cœur `com.kartaguez.pocoma.domain.projection` dépend uniquement du JDK et de lui-même. Il
 ne dépend notamment ni de `domain-pot`, ni de `domain-pipeline`, ni de Jackson, SQL/JPA, Spring,
@@ -201,6 +234,11 @@ Les ports universels `ProjectionReadPort` et `ProjectionWritePort`, ainsi que
 frontière applicative Java pure : il dépend seulement du JDK et de `domain-projection`, et ne porte
 aucune implémentation de stockage, Spring, JDBC/JPA, Jackson, PostgreSQL ou runtime.
 
+Le use case générique de lecture exacte, ses trois résultats et son exception d'invariant vivent
+dans `engine-projection-read`. Ce module dépend uniquement du JDK, de `domain-projection` et
+d'`engine-projection-contracts`. Son service reste package-private tant qu'aucune composition
+externe n'est introduite ; cette visibilité pourra être revue au moment d'un futur wiring.
+
 Le codec `JsonValue`/JSONB et l'adapter JDBC qui implémente les deux ports vivent dans
 `infra-read-persistence`. Les clés primaires `BIGINT IDENTITY` de `projection_root` et
 `projection_artifact` sont exclusivement relationnelles : elles ne quittent jamais
@@ -209,7 +247,7 @@ l'infrastructure et aucun type de domaine ou d'engine ne les représente.
 Les mécanismes d'observation seront ajoutés extérieurement par décoration ou composition. Les
 objets métier ne portent aucune metadata destinée aux logs, métriques ou traces.
 
-## 8. Isolation transitoire du legacy
+## 9. Isolation transitoire du legacy
 
 Le module `pocoma-domain-projection-legacy` contient, sous
 `com.kartaguez.pocoma.domain.projection.legacy`, les anciens types nécessaires aux flux actifs :
@@ -232,7 +270,7 @@ l'absence de référence compilée ou runtime aux types legacy, et la migration 
 des données nécessaires. Les migrations Flyway historiques ne sont jamais réécrites ; toute
 suppression physique passera par de nouvelles migrations.
 
-## 9. Hors scope du lot 2
+## 10. Hors scope des lots 2 et 3
 
 Restent explicitement hors scope :
 

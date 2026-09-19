@@ -50,6 +50,7 @@
 		<module>engine-query</module>
 		<module>engine-pipeline-lifecycle</module>
 		<module>engine-projection-contracts</module>
+		<module>engine-projection-read</module>
 		<module>engine-projection</module>
 		<module>engine-projection-balance</module>
 		<module>engine-read-projection</module>

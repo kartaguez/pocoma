@@ -29,6 +29,12 @@ class HexagonalArchitectureTest {
 	private static final String READ_PROJECTION_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.projection..";
 	private static final String PROJECTION_CONTRACTS_ENGINE_PACKAGE = ROOT_PACKAGE
 			+ ".engine.port.out.projection..";
+	private static final String PROJECTION_READ_PORT_PACKAGE = ROOT_PACKAGE
+			+ ".engine.port.in.projection.read";
+	private static final String PROJECTION_READ_SERVICE_PACKAGE = ROOT_PACKAGE
+			+ ".engine.service.projection.read";
+	private static final String PROJECTION_READ_EXCEPTION_PACKAGE = ROOT_PACKAGE
+			+ ".engine.exception.projection.read";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
@@ -336,12 +342,41 @@ class HexagonalArchitectureTest {
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(Dependency::getTargetClass)
 				.filter(target -> !target.getPackageName().startsWith("java."))
-				.filter(target -> !target.getPackageName().startsWith(contractsPackage))
+				.filter(target -> !target.getPackageName().equals(contractsPackage)
+						&& !target.getPackageName().startsWith(contractsPackage + "."))
 				.filter(target -> !isProjectionCorePackage(target.getPackageName()))
 				.map(target -> target.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideProjectionContracts,
 				"engine-projection-contracts must depend only on the JDK and domain-projection");
+	}
+
+	@Test
+	void exactProjectionReadEngineDependsOnlyOnItsPureContracts() {
+		String contractsPackage = PROJECTION_CONTRACTS_ENGINE_PACKAGE.substring(0,
+				PROJECTION_CONTRACTS_ENGINE_PACKAGE.length() - 2);
+		Set<String> dependenciesOutsideProjectionRead = CLASSES.stream()
+				.filter(javaClass -> isProjectionReadEnginePackage(javaClass.getPackageName()))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> !isProjectionReadEnginePackage(target.getPackageName()))
+				.filter(target -> !isProjectionCorePackage(target.getPackageName()))
+				.filter(target -> !target.getPackageName().startsWith(contractsPackage))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), dependenciesOutsideProjectionRead,
+				"engine-projection-read must depend only on the JDK, domain-projection "
+						+ "and engine-projection-contracts");
+	}
+
+	private static boolean isProjectionReadEnginePackage(String packageName) {
+		return packageName.equals(PROJECTION_READ_PORT_PACKAGE)
+				|| packageName.startsWith(PROJECTION_READ_PORT_PACKAGE + ".")
+				|| packageName.equals(PROJECTION_READ_SERVICE_PACKAGE)
+				|| packageName.startsWith(PROJECTION_READ_SERVICE_PACKAGE + ".")
+				|| packageName.equals(PROJECTION_READ_EXCEPTION_PACKAGE)
+				|| packageName.startsWith(PROJECTION_READ_EXCEPTION_PACKAGE + ".");
 	}
 
 	@Test

@@ -2,9 +2,11 @@ package com.kartaguez.pocoma.infra.read.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +31,13 @@ import com.kartaguez.pocoma.domain.projection.ArtifactDefinition;
 import com.kartaguez.pocoma.domain.projection.ArtifactKey;
 import com.kartaguez.pocoma.domain.projection.ArtifactType;
 import com.kartaguez.pocoma.domain.projection.Cardinality;
+import com.kartaguez.pocoma.domain.projection.JsonArray;
+import com.kartaguez.pocoma.domain.projection.JsonBoolean;
 import com.kartaguez.pocoma.domain.projection.JsonNull;
+import com.kartaguez.pocoma.domain.projection.JsonNumber;
+import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
+import com.kartaguez.pocoma.domain.projection.JsonValue;
 import com.kartaguez.pocoma.domain.projection.Projection;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionDefinition;
@@ -73,6 +80,45 @@ class JdbcProjectionStoreAdapterPostgresTest {
 
 		assertEquals(ProjectionPublicationResult.PUBLISHED, adapter.publish(validated(key, List.of())));
 		assertEquals(List.of(), adapter.findProjection(key).orElseThrow().artifacts());
+	}
+
+	@Test
+	void roundTripsEveryJsonValueVariantThroughPostgresJsonbAndExposesNumericNormalization() {
+		JsonValue payload = new JsonObject(Map.of(
+				"array", new JsonArray(List.of(
+						new JsonString("text"),
+						new JsonNumber(new BigDecimal("1E+2")),
+						new JsonNumber(new BigDecimal("100")),
+						new JsonNumber(new BigDecimal("100.0")),
+						new JsonNumber(new BigDecimal("0.00000100")),
+						new JsonBoolean(true),
+						JsonNull.INSTANCE)),
+				"object", new JsonObject(Map.of("false", new JsonBoolean(false)))));
+		ProjectionKey key = key(16);
+
+		assertEquals(ProjectionPublicationResult.PUBLISHED,
+				adapter.publish(validated(key, List.of(artifact(HEADER, "json", payload)))));
+
+		assertEquals(List.of("100", "100", "100.0", "0.00000100"), jdbc.queryForObject("""
+				select payload #>> '{array,1}', payload #>> '{array,2}',
+				       payload #>> '{array,3}', payload #>> '{array,4}'
+				from pocoma_read.projection_artifact
+				where artifact_key = 'json'
+				""", (rs, rowNum) -> List.of(
+					rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4))));
+		JsonValue reloaded = adapter.findProjection(key).orElseThrow().artifacts().getFirst().payload();
+		JsonValue expectedPersistedValue = new JsonObject(Map.of(
+				"array", new JsonArray(List.of(
+						new JsonString("text"),
+						new JsonNumber(new BigDecimal("100")),
+						new JsonNumber(new BigDecimal("100")),
+						new JsonNumber(new BigDecimal("1E+2")),
+						new JsonNumber(new BigDecimal("0.000001")),
+						new JsonBoolean(true),
+						JsonNull.INSTANCE)),
+				"object", new JsonObject(Map.of("false", new JsonBoolean(false)))));
+		assertEquals(expectedPersistedValue, reloaded);
+		assertNotEquals(payload, reloaded);
 	}
 
 	@Test
@@ -188,6 +234,21 @@ class JdbcProjectionStoreAdapterPostgresTest {
 	}
 
 	@Test
+	void recordFailureJoinsACompatibleOuterTransactionAndRollsBackWithIt() {
+		ProjectionKey key = key(17);
+		ProjectionFailure failure = failure(UUID.randomUUID(), key,
+				Instant.parse("2026-09-19T12:00:00.123456789Z"));
+
+		assertThrows(ExpectedRollback.class, () -> transactions.executeWithoutResult(status -> {
+			adapter.recordFailure(failure);
+			throw new ExpectedRollback();
+		}));
+
+		assertFalse(adapter.hasFailure(key));
+		assertEquals(0, count("select count(*) from pocoma_read.projection_failure"));
+	}
+
+	@Test
 	void exactFailureReplayAtMicrosecondPrecisionIsIdempotent() {
 		ProjectionFailure failure = failure(UUID.randomUUID(), key(8),
 				Instant.parse("2026-09-19T12:00:00.123456Z"));
@@ -271,7 +332,11 @@ class JdbcProjectionStoreAdapterPostgresTest {
 	}
 
 	private static ProjectionArtifact artifact(ArtifactType type, String key, String value) {
-		return new ProjectionArtifact(type, new ArtifactKey(key), new JsonString(value));
+		return artifact(type, key, new JsonString(value));
+	}
+
+	private static ProjectionArtifact artifact(ArtifactType type, String key, JsonValue payload) {
+		return new ProjectionArtifact(type, new ArtifactKey(key), payload);
 	}
 
 	private static ProjectionKey key(long version) {
