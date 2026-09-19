@@ -27,6 +27,8 @@ class HexagonalArchitectureTest {
 			+ ".domain.projection.balance..";
 	private static final String PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection..";
 	private static final String READ_PROJECTION_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.projection..";
+	private static final String PROJECTION_CONTRACTS_ENGINE_PACKAGE = ROOT_PACKAGE
+			+ ".engine.port.out.projection..";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
@@ -323,6 +325,23 @@ class HexagonalArchitectureTest {
 						"org.springframework..",
 						"jakarta.persistence..")
 				.check(CLASSES);
+	}
+
+	@Test
+	void projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain() {
+		String contractsPackage = PROJECTION_CONTRACTS_ENGINE_PACKAGE.substring(0,
+				PROJECTION_CONTRACTS_ENGINE_PACKAGE.length() - 2);
+		Set<String> dependenciesOutsideProjectionContracts = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(contractsPackage))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> !target.getPackageName().startsWith(contractsPackage))
+				.filter(target -> !isProjectionCorePackage(target.getPackageName()))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), dependenciesOutsideProjectionContracts,
+				"engine-projection-contracts must depend only on the JDK and domain-projection");
 	}
 
 	@Test

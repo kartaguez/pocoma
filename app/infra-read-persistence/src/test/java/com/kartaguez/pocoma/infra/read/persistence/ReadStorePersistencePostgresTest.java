@@ -75,6 +75,8 @@ import com.kartaguez.pocoma.engine.read.projection.ProjectionStatusResolver;
 import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
 import com.kartaguez.pocoma.engine.read.projection.SelectedPotPipelineRange;
+import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
 
 @Testcontainers
 class ReadStorePersistencePostgresTest {
@@ -121,7 +123,7 @@ class ReadStorePersistencePostgresTest {
 				select count(*) from information_schema.tables
 				where table_schema = 'pocoma_read' and table_name = 'projection_coverages'
 				"""));
-		assertEquals(7, count("""
+		assertEquals(8, count("""
 				select count(*) from information_schema.table_constraints
 				where constraint_schema = 'pocoma_read' and constraint_type = 'FOREIGN KEY'
 				"""));
@@ -144,6 +146,8 @@ class ReadStorePersistencePostgresTest {
 					assertNotNull(context.getBean("readStoreJdbcOperations", JdbcOperations.class));
 					assertNotNull(context.getBean(
 							"readStoreTransactionOperations", TransactionOperations.class));
+					assertNotNull(context.getBean(ProjectionReadPort.class));
+					assertNotNull(context.getBean(ProjectionWritePort.class));
 					assertEquals(0, context.getBeansOfType(Flyway.class).size());
 					assertTrue(!context.containsBean("readStoreMigrations"));
 					assertEquals(0, count("""

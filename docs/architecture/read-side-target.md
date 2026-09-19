@@ -7,9 +7,9 @@ Ce document est la référence normative pour la refonte du Read side à partir 
 `LatestKnownVersion`, les heads et la sélection d'une pipeline serving. Les documents de livraison
 antérieurs restent utiles comme historique, mais ne prévalent pas sur cette cible.
 
-Le premier lot stabilise uniquement le noyau de domaine générique. Il n'ajoute ni port, ni stockage,
-ni parser ou serializer JSON, ni adaptateur Jackson, ni moteur JSON Schema, ni projection métier
-concrète.
+Le premier lot stabilise le noyau de domaine générique. Le deuxième lot ajoute les ports
+universels et leur stockage relationnel canonique, sans projector, worker, registre runtime de
+définitions ni projection métier concrète.
 
 ## 2. Modèle canonique
 
@@ -58,8 +58,11 @@ payload: JsonValue
 ```
 
 L'identité logique d'un artifact dans une projection est le couple
-`artifactType + artifactKey`. L'ordre physique de la liste n'a aucune sémantique. Si un ordre est
-métier, il est encodé explicitement dans le payload ou dans la clé.
+`artifactType + artifactKey`. `Projection` conserve une `List` immuable, mais sa position n'a
+aucune sémantique métier. L'ordre fourni à la publication n'est pas persisté, et l'ordre physique
+de PostgreSQL n'a aucune signification. L'adapter restitue un ordre technique déterministe par
+`artifactType`, puis `artifactKey`. Une logique métier ne doit jamais dépendre de cet ordre ; si un
+ordre est métier, il est encodé explicitement dans le payload ou dans la clé.
 
 Le constructeur garantit seulement la santé structurelle de l'artifact : aucun champ Java null.
 Les types autorisés, doublons, cardinalités et schémas relèvent exclusivement de la validation de la
@@ -149,9 +152,9 @@ constructeur est package-private : le code extérieur au package
 publique normale. Par convention d'architecture, `ProjectionValidator` ne la produit qu'après le
 passage complet des six contrôles.
 
-Le futur `ProjectionWritePort.publish` acceptera une `ValidatedProjection`, jamais une `Projection`
-brute. La lecture rechargera une `Projection` complète puis appliquera la même définition et le même
-validateur avant toute exposition métier.
+`ProjectionWritePort.publish` accepte une `ValidatedProjection`, jamais une `Projection` brute.
+Dans le lot 2, `ProjectionReadPort.findProjection` recharge uniquement une `Projection` brute et
+complète. La revalidation avant exposition métier appartient à un lot ultérieur.
 
 ## 6. Invariants de production et de lecture futurs
 
@@ -165,19 +168,43 @@ Une projection `P(X,V)` doit pouvoir être recalculée uniquement à partir de l
 - d'une génération ou sélection de pipeline ;
 - d'un watermark, claim, slot, worker, retry ou statut de Task.
 
-Une publication réussie persistera atomiquement la clé et tous ses artifacts, y compris une liste
-vide valide. Un reader ne doit jamais exposer un graphe incomplet ou invalide. Une corruption lue
-est une incohérence interne, pas un retard `NOT_READY`.
+Une publication réussie persiste atomiquement la clé et tous ses artifacts, y compris une liste
+vide valide. L'implémentation est atomique seule et n'emploie pas de transaction autonome de type
+`REQUIRES_NEW` : elle peut rejoindre une transaction englobante compatible utilisant le même
+transaction manager et la même ressource. Cette capacité ne présuppose aucune architecture future
+de Consumption.
 
 Deux traitements concurrents d'une même clé ne peuvent publier deux vérités différentes. Une
-republication strictement équivalente pourra être adoptée comme succès idempotent ; un contenu
-divergent devra être rejeté et observé par la couche opérationnelle.
+contrainte unique SQL sur `ProjectionKey` est l'autorité concurrente. La première publication gagne.
+Toute republication retourne `ALREADY_EXISTS`, sans digest, comparaison structurelle ni détection de
+divergence.
+
+Les failures forment un historique append-only et n'ont aucune clé étrangère vers une projection.
+`recordFailure` est idempotent sur `ProjectionFailureId` pour un contenu persisté identique. À la
+frontière de persistence, `failedAt` est normalisé à la microseconde, précision explicite de la
+colonne PostgreSQL `timestamp(6) with time zone`. Deux `Instant` différents uniquement sous cette
+précision représentent donc le même contenu observable. Réutiliser le même UUID avec une autre clé
+ou un timestamp différent après normalisation constitue une violation d'invariant interne.
+
+`ProjectionReadPort.findProjection` et `hasFailure` exposent des faits bruts par deux appels
+indépendants, sans promesse de snapshot commun. L'interprétation future reste : projection présente
+donc `READY`, sinon failure présente donc `FAILED`, sinon `NOT_READY`.
 
 ## 7. Frontières d'architecture
 
 Le package cœur `com.kartaguez.pocoma.domain.projection` dépend uniquement du JDK et de lui-même. Il
 ne dépend notamment ni de `domain-pot`, ni de `domain-pipeline`, ni de Jackson, SQL/JPA, Spring,
 SLF4J, Micrometer ou OpenTelemetry.
+
+Les ports universels `ProjectionReadPort` et `ProjectionWritePort`, ainsi que
+`ProjectionPublicationResult`, vivent dans `engine-projection-contracts`. Ce module représente une
+frontière applicative Java pure : il dépend seulement du JDK et de `domain-projection`, et ne porte
+aucune implémentation de stockage, Spring, JDBC/JPA, Jackson, PostgreSQL ou runtime.
+
+Le codec `JsonValue`/JSONB et l'adapter JDBC qui implémente les deux ports vivent dans
+`infra-read-persistence`. Les clés primaires `BIGINT IDENTITY` de `projection_root` et
+`projection_artifact` sont exclusivement relationnelles : elles ne quittent jamais
+l'infrastructure et aucun type de domaine ou d'engine ne les représente.
 
 Les mécanismes d'observation seront ajoutés extérieurement par décoration ou composition. Les
 objets métier ne portent aucune metadata destinée aux logs, métriques ou traces.
@@ -205,14 +232,11 @@ l'absence de référence compilée ou runtime aux types legacy, et la migration 
 des données nécessaires. Les migrations Flyway historiques ne sont jamais réécrites ; toute
 suppression physique passera par de nouvelles migrations.
 
-## 9. Hors scope du lot 1
+## 9. Hors scope du lot 2
 
 Restent explicitement hors scope :
 
-- `ProjectionWritePort` et `ProjectionReadPort` ;
-- parser, serializer et format JSON canonique ;
-- adapter Jackson et moteur JSON Schema ;
-- tables universelles et transactions de publication ;
+- moteur JSON Schema concret ;
 - projectors `READ_POT`, `POT_BALANCES` ou autres projections concrètes ;
 - registre runtime de définitions ;
 - mapping Event vers tâches de projection ;

@@ -68,4 +68,10 @@ public class ReadStoreAccessAutoConfiguration {
 		return new JdbcPotUserIndexReader(jdbc, properties.getSchema());
 	}
 
+	@Bean
+	JdbcProjectionStoreAdapter projectionStoreAdapter(@ReadStore JdbcOperations jdbc,
+			@ReadStore TransactionOperations transactions, ReadStoreProperties properties) {
+		return new JdbcProjectionStoreAdapter(jdbc, transactions, new JsonValueCodec(), properties.getSchema());
+	}
+
 }
