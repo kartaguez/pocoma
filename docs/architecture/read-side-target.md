@@ -254,12 +254,14 @@ références entre artifacts. Les schemas restent exprimés en `JsonValue`; l'ad
 
 ## 8. Invariants de production et de lecture futurs
 
-Une projection `P(X,V)` doit pouvoir être recalculée uniquement à partir de l'état canonique de
-`X@V`, de la définition de `P` et du projector associé. Elle ne dépend pas :
+Une projection `P(X,V)` doit pouvoir être recalculée uniquement à partir des données exactes
+chargées pour cette clé, de la définition de `P` et du projector associé. Ces données peuvent être
+issues de l'état primaire versionné, d'autres projections chargées à leur clé exacte, ou des deux.
+Elle ne dépend pas :
 
 - de l'Event déclencheur ;
 - de `P(X,V-1)` ;
-- d'une autre projection ;
+- d'une projection choisie implicitement comme `CURRENT` ou substituée à la clé exacte demandée ;
 - de l'ordre de traitement ;
 - d'une génération ou sélection de pipeline ;
 - d'un watermark, claim, slot, worker, retry ou statut de Task.

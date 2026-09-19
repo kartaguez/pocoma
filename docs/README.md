@@ -28,6 +28,8 @@ vérifiée avant une modification.
 
 ### Consumption pipelines
 
+- [Exécution canonique des tâches de projection](architecture/projection-task-execution.md) — identité par `ProjectionKey`, préparation hors transaction, publication immutable et finalisation
+  fenced atomique.
 - [Event pull runtime](architecture/consumption-event-pull-runtime.md) — Event durable vers matérialisation de Tasks.
 - [Task Balance runtime](architecture/consumption-task-balance-runtime.md) — Task durable vers projection Balance immuable.
 - [Cutover LatestKnownVersion](operations/latest-known-version-cutover.md) — préflight read-only et bascule sans slots terminaux artificiels.

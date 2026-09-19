@@ -34,7 +34,7 @@
 | Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
 | Identité externe déjà authentifiée | `AuthenticatedExternalPrincipal`, `ExternalIdentity` | `orchestrator-command-admission` |
 | Adaptation du principal Spring | `SpringSecurityExternalPrincipalAdapter` | `supra-authentication-spring-security` |
-| Exécution Task fonctionnelle | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution` |
+| Exécution Task fonctionnelle legacy | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution`, transitoire et à auditer pour le Lot 5 |
 | Projection Balance immuable spécifique | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance`, transition avant 7.12 |
 
 ## Distinctions obligatoires
@@ -64,8 +64,8 @@ TaskDescriptor
 RecordedTask
   tâche durable relue par Task processing, sans claim
 
-TaskExecutionReport
-  rapport fonctionnel neutre, traduit en provenance par le locator
+TaskExecutionReport (transitoire)
+  rapport fonctionnel existant, non présumé nécessaire par la cible du Lot 5
 ```
 
 ### Commandes et consommation
@@ -74,7 +74,8 @@ TaskExecutionReport
 Command != RecordedCommand
 ConsumptionKey != objet consommé
 Claim != statut durable de la Command ou de la Task
-ClaimId != lease et Claim != journal d'exécution
+ClaimId != lease
+Claim = tentative durable d'acquisition, pas provenance ni rapport métier générique
 ```
 
 Une intention exprime l'opération métier. Son enregistrement ajoute l'identité et l'ordre durable.
