@@ -62,7 +62,7 @@ class JdbcProjectionTaskStoreAdapterPostgresTest {
 		assertEquals(key, store.ensure(key, Instant.parse("2026-09-20T10:01:00Z")).projectionKey());
 
 		assertEquals(1, jdbc.queryForObject("select count(*) from projection_tasks", Integer.class));
-		assertEquals(key, store.findCandidates(key.projectionType(), 0, 1,
+		assertEquals(key, store.findCandidates(java.util.Set.of(key.projectionType()), 0, 1,
 				Optional.empty(), Optional.empty(), 10).getFirst().task().projectionKey());
 	}
 

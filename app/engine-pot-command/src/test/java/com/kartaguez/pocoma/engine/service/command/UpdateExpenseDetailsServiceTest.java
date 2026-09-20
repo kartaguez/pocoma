@@ -59,6 +59,7 @@ class UpdateExpenseDetailsServiceTest {
 		assertEquals(fixture.nextPayerId, snapshot.payerId());
 		assertEquals(Amount.of(Fraction.of(84, 1)), snapshot.amount());
 		assertEquals(Label.of("Updated dinner"), snapshot.label());
+		assertEquals(java.time.LocalDate.parse("2026-02-02"), snapshot.date());
 		assertFalse(snapshot.deleted());
 		assertEquals(4, snapshot.version());
 		assertEquals(fixture.expenseId, loadContextPort.loadedExpenseId);
@@ -67,6 +68,7 @@ class UpdateExpenseDetailsServiceTest {
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
 		assertEquals(fixture.nextPayerId, replaceExpenseHeaderPort.saved.payerId());
+		assertEquals(java.time.LocalDate.parse("2026-02-02"), replaceExpenseHeaderPort.saved.date());
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseHeaderPort.currentVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseHeaderPort.nextVersion);
 		assertEquals(new ExpenseDetailsUpdatedEvent(fixture.expenseId, fixture.potId, 4), publishEventPort.published);
@@ -140,7 +142,7 @@ class UpdateExpenseDetailsServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullExpenseHeader() {
+	void rejectsVersionConflictBeforeApplyingTheRequestedDateChange() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
 				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
@@ -217,7 +219,8 @@ class UpdateExpenseDetailsServiceTest {
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {
-			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted);
+			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label,
+					java.time.LocalDate.parse("2026-01-01"), deleted);
 		}
 
 		private UpdateExpenseDetailsCommand command(long expectedVersion, ShareholderId payerId) {
@@ -227,6 +230,7 @@ class UpdateExpenseDetailsServiceTest {
 					84,
 					1,
 					"Updated dinner",
+					java.time.LocalDate.parse("2026-02-02"),
 					expectedVersion);
 		}
 

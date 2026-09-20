@@ -64,6 +64,7 @@ class ExistingExpenseAuthorizationContextTest {
 				shareholderId,
 				Amount.of(Fraction.ONE),
 				Label.of("Expense"),
+				java.time.LocalDate.parse("2026-01-01"),
 				false);
 	}
 }

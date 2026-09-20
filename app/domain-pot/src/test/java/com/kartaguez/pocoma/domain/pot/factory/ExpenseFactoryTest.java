@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
 import java.util.UUID;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,15 +27,17 @@ class ExpenseFactoryTest {
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		Amount amount = Amount.of(Fraction.of(42, 1));
 		Label label = Label.of("Dinner");
+		LocalDate date = LocalDate.parse("2026-01-01");
 		Set<ExpenseShareDraft> shares = Set.of(new ExpenseShareDraft(payerId, Weight.of(Fraction.of(1, 1))));
 
-		ExpenseCreated expenseCreated = ExpenseFactory.createExpense(potId, payerId, amount, label, shares);
+		ExpenseCreated expenseCreated = ExpenseFactory.createExpense(potId, payerId, amount, label, date, shares);
 
 		assertNotNull(expenseCreated.id());
 		assertEquals(potId, expenseCreated.potId());
 		assertEquals(payerId, expenseCreated.payerId());
 		assertEquals(amount, expenseCreated.amount());
 		assertEquals(label, expenseCreated.label());
+		assertEquals(date, expenseCreated.date());
 		assertEquals(shares, expenseCreated.shares());
 	}
 
@@ -45,6 +48,7 @@ class ExpenseFactoryTest {
 				ShareholderId.of(UUID.randomUUID()),
 				Amount.of(Fraction.of(42, 1)),
 				Label.of("Dinner"),
+				LocalDate.parse("2026-01-01"),
 				Set.of()));
 	}
 }

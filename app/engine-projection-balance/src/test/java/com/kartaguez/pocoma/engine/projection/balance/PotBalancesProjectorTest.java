@@ -22,8 +22,13 @@ import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
+import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
 import com.kartaguez.pocoma.engine.projection.task.TemporaryProjectionPreparationException;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerDeclaration;
 
 class PotBalancesProjectorTest {
 	@Test
@@ -57,10 +62,14 @@ class PotBalancesProjectorTest {
 		ProjectionKey key = new ProjectionKey(PotBalancesProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE,
 				new TargetObjectId("10000000-0000-0000-0000-000000000001"), 42);
-		var preparation = new PreparePotBalancesProjection(unavailable, new PotBalancesProjector(),
+		var declaration = new ProjectionProducerDeclaration<>(PotBalancesProjectionDefinition.PROJECTION_TYPE,
+				PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE, PotBalancesProjectionDefinition.DEFINITION,
+				new PotBalancesProjectionInputLoader(unavailable), new PotBalancesProjector());
+		var engine = new ProjectionEngineService(new ProjectionProducerCatalog(java.util.List.of(declaration)),
 				new ProjectionValidator((schema, payload) -> true));
 
-		var result = assertInstanceOf(ProjectionPreparationOutcome.Temporary.class, preparation.prepare(key));
+		var result = assertInstanceOf(ProjectionPreparationOutcome.Temporary.class,
+				engine.execute(new ProjectionTask(key)));
 
 		assertEquals(failure, result.failure());
 	}

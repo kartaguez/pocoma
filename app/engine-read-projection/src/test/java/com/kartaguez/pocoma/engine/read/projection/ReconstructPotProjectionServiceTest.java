@@ -55,7 +55,7 @@ class ReconstructPotProjectionServiceTest {
 								Weight.of(Fraction.of(1, 2)), creator, false)),
 				List.of(new HistoricalPotSnapshotSource.HistoricalExpense(
 						ExpenseHeader.reconstitute(expense, pot, firstShareholder,
-								Amount.of(Fraction.of(10, 2)), Label.of("Train"), true),
+								Amount.of(Fraction.of(10, 2)), Label.of("Train"), java.time.LocalDate.parse("2026-01-01"), true),
 						List.of(
 								new ExpenseShare(expense, secondShareholder, Weight.of(Fraction.of(1, 2))),
 								new ExpenseShare(expense, firstShareholder, Weight.of(Fraction.of(1, 2)))))));
@@ -86,7 +86,8 @@ class ReconstructPotProjectionServiceTest {
 				PotHeader.reconstitute(pot, Label.of("Trip"), UserId.of(uuid(2)), false),
 				List.of(),
 				List.of(new HistoricalPotSnapshotSource.HistoricalExpense(
-						ExpenseHeader.reconstitute(expense, pot, unknown, Amount.ZERO, Label.of("X"), false),
+						ExpenseHeader.reconstitute(expense, pot, unknown, Amount.ZERO, Label.of("X"),
+								java.time.LocalDate.parse("2026-01-01"), false),
 						List.of())));
 
 		var exception = assertThrows(HistoricalPotReconstructionException.class,
@@ -110,11 +111,11 @@ class ReconstructPotProjectionServiceTest {
 				shareholder, pot, Name.of("Alice"), Weight.of(Fraction.ONE), null, true);
 		var expenseV3 = new HistoricalPotSnapshotSource.HistoricalExpense(
 				ExpenseHeader.reconstitute(expense, pot, shareholder,
-						Amount.of(Fraction.of(10, 1)), Label.of("Train"), false),
+						Amount.of(Fraction.of(10, 1)), Label.of("Train"), java.time.LocalDate.parse("2026-01-01"), false),
 				List.of(new ExpenseShare(expense, shareholder, Weight.of(Fraction.ONE))));
 		var expenseV4 = new HistoricalPotSnapshotSource.HistoricalExpense(
 				ExpenseHeader.reconstitute(expense, pot, shareholder,
-						Amount.of(Fraction.of(25, 2)), Label.of("Train changed"), false),
+						Amount.of(Fraction.of(25, 2)), Label.of("Train changed"), java.time.LocalDate.parse("2026-02-02"), false),
 				List.of(new ExpenseShare(expense, shareholder, Weight.of(Fraction.of(2, 2)))));
 		var history = Map.of(
 				1L, snapshot(pot, 1, header, List.of(), List.of()),

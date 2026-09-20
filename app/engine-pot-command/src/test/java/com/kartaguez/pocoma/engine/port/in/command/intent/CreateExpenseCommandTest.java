@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
 import java.util.UUID;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,13 +18,22 @@ class CreateExpenseCommandTest {
 		CreateExpenseCommand.ExpenseShareInput share =
 				new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 2);
 
-		CreateExpenseCommand command = new CreateExpenseCommand(potId, payerId, 42, 1, "Dinner", Set.of(share), 3);
+		LocalDate date = LocalDate.parse("2026-01-01");
+		CreateExpenseCommand command = new CreateExpenseCommand(potId, payerId, 42, 1, "Dinner", date, Set.of(share), 3);
 
 		assertEquals(potId, command.potId());
 		assertEquals(payerId, command.payerId());
 		assertEquals("Dinner", command.label());
+		assertEquals(date, command.date());
 		assertEquals(Set.of(share), command.shares());
 		assertEquals(3, command.expectedVersion());
+	}
+
+	@Test
+	void rejectsMissingBusinessDate() {
+		assertThrows(NullPointerException.class, () -> new CreateExpenseCommand(
+				UUID.randomUUID(), UUID.randomUUID(), 42, 1, "Dinner", null,
+				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)), 3));
 	}
 
 	@Test
@@ -34,6 +44,7 @@ class CreateExpenseCommandTest {
 				42,
 				1,
 				"Dinner",
+				LocalDate.parse("2026-01-01"),
 				Set.of(),
 				3));
 	}
@@ -46,6 +57,7 @@ class CreateExpenseCommandTest {
 				42,
 				1,
 				"Dinner",
+				LocalDate.parse("2026-01-01"),
 				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)),
 				0));
 	}
@@ -58,6 +70,7 @@ class CreateExpenseCommandTest {
 				-1,
 				1,
 				"Dinner",
+				LocalDate.parse("2026-01-01"),
 				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)),
 				3));
 	}
@@ -70,6 +83,7 @@ class CreateExpenseCommandTest {
 				42,
 				0,
 				"Dinner",
+				LocalDate.parse("2026-01-01"),
 				Set.of(new CreateExpenseCommand.ExpenseShareInput(UUID.randomUUID(), 1, 1)),
 				3));
 	}

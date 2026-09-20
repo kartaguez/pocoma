@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.projection.balance;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ArtifactKey;
 import com.kartaguez.pocoma.domain.projection.JsonNumber;
 import com.kartaguez.pocoma.domain.projection.JsonObject;
@@ -11,8 +12,11 @@ import com.kartaguez.pocoma.domain.projection.Projection;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProjector;
 
-public final class PotBalancesProjector {
+
+public final class PotBalancesProjector implements ProjectionProjector<PotBalances> {
+	@Override
 	public Projection project(ProjectionKey key, PotBalances balances) {
 		if (!key.projectionType().equals(PotBalancesProjectionDefinition.PROJECTION_TYPE)
 				|| !key.targetObjectType().equals(PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE)

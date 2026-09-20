@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.port.in.command.intent;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -14,12 +15,14 @@ public record UpdateExpenseDetailsCommand(
 		long amountNumerator,
 		long amountDenominator,
 		String label,
+		LocalDate date,
 		long expectedVersion) implements Command {
 
 	public UpdateExpenseDetailsCommand {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
 		Objects.requireNonNull(payerId, "payerId must not be null");
 		Objects.requireNonNull(label, "label must not be null");
+		Objects.requireNonNull(date, "date must not be null");
 		Amount.of(Fraction.of(amountNumerator, amountDenominator));
 
 		if (expectedVersion < 1) {

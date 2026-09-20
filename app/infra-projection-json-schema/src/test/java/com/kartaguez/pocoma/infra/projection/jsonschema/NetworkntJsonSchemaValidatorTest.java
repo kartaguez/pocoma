@@ -16,8 +16,8 @@ import com.kartaguez.pocoma.domain.projection.JsonNull;
 import com.kartaguez.pocoma.domain.projection.JsonNumber;
 import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
-import com.kartaguez.pocoma.engine.pot.read.ReadPotProjectionDefinition;
-import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 
 class NetworkntJsonSchemaValidatorTest {
 	private final NetworkntJsonSchemaValidator validator = new NetworkntJsonSchemaValidator(new ObjectMapper());

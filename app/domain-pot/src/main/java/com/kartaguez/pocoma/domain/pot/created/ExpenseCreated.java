@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.domain.pot.created;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ public record ExpenseCreated(
 		ShareholderId payerId,
 		Amount amount,
 		Label label,
+		LocalDate date,
 		Set<ExpenseShareDraft> shares) {
 
 	public ExpenseCreated {
@@ -24,6 +26,7 @@ public record ExpenseCreated(
 		Objects.requireNonNull(payerId, "payerId must not be null");
 		Objects.requireNonNull(amount, "amount must not be null");
 		Objects.requireNonNull(label, "label must not be null");
+		Objects.requireNonNull(date, "date must not be null");
 		shares = Set.copyOf(Objects.requireNonNull(shares, "shares must not be null"));
 	}
 }

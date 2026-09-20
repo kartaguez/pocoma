@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,9 +41,9 @@ class PotCommandPayloadDecodersTest {
 						json("{\"label\":\"Trip\",\"creatorId\":\"%s\"}", USER_ID),
 						new CreatePotCommand("Trip", USER_ID)),
 				new Case(PotCommandTypes.EXPENSE_CREATE_V1,
-						json("{\"potId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":42,\"amountDenominator\":1,\"label\":\"Dinner\",\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,\"weightDenominator\":2}],\"expectedVersion\":3}",
+						json("{\"potId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":42,\"amountDenominator\":1,\"label\":\"Dinner\",\"date\":\"2026-01-01\",\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,\"weightDenominator\":2}],\"expectedVersion\":3}",
 								POT_ID, SHAREHOLDER_ID, SHAREHOLDER_ID),
-						new CreateExpenseCommand(POT_ID, SHAREHOLDER_ID, 42, 1, "Dinner",
+						new CreateExpenseCommand(POT_ID, SHAREHOLDER_ID, 42, 1, "Dinner", LocalDate.parse("2026-01-01"),
 								Set.of(new CreateExpenseCommand.ExpenseShareInput(SHAREHOLDER_ID, 1, 2)), 3)),
 				new Case(PotCommandTypes.POT_SHAREHOLDERS_ADD_V1,
 						json("{\"potId\":\"%s\",\"shareholders\":[{\"name\":\"Alice\",\"weightNumerator\":1,\"weightDenominator\":2}],\"expectedVersion\":3}", POT_ID),
@@ -58,9 +59,10 @@ class PotCommandPayloadDecodersTest {
 						json("{\"potId\":\"%s\",\"label\":\"New trip\",\"expectedVersion\":3}", POT_ID),
 						new UpdatePotDetailsCommand(POT_ID, "New trip", 3)),
 				new Case(PotCommandTypes.EXPENSE_DETAILS_UPDATE_V1,
-						json("{\"expenseId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":21,\"amountDenominator\":2,\"label\":\"Lunch\",\"expectedVersion\":3}",
+						json("{\"expenseId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":21,\"amountDenominator\":2,\"label\":\"Lunch\",\"date\":\"2026-02-02\",\"expectedVersion\":3}",
 								EXPENSE_ID, SHAREHOLDER_ID),
-						new UpdateExpenseDetailsCommand(EXPENSE_ID, SHAREHOLDER_ID, 21, 2, "Lunch", 3)),
+						new UpdateExpenseDetailsCommand(EXPENSE_ID, SHAREHOLDER_ID, 21, 2, "Lunch",
+								LocalDate.parse("2026-02-02"), 3)),
 				new Case(PotCommandTypes.EXPENSE_SHARES_UPDATE_V1,
 						json("{\"expenseId\":\"%s\",\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,\"weightDenominator\":1}],\"expectedVersion\":3}",
 								EXPENSE_ID, SHAREHOLDER_ID),
@@ -97,7 +99,7 @@ class PotCommandPayloadDecodersTest {
 				() -> registry.decode(PotCommandTypes.POT_CREATE_V1, "{"));
 		assertThrows(InvalidCommandPayloadException.class, () -> registry.decode(
 				PotCommandTypes.EXPENSE_CREATE_V1,
-				json("{\"potId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":-1,\"amountDenominator\":1,\"label\":\"Dinner\",\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,\"weightDenominator\":1}],\"expectedVersion\":3}",
+				json("{\"potId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":-1,\"amountDenominator\":1,\"label\":\"Dinner\",\"date\":\"2026-01-01\",\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,\"weightDenominator\":1}],\"expectedVersion\":3}",
 						POT_ID, SHAREHOLDER_ID, SHAREHOLDER_ID)));
 		assertThrows(InvalidCommandPayloadException.class, () -> registry.decode(
 				PotCommandTypes.POT_CREATE_V1,
@@ -133,7 +135,7 @@ class PotCommandPayloadDecodersTest {
 	}
 
 	private static CommandDecoderRegistry registry() {
-		return new CommandDecoderRegistry(PotCommandPayloadDecoders.all(new ObjectMapper()));
+		return new CommandDecoderRegistry(PotCommandPayloadDecoders.all(new ObjectMapper().findAndRegisterModules()));
 	}
 
 	private static String json(String template, Object... values) {

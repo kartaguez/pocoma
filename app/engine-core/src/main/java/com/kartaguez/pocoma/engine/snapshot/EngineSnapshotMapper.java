@@ -36,6 +36,7 @@ public final class EngineSnapshotMapper {
 				expenseHeader.payerId(),
 				expenseHeader.amount(),
 				expenseHeader.label(),
+				expenseHeader.date(),
 				expenseHeader.deleted(),
 				version);
 	}

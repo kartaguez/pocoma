@@ -208,6 +208,7 @@ class RemainingQueryServicesTest {
 				SHAREHOLDER_ID,
 				Amount.of(Fraction.of(42, 1)),
 				Label.of("Dinner"),
+				java.time.LocalDate.parse("2026-01-01"),
 				false);
 	}
 }

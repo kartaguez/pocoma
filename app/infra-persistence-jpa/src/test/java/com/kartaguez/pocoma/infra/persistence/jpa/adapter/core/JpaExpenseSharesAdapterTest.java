@@ -156,6 +156,7 @@ class JpaExpenseSharesAdapterTest {
 				ShareholderId.of(UUID.randomUUID()),
 				Amount.of(Fraction.of(42, 1)),
 				Label.of("Dinner"),
+				java.time.LocalDate.parse("2026-01-01"),
 				false);
 		expenseHeaderRepository.save(JpaExpenseHeaderEntity.from(header, startedAtVersion, endedAtVersion));
 	}

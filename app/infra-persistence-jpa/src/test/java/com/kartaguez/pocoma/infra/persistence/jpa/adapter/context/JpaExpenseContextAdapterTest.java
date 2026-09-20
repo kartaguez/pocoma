@@ -81,6 +81,7 @@ class JpaExpenseContextAdapterTest {
 						payer.id(),
 						Amount.of(Fraction.of(42, 1)),
 						Label.of("Lunch"),
+						java.time.LocalDate.parse("2026-01-01"),
 						false),
 				2,
 				null));
@@ -116,6 +117,7 @@ class JpaExpenseContextAdapterTest {
 						payer.id(),
 						Amount.of(Fraction.of(42, 1)),
 						Label.of("Deleted expense"),
+						java.time.LocalDate.parse("2026-01-01"),
 						true),
 				5,
 				null));

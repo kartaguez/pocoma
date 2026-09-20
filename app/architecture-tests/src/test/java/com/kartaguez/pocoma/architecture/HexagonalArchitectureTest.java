@@ -21,6 +21,7 @@ class HexagonalArchitectureTest {
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
 	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
+	private static final String POT_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot.projection.definition";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
 	private static final String POT_AUTHORIZATION_PACKAGE = ROOT_PACKAGE + ".domain.pot.authorization..";
 	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
@@ -122,6 +123,7 @@ class HexagonalArchitectureTest {
 	void potDomainIsSelfContainedAndUsesItsExplicitNamespace() {
 		noClasses()
 				.that().resideInAPackage(POT_DOMAIN_PACKAGE)
+				.and().resideOutsideOfPackage(POT_PROJECTION_DOMAIN_PACKAGE)
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.policy..",
 						ROOT_PACKAGE + ".domain.projection..",
@@ -309,6 +311,15 @@ class HexagonalArchitectureTest {
 				"domain-projection core must depend only on the JDK and itself");
 	}
 
+	@Test
+	void potProjectionContractsDependOnlyOnTheProjectionDomainAndTheJdk() {
+		Set<String> dependenciesOutsidePotProjectionContracts = dependenciesOutside(
+				POT_PROJECTION_DOMAIN_PACKAGE,
+				Set.of(POT_PROJECTION_DOMAIN_PACKAGE, ROOT_PACKAGE + ".domain.projection"));
+		assertEquals(Set.of(), dependenciesOutsidePotProjectionContracts,
+				"domain-pot-projection must contain only pure shared projection definitions");
+	}
+
 	private static boolean isProjectionCorePackage(String packageName) {
 		String projectionCorePackage = ROOT_PACKAGE + ".domain.projection";
 		String projectionLegacyPackage = projectionCorePackage + ".legacy";
@@ -379,6 +390,7 @@ class HexagonalArchitectureTest {
 						POT_READ_ENGINE_PACKAGE,
 						ROOT_PACKAGE + ".domain.authorization",
 						ROOT_PACKAGE + ".domain.pot",
+						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
 						PROJECTION_READ_PORT_PACKAGE));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,

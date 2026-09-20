@@ -57,7 +57,7 @@ public class CommandConsumptionRuntimeConfiguration {
 	Clock commandConsumptionClock() { return Clock.systemUTC(); }
 
 	@Bean @ConditionalOnMissingBean
-	ObjectMapper commandConsumptionObjectMapper() { return new ObjectMapper(); }
+	ObjectMapper commandConsumptionObjectMapper() { return new ObjectMapper().findAndRegisterModules(); }
 
 	@Bean
 	TransactionRunner commandConsumptionTransactionRunner(PlatformTransactionManager manager) {

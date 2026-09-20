@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.projection.task;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
@@ -12,7 +13,7 @@ public interface ProjectionTaskStorePort {
 	ProjectionTask ensure(ProjectionKey key, Instant createdAt);
 
 	List<ProjectionTaskCandidate> findCandidates(
-			ProjectionType projectionType,
+			Set<ProjectionType> projectionTypes,
 			int segmentIndex,
 			int segmentCount,
 			Optional<Instant> afterCreatedAt,

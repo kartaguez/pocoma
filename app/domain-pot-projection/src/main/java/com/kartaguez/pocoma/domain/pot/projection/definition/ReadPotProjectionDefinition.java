@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.pot.read;
+package com.kartaguez.pocoma.domain.pot.projection.definition;
 
 import java.util.List;
 
@@ -15,15 +15,9 @@ public final class ReadPotProjectionDefinition {
 	public static final ArtifactType POT = new ArtifactType("POT");
 	public static final ArtifactType SHAREHOLDER = new ArtifactType("SHAREHOLDER");
 	public static final ArtifactType EXPENSE = new ArtifactType("EXPENSE");
-	public static final ProjectionDefinition DEFINITION = new ProjectionDefinition(
-			PROJECTION_TYPE,
-			TARGET_OBJECT_TYPE,
-			List.of(
-					new ArtifactDefinition(POT, new Cardinality(1, 1), ProjectionSchemas.pot()),
-					new ArtifactDefinition(SHAREHOLDER, new Cardinality(0, null),
-							ProjectionSchemas.shareholder()),
-					new ArtifactDefinition(EXPENSE, new Cardinality(0, null), ProjectionSchemas.expense())));
-
-	private ReadPotProjectionDefinition() {
-	}
+	public static final ProjectionDefinition DEFINITION = new ProjectionDefinition(PROJECTION_TYPE, TARGET_OBJECT_TYPE,
+			List.of(new ArtifactDefinition(POT, new Cardinality(1, 1), PotProjectionSchemas.pot()),
+					new ArtifactDefinition(SHAREHOLDER, new Cardinality(0, null), PotProjectionSchemas.shareholder()),
+					new ArtifactDefinition(EXPENSE, new Cardinality(0, null), PotProjectionSchemas.expense())));
+	private ReadPotProjectionDefinition() {}
 }

@@ -103,6 +103,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 				payerId,
 				Amount.of(Fraction.of(command.amountNumerator(), command.amountDenominator())),
 				Label.of(command.label()),
+				command.date(),
 				shareDrafts);
 
 		// 6. Build the two aggregates created by this same logical mutation.
@@ -112,6 +113,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 				expenseCreated.payerId(),
 				expenseCreated.amount(),
 				expenseCreated.label(),
+				expenseCreated.date(),
 				false);
 		ExpenseShares expenseShares = ExpenseShares.reconstitute(
 				expenseCreated.potId(),

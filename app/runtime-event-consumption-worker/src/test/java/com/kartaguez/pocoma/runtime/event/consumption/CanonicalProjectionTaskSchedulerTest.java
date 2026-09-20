@@ -59,7 +59,8 @@ class CanonicalProjectionTaskSchedulerTest {
 		}
 
 		@Override
-		public List<ProjectionTaskCandidate> findCandidates(ProjectionType projectionType, int segmentIndex,
+		public List<ProjectionTaskCandidate> findCandidates(java.util.Set<ProjectionType> projectionTypes,
+				int segmentIndex,
 				int segmentCount, Optional<Instant> afterCreatedAt, Optional<UUID> afterRowId, int limit) {
 			throw new UnsupportedOperationException();
 		}

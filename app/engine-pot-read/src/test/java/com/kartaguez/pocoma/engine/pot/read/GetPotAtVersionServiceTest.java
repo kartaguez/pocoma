@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.CREATOR_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.OTHER_USER_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.POT_UUID;

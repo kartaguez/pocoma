@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.domain.pot.factory;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public final class ExpenseFactory {
 			ShareholderId payerId,
 			Amount amount,
 			Label label,
+			LocalDate date,
 			Set<ExpenseShareDraft> shares) {
 		return new ExpenseCreated(
 				ExpenseId.of(UUID.randomUUID()),
@@ -29,6 +31,7 @@ public final class ExpenseFactory {
 				Objects.requireNonNull(payerId, "payerId must not be null"),
 				Objects.requireNonNull(amount, "amount must not be null"),
 				Objects.requireNonNull(label, "label must not be null"),
+				Objects.requireNonNull(date, "date must not be null"),
 				Set.copyOf(Objects.requireNonNull(shares, "shares must not be null")));
 	}
 }

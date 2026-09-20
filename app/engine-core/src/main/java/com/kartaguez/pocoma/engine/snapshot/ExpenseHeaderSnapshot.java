@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.snapshot;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.value.Amount;
@@ -14,6 +15,7 @@ public record ExpenseHeaderSnapshot(
 		ShareholderId payerId,
 		Amount amount,
 		Label label,
+		LocalDate date,
 		boolean deleted,
 		long version) {
 
@@ -23,6 +25,7 @@ public record ExpenseHeaderSnapshot(
 		Objects.requireNonNull(payerId, "payerId must not be null");
 		Objects.requireNonNull(amount, "amount must not be null");
 		Objects.requireNonNull(label, "label must not be null");
+		Objects.requireNonNull(date, "date must not be null");
 		if (version < 1) {
 			throw new IllegalArgumentException("version must be greater than or equal to 1");
 		}

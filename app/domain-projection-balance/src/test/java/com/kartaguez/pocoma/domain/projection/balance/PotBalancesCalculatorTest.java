@@ -166,6 +166,7 @@ class PotBalancesCalculatorTest {
 					payerId,
 					Amount.of(amount),
 					Label.of("Expense"),
+					java.time.LocalDate.parse("2026-01-01"),
 					deleted);
 		}
 

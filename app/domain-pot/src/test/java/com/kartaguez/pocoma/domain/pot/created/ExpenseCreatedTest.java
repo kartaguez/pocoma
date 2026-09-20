@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
 import java.util.UUID;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,15 +27,17 @@ class ExpenseCreatedTest {
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		Amount amount = Amount.of(new Fraction(42, 1));
 		Label label = Label.of("Dinner");
+		LocalDate date = LocalDate.parse("2026-01-01");
 		Set<ExpenseShareDraft> shares = Set.of(new ExpenseShareDraft(payerId, Weight.of(new Fraction(1, 1))));
 
-		ExpenseCreated expenseCreated = new ExpenseCreated(id, potId, payerId, amount, label, shares);
+		ExpenseCreated expenseCreated = new ExpenseCreated(id, potId, payerId, amount, label, date, shares);
 
 		assertEquals(id, expenseCreated.id());
 		assertEquals(potId, expenseCreated.potId());
 		assertEquals(payerId, expenseCreated.payerId());
 		assertEquals(amount, expenseCreated.amount());
 		assertEquals(label, expenseCreated.label());
+		assertEquals(date, expenseCreated.date());
 		assertEquals(shares, expenseCreated.shares());
 	}
 
@@ -48,6 +51,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				fixture.shares));
 	}
 
@@ -61,6 +65,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				fixture.shares));
 	}
 
@@ -74,6 +79,7 @@ class ExpenseCreatedTest {
 				null,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				fixture.shares));
 	}
 
@@ -87,6 +93,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				null,
 				fixture.label,
+				fixture.date,
 				fixture.shares));
 	}
 
@@ -100,6 +107,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				null,
+				fixture.date,
 				fixture.shares));
 	}
 
@@ -113,6 +121,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				null));
 	}
 
@@ -128,6 +137,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				shares));
 	}
 
@@ -142,6 +152,7 @@ class ExpenseCreatedTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				shares);
 		shares.clear();
 
@@ -154,6 +165,7 @@ class ExpenseCreatedTest {
 		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		private final Amount amount = Amount.of(new Fraction(42, 1));
 		private final Label label = Label.of("Dinner");
+		private final LocalDate date = LocalDate.parse("2026-01-01");
 		private final Set<ExpenseShareDraft> shares = Set.of(new ExpenseShareDraft(payerId, Weight.of(new Fraction(1, 1))));
 	}
 }

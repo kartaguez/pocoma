@@ -1,8 +1,10 @@
 package com.kartaguez.pocoma.runtime.task.consumption;
 
 import java.time.Clock;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,21 +21,24 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
+import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
+import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionInputLoader;
 import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjector;
-import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.engine.projection.balance.PreparePotBalancesProjection;
-import com.kartaguez.pocoma.engine.projection.pot.PrepareReadPotProjection;
 import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInputLoader;
 import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjector;
-import com.kartaguez.pocoma.engine.projection.task.ExecuteProjectionTaskService;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskPreparation;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskRetryPolicy;
+import com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerDeclaration;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
@@ -78,25 +83,40 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	@Bean ProjectionValidator canonicalProjectionValidator(ObjectMapper mapper){
 		return new ProjectionValidator(new NetworkntJsonSchemaValidator(mapper));
 	}
-	@Bean ProjectionTaskPreparation canonicalProjectionPreparation(CanonicalProjectionTaskProperties properties,
-			ProjectionValidator validator,JpaHistoricalPotBalanceSourceAdapter balances,
-			ObjectProvider<ReadPotProjectionInputLoader> readPotLoader) {
-		return switch (properties.getProjectionType()) {
-			case "POT_BALANCES" -> new PreparePotBalancesProjection(
-					new CalculatePotBalancesAtVersionService(balances,new PotBalancesCalculator()),new PotBalancesProjector(),validator);
-			case "READ_POT" -> new PrepareReadPotProjection(readPotLoader.getIfAvailable(() -> {
-				throw new IllegalStateException("READ_POT requires a canonical ReadPotProjectionInputLoader");
-			}),new ReadPotProjector(),validator);
-			default -> throw new IllegalStateException("Unsupported canonical ProjectionType " + properties.getProjectionType());
-		};
+	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
+			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader) {
+		var available = List.of(
+				new ProjectionProducerDeclaration<>(PotBalancesProjectionDefinition.PROJECTION_TYPE,
+						PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE, PotBalancesProjectionDefinition.DEFINITION,
+						new PotBalancesProjectionInputLoader(
+								new CalculatePotBalancesAtVersionService(balances, new PotBalancesCalculator())),
+						new PotBalancesProjector()),
+				new ProjectionProducerDeclaration<>(ReadPotProjectionDefinition.PROJECTION_TYPE,
+						ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, ReadPotProjectionDefinition.DEFINITION,
+						readPotLoader, new ReadPotProjector()));
+		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
+		var selected = available.stream().filter(declaration -> configured.contains(declaration.projectionType())).toList();
+		if (selected.size() != configured.size()) {
+			throw new IllegalStateException("The producer catalog contains an unsupported ProjectionType");
+		}
+		return new ProjectionProducerCatalog(selected);
 	}
-	@Bean ExecuteProjectionTaskService canonicalProjectionExecutor(ProjectionTaskPreparation preparation,
+	@Bean ExecuteProjectionTaskUseCase canonicalProjectionEngine(ProjectionProducerCatalog catalog,
+			ProjectionValidator validator) {
+		return new ProjectionEngineService(catalog, validator);
+	}
+	@Bean ProjectionTaskConsumptionService canonicalProjectionExecutor(ExecuteProjectionTaskUseCase projectionEngine,
 			ProjectionWritePort writer,FinalizeConsumptionUseCase finalizer,HandleConsumptionFailureUseCase retry,Clock clock){
-		return new ExecuteProjectionTaskService(preparation,writer,finalizer,retry,clock);
+		return new ProjectionTaskConsumptionService(projectionEngine,writer,finalizer,retry,clock);
 	}
 	@Bean ConsumptionOrchestrator canonicalProjectionOrchestrator(CanonicalProjectionTaskProperties properties,
-			JdbcProjectionTaskStoreAdapter tasks,AcquireConsumptionUseCase acquire,ExecuteProjectionTaskService execute){
-		return new ProjectionTaskConsumptionOrchestrator(new ProjectionType(properties.getProjectionType()),
+			ProjectionProducerCatalog catalog, JdbcProjectionTaskStoreAdapter tasks,
+			AcquireConsumptionUseCase acquire,ProjectionTaskConsumptionService execute){
+		Set<ProjectionType> locatorTypes = projectionTypes(properties.getLocatorProjectionTypes(), "locator-projection-types");
+		if (!catalog.projectionTypes().containsAll(locatorTypes)) {
+			throw new IllegalStateException("locator-projection-types must be a subset of catalog-projection-types");
+		}
+		return new ProjectionTaskConsumptionOrchestrator(locatorTypes,
 				properties.getSegmentIndex(),properties.getSegmentCount(),tasks,acquire,execute);
 	}
 	@Bean ConsumptionPollingWorker canonicalProjectionWorker(ConsumptionOrchestrator orchestrator,
@@ -107,4 +127,20 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 				properties.getPollInterval(),properties.getRuntimeFailureBackoff()),clock,new ConditionConsumptionWaiter());
 	}
 	@Bean SmartLifecycle canonicalProjectionWorkerLifecycle(ConsumptionPollingWorker worker){return new TaskConsumptionWorkerLifecycle(worker);}
+
+	private static Set<ProjectionType> projectionTypes(List<String> values, String property) {
+		if (values == null || values.isEmpty()) {
+			throw new IllegalStateException(property + " must not be empty");
+		}
+		var result = new LinkedHashSet<ProjectionType>();
+		for (String value : values) {
+			if (value == null || value.isBlank()) {
+				throw new IllegalStateException(property + " must contain non-blank values");
+			}
+			if (!result.add(new ProjectionType(value))) {
+				throw new IllegalStateException(property + " must not contain duplicates");
+			}
+		}
+		return Set.copyOf(result);
+	}
 }

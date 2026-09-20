@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
-import com.kartaguez.pocoma.engine.pot.read.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 class ReadPotProjectorTest {
 	@Test

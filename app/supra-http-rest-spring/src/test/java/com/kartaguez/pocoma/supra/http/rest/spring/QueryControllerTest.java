@@ -120,6 +120,7 @@ class QueryControllerTest {
 						ShareholderId.of(shareholderId),
 						com.kartaguez.pocoma.domain.pot.value.Amount.of(Fraction.of(10, 1)),
 						Label.of("Lunch"),
+						java.time.LocalDate.parse("2026-01-01"),
 						false,
 						2),
 				new ExpenseSharesSnapshot(

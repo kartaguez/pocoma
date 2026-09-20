@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.domain.pot.aggregate;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
@@ -16,6 +17,7 @@ public final class ExpenseHeader {
 	private ShareholderId payerId;
 	private Amount amount;
 	private Label label;
+	private LocalDate date;
 	private boolean deleted;
 
 	private ExpenseHeader(
@@ -24,12 +26,14 @@ public final class ExpenseHeader {
 			ShareholderId payerId,
 			Amount amount,
 			Label label,
+			LocalDate date,
 			boolean deleted) {
 		this.id = Objects.requireNonNull(id, "id must not be null");
 		this.potId = Objects.requireNonNull(potId, "potId must not be null");
 		this.payerId = Objects.requireNonNull(payerId, "payerId must not be null");
 		this.amount = Objects.requireNonNull(amount, "amount must not be null");
 		this.label = Objects.requireNonNull(label, "label must not be null");
+		this.date = Objects.requireNonNull(date, "date must not be null");
 		this.deleted = deleted;
 	}
 
@@ -39,8 +43,9 @@ public final class ExpenseHeader {
 			ShareholderId payerId,
 			Amount amount,
 			Label label,
+			LocalDate date,
 			boolean deleted) {
-		return new ExpenseHeader(id, potId, payerId, amount, label, deleted);
+		return new ExpenseHeader(id, potId, payerId, amount, label, date, deleted);
 	}
 
 	public void markAsDeleted() {
@@ -49,12 +54,13 @@ public final class ExpenseHeader {
 		deleted = true;
 	}
 
-	public void updateDetails(ShareholderId payerId, Amount amount, Label label) {
+	public void updateDetails(ShareholderId payerId, Amount amount, Label label, LocalDate date) {
 		assertNotDeleted();
 
 		this.payerId = Objects.requireNonNull(payerId, "payerId must not be null");
 		this.amount = Objects.requireNonNull(amount, "amount must not be null");
 		this.label = Objects.requireNonNull(label, "label must not be null");
+		this.date = Objects.requireNonNull(date, "date must not be null");
 	}
 
 	public ExpenseId id() {
@@ -75,6 +81,10 @@ public final class ExpenseHeader {
 
 	public Label label() {
 		return label;
+	}
+
+	public LocalDate date() {
+		return date;
 	}
 
 	public boolean deleted() {

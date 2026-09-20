@@ -57,6 +57,7 @@ class DeleteExpenseServiceTest {
 		assertEquals(fixture.expenseId, snapshot.id());
 		assertEquals(fixture.potId, snapshot.potId());
 		assertTrue(snapshot.deleted());
+		assertEquals(java.time.LocalDate.parse("2026-01-01"), snapshot.date());
 		assertEquals(4, snapshot.version());
 		assertEquals(fixture.expenseId, loadContextPort.loadedExpenseId);
 		assertEquals(fixture.expenseId, loadExpenseHeaderPort.loadedExpenseId);
@@ -64,6 +65,7 @@ class DeleteExpenseServiceTest {
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
 		assertTrue(replaceExpenseHeaderPort.saved.deleted());
+		assertEquals(java.time.LocalDate.parse("2026-01-01"), replaceExpenseHeaderPort.saved.date());
 		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseHeaderPort.currentVersion);
 		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseHeaderPort.nextVersion);
 		assertEquals(new ExpenseDeletedEvent(fixture.expenseId, fixture.potId, 4), publishExpenseDeletedEventPort.published);
@@ -181,7 +183,8 @@ class DeleteExpenseServiceTest {
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {
-			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label, deleted);
+			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label,
+					java.time.LocalDate.parse("2026-01-01"), deleted);
 		}
 
 		private DeleteExpenseService service(

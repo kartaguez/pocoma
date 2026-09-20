@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +30,7 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				false);
 
 		assertEquals(fixture.id, expenseHeader.id());
@@ -36,6 +38,7 @@ class ExpenseHeaderTest {
 		assertEquals(fixture.payerId, expenseHeader.payerId());
 		assertEquals(fixture.amount, expenseHeader.amount());
 		assertEquals(fixture.label, expenseHeader.label());
+		assertEquals(fixture.date, expenseHeader.date());
 		assertFalse(expenseHeader.deleted());
 	}
 
@@ -49,6 +52,7 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				true);
 
 		assertTrue(expenseHeader.deleted());
@@ -71,12 +75,14 @@ class ExpenseHeaderTest {
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		Amount amount = Amount.of(new Fraction(84, 1));
 		Label label = Label.of("Updated dinner");
+		LocalDate date = LocalDate.parse("2026-02-02");
 
-		expenseHeader.updateDetails(payerId, amount, label);
+		expenseHeader.updateDetails(payerId, amount, label, date);
 
 		assertEquals(payerId, expenseHeader.payerId());
 		assertEquals(amount, expenseHeader.amount());
 		assertEquals(label, expenseHeader.label());
+		assertEquals(date, expenseHeader.date());
 	}
 
 	@Test
@@ -84,7 +90,7 @@ class ExpenseHeaderTest {
 		ExpenseHeaderFixture fixture = new ExpenseHeaderFixture();
 		ExpenseHeader expenseHeader = fixture.expenseHeader();
 
-		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(null, fixture.amount, fixture.label));
+		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(null, fixture.amount, fixture.label, fixture.date));
 	}
 
 	@Test
@@ -92,7 +98,7 @@ class ExpenseHeaderTest {
 		ExpenseHeaderFixture fixture = new ExpenseHeaderFixture();
 		ExpenseHeader expenseHeader = fixture.expenseHeader();
 
-		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(fixture.payerId, null, fixture.label));
+		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(fixture.payerId, null, fixture.label, fixture.date));
 	}
 
 	@Test
@@ -100,7 +106,14 @@ class ExpenseHeaderTest {
 		ExpenseHeaderFixture fixture = new ExpenseHeaderFixture();
 		ExpenseHeader expenseHeader = fixture.expenseHeader();
 
-		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(fixture.payerId, fixture.amount, null));
+		assertThrows(NullPointerException.class, () -> expenseHeader.updateDetails(fixture.payerId, fixture.amount, null, fixture.date));
+	}
+
+	@Test
+	void rejectsNullDateWhenUpdatingDetails() {
+		ExpenseHeaderFixture fixture = new ExpenseHeaderFixture();
+		assertThrows(NullPointerException.class,
+				() -> fixture.expenseHeader().updateDetails(fixture.payerId, fixture.amount, fixture.label, null));
 	}
 
 	@Test
@@ -125,7 +138,7 @@ class ExpenseHeaderTest {
 				() -> expenseHeader.updateDetails(
 						ShareholderId.of(UUID.randomUUID()),
 						Amount.of(new Fraction(84, 1)),
-						Label.of("Updated dinner")));
+						Label.of("Updated dinner"), fixture.date));
 
 		assertEquals("EXPENSE_DELETED", exception.ruleCode());
 	}
@@ -140,6 +153,7 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				false));
 	}
 
@@ -153,6 +167,7 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				false));
 	}
 
@@ -166,6 +181,7 @@ class ExpenseHeaderTest {
 				null,
 				fixture.amount,
 				fixture.label,
+				fixture.date,
 				false));
 	}
 
@@ -179,6 +195,7 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				null,
 				fixture.label,
+				fixture.date,
 				false));
 	}
 
@@ -192,7 +209,15 @@ class ExpenseHeaderTest {
 				fixture.payerId,
 				fixture.amount,
 				null,
+				fixture.date,
 				false));
+	}
+
+	@Test
+	void rejectsNullDate() {
+		ExpenseHeaderFixture fixture = new ExpenseHeaderFixture();
+		assertThrows(NullPointerException.class, () -> ExpenseHeader.reconstitute(
+				fixture.id, fixture.potId, fixture.payerId, fixture.amount, fixture.label, null, false));
 	}
 
 	private static final class ExpenseHeaderFixture {
@@ -201,13 +226,14 @@ class ExpenseHeaderTest {
 		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		private final Amount amount = Amount.of(new Fraction(42, 1));
 		private final Label label = Label.of("Dinner");
+		private final LocalDate date = LocalDate.parse("2026-01-01");
 
 		private ExpenseHeader expenseHeader() {
-			return ExpenseHeader.reconstitute(id, potId, payerId, amount, label, false);
+			return ExpenseHeader.reconstitute(id, potId, payerId, amount, label, date, false);
 		}
 
 		private ExpenseHeader deletedExpenseHeader() {
-			return ExpenseHeader.reconstitute(id, potId, payerId, amount, label, true);
+			return ExpenseHeader.reconstitute(id, potId, payerId, amount, label, date, true);
 		}
 	}
 }

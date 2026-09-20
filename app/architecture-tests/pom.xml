@@ -16,6 +16,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-domain-pot-projection</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-orchestrator-command-admission</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

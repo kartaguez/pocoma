@@ -16,9 +16,12 @@ import com.kartaguez.pocoma.domain.projection.JsonValue;
 import com.kartaguez.pocoma.domain.projection.Projection;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
-import com.kartaguez.pocoma.engine.pot.read.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProjector;
 
-public final class ReadPotProjector {
+
+public final class ReadPotProjector implements ProjectionProjector<ReadPotProjectionInput> {
+	@Override
 	public Projection project(ProjectionKey key, ReadPotProjectionInput input) {
 		if (!key.projectionType().equals(ReadPotProjectionDefinition.PROJECTION_TYPE)
 				|| !key.targetObjectType().equals(ReadPotProjectionDefinition.TARGET_OBJECT_TYPE)

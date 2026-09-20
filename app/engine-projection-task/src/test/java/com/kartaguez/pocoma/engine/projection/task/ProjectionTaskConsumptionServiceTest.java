@@ -39,7 +39,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResu
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionPublicationResult;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
 
-class ExecuteProjectionTaskServiceTest {
+class ProjectionTaskConsumptionServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-20T10:00:00Z");
 	private static final ProjectionKey KEY = new ProjectionKey(new ProjectionType("READ_POT"),
 			new TargetObjectType("POT"), new TargetObjectId("pot-1"), 42);
@@ -118,11 +118,12 @@ class ExecuteProjectionTaskServiceTest {
 		assertEquals(new RetryAfter(Duration.ofSeconds(400)), decision);
 	}
 
-	private static ExecuteProjectionTaskService service(ProjectionTaskPreparation preparation,
+	private static ProjectionTaskConsumptionService service(
+			com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase projectionEngine,
 			ProjectionWritePort writer,
 			com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase finalizer,
 			com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase retry) {
-		return new ExecuteProjectionTaskService(preparation, writer, finalizer, retry,
+		return new ProjectionTaskConsumptionService(projectionEngine, writer, finalizer, retry,
 				Clock.fixed(NOW, ZoneOffset.UTC));
 	}
 

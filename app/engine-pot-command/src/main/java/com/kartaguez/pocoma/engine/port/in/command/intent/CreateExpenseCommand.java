@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.port.in.command.intent;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -15,6 +16,7 @@ public record CreateExpenseCommand(
 		long amountNumerator,
 		long amountDenominator,
 		String label,
+		LocalDate date,
 		Set<ExpenseShareInput> shares,
 		long expectedVersion) implements Command {
 
@@ -22,6 +24,7 @@ public record CreateExpenseCommand(
 		Objects.requireNonNull(potId, "potId must not be null");
 		Objects.requireNonNull(payerId, "payerId must not be null");
 		Objects.requireNonNull(label, "label must not be null");
+		Objects.requireNonNull(date, "date must not be null");
 		shares = Set.copyOf(Objects.requireNonNull(shares, "shares must not be null"));
 		Amount.of(Fraction.of(amountNumerator, amountDenominator));
 

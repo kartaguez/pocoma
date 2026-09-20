@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.pot.read;
+package com.kartaguez.pocoma.domain.pot.projection.definition;
 
 import java.util.List;
 
@@ -14,14 +14,8 @@ public final class AuthProjectionDefinition {
 	public static final TargetObjectType TARGET_OBJECT_TYPE = new TargetObjectType("POT");
 	public static final ArtifactType CREATOR = new ArtifactType("CREATOR");
 	public static final ArtifactType SHAREHOLDER_USER = new ArtifactType("SHAREHOLDER_USER");
-	public static final ProjectionDefinition DEFINITION = new ProjectionDefinition(
-			PROJECTION_TYPE,
-			TARGET_OBJECT_TYPE,
-			List.of(
-					new ArtifactDefinition(CREATOR, new Cardinality(1, 1), ProjectionSchemas.creator()),
-					new ArtifactDefinition(SHAREHOLDER_USER, new Cardinality(0, null),
-							ProjectionSchemas.shareholderUser())));
-
-	private AuthProjectionDefinition() {
-	}
+	public static final ProjectionDefinition DEFINITION = new ProjectionDefinition(PROJECTION_TYPE, TARGET_OBJECT_TYPE,
+			List.of(new ArtifactDefinition(CREATOR, new Cardinality(1, 1), PotProjectionSchemas.creator()),
+					new ArtifactDefinition(SHAREHOLDER_USER, new Cardinality(0, null), PotProjectionSchemas.shareholderUser())));
+	private AuthProjectionDefinition() {}
 }

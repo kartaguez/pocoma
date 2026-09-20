@@ -108,6 +108,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 				currentExpenseHeader.payerId(),
 				currentExpenseHeader.amount(),
 				currentExpenseHeader.label(),
+				currentExpenseHeader.date(),
 				currentExpenseHeader.deleted(),
 				nextVersionNumber);
 	}

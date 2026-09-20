@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.entity.core;
 
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,6 +49,9 @@ public class JpaExpenseHeaderEntity {
 	@Column(name = "label", nullable = false)
 	private String label;
 
+	@Column(name = "expense_date", nullable = false)
+	private LocalDate expenseDate;
+
 	@Column(name = "deleted", nullable = false)
 	private boolean deleted;
 
@@ -63,6 +67,7 @@ public class JpaExpenseHeaderEntity {
 			long amountNumerator,
 			long amountDenominator,
 			String label,
+			LocalDate expenseDate,
 			boolean deleted) {
 		this.id = UUID.randomUUID();
 		this.expenseId = Objects.requireNonNull(expenseId, "expenseId must not be null");
@@ -73,6 +78,7 @@ public class JpaExpenseHeaderEntity {
 		this.amountNumerator = amountNumerator;
 		this.amountDenominator = amountDenominator;
 		this.label = Objects.requireNonNull(label, "label must not be null");
+		this.expenseDate = Objects.requireNonNull(expenseDate, "expenseDate must not be null");
 		this.deleted = deleted;
 	}
 
@@ -91,6 +97,7 @@ public class JpaExpenseHeaderEntity {
 				amount.numerator(),
 				amount.denominator(),
 				expenseHeader.label().value(),
+				expenseHeader.date(),
 				expenseHeader.deleted());
 	}
 
@@ -101,6 +108,7 @@ public class JpaExpenseHeaderEntity {
 				ShareholderId.of(payerId),
 				Amount.of(Fraction.of(amountNumerator, amountDenominator)),
 				Label.of(label),
+				Objects.requireNonNull(expenseDate, "historic expense date is missing"),
 				deleted);
 	}
 
@@ -127,6 +135,8 @@ public class JpaExpenseHeaderEntity {
 	public String label() {
 		return label;
 	}
+
+	public LocalDate expenseDate() { return expenseDate; }
 
 	public boolean deleted() {
 		return deleted;

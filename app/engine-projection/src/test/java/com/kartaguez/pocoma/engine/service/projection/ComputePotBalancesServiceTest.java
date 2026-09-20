@@ -151,6 +151,7 @@ class ComputePotBalancesServiceTest {
 						payerId,
 						Amount.of(Fraction.of(10, 1)),
 						Label.of("Lunch"),
+						java.time.LocalDate.parse("2026-01-01"),
 						false),
 				ExpenseShares.reconstitute(potId, Set.of(
 						new ExpenseShare(expenseId, payerId, Weight.of(Fraction.ONE)),

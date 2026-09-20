@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -11,7 +12,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionAcqui
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
-import com.kartaguez.pocoma.engine.projection.task.ExecuteProjectionTaskService;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
@@ -22,16 +23,17 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 
 /** Canonical projection orchestration. Preparation runs after the acquisition transaction has closed. */
 public final class ProjectionTaskConsumptionOrchestrator implements ConsumptionOrchestrator {
-	private final ProjectionType projectionType;
+	private final Set<ProjectionType> projectionTypes;
 	private final int segmentIndex;
 	private final int segmentCount;
 	private final ProjectionTaskStorePort tasks;
 	private final AcquireConsumptionUseCase acquire;
-	private final ExecuteProjectionTaskService execute;
+	private final ProjectionTaskConsumptionService execute;
 
-	public ProjectionTaskConsumptionOrchestrator(ProjectionType projectionType, int segmentIndex, int segmentCount,
-			ProjectionTaskStorePort tasks, AcquireConsumptionUseCase acquire, ExecuteProjectionTaskService execute) {
-		this.projectionType = requireNonNull(projectionType); this.tasks = requireNonNull(tasks);
+	public ProjectionTaskConsumptionOrchestrator(Set<ProjectionType> projectionTypes, int segmentIndex, int segmentCount,
+			ProjectionTaskStorePort tasks, AcquireConsumptionUseCase acquire, ProjectionTaskConsumptionService execute) {
+		this.projectionTypes = Set.copyOf(requireNonNull(projectionTypes)); this.tasks = requireNonNull(tasks);
+		if (this.projectionTypes.isEmpty()) throw new IllegalArgumentException("projectionTypes must not be empty");
 		this.acquire = requireNonNull(acquire); this.execute = requireNonNull(execute);
 		if (segmentCount < 1 || segmentIndex < 0 || segmentIndex >= segmentCount) throw new IllegalArgumentException("invalid segment");
 		this.segmentIndex = segmentIndex; this.segmentCount = segmentCount;
@@ -46,7 +48,7 @@ public final class ProjectionTaskConsumptionOrchestrator implements ConsumptionO
 		try {
 			while (candidates < input.budget().maxCandidatesInspected()
 					&& executions < input.budget().maxConsumptionsExecuted()) {
-				var page = tasks.findCandidates(projectionType, segmentIndex, segmentCount, afterTime, afterId,
+				var page = tasks.findCandidates(projectionTypes, segmentIndex, segmentCount, afterTime, afterId,
 						Math.min(50, input.budget().maxCandidatesInspected() - candidates));
 				if (page.isEmpty()) return new ConsumptionOrchestrationResult.Idle(nextEligibility,
 						new ConsumptionOrchestrationCounters(candidates, executions));

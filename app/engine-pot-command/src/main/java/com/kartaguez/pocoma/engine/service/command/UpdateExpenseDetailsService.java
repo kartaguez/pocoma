@@ -97,7 +97,8 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		currentExpenseHeader.updateDetails(
 				payerId,
 				Amount.of(Fraction.of(command.amountNumerator(), command.amountDenominator())),
-				Label.of(command.label()));
+				Label.of(command.label()),
+				command.date());
 
 		// 7. Increment the global version and persist the new aggregate state.
 		long nextVersionNumber = currentVersion.version() + 1;
@@ -120,6 +121,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 				currentExpenseHeader.payerId(),
 				currentExpenseHeader.amount(),
 				currentExpenseHeader.label(),
+				currentExpenseHeader.date(),
 				currentExpenseHeader.deleted(),
 				nextVersionNumber);
 	}

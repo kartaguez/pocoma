@@ -182,6 +182,7 @@ class CreateExpenseServiceTest {
 					42,
 					1,
 					"Dinner",
+					java.time.LocalDate.parse("2026-01-01"),
 					Set.of(new CreateExpenseCommand.ExpenseShareInput(shareholderId.value(), 1, 1)),
 					expectedVersion);
 		}
