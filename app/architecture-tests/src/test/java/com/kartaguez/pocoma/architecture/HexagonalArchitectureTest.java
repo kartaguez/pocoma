@@ -386,6 +386,31 @@ class HexagonalArchitectureTest {
 						+ "domain-projection and engine-projection-read");
 	}
 
+	@Test
+	void projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept() {
+		String taskPackage = ROOT_PACKAGE + ".engine.projection.task";
+		Set<String> dependenciesOutsideProjectionTask = dependenciesOutside(
+				taskPackage,
+				Set.of(
+						taskPackage,
+						ROOT_PACKAGE + ".domain.projection",
+						ROOT_PACKAGE + ".domain.consumption",
+						ROOT_PACKAGE + ".engine.port.in.consumption",
+						ROOT_PACKAGE + ".engine.port.out.consumption",
+						ROOT_PACKAGE + ".engine.port.out.projection"));
+		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
+				"engine-projection-task must remain a pure application module");
+
+		noClasses()
+				.that().resideInAPackage(taskPackage + "..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.projection.legacy..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
+						ROOT_PACKAGE + ".engine.service.taskexecution..")
+				.check(CLASSES);
+	}
+
 	private static boolean isProjectionReadEnginePackage(String packageName) {
 		return packageName.equals(PROJECTION_READ_PORT_PACKAGE)
 				|| packageName.startsWith(PROJECTION_READ_PORT_PACKAGE + ".")

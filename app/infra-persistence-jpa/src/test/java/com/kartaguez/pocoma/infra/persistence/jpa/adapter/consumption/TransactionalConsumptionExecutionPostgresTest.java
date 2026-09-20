@@ -67,26 +67,31 @@ import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome.Rejected;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome.Success;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.ConsumptionFailurePolicy;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionProvenancePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
+import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
@@ -132,6 +137,7 @@ class TransactionalConsumptionExecutionPostgresTest {
 	private TransactionRunner transactions;
 	private AcquireConsumptionUseCase acquire;
 	private ExecuteConsumptionUseCase execute;
+	private FinalizeConsumptionUseCase finalizeConsumption;
 	private ExecutorService executor;
 
 	@BeforeEach
@@ -159,6 +165,8 @@ class TransactionalConsumptionExecutionPostgresTest {
 		acquire = new TransactionalAcquireConsumptionUseCase(
 				new AcquireConsumptionService(lifecycle, clock), transactions);
 		execute = transactionalExecution(lifecycle, provenance);
+		finalizeConsumption = new TransactionalFinalizeConsumptionUseCase(
+				new FinalizeConsumptionService(lifecycle, clock), transactions);
 		executor = Executors.newFixedThreadPool(2);
 	}
 
@@ -205,6 +213,58 @@ class TransactionalConsumptionExecutionPostgresTest {
 
 		assertEquals(Optional.of(TerminalOutcome.SUCCESS), lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome());
 		assertEquals(1, observedCount("lot3_business_effects"));
+	}
+
+	@Test
+	void shortFinalizationLocksBeforeTheEffectAndAnExpiredCurrentClaimMayFinish() throws Exception {
+		Claim claim = acquire("short-finalization-wins", "worker-a");
+		clock.set(NOW.plusSeconds(30));
+		CountDownLatch effectStarted = new CountDownLatch(1);
+		CountDownLatch allowEffect = new CountDownLatch(1);
+
+		Future<FencedMutationResult> finalization = executor.submit(() -> finalizeConsumption.finalizeConsumption(
+				new FinalizeConsumptionInput(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), () -> {
+					writeBusiness("worker-a");
+					effectStarted.countDown();
+					await(allowEffect);
+				})));
+		assertTrue(effectStarted.await(10, TimeUnit.SECONDS));
+		Future<com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult> takeover =
+				executor.submit(() -> acquire.acquire(new AcquireConsumptionInput(
+						key("short-finalization-wins"), new WorkerId("worker-b"), LEASE)));
+
+		allowEffect.countDown();
+		assertEquals(FencedMutationResult.APPLIED, finalization.get(10, TimeUnit.SECONDS));
+		assertInstanceOf(com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone.class,
+				takeover.get(10, TimeUnit.SECONDS));
+		assertEquals(1, observedCount("lot3_business_effects"));
+	}
+
+	@Test
+	void takeoverBeforeShortFinalizationPreventsAnyDurableEffect() {
+		Claim stale = acquire("short-finalization-loses", "worker-a");
+		clock.set(NOW.plusSeconds(30));
+		Claim winner = acquire("short-finalization-loses", "worker-b");
+
+		assertEquals(FencedMutationResult.LOST_CLAIM, finalizeConsumption.finalizeConsumption(
+				new FinalizeConsumptionInput(stale.slotId(), stale.claimId(), new ConsumptionFinalization.Success(),
+						() -> writeBusiness("stale"))));
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(winner.slotId()).orElseThrow().currentClaimId());
+	}
+
+	@Test
+	void shortFinalizationRollsBackTheEffectWhenCompletionCannotCommit() {
+		Claim claim = acquire("short-finalization-rollback", "worker-a");
+
+		assertThrows(TestTechnicalException.class, () -> finalizeConsumption.finalizeConsumption(
+				new FinalizeConsumptionInput(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), () -> {
+					writeBusiness("rollback");
+					throw new TestTechnicalException();
+				})));
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
+		assertEquals(ConsumptionStatus.PENDING, lifecycle.findSlot(claim.slotId()).orElseThrow().status());
 	}
 
 	@Test
@@ -455,6 +515,11 @@ class TransactionalConsumptionExecutionPostgresTest {
 			this.delegate = delegate;
 			this.reached = reached;
 			this.proceed = proceed;
+		}
+
+		@Override
+		public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
+			return delegate.lockCurrentClaim(slotId, claimId);
 		}
 
 		@Override

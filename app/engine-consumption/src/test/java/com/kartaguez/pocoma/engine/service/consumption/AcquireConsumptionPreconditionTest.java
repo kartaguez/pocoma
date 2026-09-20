@@ -58,6 +58,9 @@ class AcquireConsumptionPreconditionTest {
 			calls.incrementAndGet();
 			return new AcquireResult.NotReady(now);
 		}
+		@Override public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
+			throw new UnsupportedOperationException();
+		}
 		@Override public boolean tryTerminalize(UUID slotId, ClaimId claimId, TerminalOutcome outcome,
 				Optional<TerminalReason> reason, Instant doneAt) { throw new UnsupportedOperationException(); }
 		@Override public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId,

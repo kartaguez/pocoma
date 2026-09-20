@@ -24,7 +24,7 @@ public class JpaHistoricalPotBalanceSourceAdapter implements HistoricalPotBalanc
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public HistoricalPotBalanceSource loadAtVersion(PotId potId, long version) {
 		return new HistoricalPotBalanceSource(headers.loadActiveAtVersion(potId, version),
 				shareholders.loadActiveAtVersion(potId, version), expenses.loadActiveAtVersion(potId, version), version);

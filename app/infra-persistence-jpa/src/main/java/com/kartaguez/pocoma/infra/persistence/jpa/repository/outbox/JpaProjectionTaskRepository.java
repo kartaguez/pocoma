@@ -31,7 +31,7 @@ public interface JpaProjectionTaskRepository extends JpaRepository<JpaProjection
 	@Query(
 			value = """
 					select *
-					from projection_tasks
+					from projection_tasks_legacy
 					where status = 'PENDING'
 						or (status in ('CLAIMED', 'ACCEPTED', 'RUNNING') and lease_until < :now)
 					order by updated_at, created_at
@@ -44,7 +44,7 @@ public interface JpaProjectionTaskRepository extends JpaRepository<JpaProjection
 	@Query(
 			value = """
 					select *
-					from projection_tasks
+					from projection_tasks_legacy
 					where mod(pot_partition_hash, :segmentCount) = :segmentIndex
 						and (
 							status = 'PENDING'

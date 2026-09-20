@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
@@ -38,6 +39,7 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.pipeline.JpaTaskCreationAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
@@ -151,9 +153,17 @@ public class EventConsumptionRuntimeConfiguration {
 	@Bean
 	ScheduleProjectionTasksForEventUseCase scheduleProjectionTasksForEventUseCase(
 			PipelineDefinitionRegistry definitions, EventPipelineRelevanceRegistry relevances,
-			TaskCreationStrategyRegistry strategies, JpaTaskCreationAdapter persistence, MeterRegistry meters) {
+			TaskCreationStrategyRegistry strategies, JpaTaskCreationAdapter persistence,
+			JdbcProjectionTaskStoreAdapter canonicalTasks, Clock clock, MeterRegistry meters) {
 		return new MeteredProjectionTaskScheduler(
-				new ScheduleProjectionTasksForEventService(definitions, relevances, strategies, persistence), meters);
+				new CanonicalProjectionTaskScheduler(
+						new ScheduleProjectionTasksForEventService(definitions, relevances, strategies, persistence),
+						canonicalTasks, clock), meters);
+	}
+
+	@Bean
+	JdbcProjectionTaskStoreAdapter canonicalProjectionTaskStore(JdbcTemplate jdbc) {
+		return new JdbcProjectionTaskStoreAdapter(jdbc);
 	}
 
 	@Bean

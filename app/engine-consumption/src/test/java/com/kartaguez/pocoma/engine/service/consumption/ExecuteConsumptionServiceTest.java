@@ -162,6 +162,11 @@ class ExecuteConsumptionServiceTest {
 		}
 
 		@Override
+		public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
 		public boolean tryTerminalize(
 				UUID slotId, ClaimId claimId, TerminalOutcome terminalOutcome,
 				Optional<TerminalReason> terminalReason, Instant terminalizedAt) {

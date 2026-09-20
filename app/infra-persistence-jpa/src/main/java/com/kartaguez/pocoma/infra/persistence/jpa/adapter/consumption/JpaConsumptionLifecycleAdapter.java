@@ -124,6 +124,18 @@ public class JpaConsumptionLifecycleAdapter
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
+	public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
+		requireNonNull(slotId, "slotId must not be null");
+		requireNonNull(claimId, "claimId must not be null");
+		return slots.findByIdForUpdate(slotId)
+				.filter(slot -> slot.status() == ConsumptionStatus.PENDING)
+				.map(JpaConsumptionSlotEntity::currentClaimId)
+				.filter(claimId.value()::equals)
+				.isPresent();
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
 	public boolean tryTerminalize(
 			UUID slotId,
 			ClaimId claimId,

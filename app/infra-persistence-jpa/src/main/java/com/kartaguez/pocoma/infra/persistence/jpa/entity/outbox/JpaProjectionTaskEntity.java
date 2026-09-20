@@ -18,7 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "projection_tasks")
+@Table(name = "projection_tasks_legacy")
 public class JpaProjectionTaskEntity {
 
 	@Id

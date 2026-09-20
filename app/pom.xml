@@ -51,9 +51,11 @@
 		<module>engine-pipeline-lifecycle</module>
 		<module>engine-projection-contracts</module>
 		<module>engine-projection-read</module>
+		<module>engine-projection-task</module>
 		<module>engine-pot-read</module>
 		<module>engine-projection</module>
 		<module>engine-projection-balance</module>
+		<module>engine-projection-pot</module>
 		<module>engine-read-projection</module>
 		<module>engine-task-materialization</module>
 		<module>engine-task-creation</module>
@@ -66,6 +68,7 @@
 		<module>infra-persistence-jpa</module>
 		<module>infra-pipeline-lifecycle-persistence</module>
 		<module>infra-read-persistence</module>
+		<module>infra-projection-json-schema</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>
 		<module>supra-consumption-worker</module>

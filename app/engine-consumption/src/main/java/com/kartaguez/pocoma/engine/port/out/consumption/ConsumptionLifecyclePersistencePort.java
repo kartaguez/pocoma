@@ -22,6 +22,9 @@ public interface ConsumptionLifecyclePersistencePort {
 	AcquireResult acquire(
 			ConsumptionKey key, ClaimId claimId, WorkerId workerId, ClaimLease lease, Instant now);
 
+	/** Locks the Slot and confirms that the supplied Claim still owns it. */
+	boolean lockCurrentClaim(UUID slotId, ClaimId claimId);
+
 	boolean tryTerminalize(
 			UUID slotId, ClaimId claimId, TerminalOutcome outcome,
 			Optional<TerminalReason> reason, Instant doneAt);

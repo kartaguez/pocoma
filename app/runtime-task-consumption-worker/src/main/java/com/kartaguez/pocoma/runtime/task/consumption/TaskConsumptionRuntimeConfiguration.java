@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -77,6 +78,7 @@ import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(TaskConsumptionProperties.class)
+@ConditionalOnProperty(name = "pocoma.projection-task-consumption.enabled", havingValue = "false", matchIfMissing = true)
 public class TaskConsumptionRuntimeConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
