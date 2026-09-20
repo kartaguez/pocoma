@@ -27,7 +27,7 @@ class ConsumptionMigrationsPostgresTest {
 			.withPassword("pocoma");
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV12() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV13() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -37,7 +37,7 @@ class ConsumptionMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(12, result.migrationsExecuted);
+		assertEquals(13, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -55,6 +55,8 @@ class ConsumptionMigrationsPostgresTest {
 			assertTrue(tableNames.containsAll(Set.of(
 					"consumption_slots",
 					"consumption_claims",
+					"projection_tasks",
+					"projection_tasks_legacy",
 					"consumption_inputs",
 					"consumption_results",
 					"balance_projection_artifacts",

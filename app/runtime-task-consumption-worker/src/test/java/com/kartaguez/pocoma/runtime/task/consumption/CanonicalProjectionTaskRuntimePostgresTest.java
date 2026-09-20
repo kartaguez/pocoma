@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,12 +21,17 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.projection.Projection;
+import com.kartaguez.pocoma.domain.projection.ProjectionFailure;
+import com.kartaguez.pocoma.domain.projection.ProjectionFailureId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionAcquisitionPrecondition;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.Success;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
@@ -109,6 +115,29 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals(0, count("select count(*) from pocoma_read.projection_root"));
 		assertEquals(1, count("select count(*) from consumption_slots where status='PENDING'"));
 		assertEquals(1, count("select count(*) from consumption_claims where ended_at is null"));
+	}
+
+	@Test
+	void canonicalProjectionFailureAndConsumptionFinalizationShareOneLocalTransaction() {
+		ProjectionKey key = key();
+		var claim = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
+						new WorkerId("canonical-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
+				.claim();
+		Instant failedAt = Instant.parse("2026-09-20T10:00:00.123456789Z");
+		var projectionFailure = new ProjectionFailure(ProjectionFailureId.random(), key, failedAt);
+		var processingFailure = new ProcessingFailure(new ProcessingFailureCode("IMPOSSIBLE_PROJECTION"),
+				"projection", "projection cannot be produced", failedAt);
+
+		finalizer.finalizeConsumption(new FinalizeConsumptionInput(claim.slotId(), claim.claimId(),
+				new TerminalFailure(processingFailure), () -> writer.recordFailure(projectionFailure)));
+
+		assertEquals(1, count("select count(*) from pocoma_read.projection_failure"));
+		assertEquals(1, count("select count(*) from consumption_slots where status='DONE' "
+				+ "and terminal_outcome='FAILED'"));
+		assertEquals(1, count("select count(*) from consumption_claims "
+				+ "where end_reason='PROCESSING_FAILURE'"));
 	}
 
 	private ProjectionKey key() {

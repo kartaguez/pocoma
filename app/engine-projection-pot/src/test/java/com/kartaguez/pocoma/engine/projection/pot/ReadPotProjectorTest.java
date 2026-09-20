@@ -54,7 +54,7 @@ class ReadPotProjectorTest {
 		assertFraction((JsonObject) shareholder.values().get("part"), 1, 3);
 		JsonObject expense = payload(projection, ReadPotProjectionDefinition.EXPENSE.value());
 		assertEquals(new JsonString("2026-09-19"), expense.values().get("date"));
-		assertFraction((JsonObject) expense.values().get("amount"), 12345, 100);
+		assertFraction((JsonObject) expense.values().get("amount"), 2469, 20);
 		JsonArray shares = (JsonArray) expense.values().get("shares");
 		assertFraction((JsonObject) ((JsonObject) shares.values().getFirst()).values().get("part"), 2, 7);
 	}
