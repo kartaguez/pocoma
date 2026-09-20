@@ -97,16 +97,21 @@ Le moteur possède exclusivement le comportement invariant de préparation :
 1. recevoir une `ProjectionTask` non nulle et en extraire la `ProjectionKey` ;
 2. résoudre dans le catalogue l'unique producteur configuré pour son `ProjectionType` ;
 3. vérifier que la déclaration du producteur accepte le `TargetObjectType` demandé ;
-4. demander au producteur de charger les données exactes et de calculer une `Projection` candidate ;
-5. vérifier que la clé de la candidate est exactement la clé demandée, y compris l'identifiant et
+4. appeler le loader de la déclaration pour charger l'input exact ;
+5. transmettre explicitement cet input et la clé demandée au projector de la même déclaration ;
+6. recevoir la `Projection` candidate calculée par ce projector ;
+7. vérifier que la clé de la candidate est exactement la clé demandée, y compris l'identifiant et
    la version ;
-6. valider la candidate avec la `ProjectionDefinition` portée par cette même déclaration ;
-7. retourner `Prepared(ValidatedProjection)` ou l'issue temporaire ou terminale explicitement
+8. valider la candidate avec la `ProjectionDefinition` portée par cette même déclaration ;
+9. retourner `Prepared(ValidatedProjection)` ou l'issue temporaire ou terminale explicitement
    produite ;
-8. laisser remonter séparément toute erreur interne, d'invariant ou de configuration.
+10. laisser remonter séparément toute erreur interne, d'invariant ou de configuration.
 
-Le moteur est l'unique propriétaire applicatif de la vérification de clé et du passage par
-`ProjectionValidator`. Ces contrôles ne sont pas optionnels et ne varient pas par type.
+La séquence `resolve → load → project → key check → validate` appartient au moteur. Le moteur est
+l'unique propriétaire applicatif de son ordre, de la vérification de clé et du passage par
+`ProjectionValidator`. Ces contrôles ne sont pas optionnels et ne varient pas par type. Il ne
+délègue donc pas à une opération opaque `producer.produce(key)` la responsabilité de rejouer cette
+orchestration dans chaque producteur.
 
 Le moteur ne possède pas :
 
@@ -127,6 +132,18 @@ minimum :
 - sa `ProjectionDefinition` ;
 - le chargement exact des données nécessaires ;
 - la transformation pure de ces données en `Projection`.
+
+Il fournit conceptuellement au moteur les deux comportements variables suivants :
+
+```text
+load(ProjectionKey) -> Input I
+project(ProjectionKey, Input I) -> Projection
+```
+
+Le producteur sait **comment** charger et calculer son type. Le Projection Engine sait **dans quel
+ordre** invoquer ces comportements et quels invariants génériques contrôler avant de produire une
+preuve validée. Un producteur ne réimplémente donc ni la résolution, ni le contrôle final de clé,
+ni l'appel au validator, ni la création de `Prepared`.
 
 Le chargement et le calcul restent spécifiques au type. Le loader peut lire une source primaire
 historique, une projection exacte déjà publiée ou une combinaison des deux. Il ne remplace jamais
@@ -174,18 +191,24 @@ non générique sûre.
 La forme exacte de cette capture de type n'est pas canonique. Elle doit rester locale à la
 composition et ne doit ni exposer de casts au moteur, ni recréer un framework de handlers. Le
 critère est la cohérence effective de chaque déclaration, pas l'emploi obligatoire d'une interface
-générique particulière.
+générique particulière. Même si l'effacement de type impose une frontière technique encapsulée,
+l'algorithme fonctionnel `load → project → key check → validate` reste implémenté une seule fois par
+le moteur ; cette frontière ne doit pas devenir un préparateur complet spécifique à chaque type.
 
 ## 7. Catalogue des producteurs
 
 Le catalogue effectue une seule résolution :
 
 ```text
-ProjectionType -> producteur configuré
+ProjectionType -> déclaration de producteur configurée
 ```
 
-Il est explicite, fini pour un runtime donné et validé au démarrage autant que possible. Il ne
-constitue ni un pipeline, ni un registry de Tasks, ni un moteur de règles. Il ne connaît pas :
+Il est explicite, fini et local à une instance du moteur ou au processus qui la compose. Il décrit
+les producteurs disponibles dans ce runtime, pas nécessairement tous les `ProjectionType` connus
+de Pocoma. Il est validé au démarrage autant que possible et peut donc légitimement contenir un
+seul producteur ou plusieurs.
+
+Il ne constitue ni un pipeline, ni un registry de Tasks, ni un moteur de règles. Il ne connaît pas :
 
 - les Events ou la création des tâches ;
 - pipeline, `taskType` ou producer generation ;
@@ -197,9 +220,8 @@ L'absence de producteur pour un `ProjectionType`, un doublon de configuration ou
 entre déclaration et définition est une erreur interne de configuration. Elle ne devient ni
 `Temporary`, ni `Terminal`, ni `ProjectionFailure`.
 
-Le filtre éventuel d'un worker par `ProjectionType` est une optimisation opérationnelle de
-discovery, capacité ou isolation. Il ne choisit pas l'algorithme fonctionnel et ne change pas le
-moteur : une même instance du moteur peut préparer tous les types présents dans son catalogue.
+Le moteur reste générique même lorsque son catalogue local ne contient qu'un producteur. En
+particulier, `generic engine` ne signifie pas `universal worker`.
 
 ## 8. Flux complet d'exécution
 
@@ -352,17 +374,86 @@ document n'anticipe aucune extension spéculative.
 
 Le runtime compose :
 
-- un catalogue contenant tous les producteurs disponibles dans ce déploiement ;
-- un moteur unique utilisant ce catalogue et un `ProjectionValidator` unique ;
+- un catalogue contenant les producteurs disponibles dans cette instance ou ce processus ;
+- un moteur générique utilisant ce catalogue et le mécanisme commun `ProjectionValidator` ;
 - l'orchestration Consumption générique et le `ProjectionWritePort` canonique.
 
-Il ne construit plus un préparateur fonctionnellement différent par valeur d'une propriété. Une
-configuration peut continuer à limiter les types découverts par un worker, mais une tâche acquise
-est toujours transmise à la même façade. Le routing fonctionnel est fondé exclusivement sur le
-`ProjectionType` de sa `ProjectionKey`.
+« Quelles `ProjectionTask` ce worker acquiert-il ? » et « comment une Task acquise est-elle
+préparée ? » sont deux questions distinctes :
 
-Il n'existe aucun locator ou writer spécialisé par type. Le catalogue ne participe ni à la
-discovery ni à la publication.
+- la première relève du worker, du locator, de la discovery et de la configuration opérationnelle ;
+- la seconde relève exclusivement du Projection Engine générique.
+
+La topologie opérationnelle des workers ne détermine donc pas l'architecture fonctionnelle du
+moteur. Le runtime ne construit plus un préparateur fonctionnellement différent par valeur d'une
+propriété. Une tâche acquise est toujours transmise à la même façade générique, dont le routing est
+fondé exclusivement sur le `ProjectionType` de sa `ProjectionKey`.
+
+### 12.1 Workers spécialisés
+
+Un worker peut être volontairement spécialisé :
+
+```text
+Worker READ_POT
+    discovery = READ_POT
+    catalogue = { READ_POT }
+
+Worker POT_BALANCES
+    discovery = POT_BALANCES
+    catalogue = { POT_BALANCES }
+
+Worker AUTH
+    discovery = AUTH
+    catalogue = { AUTH }
+```
+
+Cette topologie est autorisée et peut être privilégiée initialement pour isoler capacité, charge ou
+déploiement. Les trois workers emploient pourtant exactement le même moteur et le même use case de
+préparation. Il n'existe ni `ReadPotProjectionEngine`, ni `PotBalancesProjectionEngine`, ni
+`AuthProjectionEngine`.
+
+Le filtre par `ProjectionType` du locator reste une sélection opérationnelle des tâches candidates.
+Il ne constitue pas le dispatch fonctionnel : après acquisition, le moteur résout toujours la
+déclaration dans son propre catalogue. Le `switch` actuel qui utilise la même propriété pour filtrer
+la discovery et choisir un préparateur spécifique doit donc être découplé dans la cible.
+
+### 12.2 Workers multi-projections et scaling
+
+Une autre instance peut contenir plusieurs producteurs sans aucune modification du moteur :
+
+```text
+Worker DEV
+    discovery = { READ_POT, POT_BALANCES, AUTH }
+    catalogue = { READ_POT, POT_BALANCES, AUTH }
+
+Worker LIGHT_PROJECTIONS
+    discovery = { READ_POT, AUTH }
+    catalogue = { READ_POT, AUTH }
+```
+
+L'architecture autorise ainsi les workers mono-projection, les workers multi-projections, plusieurs
+workers concurrents pour un même `ProjectionType`, le scaling indépendant par type et le
+regroupement de types. Elle ne prescrit aucune de ces topologies concrètes.
+
+Un worker ne doit acquérir que des types présents dans son catalogue ; un écart reste une erreur de
+configuration interne, pas un mécanisme normal de délégation à un autre worker.
+
+### 12.3 Validation générique commune
+
+« Validator commun » signifie que toutes les projections passent par le même contrat générique :
+
+```text
+ProjectionValidator.validate(ProjectionDefinition, Projection)
+```
+
+Il n'existe aucune variante `ReadPotValidator`, `PotBalancesValidator` ou `AuthValidator` dans le
+chemin canonique. Cette unicité est fonctionnelle, pas physique : chaque processus ou worker peut
+posséder sa propre instance stateless de `ProjectionValidator`. Aucun singleton global au
+déploiement n'est requis.
+
+Il n'existe aucun locator métier ni writer fonctionnel distinct par type. Un même locator générique
+peut recevoir un filtre opérationnel de `ProjectionType`, et le writer canonique reste commun. Le
+catalogue ne participe ni à la discovery ni à la publication.
 
 ## 13. Modularisation cible
 
@@ -412,7 +503,13 @@ JDBC/JPA, Jackson, Networknt, PostgreSQL, runtime, pipeline ou legacy.
 13. Une issue temporaire reste temporaire quel que soit le nombre de tentatives.
 14. Seule une issue terminale explicite produit un `ProjectionFailure`.
 15. Une erreur interne ou de configuration n'est ni Temporary ni ProjectionFailure.
-16. Locator, acquisition, retry, finalisation, validator et writer restent uniques et génériques.
+16. Locator, acquisition, retry, finalisation et writer restent génériques ; la validation emploie
+    un contrat commun non spécialisé, sans exiger une instance singleton globale.
+17. Le catalogue est local aux producteurs disponibles dans une instance de moteur.
+18. Un worker spécialisé et un worker multi-projections utilisent le même moteur fonctionnel.
+19. Le filtrage de discovery ne constitue jamais le dispatch fonctionnel du moteur.
+20. Plusieurs workers peuvent acquérir concurremment un même `ProjectionType` sous les garanties
+    existantes de Claim, fencing et publication immutable.
 
 ## 15. Hors scope
 
@@ -436,17 +533,21 @@ Le refactoring sera conforme lorsque :
 
 1. un seul use case public prépare `READ_POT` et `POT_BALANCES` depuis une `ProjectionTask` ;
 2. les deux types sont résolus dans un catalogue de déclarations cohérentes ;
-3. aucun préparateur spécifique ne répète l'algorithme générique ;
-4. une configuration absente, dupliquée ou incohérente échoue comme erreur interne ;
-5. la clé produite est contrôlée par le moteur avant validation ;
-6. `ProjectionValidator` est toujours appliqué avec la définition de la même déclaration ;
-7. `Prepared` transporte une `ValidatedProjection` sans la publier ;
-8. les chemins Temporary, Terminal et Internal restent distincts ;
-9. l'orchestration publie seulement après fencing et conserve l'atomicité Claim/Slot ;
-10. le runtime peut contenir plusieurs producteurs sans changer de moteur ;
-11. le filtrage opérationnel par type, s'il subsiste, ne participe pas au routing fonctionnel ;
-12. ajouter AUTH ne requiert normalement que definition, loader, projector et registration ;
-13. aucune dépendance à pipeline, `taskType`, generation, Event ou legacy n'entre dans le moteur.
+3. le moteur implémente une seule fois `resolve → load → project → key check → validate` ;
+4. aucun producer ou préparateur spécifique ne répète cet algorithme générique ;
+5. une configuration absente, dupliquée ou incohérente échoue comme erreur interne ;
+6. la clé produite est contrôlée par le moteur avant validation ;
+7. le contrat générique `ProjectionValidator` est toujours appliqué avec la définition de la même
+   déclaration, sans validator spécialisé par type ;
+8. `Prepared` transporte une `ValidatedProjection` sans la publier ;
+9. les chemins Temporary, Terminal et Internal restent distincts ;
+10. l'orchestration publie seulement après fencing et conserve l'atomicité Claim/Slot ;
+11. le runtime peut contenir un ou plusieurs producteurs sans changer de moteur ;
+12. les workers spécialisés et multi-projections utilisent la même façade ;
+13. plusieurs workers peuvent traiter et scaler indépendamment un même `ProjectionType` ;
+14. le filtrage opérationnel par type ne participe pas au routing fonctionnel ;
+15. ajouter AUTH ne requiert normalement que definition, loader, projector et registration ;
+16. aucune dépendance à pipeline, `taskType`, generation, Event ou legacy n'entre dans le moteur.
 
 ## 17. Points laissés à l'implémentation
 
