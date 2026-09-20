@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.runtime.task.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -49,6 +50,8 @@ import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
@@ -134,6 +137,23 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals(2, count("select count(*) from consumption_slots where status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
 		assertEquals(2, count("select count(*) from consumption_claims where end_reason='SUCCESS'"));
+	}
+
+	@Test
+	void historicalExpenseWithoutBusinessDateFailsExplicitlyAndPublishesNothing() {
+		var data = seedHistoricalPot();
+		jdbc.update("update expense_headers set expense_date = null where pot_id = ? and started_at_version = 1",
+				data.potId());
+		ProjectionKey key = readPotKey(data.potId(), 1);
+		tasks.ensure(key, Instant.parse("2026-09-20T10:00:00Z"));
+
+		var runtimeFailure = assertInstanceOf(ConsumptionOrchestrationResult.RuntimeFailure.class,
+				worker.runOneCycle());
+		var cause = assertInstanceOf(HistoricalPotReconstructionException.class, runtimeFailure.cause());
+
+		assertEquals("EXPENSE_BUSINESS_DATE_ABSENT", cause.failureCode());
+		assertFalse(reader.findProjection(key).isPresent());
+		assertFalse(reader.hasFailure(key));
 	}
 
 	@Test

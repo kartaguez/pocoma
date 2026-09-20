@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.projection.Projection;
+import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -86,20 +88,79 @@ class ProjectionEngineServiceTest {
 	}
 
 	@Test
-	void mapsOnlyExplicitlyClassifiedTemporaryAndTerminalFailuresToNormalOutcomes() {
+	void mapsAnExplicitTemporaryLoaderFailureToANormalOutcome() {
 		var temporary = failure("NOT_READY");
 		var temporaryDeclaration = declaration(key -> {
 			throw new TemporaryProjectionPreparationException(temporary, null);
 		}, (key, input) -> new Projection(key, List.of()));
 		assertSame(temporary, assertInstanceOf(Temporary.class,
 				engine(temporaryDeclaration).execute(new ProjectionTask(KEY))).failure());
+	}
 
+	@Test
+	void mapsAnExplicitTerminalProjectorFailureToANormalOutcome() {
 		var terminal = failure("IMPOSSIBLE");
-		var terminalDeclaration = declaration(key -> {
+		var terminalDeclaration = declaration(key -> new Object(), (key, input) -> {
 			throw new TerminalProjectionPreparationException(terminal, null);
-		}, (key, input) -> new Projection(key, List.of()));
+		});
 		assertSame(terminal, assertInstanceOf(Terminal.class,
 				engine(terminalDeclaration).execute(new ProjectionTask(KEY))).failure());
+	}
+
+	@Test
+	void propagatesAnUnexpectedLoaderRuntimeExceptionUnchanged() {
+		var failure = new RuntimeException("database unavailable");
+		var declaration = declaration(key -> {
+			throw failure;
+		}, (key, input) -> new Projection(key, List.of()));
+
+		assertSame(failure, assertThrows(RuntimeException.class,
+				() -> engine(declaration).execute(new ProjectionTask(KEY))));
+	}
+
+	@Test
+	void propagatesAnUnexpectedProjectorRuntimeExceptionUnchanged() {
+		var failure = new RuntimeException("projector library failed");
+		var declaration = declaration(key -> new Object(), (key, input) -> {
+			throw failure;
+		});
+
+		assertSame(failure, assertThrows(RuntimeException.class,
+				() -> engine(declaration).execute(new ProjectionTask(KEY))));
+	}
+
+	@Test
+	void propagatesAnUnexpectedValidatorRuntimeExceptionUnchanged() {
+		var failure = new RuntimeException("schema validator unavailable");
+		var artifactType = new com.kartaguez.pocoma.domain.projection.ArtifactType("VALUE");
+		var definition = new ProjectionDefinition(TYPE, TARGET,
+				List.of(new com.kartaguez.pocoma.domain.projection.ArtifactDefinition(
+						artifactType, new com.kartaguez.pocoma.domain.projection.Cardinality(1, 1),
+						new com.kartaguez.pocoma.domain.projection.JsonObject(Map.of()))));
+		var projection = new Projection(KEY, List.of(new ProjectionArtifact(
+				artifactType, new com.kartaguez.pocoma.domain.projection.ArtifactKey("value"),
+				new com.kartaguez.pocoma.domain.projection.JsonObject(Map.of()))));
+		var declaration = new ProjectionProducerDeclaration<>(TYPE, TARGET, definition,
+				key -> new Object(), (key, input) -> projection);
+		var validator = new ProjectionValidator((schema, payload) -> {
+			throw failure;
+		});
+
+		assertSame(failure, assertThrows(RuntimeException.class,
+				() -> engine(validator, declaration).execute(new ProjectionTask(KEY))));
+	}
+
+	@Test
+	void reportsNullLoaderAndProjectorResultsAsExplicitEngineInvariants() {
+		var nullLoader = declaration(key -> null, (key, input) -> new Projection(key, List.of()));
+		var loaderFailure = assertThrows(ProjectionPreparationInvariantViolationException.class,
+				() -> engine(nullLoader).execute(new ProjectionTask(KEY)));
+		assertEquals("loader returned null projection input", loaderFailure.getMessage());
+
+		var nullProjector = declaration(key -> new Object(), (key, input) -> null);
+		var projectorFailure = assertThrows(ProjectionPreparationInvariantViolationException.class,
+				() -> engine(nullProjector).execute(new ProjectionTask(KEY)));
+		assertEquals("projector returned null projection", projectorFailure.getMessage());
 	}
 
 	@Test
@@ -154,8 +215,12 @@ class ProjectionEngineServiceTest {
 	}
 
 	private static ProjectionEngineService engine(ProjectionProducerDeclaration<?>... declarations) {
-		return new ProjectionEngineService(new ProjectionProducerCatalog(List.of(declarations)),
-				new ProjectionValidator((schema, payload) -> true));
+		return engine(new ProjectionValidator((schema, payload) -> true), declarations);
+	}
+
+	private static ProjectionEngineService engine(
+			ProjectionValidator validator, ProjectionProducerDeclaration<?>... declarations) {
+		return new ProjectionEngineService(new ProjectionProducerCatalog(List.of(declarations)), validator);
 	}
 
 	private static ProcessingFailure failure(String code) {

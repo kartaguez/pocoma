@@ -68,6 +68,11 @@ public class JpaHistoricalPotSnapshotSourceAdapter implements HistoricalPotSnaps
 						"EXPENSE_POT_MISMATCH",
 						"Expense belongs to another Pot");
 			}
+			if (expense.expenseDate() == null) {
+				throw new HistoricalPotReconstructionException(
+						"EXPENSE_BUSINESS_DATE_ABSENT",
+						"Historical Expense has no business date");
+			}
 
 			var shareRows = shares.findActiveAtVersion(expense.expenseId(), version);
 			ensureUnique(

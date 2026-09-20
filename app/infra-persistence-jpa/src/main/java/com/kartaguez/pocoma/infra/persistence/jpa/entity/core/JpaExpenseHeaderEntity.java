@@ -49,7 +49,7 @@ public class JpaExpenseHeaderEntity {
 	@Column(name = "label", nullable = false)
 	private String label;
 
-	@Column(name = "expense_date", nullable = false)
+	@Column(name = "expense_date")
 	private LocalDate expenseDate;
 
 	@Column(name = "deleted", nullable = false)

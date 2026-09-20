@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.projection.task.engine;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
+import com.kartaguez.pocoma.domain.projection.ProjectionValidationException;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationInvariantViolationException;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome;
@@ -34,9 +35,14 @@ public final class ProjectionEngineService implements ExecuteProjectionTaskUseCa
 	private <I> ProjectionPreparationOutcome executeDeclaration(
 			ProjectionKey key, ProjectionProducerDeclaration<I> declaration) {
 		try {
-			I input = requireNonNull(declaration.loader().load(key), "projection input must not be null");
-			var projection = requireNonNull(declaration.projector().project(key, input),
-					"projection must not be null");
+			I input = declaration.loader().load(key);
+			if (input == null) {
+				throw invariant(key, "loader returned null projection input", null);
+			}
+			var projection = declaration.projector().project(key, input);
+			if (projection == null) {
+				throw invariant(key, "projector returned null projection", null);
+			}
 			if (!projection.projectionKey().equals(key)) {
 				throw invariant(key, "projector returned another ProjectionKey", null);
 			}
@@ -46,10 +52,10 @@ public final class ProjectionEngineService implements ExecuteProjectionTaskUseCa
 			return new ProjectionPreparationOutcome.Temporary(exception.failure());
 		} catch (TerminalProjectionPreparationException exception) {
 			return new ProjectionPreparationOutcome.Terminal(exception.failure());
+		} catch (ProjectionValidationException exception) {
+			throw invariant(key, "projection does not satisfy its canonical definition", exception);
 		} catch (ProjectionPreparationInvariantViolationException exception) {
 			throw exception;
-		} catch (RuntimeException exception) {
-			throw invariant(key, "projection preparation invariant failed", exception);
 		}
 	}
 
