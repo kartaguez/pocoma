@@ -6,6 +6,9 @@ Ce document est la référence normative du Lot 5 pour l'exécution des tâches 
 articulation avec le moteur générique de consommation. Il complète
 [`read-side-target.md`](read-side-target.md) et
 [`consumption-transactional-execution.md`](consumption-transactional-execution.md).
+La composition interne de la préparation multi-type est précisée par
+[`projection-engine.md`](projection-engine.md), qui fait autorité pour la façade unique et le
+catalogue cohérent de producteurs.
 
 La cible sépare strictement :
 
@@ -68,7 +71,7 @@ n'existe aucun invariant générique de :
 - DAG de projections.
 
 Une dépendance de production est exprimée par les données exactes dont le calcul a besoin. Si
-`BALANCES@42` nécessite `READ_POT@42`, le loader tente de charger exactement `READ_POT@42`. Il ne
+`POT_BALANCES@42` nécessite `READ_POT@42`, le loader tente de charger exactement `READ_POT@42`. Il ne
 substitue ni une version antérieure, ni une projection `CURRENT`. Si cette dépendance n'est pas
 encore disponible, la tentative échoue temporairement et le travail pourra être repris.
 
@@ -106,7 +109,7 @@ Il ne connaît aucun concept de production de projection :
 - ni `ProjectionWritePort` ;
 - ni loader ou projector ;
 - ni artifact de projection ;
-- ni `AUTH`, `READ_POT`, `BALANCES` ou autre type métier.
+- ni `AUTH`, `READ_POT`, `POT_BALANCES` ou autre type métier.
 
 Consumption gère l'autorité d'exécution et de finalisation. Il n'exécute pas lui-même le métier de
 projection et ne possède pas le writer métier du consommateur.
@@ -201,9 +204,11 @@ ensemble cohérent. Le type d'entrée `I` relie au minimum loader et projector. 
 `ReadPotLoader + BalanceProjector + AuthProjectionDefinition` doit être empêché au wiring ou détecté
 avant traitement utile.
 
-Cette exigence ne décide ni le nom ni la forme de l'abstraction de composition. Elle n'impose pas de
-`ProjectionProducer`, `ProjectionProcessor`, `ProjectionHandler`, registry, resolver, descriptor ou
-nouveau pipeline générique.
+Cette exigence ne décide pas à elle seule le nom ni la forme Java de l'abstraction de composition.
+Après implémentation concrète de `READ_POT` et `POT_BALANCES`, la cible retient désormais une façade
+unique et un petit catalogue de déclarations cohérentes, décrits dans
+[`projection-engine.md`](projection-engine.md). Ce catalogue n'est ni un nouveau pipeline, ni un
+DAG, ni un registry indépendant de loaders, projectors et définitions.
 
 ## 8. Publication immutable
 
@@ -399,8 +404,8 @@ invariants de ce document.
 Le Lot 5 ne fixe pas :
 
 - le nom ou la forme de l'abstraction liant loader, projector et définition ;
-- l'existence d'un registry ;
-- le routing concret depuis `ProjectionType` ;
+- la représentation Java du catalogue désormais requis ;
+- l'implémentation concrète du routing depuis `ProjectionType` ;
 - l'API exacte de finalisation transactionnelle de `engine-consumption` ;
 - la stratégie de retry, de backoff ou d'anti-hot-loop ;
 - le wiring Spring ;
