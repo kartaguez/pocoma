@@ -2,11 +2,11 @@
 
 ```text
 Step: EPT — Event → ProjectionTask
-Current lot: EPT.4
+Current lot: EPT.5
 Overall status: IN_PROGRESS
 ```
 
-EPT.3 est audité et accepté. EPT.4 est implémenté et reste en `REVIEW` jusqu'à acceptation des preuves.
+EPT.4 est audité et accepté. EPT.5 est le prochain lot et reste `TODO` jusqu'à son démarrage explicite.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -14,7 +14,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.1 | EventType et persistence canonique | DONE |
 | EPT.2 | Policy exhaustive | DONE |
 | EPT.3 | Discovery metadata-only | DONE |
-| EPT.4 | Consumption Event → ProjectionTask | REVIEW |
+| EPT.4 | Consumption Event → ProjectionTask | DONE |
 | EPT.5 | Cutover runtime Event | TODO |
 | EPT.6 | Preuve E2E distribuée | TODO |
 
@@ -253,7 +253,7 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Goal
 
@@ -319,7 +319,8 @@ ConsumerIdentity(PROJECTION_TASK_MATERIALIZER, [projectionType])
   ni d'un failure handler.
 - `ProjectionTaskConsumptionOrchestrator` délègue sa boucle à cette abstraction. L'adaptation locale
   convertit `LOST_CLAIM` en issue fenced normale et garde `FINALIZED` / `RETRY_SCHEDULED` hors du
-  cœur générique.
+  cœur générique. Elle conserve aussi son comportement historique : après le premier candidat acquis,
+  elle abandonne la page courante et relit les candidats depuis le curseur effectivement inspecté.
 - `ProjectionMaterializationConsumptionKeys` fixe l'identité exacte
   `EVENT/[eventId] × PROJECTION_TASK_MATERIALIZER/[projectionType]`.
 - `ProjectionMaterializationConsumptionSource` adapte la discovery EPT.3 sans créer de Slot, Claim
