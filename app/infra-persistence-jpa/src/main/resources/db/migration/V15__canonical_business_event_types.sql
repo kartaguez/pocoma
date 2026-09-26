@@ -21,7 +21,10 @@ begin
         select 1
         from business_event_outbox
         where payload_json::jsonb ? 'eventType'
-          and payload_json::jsonb ->> 'eventType' <> event_type
+          and (
+              jsonb_typeof(payload_json::jsonb -> 'eventType') is distinct from 'string'
+              or (payload_json::jsonb ->> 'eventType') is distinct from event_type
+          )
     ) then
         raise exception 'business_event_outbox contains an incoherent payload eventType';
     end if;

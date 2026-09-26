@@ -78,14 +78,67 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		assertThrows(Exception.class, () -> migrate(schema, null));
 	}
 
+	@Test
+	void acceptsAnAlreadyCanonicalCoherentType() throws Exception {
+		String schema = schema();
+		migrate(schema, "14");
+		seed(schema, "POT_CREATED", "POT_CREATED");
+
+		migrate(schema, null);
+
+		assertStoredType(schema, "POT_CREATED", "POT_CREATED");
+	}
+
+	@Test
+	void refusesAnExplicitJsonNullPayloadType() throws Exception {
+		String schema = schema();
+		migrate(schema, "14");
+		seedPayload(schema, "PotCreatedEvent", "{\"eventType\":null}");
+
+		assertThrows(Exception.class, () -> migrate(schema, null));
+	}
+
+	@Test
+	void refusesANonTextualPayloadType() throws Exception {
+		String schema = schema();
+		migrate(schema, "14");
+		seedPayload(schema, "PotCreatedEvent", "{\"eventType\":42}");
+
+		assertThrows(Exception.class, () -> migrate(schema, null));
+	}
+
+	@Test
+	void preservesAnAbsentPayloadTypeWhileMigratingTheEnvelope() throws Exception {
+		String schema = schema();
+		migrate(schema, "14");
+		seedPayload(schema, "PotCreatedEvent", "{\"version\":1}");
+
+		migrate(schema, null);
+
+		assertStoredType(schema, "POT_CREATED", null);
+	}
+
 	private static void seed(String schema, String envelopeType, String payloadType) throws SQLException {
+		seedPayload(schema, envelopeType, "{\"eventType\":\"" + payloadType + "\"}");
+	}
+
+	private static void seedPayload(String schema, String envelopeType, String payloadJson) throws SQLException {
 		try (Connection connection = connection(); var statement = connection.createStatement()) {
 			UUID potId = UUID.randomUUID();
 			statement.executeUpdate("insert into " + schema + ".business_event_outbox "
 					+ "(id,event_type,pot_id,pot_partition_hash,aggregate_id,version,payload_json,status,"
 					+ "attempt_count,created_at) values ('" + UUID.randomUUID() + "','" + envelopeType + "','"
-					+ potId + "',0,'" + potId + "',1,'{\"eventType\":\"" + payloadType
-					+ "\"}','PENDING',0,now())");
+					+ potId + "',0,'" + potId + "',1,'" + payloadJson + "','PENDING',0,now())");
+		}
+	}
+
+	private static void assertStoredType(String schema, String envelopeType, String payloadType) throws SQLException {
+		try (Connection connection = connection(); var statement = connection.createStatement();
+				var result = statement.executeQuery("select event_type, payload_json::jsonb ->> 'eventType' "
+						+ "from " + schema + ".business_event_outbox")) {
+			result.next();
+			assertEquals(envelopeType, result.getString(1));
+			assertEquals(payloadType, result.getString(2));
 		}
 	}
 
