@@ -58,6 +58,16 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
+				.that().haveSimpleNameContaining("ProjectionMaterializationDiscovery")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"com.fasterxml.jackson..",
+						ROOT_PACKAGE + ".domain.pot.event..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".engine.event..",
+						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.outbox..")
+				.check(CLASSES);
+
+		noClasses()
 				.that().haveSimpleNameContaining("TaskConsumptionDiscovery")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						"com.fasterxml.jackson..",

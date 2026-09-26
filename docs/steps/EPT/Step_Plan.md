@@ -156,7 +156,7 @@ Livré et accepté après review :
 
 ### Status
 
-`TODO`
+`REVIEW`
 
 ### Goal
 
@@ -171,53 +171,65 @@ métadonnées persistées et sans accorder d'autorité d'exécution.
 
 ### Implementation
 
-- Définir seulement les contrats réellement nécessaires à la frontière : envelope metadata-only,
-  route `EventType × ProjectionType`, candidat et ordering key local.
-- Ajouter un discovery port canonique distinct de l'actuel
-  `EventConsumptionDiscoveryPort`, lequel reste pipeline/generation pendant la coexistence.
-- Implémenter l'adapter PostgreSQL sur `business_event_outbox` sans sélectionner `payload_json`.
-- Passer les routes dérivées de la policy à la requête sous forme d'une CTE `VALUES`; l'adapter
-  connaît des valeurs de routes, pas `ProjectionMaterializationPolicy`.
-- Construire la cible Pocoma depuis `pot_id` : `TargetObjectType(POT)`, `TargetObjectId(pot_id)`,
-  `targetVersion=version`.
-- Exclure par anti-join uniquement le slot `DONE` dont l'identité est exactement :
+- Nouveau `ProjectionMaterializationDiscoveryPort` canonique, distinct de
+  `EventConsumptionDiscoveryPort` legacy, recevant seulement les routes
+  `Map<EventType, Set<ProjectionType>>`, un `WorkerSegment`, une ordering key locale optionnelle et
+  une limite.
+- `ProjectionMaterializationCandidate` porte directement l'envelope metadata-only canonique
+  (`eventId`, `eventType`, cible, version, instant d'enregistrement) et le `ProjectionType` de la
+  conséquence ; aucun envelope ou type public `Route` supplémentaire.
+- `ProjectionMaterializationOrderingKey` locale et non durable sur
+  `(recordedAt, eventId UUID, projectionType)`.
+- `JdbcProjectionMaterializationDiscoveryAdapter` interroge `business_event_outbox` sans
+  sélectionner `payload_json`, aplatit les routes dans une CTE `VALUES` privée à l'adapter et
+  reconstruit la cible Pocoma depuis `pot_id`.
+- La segmentation SQL normalise le modulo pour reproduire `Math.floorMod` sur
+  `pot_partition_hash`, sans segmentation par ProjectionType.
+- L'anti-join exclut uniquement le slot `DONE` dont l'identité est exactement :
 
 ```text
 EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 ```
 
-- Conserver les autres slots absents, pending, busy ou not-ready comme candidats potentiels ;
-  l'éligibilité reste la responsabilité d'`acquire()`.
-- Conserver la segmentation via `pot_partition_hash`.
-- Paginer avec un ordre technique total sur les lignes développées, incluant au minimum
-  `created_at`, `event_id` et `projection_type`, afin de ne pas sauter une seconde conséquence du
-  même Event lorsqu'un batch coupe entre deux routes.
-- Ajouter l'index uniquement après validation par `EXPLAIN` de cette requête ; ne créer aucun
-  watermark ou cursor durable.
+- Les slots absents ou non `DONE`, y compris actifs ou retardés, restent découvrables ; la requête
+  ne lit ni Claims, ni leases, ni `now`.
+- La keyset pagination utilise le même triplet UUID natif dans le prédicat et l'ordre SQL :
+  `(created_at, event_id, projection_type)` ; aucun `OFFSET`.
+- Aucun wiring runtime autoritaire, cursor durable, watermark ou nouvel index n'est introduit.
 
 ### Tests
 
-- aucun accès ni parsing de `payload_json`, y compris avec un payload volontairement illisible ;
-- expansion correcte d'un Event en une ou plusieurs routes ;
-- exclusion du seul couple déjà `DONE` ;
-- autre ProjectionType du même Event toujours découvert ;
-- slot pending/busy/not-ready non interprété par la discovery ;
-- segmentation et ordre/pagination sans trou ni doublon ;
-- EventType non pertinent exclu par les routes ;
-- évolution de policy : une nouvelle route retrouve un Event historique sans watermark ;
-- plan PostgreSQL raisonnable et index non redondant.
+- Tests de contrat du Candidate, de ses métadonnées et de son ordering key.
+- Tests PostgreSQL de l'expansion une ou plusieurs routes et de la restriction aux routes fournies.
+- `payload_json` JSON valide mais sans forme de `BusinessEvent` : discovery inchangée et règle
+  d'architecture interdisant Jackson et les modèles d'Events métier.
+- Aucun slot, slot actif, slot retardé, `DONE` sur une autre projection et `DONE` exact.
+- Segmentation PostgreSQL, y compris un hash négatif, sans segmentation par ProjectionType.
+- Ordre et keyset pagination `LIMIT 1` sur timestamps distincts ou égaux, UUIDs et plusieurs
+  projections du même Event, sans trou ni doublon.
+- Nouveau scan sans cursor, terminaison du scan et changement concurrent vers `DONE`.
 
 ### Exit criteria
 
-- La discovery retourne des candidats metadata-only et reste best-effort.
+- La discovery retourne des candidats metadata-only portant `eventId`, `eventType`, cible, version,
+  instant d'enregistrement et `projectionType`, et reste best-effort.
 - Le payload et les abstractions pipeline/generation sont absents du nouveau port et de sa query.
 - Seul `DONE` ferme un couple exact.
+- L'ordre et le cursor locaux utilisent exactement
+  `(created_at, event_id UUID, projection_type)` sans cursor durable.
 - Un scan est entièrement reconstructible depuis Events, policy et Consumption.
 
 ### Notes / findings
 
 - Les types indicatifs `ProjectionMaterializationEvent`, `Route`, `Candidate` et `OrderingKey` ne
   sont pas une taxonomie obligatoire : les introduire seulement si la signature réelle les exige.
+- La map issue d'EPT.2 suffit comme représentation publique des routes ; l'adapter utilise seulement
+  un record privé de binding SQL.
+- `business_event_outbox.payload_json` est physiquement `text` au HEAD. La preuve metadata-only
+  utilise un document JSON valide mais incompatible avec tout `BusinessEvent`, sans mapper métier.
+- Les indexes existants restent inchangés : la PK UUID de l'outbox et l'unicité structurelle de
+  `consumption_slots` sont disponibles, mais aucun nouvel index de discovery n'est justifié sans
+  mesure représentative par `EXPLAIN (ANALYZE, BUFFERS)` de la requête livrée.
 
 ## EPT.4 — Consumption Event → ProjectionTask
 
