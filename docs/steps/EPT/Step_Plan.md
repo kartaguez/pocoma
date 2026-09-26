@@ -2,17 +2,17 @@
 
 ```text
 Step: EPT — Event → ProjectionTask
-Current lot: EPT.2
+Current lot: EPT.3
 Overall status: IN_PROGRESS
 ```
 
-EPT.2 est implémenté dans le worktree et soumis à review. La source architecturale de ce tracker
-est [`Step_Canon.md`](Step_Canon.md).
+EPT.2 est audité et accepté. EPT.3 est le prochain lot à implémenter et reste `TODO`. La source
+architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
 |-----|-------|--------|
 | EPT.1 | EventType et persistence canonique | DONE |
-| EPT.2 | Policy exhaustive | REVIEW |
+| EPT.2 | Policy exhaustive | DONE |
 | EPT.3 | Discovery metadata-only | TODO |
 | EPT.4 | Consumption Event → ProjectionTask | TODO |
 | EPT.5 | Cutover runtime Event | TODO |
@@ -88,7 +88,7 @@ Commits :
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Goal
 
@@ -106,7 +106,7 @@ EventType → Set<ProjectionType>
 
 ### Implementation
 
-Livré dans le worktree soumis à review :
+Livré et accepté après review :
 
 - contrat minimal `ProjectionMaterializationPolicy` sur `EventType` et
   `ProjectionType`, sans persistence, SQL, worker ou Consumption.
@@ -139,7 +139,8 @@ Livré dans le worktree soumis à review :
 
 - Une seule policy explicite porte toute la décision EventType → ProjectionType.
 - Le catalogue et la policy sont prouvés exhaustifs sans reflection.
-- La configuration opérationnelle ne contient que des ProjectionTypes.
+- La dérivation opérationnelle des EventTypes ne nécessite comme entrée que le
+  `Set<ProjectionType>` servi.
 - Aucun élément de discovery, locator ou runtime cutover n'est introduit.
 
 ### Notes / findings
@@ -149,6 +150,7 @@ Livré dans le worktree soumis à review :
   `engine-processing-event → domain-pot-projection`.
 - La vue dérivée par projections servies omet une entrée lorsque son intersection est vide ; la
   table canonique exhaustive conserve, elle, les mappings vides explicitement déclarés.
+- Le lot a été audité et accepté après review.
 
 ## EPT.3 — Discovery metadata-only
 
