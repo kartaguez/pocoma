@@ -6,13 +6,13 @@ Current lot: EPT.2
 Overall status: IN_PROGRESS
 ```
 
-EPT.2 est le prochain lot à implémenter ; il n'a pas encore commencé. La source architecturale de
-ce tracker est [`Step_Canon.md`](Step_Canon.md).
+EPT.2 est implémenté dans le worktree et soumis à review. La source architecturale de ce tracker
+est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
 |-----|-------|--------|
 | EPT.1 | EventType et persistence canonique | DONE |
-| EPT.2 | Policy exhaustive | TODO |
+| EPT.2 | Policy exhaustive | REVIEW |
 | EPT.3 | Discovery metadata-only | TODO |
 | EPT.4 | Consumption Event → ProjectionTask | TODO |
 | EPT.5 | Cutover runtime Event | TODO |
@@ -88,7 +88,7 @@ Commits :
 
 ### Status
 
-`TODO`
+`REVIEW`
 
 ### Goal
 
@@ -106,20 +106,23 @@ EventType → Set<ProjectionType>
 
 ### Implementation
 
-- Introduire le contrat minimal `ProjectionMaterializationPolicy` sur `EventType` et
+Livré dans le worktree soumis à review :
+
+- contrat minimal `ProjectionMaterializationPolicy` sur `EventType` et
   `ProjectionType`, sans persistence, SQL, worker ou Consumption.
-- Déclarer `PocomaProjectionMaterializationPolicy` comme table explicite immutable.
-- Mapper chacun des dix `PocomaEventTypes` vers `{READ_POT, POT_BALANCES}`.
-- Valider à la construction l'égalité exacte entre catalogue connu et clés déclarées : aucun type
+- `PocomaProjectionMaterializationPolicy` déclarée comme table explicite immutable au niveau du
+  runtime Event.
+- chacun des dix `PocomaEventTypes` mappé vers `{READ_POT, POT_BALANCES}`.
+- validation à la construction de l'égalité exacte entre catalogue connu et clés déclarées : aucun type
   manquant, aucun type inconnu.
-- Supporter explicitement un ensemble vide pour un type connu.
-- Exposer la dérivation des routes pertinentes depuis le seul ensemble de `ProjectionType` servi
+- support explicite d'un ensemble vide pour un type connu.
+- dérivation des matérialisations pertinentes depuis le seul ensemble de `ProjectionType` servi
   par un worker ; ne jamais configurer séparément des EventTypes.
-- Garder le contrat générique dans `engine-processing-event` avec des dépendances explicites vers
-  `domain-event` et `domain-projection`. Composer la déclaration Pocoma au niveau du runtime Event,
-  où les constantes `PocomaEventTypes` et `domain-pot-projection` peuvent être réunies sans créer
-  une dépendance engine vers les projections concrètes.
-- Ne créer ni module, ni registry de policies, ni framework de plugins.
+- contrat générique conservé dans `engine-processing-event` avec des dépendances explicites vers
+  `domain-event` et `domain-projection` ; déclaration Pocoma composée au niveau du runtime Event,
+  où les constantes `PocomaEventTypes` et `domain-pot-projection` sont réunies sans créer de
+  dépendance engine vers les projections concrètes.
+- aucun module, registry de policies ou framework de plugins créé.
 
 ### Tests
 
@@ -128,7 +131,7 @@ EventType → Set<ProjectionType>
 - type inconnu déclaré rejeté ;
 - mapping vide accepté et conservé ;
 - mapping initial exact des dix types vers les deux projections ;
-- aucune route `AUTH` ;
+- aucune matérialisation `AUTH` ;
 - dérivation correcte pour worker `{READ_POT}`, `{POT_BALANCES}` et
   `{READ_POT, POT_BALANCES}`.
 
@@ -141,9 +144,11 @@ EventType → Set<ProjectionType>
 
 ### Notes / findings
 
-- Vérifier pendant l'implémentation le placement package exact de la déclaration Pocoma ; sa
-  contrainte est l'absence de dépendance `engine-processing-event → domain-pot-projection`, pas la
-  création d'un nouveau module.
+- La déclaration Pocoma est placée dans `runtime-event-consumption-worker`, niveau de composition
+  actuel réunissant le catalogue d'Events et les projections concrètes sans dépendance
+  `engine-processing-event → domain-pot-projection`.
+- La vue dérivée par projections servies omet une entrée lorsque son intersection est vide ; la
+  table canonique exhaustive conserve, elle, les mappings vides explicitement déclarés.
 
 ## EPT.3 — Discovery metadata-only
 
