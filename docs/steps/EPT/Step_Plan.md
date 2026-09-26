@@ -6,7 +6,7 @@ Current lot: EPT.4
 Overall status: IN_PROGRESS
 ```
 
-EPT.3 est audité et accepté. EPT.4 est le prochain lot à cadrer puis à implémenter et reste `TODO`.
+EPT.3 est audité et accepté. EPT.4 est implémenté et reste en `REVIEW` jusqu'à acceptation des preuves.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -14,7 +14,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.1 | EventType et persistence canonique | DONE |
 | EPT.2 | Policy exhaustive | DONE |
 | EPT.3 | Discovery metadata-only | DONE |
-| EPT.4 | Consumption Event → ProjectionTask | TODO |
+| EPT.4 | Consumption Event → ProjectionTask | REVIEW |
 | EPT.5 | Cutover runtime Event | TODO |
 | EPT.6 | Preuve E2E distribuée | TODO |
 
@@ -253,7 +253,7 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 
 ### Status
 
-`TODO`
+`REVIEW`
 
 ### Goal
 
@@ -312,6 +312,27 @@ ConsumerIdentity(PROJECTION_TASK_MATERIALIZER, [projectionType])
 - Les garanties de lease/takeover/fencing de Consumption restent inchangées.
 
 ### Notes / findings
+
+- Le motif `acquire → fenced finalize` est extrait dans
+  `AcquireThenFinalizeConsumptionOrchestrator<C>` avec trois petits contrats typés : source,
+  recherche paginée et finalizer. Il ne dépend ni d'Event, ni de ProjectionTask, ni de provenance,
+  ni d'un failure handler.
+- `ProjectionTaskConsumptionOrchestrator` délègue sa boucle à cette abstraction. L'adaptation locale
+  convertit `LOST_CLAIM` en issue fenced normale et garde `FINALIZED` / `RETRY_SCHEDULED` hors du
+  cœur générique.
+- `ProjectionMaterializationConsumptionKeys` fixe l'identité exacte
+  `EVENT/[eventId] × PROJECTION_TASK_MATERIALIZER/[projectionType]`.
+- `ProjectionMaterializationConsumptionSource` adapte la discovery EPT.3 sans créer de Slot, Claim
+  ou Task et conserve le candidat metadata-only jusqu'à la finalisation.
+- `ProjectionMaterializationConsumptionService` dérive la `ProjectionKey` depuis le candidat et
+  appelle `ProjectionTaskStorePort.ensure` comme durable effect de
+  `TransactionalFinalizeConsumptionUseCase`.
+- La composition EPT.4 reste explicite dans les tests PostgreSQL : aucun worker Event supplémentaire
+  ni changement du bean graph Event actif n'est introduit avant EPT.5.
+- Les preuves PostgreSQL couvrent la visibilité atomique de Task + Claim `SUCCESS` + Slot
+  `DONE/SUCCESS`, le fencing avant invocation de `ensure`, lease/takeover, rollback de `ensure`,
+  rollback après écriture avant commit, replay, concurrence, idempotence aux deux niveaux et payload
+  invalide non désérialisé.
 
 - `FinalizeConsumptionService` verrouille déjà le slot et vérifie `current_claim_id` avant
   `durableEffect.apply()` ; aucune nouvelle abstraction transactionnelle n'est attendue.
