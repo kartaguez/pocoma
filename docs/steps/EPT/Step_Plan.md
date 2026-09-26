@@ -2,11 +2,11 @@
 
 ```text
 Step: EPT — Event → ProjectionTask
-Current lot: EPT.5
+Current lot: EPT.6
 Overall status: IN_PROGRESS
 ```
 
-EPT.4 est audité et accepté. EPT.5 est implémenté et reste `REVIEW` jusqu'à son audit explicite.
+EPT.5 est audité et accepté. EPT.6 est le prochain lot et reste `TODO` jusqu'à son démarrage explicite.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -15,7 +15,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.2 | Policy exhaustive | DONE |
 | EPT.3 | Discovery metadata-only | DONE |
 | EPT.4 | Consumption Event → ProjectionTask | DONE |
-| EPT.5 | Cutover runtime Event | REVIEW |
+| EPT.5 | Cutover runtime Event | DONE |
 | EPT.6 | Preuve E2E distribuée | TODO |
 
 ## EPT.1 — EventType et persistence canonique
@@ -342,7 +342,7 @@ ConsumerIdentity(PROJECTION_TASK_MATERIALIZER, [projectionType])
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Goal
 
@@ -410,6 +410,8 @@ legacy compilé jusqu'à la preuve finale.
   binding mono/multi-projections, le rejet des catalogues invalides, les segments complémentaires,
   et le chemin PostgreSQL réel `Event` → `runOneCycle()` → `ProjectionTask` avec replay idempotent
   et sans write dans les tables legacy.
+- L'audit final est accepté après ajout de la preuve Spring réelle du binding et des échecs de
+  démarrage de `projection-types`.
 
 ## EPT.6 — Preuve E2E distribuée
 
