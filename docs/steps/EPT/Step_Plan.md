@@ -6,7 +6,7 @@ Current lot: EPT.5
 Overall status: IN_PROGRESS
 ```
 
-EPT.4 est audité et accepté. EPT.5 est le prochain lot et reste `TODO` jusqu'à son démarrage explicite.
+EPT.4 est audité et accepté. EPT.5 est implémenté et reste `REVIEW` jusqu'à son audit explicite.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -15,7 +15,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.2 | Policy exhaustive | DONE |
 | EPT.3 | Discovery metadata-only | DONE |
 | EPT.4 | Consumption Event → ProjectionTask | DONE |
-| EPT.5 | Cutover runtime Event | TODO |
+| EPT.5 | Cutover runtime Event | REVIEW |
 | EPT.6 | Preuve E2E distribuée | TODO |
 
 ## EPT.1 — EventType et persistence canonique
@@ -342,7 +342,7 @@ ConsumerIdentity(PROJECTION_TASK_MATERIALIZER, [projectionType])
 
 ### Status
 
-`TODO`
+`REVIEW`
 
 ### Goal
 
@@ -379,7 +379,8 @@ legacy compilé jusqu'à la preuve finale.
 - catalogue worker vide/inconnu ou route incohérente échoue au démarrage ;
 - plusieurs workers du même ProjectionType concourent via Consumption ;
 - aucun bean legacy de scheduling Event n'est autoritaire ;
-- smoke PostgreSQL du nouveau runtime et tests de lifecycle polling/stop.
+- smoke PostgreSQL du nouveau runtime ; la couverture générique existante de
+  `ConsumptionPollingWorker` reste la preuve lifecycle polling/stop, sans nouveau test temporel EPT.5.
 
 ### Exit criteria
 
@@ -390,9 +391,25 @@ legacy compilé jusqu'à la preuve finale.
 
 ### Notes / findings
 
-- Le runtime actuel assemble encore `EventConsumptionLocator`, les registries pipeline/relevance/
-  strategy et `TransactionalExecuteConsumptionUseCase`; leur retrait du bean graph constitue le
-  cutover, pas leur suppression physique.
+- `EventConsumptionRuntimeConfiguration` assemble désormais le chemin EPT.4
+  `ProjectionMaterializationConsumptionSource` →
+  `AcquireThenFinalizeConsumptionOrchestrator` →
+  `ProjectionMaterializationConsumptionService`.
+- `projection-types` est obligatoire et validé génériquement contre l'ensemble des projections
+  matérialisables exposé par la policy canonique. Aucun défaut de production ni propriété
+  `event-types` parallèle n'est introduit.
+- Les routes observées sont dérivées par `ProjectionMaterializationPolicy.materializationsFor(...)`.
+- Le `WorkerSegment` existant est transmis à la discovery JDBC ; la segmentation autoritaire est
+  celle de `pot_partition_hash`, sans compatibilité avec le hash pipeline legacy.
+- L'ancien graphe Event (`EventConsumptionLocator`, registries pipeline/relevance/strategy,
+  `TransactionalExecuteConsumptionUseCase`, provenance et scheduler legacy) n'est plus assemblé
+  par le composition root Event. Ses classes et modules restent compilés sans être autoritaires.
+- Le runtime réutilise sans modification la policy d'orchestration, les transactions acquire /
+  fenced finalize et la sémantique failure/retry livrées par EPT.4.
+- Les tests prouvent le graphe Spring positif et négatif par reachability depuis le worker, le
+  binding mono/multi-projections, le rejet des catalogues invalides, les segments complémentaires,
+  et le chemin PostgreSQL réel `Event` → `runOneCycle()` → `ProjectionTask` avec replay idempotent
+  et sans write dans les tables legacy.
 
 ## EPT.6 — Preuve E2E distribuée
 

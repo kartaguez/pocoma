@@ -178,15 +178,21 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	}
 
 	@Test
-	void keepsEveryProjectionInsideTheEventPotSegment() {
+	void complementaryPotSegmentsHaveNoGapOrOverlapAndKeepEveryProjectionTogether() {
 		UUID inside = uuid(20);
 		UUID outside = uuid(21);
 		insertEvent(inside, POT_CREATED, uuid(120), 1, NOW, -2, UNPARSEABLE_PAYLOAD);
 		insertEvent(outside, POT_CREATED, uuid(121), 1, NOW, -1, UNPARSEABLE_PAYLOAD);
+		Map<EventType, Set<ProjectionType>> routes = Map.of(
+				POT_CREATED, Set.of(READ_POT, POT_BALANCES));
 
 		assertEquals(List.of(inside, inside), discovery.findCandidates(
-				Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES)),
+				routes,
 				new WorkerSegment(0, 2), Optional.empty(), 10).stream()
+				.map(ProjectionMaterializationCandidate::eventId).toList());
+		assertEquals(List.of(outside, outside), discovery.findCandidates(
+				routes,
+				new WorkerSegment(1, 2), Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::eventId).toList());
 	}
 

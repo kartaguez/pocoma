@@ -1,67 +1,48 @@
 package com.kartaguez.pocoma.runtime.event.consumption;
 
 import java.time.Clock;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.PipelineDefinitionRegistry;
-import com.kartaguez.pocoma.domain.pipeline.PocomaPipelineDefinitions;
+import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.strategy.TaskCreationStrategy;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
-import com.kartaguez.pocoma.engine.pipeline.lifecycle.catalog.ProjectionProducerCatalog;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionDiscoveryPort;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
-import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
-import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
-import com.kartaguez.pocoma.engine.service.taskcreation.EventPipelineRelevanceRegistry;
-import com.kartaguez.pocoma.engine.service.taskcreation.ScheduleProjectionTasksForEventService;
-import com.kartaguez.pocoma.engine.service.taskcreation.TaskCreationStrategyRegistry;
+import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
-import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalExecuteConsumptionUseCase;
-import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
+import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.pipeline.JpaTaskCreationAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
-import com.kartaguez.pocoma.infra.pipeline.lifecycle.persistence.JdbcPipelineLifecycleAdapter;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
-import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionLocator;
-import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionFailurePolicy;
-import com.kartaguez.pocoma.locator.consumption.event.failure.EventConsumptionTechnicalFailureClassifier;
-import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
+import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionKeys;
+import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionService;
+import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionSource;
+import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
-import com.kartaguez.pocoma.pipeline.balance.BalanceTaskCreationStrategy;
-import com.kartaguez.pocoma.pipeline.balance.BalanceEventPipelineRelevance;
-import com.kartaguez.pocoma.pipeline.balance.BalancePipeline;
-import com.kartaguez.pocoma.pipeline.pot.PotProjectionPipeline;
-import com.kartaguez.pocoma.pipeline.pot.PotTaskCreationStrategy;
-import com.kartaguez.pocoma.pipeline.pot.PotEventPipelineRelevance;
-import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 @EnableConfigurationProperties(EventConsumptionProperties.class)
@@ -85,80 +66,9 @@ public class EventConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
-	JpaConsumptionProvenanceAdapter consumptionProvenanceAdapter(JpaConsumptionInputRepository inputs,
-			JpaConsumptionResultRepository results) {
-		return new JpaConsumptionProvenanceAdapter(inputs, results);
-	}
-
-	@Bean
 	AcquireConsumptionUseCase acquireConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
 			TransactionRunner transactions, Clock clock) {
 		return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle, clock), transactions);
-	}
-
-	@Bean
-	ExecuteConsumptionUseCase executeConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			JpaConsumptionProvenanceAdapter provenance, TransactionRunner transactions, Clock clock) {
-		return new TransactionalExecuteConsumptionUseCase(
-				new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
-	}
-
-	@Bean
-	HandleConsumptionFailureUseCase handleConsumptionFailureUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			TransactionRunner transactions, Clock clock) {
-		return new TransactionalHandleConsumptionFailureUseCase(
-				new HandleConsumptionFailureService(lifecycle, lifecycle,
-						new EventConsumptionFailurePolicy(), clock), transactions);
-	}
-
-	@Bean
-	PipelineDefinitionRegistry eventConsumptionPipelineDefinitions() {
-		return new PipelineDefinitionRegistry(PocomaPipelineDefinitions.all());
-	}
-
-	@Bean
-	ProjectionProducerCatalog projectionProducerCatalog(PipelineDefinitionRegistry definitions) {
-		return new ProjectionProducerCatalog(definitions.all().stream().map(definition -> {
-			var pipeline = definition.identity();
-			if (BalancePipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
-				return BalancePipeline.producerBinding(pipeline);
-			}
-			if (PotProjectionPipeline.PIPELINE_ID.equals(pipeline.pipelineId().value())) {
-				return PotProjectionPipeline.producerBinding(pipeline);
-			}
-			throw new IllegalStateException("No projection producer binding for " + pipeline);
-		}).toList());
-	}
-
-	@Bean
-	TaskCreationStrategyRegistry eventTaskCreationStrategies(PipelineDefinitionRegistry definitions,
-			ObjectMapper mapper) {
-		var strategies = definitions.all().stream().map(definition -> {
-			PipelineDefinition identity = definition.identity();
-			if (BalancePipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
-				return (TaskCreationStrategy) new BalanceTaskCreationStrategy(identity, mapper);
-			if (PotProjectionPipeline.PIPELINE_ID.equals(identity.pipelineId().value()))
-				return (TaskCreationStrategy) new PotTaskCreationStrategy(identity, mapper);
-			throw new IllegalStateException("No Event Task binding for " + identity);
-		}).toList();
-		return new TaskCreationStrategyRegistry(strategies);
-	}
-
-	@Bean
-	EventPipelineRelevanceRegistry eventPipelineRelevances() {
-		return new EventPipelineRelevanceRegistry(java.util.List.of(new BalanceEventPipelineRelevance(),
-				new PotEventPipelineRelevance()));
-	}
-
-	@Bean
-	ScheduleProjectionTasksForEventUseCase scheduleProjectionTasksForEventUseCase(
-			PipelineDefinitionRegistry definitions, EventPipelineRelevanceRegistry relevances,
-			TaskCreationStrategyRegistry strategies, JpaTaskCreationAdapter persistence,
-			JdbcProjectionTaskStoreAdapter canonicalTasks, Clock clock, MeterRegistry meters) {
-		return new MeteredProjectionTaskScheduler(
-				new CanonicalProjectionTaskScheduler(
-						new ScheduleProjectionTasksForEventService(definitions, relevances, strategies, persistence),
-						canonicalTasks, clock), meters);
 	}
 
 	@Bean
@@ -167,22 +77,43 @@ public class EventConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
-	EventConsumptionLocator eventConsumptionLocator(PipelineDefinitionRegistry definitions,
-			EventConsumptionProperties properties,
-			EventConsumptionDiscoveryPort discovery, EventPort events,
-			ScheduleProjectionTasksForEventUseCase scheduleTasks, Clock clock,
-			JdbcPipelineLifecycleAdapter pipelineLifecycle) {
-		return new EventConsumptionLocator(definitions,
-				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), discovery, events,
-				scheduleTasks, new EventConsumptionTechnicalFailureClassifier(clock), clock,
-				pipelineLifecycle, pipelineLifecycle);
+	FinalizeConsumptionUseCase finalizeConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
+			TransactionRunner transactions, Clock clock) {
+		return new TransactionalFinalizeConsumptionUseCase(
+				new FinalizeConsumptionService(lifecycle, clock), transactions);
 	}
 
 	@Bean
-	ConsumptionOrchestrator consumptionOrchestrator(EventConsumptionLocator locator,
-			AcquireConsumptionUseCase acquire, ExecuteConsumptionUseCase execute,
-			HandleConsumptionFailureUseCase handleFailure) {
-		return new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure);
+	ProjectionMaterializationPolicy projectionMaterializationPolicy() {
+		return PocomaProjectionMaterializationPolicy.policy();
+	}
+
+	@Bean
+	JdbcProjectionMaterializationDiscoveryAdapter projectionMaterializationDiscovery(JdbcTemplate jdbc) {
+		return new JdbcProjectionMaterializationDiscoveryAdapter(jdbc);
+	}
+
+	@Bean
+	ProjectionMaterializationConsumptionSource projectionMaterializationConsumptionSource(
+			ProjectionMaterializationPolicy policy, EventConsumptionProperties properties,
+			JdbcProjectionMaterializationDiscoveryAdapter discovery) {
+		Set<ProjectionType> projectionTypes = projectionTypes(properties.getProjectionTypes(), policy);
+		return new ProjectionMaterializationConsumptionSource(
+				policy.materializationsFor(projectionTypes),
+				new WorkerSegment(properties.getSegmentIndex(), properties.getSegmentCount()), discovery);
+	}
+
+	@Bean
+	ProjectionMaterializationConsumptionService projectionMaterializationConsumptionService(
+			FinalizeConsumptionUseCase finalizeConsumption, JdbcProjectionTaskStoreAdapter tasks) {
+		return new ProjectionMaterializationConsumptionService(finalizeConsumption, tasks);
+	}
+
+	@Bean
+	ConsumptionOrchestrator consumptionOrchestrator(ProjectionMaterializationConsumptionSource source,
+			AcquireConsumptionUseCase acquire, ProjectionMaterializationConsumptionService finalizeConsumption) {
+		return new AcquireThenFinalizeConsumptionOrchestrator<>(source,
+				ProjectionMaterializationConsumptionKeys::consumptionKey, acquire, finalizeConsumption);
 	}
 
 	@Bean
@@ -200,5 +131,29 @@ public class EventConsumptionRuntimeConfiguration {
 	@Bean
 	SmartLifecycle eventConsumptionWorkerLifecycle(ConsumptionPollingWorker worker) {
 		return new EventConsumptionWorkerLifecycle(worker);
+	}
+
+	static Set<ProjectionType> projectionTypes(
+			List<String> configuredValues, ProjectionMaterializationPolicy policy) {
+		if (configuredValues == null || configuredValues.isEmpty()) {
+			throw new IllegalStateException("projection-types must not be empty");
+		}
+		var configured = new LinkedHashSet<ProjectionType>();
+		for (String value : configuredValues) {
+			if (value == null || value.isBlank()) {
+				throw new IllegalStateException("projection-types must contain non-blank values");
+			}
+			if (!configured.add(new ProjectionType(value))) {
+				throw new IllegalStateException("projection-types must not contain duplicates");
+			}
+		}
+		Set<ProjectionType> materializable = policy.materializations().values().stream()
+				.flatMap(Set::stream).collect(Collectors.toUnmodifiableSet());
+		if (!materializable.containsAll(configured)) {
+			var unsupported = new LinkedHashSet<>(configured);
+			unsupported.removeAll(materializable);
+			throw new IllegalStateException("projection-types contain unsupported values: " + unsupported);
+		}
+		return Set.copyOf(configured);
 	}
 }

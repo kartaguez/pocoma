@@ -78,18 +78,13 @@ compatibilité. Les tests couvrent duplicate, traitement hors ordre, rollback, r
 
 ### Event vers Tasks de projection
 
-`runtime-event-consumption-worker` découvre les couples Event/génération applicables sans Task
-directe. Après acquire, il recharge l'Event, réévalue le catalogue complet et crée exactement une
-Task pour chaque génération pertinente et applicable.
+`runtime-event-consumption-worker` découvre les conséquences `EventId × ProjectionType` dues depuis
+les seules métadonnées durables. Son unique configuration fonctionnelle est un set explicite de
+`ProjectionType`; les EventTypes/routes sont dérivés de la policy canonique.
 
-La discovery ne consulte ni latest-known, ni artifact, ni failure, ni head, ni stratégie reader. Une
-nouvelle `pipelineVersion` applicable redécouvre automatiquement les anciens Events dont sa Task
-exacte n'existe pas. Les Tasks existantes des anciennes générations ne sont pas rouvertes.
-
-Depuis 7.14.1, la discovery Event/Task filtre `active` en best effort. L'autorité est le Claim :
-le verrou d'activation partage la transaction qui crée le Claim. Une désactivation committée avant
-l'acquisition l'interdit ; un Claim committé avant la désactivation peut terminer, créer ses Tasks
-ou matérialiser son artifact sans nouveau contrôle lifecycle.
+Après acquire, une finalisation courte et fenced assure la `ProjectionTask`, termine le Claim en
+`SUCCESS` et le slot en `DONE/SUCCESS` dans la même transaction. Le runtime ne recharge pas le payload,
+ne consulte aucune pipeline generation et n'écrit ni `tasks_4_pipeline` ni provenance Event legacy.
 
 ### Exécution Task multi-pipeline
 

@@ -95,7 +95,7 @@ cd app
 
 ./mvnw -pl runtime-event-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.pipeline-version=2"
+  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=READ_POT,POT_BALANCES"
 
 ./mvnw -pl runtime-latest-known-version-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \

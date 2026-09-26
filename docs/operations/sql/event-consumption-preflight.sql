@@ -1,26 +1,30 @@
--- Read-only Lot 7.5 preflight after V10 and before enabling the catalog-driven scheduler.
+-- Read-only preflight before enabling the EPT Event materializer runtime.
 do $$
 begin
-    if to_regclass('event_4_pipeline_materialization_status') is not null then
-        raise exception 'V10 is not complete: the legacy Event materialization table still exists';
+    if to_regclass('business_event_outbox') is null
+       or to_regclass('projection_tasks') is null
+       or to_regclass('consumption_slots') is null
+       or to_regclass('consumption_claims') is null then
+        raise exception 'EPT persistence tables are missing';
     end if;
 
     if exists (
-        select 1 from tasks_4_pipeline task
-        left join business_event_outbox event on event.id = task.event_id
-        where event.id is null
-           or task.pot_id <> event.pot_id
-           or task.target_version <> event.version
-           or task.pipeline_id is null or btrim(task.pipeline_id) = ''
-           or task.pipeline_version < 1
+        select 1
+        from projection_tasks
+        where nullif(btrim(projection_type), '') is null
+           or nullif(btrim(target_object_type), '') is null
+           or nullif(btrim(target_object_id), '') is null
+           or target_version < 1
     ) then
-        raise exception 'An Event-derived Task has an invalid Event, Pot, version or pipeline binding';
+        raise exception 'A canonical ProjectionTask has an invalid ProjectionKey';
     end if;
 
     if exists (
-        select 1 from tasks_4_pipeline
-        group by event_id, pipeline_id, pipeline_version having count(*) > 1
+        select 1
+        from projection_tasks
+        group by projection_type, target_object_type, target_object_id, target_version
+        having count(*) > 1
     ) then
-        raise exception 'Multiple Tasks share one Event-derived scheduling identity';
+        raise exception 'Multiple ProjectionTasks share one canonical ProjectionKey';
     end if;
 end $$;

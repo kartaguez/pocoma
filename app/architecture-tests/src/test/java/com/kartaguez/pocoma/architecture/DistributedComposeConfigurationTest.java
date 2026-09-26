@@ -15,13 +15,18 @@ class DistributedComposeConfigurationTest {
 			"${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}";
 
 	@Test
-	void allDistributedBalanceConsumersUseTheSameRequiredPipelineVersion() throws IOException {
+	void distributedPipelineConsumersShareTheirVersionWhileEventWorkersDeclareProjectionTypes() throws IOException {
 		String compose = Files.readString(findRepositoryFile("docker-compose.distributed.yml"));
 
-		assertEquals(5, occurrences(compose, REQUIRED_VERSION));
+		assertEquals(3, occurrences(compose, REQUIRED_VERSION));
 		assertEquals(1, occurrences(compose, "POCOMA_QUERY_BALANCE_PIPELINE_VERSION: " + REQUIRED_VERSION));
-		assertEquals(2, occurrences(compose, "POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION: " + REQUIRED_VERSION));
 		assertEquals(2, occurrences(compose, "POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: " + REQUIRED_VERSION));
+		assertEquals(2, occurrences(compose,
+				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
+		assertFalse(compose.contains("POCOMA_EVENT_CONSUMPTION_PIPELINE_ID"));
+		assertFalse(compose.contains("POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION"));
+		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-0"));
+		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-1"));
 		assertFalse(compose.contains("POCOMA_BALANCE_PIPELINE_VERSION:-1"));
 	}
 

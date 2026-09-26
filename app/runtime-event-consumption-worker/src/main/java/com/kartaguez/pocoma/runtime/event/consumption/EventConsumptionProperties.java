@@ -1,12 +1,15 @@
 package com.kartaguez.pocoma.runtime.event.consumption;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pocoma.event-consumption")
 public class EventConsumptionProperties {
 	private boolean enabled;
+	private List<String> projectionTypes = new ArrayList<>();
 	private int segmentIndex;
 	private int segmentCount = 1;
 	private String workerId = "event-consumption-worker";
@@ -18,6 +21,8 @@ public class EventConsumptionProperties {
 
 	public boolean isEnabled() { return enabled; }
 	public void setEnabled(boolean enabled) { this.enabled = enabled; }
+	public List<String> getProjectionTypes() { return projectionTypes; }
+	public void setProjectionTypes(List<String> projectionTypes) { this.projectionTypes = projectionTypes; }
 	public int getSegmentIndex() { return segmentIndex; }
 	public void setSegmentIndex(int segmentIndex) { this.segmentIndex = segmentIndex; }
 	public int getSegmentCount() { return segmentCount; }
