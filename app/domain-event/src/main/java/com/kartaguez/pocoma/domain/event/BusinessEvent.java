@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.domain.event;
 
-/** Marker for immutable, typed business facts produced by the domain. */
+/** Immutable, typed business fact with a stable semantic identity. */
 public interface BusinessEvent {
+	EventType eventType();
 }

@@ -261,7 +261,8 @@ class HexagonalArchitectureTest {
 				"PotDetailsUpdatedEvent",
 				"PotShareholdersAddedEvent",
 				"PotShareholdersDetailsUpdatedEvent",
-				"PotShareholdersWeightsUpdatedEvent"), potEventTypes,
+				"PotShareholdersWeightsUpdatedEvent",
+				"PocomaEventTypes"), potEventTypes,
 				"all typed Pot facts must live in domain.pot.event");
 	}
 

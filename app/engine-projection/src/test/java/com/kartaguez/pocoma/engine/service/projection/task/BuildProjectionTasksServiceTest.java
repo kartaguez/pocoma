@@ -61,7 +61,7 @@ class BuildProjectionTasksServiceTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		return new BusinessEventEnvelope(
 				UUID.randomUUID(),
-				"PotCreatedEvent",
+				"POT_CREATED",
 				potId,
 				potId.value(),
 				2,

@@ -28,52 +28,52 @@ public class BalanceCalculationSpringEventListener {
 
 	@EventListener
 	public void on(ExpenseCreatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(ExpenseDeletedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(ExpenseDetailsUpdatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(ExpenseSharesUpdatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotCreatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotDeletedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotDetailsUpdatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotShareholdersAddedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotShareholdersDetailsUpdatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	@EventListener
 	public void on(PotShareholdersWeightsUpdatedEvent event) {
-		submit(event.potId(), event.version(), event.getClass().getSimpleName());
+		submit(event.potId(), event.version(), event.eventType().value());
 	}
 
 	private void submit(PotId potId, long targetVersion, String sourceEventType) {

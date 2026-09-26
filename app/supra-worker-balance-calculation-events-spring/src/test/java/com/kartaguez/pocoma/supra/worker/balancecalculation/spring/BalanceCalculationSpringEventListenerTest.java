@@ -29,6 +29,6 @@ class BalanceCalculationSpringEventListenerTest {
 		ProjectionTask task = captor.getValue();
 		assertEquals(potId, task.potId());
 		assertEquals(7, task.targetVersion());
-		assertEquals("PotCreatedEvent", task.sourceEventType());
+		assertEquals("POT_CREATED", task.sourceEventType());
 	}
 }

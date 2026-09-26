@@ -41,11 +41,11 @@ class PipelineRegistryTest {
 		PipelineRegistry registry = new PipelineRegistry(
 				List.of(enabled, disabled),
 				List.of(
-						new ConfiguredPipelineBinding(enabled.definition(), List.of("PotCreatedEvent"), true),
-						new ConfiguredPipelineBinding(disabled.definition(), List.of("PotCreatedEvent"), false)));
+						new ConfiguredPipelineBinding(enabled.definition(), List.of("POT_CREATED"), true),
+						new ConfiguredPipelineBinding(disabled.definition(), List.of("POT_CREATED"), false)));
 
 		assertEquals(List.of(enabled.definition()), registry.activePipelines());
-		assertEquals(List.of(new ConfiguredPipelineBinding(enabled.definition(), List.of("PotCreatedEvent"), true)),
+		assertEquals(List.of(new ConfiguredPipelineBinding(enabled.definition(), List.of("POT_CREATED"), true)),
 				registry.activeBindings());
 	}
 
@@ -53,7 +53,7 @@ class PipelineRegistryTest {
 	void rejectsEnabledBindingWithoutStrategy() {
 		ConfiguredPipelineBinding binding = new ConfiguredPipelineBinding(
 				new PipelineDefinition(PipelineId.of("missing"), 1),
-				List.of("PotCreatedEvent"),
+				List.of("POT_CREATED"),
 				true);
 
 		assertThrows(IllegalArgumentException.class, () -> new PipelineRegistry(List.of(), List.of(binding)));

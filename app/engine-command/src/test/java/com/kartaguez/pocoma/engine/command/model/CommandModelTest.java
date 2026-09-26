@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 
 class CommandModelTest {
@@ -82,5 +83,7 @@ class CommandModelTest {
 				NOW.plusSeconds(60), "issuer");
 	}
 
-	private record TestBusinessEvent(String change) implements BusinessEvent {}
+	private record TestBusinessEvent(String change) implements BusinessEvent {
+		@Override public EventType eventType() { return new EventType("TEST_EVENT"); }
+	}
 }

@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -43,9 +44,9 @@ class JpaPotCommandEventAppendAdapterTest {
 
 		ArgumentCaptor<List<JpaBusinessEventOutboxEntity>> persisted = ArgumentCaptor.forClass(List.class);
 		verify(repository, times(1)).saveAllAndFlush(persisted.capture());
-		assertEquals(List.of("PotCreatedEvent", "PotDeletedEvent"),
+		assertEquals(List.of("POT_CREATED", "POT_DELETED"),
 				persisted.getValue().stream().map(entity -> entity.toEnvelope().eventType()).toList());
-		assertEquals(List.of("PotCreatedEvent", "PotDeletedEvent"),
+		assertEquals(List.of("POT_CREATED", "POT_DELETED"),
 				artifacts.stream().map(artifact -> artifact.type()).toList());
 		assertEquals(List.of(1L, 2L), artifacts.stream()
 				.map(artifact -> artifact.subject().orElseThrow().version()).toList());
@@ -70,5 +71,6 @@ class JpaPotCommandEventAppendAdapterTest {
 	}
 
 	private record ForeignEvent() implements BusinessEvent {
+		@Override public EventType eventType() { return new EventType("FOREIGN_EVENT"); }
 	}
 }

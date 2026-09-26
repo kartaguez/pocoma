@@ -75,7 +75,7 @@ class JpaEventPortPostgresTest {
 		var potId = java.util.UUID.randomUUID();
 		var createdAt = Instant.parse("2026-09-01T10:00:00Z");
 		var entity = repository.saveAndFlush(new JpaBusinessEventOutboxEntity(
-				"PotShareholdersAddedEvent", potId, potId, 7, "{not-json", null, null, createdAt));
+				"POT_SHAREHOLDERS_ADDED", potId, potId, 7, "{not-json", null, null, createdAt));
 
 		var candidate = discovery.findNextEligibleCandidate(java.util.List.of(definition()),
 				WorkerSegment.single(), createdAt.plusSeconds(1), Optional.empty()).orElseThrow();

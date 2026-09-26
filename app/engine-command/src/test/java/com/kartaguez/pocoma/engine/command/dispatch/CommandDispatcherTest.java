@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
@@ -95,6 +96,8 @@ class CommandDispatcherTest {
 	}
 
 	private record TestCommand(String value) implements Command {}
-	private record TestBusinessEvent(String change) implements BusinessEvent {}
+	private record TestBusinessEvent(String change) implements BusinessEvent {
+		@Override public EventType eventType() { return new EventType("TEST_EVENT"); }
+	}
 	private static final class TechnicalFailure extends RuntimeException {}
 }

@@ -19,7 +19,11 @@ public final class EventMetadata {
 	}
 
 	public static String type(Object event) {
-		return Objects.requireNonNull(event, "event must not be null").getClass().getSimpleName();
+		Object required = Objects.requireNonNull(event, "event must not be null");
+		if (required instanceof com.kartaguez.pocoma.domain.event.BusinessEvent businessEvent) {
+			return businessEvent.eventType().value();
+		}
+		return required.getClass().getSimpleName();
 	}
 
 	public static String operation(Object event) {

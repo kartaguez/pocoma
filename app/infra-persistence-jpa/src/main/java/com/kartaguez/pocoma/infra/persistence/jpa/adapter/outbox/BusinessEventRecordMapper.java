@@ -54,7 +54,7 @@ public final class BusinessEventRecordMapper {
 		EventProjection projection = EventProjection.from(recordedEvent.event());
 		return new BusinessEventEnvelope(
 				recordedEvent.eventId(),
-				recordedEvent.event().getClass().getSimpleName(),
+				recordedEvent.event().eventType().value(),
 				projection.potId(),
 				projection.aggregateId(),
 				projection.version(),
@@ -66,22 +66,22 @@ public final class BusinessEventRecordMapper {
 
 	private BusinessEvent eventFrom(BusinessEventEnvelope envelope, JsonNode payload) {
 		return switch (envelope.eventType()) {
-			case "PotCreatedEvent" -> new PotCreatedEvent(envelope.potId(), envelope.version());
-			case "PotDeletedEvent" -> new PotDeletedEvent(envelope.potId(), envelope.version());
-			case "PotDetailsUpdatedEvent" -> new PotDetailsUpdatedEvent(envelope.potId(), envelope.version());
-			case "PotShareholdersAddedEvent" -> new PotShareholdersAddedEvent(
+			case "POT_CREATED" -> new PotCreatedEvent(envelope.potId(), envelope.version());
+			case "POT_DELETED" -> new PotDeletedEvent(envelope.potId(), envelope.version());
+			case "POT_DETAILS_UPDATED" -> new PotDetailsUpdatedEvent(envelope.potId(), envelope.version());
+			case "POT_SHAREHOLDERS_ADDED" -> new PotShareholdersAddedEvent(
 					envelope.potId(), shareholderIds(payload), envelope.version());
-			case "PotShareholdersDetailsUpdatedEvent" -> new PotShareholdersDetailsUpdatedEvent(
+			case "POT_SHAREHOLDERS_DETAILS_UPDATED" -> new PotShareholdersDetailsUpdatedEvent(
 					envelope.potId(), shareholderIds(payload), envelope.version());
-			case "PotShareholdersWeightsUpdatedEvent" -> new PotShareholdersWeightsUpdatedEvent(
+			case "POT_SHAREHOLDERS_WEIGHTS_UPDATED" -> new PotShareholdersWeightsUpdatedEvent(
 					envelope.potId(), shareholderIds(payload), envelope.version());
-			case "ExpenseCreatedEvent" -> new ExpenseCreatedEvent(
+			case "EXPENSE_CREATED" -> new ExpenseCreatedEvent(
 					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
-			case "ExpenseDeletedEvent" -> new ExpenseDeletedEvent(
+			case "EXPENSE_DELETED" -> new ExpenseDeletedEvent(
 					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
-			case "ExpenseDetailsUpdatedEvent" -> new ExpenseDetailsUpdatedEvent(
+			case "EXPENSE_DETAILS_UPDATED" -> new ExpenseDetailsUpdatedEvent(
 					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
-			case "ExpenseSharesUpdatedEvent" -> new ExpenseSharesUpdatedEvent(
+			case "EXPENSE_SHARES_UPDATED" -> new ExpenseSharesUpdatedEvent(
 					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
 			default -> throw new IllegalArgumentException("Unsupported business event type: " + envelope.eventType());
 		};
@@ -89,7 +89,7 @@ public final class BusinessEventRecordMapper {
 
 	private String writePayload(BusinessEvent event, EventProjection projection) {
 		ObjectNode payload = objectMapper.createObjectNode();
-		payload.put("eventType", event.getClass().getSimpleName());
+		payload.put("eventType", event.eventType().value());
 		payload.put("potId", projection.potId().value().toString());
 		payload.put("aggregateId", projection.aggregateId().toString());
 		payload.put("version", projection.version());

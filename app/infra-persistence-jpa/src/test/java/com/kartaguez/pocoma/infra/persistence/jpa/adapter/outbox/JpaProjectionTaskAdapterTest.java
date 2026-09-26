@@ -160,7 +160,7 @@ class JpaProjectionTaskAdapterTest {
 		UUID eventId = UUID.randomUUID();
 		return new BusinessEventEnvelope(
 				eventId,
-				"PotCreatedEvent",
+				"POT_CREATED",
 				potId,
 				potId.value(),
 				version,

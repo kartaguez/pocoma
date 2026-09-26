@@ -44,7 +44,7 @@ class JpaBusinessEventOutboxAdapterTest {
 		List<BusinessEventClaim> claims = adapter.claimPending(10, Duration.ofSeconds(30), "builder-1");
 
 		assertEquals(1, claims.size());
-		assertEquals("PotCreatedEvent", claims.getFirst().event().eventType());
+		assertEquals("POT_CREATED", claims.getFirst().event().eventType());
 		assertEquals(potId, claims.getFirst().event().potId());
 		assertEquals(1, adapter.countPendingOrClaimed());
 	}

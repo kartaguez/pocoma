@@ -101,6 +101,14 @@ class CommandConsumptionRuntimePostgresTest {
 		assertEquals(2, lifecycle.findClaims(slot.slotId()).size());
 		assertEquals(eventsBefore + 1,
 				jdbc.queryForObject("select count(*) from business_event_outbox", Integer.class));
+		assertEquals("POT_CREATED", jdbc.queryForObject(
+				"select event_type from business_event_outbox where pot_id = "
+						+ "(select pot_id from pot_headers where label = ?)",
+				String.class, label));
+		assertEquals("POT_CREATED", jdbc.queryForObject(
+				"select payload_json::jsonb ->> 'eventType' from business_event_outbox where pot_id = "
+						+ "(select pot_id from pot_headers where label = ?)",
+				String.class, label));
 	}
 
 	@Test

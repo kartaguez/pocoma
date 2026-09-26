@@ -43,6 +43,31 @@ class BusinessEventContractTest {
 	}
 
 	@Test
+	void everyPotEventExposesItsCanonicalTypeAndTheCatalogueIsExactAndImmutable() {
+		var eventsByType = java.util.Map.ofEntries(
+				java.util.Map.entry(new PotCreatedEvent(potId, 3), PocomaEventTypes.POT_CREATED),
+				java.util.Map.entry(new PotDeletedEvent(potId, 3), PocomaEventTypes.POT_DELETED),
+				java.util.Map.entry(new PotDetailsUpdatedEvent(potId, 3), PocomaEventTypes.POT_DETAILS_UPDATED),
+				java.util.Map.entry(new PotShareholdersAddedEvent(potId, Set.of(shareholderId), 3),
+						PocomaEventTypes.POT_SHAREHOLDERS_ADDED),
+				java.util.Map.entry(new PotShareholdersDetailsUpdatedEvent(potId, Set.of(shareholderId), 3),
+						PocomaEventTypes.POT_SHAREHOLDERS_DETAILS_UPDATED),
+				java.util.Map.entry(new PotShareholdersWeightsUpdatedEvent(potId, Set.of(shareholderId), 3),
+						PocomaEventTypes.POT_SHAREHOLDERS_WEIGHTS_UPDATED),
+				java.util.Map.entry(new ExpenseCreatedEvent(expenseId, potId, 3), PocomaEventTypes.EXPENSE_CREATED),
+				java.util.Map.entry(new ExpenseDeletedEvent(expenseId, potId, 3), PocomaEventTypes.EXPENSE_DELETED),
+				java.util.Map.entry(new ExpenseDetailsUpdatedEvent(expenseId, potId, 3),
+						PocomaEventTypes.EXPENSE_DETAILS_UPDATED),
+				java.util.Map.entry(new ExpenseSharesUpdatedEvent(expenseId, potId, 3),
+						PocomaEventTypes.EXPENSE_SHARES_UPDATED));
+
+		eventsByType.forEach((event, expectedType) -> assertEquals(expectedType, event.eventType()));
+		assertEquals(Set.copyOf(eventsByType.values()), PocomaEventTypes.all());
+		assertEquals(10, PocomaEventTypes.all().size());
+		assertThrows(UnsupportedOperationException.class, PocomaEventTypes.all()::clear);
+	}
+
+	@Test
 	void everyEventRejectsANonPositiveVersion() {
 		List<Runnable> invalidConstructions = List.of(
 				() -> new PotCreatedEvent(potId, 0),

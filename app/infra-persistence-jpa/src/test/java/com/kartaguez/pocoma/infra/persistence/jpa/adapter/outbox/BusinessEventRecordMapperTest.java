@@ -34,7 +34,7 @@ class BusinessEventRecordMapperTest {
 	private final BusinessEventRecordMapper mapper = new BusinessEventRecordMapper(new ObjectMapper());
 
 	@Test
-	void roundTripsEverySupportedTypedEventAndItsMetadata() {
+	void roundTripsEverySupportedTypedEventAndItsMetadata() throws Exception {
 		PotId potId = PotId.of(UUID.randomUUID());
 		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
 		Set<ShareholderId> shareholderIds = Set.of(
@@ -57,7 +57,9 @@ class BusinessEventRecordMapperTest {
 					EventTraceMetadata.of("trace-1", 42L));
 			BusinessEventEnvelope envelope = mapper.toEnvelope(expected);
 
-			assertEquals(event.getClass().getSimpleName(), envelope.eventType());
+			assertEquals(event.eventType().value(), envelope.eventType());
+			assertEquals(event.eventType().value(), new ObjectMapper().readTree(envelope.payloadJson())
+					.path("eventType").textValue());
 			assertEquals(expected, mapper.toRecordedEvent(envelope));
 		}
 	}
@@ -68,11 +70,11 @@ class BusinessEventRecordMapperTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		BusinessEventEnvelope legacy = new BusinessEventEnvelope(
 				eventId,
-				"PotShareholdersAddedEvent",
+				"POT_SHAREHOLDERS_ADDED",
 				potId,
 				potId.value(),
 				2,
-				"{\"eventType\":\"PotShareholdersAddedEvent\",\"version\":2}",
+				"{\"eventType\":\"POT_SHAREHOLDERS_ADDED\",\"version\":2}",
 				null,
 				null,
 				Instant.parse("2026-08-28T07:00:00Z"));
@@ -87,11 +89,11 @@ class BusinessEventRecordMapperTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		BusinessEventEnvelope incoherent = new BusinessEventEnvelope(
 				UUID.randomUUID(),
-				"PotCreatedEvent",
+				"POT_CREATED",
 				potId,
 				potId.value(),
 				2,
-				"{\"eventType\":\"PotCreatedEvent\",\"potId\":\"" + potId.value()
+				"{\"eventType\":\"POT_CREATED\",\"potId\":\"" + potId.value()
 						+ "\",\"aggregateId\":\"" + potId.value() + "\",\"version\":3}",
 				null,
 				null,

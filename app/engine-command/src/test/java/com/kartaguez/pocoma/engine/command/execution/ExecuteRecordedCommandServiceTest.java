@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.decode.CommandPayloadDecoder;
@@ -233,7 +234,9 @@ class ExecuteRecordedCommandServiceTest {
 	}
 
 	private record TestCommand(String payload) implements Command {}
-	private record TestBusinessEvent(String change) implements BusinessEvent {}
+	private record TestBusinessEvent(String change) implements BusinessEvent {
+		@Override public EventType eventType() { return new EventType("TEST_EVENT"); }
+	}
 
 	@FunctionalInterface
 	private interface PayloadDecoder {
