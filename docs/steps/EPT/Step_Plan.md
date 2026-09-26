@@ -2,18 +2,18 @@
 
 ```text
 Step: EPT — Event → ProjectionTask
-Current lot: EPT.3
+Current lot: EPT.4
 Overall status: IN_PROGRESS
 ```
 
-EPT.2 est audité et accepté. EPT.3 est le prochain lot à implémenter et reste `TODO`. La source
+EPT.3 est audité et accepté. EPT.4 est le prochain lot à implémenter et reste `TODO`. La source
 architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
 |-----|-------|--------|
 | EPT.1 | EventType et persistence canonique | DONE |
 | EPT.2 | Policy exhaustive | DONE |
-| EPT.3 | Discovery metadata-only | TODO |
+| EPT.3 | Discovery metadata-only | DONE |
 | EPT.4 | Consumption Event → ProjectionTask | TODO |
 | EPT.5 | Cutover runtime Event | TODO |
 | EPT.6 | Preuve E2E distribuée | TODO |
@@ -156,7 +156,7 @@ Livré et accepté après review :
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Goal
 
@@ -201,13 +201,18 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 
 - Tests de contrat du Candidate, de ses métadonnées et de son ordering key.
 - Tests PostgreSQL de l'expansion une ou plusieurs routes et de la restriction aux routes fournies.
-- `payload_json` JSON valide mais sans forme de `BusinessEvent` : discovery inchangée et règle
-  d'architecture interdisant Jackson et les modèles d'Events métier.
+- `payload_json` contenant un texte non JSON et impossible à désérialiser : discovery inchangée et
+  règle d'architecture interdisant Jackson et les modèles d'Events métier.
 - Aucun slot, slot actif, slot retardé, `DONE` sur une autre projection et `DONE` exact.
 - Segmentation PostgreSQL, y compris un hash négatif, sans segmentation par ProjectionType.
 - Ordre et keyset pagination `LIMIT 1` sur timestamps distincts ou égaux, UUIDs et plusieurs
   projections du même Event, sans trou ni doublon.
 - Nouveau scan sans cursor, terminaison du scan et changement concurrent vers `DONE`.
+- Backfill explicite : après parcours complet de la route initiale et clôture de sa Consumption, un
+  nouveau scan sans cursor durable retrouve sur l'Event historique la projection ajoutée aux
+  routes courantes.
+- `EXPLAIN (ANALYZE, BUFFERS)` sur PostgreSQL 17 avec 200 000 Events, 50 000 slots `DONE`, quatre
+  routes, segmentation 3/16, première page et reprise keyset à mi-scan.
 
 ### Exit criteria
 
@@ -226,10 +231,15 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 - La map issue d'EPT.2 suffit comme représentation publique des routes ; l'adapter utilise seulement
   un record privé de binding SQL.
 - `business_event_outbox.payload_json` est physiquement `text` au HEAD. La preuve metadata-only
-  utilise un document JSON valide mais incompatible avec tout `BusinessEvent`, sans mapper métier.
-- Les indexes existants restent inchangés : la PK UUID de l'outbox et l'unicité structurelle de
-  `consumption_slots` sont disponibles, mais aucun nouvel index de discovery n'est justifié sans
-  mesure représentative par `EXPLAIN (ANALYZE, BUFFERS)` de la requête livrée.
+  utilise donc un texte non JSON, sans mapper métier.
+- La mesure PostgreSQL utilise avec les indexes existants un `Parallel Seq Scan` segmenté, un
+  `Gather Merge`/tri borné par `LIMIT` et `uk_consumption_slots_key` pour chaque anti-join exact ;
+  temps observés : environ 7,4 ms en première page et 6,2 ms à mi-scan.
+- Un index couvrant candidat `(created_at, id) INCLUDE (event_type, pot_id, version,
+  pot_partition_hash)` a été mesuré, pas supposé : environ 0,8 ms en première page mais 8,2 ms à
+  mi-scan, PostgreSQL devant parcourir près de 100 000 entrées avant d'appliquer le curseur développé.
+  Le gain global n'étant pas établi et la reprise régressant, aucun index ni migration n'est ajouté.
+- Le lot a été audité et accepté après ajout des preuves de backfill, metadata-only et du plan SQL.
 
 ## EPT.4 — Consumption Event → ProjectionTask
 

@@ -70,9 +70,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	private static final ProjectionType POT_BALANCES = new ProjectionType("POT_BALANCES");
 	private static final Instant NOW = Instant.parse("2026-09-26T10:00:00Z");
 	private static final ClaimLease LEASE = new ClaimLease(Duration.ofMinutes(1));
-	private static final String UNRELATED_PAYLOAD = """
-			{"completely":"unrelated","to":"any business event"}
-			""";
+	private static final String UNPARSEABLE_PAYLOAD = "not JSON and not a serialized BusinessEvent";
 
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
@@ -103,7 +101,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	void discoversCanonicalMetadataWithoutInterpretingTheBusinessPayload() {
 		UUID eventId = uuid(1);
 		UUID potId = uuid(101);
-		insertEvent(eventId, POT_CREATED, potId, 7, NOW, 0, UNRELATED_PAYLOAD);
+		insertEvent(eventId, POT_CREATED, potId, 7, NOW, 0, UNPARSEABLE_PAYLOAD);
 
 		List<ProjectionMaterializationCandidate> candidates = discovery.findCandidates(
 				routes(POT_CREATED, READ_POT), WorkerSegment.single(), Optional.empty(), 10);
@@ -126,7 +124,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 
 	@Test
 	void expandsOnlyTheSuppliedRoutes() {
-		insertEvent(uuid(2), POT_CREATED, uuid(102), 1, NOW, 0, UNRELATED_PAYLOAD);
+		insertEvent(uuid(2), POT_CREATED, uuid(102), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
 
 		assertEquals(List.of(READ_POT), discovery.findCandidates(
 				routes(POT_CREATED, READ_POT), WorkerSegment.single(), Optional.empty(), 10).stream()
@@ -138,6 +136,24 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	}
 
 	@Test
+	void aNewRouteBackfillsAnHistoricalEventWithoutDurableCursorOrWatermark() {
+		UUID historicalEvent = uuid(3);
+		insertEvent(historicalEvent, POT_CREATED, uuid(103), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
+
+		Map<EventType, Set<ProjectionType>> initialRoutes = routes(POT_CREATED, READ_POT);
+		assertEquals(List.of(new ProjectionMaterializationOrderingKey(NOW, historicalEvent, READ_POT)),
+				scan(initialRoutes, 1));
+		done(historicalEvent, READ_POT);
+		assertTrue(discovery.findCandidates(
+				initialRoutes, WorkerSegment.single(), Optional.empty(), 1).isEmpty());
+
+		Map<EventType, Set<ProjectionType>> enrichedRoutes =
+				Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES));
+		assertEquals(List.of(new ProjectionMaterializationOrderingKey(NOW, historicalEvent, POT_BALANCES)),
+				scan(enrichedRoutes, 1));
+	}
+
+	@Test
 	void excludesOnlyTheExactDoneConsumption() {
 		UUID noSlot = uuid(10);
 		UUID busy = uuid(11);
@@ -145,7 +161,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		UUID doneOtherProjection = uuid(13);
 		UUID doneExact = uuid(14);
 		for (UUID eventId : List.of(noSlot, busy, notReady, doneOtherProjection, doneExact)) {
-			insertEvent(eventId, POT_CREATED, UUID.randomUUID(), 1, NOW, 0, UNRELATED_PAYLOAD);
+			insertEvent(eventId, POT_CREATED, UUID.randomUUID(), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
 		}
 
 		acquire(busy, READ_POT);
@@ -165,8 +181,8 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	void keepsEveryProjectionInsideTheEventPotSegment() {
 		UUID inside = uuid(20);
 		UUID outside = uuid(21);
-		insertEvent(inside, POT_CREATED, uuid(120), 1, NOW, -2, UNRELATED_PAYLOAD);
-		insertEvent(outside, POT_CREATED, uuid(121), 1, NOW, -1, UNRELATED_PAYLOAD);
+		insertEvent(inside, POT_CREATED, uuid(120), 1, NOW, -2, UNPARSEABLE_PAYLOAD);
+		insertEvent(outside, POT_CREATED, uuid(121), 1, NOW, -1, UNPARSEABLE_PAYLOAD);
 
 		assertEquals(List.of(inside, inside), discovery.findCandidates(
 				Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES)),
@@ -179,9 +195,9 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		UUID first = uuid(30);
 		UUID second = uuid(31);
 		UUID later = uuid(32);
-		insertEvent(first, POT_CREATED, uuid(130), 1, NOW, 0, UNRELATED_PAYLOAD);
-		insertEvent(second, POT_CREATED, uuid(131), 1, NOW, 0, UNRELATED_PAYLOAD);
-		insertEvent(later, POT_CREATED, uuid(132), 1, NOW.plusSeconds(1), 0, UNRELATED_PAYLOAD);
+		insertEvent(first, POT_CREATED, uuid(130), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
+		insertEvent(second, POT_CREATED, uuid(131), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
+		insertEvent(later, POT_CREATED, uuid(132), 1, NOW.plusSeconds(1), 0, UNPARSEABLE_PAYLOAD);
 
 		Map<EventType, Set<ProjectionType>> routes = Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES));
 		List<ProjectionMaterializationOrderingKey> keys = scan(routes, 1);
@@ -200,8 +216,8 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	void aNewScanRestartsFromTheBeginningAndObservesNewlyDoneConsumptions() {
 		UUID first = uuid(40);
 		UUID second = uuid(41);
-		insertEvent(first, POT_CREATED, uuid(140), 1, NOW, 0, UNRELATED_PAYLOAD);
-		insertEvent(second, POT_CREATED, uuid(141), 1, NOW.plusSeconds(1), 0, UNRELATED_PAYLOAD);
+		insertEvent(first, POT_CREATED, uuid(140), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
+		insertEvent(second, POT_CREATED, uuid(141), 1, NOW.plusSeconds(1), 0, UNPARSEABLE_PAYLOAD);
 		Map<EventType, Set<ProjectionType>> routes = routes(POT_CREATED, READ_POT);
 
 		var firstPage = discovery.findCandidates(routes, WorkerSegment.single(), Optional.empty(), 1);
