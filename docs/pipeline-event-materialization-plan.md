@@ -1,5 +1,10 @@
 # Plan de matérialisation des événements en tâches de pipeline
 
+> Document historique superseded pour le nouveau chemin par
+> [`steps/EPT/Step_Canon.md`](steps/EPT/Step_Canon.md) et
+> [`steps/EPT/Step_Plan.md`](steps/EPT/Step_Plan.md). Il reste conservé pour expliquer la trajectoire
+> pipeline antérieure ; ses registres, generations et stratégies ne contraignent pas EPT.
+
 ## Objectif
 
 Ce document prépare l'implémentation d'une architecture générique où des événements métier durables sont matérialisés en tâches de pipeline, puis exécutés par une seconde famille de workers. L'objectif est de conserver les qualités déjà présentes dans Pocoma : file durable en base, idempotence, exécution at-least-once, back pressure observable, workers segmentables, et logique métier confinée dans les stratégies de pipeline.

@@ -6,6 +6,13 @@ vérifiée avant une modification.
 
 ## Start here
 
+### Active implementation steps
+
+- [EPT — Event → ProjectionTask canon](steps/EPT/Step_Canon.md) — architecture cible active de la
+  matérialisation des Events en ProjectionTasks.
+- [EPT — implementation tracker](steps/EPT/Step_Plan.md) — avancement, prochain lot et critères de
+  sortie du step EPT.
+
 ### Write side
 
 - [Clôture du write side](architecture/write-side-closure.md) — voie canonique de mutation et legacy Command retiré.

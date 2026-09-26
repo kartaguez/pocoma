@@ -1,5 +1,10 @@
 # Event pull consumption runtime
 
+> Ce document décrit le runtime pipeline/generation actuellement livré. Pour le remplacement
+> canonique actif `Event → ProjectionTask`, voir
+> [`../steps/EPT/Step_Canon.md`](../steps/EPT/Step_Canon.md) et son
+> [tracker](../steps/EPT/Step_Plan.md). Les décisions EPT prévalent pour le nouveau chemin.
+
 The Event family is the first production path built exclusively on the target consumption lifecycle.
 
 ## Boundaries
