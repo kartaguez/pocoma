@@ -81,6 +81,27 @@ class AcquireThenFinalizeConsumptionOrchestratorTest {
 	}
 
 	@Test
+	void finalizesMultipleAcquiredCandidatesFromTheSamePageByDefault() {
+		AtomicInteger pageCalls = new AtomicInteger();
+		var finalized = new ArrayList<String>();
+		var orchestrator = new AcquireThenFinalizeConsumptionOrchestrator<String>(
+				() -> limit -> pageCalls.getAndIncrement() == 0 ? List.of("first", "second") : List.of(),
+				AcquireThenFinalizeConsumptionOrchestratorTest::key,
+				input -> new AcquireResult.Acquired(claim()),
+				(candidate, claim) -> {
+					finalized.add(candidate);
+					return FencedMutationResult.APPLIED;
+				});
+
+		var result = assertInstanceOf(ConsumptionOrchestrationResult.Idle.class,
+				orchestrator.run(input(5, 5)));
+
+		assertEquals(List.of("first", "second"), finalized);
+		assertEquals(2, pageCalls.get());
+		assertEquals(new ConsumptionOrchestrationCounters(2, 2), result.counters());
+	}
+
+	@Test
 	void busyNotReadyAlreadyDoneAndNotEligibleContinueWithoutFinalization() {
 		var results = new ArrayDeque<AcquireResult>(List.of(
 				new AcquireResult.Busy(NOW.plusSeconds(20)),
@@ -142,6 +163,7 @@ class AcquireThenFinalizeConsumptionOrchestratorTest {
 				(candidate, claim) -> FencedMutationResult.APPLIED), sourceFailure);
 
 		assertBoundaryFailure("page", (search, failure) -> search.pageFailure = failure);
+		assertBoundaryFailure("inspection", (search, failure) -> search.inspectionFailure = failure);
 		assertBoundaryFailure("key", (search, failure) -> search.keyFailure = failure);
 		assertBoundaryFailure("acquire", (search, failure) -> search.acquireFailure = failure);
 		assertBoundaryFailure("finalize", (search, failure) -> search.finalizeFailure = failure);
@@ -210,6 +232,7 @@ class AcquireThenFinalizeConsumptionOrchestratorTest {
 	private static final class FailingBoundaries {
 		private final AtomicBoolean closed = new AtomicBoolean();
 		private RuntimeException pageFailure;
+		private RuntimeException inspectionFailure;
 		private RuntimeException keyFailure;
 		private RuntimeException acquireFailure;
 		private RuntimeException finalizeFailure;
@@ -223,6 +246,9 @@ class AcquireThenFinalizeConsumptionOrchestratorTest {
 					if (returned) return List.of();
 					returned = true;
 					return List.of("candidate");
+				}
+				@Override public void candidateInspected(String candidate) {
+					if (inspectionFailure != null) throw inspectionFailure;
 				}
 				@Override public void close() {
 					closed.set(true);

@@ -14,6 +14,7 @@ import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskExecutionResult;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator.AcquiredCandidatePolicy;
 import com.kartaguez.pocoma.orchestrator.consumption.fenced.FencedConsumptionCandidateSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
@@ -32,7 +33,8 @@ public final class ProjectionTaskConsumptionOrchestrator implements ConsumptionO
 				() -> search(types, segmentIndex, segmentCount, tasks),
 				candidate -> ProjectionTaskKeys.consumptionKey(candidate.task().projectionKey()),
 				acquire,
-				(candidate, claim) -> fenced(execute.execute(candidate.task(), claim)));
+				(candidate, claim) -> fenced(execute.execute(candidate.task(), claim)),
+				AcquiredCandidatePolicy.FETCH_FRESH_PAGE);
 	}
 
 	@Override
@@ -50,12 +52,13 @@ public final class ProjectionTaskConsumptionOrchestrator implements ConsumptionO
 			public java.util.List<ProjectionTaskCandidate> nextPage(int limit) {
 				var page = tasks.findCandidates(
 						projectionTypes, segmentIndex, segmentCount, afterTime, afterId, limit);
-				if (!page.isEmpty()) {
-					var last = page.getLast();
-					afterTime = Optional.of(last.createdAt());
-					afterId = Optional.of(last.rowId());
-				}
 				return page;
+			}
+
+			@Override
+			public void candidateInspected(ProjectionTaskCandidate candidate) {
+				afterTime = Optional.of(candidate.createdAt());
+				afterId = Optional.of(candidate.rowId());
 			}
 		};
 	}

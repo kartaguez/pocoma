@@ -22,20 +22,38 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 public final class AcquireThenFinalizeConsumptionOrchestrator<C> implements ConsumptionOrchestrator {
 	private static final int MAX_PAGE_SIZE = 50;
 
+	/** Controls whether an acquired candidate invalidates the remainder of its discovery page. */
+	public enum AcquiredCandidatePolicy {
+		CONTINUE_CURRENT_PAGE,
+		FETCH_FRESH_PAGE
+	}
+
 	private final FencedConsumptionCandidateSource<C> source;
 	private final Function<? super C, ConsumptionKey> keyMapper;
 	private final AcquireConsumptionUseCase acquire;
 	private final FencedConsumptionFinalizer<C> finalizer;
+	private final AcquiredCandidatePolicy acquiredCandidatePolicy;
 
 	public AcquireThenFinalizeConsumptionOrchestrator(
 			FencedConsumptionCandidateSource<C> source,
 			Function<? super C, ConsumptionKey> keyMapper,
 			AcquireConsumptionUseCase acquire,
 			FencedConsumptionFinalizer<C> finalizer) {
+		this(source, keyMapper, acquire, finalizer, AcquiredCandidatePolicy.CONTINUE_CURRENT_PAGE);
+	}
+
+	public AcquireThenFinalizeConsumptionOrchestrator(
+			FencedConsumptionCandidateSource<C> source,
+			Function<? super C, ConsumptionKey> keyMapper,
+			AcquireConsumptionUseCase acquire,
+			FencedConsumptionFinalizer<C> finalizer,
+			AcquiredCandidatePolicy acquiredCandidatePolicy) {
 		this.source = requireNonNull(source, "source must not be null");
 		this.keyMapper = requireNonNull(keyMapper, "keyMapper must not be null");
 		this.acquire = requireNonNull(acquire, "acquire must not be null");
 		this.finalizer = requireNonNull(finalizer, "finalizer must not be null");
+		this.acquiredCandidatePolicy = requireNonNull(
+				acquiredCandidatePolicy, "acquiredCandidatePolicy must not be null");
 	}
 
 	@Override
@@ -73,6 +91,7 @@ public final class AcquireThenFinalizeConsumptionOrchestrator<C> implements Cons
 					return state.exhausted(ConsumptionBudgetLimit.CANDIDATES);
 				}
 				state.candidates++;
+				search.candidateInspected(candidate);
 				ConsumptionKey key = requireNonNull(keyMapper.apply(candidate), "keyMapper returned null");
 				AcquireResult result = requireNonNull(acquire.acquire(new AcquireConsumptionInput(
 						key, input.workerId(), input.claimLease())), "acquire returned null");
@@ -87,6 +106,7 @@ public final class AcquireThenFinalizeConsumptionOrchestrator<C> implements Cons
 				if (result instanceof AcquireResult.Acquired acquired) {
 					state.executions++;
 					requireNonNull(finalizer.finalize(candidate, acquired.claim()), "finalizer returned null");
+					if (acquiredCandidatePolicy == AcquiredCandidatePolicy.FETCH_FRESH_PAGE) break;
 				}
 			}
 		}
