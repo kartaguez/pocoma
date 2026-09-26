@@ -6,8 +6,8 @@ Current lot: EPT.4
 Overall status: IN_PROGRESS
 ```
 
-EPT.3 est audité et accepté. EPT.4 est le prochain lot à implémenter et reste `TODO`. La source
-architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
+EPT.3 est audité et accepté. EPT.4 est le prochain lot à cadrer puis à implémenter et reste `TODO`.
+La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
 |-----|-------|--------|
@@ -174,7 +174,8 @@ métadonnées persistées et sans accorder d'autorité d'exécution.
 - Nouveau `ProjectionMaterializationDiscoveryPort` canonique, distinct de
   `EventConsumptionDiscoveryPort` legacy, recevant seulement les routes
   `Map<EventType, Set<ProjectionType>>`, un `WorkerSegment`, une ordering key locale optionnelle et
-  une limite.
+  une limite. Ces routes sont dérivées en amont de la policy EPT.2 ; le port et l'adapter ne
+  reçoivent ni ne connaissent `ProjectionMaterializationPolicy`.
 - `ProjectionMaterializationCandidate` porte directement l'envelope metadata-only canonique
   (`eventId`, `eventType`, cible, version, instant d'enregistrement) et le `ProjectionType` de la
   conséquence ; aucun envelope ou type public `Route` supplémentaire.
@@ -182,7 +183,8 @@ métadonnées persistées et sans accorder d'autorité d'exécution.
   `(recordedAt, eventId UUID, projectionType)`.
 - `JdbcProjectionMaterializationDiscoveryAdapter` interroge `business_event_outbox` sans
   sélectionner `payload_json`, aplatit les routes dans une CTE `VALUES` privée à l'adapter et
-  reconstruit la cible Pocoma depuis `pot_id`.
+  développe les lignes `Event × ProjectionType`. Il reconstruit la cible Pocoma depuis `pot_id` et
+  sa version depuis `version`.
 - La segmentation SQL normalise le modulo pour reproduire `Math.floorMod` sur
   `pot_partition_hash`, sans segmentation par ProjectionType.
 - L'anti-join exclut uniquement le slot `DONE` dont l'identité est exactement :
@@ -192,7 +194,7 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 ```
 
 - Les slots absents ou non `DONE`, y compris actifs ou retardés, restent découvrables ; la requête
-  ne lit ni Claims, ni leases, ni `now`.
+  ne lit ni Claims, ni leases, ni `now` et n'accorde aucune autorité d'exécution.
 - La keyset pagination utilise le même triplet UUID natif dans le prédicat et l'ordre SQL :
   `(created_at, event_id, projection_type)` ; aucun `OFFSET`.
 - Aucun wiring runtime autoritaire, cursor durable, watermark ou nouvel index n'est introduit.
@@ -208,21 +210,27 @@ EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
 - Ordre et keyset pagination `LIMIT 1` sur timestamps distincts ou égaux, UUIDs et plusieurs
   projections du même Event, sans trou ni doublon.
 - Nouveau scan sans cursor, terminaison du scan et changement concurrent vers `DONE`.
-- Backfill explicite : après parcours complet de la route initiale et clôture de sa Consumption, un
-  nouveau scan sans cursor durable retrouve sur l'Event historique la projection ajoutée aux
-  routes courantes.
+- Backfill explicite : après parcours complet d'un Event historique pour `READ_POT` et clôture de
+  cette Consumption, un nouveau scan depuis le début avec la route ajoutée retrouve
+  `POT_BALANCES`, sans cursor ni watermark durable.
 - `EXPLAIN (ANALYZE, BUFFERS)` sur PostgreSQL 17 avec 200 000 Events, 50 000 slots `DONE`, quatre
   routes, segmentation 3/16, première page et reprise keyset à mi-scan.
 
-### Exit criteria
+### Exit criteria — satisfaits
 
 - La discovery retourne des candidats metadata-only portant `eventId`, `eventType`, cible, version,
   instant d'enregistrement et `projectionType`, et reste best-effort.
-- Le payload et les abstractions pipeline/generation sont absents du nouveau port et de sa query.
+- Le payload et les abstractions pipeline/generation sont absents du nouveau contrat et de sa
+  requête.
 - Seul `DONE` ferme un couple exact.
 - L'ordre et le cursor locaux utilisent exactement
   `(created_at, event_id UUID, projection_type)` sans cursor durable.
-- Un scan est entièrement reconstructible depuis Events, policy et Consumption.
+- Un scan est entièrement reconstructible depuis Events, routes dérivées de la policy courante et
+  Consumption ; l'évolution de ces routes retrouve les Events historiques auxquels manque une
+  conséquence.
+- La discovery ne crée ni slot, ni Claim, ni Task et n'introduit aucune autorité d'exécution.
+- Aucun watermark ou cursor durable n'est nécessaire : un nouveau scan repart du début et converge
+  par l'exclusion des seules Consumptions exactes `DONE`.
 
 ### Notes / findings
 
