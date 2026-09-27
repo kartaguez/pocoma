@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.2
+Current lot: PCL.3
 Overall status: IN_PROGRESS
 ```
 
@@ -13,7 +13,7 @@ chaîne Event → Projection.
 | Lot | Sujet | Statut |
 |-----|-------|--------|
 | PCL.1 | Dead Event-side legacy | DONE |
-| PCL.2 | Canonical exact READ_POT | TODO |
+| PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | TODO |
 | PCL.4 | Legacy Query/read demolition | TODO |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
@@ -156,7 +156,7 @@ l'absence sur un schéma migré.
 
 ### Status
 
-`TODO`
+`DONE`
 
 ### Objective
 
@@ -234,8 +234,23 @@ Le choix doit minimiser la surface survivante, pas préserver un nom de module.
 ### What becomes removable next
 
 - l'ancienne Query Pot et ses controllers/use cases/adapters dans PCL.4 ;
-- les anciens stores Pot pipeline/generation, qui ne justifient plus une capacité read supportée ;
-- `engine-projection-read` lui-même s'il a été rendu redondant par la frontière minimale.
+- les anciens stores Pot pipeline/generation, qui ne justifient plus une capacité read supportée.
+
+### Completion evidence
+
+- `engine-projection-read` conservé et réduit à la responsabilité générique d'exact read ;
+- API interne `READ_POT` exigeant `PotId` et `targetVersion`, sans résolution implicite de version ;
+- store canonique singulier isolé dans `infra-projection-persistence`, avec lookup strict sur les
+  quatre composants de `ProjectionKey` ;
+- sémantiques `Ready`, `Failed` et `NotReady` prouvées avec revalidation de toute projection
+  présente avant interprétation ;
+- interprétation non triviale en `PotView`, incluant shareholders, expenses, shares et intégrité
+  des références payer/shareholder ;
+- preuve PostgreSQL du producer canonical jusqu'à l'exact read, sans utilisation de
+  `pot_projection_snapshots`, et preuve `Failed` via la persistance canonique ;
+- guards d'architecture interdisant `AUTH`, Query, pipeline/lifecycle/serving, LKV et ancien read
+  store dans la frontière survivante ;
+- audit PCL.2 accepté et `./mvnw test` vert sur les 59 modules le 2026-09-27.
 
 ## PCL.3 — Legacy Task runtime demolition
 
