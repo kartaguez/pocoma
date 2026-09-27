@@ -6,8 +6,8 @@ Current lot: EPT.6
 Overall status: IN_PROGRESS
 ```
 
-EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1 et EPT.6.2 sont audités et
-acceptés, et EPT.6.3 est en `REVIEW`.
+EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1, EPT.6.2 et EPT.6.3 sont audités
+et acceptés. La revue de clôture globale d'EPT.6 reste à effectuer.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -510,7 +510,7 @@ le legacy supprimable dans un chantier séparé.
 - Le mécanisme Flyway standard du repository initialise sans adaptation les 15 migrations du
   schéma primaire puis les 7 migrations `pocoma_read` ; aucune copie de migration ou ressource de
   test dédiée n'est introduite.
-- EPT.6.3 — backfill et évolution historique des routes — `REVIEW`.
+- EPT.6.3 — backfill et évolution historique des routes — `DONE`.
 - `HistoricalEventRouteEvolutionPostgresTest` persiste un vrai `PotCreatedEvent`, puis démarre deux
   contextes Spring Event successifs sur le même PostgreSQL avec un worker servant toujours
   exactement `{READ_POT, POT_BALANCES}`.
