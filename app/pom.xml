@@ -58,8 +58,6 @@
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
 		<module>engine-read-projection</module>
-		<module>engine-task-materialization</module>
-		<module>engine-task-creation</module>
 		<module>engine-task-execution</module>
 		<module>pipeline-balance</module>
 		<module>pipeline-pot</module>

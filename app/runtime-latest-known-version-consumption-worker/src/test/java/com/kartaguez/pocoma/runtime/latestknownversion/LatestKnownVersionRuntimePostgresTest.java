@@ -105,7 +105,10 @@ class LatestKnownVersionRuntimePostgresTest {
 			assertTrue(provenance.findResults(slot.slotId()).isEmpty());
 		}
 		assertEquals(4L, jdbc.queryForObject("select count(*) from consumption_slots "
-				+ "where consumer_type='SOURCE_VERSION_WATERMARK'", Long.class));
+				+ "where consumable_type='EVENT' "
+				+ "and jsonb_array_length(consumable_components)=1 "
+				+ "and consumer_type='SOURCE_VERSION_WATERMARK' "
+				+ "and consumer_components='[]'::jsonb", Long.class));
 	}
 
 	@Test

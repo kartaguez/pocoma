@@ -51,11 +51,10 @@ fencing and replay remain responsibilities of the existing Consumption component
 
 ## Legacy boundary
 
-The former `EventConsumptionLocator` graph, pipeline registries,
-`TransactionalExecuteConsumptionUseCase`, provenance and `CanonicalProjectionTaskScheduler` may remain
-compiled for audit and for users outside this runtime, but they are not reachable from the active Event
-worker. Historical `PROJECTION_TASK_SCHEDULER` slots and `tasks_4_pipeline` rows may remain stored; new
-Event materialization does not write them.
+The former Event pipeline scheduling graph, its locator, registries, scheduler and
+`JpaTaskCreationAdapter` are no longer compiled. Historical `PROJECTION_TASK_SCHEDULER` slots and
+`tasks_4_pipeline` rows may remain stored until their dedicated cleanup steps; no production Event
+path writes new rows to `tasks_4_pipeline`.
 
 The independently deployed LatestKnownVersion runtime remains a separate direct consumer under
 `EVENT[eventId] / SOURCE_VERSION_WATERMARK[]` and is not part of this graph.

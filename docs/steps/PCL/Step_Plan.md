@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.1
+Current lot: PCL.2
 Overall status: IN_PROGRESS
 ```
 
@@ -12,7 +12,7 @@ chaîne Event → Projection.
 
 | Lot | Sujet | Statut |
 |-----|-------|--------|
-| PCL.1 | Dead Event-side legacy | TODO |
+| PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | TODO |
 | PCL.3 | Legacy Task runtime demolition | TODO |
 | PCL.4 | Legacy Query/read demolition | TODO |
@@ -65,7 +65,7 @@ Règles de séquencement :
 
 ### Status
 
-`TODO`
+`DONE`
 
 ### Objective
 
@@ -139,10 +139,18 @@ l'absence sur un schéma migré.
 ### What becomes removable next
 
 - après PCL.3, `tasks_4_pipeline` et ses indexes deviennent candidats au drop PCL.8 ;
-- les derniers consumers Event de `domain-pipeline`, lifecycle et generation disparaissent en vue
-  de PCL.5 ;
-- les modules ou branches `engine-task-creation` / `engine-task-materialization` vides deviennent
-  candidats au sweep PCL.7.
+- les readers/executors Task legacy de `tasks_4_pipeline` relèvent de PCL.3 ;
+- les modules pipeline/lifecycle encore requis par ces runtimes relèvent de PCL.5.
+
+### Completion evidence
+
+- `engine-task-creation` et `engine-task-materialization` retirés du reactor ;
+- locator, discovery, scheduler dual-write et adapter writer Event legacy supprimés ;
+- scan production : aucun writer restant vers `tasks_4_pipeline` ;
+- identité LKV `EVENT/[eventId] × SOURCE_VERSION_WATERMARK/[]` préservée et testée ;
+- preuves ciblées EPT/LKV/PostgreSQL vertes ;
+- `./mvnw test` vert sur les 58 modules après `./mvnw clean` le 2026-09-27 ;
+- aucune migration historique modifiée et aucun drop de schéma ajouté.
 
 ## PCL.2 — Canonical exact READ_POT
 
@@ -773,5 +781,4 @@ docs/steps/PCL/Step_Canon.md
 docs/steps/PCL/Step_Plan.md
 ```
 
-puis les preuves EPT et le code strictement nécessaires au lot courant. Tant que PCL.1 est `TODO`,
-aucune implémentation PCL n'a commencé.
+puis les preuves EPT et le code strictement nécessaires au lot courant.

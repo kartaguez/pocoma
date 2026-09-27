@@ -11,7 +11,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.out.processing.task.model.RecordedTask;
 
@@ -21,17 +20,14 @@ class PotPipelineTaskContractTest {
 	private final ObjectMapper json = new ObjectMapper();
 
 	@Test
-	void schedulesAndMapsOnlyTheCommonExactExecutionPayload() {
+	void mapsTheCommonExactExecutionPayload() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		var descriptor = new PotTaskCreationStrategy(PIPELINE, json)
-				.createTasks(new PotCreatedEvent(potId, 73)).getFirst();
-
-		assertEquals(PotProjectionPipeline.TASK_TYPE, descriptor.taskType());
-		assertEquals(73, descriptor.targetVersion());
-		assertFalse(descriptor.taskPayload().contains("eventId"));
+		String payload = "{\"pipelineId\":\"read-pot\",\"pipelineVersion\":1,\"potId\":\""
+				+ potId.value() + "\",\"potVersion\":73}";
+		assertFalse(payload.contains("eventId"));
 		var mapped = new ProjectPotRecordedTaskMapper(PIPELINE, json).map(new RecordedTask(
 				UUID.randomUUID(), PIPELINE, potId, 73, Instant.parse("2026-01-01T00:00:00Z"),
-				descriptor.taskType(), descriptor.taskPayload(), Optional.empty()));
+				PotProjectionPipeline.TASK_TYPE, payload, Optional.empty()));
 		assertEquals(new ProjectPotTask(PIPELINE, potId, 73), mapped.task());
 	}
 

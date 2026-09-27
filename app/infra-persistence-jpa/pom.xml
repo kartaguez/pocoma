@@ -95,16 +95,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-task-materialization</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-task-creation</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-task-execution</artifactId>
 			<version>${project.version}</version>
 		</dependency>

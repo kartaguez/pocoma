@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
@@ -29,18 +28,10 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.PipelineId;
-import com.kartaguez.pocoma.domain.pipeline.PipelineVersionDefinition;
-import com.kartaguez.pocoma.domain.pipeline.VersionApplicability;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
-import com.kartaguez.pocoma.infra.persistence.jpa.entity.consumption.JpaConsumptionSlotEntity;
-import com.kartaguez.pocoma.infra.persistence.jpa.entity.pipeline.JpaPipelineTaskEntity;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaEventConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 
 @SpringBootTest(properties = { "spring.jpa.hibernate.ddl-auto=create-drop", "spring.flyway.enabled=false" })
@@ -58,7 +49,6 @@ class JpaEventPortPostgresTest {
 	}
 
 	@Autowired private JpaEventPort events;
-	@Autowired private JpaEventConsumptionDiscoveryAdapter discovery;
 	@Autowired private JpaBusinessEventOutboxAdapter outbox;
 	@Autowired private JpaBusinessEventOutboxRepository repository;
 	@Autowired private PlatformTransactionManager transactionManager;
@@ -71,56 +61,42 @@ class JpaEventPortPostgresTest {
 	}
 
 	@Test
-	void structurallyDiscoversAnEventWhosePayloadCannotBeDeserialized() {
+	void authoritativeReadRejectsAnInvalidPayload() {
 		var potId = java.util.UUID.randomUUID();
 		var createdAt = Instant.parse("2026-09-01T10:00:00Z");
 		var entity = repository.saveAndFlush(new JpaBusinessEventOutboxEntity(
 				"POT_SHAREHOLDERS_ADDED", potId, potId, 7, "{not-json", null, null, createdAt));
 
-		var candidate = discovery.findNextEligibleCandidate(java.util.List.of(definition()),
-				WorkerSegment.single(), createdAt.plusSeconds(1), Optional.empty()).orElseThrow();
-
-		assertEquals(entity.id(), candidate.eventId());
-		assertEquals(PotId.of(potId), candidate.potId());
-		assertEquals(7, candidate.version());
 		assertThrows(IllegalArgumentException.class, () -> new TransactionTemplate(transactionManager)
-				.execute(status -> events.findById(candidate.eventId()).orElseThrow()));
+				.execute(status -> events.findById(entity.id()).orElseThrow()));
 	}
 
 	@Test
-	void candidateReadEndsBeforeAuthoritativeMandatoryReload() {
+	void authoritativeReadRequiresATransactionAndDeserializesOnce() {
 		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 5));
+		var stored = repository.findAll().getFirst();
+		var envelope = stored.toEnvelope();
 		assertEquals(1, objectMapper.writes.get());
 		assertEquals(0, objectMapper.reads.get());
-		var candidate = discovery.findNextEligibleCandidate(java.util.List.of(definition()),
-				WorkerSegment.single(), Instant.now(), Optional.empty()).orElseThrow();
-		assertEquals(0, objectMapper.reads.get());
 
-		assertThrows(IllegalTransactionStateException.class, () -> events.findById(candidate.eventId()));
+		assertThrows(IllegalTransactionStateException.class, () -> events.findById(stored.id()));
 
 		var authoritative = new TransactionTemplate(transactionManager)
-				.execute(status -> events.findById(candidate.eventId()).orElseThrow());
-		assertEquals(candidate.eventId(), authoritative.eventId());
-		assertEquals(candidate.potId(), authoritative.event().potId());
-		assertEquals(candidate.version(), authoritative.event().version());
-		assertEquals(candidate.createdAt(), authoritative.recordedAt());
+				.execute(status -> events.findById(stored.id()).orElseThrow());
+		assertEquals(stored.id(), authoritative.eventId());
+		assertEquals(envelope.potId(), authoritative.event().potId());
+		assertEquals(envelope.version(), authoritative.event().version());
+		assertEquals(envelope.createdAt(), authoritative.recordedAt());
 		assertEquals(1, objectMapper.reads.get());
 	}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackageClasses = {JpaBusinessEventOutboxEntity.class, JpaConsumptionSlotEntity.class,
-			JpaPipelineTaskEntity.class})
+	@EntityScan(basePackageClasses = JpaBusinessEventOutboxEntity.class)
 	@EnableJpaRepositories(basePackageClasses = JpaBusinessEventOutboxRepository.class)
-	@Import({JpaEventPort.class, JpaEventConsumptionDiscoveryAdapter.class,
-			JpaEventConsumptionDiscoveryRepository.class, JpaBusinessEventOutboxAdapter.class})
+	@Import({JpaEventPort.class, JpaBusinessEventOutboxAdapter.class})
 	static class TestApplication {
 		@Bean TrackingObjectMapper objectMapper() { return new TrackingObjectMapper(); }
-	}
-
-	private static PipelineVersionDefinition definition() {
-		return new PipelineVersionDefinition(new PipelineDefinition(PipelineId.of("balances"), 1),
-				VersionApplicability.from(1));
 	}
 
 	static final class TrackingObjectMapper extends ObjectMapper {

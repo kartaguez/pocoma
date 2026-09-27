@@ -28,7 +28,7 @@ modèle EPT, et non l'ancien hash pipeline × Pot.
 6. Activer les segments complémentaires avec le même `segment-count`. Leur union doit couvrir chaque
    Pot une fois selon `pot_partition_hash`.
 
-Le runtime ne recharge pas `payload_json`, ne consulte aucune pipeline generation et n'utilise ni
-`TransactionalExecuteConsumptionUseCase` ni `CanonicalProjectionTaskScheduler`. Une erreur technique
-conserve la sémantique acquire/finalize livrée par EPT.4 ; ce runbook n'ajoute aucune policy de retry
-ou de terminalisation.
+Le runtime ne recharge pas `payload_json` et ne consulte aucune pipeline generation. L'ancien
+scheduler Event pipeline et son locator ne font plus partie du reactor. Une erreur technique conserve
+la sémantique acquire/finalize livrée par EPT.4 ; ce runbook n'ajoute aucune policy de retry ou de
+terminalisation.

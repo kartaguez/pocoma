@@ -108,11 +108,10 @@ n'est un contrat fonctionnel.
 
 | Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |
 |---|---|---|---|---|
-| `engine-task-materialization` | worker et adapters de matérialisation | EventWorker + task creation | consommations Event persistées par pipeline | Workers/infra Event |
 | `BusinessEventEnvelope` | outbox et projection legacy | `RecordedEvent<BusinessEvent>` | EventPort et mapper durable opérationnels | Infra Event |
 | `PotPartitioner` | workers de projection | `PartitionHash` | anciens workers retirés | Workers |
 | `ProjectionPartition` | ports/workers de projection | `WorkerSegment` | anciens ports retirés | Workers |
-| `BuildProjectionTasksUseCase` | projection legacy | task creation typée | EventWorker actif | Workers Event |
+| `BuildProjectionTasksUseCase` | runtime Task/projection legacy | matérialisation et exécution EPT canoniques | runtime Task legacy retiré | PCL.3 |
 | `ExecuteProjectionTasksUseCase` | projection legacy | task execution typée | TaskWorker actif | Workers Task |
 | `engine.model.*` de projection | adapters JPA et workers legacy | modèles processing/infra propriétaires | anciens ports outbox retirés | Workers/infra |
 | statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |

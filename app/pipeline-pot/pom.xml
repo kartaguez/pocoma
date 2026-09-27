@@ -9,7 +9,6 @@
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-projection-legacy</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-projection</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-pipeline-lifecycle</artifactId><version>${project.version}</version></dependency>
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-task-creation</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-task-execution</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency>
   <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>

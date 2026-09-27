@@ -12,14 +12,14 @@ import com.kartaguez.pocoma.engine.port.out.processing.event.LatestKnownVersionE
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
 import com.kartaguez.pocoma.engine.processing.segmentation.PartitionHash;
 import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaEventConsumptionDiscoveryRepository;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaLatestKnownVersionEventDiscoveryRepository;
 
 @Component
 public class JpaLatestKnownVersionEventDiscoveryAdapter implements LatestKnownVersionEventDiscoveryPort {
 	private static final int PAGE_SIZE = 128;
-	private final JpaEventConsumptionDiscoveryRepository repository;
+	private final JpaLatestKnownVersionEventDiscoveryRepository repository;
 
-	public JpaLatestKnownVersionEventDiscoveryAdapter(JpaEventConsumptionDiscoveryRepository repository) {
+	public JpaLatestKnownVersionEventDiscoveryAdapter(JpaLatestKnownVersionEventDiscoveryRepository repository) {
 		this.repository = repository;
 	}
 
@@ -29,7 +29,7 @@ public class JpaLatestKnownVersionEventDiscoveryAdapter implements LatestKnownVe
 			Optional<EventOrderingKey> afterExclusive) {
 		Optional<EventOrderingKey> cursor = afterExclusive;
 		while (true) {
-			var page = repository.findNextEligibleForLatestKnownVersion(now, cursor, PAGE_SIZE);
+			var page = repository.findNextEligible(now, cursor, PAGE_SIZE);
 			if (page.isEmpty()) return Optional.empty();
 			for (var row : page) {
 				var candidate = new EventConsumptionCandidate(row.eventId(), PotId.of(row.potId()),

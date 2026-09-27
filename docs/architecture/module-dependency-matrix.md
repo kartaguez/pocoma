@@ -41,14 +41,12 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-query` | six lectures Pot/balances legacy encore branchées au primaire ; contrats et resolver framework-free CURRENT/EXACT monoprojection, génération serving fournie, état terminal/readiness/latest-known read-only et enveloppe versionnée | Pot, policies, balance, projection, pipeline, core | read-projection engine, command processing, consumption, workers, frameworks | transition read path — contrats 7.9.1 et resolver 7.9.2 livrés, adapters/intégration restant aux Lots 7.9.3 à 7.13 |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
 | `engine-read-projection` | avance monotone de `LatestKnownVersion`, matérialisation générique, reconstruction exacte de `PotProjection`, contrat d'index user/Pot et primitives de curseur keyset | projection, pipeline, Pot | Task lifecycle, infra, frameworks | target Lots 7.4/7.6/7.7 |
-| `engine-task-creation` | pertinence Event→pipelineId, applicabilité canonique par génération et assurance atomique de toutes les Tasks Event-derived | Pot events, pipeline, core | consumption, workers, read store, sélection reader, materialization legacy | target Lot 7.5 |
 | `engine-task-execution` | mapping durable, routage d'un `TaskPayload` typé et rapport fonctionnel d'exécution | pipeline, task | consumption, claims, workers, persistence | target |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
 | `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
-| `engine-processing-event` | discovery catalog-driven des couples Event/génération manquants et pagination stable | consumption, pipeline, Pot event, core | Command/Task processing, task creation, read store | target Lot 7.5 |
+| `engine-processing-event` | contrats metadata-only de discovery EPT et LKV, ordre Event et policy exhaustive EventType→ProjectionType | consumption, Pot event, core | Command/Task processing, pipeline generation, read store | target EPT/LKV |
 | `engine-processing-task` | contrat de recherche courte et de relecture autoritative des Tasks durables | pipeline, Pot id, core | consumption, Event/Command processing, task execution, execution guard | target |
 | `engine-pipeline-lifecycle` | control state framework-free active/serving, catalogue producteur, gates de Claim, use cases et validation d'intégrité | pipeline, projection, JDK | Spring, JDBC/JPA, runtime, locators, query, AUTH, latest-known/head | target Lot 7.14.1 |
-| `engine-task-materialization` | ancien flux Event envelope vers tâches sérialisées | core et pipeline | nouveaux packages fonctionnels | legacy — retrait avec EventWorker |
 
 ## Adaptateurs, orchestration et composition
 
@@ -61,8 +59,8 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `locator-consumption-command` | convention `ConsumptionKey` Command, discovery, relecture/exécution autoritative, adaptation de provenance et classification technique conservative | engine-command, domain/engine consumption, orchestrator-consumption | target, sans runtime |
 | `locator-consumption-latest-known-version` | localisation Event dédiée, max-upsert monotone, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
 | `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
-| `pipeline-balance` | binding Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
-| `pipeline-pot` | relevance Event, création/mapping Task et handler `read-pot/v1`, sans watermark ni sélection reader | domaines et engines fonctionnels | target Lot 7.6, framework-free |
+| `pipeline-balance` | exécution Task Balance, calcul historique exact et contrat de projection immuable | domaines et engines fonctionnels | target, framework-free et indépendant de consumption |
+| `pipeline-pot` | mapping Task et handler `read-pot/v1`, sans scheduling Event, watermark ni sélection reader | domaines et engines fonctionnels | target Lot 7.6, framework-free |
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
 | `supra-http-rest-spring` | queries HTTP existantes et admission Command asynchrone ; aucune mutation Pot directe | Query/admission | target |
 | `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |

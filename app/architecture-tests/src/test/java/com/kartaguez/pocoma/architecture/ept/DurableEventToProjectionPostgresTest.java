@@ -98,6 +98,7 @@ class DurableEventToProjectionPostgresTest {
 
 			tasks = loadProjectionTasks(jdbc, event.potId(), event.version());
 			assertEquals(2, tasks.size());
+			assertEquals(0, count(jdbc, "select count(*) from tasks_4_pipeline"));
 			assertEquals(Set.of("READ_POT", "POT_BALANCES"),
 					tasks.stream().map(task -> task.key().projectionType().value()).collect(java.util.stream.Collectors.toSet()));
 			for (TaskRow task : tasks) {

@@ -8,12 +8,9 @@
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot-projection</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-event</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-balance</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-pot</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consumption-worker</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-projection-task</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-pipeline-lifecycle-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-actuator</artifactId></dependency>
 		<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-flyway</artifactId></dependency>
@@ -23,7 +20,6 @@
 		<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
 		<dependency><groupId>org.testcontainers</groupId><artifactId>testcontainers-postgresql</artifactId><scope>test</scope></dependency>
 		<dependency><groupId>org.testcontainers</groupId><artifactId>testcontainers-junit-jupiter</artifactId><scope>test</scope></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-task</artifactId><version>${project.version}</version><scope>test</scope></dependency>
 	</dependencies>
 	<build>
 		<resources>

@@ -52,15 +52,6 @@ class HexagonalArchitectureTest {
 	@Test
 	void consumptionDiscoveryDoesNotDecodeBusinessPayloads() {
 		noClasses()
-				.that().haveSimpleNameContaining("EventConsumptionDiscovery")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						"com.fasterxml.jackson..",
-						ROOT_PACKAGE + ".domain.pot.event..",
-						ROOT_PACKAGE + ".engine.event..",
-						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.outbox..")
-				.check(CLASSES);
-
-		noClasses()
 				.that().haveSimpleNameContaining("ProjectionMaterializationDiscovery")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						"com.fasterxml.jackson..",
@@ -992,32 +983,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void taskCreationEngineUsesTypedEventsWithoutTechnicalProcessingDependencies() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.out.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.transaction.taskcreation..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine..processing.event..",
-						ROOT_PACKAGE + ".domain.consumption..",
-						ROOT_PACKAGE + ".engine.context.consumption..",
-						ROOT_PACKAGE + ".engine.port.in.consumption..",
-						ROOT_PACKAGE + ".engine.port.out.consumption..",
-						ROOT_PACKAGE + ".engine.service.consumption..",
-						ROOT_PACKAGE + ".engine.model..",
-						ROOT_PACKAGE + ".engine.taskmaterialization..",
-						ROOT_PACKAGE + ".supra.worker..",
-						ROOT_PACKAGE + ".orchestrator..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
-				.check(CLASSES);
-	}
-
-	@Test
 	void functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption() {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".engine.service.projection")
@@ -1153,10 +1118,6 @@ class HexagonalArchitectureTest {
 	@Test
 	void projectionNDoesNotRequireLatestKnownVersionAtLeastN() {
 		Set<String> projectionRuntimePackages = Set.of(
-				ROOT_PACKAGE + ".engine.port.in.taskcreation",
-				ROOT_PACKAGE + ".engine.port.out.taskcreation",
-				ROOT_PACKAGE + ".engine.service.taskcreation",
-				ROOT_PACKAGE + ".engine.service.transaction.taskcreation",
 				ROOT_PACKAGE + ".engine.port.in.taskexecution",
 				ROOT_PACKAGE + ".engine.service.taskexecution",
 				ROOT_PACKAGE + ".engine.taskexecution",
@@ -1185,7 +1146,7 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 
 		assertEquals(Set.of(), forbiddenDependencies,
-				"Task creation, acquisition, projector execution and artifact production must not use "
+				"Task acquisition, projector execution and artifact production must not use "
 						+ "LatestKnownVersion as a gate: latestKnownVersion=N-1 must allow projection N");
 	}
 
@@ -1205,16 +1166,10 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void targetWorkersUseOnlyTheirExpectedFunctionalEntryPointAndGuards() {
-		Set<String> eventDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".locator.consumption.event.EventConsumptionLocator");
+	void legacyTaskWorkerUsesOnlyItsExpectedFunctionalEntryPointAndGuards() {
 		Set<String> taskDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".locator.consumption.task.TaskConsumptionLocator");
 
-		assertTrue(eventDependencies.stream().anyMatch(name -> name.endsWith(".ScheduleProjectionTasksForEventUseCase")));
-		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
-		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".ClaimToken")));
-		assertFalse(eventDependencies.stream().anyMatch(name -> name.endsWith(".TryAcquireConsumptionUseCase")));
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecuteTaskUseCase")));
 		assertTrue(taskDependencies.stream().anyMatch(name -> name.endsWith(".TaskPort")));
 		assertFalse(taskDependencies.stream().anyMatch(name -> name.endsWith(".ExecutionGuard")));
@@ -1222,26 +1177,18 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void eventTaskSchedulerIsIndependentFromReaderPolicyAndReadStore() {
-		Set<String> schedulerPackages = Set.of(
-				ROOT_PACKAGE + ".engine.service.taskcreation",
-				ROOT_PACKAGE + ".locator.consumption.event");
-		Set<String> forbiddenPrefixes = Set.of(
-				ROOT_PACKAGE + ".engine.read.projection",
-				ROOT_PACKAGE + ".infra.read.persistence");
-
-		Set<String> forbiddenDependencies = CLASSES.stream()
-				.filter(javaClass -> schedulerPackages.stream()
-						.anyMatch(prefix -> javaClass.getPackageName().startsWith(prefix)))
-				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.filter(dependency -> forbiddenPrefixes.stream()
-						.anyMatch(prefix -> dependency.getTargetClass().getPackageName().startsWith(prefix))
-						|| dependency.getTargetClass().getSimpleName().equals("PipelineSelectionStrategy"))
-				.map(HexagonalArchitectureTest::dependencyKey)
+	void deadEventSchedulingTypesAreAbsent() {
+		Set<String> forbiddenTypes = Set.of(
+				"EventConsumptionLocator", "EventConsumptionDiscoveryPort", "EventSchedulingCandidate",
+				"EventSchedulingOrderingKey", "ScheduleProjectionTasksForEventUseCase",
+				"JpaTaskCreationAdapter", "CanonicalProjectionTaskScheduler",
+				"MeteredProjectionTaskScheduler", "PotTaskCreationStrategy",
+				"BalanceTaskCreationStrategy");
+		Set<String> present = CLASSES.stream()
+				.map(javaClass -> javaClass.getSimpleName())
+				.filter(forbiddenTypes::contains)
 				.collect(Collectors.toUnmodifiableSet());
-
-		assertEquals(Set.of(), forbiddenDependencies,
-				"Event scheduling must depend only on Events, canonical applicability and Task intentions");
+		assertEquals(Set.of(), present, "PCL.1 legacy Event scheduling must not return");
 	}
 
 	@Test

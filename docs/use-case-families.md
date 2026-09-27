@@ -44,20 +44,13 @@ Query use cases synchronously read Pot state and projections through read ports.
 from durable asynchronous processing and must not depend on command, event-consumption, or task
 workers.
 
-## Task creation — `engine-task-creation`
+## Projection task materialization — EPT
 
-Pure task planning receives a typed `BusinessEvent` and a `PipelineDefinition` and produces zero
-to many autonomous `TaskDescriptor` objects. Durable creation decorates the same event with a
-`RecordedEvent` carrying its outbox identity, timestamp, and optional trace metadata, then persists
-the plan idempotently for `(pipelineId, pipelineVersion, eventId)` — including empty plans.
-
-JSON and `BusinessEventEnvelope` remain infrastructure/legacy-outbox representations. The current
-`engine-task-materialization` module and worker remain temporarily active as the runtime bridge;
-they will be retired only after the new event-consumption worker is wired.
-
-An Event has no consumption status. Each interested pipeline has an independent EventConsumption,
-identified by `(pipelineId, pipelineVersion, eventId)`. Claiming or completing that consumption is
-technical processing and is not part of the Event-to-Task use case.
+The Event worker discovers durable envelope metadata without decoding the payload. The exhaustive
+`ProjectionMaterializationPolicy` maps each Event type to its canonical projection types. For every
+route, generic Consumption owns the exact identity
+`EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]`, and finalization idempotently ensures
+the corresponding `projection_tasks` row. No production Event path writes `tasks_4_pipeline`.
 
 ## Task execution — `engine-task-execution`
 
@@ -171,10 +164,7 @@ that it remains callable only to keep the current workers operational.
 | `CompleteTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | `TaskPort`, generic completion | Generic lifecycle transaction, then best-effort materialization | Future Task worker | Target |
 | `FailTaskProcessingUseCase` | Task processing | task id, token, failure | `ConsumptionOutcome` | `TaskPort`, generic failure | Generic lifecycle transaction, then best-effort materialization | Future Task worker | Target |
 | `ReleaseTaskProcessingUseCase` | Task processing | task id, token | `ConsumptionOutcome` | generic release | Decorator | Future Task worker | Target |
-| `PlanTasksForEventUseCase` | Task creation | typed event, pipeline | `TaskCreationPlan` | None | None | Direct/supra, durable facade | Target |
-| `CreateTasksForEventUseCase` | Task creation | recorded event, pipeline | `TaskCreationResult` | `TaskCreationPort` | Decorator | Future event worker | Target |
 | `ExecuteTaskUseCase` | Task execution | typed payload, pipeline, type | none | Handler-specific use case | Handler owns it | Direct/supra, legacy bridge | Target |
-| `MaterializeTasksUseCase` | Event-to-task legacy | outbox envelope | materialization result | materialization persistence | Service-specific | Current materialization worker | Legacy; remove with event worker |
 | `ExecutePipelineTaskUseCase` | Task execution legacy | durable `PipelineTask` | none | Legacy strategy registry | Worker flow | Current task worker | Legacy; remove with task worker |
 | `BuildProjectionTasksUseCase` | Projection legacy | outbox envelope | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by task creation |
 | `ExecuteProjectionTasksUseCase` | Projection legacy | Pot/version command | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by typed task execution |
@@ -212,22 +202,17 @@ Task worker -> ClaimNextTaskUseCase -> durable-to-typed mapper -> ExecuteTaskUse
             -> CompleteTaskProcessingUseCase / FailTaskProcessingUseCase
 ```
 
-The current event path remains:
+The current Event path is canonical:
 
 ```text
-Materialization worker -> engine-task-materialization -> current materialization storage
-```
-
-It becomes:
-
-```text
-Event worker -> claim EventConsumption -> CreateTasksForEventUseCase -> complete consumption
+business_event_outbox -> metadata-only discovery -> ProjectionMaterializationPolicy
+  -> Consumption EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]
+  -> projection_tasks
 ```
 
 The legacy task-execution package can be deleted only after the task worker uses the typed route.
-The materialization package can be deleted only after event consumption is independently stored
-per `(pipelineId, pipelineVersion, eventId)`. Projection task orchestration can be deleted after
-both target workers are active; `ComputePotBalancesUseCase` remains functional.
+The remaining legacy Task runtime can be deleted in PCL.3; `ComputePotBalancesUseCase` remains
+functional.
 
 ## Result of step 2
 

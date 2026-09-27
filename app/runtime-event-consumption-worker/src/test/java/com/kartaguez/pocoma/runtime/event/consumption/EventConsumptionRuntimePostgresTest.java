@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.in.taskcreation.usecase.ScheduleProjectionTasksForEventUseCase;
-import com.kartaguez.pocoma.locator.consumption.event.EventConsumptionLocator;
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionService;
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionSource;
 import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator;
@@ -65,8 +64,11 @@ class EventConsumptionRuntimePostgresTest {
 		assertEquals(1, context.getBeansOfType(ProjectionMaterializationConsumptionSource.class).size());
 		assertEquals(1, context.getBeansOfType(ProjectionMaterializationConsumptionService.class).size());
 
-		assertTrue(context.getBeansOfType(EventConsumptionLocator.class).isEmpty());
-		assertTrue(context.getBeansOfType(ScheduleProjectionTasksForEventUseCase.class).isEmpty());
+		assertTrue(Stream.of(context.getBeanDefinitionNames()).noneMatch(name ->
+				name.equals("eventConsumptionLocator")
+						|| name.equals("canonicalProjectionTaskScheduler")
+						|| name.equals("meteredProjectionTaskScheduler")
+						|| name.equals("jpaTaskCreationAdapter")));
 		assertTrue(context.getBeansOfType(ExecuteConsumptionUseCase.class).isEmpty());
 		assertTrue(context.getBeansOfType(HandleConsumptionFailureUseCase.class).isEmpty());
 	}
