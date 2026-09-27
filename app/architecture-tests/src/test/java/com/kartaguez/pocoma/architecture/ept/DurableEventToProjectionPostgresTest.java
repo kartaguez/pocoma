@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
@@ -90,14 +88,15 @@ class DurableEventToProjectionPostgresTest {
 
 			assertEquals("EXPENSE_CREATED", event.eventType());
 			assertEquals(0, count(jdbc, "select count(*) from projection_tasks "
-					+ "where target_object_id=? and target_version=?", potId.toString(), 2L));
+					+ "where target_object_id=? and target_version=?",
+					event.potId().toString(), event.version()));
 
 			Set<ConsumptionKey> eventKeys = Set.of(
 					eventConsumptionKey(event, ReadPotProjectionDefinition.PROJECTION_TYPE),
 					eventConsumptionKey(event, PotBalancesProjectionDefinition.PROJECTION_TYPE));
 			runUntilDone(eventContext.getBean(ConsumptionPollingWorker.class), jdbc, eventKeys, MAX_EVENT_CYCLES);
 
-			tasks = loadProjectionTasks(jdbc, potId, event.version());
+			tasks = loadProjectionTasks(jdbc, event.potId(), event.version());
 			assertEquals(2, tasks.size());
 			assertEquals(Set.of("READ_POT", "POT_BALANCES"),
 					tasks.stream().map(task -> task.key().projectionType().value()).collect(java.util.stream.Collectors.toSet()));
@@ -111,16 +110,15 @@ class DurableEventToProjectionPostgresTest {
 		}
 
 		assertFalse(tasks.isEmpty());
-		try (ConfigurableApplicationContext taskContext = taskContext()) {
+		try (ConfigurableApplicationContext ignored = taskContext()) {
 			Set<ConsumptionKey> taskKeys = tasks.stream()
 					.map(task -> ProjectionTaskKeys.consumptionKey(task.key()))
 					.collect(java.util.stream.Collectors.toUnmodifiableSet());
 			awaitDoneSuccess(jdbc, taskKeys, TASK_TIMEOUT);
-			stopWorker(taskContext.getBean(ConsumptionPollingWorker.class));
 
 			TaskRow readPotTask = task(tasks, "READ_POT");
 			TaskRow balancesTask = task(tasks, "POT_BALANCES");
-			assertProjectionRootAndReadPotArtifacts(jdbc, readPotTask, potId, shareholderId, expenseId);
+			assertProjectionRootAndReadPotArtifacts(jdbc, readPotTask, event.potId(), shareholderId, expenseId);
 			assertProjectionRootAndBalance(jdbc, balancesTask, shareholderId);
 		}
 	}
@@ -281,12 +279,6 @@ class DurableEventToProjectionPostgresTest {
 				key.targetObjectId().value(), key.targetVersion());
 		assertEquals(1, roots.size());
 		return roots.getFirst();
-	}
-
-	private void stopWorker(ConsumptionPollingWorker worker) throws InterruptedException {
-		CountDownLatch stopped = new CountDownLatch(1);
-		worker.requestStop(stopped::countDown);
-		assertTrue(stopped.await(10, TimeUnit.SECONDS), "Task worker did not stop");
 	}
 
 	private TaskRow task(List<TaskRow> tasks, String projectionType) {
