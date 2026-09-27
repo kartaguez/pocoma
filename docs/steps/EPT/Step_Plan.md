@@ -2,12 +2,12 @@
 
 ```text
 Step: EPT — Event → ProjectionTask
-Current lot: EPT.6
-Overall status: IN_PROGRESS
+Current lot: —
+Overall status: DONE
 ```
 
-EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1, EPT.6.2 et EPT.6.3 sont audités
-et acceptés. La revue de clôture globale d'EPT.6 reste à effectuer.
+EPT.6 et le step EPT sont audités, acceptés et `DONE`. Le nettoyage physique du legacy inventorié
+reste volontairement reporté dans un chantier distinct.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -17,7 +17,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.3 | Discovery metadata-only | DONE |
 | EPT.4 | Consumption Event → ProjectionTask | DONE |
 | EPT.5 | Cutover runtime Event | DONE |
-| EPT.6 | Preuve E2E distribuée | IN_PROGRESS |
+| EPT.6 | Preuve E2E distribuée | DONE |
 
 ## EPT.1 — EventType et persistence canonique
 
@@ -418,7 +418,7 @@ legacy compilé jusqu'à la preuve finale.
 
 ### Status
 
-`IN_PROGRESS`
+`DONE`
 
 ### Goal
 
@@ -526,6 +526,15 @@ le legacy supprimable dans un chantier séparé.
 - Aucun fichier de production, migration ou composant legacy n'est modifié.
 - La suppression générale de `tasks_4_pipeline`, des modules pipeline et de la provenance reste un
   lot ultérieur, après acceptation de ces preuves.
+- La revue de clôture globale confirme la chaîne distribuée PostgreSQL et la continuité exacte de
+  `eventId`, `ProjectionKey` et des identités de Consumption à travers des contextes Event et Task
+  indépendants. Le backfill par policy courante, le rollback, le fencing/takeover, le replay,
+  l'unicité des Tasks et les projections réelles `READ_POT` / `POT_BALANCES` sont prouvés.
+- Les composition roots et la topologie distribuée confirment l'autorité unique du chemin
+  canonique. Les chemins pipeline/generation et les anciens runtimes restent seulement compilés ou
+  transitionnels ; leur inventaire de suppression est versionné dans
+  [`Legacy_Cleanup_Inventory.md`](Legacy_Cleanup_Inventory.md). Leur retrait physique, y compris
+  celui des tables, reste volontairement réservé à un chantier de nettoyage séparé.
 
 ## Maintenance rule
 
