@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
 
 class HexagonalArchitectureTest {
 
@@ -44,7 +45,9 @@ class HexagonalArchitectureTest {
 
 	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
 
-	private static final JavaClasses CLASSES = new ClassFileImporter().importPackages(ROOT_PACKAGE);
+	private static final JavaClasses CLASSES = new ClassFileImporter()
+			.withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+			.importPackages(ROOT_PACKAGE);
 
 	@Test
 	void consumptionDiscoveryDoesNotDecodeBusinessPayloads() {

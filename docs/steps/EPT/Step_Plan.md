@@ -6,8 +6,8 @@ Current lot: EPT.6
 Overall status: IN_PROGRESS
 ```
 
-EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1 est audité et accepté, et
-EPT.6.2 reste `TODO`.
+EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1 et EPT.6.2 sont audités et
+acceptés, et EPT.6.3 reste `TODO`.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -491,8 +491,24 @@ le legacy supprimable dans un chantier séparé.
   `feat: align deployable projection task runtime` ;
   `74a8a84e5b39574eae2e531e7d084459036ccd7c` —
   `test: prove task workers inherit postgres environment`.
-- EPT.6.2 — preuve cross-boundary `Event` → actual `ProjectionTask`s → actual projections — reste
-  `TODO` et n'est pas démarré.
+- EPT.6.2 — Durable cross-boundary chain — `DONE`.
+- `DurableEventToProjectionPostgresTest` persiste un vrai `ExpenseCreatedEvent` avec
+  `JpaBusinessEventOutboxAdapter`, relit son identité depuis PostgreSQL, puis prouve les deux
+  conséquences `READ_POT` et `POT_BALANCES` à travers le vrai worker Event.
+- Le contexte Spring Event est fermé avant le démarrage d'un contexte Task indépendant sur le même
+  PostgreSQL. Les deux `ProjectionTask` relues sont alors consommées par le runtime canonique et
+  publient les `projection_root` et `projection_artifact` portant exactement les mêmes
+  `ProjectionKey`.
+- La fixture minimale à V2 contient deux shareholders et une dépense `10/1` partagée `1:1` ; elle
+  prouve un `READ_POT` non trivial et les balances naturelles `+5/1` / `-5/1` sans dupliquer les
+  tests fonctionnels spécialisés.
+- Les quatre slots canoniques — deux
+  `EVENT / PROJECTION_TASK_MATERIALIZER` et deux
+  `PROJECTION_TASK / PROJECTION_EXECUTOR` — terminent `DONE/SUCCESS`.
+- Le mécanisme Flyway standard du repository initialise sans adaptation les 15 migrations du
+  schéma primaire puis les 7 migrations `pocoma_read` ; aucune copie de migration ou ressource de
+  test dédiée n'est introduite.
+- EPT.6.3 — backfill et évolution historique des routes — reste `TODO`.
 - La suppression générale de `tasks_4_pipeline`, des modules pipeline et de la provenance reste un
   lot ultérieur, après acceptation de ces preuves.
 
