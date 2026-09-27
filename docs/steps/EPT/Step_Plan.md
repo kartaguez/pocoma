@@ -499,6 +499,8 @@ le legacy supprimable dans un chantier séparé.
   PostgreSQL. Les deux `ProjectionTask` relues sont alors consommées par le runtime canonique et
   publient les `projection_root` et `projection_artifact` portant exactement les mêmes
   `ProjectionKey`.
+- La phase Task est exécutée uniquement par le lifecycle canonique du worker ; le test observe
+  passivement les slots persistés et n'appelle jamais `runOneCycle()` sur ce worker.
 - La fixture minimale à V2 contient deux shareholders et une dépense `10/1` partagée `1:1` ; elle
   prouve un `READ_POT` non trivial et les balances naturelles `+5/1` / `-5/1` sans dupliquer les
   tests fonctionnels spécialisés.
