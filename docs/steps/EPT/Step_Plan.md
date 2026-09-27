@@ -6,8 +6,8 @@ Current lot: EPT.6
 Overall status: IN_PROGRESS
 ```
 
-EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; son sous-lot EPT.6.1 de cutover du
-runtime aval est implémenté et soumis à audit.
+EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; EPT.6.1 est audité et accepté, et
+EPT.6.2 reste `TODO`.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -469,18 +469,30 @@ le legacy supprimable dans un chantier séparé.
 
 ### Notes / findings
 
-- EPT.6.1 — Align deployable ProjectionTask runtime — est en `REVIEW`.
-- Les deux services Task de la composition distribuée conservent le même exécutable et activent
-  désormais le runtime canonique sur les segments complémentaires `0/2` et `1/2` ; chacun sert
-  exactement `{READ_POT, POT_BALANCES}`.
-- Le graphe autoritaire est désormais `projection_tasks` → `ProjectionTaskConsumptionOrchestrator`
-  → `ProjectionEngineService` → `projection_root` / `projection_artifact`. Le runtime
-  `TaskConsumptionRuntimeConfiguration` legacy n'est pas actif dans cette composition.
-- Le runtime Task embarque le profil PostgreSQL standard utilisé par les autres applications
-  Pocoma. Les preuves de binding Spring et de configuration Compose sont ajoutées, et la suite
-  PostgreSQL canonique existante reste la preuve de régression du moteur aval.
-- EPT.6.2 reste responsable des nouvelles preuves cross-boundary Event → ProjectionTask →
-  projection ; EPT.6.1 n'en ajoute aucune.
+- EPT.6.1 — Align deployable ProjectionTask runtime — `DONE`.
+- Les deux services Task distribués conservent `PocomaTaskConsumptionWorkerApplication`, activent
+  explicitement le runtime canonique, servent chacun exactement `{READ_POT, POT_BALANCES}` et
+  couvrent les segments complémentaires `0/2` et `1/2`.
+- Le graphe autoritaire est `projection_tasks` → `ProjectionTaskConsumptionOrchestrator` →
+  `ProjectionEngineService` → `pocoma_read.projection_root` / `projection_artifact`.
+  `TaskConsumptionRuntimeConfiguration` legacy n'est pas autoritaire dans cette composition.
+- Le runtime Task embarque le profil PostgreSQL standard ; chaque worker hérite explicitement de
+  `*pocoma-java-environment`. Aucune classe, table ou migration legacy n'a été supprimée, et les
+  Query paths legacy restent hors scope.
+- `CanonicalProjectionTaskRuntimePostgresTest` prouve l'autorité Spring canonique, l'orchestrateur,
+  le moteur, le catalogue exact, les stores Task/projection canoniques et conserve les scénarios
+  PostgreSQL `READ_POT` et `POT_BALANCES` verts.
+- `DistributedComposeConfigurationTest` prouve les deux services sur le même module/artifact,
+  l'activation canonique, les catalogues locator/producer exacts, les segments, les worker IDs
+  distincts, l'absence de `POCOMA_TASK_CONSUMPTION_*`, l'héritage de
+  `*pocoma-java-environment` par chaque worker et le profil PostgreSQL conforme à la convention
+  Command.
+- Commits acceptés : `0af9c6dc5f95a6da31269191692458c4580b673b` —
+  `feat: align deployable projection task runtime` ;
+  `74a8a84e5b39574eae2e531e7d084459036ccd7c` —
+  `test: prove task workers inherit postgres environment`.
+- EPT.6.2 — preuve cross-boundary `Event` → actual `ProjectionTask`s → actual projections — reste
+  `TODO` et n'est pas démarré.
 - La suppression générale de `tasks_4_pipeline`, des modules pipeline et de la provenance reste un
   lot ultérieur, après acceptation de ces preuves.
 
