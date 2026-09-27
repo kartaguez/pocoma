@@ -41,6 +41,8 @@ class HexagonalArchitectureTest {
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
+	private static final String INFRA_PROJECTION_PERSISTENCE_PACKAGE = ROOT_PACKAGE
+			+ ".infra.projection.persistence..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
 
 	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
@@ -393,14 +395,35 @@ class HexagonalArchitectureTest {
 				POT_READ_ENGINE_PACKAGE,
 				Set.of(
 						POT_READ_ENGINE_PACKAGE,
-						ROOT_PACKAGE + ".domain.authorization",
 						ROOT_PACKAGE + ".domain.pot",
 						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
 						PROJECTION_READ_PORT_PACKAGE));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,
-				"engine-pot-read must depend only on the JDK, domain-authorization, domain-pot, "
+				"engine-pot-read must depend only on the JDK, domain-pot, "
 						+ "domain-projection and engine-projection-read");
+	}
+
+	@Test
+	void exactReadPotBoundaryKnowsNoLegacySelectionOrDeliverySubsystem() {
+		noClasses()
+				.that().resideInAnyPackage(
+						POT_READ_ENGINE_PACKAGE + "..",
+						PROJECTION_READ_PORT_PACKAGE + "..",
+						PROJECTION_READ_SERVICE_PACKAGE + "..",
+						PROJECTION_READ_EXCEPTION_PACKAGE + "..",
+						INFRA_PROJECTION_PERSISTENCE_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.authorization..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.projection.legacy..",
+						ROOT_PACKAGE + ".engine.pipeline..",
+						ROOT_PACKAGE + ".engine.query..",
+						ROOT_PACKAGE + ".engine.read.projection..",
+						ROOT_PACKAGE + ".infra.read.persistence..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
 	}
 
 	@Test
@@ -1330,6 +1353,22 @@ class HexagonalArchitectureTest {
 				.that().resideInAPackage(INFRA_READ_PERSISTENCE_PACKAGE)
 				.should().dependOnClassesThat().resideInAnyPackage(
 						INFRA_PERSISTENCE_PACKAGE,
+						SUPRA_PACKAGE,
+						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void canonicalProjectionPersistenceDependsOnlyOnProjectionContractsAndInfrastructureLibraries() {
+		noClasses()
+				.that().resideInAPackage(INFRA_PROJECTION_PERSISTENCE_PACKAGE)
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.authorization..",
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.projection.legacy..",
+						ROOT_PACKAGE + ".engine.query..",
+						ROOT_PACKAGE + ".engine.read.projection..",
+						ROOT_PACKAGE + ".infra.read.persistence..",
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..")
 				.check(CLASSES);

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,9 @@ import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.projection.ProjectionKey;
+import com.kartaguez.pocoma.domain.projection.TargetObjectId;
+import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 class PotReadApiTest {
 	private static final PotId POT_ID = new PotId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
@@ -62,19 +66,19 @@ class PotReadApiTest {
 				() -> new ExpenseView(EXPENSE_ID, new Label("Dinner"), Amount.ZERO,
 						LocalDate.parse("2026-09-19"), SHAREHOLDER_ID, List.of()));
 		assertThrows(NullPointerException.class, () -> new ExpenseShareView(null, share.part()));
-		assertThrows(NullPointerException.class, () -> new GetPotAtVersionResult.Ready(null));
+		assertThrows(NullPointerException.class, () -> new ReadPotResult.Ready(null));
 	}
 
 	@Test
-	void resultExposesExactlySixNormalVariants() {
-		assertEquals(6, GetPotAtVersionResult.class.getPermittedSubclasses().length);
+	void resultExposesExactlyThreeCanonicalStates() {
+		assertEquals(3, ReadPotResult.class.getPermittedSubclasses().length);
 		var pot = new PotView(POT_ID, 1, new Label("Trip"), List.of(), List.of());
-		assertEquals(pot, new GetPotAtVersionResult.Ready(pot).pot());
-		new GetPotAtVersionResult.Forbidden();
-		new GetPotAtVersionResult.AuthFailed();
-		new GetPotAtVersionResult.AuthNotReady();
-		new GetPotAtVersionResult.ReadPotFailed();
-		new GetPotAtVersionResult.ReadPotNotReady();
+		ProjectionKey key = new ProjectionKey(ReadPotProjectionDefinition.PROJECTION_TYPE,
+				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE,
+				new TargetObjectId(POT_ID.value().toString()), 1);
+		assertEquals(pot, new ReadPotResult.Ready(pot).pot());
+		assertEquals(key, new ReadPotResult.Failed(key).projectionKey());
+		assertEquals(key, new ReadPotResult.NotReady(key).projectionKey());
 	}
 
 	@Test
@@ -84,5 +88,14 @@ class PotReadApiTest {
 				Optional.of(userId), new Weight(Fraction.ZERO)).userId());
 		assertEquals(Optional.empty(), new ShareholderView(SHAREHOLDER_ID, new Name("Alice"),
 				Optional.empty(), new Weight(Fraction.ZERO)).userId());
+	}
+
+	@Test
+	void useCaseHasNoImplicitVersionOverload() {
+		assertEquals(List.of(List.of(PotId.class, long.class)),
+				Arrays.stream(ReadPotUseCase.class.getDeclaredMethods())
+						.filter(method -> method.getName().equals("read"))
+						.map(method -> List.of(method.getParameterTypes()))
+						.toList());
 	}
 }

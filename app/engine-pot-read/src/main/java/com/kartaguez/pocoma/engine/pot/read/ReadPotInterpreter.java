@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,11 +110,15 @@ final class ReadPotInterpreter {
 		}
 
 		var shares = new ArrayList<ExpenseShareView>();
+		var referencedShareholders = new HashSet<ShareholderId>();
 		for (JsonValue shareValue : JsonValueReader.array(JsonValueReader.required(payload, "shares"))) {
 			Map<String, JsonValue> share = JsonValueReader.object(shareValue);
 			ShareholderId shareholderId = new ShareholderId(JsonValueReader.uuid(share, "shareholderId"));
 			if (!shareholdersById.containsKey(shareholderId)) {
 				throw violation(key, "expense share does not reference a projection shareholder: " + shareholderId);
+			}
+			if (!referencedShareholders.add(shareholderId)) {
+				throw violation(key, "expense contains duplicate shares for projection shareholder: " + shareholderId);
 			}
 			shares.add(new ExpenseShareView(shareholderId,
 					new Weight(fraction(JsonValueReader.required(share, "part")))));

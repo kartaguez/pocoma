@@ -50,6 +50,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionPublicationResult;
+import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
 
 @Testcontainers
 class JdbcProjectionStoreAdapterPostgresTest {
@@ -71,7 +72,7 @@ class JdbcProjectionStoreAdapterPostgresTest {
 		jdbc.execute("drop schema if exists pocoma_read cascade");
 		new ReadStoreMigrator(dataSource, new ReadStoreProperties()).afterPropertiesSet();
 		transactions = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
-		adapter = new JdbcProjectionStoreAdapter(jdbc, transactions, new JsonValueCodec(), "pocoma_read");
+		adapter = new JdbcProjectionStoreAdapter(jdbc, transactions, "pocoma_read");
 	}
 
 	@Test
@@ -283,9 +284,9 @@ class JdbcProjectionStoreAdapterPostgresTest {
 		ProjectionKey key = key(11);
 		adapter.recordFailure(failure(id, key, Instant.parse("2026-09-19T12:00:00.123456789Z")));
 
-		assertThrows(ProjectionFailureIdConflictException.class, () -> adapter.recordFailure(
+		assertThrows(IllegalStateException.class, () -> adapter.recordFailure(
 				failure(id, key, Instant.parse("2026-09-19T12:00:00.123457001Z"))));
-		assertThrows(ProjectionFailureIdConflictException.class, () -> adapter.recordFailure(
+		assertThrows(IllegalStateException.class, () -> adapter.recordFailure(
 				failure(id, key(12), Instant.parse("2026-09-19T12:00:00.123456789Z"))));
 	}
 
@@ -319,6 +320,24 @@ class JdbcProjectionStoreAdapterPostgresTest {
 		assertFalse(adapter.hasFailure(key(15)));
 	}
 
+	@Test
+	void projectionAndFailureLookupsRequireAllFourExactKeyComponents() {
+		ProjectionKey storedKey = key(new ProjectionType("READ_POT"), new TargetObjectType("POT"), "pot-1", 21);
+		adapter.publish(validated(storedKey, List.of(artifact(HEADER, "header", "value"))));
+		adapter.recordFailure(failure(UUID.randomUUID(), storedKey, Instant.parse("2026-09-19T12:00:00Z")));
+
+		assertTrue(adapter.findProjection(storedKey).isPresent());
+		assertTrue(adapter.hasFailure(storedKey));
+		for (ProjectionKey different : List.of(
+				key(new ProjectionType("OTHER"), storedKey.targetObjectType(), storedKey.targetObjectId().value(), 21),
+				key(storedKey.projectionType(), new TargetObjectType("OTHER"), storedKey.targetObjectId().value(), 21),
+				key(storedKey.projectionType(), storedKey.targetObjectType(), "pot-2", 21),
+				key(storedKey.projectionType(), storedKey.targetObjectType(), storedKey.targetObjectId().value(), 22))) {
+			assertTrue(adapter.findProjection(different).isEmpty(), () -> "projection fallback for " + different);
+			assertFalse(adapter.hasFailure(different), () -> "failure fallback for " + different);
+		}
+	}
+
 	private static ValidatedProjection validated(ProjectionKey key, List<ProjectionArtifact> artifacts) {
 		var cardinalities = new HashMap<ArtifactType, Integer>();
 		artifacts.forEach(artifact -> cardinalities.merge(artifact.artifactType(), 1, Integer::sum));
@@ -340,8 +359,12 @@ class JdbcProjectionStoreAdapterPostgresTest {
 	}
 
 	private static ProjectionKey key(long version) {
-		return new ProjectionKey(new ProjectionType("TEST"), new TargetObjectType("POT"),
-				new TargetObjectId("pot-1"), version);
+		return key(new ProjectionType("TEST"), new TargetObjectType("POT"), "pot-1", version);
+	}
+
+	private static ProjectionKey key(ProjectionType projectionType, TargetObjectType targetObjectType,
+			String targetObjectId, long version) {
+		return new ProjectionKey(projectionType, targetObjectType, new TargetObjectId(targetObjectId), version);
 	}
 
 	private static ProjectionFailure failure(UUID id, ProjectionKey key, Instant failedAt) {

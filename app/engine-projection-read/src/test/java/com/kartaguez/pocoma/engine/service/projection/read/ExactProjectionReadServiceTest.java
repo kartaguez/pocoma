@@ -197,6 +197,16 @@ class ExactProjectionReadServiceTest {
 		assertThrows(NullPointerException.class, () -> new ExactProjectionReadService(port, null));
 	}
 
+	@Test
+	void publicFactoryExposesTheExactReadUseCaseWithoutExposingTheServiceImplementation() {
+		var port = new RecordingProjectionReadPort(Optional.empty(), false);
+		var validator = new ProjectionValidator((schema, payload) -> true);
+
+		var result = ExactProjectionReads.create(port, validator).get(key(9), definition());
+
+		assertInstanceOf(ProjectionReadResult.NotReady.class, result);
+	}
+
 	private static ExactProjectionReadService service(ProjectionReadPort port) {
 		return new ExactProjectionReadService(port, new ProjectionValidator((schema, payload) -> true));
 	}

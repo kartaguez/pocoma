@@ -1,6 +1,5 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 import java.math.BigDecimal;
@@ -25,9 +24,7 @@ import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
 
 final class ProjectionFixtures {
 	static final UUID POT_UUID = UUID.fromString("00000000-0000-0000-0000-000000000100");
-	static final UUID CREATOR_UUID = UUID.fromString("00000000-0000-0000-0000-000000000101");
 	static final UUID USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000102");
-	static final UUID OTHER_USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000103");
 	static final UUID SHAREHOLDER_A_UUID = UUID.fromString("00000000-0000-0000-0000-000000000201");
 	static final UUID SHAREHOLDER_B_UUID = UUID.fromString("00000000-0000-0000-0000-000000000202");
 	static final UUID EXPENSE_UUID = UUID.fromString("00000000-0000-0000-0000-000000000301");
@@ -36,41 +33,9 @@ final class ProjectionFixtures {
 	private ProjectionFixtures() {
 	}
 
-	static ProjectionKey authKey() {
-		return new ProjectionKey(AuthProjectionDefinition.PROJECTION_TYPE,
-				AuthProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(POT_UUID.toString()), VERSION);
-	}
-
 	static ProjectionKey readPotKey() {
 		return new ProjectionKey(ReadPotProjectionDefinition.PROJECTION_TYPE,
 				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(POT_UUID.toString()), VERSION);
-	}
-
-	static ValidatedProjection authProjection(UUID creator, List<ProjectionArtifact> associations) {
-		return authProjection(creator, creator, associations);
-	}
-
-	static ValidatedProjection authProjection(UUID creatorKey, UUID creatorPayload,
-			List<ProjectionArtifact> associations) {
-		var artifacts = new java.util.ArrayList<ProjectionArtifact>();
-		artifacts.add(new ProjectionArtifact(AuthProjectionDefinition.CREATOR,
-				new ArtifactKey(creatorKey.toString()), object(Map.of("userId", string(creatorPayload)))));
-		artifacts.addAll(associations);
-		return validated(AuthProjectionDefinition.DEFINITION, new Projection(authKey(), artifacts));
-	}
-
-	static ProjectionArtifact association(UUID userId, UUID shareholderId) {
-		return new ProjectionArtifact(AuthProjectionDefinition.SHAREHOLDER_USER,
-				new ArtifactKey(userId.toString()), object(Map.of(
-						"userId", string(userId),
-						"shareholderId", string(shareholderId))));
-	}
-
-	static ProjectionArtifact associationWithKey(UUID key, UUID userId, UUID shareholderId) {
-		return new ProjectionArtifact(AuthProjectionDefinition.SHAREHOLDER_USER,
-				new ArtifactKey(key.toString()), object(Map.of(
-						"userId", string(userId),
-						"shareholderId", string(shareholderId))));
 	}
 
 	static ValidatedProjection readPotProjection(List<ProjectionArtifact> artifacts) {

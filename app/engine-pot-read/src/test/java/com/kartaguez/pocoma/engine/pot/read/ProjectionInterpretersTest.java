@@ -1,15 +1,12 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
-import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.CREATOR_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.EXPENSE_UUID;
-import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.OTHER_USER_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.POT_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.SHAREHOLDER_A_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.SHAREHOLDER_B_UUID;
 import static com.kartaguez.pocoma.engine.pot.read.ProjectionFixtures.USER_UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,45 +24,6 @@ import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 
 class ProjectionInterpretersTest {
-	@Test
-	void interpretsAuthCreatorAndUserToShareholderRelation() {
-		var projection = ProjectionFixtures.authProjection(CREATOR_UUID,
-				List.of(ProjectionFixtures.association(USER_UUID, SHAREHOLDER_A_UUID)));
-
-		AuthProjection auth = new AuthProjectionInterpreter().interpret(projection);
-
-		assertTrue(auth.isCreator(new UserId(CREATOR_UUID)));
-		assertEquals(Optional.of(new ShareholderId(SHAREHOLDER_A_UUID)),
-				auth.shareholderIdFor(new UserId(USER_UUID)));
-	}
-
-	@Test
-	void authRejectsPayloadUserIdDifferentFromArtifactKey() {
-		var projection = ProjectionFixtures.authProjection(CREATOR_UUID,
-				List.of(ProjectionFixtures.associationWithKey(OTHER_USER_UUID, USER_UUID, SHAREHOLDER_A_UUID)));
-
-		assertThrows(AuthProjectionInvariantViolationException.class,
-				() -> new AuthProjectionInterpreter().interpret(projection));
-	}
-
-	@Test
-	void authRejectsCreatorPayloadUserIdDifferentFromArtifactKey() {
-		var projection = ProjectionFixtures.authProjection(CREATOR_UUID, OTHER_USER_UUID, List.of());
-
-		assertThrows(AuthProjectionInvariantViolationException.class,
-				() -> new AuthProjectionInterpreter().interpret(projection));
-	}
-
-	@Test
-	void authRejectsTwoUsersLinkedToTheSameShareholder() {
-		var projection = ProjectionFixtures.authProjection(CREATOR_UUID, List.of(
-				ProjectionFixtures.association(USER_UUID, SHAREHOLDER_A_UUID),
-				ProjectionFixtures.association(OTHER_USER_UUID, SHAREHOLDER_A_UUID)));
-
-		assertThrows(AuthProjectionInvariantViolationException.class,
-				() -> new AuthProjectionInterpreter().interpret(projection));
-	}
-
 	@Test
 	void interpretsReadPotWithCanonicalNullAndExactFractionsInDeterministicOrder() {
 		var projection = ProjectionFixtures.readPotProjection(List.of(
@@ -133,6 +91,20 @@ class ProjectionInterpretersTest {
 						List.of(ProjectionFixtures.share(SHAREHOLDER_B_UUID, 1, 1)))));
 		assertThrows(ReadPotInvariantViolationException.class,
 				() -> new ReadPotInterpreter().interpret(unknownShare));
+	}
+
+	@Test
+	void rejectsDuplicateShareholderReferenceWithinOneExpense() {
+		var projection = ProjectionFixtures.readPotProjection(List.of(
+				ProjectionFixtures.pot(),
+				ProjectionFixtures.shareholder(SHAREHOLDER_A_UUID, "Alice",
+						ProjectionFixtures.jsonNull(), 1, 1),
+				ProjectionFixtures.expense(SHAREHOLDER_A_UUID, List.of(
+						ProjectionFixtures.share(SHAREHOLDER_A_UUID, 1, 2),
+						ProjectionFixtures.share(SHAREHOLDER_A_UUID, 1, 2)))));
+
+		assertThrows(ReadPotInvariantViolationException.class,
+				() -> new ReadPotInterpreter().interpret(projection));
 	}
 
 	@Test

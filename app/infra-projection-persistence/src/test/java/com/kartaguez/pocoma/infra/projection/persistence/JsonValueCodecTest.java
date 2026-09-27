@@ -1,6 +1,7 @@
-package com.kartaguez.pocoma.infra.read.persistence;
+package com.kartaguez.pocoma.infra.projection.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,15 +20,17 @@ class JsonValueCodecTest {
 	private final JsonValueCodec codec = new JsonValueCodec();
 
 	@Test
-	void roundTripsEveryJsonValueVariantAndNestedGraphs() {
+	void roundTripsEveryJsonValueKind() {
 		var value = new JsonObject(Map.of(
-				"array", new JsonArray(List.of(
-						new JsonString("text"),
-						new JsonNumber(new BigDecimal("1234567890.123456789")),
-						new JsonBoolean(true),
-						JsonNull.INSTANCE)),
+				"array", new JsonArray(List.of(new JsonString("text"), new JsonNumber(new BigDecimal("1.25")),
+						new JsonBoolean(true), JsonNull.INSTANCE)),
 				"object", new JsonObject(Map.of("false", new JsonBoolean(false)))));
 
 		assertEquals(value, codec.decode(codec.encode(value)));
+	}
+
+	@Test
+	void rejectsInvalidStoredJson() {
+		assertThrows(IllegalStateException.class, () -> codec.decode("{"));
 	}
 }

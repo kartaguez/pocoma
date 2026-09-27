@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +41,7 @@ import com.kartaguez.pocoma.domain.projection.JsonString;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionAcquisitionPrecondition;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.Success;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
@@ -47,17 +50,27 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
+import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskExecutionResult;
+import com.kartaguez.pocoma.engine.projection.task.TerminalProjectionPreparationException;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
 import com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase;
 import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
 import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerDeclaration;
+import com.kartaguez.pocoma.engine.pot.read.PotReads;
+import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
+import com.kartaguez.pocoma.engine.service.projection.read.ExactProjectionReads;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
-import com.kartaguez.pocoma.infra.read.persistence.JdbcProjectionStoreAdapter;
+import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
 import com.kartaguez.pocoma.locator.consumption.task.TaskConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
@@ -88,6 +101,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	@Autowired private ApplicationContext context;
 	@Autowired private AcquireConsumptionUseCase acquire;
 	@Autowired private FinalizeConsumptionUseCase finalizer;
+	@Autowired private HandleConsumptionFailureUseCase retryHandler;
 	@Autowired private ProjectionWritePort writer;
 	@Autowired private ProjectionValidator validator;
 	@Autowired private ProjectionTaskStorePort tasks;
@@ -165,6 +179,66 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals(2, count("select count(*) from consumption_slots where status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
 		assertEquals(2, count("select count(*) from consumption_claims where end_reason='SUCCESS'"));
+	}
+
+	@Test
+	void canonicalProducerPersistsAndExactReadRevalidatesAndInterpretsANonTrivialReadPot() {
+		var data = seedNonTrivialHistoricalPot();
+		ProjectionKey key = readPotKey(data.potId(), 2);
+		tasks.ensure(key, Instant.parse("2026-09-20T10:00:00Z"));
+
+		worker.runOneCycle();
+
+		var exactRead = ExactProjectionReads.create(reader, validator);
+		var ready = assertInstanceOf(ReadPotResult.Ready.class,
+				PotReads.create(exactRead).read(new PotId(data.potId()), 2));
+		var pot = ready.pot();
+		assertEquals(data.potId(), pot.potId().value());
+		assertEquals(2, pot.version());
+		assertEquals("Group trip", pot.name().value());
+		assertEquals(Set.of(data.payerId(), data.shareholderId(), data.otherShareholderId()),
+				pot.shareholders().stream().map(view -> view.shareholderId().value())
+						.collect(java.util.stream.Collectors.toSet()));
+		assertEquals(Set.of(data.firstExpenseId(), data.secondExpenseId()),
+				pot.expenses().stream().map(view -> view.expenseId().value()).collect(java.util.stream.Collectors.toSet()));
+		assertEquals(Set.of(data.payerId(), data.otherShareholderId()),
+				pot.expenses().stream().map(view -> view.payerShareholderId().value()).collect(java.util.stream.Collectors.toSet()));
+		assertEquals(Set.of(data.payerId(), data.shareholderId(), data.otherShareholderId()),
+				pot.expenses().stream().flatMap(expense -> expense.shares().stream())
+						.map(share -> share.shareholderId().value()).collect(java.util.stream.Collectors.toSet()));
+		assertEquals(1, count("select count(*) from pocoma_read.projection_root where projection_type='READ_POT' "
+				+ "and target_object_type='POT' and target_object_id='" + data.potId() + "' and target_version=2"));
+		assertEquals(0, count("select count(*) from pocoma_read.pot_projection_snapshots"));
+	}
+
+	@Test
+	void terminalCanonicalProducerFailurePersistsAndExactReadReturnsFailedForTheSameKey() {
+		ProjectionKey key = readPotKey(UUID.randomUUID(), 17);
+		var claim = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
+						new WorkerId("canonical-failure-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
+				.claim();
+		Instant failedAt = Instant.parse("2026-09-20T10:00:00Z");
+		var processingFailure = new ProcessingFailure(new ProcessingFailureCode("IMPOSSIBLE_READ_POT"),
+				"projection", "projection cannot be produced", failedAt);
+		ProjectionProducerDeclaration<Void> terminalProducer = new ProjectionProducerDeclaration<>(
+				ReadPotProjectionDefinition.PROJECTION_TYPE,
+				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE,
+				ReadPotProjectionDefinition.DEFINITION,
+				requestedKey -> { throw new TerminalProjectionPreparationException(processingFailure, null); },
+				(requestedKey, input) -> { throw new AssertionError("projector must not run"); });
+		var engine = new ProjectionEngineService(new ProjectionProducerCatalog(List.of(terminalProducer)), validator);
+		var execution = new ProjectionTaskConsumptionService(engine, writer, finalizer, retryHandler,
+				Clock.fixed(failedAt, ZoneOffset.UTC));
+
+		assertEquals(ProjectionTaskExecutionResult.FINALIZED, execution.execute(new ProjectionTask(key), claim));
+
+		var result = ExactProjectionReads.create(reader, validator).get(key, ReadPotProjectionDefinition.DEFINITION);
+		assertEquals(new ProjectionReadResult.Failed(key), result);
+		assertEquals(1, count("select count(*) from pocoma_read.projection_failure where projection_type='READ_POT' "
+				+ "and target_object_type='POT' and target_object_id='" + key.targetObjectId().value()
+				+ "' and target_version=17"));
 	}
 
 	@Test
@@ -295,6 +369,46 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		return new HistoricalData(potId, payerId, shareholderId);
 	}
 
+	private NonTrivialHistoricalData seedNonTrivialHistoricalPot() {
+		UUID potId = UUID.randomUUID();
+		UUID payerId = UUID.randomUUID();
+		UUID shareholderId = UUID.randomUUID();
+		UUID otherShareholderId = UUID.randomUUID();
+		UUID firstExpenseId = UUID.randomUUID();
+		UUID secondExpenseId = UUID.randomUUID();
+		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 2)", potId);
+		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values (?, 1, ?), (?, 2, ?)",
+				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
+		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
+				+ "values (?, ?, 1, null, 'Group trip', ?, false)", UUID.randomUUID(), potId, UUID.randomUUID());
+		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
+				+ "name, weight_numerator, weight_denominator, user_id, deleted) values "
+				+ "(?, ?, ?, 1, null, 'Alice', 1, 3, ?, false), "
+				+ "(?, ?, ?, 1, null, 'Bob', 1, 3, ?, false), "
+				+ "(?, ?, ?, 1, null, 'Chloe', 1, 3, null, false)",
+				UUID.randomUUID(), payerId, potId, UUID.randomUUID(),
+				UUID.randomUUID(), shareholderId, potId, UUID.randomUUID(),
+				UUID.randomUUID(), otherShareholderId, potId);
+		jdbc.update("insert into expense_headers(id, expense_id, pot_id, started_at_version, ended_at_version, "
+				+ "payer_id, amount_numerator, amount_denominator, label, deleted, expense_date) values "
+				+ "(?, ?, ?, 1, null, ?, 45, 1, 'Dinner', false, ?), "
+				+ "(?, ?, ?, 2, null, ?, 30, 1, 'Tickets', false, ?)",
+				UUID.randomUUID(), firstExpenseId, potId, payerId, LocalDate.parse("2026-02-01"),
+				UUID.randomUUID(), secondExpenseId, potId, otherShareholderId, LocalDate.parse("2026-02-02"));
+		jdbc.update("insert into expense_shares(id, expense_id, shareholder_id, pot_id, started_at_version, "
+				+ "ended_at_version, weight_numerator, weight_denominator) values "
+				+ "(?, ?, ?, ?, 1, null, 1, 2), (?, ?, ?, ?, 1, null, 1, 2), "
+				+ "(?, ?, ?, ?, 2, null, 1, 3), (?, ?, ?, ?, 2, null, 1, 3), (?, ?, ?, ?, 2, null, 1, 3)",
+				UUID.randomUUID(), firstExpenseId, payerId, potId,
+				UUID.randomUUID(), firstExpenseId, shareholderId, potId,
+				UUID.randomUUID(), secondExpenseId, payerId, potId,
+				UUID.randomUUID(), secondExpenseId, shareholderId, potId,
+				UUID.randomUUID(), secondExpenseId, otherShareholderId, potId);
+		return new NonTrivialHistoricalData(potId, payerId, shareholderId, otherShareholderId,
+				firstExpenseId, secondExpenseId);
+	}
+
 	private void assertCanonicalConsumptionSucceeded() {
 		assertEquals(1, count("select count(*) from consumption_slots where status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
@@ -306,4 +420,6 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	}
 
 	private record HistoricalData(UUID potId, UUID payerId, UUID shareholderId) {}
+	private record NonTrivialHistoricalData(UUID potId, UUID payerId, UUID shareholderId,
+			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
 }

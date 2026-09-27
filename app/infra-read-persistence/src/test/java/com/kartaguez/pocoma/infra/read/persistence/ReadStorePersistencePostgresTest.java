@@ -77,6 +77,7 @@ import com.kartaguez.pocoma.engine.read.projection.ReconstructedPotProjection;
 import com.kartaguez.pocoma.engine.read.projection.SelectedPotPipelineRange;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
 import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.infra.projection.persistence.ProjectionStoreAutoConfiguration;
 
 @Testcontainers
 class ReadStorePersistencePostgresTest {
@@ -705,6 +706,7 @@ class ReadStorePersistencePostgresTest {
 						DataSourceAutoConfiguration.class,
 						DataSourceTransactionManagerAutoConfiguration.class,
 						FlywayAutoConfiguration.class,
+						ProjectionStoreAutoConfiguration.class,
 						ReadStoreAccessAutoConfiguration.class,
 						ReadStoreMigrationAutoConfiguration.class))
 				.withPropertyValues(

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.read.persistence;
+package com.kartaguez.pocoma.infra.projection.persistence;
 
 import static java.util.Objects.requireNonNull;
 
@@ -17,7 +17,6 @@ import com.kartaguez.pocoma.domain.projection.ArtifactType;
 import com.kartaguez.pocoma.domain.projection.Projection;
 import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionFailure;
-import com.kartaguez.pocoma.domain.projection.ProjectionFailureId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
@@ -37,11 +36,10 @@ public final class JdbcProjectionStoreAdapter implements ProjectionReadPort, Pro
 	private final JsonValueCodec jsonCodec;
 	private final String schema;
 
-	JdbcProjectionStoreAdapter(JdbcOperations jdbc, TransactionOperations transactions,
-			JsonValueCodec jsonCodec, String schema) {
+	public JdbcProjectionStoreAdapter(JdbcOperations jdbc, TransactionOperations transactions, String schema) {
 		this.jdbc = requireNonNull(jdbc, "jdbc must not be null");
 		this.transactions = requireNonNull(transactions, "transactions must not be null");
-		this.jsonCodec = requireNonNull(jsonCodec, "jsonCodec must not be null");
+		this.jsonCodec = new JsonValueCodec();
 		if (schema == null || !schema.matches("[A-Za-z_][A-Za-z0-9_]*")) {
 			throw new IllegalArgumentException("schema must be a simple SQL identifier");
 		}
