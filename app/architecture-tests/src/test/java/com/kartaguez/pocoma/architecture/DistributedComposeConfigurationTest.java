@@ -96,6 +96,7 @@ class DistributedComposeConfigurationTest {
 	private static void assertCanonicalTaskWorker(String service, int segmentIndex) {
 		assertTrue(service.contains("RUNTIME_MODULE: runtime-task-consumption-worker"));
 		assertTrue(service.contains("RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker"));
+		assertTrue(service.contains("<<: *pocoma-java-environment"));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: \"true\""));
 		assertTrue(service.contains(
 				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
