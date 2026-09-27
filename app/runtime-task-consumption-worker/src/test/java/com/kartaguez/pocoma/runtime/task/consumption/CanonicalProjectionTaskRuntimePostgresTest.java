@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -50,12 +52,19 @@ import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
+import com.kartaguez.pocoma.infra.read.persistence.JdbcProjectionStoreAdapter;
+import com.kartaguez.pocoma.locator.consumption.task.TaskConsumptionLocator;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
+import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
-		"pocoma.task-consumption.enabled=false",
 		"pocoma.projection-task-consumption.enabled=true",
 		"pocoma.projection-task-consumption.catalog-projection-types=POT_BALANCES,READ_POT",
 		"pocoma.projection-task-consumption.locator-projection-types=POT_BALANCES,READ_POT",
@@ -76,6 +85,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	}
 
 	@Autowired private JdbcTemplate jdbc;
+	@Autowired private ApplicationContext context;
 	@Autowired private AcquireConsumptionUseCase acquire;
 	@Autowired private FinalizeConsumptionUseCase finalizer;
 	@Autowired private ProjectionWritePort writer;
@@ -97,6 +107,24 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				+ "pocoma_read.projection_root cascade");
 		jdbc.execute("truncate table expense_shares, expense_headers, shareholders, pot_headers, "
 				+ "pot_version_metadata, pot_global_versions cascade");
+	}
+
+	@Test
+	void activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph() {
+		assertEquals(1, context.getBeansOfType(CanonicalProjectionTaskRuntimeConfiguration.class).size());
+		assertEquals(0, context.getBeansOfType(TaskConsumptionRuntimeConfiguration.class).size());
+		assertEquals(0, context.getBeansOfType(TaskConsumptionLocator.class).size());
+		assertEquals(1, context.getBeansOfType(ConsumptionPollingWorker.class).size());
+		assertEquals(1, context.getBeansOfType(TaskConsumptionWorkerLifecycle.class).size());
+
+		ConsumptionOrchestrator activeOrchestrator = context.getBean(ConsumptionOrchestrator.class);
+		assertInstanceOf(ProjectionTaskConsumptionOrchestrator.class, activeOrchestrator);
+		assertInstanceOf(ProjectionEngineService.class, context.getBean(ExecuteProjectionTaskUseCase.class));
+		assertEquals(Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
+				PotBalancesProjectionDefinition.PROJECTION_TYPE),
+				context.getBean(ProjectionProducerCatalog.class).projectionTypes());
+		assertInstanceOf(JdbcProjectionTaskStoreAdapter.class, tasks);
+		assertInstanceOf(JdbcProjectionStoreAdapter.class, writer);
 	}
 
 	@Test

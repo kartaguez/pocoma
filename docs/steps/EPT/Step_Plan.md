@@ -6,7 +6,8 @@ Current lot: EPT.6
 Overall status: IN_PROGRESS
 ```
 
-EPT.5 est audité et accepté. EPT.6 est le prochain lot et reste `TODO` jusqu'à son démarrage explicite.
+EPT.5 est audité et accepté. EPT.6 est `IN_PROGRESS` ; son sous-lot EPT.6.1 de cutover du
+runtime aval est implémenté et soumis à audit.
 La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 
 | Lot | Sujet | Statut |
@@ -16,7 +17,7 @@ La source architecturale de ce tracker est [`Step_Canon.md`](Step_Canon.md).
 | EPT.3 | Discovery metadata-only | DONE |
 | EPT.4 | Consumption Event → ProjectionTask | DONE |
 | EPT.5 | Cutover runtime Event | DONE |
-| EPT.6 | Preuve E2E distribuée | TODO |
+| EPT.6 | Preuve E2E distribuée | IN_PROGRESS |
 
 ## EPT.1 — EventType et persistence canonique
 
@@ -417,7 +418,7 @@ legacy compilé jusqu'à la preuve finale.
 
 ### Status
 
-`TODO`
+`IN_PROGRESS`
 
 ### Goal
 
@@ -468,6 +469,18 @@ le legacy supprimable dans un chantier séparé.
 
 ### Notes / findings
 
+- EPT.6.1 — Align deployable ProjectionTask runtime — est en `REVIEW`.
+- Les deux services Task de la composition distribuée conservent le même exécutable et activent
+  désormais le runtime canonique sur les segments complémentaires `0/2` et `1/2` ; chacun sert
+  exactement `{READ_POT, POT_BALANCES}`.
+- Le graphe autoritaire est désormais `projection_tasks` → `ProjectionTaskConsumptionOrchestrator`
+  → `ProjectionEngineService` → `projection_root` / `projection_artifact`. Le runtime
+  `TaskConsumptionRuntimeConfiguration` legacy n'est pas actif dans cette composition.
+- Le runtime Task embarque le profil PostgreSQL standard utilisé par les autres applications
+  Pocoma. Les preuves de binding Spring et de configuration Compose sont ajoutées, et la suite
+  PostgreSQL canonique existante reste la preuve de régression du moteur aval.
+- EPT.6.2 reste responsable des nouvelles preuves cross-boundary Event → ProjectionTask →
+  projection ; EPT.6.1 n'en ajoute aucune.
 - La suppression générale de `tasks_4_pipeline`, des modules pipeline et de la provenance reste un
   lot ultérieur, après acceptation de ces preuves.
 

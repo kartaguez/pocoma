@@ -15,19 +15,35 @@ class DistributedComposeConfigurationTest {
 			"${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}";
 
 	@Test
-	void distributedPipelineConsumersShareTheirVersionWhileEventWorkersDeclareProjectionTypes() throws IOException {
+	void distributedWorkersDeclareTheirCanonicalProjectionTypesAndTaskSegments() throws IOException {
 		String compose = Files.readString(findRepositoryFile("docker-compose.distributed.yml"));
+		String taskWorker0 = section(compose, "  pocoma-task-consumption-worker-0:\n",
+				"\n  pocoma-task-consumption-worker-1:\n");
+		String taskWorker1 = section(compose, "  pocoma-task-consumption-worker-1:\n",
+				"\n  pocoma-command-consumption-worker:\n");
 
-		assertEquals(3, occurrences(compose, REQUIRED_VERSION));
+		assertEquals(1, occurrences(compose, REQUIRED_VERSION));
 		assertEquals(1, occurrences(compose, "POCOMA_QUERY_BALANCE_PIPELINE_VERSION: " + REQUIRED_VERSION));
-		assertEquals(2, occurrences(compose, "POCOMA_TASK_CONSUMPTION_PIPELINE_VERSION: " + REQUIRED_VERSION));
 		assertEquals(2, occurrences(compose,
 				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
+		assertCanonicalTaskWorker(taskWorker0, 0);
+		assertCanonicalTaskWorker(taskWorker1, 1);
+		assertFalse(compose.contains("POCOMA_TASK_CONSUMPTION_"));
 		assertFalse(compose.contains("POCOMA_EVENT_CONSUMPTION_PIPELINE_ID"));
 		assertFalse(compose.contains("POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION"));
 		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-0"));
 		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-1"));
 		assertFalse(compose.contains("POCOMA_BALANCE_PIPELINE_VERSION:-1"));
+	}
+
+	@Test
+	void taskRuntimePackagesTheStandardPostgresProfile() throws IOException {
+		String taskProfile = Files.readString(findRepositoryFile(
+				"app/runtime-task-consumption-worker/src/main/resources/application-postgres.properties"));
+		String commandProfile = Files.readString(findRepositoryFile(
+				"app/runtime-command-consumption-worker/src/main/resources/application-postgres.properties"));
+
+		assertEquals(commandProfile, taskProfile);
 	}
 
 	@Test
@@ -75,6 +91,21 @@ class DistributedComposeConfigurationTest {
 			offset += needle.length();
 		}
 		return count;
+	}
+
+	private static void assertCanonicalTaskWorker(String service, int segmentIndex) {
+		assertTrue(service.contains("RUNTIME_MODULE: runtime-task-consumption-worker"));
+		assertTrue(service.contains("RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker"));
+		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: \"true\""));
+		assertTrue(service.contains(
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
+		assertTrue(service.contains(
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
+		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: "
+				+ "canonical-projection-task-worker-" + segmentIndex));
+		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: " + segmentIndex));
+		assertTrue(service.contains(
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}"));
 	}
 
 	private static String section(String value, String start, String end) {
