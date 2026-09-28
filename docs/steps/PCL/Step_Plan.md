@@ -378,7 +378,7 @@ branche `projection_tasks → ProjectionEngineService` canonique.
 
 ### Status
 
-`TODO`
+`IN_PROGRESS`
 
 ### Objective
 
