@@ -824,7 +824,9 @@ class HexagonalArchitectureTest {
 	@Test
 	void functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".engine.service.projection")
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.projection.balance..",
+						ROOT_PACKAGE + ".engine.projection.pot..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
