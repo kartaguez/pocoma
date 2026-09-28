@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime;
+package com.kartaguez.pocoma.infra.persistence.jpa.migration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,24 +7,34 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @Testcontainers
-class ConsumptionMigrationsPostgresTest {
+class PrimaryMigrationsPostgresTest {
 
 	@Container
 	private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
 			.withDatabaseName("pocoma")
 			.withUsername("pocoma")
 			.withPassword("pocoma");
+
+	@BeforeEach
+	void removeControlSchemaCreatedOutsideTheDefaultFlywaySchema() throws Exception {
+		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
+			statement.execute("drop schema if exists pocoma_control cascade");
+		}
+	}
 
 	@Test
 	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV15() throws Exception {
@@ -80,6 +90,26 @@ class ConsumptionMigrationsPostgresTest {
 					"command_id", "command_type", "payload_json", "submitted_at", "auth_user_id",
 					"auth_issuer", "auth_authenticated_at", "auth_issued_at", "auth_valid_until",
 					"auth_permissions_json"), columns);
+		}
+	}
+
+	@Test
+	void existingV1ThroughV15DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
+		Flyway initialOwner = flyway(true);
+		initialOwner.clean();
+		assertEquals(15, initialOwner.migrate().migrationsExecuted);
+		Map<String, Integer> historyBefore = migrationHistory();
+
+		Flyway relocatedOwner = flyway(false);
+		assertTrue(relocatedOwner.validateWithResult().validationSuccessful);
+		assertEquals(0, relocatedOwner.migrate().migrationsExecuted);
+		assertEquals(historyBefore, migrationHistory());
+
+		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
+			statement.executeUpdate("insert into pot_global_versions (pot_id, version) "
+					+ "values ('10000000-0000-0000-0000-000000000099', 1)");
+			assertEquals(1, statement.executeUpdate("delete from pot_global_versions "
+					+ "where pot_id='10000000-0000-0000-0000-000000000099'"));
 		}
 	}
 
@@ -168,5 +198,30 @@ class ConsumptionMigrationsPostgresTest {
 			assertEquals("DATABASE_UNAVAILABLE", resultSet.getString("failure_code"));
 			assertEquals("DATABASE_UNAVAILABLE", resultSet.getString("failure_category"));
 		}
+	}
+
+	private static Flyway flyway(boolean cleanEnabled) {
+		return Flyway.configure()
+				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+				.locations("classpath:db/migration")
+				.cleanDisabled(!cleanEnabled)
+				.load();
+	}
+
+	private static Connection connection() throws Exception {
+		return DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+	}
+
+	private static Map<String, Integer> migrationHistory() throws Exception {
+		Map<String, Integer> history = new LinkedHashMap<>();
+		try (Connection connection = connection(); Statement statement = connection.createStatement();
+				ResultSet resultSet = statement.executeQuery("select version, checksum from flyway_schema_history "
+						+ "where success order by installed_rank")) {
+			while (resultSet.next()) {
+				history.put(resultSet.getString("version"), resultSet.getInt("checksum"));
+			}
+		}
+		assertEquals(15, history.size());
+		return history;
 	}
 }
