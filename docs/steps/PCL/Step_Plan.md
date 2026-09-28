@@ -16,7 +16,7 @@ chaîne Event → Projection.
 | PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | DONE |
 | PCL.4 | Legacy Query/read demolition | DONE |
-| PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
+| PCL.5 | LKV isolation + pipeline/lifecycle demolition | IN_PROGRESS |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
 | PCL.7 | Module/dependency collapse | TODO |
 | PCL.8 | Database demolition | TODO |
@@ -510,7 +510,7 @@ Les tables physiques restent jusqu'à PCL.8.
 
 ### Status
 
-`TODO`
+`IN_PROGRESS`
 
 ### Objective
 
@@ -580,6 +580,20 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
 - scan production et test d'architecture : zéro import `domain-pipeline` depuis le graphe supporté ;
 - scan JDBC/JPA : seuls les futurs drops référencent encore les tables lifecycle ;
 - preuves EPT/exact READ_POT/POT_BALANCES inchangées.
+
+### Notes / findings
+
+- Le scan d'ouverture au commit `c35fe20e6dd93130254567d2a46afd73c97a702c` confirme que
+  `LatestKnownVersion` est le dernier type de `domain-projection-legacy`; sa frontière survivante
+  minimale est `engine-read-projection`, qui porte déjà le use case et le port de persistance LKV.
+- `HistoricalPotSnapshotSource` et `HistoricalPotReconstructionException` restent dans
+  `engine-read-projection` : ils sont utilisés par le loader canonical READ_POT et ne relèvent pas
+  du modèle pipeline/lifecycle supprimé.
+- Aucun caller de production protégé n'importe `domain-pipeline`; ses callers restants sont
+  confinés à `engine-pipeline-lifecycle` et `infra-pipeline-lifecycle-persistence`.
+- La migration historique `V12__pipeline_version_lifecycle.sql` doit être relocalisée sans
+  modification dans `infra-persistence-jpa` avant suppression de son module hôte. Les tables
+  lifecycle restent présentes jusqu'à PCL.8.
 
 ### What becomes removable next
 
