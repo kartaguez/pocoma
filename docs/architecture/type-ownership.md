@@ -9,10 +9,8 @@
 | Autorisation générique | `Permission` | `domain-authorization` |
 | Policies d'autorisation Pot | `UpdatePotDetailsAuthorizationPolicy` et autres policies Command | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
-| Pipeline versionné | `PipelineId`, `PipelineDefinition`, `PipelineVersionDefinition` | `domain-pipeline` |
-| Lifecycle d'une pipelineVersion | `PipelineVersionActivation`, `ServingSelection`, `ProjectionProducerBinding`, ports et use cases lifecycle | `engine-pipeline-lifecycle` |
 | Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
-| Connaissance de version | `LatestKnownVersion` | `domain-projection` |
+| Connaissance de version | `LatestKnownVersion`, avance monotone et port de persistance | `engine-read-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
 | Lecture exacte de projection | `ExactProjectionReadUseCase`, `ExactProjectionReadService`, `ProjectionReadPort` | `engine-projection-read` |
 | Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
@@ -110,3 +108,7 @@ n'est un contrat fonctionnel.
 
 Le legacy Query/read exécutable a été retiré par PCL.4. Le legacy restant appartient aux flux de
 projection explicitement suivis par les lots PCL ultérieurs.
+
+Le modèle pipeline/generation/lifecycle/serving et ses modules ont été retirés par PCL.5. La
+migration historique V12 reste append-only sous la propriété de `infra-persistence-jpa` jusqu'au
+drop physique des tables lifecycle en PCL.8.

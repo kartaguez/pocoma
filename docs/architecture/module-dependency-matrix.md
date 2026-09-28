@@ -27,8 +27,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-pot` | Modèle Pot, valeurs, agrégats, `BusinessEvent` typés et vérité temporelle canonique `PotVersionMetadata` | JDK | autres domaines, engines, frameworks | target Lots 6/7.7 |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
 | `domain-projection-balance` | Valeurs `PotBalances` et `Balance` ; calculs exacts ou legacy orchestrés par les engines | `domain-pot`, JDK | engines, persistence, workers | target values + legacy consumers |
-| `domain-projection` | identité générique, statut dérivé, artifact/failure/head, `LatestKnownVersion` et modèle canonique `PotProjection` | pipeline, Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
-| `domain-pipeline` | identité, applicabilité et catalogue/registry des définitions declared | JDK | tout module applicatif | target Lot 7.3.1 livré |
+| `domain-projection` | identité générique, statut dérivé, artifact/failure/head et modèle canonique `PotProjection` | Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
 
 ## Engines
@@ -38,11 +37,10 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction et segmentation | domaines nécessaires | infra, supra, runtime | shared |
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
 | `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
-| `engine-read-projection` | avance monotone de `LatestKnownVersion` et source de reconstruction historique Pot | Pot, projection legacy minimale | consumers LKV, producteurs de projections | conservé ; aucun port metadata/index Query legacy |
+| `engine-read-projection` | primitive et avance monotone de `LatestKnownVersion`, port de persistance et source de reconstruction historique Pot | Pot | pipeline/lifecycle/serving, consumers LKV, producteurs de projections | conservé ; frontière neutre LKV et source canonical READ_POT |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
 | `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
 | `engine-processing-event` | contrats metadata-only de discovery EPT et LKV, ordre Event et policy exhaustive EventType→ProjectionType | consumption, Pot event, core | Command/Task processing, pipeline generation, read store | target EPT/LKV |
-| `engine-pipeline-lifecycle` | control state framework-free active/serving, catalogue producteur, gates de Claim, use cases et validation d'intégrité | pipeline, projection, JDK | Spring, JDBC/JPA, runtime, locators, latest-known/head | target Lot 7.14.1 |
 
 ## Adaptateurs, orchestration et composition
 
@@ -65,7 +63,6 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + projection legacy hors PCL.4 |
 | `infra-read-persistence` | store canonique exact, latest-known et migrations historiques append-only | `engine-projection-read`, `engine-read-projection`, Spring JDBC et Flyway | conservé ; aucun reader metadata/index legacy |
-| `infra-pipeline-lifecycle-persistence` | control store autoritatif `pocoma_control`, activation/serving, verrou d'activation partagé avec l'acquisition des Claims et bootstrap explicite | ports `engine-pipeline-lifecycle`, Spring JDBC/transactions, Flyway | target Lot 7.14.1, distinct du read store dérivé |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'admission Command HTTP | shared config, supra HTTP | composition |
@@ -93,7 +90,8 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 - L'observation du polling reste limitée aux cycles, budgets, délais et compteurs déjà exposés par
   l'orchestrateur. Elle n'ajoute aucun callback métier à `engine-consumption` ou à
   `orchestrator-consumption`.
-- L'Event processing utilise `RecordedEvent` et `PipelineDefinition`, sans appeler task creation.
+- L'Event processing utilise `RecordedEvent` et la policy canonique EventType→ProjectionType,
+  sans modèle pipeline/generation/lifecycle.
 - Task processing connaît uniquement les données structurelles de la Task et ne consulte ni slot,
   ni claim, ni statut ou lease legacy.
 - L'infrastructure dépend des ports sortants qu'elle implémente.

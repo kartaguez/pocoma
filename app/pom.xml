@@ -56,7 +56,6 @@
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
-		<module>infra-pipeline-lifecycle-persistence</module>
 		<module>infra-projection-persistence</module>
 		<module>infra-read-persistence</module>
 		<module>infra-projection-json-schema</module>
