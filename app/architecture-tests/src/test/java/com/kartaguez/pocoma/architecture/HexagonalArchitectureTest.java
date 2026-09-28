@@ -104,19 +104,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void queryEngineDoesNotUseTheWriteSideAuthorizationGuard() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.query..",
-						ROOT_PACKAGE + ".engine.port.out.query..",
-						ROOT_PACKAGE + ".engine.service.query..",
-						ROOT_PACKAGE + ".engine.service.transaction.query..")
-				.should().dependOnClassesThat().haveFullyQualifiedName(
-						ROOT_PACKAGE + ".engine.service.command.PotAuthorizationGuard")
-				.check(CLASSES);
-	}
-
-	@Test
 	void potDomainIsSelfContainedAndUsesItsExplicitNamespace() {
 		noClasses()
 				.that().resideInAPackage(POT_DOMAIN_PACKAGE)
@@ -220,8 +207,6 @@ class HexagonalArchitectureTest {
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.port.in.command..",
 						ROOT_PACKAGE + ".engine.service.command..",
-						ROOT_PACKAGE + ".engine.port.in.query..",
-						ROOT_PACKAGE + ".engine.service.query..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.service.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
@@ -399,7 +384,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
 						ROOT_PACKAGE + ".engine.pipeline..",
-						ROOT_PACKAGE + ".engine.query..",
 						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".infra.read.persistence..",
 						ROOT_PACKAGE + ".supra..",
@@ -517,7 +501,6 @@ class HexagonalArchitectureTest {
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.context..",
 						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.port.in.query..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
 						ROOT_PACKAGE + ".engine.processing..",
@@ -810,7 +793,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine..processing.command..",
 						ROOT_PACKAGE + ".engine..processing.task..",
 						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.port.in.query..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.service.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
@@ -863,70 +845,7 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void queryEngineIsIndependentFromProcessingAndFrameworks() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.query..",
-						ROOT_PACKAGE + ".engine.port.out.query..",
-						ROOT_PACKAGE + ".engine.service.query..",
-						ROOT_PACKAGE + ".engine.service.transaction.query..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".domain.consumption..",
-						ROOT_PACKAGE + ".engine.context.consumption..",
-						ROOT_PACKAGE + ".engine.read.projection..",
-						ROOT_PACKAGE + ".engine.port.in.consumption..",
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
-						ROOT_PACKAGE + ".engine.taskexecution..",
-						ROOT_PACKAGE + ".engine.taskmaterialization..",
-						ROOT_PACKAGE + ".supra.worker..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
-				.check(CLASSES);
-	}
-
-	@Test
-	void queryVersionResolverIsAFrameworkFreeVersionDecisionService() {
-		noClasses()
-				.that().haveSimpleName("QueryVersionResolver")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						AUTHORIZATION_DOMAIN_PACKAGE,
-						POT_POLICY_PACKAGE,
-						READ_PROJECTION_ENGINE_PACKAGE,
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".engine..processing..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"com.fasterxml.jackson..")
-				.check(CLASSES);
-
-		noClasses()
-				.that().haveSimpleName("QueryVersionResolver")
-				.should().dependOnClassesThat().haveSimpleName("ProjectionHead")
-				.check(CLASSES);
-	}
-
-	@Test
 	void functionalUseCaseFamiliesDoNotDependOnConsumptionDomain() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.query..",
-						ROOT_PACKAGE + ".engine.port.out.query..",
-						ROOT_PACKAGE + ".engine.service.query..",
-						ROOT_PACKAGE + ".engine.service.transaction.query..",
-						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.out.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.transaction.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
-						ROOT_PACKAGE + ".engine.service.taskexecution..")
-				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".domain.consumption..")
-				.check(CLASSES);
-
 		noClasses()
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.port.in.command..",
@@ -1227,7 +1146,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.authorization..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
-						ROOT_PACKAGE + ".engine.query..",
 						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".infra.read.persistence..",
 						SUPRA_PACKAGE,

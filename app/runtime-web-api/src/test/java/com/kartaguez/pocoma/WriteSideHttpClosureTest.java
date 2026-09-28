@@ -37,6 +37,13 @@ class WriteSideHttpClosureTest {
 			"/api/expenses/{expenseId}/details",
 			"/api/expenses/{expenseId}/shares",
 			"/api/expenses/{expenseId}");
+	private static final Set<String> LEGACY_QUERY_PATHS = Set.of(
+			"/api/pots",
+			"/api/pots/{potId}",
+			"/api/pots/{potId}/expenses",
+			"/api/expenses/{expenseId}",
+			"/api/pots/{potId}/balances",
+			"/api/pots/balances/me");
 
 	@Autowired WebApplicationContext context;
 	@Autowired CommandRequestSizeFilter commandRequestSizeFilter;
@@ -50,7 +57,7 @@ class WriteSideHttpClosureTest {
 	}
 
 	@Test
-	void openApiExposesAsyncAdmissionAndNoLegacyMutationOperation() throws Exception {
+	void openApiExposesAsyncAdmissionAndNoLegacyQueryOrMutationOperation() throws Exception {
 		String document = http.perform(get("/v3/api-docs"))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
@@ -64,5 +71,14 @@ class WriteSideHttpClosureTest {
 				assertFalse(paths.path(legacyPath).has("delete"));
 			}
 		}
+		for (String legacyPath : LEGACY_QUERY_PATHS) {
+			if (paths.has(legacyPath)) {
+				assertFalse(paths.path(legacyPath).has("get"), legacyPath);
+			}
+		}
+
+		var securitySchemes = mapper.readTree(document).path("components").path("securitySchemes");
+		assertFalse(securitySchemes.has("X-User-Id"));
+		assertFalse(securitySchemes.has("X-User-Scopes"));
 	}
 }

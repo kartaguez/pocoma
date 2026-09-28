@@ -38,11 +38,12 @@ supra authenticates the bearer token, adapts it to `AuthenticatedExternalPrincip
 orchestrator resolves identity, captures permissions and inserts the immutable envelope. A `202`
 means durable acceptance only; it never invokes this consumption path or a Pot use case.
 
-## Queries — `engine-query`
+## Canonical exact projection reads
 
-Query use cases synchronously read Pot state and projections through read ports. They are separate
-from durable asynchronous processing and must not depend on command, event-consumption, or task
-workers.
+The legacy `engine-query` use cases and their HTTP adapters were removed by PCL.4. Exact reads remain
+available through the projection read boundary: `ReadPotService` requests an exact artifact through
+`ExactProjectionReadService` and interprets it with `ReadPotInterpreter`. This path reads only the
+canonical projection store and does not recreate a Query facade or fall back to primary state.
 
 ## Projection task materialization — EPT
 
@@ -140,12 +141,6 @@ that it remains callable only to keep the current workers operational.
 | `UpdatePotShareholdersWeightsUseCase` | Command | context, typed command | `PotShareholdersSnapshot` | Pot state, events | Winning consumption tx | durable Command adapter | Target business port |
 | `UpdateExpenseDetailsUseCase` | Command | context, typed command | `ExpenseHeaderSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
 | `UpdateExpenseSharesUseCase` | Command | context, typed command | `ExpenseSharesSnapshot` | Pot/expense state, events | Winning consumption tx | durable Command adapter | Target business port |
-| `ListUserPotsUseCase` | Query | `UserContext` | pot headers | `PotQueryPort` | Read decorator | HTTP | Target |
-| `GetPotUseCase` | Query | context, `GetPotQuery` | `PotViewSnapshot` | `PotQueryPort` | Read decorator | HTTP | Target |
-| `ListPotExpensesUseCase` | Query | context, typed query | expense headers | Pot/expense query ports | Read decorator | HTTP | Target |
-| `GetExpenseUseCase` | Query | context, typed query | `ExpenseViewSnapshot` | Pot/expense query ports | Read decorator | HTTP | Target |
-| `GetPotBalancesUseCase` | Query | context, typed query | `PotBalancesSnapshot` | Pot query, balances | Read decorator | HTTP | Target |
-| `ListUserPotBalancesUseCase` | Query | context, typed query | user balances | Pot query, balances | Read decorator | HTTP | Target |
 | `TryAcquireConsumptionUseCase` | Consumption | consumption key, worker, lease | acquired, busy, already completed or already failed | `ClaimPort` | Decorator | Processing engines | Target |
 | `CompleteConsumptionUseCase` | Consumption | consumption key, token | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
 | `FailConsumptionUseCase` | Consumption | consumption key, token, failure | `ConsumptionOutcome` | `ClaimPort` | Decorator | Processing engines | Target |
@@ -215,9 +210,9 @@ the Balance projection calculation, pipeline identity, typed task payloads, and 
 consumption. `engine-core` contains only shared application contracts plus explicitly isolated
 legacy types.
 
-Functional engines own business Commands, Queries, typed Event-to-Task planning, typed Task
-execution, and Balance projection. Their ports are consumer-oriented: queries use
-`PotBalancesQueryPort`; Balance calculation uses `PotBalanceProjectionPort` and
+Functional engines own business Commands, exact projection reads, typed Event-to-Task planning,
+typed Task execution, and Balance projection. Their ports are consumer-oriented: exact reads use
+`ProjectionReadPort`; Balance calculation uses `PotBalanceProjectionPort` and
 `PotShareholdersProjectionPort`; Commands use their writable `PotShareholdersPort` and the typed
 `BusinessEventAppendPort`.
 

@@ -7,14 +7,14 @@
 | Pot et valeurs métier | `PotHeader`, `PotId`, `UserId` | `domain-pot` |
 | Faits métier Pot | `BusinessEvent`, `PotCreatedEvent`, `ExpenseCreatedEvent` | `domain-pot.event` |
 | Autorisation générique | `Permission` | `domain-authorization` |
-| Policies d'autorisation Pot | `ReadPotAuthorizationPolicy`, `UpdatePotDetailsAuthorizationPolicy` | `domain-pot-policy` |
+| Policies d'autorisation Pot | `UpdatePotDetailsAuthorizationPolicy` et autres policies Command | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
 | Pipeline versionné | `PipelineId`, `PipelineDefinition`, `PipelineVersionDefinition` | `domain-pipeline` |
 | Lifecycle d'une pipelineVersion | `PipelineVersionActivation`, `ServingSelection`, `ProjectionProducerBinding`, ports et use cases lifecycle | `engine-pipeline-lifecycle` |
 | Projection générique | `ProjectionIdentity`, `ProjectionArtifactDescriptor`, `ProjectionFailure`, `ProjectionHead`, `ProjectionStatus` | `domain-projection` |
 | Connaissance de version | `LatestKnownVersion` | `domain-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
-| Query Kernel versionné | `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState`, `QueryVersionResolution`, `QueryVersionResolver`, `VersionedQueryResponse`, ports read-only readiness/latest-known | `engine-query` |
+| Lecture exacte de projection | `ExactProjectionReadUseCase`, `ExactProjectionReadService`, `ProjectionReadPort` | `engine-projection-read` |
 | Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
@@ -106,9 +106,7 @@ n'est un contrat fonctionnel.
 | statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |
 | table et colonnes `tasks_4_pipeline` | migrations historiques uniquement | aucune capacité runtime | drop physique après scans finaux | PCL.8 |
 | `PotBalanceProjectionState` et `pot_balance_*` | runtime monolith et calcul incrémental | artifact/failure/head BALANCE génériques | 7.12/7.13 serving et observation | Lot 7.16 |
-| `engine-query` + readers primaires GET | six GET actuels | Query/Authorization Kernel et readers read-store | 7.11/7.13 serving | Lot 7.16 |
 | artifact Balance spécifique au primaire | runtime web et Task Balance | persistence générique read-store | compatibilité 7.12 puis cutover 7.13 | Lots 7.12/7.16 |
-| sélection par égalité latest-known de `JdbcPotUserIndexReader` | shadow uniquement | index de candidats, puis résolution CURRENT métier et AUTH en EXACT(servedVersion) | remplacement au cutover liste | Lot 7.11 |
 
-Le legacy restant appartient aux flux Event, Task, projection et read. Le lifecycle et le worker
-Command historiques ne sont plus compilés.
+Le legacy Query/read exécutable a été retiré par PCL.4. Le legacy restant appartient aux flux de
+projection explicitement suivis par les lots PCL ultérieurs.

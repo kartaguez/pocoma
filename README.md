@@ -4,9 +4,9 @@ Pocoma is an application for managing shared pots: a user creates a pot, adds pa
 
 ## How It Works
 
-The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/commands`. It stores an immutable `RecordedCommand` and returns `202 Accepted`; a separate Command consumption runtime later mutates the versioned Pot state and appends a business Event atomically. Queries continue to read views of that state: accessible pots, pot details, expenses, balances, and balances for the calling user.
+The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/commands`. It stores an immutable `RecordedCommand` and returns `202 Accepted`; a separate Command consumption runtime later mutates the versioned Pot state and appends a business Event atomically. The former synchronous Pot, Expense and Balance GET endpoints were retired by PCL.4.
 
-Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. The retained read API can target a specific primary version or, by default, that primary current version. The Lot 7 target replaces this legacy behavior with explicit `CURRENT` and `EXACT(V)` read-side intents.
+Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Canonical projection reads address an exact projection identity and version; they do not fall back to the write model.
 
 READ_POT and POT_BALANCES are canonical projections. A Command worker persists business state and a
 business Event atomically in `business_event_outbox`. Event consumption materializes exact,
@@ -29,7 +29,7 @@ app/
   locator-consumption-command/   Command specialization of generic consumption
   infra-event-publisher-spring/   Spring event publishing for retained projection flows
   observability/                  Trace and measurement abstractions
-  supra-http-rest-spring/         Query and asynchronous Command admission HTTP adapters
+  supra-http-rest-spring/         Asynchronous Command admission HTTP adapter
   runtime-command-consumption-worker/
                                   Durable Command processing runtime
   runtime-event-consumption-worker/
@@ -52,7 +52,7 @@ scripts/bruno/                    Bruno HTTP collection
 scripts/k6/                       k6 load tests
 ```
 
-The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` admits durable Commands and serves queries; `runtime-command-consumption-worker` is the sole runtime executor of primary mutations. The projection runtimes and `runtime-monolith` remain transitional read/projection compositions.
+The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` admits durable Commands; `runtime-command-consumption-worker` is the sole runtime executor of primary mutations. The projection runtimes and `runtime-monolith` remain transitional projection compositions.
 
 This separation addresses several technical challenges:
 
@@ -86,8 +86,7 @@ Split API/worker mode:
 ```bash
 cd app
 ./mvnw -pl runtime-web-api spring-boot:run \
-  -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.query.balance.pipeline-version=2"
+  -Dspring-boot.run.profiles=postgres
 
 ./mvnw -pl runtime-command-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
@@ -160,7 +159,7 @@ POCOMA_SEGMENT_COUNT=2
 ```
 
 `POCOMA_BALANCE_PIPELINE_VERSION` is required rather than optional for the
-distributed mode and is propagated unchanged to Event, Task, and Query.
+distributed mode and is propagated unchanged to Event and Task processing.
 
 Useful endpoints:
 
@@ -180,10 +179,9 @@ cd app
 ./mvnw test
 ```
 
-The query requests in the Bruno collection remain useful for the current read API. Its mutation
-requests and the existing k6 scenarios are historical suites for the removed synchronous write
-path; their READMEs mark that limitation explicitly. They are not a supported alternative to
-`POST /api/v1/commands`.
+The former query and mutation requests in the Bruno collection and the existing k6 scenarios are
+historical suites for removed synchronous HTTP paths. Their READMEs mark that limitation
+explicitly. They are not a supported alternative to `POST /api/v1/commands`.
 
 The historical k6 suite can still be inspected with:
 
@@ -200,7 +198,7 @@ serve as executable validation of the current runtime.
 
 ## Observability
 
-Each HTTP request receives a `traceId`, propagated through logs and projection tasks. Logs can therefore reconstruct the full chain initiated by a user: HTTP request, command or query, commit, event publication, worker execution, and projection persistence.
+Each HTTP request receives a `traceId`, propagated through logs and projection tasks. Logs can therefore reconstruct the full chain initiated by a user: HTTP request, command admission, commit, event publication, worker execution, and projection persistence.
 
 Prometheus metrics track, among other things:
 
@@ -224,7 +222,7 @@ These metrics address the main risk of the asynchronous projection architecture:
   `docs/architecture/consumption-task-balance-runtime.md`; `docs/projection-workers.md` is historical.
 - Event and Task Balance workers are partitioned by stable `potId` hash through
   `pocoma.projection.worker.segment-index` and `segment-count`.
-- Queries are read-only and apply the same read policies as direct views.
+- Canonical exact projection reads remain isolated from the retired legacy HTTP Query stack.
 - PostgreSQL is enabled with the Spring `postgres` profile; H2 remains the default local mode.
 - Flyway is the source of truth for the PostgreSQL schema, while Hibernate validates the schema in PostgreSQL mode.
-- Command admission uses OAuth2 Resource Server identity; retained read endpoints still use legacy caller headers temporarily.
+- Command admission uses OAuth2 Resource Server identity; legacy caller headers are no longer exposed.
