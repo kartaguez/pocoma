@@ -160,16 +160,6 @@
 			<testResource>
 				<directory>src/test/resources</directory>
 			</testResource>
-			<!-- V4+ live with their adapters; isolated PostgreSQL tests still need the
-			     production baseline owned by the runtime module. -->
-			<testResource>
-				<directory>../runtime-monolith/src/main/resources</directory>
-				<includes>
-					<include>db/migration/V1__init_schema.sql</include>
-					<include>db/migration/V2__projection_outbox_tasks.sql</include>
-					<include>db/migration/V3__pipeline_materialization_tasks.sql</include>
-				</includes>
-			</testResource>
 		</testResources>
 	</build>
 </project>

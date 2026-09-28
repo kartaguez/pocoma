@@ -22,10 +22,6 @@
 		<dependency><groupId>org.testcontainers</groupId><artifactId>testcontainers-junit-jupiter</artifactId><scope>test</scope></dependency>
 	</dependencies>
 	<build>
-		<resources>
-			<resource><directory>src/main/resources</directory></resource>
-			<resource><directory>../runtime-monolith/src/main/resources</directory><includes><include>db/migration/**</include></includes></resource>
-		</resources>
 		<testResources>
 			<testResource><directory>src/test/resources</directory></testResource>
 			<testResource>
