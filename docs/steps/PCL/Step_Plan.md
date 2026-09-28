@@ -14,7 +14,7 @@ chaîne Event → Projection.
 |-----|-------|--------|
 | PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | DONE |
-| PCL.3 | Legacy Task runtime demolition | TODO |
+| PCL.3 | Legacy Task runtime demolition | IN_PROGRESS |
 | PCL.4 | Legacy Query/read demolition | TODO |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
@@ -256,7 +256,7 @@ Le choix doit minimiser la surface survivante, pas préserver un nom de module.
 
 ### Status
 
-`TODO`
+`IN_PROGRESS`
 
 ### Objective
 
