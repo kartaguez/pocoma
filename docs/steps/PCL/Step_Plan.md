@@ -15,7 +15,7 @@ chaîne Event → Projection.
 | PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | DONE |
-| PCL.4 | Legacy Query/read demolition | TODO |
+| PCL.4 | Legacy Query/read demolition | REVIEW |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
 | PCL.7 | Module/dependency collapse | TODO |
@@ -378,7 +378,7 @@ branche `projection_tasks → ProjectionEngineService` canonique.
 
 ### Status
 
-`IN_PROGRESS`
+`REVIEW`
 
 ### Objective
 
@@ -460,6 +460,40 @@ Les tables physiques restent jusqu'à PCL.8.
 - test d'architecture distinguant explicitement schéma principal et `pocoma_read`, singulier et
   pluriel ;
 - preuves EPT et LKV inchangées.
+
+### Notes / findings
+
+- `JpaPotBalancesAdapter` était mixte : son implémentation de `PotBalancesQueryPort` a été retirée,
+  mais son accès `loadAtVersion` au write model reste requis par `PotBalanceProjectionPort` et le
+  producer canonical POT_BALANCES.
+- `infra-read-persistence` reste un module utile : après retrait des readers metadata/index legacy,
+  il conserve la migration du store canonical singulier et l'adapter LKV.
+- `domain-projection-legacy` et `engine-read-projection` ont été prunés jusqu'à leurs seules
+  responsabilités LKV encore protégées ; leur relocalisation ou suppression physique relève de
+  PCL.5/PCL.7.
+- La disparition de `ImmutableBalanceQueryConfiguration` a révélé que ce composant fournissait aussi
+  l'`ObjectMapper` du runtime Web ; ce bean transverse est désormais composé explicitement par le
+  runtime, sans recréer de façade Query.
+- Les tables et migrations historiques ont été conservées sans modification, conformément à la
+  frontière PCL.4/PCL.8.
+
+### Completion evidence
+
+- six endpoints Query HTTP, leurs DTOs/mappers/policies, leur wiring Spring et les propriétés
+  associées supprimés ; les contrats HTTP Command restants sont inchangés ;
+- module `engine-query`, anciens ports/use cases/services et adapters Query JPA/JDBC supprimés du
+  reactor ; aucun alias, shim ou fallback ne les remplace ;
+- anciens readers metadata, status et user-index retirés, tandis que
+  `ExactProjectionReadService` → `ProjectionReadPort` → `JdbcProjectionStoreAdapter` et
+  `ReadPotService` → `ReadPotInterpreter` restent composables ;
+- guard permanent `Pcl4LegacyQueryReadAbsenceTest` prouvant l'absence des artefacts, références,
+  wiring et accès runtime legacy, ainsi que la conservation des responsabilités mixtes/canoniques ;
+- preuve OpenAPI renforcée contre le retour des GET Query et anciens headers de sécurité ;
+- scans production : zéro référence aux types legacy et zéro accès actif aux old read stores hors
+  migrations historiques ; aucune migration SQL modifiée ;
+- `./mvnw clean verify` vert sur les 52 modules le 2026-09-28, dont 61 preuves dans
+  `architecture-tests` ;
+- lot placé en `REVIEW` dans l'attente de l'audit indépendant requis avant `DONE`.
 
 ### What becomes removable next
 
