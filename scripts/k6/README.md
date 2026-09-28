@@ -7,19 +7,10 @@
 
 Suite de tests de charge pour le serveur HTTP Pocoma. Les scripts créent leurs propres données de test avec des labels préfixés `K6`, exécutent des commandes valides, des conflits concurrents et des requêtes incohérentes, puis scrutent `/actuator/prometheus`.
 
-## Prérequis
+## Prérequis historiques
 
-- k6 installé localement.
-- Monolith Pocoma lancé, de préférence avec PostgreSQL :
-
-```bash
-cd app
-docker compose -f docker-compose.postgres.yml up -d
-./mvnw -pl runtime-monolith -am install -DskipTests
-./mvnw -pl runtime-monolith spring-boot:run -Dspring-boot.run.profiles=postgres
-```
-
-- Actuator Prometheus disponible sur `http://localhost:8080/actuator/prometheus`.
+Cette suite n'a plus de runtime supporté : le monolithe et les endpoints synchrones qu'elle ciblait
+ont été supprimés. Les commandes ci-dessous sont conservées uniquement comme référence de charge.
 
 ## Smoke
 

@@ -26,7 +26,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `domain-event` | Marqueur générique `BusinessEvent` | JDK | domaines fonctionnels, engines, frameworks | target |
 | `domain-pot` | Modèle Pot, valeurs, agrégats, `BusinessEvent` typés et vérité temporelle canonique `PotVersionMetadata` | JDK | autres domaines, engines, frameworks | target Lots 6/7.7 |
 | `domain-pot-policy` | Policies Pot utilisant directement `Permission` | autorisation, Pot, JDK | engines, infra, runtime | target |
-| `domain-projection-balance` | Valeurs `PotBalances` et `Balance` ; calculs exacts ou legacy orchestrés par les engines | `domain-pot`, JDK | engines, persistence, workers | target values + legacy consumers |
+| `domain-projection-balance` | Valeurs `PotBalances` et `Balance` pour le calcul exact canonique | `domain-pot`, JDK | engines, persistence, workers | target |
 | `domain-projection` | identité générique, statut dérivé, artifact/failure/head et modèle canonique `PotProjection` | Pot, JDK | engines, persistence, frameworks | target Lots 7.4/7.6/7.7 |
 | `domain-consumption` | `ConsumptionKey`, `ConsumptionSlot`, `ClaimId`, lease, failure | JDK | objets consommés, engines, workers, persistence | target |
 
@@ -36,7 +36,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 |---|---|---|---|---|
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction et segmentation | domaines nécessaires | infra, supra, runtime | shared |
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
-| `engine-projection` | calcul applicatif de projection Balance et ports dédiés | Pot, balance, core | workers, nouveaux processing engines | target + legacy isolé |
+| `engine-projection` | contrats résiduels de l'outbox métier primaire | Pot, core | workers, processing canoniques | résidu structurel hors runtime Balance |
 | `engine-read-projection` | primitive et avance monotone de `LatestKnownVersion`, port de persistance et source de reconstruction historique Pot | Pot | pipeline/lifecycle/serving, consumers LKV, producteurs de projections | conservé ; frontière neutre LKV et source canonical READ_POT |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
 | `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
@@ -54,26 +54,16 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
 | `supra-http-rest-spring` | admission Command asynchrone ; aucun endpoint Pot/Expense/Balance legacy | command admission | target |
-| `supra-dispatcher-business-events-outbox-nats` | ancien worker/outbox Event | projection legacy, orchestrateur | legacy, remplacé par EventWorker |
-| `supra-dispatcher-task-materialization-nats` | ancien déclenchement de matérialisation | task materialization legacy | legacy, remplacé par EventWorker |
-| `supra-dispatcher-balance-calculation-tasks-outbox-nats` | ancien traitement des tâches de projection | projection legacy | legacy, remplacé par TaskWorker |
-| `supra-worker-balance-calculation-events-spring` | ancien worker événementiel Balance | projection legacy | legacy, remplacé par EventWorker/TaskWorker |
-| `shared-supra-dispatcher-projection` | contrats partagés des workers de projection actuels | engine projection/core | legacy avec les workers actuels |
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
-| `infra-event-publisher-spring` | publication Spring utilisée par les projections/read flows conservés | core et Spring | transition read-side |
-| `infra-persistence-jpa` | implémentations JPA/JDBC des ports, dont Recorded Commands immutables et discovery best effort | engines propriétaires, domaines | target + projection legacy hors PCL.4 |
+| `infra-persistence-jpa` | implémentations JPA/JDBC des ports, migrations primaires V1–V15, Recorded Commands, discovery Event/Task et sources historiques des producers canoniques | engines propriétaires, domaines | target ; aucun runtime mutable Balance ou `projection_tasks_legacy` |
 | `infra-read-persistence` | store canonique exact, latest-known et migrations historiques append-only | `engine-projection-read`, `engine-read-projection`, Spring JDBC et Flyway | conservé ; aucun reader metadata/index legacy |
 | `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
 | `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
 | `runtime-web-api` | composition de l'admission Command HTTP | shared config, supra HTTP | composition |
 | `runtime-event-consumption-worker` | composition EPT metadata-only Event→ProjectionTask par acquire/finalize fenced et polling générique | policy/locator EPT/orchestrateur/supra/infra | composition target |
 | `runtime-latest-known-version-consumption-worker` | consumer Event direct transactionnel indépendant : reload autoritatif, max-upsert latest-known, lifecycle générique | locator latest-known/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
-| `runtime-business-events-outbox-dispatcher` | ancien dispatcher outbox | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
-| `runtime-task-materialization-dispatcher` | ancien matérialiseur | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
 | `runtime-task-consumption-worker` | composition canonique `projection_tasks` → `ProjectionEngineService` pour READ_POT et POT_BALANCES | orchestrateur/supra/infra/engines de projection canoniques | composition target EPT |
 | `runtime-command-consumption-worker` | composition du locator Command, moteur transactionnel, polling générique et binding Pot | locator/orchestrateur/supra/infra/binding Pot Command | composition target, processus distinct de l'API HTTP |
-| `runtime-balance-calculation-tasks-dispatcher` | ancien runtime des tâches Balance | supra legacy, shared config | OLD RUNTIME ONLY — retrait Lot 5.5 |
-| `runtime-monolith` | composition transitionnelle de projection sans Query HTTP legacy ni write path Command synchrone | couches de projection conservées | composition transitoire |
 | `architecture-tests` | vérification des frontières de packages | tous les modules inspectés | validation |
 
 ## Exceptions transitoires contrôlées

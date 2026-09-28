@@ -157,7 +157,7 @@ that it remains callable only to keep the current workers operational.
 | `ExecutePipelineTaskUseCase` | Task execution legacy | durable `PipelineTask` | none | Legacy strategy registry | Worker flow | Current task worker | Legacy; remove with task worker |
 | `BuildProjectionTasksUseCase` | Projection legacy | outbox envelope | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by task creation |
 | `ExecuteProjectionTasksUseCase` | Projection legacy | Pot/version command | none | projection task/event ports | Service-specific | Legacy projection flow | Legacy; replace by typed task execution |
-| `ComputePotBalancesUseCase` | Projection function | Pot id, target version | `PotBalances` | `PotBalanceProjectionPort`, `PotShareholdersProjectionPort` | Decorator | Typed balance handler | Target; calculation model in `domain-projection-balance` |
+| `CalculatePotBalancesAtVersionUseCase` | Canonical POT_BALANCES producer | Pot id, exact target version | `PotBalances` | `HistoricalPotBalanceSourcePort` | Service-owned exact reconstruction | `PotBalancesProjectionInputLoader` | Target; independent of mutable Balance state |
 
 ## Runtime paths
 
@@ -173,22 +173,14 @@ There is no synchronous HTTP mutation route or separate Command processing lifec
 remaining transitional paths below belong to Event, Task, projection and the future read-side
 redesign; they are deliberately not changed by the write-side closure.
 
-The current task path is intentionally bridged:
+The canonical task path is:
 
 ```text
-Task worker
-  -> ExecutePipelineTaskUseCase (legacy)
-  -> ComputeBalancesPipelineTaskExecutionStrategy (JSON adapter)
-  -> ExecuteTaskUseCase (typed target)
-  -> ExecuteBalanceProjectionTaskHandler
-  -> ComputePotBalancesUseCase
-```
-
-It becomes, during worker migration:
-
-```text
-Task worker -> ClaimNextTaskUseCase -> durable-to-typed mapper -> ExecuteTaskUseCase
-            -> CompleteTaskProcessingUseCase / FailTaskProcessingUseCase
+projection_tasks -> generic Task consumption
+  -> ProjectionTaskConsumptionOrchestrator
+  -> ProjectionEngineService
+  -> READ_POT / POT_BALANCES producer
+  -> canonical projection store
 ```
 
 The current Event path is canonical:
@@ -199,9 +191,8 @@ business_event_outbox -> metadata-only discovery -> ProjectionMaterializationPol
   -> projection_tasks
 ```
 
-The legacy task-execution package can be deleted only after the task worker uses the typed route.
-The remaining legacy Task runtime can be deleted in PCL.3; `ComputePotBalancesUseCase` remains
-functional.
+PCL.6 removed the mutable Balance worker and persistence branch. `POT_BALANCES` reconstructs its
+input at the requested historical version and never consumes `pot_balance_*` runtime state.
 
 ## Result of step 2
 

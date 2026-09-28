@@ -22,16 +22,16 @@ scrape_configs:
     static_configs:
       - targets: ["pocoma-latest-known-version-consumption-worker:8080"]
 
-  - job_name: pocoma-business-events-dispatchers
+  - job_name: pocoma-event-consumption-workers
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
-          - pocoma-business-events-dispatcher-0:8080
-          - pocoma-business-events-dispatcher-1:8080
+          - pocoma-event-consumption-worker-0:8080
+          - pocoma-event-consumption-worker-1:8080
 
-  - job_name: pocoma-balance-tasks-dispatchers
+  - job_name: pocoma-task-consumption-workers
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
-          - pocoma-balance-tasks-dispatcher-0:8080
-          - pocoma-balance-tasks-dispatcher-1:8080
+          - pocoma-task-consumption-worker-0:8080
+          - pocoma-task-consumption-worker-1:8080

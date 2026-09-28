@@ -236,7 +236,8 @@ cd app
   -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=0 --pocoma.projection.worker.segment-count=2"
 ```
 
-`runtime-monolith` remains useful for local development. Its `api` and `worker` profiles are still available, but the target split architecture should prefer the dedicated runtimes above.
+> Historical note: the legacy runtimes described above were removed by PCL.6. Supported execution
+> uses the dedicated Event and canonical ProjectionTask consumption runtimes.
 
 ## Metrics And Load Testing
 

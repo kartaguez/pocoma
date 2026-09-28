@@ -27,7 +27,6 @@ app/
   infra-persistence-jpa/          JPA adapters for H2/PostgreSQL
   infra-tx-spring/                Spring transaction adapter
   locator-consumption-command/   Command specialization of generic consumption
-  infra-event-publisher-spring/   Spring event publishing for retained projection flows
   observability/                  Trace and measurement abstractions
   supra-http-rest-spring/         Asynchronous Command admission HTTP adapter
   runtime-command-consumption-worker/
@@ -38,21 +37,14 @@ app/
                                   Direct transactional Event-to-latest-known runtime
   runtime-task-consumption-worker/
                                   Canonical ProjectionTask execution runtime
-  supra-worker-balance-calculation-events-spring/
-                                  Transitional Spring event-driven Balance worker
   runtime-web-api/                API-only Spring Boot runtime
-  runtime-business-events-outbox-dispatcher/
-                                  Historical projection task builder runtime
-  runtime-balance-calculation-tasks-dispatcher/
-                                  Historical projection task executor runtime
-  runtime-monolith/               Spring Boot monolith composition
 
 docker/                           Prometheus and Grafana
 scripts/bruno/                    Bruno HTTP collection
 scripts/k6/                       k6 load tests
 ```
 
-The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` admits durable Commands; `runtime-command-consumption-worker` is the sole runtime executor of primary mutations. The projection runtimes and `runtime-monolith` remain transitional projection compositions.
+The core design choice is hexagonal architecture: `domain` depends on nothing, `engine` depends on ports, and `infra-*` / `supra-*` modules plug in technologies. `runtime-web-api` admits durable Commands; `runtime-command-consumption-worker` is the sole runtime executor of primary mutations. Dedicated Event and ProjectionTask runtimes implement the canonical projection chain.
 
 This separation addresses several technical challenges:
 
@@ -64,24 +56,14 @@ This separation addresses several technical challenges:
 
 ## Local Run
 
-Default local mode with H2:
-
-```bash
-cd app
-./mvnw -pl runtime-monolith -am install -DskipTests
-./mvnw -pl runtime-monolith spring-boot:run
-```
-
-PostgreSQL mode:
+Start PostgreSQL:
 
 ```bash
 cd app
 docker compose -f docker-compose.postgres.yml up -d
-./mvnw -pl runtime-monolith -am install -DskipTests
-./mvnw -pl runtime-monolith spring-boot:run -Dspring-boot.run.profiles=postgres
 ```
 
-Split API/worker mode:
+Start the dedicated API and worker runtimes:
 
 ```bash
 cd app
@@ -105,29 +87,9 @@ cd app
   -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=READ_POT,POT_BALANCES"
 ```
 
-`runtime-monolith` still supports the `api` and `worker` profiles for local experiments, but the dedicated runtimes match the target deployment shape.
-
 ### Docker Compose Modes
 
-The repository provides three root-level Compose files for the main runtime
-shapes. Run only one mode at a time because they all publish the same local
-ports: API `8080`, Prometheus `9090`, and Grafana `3000`.
-
-Monolith with in-memory H2, Spring events, in-process balance worker,
-Prometheus, and Grafana:
-
-```bash
-docker compose -f docker-compose.monolith-h2.yml up --build
-```
-
-Monolith with PostgreSQL, Spring events, in-process balance worker, Prometheus,
-and Grafana:
-
-```bash
-docker compose -f docker-compose.monolith-postgres.yml up --build
-```
-
-Distributed mode with one API runtime, one Command consumption worker, one dedicated latest-known
+The supported Compose mode runs one API runtime, one Command consumption worker, one dedicated latest-known
 consumer, two Event consumption workers, two canonical ProjectionTask workers, PostgreSQL,
 Prometheus, and Grafana:
 
@@ -135,15 +97,14 @@ Prometheus, and Grafana:
 docker compose -f docker-compose.distributed.yml up --build
 ```
 
-Before switching mode, stop the current stack:
+Stop the stack with:
 
 ```bash
-docker compose -f <compose-file> down
+docker compose -f docker-compose.distributed.yml down
 ```
 
-The H2 monolith intentionally keeps data in memory. The PostgreSQL monolith and
-distributed modes use `jdbc:postgresql://postgres:5432/pocoma`. In distributed
-mode, every Java runtime uses the `postgres` Spring profile. Event and Task
+The distributed mode uses `jdbc:postgresql://postgres:5432/pocoma`, and every Java runtime uses
+the `postgres` Spring profile. Event and Task
 consumption workers are split by their respective segment properties, sourced
 from `POCOMA_SEGMENT_COUNT`, so the services ending in `-0` and `-1` own
 segments `0/2` and `1/2` with the default count.

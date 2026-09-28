@@ -58,16 +58,16 @@ livrées, mais aucun code de production PCL.4 ne lit plus `projection_artifacts`
 wiring ont été supprimés. `domain-projection-legacy` ne contient plus que `LatestKnownVersion`, en
 attendant son extraction prévue par PCL.5.
 
-## 4. Adapter Balance mixte
+## 4. Source historique Balance canonique
 
-`JpaPotBalancesAdapter` reste nécessaire à la projection Balance incrémentale historique. Il
-implémente uniquement `PotBalanceProjectionPort`. Sa méthode `loadAtVersion` est conservée parce
-qu'elle est requise par ce port de projection et par `ComputePotBalancesService` ; elle n'expose plus
-`PotBalancesQueryPort`.
+Le producer canonique `POT_BALANCES` reconstruit ses entrées à la version demandée via
+`HistoricalPotBalanceSourcePort`, `CalculatePotBalancesAtVersionService` et
+`JpaHistoricalPotBalanceSourceAdapter`. Il ne lit ni n'écrit le résultat mutable de l'ancienne
+projection Balance.
 
-Les tables JPA `pot_balance_projection_states`, `pot_balance_versions` et `pot_balances` restent
-donc hors de la démolition Query/read PCL.4. Leur retrait éventuel appartient aux lots de projection
-legacy ultérieurs.
+Les tables `pot_balance_projection_states`, `pot_balance_versions` et `pot_balances` restent
+physiquement présentes pour préserver l'historique Flyway, mais PCL.6 a supprimé leurs mappings,
+repositories, readers et writers runtime. Leur suppression SQL éventuelle est réservée à PCL.8.
 
 ## 5. Frontières de persistance
 
@@ -82,7 +82,7 @@ adapters Query supprimés ont disparu. Aucun schéma primaire ni read-store n'es
 - l'absence du module et de l'artifact Maven `engine-query` ;
 - l'absence des types, wiring et propriétés legacy dans le code de production ;
 - l'absence d'accès runtime aux anciennes tables read-store, migrations exclues ;
-- la conservation de `LatestKnownVersion`, de l'adapter Balance de projection et de la chaîne de
+- la conservation de `LatestKnownVersion`, de la source historique Balance canonique et de la chaîne de
   lecture exacte canonique.
 
 `WriteSideHttpClosureTest` vérifie en plus l'absence des six opérations GET et des anciens headers

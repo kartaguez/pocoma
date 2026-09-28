@@ -30,7 +30,7 @@ Le worker de matérialisation orchestre uniquement la lecture, la sélection des
 - `supra-dispatcher-balance-calculation-tasks-outbox-nats` adapte le même socle à l'exécution de `projection_tasks` via `ProjectionTaskWorkSource`, `ProjectionTaskExecutorWorker` et `SegmentedProjectionTaskExecutor`.
 - `engine-projection` contient déjà une séparation claire entre cas d'usage (`BuildProjectionTasksUseCase`, `ExecuteProjectionTasksUseCase`), services métier (`BuildProjectionTasksService`, `ExecuteProjectionTasksService`) et ports de persistance (`BusinessEventOutboxPort`, `ProjectionTaskPort`).
 - `infra-persistence-jpa` contient les adaptateurs JPA qui implémentent les claims, transitions de statut, heartbeats et compteurs de backlog.
-- Les migrations Flyway sont centralisées dans `runtime-monolith/src/main/resources/db/migration`, puis réutilisées par les runtimes séparés.
+- Les migrations Flyway primaires sont possédées par `infra-persistence-jpa/src/main/resources/db/migration` et assemblées par les runtimes dédiés.
 - L'observabilité actuelle expose déjà des compteurs/gauges de backlog et des timers de projection via Micrometer.
 
 ### Pattern de claim existant
