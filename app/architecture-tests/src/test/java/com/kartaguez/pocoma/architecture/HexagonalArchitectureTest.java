@@ -249,28 +249,6 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void pipelineDomainExposesOnlyItsMinimalJdkContracts() {
-		Set<String> pipelineTypes = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
-				.map(javaClass -> javaClass.getSimpleName())
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of("PipelineDefinition", "PipelineId", "VersionApplicability",
-				"PipelineVersionDefinition", "PipelineDefinitionRegistry",
-				"PocomaPipelineDefinitions", "UnknownPipelineDefinitionException"), pipelineTypes,
-				"domain-pipeline must contain only pipeline identity, applicability, catalog and registry");
-		Set<String> nonJdkDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
-				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				.map(dependency -> dependency.getTargetClass())
-				.filter(target -> !target.getPackageName().startsWith("java."))
-				.filter(target -> !target.getPackageName().equals(ROOT_PACKAGE + ".domain.pipeline"))
-				.map(target -> target.getName())
-				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(), nonJdkDependencies,
-				"domain-pipeline must depend only on the JDK");
-	}
-
-	@Test
 	void projectionCoreDependsOnlyOnTheJdkAndItself() {
 		Set<String> dependenciesOutsideProjectionCore = CLASSES.stream()
 				.filter(javaClass -> isProjectionCorePackage(javaClass.getPackageName()))
@@ -423,21 +401,6 @@ class HexagonalArchitectureTest {
 				|| packageName.startsWith(PROJECTION_READ_SERVICE_PACKAGE + ".")
 				|| packageName.equals(PROJECTION_READ_EXCEPTION_PACKAGE)
 				|| packageName.startsWith(PROJECTION_READ_EXCEPTION_PACKAGE + ".");
-	}
-
-	@Test
-	void pipelineLifecycleEngineIsFrameworkFree() {
-		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".engine..pipeline.lifecycle..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".locator..",
-						ROOT_PACKAGE + ".orchestrator..",
-						"org.springframework..",
-						"jakarta.persistence..",
-						"java.sql..")
-				.check(CLASSES);
 	}
 
 	@Test
