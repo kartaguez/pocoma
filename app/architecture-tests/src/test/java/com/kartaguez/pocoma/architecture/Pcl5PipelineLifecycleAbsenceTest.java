@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ class Pcl5PipelineLifecycleAbsenceTest {
 			"infra-pipeline-lifecycle-persistence");
 	private static final String V12_SHA_256 =
 			"b83cef2c00da4fde15e6a2c587ff7487ac05d924f12ddfb3135f52444bca6399";
+	private static final String V12_FILE_NAME = "V12__pipeline_version_lifecycle.sql";
+	private static final List<String> LIFECYCLE_TABLES =
+			List.of("pipeline_version_activations", "projection_serving_selections");
 
 	@Test
 	void reactorAndPomsContainNoPcl5LegacyModuleOrDependencyEdge() throws IOException {
@@ -60,23 +64,37 @@ class Pcl5PipelineLifecycleAbsenceTest {
 	@Test
 	void lifecycleTablesHaveNoActiveProductionAccess() throws IOException {
 		Path app = appRoot();
-		List<String> tables = List.of("pipeline_version_activations", "projection_serving_selections");
 		Set<String> residual = productionFiles(app).stream()
-				.filter(path -> tables.stream().anyMatch(table -> contains(path, table)))
+				.filter(path -> LIFECYCLE_TABLES.stream().anyMatch(table -> contains(path, table)))
 				.map(app::relativize).map(Path::toString).collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), residual);
 	}
 
 	@Test
-	void historicalLifecycleMigrationIsPreservedUnderSurvivingPersistenceOwnership() throws IOException {
-		Path migration = appRoot().resolve(
+	void historicalLifecycleMigrationExistsExactlyOnceAndIsPreserved() throws IOException {
+		Path app = appRoot();
+		Path migration = app.resolve(
 				"infra-persistence-jpa/src/main/resources/db/migration/V12__pipeline_version_lifecycle.sql");
-		assertTrue(Files.exists(migration));
+		List<Path> occurrences = files(app, V12_FILE_NAME);
+		assertEquals(1, occurrences.size(), () -> "Expected exactly one " + V12_FILE_NAME + " but found "
+				+ occurrences.stream().map(app::relativize).toList());
+		assertEquals(migration, occurrences.getFirst());
 		assertEquals(V12_SHA_256, sha256(migration));
 		String sql = Files.readString(migration);
 		assertTrue(sql.contains("create table pocoma_control.pipeline_version_activations"));
 		assertTrue(sql.contains("create table pocoma_control.projection_serving_selections"));
-		assertFalse(sql.toLowerCase().contains("drop table"));
+	}
+
+	@Test
+	void noProductionMigrationDropsLifecycleTablesBeforePcl8() throws IOException {
+		Path app = appRoot();
+		for (Path migration : productionSqlResources(app)) {
+			String sql = Files.readString(migration);
+			for (String table : LIFECYCLE_TABLES) {
+				assertFalse(dropTablePattern(table).matcher(sql).find(),
+						() -> app.relativize(migration) + " prematurely drops " + table);
+			}
+		}
 	}
 
 	private static List<Path> productionFiles(Path app) throws IOException {
@@ -97,6 +115,23 @@ class Pcl5PipelineLifecycleAbsenceTest {
 					.filter(path -> !path.toString().contains("/target/"))
 					.toList();
 		}
+	}
+
+	private static List<Path> productionSqlResources(Path app) throws IOException {
+		try (var paths = Files.walk(app)) {
+			return paths.filter(Files::isRegularFile)
+					.filter(path -> path.toString().contains("/src/main/resources/"))
+					.filter(path -> path.getFileName().toString().endsWith(".sql"))
+					.filter(path -> !path.toString().contains("/target/"))
+					.toList();
+		}
+	}
+
+	private static Pattern dropTablePattern(String table) {
+		String identifier = "(?:\\\"" + table + "\\\"|" + table + ")";
+		String optionalSchema = "(?:(?:\\\"[^\\\"]+\\\"|[a-z_][a-z0-9_$]*)\\s*\\.\\s*)?";
+		return Pattern.compile("\\bdrop\\s+table\\s+(?:if\\s+exists\\s+)?" + optionalSchema + identifier
+				+ "(?=\\s|[;,]|$)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
 	private static String sha256(Path path) throws IOException {
