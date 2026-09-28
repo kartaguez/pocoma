@@ -10,10 +10,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionI
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
@@ -48,6 +51,10 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEven
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.locator.consumption.latestknownversion.LatestKnownVersionConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
+import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
+import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 
@@ -74,6 +81,7 @@ class LatestKnownVersionRuntimePostgresTest {
 	@Autowired private ConsumptionOrchestrator orchestrator;
 	@Autowired private AcquireConsumptionUseCase acquire;
 	@Autowired private ExecuteConsumptionUseCase execute;
+	@Autowired private HandleConsumptionFailureUseCase handleFailure;
 	@Autowired private LatestKnownVersionPersistencePort latestKnownVersions;
 	@Autowired private LatestKnownVersionConsumptionLocator locator;
 	@Autowired private JdbcTemplate jdbc;
@@ -171,6 +179,47 @@ class LatestKnownVersionRuntimePostgresTest {
 	}
 
 	@Test
+	void missingDurableEventAtReloadFailsTerminallyWithoutRetryWatermarkOrSuccessProvenance() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		outbox.append(new PotCreatedEvent(potId, 9));
+		LocatedConsumption located = locator.openSearch().next().orElseThrow();
+		UUID eventId = UUID.fromString(located.consumptionKey().consumable().components().getFirst());
+		assertEquals(1, jdbc.update("delete from business_event_outbox where id=?", eventId));
+
+		var missingEventOrchestrator = new SequentialConsumptionOrchestrator(
+				oneShot(located), acquire, execute, handleFailure);
+		missingEventOrchestrator.run(input());
+
+		var failed = lifecycle.findSlot(LatestKnownVersionConsumptionLocator.key(eventId)).orElseThrow();
+		assertEquals(ConsumptionStatus.DONE, failed.status());
+		assertEquals(TerminalOutcome.FAILED, failed.terminalOutcome().orElseThrow());
+		assertEquals("RECORDED_EVENT_NOT_FOUND", failed.terminalReason().orElseThrow().code());
+		assertTrue(failed.currentClaimId().isEmpty());
+		assertTrue(failed.doneAt().isPresent());
+		assertEquals(failed.createdAt(), failed.nextClaimAt());
+		assertEquals(1L, jdbc.queryForObject(
+				"select count(*) from consumption_claims where slot_id=?", Long.class, failed.slotId()));
+		assertEquals(1L, jdbc.queryForObject("select count(*) from consumption_claims "
+				+ "where slot_id=? and end_reason='PROCESSING_FAILURE' "
+				+ "and failure_code='RECORDED_EVENT_NOT_FOUND' "
+				+ "and failure_category='SOURCE_VERSION_WATERMARK_INPUT_NOT_FOUND'",
+				Long.class, failed.slotId()));
+		assertEquals(0L, jdbc.queryForObject(
+				"select count(*) from pocoma_read.source_version_watermarks where pot_id=?",
+				Long.class, potId.value()));
+		assertTrue(provenance.findInputs(failed.slotId()).isEmpty());
+		assertTrue(provenance.findResults(failed.slotId()).isEmpty());
+
+		new SequentialConsumptionOrchestrator(oneShot(located), acquire, execute, handleFailure).run(input());
+		orchestrator.run(input());
+
+		assertEquals(1L, jdbc.queryForObject(
+				"select count(*) from consumption_claims where slot_id=?", Long.class, failed.slotId()));
+		assertEquals(TerminalOutcome.FAILED, lifecycle.findSlot(failed.slotId()).orElseThrow()
+				.terminalOutcome().orElseThrow());
+	}
+
+	@Test
 	void springContextContainsLkvRuntimeWithoutLegacyPipelineLifecycleOrServingBeans() {
 		List<String> forbiddenBeanFragments = List.of(
 				"pipelineLifecycle", "pipelineActivation", "servingSelection", "projectionProducerCatalog");
@@ -260,6 +309,16 @@ class LatestKnownVersionRuntimePostgresTest {
 	private static ConsumptionOrchestrationInput input() {
 		return new ConsumptionOrchestrationInput(new WorkerId("latest-known-version-worker"),
 				new ClaimLease(java.time.Duration.ofSeconds(30)), new ConsumptionOrchestrationBudget(20, 10));
+	}
+
+	private static ConsumptionLocator oneShot(LocatedConsumption located) {
+		AtomicBoolean offered = new AtomicBoolean();
+		return () -> new ConsumptionSearch() {
+			@Override
+			public Optional<LocatedConsumption> next() {
+				return offered.compareAndSet(false, true) ? Optional.of(located) : Optional.empty();
+			}
+		};
 	}
 
 	private long version(PotId potId) {
