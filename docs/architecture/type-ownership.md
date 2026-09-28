@@ -16,12 +16,9 @@
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
 | Query Kernel versionné | `QueryVersionIntent`, `QueryProjectionSelection`, `TerminalProjectionState`, `QueryVersionResolution`, `QueryVersionResolver`, `VersionedQueryResponse`, ports read-only readiness/latest-known | `engine-query` |
 | Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
-| Payload fonctionnel de tâche | `TaskPayload` | `domain-task` |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
 | Commande durable rejouable cible | `engine.command.model.RecordedCommand` | `engine-command` |
-| Tâche durable enregistrée | `RecordedTask` | `engine-processing-task` |
-| Description d'une tâche à créer | `TaskDescriptor` | `engine-core`, transitoire |
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
 | État mutable de projection Balance | `PotBalanceProjectionState` | `engine-projection`, legacy |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
@@ -30,12 +27,10 @@
 | Précondition générique d'acquisition | `ConsumptionAcquisitionPrecondition`, évaluée avant toute mutation Slot/Claim | `engine-consumption` |
 | Orchestration pull Command | `CommandConsumptionLocator`, `SequentialConsumptionOrchestrator`, `ConsumptionPollingWorker` | locator/orchestrateur/supra génériques |
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
-| Orchestration pull Task | `TaskConsumptionLocator`, `ConsumptionPollingWorker` | locator Task et supra générique |
+| Orchestration ProjectionTask | `ProjectionTaskConsumptionOrchestrator`, `ConsumptionPollingWorker` | orchestrator/supra génériques |
 | Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
 | Identité externe déjà authentifiée | `AuthenticatedExternalPrincipal`, `ExternalIdentity` | `orchestrator-command-admission` |
 | Adaptation du principal Spring | `SpringSecurityExternalPrincipalAdapter` | `supra-authentication-spring-security` |
-| Exécution Task fonctionnelle legacy | `TaskExecutionReport`, `BusinessObjectVersion`, `ProducedArtifactReference` | `engine-task-execution`, transitoire et à auditer pour le Lot 5 |
-| Projection Balance immuable spécifique | `BalanceProjectionIdentity`, `BalanceProjectionArtifact` | `pipeline-balance`, transition avant 7.12 |
 
 ## Distinctions obligatoires
 
@@ -52,20 +47,14 @@ BusinessEventEnvelope (legacy)
   représentation sérialisée de l'ancien flux outbox
 ```
 
-### Tâches
+### ProjectionTasks
 
 ```text
-TaskPayload
-  travail fonctionnel typé reçu par un handler
+ProjectionKey
+  identité exacte projectionType/targetObjectType/targetObjectId/targetVersion
 
-TaskDescriptor
-  instruction applicative de création d'une tâche durable
-
-RecordedTask
-  tâche durable relue par Task processing, sans claim
-
-TaskExecutionReport (transitoire)
-  rapport fonctionnel existant, non présumé nécessaire par la cible du Lot 5
+ProjectionTask
+  travail durable canonique relu depuis projection_tasks
 ```
 
 ### Commandes et consommation
@@ -73,7 +62,7 @@ TaskExecutionReport (transitoire)
 ```text
 Command != RecordedCommand
 ConsumptionKey != objet consommé
-Claim != statut durable de la Command ou de la Task
+Claim != statut durable de la Command ou de la ProjectionTask
 ClaimId != lease
 Claim = tentative durable d'acquisition, pas provenance ni rapport métier générique
 ```
@@ -96,8 +85,8 @@ Claim
 ConsumptionSlot
   lifecycle autoritatif du processing
 
-Colonnes lifecycle Task legacy
-  audit temporaire, non consulté par le nouveau provider
+ProjectionTask Consumption
+  PROJECTION_TASK/[ProjectionKey] × PROJECTION_EXECUTOR/[projectionType]
 ```
 
 Les effets métier, la provenance et le CAS terminal gagnant appartiennent à la même transaction
@@ -111,11 +100,11 @@ n'est un contrat fonctionnel.
 | `BusinessEventEnvelope` | outbox et projection legacy | `RecordedEvent<BusinessEvent>` | EventPort et mapper durable opérationnels | Infra Event |
 | `PotPartitioner` | workers de projection | `PartitionHash` | anciens workers retirés | Workers |
 | `ProjectionPartition` | ports/workers de projection | `WorkerSegment` | anciens ports retirés | Workers |
-| `BuildProjectionTasksUseCase` | runtime Task/projection legacy | matérialisation et exécution EPT canoniques | runtime Task legacy retiré | PCL.3 |
+| `BuildProjectionTasksUseCase` | projection legacy PCL.6 | matérialisation et exécution EPT canoniques | runtime monolith/projection legacy retiré | PCL.6 |
 | `ExecuteProjectionTasksUseCase` | projection legacy | task execution typée | TaskWorker actif | Workers Task |
 | `engine.model.*` de projection | adapters JPA et workers legacy | modèles processing/infra propriétaires | anciens ports outbox retirés | Workers/infra |
 | statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |
-| colonnes lifecycle de `tasks_4_pipeline` | audit après cutover | `ConsumptionSlot`/`Claim` | lot ultérieur de nettoyage physique | Infrastructure |
+| table et colonnes `tasks_4_pipeline` | migrations historiques uniquement | aucune capacité runtime | drop physique après scans finaux | PCL.8 |
 | `PotBalanceProjectionState` et `pot_balance_*` | runtime monolith et calcul incrémental | artifact/failure/head BALANCE génériques | 7.12/7.13 serving et observation | Lot 7.16 |
 | `engine-query` + readers primaires GET | six GET actuels | Query/Authorization Kernel et readers read-store | 7.11/7.13 serving | Lot 7.16 |
 | artifact Balance spécifique au primaire | runtime web et Task Balance | persistence générique read-store | compatibilité 7.12 puis cutover 7.13 | Lots 7.12/7.16 |

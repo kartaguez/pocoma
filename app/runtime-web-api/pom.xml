@@ -96,18 +96,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-locator-consumption-task</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-pipeline-balance</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-binding-pot-command-spring</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

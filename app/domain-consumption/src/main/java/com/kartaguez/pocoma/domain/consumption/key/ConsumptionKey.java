@@ -21,7 +21,6 @@ public record ConsumptionKey(ConsumableIdentity consumable, ConsumerIdentity con
 		return switch (consumable.type()) {
 			case "COMMAND" -> "command";
 			case "EVENT" -> "event";
-			case "TASK" -> "task";
 			default -> consumable.components().getFirst();
 		};
 	}
@@ -29,7 +28,7 @@ public record ConsumptionKey(ConsumableIdentity consumable, ConsumerIdentity con
 	@Deprecated(forRemoval = true)
 	public List<String> components() {
 		return switch (consumable.type()) {
-			case "COMMAND", "TASK" -> consumable.components();
+			case "COMMAND" -> consumable.components();
 			case "EVENT" -> List.of(
 					consumer.components().get(0), consumer.components().get(1), consumable.components().getFirst());
 			default -> consumable.components().subList(1, consumable.components().size());
@@ -44,7 +43,6 @@ public record ConsumptionKey(ConsumableIdentity consumable, ConsumerIdentity con
 				requireSize(values, 3, "event");
 				yield new ConsumableIdentity("EVENT", List.of(values.get(2)));
 			}
-			case "task" -> new ConsumableIdentity("TASK", values);
 			default -> {
 				List<String> identity = new java.util.ArrayList<>(values.size() + 1);
 				identity.add(namespace);
@@ -62,7 +60,6 @@ public record ConsumptionKey(ConsumableIdentity consumable, ConsumerIdentity con
 				requireSize(values, 3, "event");
 				yield new ConsumerIdentity("PIPELINE", values.subList(0, 2));
 			}
-			case "task" -> new ConsumerIdentity("TASK_EXECUTOR", List.of());
 			default -> new ConsumerIdentity("LEGACY_CONSUMER", List.of());
 		};
 	}

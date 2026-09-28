@@ -39,14 +39,12 @@
 		<module>domain-pipeline</module>
 		<module>domain-projection</module>
 		<module>domain-projection-legacy</module>
-		<module>domain-task</module>
 		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>
 		<module>engine-core</module>
 		<module>engine-consumption</module>
 		<module>engine-command</module>
 		<module>engine-processing-event</module>
-		<module>engine-processing-task</module>
 		<module>engine-pot-command</module>
 		<module>engine-query</module>
 		<module>engine-pipeline-lifecycle</module>
@@ -58,9 +56,6 @@
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
 		<module>engine-read-projection</module>
-		<module>engine-task-execution</module>
-		<module>pipeline-balance</module>
-		<module>pipeline-pot</module>
 		<module>observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-event-publisher-spring</module>
@@ -74,7 +69,6 @@
 		<module>supra-consumption-worker</module>
 		<module>locator-consumption-event</module>
 		<module>locator-consumption-latest-known-version</module>
-		<module>locator-consumption-task</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
 		<module>shared-supra-dispatcher-projection</module>

@@ -126,7 +126,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 				new ConsumptionOrchestrationBudget(properties.getMaxCandidatesInspected(),properties.getMaxConsumptionsExecuted()),
 				properties.getPollInterval(),properties.getRuntimeFailureBackoff()),clock,new ConditionConsumptionWaiter());
 	}
-	@Bean SmartLifecycle canonicalProjectionWorkerLifecycle(ConsumptionPollingWorker worker){return new TaskConsumptionWorkerLifecycle(worker);}
+	@Bean SmartLifecycle canonicalProjectionWorkerLifecycle(ConsumptionPollingWorker worker){return new ProjectionTaskWorkerLifecycle(worker);}
 
 	private static Set<ProjectionType> projectionTypes(List<String> values, String property) {
 		if (values == null || values.isEmpty()) {

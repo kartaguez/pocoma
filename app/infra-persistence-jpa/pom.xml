@@ -95,21 +95,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-task-execution</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-processing-task</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-pipeline-balance</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-projection-balance</artifactId>
 			<version>${project.version}</version>
 		</dependency>

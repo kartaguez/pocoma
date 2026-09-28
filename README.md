@@ -8,11 +8,11 @@ The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/c
 
 Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. The retained read API can target a specific primary version or, by default, that primary current version. The Lot 7 target replaces this legacy behavior with explicit `CURRENT` and `EXACT(V)` read-side intents.
 
-Balances are projections. A Command worker persists business state and a business Event atomically in
-`business_event_outbox`. Event consumption materializes a versioned Balance Task in
-`tasks_4_pipeline`; Task consumption reconstructs the Pot at that exact version and writes an immutable
-Balance artifact. This keeps Command admission fast, makes back pressure explicit in PostgreSQL, and
-makes projection lag measurable.
+READ_POT and POT_BALANCES are canonical projections. A Command worker persists business state and a
+business Event atomically in `business_event_outbox`. Event consumption materializes exact,
+versioned work in `projection_tasks`; the ProjectionTask runtime then executes the matching producer
+through `ProjectionEngineService` and publishes only to the canonical `pocoma_read.projection_root`,
+`projection_artifact` and `projection_failure` store.
 
 ## Architecture
 
@@ -37,7 +37,7 @@ app/
   runtime-latest-known-version-consumption-worker/
                                   Direct transactional Event-to-latest-known runtime
   runtime-task-consumption-worker/
-                                  Durable Task-to-Balance consumption runtime
+                                  Canonical ProjectionTask execution runtime
   supra-worker-balance-calculation-events-spring/
                                   Transitional Spring event-driven Balance worker
   runtime-web-api/                API-only Spring Boot runtime
@@ -103,7 +103,7 @@ cd app
 
 ./mvnw -pl runtime-task-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.task-consumption.enabled=true --pocoma.task-consumption.pipeline-version=2"
+  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=READ_POT,POT_BALANCES"
 ```
 
 `runtime-monolith` still supports the `api` and `worker` profiles for local experiments, but the dedicated runtimes match the target deployment shape.
@@ -129,11 +129,11 @@ docker compose -f docker-compose.monolith-postgres.yml up --build
 ```
 
 Distributed mode with one API runtime, one Command consumption worker, one dedicated latest-known
-consumer, two Event consumption workers, two Task consumption workers, PostgreSQL, Prometheus, and Grafana. The Balance pipeline
-version is part of the projection identity and must be supplied explicitly:
+consumer, two Event consumption workers, two canonical ProjectionTask workers, PostgreSQL,
+Prometheus, and Grafana:
 
 ```bash
-POCOMA_BALANCE_PIPELINE_VERSION=2 docker compose -f docker-compose.distributed.yml up --build
+docker compose -f docker-compose.distributed.yml up --build
 ```
 
 Before switching mode, stop the current stack:

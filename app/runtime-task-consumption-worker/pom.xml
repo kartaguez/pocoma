@@ -4,20 +4,18 @@
 	<parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
 	<artifactId>pocoma-runtime-task-consumption-worker</artifactId>
 	<dependencies>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-task</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-balance</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-pipeline-pot</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-projection-persistence</artifactId><version>${project.version}</version></dependency>
+		<!-- The canonical projection-store migration is still co-located with the read-store
+		     migrations until PCL.4 owns their physical separation. -->
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consumption-worker</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-pipeline-lifecycle-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-projection-task</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-projection-balance</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-projection-pot</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot-projection</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pipeline</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-projection-json-schema</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-projection-read</artifactId><version>${project.version}</version><scope>test</scope></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-pot-read</artifactId><version>${project.version}</version><scope>test</scope></dependency>
@@ -35,14 +33,6 @@
 			<resource><directory>src/main/resources</directory></resource>
 			<resource><directory>../runtime-monolith/src/main/resources</directory><includes><include>db/migration/**</include></includes></resource>
 		</resources>
-		<testResources>
-			<testResource><directory>src/test/resources</directory></testResource>
-			<testResource>
-				<directory>../../docs/operations/sql</directory>
-				<includes><include>task-consumption-*.sql</include></includes>
-				<targetPath>operations/sql</targetPath>
-			</testResource>
-		</testResources>
 		<plugins><plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId><configuration><skip>false</skip><classifier>exec</classifier></configuration></plugin></plugins>
 	</build>
 </project>

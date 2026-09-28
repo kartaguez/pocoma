@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -71,7 +73,6 @@ import com.kartaguez.pocoma.engine.service.projection.read.ExactProjectionReads;
 import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
 import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
-import com.kartaguez.pocoma.locator.consumption.task.TaskConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
@@ -126,10 +127,13 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	@Test
 	void activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph() {
 		assertEquals(1, context.getBeansOfType(CanonicalProjectionTaskRuntimeConfiguration.class).size());
-		assertEquals(0, context.getBeansOfType(TaskConsumptionRuntimeConfiguration.class).size());
-		assertEquals(0, context.getBeansOfType(TaskConsumptionLocator.class).size());
+		assertFalse(Arrays.stream(context.getBeanDefinitionNames()).map(context::getType)
+				.filter(java.util.Objects::nonNull).map(Class::getName)
+				.anyMatch(name -> name.contains(".taskexecution.")
+						|| name.contains(".locator.consumption.task.")
+						|| name.endsWith("TaskConsumptionRuntimeConfiguration")));
 		assertEquals(1, context.getBeansOfType(ConsumptionPollingWorker.class).size());
-		assertEquals(1, context.getBeansOfType(TaskConsumptionWorkerLifecycle.class).size());
+		assertEquals(1, context.getBeansOfType(ProjectionTaskWorkerLifecycle.class).size());
 
 		ConsumptionOrchestrator activeOrchestrator = context.getBean(ConsumptionOrchestrator.class);
 		assertInstanceOf(ProjectionTaskConsumptionOrchestrator.class, activeOrchestrator);
@@ -139,6 +143,26 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				context.getBean(ProjectionProducerCatalog.class).projectionTypes());
 		assertInstanceOf(JdbcProjectionTaskStoreAdapter.class, tasks);
 		assertInstanceOf(JdbcProjectionStoreAdapter.class, writer);
+	}
+
+	@Test
+	void bothCanonicalProjectionTypesPublishWithoutChangingAnyLegacyStore() {
+		LegacyStoreSnapshot before = legacyStoreSnapshot();
+		var data = seedHistoricalPot();
+		ProjectionKey readPot = readPotKey(data.potId(), 2);
+		ProjectionKey balances = new ProjectionKey(PotBalancesProjectionDefinition.PROJECTION_TYPE,
+				PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE,
+				new TargetObjectId(data.potId().toString()), 2);
+		tasks.ensure(readPot, Instant.parse("2026-09-20T10:00:00Z"));
+		tasks.ensure(balances, Instant.parse("2026-09-20T10:00:01Z"));
+
+		worker.runOneCycle();
+		worker.runOneCycle();
+
+		assertTrue(reader.findProjection(readPot).isPresent());
+		assertTrue(reader.findProjection(balances).isPresent());
+		assertEquals(2, count("select count(*) from pocoma_read.projection_root"));
+		assertEquals(before, legacyStoreSnapshot());
 	}
 
 	@Test
@@ -419,7 +443,28 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		return jdbc.queryForObject(sql, Integer.class);
 	}
 
+	private LegacyStoreSnapshot legacyStoreSnapshot() {
+		return new LegacyStoreSnapshot(
+				count("select count(*) from tasks_4_pipeline"),
+				count("select count(*) from balance_projection_artifacts"),
+				count("select count(*) from balance_projection_entries"),
+				count("select count(*) from pocoma_read.projection_artifacts"),
+				count("select count(*) from pocoma_read.projection_failures"),
+				count("select count(*) from pocoma_read.projection_heads"),
+				count("select count(*) from pocoma_read.projection_invariant_violations"),
+				count("select count(*) from pocoma_read.pot_projection_snapshots"),
+				count("select count(*) from pocoma_read.pot_projection_shareholders"),
+				count("select count(*) from pocoma_read.pot_projection_expenses"),
+				count("select count(*) from pocoma_read.pot_projection_expense_shares"),
+				count("select count(*) from pocoma_read.pot_projection_user_index"),
+				count("select count(*) from pocoma_read.pot_version_metadata"));
+	}
+
 	private record HistoricalData(UUID potId, UUID payerId, UUID shareholderId) {}
 	private record NonTrivialHistoricalData(UUID potId, UUID payerId, UUID shareholderId,
 			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
+	private record LegacyStoreSnapshot(int tasks, int balanceArtifacts, int balanceEntries,
+			int metadataArtifacts, int metadataFailures, int metadataHeads, int metadataViolations,
+			int potSnapshots, int potShareholders, int potExpenses, int potExpenseShares,
+			int potUserIndex, int potVersionMetadata) {}
 }

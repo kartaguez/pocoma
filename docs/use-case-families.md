@@ -52,16 +52,12 @@ route, generic Consumption owns the exact identity
 `EVENT[eventId] / PROJECTION_TASK_MATERIALIZER[projectionType]`, and finalization idempotently ensures
 the corresponding `projection_tasks` row. No production Event path writes `tasks_4_pipeline`.
 
-## Task execution — `engine-task-execution`
+## ProjectionTask execution — `engine-projection-task`
 
-Typed task execution receives `ExecuteTaskInput`, resolves the handler identified by pipeline id,
-pipeline version, and task type, then invokes the pipeline-specific functional use case. Its
-`TaskPayload` contains only the work to perform: no durable id, claim, lease, trace, status,
-or JSON. Worker bindings affect only pull eligibility and never direct functional execution.
-
-The current worker-facing `PipelineTask` route remains transitional. Its runtime strategy decodes
-the persisted JSON into a typed payload and delegates to `ExecuteTaskUseCase`; completion, failure,
-retry, polling, and worker lifecycle remain outside the typed engine.
+The canonical runtime discovers exact rows in `projection_tasks`, acquires
+`PROJECTION_TASK/[ProjectionKey] × PROJECTION_EXECUTOR/[projectionType]`, then delegates to
+`ProjectionTaskConsumptionService` and `ProjectionEngineService`. READ_POT and POT_BALANCES load
+their historical inputs and publish only through `ProjectionWritePort` to the canonical store.
 
 ## Durable consumption domain — `domain-consumption`
 
@@ -70,23 +66,23 @@ failures, and their invariants. It contains no use case, persistence concern, or
 segmentation, or worker orchestration.
 
 `ConsumptionSlot` is the authoritative processing lifecycle. `RecordedCommand` carries no status.
-Event, Task and Command discoveries consult the generic lifecycle only as a best-effort prefilter
+Event, ProjectionTask and Command discoveries consult the generic lifecycle only as a best-effort prefilter
 before authoritative acquisition.
 
 Ordering and segmentation are technical processing concerns. Chaque ordre appartient désormais à
-son module spécialisé : `locator-consumption-command`, `engine-processing-event` ou
-`engine-processing-task`. Static segmentation uses a stable
+son module spécialisé : `locator-consumption-command`, `engine-processing-event` ou le store
+canonique ProjectionTask. Static segmentation uses a stable
 `PartitionHash` and a configured `WorkerSegment`. Commands with
 a Pot id use the Pot id as their partition key. Commands without a Pot id are unsegmented and will
 later be made eligible to every Command worker segment; atomic claiming will select a single
-owner. EventConsumptions and Tasks use `(pipelineId, potId)` as their partition key.
+owner. Event and ProjectionTask consumers use their canonical persisted partition hashes.
 
 Claim ordering is also explicit and is independent from segmentation:
 
 - target Recorded Commands are ordered by PostgreSQL on `(submittedAt, commandId)` only;
 - EventConsumptions are ordered by `(event.version(), recordedAt, eventId)`;
-- Tasks are scanned by `(createdAt, taskId)`. `targetVersion` identifies an exact historical input;
-  it is not an ordering or serialization constraint.
+- ProjectionTasks are scanned by their canonical ordering key. `targetVersion` identifies an exact
+  historical input ; it is not an ordering or serialization constraint.
 
 The identifier is a deterministic tie-breaker. These rules guarantee claim priority among eligible
 items, not completion order between concurrent workers.
@@ -108,11 +104,9 @@ pipeline-specific logic.
 un segment. Il appelle la création idempotente de Tasks puis le lifecycle Event ; il ne voit jamais
 les consommations déjà terminales et ne modifie aucun statut sur l'Event source.
 
-`locator-consumption-task` propose des candidates sans consulter le lifecycle Consumption. Après
-acquisition, la recette recharge la Task dans la transaction gagnante, exécute le handler typé et
-traduit son rapport fonctionnel en provenance. `ConsumptionPollingWorker` fournit uniquement la
-boucle générique. Projection, provenance et CAS final sont committés ensemble ; `ALREADY_DONE`
-permet à l'orchestrateur de passer au candidat suivant.
+`ProjectionTaskConsumptionOrchestrator` propose les candidates depuis `projection_tasks`. Après
+acquisition, `ProjectionTaskConsumptionService` exécute le producteur canonique et finalise sous le
+Claim courant. `ConsumptionPollingWorker` fournit uniquement la boucle générique.
 
 `locator-consumption-command` applique le même orchestrateur générique à la source
 `recorded_commands`. Un Search conserve son cursor uniquement pendant son cycle. Les erreurs SQL

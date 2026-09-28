@@ -86,17 +86,19 @@ Après acquire, une finalisation courte et fenced assure la `ProjectionTask`, te
 `SUCCESS` et le slot en `DONE/SUCCESS` dans la même transaction. Le runtime ne recharge pas le payload,
 ne consulte aucune pipeline generation et n'écrit ni `tasks_4_pipeline` ni provenance Event legacy.
 
-### Exécution Task multi-pipeline
+### Exécution ProjectionTask canonique
 
-`runtime-task-consumption-worker` utilise la clé générique :
+`runtime-task-consumption-worker` utilise exclusivement la clé générique :
 
 ```text
-TASK[taskId] / TASK_EXECUTOR[]
+PROJECTION_TASK[projectionType,targetObjectType,targetObjectId,targetVersion]
+/
+PROJECTION_EXECUTOR[projectionType]
 ```
 
-Une instance est configurée pour une génération exacte et accepte actuellement les bindings
-`balance-projection/v2` ou `read-pot/v1`. Reload, calcul, persistence, provenance et terminalisation
-fencée sont atomiques dans la composition déployée.
+Le runtime découvre `projection_tasks`, acquiert la Consumption exacte puis appelle
+`ProjectionEngineService`. Les producteurs `READ_POT` et `POT_BALANCES` publient dans le store
+canonique singulier. L'ancien runtime `tasks_4_pipeline`, ses bindings et ses writers ont été retirés.
 
 ## 5. Modèle générique effectivement livré
 
@@ -110,12 +112,9 @@ Le module `domain-projection` contient :
 - `ProjectionStatus` ;
 - `LatestKnownVersion` et `PotProjection`.
 
-`ProjectionMaterializationService` vérifie l'applicabilité exacte, adopte un contenu identique,
-conserve l'artifact READY et enregistre une violation sur duplicate divergent, refuse de remplacer
-une failure terminale et écrit artifact, descriptor et head dans la transaction read-store.
-
-`ProjectionStatusResolver` dérive `READY`, `FAILED` ou `NOT_READY` depuis artifact/failure. Il ne lit
-aucun lifecycle Task/Slot. Le head avance par maximum et accepte les trous.
+`ProjectionStatusResolver` conserve temporairement pour PCL.4 la lecture des métadonnées historiques
+et dérive `READY`, `FAILED` ou `NOT_READY` depuis artifact/failure. Le port et l'adapter associés sont
+désormais strictement read-only ; aucun writer old READ_POT ne subsiste.
 
 La table `projection_coverages`, introduite dans une première migration, est supprimée par V3. Aucun
 coverage persisté ou curseur de continuité n'est actif.
@@ -124,7 +123,7 @@ coverage persisté ou curseur de continuité n'est actif.
 
 ### READ_POT
 
-Le pipeline `read-pot/v1` produit un artifact logique `READ_POT` complet à une business version exacte :
+Le producteur canonique `READ_POT` produit une projection complète à une business version exacte :
 
 - statut Pot, label et creator ;
 - Shareholders, user links, poids et deleted ;
@@ -132,10 +131,9 @@ Le pipeline `read-pot/v1` produit un artifact logique `READ_POT` complet à une 
 - Expense shares ;
 - `PotVersionMetadata.createdAt` exact.
 
-La représentation physique utilise quatre tables V5 dans `pocoma_read`, mais constitue un seul
-composant logique. `JpaHistoricalPotSnapshotSourceAdapter` relit le primaire à la version exacte ;
-`JdbcPotProjectionArtifactWriter` matérialise le snapshot, les fragments, le descriptor, le head et
-les index nécessaires.
+`JpaHistoricalPotSnapshotSourceAdapter` relit le primaire à la version exacte. Le résultat est validé
+et publié par `JdbcProjectionStoreAdapter` dans `projection_root` et `projection_artifact`. Les tables
+V5 historiques restent physiquement présentes et lisibles jusqu'à PCL.4/PCL.8, sans writer actif.
 
 Le delete du Pot est terminal côté write depuis le correctif 7.6 ; le snapshot de suppression reste
 matérialisable avec le statut `DELETED`.

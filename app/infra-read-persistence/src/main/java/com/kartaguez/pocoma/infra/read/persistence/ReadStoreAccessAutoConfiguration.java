@@ -11,15 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionOperations;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
-import com.kartaguez.pocoma.engine.read.projection.ReadStoreTransactionRunner;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
 import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
-import com.kartaguez.pocoma.engine.read.projection.ProjectionArtifactWriter;
-import com.kartaguez.pocoma.domain.projection.legacy.PotProjection;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
 @ConditionalOnClass(JdbcOperations.class)
@@ -33,12 +28,6 @@ public class ReadStoreAccessAutoConfiguration {
 		return new JdbcTemplate(dataSource);
 	}
 
-	@Bean("readStoreTransactionOperations")
-	@ReadStore
-	TransactionOperations readStoreTransactionOperations(PlatformTransactionManager transactionManager) {
-		return new TransactionTemplate(transactionManager);
-	}
-
 	@Bean
 	ProjectionMetadataPort projectionMetadataPort(@ReadStore JdbcOperations jdbc,
 			ReadStoreProperties properties) {
@@ -46,20 +35,9 @@ public class ReadStoreAccessAutoConfiguration {
 	}
 
 	@Bean
-	ReadStoreTransactionRunner readStoreTransactionRunner(@ReadStore TransactionOperations transactions) {
-		return new SpringReadStoreTransactionRunner(transactions);
-	}
-
-	@Bean
 	LatestKnownVersionPersistencePort latestKnownVersionPersistencePort(
 			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
 		return new JdbcLatestKnownVersionAdapter(jdbc, properties.getSchema());
-	}
-
-	@Bean
-	JdbcPotProjectionArtifactWriter potProjectionArtifactWriter(
-			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
-		return new JdbcPotProjectionArtifactWriter(jdbc, properties.getSchema());
 	}
 
 	@Bean
