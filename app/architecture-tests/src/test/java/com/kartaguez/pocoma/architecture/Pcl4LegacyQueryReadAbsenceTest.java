@@ -62,14 +62,16 @@ class Pcl4LegacyQueryReadAbsenceTest {
 	}
 
 	@Test
-	void mixedAndCanonicalReadResponsibilitiesRemain() throws IOException {
+	void canonicalReadResponsibilitiesRemain() throws IOException {
 		Path app = appRoot();
 		Path legacyDomain = app.resolve("domain-projection-legacy/src/main/java");
-		try (var files = Files.walk(legacyDomain)) {
-			Set<String> names = files.filter(Files::isRegularFile)
-					.map(path -> path.getFileName().toString()).collect(Collectors.toUnmodifiableSet());
-			assertEquals(Set.of("LatestKnownVersion.java"), names);
+		if (Files.exists(legacyDomain)) {
+			try (var files = Files.walk(legacyDomain)) {
+				assertFalse(files.anyMatch(Files::isRegularFile));
+			}
 		}
+		assertFalse(Files.exists(app.resolve("domain-projection-legacy/pom.xml")));
+		assertTrue(Files.exists(app.resolve("engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/LatestKnownVersion.java")));
 
 		Path balancesAdapter = app.resolve("infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaPotBalancesAdapter.java");
 		assertTrue(contains(balancesAdapter, "implements PotBalanceProjectionPort"));

@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.domain.projection.legacy;
+package com.kartaguez.pocoma.engine.read.projection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

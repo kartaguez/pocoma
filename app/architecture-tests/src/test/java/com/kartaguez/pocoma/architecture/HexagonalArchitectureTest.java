@@ -927,7 +927,7 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".orchestrator.consumption",
 				ROOT_PACKAGE + ".runtime.task.consumption");
 		Set<String> latestKnownVersionTypes = Set.of(
-				ROOT_PACKAGE + ".domain.projection.legacy.LatestKnownVersion",
+				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersion",
 				ROOT_PACKAGE + ".engine.read.projection.AdvanceLatestKnownVersionUseCase",
 				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersionPersistencePort",
 				ROOT_PACKAGE + ".infra.read.persistence.JdbcLatestKnownVersionAdapter");

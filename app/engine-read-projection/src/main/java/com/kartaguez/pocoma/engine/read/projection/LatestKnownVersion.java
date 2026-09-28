@@ -1,10 +1,10 @@
-package com.kartaguez.pocoma.domain.projection.legacy;
+package com.kartaguez.pocoma.engine.read.projection;
 
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
-/** Highest Business Event version materialized by the read side for one Pot. */
+/** Highest durable Business Event version observed by the read side for one Pot. */
 public record LatestKnownVersion(PotId potId, long latestKnownVersion) {
 
 	public LatestKnownVersion {
