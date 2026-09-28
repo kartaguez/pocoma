@@ -40,13 +40,4 @@ public interface JpaPotGlobalVersionRepository extends JpaRepository<JpaPotGloba
 			""", nativeQuery = true)
 	Optional<Instant> findVersionCreatedAt(@Param("potId") UUID potId, @Param("version") long version);
 
-	@Query("""
-			select potGlobalVersion.potId as potId,
-				potGlobalVersion.version as currentVersion,
-				projectionState.projectedVersion as projectedVersion
-			from JpaPotGlobalVersionEntity potGlobalVersion
-			left join JpaPotBalanceProjectionStateEntity projectionState
-				on projectionState.potId = potGlobalVersion.potId
-			""")
-	List<ProjectionVersionGapRow> findProjectionVersionGaps();
 }

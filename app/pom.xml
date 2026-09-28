@@ -54,7 +54,6 @@
 		<module>engine-read-projection</module>
 		<module>observability</module>
 		<module>infra-tx-spring</module>
-		<module>infra-event-publisher-spring</module>
 		<module>infra-persistence-jpa</module>
 		<module>infra-projection-persistence</module>
 		<module>infra-read-persistence</module>
@@ -66,8 +65,6 @@
 		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
-		<module>shared-supra-dispatcher-projection</module>
-		<module>supra-worker-balance-calculation-events-spring</module>
 		<module>supra-http-rest-spring</module>
 		<module>supra-authentication-spring-security</module>
 		<module>shared-runtime-spring-config</module>

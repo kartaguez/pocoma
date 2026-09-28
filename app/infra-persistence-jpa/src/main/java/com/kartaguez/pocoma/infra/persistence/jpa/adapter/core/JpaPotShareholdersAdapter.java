@@ -15,12 +15,11 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersProjectionPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaShareholderRepository;
 
 @Component
-public class JpaPotShareholdersAdapter implements PotShareholdersPort, PotShareholdersProjectionPort {
+public class JpaPotShareholdersAdapter implements PotShareholdersPort {
 
 	private final JpaShareholderRepository repository;
 
@@ -28,7 +27,6 @@ public class JpaPotShareholdersAdapter implements PotShareholdersPort, PotShareh
 		this.repository = Objects.requireNonNull(repository, "repository must not be null");
 	}
 
-	@Override
 	@Transactional(readOnly = true)
 	public PotShareholders loadActiveAtVersion(PotId potId, long version) {
 		Objects.requireNonNull(potId, "potId must not be null");
