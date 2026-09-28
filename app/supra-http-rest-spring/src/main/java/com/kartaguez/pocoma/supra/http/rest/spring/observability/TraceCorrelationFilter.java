@@ -11,8 +11,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.kartaguez.pocoma.observability.trace.TraceContext;
 import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
-import com.kartaguez.pocoma.supra.http.rest.spring.security.UserContextFactory;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,14 +32,11 @@ public final class TraceCorrelationFilter extends OncePerRequestFilter {
 		String traceId = traceId(request);
 		String method = request.getMethod();
 		String path = request.getRequestURI();
-		String userId = "/api/v1/commands".equals(path)
-				? null
-				: request.getHeader(UserContextFactory.USER_ID_HEADER);
 		String operation = operation(method, path);
 
 		response.setHeader(TRACE_ID_HEADER, traceId);
-		putMdc(traceId, userId, method, path, operation);
-		TraceContextHolder.set(new TraceContext(traceId, userId, method, path, operation, startedAtNanos, null));
+		putMdc(traceId, method, path, operation);
+		TraceContextHolder.set(new TraceContext(traceId, null, method, path, operation, startedAtNanos, null));
 
 		LOGGER.info("HTTP operation started");
 		try {
@@ -57,11 +52,8 @@ public final class TraceCorrelationFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private static void putMdc(String traceId, String userId, String method, String path, String operation) {
+	private static void putMdc(String traceId, String method, String path, String operation) {
 		MDC.put("traceId", traceId);
-		if (userId != null && !userId.isBlank()) {
-			MDC.put("userId", userId);
-		}
 		MDC.put("http.method", method);
 		MDC.put("http.path", path);
 		MDC.put("operation", operation);

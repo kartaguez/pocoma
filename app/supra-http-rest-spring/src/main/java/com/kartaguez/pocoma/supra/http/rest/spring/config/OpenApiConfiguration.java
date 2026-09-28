@@ -11,8 +11,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 @Configuration
 public class OpenApiConfiguration {
 
-	public static final String USER_ID_HEADER = "X-User-Id";
-	public static final String USER_SCOPES_HEADER = "X-User-Scopes";
 	public static final String BEARER_AUTH = "bearerAuth";
 
 	@Bean
@@ -25,14 +23,6 @@ public class OpenApiConfiguration {
 						.addSecuritySchemes(BEARER_AUTH, new SecurityScheme()
 								.type(SecurityScheme.Type.HTTP)
 								.scheme("bearer")
-								.bearerFormat("JWT"))
-						.addSecuritySchemes(USER_ID_HEADER, new SecurityScheme()
-								.type(SecurityScheme.Type.APIKEY)
-								.in(SecurityScheme.In.HEADER)
-								.name(USER_ID_HEADER))
-						.addSecuritySchemes(USER_SCOPES_HEADER, new SecurityScheme()
-								.type(SecurityScheme.Type.APIKEY)
-								.in(SecurityScheme.In.HEADER)
-								.name(USER_SCOPES_HEADER)));
+								.bearerFormat("JWT")));
 	}
 }

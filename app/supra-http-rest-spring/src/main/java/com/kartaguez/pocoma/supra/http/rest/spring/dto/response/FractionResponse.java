@@ -1,4 +1,0 @@
-package com.kartaguez.pocoma.supra.http.rest.spring.dto.response;
-
-public record FractionResponse(long numerator, long denominator) {
-}
