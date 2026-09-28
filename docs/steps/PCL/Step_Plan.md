@@ -612,11 +612,21 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
   advanced/unchanged/error ;
 - preuve Spring que les beans LKV supportés sont présents sans bean lifecycle/serving, et garde
   permanent `Pcl5PipelineLifecycleAbsenceTest` sur les sources, POM, accès aux tables et migration ;
+- correction d'audit : le guard impose désormais exactement une occurrence repository-wide de
+  `V12__pipeline_version_lifecycle.sql`, conserve son checksum et inspecte toutes les ressources SQL
+  de production contre un `DROP TABLE` prématuré des deux tables lifecycle, avec casse, espacement,
+  qualification de schéma et `IF EXISTS` tolérés ;
+- correction d'audit PostgreSQL : un Event supprimé après discovery mais avant reload produit
+  `RECORDED_EVENT_NOT_FOUND` / `SOURCE_VERSION_WATERMARK_INPUT_NOT_FOUND`, terminalise la
+  Consumption en `FAILED`, ne décale pas `next_claim_at`, ne crée ni watermark ni provenance, et
+  reste non réacquérable lors d'une nouvelle passe, y compris avec un candidat stale ;
 - scans finaux : zéro import production `domain-pipeline`, zéro arête POM vers les quatre modules
   retirés et zéro accès actif aux deux tables lifecycle hors V12 ;
-- matrice ciblée Event, LKV, ProjectionTask, Command et architecture verte sur 45 modules ;
-- `./mvnw clean verify` vert sur les 48 modules survivants le 2026-09-28, dont 63 preuves dans
-  `architecture-tests`.
+- `./mvnw -pl runtime-latest-known-version-consumption-worker,architecture-tests -am test` vert
+  sur 45 modules le 2026-09-28 : 9 tests runtime LKV, 1 test locator LKV et 64 tests
+  `architecture-tests`, dont 5 dans le guard PCL.5 ;
+- `./mvnw clean verify` vert sur les 48 modules survivants le 2026-09-28, dont 9 tests runtime LKV
+  et 64 preuves dans `architecture-tests`.
 
 ### What becomes removable next
 
