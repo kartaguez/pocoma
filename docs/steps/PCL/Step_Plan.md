@@ -2,8 +2,8 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.3
-Overall status: REVIEW
+Current lot: PCL.4
+Overall status: IN_PROGRESS
 ```
 
 La source architecturale normative de ce tracker est [`Step_Canon.md`](Step_Canon.md). EPT est la
@@ -14,7 +14,7 @@ chaîne Event → Projection.
 |-----|-------|--------|
 | PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | DONE |
-| PCL.3 | Legacy Task runtime demolition | REVIEW |
+| PCL.3 | Legacy Task runtime demolition | DONE |
 | PCL.4 | Legacy Query/read demolition | TODO |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
@@ -256,7 +256,7 @@ Le choix doit minimiser la surface survivante, pas préserver un nom de module.
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Objective
 
@@ -360,6 +360,7 @@ branche `projection_tasks → ProjectionEngineService` canonique.
 
 ### Completion evidence
 
+- audit indépendant PCL.3 accepté sans correction bloquante ;
 - composition root, properties, locator, modèle d'exécution, pipelines Pot/Balance et six modules
   Task legacy supprimés ; aucun fallback conditionnel ne subsiste ;
 - persistence JPA `tasks_4_pipeline` et writer immutable Balance supprimés ;
