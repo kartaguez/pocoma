@@ -16,7 +16,7 @@ chaîne Event → Projection.
 | PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | DONE |
 | PCL.4 | Legacy Query/read demolition | DONE |
-| PCL.5 | LKV isolation + pipeline/lifecycle demolition | IN_PROGRESS |
+| PCL.5 | LKV isolation + pipeline/lifecycle demolition | REVIEW |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
 | PCL.7 | Module/dependency collapse | TODO |
 | PCL.8 | Database demolition | TODO |
@@ -510,7 +510,7 @@ Les tables physiques restent jusqu'à PCL.8.
 
 ### Status
 
-`IN_PROGRESS`
+`REVIEW`
 
 ### Objective
 
@@ -568,7 +568,7 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
 - `supported imports from domain-pipeline = 0`.
 - Aucun bean supporté n'implémente activation gate ou serving selection.
 - Aucun runtime supporté ne dépend de `infra-pipeline-lifecycle-persistence`.
-- Les modules pipeline/lifecycle vides sont supprimables au PCL.7.
+- Les modules et arêtes Maven pipeline/lifecycle abandonnés sont absents du reactor supporté.
 - EPT et les producers canoniques restent indépendants du modèle supprimé.
 
 ### Tests / proofs
@@ -578,7 +578,8 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
 - contexte Spring LKV sans lifecycle persistence ;
 - contexte Spring Event et ProjectionTask sans lifecycle beans ;
 - scan production et test d'architecture : zéro import `domain-pipeline` depuis le graphe supporté ;
-- scan JDBC/JPA : seuls les futurs drops référencent encore les tables lifecycle ;
+- scan JDBC/JPA : seule la migration historique V12 et le futur drop PCL.8 référencent encore les
+  tables lifecycle ;
 - preuves EPT/exact READ_POT/POT_BALANCES inchangées.
 
 ### Notes / findings
@@ -591,16 +592,37 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
   du modèle pipeline/lifecycle supprimé.
 - Aucun caller de production protégé n'importe `domain-pipeline`; ses callers restants sont
   confinés à `engine-pipeline-lifecycle` et `infra-pipeline-lifecycle-persistence`.
-- La migration historique `V12__pipeline_version_lifecycle.sql` doit être relocalisée sans
-  modification dans `infra-persistence-jpa` avant suppression de son module hôte. Les tables
-  lifecycle restent présentes jusqu'à PCL.8.
+- La migration historique `V12__pipeline_version_lifecycle.sql` a été relocalisée sans modification
+  dans `infra-persistence-jpa` avant suppression de son module hôte. Les tables lifecycle restent
+  présentes jusqu'à PCL.8.
+
+### Completion evidence
+
+- `LatestKnownVersion` relocalisé dans la frontière survivante `engine-read-projection`; le module
+  `domain-projection-legacy` et son arête reactor ont été retirés ;
+- `domain-pipeline`, `engine-pipeline-lifecycle` et
+  `infra-pipeline-lifecycle-persistence` supprimés avec leurs contrats, services, adapters,
+  auto-configurations, properties, startup validation, tests et arêtes Maven ;
+- migration historique `V12__pipeline_version_lifecycle.sql` relocalisée byte-for-byte dans
+  `infra-persistence-jpa`, SHA-256
+  `b83cef2c00da4fde15e6a2c587ff7487ac05d924f12ddfb3135f52444bca6399`; aucune table n'est
+  droppée ;
+- preuve PostgreSQL LKV couvrant discovery metadata-only, acquire/execute, avance monotone,
+  idempotence, retry après échec technique et provenance Consumption ; preuve des métriques
+  advanced/unchanged/error ;
+- preuve Spring que les beans LKV supportés sont présents sans bean lifecycle/serving, et garde
+  permanent `Pcl5PipelineLifecycleAbsenceTest` sur les sources, POM, accès aux tables et migration ;
+- scans finaux : zéro import production `domain-pipeline`, zéro arête POM vers les quatre modules
+  retirés et zéro accès actif aux deux tables lifecycle hors V12 ;
+- matrice ciblée Event, LKV, ProjectionTask, Command et architecture verte sur 45 modules ;
+- `./mvnw clean verify` vert sur les 48 modules survivants le 2026-09-28, dont 63 preuves dans
+  `architecture-tests`.
 
 ### What becomes removable next
 
-- `domain-pipeline`, `engine-pipeline-lifecycle` et
-  `infra-pipeline-lifecycle-persistence` au PCL.7 ;
-- reliquat legacy de `domain-projection-legacy` et `engine-read-projection` après extraction LKV ;
-- `pipeline_version_activations` et `projection_serving_selections` au PCL.8.
+- `pipeline_version_activations` et `projection_serving_selections` au PCL.8 ;
+- les éventuelles coquilles Maven sans responsabilité fonctionnelle, indépendantes du modèle déjà
+  détruit, restent du ressort du sweep PCL.7.
 
 ## PCL.6 — Monolith demolition + migration ownership
 
