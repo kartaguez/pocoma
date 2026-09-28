@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.7
+Current lot: PCL.8
 Overall status: IN_PROGRESS
 ```
 
@@ -18,7 +18,7 @@ chaîne Event → Projection.
 | PCL.4 | Legacy Query/read demolition | DONE |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | DONE |
 | PCL.6 | Monolith demolition + migration ownership | DONE |
-| PCL.7 | Module/dependency collapse | REVIEW |
+| PCL.7 | Module/dependency collapse | DONE |
 | PCL.8 | Database demolition | TODO |
 
 ## Dependency graph
@@ -771,7 +771,7 @@ Les adapters historiques mixtes restent prunés au minimum protégé :
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Objective
 
@@ -941,6 +941,22 @@ Pour `infra-persistence-jpa` : prune first; split only if concretely required.
 - preuves permanentes EPT, exact READ_POT, producers, LKV et Command ;
 - vérification que les seuls noms de tables DROP restants sont dans migrations historiques,
   documentation historique ou future migration de destruction.
+
+### Closure evidence
+
+- PCL.7 closure status: `DONE` ;
+- audited implementation HEAD: `c7339f9fc5568cb231a30d88b4b6f658c4bd4732` ;
+- implementation baseline: `fc5cb51893879b6615a1694c31b3e46f1ce3a2f6` ;
+- audit verdict: `PCL.7 CLOSURE CONFIRMED` ;
+- canonical infrastructure preservation: `CONFIRMED` ;
+- implementation delta: 87 files affected, 207 insertions, 2,652 deletions and no SQL migration
+  modified ;
+- full reactor: 42 modules `SUCCESS`, `BUILD SUCCESS` ;
+- tests: 870, 0 failures, 0 errors and 0 skipped ;
+- architecture tests: 74 green ;
+- PCL.8 five-zero prerequisites: `CONFIRMED`, while preserving the distinction between primary
+  `pot_version_metadata` and legacy `pocoma_read.pot_version_metadata`, and between canonical
+  projection type `POT_BALANCES` and legacy table `pot_balances`.
 
 ### What becomes removable next
 
