@@ -2,11 +2,13 @@ package com.kartaguez.pocoma.runtime.latestknownversion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -74,6 +77,7 @@ class LatestKnownVersionRuntimePostgresTest {
 	@Autowired private LatestKnownVersionPersistencePort latestKnownVersions;
 	@Autowired private LatestKnownVersionConsumptionLocator locator;
 	@Autowired private JdbcTemplate jdbc;
+	@Autowired private ApplicationContext context;
 
 	@BeforeEach
 	void cleanDatabase() {
@@ -125,6 +129,55 @@ class LatestKnownVersionRuntimePostgresTest {
 		assertEquals(firstAdvancedAt, advancedAt(potId));
 		assertEquals(firstInputCount, count("consumption_inputs"));
 		assertEquals(1L, count("consumption_slots"));
+	}
+
+	@Test
+	void retriesATechnicalReloadFailureThenResumesWithOneDurableProvenanceInput() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		outbox.append(new PotCreatedEvent(potId, 7));
+		UUID eventId = events.findAll().getFirst().id();
+		String validPayload = jdbc.queryForObject(
+				"select payload_json from business_event_outbox where id=?", String.class, eventId);
+		jdbc.update("update business_event_outbox set payload_json=? where id=?", "{invalid", eventId);
+
+		orchestrator.run(input());
+
+		var retrying = lifecycle.findSlot(LatestKnownVersionConsumptionLocator.key(eventId)).orElseThrow();
+		assertEquals(ConsumptionStatus.PENDING, retrying.status());
+		assertTrue(retrying.terminalOutcome().isEmpty());
+		assertTrue(retrying.nextClaimAt().isAfter(retrying.createdAt()));
+		assertEquals(1L, jdbc.queryForObject(
+				"select count(*) from consumption_claims where slot_id=?", Long.class, retrying.slotId()));
+		assertEquals(0L, jdbc.queryForObject(
+				"select count(*) from pocoma_read.source_version_watermarks where pot_id=?",
+				Long.class, potId.value()));
+		assertTrue(provenance.findInputs(retrying.slotId()).isEmpty());
+		assertEquals(1L, jdbc.queryForObject("select count(*) from consumption_claims "
+				+ "where slot_id=? and failure_category='SOURCE_VERSION_WATERMARK_EXECUTION_FAILURE'",
+				Long.class, retrying.slotId()));
+
+		jdbc.update("update business_event_outbox set payload_json=? where id=?", validPayload, eventId);
+		jdbc.update("update consumption_slots set next_claim_at=current_timestamp where slot_id=?",
+				retrying.slotId());
+		orchestrator.run(input());
+
+		var completed = lifecycle.findSlot(LatestKnownVersionConsumptionLocator.key(eventId)).orElseThrow();
+		assertEquals(TerminalOutcome.SUCCESS, completed.terminalOutcome().orElseThrow());
+		assertEquals(2L, jdbc.queryForObject(
+				"select count(*) from consumption_claims where slot_id=?", Long.class, completed.slotId()));
+		assertEquals(7L, version(potId));
+		assertEquals(1, provenance.findInputs(completed.slotId()).size());
+		assertTrue(provenance.findResults(completed.slotId()).isEmpty());
+	}
+
+	@Test
+	void springContextContainsLkvRuntimeWithoutLegacyPipelineLifecycleOrServingBeans() {
+		List<String> forbiddenBeanFragments = List.of(
+				"pipelineLifecycle", "pipelineActivation", "servingSelection", "projectionProducerCatalog");
+		assertFalse(Arrays.stream(context.getBeanDefinitionNames())
+				.anyMatch(name -> forbiddenBeanFragments.stream().anyMatch(name::contains)));
+		assertTrue(context.containsBean("latestKnownVersionConsumptionLocator"));
+		assertTrue(context.containsBean("advanceLatestKnownVersionUseCase"));
 	}
 
 	@Test
