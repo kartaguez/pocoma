@@ -73,7 +73,6 @@
 		<module>runtime-latest-known-version-consumption-worker</module>
 		<module>runtime-task-consumption-worker</module>
 		<module>runtime-command-consumption-worker</module>
-		<module>runtime-monolith</module>
 		<module>architecture-tests</module>
 	</modules>
 
