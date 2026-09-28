@@ -828,6 +828,78 @@ Pour `infra-persistence-jpa` : prune first; split only if concretely required.
 - Le graphe de modules et les usages de classes sont rescannés au HEAD réel.
 - Les tables ne sont pas encore droppées : PCL.8 reste séparé.
 
+### Notes / findings
+
+- L'audit repository-grounded du cadrage conclut `PCL.7 FRAMING CLOSURE READY` et l'audit
+  transversal rétrospectif conclut `CANONICAL INFRASTRUCTURE PRESERVATION CONFIRMED`.
+- Aucune capacité canonique n'a perdu son implémentation d'infrastructure concrète pendant
+  PCL.1–PCL.6. Les décisions PCL.7 doivent appliquer la reachability depuis les capacités
+  canoniques, et jamais la seule reachability des runtimes ou de l'injection Spring actuels.
+- `engine-projection` et `shared-runtime-spring-config` sont les deux modules DELETE confirmés au
+  HEAD du cadrage. La suppression d'`engine-projection` concerne exclusivement l'ancien lifecycle
+  outbox porté par `BusinessEventOutboxPort`, `BusinessEventClaim`, `BusinessEventStatus` et leurs
+  responsabilités associées.
+- `JpaBusinessEventOutboxAdapter` est un adapter mixte à **PRUNE LEGACY HALF**. Conserver
+  `BusinessEventAppendPort`, `append(BusinessEvent)`, le mapping et la sérialisation durables, le
+  `repository.save`, les trace metadata, `JpaBusinessEventOutboxEntity` et l'accès d'append à
+  `business_event_outbox`. Supprimer `BusinessEventOutboxPort`, `BusinessEventClaim`,
+  `BusinessEventStatus`, `claimPending`, les transitions `markAccepted` / `markRunning` /
+  `markDone` / `markFailed`, `heartbeat`, `release`, `countPendingOrClaimed`, leurs requêtes
+  repository exclusives et leurs tests legacy-only. Ne pas splitter l'adapter sauf nécessité
+  technique concrète découverte pendant l'implémentation.
+- `infra-persistence-jpa` est **PRUNE**, jamais DELETE ni split par défaut. Il reste owner de
+  l'infrastructure concrète de Command, du write model, des versions, identités, Events, EPT,
+  generic Consumption, ProjectionTask, sources historiques READ_POT/POT_BALANCES et migrations
+  primaires. En particulier, `JpaProjectedExpenseAdapter.loadActiveAtVersion` et
+  `JpaPotShareholdersAdapter.loadActiveAtVersion` sont des lectures historiques canoniques, pas de
+  la Query legacy.
+- Dans `engine-consumption`, le vieux cluster `ClaimPort` et les anciens use cases/services
+  `TryAcquire` / `Complete` / `Fail` / `Release` sont des résidus DELETE confirmés. La capacité
+  standalone d'abandon reste un prune candidate à confirmer localement. Conserver impérativement
+  `ConsumptionLifecyclePersistencePort`, `ConsumptionQueryPort`,
+  `ConsumptionProvenancePersistencePort`, acquire, lease/takeover/fencing, `lockCurrentClaim`,
+  `tryTerminalize`, `handleFailure`, retry scheduling, provenance, leurs wrappers transactionnels
+  et leurs implémentations JPA/JDBC.
+- `engine-projection-read`, `ProjectionReadPort`, `JdbcProjectionStoreAdapter`,
+  `ExactProjectionReadService`, `ExactProjectionReads`, `ReadPotService` et `ReadPotInterpreter`
+  restent protégés. L'exact read est volontairement recomposable et possède une implémentation
+  PostgreSQL réelle malgré l'absence de Query runtime ou de composition HTTP.
+- `engine-read-projection` reste protégé sans split, rename ou fusion cosmétique : il porte Latest
+  Known Version et `HistoricalPotSnapshotSource`.
+- Les sources historiques des producers restent protégées : `HistoricalPotSnapshotSource`,
+  `JpaHistoricalPotSnapshotSourceAdapter`, `HistoricalPotBalanceSourcePort`,
+  `JpaHistoricalPotBalanceSourceAdapter` et les repositories Pot/Expense/Shareholder nécessaires
+  aux lectures exactes. Un nom `findActiveAtVersion` ou `loadActiveAtVersion` ne constitue pas une
+  preuve de legacy.
+- Les prunes locaux restants doivent conserver les définitions/schemas READ_POT et POT_BALANCES,
+  les policies/guards Command, le coeur métier Pot et toute primitive encore atteinte depuis une
+  capacité canonique. `AuthProjectionDefinition`, les anciennes capacités Query/read
+  authorization sans consumer et les types réellement orphelins restent des candidats à confirmer
+  par un scan frais.
+- Le cluster `PocomaObservation` / `NoopPocomaObservation` / `ProjectionObservationContext` et ses
+  metadata associées est un prune candidate sans caller ; `TraceContext`, `TraceContextHolder` et
+  toute infrastructure appelée par les chemins canoniques doivent survivre.
+- Les edges `engine-core → domain-pot-policy`,
+  `infra-read-persistence → infra-projection-persistence` et
+  `runtime-event-consumption-worker → engine-projection-task` sont candidats respectivement à
+  suppression ou passage en test scope. Les deux derniers ne sont importés que par les tests au
+  HEAD du cadrage. Toute dependency Spring, auto-configuration, migration ou resource doit être
+  vérifiée séparément des alertes `dependency:analyze`.
+- Les résidus de configuration confirmés incluent `pocoma.projection.worker.enabled=false`,
+  `POCOMA_QUERY_BALANCE_PIPELINE_ID`, l'exigence `POCOMA_BALANCE_PIPELINE_VERSION`, les assertions
+  Compose correspondantes et le commentaire PCL.4 obsolète du POM Task runtime.
+- Les guards PCL.3–PCL.6 et les preuves EPT distribuées restent permanents. PCL.7 peut réduire le
+  couplage topologique de `Pcl4LegacyQueryReadAbsenceTest`, `Pcl6MonolithAbsenceTest`,
+  `HexagonalArchitectureTest` et `DistributedComposeConfigurationTest`, mais ne doit pas supprimer
+  les invariants ou absences qu'ils protègent.
+- La documentation active (`README.md`, état du read side, matrice de dépendances et ownership des
+  types) doit cesser de présenter pipeline version, monolith, ancien Balance pipeline ou anciens
+  owners comme supportés. Les documents explicitement historiques restent historiques.
+- Les familles candidates PCL.8 ont les cinq zéros hors migrations et documentation historiques.
+  PCL.7 doit rendre cette preuve reproductible sans aucun DROP. La table primaire canonique
+  `pot_version_metadata` reste distincte de `pocoma_read.pot_version_metadata`, et le type de
+  projection `POT_BALANCES` reste distinct de la table legacy `pot_balances`.
+
 ### Exit criteria
 
 - Le reactor ne contient aucun module vide ou exclusivement legacy.

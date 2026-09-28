@@ -99,6 +99,26 @@ suppression en bloc détruirait une de ces responsabilités. Le nom legacy d'un 
 à autoriser sa suppression ; inversement, la présence d'une responsabilité protégée dans un module
 ne protège pas ses autres contenus.
 
+### 3.1 Canonical capability preservation
+
+L'absence de consumer dans les composition roots ou runtimes courants ne suffit pas à établir qu'un
+port, adapter, repository, store ou autre implémentation d'infrastructure est legacy. Une
+implémentation concrète doit être conservée lorsqu'elle réalise une capacité qui reste canonique,
+même si cette capacité n'est temporairement composée par aucun runtime.
+
+La suppression d'une telle implémentation n'est autorisée que si :
+
+- la capacité elle-même est abandonnée ;
+- une autre implémentation concrète a repris la capacité canonique ;
+- l'implémentation est un doublon et ne porte plus aucune responsabilité protégée.
+
+La reachability doit donc être évaluée depuis les capacités canoniques et leurs responsabilités,
+pas seulement depuis l'injection Spring ou les callers runtime actuels. Pour un composant mixte,
+chaque responsabilité doit être évaluée séparément : la présence d'une interface ou d'un lifecycle
+legacy ne justifie jamais la suppression des responsabilités canoniques portées par le même
+composant. Un tel composant doit être pruné avant d'envisager un split, et un split ne se justifie
+que par une nécessité technique concrète.
+
 ## 4. Minimal supported read capability
 
 PCL protège une seule capacité read-side : lire une projection `READ_POT` canonique pour un `potId`
