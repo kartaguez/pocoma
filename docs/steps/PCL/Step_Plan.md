@@ -3,7 +3,7 @@
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
 Current lot: PCL.3
-Overall status: IN_PROGRESS
+Overall status: REVIEW
 ```
 
 La source architecturale normative de ce tracker est [`Step_Canon.md`](Step_Canon.md). EPT est la
@@ -14,7 +14,7 @@ chaîne Event → Projection.
 |-----|-------|--------|
 | PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | DONE |
-| PCL.3 | Legacy Task runtime demolition | IN_PROGRESS |
+| PCL.3 | Legacy Task runtime demolition | REVIEW |
 | PCL.4 | Legacy Query/read demolition | TODO |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
@@ -256,7 +256,7 @@ Le choix doit minimiser la surface survivante, pas préserver un nom de module.
 
 ### Status
 
-`IN_PROGRESS`
+`REVIEW`
 
 ### Objective
 
@@ -333,6 +333,45 @@ branche `projection_tasks → ProjectionEngineService` canonique.
 - old READ_POT metadata/fragments après retrait du code Query/read PCL.4 ;
 - derniers consumers Task de lifecycle, generation et `domain-pipeline` pour PCL.5 ;
 - modules vidés lors de PCL.7.
+
+### Notes / findings
+
+- Le baseline d'implémentation était toujours exactement
+  `71332204834c035e44e667da2eb89ba159a7cf1c`, aligné avec
+  `origin/v2-make-it-pull`, sans divergence ni modification locale.
+- `domain-task`, `engine-processing-task`, `engine-task-execution`,
+  `locator-consumption-task`, `pipeline-pot` et `pipeline-balance` n'avaient aucun caller
+  canonique restant et ont été retirés atomiquement du reactor.
+- `ProjectionMetadataPort` conserve trois opérations de lecture encore appelées par l'ancienne
+  Query (`findArtifact`, `findFailure`, `findHead`) ; son adapter a été réduit à ce contrat
+  read-only. Leur suppression reste donc PCL.4.
+- Le reader de fragments `PotProjectionArtifactReader` et le service de reconstruction old
+  READ_POT avaient déjà zéro caller de production ; ils ont été supprimés avec le writer, sans
+  attendre PCL.4.
+- La migration V7 du store canonique singulier est encore co-localisée dans
+  `infra-read-persistence`. Le runtime ProjectionTask garde une dépendance directe explicite sur ce
+  module pour exécuter cette migration ; sa séparation physique relève de PCL.4/PCL.7 et aucun
+  writer old store n'est réintroduit.
+- Le reader `JpaImmutablePotBalancesQueryAdapter` reste le seul accès de production aux tables
+  immutable Balance ; le writer `JpaImmutableBalanceProjectionAdapter` a disparu.
+- Les seules références de production restantes à `tasks_4_pipeline` sont dans les migrations
+  historiques V3, V5 et V10. Aucun source Java, mapping, repository, SQL actif ou configuration
+  runtime ne référence cette table.
+
+### Completion evidence
+
+- composition root, properties, locator, modèle d'exécution, pipelines Pot/Balance et six modules
+  Task legacy supprimés ; aucun fallback conditionnel ne subsiste ;
+- persistence JPA `tasks_4_pipeline` et writer immutable Balance supprimés ;
+- writers old READ_POT, services de materialization/failure et transactions associées supprimés ;
+- preuve PostgreSQL conjointe READ_POT + POT_BALANCES : deux racines canoniques publiées et snapshot
+  avant/après strictement inchangé pour `tasks_4_pipeline`, old READ_POT et immutable Balance ;
+- guards permanents : modules/edges legacy absents, zéro référence active à
+  `tasks_4_pipeline`, types Spring/exécution/writers legacy absents ;
+- `./mvnw -pl runtime-task-consumption-worker -am test` vert, 10 preuves runtime PostgreSQL ;
+- `./mvnw -pl architecture-tests test` vert, 60 preuves dont les EPT distribuées ;
+- `./mvnw clean verify` vert sur les 53 modules le 2026-09-28 ;
+- aucune migration historique modifiée, aucune migration de drop ajoutée et aucune table supprimée.
 
 ## PCL.4 — Legacy Query/read demolition
 
