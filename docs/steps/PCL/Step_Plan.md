@@ -17,7 +17,7 @@ chaîne Event → Projection.
 | PCL.3 | Legacy Task runtime demolition | DONE |
 | PCL.4 | Legacy Query/read demolition | DONE |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | DONE |
-| PCL.6 | Monolith demolition + migration ownership | TODO |
+| PCL.6 | Monolith demolition + migration ownership | DONE |
 | PCL.7 | Module/dependency collapse | TODO |
 | PCL.8 | Database demolition | TODO |
 
@@ -640,9 +640,7 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
 
 ### Status
 
-`TODO`
-
-Framing: `CLOSED — READY FOR IMPLEMENTATION`
+`DONE`
 
 ### Objective
 
@@ -723,6 +721,43 @@ Les adapters historiques mixtes restent prunés au minimum protégé :
 - `Pcl6MonolithAbsenceTest` permanent : modules/workers legacy absents, zéro resource import vers
   `runtime-monolith`, V1–V3 uniques, zéro runtime sur `projection_tasks_legacy` et le mutable Balance
   store, aucun drop prématuré et responsabilités canoniques présentes.
+
+### Notes / findings
+
+- Le scan de reachability a confirmé qu'aucun caller protégé ne dépendait de
+  `JpaPotBalancesAdapter`, `PotBalanceProjectionPort`, des repositories `pot_balance_*` ou de la
+  branche JPA `projection_tasks_legacy`; ils ont donc été supprimés plutôt que prunés.
+- `JpaHistoricalPotBalanceSourceAdapter`, `CalculatePotBalancesAtVersionService` et
+  `PotBalancesProjectionInputLoader` forment la frontière minimale conservée pour le producer
+  canonique `POT_BALANCES` et ne lisent aucun résultat mutable Balance.
+- `JpaProjectedExpenseAdapter` et `JpaPotShareholdersAdapter` ont été prunés aux seules lectures
+  historiques exactes et responsabilités Command encore protégées.
+- Les tables historiques `projection_tasks_legacy`, `pot_balance_projection_states`,
+  `pot_balance_versions` et `pot_balances` restent présentes uniquement par les migrations V1–V3 ;
+  aucun mapping, reader ou writer de production ne les référence.
+
+### Completion evidence
+
+- V1–V3 relocalisées byte-for-byte dans `infra-persistence-jpa`, avec une occurrence unique et les
+  SHA-256 conservés : `d35a440f7ac3d3722176844fc29c3ab9b515e864d77fb9788eb12639ad712ae4`,
+  `998ac4c5c4a57eb4e074f8e905630395ec03a0b58f78c367c5c5fd45f5617150` et
+  `974a89b5e2abedb3fd1c6e353c7c47081a67ebf480206c0ec1a10b3897c964d0` ; tous les imports Maven
+  de resources vers `runtime-monolith` ont disparu.
+- `PrimaryMigrationsPostgresTest` prouve le bootstrap propre V1–V15 et la validation d'une base
+  existante V1–V15 sans repair, mismatch, doublon ni réexécution.
+- `runtime-monolith`, `supra-worker-balance-calculation-events-spring`,
+  `shared-supra-dispatcher-projection` et `infra-event-publisher-spring` sont physiquement absents
+  du reactor et du repository ; leurs configurations, tests, métriques et surfaces Compose actives
+  ont été retirés.
+- `Pcl6MonolithAbsenceTest` verrouille en permanence l'absence des modules et types legacy,
+  l'identité/unicité de V1–V3, le zéro accès runtime aux quatre tables conservées jusqu'à PCL.8,
+  l'absence de `DROP TABLE` prématuré et la présence des responsabilités canoniques.
+- `docker compose -f docker-compose.distributed.yml config --quiet` est valide avec la version de
+  pipeline requise ; Prometheus et Grafana ciblent les runtimes supportés.
+- `./mvnw clean test` vert sur les 44 modules survivants le 2026-09-28 : Web, Command, Event,
+  ProjectionTask et LKV démarrent avec PostgreSQL ; Command/write model, EPT, READ_POT,
+  POT_BALANCES, LKV et exact READ_POT restent couverts ; 70 preuves `architecture-tests` passent.
+- Aucun fichier SQL n'a été modifié et aucune migration destructive n'a été ajoutée.
 
 ### What becomes removable next
 
