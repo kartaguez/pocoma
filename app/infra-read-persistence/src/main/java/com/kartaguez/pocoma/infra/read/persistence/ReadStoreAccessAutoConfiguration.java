@@ -12,9 +12,7 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
-import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
 @ConditionalOnClass(JdbcOperations.class)
@@ -29,21 +27,9 @@ public class ReadStoreAccessAutoConfiguration {
 	}
 
 	@Bean
-	ProjectionMetadataPort projectionMetadataPort(@ReadStore JdbcOperations jdbc,
-			ReadStoreProperties properties) {
-		return new JdbcProjectionMetadataAdapter(jdbc, properties.getSchema());
-	}
-
-	@Bean
 	LatestKnownVersionPersistencePort latestKnownVersionPersistencePort(
 			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
 		return new JdbcLatestKnownVersionAdapter(jdbc, properties.getSchema());
-	}
-
-	@Bean
-	PotUserIndexReader potUserIndexReader(
-			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
-		return new JdbcPotUserIndexReader(jdbc, properties.getSchema());
 	}
 
 }

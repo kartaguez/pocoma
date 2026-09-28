@@ -5,11 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -27,17 +23,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import com.kartaguez.pocoma.domain.pipeline.PipelineDefinition;
-import com.kartaguez.pocoma.domain.pipeline.PipelineId;
-import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.domain.projection.legacy.ProjectionGenerationIdentity;
-import com.kartaguez.pocoma.domain.projection.legacy.ProjectionIdentity;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
-import com.kartaguez.pocoma.engine.read.projection.PotUserIndexQuery;
-import com.kartaguez.pocoma.engine.read.projection.PotUserIndexReader;
-import com.kartaguez.pocoma.engine.read.projection.ProjectionMetadataPort;
 
 @Testcontainers
 class ReadStorePersistencePostgresTest {
@@ -82,55 +68,18 @@ class ReadStorePersistencePostgresTest {
 	}
 
 	@Test
-	void oldStoreCompositionIsReadOnlyUntilPcl4() {
+	void readStoreCompositionKeepsOnlyCanonicalAndLatestKnownVersionAccess() {
 		contextRunner().run(context -> {
 			assertTrue(context.getStartupFailure() == null,
 					() -> "Read-only context failed: " + context.getStartupFailure());
 			assertNotNull(context.getBean("readStoreJdbcOperations", JdbcOperations.class));
-			assertNotNull(context.getBean(ProjectionMetadataPort.class));
-			assertNotNull(context.getBean(PotUserIndexReader.class));
 			assertNotNull(context.getBean(LatestKnownVersionPersistencePort.class));
 			assertFalse(Arrays.stream(context.getBeanDefinitionNames()).map(context::getType)
 					.filter(java.util.Objects::nonNull).map(Class::getName)
-					.anyMatch(name -> name.endsWith("JdbcPotProjectionArtifactWriter")
+					.anyMatch(name -> name.endsWith("JdbcProjectionMetadataAdapter")
+							|| name.endsWith("JdbcPotUserIndexReader")
+							|| name.endsWith("JdbcPotProjectionArtifactWriter")
 							|| name.endsWith("SpringReadStoreTransactionRunner")));
-		});
-	}
-
-	@Test
-	void legacyMetadataCanStillBeReadButHasNoWriteContract() {
-		contextRunner().run(context -> {
-			UUID potId = UUID.randomUUID();
-			UUID artifactId = UUID.randomUUID();
-			Instant createdAt = Instant.parse("2026-09-28T10:00:00Z");
-			JdbcOperations readJdbc = context.getBean("readStoreJdbcOperations", JdbcOperations.class);
-			readJdbc.update("insert into pocoma_read.projection_artifacts "
-					+ "(artifact_id,projection_type,pipeline_id,pipeline_version,pot_id,pot_version,"
-					+ "content_digest,created_at) values (?,?,?,?,?,?,?,?)",
-					artifactId, "READ_POT", "read-pot", 1, potId, 7,
-					"0".repeat(64), java.sql.Timestamp.from(createdAt));
-			var identity = new ProjectionIdentity(new ProjectionGenerationIdentity(
-					new ProjectionType("READ_POT"),
-					new PipelineDefinition(PipelineId.of("read-pot"), 1), PotId.of(potId)), 7);
-
-			var artifact = context.getBean(ProjectionMetadataPort.class).findArtifact(identity).orElseThrow();
-			assertEquals(artifactId, artifact.artifactId().value());
-			assertEquals(createdAt, artifact.createdAt());
-			assertEquals(List.of("findArtifact", "findFailure", "findHead"),
-					Arrays.stream(ProjectionMetadataPort.class.getDeclaredMethods())
-							.map(java.lang.reflect.Method::getName).sorted().toList());
-		});
-	}
-
-	@Test
-	void emptyPipelineSelectionReturnsAnEmptyPageWithoutFallback() {
-		contextRunner().run(context -> {
-			PotUserIndexReader reader = context.getBean(PotUserIndexReader.class);
-			var page = reader.findProjectedPots(new PotUserIndexQuery(
-					UserId.of(UUID.randomUUID()), PipelineId.of("read-pot"), List.of(), false, Optional.empty()));
-
-			assertTrue(page.entries().isEmpty());
-			assertTrue(page.nextCursor().isEmpty());
 		});
 	}
 
