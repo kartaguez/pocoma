@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.4
+Current lot: PCL.5
 Overall status: IN_PROGRESS
 ```
 
@@ -15,7 +15,7 @@ chaîne Event → Projection.
 | PCL.1 | Dead Event-side legacy | DONE |
 | PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | DONE |
-| PCL.4 | Legacy Query/read demolition | REVIEW |
+| PCL.4 | Legacy Query/read demolition | DONE |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | TODO |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
 | PCL.7 | Module/dependency collapse | TODO |
@@ -378,7 +378,7 @@ branche `projection_tasks → ProjectionEngineService` canonique.
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Objective
 
@@ -493,7 +493,11 @@ Les tables physiques restent jusqu'à PCL.8.
   migrations historiques ; aucune migration SQL modifiée ;
 - `./mvnw clean verify` vert sur les 52 modules le 2026-09-28, dont 61 preuves dans
   `architecture-tests` ;
-- lot placé en `REVIEW` dans l'attente de l'audit indépendant requis avant `DONE`.
+- audit indépendant accepté ; le fix de preuve PCL4-AUD-01 étend le guard aux tables
+  `balance_projection_artifacts`, `balance_projection_entries` et
+  `pocoma_read.pot_version_metadata` sans interdire la table primaire `pot_version_metadata` ;
+- check GitHub `build-and-test` du fix `59888c8562df818cbb1ba1466e5d45197487e5e9` terminé avec
+  succès ; PCL.4 est clôturé.
 
 ### What becomes removable next
 
