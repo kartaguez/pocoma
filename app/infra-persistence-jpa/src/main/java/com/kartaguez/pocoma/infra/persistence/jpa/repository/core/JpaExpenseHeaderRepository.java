@@ -34,36 +34,6 @@ public interface JpaExpenseHeaderRepository extends JpaRepository<JpaExpenseHead
 			@Param("expenseId") UUID expenseId);
 
 	@Query("""
-			select distinct expenseHeader.expenseId
-			from JpaExpenseHeaderEntity expenseHeader
-			where expenseHeader.potId = :potId
-				and expenseHeader.deleted = false
-				and expenseHeader.startedAtVersion <= :sourceVersion
-				and (expenseHeader.endedAtVersion is null or :sourceVersion < expenseHeader.endedAtVersion)
-				and (
-					not (
-						expenseHeader.startedAtVersion <= :comparedVersion
-						and (expenseHeader.endedAtVersion is null or :comparedVersion < expenseHeader.endedAtVersion)
-					)
-					or exists (
-						select 1
-						from JpaExpenseShareEntity expenseShare
-						where expenseShare.expenseId = expenseHeader.expenseId
-							and expenseShare.startedAtVersion <= :sourceVersion
-							and (expenseShare.endedAtVersion is null or :sourceVersion < expenseShare.endedAtVersion)
-							and not (
-								expenseShare.startedAtVersion <= :comparedVersion
-								and (expenseShare.endedAtVersion is null or :comparedVersion < expenseShare.endedAtVersion)
-							)
-					)
-				)
-			""")
-	List<UUID> findExpenseIdsActiveAtSourceOnly(
-			@Param("potId") UUID potId,
-			@Param("sourceVersion") long sourceVersion,
-			@Param("comparedVersion") long comparedVersion);
-
-	@Query("""
 			select expenseHeader
 			from JpaExpenseHeaderEntity expenseHeader
 			where expenseHeader.potId = :potId
