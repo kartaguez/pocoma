@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.6
+Current lot: PCL.7
 Overall status: IN_PROGRESS
 ```
 
@@ -758,6 +758,9 @@ Les adapters historiques mixtes restent prunés au minimum protégé :
   ProjectionTask et LKV démarrent avec PostgreSQL ; Command/write model, EPT, READ_POT,
   POT_BALANCES, LKV et exact READ_POT restent couverts ; 70 preuves `architecture-tests` passent.
 - Aucun fichier SQL n'a été modifié et aucune migration destructive n'a été ajoutée.
+- audit fonctionnel final au HEAD `70bace98fc08759532c691f8c8e80ddc9411eee8` :
+  `NO BLOCKING FINDING`; workflow GitHub Actions `Pocoma CI`, job `build-and-test`, terminé avec la
+  conclusion `success` ([run 36449939333](https://github.com/kartaguez/pocoma/actions/runs/36449939333)).
 
 ### What becomes removable next
 
