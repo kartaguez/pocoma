@@ -52,7 +52,9 @@ class Pcl4LegacyQueryReadAbsenceTest {
 		Path app = appRoot();
 		List<String> legacyTables = List.of(
 				"projection_artifacts", "projection_failures", "projection_heads",
-				"projection_invariant_violations", "pot_projection_");
+				"projection_invariant_violations", "pot_projection_",
+				"balance_projection_artifacts", "balance_projection_entries",
+				"pocoma_read.pot_version_metadata");
 		Set<String> residual = productionFiles(app, null).stream()
 				.filter(path -> legacyTables.stream().anyMatch(token -> contains(path, token)))
 				.map(app::relativize).map(Path::toString).collect(Collectors.toUnmodifiableSet());
