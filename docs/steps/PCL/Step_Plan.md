@@ -642,6 +642,8 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
 
 `TODO`
 
+Framing: `CLOSED — READY FOR IMPLEMENTATION`
+
 ### Objective
 
 Supprimer le runtime monolith et l'ancien worker Balance Spring events, puis déplacer la propriété
@@ -656,8 +658,8 @@ module `runtime-monolith`.
 - `SegmentedBalanceCalculationWorker` et son listener Spring Event ;
 - ancien `ComputePotBalancesUseCase`, service, transaction wrapper et configuration lorsqu'ils ne
   conservent aucun caller protégé ;
-- `JpaPotBalancesAdapter` et repositories/entities du mutable Balance store lorsqu'ils deviennent
-  exclusifs au monolith ;
+- `JpaPotBalancesAdapter` et repositories/entities du mutable Balance store, dont le scan de
+  reachability confirme qu'ils n'ont aucun caller protégé ;
 - branche worker `projection_tasks_legacy` et `JpaProjectionTask*` ;
 - métriques de backlog/projection legacy du monolith ;
 - Compose monolith, scripts, monitoring, runbooks et documentation exclusivement associés ;
@@ -665,6 +667,14 @@ module `runtime-monolith`.
 - resource imports Maven qui pointent vers le module supprimé.
 
 Les tables mutable Balance et `projection_tasks_legacy` restent jusqu'à PCL.8.
+
+Les adapters historiques mixtes restent prunés au minimum protégé :
+
+- `JpaHistoricalPotBalanceSourceAdapter` reste la source du producer canonical `POT_BALANCES` ;
+- `JpaProjectedExpenseAdapter` conserve la lecture historique exacte du write model mais perd ses
+  contrats et opérations exclusivement legacy ;
+- `JpaPotShareholdersAdapter` conserve Command et la lecture historique exacte mais perd son
+  contrat projection legacy.
 
 ### KEEP
 
@@ -683,7 +693,7 @@ Les tables mutable Balance et `projection_tasks_legacy` restent jusqu'à PCL.8.
 - Le retrait du runtime fonctionnel est largement indépendant de PCL.1–PCL.5.
 - Avant suppression physique du module, inventorier tous les `<resources>` et test resources qui
   importent `runtime-monolith/src/main/resources/db/migration`.
-- Choisir un owner survivant unique des migrations primaires.
+- `infra-persistence-jpa` est l'owner physique survivant unique des migrations primaires V1–V3.
 - Conserver strictement les fichiers V1–V3 inchangés pendant le déplacement.
 
 ### Exit criteria
@@ -693,24 +703,31 @@ Les tables mutable Balance et `projection_tasks_legacy` restent jusqu'à PCL.8.
 - Aucun production caller n'utilise l'ancien `ComputePotBalancesUseCase`.
 - Les producers canoniques ne dépendent d'aucun old Balance store.
 - V1–V3 sont assemblées depuis un owner survivant par tous les runtimes concernés.
-- Le module `runtime-monolith` peut être supprimé sans perte de migration ni resource path cassé.
+- Le module `runtime-monolith` est physiquement absent du reactor et du repository, sans perte de
+  migration ni resource path cassé.
+- `projection_tasks_legacy` et les tables mutable Balance ont zéro reader, writer et mapping
+  runtime ; elles restent physiquement présentes jusqu'à PCL.8.
+- Aucune migration historique n'est modifiée et aucun `DROP TABLE` de ces structures n'est ajouté.
 - Aucun Compose/script/dashboard/runbook actif ne présente le monolith comme runtime supporté.
 
 ### Tests / proofs
 
-- checksums/contenu de V1–V3 identiques avant/après relocation ;
-- upgrade PostgreSQL depuis une base possédant déjà V1–V15 ;
-- clean bootstrap du schéma primaire depuis le nouvel owner ;
+- noms, contenu et SHA-256 de V1–V3 identiques avant/après relocation, avec une occurrence unique
+  repository-wide ;
+- upgrade PostgreSQL depuis une base possédant déjà V1–V15 : `validate` réussi, aucune réparation,
+  aucun checksum mismatch, aucune version dupliquée et aucune réexécution ;
+- clean bootstrap PostgreSQL V1–V15 depuis `infra-persistence-jpa` ;
 - boot/smoke des runtimes Web/Command/Event/Task/LKV survivants qui consomment les migrations ;
 - tests Command/write model ;
 - preuves READ_POT et POT_BALANCES canoniques ;
-- scan resources/POM : zéro chemin vers `runtime-monolith` après suppression.
+- `Pcl6MonolithAbsenceTest` permanent : modules/workers legacy absents, zéro resource import vers
+  `runtime-monolith`, V1–V3 uniques, zéro runtime sur `projection_tasks_legacy` et le mutable Balance
+  store, aucun drop prématuré et responsabilités canoniques présentes.
 
 ### What becomes removable next
 
-- module `runtime-monolith` et worker Spring Balance au sweep PCL.7 si non retirés atomiquement ;
 - `projection_tasks_legacy` et `pot_balance_*` au PCL.8 ;
-- anciennes métriques et dependencies monolith restantes au PCL.7.
+- seuls les résidus structurels sans responsabilité fonctionnelle relèvent encore du sweep PCL.7.
 
 ## PCL.7 — Module/dependency collapse
 
@@ -749,8 +766,6 @@ Modules candidats à évaluer par reachability, sans suppression mécanique :
 - `engine-projection-read` s'il est redondant après PCL.2 ;
 - `pipeline-pot` ;
 - `pipeline-balance` ;
-- `runtime-monolith` ;
-- `supra-worker-balance-calculation-events-spring`.
 
 Pour `infra-persistence-jpa` : prune first; split only if concretely required.
 
