@@ -19,7 +19,6 @@ import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.port.out.persistence.model.PotBalanceProjectionState;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotBalanceProjectionPort;
-import com.kartaguez.pocoma.engine.port.out.query.PotBalancesQueryPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.projection.JpaPotBalanceEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.projection.JpaPotBalanceProjectionStateEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.projection.JpaPotBalanceVersionEntity;
@@ -28,7 +27,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.projection.JpaPotBa
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.projection.JpaPotBalanceVersionRepository;
 
 @Component
-public class JpaPotBalancesAdapter implements PotBalanceProjectionPort, PotBalancesQueryPort {
+public class JpaPotBalancesAdapter implements PotBalanceProjectionPort {
 
 	private final JpaPotBalanceRepository balanceRepository;
 	private final JpaPotBalanceVersionRepository versionRepository;

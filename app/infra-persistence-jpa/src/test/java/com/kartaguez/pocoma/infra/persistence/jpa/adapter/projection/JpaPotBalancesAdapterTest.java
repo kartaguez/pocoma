@@ -68,6 +68,8 @@ class JpaPotBalancesAdapterTest {
 		adapter.saveInitial(potBalances);
 
 		assertEquals(potBalances, adapter.loadAtVersion(potId, 1));
+		assertEquals(true, versionRepository.existsByPotIdAndVersion(potId.value(), 1));
+		assertEquals(0, balanceRepository.findByPotIdAndVersion(potId.value(), 1).size());
 	}
 
 	@Test
@@ -84,6 +86,7 @@ class JpaPotBalancesAdapterTest {
 
 		assertEquals(new PotBalanceProjectionState(potId, 3), adapter.loadProjectionState(potId).orElseThrow());
 		assertEquals(potBalances, adapter.loadAtVersion(potId, 3));
+		assertEquals(1, balanceRepository.findByPotIdAndVersion(potId.value(), 3).size());
 		assertEquals(true, versionRepository.existsByPotIdAndVersion(potId.value(), 3));
 	}
 
@@ -111,6 +114,8 @@ class JpaPotBalancesAdapterTest {
 
 		assertEquals(new PotBalanceProjectionState(potId, 5), adapter.loadProjectionState(potId).orElseThrow());
 		assertEquals(potBalances, adapter.loadAtVersion(potId, 3));
+		assertEquals(true, versionRepository.existsByPotIdAndVersion(potId.value(), 3));
+		assertEquals(1, balanceRepository.findByPotIdAndVersion(potId.value(), 3).size());
 	}
 
 	@Test
@@ -123,6 +128,7 @@ class JpaPotBalancesAdapterTest {
 
 		assertEquals(new PotBalanceProjectionState(potId, 4), adapter.loadProjectionState(potId).orElseThrow());
 		assertEquals(potBalances, adapter.loadAtVersion(potId, 4));
+		assertEquals(true, versionRepository.existsByPotIdAndVersion(potId.value(), 4));
 	}
 
 	@Test
@@ -135,6 +141,7 @@ class JpaPotBalancesAdapterTest {
 
 		assertEquals(new PotBalanceProjectionState(potId, 1), adapter.loadProjectionState(potId).orElseThrow());
 		assertEquals(potBalances, adapter.loadAtVersion(potId, 1));
+		assertEquals(true, versionRepository.existsByPotIdAndVersion(potId.value(), 1));
 	}
 
 	@Test
