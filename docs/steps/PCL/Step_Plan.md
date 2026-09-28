@@ -2,7 +2,7 @@
 
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
-Current lot: PCL.5
+Current lot: PCL.6
 Overall status: IN_PROGRESS
 ```
 
@@ -16,7 +16,7 @@ chaîne Event → Projection.
 | PCL.2 | Canonical exact READ_POT | DONE |
 | PCL.3 | Legacy Task runtime demolition | DONE |
 | PCL.4 | Legacy Query/read demolition | DONE |
-| PCL.5 | LKV isolation + pipeline/lifecycle demolition | REVIEW |
+| PCL.5 | LKV isolation + pipeline/lifecycle demolition | DONE |
 | PCL.6 | Monolith demolition + migration ownership | TODO |
 | PCL.7 | Module/dependency collapse | TODO |
 | PCL.8 | Database demolition | TODO |
@@ -510,7 +510,7 @@ Les tables physiques restent jusqu'à PCL.8.
 
 ### Status
 
-`REVIEW`
+`DONE`
 
 ### Objective
 
@@ -627,6 +627,8 @@ Les deux tables restent physiquement présentes jusqu'à PCL.8.
   `architecture-tests`, dont 5 dans le guard PCL.5 ;
 - `./mvnw clean verify` vert sur les 48 modules survivants le 2026-09-28, dont 9 tests runtime LKV
   et 64 preuves dans `architecture-tests`.
+- ré-audit accepté au HEAD `36ac4843ea9d39491c3169f0ca628e2aa60676c3` avec le verdict
+  `PCL.5 CLOSURE READY`; aucun finding ne reste ouvert et PCL.5 est clôturé.
 
 ### What becomes removable next
 
