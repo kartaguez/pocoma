@@ -161,7 +161,10 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		}
 	}
 
-	private static String schema() {
+	private static synchronized String schema() throws SQLException {
+		try (Connection connection = connection(); var statement = connection.createStatement()) {
+			statement.execute("drop schema if exists pocoma_control cascade");
+		}
 		return "ept1_" + UUID.randomUUID().toString().replace("-", "");
 	}
 
