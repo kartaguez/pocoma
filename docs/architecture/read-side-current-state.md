@@ -55,8 +55,8 @@ livrées, mais aucun code de production PCL.4 ne lit plus `projection_artifacts`
 `pot_projection_*`.
 
 `ProjectionMetadataPort`, `JdbcProjectionMetadataAdapter`, le reader user/Pot, ses curseurs et son
-wiring ont été supprimés. `domain-projection-legacy` ne contient plus que `LatestKnownVersion`, en
-attendant son extraction prévue par PCL.5.
+wiring ont été supprimés. `LatestKnownVersion` et son port de persistance appartiennent désormais à
+`engine-read-projection`.
 
 ## 4. Source historique Balance canonique
 

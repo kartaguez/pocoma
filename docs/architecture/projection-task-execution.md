@@ -201,8 +201,8 @@ Il ne publie rien, ne finalise ni Task ni Claim, et ne connaît pas le `Consumpt
 
 Pour un `ProjectionType`, loader, projector et `ProjectionDefinition` forment nécessairement un
 ensemble cohérent. Le type d'entrée `I` relie au minimum loader et projector. Un assemblage tel que
-`ReadPotLoader + BalanceProjector + AuthProjectionDefinition` doit être empêché au wiring ou détecté
-avant traitement utile.
+Un assemblage mêlant le loader d'un type, le projector d'un autre type et une définition
+incompatible doit être empêché au wiring ou détecté avant traitement utile.
 
 Cette exigence ne décide pas à elle seule le nom ni la forme Java de l'abstraction de composition.
 Après implémentation concrète de `READ_POT` et `POT_BALANCES`, la cible retient désormais une façade

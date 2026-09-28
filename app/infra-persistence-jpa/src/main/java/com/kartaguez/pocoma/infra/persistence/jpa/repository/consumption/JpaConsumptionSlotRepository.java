@@ -102,16 +102,4 @@ public interface JpaConsumptionSlotRepository extends JpaRepository<JpaConsumpti
 			@Param("claimId") UUID claimId,
 			@Param("nextClaimAt") Instant nextClaimAt);
 
-	@Modifying(clearAutomatically = true, flushAutomatically = true)
-	@Query(value = """
-			update consumption_slots
-			set status = 'DONE', terminal_outcome = 'ABANDONED', terminal_reason = :reason,
-			    current_claim_id = null,
-			    done_at = :doneAt, revision = revision + 1
-			where slot_id = :slotId and status = 'PENDING'
-			""", nativeQuery = true)
-	int abandon(
-			@Param("slotId") UUID slotId,
-			@Param("reason") String reason,
-			@Param("doneAt") Instant doneAt);
 }

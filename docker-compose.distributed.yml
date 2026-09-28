@@ -42,8 +42,6 @@ services:
       - "${API_PORT:-8080}:8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_QUERY_BALANCE_PIPELINE_ID: balance-projection
-      POCOMA_QUERY_BALANCE_PIPELINE_VERSION: ${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}
     networks:
       - pocoma-distributed
     depends_on:

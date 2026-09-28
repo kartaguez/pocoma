@@ -31,13 +31,4 @@ public final class PotPartitioner {
 		return Math.floorMod(partitionHash, segmentCount);
 	}
 
-	public static boolean belongsTo(PotId potId, ProjectionPartition partition) {
-		Objects.requireNonNull(partition, "partition must not be null");
-		return segmentOf(potId, partition.segmentCount()) == partition.segmentIndex();
-	}
-
-	public static boolean belongsTo(int partitionHash, ProjectionPartition partition) {
-		Objects.requireNonNull(partition, "partition must not be null");
-		return segmentOf(partitionHash, partition.segmentCount()) == partition.segmentIndex();
-	}
 }

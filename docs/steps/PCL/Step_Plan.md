@@ -18,7 +18,7 @@ chaîne Event → Projection.
 | PCL.4 | Legacy Query/read demolition | DONE |
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | DONE |
 | PCL.6 | Monolith demolition + migration ownership | DONE |
-| PCL.7 | Module/dependency collapse | TODO |
+| PCL.7 | Module/dependency collapse | REVIEW |
 | PCL.8 | Database demolition | TODO |
 
 ## Dependency graph
@@ -771,7 +771,7 @@ Les adapters historiques mixtes restent prunés au minimum protégé :
 
 ### Status
 
-`TODO`
+`REVIEW`
 
 ### Objective
 
@@ -899,6 +899,27 @@ Pour `infra-persistence-jpa` : prune first; split only if concretely required.
   PCL.7 doit rendre cette preuve reproductible sans aucun DROP. La table primaire canonique
   `pot_version_metadata` reste distincte de `pocoma_read.pot_version_metadata`, et le type de
   projection `POT_BALANCES` reste distinct de la table legacy `pot_balances`.
+- Implémentation PCL.7 soumise à review : `engine-projection` et
+  `shared-runtime-spring-config` ont été retirés du reactor ; l'append Event JPA, les sources
+  historiques, la lecture exacte, LKV, le Projection Engine et les runtimes canoniques restent
+  présents et compilés.
+- Le scan local a confirmé que l'abandon standalone n'avait aucun consumer runtime : son use case,
+  son wrapper transactionnel et ses mutations JPA exclusives ont été retirés. Les valeurs
+  historiques `ABANDONED` restent lisibles dans le modèle persistant ; aucune migration ni table
+  n'a été modifiée.
+- L'edge `infra-read-persistence → infra-projection-persistence` est désormais test-only. En
+  revanche, `runtime-event-consumption-worker → engine-projection-task` reste compile-scope : la
+  signature concrète de l'adapter de matérialisation exposée par sa configuration Spring requiert
+  `ProjectionTaskStorePort`. Le build a donc réfuté sa suppression au lieu de masquer la
+  dépendance par transitivité.
+- `Pcl7ModuleDependencyCollapseTest` pérennise l'absence des modules et contrats retirés, la
+  présence d'implémentations concrètes protégées et le scan applicatif/configuration des familles
+  de tables PCL.8. Les guards PCL.3 à PCL.6 restent inchangés et verts.
+- Validation de soumission : reactor complet compilé/package (`-DskipTests`), tests unitaires
+  ciblés Consumption/READ_POT/trace/policy Event verts, puis suite complète des 42 modules concernés
+  verte avec PostgreSQL/Testcontainers, runtimes Command/Event/ProjectionTask/LKV et preuves EPT ;
+  `architecture-tests` passe 74 tests sans échec. Le run complet du 2026-09-28 termine en
+  `BUILD SUCCESS` en 1 min 57 s.
 
 ### Exit criteria
 

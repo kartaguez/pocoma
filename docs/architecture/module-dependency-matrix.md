@@ -36,7 +36,6 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 |---|---|---|---|---|
 | `engine-core` | contrats partagés : snapshots, `RecordedEvent`, trace, transaction et segmentation | domaines nécessaires | infra, supra, runtime | shared |
 | `engine-pot-command` | Commands métier typées, inbound ports d'écriture Pot, services et adapters du moteur Command | Pot, policies, core, engine-command | consumption, processing, tasks, workers | target |
-| `engine-projection` | contrats résiduels de l'outbox métier primaire | Pot, core | workers, processing canoniques | résidu structurel hors runtime Balance |
 | `engine-read-projection` | primitive et avance monotone de `LatestKnownVersion`, port de persistance et source de reconstruction historique Pot | Pot | pipeline/lifecycle/serving, consumers LKV, producteurs de projections | conservé ; frontière neutre LKV et source canonical READ_POT |
 | `engine-consumption` | slots/claims, acquisition/failure et exécution générique atomique protégée par `currentClaimId` | consumption, transaction core | Command, Event, Task, Pot, Pipeline, execution guard | target |
 | `engine-command` | envelope durable générique, décodage, dispatch, exécution et ports de persistence/discovery | authorization, event, consumption terminal, JDK | Pot, processing, infra, frameworks | target |
@@ -47,7 +46,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | Module(s) | Responsabilité | Peut dépendre de | État / retrait |
 |---|---|---|---|
 | `orchestrator-command-admission` | principal authentifié provider-neutral, traduction des autorités, résolution d'identité, snapshot et insert transactionnel | engine-command, transaction core | target, sans Spring/JWT/Keycloak |
-| `supra-worker-event` | boucle pull Event séquentielle par pipeline/version et segment, task creation idempotente puis lifecycle | ports entrants Event processing/task creation, orchestrateur | target, wiring PostgreSQL/Spring en étapes 4–5 |
+| `supra-worker-event` | ancien nom documentaire retiré ; le polling Event canonique est porté par `supra-consumption-worker` et `locator-consumption-event` | — | absent du reactor |
 | `supra-consumption-worker` | boucle de polling générique, budgets, cadence, arrêt coopératif et observation runtime minimale | orchestrateur consumption | target, ignorant des familles métier |
 | `locator-consumption-command` | convention `ConsumptionKey` Command, discovery, relecture/exécution autoritative, adaptation de provenance et classification technique conservative | engine-command, domain/engine consumption, orchestrator-consumption | target, sans runtime |
 | `locator-consumption-latest-known-version` | localisation Event dédiée, max-upsert monotone, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
@@ -57,9 +56,8 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, migrations primaires V1–V15, Recorded Commands, discovery Event/Task et sources historiques des producers canoniques | engines propriétaires, domaines | target ; aucun runtime mutable Balance ou `projection_tasks_legacy` |
 | `infra-read-persistence` | store canonique exact, latest-known et migrations historiques append-only | `engine-projection-read`, `engine-read-projection`, Spring JDBC et Flyway | conservé ; aucun reader metadata/index legacy |
-| `observability` | décorateurs de métriques et trace | contrats observés | infrastructure transversale |
-| `shared-runtime-spring-config` | assemblage Spring partagé | domaines, engines, infra | composition |
-| `runtime-web-api` | composition de l'admission Command HTTP | shared config, supra HTTP | composition |
+| `observability` | contexte de corrélation de trace partagé par HTTP et append Event | JDK | infrastructure transversale minimale |
+| `runtime-web-api` | composition de l'admission Command HTTP | supra HTTP, persistence et sécurité | composition |
 | `runtime-event-consumption-worker` | composition EPT metadata-only Event→ProjectionTask par acquire/finalize fenced et polling générique | policy/locator EPT/orchestrateur/supra/infra | composition target |
 | `runtime-latest-known-version-consumption-worker` | consumer Event direct transactionnel indépendant : reload autoritatif, max-upsert latest-known, lifecycle générique | locator latest-known/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
 | `runtime-task-consumption-worker` | composition canonique `projection_tasks` → `ProjectionEngineService` pour READ_POT et POT_BALANCES | orchestrateur/supra/infra/engines de projection canoniques | composition target EPT |

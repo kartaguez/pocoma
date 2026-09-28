@@ -25,7 +25,6 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinal
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
@@ -119,8 +118,5 @@ class FinalizeConsumptionServiceTest {
 		}
 		@Override public AcquireResult acquire(ConsumptionKey key, ClaimId claimId, WorkerId workerId,
 				ClaimLease lease, Instant now) { throw new UnsupportedOperationException(); }
-		@Override public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
-			throw new UnsupportedOperationException();
-		}
 	}
 }

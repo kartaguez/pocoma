@@ -29,7 +29,6 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumpt
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome.Success;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
@@ -192,10 +191,6 @@ class ExecuteConsumptionServiceTest {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
-			throw new UnsupportedOperationException();
-		}
 	}
 
 	private static final class RecordingProvenance implements ConsumptionProvenancePersistencePort {

@@ -36,7 +36,6 @@ import com.kartaguez.pocoma.supra.http.rest.spring.filter.CommandRequestSizeFilt
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",
-		"pocoma.projection.worker.enabled=false",
 		"pocoma.command-admission.authorization-ttl=PT15M",
 		"pocoma.command-admission.max-request-bytes=512",
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=https://issuer.test",

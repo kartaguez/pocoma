@@ -29,8 +29,6 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult.Abandoned;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone;
@@ -202,28 +200,6 @@ public class JpaConsumptionLifecycleAdapter
 				failure.occurredAt(),
 				now), "end failed Claim");
 		return FencedMutationResult.APPLIED;
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.MANDATORY)
-	public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
-		requireNonNull(slotId, "slotId must not be null");
-		requireNonNull(reason, "reason must not be null");
-		requireNonNull(now, "now must not be null");
-		JpaConsumptionSlotEntity slot = slots.findByIdForUpdate(slotId)
-				.orElseThrow(() -> new IllegalArgumentException("Unknown consumption slot " + slotId));
-		if (slot.status() == ConsumptionStatus.DONE) {
-			return new AbandonResult.AlreadyDone(
-					requireNonNull(slot.terminalOutcome(), "DONE slot has no terminal outcome"),
-					Optional.ofNullable(slot.terminalReason()).map(TerminalReason::new));
-		}
-		if (slot.currentClaimId() != null) {
-			requireExactlyOne(
-					claims.invalidateForAbandon(slotId, slot.currentClaimId(), now),
-					"invalidate current Claim for abandon");
-		}
-		requireExactlyOne(slots.abandon(slotId, reason.code(), now), "abandon slot");
-		return new Abandoned();
 	}
 
 	@Override

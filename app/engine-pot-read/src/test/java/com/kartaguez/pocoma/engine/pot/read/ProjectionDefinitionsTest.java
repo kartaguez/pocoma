@@ -1,6 +1,5 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,20 +33,6 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 
 class ProjectionDefinitionsTest {
 	private static final String ID = "00000000-0000-0000-0000-000000000001";
-
-	@Test
-	void authDefinitionDeclaresCanonicalTypesAndCardinalities() {
-		var definition = AuthProjectionDefinition.DEFINITION;
-
-		assertEquals("AUTH", definition.projectionType().value());
-		assertEquals("POT", definition.targetObjectType().value());
-		assertEquals(List.of("CREATOR", "SHAREHOLDER_USER"), definition.artifactDefinitions().stream()
-				.map(value -> value.artifactType().value()).toList());
-		assertEquals(1, artifact(definition.artifactDefinitions(), "CREATOR").cardinality().min());
-		assertEquals(1, artifact(definition.artifactDefinitions(), "CREATOR").cardinality().max());
-		assertEquals(0, artifact(definition.artifactDefinitions(), "SHAREHOLDER_USER").cardinality().min());
-		assertNull(artifact(definition.artifactDefinitions(), "SHAREHOLDER_USER").cardinality().max());
-	}
 
 	@Test
 	void readPotDefinitionRequiresCanonicalNullableUserIdAndAllowsEmptyShares() {

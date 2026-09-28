@@ -58,7 +58,6 @@ import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult.Abandoned;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone;
@@ -79,7 +78,6 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 	private static final Instant NOW = Instant.parse("2026-08-31T08:00:00Z");
 	private static final ClaimLease LEASE = new ClaimLease(Duration.ofSeconds(30));
 	private static final TerminalReason REJECTION_REASON = new TerminalReason("VERSION_CONFLICT");
-	private static final TerminalReason ABANDON_REASON = new TerminalReason("SUPERSEDED");
 
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
@@ -270,101 +268,9 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 	}
 
 	@Test
-	void abandonInvalidatesTheCurrentClaimAndIsIdempotent() {
-		ConsumptionKey key = key("TASK", "abandon", "TASK_EXECUTOR");
-		Claim claim = acquired(inTransaction(() -> acquire(key, "worker", NOW)));
-
-		assertInstanceOf(Abandoned.class,
-				inTransaction(() -> lifecycle.abandon(claim.slotId(), ABANDON_REASON, NOW.plusSeconds(1))));
-		ConsumptionSlot slot = lifecycle.findSlot(key).orElseThrow();
-		assertEquals(Optional.of(TerminalOutcome.ABANDONED), slot.terminalOutcome());
-		assertEquals(Optional.of(ABANDON_REASON), slot.terminalReason());
-		assertTrue(slot.currentClaimId().isEmpty());
-		Claim invalidated = lifecycle.findClaim(claim.claimId()).orElseThrow();
-		assertEquals(Optional.of(ClaimEndReason.ABANDONED), invalidated.endReason());
-		assertFalse(inTransaction(() -> lifecycle.tryTerminalize(
-				claim.slotId(), claim.claimId(), TerminalOutcome.SUCCESS,
-				Optional.empty(), NOW.plusSeconds(2))));
-		assertInstanceOf(com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult.AlreadyDone.class,
-				inTransaction(() -> lifecycle.abandon(claim.slotId(), ABANDON_REASON, NOW.plusSeconds(2))));
-	}
-
-	@Test
-	void concurrentAbandonAndTakeoverAlwaysEndAbandonedWithoutCurrentClaim() throws Exception {
-		ConsumptionKey key = key("TASK", "abandon-race", "TASK_EXECUTOR");
-		Claim original = acquired(inTransaction(() -> acquire(key, "old", NOW)));
-		CountDownLatch start = new CountDownLatch(1);
-		Future<AcquireResult> takeover = executor.submit(() -> {
-			start.await();
-			return inTransaction(() -> acquire(key, "new", NOW.plusSeconds(30)));
-		});
-		Future<?> abandon = executor.submit(() -> {
-			start.await();
-			return inTransaction(() -> lifecycle.abandon(
-					original.slotId(), ABANDON_REASON, NOW.plusSeconds(30)));
-		});
-
-		start.countDown();
-		AcquireResult takeoverResult = takeover.get();
-		abandon.get();
-
-		ConsumptionSlot slot = lifecycle.findSlot(key).orElseThrow();
-		assertEquals(Optional.of(TerminalOutcome.ABANDONED), slot.terminalOutcome());
-		assertEquals(Optional.of(ABANDON_REASON), slot.terminalReason());
-		assertTrue(slot.currentClaimId().isEmpty());
-		if (takeoverResult instanceof Acquired acquired) {
-			assertEquals(Optional.of(ClaimEndReason.ABANDONED),
-					lifecycle.findClaim(acquired.claim().claimId()).orElseThrow().endReason());
-		} else {
-			assertEquals(TerminalOutcome.ABANDONED,
-					assertInstanceOf(AlreadyDone.class, takeoverResult).outcome());
-		}
-	}
-
-	@Test
-	void concurrentAbandonAndTerminalizationHaveOneCoherentWinner() throws Exception {
-		ConsumptionKey key = key("TASK", "abandon-terminalize-race", "TASK_EXECUTOR");
-		Claim claim = acquired(inTransaction(() -> acquire(key, "worker", NOW)));
-		CountDownLatch start = new CountDownLatch(1);
-		Future<Boolean> terminalization = executor.submit(() -> {
-			start.await();
-			return inTransaction(() -> lifecycle.tryTerminalize(
-					claim.slotId(), claim.claimId(), TerminalOutcome.SUCCESS,
-					Optional.empty(), NOW.plusSeconds(1)));
-		});
-		Future<com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult> abandonment =
-				executor.submit(() -> {
-					start.await();
-					return inTransaction(() -> lifecycle.abandon(
-							claim.slotId(), ABANDON_REASON, NOW.plusSeconds(1)));
-				});
-
-		start.countDown();
-		boolean terminalized = terminalization.get();
-		var abandonResult = abandonment.get();
-
-		ConsumptionSlot slot = lifecycle.findSlot(key).orElseThrow();
-		assertTrue(slot.currentClaimId().isEmpty());
-		if (terminalized) {
-			assertEquals(Optional.of(TerminalOutcome.SUCCESS), slot.terminalOutcome());
-			assertEquals(Optional.empty(), slot.terminalReason());
-			assertInstanceOf(
-					com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult.AlreadyDone.class,
-					abandonResult);
-			assertEquals(Optional.of(ClaimEndReason.SUCCESS),
-					lifecycle.findClaim(claim.claimId()).orElseThrow().endReason());
-		} else {
-			assertInstanceOf(Abandoned.class, abandonResult);
-			assertEquals(Optional.of(TerminalOutcome.ABANDONED), slot.terminalOutcome());
-			assertEquals(Optional.of(ABANDON_REASON), slot.terminalReason());
-			assertEquals(Optional.of(ClaimEndReason.ABANDONED),
-					lifecycle.findClaim(claim.claimId()).orElseThrow().endReason());
-		}
-	}
-
-	@Test
 	void alreadyDoneReturnsTheExactTerminalOutcome() {
-		for (TerminalOutcome outcome : TerminalOutcome.values()) {
+		for (TerminalOutcome outcome : List.of(
+				TerminalOutcome.SUCCESS, TerminalOutcome.REJECTED, TerminalOutcome.FAILED)) {
 			ConsumptionKey key = key("TASK", "done-" + outcome, "TASK_EXECUTOR");
 			Claim claim = acquired(inTransaction(() -> acquire(key, "worker", NOW)));
 			switch (outcome) {
@@ -375,9 +281,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 				case FAILED -> assertEquals(FencedMutationResult.APPLIED,
 						inTransaction(() -> lifecycle.handleFailure(
 								claim.slotId(), claim.claimId(), failure("permanent"), new Fail(), NOW.plusSeconds(1))));
-			case ABANDONED -> assertInstanceOf(Abandoned.class,
-						inTransaction(() -> lifecycle.abandon(
-								claim.slotId(), ABANDON_REASON, NOW.plusSeconds(1))));
+			case ABANDONED -> throw new AssertionError("ABANDONED is not produced by the canonical runtime");
 			}
 			AlreadyDone result = assertInstanceOf(AlreadyDone.class,
 					inTransaction(() -> acquire(key, "other", NOW.plusSeconds(60))));
@@ -547,7 +451,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 			case SUCCESS -> Optional.empty();
 			case REJECTED -> Optional.of(REJECTION_REASON);
 			case FAILED -> Optional.of(new TerminalReason("permanent"));
-			case ABANDONED -> Optional.of(ABANDON_REASON);
+			case ABANDONED -> throw new AssertionError("ABANDONED is historical only");
 		};
 	}
 

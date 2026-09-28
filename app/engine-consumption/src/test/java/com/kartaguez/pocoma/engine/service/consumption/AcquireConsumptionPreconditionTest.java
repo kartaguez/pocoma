@@ -25,7 +25,6 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
@@ -65,9 +64,6 @@ class AcquireConsumptionPreconditionTest {
 				Optional<TerminalReason> reason, Instant doneAt) { throw new UnsupportedOperationException(); }
 		@Override public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId,
 				ProcessingFailure failure, FailureDecision decision, Instant now) {
-			throw new UnsupportedOperationException();
-		}
-		@Override public AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now) {
 			throw new UnsupportedOperationException();
 		}
 	}

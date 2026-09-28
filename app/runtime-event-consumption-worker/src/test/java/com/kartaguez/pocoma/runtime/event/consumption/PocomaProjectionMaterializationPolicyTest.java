@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -27,7 +26,7 @@ class PocomaProjectionMaterializationPolicyTest {
 		assertEquals(PocomaEventTypes.all(), policy.materializations().keySet());
 		policy.materializations().values().forEach(materializations -> assertEquals(expected, materializations));
 		assertFalse(policy.materializations().values().stream()
-				.anyMatch(materializations -> materializations.contains(AuthProjectionDefinition.PROJECTION_TYPE)));
+				.anyMatch(materializations -> materializations.contains(new ProjectionType("AUTH"))));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
 	}
 
@@ -57,7 +56,7 @@ class PocomaProjectionMaterializationPolicyTest {
 	@Test
 	void neverActivatesAuth() {
 		assertEquals(Map.of(), PocomaProjectionMaterializationPolicy.policy()
-				.materializationsFor(Set.of(AuthProjectionDefinition.PROJECTION_TYPE)));
+				.materializationsFor(Set.of(new ProjectionType("AUTH"))));
 	}
 
 	private static Map<EventType, Set<ProjectionType>> expectedFor(ProjectionType projectionType) {

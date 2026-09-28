@@ -25,11 +25,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-shared-runtime-spring-config</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-infra-tx-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>

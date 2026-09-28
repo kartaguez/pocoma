@@ -28,16 +28,6 @@ public interface JpaConsumptionClaimRepository extends JpaRepository<JpaConsumpt
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = """
 			update consumption_claims
-			set invalidated_at = :now, end_reason = 'ABANDONED'
-			where claim_id = :claimId and slot_id = :slotId
-			  and ended_at is null and invalidated_at is null
-			""", nativeQuery = true)
-	int invalidateForAbandon(
-			@Param("slotId") UUID slotId, @Param("claimId") UUID claimId, @Param("now") Instant now);
-
-	@Modifying(clearAutomatically = true, flushAutomatically = true)
-	@Query(value = """
-			update consumption_claims
 			set ended_at = :now, end_reason = :reason
 			where claim_id = :claimId and slot_id = :slotId
 			  and ended_at is null and invalidated_at is null

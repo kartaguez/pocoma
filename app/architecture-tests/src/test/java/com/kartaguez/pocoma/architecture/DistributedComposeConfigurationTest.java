@@ -11,9 +11,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class DistributedComposeConfigurationTest {
-	private static final String REQUIRED_VERSION =
-			"${POCOMA_BALANCE_PIPELINE_VERSION:?POCOMA_BALANCE_PIPELINE_VERSION is required}";
-
 	@Test
 	void distributedWorkersDeclareTheirCanonicalProjectionTypesAndTaskSegments() throws IOException {
 		String compose = Files.readString(findRepositoryFile("docker-compose.distributed.yml"));
@@ -22,8 +19,6 @@ class DistributedComposeConfigurationTest {
 		String taskWorker1 = section(compose, "  pocoma-task-consumption-worker-1:\n",
 				"\n  pocoma-command-consumption-worker:\n");
 
-		assertEquals(1, occurrences(compose, REQUIRED_VERSION));
-		assertEquals(1, occurrences(compose, "POCOMA_QUERY_BALANCE_PIPELINE_VERSION: " + REQUIRED_VERSION));
 		assertEquals(2, occurrences(compose,
 				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: READ_POT,POT_BALANCES"));
 		assertCanonicalTaskWorker(taskWorker0, 0);
@@ -33,7 +28,8 @@ class DistributedComposeConfigurationTest {
 		assertFalse(compose.contains("POCOMA_EVENT_CONSUMPTION_PIPELINE_VERSION"));
 		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-0"));
 		assertTrue(compose.contains("POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-1"));
-		assertFalse(compose.contains("POCOMA_BALANCE_PIPELINE_VERSION:-1"));
+		assertFalse(compose.contains("POCOMA_QUERY_BALANCE_PIPELINE"));
+		assertFalse(compose.contains("POCOMA_BALANCE_PIPELINE_VERSION"));
 	}
 
 	@Test

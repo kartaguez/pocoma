@@ -13,12 +13,11 @@
 | Connaissance de version | `LatestKnownVersion`, avance monotone et port de persistance | `engine-read-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
 | Lecture exacte de projection | `ExactProjectionReadUseCase`, `ExactProjectionReadService`, `ProjectionReadPort` | `engine-projection-read` |
-| Faits AUTH read-side | Types non créés (`TokenCapabilities`, `PotAuthorizationAtVersion`, artifact complet `AUTH(V)`) | ownership à fermer en 7.10.1 |
+| Faits AUTH read-side | Types non créés (`TokenCapabilities`, artifact complet `AUTH(V)`) | hors de l'architecture actuellement supportée |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
 | Commande durable rejouable cible | `engine.command.model.RecordedCommand` | `engine-command` |
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
-| État mutable de projection Balance | `PotBalanceProjectionState` | `engine-projection`, legacy |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
 | Polling et capacité | `ConsumptionPollingWorker`, budgets de cycle | `supra-consumption-worker` |
 | Exécution atomique et fencing | `TransactionalExecuteConsumptionUseCase`, `currentClaimId` | `engine-consumption` / infra transactionnelle |
@@ -41,8 +40,8 @@ BusinessEvent
 RecordedEvent
   événement enrichi de eventId, recordedAt et trace optionnelle
 
-BusinessEventEnvelope (legacy)
-  représentation sérialisée de l'ancien flux outbox
+BusinessEventEnvelope
+  représentation durable sérialisée de l'Event enregistré dans business_event_outbox
 ```
 
 ### ProjectionTasks
@@ -95,19 +94,12 @@ n'est un contrat fonctionnel.
 
 | Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |
 |---|---|---|---|---|
-| `BusinessEventEnvelope` | outbox et projection legacy | `RecordedEvent<BusinessEvent>` | EventPort et mapper durable opérationnels | Infra Event |
-| `PotPartitioner` | workers de projection | `PartitionHash` | anciens workers retirés | Workers |
-| `ProjectionPartition` | ports/workers de projection | `WorkerSegment` | anciens ports retirés | Workers |
-| `BuildProjectionTasksUseCase` | projection legacy PCL.6 | matérialisation et exécution EPT canoniques | runtime monolith/projection legacy retiré | PCL.6 |
-| `ExecuteProjectionTasksUseCase` | projection legacy | task execution typée | TaskWorker actif | Workers Task |
-| `engine.model.*` de projection | adapters JPA et workers legacy | modèles processing/infra propriétaires | anciens ports outbox retirés | Workers/infra |
-| statuts/claims de l'ancien outbox | repositories et dispatchers actuels | slots/claims génériques | adapter PostgreSQL `ClaimPort` actif | Infrastructure |
 | table et colonnes `tasks_4_pipeline` | migrations historiques uniquement | aucune capacité runtime | drop physique après scans finaux | PCL.8 |
-| `PotBalanceProjectionState` et `pot_balance_*` | runtime monolith et calcul incrémental | artifact/failure/head BALANCE génériques | 7.12/7.13 serving et observation | Lot 7.16 |
-| artifact Balance spécifique au primaire | runtime web et Task Balance | persistence générique read-store | compatibilité 7.12 puis cutover 7.13 | Lots 7.12/7.16 |
+| colonnes lifecycle de `business_event_outbox` | append durable uniquement ; aucun lifecycle runtime | Consumption générique | drop/altération physique éventuelle après scan | PCL.8 |
+| tables historiques `pot_balance_*` | migrations historiques uniquement | store canonique `POT_BALANCES` | drop physique après scans finaux | PCL.8 |
 
-Le legacy Query/read exécutable a été retiré par PCL.4. Le legacy restant appartient aux flux de
-projection explicitement suivis par les lots PCL ultérieurs.
+Le legacy Query/read exécutable a été retiré par PCL.4. Le legacy applicatif des anciens flux de
+projection a été retiré par PCL.5 à PCL.7 ; seules les structures SQL historiques attendent PCL.8.
 
 Le modèle pipeline/generation/lifecycle/serving et ses modules ont été retirés par PCL.5. La
 migration historique V12 reste append-only sous la propriété de `infra-persistence-jpa` jusqu'au

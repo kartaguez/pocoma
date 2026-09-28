@@ -471,17 +471,10 @@ La responsabilité future des modules suit ces frontières :
 
 Une `ProjectionDefinition` est le contrat partagé de la projection produite et lue. Elle ne doit
 pas appartenir conceptuellement à un read use case uniquement parce que celui-ci la consomme.
-Aujourd'hui, `ReadPotProjectionDefinition` et `AuthProjectionDefinition` résident dans
-`engine-pot-read`, ce qui force notamment `engine-projection-pot` à dépendre du module de lecture
-métier. La direction souhaitable est un ownership neutre, accessible au producteur comme au reader,
-sans duplication des constantes ou schemas.
-
-Le présent document ne décide pas si cet ownership prendra la forme d'un module de contrats dédié,
-d'un module spécifique à la projection ou d'une extraction plus locale. Cette décision doit être
-prise dans le plan à partir du graphe Maven réel, en évitant à la fois la dépendance inversée vers
-un read use case et une prolifération de micro-modules. `PotBalancesProjectionDefinition`, déjà
-colocalisée avec son producteur, ne justifie pas à elle seule une règle différente : toute
-définition appelée à être lue ailleurs doit conserver une source canonique unique.
+Les définitions canoniques `ReadPotProjectionDefinition` et `PotBalancesProjectionDefinition`
+résident dans `domain-pot-projection`, ownership neutre partagé par producteurs et readers. La
+définition AUTH abandonnée a été supprimée ; aucune duplication de constante ou de schema ne doit
+être réintroduite.
 
 Les modules de domaine et d'engine restent Java purs. Aucun contrat du moteur ne dépend de Spring,
 JDBC/JPA, Jackson, Networknt, PostgreSQL, runtime, pipeline ou legacy.

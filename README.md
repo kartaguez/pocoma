@@ -119,8 +119,8 @@ API_PORT=8080
 POCOMA_SEGMENT_COUNT=2
 ```
 
-`POCOMA_BALANCE_PIPELINE_VERSION` is required rather than optional for the
-distributed mode and is propagated unchanged to Event and Task processing.
+The canonical workers derive projection work from Event and ProjectionTask consumption; the
+distributed composition has no pipeline id or pipeline-version setting.
 
 Useful endpoints:
 

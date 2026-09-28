@@ -545,11 +545,6 @@ class TransactionalConsumptionExecutionPostgresTest {
 			return delegate.handleFailure(slotId, claimId, failure, decision, now);
 		}
 
-		@Override
-		public com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult abandon(
-				UUID slotId, TerminalReason reason, Instant now) {
-			return delegate.abandon(slotId, reason, now);
-		}
 	}
 
 	private static final class FailingProvenancePort implements ConsumptionProvenancePersistencePort {

@@ -12,7 +12,6 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.AbandonResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 
@@ -35,6 +34,4 @@ public interface ConsumptionLifecyclePersistencePort {
 			ProcessingFailure failure,
 			FailureDecision decision,
 			Instant now);
-
-	AbandonResult abandon(UUID slotId, TerminalReason reason, Instant now);
 }

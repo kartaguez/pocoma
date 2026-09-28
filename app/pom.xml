@@ -48,7 +48,6 @@
 		<module>engine-projection-read</module>
 		<module>engine-projection-task</module>
 		<module>engine-pot-read</module>
-		<module>engine-projection</module>
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
 		<module>engine-read-projection</module>
@@ -67,7 +66,6 @@
 		<module>binding-pot-command-spring</module>
 		<module>supra-http-rest-spring</module>
 		<module>supra-authentication-spring-security</module>
-		<module>shared-runtime-spring-config</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-latest-known-version-consumption-worker</module>
