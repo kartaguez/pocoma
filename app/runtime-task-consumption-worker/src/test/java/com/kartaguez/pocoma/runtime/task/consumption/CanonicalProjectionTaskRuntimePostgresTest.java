@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -194,6 +195,44 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				.allMatch(artifact -> ((JsonObject) artifact.payload()).values().get("userId")
 						.equals(new JsonString(data.memberUserId().toString()))));
 		assertEquals(2, count("select count(*) from pocoma_read.projection_root where projection_type='AUTH'"));
+	}
+
+	@Test
+	void authVersionsMaterializeIndependentlyWhenExecutedNewestFirst() {
+		var data = seedEvolvingAuthPot();
+		ProjectionKey versionTwo = authKey(data.potId(), 2);
+		ProjectionKey versionThree = authKey(data.potId(), 3);
+		var exactReads = ExactProjectionReads.create(reader, validator);
+		tasks.ensure(versionThree, Instant.parse("2026-09-20T10:00:00Z"));
+
+		worker.runOneCycle();
+
+		assertInstanceOf(ProjectionReadResult.Ready.class,
+				exactReads.get(versionThree, AuthProjectionDefinition.DEFINITION));
+		assertInstanceOf(ProjectionReadResult.NotReady.class,
+				exactReads.get(versionTwo, AuthProjectionDefinition.DEFINITION));
+		assertEquals(0, authTaskCount(data.potId(), 2));
+		assertEquals(data.creatorUserId().toString(), projectedAuthCreator(versionThree));
+		assertEquals(Map.of(
+				data.firstShareholderId().toString(), data.firstMemberUserId().toString(),
+				data.secondShareholderId().toString(), data.secondMemberUserId().toString()),
+				projectedAuthRelations(versionThree));
+		assertEquals(1, authRootCount(data.potId(), 3));
+		assertEquals(0, authRootCount(data.potId(), 2));
+
+		tasks.ensure(versionTwo, Instant.parse("2026-09-20T10:00:01Z"));
+		worker.runOneCycle();
+
+		assertInstanceOf(ProjectionReadResult.Ready.class,
+				exactReads.get(versionTwo, AuthProjectionDefinition.DEFINITION));
+		assertEquals(data.creatorUserId().toString(), projectedAuthCreator(versionTwo));
+		assertEquals(Map.of(data.firstShareholderId().toString(), data.firstMemberUserId().toString()),
+				projectedAuthRelations(versionTwo));
+		assertEquals(1, authRootCount(data.potId(), 2));
+		assertEquals(1, authRootCount(data.potId(), 3));
+		assertEquals(2, count("select count(*) from pocoma_read.projection_root where projection_type='AUTH'"));
+		assertEquals(2, count("select count(*) from consumption_slots where status='DONE' "
+				+ "and terminal_outcome='SUCCESS'"));
 	}
 
 	@Test
@@ -400,6 +439,37 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		return LocalDate.parse(((JsonString) ((JsonObject) expense.payload()).values().get("date")).value());
 	}
 
+	private String projectedAuthCreator(ProjectionKey key) {
+		var creator = reader.findProjection(key).orElseThrow().artifacts().stream()
+				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.CREATOR))
+				.findFirst().orElseThrow();
+		return ((JsonString) ((JsonObject) creator.payload()).values().get("userId")).value();
+	}
+
+	private Map<String, String> projectedAuthRelations(ProjectionKey key) {
+		return reader.findProjection(key).orElseThrow().artifacts().stream()
+				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
+				.collect(java.util.stream.Collectors.toMap(
+						artifact -> artifact.artifactKey().value(),
+						artifact -> ((JsonString) ((JsonObject) artifact.payload()).values().get("userId")).value()));
+	}
+
+	private int authRootCount(UUID potId, long version) {
+		return jdbc.queryForObject("""
+				select count(*) from pocoma_read.projection_root
+				where projection_type = 'AUTH' and target_object_type = 'POT'
+				  and target_object_id = ? and target_version = ?
+				""", Integer.class, potId.toString(), version);
+	}
+
+	private int authTaskCount(UUID potId, long version) {
+		return jdbc.queryForObject("""
+				select count(*) from projection_tasks
+				where projection_type = 'AUTH' and target_object_type = 'POT'
+				  and target_object_id = ? and target_version = ?
+				""", Integer.class, potId.toString(), version);
+	}
+
 	private HistoricalData seedHistoricalPot() {
 		UUID potId = UUID.randomUUID();
 		UUID payerId = UUID.randomUUID();
@@ -499,6 +569,31 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				firstShareholderId, secondShareholderId);
 	}
 
+	private EvolvingAuthHistoricalData seedEvolvingAuthPot() {
+		UUID potId = UUID.randomUUID();
+		UUID creatorUserId = UUID.randomUUID();
+		UUID firstMemberUserId = UUID.randomUUID();
+		UUID secondMemberUserId = UUID.randomUUID();
+		UUID firstShareholderId = UUID.randomUUID();
+		UUID secondShareholderId = UUID.randomUUID();
+		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 3)", potId);
+		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values "
+				+ "(?, 1, ?), (?, 2, ?), (?, 3, ?)",
+				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
+				potId, java.sql.Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
+		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
+				+ "values (?, ?, 1, null, 'Trip', ?, false)", UUID.randomUUID(), potId, creatorUserId);
+		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
+				+ "name, weight_numerator, weight_denominator, user_id, deleted) values "
+				+ "(?, ?, ?, 2, null, 'First', 1, 1, ?, false), "
+				+ "(?, ?, ?, 3, null, 'Second', 1, 1, ?, false)",
+				UUID.randomUUID(), firstShareholderId, potId, firstMemberUserId,
+				UUID.randomUUID(), secondShareholderId, potId, secondMemberUserId);
+		return new EvolvingAuthHistoricalData(potId, creatorUserId, firstMemberUserId, secondMemberUserId,
+				firstShareholderId, secondShareholderId);
+	}
+
 	private void assertCanonicalConsumptionSucceeded() {
 		assertEquals(1, count("select count(*) from consumption_slots where status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
@@ -514,4 +609,6 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
 	private record AuthHistoricalData(UUID potId, UUID creatorUserId, UUID memberUserId,
 			UUID firstShareholderId, UUID secondShareholderId) {}
+	private record EvolvingAuthHistoricalData(UUID potId, UUID creatorUserId, UUID firstMemberUserId,
+			UUID secondMemberUserId, UUID firstShareholderId, UUID secondShareholderId) {}
 }

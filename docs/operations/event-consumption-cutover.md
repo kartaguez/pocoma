@@ -18,6 +18,13 @@ est volontairement dense : un rescan sans cursor durable retrouve chaque Event P
 crée la Task `AUTH` de la même version. Les workers Task doivent exposer `AUTH` dans leurs sets
 catalogue et locator avant d'activer les workers Event correspondants.
 
+Le backfill ne réouvre pas les Consumptions déjà terminées : leur identité inclut le
+`projectionType`. Les slots `PROJECTION_TASK_MATERIALIZER[READ_POT]` et
+`PROJECTION_TASK_MATERIALIZER[POT_BALANCES]` restent donc `DONE`, tandis que le scan découvre
+seulement le slot encore absent `PROJECTION_TASK_MATERIALIZER[AUTH]`. Un second scan ne produit
+aucun effet. En complément, l'unicité canonique de `projection_tasks` sur sa `ProjectionKey` et le
+`ensure ... on conflict do nothing` du store protègent contre toute duplication de Task.
+
 ## Procédure
 
 1. Arrêter tous les anciens workers Event capables d'appeler le scheduler pipeline legacy et empêcher
