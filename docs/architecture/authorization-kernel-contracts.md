@@ -35,8 +35,9 @@ Le lot définit uniquement :
 - la décision pure produite lorsque toutes les entrées sont disponibles ;
 - les invariants `CURRENT`, `EXACT(V)` et fail-closed à appliquer ultérieurement.
 
-Il ne crée ni pipeline, ni artifact persistant, ni raccordement HTTP et ne constitue pas un plan
-d'implémentation détaillé.
+Le lot de kernel initial ne créait ni pipeline, ni artifact persistant, ni raccordement HTTP. La
+projection AUTH décrite plus bas est désormais implémentée comme extension séparée de ce contrat ;
+elle ne change pas la séparation entre relations historiques et capacités courantes.
 
 ## 3. Invariants canoniques
 
@@ -57,8 +58,8 @@ d'implémentation détaillé.
    businessVersion et ne sont jamais persistées dans `AUTH(V)`.
 4. `AUTH(V)` historise les relations structurelles nécessaires à l'autorisation, jamais une liste
    croissante de faits dérivés ni le résultat d'une policy d'autorisation.
-5. Le contrat logique des faits sélectionnés pour une décision ne préjuge ni de la granularité ni du
-   layout physique de l'artifact complet `AUTH(V)`.
+5. Le contrat logique des faits sélectionnés pour une décision reste distinct du layout canonique
+   de `AUTH(V)` décrit en section 6.
 6. Aucun scope, rôle IAM, capability, droit dérivé ou résultat de policy n'appartient à `AUTH(V)`.
 7. `AuthorizationFacts` est une vue éphémère calculée pour une décision à partir du modèle de
    relations d'autorisation, de l'utilisateur courant et de la cible.
@@ -179,8 +180,30 @@ relations `shareholderId -> userId` des Shareholders actifs établissent l'appar
 document spécialisé précise le modèle relationnel minimal qui permet de dériver ces qualités ; il ne
 change ni l'autorité ni les invariants de l'architecture read-side.
 
-La représentation physique de l'artifact n'est pas fixée ici. En particulier, 7.10.1 ne décide ni sa
-structure SQL, ni son nombre de lignes, ni sa forme sérialisée, ni son layout, ni son indexation.
+La projection canonique utilise le store générique, sans table AUTH dédiée :
+
+| artifactType | artifactKey | payload | cardinalité |
+|---|---|---|---|
+| `CREATOR` | `creatorUserId` | `{ "userId": UUID }` | `1..1` |
+| `SHAREHOLDER_USER` | `shareholderId` | `{ "shareholderId": UUID, "userId": UUID }` | `0..N` |
+
+Les deux schemas sont stricts (`additionalProperties=false`). La clé par shareholder préserve la
+relation structurelle complète lorsque plusieurs shareholders sont rattachés au même user. Le
+créateur et l'appartenance sont indépendants et peuvent donc produire deux relations pour le même
+user. Aucun artifact de contexte artificiel n'est ajouté : `potId` et `businessVersion` sont portés
+par la `ProjectionKey`.
+
+La projection est dense :
+
+```text
+pour tout Pot P et toute version métier V,
+PotVersion(P,V) implique AUTH(P,V)
+```
+
+Les dix `PocomaEventTypes` créent donc une Task AUTH de la même version, y compris les changements
+d'Expense, de poids ou de libellé qui ne modifient pas les relations. Aucun reader ne cherche la
+dernière version AUTH inférieure ou égale à V. La version de suppression est également matérialisée ;
+elle conserve les relations applicables à cette version sans ajouter `deleted` aux artifacts AUTH.
 
 > **Invariant :** `AUTH(V)` persiste les relations structurelles historiques nécessaires à
 > l'autorisation, pas une liste croissante de faits dérivés ni de résultats de policy.
@@ -234,9 +257,9 @@ Les `AuthorizationFacts` de ce contrat sont dérivés de l'artifact, de `userId`
 définissent pas la persistence d'`AUTH(V)` et ne doivent pas y être recopiés comme une matrice par
 utilisateur, cible et action.
 
-Le contrat logique d'une décision ne préjuge pas de la granularité physique de l'artifact. La
-sélection et la dérivation des faits pertinents pour un utilisateur et une cible interviennent lors
-de la lecture ou de la résolution d'`AUTH(V)`.
+Le contrat logique d'une décision ne recopie pas la granularité physique des artifacts. La sélection
+et la dérivation des faits pertinents pour un utilisateur et une cible interviennent lors de la
+lecture ou de la résolution d'`AUTH(V)`.
 
 Le contrat logique et l'artifact ne contiennent jamais :
 
@@ -247,8 +270,8 @@ Le contrat logique et l'artifact ne contiennent jamais :
 
 Conformément à la reconstruction historique canonique, `creatorUserId` est reconstructible depuis le
 `creator_id` du Pot à V. Les relations actives `shareholderId -> userId` sont reconstructibles depuis
-les Shareholders applicables à V, non supprimés et liés à un utilisateur. Leur production et leur
-persistence exactes appartiennent au Lot 7.10.3.
+les Shareholders applicables à V, non supprimés et liés à un utilisateur. `AuthProjectionInputLoader`
+et `AuthProjector` matérialisent désormais exactement ces relations dans le store générique.
 
 > **Invariant :** `AUTH(V)` historise le petit modèle de relations métier nécessaire à
 > l'autorisation, jamais des capacités courantes, des faits dérivés persistés ou le résultat d'une

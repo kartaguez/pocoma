@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,25 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 
 class ProjectionDefinitionsTest {
 	private static final String ID = "00000000-0000-0000-0000-000000000001";
+
+	@Test
+	void authDefinitionUsesCreatorAndShareholderRelationsWithStrictCanonicalSchemas() {
+		var definition = AuthProjectionDefinition.DEFINITION;
+		assertEquals(List.of("CREATOR", "SHAREHOLDER_USER"), definition.artifactDefinitions().stream()
+				.map(value -> value.artifactType().value()).toList());
+		var creator = artifact(definition.artifactDefinitions(), "CREATOR");
+		var relation = artifact(definition.artifactDefinitions(), "SHAREHOLDER_USER");
+		assertEquals(1, creator.cardinality().min());
+		assertEquals(1, creator.cardinality().max());
+		assertEquals(0, relation.cardinality().min());
+		assertNull(relation.cardinality().max());
+		assertEquals(List.of("userId"), requiredFields(object(creator.schema())));
+		assertEquals(Set.of("shareholderId", "userId"), Set.copyOf(requiredFields(object(relation.schema()))));
+		assertEquals(new com.kartaguez.pocoma.domain.projection.JsonBoolean(false),
+				object(creator.schema()).values().get("additionalProperties"));
+		assertEquals(new com.kartaguez.pocoma.domain.projection.JsonBoolean(false),
+				object(relation.schema()).values().get("additionalProperties"));
+	}
 
 	@Test
 	void readPotDefinitionRequiresCanonicalNullableUserIdAndAllowsEmptyShares() {

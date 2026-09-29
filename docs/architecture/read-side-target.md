@@ -231,8 +231,10 @@ pas lue. Lorsque l'utilisateur n'est ni créateur ni shareholder à la version d
 est `Forbidden` et READ_POT n'est pas lue.
 
 AUTH déclare un artifact `CREATOR` obligatoire et des artifacts `SHAREHOLDER_USER` optionnels. Leur
-clé est le `UserId`. Le payload doit répéter ce même identifiant. Deux utilisateurs différents ne
-peuvent pas désigner le même `ShareholderId` dans une projection AUTH.
+clé est respectivement le `UserId` du créateur et le `ShareholderId` de la relation. Le payload
+`CREATOR` répète `userId`; le payload `SHAREHOLDER_USER` répète `shareholderId` et `userId`. Un même
+user peut donc être relié par plusieurs shareholders, sans collision de clé, et peut également être
+créateur. Chaque `ShareholderId` actif apparaît au plus une fois.
 
 READ_POT déclare un artifact `POT` obligatoire ainsi que zéro ou plusieurs artifacts `SHAREHOLDER`
 et `EXPENSE`. Pour l'artifact POT, l'égalité suivante est volontaire :

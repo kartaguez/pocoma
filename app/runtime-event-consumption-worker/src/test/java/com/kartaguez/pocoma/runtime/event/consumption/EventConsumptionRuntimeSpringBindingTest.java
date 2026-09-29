@@ -17,6 +17,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.kartaguez.pocoma.domain.event.EventType;
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -50,13 +51,14 @@ class EventConsumptionRuntimeSpringBindingTest {
 	@Test
 	void startsWithMultipleExplicitProjectionTypesAndDerivesTheirRoutesFromTheCanonicalPolicy() {
 		contextRunner.withPropertyValues(
-				"pocoma.event-consumption.projection-types=READ_POT,POT_BALANCES")
+				"pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES")
 				.run(context -> {
 					assertThat(context).hasNotFailed();
 					assertThat(context.getBean(EventConsumptionProperties.class).getProjectionTypes())
-							.containsExactly("READ_POT", "POT_BALANCES");
+							.containsExactly("AUTH", "READ_POT", "POT_BALANCES");
 					assertThat(routes(context.getBean(ProjectionMaterializationConsumptionSource.class)))
 							.isEqualTo(expectedRoutes(context, Set.of(
+									AuthProjectionDefinition.PROJECTION_TYPE,
 									ReadPotProjectionDefinition.PROJECTION_TYPE,
 									PotBalancesProjectionDefinition.PROJECTION_TYPE)));
 				});

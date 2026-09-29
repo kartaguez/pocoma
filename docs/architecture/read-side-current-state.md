@@ -37,8 +37,13 @@ Cette chaîne demande une identité et une version exactes. Elle valide l'artifa
 retombe ni sur les tables du write model, ni sur les anciennes tables metadata, ni sur une façade
 Query de compatibilité.
 
-Les producteurs canoniques `READ_POT` et `POT_BALANCES`, leurs contrats, le moteur
+Les producteurs canoniques `AUTH`, `READ_POT` et `POT_BALANCES`, leurs contrats, le moteur
 `ProjectionEngineService`, les ProjectionTasks et leurs tests restent en place.
+
+`AUTH(P,V)` est dense : chaque Event créant une version métier du Pot matérialise la même version
+AUTH. Son loader lit directement le header et les shareholders historiques nécessaires ; il ne lit
+ni `READ_POT`, ni les Expenses. Cette capacité n'ajoute pas encore d'endpoint GET ni d'orchestration
+de policy côté read.
 
 ## 3. Read store conservé
 
@@ -96,6 +101,6 @@ des structures KEEP et l'équivalence cataloguée des deux schémas finaux.
 
 ## 7. Hors périmètre
 
-PCL.4 n'ajoute aucun endpoint de lecture, aucune sélection `CURRENT`, aucune nouvelle policy AUTH et
+L'état courant n'ajoute aucun endpoint de lecture, aucune sélection `CURRENT`, aucune nouvelle policy AUTH et
 aucune façade. Une future exposition fonctionnelle devra consommer directement les capacités
 canoniques décidées par les lots correspondants, sans restaurer la structure supprimée.

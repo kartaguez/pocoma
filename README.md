@@ -8,7 +8,7 @@ The Spring Boot HTTP API admits mutations asynchronously through `POST /api/v1/c
 
 Each pot has a global version. Writes require an `expectedVersion`, which protects commands against concurrent updates. Canonical projection reads address an exact projection identity and version; they do not fall back to the write model.
 
-READ_POT and POT_BALANCES are canonical projections. A Command worker persists business state and a
+AUTH, READ_POT and POT_BALANCES are canonical projections. A Command worker persists business state and a
 business Event atomically in `business_event_outbox`. Event consumption materializes exact,
 versioned work in `projection_tasks`; the ProjectionTask runtime then executes the matching producer
 through `ProjectionEngineService` and publishes only to the canonical `pocoma_read.projection_root`,
@@ -76,7 +76,7 @@ cd app
 
 ./mvnw -pl runtime-event-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=READ_POT,POT_BALANCES"
+  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES"
 
 ./mvnw -pl runtime-latest-known-version-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
@@ -84,7 +84,7 @@ cd app
 
 ./mvnw -pl runtime-task-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=READ_POT,POT_BALANCES"
+  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES"
 ```
 
 ### Docker Compose Modes

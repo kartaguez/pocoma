@@ -8,11 +8,9 @@ Il affine la partie « préparation hors transaction » de
 Consumption ni celles du store définies dans
 [`read-side-target.md`](read-side-target.md).
 
-Le Lot 5 a livré deux producteurs concrets, `READ_POT` et `POT_BALANCES`. Leur implémentation montre
+Le moteur sert trois producteurs concrets, `AUTH`, `READ_POT` et `POT_BALANCES`. Leur implémentation montre
 qu'ils diffèrent par leurs données d'entrée et leur calcul, mais partagent le même algorithme de
-préparation. Cette convergence justifie désormais un moteur unique. `AUTH` sera le prochain cas
-concret utilisé pour vérifier l'extensibilité de cette architecture ; il n'est ni conçu ni
-implémenté par le présent document.
+préparation. L'ajout d'`AUTH` a confirmé l'extensibilité du moteur sans nouvelle mécanique.
 
 Ce document décrit une cible et ses invariants. Il ne constitue pas un plan de migration et ne fixe
 pas les signatures Java, le découpage en commits ou le wiring Spring.
@@ -355,20 +353,18 @@ doit pas imposer cette terminologie interne au producteur.
 publics distincts. Leur logique variable est absorbée par les déclarations de producteurs ; leur
 algorithme commun appartient à la façade unique.
 
-## 11. AUTH comme prochain test d'extension
+## 11. AUTH comme preuve d'extension
 
-Après migration de `READ_POT` et `POT_BALANCES`, ajouter `AUTH` doit normalement nécessiter
-seulement :
+L'ajout d'`AUTH` a nécessité seulement :
 
 - sa `ProjectionDefinition` ;
 - son chargement exact ;
 - son projector ;
 - son enregistrement dans le catalogue.
 
-Le use case générique, le locator, l'acquisition, la validation, le writer et la finalisation ne
-doivent pas être modifiés. Si l'implémentation réelle d'AUTH révèle une variation légitime absente
-des deux premiers cas, l'abstraction sera adaptée à partir de cette preuve concrète ; le présent
-document n'anticipe aucune extension spéculative.
+Le use case générique, le locator, l'acquisition, la validation, le writer et la finalisation n'ont
+pas été modifiés. Le producteur charge directement le header et les shareholders historiques utiles,
+sans lire `READ_POT` ni charger les Expenses.
 
 ## 12. Conséquences sur le runtime
 
@@ -471,10 +467,9 @@ La responsabilité future des modules suit ces frontières :
 
 Une `ProjectionDefinition` est le contrat partagé de la projection produite et lue. Elle ne doit
 pas appartenir conceptuellement à un read use case uniquement parce que celui-ci la consomme.
-Les définitions canoniques `ReadPotProjectionDefinition` et `PotBalancesProjectionDefinition`
-résident dans `domain-pot-projection`, ownership neutre partagé par producteurs et readers. La
-définition AUTH abandonnée a été supprimée ; aucune duplication de constante ou de schema ne doit
-être réintroduite.
+Les définitions canoniques `AuthProjectionDefinition`, `ReadPotProjectionDefinition` et
+`PotBalancesProjectionDefinition` résident dans `domain-pot-projection`, ownership neutre partagé
+par producteurs et readers. Aucune duplication de constante ou de schema ne doit être introduite.
 
 Les modules de domaine et d'engine restent Java purs. Aucun contrat du moteur ne dépend de Spring,
 JDBC/JPA, Jackson, Networknt, PostgreSQL, runtime, pipeline ou legacy.
@@ -539,7 +534,7 @@ Le refactoring sera conforme lorsque :
 12. les workers spécialisés et multi-projections utilisent la même façade ;
 13. plusieurs workers peuvent traiter et scaler indépendamment un même `ProjectionType` ;
 14. le filtrage opérationnel par type ne participe pas au routing fonctionnel ;
-15. ajouter AUTH ne requiert normalement que definition, loader, projector et registration ;
+15. AUTH réutilise definition, loader, projector et registration sans variante du moteur ;
 16. aucune dépendance à pipeline, `taskType`, generation, Event ou legacy n'entre dans le moteur.
 
 ## 17. Points laissés à l'implémentation

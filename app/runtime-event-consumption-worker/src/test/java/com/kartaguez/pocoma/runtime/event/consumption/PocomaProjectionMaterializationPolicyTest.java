@@ -1,7 +1,6 @@
 package com.kartaguez.pocoma.runtime.event.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -21,7 +21,7 @@ class PocomaProjectionMaterializationPolicyTest {
 	@Test
 	void declaresBusinessAndCommandTerminalEventMaterializations() {
 		var policy = PocomaProjectionMaterializationPolicy.policy();
-		var expected = Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
+		var expected = Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE);
 
 		assertEquals(13, policy.materializations().size());
@@ -33,8 +33,6 @@ class PocomaProjectionMaterializationPolicyTest {
 		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(
 				Set.of(CommandResultProjectionDefinition.PROJECTION_TYPE),
 				policy.materializations().get(eventType)));
-		assertFalse(policy.materializations().values().stream()
-				.anyMatch(materializations -> materializations.contains(new ProjectionType("AUTH"))));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
 	}
 
@@ -53,21 +51,24 @@ class PocomaProjectionMaterializationPolicyTest {
 	}
 
 	@Test
-	void derivesMaterializationsForWorkersServingBothCanonicalProjectionTypes() {
-		var expected = PocomaEventTypes.all().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(
-				eventType -> eventType,
-				eventType -> Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
-						PotBalancesProjectionDefinition.PROJECTION_TYPE)));
-
-		assertEquals(expected, PocomaProjectionMaterializationPolicy.policy().materializationsFor(Set.of(
-				ReadPotProjectionDefinition.PROJECTION_TYPE,
-				PotBalancesProjectionDefinition.PROJECTION_TYPE)));
+	void derivesDenseMaterializationsForAuthWorkers() {
+		assertEquals(expectedFor(AuthProjectionDefinition.PROJECTION_TYPE),
+				PocomaProjectionMaterializationPolicy.policy()
+						.materializationsFor(Set.of(AuthProjectionDefinition.PROJECTION_TYPE)));
 	}
 
 	@Test
-	void neverActivatesAuth() {
-		assertEquals(Map.of(), PocomaProjectionMaterializationPolicy.policy()
-				.materializationsFor(Set.of(new ProjectionType("AUTH"))));
+	void derivesMaterializationsForWorkersServingAllCanonicalProjectionTypes() {
+		var expected = PocomaEventTypes.all().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(
+				eventType -> eventType,
+				eventType -> Set.of(AuthProjectionDefinition.PROJECTION_TYPE,
+						ReadPotProjectionDefinition.PROJECTION_TYPE,
+						PotBalancesProjectionDefinition.PROJECTION_TYPE)));
+
+		assertEquals(expected, PocomaProjectionMaterializationPolicy.policy().materializationsFor(Set.of(
+				AuthProjectionDefinition.PROJECTION_TYPE,
+				ReadPotProjectionDefinition.PROJECTION_TYPE,
+				PotBalancesProjectionDefinition.PROJECTION_TYPE)));
 	}
 
 	private static Map<EventType, Set<ProjectionType>> expectedFor(ProjectionType projectionType) {

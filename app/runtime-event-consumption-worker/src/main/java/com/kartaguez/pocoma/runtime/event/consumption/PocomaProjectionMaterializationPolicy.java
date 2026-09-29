@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -18,6 +19,7 @@ import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMa
 /** Pocoma's explicit EventType to ProjectionType materialization decision table. */
 public final class PocomaProjectionMaterializationPolicy {
 	private static final Set<ProjectionType> MATERIALIZATIONS = Set.of(
+			AuthProjectionDefinition.PROJECTION_TYPE,
 			ReadPotProjectionDefinition.PROJECTION_TYPE,
 			PotBalancesProjectionDefinition.PROJECTION_TYPE);
 	private static final ProjectionMaterializationPolicy POLICY = new ProjectionMaterializationPolicy(

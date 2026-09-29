@@ -42,6 +42,7 @@ import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionAcquisitionPrecondition;
@@ -80,8 +81,8 @@ import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
 		"pocoma.projection-task-consumption.enabled=true",
-		"pocoma.projection-task-consumption.catalog-projection-types=POT_BALANCES,READ_POT",
-		"pocoma.projection-task-consumption.locator-projection-types=POT_BALANCES,READ_POT",
+		"pocoma.projection-task-consumption.catalog-projection-types=AUTH,POT_BALANCES,READ_POT",
+		"pocoma.projection-task-consumption.locator-projection-types=AUTH,POT_BALANCES,READ_POT",
 		"pocoma.projection-task-consumption.poll-interval=1h",
 		"spring.jpa.hibernate.ddl-auto=validate"
 })
@@ -138,7 +139,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		ConsumptionOrchestrator activeOrchestrator = context.getBean(ConsumptionOrchestrator.class);
 		assertInstanceOf(ProjectionTaskConsumptionOrchestrator.class, activeOrchestrator);
 		assertInstanceOf(ProjectionEngineService.class, context.getBean(ExecuteProjectionTaskUseCase.class));
-		assertEquals(Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
+		assertEquals(Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE),
 				context.getBean(ProjectionProducerCatalog.class).projectionTypes());
 		assertInstanceOf(JdbcProjectionTaskStoreAdapter.class, tasks);
@@ -146,21 +147,53 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	}
 
 	@Test
-	void bothCanonicalProjectionTypesPublishIntoTheCanonicalStore() {
+	void allCanonicalProjectionTypesPublishIntoTheCanonicalStore() {
 		var data = seedHistoricalPot();
 		ProjectionKey readPot = readPotKey(data.potId(), 2);
 		ProjectionKey balances = new ProjectionKey(PotBalancesProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE,
 				new TargetObjectId(data.potId().toString()), 2);
+		ProjectionKey auth = authKey(data.potId(), 2);
 		tasks.ensure(readPot, Instant.parse("2026-09-20T10:00:00Z"));
 		tasks.ensure(balances, Instant.parse("2026-09-20T10:00:01Z"));
+		tasks.ensure(auth, Instant.parse("2026-09-20T10:00:02Z"));
 
+		worker.runOneCycle();
 		worker.runOneCycle();
 		worker.runOneCycle();
 
 		assertTrue(reader.findProjection(readPot).isPresent());
 		assertTrue(reader.findProjection(balances).isPresent());
-		assertEquals(2, count("select count(*) from pocoma_read.projection_root"));
+		assertTrue(reader.findProjection(auth).isPresent());
+		assertEquals(3, count("select count(*) from pocoma_read.projection_root"));
+	}
+
+	@Test
+	void authIsDenseAndKeepsOneRelationPerLinkedShareholderAtTheDeletedVersion() {
+		var data = seedAuthPot();
+		ProjectionKey beforeDeletion = authKey(data.potId(), 2);
+		ProjectionKey deletedVersion = authKey(data.potId(), 3);
+		tasks.ensure(beforeDeletion, Instant.parse("2026-09-20T10:00:00Z"));
+		tasks.ensure(deletedVersion, Instant.parse("2026-09-20T10:00:01Z"));
+
+		worker.runOneCycle();
+		worker.runOneCycle();
+
+		var beforeArtifacts = reader.findProjection(beforeDeletion).orElseThrow().artifacts();
+		var deletedArtifacts = reader.findProjection(deletedVersion).orElseThrow().artifacts();
+		assertEquals(3, beforeArtifacts.size());
+		assertEquals(beforeArtifacts, deletedArtifacts);
+		assertEquals(1, beforeArtifacts.stream()
+				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.CREATOR)).count());
+		assertEquals(Set.of(data.firstShareholderId().toString(), data.secondShareholderId().toString()),
+				beforeArtifacts.stream()
+						.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
+						.map(artifact -> artifact.artifactKey().value()).collect(java.util.stream.Collectors.toSet()));
+		assertTrue(beforeArtifacts.stream()
+				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
+				.allMatch(artifact -> ((JsonObject) artifact.payload()).values().get("userId")
+						.equals(new JsonString(data.memberUserId().toString()))));
+		assertEquals(2, count("select count(*) from pocoma_read.projection_root where projection_type='AUTH'"));
 	}
 
 	@Test
@@ -355,6 +388,11 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(potId.toString()), version);
 	}
 
+	private ProjectionKey authKey(UUID potId, long version) {
+		return new ProjectionKey(AuthProjectionDefinition.PROJECTION_TYPE,
+				AuthProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(potId.toString()), version);
+	}
+
 	private LocalDate projectedExpenseDate(ProjectionKey key) {
 		var expense = reader.findProjection(key).orElseThrow().artifacts().stream()
 				.filter(artifact -> artifact.artifactType().equals(ReadPotProjectionDefinition.EXPENSE))
@@ -430,6 +468,37 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				firstExpenseId, secondExpenseId);
 	}
 
+	private AuthHistoricalData seedAuthPot() {
+		UUID potId = UUID.randomUUID();
+		UUID creatorUserId = UUID.randomUUID();
+		UUID memberUserId = UUID.randomUUID();
+		UUID firstShareholderId = UUID.randomUUID();
+		UUID secondShareholderId = UUID.randomUUID();
+		UUID unlinkedShareholderId = UUID.randomUUID();
+		UUID deletedShareholderId = UUID.randomUUID();
+		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 3)", potId);
+		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values "
+				+ "(?, 1, ?), (?, 2, ?), (?, 3, ?)",
+				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
+				potId, java.sql.Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
+		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
+				+ "values (?, ?, 1, 3, 'Trip', ?, false), (?, ?, 3, null, 'Trip', ?, true)",
+				UUID.randomUUID(), potId, creatorUserId, UUID.randomUUID(), potId, creatorUserId);
+		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
+				+ "name, weight_numerator, weight_denominator, user_id, deleted) values "
+				+ "(?, ?, ?, 1, null, 'First', 1, 1, ?, false), "
+				+ "(?, ?, ?, 1, null, 'Second', 1, 1, ?, false), "
+				+ "(?, ?, ?, 1, null, 'Unlinked', 1, 1, null, false), "
+				+ "(?, ?, ?, 1, null, 'Deleted', 1, 1, ?, true)",
+				UUID.randomUUID(), firstShareholderId, potId, memberUserId,
+				UUID.randomUUID(), secondShareholderId, potId, memberUserId,
+				UUID.randomUUID(), unlinkedShareholderId, potId,
+				UUID.randomUUID(), deletedShareholderId, potId, UUID.randomUUID());
+		return new AuthHistoricalData(potId, creatorUserId, memberUserId,
+				firstShareholderId, secondShareholderId);
+	}
+
 	private void assertCanonicalConsumptionSucceeded() {
 		assertEquals(1, count("select count(*) from consumption_slots where status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
@@ -443,4 +512,6 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	private record HistoricalData(UUID potId, UUID payerId, UUID shareholderId) {}
 	private record NonTrivialHistoricalData(UUID potId, UUID payerId, UUID shareholderId,
 			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
+	private record AuthHistoricalData(UUID potId, UUID creatorUserId, UUID memberUserId,
+			UUID firstShareholderId, UUID secondShareholderId) {}
 }

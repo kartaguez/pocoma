@@ -21,7 +21,7 @@ class Pcl7ModuleDependencyCollapseTest {
 			"BusinessEventOutboxPort", "BusinessEventClaim", "BusinessEventStatus",
 			"ProjectionPartition", "ClaimPort", "TryAcquireConsumptionUseCase",
 			"CompleteConsumptionUseCase", "FailConsumptionUseCase", "ReleaseConsumptionUseCase",
-			"AbandonConsumptionUseCase", "AuthProjectionDefinition", "PocomaObservation");
+			"AbandonConsumptionUseCase", "PocomaObservation");
 	private static final List<String> PCL8_TABLE_REFERENCES = List.of(
 			"tasks_4_pipeline", "projection_tasks_legacy",
 			"pipeline_version_activations", "projection_serving_selections",

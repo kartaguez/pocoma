@@ -117,6 +117,10 @@ public class JpaShareholderEntity {
 		return userId;
 	}
 
+	public boolean deleted() {
+		return deleted;
+	}
+
 	public long startedAtVersion() {
 		return startedAtVersion;
 	}

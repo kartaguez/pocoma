@@ -13,6 +13,11 @@ EventTypes et routes observés sont dérivés de la policy canonique ; ils ne so
 séparément. La segmentation utilise `business_event_outbox.pot_partition_hash`, conformément au
 modèle EPT, et non l'ancien hash pipeline × Pot.
 
+Le set métier déployé contient désormais `AUTH,READ_POT,POT_BALANCES`. L'ajout d'`AUTH` à la policy
+est volontairement dense : un rescan sans cursor durable retrouve chaque Event Pot historique et
+crée la Task `AUTH` de la même version. Les workers Task doivent exposer `AUTH` dans leurs sets
+catalogue et locator avant d'activer les workers Event correspondants.
+
 ## Procédure
 
 1. Arrêter tous les anciens workers Event capables d'appeler le scheduler pipeline legacy et empêcher

@@ -29,7 +29,7 @@ import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
 		"pocoma.event-consumption.enabled=false",
-		"pocoma.event-consumption.projection-types=READ_POT,POT_BALANCES",
+		"pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES",
 		"pocoma.event-consumption.segment-index=0",
 		"pocoma.event-consumption.segment-count=2",
 		"spring.jpa.hibernate.ddl-auto=validate"
@@ -84,22 +84,23 @@ class EventConsumptionRuntimePostgresTest {
 
 		worker.runOneCycle();
 
-		assertEquals(2, count("select count(*) from projection_tasks"));
-		assertEquals(2, count("select count(*) from projection_tasks where target_object_id='" + insidePot + "'"));
+		assertEquals(3, count("select count(*) from projection_tasks"));
+		assertEquals(3, count("select count(*) from projection_tasks where target_object_id='" + insidePot + "'"));
 		assertEquals(0, count("select count(*) from projection_tasks where target_object_id='" + outsidePot + "'"));
 		assertEquals(1, count("select count(*) from projection_tasks where projection_type='READ_POT'"));
 		assertEquals(1, count("select count(*) from projection_tasks where projection_type='POT_BALANCES'"));
-		assertEquals(2, count("select count(*) from consumption_slots where consumable_type='EVENT' "
+		assertEquals(1, count("select count(*) from projection_tasks where projection_type='AUTH'"));
+		assertEquals(3, count("select count(*) from consumption_slots where consumable_type='EVENT' "
 				+ "and consumer_type='PROJECTION_TASK_MATERIALIZER' and status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
-		assertEquals(2, count("select count(*) from consumption_claims where end_reason='SUCCESS'"));
+		assertEquals(3, count("select count(*) from consumption_claims where end_reason='SUCCESS'"));
 		assertEquals(0, count("select count(*) from consumption_inputs"));
 		assertEquals(0, count("select count(*) from consumption_results"));
 
 		worker.runOneCycle();
 
-		assertEquals(2, count("select count(*) from projection_tasks"));
-		assertEquals(2, count("select count(*) from consumption_claims"));
+		assertEquals(3, count("select count(*) from projection_tasks"));
+		assertEquals(3, count("select count(*) from consumption_claims"));
 	}
 
 	private void insertEvent(UUID eventId, UUID potId, long version, int partitionHash, Instant createdAt) {

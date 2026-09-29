@@ -26,6 +26,7 @@ import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
 import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionInputLoader;
 import com.kartaguez.pocoma.engine.command.result.CommandResultProjector;
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
@@ -36,6 +37,8 @@ import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
 import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionInputLoader;
 import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjector;
+import com.kartaguez.pocoma.engine.projection.pot.AuthProjectionInputLoader;
+import com.kartaguez.pocoma.engine.projection.pot.AuthProjector;
 import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInputLoader;
 import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjector;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
@@ -90,6 +93,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	}
 	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
 			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader,
+			ObjectProvider<AuthProjectionInputLoader> authLoaders,
 			ObjectProvider<CommandResultProjectionInputLoader> commandResultLoaders) {
 		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
 		var available = new ArrayList<ProjectionProducerDeclaration<?>>();
@@ -102,6 +106,15 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 				new ProjectionProducerDeclaration<>(ReadPotProjectionDefinition.PROJECTION_TYPE,
 						ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, ReadPotProjectionDefinition.DEFINITION,
 						readPotLoader, new ReadPotProjector())));
+		if (configured.contains(AuthProjectionDefinition.PROJECTION_TYPE)) {
+			AuthProjectionInputLoader authLoader = authLoaders.getIfAvailable();
+			if (authLoader == null) {
+				throw new IllegalStateException("AUTH requires an AuthProjectionInputLoader");
+			}
+			available.add(new ProjectionProducerDeclaration<>(AuthProjectionDefinition.PROJECTION_TYPE,
+					AuthProjectionDefinition.TARGET_OBJECT_TYPE, AuthProjectionDefinition.DEFINITION,
+					authLoader, new AuthProjector()));
+		}
 		if (configured.contains(CommandResultProjectionDefinition.PROJECTION_TYPE)) {
 			CommandResultProjectionInputLoader commandResultLoader = commandResultLoaders.getIfAvailable();
 			if (commandResultLoader == null) {

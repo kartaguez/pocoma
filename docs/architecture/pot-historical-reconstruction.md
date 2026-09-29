@@ -113,11 +113,17 @@ canoniques :
 actuel. Les permissions globales et scopes appartiennent au principal d'appel futur et ne sont pas
 des données du snapshot Pot.
 
+`JpaAuthProjectionInputLoader` applique cette lecture ciblée sous transaction read-only
+`REPEATABLE_READ`. Il exige la metadata de version exacte, charge seulement le header et les
+Shareholders, rejette les doublons temporels, puis conserve une relation par `ShareholderId`. Il ne
+charge ni Expense, ni projection `READ_POT`.
+
 ## Delete Pot terminal
 
 Le snapshot de la version de suppression reste reconstructible : le Pot header applicable porte
-`deleted=true` et les fragments enfants demeurent historisés. Il doit produire un statut projeté
-`DELETED`, sans effacer les versions antérieures.
+`deleted=true` et les fragments enfants demeurent historisés. `AUTH(P,V_deleted)` est donc
+matérialisée comme toute autre version et conserve le créateur ainsi que les relations actives ; le
+statut `deleted` n'est pas dupliqué dans AUTH. Les versions antérieures ne sont jamais effacées.
 
 Depuis le micro-correctif du Lot 7.6, le delete du Pot est terminal. Les contextes de création,
 suppression et modification d'Expense vérifient l'état deleted du Pot avant toute allocation de

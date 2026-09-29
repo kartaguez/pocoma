@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
@@ -18,10 +19,10 @@ class EventConsumptionRuntimeConfigurationTest {
 
 		assertEquals(Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE),
 				EventConsumptionRuntimeConfiguration.projectionTypes(List.of("READ_POT"), policy));
-		assertEquals(Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
+		assertEquals(Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE),
 				EventConsumptionRuntimeConfiguration.projectionTypes(
-						List.of("READ_POT", "POT_BALANCES"), policy));
+						List.of("AUTH", "READ_POT", "POT_BALANCES"), policy));
 	}
 
 	@Test

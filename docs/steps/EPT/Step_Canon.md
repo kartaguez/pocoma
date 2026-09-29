@@ -38,7 +38,6 @@ EPT comprend :
 
 Sont hors scope :
 
-- le producer `AUTH` ;
 - `ProjectionTask → Projection`, déjà pris en charge par le Projection Engine ;
 - une refonte de Consumption, de ses slots, Claims, leases ou règles de fencing ;
 - un DAG, un ordre entre versions ou une dépendance à la version précédente ;
@@ -168,12 +167,13 @@ La déclaration Pocoma initiale est :
 
 ```text
 chacun des 10 PocomaEventTypes
-    → { READ_POT, POT_BALANCES }
+    → { AUTH, READ_POT, POT_BALANCES }
 ```
 
-`AUTH` n'est pas activé par EPT. Modifier ultérieurement la policy rend les Events historiques
-concernés naturellement découvrables tant que leur nouvelle Consumption n'est pas `DONE`; la
-policy n'est ni persistée ni versionnée.
+`AUTH` est dense : chacun des dix Events crée une version métier du Pot et doit donc créer la
+`ProjectionTask AUTH` de même version, même si son contenu relationnel ne change pas. Son ajout à la
+policy rend les Events historiques naturellement découvrables tant que leur nouvelle Consumption
+n'est pas `DONE`; la policy n'est ni persistée ni versionnée.
 
 ## 7. Discovery invariants
 
@@ -242,7 +242,8 @@ Un worker EPT est configuré uniquement avec un `Set<ProjectionType>`, par exemp
 ```text
 { READ_POT }
 { POT_BALANCES }
-{ READ_POT, POT_BALANCES }
+{ AUTH }
+{ AUTH, READ_POT, POT_BALANCES }
 ```
 
 Les `EventType` pertinents et les routes sont dérivés exclusivement de la policy. Le worker ne
@@ -291,7 +292,7 @@ ProjectionTask → Projection
 ```
 
 Un mégatest unique n'est pas requis si chaque frontière persistante et les identités qui les
-relient sont vérifiées exactement. Les preuves finales couvrent `READ_POT` et `POT_BALANCES`.
+relient sont vérifiées exactement. Les preuves finales couvrent `AUTH`, `READ_POT` et `POT_BALANCES`.
 
 ## 13. Architectural boundaries
 

@@ -20,7 +20,7 @@ class DistributedComposeConfigurationTest {
 				"\n  pocoma-command-consumption-worker:\n");
 
 		assertEquals(2, occurrences(compose,
-				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
 		assertCanonicalTaskWorker(taskWorker0, 0);
 		assertCanonicalTaskWorker(taskWorker1, 1);
 		assertFalse(compose.contains("POCOMA_TASK_CONSUMPTION_"));
@@ -95,9 +95,9 @@ class DistributedComposeConfigurationTest {
 		assertTrue(service.contains("<<: *pocoma-java-environment"));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: \"true\""));
 		assertTrue(service.contains(
-				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
 		assertTrue(service.contains(
-				"POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: "
 				+ "canonical-projection-task-worker-" + segmentIndex));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: " + segmentIndex));

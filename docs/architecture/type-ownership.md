@@ -13,7 +13,7 @@
 | Connaissance de version | `LatestKnownVersion`, avance monotone et port de persistance | `engine-read-projection` |
 | Projection Pot canonique | `PotProjection` et ses composants logiques | `domain-projection` |
 | Lecture exacte de projection | `ExactProjectionReadUseCase`, `ExactProjectionReadService`, `ProjectionReadPort` | `engine-projection-read` |
-| Faits AUTH read-side | Types non créés (`TokenCapabilities`, artifact complet `AUTH(V)`) | hors de l'architecture actuellement supportée |
+| Projection AUTH read-side | `AuthProjectionDefinition`, `AuthProjectionInput`, loader exact et `AuthProjector` | `domain-pot-projection`, `engine-projection-pot`, adapter JPA en infrastructure |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
 | Commande durable rejouable cible | `engine.command.model.RecordedCommand` | `engine-command` |
