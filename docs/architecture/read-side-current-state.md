@@ -1,6 +1,6 @@
 # Read side — état courant
 
-Ce document décrit l'état exécutable après PCL.4. Les documents de décision et de cible restent les
+Ce document décrit l'état exécutable après PCL.8. Les documents de décision et de cible restent les
 références pour les lots futurs ; cette page ne crée pas une nouvelle architecture Query.
 
 ## 1. Frontière HTTP
@@ -49,10 +49,10 @@ Les producteurs canoniques `READ_POT` et `POT_BALANCES`, leurs contrats, le mote
 - l'intégration du store de projections exactes, dont l'adapter vit dans
   `infra-projection-persistence` et est testé contre les migrations du read store.
 
-Les migrations V1 à V7 ne sont pas réécrites. Elles conservent donc les tables historiques déjà
-livrées, mais aucun code de production PCL.4 ne lit plus `projection_artifacts`,
-`projection_failures`, `projection_heads`, `projection_invariant_violations` ou les tables
-`pot_projection_*`.
+Les migrations V1 à V7 ne sont pas réécrites. V8 supprime physiquement les tables historiques
+plurales `projection_artifacts`, `projection_failures`, `projection_heads`,
+`projection_invariant_violations`, les tables `pot_projection_*` et le metadata store read legacy.
+Le store canonique singulier et `source_version_watermarks` restent intacts.
 
 `ProjectionMetadataPort`, `JdbcProjectionMetadataAdapter`, le reader user/Pot, ses curseurs et son
 wiring ont été supprimés. `LatestKnownVersion` et son port de persistance appartiennent désormais à
@@ -65,15 +65,16 @@ Le producer canonique `POT_BALANCES` reconstruit ses entrées à la version dema
 `JpaHistoricalPotBalanceSourceAdapter`. Il ne lit ni n'écrit le résultat mutable de l'ancienne
 projection Balance.
 
-Les tables `pot_balance_projection_states`, `pot_balance_versions` et `pot_balances` restent
-physiquement présentes pour préserver l'historique Flyway, mais PCL.6 a supprimé leurs mappings,
-repositories, readers et writers runtime. Leur suppression SQL éventuelle est réservée à PCL.8.
+Les tables `pot_balance_projection_states`, `pot_balance_versions` et `pot_balances`, déjà sans
+mapping, repository, reader ou writer depuis PCL.6, sont supprimées physiquement par la migration
+primaire V16. La reconstruction historique canonique ne dépend pas de ces tables.
 
 ## 5. Frontières de persistance
 
 Les repositories et tables du write model Pot/Expense restent autoritaires pour les Commands et la
 reconstruction historique. Seules les méthodes de repository exclusivement appelées par les
-adapters Query supprimés ont disparu. Aucun schéma primaire ni read-store n'est supprimé par PCL.4.
+adapters Query supprimés ont disparu. V16 supprime en outre le schéma exclusivement legacy
+`pocoma_control`; V8 conserve le schéma `pocoma_read` et ses structures canoniques.
 
 ## 6. Preuves structurelles
 
@@ -87,6 +88,11 @@ adapters Query supprimés ont disparu. Aucun schéma primaire ni read-store n'es
 
 `WriteSideHttpClosureTest` vérifie en plus l'absence des six opérations GET et des anciens headers
 de sécurité dans l'OpenAPI.
+
+`Pcl8DatabaseDemolitionTest` verrouille les checksums des 22 migrations historiques, les DROP
+stricts de V16/V8 et l'absence d'accès production aux structures détruites.
+`Pcl8DatabaseDemolitionPostgresTest` prouve l'upgrade non vide, le clean bootstrap, la préservation
+des structures KEEP et l'équivalence cataloguée des deux schémas finaux.
 
 ## 7. Hors périmètre
 

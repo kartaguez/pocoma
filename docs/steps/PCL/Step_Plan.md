@@ -3,7 +3,7 @@
 ```text
 Step: PCL — Projection Chain Legacy Cleanup
 Current lot: PCL.8
-Overall status: IN_PROGRESS
+Overall status: DONE
 ```
 
 La source architecturale normative de ce tracker est [`Step_Canon.md`](Step_Canon.md). EPT est la
@@ -19,7 +19,7 @@ chaîne Event → Projection.
 | PCL.5 | LKV isolation + pipeline/lifecycle demolition | DONE |
 | PCL.6 | Monolith demolition + migration ownership | DONE |
 | PCL.7 | Module/dependency collapse | DONE |
-| PCL.8 | Database demolition | TODO |
+| PCL.8 | Database demolition | DONE |
 
 ## Dependency graph
 
@@ -968,7 +968,7 @@ Pour `infra-persistence-jpa` : prune first; split only if concretely required.
 
 ### Status
 
-`TODO`
+`DONE`
 
 ### Objective
 
@@ -1034,6 +1034,22 @@ runtime/config deps     = 0
 - Toute exigence d'archivage opérationnel est explicitement décidée sans restaurer de contrat
   runtime legacy.
 
+### Notes / findings
+
+- L'audit final confirme les cinq zéros pour chaque famille DROP : aucun reader, writer, mapping
+  JPA, accès JDBC/native SQL ou dépendance runtime/configuration de production.
+- `NO ARCHIVAL REQUIREMENT FOUND` : aucune obligation d'archivage des données legacy n'existe dans
+  les runbooks ou contrats actifs.
+- Le schéma `pocoma_control`, exclusivement legacy, est supprimé sous `RESTRICT` après ses deux
+  tables.
+- Le trigger, la table et la fonction metadata legacy read sont systématiquement qualifiés
+  `pocoma_read`; leurs homonymes `public` restent protégés et fonctionnels.
+- `event_4_pipeline_materialization_status`, déjà supprimée par V10, reste absente et ne fait
+  l'objet d'aucun DROP redondant.
+- Les tests historiques V9→V10 et V14→V15 sont bornés à leur version cible afin de continuer à
+  prouver leurs migrations isolément, sans fabriquer un faux schéma candidat à V16.
+- `Step_Canon.md`: `UNCHANGED`.
+
 ### Exit criteria
 
 - Toutes les tables DROP encore présentes sont supprimées par de nouvelles migrations.
@@ -1057,6 +1073,36 @@ runtime/config deps     = 0
 - exact READ_POT interne ;
 - LKV jusqu'à `source_version_watermarks` ;
 - scans finaux JPA/JDBC/native SQL et runtime configuration.
+
+### Completion evidence
+
+- implementation commit: `f997726f35a8faaf0fd046b39aeed214dfd3b5d4` ;
+- migration primaire
+  `V16__drop_legacy_projection_runtime_structures.sql` ajoutée après V15 : ordre strict
+  child-before-parent, suppression de `pocoma_control` sous `RESTRICT`, aucun `CASCADE` ni
+  `IF EXISTS` ;
+- migration read `V8__drop_legacy_read_projection_structures.sql` ajoutée après V7 : ordre strict
+  des foreign keys, puis trigger/table/fonction metadata qualifiés, aucun `CASCADE` ni
+  `IF EXISTS` ;
+- guard permanent des SHA-256 des 22 migrations historiques V1–V15 et read V1–V7 ; aucun fichier
+  historique modifié, aucun `repair` ou doublon de version ;
+- test PostgreSQL intégré sur deux bases isolées d'un même conteneur : upgrade non vide
+  primaire V15/read V7 vers V16/V8 avec données DROP et sentinelles KEEP, puis clean bootstrap
+  V1–V16/V1–V8 ;
+- exactement une nouvelle migration par history ; checksums et installed ranks historiques
+  inchangés après upgrade ;
+- toutes les structures DROP absentes, toutes les structures KEEP et leurs sentinelles intactes,
+  trigger/fonction `public.pot_version_metadata` toujours fonctionnels ;
+- empreintes structurelles upgrade et bootstrap strictement égales, sans OID, sur schemas,
+  relations, séquences/identités, colonnes, contraintes, indexes, triggers et fonctions ;
+- suites ciblées migrations, Event, ProjectionTask, LKV et EPT vertes sur les 42 modules ; guards
+  PCL.3 à PCL.8 verts ;
+- `./mvnw clean verify` : 42 modules `SUCCESS`, 873 tests, 0 failure, 0 error, 0 skipped,
+  `BUILD SUCCESS` le 2026-09-29 ; `architecture-tests` : 77 tests verts ;
+- `docker compose -f docker-compose.distributed.yml config --quiet` et `git diff --check` verts ;
+- documentation active alignée sur la destruction physique et suite k6
+  `projection_backpressure.js` explicitement classée historique ;
+- Global Definition of Done du Canon satisfaite et step PCL clôturé.
 
 ### What becomes removable next
 
