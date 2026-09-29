@@ -52,9 +52,9 @@ fencing and replay remain responsibilities of the existing Consumption component
 ## Legacy boundary
 
 The former Event pipeline scheduling graph, its locator, registries, scheduler and
-`JpaTaskCreationAdapter` are no longer compiled. Historical `PROJECTION_TASK_SCHEDULER` slots and
-`tasks_4_pipeline` rows may remain stored until their dedicated cleanup steps; no production Event
-path writes new rows to `tasks_4_pipeline`.
+`JpaTaskCreationAdapter` are no longer compiled. `tasks_4_pipeline` is physically absent from the
+final schema since primary migration V16; historical `PROJECTION_TASK_SCHEDULER` Consumption rows
+do not restore a supported legacy path.
 
 The independently deployed LatestKnownVersion runtime remains a separate direct consumer under
 `EVENT[eventId] / SOURCE_VERSION_WATERMARK[]` and is not part of this graph.

@@ -98,7 +98,9 @@ Les timers Prometheus sont échantillonnés par delta `sum/count` entre deux scr
 
 ## Projection Back Pressure
 
-Ce scénario cible spécifiquement la nouvelle chaîne `business_event_outbox` -> `projection_tasks` -> workers segmentés. Il génère un burst de commandes, tout en continuant à lire les balances et à scraper Prometheus.
+Ce scénario historique ciblait l'ancienne chaîne `business_event_outbox` -> `projection_tasks` ->
+workers segmentés. La commande ci-dessous est conservée comme référence de charge et ne valide pas
+les runtimes canoniques actuels.
 
 ```bash
 cd app
@@ -111,7 +113,7 @@ SCRAPE_INTERVAL_SECONDS=2 \
 k6 run ../scripts/k6/projection_backpressure.js
 ```
 
-La lecture attendue est simple : pendant le burst, `pocoma_observed_projection_outbox_pending` et/ou `pocoma_observed_projection_tasks_pending` peuvent monter. Après la fin de la charge, ces jauges doivent redescendre pendant que le gap de projection revient vers zéro.
+La lecture attendue historique était une montée du backlog pendant le burst, suivie de son drainage.
 
 ## Nettoyage
 

@@ -54,7 +54,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
 | `supra-http-rest-spring` | admission Command asynchrone ; aucun endpoint Pot/Expense/Balance legacy | command admission | target |
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
-| `infra-persistence-jpa` | implémentations JPA/JDBC des ports, migrations primaires V1–V15, Recorded Commands, discovery Event/Task et sources historiques des producers canoniques | engines propriétaires, domaines | target ; aucun runtime mutable Balance ou `projection_tasks_legacy` |
+| `infra-persistence-jpa` | implémentations JPA/JDBC des ports, migrations primaires V1–V16, Recorded Commands, discovery Event/Task et sources historiques des producers canoniques | engines propriétaires, domaines | target ; aucun runtime mutable Balance ou `projection_tasks_legacy` |
 | `infra-read-persistence` | store canonique exact, latest-known et migrations historiques append-only | `engine-projection-read`, `engine-read-projection`, Spring JDBC et Flyway | conservé ; aucun reader metadata/index legacy |
 | `observability` | contexte de corrélation de trace partagé par HTTP et append Event | JDK | infrastructure transversale minimale |
 | `runtime-web-api` | composition de l'admission Command HTTP | supra HTTP, persistence et sécurité | composition |

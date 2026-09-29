@@ -90,17 +90,18 @@ Les effets métier, la provenance et le CAS terminal gagnant appartiennent à la
 d'exécution. Ils deviennent visibles atomiquement au commit ; aucun ordre de visibilité intermédiaire
 n'est un contrat fonctionnel.
 
-## Legacy restant
+## Legacy SQL clôturé
 
-| Élément | Utilisateurs actuels | Remplacement cible | Condition de suppression | Étape future |
+| Élément | Utilisateurs actuels | Remplacement cible | État final | Lot |
 |---|---|---|---|---|
-| table et colonnes `tasks_4_pipeline` | migrations historiques uniquement | aucune capacité runtime | drop physique après scans finaux | PCL.8 |
-| colonnes lifecycle de `business_event_outbox` | append durable uniquement ; aucun lifecycle runtime | Consumption générique | drop/altération physique éventuelle après scan | PCL.8 |
-| tables historiques `pot_balance_*` | migrations historiques uniquement | store canonique `POT_BALANCES` | drop physique après scans finaux | PCL.8 |
+| table et colonnes `tasks_4_pipeline` | migrations historiques uniquement | aucune capacité runtime | absentes du schéma final depuis V16 | PCL.8 `DONE` |
+| colonnes lifecycle de `business_event_outbox` | append durable initialise encore `status`/`attempt_count` ; aucun lifecycle runtime | Consumption générique | conservées dans la table KEEP ; aucune responsabilité legacy active | PCL clôturé |
+| tables historiques `pot_balance_*` | migrations historiques uniquement | store canonique `POT_BALANCES` | absentes du schéma final depuis V16 | PCL.8 `DONE` |
 
 Le legacy Query/read exécutable a été retiré par PCL.4. Le legacy applicatif des anciens flux de
-projection a été retiré par PCL.5 à PCL.7 ; seules les structures SQL historiques attendent PCL.8.
+projection a été retiré par PCL.5 à PCL.7, puis les structures SQL legacy restantes par V16/V8 en
+PCL.8.
 
 Le modèle pipeline/generation/lifecycle/serving et ses modules ont été retirés par PCL.5. La
-migration historique V12 reste append-only sous la propriété de `infra-persistence-jpa` jusqu'au
-drop physique des tables lifecycle en PCL.8.
+migration historique V12 reste append-only sous la propriété de `infra-persistence-jpa`; ses tables
+lifecycle sont absentes du schéma final depuis V16.

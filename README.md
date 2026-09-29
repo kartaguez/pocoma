@@ -133,7 +133,8 @@ Useful endpoints:
 
 Validation is intentionally layered.
 
-Maven tests cover business rules, use cases, JPA adapters, HTTP controllers, the worker, and monolith boot:
+Maven tests cover business rules, use cases, JPA adapters, HTTP admission, and the supported
+Command, Event, ProjectionTask and LatestKnownVersion runtimes:
 
 ```bash
 cd app
