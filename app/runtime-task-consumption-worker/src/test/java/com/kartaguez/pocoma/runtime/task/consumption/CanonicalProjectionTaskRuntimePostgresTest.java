@@ -146,8 +146,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	}
 
 	@Test
-	void bothCanonicalProjectionTypesPublishWithoutChangingAnyLegacyStore() {
-		LegacyStoreSnapshot before = legacyStoreSnapshot();
+	void bothCanonicalProjectionTypesPublishIntoTheCanonicalStore() {
 		var data = seedHistoricalPot();
 		ProjectionKey readPot = readPotKey(data.potId(), 2);
 		ProjectionKey balances = new ProjectionKey(PotBalancesProjectionDefinition.PROJECTION_TYPE,
@@ -162,7 +161,6 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertTrue(reader.findProjection(readPot).isPresent());
 		assertTrue(reader.findProjection(balances).isPresent());
 		assertEquals(2, count("select count(*) from pocoma_read.projection_root"));
-		assertEquals(before, legacyStoreSnapshot());
 	}
 
 	@Test
@@ -232,7 +230,6 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 						.map(share -> share.shareholderId().value()).collect(java.util.stream.Collectors.toSet()));
 		assertEquals(1, count("select count(*) from pocoma_read.projection_root where projection_type='READ_POT' "
 				+ "and target_object_type='POT' and target_object_id='" + data.potId() + "' and target_version=2"));
-		assertEquals(0, count("select count(*) from pocoma_read.pot_projection_snapshots"));
 	}
 
 	@Test
@@ -443,28 +440,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		return jdbc.queryForObject(sql, Integer.class);
 	}
 
-	private LegacyStoreSnapshot legacyStoreSnapshot() {
-		return new LegacyStoreSnapshot(
-				count("select count(*) from tasks_4_pipeline"),
-				count("select count(*) from balance_projection_artifacts"),
-				count("select count(*) from balance_projection_entries"),
-				count("select count(*) from pocoma_read.projection_artifacts"),
-				count("select count(*) from pocoma_read.projection_failures"),
-				count("select count(*) from pocoma_read.projection_heads"),
-				count("select count(*) from pocoma_read.projection_invariant_violations"),
-				count("select count(*) from pocoma_read.pot_projection_snapshots"),
-				count("select count(*) from pocoma_read.pot_projection_shareholders"),
-				count("select count(*) from pocoma_read.pot_projection_expenses"),
-				count("select count(*) from pocoma_read.pot_projection_expense_shares"),
-				count("select count(*) from pocoma_read.pot_projection_user_index"),
-				count("select count(*) from pocoma_read.pot_version_metadata"));
-	}
-
 	private record HistoricalData(UUID potId, UUID payerId, UUID shareholderId) {}
 	private record NonTrivialHistoricalData(UUID potId, UUID payerId, UUID shareholderId,
 			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
-	private record LegacyStoreSnapshot(int tasks, int balanceArtifacts, int balanceEntries,
-			int metadataArtifacts, int metadataFailures, int metadataHeads, int metadataViolations,
-			int potSnapshots, int potShareholders, int potExpenses, int potExpenseShares,
-			int potUserIndex, int potVersionMetadata) {}
 }

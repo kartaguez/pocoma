@@ -98,7 +98,6 @@ class DurableEventToProjectionPostgresTest {
 
 			tasks = loadProjectionTasks(jdbc, event.potId(), event.version());
 			assertEquals(2, tasks.size());
-			assertEquals(0, count(jdbc, "select count(*) from tasks_4_pipeline"));
 			assertEquals(Set.of("READ_POT", "POT_BALANCES"),
 					tasks.stream().map(task -> task.key().projectionType().value()).collect(java.util.stream.Collectors.toSet()));
 			for (TaskRow task : tasks) {
@@ -166,7 +165,7 @@ class DurableEventToProjectionPostgresTest {
 
 	private void cleanAndSeed(JdbcTemplate jdbc, UUID potId, UUID payerId, UUID shareholderId, UUID expenseId) {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims, "
-				+ "projection_tasks, tasks_4_pipeline, business_event_outbox cascade");
+				+ "projection_tasks, business_event_outbox cascade");
 		jdbc.execute("truncate table expense_shares, expense_headers, shareholders, pot_headers, "
 				+ "pot_version_metadata, pot_global_versions cascade");
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 2)", potId);

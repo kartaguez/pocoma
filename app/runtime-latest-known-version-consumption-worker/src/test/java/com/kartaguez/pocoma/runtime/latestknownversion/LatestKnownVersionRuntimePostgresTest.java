@@ -90,8 +90,7 @@ class LatestKnownVersionRuntimePostgresTest {
 	@BeforeEach
 	void cleanDatabase() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
-				+ "consumption_claims, tasks_4_pipeline, "
-				+ "business_event_outbox cascade");
+				+ "consumption_claims, business_event_outbox cascade");
 		jdbc.execute("truncate table pocoma_read.source_version_watermarks");
 	}
 
@@ -106,10 +105,6 @@ class LatestKnownVersionRuntimePostgresTest {
 		orchestrator.run(input());
 
 		assertEquals(3L, version(potId));
-		assertEquals(0L, count("tasks_4_pipeline"));
-		assertEquals(0L, countRead("projection_artifacts"));
-		assertEquals(0L, countRead("projection_failures"));
-		assertEquals(0L, countRead("projection_heads"));
 		for (var event : events.findAll()) {
 			var slot = lifecycle.findSlot(LatestKnownVersionConsumptionLocator.key(event.id())).orElseThrow();
 			assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
@@ -333,10 +328,6 @@ class LatestKnownVersionRuntimePostgresTest {
 
 	private long count(String table) {
 		return jdbc.queryForObject("select count(*) from " + table, Long.class);
-	}
-
-	private long countRead(String table) {
-		return jdbc.queryForObject("select count(*) from pocoma_read." + table, Long.class);
 	}
 
 	private static Claim acquired(AcquireResult result) {

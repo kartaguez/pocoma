@@ -55,7 +55,7 @@ class EventConsumptionRuntimePostgresTest {
 	@BeforeEach
 	void cleanDatabase() {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
-				+ "consumption_claims, projection_tasks, tasks_4_pipeline, business_event_outbox cascade");
+				+ "consumption_claims, projection_tasks, business_event_outbox cascade");
 	}
 
 	@Test
@@ -93,7 +93,6 @@ class EventConsumptionRuntimePostgresTest {
 				+ "and consumer_type='PROJECTION_TASK_MATERIALIZER' and status='DONE' "
 				+ "and terminal_outcome='SUCCESS'"));
 		assertEquals(2, count("select count(*) from consumption_claims where end_reason='SUCCESS'"));
-		assertEquals(0, count("select count(*) from tasks_4_pipeline"));
 		assertEquals(0, count("select count(*) from consumption_inputs"));
 		assertEquals(0, count("select count(*) from consumption_results"));
 

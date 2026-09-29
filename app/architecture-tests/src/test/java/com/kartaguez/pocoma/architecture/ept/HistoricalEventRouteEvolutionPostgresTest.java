@@ -165,7 +165,7 @@ class HistoricalEventRouteEvolutionPostgresTest {
 
 	private void cleanDatabase(JdbcTemplate jdbc) {
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims, "
-				+ "projection_tasks, tasks_4_pipeline, business_event_outbox cascade");
+				+ "projection_tasks, business_event_outbox cascade");
 	}
 
 	private EventRow loadEvent(JdbcTemplate jdbc, UUID potId) {

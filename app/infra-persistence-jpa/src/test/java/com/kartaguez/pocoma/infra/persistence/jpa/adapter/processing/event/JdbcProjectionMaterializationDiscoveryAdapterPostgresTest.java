@@ -93,7 +93,6 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		jdbc.update("update consumption_slots set current_claim_id = null");
 		jdbc.update("delete from consumption_claims");
 		jdbc.update("delete from consumption_slots");
-		jdbc.update("delete from tasks_4_pipeline");
 		jdbc.update("delete from business_event_outbox");
 	}
 

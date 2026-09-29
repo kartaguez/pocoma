@@ -121,7 +121,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	@BeforeEach
 	void setUp() {
 		jdbc.execute("truncate table projection_tasks, consumption_inputs, consumption_results, "
-				+ "consumption_slots, consumption_claims, tasks_4_pipeline, business_event_outbox cascade");
+				+ "consumption_slots, consumption_claims, business_event_outbox cascade");
 		clock = new MutableClock(NOW);
 		transactions = new SpringTransactionRunner(new TransactionTemplate(transactionManager));
 		acquire = new TransactionalAcquireConsumptionUseCase(

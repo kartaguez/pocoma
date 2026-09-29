@@ -30,7 +30,7 @@ class ProjectionTaskSchedulingMigrationPostgresTest {
 		UUID potId = UUID.randomUUID();
 		seedEventTask(schema, eventId, potId, UUID.randomUUID(), "only");
 
-		migrate(schema, null);
+		migrate(schema, "10");
 
 		try (Connection connection = connection(); var statement = connection.createStatement()) {
 			assertEquals(1, scalar(statement, "select count(*) from " + schema
@@ -50,7 +50,7 @@ class ProjectionTaskSchedulingMigrationPostgresTest {
 		seedEventTask(schema, eventId, potId, materializationId, "first");
 		seedTask(schema, eventId, potId, materializationId, "second");
 
-		assertThrows(Exception.class, () -> migrate(schema, null));
+		assertThrows(Exception.class, () -> migrate(schema, "10"));
 
 		try (Connection connection = connection(); var statement = connection.createStatement()) {
 			assertEquals(2, scalar(statement, "select count(*) from " + schema + ".tasks_4_pipeline"));

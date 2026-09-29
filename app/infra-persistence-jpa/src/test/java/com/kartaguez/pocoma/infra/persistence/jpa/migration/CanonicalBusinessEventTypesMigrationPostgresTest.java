@@ -43,7 +43,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 			}
 		}
 
-		migrate(schema, null);
+		migrate(schema, "15");
 
 		try (Connection connection = connection(); var statement = connection.createStatement()) {
 			for (String canonicalType : TYPES.values()) {
@@ -66,7 +66,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seed(schema, "UnknownJavaEvent", "UnknownJavaEvent");
 
-		assertThrows(Exception.class, () -> migrate(schema, null));
+		assertThrows(Exception.class, () -> migrate(schema, "15"));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seed(schema, "PotCreatedEvent", "ExpenseCreatedEvent");
 
-		assertThrows(Exception.class, () -> migrate(schema, null));
+		assertThrows(Exception.class, () -> migrate(schema, "15"));
 	}
 
 	@Test
@@ -84,7 +84,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seed(schema, "POT_CREATED", "POT_CREATED");
 
-		migrate(schema, null);
+		migrate(schema, "15");
 
 		assertStoredType(schema, "POT_CREATED", "POT_CREATED");
 	}
@@ -95,7 +95,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seedPayload(schema, "PotCreatedEvent", "{\"eventType\":null}");
 
-		assertThrows(Exception.class, () -> migrate(schema, null));
+		assertThrows(Exception.class, () -> migrate(schema, "15"));
 	}
 
 	@Test
@@ -104,7 +104,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seedPayload(schema, "PotCreatedEvent", "{\"eventType\":42}");
 
-		assertThrows(Exception.class, () -> migrate(schema, null));
+		assertThrows(Exception.class, () -> migrate(schema, "15"));
 	}
 
 	@Test
@@ -113,7 +113,7 @@ class CanonicalBusinessEventTypesMigrationPostgresTest {
 		migrate(schema, "14");
 		seedPayload(schema, "PotCreatedEvent", "{\"version\":1}");
 
-		migrate(schema, null);
+		migrate(schema, "15");
 
 		assertStoredType(schema, "POT_CREATED", null);
 	}

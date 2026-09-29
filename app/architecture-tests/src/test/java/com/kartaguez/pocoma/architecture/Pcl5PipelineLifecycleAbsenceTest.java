@@ -12,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -85,18 +84,6 @@ class Pcl5PipelineLifecycleAbsenceTest {
 		assertTrue(sql.contains("create table pocoma_control.projection_serving_selections"));
 	}
 
-	@Test
-	void noProductionMigrationDropsLifecycleTablesBeforePcl8() throws IOException {
-		Path app = appRoot();
-		for (Path migration : productionSqlResources(app)) {
-			String sql = Files.readString(migration);
-			for (String table : LIFECYCLE_TABLES) {
-				assertFalse(dropTablePattern(table).matcher(sql).find(),
-						() -> app.relativize(migration) + " prematurely drops " + table);
-			}
-		}
-	}
-
 	private static List<Path> productionFiles(Path app) throws IOException {
 		try (var paths = Files.walk(app)) {
 			return paths.filter(Files::isRegularFile)
@@ -115,23 +102,6 @@ class Pcl5PipelineLifecycleAbsenceTest {
 					.filter(path -> !path.toString().contains("/target/"))
 					.toList();
 		}
-	}
-
-	private static List<Path> productionSqlResources(Path app) throws IOException {
-		try (var paths = Files.walk(app)) {
-			return paths.filter(Files::isRegularFile)
-					.filter(path -> path.toString().contains("/src/main/resources/"))
-					.filter(path -> path.getFileName().toString().endsWith(".sql"))
-					.filter(path -> !path.toString().contains("/target/"))
-					.toList();
-		}
-	}
-
-	private static Pattern dropTablePattern(String table) {
-		String identifier = "(?:\\\"" + table + "\\\"|" + table + ")";
-		String optionalSchema = "(?:(?:\\\"[^\\\"]+\\\"|[a-z_][a-z0-9_$]*)\\s*\\.\\s*)?";
-		return Pattern.compile("\\bdrop\\s+table\\s+(?:if\\s+exists\\s+)?" + optionalSchema + identifier
-				+ "(?=\\s|[;,]|$)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
 	private static String sha256(Path path) throws IOException {

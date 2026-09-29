@@ -13,7 +13,6 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -80,20 +79,12 @@ class Pcl6MonolithAbsenceTest {
 	}
 
 	@Test
-	void retainedLegacyTablesHaveNoActiveRuntimeAccessAndNoPrematureDrop() throws IOException {
+	void legacyTablesHaveNoActiveRuntimeAccess() throws IOException {
 		Path app = appRoot();
 		Set<String> runtimeAccess = productionFiles(app).stream()
 				.filter(path -> RETAINED_UNTIL_PCL8.stream().anyMatch(table -> contains(path, table)))
 				.map(app::relativize).map(Path::toString).collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), runtimeAccess);
-
-		for (Path migration : productionSqlResources(app)) {
-			String sql = Files.readString(migration);
-			for (String table : RETAINED_UNTIL_PCL8) {
-				assertFalse(dropTablePattern(table).matcher(sql).find(),
-						() -> app.relativize(migration) + " prematurely drops " + table);
-			}
-		}
 	}
 
 	@Test
@@ -149,23 +140,6 @@ class Pcl6MonolithAbsenceTest {
 					.filter(path -> !path.toString().contains("/target/"))
 					.sorted().toList();
 		}
-	}
-
-	private static List<Path> productionSqlResources(Path app) throws IOException {
-		try (var paths = Files.walk(app)) {
-			return paths.filter(Files::isRegularFile)
-					.filter(path -> path.toString().contains("/src/main/resources/"))
-					.filter(path -> path.getFileName().toString().endsWith(".sql"))
-					.filter(path -> !path.toString().contains("/target/"))
-					.toList();
-		}
-	}
-
-	private static Pattern dropTablePattern(String table) {
-		String identifier = "(?:\\\"" + table + "\\\"|" + table + ")";
-		String optionalSchema = "(?:(?:\\\"[^\\\"]+\\\"|[a-z_][a-z0-9_$]*)\\s*\\.\\s*)?";
-		return Pattern.compile("\\bdrop\\s+table\\s+(?:if\\s+exists\\s+)?" + optionalSchema + identifier
-				+ "(?=\\s|[;,]|$)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
 	private static String sha256(Path path) throws IOException {

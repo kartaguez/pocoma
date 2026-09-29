@@ -60,11 +60,20 @@ class ReadStorePersistencePostgresTest {
 				+ "where schema_name='pocoma_read'"));
 		assertEquals(0, count("select count(*) from information_schema.tables "
 				+ "where table_schema='pocoma_read' and table_name='projection_coverages'"));
+		assertEquals(0, count("select count(*) from information_schema.tables "
+				+ "where table_schema='pocoma_read' and table_name in "
+				+ "('projection_artifacts','projection_failures','projection_heads',"
+				+ "'projection_invariant_violations','pot_projection_snapshots','pot_version_metadata')"));
+		assertEquals(4, count("select count(*) from information_schema.tables "
+				+ "where table_schema='pocoma_read' and table_name in "
+				+ "('projection_root','projection_artifact','projection_failure','source_version_watermarks')"));
 
 		contextRunner().run(context -> assertTrue(context.getStartupFailure() == null,
 				() -> "Autonomous read migration restart failed: " + context.getStartupFailure()));
 		assertEquals(1, count("select count(*) from pocoma_read.flyway_schema_history "
 				+ "where success and version='1'"));
+		assertEquals(1, count("select count(*) from pocoma_read.flyway_schema_history "
+				+ "where success and version='8'"));
 	}
 
 	@Test
