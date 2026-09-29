@@ -69,6 +69,7 @@ class CommandAdmissionPostgresTest {
 				.apply(springSecurity()).build();
 		jdbc.execute("truncate table external_identities, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
+				+ "command_outcomes, command_terminal_events, projection_tasks, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 	}
 
@@ -106,6 +107,9 @@ class CommandAdmissionPostgresTest {
 		assertEquals(0, count("consumption_slots"));
 		assertEquals(0, count("consumption_claims"));
 		assertEquals(0, count("business_event_outbox"));
+		assertEquals(0, count("command_outcomes"));
+		assertEquals(0, count("command_terminal_events"));
+		assertEquals(0, count("projection_tasks"));
 		assertEquals(0, count("pot_headers"));
 	}
 

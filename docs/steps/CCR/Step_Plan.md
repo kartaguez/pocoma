@@ -50,18 +50,34 @@ d'ownership intermédiaire n'a été introduit et la frontière WRITE/READ reste
 
 ## CCR.7 — Proofs
 
-Les preuves permanentes couvrent :
+La matrice suivante identifie les preuves durables qui rendent CCR clôturable. `PROVED` signifie
+que le test cité échoue si l'invariant est rompu ; les tests PostgreSQL observent l'état commité,
+pas l'ordre d'appels interne.
 
-- propagation explicite de `resultingVersion` ;
-- publication APPLIED/REJECTED/FAILED ;
-- rollback d'un Claim perdu sans outcome ;
-- retry sans outcome ni terminal Event ;
-- outcome et Event uniques après reprise ;
-- discovery metadata-only des Command terminal Events ;
-- routing des trois types vers `COMMAND_RESULT` ;
-- projection des trois variantes et clé `COMMAND/{commandId}/1` ;
-- lecture exacte, ownership et mapping HTTP ;
-- migration V17 et validation du schéma complet.
+| Invariant | Preuve permanente | Niveau | État |
+|-----------|-------------------|--------|------|
+| admission durable, sans effet CCR prématuré | `CommandAdmissionPostgresTest.authenticatedProvisionedIdentityDurablyAcceptsWithoutAnySynchronousEffects` | HTTP + PostgreSQL | PROVED |
+| atomicité APPLIED, `resultingVersion` explicite | `CommandConsumptionPostgresTest.discoversAcquiresReloadsAndTerminalizesASuccessfulCommand` | PostgreSQL | PROVED |
+| atomicité REJECTED, sans mutation partielle | `CommandCompletionE2EPostgresTest.admissionThroughCommandEventTaskAndExactReadProducesAllTerminalResultsDurably` | E2E PostgreSQL | PROVED |
+| rollback Execute puis publication FAILED fenced | `CommandConsumptionPostgresTest.unexpectedRuntimeFailsImmediatelyWithoutRetry` et E2E CCR | PostgreSQL | PROVED |
+| claim perdu pendant Execute | `CommandConsumptionPostgresTest.takeoverRollsBackTheLosingCommandAndOnlyTheWinnerCommits` | concurrence PostgreSQL | PROVED |
+| claim perdu pendant Finalize FAILED | `CommandConsumptionPostgresTest.staleClaimCannotPublishATerminalFailureOutcomeOrEvent` | PostgreSQL | PROVED |
+| retry sans outcome, terminal Event, task ou résultat public | `CommandConsumptionPostgresTest.recognizedTransientSqlFailureSchedulesTheGenericRetry` et `CommandResultTest` | PostgreSQL + unit | PROVED |
+| fairness : C1 retryable ne bloque pas C2 du même Pot | `CommandConsumptionPostgresTest.retryableOlderCommandDoesNotBlockLaterEligibleCommandForTheSamePot` | runtime PostgreSQL | PROVED |
+| unicité outcome/Event et reprise | `CommandCompletionE2EPostgresTest` relance les deux workers puis vérifie les cardinalités | E2E PostgreSQL | PROVED |
+| trois terminal Events vers `COMMAND/{commandId}/1` | `CommandCompletionE2EPostgresTest` et `PocomaProjectionMaterializationPolicyTest` | E2E PostgreSQL + unit | PROVED |
+| task charge l'outcome durable et publie les trois variantes | `CommandCompletionE2EPostgresTest` ; les terminal Events ne portent que l'identité | E2E PostgreSQL | PROVED |
+| idempotence `projection_root` / artifact | redémarrage du task worker dans `CommandCompletionE2EPostgresTest` | E2E PostgreSQL | PROVED |
+| READ ownership et visibilité 404 | `CommandResultTest` et `CommandResultControllerTest` | unit HTTP | PROVED |
+| GET limité au READ exact | `HexagonalArchitectureTest.commandResultReadDependsOnlyOnTheExactReadProjectionPath` | architecture | PROVED |
+| APPLIED, REJECTED et FAILED bout-en-bout | `CommandCompletionE2EPostgresTest` | E2E PostgreSQL | PROVED |
+
+Le test E2E part de l'admission normale et ne seed que l'identité externe nécessaire à
+l'authentification. `recorded_commands`, les Consumptions, la mutation et le Business Event,
+`command_outcomes`, `command_terminal_events`, les `projection_tasks`, `projection_root` et les
+artifacts sont tous produits par les composants de production. Les contextes Event et
+ProjectionTask sont fermés puis recréés sur le même PostgreSQL pour prouver la reprise depuis le
+seul état durable, sans duplication logique.
 
 Les canons EPT et PCL restent inchangés : leurs règles sur les Business Events Pot et la chaîne
 canonique sont référencées, tandis que CCR ajoute une seconde source durable d'Events de trigger à

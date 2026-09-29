@@ -65,7 +65,9 @@ import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
@@ -236,13 +238,18 @@ class CommandConsumptionPostgresTest {
 		RecordedCommand command = command("runtime", NOW.plusSeconds(60));
 		insert(command);
 
-		run(value -> { throw new NullPointerException("programming bug"); });
+		run(value -> {
+			jdbc.update("insert into lot65_command_effects(effect_id, owner) values (?, ?)",
+					UUID.randomUUID(), "rolled-back");
+			throw new NullPointerException("programming bug");
+		});
 
 		ConsumptionSlot slot = slot(command.commandId());
 		assertEquals(TerminalOutcome.FAILED, slot.terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("COMMAND_EXECUTION_FAILURE"), slot.terminalReason().orElseThrow());
 		assertTrue(slot.currentClaimId().isEmpty());
 		assertEquals(1, lifecycle.findClaims(slot.slotId()).size());
+		assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
 		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
 	}
 
@@ -260,6 +267,35 @@ class CommandConsumptionPostgresTest {
 		assertEquals(NOW.plusSeconds(1), slot.nextClaimAt());
 		assertTrue(slot.currentClaimId().isEmpty());
 		assertEquals(0, terminalResolutionCount(command.commandId()));
+		assertEquals(0, jdbc.queryForObject("select count(*) from projection_tasks "
+				+ "where target_object_id = ?", Integer.class, command.commandId().value().toString()));
+	}
+
+	@Test
+	void retryableOlderCommandDoesNotBlockLaterEligibleCommandForTheSamePot() {
+		UUID samePotId = UUID.randomUUID();
+		RecordedCommand first = command(TYPE, "retry:" + samePotId, NOW.plusSeconds(60), NOW);
+		RecordedCommand second = command(TYPE, "succeed:" + samePotId, NOW.plusSeconds(60), NOW.plusMillis(1));
+		insert(first);
+		insert(second);
+		List<String> attempts = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+		Function<TestCommand, CommandUseCaseResult> behavior = value -> {
+			attempts.add(value.value());
+			if (value.value().startsWith("retry:")) {
+				throw new RuntimeException(new SQLException("serialization", "40001"));
+			}
+			return succeeded();
+		};
+		run(behavior);
+		run(behavior);
+
+		assertEquals(List.of("retry:" + samePotId, "succeed:" + samePotId), attempts);
+		assertEquals(ConsumptionStatus.PENDING, slot(first.commandId()).status());
+		assertEquals(NOW.plusSeconds(1), slot(first.commandId()).nextClaimAt());
+		assertEquals(0, terminalResolutionCount(first.commandId()));
+		assertEquals(TerminalOutcome.SUCCESS, slot(second.commandId()).terminalOutcome().orElseThrow());
+		assertTerminalResolution(second.commandId(), "APPLIED", "COMMAND_APPLIED");
 	}
 
 	@Test
@@ -343,6 +379,39 @@ class CommandConsumptionPostgresTest {
 		assertTerminalResolution(command.commandId(), "APPLIED", "COMMAND_APPLIED");
 	}
 
+	@Test
+	void staleClaimCannotPublishATerminalFailureOutcomeOrEvent() {
+		MutableClock mutableClock = new MutableClock(NOW);
+		clock = mutableClock;
+		RecordedCommand command = command("stale-terminal-failure", NOW.plusSeconds(60));
+		insert(command);
+		var acquire = new TransactionalAcquireConsumptionUseCase(
+				new AcquireConsumptionService(lifecycle, clock), transactions);
+		var failure = new TransactionalHandleConsumptionFailureUseCase(
+				new HandleConsumptionFailureService(
+						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
+		var key = CommandConsumptionKeys.forCommand(command.commandId());
+		var stale = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(
+				new AcquireConsumptionInput(key, new WorkerId("worker-a"),
+						new ClaimLease(Duration.ofSeconds(30))))).claim();
+		mutableClock.set(NOW.plusSeconds(30));
+		var winner = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(
+				new AcquireConsumptionInput(key, new WorkerId("worker-b"),
+						new ClaimLease(Duration.ofSeconds(30))))).claim();
+		var processingFailure = new CommandConsumptionTechnicalFailureClassifier(clock)
+				.classify(new NullPointerException("terminal failure"));
+		var terminalEffect = commandExecution(value -> succeeded()).terminalFailureEffect(command.commandId());
+
+		assertEquals(FencedMutationResult.LOST_CLAIM, failure.handle(new HandleConsumptionFailureInput(
+				stale.slotId(), stale.claimId(), processingFailure, terminalEffect)));
+		assertEquals(0, terminalResolutionCount(command.commandId()));
+
+		assertEquals(FencedMutationResult.APPLIED, failure.handle(new HandleConsumptionFailureInput(
+				winner.slotId(), winner.claimId(), processingFailure, terminalEffect)));
+		assertEquals(TerminalOutcome.FAILED, slot(command.commandId()).terminalOutcome().orElseThrow());
+		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
+	}
+
 	private void assertTerminalResolution(CommandId commandId, String outcomeType, String eventType) {
 		assertEquals(1, terminalResolutionCount(commandId));
 		assertEquals(outcomeType, jdbc.queryForObject(
@@ -421,9 +490,14 @@ class CommandConsumptionPostgresTest {
 	}
 
 	private static RecordedCommand command(CommandType type, String payload, Instant validUntil) {
+		return command(type, payload, validUntil, NOW);
+	}
+
+	private static RecordedCommand command(CommandType type, String payload, Instant validUntil,
+			Instant submittedAt) {
 		Instant issuedAt = NOW.minusSeconds(60);
 		return new RecordedCommand(
-				new CommandId(UUID.randomUUID()), type, payload, NOW,
+				new CommandId(UUID.randomUUID()), type, payload, submittedAt,
 				new AuthorizationSnapshot(
 						new PocomaUserId(UUID.randomUUID()),
 						Set.of(new Permission("POT", "CREATE")),
