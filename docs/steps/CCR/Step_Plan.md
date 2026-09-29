@@ -2,6 +2,12 @@
 
 La référence normative est [`Step_Canon.md`](Step_Canon.md).
 
+Overall status: DONE
+
+CCR.7 et le step CCR sont audités, acceptés et `DONE`. La matrice de preuves durable est complète,
+aucun finding ne reste ouvert et aucune modification du comportement de production n'a été
+nécessaire pour la clôture.
+
 | Lot | Sujet | Statut |
 |-----|-------|--------|
 | CCR.1 | Command Consumption proof | DONE |
@@ -82,3 +88,15 @@ seul état durable, sans duplication logique.
 Les canons EPT et PCL restent inchangés : leurs règles sur les Business Events Pot et la chaîne
 canonique sont référencées, tandis que CCR ajoute une seconde source durable d'Events de trigger à
 la discovery commune.
+
+### Closure
+
+`DONE`
+
+- verdict de preuve : `CCR PROOF MATRIX COMPLETE — CLOSABLE` ;
+- verdict de clôture : `CCR CLOSURE CONFIRMED` ;
+- preuve finale : reactor Maven complet, 43 modules et 887 tests, sans failure, erreur ni skip ;
+- APPLIED, REJECTED et FAILED sont prouvés de l'admission au READ exact par PostgreSQL ;
+- retry, fairness same-Pot, fencing Execute et Finalize FAILED, reprise et idempotence sont prouvés ;
+- aucun changement de production ni aucune décision architecturale ouverte ;
+- CCR est formellement clôturé ; toute évolution ultérieure constitue un nouveau step.
