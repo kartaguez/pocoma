@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.domain.projection.ArtifactKey;
 import com.kartaguez.pocoma.domain.projection.JsonNull;
 import com.kartaguez.pocoma.domain.projection.JsonNumber;
 import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
 import com.kartaguez.pocoma.domain.projection.Projection;
+import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
@@ -59,9 +62,9 @@ class CommandResultTest {
 
 	@Test
 	void exactReadMapsAvailabilityFailureOwnershipAndTerminalVariants() {
-		assertInstanceOf(GetCommandResult.NotReady.class, service(new ProjectionReadResult.NotReady(KEY))
+		assertInstanceOf(GetCommandResult.NotFound.class, service(new ProjectionReadResult.NotReady(KEY))
 				.get(COMMAND_ID, USER_ID));
-		assertInstanceOf(GetCommandResult.ProjectionFailed.class, service(new ProjectionReadResult.Failed(KEY))
+		assertInstanceOf(GetCommandResult.NotFound.class, service(new ProjectionReadResult.Failed(KEY))
 				.get(COMMAND_ID, USER_ID));
 
 		ValidatedProjection ready = validated(new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW));
@@ -71,6 +74,28 @@ class CommandResultTest {
 		assertEquals(7, applied.resultingVersion());
 		assertInstanceOf(GetCommandResult.NotFound.class,
 				service(new ProjectionReadResult.Ready(ready)).get(COMMAND_ID, UUID.randomUUID()));
+
+		GetCommandResult.Rejected rejected = assertInstanceOf(GetCommandResult.Rejected.class,
+				service(new ProjectionReadResult.Ready(validated(new CommandOutcome.Rejected(
+						COMMAND_ID, "POT_VERSION_CONFLICT", NOW)))).get(COMMAND_ID, USER_ID));
+		assertEquals("POT_VERSION_CONFLICT", rejected.code());
+
+		GetCommandResult.Failed failed = assertInstanceOf(GetCommandResult.Failed.class,
+				service(new ProjectionReadResult.Ready(validated(new CommandOutcome.Failed(
+						COMMAND_ID, CommandOutcome.PUBLIC_FAILURE_CODE, NOW)))).get(COMMAND_ID, USER_ID));
+		assertEquals(CommandOutcome.PUBLIC_FAILURE_CODE, failed.code());
+	}
+
+	@Test
+	void invalidReadyPayloadIsNotVisible() {
+		Projection invalid = new Projection(KEY, List.of(new ProjectionArtifact(
+				CommandResultProjectionDefinition.RESULT,
+				new ArtifactKey(COMMAND_ID.value().toString()), JsonNull.INSTANCE)));
+		ValidatedProjection ready = new ProjectionValidator((schema, payload) -> true)
+				.validate(CommandResultProjectionDefinition.DEFINITION, invalid);
+
+		assertInstanceOf(GetCommandResult.NotFound.class,
+				service(new ProjectionReadResult.Ready(ready)).get(COMMAND_ID, USER_ID));
 	}
 
 	private static GetCommandResultService service(ProjectionReadResult result) {

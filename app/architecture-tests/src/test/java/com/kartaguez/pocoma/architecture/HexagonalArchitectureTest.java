@@ -712,6 +712,22 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void commandResultReadDependsOnlyOnTheExactReadProjectionPath() {
+		String service = ROOT_PACKAGE + ".engine.command.result.GetCommandResultService";
+		Set<String> dependencies = directDependencyNames(service);
+		assertTrue(dependencies.contains(
+				ROOT_PACKAGE + ".engine.port.in.projection.read.ExactProjectionReadUseCase"));
+		Set<String> forbidden = dependencies.stream()
+				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.command.port.out.CommandOutcomeQueryPort")
+						|| name.startsWith(ROOT_PACKAGE + ".infra.")
+						|| name.startsWith(ROOT_PACKAGE + ".domain.consumption.")
+						|| name.contains("RecordedCommand"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), forbidden,
+				"COMMAND_RESULT reads must not bypass the exact READ projection path");
+	}
+
+	@Test
 	void commandConsumptionRuntimeComposesGenericPollingWithoutKnowingCommandPayloadsOrHttp() {
 		String runtimePackage = ROOT_PACKAGE + ".runtime.command.consumption";
 		noClasses()

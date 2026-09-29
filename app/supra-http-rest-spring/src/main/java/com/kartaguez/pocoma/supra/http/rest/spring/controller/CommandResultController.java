@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,15 +49,6 @@ public final class CommandResultController {
 		if (userId == null) return ResponseEntity.notFound().build();
 		GetCommandResult result = results.get(new CommandId(commandId), userId.value());
 		if (result instanceof GetCommandResult.NotFound) return ResponseEntity.notFound().build();
-		if (result instanceof GetCommandResult.NotReady) {
-			return ResponseEntity.status(HttpStatus.ACCEPTED)
-					.body(new CommandResultResponse(commandId, "NOT_READY", null, null, null, null));
-		}
-		if (result instanceof GetCommandResult.ProjectionFailed) {
-			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-					.body(new CommandResultResponse(commandId, "PROJECTION_FAILED", null, null,
-							"COMMAND_RESULT_PROJECTION_FAILED", null));
-		}
 		if (result instanceof GetCommandResult.Applied applied) {
 			return ResponseEntity.ok(new CommandResultResponse(commandId, "APPLIED", applied.potId(),
 					applied.resultingVersion(), null, applied.resolvedAt()));

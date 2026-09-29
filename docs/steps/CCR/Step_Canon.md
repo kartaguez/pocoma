@@ -118,10 +118,17 @@ Le seul contrat HTTP introduit est :
 GET /api/v1/command-results/{commandId}
 ```
 
-- `202` + `NOT_READY` si la projection exacte n'existe pas encore ;
-- `200` + `APPLIED`, `REJECTED` ou `FAILED` pour un résultat terminal appartenant au caller ;
-- `404` si l'identité externe n'est pas connue ou si le résultat appartient à un autre user ;
-- `503` + `PROJECTION_FAILED` si la projection exacte a terminalement échoué.
+- `200` + `APPLIED`, `REJECTED` ou `FAILED` uniquement si la projection exacte est `READY`, son
+  payload est valide et `submittedByUserId` correspond au caller ;
+- `404` lorsqu'aucune ressource READ `COMMAND_RESULT` n'est visible pour le caller, quelle qu'en
+  soit la cause : projection pas encore matérialisée, identité inconnue, ownership différent ou
+  projection terminalement échouée sans résultat `READY`.
+
+Le `404` ne signifie pas que la Command n'a jamais existé côté WRITE. Il signifie qu'aucune
+ressource READ visible n'existe actuellement sous cette identité. Le READ ne cherche pas à
+distinguer absence, non-readiness et invisibilité d'ownership tant que la projection finale n'est
+pas `READY`. Il ne consulte pour cela ni `recorded_commands`, ni Consumption, ni un index
+d'ownership intermédiaire.
 
 Ce contrat n'introduit ni façade Query générale, ni résolution latest/current, ni lecture directe
 du write side. Les détails internes de Consumption ne sont jamais exposés.
@@ -134,4 +141,5 @@ du write side. Les détails internes de Consumption ne sont jamais exposés.
 - aucun résultat complet copié dans l'Event trigger ;
 - aucune fusion des modes Execute et Finalize ;
 - aucune Query façade générale ;
+- aucun statut public `NOT_READY` ou `PROJECTION_FAILED` pour `COMMAND_RESULT` ;
 - aucune suppression de chemin WRITE de consultation qui n'existe pas dans le repository courant.

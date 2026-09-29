@@ -33,21 +33,28 @@ public final class GetCommandResultService implements GetCommandResultUseCase {
 				CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
 				new TargetObjectId(commandId.value().toString()), 1);
 		ProjectionReadResult read = projections.get(key, CommandResultProjectionDefinition.DEFINITION);
-		if (read instanceof ProjectionReadResult.NotReady) return new GetCommandResult.NotReady();
-		if (read instanceof ProjectionReadResult.Failed) return new GetCommandResult.ProjectionFailed();
-		ProjectionArtifact artifact = ((ProjectionReadResult.Ready) read).projection().projection().artifacts().getFirst();
-		if (!(artifact.payload() instanceof JsonObject object)) throw new IllegalStateException("Invalid COMMAND_RESULT payload");
-		Map<String, JsonValue> values = object.values();
-		UUID owner = UUID.fromString(string(values, "submittedByUserId"));
-		if (!owner.equals(requestingUserId)) return new GetCommandResult.NotFound();
-		Instant resolvedAt = Instant.parse(string(values, "resolvedAt"));
-		return switch (string(values, "outcome")) {
-			case "APPLIED" -> new GetCommandResult.Applied(UUID.fromString(string(values, "potId")),
-					((JsonNumber) values.get("resultingVersion")).value().longValueExact(), resolvedAt);
-			case "REJECTED" -> new GetCommandResult.Rejected(string(values, "code"), resolvedAt);
-			case "FAILED" -> new GetCommandResult.Failed(string(values, "code"), resolvedAt);
-			default -> throw new IllegalStateException("Unknown COMMAND_RESULT outcome");
-		};
+		if (!(read instanceof ProjectionReadResult.Ready ready)) return new GetCommandResult.NotFound();
+		return visibleResult(ready, requestingUserId);
+	}
+
+	private static GetCommandResult visibleResult(ProjectionReadResult.Ready ready, UUID requestingUserId) {
+		try {
+			ProjectionArtifact artifact = ready.projection().projection().artifacts().getFirst();
+			if (!(artifact.payload() instanceof JsonObject object)) return new GetCommandResult.NotFound();
+			Map<String, JsonValue> values = object.values();
+			UUID owner = UUID.fromString(string(values, "submittedByUserId"));
+			if (!owner.equals(requestingUserId)) return new GetCommandResult.NotFound();
+			Instant resolvedAt = Instant.parse(string(values, "resolvedAt"));
+			return switch (string(values, "outcome")) {
+				case "APPLIED" -> new GetCommandResult.Applied(UUID.fromString(string(values, "potId")),
+						((JsonNumber) values.get("resultingVersion")).value().longValueExact(), resolvedAt);
+				case "REJECTED" -> new GetCommandResult.Rejected(string(values, "code"), resolvedAt);
+				case "FAILED" -> new GetCommandResult.Failed(string(values, "code"), resolvedAt);
+				default -> new GetCommandResult.NotFound();
+			};
+		} catch (RuntimeException invalidProjection) {
+			return new GetCommandResult.NotFound();
+		}
 	}
 
 	private static String string(Map<String, JsonValue> values, String field) {

@@ -38,7 +38,11 @@ Le runtime ProjectionTask déclare ce producer aux côtés des producers canoniq
 ## CCR.5 — Minimal READ exposure
 
 Le runtime web compose la lecture exacte canonique et expose uniquement
-`GET /api/v1/command-results/{commandId}` avec contrôle de propriété.
+`GET /api/v1/command-results/{commandId}` avec contrôle de propriété depuis la projection `READY`.
+Une correction post-implémentation a remplacé le contrat initial `202 NOT_READY` / `503
+PROJECTION_FAILED` par un contrat fondé sur la visibilité : seul un résultat terminal `READY`
+appartenant au caller retourne `200`; tout autre cas retourne `404`. Aucun index ou lookup
+d'ownership intermédiaire n'a été introduit et la frontière WRITE/READ reste stricte.
 
 ## CCR.6 — WRITE result-query cleanup
 

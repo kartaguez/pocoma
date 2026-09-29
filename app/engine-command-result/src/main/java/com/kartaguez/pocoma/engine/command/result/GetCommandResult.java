@@ -6,8 +6,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 public sealed interface GetCommandResult {
-	record NotReady() implements GetCommandResult {}
-	record ProjectionFailed() implements GetCommandResult {}
 	record NotFound() implements GetCommandResult {}
 	record Applied(UUID potId, long resultingVersion, Instant resolvedAt) implements GetCommandResult {
 		public Applied { requireNonNull(potId); requireNonNull(resolvedAt); }

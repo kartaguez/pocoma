@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
+import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
+import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
+import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.supra.http.rest.spring.controller.CommandResultController;
@@ -26,15 +29,23 @@ class CommandResultControllerTest {
 			"issuer", "subject", NOW.minusSeconds(2), NOW.minusSeconds(1), NOW.plusSeconds(60), Set.of());
 
 	@Test
-	void exposesOnlyTheTargetedCommandResultReadContract() {
-		assertResponse(new GetCommandResult.NotReady(), HttpStatus.ACCEPTED, "NOT_READY", null);
-		assertResponse(new GetCommandResult.ProjectionFailed(), HttpStatus.SERVICE_UNAVAILABLE,
-				"PROJECTION_FAILED", "COMMAND_RESULT_PROJECTION_FAILED");
+	void exposesOnlyReadyOwnedTerminalResults() {
 		assertResponse(new GetCommandResult.Applied(POT_ID, 7, NOW), HttpStatus.OK, "APPLIED", null);
 		assertResponse(new GetCommandResult.Rejected("POT_VERSION_CONFLICT", NOW), HttpStatus.OK,
 				"REJECTED", "POT_VERSION_CONFLICT");
 		assertResponse(new GetCommandResult.Failed("COMMAND_PROCESSING_FAILED", NOW), HttpStatus.OK,
 				"FAILED", "COMMAND_PROCESSING_FAILED");
+	}
+
+	@Test
+	void hidesNotReadyAndFailedExactProjectionsAsNotFound() {
+		var notReady = controller(new GetCommandResultService(
+				(key, definition) -> new ProjectionReadResult.NotReady(key)));
+		assertEquals(HttpStatus.NOT_FOUND, notReady.get(COMMAND_ID, PRINCIPAL).getStatusCode());
+
+		var failed = controller(new GetCommandResultService(
+				(key, definition) -> new ProjectionReadResult.Failed(key)));
+		assertEquals(HttpStatus.NOT_FOUND, failed.get(COMMAND_ID, PRINCIPAL).getStatusCode());
 	}
 
 	@Test
@@ -61,7 +72,11 @@ class CommandResultControllerTest {
 	}
 
 	private static CommandResultController controller(GetCommandResult result) {
-		return new CommandResultController((commandId, userId) -> result,
+		return controller((commandId, userId) -> result);
+	}
+
+	private static CommandResultController controller(GetCommandResultUseCase results) {
+		return new CommandResultController(results,
 				identity -> Optional.of(new PocomaUserId(USER_ID)), transactions());
 	}
 
