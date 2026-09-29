@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 
 /** Functional result of a typed Command use case, before durable event append. */
@@ -15,10 +16,12 @@ public sealed interface CommandUseCaseResult {
 
 	record Succeeded(
 			List<CommandExecutionInput> inputs,
+			CommandAppliedResult appliedResult,
 			List<BusinessEvent> events) implements CommandUseCaseResult {
 
 		public Succeeded {
 			inputs = List.copyOf(requireNonNull(inputs, "inputs must not be null"));
+			requireNonNull(appliedResult, "appliedResult must not be null");
 			events = List.copyOf(requireNonNull(events, "events must not be null"));
 		}
 	}

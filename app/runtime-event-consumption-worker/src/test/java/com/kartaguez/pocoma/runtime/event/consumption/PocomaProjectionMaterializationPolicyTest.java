@@ -14,17 +14,25 @@ import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
+import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
+import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 
 class PocomaProjectionMaterializationPolicyTest {
 	@Test
-	void declaresTheTwoCanonicalMaterializationsForAllTenPocomaEventTypes() {
+	void declaresBusinessAndCommandTerminalEventMaterializations() {
 		var policy = PocomaProjectionMaterializationPolicy.policy();
 		var expected = Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE);
 
-		assertEquals(10, policy.materializations().size());
-		assertEquals(PocomaEventTypes.all(), policy.materializations().keySet());
-		policy.materializations().values().forEach(materializations -> assertEquals(expected, materializations));
+		assertEquals(13, policy.materializations().size());
+		assertEquals(java.util.stream.Stream.concat(
+				PocomaEventTypes.all().stream(), CommandTerminalEventTypes.all().stream()).collect(
+						java.util.stream.Collectors.toUnmodifiableSet()), policy.materializations().keySet());
+		PocomaEventTypes.all().forEach(eventType ->
+				assertEquals(expected, policy.materializations().get(eventType)));
+		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(
+				Set.of(CommandResultProjectionDefinition.PROJECTION_TYPE),
+				policy.materializations().get(eventType)));
 		assertFalse(policy.materializations().values().stream()
 				.anyMatch(materializations -> materializations.contains(new ProjectionType("AUTH"))));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
@@ -46,9 +54,12 @@ class PocomaProjectionMaterializationPolicyTest {
 
 	@Test
 	void derivesMaterializationsForWorkersServingBothCanonicalProjectionTypes() {
-		var policy = PocomaProjectionMaterializationPolicy.policy();
+		var expected = PocomaEventTypes.all().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(
+				eventType -> eventType,
+				eventType -> Set.of(ReadPotProjectionDefinition.PROJECTION_TYPE,
+						PotBalancesProjectionDefinition.PROJECTION_TYPE)));
 
-		assertEquals(policy.materializations(), policy.materializationsFor(Set.of(
+		assertEquals(expected, PocomaProjectionMaterializationPolicy.policy().materializationsFor(Set.of(
 				ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE)));
 	}

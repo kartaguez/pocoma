@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.runtime.task.consumption;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.Set;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,9 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
+import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
+import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionInputLoader;
+import com.kartaguez.pocoma.engine.command.result.CommandResultProjector;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
@@ -84,8 +89,11 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 		return new ProjectionValidator(new NetworkntJsonSchemaValidator(mapper));
 	}
 	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
-			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader) {
-		var available = List.of(
+			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader,
+			ObjectProvider<CommandResultProjectionInputLoader> commandResultLoaders) {
+		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
+		var available = new ArrayList<ProjectionProducerDeclaration<?>>();
+		available.addAll(List.of(
 				new ProjectionProducerDeclaration<>(PotBalancesProjectionDefinition.PROJECTION_TYPE,
 						PotBalancesProjectionDefinition.TARGET_OBJECT_TYPE, PotBalancesProjectionDefinition.DEFINITION,
 						new PotBalancesProjectionInputLoader(
@@ -93,8 +101,17 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 						new PotBalancesProjector()),
 				new ProjectionProducerDeclaration<>(ReadPotProjectionDefinition.PROJECTION_TYPE,
 						ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, ReadPotProjectionDefinition.DEFINITION,
-						readPotLoader, new ReadPotProjector()));
-		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
+						readPotLoader, new ReadPotProjector())));
+		if (configured.contains(CommandResultProjectionDefinition.PROJECTION_TYPE)) {
+			CommandResultProjectionInputLoader commandResultLoader = commandResultLoaders.getIfAvailable();
+			if (commandResultLoader == null) {
+				throw new IllegalStateException("COMMAND_RESULT requires a CommandResultProjectionInputLoader");
+			}
+			available.add(new ProjectionProducerDeclaration<>(CommandResultProjectionDefinition.PROJECTION_TYPE,
+						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
+						CommandResultProjectionDefinition.DEFINITION,
+						commandResultLoader, new CommandResultProjector()));
+		}
 		var selected = available.stream().filter(declaration -> configured.contains(declaration.projectionType())).toList();
 		if (selected.size() != configured.size()) {
 			throw new IllegalStateException("The producer catalog contains an unsupported ProjectionType");

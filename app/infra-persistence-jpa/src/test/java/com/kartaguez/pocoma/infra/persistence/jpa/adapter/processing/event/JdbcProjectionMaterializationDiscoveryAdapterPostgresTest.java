@@ -68,6 +68,8 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	private static final EventType POT_DELETED = new EventType("POT_DELETED");
 	private static final ProjectionType READ_POT = new ProjectionType("READ_POT");
 	private static final ProjectionType POT_BALANCES = new ProjectionType("POT_BALANCES");
+	private static final EventType COMMAND_APPLIED = new EventType("COMMAND_APPLIED");
+	private static final ProjectionType COMMAND_RESULT = new ProjectionType("COMMAND_RESULT");
 	private static final Instant NOW = Instant.parse("2026-09-26T10:00:00Z");
 	private static final ClaimLease LEASE = new ClaimLease(Duration.ofMinutes(1));
 	private static final String UNPARSEABLE_PAYLOAD = "not JSON and not a serialized BusinessEvent";
@@ -93,7 +95,29 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		jdbc.update("update consumption_slots set current_claim_id = null");
 		jdbc.update("delete from consumption_claims");
 		jdbc.update("delete from consumption_slots");
+		jdbc.update("delete from command_terminal_events");
+		jdbc.update("delete from command_outcomes");
+		jdbc.update("delete from recorded_commands");
 		jdbc.update("delete from business_event_outbox");
+	}
+
+	@Test
+	void discoversCommandTerminalEventsAsCommandVersionOneWithoutReadingOutcomePayload() {
+		UUID eventId = uuid(90);
+		UUID commandId = uuid(190);
+		insertAppliedCommandEvent(eventId, commandId, NOW, 0);
+
+		ProjectionMaterializationCandidate candidate = discovery.findCandidates(
+				routes(COMMAND_APPLIED, COMMAND_RESULT), WorkerSegment.single(), Optional.empty(), 10)
+				.getFirst();
+
+		assertEquals(eventId, candidate.eventId());
+		assertEquals(COMMAND_APPLIED, candidate.eventType());
+		assertEquals(COMMAND_RESULT, candidate.projectionType());
+		assertEquals(new TargetObjectType("COMMAND"), candidate.targetObjectType());
+		assertEquals(new TargetObjectId(commandId.toString()), candidate.targetObjectId());
+		assertEquals(1, candidate.targetVersion());
+		assertEquals(NOW, candidate.recordedAt());
 	}
 
 	@Test
@@ -295,6 +319,28 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 				) values (?, ?, ?, ?, ?, ?, ?, 'PENDING', 0, ?)
 				""", eventId, eventType.value(), potId, partitionHash, potId, version, payload,
 				java.sql.Timestamp.from(createdAt));
+	}
+
+	private void insertAppliedCommandEvent(UUID eventId, UUID commandId, Instant recordedAt,
+			int partitionHash) {
+		jdbc.update("""
+				insert into recorded_commands (
+				  command_id, command_type, payload_json, submitted_at, auth_user_id, auth_issuer,
+				  auth_authenticated_at, auth_issued_at, auth_valid_until, auth_permissions_json
+				) values (?, 'TEST_V1', '{}', ?, ?, 'test', ?, ?, ?, '[]'::jsonb)
+				""", commandId, java.sql.Timestamp.from(recordedAt), UUID.randomUUID(),
+				java.sql.Timestamp.from(recordedAt), java.sql.Timestamp.from(recordedAt),
+				java.sql.Timestamp.from(recordedAt.plusSeconds(60)));
+		jdbc.update("""
+				insert into command_outcomes
+				  (command_id, outcome_type, pot_id, resulting_version, public_code, resolved_at)
+				values (?, 'APPLIED', ?, 7, null, ?)
+				""", commandId, UUID.randomUUID(), java.sql.Timestamp.from(recordedAt));
+		jdbc.update("""
+				insert into command_terminal_events
+				  (event_id, event_type, command_id, command_partition_hash, trace_id, recorded_at)
+				values (?, 'COMMAND_APPLIED', ?, ?, null, ?)
+				""", eventId, commandId, partitionHash, java.sql.Timestamp.from(recordedAt));
 	}
 
 	private static Map<EventType, Set<ProjectionType>> routes(

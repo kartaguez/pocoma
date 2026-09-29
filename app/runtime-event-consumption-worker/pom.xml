@@ -5,6 +5,8 @@
 	<artifactId>pocoma-runtime-event-consumption-worker</artifactId>
 	<dependencies>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-processing-event</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-command</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-command-result</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot-projection</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-event</artifactId><version>${project.version}</version></dependency>

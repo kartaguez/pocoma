@@ -47,6 +47,8 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
+import com.kartaguez.pocoma.domain.projection.ProjectionKey;
+import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.decode.CommandPayloadDecoder;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
@@ -55,10 +57,12 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandService;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
@@ -71,6 +75,7 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcCommandResultProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
@@ -93,6 +98,7 @@ class CommandConsumptionPostgresTest {
 
 	private static final Instant NOW = Instant.parse("2026-09-05T08:00:00Z");
 	private static final CommandType TYPE = new CommandType("TEST_COMMAND_V1");
+	private static final UUID APPLIED_POT_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
 
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
@@ -124,6 +130,8 @@ class CommandConsumptionPostgresTest {
 		jdbc.update("update consumption_slots set current_claim_id = null");
 		jdbc.update("delete from consumption_claims");
 		jdbc.update("delete from consumption_slots");
+		jdbc.update("delete from command_terminal_events");
+		jdbc.update("delete from command_outcomes");
 		jdbc.update("delete from recorded_commands");
 		clock = Clock.fixed(NOW, ZoneOffset.UTC);
 		transactions = new SpringTransactionRunner(new TransactionTemplate(transactionManager));
@@ -138,7 +146,7 @@ class CommandConsumptionPostgresTest {
 		assertTrue(lifecycle.findSlot(CommandConsumptionKeys.forCommand(command.commandId())).isEmpty());
 		run(commandValue -> {
 			calls.incrementAndGet();
-			return new CommandUseCaseResult.Succeeded(List.of(), List.of());
+			return succeeded();
 		});
 
 		ConsumptionSlot slot = slot(command.commandId());
@@ -147,6 +155,19 @@ class CommandConsumptionPostgresTest {
 		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
 		assertTrue(slot.terminalReason().isEmpty());
 		assertTrue(slot.currentClaimId().isEmpty());
+		assertTerminalResolution(command.commandId(), "APPLIED", "COMMAND_APPLIED");
+		assertEquals(APPLIED_POT_ID, jdbc.queryForObject(
+				"select pot_id from command_outcomes where command_id = ?", UUID.class,
+				command.commandId().value()));
+		assertEquals(7L, jdbc.queryForObject(
+				"select resulting_version from command_outcomes where command_id = ?", Long.class,
+				command.commandId().value()));
+		var input = new JdbcCommandResultProjectionInputLoader(
+				new JdbcCommandOutcomeAdapter(jdbc), jdbc).load(new ProjectionKey(
+						CommandResultProjectionDefinition.PROJECTION_TYPE,
+						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
+						new TargetObjectId(command.commandId().value().toString()), 1));
+		assertEquals(command.authorization().userId().value(), input.submittedByUserId());
 	}
 
 	@Test
@@ -159,6 +180,7 @@ class CommandConsumptionPostgresTest {
 		ConsumptionSlot slot = slot(command.commandId());
 		assertEquals(TerminalOutcome.REJECTED, slot.terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("AUTHORIZATION_EXPIRED"), slot.terminalReason().orElseThrow());
+		assertTerminalResolution(command.commandId(), "REJECTED", "COMMAND_REJECTED");
 	}
 
 	@Test
@@ -166,12 +188,16 @@ class CommandConsumptionPostgresTest {
 		RecordedCommand command = command("invalid", NOW.plusSeconds(60));
 		insert(command);
 
-		run(value -> new CommandUseCaseResult.Succeeded(List.of(), List.of()));
+		run(value -> succeeded());
 
 		ConsumptionSlot slot = slot(command.commandId());
 		assertEquals(TerminalOutcome.FAILED, slot.terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("INVALID_COMMAND_PAYLOAD"), slot.terminalReason().orElseThrow());
 		assertTrue(slot.currentClaimId().isEmpty());
+		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
+		assertEquals("COMMAND_PROCESSING_FAILED", jdbc.queryForObject(
+				"select public_code from command_outcomes where command_id = ?", String.class,
+				command.commandId().value()));
 	}
 
 	@Test
@@ -179,11 +205,12 @@ class CommandConsumptionPostgresTest {
 		RecordedCommand command = command(new CommandType("UNKNOWN_COMMAND_V1"), "payload", NOW.plusSeconds(60));
 		insert(command);
 
-		run(value -> new CommandUseCaseResult.Succeeded(List.of(), List.of()));
+		run(value -> succeeded());
 
 		ConsumptionSlot slot = slot(command.commandId());
 		assertEquals(TerminalOutcome.FAILED, slot.terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("UNSUPPORTED_COMMAND_TYPE"), slot.terminalReason().orElseThrow());
+		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
 	}
 
 	@Test
@@ -198,6 +225,10 @@ class CommandConsumptionPostgresTest {
 		assertEquals(TerminalOutcome.REJECTED, slot.terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("INSUFFICIENT_PERMISSION"), slot.terminalReason().orElseThrow());
 		assertEquals(1, lifecycle.findClaims(slot.slotId()).size());
+		assertTerminalResolution(command.commandId(), "REJECTED", "COMMAND_REJECTED");
+		assertEquals("INSUFFICIENT_PERMISSION", jdbc.queryForObject(
+				"select public_code from command_outcomes where command_id = ?", String.class,
+				command.commandId().value()));
 	}
 
 	@Test
@@ -212,6 +243,7 @@ class CommandConsumptionPostgresTest {
 		assertEquals(new TerminalReason("COMMAND_EXECUTION_FAILURE"), slot.terminalReason().orElseThrow());
 		assertTrue(slot.currentClaimId().isEmpty());
 		assertEquals(1, lifecycle.findClaims(slot.slotId()).size());
+		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
 	}
 
 	@Test
@@ -227,6 +259,7 @@ class CommandConsumptionPostgresTest {
 		assertTrue(slot.terminalReason().isEmpty());
 		assertEquals(NOW.plusSeconds(1), slot.nextClaimAt());
 		assertTrue(slot.currentClaimId().isEmpty());
+		assertEquals(0, terminalResolutionCount(command.commandId()));
 	}
 
 	@Test
@@ -240,11 +273,12 @@ class CommandConsumptionPostgresTest {
 			if (attempts.incrementAndGet() == 1) {
 				throw new RuntimeException(new SQLException("serialization", "40001"));
 			}
-			return new CommandUseCaseResult.Succeeded(List.of(), List.of());
+			return succeeded();
 		};
 
 		run(behavior);
 		assertEquals(ConsumptionStatus.PENDING, slot(command.commandId()).status());
+		assertEquals(0, terminalResolutionCount(command.commandId()));
 		mutableClock.set(NOW.plusSeconds(1));
 		run(behavior);
 
@@ -252,6 +286,7 @@ class CommandConsumptionPostgresTest {
 		assertEquals(2, attempts.get());
 		assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
 		assertEquals(2, lifecycle.findClaims(slot.slotId()).size());
+		assertTerminalResolution(command.commandId(), "APPLIED", "COMMAND_APPLIED");
 	}
 
 	@Test
@@ -278,7 +313,7 @@ class CommandConsumptionPostgresTest {
 				effectWritten.countDown();
 				await(allowStaleFinish);
 			}
-			return new CommandUseCaseResult.Succeeded(List.of(), List.of());
+			return succeeded();
 		});
 
 		try (var executor = Executors.newSingleThreadExecutor()) {
@@ -295,6 +330,7 @@ class CommandConsumptionPostgresTest {
 					ExecutionException.class, () -> staleExecution.get(10, TimeUnit.SECONDS));
 			assertInstanceOf(LostClaimException.class, staleFailure.getCause());
 			assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
+			assertEquals(0, terminalResolutionCount(command.commandId()));
 
 			execute.execute(new ExecuteConsumptionInput(
 					winner.slotId(), winner.claimId(), specialized.forCommand(command.commandId())));
@@ -304,6 +340,28 @@ class CommandConsumptionPostgresTest {
 		assertEquals("worker-b", jdbc.queryForObject("select owner from lot65_command_effects", String.class));
 		assertEquals(TerminalOutcome.SUCCESS, slot(command.commandId()).terminalOutcome().orElseThrow());
 		assertEquals(2, lifecycle.findClaims(stale.slotId()).size());
+		assertTerminalResolution(command.commandId(), "APPLIED", "COMMAND_APPLIED");
+	}
+
+	private void assertTerminalResolution(CommandId commandId, String outcomeType, String eventType) {
+		assertEquals(1, terminalResolutionCount(commandId));
+		assertEquals(outcomeType, jdbc.queryForObject(
+				"select outcome_type from command_outcomes where command_id = ?", String.class,
+				commandId.value()));
+		assertEquals(eventType, jdbc.queryForObject(
+				"select event_type from command_terminal_events where command_id = ?", String.class,
+				commandId.value()));
+	}
+
+	private int terminalResolutionCount(CommandId commandId) {
+		int outcomes = jdbc.queryForObject(
+				"select count(*) from command_outcomes where command_id = ?", Integer.class,
+				commandId.value());
+		int events = jdbc.queryForObject(
+				"select count(*) from command_terminal_events where command_id = ?", Integer.class,
+				commandId.value());
+		assertEquals(outcomes, events);
+		return outcomes;
 	}
 
 	private void run(Function<TestCommand, CommandUseCaseResult> behavior) {
@@ -331,7 +389,13 @@ class CommandConsumptionPostgresTest {
 		var decoder = new CommandDecoderRegistry(List.of(new TestDecoder()));
 		var dispatcher = new CommandDispatcher(List.of(new TestUseCase(behavior)));
 		return new CommandConsumptionExecution(new ExecuteRecordedCommandService(
-				commands, decoder, dispatcher, events -> List.of(), clock));
+				commands, decoder, dispatcher, events -> List.of(), clock),
+				new JdbcCommandOutcomeAdapter(jdbc), clock);
+	}
+
+	private static CommandUseCaseResult.Succeeded succeeded() {
+		return new CommandUseCaseResult.Succeeded(
+				List.of(), new CommandAppliedResult(APPLIED_POT_ID, 7), List.of());
 	}
 
 	private static void await(CountDownLatch latch) {

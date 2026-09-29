@@ -57,7 +57,8 @@ public final class CommandConsumptionLocator implements ConsumptionLocator {
 			return Optional.of(new LocatedConsumption(
 					CommandConsumptionKeys.forCommand(commandId),
 					execution.forCommand(commandId),
-					failureClassifier));
+					failureClassifier,
+					execution.terminalFailureEffect(commandId)));
 		}
 	}
 }

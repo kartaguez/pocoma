@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.List;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 
@@ -15,10 +16,12 @@ public sealed interface RecordedCommandExecutionResult {
 
 	record Succeeded(
 			List<CommandExecutionInput> inputs,
+			CommandAppliedResult appliedResult,
 			List<CommandExecutionArtifact> artifacts) implements RecordedCommandExecutionResult {
 
 		public Succeeded {
 			inputs = List.copyOf(requireNonNull(inputs, "inputs must not be null"));
+			requireNonNull(appliedResult, "appliedResult must not be null");
 			artifacts = List.copyOf(requireNonNull(artifacts, "artifacts must not be null"));
 		}
 	}

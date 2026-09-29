@@ -50,6 +50,7 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandOutcomeAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
@@ -178,7 +179,8 @@ class WriteSideClosurePostgresTest {
 				new HandleConsumptionFailureService(
 						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
 		var locator = new CommandConsumptionLocator(
-				discovery, new CommandConsumptionExecution(commands),
+				discovery, new CommandConsumptionExecution(
+						commands, new JdbcCommandOutcomeAdapter(jdbc), clock),
 				new CommandConsumptionTechnicalFailureClassifier(clock), clock);
 		var orchestrator = new SequentialConsumptionOrchestrator(locator, acquire, execute, failure);
 		var settings = new ConsumptionWorkerSettings(true, new WorkerId("write-side-closure-test"),

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.engine.command.discovery.CommandConsumptionCandidate;
 import com.kartaguez.pocoma.engine.command.discovery.CommandDiscoveryCursor;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 
 class CommandConsumptionLocatorTest {
@@ -39,8 +40,8 @@ class CommandConsumptionLocatorTest {
 				new CommandConsumptionExecution(id -> {
 					executions.incrementAndGet();
 					return new com.kartaguez.pocoma.engine.command.execution.RecordedCommandExecutionResult.Succeeded(
-							List.of(), List.of());
-				}),
+							List.of(), new CommandAppliedResult(UUID.randomUUID(), 1), List.of());
+				}, outcome -> {}, Clock.fixed(now, ZoneOffset.UTC)),
 				failure -> { throw failure; },
 				Clock.fixed(now, ZoneOffset.UTC));
 

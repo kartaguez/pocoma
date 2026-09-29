@@ -28,7 +28,6 @@ import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
 
 /** PostgreSQL metadata-only discovery of due Event to Projection consequences. */
 public class JdbcProjectionMaterializationDiscoveryAdapter implements ProjectionMaterializationDiscoveryPort {
-	private static final TargetObjectType POT = new TargetObjectType("POT");
 
 	private final JdbcTemplate jdbc;
 
@@ -53,28 +52,39 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 		String values = String.join(",", Collections.nCopies(routes.size(),
 				"(cast(? as varchar),cast(? as varchar))"));
 		String cursor = afterExclusive.isPresent() ? """
-				and (event.created_at, event.id, route.projection_type) > (?, ?, ?)
+				and (event.recorded_at, event.event_id, route.projection_type) > (?, ?, ?)
 				""" : "";
 		String sql = """
 				with routes(event_type, projection_type) as (
 				  values %s
+				), events as (
+				  select id as event_id, event_type, 'POT' as target_object_type,
+				         pot_id::text as target_object_id, version as target_version,
+				         pot_partition_hash as partition_hash, created_at as recorded_at
+				  from business_event_outbox
+				  union all
+				  select event_id, event_type, 'COMMAND' as target_object_type,
+				         command_id::text as target_object_id, 1::bigint as target_version,
+				         command_partition_hash as partition_hash, recorded_at
+				  from command_terminal_events
 				)
-				select event.id, event.event_type, event.pot_id, event.version, event.created_at,
+				select event.event_id, event.event_type, event.target_object_type,
+				       event.target_object_id, event.target_version, event.recorded_at,
 				       route.projection_type
-				from business_event_outbox event
+				from events event
 				join routes route on route.event_type = event.event_type
-				where mod(mod(event.pot_partition_hash, ?) + ?, ?) = ?
+				where mod(mod(event.partition_hash, ?) + ?, ?) = ?
 				  and not exists (
 				    select 1
 				    from consumption_slots slot
 				    where slot.consumable_type = 'EVENT'
-				      and slot.consumable_components = jsonb_build_array(event.id::text)
+				      and slot.consumable_components = jsonb_build_array(event.event_id::text)
 				      and slot.consumer_type = 'PROJECTION_TASK_MATERIALIZER'
 				      and slot.consumer_components = jsonb_build_array(route.projection_type)
 				      and slot.status = 'DONE'
 				  )
 				%s
-				order by event.created_at, event.id, route.projection_type
+				order by event.recorded_at, event.event_id, route.projection_type
 				limit ?
 				""".formatted(values, cursor);
 
@@ -98,15 +108,14 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 	}
 
 	private ProjectionMaterializationCandidate candidate(ResultSet result, int row) throws SQLException {
-		UUID potId = result.getObject("pot_id", UUID.class);
 		return new ProjectionMaterializationCandidate(
-				result.getObject("id", UUID.class),
+				result.getObject("event_id", UUID.class),
 				new EventType(result.getString("event_type")),
 				new ProjectionType(result.getString("projection_type")),
-				POT,
-				new TargetObjectId(potId.toString()),
-				result.getLong("version"),
-				result.getTimestamp("created_at").toInstant());
+				new TargetObjectType(result.getString("target_object_type")),
+				new TargetObjectId(result.getString("target_object_id")),
+				result.getLong("target_version"),
+				result.getTimestamp("recorded_at").toInstant());
 	}
 
 	private static List<SqlRoute> routes(Map<EventType, Set<ProjectionType>> suppliedRoutes) {

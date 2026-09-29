@@ -58,7 +58,8 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 
 		CommandUseCaseResult.Succeeded succeeded = (CommandUseCaseResult.Succeeded) result;
 		if (succeeded.events().isEmpty()) {
-			return new RecordedCommandExecutionResult.Succeeded(succeeded.inputs(), List.of());
+			return new RecordedCommandExecutionResult.Succeeded(
+					succeeded.inputs(), succeeded.appliedResult(), List.of());
 		}
 		List<CommandExecutionArtifact> appended = events.appendAll(succeeded.events());
 		if (appended == null) {
@@ -72,6 +73,7 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 			throw new CommandExecutionInvariantViolationException("Event append returned " + artifacts.size()
 					+ " artifacts for " + succeeded.events().size() + " events");
 		}
-		return new RecordedCommandExecutionResult.Succeeded(succeeded.inputs(), artifacts);
+		return new RecordedCommandExecutionResult.Succeeded(
+				succeeded.inputs(), succeeded.appliedResult(), artifacts);
 	}
 }

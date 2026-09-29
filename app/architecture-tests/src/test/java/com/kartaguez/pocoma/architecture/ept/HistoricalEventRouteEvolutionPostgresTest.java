@@ -260,8 +260,11 @@ class HistoricalEventRouteEvolutionPostgresTest {
 	}
 
 	private static ProjectionMaterializationPolicy policyForPotCreated(Set<ProjectionType> projectionTypes) {
-		var materializations = new LinkedHashMap<>(
-				PocomaProjectionMaterializationPolicy.policy().materializations());
+		var canonicalMaterializations = PocomaProjectionMaterializationPolicy.policy().materializations();
+		var materializations = new LinkedHashMap<com.kartaguez.pocoma.domain.event.EventType,
+				Set<ProjectionType>>();
+		PocomaEventTypes.all().forEach(eventType ->
+				materializations.put(eventType, canonicalMaterializations.get(eventType)));
 		materializations.put(PocomaEventTypes.POT_CREATED, Set.copyOf(projectionTypes));
 		return new ProjectionMaterializationPolicy(PocomaEventTypes.all(), materializations);
 	}

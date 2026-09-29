@@ -29,6 +29,7 @@ import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
@@ -55,6 +56,7 @@ import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.engine.security.UserContext;
+import com.kartaguez.pocoma.engine.snapshot.PotHeaderSnapshot;
 
 class PotCommandUseCaseAdapterTest {
 
@@ -64,7 +66,10 @@ class PotCommandUseCaseAdapterTest {
 	@Test
 	void passesPermissionsWithoutMappingAndPreservesTheUserIdentity() {
 		AtomicReference<UserContext> received = new AtomicReference<>();
-		TestAdapter adapter = new TestAdapter((invocation, userContext) -> received.set(userContext));
+		TestAdapter adapter = new TestAdapter((invocation, userContext) -> {
+			received.set(userContext);
+			return snapshot(POT_ID, 1);
+		});
 		Set<Permission> permissions = Set.of(
 				new Permission("POT", "CREATE"),
 				new Permission("POT", "UPDATE"),
@@ -80,7 +85,10 @@ class PotCommandUseCaseAdapterTest {
 	@Test
 	void unknownPermissionsDoNotPreventExecution() {
 		AtomicBoolean invoked = new AtomicBoolean();
-		TestAdapter adapter = new TestAdapter((invocation, ignored) -> invoked.set(true));
+		TestAdapter adapter = new TestAdapter((invocation, ignored) -> {
+			invoked.set(true);
+			return snapshot(POT_ID, 1);
+		});
 
 		assertInstanceOf(CommandUseCaseResult.Succeeded.class,
 				adapter.execute(authorization(Set.of(new Permission("FUTURE_FEATURE", "VIEW"))), command()));
@@ -99,6 +107,7 @@ class PotCommandUseCaseAdapterTest {
 			});
 			contextPort.loadUpdatePotDetailsContext(POT_ID);
 			invocation.publish(event);
+			return snapshot(POT_ID, 8);
 		});
 
 		CommandUseCaseResult.Succeeded result = assertInstanceOf(CommandUseCaseResult.Succeeded.class,
@@ -158,7 +167,8 @@ class PotCommandUseCaseAdapterTest {
 	@Test
 	void acceptsAValidSuccessWithoutEvents() {
 		CommandUseCaseResult.Succeeded result = assertInstanceOf(CommandUseCaseResult.Succeeded.class,
-				new TestAdapter((invocation, ignored) -> { }).execute(authorization(Set.of()), command()));
+				new TestAdapter((invocation, ignored) -> snapshot(POT_ID, 1))
+						.execute(authorization(Set.of()), command()));
 		assertEquals(List.of(), result.inputs());
 		assertEquals(List.of(), result.events());
 	}
@@ -295,6 +305,7 @@ class PotCommandUseCaseAdapterTest {
 			});
 			contextPort.loadUpdatePotDetailsContext(invocationPotId);
 			invocation.publish(new PotDetailsUpdatedEvent(invocationPotId, 5));
+			return snapshot(invocationPotId, 5);
 		});
 
 		try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
@@ -335,6 +346,10 @@ class PotCommandUseCaseAdapterTest {
 
 	private static CreatePotCommand command() {
 		return new CreatePotCommand("Trip", USER_ID);
+	}
+
+	private static PotHeaderSnapshot snapshot(PotId potId, long version) {
+		return new PotHeaderSnapshot(potId, Label.of("Trip"), UserId.of(USER_ID), false, version);
 	}
 
 	private static final class TestAdapter extends AbstractPotCommandUseCaseAdapter<CreatePotCommand> {

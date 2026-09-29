@@ -125,7 +125,7 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 				var processingFailure = requireNonNull(
 						located.failureClassifier().classify(executionFailure), "classifier returned null");
 				handleFailure.handle(new HandleConsumptionFailureInput(
-						claim.slotId(), claim.claimId(), processingFailure));
+						claim.slotId(), claim.claimId(), processingFailure, located.terminalFailureEffect()));
 				return null;
 			}
 			catch (RuntimeException infrastructureFailure) {

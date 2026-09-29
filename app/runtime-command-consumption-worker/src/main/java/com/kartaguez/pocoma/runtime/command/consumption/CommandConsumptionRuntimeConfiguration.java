@@ -29,6 +29,7 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandOutcomeAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
@@ -109,8 +110,9 @@ public class CommandConsumptionRuntimeConfiguration {
 	}
 
 	@Bean
-	CommandConsumptionExecution commandConsumptionExecution(ExecuteRecordedCommandUseCase commands) {
-		return new CommandConsumptionExecution(commands);
+	CommandConsumptionExecution commandConsumptionExecution(ExecuteRecordedCommandUseCase commands,
+			JdbcCommandOutcomeAdapter outcomes, Clock clock) {
+		return new CommandConsumptionExecution(commands, outcomes, clock);
 	}
 
 	@Bean

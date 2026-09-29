@@ -677,11 +677,19 @@ class HexagonalArchitectureTest {
 	@Test
 	void genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts() {
 		String commandPackage = ROOT_PACKAGE + ".engine.command";
-		Set<String> dependenciesOutsideCommand = dependenciesOutside(
-				commandPackage,
-				Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
-						ROOT_PACKAGE + ".domain.consumption.lifecycle",
-						ROOT_PACKAGE + ".domain.event"));
+		Set<String> allowedPackages = Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
+				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event");
+		Set<String> dependenciesOutsideCommand = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
+				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".result"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(dependency -> dependency.getTargetClass())
+				.filter(target -> !target.getPackageName().startsWith("java."))
+				.filter(target -> allowedPackages.stream().noneMatch(allowed ->
+						target.getPackageName().equals(allowed)
+								|| target.getPackageName().startsWith(allowed + ".")))
+				.map(target -> target.getName())
+				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideCommand,
 				"engine-command may depend only on its own contracts, generic BusinessEvent, TerminalReason and the JDK");
 
@@ -735,6 +743,7 @@ class HexagonalArchitectureTest {
 				persistencePackage + ".adapter.command",
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
 						ROOT_PACKAGE + ".engine.command", ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".domain.event", ROOT_PACKAGE + ".observability.trace",
 						"org.springframework", "com.fasterxml.jackson"));
 		assertEquals(Set.of(), dependencies,
 				"Command persistence may depend only on generic Command contracts and infrastructure libraries");

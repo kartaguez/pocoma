@@ -41,7 +41,8 @@ class Pcl8DatabaseDemolitionPostgresTest {
 			"business_event_outbox", "projection_tasks", "consumption_slots", "consumption_claims",
 			"consumption_inputs", "consumption_results", "pot_global_versions", "pot_headers",
 			"shareholders", "expense_headers", "expense_shares", "pot_version_metadata",
-			"recorded_commands", "external_identities", "flyway_schema_history");
+			"recorded_commands", "command_outcomes", "command_terminal_events",
+			"external_identities", "flyway_schema_history");
 	private static final Set<String> READ_KEEP_TABLES = Set.of(
 			"projection_root", "projection_artifact", "projection_failure",
 			"source_version_watermarks", "flyway_schema_history");
@@ -66,16 +67,16 @@ class Pcl8DatabaseDemolitionPostgresTest {
 
 		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
 		MigrateResult readUpgrade = migrateRead(upgradeUrl, null);
-		assertEquals(1, primaryUpgrade.migrationsExecuted);
+		assertEquals(2, primaryUpgrade.migrationsExecuted);
 		assertEquals(1, readUpgrade.migrationsExecuted);
 		assertHistoricalHistoryUnchanged(primaryHistory, migrationHistory(upgradeUrl, "public", 15));
 		assertHistoricalHistoryUnchanged(readHistory, migrationHistory(upgradeUrl, "pocoma_read", 7));
-		assertEquals(16, successfulMigrationCount(upgradeUrl, "public"));
+		assertEquals(17, successfulMigrationCount(upgradeUrl, "public"));
 		assertEquals(8, successfulMigrationCount(upgradeUrl, "pocoma_read"));
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
-		assertEquals(16, migratePrimary(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(17, migratePrimary(bootstrapUrl, null).migrationsExecuted);
 		assertEquals(8, migrateRead(bootstrapUrl, null).migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 

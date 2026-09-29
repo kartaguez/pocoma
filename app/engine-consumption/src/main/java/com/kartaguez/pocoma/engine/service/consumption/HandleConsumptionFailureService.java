@@ -8,6 +8,9 @@ import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.ConsumptionFailurePolicy;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureContext;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
+import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
@@ -42,6 +45,11 @@ public final class HandleConsumptionFailureService implements HandleConsumptionF
 		}
 		var now = clock.instant();
 		FailureDecision decision = policy.decide(new FailureContext(input.failure(), claim.attemptNumber(), now));
+		if (decision instanceof Fail) {
+			return new FinalizeConsumptionService(persistence, clock).finalizeConsumption(
+					new FinalizeConsumptionInput(input.slotId(), input.claimId(),
+							new TerminalFailure(input.failure()), input.terminalFailureEffect()));
+		}
 		return persistence.handleFailure(input.slotId(), input.claimId(), input.failure(), decision, now);
 	}
 }

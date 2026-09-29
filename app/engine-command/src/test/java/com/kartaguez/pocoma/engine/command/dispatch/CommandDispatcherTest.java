@@ -19,6 +19,7 @@ import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
 
 class CommandDispatcherTest {
@@ -26,6 +27,7 @@ class CommandDispatcherTest {
 	private static final Instant NOW = Instant.parse("2026-01-01T00:00:00Z");
 	private static final AuthorizationSnapshot AUTHORIZATION = new AuthorizationSnapshot(
 			new PocomaUserId(UUID.randomUUID()), Set.of(), NOW, NOW, NOW.plusSeconds(60), "issuer");
+	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 1);
 
 	@Test
 	void dispatchesTheExactCommandClassAndPassesAuthorizationUnchanged() {
@@ -34,7 +36,7 @@ class CommandDispatcherTest {
 		TestBusinessEvent second = new TestBusinessEvent("updated");
 		CommandUseCase<TestCommand> useCase = useCase((authorization, command) -> {
 			received.set(authorization);
-			return new CommandUseCaseResult.Succeeded(List.of(), List.of(first, second));
+			return new CommandUseCaseResult.Succeeded(List.of(), APPLIED, List.of(first, second));
 		});
 
 		CommandUseCaseResult.Succeeded result = assertInstanceOf(CommandUseCaseResult.Succeeded.class,
@@ -47,7 +49,7 @@ class CommandDispatcherTest {
 	@Test
 	void rejectsUnknownDuplicateAndNullUseCases() {
 		CommandUseCase<TestCommand> useCase = useCase((authorization, command) ->
-				new CommandUseCaseResult.Succeeded(List.of(), List.of()));
+				new CommandUseCaseResult.Succeeded(List.of(), APPLIED, List.of()));
 		assertThrows(MissingCommandUseCaseException.class,
 				() -> new CommandDispatcher(List.of()).dispatch(AUTHORIZATION, new TestCommand("value")));
 		assertThrows(IllegalArgumentException.class, () -> new CommandDispatcher(List.of(useCase, useCase)));

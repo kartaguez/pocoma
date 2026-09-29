@@ -31,6 +31,7 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.dispatch.MissingCommandUseCaseException;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
+import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
@@ -46,6 +47,7 @@ class ExecuteRecordedCommandServiceTest {
 	private static final Clock CLOCK = Clock.fixed(NOW, ZoneOffset.UTC);
 	private static final CommandId COMMAND_ID = new CommandId(UUID.randomUUID());
 	private static final CommandType COMMAND_TYPE = new CommandType("TEST_COMMAND_V1");
+	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 1);
 
 	@Test
 	void missingRecordedCommandIsATechnicalFailure() {
@@ -179,7 +181,7 @@ class ExecuteRecordedCommandServiceTest {
 	private static CommandUseCaseResult.Succeeded success(
 			List<CommandExecutionInput> inputs,
 			List<BusinessEvent> events) {
-		return new CommandUseCaseResult.Succeeded(inputs, events);
+		return new CommandUseCaseResult.Succeeded(inputs, APPLIED, events);
 	}
 
 	private static CommandPayloadDecoder<TestCommand> decoder(PayloadDecoder payloadDecoder) {

@@ -25,6 +25,7 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 class CommandModelTest {
 
 	private static final Instant NOW = Instant.parse("2026-01-01T00:00:00Z");
+	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 7);
 
 	@Test
 	void recordsGenericImmutableCommandAndAuthorizationData() {
@@ -64,14 +65,16 @@ class CommandModelTest {
 				"EVENT", "PotUpdated", "event-1", OptionalLong.empty(), Optional.of(subject), NOW);
 		TestBusinessEvent event = new TestBusinessEvent("updated");
 		List<BusinessEvent> mutableEvents = new ArrayList<>(List.of(event));
-		CommandUseCaseResult.Succeeded succeeded = new CommandUseCaseResult.Succeeded(List.of(subject), mutableEvents);
+		CommandUseCaseResult.Succeeded succeeded = new CommandUseCaseResult.Succeeded(
+				List.of(subject), APPLIED, mutableEvents);
 		mutableEvents.clear();
 
 		assertSame(event, succeeded.events().getFirst());
 		assertThrows(UnsupportedOperationException.class,
 				() -> succeeded.events().add(new TestBusinessEvent("deleted")));
 		assertThrows(NullPointerException.class,
-				() -> new CommandUseCaseResult.Succeeded(List.of(), Collections.singletonList(null)));
+				() -> new CommandUseCaseResult.Succeeded(
+						List.of(), APPLIED, Collections.singletonList(null)));
 		assertEquals(Optional.of(subject), artifact.subject());
 		assertThrows(IllegalArgumentException.class, () -> new CommandExecutionInput("POT", "pot-1", 0));
 		assertThrows(IllegalArgumentException.class, () -> new CommandExecutionArtifact(

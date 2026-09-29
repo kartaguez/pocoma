@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.locator.consumption.command;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -13,18 +14,26 @@ import com.kartaguez.pocoma.engine.command.execution.RecordedCommandExecutionRes
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.command.port.out.CommandOutcomePublicationPort;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecution;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.FencedDurableEffect;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 
 /** Adapts the specialized Command result to generic consumption provenance and outcome. */
 public final class CommandConsumptionExecution {
 
 	private final ExecuteRecordedCommandUseCase executeRecordedCommand;
+	private final CommandOutcomePublicationPort outcomes;
+	private final Clock clock;
 
-	public CommandConsumptionExecution(ExecuteRecordedCommandUseCase executeRecordedCommand) {
+	public CommandConsumptionExecution(ExecuteRecordedCommandUseCase executeRecordedCommand,
+			CommandOutcomePublicationPort outcomes, Clock clock) {
 		this.executeRecordedCommand = requireNonNull(executeRecordedCommand, "executeRecordedCommand must not be null");
+		this.outcomes = requireNonNull(outcomes, "outcomes must not be null");
+		this.clock = requireNonNull(clock, "clock must not be null");
 	}
 
 	public ConsumptionExecution forCommand(CommandId commandId) {
@@ -38,14 +47,24 @@ public final class CommandConsumptionExecution {
 				.map(input -> consumptionInput(context, input))
 				.toList();
 		if (result instanceof RecordedCommandExecutionResult.Rejected rejected) {
+			outcomes.publish(new CommandOutcome.Rejected(
+					commandId, rejected.reason().code(), clock.instant()));
 			return new ConsumptionExecutionResult(
 					new BusinessConsumptionOutcome.Rejected(rejected.reason().code()), inputs, List.of());
 		}
 		RecordedCommandExecutionResult.Succeeded succeeded = (RecordedCommandExecutionResult.Succeeded) result;
+		outcomes.publish(new CommandOutcome.Applied(commandId, succeeded.appliedResult().potId(),
+				succeeded.appliedResult().resultingVersion(), clock.instant()));
 		List<ConsumptionResult> results = succeeded.artifacts().stream()
 				.map(artifact -> consumptionResult(context, artifact))
 				.toList();
 		return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(), inputs, results);
+	}
+
+	public FencedDurableEffect terminalFailureEffect(CommandId commandId) {
+		requireNonNull(commandId, "commandId must not be null");
+		return () -> outcomes.publish(new CommandOutcome.Failed(
+				commandId, CommandOutcome.PUBLIC_FAILURE_CODE, clock.instant()));
 	}
 
 	private static ConsumptionInput consumptionInput(
