@@ -13,13 +13,23 @@ recorded_commands
   -> CommandConsumptionLocator
   -> discovery best effort
   -> acquire autoritatif
-  -> reload / execute / append Events
+  -> reload / resolve current (ExternalIdentity, BindingId) / execute / append Events
   -> fencing / terminalisation ou retry
 ```
 
 Le runtime ne contient aucune logique métier Command. `binding-pot-command-spring` assemble les
 decoders et adapters Pot derrière les contrats d'`engine-command`; le polling reste entièrement
 générique. Aucun slot n'est créé avant `acquire` et aucune queue locale ne mémorise le backlog.
+
+Après reload autoritatif, le worker résout sur le primaire User/Identity le couple exact
+`(ExternalIdentity, BindingId)` capturé. Un mismatch produit l'unique rejet public
+`CALLER_IDENTITY_NOT_CURRENT`, sans distinguer identité inconnue, binding absent, ancien, détaché ou
+remplacé. Le `PocomaUserId` résolu, les capabilities attestées et l'état Pot courant alimentent
+ensuite l'AuthZ et les invariants métier.
+
+La résolution `(E,B) -> U` et la mutation Pot appartiennent à la même frontière transactionnelle
+fenced. L'occurrence B doit rester courante jusqu'au commit métier ; Attach ou Detach concurrent ne
+peut pas l'invalider entre contrôle et commit. La primitive PostgreSQL exacte relève du plan.
 
 La composition distribuée sépare explicitement les processus `runtime-web-api`,
 `runtime-command-consumption-worker`, `runtime-event-consumption-worker` et

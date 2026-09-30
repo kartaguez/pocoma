@@ -10,6 +10,9 @@ Ce document est l'autorité normative du cadrage REGISTRATION. Il fixe le métie
 architecturales que le futur plan d'implémentation devra respecter ; il ne constitue ni ce plan, ni
 un design Java, SQL ou HTTP détaillé.
 
+Le canon transversal [`WRITE_ADMISSION`](../WRITE_ADMISSION/Step_Canon.md) complète et prévaut sur
+ce document pour les frontières HTTP WRITE/READ, l'identité de binding et `BindingId`.
+
 Les audits [`step_audit.md`](step_audit.md) et [`domain_audit.md`](domain_audit.md) sont des preuves
 historiques et factuelles, pas la source canonique du comportement cible. D1–D30 ont clos le métier.
 `domain_audit.md` avait conclu `NOT CLOSABLE` pour le cadrage combiné uniquement parce que
@@ -27,11 +30,11 @@ ExternalIdentity attestée E
     ↓ admission
 RegistrationRequest R(E), durable et immutable
     ↓ exécution de la Registration
-Registered(U)
+Registered(U, B)
     + User(U)
-    + binding courant E → U
+    + binding courant Binding(E, U, B)
     + UserCreated(U)
-    + ExternalIdentityAttached(E, U)
+    + ExternalIdentityAttached(E, U, B)
 
 ou
 
@@ -85,7 +88,7 @@ même identité garde la même signification avant, pendant et après Registrati
 Le binding courant est une autorité durable distincte du User :
 
 ```text
-(issuer, subject) → PocomaUserId
+Binding(ExternalIdentity, PocomaUserId, BindingId)
 ```
 
 Sa clé métier naturelle est l'ExternalIdentity. Il protège l'invariant global :
@@ -100,6 +103,12 @@ Une identité détachée redevient disponible et peut être rattachée ou utilis
 ultérieure. Aucun registre séparé des identités « libres » n'existe. AttachExternalIdentity et
 DetachExternalIdentity sont hors du use case Registration, mais doivent employer la même autorité
 de binding et le même invariant global.
+
+`BindingId` identifie l'occurrence précise du rattachement. Il est opaque, unique, non ordinal,
+non réutilisable et sans sémantique temporelle ; seule l'égalité compte. Chaque acquisition ou
+Attach réussi génère un B neuf, y compris après detach/reattach vers le même User. Detach invalide
+l'occurrence courante. L'absence d'historique durable des anciennes occurrences reste compatible
+avec cet invariant.
 
 ## 3. RegistrationRequest et admission
 
@@ -124,7 +133,7 @@ créent pas une nouvelle RegistrationRequest.
 Une request possède au plus un résultat terminal, autoritatif et immutable :
 
 ```text
-Registered(PocomaUserId)
+Registered(PocomaUserId, BindingId)
 Rejected(EXTERNAL_IDENTITY_ALREADY_USED)
 ```
 
@@ -142,16 +151,20 @@ Consumption ou aux mécanismes d'exploitation, jamais à la RegistrationRequest 
 La visibilité d'un résultat exige l'égalité exacte entre l'ExternalIdentity du caller et celle
 capturée immuablement par la request.
 
-Pour `Registered(U)`, le binding courant exact `E → U` doit en plus exister au moment de la lecture.
+Pour `Registered(U,B)`, l'occurrence courante exacte `Binding(E,U,B)` doit en plus exister au moment
+de la lecture.
 Une autre identité du même User ne peut pas lire ce résultat. Si E est détachée ou rattachée à un
 autre User, le résultat demeure terminal et durable mais n'est plus fonctionnellement visible via E.
+Un detach puis reattach, même vers U, produit un nouveau B et ne réactive jamais la visibilité de
+l'ancienne occurrence.
 
 Pour `Rejected(EXTERNAL_IDENTITY_ALREADY_USED)`, seule l'identité créatrice exacte peut voir le
 résultat ; aucun owner existant ni `PocomaUserId` ne lui est révélé.
 
-La traduction HTTP, l'éventuelle projection et la manière de masquer absence, non-disponibilité et
-non-ownership restent des décisions d'implémentation. Elles devront préserver ces règles
-fonctionnelles sans consulter ni exposer le lifecycle Consumption.
+La traduction HTTP, la représentation READ et la manière de masquer absence, non-disponibilité et
+non-ownership restent des décisions d'implémentation. Le endpoint construit exclusivement depuis
+READ/projections, sans lecture du primaire WRITE, et ne consulte ni n'expose le lifecycle
+Consumption. La cohérence éventuelle de READ est acceptée.
 
 ## 5. Atomicité et concurrence
 
@@ -161,10 +174,10 @@ Une Registration réussie est une transition métier atomique qui rend durables 
 
 ```text
 create User(U)
-acquire current binding(E → U)
-write terminal Registered(U) for the request
+generate and acquire current Binding(E, U, B)
+write terminal Registered(U, B) for the request
 write UserCreated(U)
-write ExternalIdentityAttached(E, U)
+write ExternalIdentityAttached(E, U, B)
 ```
 
 Ou aucun de ces effets ne subsiste. En particulier, aucun état où le User nouvellement créé existe
@@ -180,7 +193,7 @@ Deux RegistrationRequests distinctes concurrentes pour la même ExternalIdentity
 idempotentes entre elles :
 
 ```text
-R1(E) → Registered(U1)
+R1(E) → Registered(U1,B1)
 R2(E) → Rejected(EXTERNAL_IDENTITY_ALREADY_USED)
 ```
 
@@ -196,12 +209,16 @@ mutation et ne transforme pas son propre binding en rejet.
 
 Registration et AttachExternalIdentity visant E arbitrent par la même autorité de binding ; aucune
 priorité ne découle de l'ordre des workers, de discovery ou des claims. La transition qui acquiert E
-gagne, l'autre applique son issue métier.
+gagne, l'autre applique son issue métier. Chaque Attach gagnant crée un `BindingId` neuf et le
+retourne dans son résultat.
 
 Registration et DetachExternalIdentity sont ordonnées par leurs transitions autoritatives : si le
 détachement de E est effectif avant l'acquisition, Registration peut réussir ; si le binding existe
 encore au point d'arbitrage, Registration est rejetée. Une lecture préalable hors de cette frontière
 ne décide jamais du résultat.
+
+Detach invalide l'occurrence exacte courante. Un attach ultérieur crée toujours une nouvelle
+occurrence avec un nouveau B ; aucun `BindingId` n'est réutilisé.
 
 ## 6. Faits métier User/Identity
 
@@ -209,14 +226,18 @@ Une Registration réussie produit deux faits métier distincts :
 
 ```text
 UserCreated(U)
-ExternalIdentityAttached(E, U)
+ExternalIdentityAttached(E, U, B)
 ```
 
 Ils sont enregistrés atomiquement avec les mutations et le résultat terminal correspondants.
-`ExternalIdentityAttached` a exactement la même signification lorsqu'il provient de Registration ou
+`ExternalIdentityAttached` décrit la création d'une occurrence exacte et a la même signification
+lorsqu'il provient de Registration ou
 d'un futur use case AttachExternalIdentity. Aucun fait unique `UserRegistered` ne les remplace :
 Registration nomme le use case, tandis que les faits décrivent les changements du domaine
 User/Identity.
+
+Un futur fait Detach identifie lui aussi le `BindingId` de l'occurrence invalidée. Un consumer peut
+ainsi ignorer un fait stale au lieu de supprimer une occurrence plus récente.
 
 Une Registration rejetée ne produit ni `UserCreated` ni `ExternalIdentityAttached`. La famille
 d'outbox, l'envelope et le schéma de persistence exacts de ces faits ne sont pas fixés ici.
@@ -237,6 +258,9 @@ User/Identity. Registration est un use case agissant sur ce domaine, pas le prop
 concepts. User/Identity ne dépend conceptuellement ni de Command, ni de ses outcomes, ni de son
 admission.
 
+`BindingId` appartient lui aussi au domaine User/Identity. L'autorité du binding porte l'identité
+d'occurrence `Binding(E,U,B)`, pas seulement la relation naturelle E → U.
+
 Les responsabilités restent séparées :
 
 | Responsabilité | Autorité canonique |
@@ -244,7 +268,7 @@ Les responsabilités restent séparées :
 | intention admise et identité créatrice immutable | RegistrationRequest |
 | orchestration du use case | Registration |
 | existence de U | User aggregate root |
-| relation courante E → U et unicité globale de E | autorité durable de binding |
+| relation courante `Binding(E,U,B)` et unicité globale de E | autorité durable de binding |
 | résultat métier terminal de R | résultat Registration |
 | claims, leases, retries, takeover et état d'exécution | Consumption |
 
@@ -265,7 +289,7 @@ Les éléments suivants ne sont pas des décisions canoniques de ce cadrage :
 - tables, contraintes, migrations et SQL finaux, notamment l'évolution éventuelle de
   `external_identities` ;
 - endpoints, DTO, routes et codes HTTP précis ;
-- lecture directe d'un résultat autoritatif ou projection de ce résultat ;
+- structure exacte des projections de résultat et de binding self-service ;
 - structure de polling et comportement HTTP avant visibilité terminale ;
 - worker Registration, discovery, ordering, pagination et segmentation ;
 - clés Consumption, leases, fencing et stratégie de retry ;
@@ -292,27 +316,27 @@ présent canon. Une décision technique encore ouverte ne rouvre pas le cadrage 
 | D10 — identité détachée réutilisable | §2.3, §5.3 |
 | D11 — User minimal | §2.1 |
 | D12 — toute identité acceptée peut s'inscrire | §3 |
-| D13 — `Registered` ou rejet unique | §4 |
+| D13 — `Registered(U,B)` ou rejet unique | §4 |
 | D14 — request, Registration, User/binding et Consumption distincts | §3, §7 |
 | D15 — frontière transactionnelle User + binding | §5.1 |
 | D16 — Registration irrévocable | §3 |
 | D17 — seul rejet fonctionnel actuel | §4 |
 | D18 — acceptation = intention durable seulement | §3 |
-| D19 — visibilité liée à l'identité créatrice et au binding courant | §4.1 |
+| D19 — visibilité liée à l'occurrence exacte `E,U,B` | §4.1 |
 | D20 — résultat terminal unique et immutable | §4, §5.2 |
 | D21 — aucun état technique dans le READ | §4, §7 |
 | D22 — fait métier durable du succès | §5.1, §6 |
 | D23 — génération du PocomaUserId pendant la transition | §2.1 |
-| D24 — concurrence Registration/Attach/Detach | §2.3, §5.3 |
+| D24 — concurrence Registration/Attach/Detach et nouvel ID par occurrence | §2.3, §5.3 |
 | D25 — aucune compensation User après succès | §5.1 |
 | D26 — pas de lifecycle User anticipé | §2.1 |
 | D27 — pas de registration identity dans User | §2.2, §6 |
 | D28 — pas de registre des identités libres | §2.3 |
 | D29 — identité opaque et provider-neutral | §2.2 |
 | D30 — égalité exacte `(issuer, subject)` | §2.2, §4.1 |
-| D31 — ownership canonique User/Identity | §7 |
-| D32 — User root et autorité distincte du binding | §2.1, §2.3, §5, §7 |
-| D33 — `UserCreated` et `ExternalIdentityAttached` | §6 |
+| D31 — ownership canonique User/Identity, dont `BindingId` | §7 |
+| D32 — User root et autorité distincte de l'occurrence de binding | §2.1, §2.3, §5, §7 |
+| D33 — `UserCreated(U)` et `ExternalIdentityAttached(E,U,B)` | §6 |
 
 ## 10. Verdict de cadrage
 

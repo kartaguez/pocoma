@@ -1,5 +1,10 @@
 # REGISTRATION — Plan d’implémentation
 
+> **SUPERSEDED — DO NOT IMPLEMENT.** Ce plan précède le canon
+> [`WRITE_ADMISSION`](../WRITE_ADMISSION/Step_Canon.md) et l'introduction de `BindingId`. Il est
+> conservé sans réécriture comme trace du plan obsolète ; un nouveau plan sera produit après audit
+> du canon consolidé.
+
 ```text
 Step: REGISTRATION
 Phase: IMPLEMENTATION PLANNED

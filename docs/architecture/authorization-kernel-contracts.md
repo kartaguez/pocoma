@@ -146,13 +146,14 @@ VIEW_ARCHIVE
 Balance, ne définissent pas la cible : leur convergence vers le contrat unique relève de
 l'implémentation future. En particulier, le use case actuel de lecture exacte d'un Pot ne l'exige pas.
 
-Le parsing ou mapping des autorités/scopes Keycloak appartient exclusivement à un adapter de
-sécurité. `ExternalAuthorityPermissionTranslator` illustre déjà une frontière provider-neutral côté
-admission Command ; son format actuel n'est pas imposé au kernel.
+Le parsing des autorités/scopes Keycloak appartient exclusivement à un adapter de sécurité.
+L'admission Command peut capturer l'évidence externe attestée nécessaire au traitement futur, mais
+elle ne la traduit pas en décision d'AuthZ métier. La traduction provider-neutral et l'évaluation
+des capabilities requises interviennent au worker, après résolution autoritative de l'identité.
 
-L'`AuthorizationSnapshot` durable d'une Command est une preuve d'admission propre au write side. Il
-n'est ni un `TokenCapabilities` relu pour une requête future, ni un fait `AUTH(V)`, ni un précédent
-autorisant des « scopes historiques » par businessVersion.
+L'évidence d'authentification durable d'une Command n'est ni un `TokenCapabilities` relu pour une
+requête future, ni un fait `AUTH(V)`, ni un précédent autorisant des « scopes historiques » par
+businessVersion. Elle ne contient jamais le JWT brut.
 
 ## 6. `AUTH(V)` et `PotAuthorizationAtVersion`
 
@@ -693,8 +694,9 @@ read side AUTH(V)
 ```
 
 À relations structurelles, utilisateur, cible et action équivalents, les deux chemins doivent produire
-les mêmes `AuthorizationFacts` et la même décision métier. Le write side peut conserver ses
-contraintes propres d'admission et de Command, mais il ne duplique ni la dérivation des faits ni la
+les mêmes `AuthorizationFacts` et la même décision métier. Le write side résout au worker l'identité
+métier et les capabilities attestées, puis applique ses contraintes propres de Command ; l'admission
+HTTP ne décide aucune AuthZ. Il ne duplique ni la dérivation des faits ni la
 matrice métier. Le read side ne dépend pas d'un objet write-side ni l'inverse. La policy ne dépend
 jamais directement de l'artifact AUTH.
 

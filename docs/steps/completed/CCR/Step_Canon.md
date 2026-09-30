@@ -106,9 +106,11 @@ ProjectionKey(
 ```
 
 La version `1` exprime une résolution terminale unique et immutable ; ce n'est pas une version
-Pot. Le loader relit l'outcome autoritaire et le propriétaire de la Command. Le projector publie un
-artefact unique validé contenant `commandId`, propriétaire, issue, données publiques de l'issue et
-`resolvedAt`.
+Pot. Le loader relit l'outcome autoritaire et l'ownership externe attesté capturé dans la source
+durable de la Command. Il ne dépend pas d'un `auth_user_id` résolu à l'admission. Le projector publie
+un artefact unique validé contenant `commandId`, une clé d'ownership READ non ambiguë, l'issue, les
+données publiques de l'issue et `resolvedAt`. La structure exacte de cette clé reste un choix de
+plan, mais elle provient de l'`ExternalIdentity` authentifiée capturée.
 
 ## 7. Minimal READ contract
 
@@ -119,7 +121,7 @@ GET /api/v1/command-results/{commandId}
 ```
 
 - `200` + `APPLIED`, `REJECTED` ou `FAILED` uniquement si la projection exacte est `READY`, son
-  payload est valide et `submittedByUserId` correspond au caller ;
+  payload est valide et son ownership externe correspond au caller authentifié ;
 - `404` lorsqu'aucune ressource READ `COMMAND_RESULT` n'est visible pour le caller, quelle qu'en
   soit la cause : projection pas encore matérialisée, identité inconnue, ownership différent ou
   projection terminalement échouée sans résultat `READY`.
@@ -129,6 +131,10 @@ ressource READ visible n'existe actuellement sous cette identité. Le READ ne ch
 distinguer absence, non-readiness et invisibilité d'ownership tant que la projection finale n'est
 pas `READY`. Il ne consulte pour cela ni `recorded_commands`, ni Consumption, ni un index
 d'ownership intermédiaire.
+
+Le GET ne résout jamais l'`ExternalIdentity` vers un User sur le primaire WRITE. Toute donnée
+nécessaire à l'ownership est dans READ. Le contrat ne révèle ni `BindingId` courant, ni autre User,
+ni historique de binding et conserve le même masquage non-oracle.
 
 Ce contrat n'introduit ni façade Query générale, ni résolution latest/current, ni lecture directe
 du write side. Les détails internes de Consumption ne sont jamais exposés.

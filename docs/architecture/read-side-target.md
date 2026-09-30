@@ -292,6 +292,24 @@ donc `READY`, sinon failure présente donc `FAILED`, sinon `NOT_READY`.
 
 ## 9. Frontières d'architecture
 
+### Frontière HTTP READ
+
+Un endpoint HTTP READ construit sa réponse exclusivement à partir de READ et des projections. Il
+ne lit jamais le primaire WRITE pour compléter, autoriser ou construire sa réponse. L'AuthN externe
+est autorisée ; la résolution d'une `ExternalIdentity`, d'un ownership ou d'un binding sur le
+primaire depuis un controller READ est interdite. Les implémentations existantes qui le font sont
+une dette de migration et ne réduisent pas cette cible.
+
+Le READ User/Identity self-service est une projection minimale distincte de `AUTH(Pot,V)`. Sa clé
+de lookup est déduite de l'`ExternalIdentity` authentifiée ; aucune identité arbitraire n'est
+recherchable. Elle expose au plus le `PocomaUserId` et le `BindingId` courants, accepte la cohérence
+éventuelle et se construit depuis les faits User/Identity, notamment
+`ExternalIdentityAttached(E,U,B)`, sans relire le primaire pour découvrir B. Un futur fait Detach
+identifie l'occurrence B invalidée afin qu'un fait stale ne supprime pas une occurrence plus récente.
+
+Cette projection n'est jamais une source d'autorisation pour le worker Command, qui contrôle
+autoritativement `(E,B) -> U` sur le primaire dans sa transaction métier.
+
 Le package cœur `com.kartaguez.pocoma.domain.projection` dépend uniquement du JDK et de lui-même. Il
 ne dépend notamment ni de `domain-pot`, ni de `domain-pipeline`, ni de Jackson, SQL/JPA, Spring,
 SLF4J, Micrometer ou OpenTelemetry.

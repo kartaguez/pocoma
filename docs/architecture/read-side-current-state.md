@@ -3,6 +3,11 @@
 Ce document décrit l'état exécutable après PCL.8. Les documents de décision et de cible restent les
 références pour les lots futurs ; cette page ne crée pas une nouvelle architecture Query.
 
+La cible impose désormais que tout endpoint HTTP READ réponde exclusivement depuis READ/projections,
+sans lookup primaire WRITE d'identité, d'ownership ou d'autorisation. Les controllers actuels qui
+effectuent encore une telle résolution sont une dette de migration documentée ; ils ne constituent
+pas une exception canonique.
+
 ## 1. Frontière HTTP
 
 Le runtime Web n'expose plus les six lectures synchrones legacy :

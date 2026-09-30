@@ -3,7 +3,8 @@
 ## Donnée durable immutable
 
 `recorded_commands` conserve la demande telle qu'elle a été soumise : son `commandId`, son
-`commandType`, son payload opaque, sa date de soumission et le snapshot d'autorisation. Le payload
+`commandType`, son payload opaque, sa date de soumission, l'`ExternalIdentity` attestée, le
+`BindingId` présenté et l'évidence d'authentification nécessaire. Le payload
 est stocké en `text` et n'est jamais parsé par la persistence. Une chaîne vide ou non JSON est donc
 conservée exactement ; sa validité relève du `CommandDecoder` lors de l'exécution.
 
@@ -11,21 +12,26 @@ Le port expose uniquement `insert` et `findById`. Un identifiant déjà présent
 technique et aucune opération d'update ou de delete n'existe. La table ne contient aucun statut,
 claim, retry, résultat ou erreur de traitement.
 
-## Snapshot d'autorisation
+## Identité et évidence durable
 
-Les permissions provider-neutral `Permission(objectType, action)` sont capturées à la soumission
-avec l'utilisateur, l'issuer et les dates `authenticatedAt`, `issuedAt` et `validUntil`. Elles sont
-stockées dans un tableau JSONB. L'ordre du tableau n'est pas fonctionnel et les permissions futures
-restent lisibles sans liste fermée côté persistence.
+```text
+RecordedCommand
+  commandId
+  commandType
+  payload
+  submittedAt
+  ExternalIdentity(issuer, subject)
+  BindingId
+  authenticationEvidence
+```
 
-Le snapshot permet de rejouer exactement la décision soumise. `validUntil` est vérifié par
-`ExecuteRecordedCommandService` avant le décodage ; la persistence ne réinterprète aucune donnée
-d'autorisation.
+`PocomaUserId` ne fait pas partie de l'identité résolue à l'admission. La persistence ne
+réinterprète ni l'identité, ni le binding, ni l'évidence. `validUntil`, lorsqu'il appartient à
+l'évidence retenue, est vérifié au traitement avant le dispatch.
 
-La migration V9 ajoute séparément `external_identities`, indexée par sa clé primaire composite
-`(issuer, subject)`. Elle ne duplique aucune donnée de lifecycle Command : elle résout seulement
-l'identité authentifiée vers le `PocomaUserId` capturé dans le snapshot. Aucun provisioning ou
-auto-provisioning n'est réalisé par l'admission.
+L'évidence peut conserver les capabilities externes attestées nécessaires au worker, mais elle
+n'est jamais une décision d'AuthZ prise à l'admission et ne contient jamais le JWT brut. Le schéma
+SQL exact et la migration des anciennes rows appartiennent au futur plan.
 
 ## Discovery best effort
 
@@ -63,6 +69,8 @@ RecordedCommand
   -> discovery best effort
   -> acquire COMMAND / commandId, COMMAND_PROCESSOR
   -> reload autoritatif
+  -> résolution primaire autoritative (ExternalIdentity, BindingId) -> PocomaUserId
+  -> évaluation capabilities/AuthZ et invariants courants
   -> decode / dispatch / exécution
   -> SUCCESS ou REJECTED, ou classification technique
   -> fencing et terminalisation génériques
@@ -87,7 +95,7 @@ HTTP
 ```
 
 Le Lot 6.6 implémente désormais la première flèche avec `POST /api/v1/commands` : authentification
-Resource Server dans le supra Spring, résolution d'identité, capture du snapshot et insert dans
+Resource Server dans le supra Spring, capture de l'identité, du BindingId et de l'évidence, puis insert dans
 `recorded_commands`. Cette admission ne déclenche toujours ni discovery, ni slot, ni exécution.
 Voir [recorded-command-intake.md](recorded-command-intake.md).
 

@@ -48,42 +48,44 @@ vers `iat` ou l'heure courante. Le profil OIDC déployé doit donc exposer `auth
 token. Un autre supra (gateway, mTLS, gRPC, autre framework) peut produire le même
 `AuthenticatedExternalPrincipal` sans modifier l'orchestrateur d'admission.
 
-## Identité, permissions et snapshot
+## Identité, binding et évidence d'authentification
 
-L'identité externe est résolue par la clé exacte `(issuer, subject)` de `external_identities` vers
-un `PocomaUserId`. Plusieurs identités externes peuvent cibler le même utilisateur, mais une clé
-externe ne peut cibler qu'un seul utilisateur. Une identité absente retourne
-`403 USER_NOT_PROVISIONED`; aucun auto-provisioning n'est effectué.
+L'admission capture l'`ExternalIdentity(issuer, subject)` attestée et le `BindingId` syntaxiquement
+valide présenté par le client. Elle ne consulte pas l'autorité User/Identity primaire, ne résout pas
+de `PocomaUserId` et ne vérifie ni l'existence ni l'actualité du binding. Une identité authentifiée
+mais inconnue est admise comme toute intention structurellement valide ; la décision fonctionnelle
+appartient au worker.
 
-En 6.6, les fixtures de test sont insérées directement. Les environnements réels doivent utiliser
-une procédure opératoire temporaire de provisioning. Une API d'administration est hors scope.
+`BindingId` absent ou mal formé provoque un rejet HTTP structurel sans enregistrement. Un ID bien
+formé mais faux, ancien ou inexistant produit une Command durable et `202 Accepted`.
 
-Le translator applicatif reçoit seulement `Set<String> externalAuthorities`, jamais un JWT. Les
-autorités syntaxiquement valides `pocoma:<objectType>:<action>` deviennent des
-`Permission(objectType, action)`. Les autorités étrangères ou mal formées sont ignorées et
-n'accordent aucun droit. Les valeurs Pocoma futures valides restent représentables ; les policies
-actuelles ne leur attribuent aucun droit connu.
+L'admission peut capturer les claims ou autorités externes attestés strictement nécessaires à
+l'évaluation future. Elle ne les traduit pas en décision d'AuthZ métier. La représentation durable
+exacte reste à planifier ; elle est provider-neutral si approprié et ne contient jamais le JWT brut.
 
-Le snapshot durable contient le `PocomaUserId`, ces permissions, issuer, `authenticatedAt`,
-`issuedAt` et :
+L'évidence durable peut notamment borner sa validité par :
 
 ```text
 validUntil = min(token.expiresAt, submittedAt + PocomaAuthorizationTTL)
 ```
 
 `submittedAt` et le UUID `CommandId` sont générés par le serveur. Ni bearer token, ni refresh token,
-ni timestamp client ne sont persistés. L'expiration du snapshot reste contrôlée par
+ni timestamp client ne sont persistés. L'expiration de l'évidence reste contrôlée par
 `ExecuteRecordedCommandService` au moment de la consommation.
 
 ## Transaction et voie write officielle
 
-`SubmitRecordedCommandService` ouvre une transaction courte via `TransactionRunner`. La résolution
-d'identité et `RecordedCommandPort.insert` participent au même commit. Une erreur de persistence ne
-produit pas de `202`.
+`SubmitRecordedCommandService` ouvre une transaction courte via `TransactionRunner` pour le seul
+insert de l'intention. Aucune lecture métier primaire et aucune consultation READ ne participent à
+l'admission. Une erreur de persistence ne produit pas de `202`.
 
 Les anciennes mutations synchrones sous `/api/pots` et `/api/expenses` ont été retirées. Les routes
 de lecture historiques peuvent encore utiliser temporairement leurs headers legacy, mais la seule
 entrée du write model primaire est désormais l'admission Bearer `/api/v1/commands`.
+
+Cette règle est transversale à toute admission HTTP WRITE : AuthN, validation structurelle,
+capture durable, puis acceptation technique. L'AuthZ et les invariants métier sont toujours décidés
+par le worker autoritatif.
 
 Après le commit de l'admission, `runtime-command-consumption-worker` découvre et exécute la demande
 de façon indépendante. Le controller ne possède aucune référence vers un use case Pot, le locator

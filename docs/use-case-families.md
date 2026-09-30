@@ -1,8 +1,10 @@
 # Use-case families
 
 Pocoma separates functional application behavior from durable processing and incoming adapters.
-Primary mutations are invoked exclusively from durable Command consumption; HTTP admission never
-calls a Pot mutation use case directly.
+Primary mutations are invoked exclusively from durable Command consumption. HTTP WRITE admission
+performs AuthN, structural validation and durable capture only: it never reads primary business
+state, performs business AuthZ, consults READ to decide admission, or calls a mutation use case.
+HTTP READ builds responses exclusively from READ/projections and never falls back to primary state.
 
 ## Business commands — `engine-pot-command`
 
@@ -22,7 +24,8 @@ were specific to the retired write path and no longer exist.
 ## Durable commands — `engine-command`
 
 `engine-command` owns the provider-neutral `RecordedCommand`: durable id and type, opaque payload,
-submission time and immutable authorization snapshot. `infra-persistence-jpa` stores that envelope
+submission time, captured `ExternalIdentity`, presented `BindingId` and immutable authentication
+evidence. `infra-persistence-jpa` stores that envelope
 in `recorded_commands` through explicit JDBC. The source row has no processing lifecycle and an
 insert never creates a consumption slot.
 
@@ -35,8 +38,13 @@ failures. `runtime-command-consumption-worker` runs this path with the generic p
 
 `orchestrator-command-admission` exposes the separate asynchronous intake use case. The Spring
 supra authenticates the bearer token, adapts it to `AuthenticatedExternalPrincipal`, and the
-orchestrator resolves identity, captures permissions and inserts the immutable envelope. A `202`
+orchestrator captures E, a structurally valid B and the required authentication evidence without
+resolving a User or deciding AuthZ. A `202`
 means durable acceptance only; it never invokes this consumption path or a Pot use case.
+
+After fenced acquisition and authoritative reload, the worker resolves current `(E,B) -> U` on the
+User/Identity primary, evaluates capabilities and business authorization, then reads/mutates Pot
+state. Resolution and mutation share a transaction boundary that keeps B current through commit.
 
 ## Canonical exact projection reads
 

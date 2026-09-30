@@ -6,10 +6,12 @@ Depuis le Lot 6.8, le runtime cible possède une seule voie de mutation du modè
 
 ```text
 HTTP POST /api/v1/commands
-  -> authentification et admission
+  -> AuthN + validation structurelle + capture de E/B
   -> RecordedCommand immutable dans PostgreSQL
   -> polling Command
   -> acquire générique et reload autoritatif
+  -> résolution primaire courante (E,B) -> U
+  -> capabilities + AuthZ + invariants métier
   -> adapter Command
   -> inbound port métier Pot
   -> service métier Pot
@@ -18,6 +20,11 @@ HTTP POST /api/v1/commands
 
 `202 Accepted` signifie uniquement que la Command est durable. Le succès, le rejet, le retry ou
 l'échec terminal sont produits ultérieurement par le lifecycle générique de consommation.
+
+Toute admission HTTP WRITE suit cette frontière : elle n'effectue aucune lecture primaire métier,
+aucune AuthZ métier et aucune lecture READ pour accepter. Toute `ExternalIdentity` valablement
+authentifiée peut déposer une intention structurellement valide. Les workers sont seuls
+autorités pour résoudre l'identité métier, lire le primaire, autoriser et muter.
 
 ### Delete Pot terminal
 
@@ -28,7 +35,10 @@ du Pot chargé à la version courante et rejettent avec `POT_ALREADY_DELETED` av
 version, écriture primaire ou émission de `BusinessEvent`. Le correctif ne modifie ni le chemin Command,
 ni le lifecycle, ni l'architecture du Lot 6.
 
-Les controllers HTTP ne peuvent pas dépendre des ports ou services de mutation Pot. Cette règle
+Les controllers HTTP WRITE ne peuvent pas dépendre des ports de lecture primaire ni des ports ou
+services de mutation Pot. Les controllers HTTP READ construisent leurs réponses exclusivement
+depuis READ/projections et ne lisent jamais le primaire WRITE pour compléter, autoriser ou construire
+une réponse. Cette règle
 protège la frontière du write model sans interdire de futurs endpoints non-GET qui ne muteraient pas
 le modèle primaire (recherche, administration ou authentification, par exemple). Les anciennes
 routes synchrones de mutation sont en plus vérifiées explicitement comme absentes de l'OpenAPI.

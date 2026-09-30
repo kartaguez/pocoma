@@ -6,6 +6,8 @@
 |---|---|---|
 | Pot et valeurs métier | `PotHeader`, `PotId`, `UserId` | `domain-pot` |
 | Faits métier Pot | `BusinessEvent`, `PotCreatedEvent`, `ExpenseCreatedEvent` | `domain-pot.event` |
+| User et identité Pocoma | `User`, `PocomaUserId`, `ExternalIdentity`, `BindingId`, occurrence `Binding(E,U,B)` | domaine User/Identity |
+| Faits User/Identity | `UserCreated(U)`, `ExternalIdentityAttached(E,U,B)` et futur Detach identifiant B | domaine User/Identity |
 | Autorisation générique | `Permission` | `domain-authorization` |
 | Policies d'autorisation Pot | `UpdatePotDetailsAuthorizationPolicy` et autres policies Command | `domain-pot-policy` |
 | Calcul Balance | `PotBalances`, `PotBalancesCalculator` | `domain-projection-balance` |
@@ -26,7 +28,7 @@
 | Orchestration pull Event | `EventWorker`, `EventWorkerIteration` | `supra-worker-event` |
 | Orchestration ProjectionTask | `ProjectionTaskConsumptionOrchestrator`, `ConsumptionPollingWorker` | orchestrator/supra génériques |
 | Spécialisation de consommation Command | `CommandConsumptionKeys`, `CommandConsumptionLocator`, `CommandConsumptionExecution` | `locator-consumption-command` |
-| Identité externe déjà authentifiée | `AuthenticatedExternalPrincipal`, `ExternalIdentity` | `orchestrator-command-admission` |
+| Principal externe déjà authentifié | `AuthenticatedExternalPrincipal` | frontière d'authentification provider-neutral |
 | Adaptation du principal Spring | `SpringSecurityExternalPrincipalAdapter` | `supra-authentication-spring-security` |
 
 ## Distinctions obligatoires
@@ -71,6 +73,11 @@ propriété temporaire, protégée par son token.
 Pour Command, `engine-command` reste propriétaire du décodage, du dispatch et de l'exécution
 spécialisée. `locator-consumption-command` est seul propriétaire de la traduction en
 `ConsumptionKey` (`COMMAND / [commandId]`, `COMMAND_PROCESSOR / []`) et en résultat de consommation.
+
+Une Command durable référence les types User/Identity sans les posséder. Elle capture
+`ExternalIdentity` et `BindingId`; le worker résout autoritativement `(E,B) -> PocomaUserId`.
+`PocomaUserId`, `ExternalIdentity` et `BindingId` n'appartiennent ni à Command admission, ni à
+Registration, ni à Pot.
 
 Le `currentClaimId` du slot décide quelle transaction peut committer. Le CAS final est exécuté dans
 la même transaction que les effets et la provenance. L'ancien `ExecutionGuard` Command a été retiré.
