@@ -65,7 +65,8 @@
 		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
-		<module>supra-http-rest-spring</module>
+		<module>supra-http-write-command</module>
+		<module>supra-http-read-query</module>
 		<module>supra-authentication-spring-security</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>

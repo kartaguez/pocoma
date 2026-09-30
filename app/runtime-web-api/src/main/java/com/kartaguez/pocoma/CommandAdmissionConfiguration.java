@@ -14,7 +14,6 @@ import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.AuthorizationSnapshotFactory;
-import com.kartaguez.pocoma.orchestrator.command.admission.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
@@ -32,14 +31,9 @@ public class CommandAdmissionConfiguration {
 	}
 
 	@Bean
-	ExternalAuthorityPermissionTranslator externalAuthorityPermissionTranslator() {
-		return new ExternalAuthorityPermissionTranslator();
-	}
-
-	@Bean
 	AuthorizationSnapshotFactory authorizationSnapshotFactory(
 			@Value("${pocoma.command-admission.authorization-ttl:PT15M}") Duration ttl,
-			ExternalAuthorityPermissionTranslator permissions) {
+			com.kartaguez.pocoma.orchestrator.command.admission.ExternalAuthorityPermissionTranslator permissions) {
 		return new AuthorizationSnapshotFactory(new CommandAuthorizationTtl(ttl), permissions);
 	}
 

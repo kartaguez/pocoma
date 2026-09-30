@@ -52,12 +52,13 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 | `locator-consumption-latest-known-version` | localisation Event dédiée, max-upsert monotone, provenance d'entrée et classification technique | processing Event, read projection, consumption générique | target Lot 7.4, sans Task ni projection métier |
 | `binding-pot-command-spring` | assemblage des decoders et adapters Pot derrière les contrats génériques Command | engine-command, engine-pot-command, Spring composition | target, sans polling ni transaction locale |
 | `supra-authentication-spring-security` | Resource Server OAuth2 standard et adaptation du principal Spring vers `AuthenticatedExternalPrincipal` | Spring Security, orchestrator-command-admission | target, implémentation de frontière remplaçable |
-| `supra-http-rest-spring` | admission Command asynchrone ; aucun endpoint Pot/Expense/Balance legacy | command admission | target |
+| `supra-http-write-command` | admission HTTP exclusive des Commands asynchrones (`POST /api/v1/commands`) | command admission | target ; aucune dépendance READ/projection |
+| `supra-http-read-query` | queries HTTP de projections (`COMMAND_RESULT`, Pot exact version autorisé) | command-result, pot-read, identité provider-neutral | target ; aucune mutation WRITE |
 | `infra-tx-spring` | implémentation Spring de `TransactionRunner` | engine-core | target |
 | `infra-persistence-jpa` | implémentations JPA/JDBC des ports, migrations primaires V1–V16, Recorded Commands, discovery Event/Task et sources historiques des producers canoniques | engines propriétaires, domaines | target ; aucun runtime mutable Balance ou `projection_tasks_legacy` |
 | `infra-read-persistence` | store canonique exact, latest-known et migrations historiques append-only | `engine-projection-read`, `engine-read-projection`, Spring JDBC et Flyway | conservé ; aucun reader metadata/index legacy |
 | `observability` | contexte de corrélation de trace partagé par HTTP et append Event | JDK | infrastructure transversale minimale |
-| `runtime-web-api` | composition de l'admission Command HTTP | supra HTTP, persistence et sécurité | composition |
+| `runtime-web-api` | composition des supras HTTP WRITE Command et READ Query dans un même processus | deux supras HTTP, persistence, read store et sécurité transverse | composition |
 | `runtime-event-consumption-worker` | composition EPT metadata-only Event→ProjectionTask par acquire/finalize fenced et polling générique | policy/locator EPT/orchestrateur/supra/infra | composition target |
 | `runtime-latest-known-version-consumption-worker` | consumer Event direct transactionnel indépendant : reload autoritatif, max-upsert latest-known, lifecycle générique | locator latest-known/orchestrateur/supra/infra primaire et read store | composition target Lot 7.4, sans Task ni projector |
 | `runtime-task-consumption-worker` | composition canonique `projection_tasks` → `ProjectionEngineService` pour AUTH, READ_POT et POT_BALANCES | orchestrateur/supra/infra/engines de projection canoniques | composition target EPT |
@@ -85,7 +86,7 @@ domaine ou engine ne dépend d'un runtime, d'un supra ou d'un adapter d'infrastr
 - L'infrastructure dépend des ports sortants qu'elle implémente.
 - Les interfaces spécialisées `*UseCase` de `engine-pot-command` restent les inbound ports métier ;
   les adapters Command durables ne dépendent pas des services concrets.
-- Le supra HTTP ne dépend ni des ports ni des services de mutation Pot. Les verbes HTTP ne sont pas
-  interdits globalement : seule la mutation directe du write model primaire l'est.
+- Le supra HTTP WRITE ne dépend d'aucun engine ou store READ. Le supra HTTP READ ne dépend d'aucun
+  port d'admission ou service de mutation Pot. Les contrôleurs ne lisent jamais directement les stores.
 - La persistence Task n'a aucune dépendance vers un supra ni vers le lifecycle Consumption pour
   sélectionner ses candidats.

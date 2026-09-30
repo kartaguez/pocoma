@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.POT_VIEW;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -31,6 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
+import com.kartaguez.pocoma.domain.authorization.TokenCapabilities;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
@@ -46,6 +48,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionAcquisitionPrecondition;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.Success;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
@@ -279,13 +282,16 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	void canonicalProducerPersistsAndExactReadRevalidatesAndInterpretsANonTrivialReadPot() {
 		var data = seedNonTrivialHistoricalPot();
 		ProjectionKey key = readPotKey(data.potId(), 2);
+		tasks.ensure(authKey(data.potId(), 2), Instant.parse("2026-09-20T09:59:59Z"));
 		tasks.ensure(key, Instant.parse("2026-09-20T10:00:00Z"));
 
+		worker.runOneCycle();
 		worker.runOneCycle();
 
 		var exactRead = ExactProjectionReads.create(reader, validator);
 		var ready = assertInstanceOf(ReadPotResult.Ready.class,
-				PotReads.create(exactRead).read(new PotId(data.potId()), 2));
+				PotReads.create(exactRead).read(new UserId(data.creatorUserId()),
+						TokenCapabilities.of(POT_VIEW), new PotId(data.potId()), 2));
 		var pot = ready.pot();
 		assertEquals(data.potId(), pot.potId().value());
 		assertEquals(2, pot.version());
@@ -500,6 +506,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 
 	private NonTrivialHistoricalData seedNonTrivialHistoricalPot() {
 		UUID potId = UUID.randomUUID();
+		UUID creatorUserId = UUID.randomUUID();
 		UUID payerId = UUID.randomUUID();
 		UUID shareholderId = UUID.randomUUID();
 		UUID otherShareholderId = UUID.randomUUID();
@@ -510,7 +517,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
 				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
-				+ "values (?, ?, 1, null, 'Group trip', ?, false)", UUID.randomUUID(), potId, UUID.randomUUID());
+				+ "values (?, ?, 1, null, 'Group trip', ?, false)", UUID.randomUUID(), potId, creatorUserId);
 		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
 				+ "name, weight_numerator, weight_denominator, user_id, deleted) values "
 				+ "(?, ?, ?, 1, null, 'Alice', 1, 3, ?, false), "
@@ -534,7 +541,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				UUID.randomUUID(), secondExpenseId, payerId, potId,
 				UUID.randomUUID(), secondExpenseId, shareholderId, potId,
 				UUID.randomUUID(), secondExpenseId, otherShareholderId, potId);
-		return new NonTrivialHistoricalData(potId, payerId, shareholderId, otherShareholderId,
+		return new NonTrivialHistoricalData(potId, creatorUserId, payerId, shareholderId, otherShareholderId,
 				firstExpenseId, secondExpenseId);
 	}
 
@@ -605,7 +612,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	}
 
 	private record HistoricalData(UUID potId, UUID payerId, UUID shareholderId) {}
-	private record NonTrivialHistoricalData(UUID potId, UUID payerId, UUID shareholderId,
+	private record NonTrivialHistoricalData(UUID potId, UUID creatorUserId, UUID payerId, UUID shareholderId,
 			UUID otherShareholderId, UUID firstExpenseId, UUID secondExpenseId) {}
 	private record AuthHistoricalData(UUID potId, UUID creatorUserId, UUID memberUserId,
 			UUID firstShareholderId, UUID secondShareholderId) {}

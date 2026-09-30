@@ -67,7 +67,6 @@ import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorkerObservation;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
-import com.kartaguez.pocoma.supra.http.rest.spring.filter.CommandRequestSizeFilter;
 
 /**
  * Functional cross-runtime contract through committed PostgreSQL state. Both runtime roles are

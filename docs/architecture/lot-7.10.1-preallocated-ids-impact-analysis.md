@@ -220,7 +220,7 @@ génération déterministe.
 ### 5.3 C — Générer à l'admission HTTP ou BFF
 
 L'admission actuelle est volontairement générique :
-[`AsyncCommandController`](../../app/supra-http-rest-spring/src/main/java/com/kartaguez/pocoma/supra/http/rest/spring/controller/AsyncCommandController.java)
+[`AsyncCommandController`](../../app/supra-http-write-command/src/main/java/com/kartaguez/pocoma/supra/http/write/command/AsyncCommandController.java)
 sérialise un payload opaque et
 [`SubmitRecordedCommandService`](../../app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/SubmitRecordedCommandService.java)
 enregistre ce payload avec un `commandId` et un snapshot d'autorisation.
@@ -584,4 +584,3 @@ préallocation améliore donc surtout la cohérence du contrat, pas le résultat
 son coût était jugé excessif, ce constat justifierait de réexaminer séparément la nécessité d'un
 `targetId` pour une cible de création prospective plutôt que de déplacer l'identité jusqu'au BFF ou
 de modifier le modèle durable des Commands uniquement pour satisfaire la forme du kernel.
-

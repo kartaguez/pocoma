@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.supra.authentication.springsecurity;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.security.KeyPair;
@@ -68,6 +69,9 @@ class CommandAdmissionResourceServerTest {
 	@Test
 	void rejectsMissingAndInvalidSignatures() throws Exception {
 		mvc.perform(post("/api/v1/commands")).andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/v1/command-results/" + java.util.UUID.randomUUID())).andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/v1/pots/" + java.util.UUID.randomUUID()).param("version", "1"))
+				.andExpect(status().isUnauthorized());
 		JwtEncoder untrusted = encoder(UNTRUSTED_KEYS);
 		mvc.perform(post("/api/v1/commands").header("Authorization", "Bearer " + token(
 				untrusted, ISSUER, List.of(AUDIENCE), Instant.now().minusSeconds(10),
@@ -129,7 +133,7 @@ class CommandAdmissionResourceServerTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@Import({CommandAdmissionSecurityConfiguration.class, ProbeController.class})
+	@Import({WebApiSecurityConfiguration.class, ProbeController.class})
 	static class TestApplication {
 		@Bean
 		ObjectMapper objectMapper() {

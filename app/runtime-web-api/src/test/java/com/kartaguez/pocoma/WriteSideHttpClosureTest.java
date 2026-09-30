@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.supra.http.rest.spring.filter.CommandRequestSizeFilter;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=create-drop",

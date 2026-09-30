@@ -24,6 +24,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.authorization.TokenCapabilities;
 
 class PotReadApiTest {
 	private static final PotId POT_ID = new PotId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
@@ -70,15 +71,18 @@ class PotReadApiTest {
 	}
 
 	@Test
-	void resultExposesExactlyThreeCanonicalStates() {
-		assertEquals(3, ReadPotResult.class.getPermittedSubclasses().length);
+	void resultExposesExactlySixCanonicalStates() {
+		assertEquals(6, ReadPotResult.class.getPermittedSubclasses().length);
 		var pot = new PotView(POT_ID, 1, new Label("Trip"), List.of(), List.of());
 		ProjectionKey key = new ProjectionKey(ReadPotProjectionDefinition.PROJECTION_TYPE,
 				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE,
 				new TargetObjectId(POT_ID.value().toString()), 1);
 		assertEquals(pot, new ReadPotResult.Ready(pot).pot());
-		assertEquals(key, new ReadPotResult.Failed(key).projectionKey());
-		assertEquals(key, new ReadPotResult.NotReady(key).projectionKey());
+		assertEquals(new ReadPotResult.Forbidden(), new ReadPotResult.Forbidden());
+		assertEquals(key, new ReadPotResult.AuthFailed(key).projectionKey());
+		assertEquals(key, new ReadPotResult.AuthNotReady(key).projectionKey());
+		assertEquals(key, new ReadPotResult.ReadPotFailed(key).projectionKey());
+		assertEquals(key, new ReadPotResult.ReadPotNotReady(key).projectionKey());
 	}
 
 	@Test
@@ -92,7 +96,7 @@ class PotReadApiTest {
 
 	@Test
 	void useCaseHasNoImplicitVersionOverload() {
-		assertEquals(List.of(List.of(PotId.class, long.class)),
+		assertEquals(List.of(List.of(UserId.class, TokenCapabilities.class, PotId.class, long.class)),
 				Arrays.stream(ReadPotUseCase.class.getDeclaredMethods())
 						.filter(method -> method.getName().equals("read"))
 						.map(method -> List.of(method.getParameterTypes()))

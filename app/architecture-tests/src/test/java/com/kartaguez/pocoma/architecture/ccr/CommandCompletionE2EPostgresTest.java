@@ -2,6 +2,12 @@ package com.kartaguez.pocoma.architecture.ccr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -26,14 +32,24 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.kartaguez.pocoma.CommandAdmissionConfiguration;
 import com.kartaguez.pocoma.CommandResultReadConfiguration;
+import com.kartaguez.pocoma.PotReadConfiguration;
+import com.kartaguez.pocoma.ProjectionReadConfiguration;
+import com.kartaguez.pocoma.WebAuthorizationConfiguration;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
@@ -58,6 +74,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEv
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaProjectedExpenseAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaAuthProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcCommandResultProjectionInputLoader;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
@@ -65,6 +82,7 @@ import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfigu
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
+import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.orchestrator.command.admission.AuthorizationSnapshotFactory;
 import com.kartaguez.pocoma.orchestrator.command.admission.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
@@ -76,7 +94,10 @@ import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntim
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.http.rest.spring.controller.CommandResultController;
+import com.kartaguez.pocoma.supra.http.read.query.CommandResultController;
+import com.kartaguez.pocoma.supra.http.read.query.PotQueryController;
+import com.kartaguez.pocoma.supra.http.write.command.AsyncCommandController;
+import com.kartaguez.pocoma.supra.authentication.springsecurity.WebApiSecurityConfiguration;
 
 @Testcontainers
 class CommandCompletionE2EPostgresTest {
@@ -101,6 +122,7 @@ class CommandCompletionE2EPostgresTest {
 		UUID appliedPotId;
 
 		try (ConfigurableApplicationContext commandContext = commandContext()) {
+			cleanDatabase(jdbc);
 			jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
 					ISSUER, SUBJECT, userId);
 			applied = admit(commandContext, UUID.randomUUID(), BASE_TIME,
@@ -181,6 +203,90 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
+	@Test
+	void httpCreateAndUpdateTraverseWorkersAndReadAuthorizedExactPotVersions() throws Exception {
+		JdbcTemplate jdbc = jdbc();
+		UUID userId = UUID.randomUUID();
+		String initialLabel = "pot-e2e-initial-" + UUID.randomUUID();
+		String updatedLabel = "pot-e2e-updated-" + UUID.randomUUID();
+
+		try (ConfigurableApplicationContext webContext = webContext()) {
+			cleanDatabase(jdbc);
+			jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
+					ISSUER, SUBJECT, userId);
+			MockMvc http = MockMvcBuilders.webAppContextSetup((WebApplicationContext) webContext)
+					.apply(springSecurity()).build();
+			ObjectMapper mapper = webContext.getBean(ObjectMapper.class);
+
+			UUID createCommandId = submit(http, mapper, PotCommandTypes.POT_CREATE_V1.value(),
+					Map.of("label", initialLabel, "creatorId", userId.toString()));
+			http.perform(get("/api/v1/command-results/{commandId}", createCommandId).with(authenticatedJwt()))
+					.andExpect(status().isNotFound());
+
+			runPotPipeline();
+			JsonNode created = commandResult(http, mapper, createCommandId);
+			UUID potId = UUID.fromString(created.path("potId").asText());
+			assertEquals(1L, created.path("resultingVersion").asLong());
+			assertPot(http, potId, 1, initialLabel);
+
+			UUID updateCommandId = submit(http, mapper, PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
+					Map.of("potId", potId.toString(), "label", updatedLabel, "expectedVersion", 1));
+			runPotPipeline();
+			JsonNode updated = commandResult(http, mapper, updateCommandId);
+			assertEquals(potId.toString(), updated.path("potId").asText());
+			assertEquals(2L, updated.path("resultingVersion").asLong());
+			assertPot(http, potId, 2, updatedLabel);
+			assertPot(http, potId, 1, initialLabel);
+		}
+	}
+
+	private UUID submit(MockMvc http, ObjectMapper mapper, String commandType, Map<String, ?> payload)
+			throws Exception {
+		String response = http.perform(post("/api/v1/commands").with(authenticatedJwt())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(mapper.writeValueAsBytes(Map.of("commandType", commandType, "payload", payload))))
+				.andExpect(status().isAccepted()).andReturn().getResponse().getContentAsString();
+		return UUID.fromString(mapper.readTree(response).path("commandId").asText());
+	}
+
+	private JsonNode commandResult(MockMvc http, ObjectMapper mapper, UUID commandId) throws Exception {
+		String response = http.perform(get("/api/v1/command-results/{commandId}", commandId)
+				.with(authenticatedJwt())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("APPLIED"))
+				.andReturn().getResponse().getContentAsString();
+		return mapper.readTree(response);
+	}
+
+	private void assertPot(MockMvc http, UUID potId, long version, String label) throws Exception {
+		http.perform(get("/api/v1/pots/{potId}", potId).param("version", Long.toString(version))
+				.with(authenticatedJwt())).andExpect(status().isOk())
+				.andExpect(jsonPath("$.potId").value(potId.toString()))
+				.andExpect(jsonPath("$.version").value(version))
+				.andExpect(jsonPath("$.label").value(label));
+	}
+
+	private static org.springframework.test.web.servlet.request.RequestPostProcessor authenticatedJwt() {
+		return jwt().jwt(token -> token.issuer(ISSUER).subject(SUBJECT)
+				.issuedAt(BASE_TIME).expiresAt(BASE_TIME.plusSeconds(600))
+				.claim("auth_time", BASE_TIME.minusSeconds(1).getEpochSecond())
+				.claim("scope", "pocoma:pot:create pocoma:pot:update pocoma:pot:view"));
+	}
+
+	private void runPotPipeline() {
+		try (ConfigurableApplicationContext context = cleanCommandContext()) {
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
+		try (ConfigurableApplicationContext context = potEventContext()) {
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
+		try (ConfigurableApplicationContext context = potTaskContext()) {
+			ConsumptionPollingWorker worker = context.getBean(ConsumptionPollingWorker.class);
+			worker.runOneCycle();
+			worker.runOneCycle();
+			worker.runOneCycle();
+		}
+	}
+
 	private CommandId admit(ConfigurableApplicationContext context, UUID commandId, Instant submittedAt,
 			String serializedPayload, Set<String> authorities) {
 		var service = new SubmitRecordedCommandService(
@@ -209,10 +315,23 @@ class CommandCompletionE2EPostgresTest {
 						"pocoma.command-consumption.max-consumptions-executed=10").run();
 	}
 
+	private ConfigurableApplicationContext cleanCommandContext() {
+		return application(CommandTestApplication.class).properties(
+				"pocoma.command-consumption.enabled=false",
+				"pocoma.command-consumption.max-consumptions-executed=10").run();
+	}
+
 	private ConfigurableApplicationContext eventContext() {
 		return application(EventTestApplication.class).properties(
 				"pocoma.event-consumption.enabled=false",
 				"pocoma.event-consumption.projection-types=COMMAND_RESULT",
+				"pocoma.event-consumption.max-consumptions-executed=10").run();
+	}
+
+	private ConfigurableApplicationContext potEventContext() {
+		return application(EventTestApplication.class).properties(
+				"pocoma.event-consumption.enabled=false",
+				"pocoma.event-consumption.projection-types=COMMAND_RESULT,AUTH,READ_POT",
 				"pocoma.event-consumption.max-consumptions-executed=10").run();
 	}
 
@@ -222,6 +341,31 @@ class CommandCompletionE2EPostgresTest {
 				"pocoma.projection-task-consumption.catalog-projection-types=COMMAND_RESULT",
 				"pocoma.projection-task-consumption.locator-projection-types=COMMAND_RESULT",
 				"pocoma.projection-task-consumption.poll-interval=20ms").run();
+	}
+
+	private ConfigurableApplicationContext potTaskContext() {
+		return application(TaskTestApplication.class).properties(
+				"pocoma.projection-task-consumption.enabled=true",
+				"pocoma.projection-task-consumption.catalog-projection-types=COMMAND_RESULT,AUTH,READ_POT",
+				"pocoma.projection-task-consumption.locator-projection-types=COMMAND_RESULT,AUTH,READ_POT",
+				"pocoma.projection-task-consumption.max-consumptions-executed=10",
+				"pocoma.projection-task-consumption.poll-interval=1h").run();
+	}
+
+	private ConfigurableApplicationContext webContext() {
+		return new SpringApplicationBuilder(WebTestApplication.class, JwtTestConfiguration.class)
+				.web(WebApplicationType.SERVLET).properties(Map.of(
+						"spring.datasource.url", POSTGRES.getJdbcUrl(),
+						"spring.datasource.username", POSTGRES.getUsername(),
+						"spring.datasource.password", POSTGRES.getPassword(),
+						"spring.datasource.driver-class-name", "org.postgresql.Driver",
+						"spring.jpa.hibernate.ddl-auto", "validate",
+						"spring.flyway.enabled", "true",
+						"spring.flyway.locations", "classpath:db/migration",
+						"pocoma.command-admission.enabled", "true",
+						"pocoma.command-result-read.enabled", "true",
+						"pocoma.pot-read.enabled", "true"))
+				.run();
 	}
 
 	private ConfigurableApplicationContext readContext() {
@@ -281,6 +425,20 @@ class CommandCompletionE2EPostgresTest {
 		return jdbc.queryForObject(sql, Integer.class, arguments);
 	}
 
+	private static void cleanDatabase(JdbcTemplate jdbc) {
+		jdbc.execute("""
+				truncate table external_identities, recorded_commands, command_outcomes,
+				command_terminal_events, business_event_outbox, projection_tasks,
+				consumption_inputs, consumption_results, consumption_slots, consumption_claims,
+				expense_shares, expense_headers, shareholders, pot_headers,
+				pot_version_metadata, pot_global_versions cascade
+				""");
+		if (jdbc.queryForObject("select to_regclass('pocoma_read.projection_root') is not null", Boolean.class)) {
+			jdbc.execute("truncate table pocoma_read.projection_failure, pocoma_read.projection_artifact, "
+					+ "pocoma_read.projection_root cascade");
+		}
+	}
+
 	private static void await(Supplier<Boolean> condition) throws InterruptedException {
 		Instant deadline = Instant.now().plusSeconds(10);
 		while (!condition.get() && Instant.now().isBefore(deadline)) Thread.sleep(20);
@@ -332,13 +490,34 @@ class CommandCompletionE2EPostgresTest {
 			JdbcCommandResultProjectionInputLoader.class, JpaPotHeaderAdapter.class,
 			JpaPotShareholdersAdapter.class, JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,
 			JpaProjectedExpenseAdapter.class, JpaHistoricalPotSnapshotSourceAdapter.class,
-			JpaHistoricalPotBalanceSourceAdapter.class, JpaReadPotProjectionInputLoader.class})
+			JpaHistoricalPotBalanceSourceAdapter.class, JpaAuthProjectionInputLoader.class,
+			JpaReadPotProjectionInputLoader.class})
 	static class TaskTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@Import(CommandResultReadConfiguration.class)
+	@Import({ProjectionReadConfiguration.class, CommandResultReadConfiguration.class})
 	static class ReadTestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
+	}
+
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@Import({CommandAdmissionConfiguration.class, CommandResultReadConfiguration.class,
+			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,
+			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
+			JpaRecordedCommandRepository.class, JpaExternalIdentityResolverAdapter.class,
+			ExternalIdentityJdbcRepository.class,
+			AsyncCommandController.class, CommandResultController.class, PotQueryController.class,
+			WebApiSecurityConfiguration.class})
+	static class WebTestApplication {
+		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
+	}
+
+	@org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
+	static class JwtTestConfiguration {
+		@Bean JwtDecoder jwtDecoder() { return org.mockito.Mockito.mock(JwtDecoder.class); }
 	}
 }

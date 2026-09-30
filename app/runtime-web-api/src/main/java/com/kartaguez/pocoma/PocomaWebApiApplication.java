@@ -12,7 +12,7 @@ public class PocomaWebApiApplication {
 
 	@Bean
 	@ConditionalOnMissingBean
-	ObjectMapper commandAdmissionObjectMapper() {
+	ObjectMapper webApiObjectMapper() {
 		return new ObjectMapper().findAndRegisterModules();
 	}
 

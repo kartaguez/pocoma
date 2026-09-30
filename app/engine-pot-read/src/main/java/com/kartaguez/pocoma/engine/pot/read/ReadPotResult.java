@@ -11,14 +11,28 @@ public sealed interface ReadPotResult {
 		}
 	}
 
-	record Failed(ProjectionKey projectionKey) implements ReadPotResult {
-		public Failed {
+	record Forbidden() implements ReadPotResult {}
+
+	record AuthFailed(ProjectionKey projectionKey) implements ReadPotResult {
+		public AuthFailed {
 			requireNonNull(projectionKey, "projectionKey must not be null");
 		}
 	}
 
-	record NotReady(ProjectionKey projectionKey) implements ReadPotResult {
-		public NotReady {
+	record AuthNotReady(ProjectionKey projectionKey) implements ReadPotResult {
+		public AuthNotReady {
+			requireNonNull(projectionKey, "projectionKey must not be null");
+		}
+	}
+
+	record ReadPotFailed(ProjectionKey projectionKey) implements ReadPotResult {
+		public ReadPotFailed {
+			requireNonNull(projectionKey, "projectionKey must not be null");
+		}
+	}
+
+	record ReadPotNotReady(ProjectionKey projectionKey) implements ReadPotResult {
+		public ReadPotNotReady {
 			requireNonNull(projectionKey, "projectionKey must not be null");
 		}
 	}

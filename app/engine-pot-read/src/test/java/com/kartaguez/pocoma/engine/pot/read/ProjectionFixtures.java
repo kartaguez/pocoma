@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
+import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 
 import java.math.BigDecimal;
@@ -36,6 +37,21 @@ final class ProjectionFixtures {
 	static ProjectionKey readPotKey() {
 		return new ProjectionKey(ReadPotProjectionDefinition.PROJECTION_TYPE,
 				ReadPotProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(POT_UUID.toString()), VERSION);
+	}
+
+	static ProjectionKey authKey() {
+		return new ProjectionKey(AuthProjectionDefinition.PROJECTION_TYPE,
+				AuthProjectionDefinition.TARGET_OBJECT_TYPE, new TargetObjectId(POT_UUID.toString()), VERSION);
+	}
+
+	static ValidatedProjection authProjection(UUID creatorUserId, Map<UUID, UUID> shareholderUsers) {
+		var artifacts = new java.util.ArrayList<ProjectionArtifact>();
+		artifacts.add(new ProjectionArtifact(AuthProjectionDefinition.CREATOR,
+				new ArtifactKey(creatorUserId.toString()), object(Map.of("userId", string(creatorUserId)))));
+		shareholderUsers.forEach((shareholderId, userId) -> artifacts.add(new ProjectionArtifact(
+				AuthProjectionDefinition.SHAREHOLDER_USER, new ArtifactKey(shareholderId.toString()),
+				object(Map.of("shareholderId", string(shareholderId), "userId", string(userId))))));
+		return validated(AuthProjectionDefinition.DEFINITION, new Projection(authKey(), artifacts));
 	}
 
 	static ValidatedProjection readPotProjection(List<ProjectionArtifact> artifacts) {

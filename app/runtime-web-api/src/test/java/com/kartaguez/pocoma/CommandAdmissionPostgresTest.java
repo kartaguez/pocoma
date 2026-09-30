@@ -32,7 +32,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.supra.http.rest.spring.filter.CommandRequestSizeFilter;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",

@@ -339,20 +339,33 @@ class HexagonalArchitectureTest {
 				POT_READ_ENGINE_PACKAGE,
 				Set.of(
 						POT_READ_ENGINE_PACKAGE,
+						ROOT_PACKAGE + ".domain.authorization",
 						ROOT_PACKAGE + ".domain.pot",
+						ROOT_PACKAGE + ".domain.pot.authorization",
 						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
 						PROJECTION_READ_PORT_PACKAGE));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,
-				"engine-pot-read must depend only on the JDK, domain-pot, "
+				"engine-pot-read must depend only on the JDK, authorization and Pot domains, "
 						+ "domain-projection and engine-projection-read");
 	}
 
 	@Test
 	void exactReadPotBoundaryKnowsNoLegacySelectionOrDeliverySubsystem() {
 		noClasses()
+				.that().resideInAPackage(POT_READ_ENGINE_PACKAGE + "..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.pipeline..",
+						ROOT_PACKAGE + ".domain.projection.legacy..",
+						ROOT_PACKAGE + ".engine.pipeline..",
+						ROOT_PACKAGE + ".engine.read.projection..",
+						ROOT_PACKAGE + ".infra.read.persistence..",
+						ROOT_PACKAGE + ".supra..",
+						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
+
+		noClasses()
 				.that().resideInAnyPackage(
-						POT_READ_ENGINE_PACKAGE + "..",
 						PROJECTION_READ_PORT_PACKAGE + "..",
 						PROJECTION_READ_SERVICE_PACKAGE + "..",
 						PROJECTION_READ_EXCEPTION_PACKAGE + "..",
@@ -444,10 +457,23 @@ class HexagonalArchitectureTest {
 				"only the Spring authentication supra and runtime composition may know Spring Security");
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.rest.spring..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.pot..",
+						ROOT_PACKAGE + ".engine.command.result..",
+						ROOT_PACKAGE + ".engine.projection..",
 						ROOT_PACKAGE + ".locator.consumption..",
+						ROOT_PACKAGE + ".orchestrator.consumption..")
+				.check(CLASSES);
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".binding..",
+						ROOT_PACKAGE + ".locator.consumption..",
+						ROOT_PACKAGE + ".orchestrator.command.admission.port.in..",
 						ROOT_PACKAGE + ".orchestrator.consumption..")
 				.check(CLASSES);
 	}
@@ -865,7 +891,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void httpControllersDoNotDependOnJpa() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..controller..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa..",
 						"jakarta.persistence..")
@@ -1029,7 +1055,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void httpAdmissionCannotMutateThePotWriteModelDirectly() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.rest.spring..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.port.in.command.usecase..",
 						ROOT_PACKAGE + ".engine.service.command..",
@@ -1038,7 +1064,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> asyncControllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.rest.spring.controller.AsyncCommandController");
+				ROOT_PACKAGE + ".supra.http.write.command.AsyncCommandController");
 		assertTrue(asyncControllerDependencies.stream()
 				.anyMatch(name -> name.endsWith(".SubmitRecordedCommandUseCase")));
 	}

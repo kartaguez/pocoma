@@ -7,6 +7,7 @@ public final class PotReads {
 	}
 
 	public static ReadPotUseCase create(ExactProjectionReadUseCase projectionRead) {
-		return new ReadPotService(projectionRead, new ReadPotInterpreter());
+		return new ReadPotService(projectionRead, new AuthProjectionInterpreter(),
+				new ReadPotInterpreter());
 	}
 }

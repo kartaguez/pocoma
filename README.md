@@ -28,7 +28,8 @@ app/
   infra-tx-spring/                Spring transaction adapter
   locator-consumption-command/   Command specialization of generic consumption
   observability/                  Trace and measurement abstractions
-  supra-http-rest-spring/         Asynchronous Command admission HTTP adapter
+  supra-http-write-command/      Asynchronous Command admission HTTP adapter
+  supra-http-read-query/         COMMAND_RESULT and exact authorized Pot queries
   runtime-command-consumption-worker/
                                   Durable Command processing runtime
   runtime-event-consumption-worker/
@@ -37,7 +38,7 @@ app/
                                   Direct transactional Event-to-latest-known runtime
   runtime-task-consumption-worker/
                                   Canonical ProjectionTask execution runtime
-  runtime-web-api/                API-only Spring Boot runtime
+  runtime-web-api/                API-only runtime assembling the WRITE and READ supras
 
 docker/                           Prometheus and Grafana
 scripts/bruno/                    Bruno HTTP collection
@@ -76,7 +77,7 @@ cd app
 
 ./mvnw -pl runtime-event-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES"
+  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"
 
 ./mvnw -pl runtime-latest-known-version-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
@@ -84,7 +85,7 @@ cd app
 
 ./mvnw -pl runtime-task-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES"
+  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT --pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"
 ```
 
 ### Docker Compose Modes
