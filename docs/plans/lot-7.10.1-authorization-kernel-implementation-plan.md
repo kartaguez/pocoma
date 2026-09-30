@@ -158,7 +158,8 @@ RequiredCurrentCapabilities
 
 Les deux wrappers sont non interchangeables par construction. `RequiredCurrentCapabilities`
 permet une composition explicite afin qu'une orchestration future puisse ajouter `VIEW_ARCHIVE` à
-la capability de base.
+la capability de base. Cette possibilité n'implique pas que la lecture Pot `EXACT(V)` actuelle le
+fasse : elle exige uniquement `POT_VIEW` tant que courant et historique ne sont pas bornés.
 
 `PocomaPermissions.VIEW_ARCHIVE` devient la capability courante canonique. La normalisation depuis
 les scopes externes reste dans `ExternalAuthorityPermissionTranslator`. Le format durable actuel
@@ -319,8 +320,9 @@ raison pour laquelle l'orchestration l'a ajoutée.
 4. en cas de succès, délègue à `PotBusinessAuthorizationPolicy` ;
 5. retourne une décision sans I/O ni exception métier de transport.
 
-Il ne sait pas si `VIEW_ARCHIVE` a été ajouté pour `EXACT(V)` et produit la même décision pour les
-mêmes valeurs d'entrée, quelle que soit leur origine applicative.
+Il ne sait pas pourquoi une orchestration future a éventuellement ajouté `VIEW_ARCHIVE` et produit
+la même décision pour les mêmes valeurs d'entrée, quelle que soit leur origine applicative. Le
+contrat Pot `EXACT(V)` actuel ne réalise pas cet ajout.
 
 ## 5. Séquencement d'implémentation
 
@@ -736,7 +738,7 @@ sortie 7.10.1 exige ensuite le build complet du reactor et les tests d'architect
 - lifecycle ou sélection de pipelineVersion AUTH ;
 - intégration complète du Query Kernel ;
 - résolution `CURRENT` ou `EXACT(V)` ;
-- ajout effectif de `VIEW_ARCHIVE` par l'orchestration historique ;
+- ajout effectif de `VIEW_ARCHIVE` par une future orchestration historique bornée ;
 - ordre de masking ou protection contre les fuites d'existence ;
 - mapping HTTP des refus ;
 - état de Task, Slot, Claim, projection, readiness ou convergence ;

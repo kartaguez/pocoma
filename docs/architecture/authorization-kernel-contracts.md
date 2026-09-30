@@ -90,7 +90,7 @@ adapter de sécurité
 
 application orchestration
   PotAction -> capacités courantes requises via le mapping central
-  ajoute VIEW_ARCHIVE lorsque l'intention de requête l'exige
+  peut ajouter une capability transverse lorsqu'un contrat de query futur l'exige
   -> required current capabilities
 
 source de relations et dérivation des faits
@@ -141,10 +141,10 @@ BALANCE_VIEW
 VIEW_ARCHIVE
 ```
 
-`VIEW_ARCHIVE` est une capacité courante transversale supplémentaire. Les constantes actuelles
+`VIEW_ARCHIVE` est une capacité courante transversale réservée à un raffinement ultérieur. Les constantes actuelles
 `POT_VIEW_ARCHIVE`, `SHAREHOLDER_VIEW_ARCHIVE` et `EXPENSE_VIEW_ARCHIVE`, et l'absence d'un équivalent
 Balance, ne définissent pas la cible : leur convergence vers le contrat unique relève de
-l'implémentation future.
+l'implémentation future. En particulier, le use case actuel de lecture exacte d'un Pot ne l'exige pas.
 
 Le parsing ou mapping des autorités/scopes Keycloak appartient exclusivement à un adapter de
 sécurité. `ExternalAuthorityPermissionTranslator` illustre déjà une frontière provider-neutral côté
@@ -483,9 +483,10 @@ actions, ni valeur signifiant « aucune capability requise ». Le mapping appart
 d'autorisation et constitue l'unique source utilisée par l'orchestration applicative ; il n'est
 jamais dispersé dans les controllers, handlers ou endpoints.
 
-L'orchestration applicative obtient d'abord les capacités de base via ce mapping. Elle ajoute
-`VIEW_ARCHIVE` lorsque l'intention de requête l'exige, puis transmet l'ensemble final au kernel. Le
-mapping central ne connaît lui-même aucune historicité.
+L'orchestration applicative obtient d'abord les capacités de base via ce mapping, puis transmet
+l'ensemble final au kernel. Le mapping central ne connaît lui-même aucune historicité. Le contrat
+actuel `Pot@EXACT(V)` transmet uniquement `POT_VIEW`; l'ajout éventuel de `VIEW_ARCHIVE` pour certains
+cas historiques est différé jusqu'à ce que la distinction courant/historique soit définie et bornée.
 
 `TokenCapabilityPolicy` compare uniquement :
 
@@ -619,26 +620,31 @@ required current capabilities
 = capability de base requise par PotAction
 ```
 
-Pour une lecture historique protégée, elle construit :
+Pour la lecture exacte de Pot actuellement exposée, elle construit également :
 
 ```text
 required current capabilities
 = capability de base requise par PotAction
-+ VIEW_ARCHIVE
 ```
 
 Elle transmet ensuite cet ensemble au kernel. `AuthorizationKernel`, `TokenCapabilityPolicy` et
 `PotBusinessAuthorizationPolicy` ne reçoivent aucune information `CURRENT`, `EXACT(V)`, historique ou
-archive. Le kernel ne sait pas pourquoi `VIEW_ARCHIVE` est présent.
+archive.
+
+Une requête `EXACT(V)` n'est donc pas, à elle seule, une preuve que V est historique et n'impose pas
+`VIEW_ARCHIVE`. Le read side actuel ne possède pas le mécanisme autoritaire permettant de distinguer
+une version courante d'une version d'archive. Un futur contrat pourra ajouter `VIEW_ARCHIVE` à des
+cas historiques précisément bornés, sans modifier le kernel; ce raffinement ne doit pas être anticipé
+dans `ReadPotService`.
 
 Pour le read side, `servedVersion` est déterminée par le Query Version Resolver conformément à
 `read-side-target.md`, puis les faits pertinents sont sélectionnés depuis AUTH à cette version exacte.
 Ni le kernel ni les policies ne choisissent une businessVersion ou une pipelineVersion, et aucun
 refus ne déclenche de fallback.
 
-`VIEW_ARCHIVE` n'est jamais reconstruit depuis l'historique, lu depuis `AUTH(V)` ou persisté comme un
-fait historique. Une évolution des capacités courantes peut donc modifier l'accès à une ancienne
-businessVersion sans reconstruire `AUTH(V)`.
+Si `VIEW_ARCHIVE` est utilisé ultérieurement, il ne sera jamais reconstruit depuis l'historique, lu
+depuis `AUTH(V)` ou persisté comme un fait historique. Une évolution des capacités courantes pourra
+donc modifier l'accès à une ancienne businessVersion sans reconstruire `AUTH(V)`.
 
 L'ordre exact de résolution, le masquage sans fuite et le mapping HTTP restent gouvernés par 7.9.3 et
 7.10.4.
@@ -723,7 +729,8 @@ Une implémentation conforme devra :
 - limiter AUTH aux relations structurelles d'identité, de propriété et d'appartenance nécessaires,
   sans y recopier les valeurs générales du domaine Pot ;
 - rendre le mapping de chaque `PotAction` explicite, central et exhaustivement testé ;
-- construire les capacités requises, y compris `VIEW_ARCHIVE`, avant l'appel au kernel ;
+- construire les capacités requises avant l'appel au kernel; pour `Pot@EXACT(V)` aujourd'hui,
+  l'ensemble contient uniquement la capability de base `POT_VIEW` ;
 - empêcher structurellement toute persistence de capacités, de faits dérivés ou de droits calculés
   dans AUTH ;
 - conserver les états opérationnels hors d'`AuthorizationDecision`.
@@ -767,37 +774,36 @@ Ces conséquences sont des critères architecturaux, pas un découpage de commit
 20. `VIEW_BALANCE` utilise `AuthorizationTargetType.POT` et les faits Pot.
 21. Une nouvelle règle nécessitant un nouveau fait provoque une évolution explicite du catalogue
     typé ; aucune clé dynamique n'est ajoutée silencieusement.
-22. `EXACT(V)` sans `VIEW_ARCHIVE` dans les capacités requises construites en amont :
-    `DENY(MISSING_CAPABILITY)` avant toute autorisation historique effective.
-23. `EXACT(V)` avec `VIEW_ARCHIVE`, mais faits métier à V insuffisants : `DENY` métier.
-24. `EXACT(V)` avec `VIEW_ARCHIVE` et faits métier à V autorisés : `ALLOW`.
-25. À entrées identiques, `AuthorizationKernel` produit la même décision quelle que soit la raison
-    pour laquelle l'orchestration a inclus `VIEW_ARCHIVE` ; le kernel n'en connaît pas l'origine.
-26. Les capabilities courantes ne sont jamais lues depuis `AUTH(V)`.
-27. Une modification des capabilities courantes peut modifier l'accès à une ancienne businessVersion
+22. `Pot@EXACT(V)` avec `POT_VIEW` et faits métier à V insuffisants : `DENY` métier.
+23. `Pot@EXACT(V)` avec `POT_VIEW` et faits métier à V autorisés : `ALLOW`, sans exiger
+    `VIEW_ARCHIVE`.
+24. Une future orchestration peut composer un requirement avec `VIEW_ARCHIVE`; à entrées identiques,
+    le kernel produit la même décision quelle que soit la raison de cette composition.
+25. Les capabilities courantes ne sont jamais lues depuis `AUTH(V)`.
+26. Une modification des capabilities courantes peut modifier l'accès à une ancienne businessVersion
     sans reconstruire `AUTH(V)`.
-28. Une nouvelle `PotAction` sans mapping explicite : fail-closed avec diagnostic
+27. Une nouvelle `PotAction` sans mapping explicite : fail-closed avec diagnostic
     `CONFIGURATION_ERROR`.
-29. La même implémentation de `PotBusinessAuthorizationPolicy` accepte des faits dérivés du write side
+28. La même implémentation de `PotBusinessAuthorizationPolicy` accepte des faits dérivés du write side
     courant ou du modèle relationnel historique read-side.
-30. Aucune policy ni le kernel ne reçoit d'information `CURRENT`, `EXACT`, historique ou archive.
-31. `VIEW_ARCHIVE` n'est jamais persisté comme fait historique.
-32. Aucun droit dérivé (`canView`, `canUpdate`, etc.) n'est persisté dans AUTH.
-33. `AuthorizationDecision` ne contient aucun état opérationnel de projection.
-34. `AUTH(V)` reste conceptuellement un artifact complet du petit modèle relationnel historique ; le
+29. Aucune policy ni le kernel ne reçoit d'information `CURRENT`, `EXACT`, historique ou archive.
+30. `VIEW_ARCHIVE` n'est jamais persisté comme fait historique.
+31. Aucun droit dérivé (`canView`, `canUpdate`, etc.) n'est persisté dans AUTH.
+32. `AuthorizationDecision` ne contient aucun état opérationnel de projection.
+33. `AUTH(V)` reste conceptuellement un artifact complet du petit modèle relationnel historique ; le
     contexte logique d'une décision en est dérivé sans que 7.10.1 en fixe la granularité physique.
-35. À target type, faits et action identiques, les chemins write et read produisent la même décision
+34. À target type, faits et action identiques, les chemins write et read produisent la même décision
     métier.
-36. `CREATE_EXPENSE` avec une cible `EXPENSE` prospective et des faits Pot suffisants : `ALLOW` si
+35. `CREATE_EXPENSE` avec une cible `EXPENSE` prospective et des faits Pot suffisants : `ALLOW` si
     toutes les capabilities requises sont présentes ; l'ID est choisi ensuite par le domaine.
-37. `ADD_SHAREHOLDER` avec une cible `SHAREHOLDER` prospective et `IS_POT_CREATOR` : `ALLOW` si
+36. `ADD_SHAREHOLDER` avec une cible `SHAREHOLDER` prospective et `IS_POT_CREATOR` : `ALLOW` si
     toutes les capabilities requises sont présentes ; un batch ne nécessite qu'une décision.
-38. `UPDATE_SHAREHOLDER_DETAILS` avec une cible prospective : `DENY(CONFIGURATION_ERROR)`.
-39. Une action visant une Expense existante mais recevant une cible prospective :
+37. `UPDATE_SHAREHOLDER_DETAILS` avec une cible prospective : `DENY(CONFIGURATION_ERROR)`.
+38. Une action visant une Expense existante mais recevant une cible prospective :
     `DENY(CONFIGURATION_ERROR)`.
-40. Une capability supplémentaire présente dans `RequiredCurrentCapabilities` mais absente du token :
+39. Une capability supplémentaire présente dans `RequiredCurrentCapabilities` mais absente du token :
     `DENY(MISSING_CAPABILITY)`.
-41. Aucun test du lot n'exige de préallouer un `ExpenseId` ou un `ShareholderId` avant une action de
+40. Aucun test du lot n'exige de préallouer un `ExpenseId` ou un `ShareholderId` avant une action de
     création.
-42. Pour un batch target-specific visant des objets existants, toutes les décisions sont calculées
+41. Pour un batch target-specific visant des objets existants, toutes les décisions sont calculées
     depuis le même état pré-mutation et aucune mutation ne précède leur réussite complète.

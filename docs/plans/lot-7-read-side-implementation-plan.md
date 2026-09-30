@@ -282,7 +282,8 @@ Dépendances : 7.9.1 → 7.9.2 ; 7.9.3 dépend de 7.10 et du modèle serving min
 - séparer `TokenCapabilities` actuelles de `PotAuthorizationAtVersion` ;
 - historiser seulement `isMember` et `isCreator` ;
 - dériver les droits via les policies métier partagées ;
-- ajouter les capacités `VIEW_ARCHIVE` nécessaires ;
+- conserver `VIEW_ARCHIVE` comme capacité disponible pour un raffinement ultérieur, sans l'imposer
+  à la lecture Pot `EXACT(V)` actuelle ;
 - interdire le vocabulaire et le stockage de « scopes historiques ».
 
 #### 7.10.2 — Pipeline AUTH applicable à toute businessVersion
@@ -304,7 +305,8 @@ Dépendances : 7.9.1 → 7.9.2 ; 7.9.3 dépend de 7.10 et du modèle serving min
 #### 7.10.4 — Décisions d'accès à servedVersion
 
 - CURRENT : capacités actuelles, puis droits métier depuis AUTH(servedVersion) ;
-- EXACT(V) : capacité actuelle `VIEW_ARCHIVE` et droits métier depuis AUTH(V) ;
+- EXACT(V) Pot actuel : capability `POT_VIEW` et droits métier depuis AUTH(V), sans
+  `VIEW_ARCHIVE`; la distinction courant/archive est différée ;
 - masquer un refus établi sans révéler existence/readiness/failure de la projection métier ;
 - ne jamais utiliser une version AUTH différente de la businessVersion servie.
 
@@ -521,7 +523,8 @@ incrémental, `pot_balance_*`, les anciens workers/configurations et les headers
     réponse réussie possède toujours latestKnownVersion.
 13. Aucun champ `stale` n'est exposé.
 14. Aucun scope de token n'est historisé ; member/creator le sont dans chaque AUTH(V) complet.
-15. EXACT historique exige la capacité actuelle VIEW_ARCHIVE et les droits métier de AUTH(V).
+15. La lecture Pot EXACT(V) actuelle exige POT_VIEW et les droits métier de AUTH(V), sans
+    VIEW_ARCHIVE; un futur contrat bornera explicitement les cas réellement historiques.
 16. AUTH(V), READ_POT(V) et BALANCE(V) peuvent progresser dans n'importe quel ordre et sans dépendre
     de leur version précédente.
 17. Une nouvelle pipelineVersion redécouvre son historique sans rouvrir l'ancienne génération.
@@ -596,7 +599,7 @@ Le sous-lot 7.10.1 doit préciser la forme exacte de `TokenCapabilities` et de
 - concevoir les contrats séparant capacités courantes et faits métier versionnés ;
 - conserver uniquement `isMember` et `isCreator` dans AUTH(V) ;
 - définir l'évaluation des permissions via les policies métier partagées ;
-- cadrer `VIEW_ARCHIVE` comme capacité actuelle ;
+- réserver `VIEW_ARCHIVE` à un raffinement ultérieur des lectures historiques bornées ;
 - préserver l'appel AUTH en `EXACT(servedVersion)` sans fallback métier.
 
 ## Docs canoniques à utiliser

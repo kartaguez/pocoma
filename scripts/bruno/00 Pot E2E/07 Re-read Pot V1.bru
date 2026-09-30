@@ -1,0 +1,24 @@
+meta {
+  name: 07 Re-read Pot V1
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/pots/{{potId}}?version={{v1}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Pot V1 remains immutable", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().potId).to.equal(bru.getVar("potId"));
+    expect(res.getBody().version).to.equal(1);
+    expect(res.getBody().label).to.equal(bru.getVar("initialLabel"));
+  });
+}

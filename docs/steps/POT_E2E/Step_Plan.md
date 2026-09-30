@@ -16,6 +16,8 @@ faked by Spring Security's test support.
 - `runtime-web-api` assembles both supras, the shared security boundary and their use cases.
 - `ReadPotUseCase` accepts the Pocoma `userId`, token capabilities, `potId` and exact version.
 - The read sequence is strictly capabilities → `AUTH@V` → authorization → `READ_POT@V`.
+- The exact Pot query currently requires `POT_VIEW` only. It does not require `VIEW_ARCHIVE` and
+  does not attempt to classify V as current or historical.
 - AUTH membership compares the requesting `userId` with creator/member `userId`, never with a
   `shareholderId`.
 - Both projection keys address the same Pot and the same business version.
@@ -45,7 +47,12 @@ the WRITE/READ module boundaries. The PostgreSQL/Testcontainers reference test e
 No terminal outcome or projection is inserted manually. SQL is limited to provisioning the external
 identity and technical assertions.
 
+The reference Bruno flow lives in `scripts/bruno/00 Pot E2E`. The durable latency audit and its
+current SQL proxy are documented in `E2E_Latency_Observability_Audit.md`; no performance
+instrumentation is introduced by this step.
+
 ## Out of scope
 
-POT_BALANCES, listing/latest queries, pagination, real local OIDC, Bruno assets and changes to the
-AUTH projection model remain outside this step.
+POT_BALANCES, listing/latest queries, pagination, real local OIDC and changes to the AUTH projection
+model remain outside this step. `VIEW_ARCHIVE` remains reserved for a later, explicitly bounded
+current-versus-historical query contract.
