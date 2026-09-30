@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.orchestrator.command.admission.model;
+package com.kartaguez.pocoma.domain.useridentity;
 
 import static java.util.Objects.requireNonNull;
 

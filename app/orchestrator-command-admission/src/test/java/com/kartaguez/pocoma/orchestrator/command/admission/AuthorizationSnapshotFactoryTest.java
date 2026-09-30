@@ -11,8 +11,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.authorization.Permission;
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 
 class AuthorizationSnapshotFactoryTest {

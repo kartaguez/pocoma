@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.ExternalIdentity;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.out.ExternalIdentityResolverPort;
 
 @Component
 public class JpaExternalIdentityResolverAdapter implements ExternalIdentityResolverPort {

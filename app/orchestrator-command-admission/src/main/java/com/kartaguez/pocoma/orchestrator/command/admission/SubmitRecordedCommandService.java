@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
 
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -11,7 +12,6 @@ import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedC
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmittedCommand;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.out.CommandIdGenerator;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.out.ExternalIdentityResolverPort;
 
 public final class SubmitRecordedCommandService implements SubmitRecordedCommandUseCase {
 	private final ExternalIdentityResolverPort identities;

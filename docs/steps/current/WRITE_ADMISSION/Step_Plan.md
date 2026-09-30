@@ -71,6 +71,25 @@ Scan des anciens FQCN et reactor complet vert.
 
 **DONE.** Il existe une définition canonique unique de chaque type et aucun cycle de modules.
 
+**Résultat WA.1 — DONE (2026-10-01).**
+
+- commit : `refactor: establish user identity ownership` ; baseline : `60a8ea5121e6d274d1989245682435c47aa8d997` ;
+- owner métier : `pocoma-domain-user-identity` pour `User`, `PocomaUserId`,
+  `ExternalIdentity`, `BindingId` et le port de résolution legacy conservé jusqu’au cutover ;
+- frontière AuthN : `pocoma-authentication-contracts` possède
+  `AuthenticatedExternalPrincipal`, garde les autorités externes sous forme attestée et ne dépend
+  d’aucune `Permission` métier ;
+- compatibilité : `domain-pot.value.UserId`, `AuthorizationSnapshot` et la traduction legacy des
+  autorités restent en place ; le comportement Command est inchangé ;
+- preuve value objects : `UserIdentityModelTest` couvre UUID opaque, égalité par valeur, rejet du
+  null, absence d’ordre et invariants exacts issuer/subject ;
+- preuve architecture : `HexagonalArchitectureTest` verrouille l’owner unique, l’absence de doublon,
+  la dépendance JDK-only du domaine et l’absence de Spring Security, Keycloak, JPA ou `Permission`
+  dans les contrats neutres ;
+- preuves d’exécution : tests ciblés des modules touchés puis reactor Maven complet, tous verts ;
+- critères de sortie : aucune migration SQL, aucun changement de schéma ou DTO HTTP, aucune
+  implémentation de binding persistant, de fait Attached/Detached, d’endpoint ou de WA.2+.
+
 ### WA.2 — Expand de l’autorité de binding
 
 **Prérequis.** WA.1.

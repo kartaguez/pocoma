@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.orchestrator.command.admission.model;
 
 import static java.util.Objects.requireNonNull;
 
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 
 public record SubmitRecordedCommandInput(

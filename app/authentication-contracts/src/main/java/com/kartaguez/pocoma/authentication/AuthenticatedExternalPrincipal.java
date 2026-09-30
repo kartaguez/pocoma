@@ -1,9 +1,11 @@
-package com.kartaguez.pocoma.orchestrator.command.admission.model;
+package com.kartaguez.pocoma.authentication;
 
 import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 import java.util.Set;
+
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 
 /** Provider-neutral evidence extracted from an already authenticated principal. */
 public record AuthenticatedExternalPrincipal(

@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.orchestrator.command.admission;
 
-import com.kartaguez.pocoma.orchestrator.command.admission.model.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 
 public final class UserNotProvisionedException extends RuntimeException {
 	private final ExternalIdentity identity;

@@ -18,7 +18,7 @@ import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommand
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.out.CommandIdGenerator;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.out.ExternalIdentityResolverPort;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.command-admission", name = "enabled", havingValue = "true")

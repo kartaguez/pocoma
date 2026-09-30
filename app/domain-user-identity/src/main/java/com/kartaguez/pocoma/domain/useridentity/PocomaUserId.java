@@ -1,10 +1,10 @@
-package com.kartaguez.pocoma.engine.command.model;
+package com.kartaguez.pocoma.domain.useridentity;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.UUID;
 
-/** Provider-neutral identity of a Pocoma user. */
+/** Opaque identity of a Pocoma user. */
 public record PocomaUserId(UUID value) {
 
 	public PocomaUserId {

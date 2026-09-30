@@ -4,9 +4,9 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 
 public final class AuthorizationSnapshotFactory {

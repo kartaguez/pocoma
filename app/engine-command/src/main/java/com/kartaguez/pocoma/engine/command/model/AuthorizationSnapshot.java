@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Set;
 
 import com.kartaguez.pocoma.domain.authorization.Permission;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
 /** Immutable authorization evidence captured when a durable Command is submitted. */
 public record AuthorizationSnapshot(

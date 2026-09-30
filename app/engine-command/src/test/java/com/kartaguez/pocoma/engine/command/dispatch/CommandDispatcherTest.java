@@ -20,7 +20,7 @@ import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
 class CommandDispatcherTest {
 

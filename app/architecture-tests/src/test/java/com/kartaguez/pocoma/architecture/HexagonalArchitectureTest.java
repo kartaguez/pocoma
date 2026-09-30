@@ -21,6 +21,8 @@ class HexagonalArchitectureTest {
 	private static final String ROOT_PACKAGE = "com.kartaguez.pocoma";
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
 	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
+	private static final String USER_IDENTITY_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.useridentity";
+	private static final String AUTHENTICATION_CONTRACT_PACKAGE = ROOT_PACKAGE + ".authentication";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
 	private static final String POT_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot.projection.definition";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
@@ -443,6 +445,61 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void userIdentityOwnsItsCanonicalTypesAndRemainsFrameworkFree() {
+		Map<String, String> canonicalOwners = Map.of(
+				"User", USER_IDENTITY_DOMAIN_PACKAGE + ".User",
+				"PocomaUserId", USER_IDENTITY_DOMAIN_PACKAGE + ".PocomaUserId",
+				"ExternalIdentity", USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentity",
+				"BindingId", USER_IDENTITY_DOMAIN_PACKAGE + ".BindingId");
+
+		canonicalOwners.forEach((simpleName, owner) -> {
+			Set<String> definitions = CLASSES.stream()
+					.filter(javaClass -> javaClass.getSimpleName().equals(simpleName))
+					.map(javaClass -> javaClass.getName())
+					.collect(Collectors.toUnmodifiableSet());
+			assertEquals(Set.of(owner), definitions, simpleName + " must have one canonical owner");
+		});
+
+		assertEquals(Set.of(), dependenciesOutside(
+				USER_IDENTITY_DOMAIN_PACKAGE,
+				Set.of(USER_IDENTITY_DOMAIN_PACKAGE)),
+				"User/Identity must depend only on the JDK");
+
+		noClasses()
+				.that().resideInAPackage(USER_IDENTITY_DOMAIN_PACKAGE + "..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						"org.springframework..",
+						"org.springframework.security..",
+						"org.keycloak..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void authenticatedPrincipalBelongsToTheNeutralAuthenticationBoundary() {
+		Set<String> definitions = CLASSES.stream()
+				.filter(javaClass -> javaClass.getSimpleName().equals("AuthenticatedExternalPrincipal"))
+				.map(javaClass -> javaClass.getName())
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(AUTHENTICATION_CONTRACT_PACKAGE + ".AuthenticatedExternalPrincipal"), definitions);
+
+		assertEquals(Set.of(), dependenciesOutside(
+				AUTHENTICATION_CONTRACT_PACKAGE,
+				Set.of(AUTHENTICATION_CONTRACT_PACKAGE, USER_IDENTITY_DOMAIN_PACKAGE)),
+				"authentication contracts may depend only on User/Identity and the JDK");
+
+		Set<String> permissionDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(AUTHENTICATION_CONTRACT_PACKAGE))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.map(javaClass -> javaClass.getName())
+				.filter(name -> name.equals(ROOT_PACKAGE + ".domain.authorization.Permission"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), permissionDependencies,
+				"external authenticated authorities must remain distinct from Pocoma Permission");
+	}
+
+	@Test
 	void springSecurityAuthenticationRemainsInTheDedicatedSupra() {
 		Set<String> springSecurityUsersOutsideSupra = CLASSES.stream()
 				.filter(javaClass -> javaClass.getDirectDependenciesFromSelf().stream()
@@ -704,7 +761,8 @@ class HexagonalArchitectureTest {
 	void genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts() {
 		String commandPackage = ROOT_PACKAGE + ".engine.command";
 		Set<String> allowedPackages = Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
-				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event");
+				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event",
+				USER_IDENTITY_DOMAIN_PACKAGE);
 		Set<String> dependenciesOutsideCommand = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".result"))
@@ -717,7 +775,7 @@ class HexagonalArchitectureTest {
 				.map(target -> target.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideCommand,
-				"engine-command may depend only on its own contracts, generic BusinessEvent, TerminalReason and the JDK");
+				"engine-command may depend only on its own contracts, User/Identity, generic BusinessEvent, TerminalReason and the JDK");
 
 		noClasses()
 				.that().resideInAPackage(commandPackage + "..")
@@ -785,7 +843,8 @@ class HexagonalArchitectureTest {
 				persistencePackage + ".adapter.command",
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
 						ROOT_PACKAGE + ".engine.command", ROOT_PACKAGE + ".domain.authorization",
-						ROOT_PACKAGE + ".domain.event", ROOT_PACKAGE + ".observability.trace",
+						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
+						ROOT_PACKAGE + ".observability.trace",
 						"org.springframework", "com.fasterxml.jackson"));
 		assertEquals(Set.of(), dependencies,
 				"Command persistence may depend only on generic Command contracts and infrastructure libraries");

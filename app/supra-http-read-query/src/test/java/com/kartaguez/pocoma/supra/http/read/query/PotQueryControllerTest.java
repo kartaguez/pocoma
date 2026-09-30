@@ -24,13 +24,13 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.pot.read.PotView;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotUseCase;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
 
 import jakarta.servlet.http.HttpServletRequest;
 

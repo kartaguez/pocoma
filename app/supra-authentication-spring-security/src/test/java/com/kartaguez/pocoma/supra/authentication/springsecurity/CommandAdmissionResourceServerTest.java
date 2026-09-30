@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(classes = CommandAdmissionResourceServerTest.TestApplication.class, properties = {

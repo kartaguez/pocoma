@@ -11,13 +11,13 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.kartaguez.pocoma.engine.command.model.PocomaUserId;
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.AuthenticatedExternalPrincipal;
 
 class CommandResultControllerTest {
 	private static final UUID USER_ID = UUID.randomUUID();
