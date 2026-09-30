@@ -2,13 +2,12 @@ package com.kartaguez.pocoma.architecture.ccr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -26,6 +25,7 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.boot.web.server.context.WebServerApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -36,9 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -103,7 +100,9 @@ import com.kartaguez.pocoma.supra.authentication.springsecurity.WebApiSecurityCo
 class CommandCompletionE2EPostgresTest {
 	private static final String ISSUER = "https://ccr.e2e.test";
 	private static final String SUBJECT = "ccr-e2e-user";
+	private static final String TEST_TOKEN = "ccr-e2e-token";
 	private static final Instant BASE_TIME = Instant.now().minusSeconds(5);
+	private static final Duration HTTP_TIMEOUT = Duration.ofSeconds(10);
 
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
@@ -214,62 +213,72 @@ class CommandCompletionE2EPostgresTest {
 			cleanDatabase(jdbc);
 			jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
 					ISSUER, SUBJECT, userId);
-			MockMvc http = MockMvcBuilders.webAppContextSetup((WebApplicationContext) webContext)
-					.apply(springSecurity()).build();
+			int port = ((WebServerApplicationContext) webContext).getWebServer().getPort();
+			HttpClient http = HttpClient.newBuilder().connectTimeout(HTTP_TIMEOUT).build();
+			String baseUrl = "http://127.0.0.1:" + port;
 			ObjectMapper mapper = webContext.getBean(ObjectMapper.class);
 
-			UUID createCommandId = submit(http, mapper, PotCommandTypes.POT_CREATE_V1.value(),
+			UUID createCommandId = submit(http, baseUrl, mapper, PotCommandTypes.POT_CREATE_V1.value(),
 					Map.of("label", initialLabel, "creatorId", userId.toString()));
-			http.perform(get("/api/v1/command-results/{commandId}", createCommandId).with(authenticatedJwt()))
-					.andExpect(status().isNotFound());
+			assertEquals(404, get(http, baseUrl, "/api/v1/command-results/" + createCommandId).statusCode());
 
 			runPotPipeline();
-			JsonNode created = commandResult(http, mapper, createCommandId);
+			JsonNode created = commandResult(http, baseUrl, mapper, createCommandId);
 			UUID potId = UUID.fromString(created.path("potId").asText());
 			assertEquals(1L, created.path("resultingVersion").asLong());
-			assertPot(http, potId, 1, initialLabel);
+			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
 
-			UUID updateCommandId = submit(http, mapper, PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
+			UUID updateCommandId = submit(http, baseUrl, mapper, PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
 					Map.of("potId", potId.toString(), "label", updatedLabel, "expectedVersion", 1));
 			runPotPipeline();
-			JsonNode updated = commandResult(http, mapper, updateCommandId);
+			JsonNode updated = commandResult(http, baseUrl, mapper, updateCommandId);
 			assertEquals(potId.toString(), updated.path("potId").asText());
 			assertEquals(2L, updated.path("resultingVersion").asLong());
-			assertPot(http, potId, 2, updatedLabel);
-			assertPot(http, potId, 1, initialLabel);
+			assertPot(http, baseUrl, mapper, potId, 2, updatedLabel);
+			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
 		}
 	}
 
-	private UUID submit(MockMvc http, ObjectMapper mapper, String commandType, Map<String, ?> payload)
+	private UUID submit(HttpClient http, String baseUrl, ObjectMapper mapper, String commandType,
+			Map<String, ?> payload)
 			throws Exception {
-		String response = http.perform(post("/api/v1/commands").with(authenticatedJwt())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(mapper.writeValueAsBytes(Map.of("commandType", commandType, "payload", payload))))
-				.andExpect(status().isAccepted()).andReturn().getResponse().getContentAsString();
-		return UUID.fromString(mapper.readTree(response).path("commandId").asText());
+		HttpResponse<String> response = http.send(request(baseUrl, "/api/v1/commands")
+				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+				.POST(HttpRequest.BodyPublishers.ofByteArray(mapper.writeValueAsBytes(
+						Map.of("commandType", commandType, "payload", payload)))).build(),
+				HttpResponse.BodyHandlers.ofString());
+		assertEquals(202, response.statusCode(), response.body());
+		return UUID.fromString(mapper.readTree(response.body()).path("commandId").asText());
 	}
 
-	private JsonNode commandResult(MockMvc http, ObjectMapper mapper, UUID commandId) throws Exception {
-		String response = http.perform(get("/api/v1/command-results/{commandId}", commandId)
-				.with(authenticatedJwt())).andExpect(status().isOk())
-				.andExpect(jsonPath("$.status").value("APPLIED"))
-				.andReturn().getResponse().getContentAsString();
-		return mapper.readTree(response);
+	private JsonNode commandResult(HttpClient http, String baseUrl, ObjectMapper mapper, UUID commandId)
+			throws Exception {
+		HttpResponse<String> response = get(http, baseUrl, "/api/v1/command-results/" + commandId);
+		assertEquals(200, response.statusCode(), response.body());
+		JsonNode result = mapper.readTree(response.body());
+		assertEquals("APPLIED", result.path("status").asText());
+		return result;
 	}
 
-	private void assertPot(MockMvc http, UUID potId, long version, String label) throws Exception {
-		http.perform(get("/api/v1/pots/{potId}", potId).param("version", Long.toString(version))
-				.with(authenticatedJwt())).andExpect(status().isOk())
-				.andExpect(jsonPath("$.potId").value(potId.toString()))
-				.andExpect(jsonPath("$.version").value(version))
-				.andExpect(jsonPath("$.label").value(label));
+	private void assertPot(HttpClient http, String baseUrl, ObjectMapper mapper, UUID potId,
+			long version, String label) throws Exception {
+		HttpResponse<String> response = get(http, baseUrl,
+				"/api/v1/pots/" + potId + "?version=" + version);
+		assertEquals(200, response.statusCode(), response.body());
+		JsonNode pot = mapper.readTree(response.body());
+		assertEquals(potId.toString(), pot.path("potId").asText());
+		assertEquals(version, pot.path("version").asLong());
+		assertEquals(label, pot.path("label").asText());
 	}
 
-	private static org.springframework.test.web.servlet.request.RequestPostProcessor authenticatedJwt() {
-		return jwt().jwt(token -> token.issuer(ISSUER).subject(SUBJECT)
-				.issuedAt(BASE_TIME).expiresAt(BASE_TIME.plusSeconds(600))
-				.claim("auth_time", BASE_TIME.minusSeconds(1).getEpochSecond())
-				.claim("scope", "pocoma:pot:create pocoma:pot:update pocoma:pot:view"));
+	private static HttpResponse<String> get(HttpClient http, String baseUrl, String path)
+			throws IOException, InterruptedException {
+		return http.send(request(baseUrl, path).GET().build(), HttpResponse.BodyHandlers.ofString());
+	}
+
+	private static HttpRequest.Builder request(String baseUrl, String path) {
+		return HttpRequest.newBuilder(URI.create(baseUrl + path)).timeout(HTTP_TIMEOUT)
+				.header("Authorization", "Bearer " + TEST_TOKEN);
 	}
 
 	private void runPotPipeline() {
@@ -354,17 +363,18 @@ class CommandCompletionE2EPostgresTest {
 
 	private ConfigurableApplicationContext webContext() {
 		return new SpringApplicationBuilder(WebTestApplication.class, JwtTestConfiguration.class)
-				.web(WebApplicationType.SERVLET).properties(Map.of(
-						"spring.datasource.url", POSTGRES.getJdbcUrl(),
-						"spring.datasource.username", POSTGRES.getUsername(),
-						"spring.datasource.password", POSTGRES.getPassword(),
-						"spring.datasource.driver-class-name", "org.postgresql.Driver",
-						"spring.jpa.hibernate.ddl-auto", "validate",
-						"spring.flyway.enabled", "true",
-						"spring.flyway.locations", "classpath:db/migration",
-						"pocoma.command-admission.enabled", "true",
-						"pocoma.command-result-read.enabled", "true",
-						"pocoma.pot-read.enabled", "true"))
+				.web(WebApplicationType.SERVLET).properties(Map.ofEntries(
+						Map.entry("server.port", "0"),
+						Map.entry("spring.datasource.url", POSTGRES.getJdbcUrl()),
+						Map.entry("spring.datasource.username", POSTGRES.getUsername()),
+						Map.entry("spring.datasource.password", POSTGRES.getPassword()),
+						Map.entry("spring.datasource.driver-class-name", "org.postgresql.Driver"),
+						Map.entry("spring.jpa.hibernate.ddl-auto", "validate"),
+						Map.entry("spring.flyway.enabled", "true"),
+						Map.entry("spring.flyway.locations", "classpath:db/migration"),
+						Map.entry("pocoma.command-admission.enabled", "true"),
+						Map.entry("pocoma.command-result-read.enabled", "true"),
+						Map.entry("pocoma.pot-read.enabled", "true")))
 				.run();
 	}
 
@@ -518,6 +528,12 @@ class CommandCompletionE2EPostgresTest {
 
 	@org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
 	static class JwtTestConfiguration {
-		@Bean JwtDecoder jwtDecoder() { return org.mockito.Mockito.mock(JwtDecoder.class); }
+		@Bean JwtDecoder jwtDecoder() {
+			return token -> org.springframework.security.oauth2.jwt.Jwt.withTokenValue(token)
+					.header("alg", "none").issuer(ISSUER).subject(SUBJECT)
+					.issuedAt(BASE_TIME).expiresAt(BASE_TIME.plusSeconds(600))
+					.claim("auth_time", BASE_TIME.minusSeconds(1).getEpochSecond())
+					.claim("scope", "pocoma:pot:create pocoma:pot:update pocoma:pot:view").build();
+		}
 	}
 }
