@@ -71,6 +71,30 @@ class ConsumptionPollingWorkerTest {
 	}
 
 	@Test
+	void pollingThreadIsNonDaemonAndKeepsAWorkerProcessAlive() throws Exception {
+		AtomicBoolean daemon = new AtomicBoolean(true);
+		CountDownLatch entered = new CountDownLatch(1);
+		CountDownLatch stopped = new CountDownLatch(1);
+		LatchWaiter waiter = new LatchWaiter();
+		var worker = runningWorker(input -> {
+			daemon.set(Thread.currentThread().isDaemon());
+			entered.countDown();
+			return new ConsumptionOrchestrationResult.Idle(Optional.empty(), counters);
+		}, waiter, ConsumptionPollingWorkerObservation.noop());
+
+		try {
+			worker.start();
+			assertTrue(entered.await(2, TimeUnit.SECONDS));
+			assertTrue(worker.isRunning());
+			assertFalse(daemon.get());
+		}
+		finally {
+			worker.requestStop(stopped::countDown);
+			assertTrue(stopped.await(2, TimeUnit.SECONDS));
+		}
+	}
+
+	@Test
 	void stopLetsAnActiveCycleFinishWithoutInterruptingIt() throws Exception {
 		AtomicInteger cycles = new AtomicInteger();
 		AtomicBoolean interrupted = new AtomicBoolean();

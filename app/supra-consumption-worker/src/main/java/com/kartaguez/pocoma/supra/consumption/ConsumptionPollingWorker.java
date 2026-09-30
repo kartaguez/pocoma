@@ -43,7 +43,7 @@ public final class ConsumptionPollingWorker implements AutoCloseable {
 		if (!settings.enabled() || running) return;
 		stopRequested = false;
 		running = true;
-		Thread.ofPlatform().name("pocoma-consumption-worker").daemon(true).start(this::loop);
+		Thread.ofPlatform().name("pocoma-consumption-worker").daemon(false).start(this::loop);
 	}
 
 	public ConsumptionOrchestrationResult runOneCycle() {

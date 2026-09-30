@@ -51,6 +51,13 @@ The reference Bruno flow lives in `scripts/bruno/00 Pot E2E`. The durable latenc
 current SQL proxy are documented in `E2E_Latency_Observability_Audit.md`; no performance
 instrumentation is introduced by this step.
 
+The manual runtime proof also exposed a process-lifecycle defect: the generic polling loop used a
+daemon thread, so the Event and ProjectionTask JVMs exited as soon as Spring startup returned while
+Command stayed alive only because Tomcat owned non-daemon threads. The polling worker now owns a
+non-daemon platform thread, and every Spring lifecycle using it defers its shutdown callback until
+the active cycle has completed and the waiter has been signalled. Unit lifecycle tests and runtime
+process smoke tests protect persistence without adding an HTTP server to Event or ProjectionTask.
+
 ## Out of scope
 
 POT_BALANCES, listing/latest queries, pagination, real local OIDC and changes to the AUTH projection

@@ -18,7 +18,12 @@ final class ProjectionTaskWorkerLifecycle implements SmartLifecycle {
 
 	@Override
 	public void stop() {
-		worker.stop();
+		worker.requestStop();
+	}
+
+	@Override
+	public void stop(Runnable callback) {
+		worker.requestStop(callback);
 	}
 
 	@Override
