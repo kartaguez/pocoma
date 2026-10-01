@@ -397,19 +397,57 @@ subject)`, colonnes `binding_revision`, `binding_status` (`ATTACHED|DETACHED`), 
 `user_id` est obligatoire seulement pour `ATTACHED` et nul pour `DETACHED`. Révision `>= 0` ;
 `source_event_id` nul uniquement pour un bootstrap révision `0`.
 
-**Runtime/transaction.** Un consumer direct lit les faits de binding par curseur borné, utilise une
-clé Consumption stable dérivée de `event_id`, puis applique et finalise sous le fence générique.
-L’upsert compare exclusivement la révision : supérieure → remplace ; inférieure → stale/no-op ;
-égale et contenu identique → duplicate/no-op ; égale et contenu divergent → invariant failure
-observable, jamais overwrite. Une arrivée hors ordre `B2@3` avant `B1@1/2` reste B2.
+**Discovery/Consumption.** Réutiliser le locator pull canonique de Command/LKV, sans watermark global
+persisté. La clé de Consumption est
+`(consumableType=IDENTITY_BINDING_FACT, event_id;
+consumerType=CURRENT_BINDING_PROJECTOR)` ; son unicité est celle de `consumption_slots`. La query
+PostgreSQL scanne, par pages bornées, les rows append-only de `external_identity_binding_facts` du
+segment courant qui n’ont pas de slot `DONE`, ou dont le slot `PENDING` est à nouveau éligible et
+sans claim vivant. `partition_hash` est calculé et persisté depuis l’E exacte ; le prédicat modulo
+canonique assigne chaque fait à exactement un segment pour une configuration donnée. Il sert au
+routage, jamais de position durable.
 
-**Invariants.** La projection n’écrit jamais l’autorité et le worker Command ne la consulte jamais ;
-un detach reste observable ; un replay/duplicate/stale message ne régresse pas l’état ; l’ordre ne
-dépend jamais de B.
+L’ordre SQL `(issuer, subject, binding_revision)` et son index ne servent qu’à la pagination keyset
+d’une invocation de recherche. Le curseur est en mémoire, local à `openSearch`, jamais persisté, et
+repart de vide après chaque exécution acquise ainsi qu’au poll/restart suivant. `recorded_at` reste
+une donnée d’observabilité ; `event_id` reste une identité opaque ; aucun des deux n’est un
+watermark. Les queries de discovery sont de courtes transactions `READ COMMITTED`, pas une longue
+snapshot : chaque nouvelle query voit toutes les rows alors committées.
+
+**Preuve anti-skip.** La propriété SQL décisive est « row append-only committée + absence durable
+d’un slot `DONE` pour sa clé » : une row non encore consommée reste sélectionnable à chaque scan
+repartant de zéro. Si une transaction committe une row dont la clé de tri précède le curseur
+éphémère courant, elle peut être absente de cette page mais réapparaît au prochain `openSearch` ;
+aucun high-water mark ne peut la masquer définitivement. Deux workers peuvent découvrir le même
+fait, mais l’unicité de `consumption_slots`, le claim CAS, le lease et la finalisation fenced donnent
+un seul effet committé. Un retry technique conserve le slot `PENDING` avec `next_claim_at`; un claim
+perdu redevient éligible après expiration ; restart et changement de workers reconstruisent le scan
+depuis la table durable. Les défaillances d’infrastructure suivent une politique `RetryAfter` sans
+terminalisation par compteur, comme `ProjectionTaskRetryPolicy`; seules une donnée durable
+introuvable/corrompue ou une collision égale/divergente deviennent des échecs terminaux observables.
+
+**Runtime/transaction.** Après acquisition canonique, le consumer direct recharge le fait par
+`event_id`, applique `CURRENT_BINDING`, écrit la provenance et finalise le claim dans la même
+transaction fenced. L’upsert compare exclusivement la révision : supérieure → remplace ; inférieure
+→ stale/no-op ; égale et contenu identique → duplicate/no-op ; égale et contenu divergent →
+invariant failure observable, jamais overwrite. Une arrivée hors ordre `B2@3` avant `B1@1/2` reste
+B2.
+
+**Invariants.** Tout `ExternalIdentityAttached`/`ExternalIdentityDetached` committé reste découvrable
+par le consumer, indépendamment de l’ordre dans lequel des transactions concurrentes ont commencé,
+alloué leurs données puis committé. La projection n’écrit jamais l’autorité et le worker Command ne
+la consulte jamais ; un detach reste observable ; un replay/duplicate/stale message ne régresse pas
+l’état ; l’ordre ne dépend jamais de B.
 
 **Tests/preuves.** Unitaires de la machine d’apply ; PostgreSQL pour create/update/tombstone,
-duplicate identique, collision divergente, inférieur, saut de révision et concurrence ; runtime
-Testcontainers pour retry, restart, claim perdu et multi-worker ; métriques backlog/failure.
+duplicate identique, collision divergente, inférieur, saut de révision et concurrence. Test
+Testcontainers anti-skip obligatoire : T1 insère F1 pour E1 dans une transaction non committée ; T2
+insère et committe F2 pour E2, choisi dans le même segment et après F1 dans l’ordre keyset ; le
+consumer découvre/finalise F2 ; T1 committe ensuite F1 ; un nouvel `openSearch` sans curseur retrouve
+F1 et le projette. Le test inspecte les deux slots/provenances `DONE` et l’état final des deux E. Une
+variante prouve que deux faits d’une même E ne peuvent pas reproduire cette inversion car le verrou
+de stream les sérialise. Couvrir aussi page pleine, row tardive classée avant le dernier curseur,
+retry, restart, claim perdu, redistribution de segments et multi-worker ; métriques backlog/failure.
 
 **Clôture.** Les séquences `Attach(B1) → Detach(B1) → Attach(B2)` et tous leurs replays/permutations
 autorisées convergent vers `ATTACHED/B2` à la révision maximale.
@@ -508,15 +546,36 @@ comportement legacy courant transposé côté READ, pas une migration V1 vers E.
 inconnue est une invariant failure. Toute absence/non-ready/non-ownership conserve la réponse
 non-oracle actuelle.
 
-**Invariants.** Aucun paramètre ne permet de choisir E ; aucun controller/use case GET n’importe le
-repository Identity WRITE, `recorded_commands`, `command_outcomes` ou Consumption ; E2 ne lit jamais
-le résultat V2 de E1, même si elles partagent U ; le statut futur du binding n’altère pas ce contrôle
-V2.
+**Cohérence V1 assumée.** Pour V1 seulement, la révocation liée au binding devient éventuellement
+cohérente. Après un detach/rebind committé dans WRITE et avant le rattrapage de `CURRENT_BINDING`, le
+GET voit encore l’ancienne projection E→U : un résultat V1 `submittedByUserId=U` reste donc lisible
+pendant cette fenêtre. Après projection du detach, E est `DETACHED` et l’accès est refusé ; après un
+reattach E→U2, un résultat historique de U1 reste refusé puisque U2 ≠ U1. Cette fenêtre est la
+conséquence acceptée du GET READ-only et de l’absence d’E historique dans V1. Il est interdit de la
+fermer par une lecture de l’autorité WRITE ou par l’invention/reconstruction d’une E V1 ; cette dette
+disparaît avec la contraction V1 en WA.7.
 
-**Tests/preuves.** MVC/AuthN : token E exact, issuer/subject homonymes, E1/E2 même U, inconnu,
-détaché/rebind, commandId absent/non-ready/non-owned ; spy/statement capture prouvant zéro SELECT
-primaire ; E2 refusée sur V2 ; V1 autorisé/refusé via le `CURRENT_BINDING` READ uniquement ; contrat
-de réponse binding attaché/détaché et absence de paramètres d’identité.
+V2 ne suit pas cette règle legacy : l’autorisation compare uniquement E authentifiée à l’E exacte
+durable capturée à l’admission. Attach, detach, rebind et lag de `CURRENT_BINDING` ne transfèrent ni
+ne révoquent cette visibilité historique ; E2 ne voit jamais le résultat soumis par E1, même lorsque
+E1 et E2 sont ou ont été liées au même U.
+
+**Invariants.** Aucun paramètre ne permet de choisir E ; aucun controller/use case GET n’importe le
+repository Identity WRITE, `recorded_commands`, `command_outcomes` ou Consumption ; aucune E n’est
+reconstruite pour V1 ; E2 ne lit jamais le résultat V2 de E1, même si elles partagent U ; le statut
+futur du binding n’altère pas ce contrôle V2.
+
+**Tests/preuves.** MVC/AuthN : token E exact, issuer/subject homonymes, inconnu, commandId
+absent/non-ready/non-owned ; spy/statement capture prouvant zéro SELECT primaire ; contrat de réponse
+binding attaché/détaché et absence de paramètres d’identité. Ajouter explicitement :
+
+- V1 lag : `CURRENT_BINDING` contient E→U et le résultat V1 porte U ; detach E committe côté WRITE
+  mais la projection n’a pas encore appliqué le fait ; le GET authentifié par E reste temporairement
+  autorisé. Dès application du detach, le même GET retourne la réponse non-oracle de refus ;
+- V1 detach/rebind : E→U1, résultat V1 de U1, detach puis attach E→U2 et projection rattrapée ; le GET
+  reste refusé et ne transfère jamais le résultat historique à U2 ;
+- V2 exact-E : résultat soumis par E1, avec E1 et E2 liées au même U ; E1 est autorisée par égalité
+  exacte, E2 est toujours refusée avant, pendant et après detach/rebind/lag READ.
 
 **Clôture.** Les deux GET utilisent exclusivement `pocoma_read`/artefacts et toutes les décisions
 d’identité proviennent du principal authentifié.
