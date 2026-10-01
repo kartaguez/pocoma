@@ -4,10 +4,9 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.BusinessEventEnvelope;
-import com.kartaguez.pocoma.engine.model.BusinessEventStatus;
-import com.kartaguez.pocoma.engine.model.PotPartitioner;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+import com.kartaguez.pocoma.engine.legacy.processing.segmentation.PotPartitioner;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,16 +49,7 @@ public class JpaBusinessEventOutboxEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
-	private BusinessEventStatus status;
-
-	@Column(name = "claim_token")
-	private UUID claimToken;
-
-	@Column(name = "claimed_by")
-	private String claimedBy;
-
-	@Column(name = "lease_until")
-	private Instant leaseUntil;
+	private BusinessEventOutboxStatus status;
 
 	@Column(name = "attempt_count", nullable = false)
 	private int attemptCount;
@@ -67,25 +57,20 @@ public class JpaBusinessEventOutboxEntity {
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private Instant createdAt;
 
-	@Column(name = "claimed_at")
-	private Instant claimedAt;
-
-	@Column(name = "accepted_at")
-	private Instant acceptedAt;
-
-	@Column(name = "started_at")
-	private Instant startedAt;
-
-	@Column(name = "processed_at")
-	private Instant processedAt;
-
-	@Column(name = "failed_at")
-	private Instant failedAt;
-
-	@Column(name = "last_error")
-	private String lastError;
-
 	protected JpaBusinessEventOutboxEntity() {
+	}
+
+	public JpaBusinessEventOutboxEntity(BusinessEventEnvelope envelope) {
+		this(
+				envelope.id(),
+				envelope.eventType(),
+				envelope.potId().value(),
+				envelope.aggregateId(),
+				envelope.version(),
+				envelope.payloadJson(),
+				envelope.traceId(),
+				envelope.commandCommittedAtNanos(),
+				envelope.createdAt());
 	}
 
 	public JpaBusinessEventOutboxEntity(
@@ -97,7 +82,21 @@ public class JpaBusinessEventOutboxEntity {
 			String traceId,
 			Long commandCommittedAtNanos,
 			Instant createdAt) {
-		this.id = UUID.randomUUID();
+		this(UUID.randomUUID(), eventType, potId, aggregateId, version, payloadJson, traceId,
+				commandCommittedAtNanos, createdAt);
+	}
+
+	private JpaBusinessEventOutboxEntity(
+			UUID id,
+			String eventType,
+			UUID potId,
+			UUID aggregateId,
+			long version,
+			String payloadJson,
+			String traceId,
+			Long commandCommittedAtNanos,
+			Instant createdAt) {
+		this.id = Objects.requireNonNull(id, "id must not be null");
 		this.eventType = requireText(eventType, "eventType");
 		this.potId = Objects.requireNonNull(potId, "potId must not be null");
 		this.potPartitionHash = PotPartitioner.partitionHash(potId);
@@ -106,7 +105,7 @@ public class JpaBusinessEventOutboxEntity {
 		this.payloadJson = requireText(payloadJson, "payloadJson");
 		this.traceId = traceId;
 		this.commandCommittedAtNanos = commandCommittedAtNanos;
-		this.status = BusinessEventStatus.PENDING;
+		this.status = BusinessEventOutboxStatus.PENDING;
 		this.attemptCount = 0;
 		this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
 	}
@@ -122,18 +121,6 @@ public class JpaBusinessEventOutboxEntity {
 				traceId,
 				commandCommittedAtNanos,
 				createdAt);
-	}
-
-	public void claim(UUID claimToken, String workerId, Instant now, Instant leaseUntil) {
-		this.status = BusinessEventStatus.CLAIMED;
-		this.claimToken = Objects.requireNonNull(claimToken, "claimToken must not be null");
-		this.claimedBy = requireText(workerId, "workerId");
-		this.leaseUntil = Objects.requireNonNull(leaseUntil, "leaseUntil must not be null");
-		this.claimedAt = Objects.requireNonNull(now, "now must not be null");
-		this.acceptedAt = null;
-		this.startedAt = null;
-		this.attemptCount++;
-		this.lastError = null;
 	}
 
 	public UUID id() {

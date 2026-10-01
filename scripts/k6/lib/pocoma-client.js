@@ -170,7 +170,7 @@ export class PocomaClient {
     return {
       headers: {
         'X-User-Id': this.userId,
-        'X-User-Scopes': __ENV.USER_SCOPES || 'pot:create;pot:read;pot.details:update;pot:delete;shareholder:create;shareholder.details:update;shareholder.weight:update;expense:create;expense:delete;expense.details:update;expense.shares:update',
+        'X-User-Scopes': __ENV.USER_SCOPES || 'pot:view;pot:create;pot:update;pot:delete;shareholder:create;shareholder:update;expense:view;expense:create;expense:update;expense:delete;balance:view',
         'Content-Type': 'application/json',
         'X-Trace-Id': `k6-${vuId()}-${iterationId()}-${Date.now()}`,
       },

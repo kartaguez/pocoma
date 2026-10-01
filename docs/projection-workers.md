@@ -1,5 +1,11 @@
 # Projection Workers
 
+> **Historical / superseded.** This document describes the former `projection_tasks` dispatcher and
+> Spring-event projection paths. The canonical distributed path is documented in
+> [`architecture/consumption-event-pull-runtime.md`](architecture/consumption-event-pull-runtime.md),
+> [`architecture/consumption-task-balance-runtime.md`](architecture/consumption-task-balance-runtime.md),
+> and [`architecture/read-side-current-state.md`](architecture/read-side-current-state.md).
+
 This document describes the projection pipeline used to compute pot balances under load.
 
 ## Overview
@@ -230,7 +236,8 @@ cd app
   -Dspring-boot.run.arguments="--pocoma.projection.worker.segment-index=0 --pocoma.projection.worker.segment-count=2"
 ```
 
-`runtime-monolith` remains useful for local development. Its `api` and `worker` profiles are still available, but the target split architecture should prefer the dedicated runtimes above.
+> Historical note: the legacy runtimes described above were removed by PCL.6. Supported execution
+> uses the dedicated Event and canonical ProjectionTask consumption runtimes.
 
 ## Metrics And Load Testing
 
@@ -240,18 +247,7 @@ Prometheus exposes:
 - `pocoma_projection_tasks_pending`: projection tasks pending or in progress.
 - existing projection latency, retry, and version-gap metrics.
 
-The k6 scenario `scripts/k6/projection_backpressure.js` creates command bursts on hot and distributed pots and scrapes these metrics from the API runtime. A healthy run shows command latency staying bounded while backlog rises during the burst and drains afterward. With multiple workers, each worker should claim only its `pot_partition_hash` segment, and hot pots should not wake unrelated worker segments.
-
-Example:
-
-```bash
-cd app
-BASE_URL=http://localhost:8080 \
-SEED_POTS=8 \
-HOT_POTS=2 \
-BACKPRESSURE_PEAK_RATE=60 \
-BACKPRESSURE_PLATEAU=1m \
-k6 run ../scripts/k6/projection_backpressure.js
-```
-
-If `pocoma_observed_projection_tasks_pending` never drains after load stops, increase worker capacity, add worker segments, or inspect `FAILED` tasks in the database.
+`scripts/k6/projection_backpressure.js` is a historical suite for the removed pipeline workers. It is
+kept as an archive and is not an executable validation of the supported runtimes. Current
+backpressure, ownership and drain behavior is validated by the PostgreSQL Consumption, Event and
+canonical ProjectionTask runtime suites described in `docs/testing/k6/README.md`.

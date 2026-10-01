@@ -1,0 +1,291 @@
+package com.kartaguez.pocoma.engine.service.command;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.engine.exception.VersionConflictException;
+import com.kartaguez.pocoma.domain.authorization.Permission;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseSharesCommand;
+import com.kartaguez.pocoma.engine.snapshot.ExpenseSharesSnapshot;
+import com.kartaguez.pocoma.engine.security.UserContext;
+
+class UpdateExpenseSharesServiceTest {
+
+	@Test
+	void updatesExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		FakeExpenseContextPort loadContextPort =
+				new FakeExpenseContextPort(fixture.context(false));
+		FakeExpenseSharesPort loadExpenseSharesPort =
+				new FakeExpenseSharesPort(fixture.expenseShares());
+		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
+		FakeRecordingExpenseSharesPort replaceExpenseSharesPort = new FakeRecordingExpenseSharesPort();
+		FakeEventPublisherPort publishEventPort = new FakeEventPublisherPort();
+		UpdateExpenseSharesService service = new UpdateExpenseSharesService(
+				loadContextPort,
+				loadExpenseSharesPort,
+				updatePotGlobalVersionPort,
+				replaceExpenseSharesPort,
+				publishEventPort,
+				new PotAuthorizationGuard());
+
+		ExpenseSharesSnapshot snapshot = service.updateExpenseShares(
+				new UserContext(fixture.creatorId, fixture.userPermissions),
+				fixture.command(3, fixture.bobId));
+
+		assertEquals(fixture.expenseId, snapshot.expenseId());
+		assertEquals(fixture.potId, snapshot.potId());
+		assertEquals(4, snapshot.version());
+		assertEquals(Set.of(fixture.bobId), snapshot.shares().keySet());
+		assertEquals(Weight.of(Fraction.of(1, 1)), snapshot.shares().get(fixture.bobId).weight());
+		assertEquals(fixture.expenseId, loadContextPort.loadedExpenseId);
+		assertEquals(fixture.expenseId, loadExpenseSharesPort.loadedExpenseId);
+		assertEquals(3, loadExpenseSharesPort.loadedAtVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
+		assertEquals(fixture.expenseId, replaceExpenseSharesPort.savedExpenseId);
+		assertEquals(Set.of(fixture.bobId), replaceExpenseSharesPort.saved.shares().keySet());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseSharesPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseSharesPort.nextVersion);
+		assertEquals(new ExpenseSharesUpdatedEvent(fixture.expenseId, fixture.potId, 4), publishEventPort.published);
+	}
+
+	@Test
+	void allowsPotMemberToUpdateExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		UpdateExpenseSharesContext context = fixture.context(false, Map.of(fixture.aliceId, memberId));
+
+		ExpenseSharesSnapshot snapshot = fixture.service(
+				context,
+				new FakeExpenseSharesPort(fixture.expenseShares()))
+				.updateExpenseShares(
+						new UserContext(memberId, fixture.userPermissions),
+						fixture.command(3, fixture.bobId));
+
+		assertEquals(fixture.expenseId, snapshot.expenseId());
+	}
+
+	@Test
+	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		FakeExpenseSharesPort loadExpenseSharesPort =
+				new FakeExpenseSharesPort(fixture.expenseShares());
+		UpdateExpenseSharesService service = fixture.service(fixture.context(true), loadExpenseSharesPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseShares(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, fixture.bobId)));
+
+		assertEquals("EXPENSE_ALREADY_DELETED", exception.ruleCode());
+		assertFalse(loadExpenseSharesPort.loaded);
+	}
+
+	@Test
+	void rejectsVersionConflictWithoutLoadingFullExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		FakeExpenseSharesPort loadExpenseSharesPort =
+				new FakeExpenseSharesPort(fixture.expenseShares());
+		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
+
+		VersionConflictException exception = assertThrows(
+				VersionConflictException.class,
+				() -> service.updateExpenseShares(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(2, fixture.bobId)));
+
+		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertFalse(loadExpenseSharesPort.loaded);
+	}
+
+	@Test
+	void rejectsUnknownShareholderWithoutLoadingFullExpenseShares() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		FakeExpenseSharesPort loadExpenseSharesPort =
+				new FakeExpenseSharesPort(fixture.expenseShares());
+		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseShares(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, ShareholderId.of(UUID.randomUUID()))));
+
+		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
+		assertFalse(loadExpenseSharesPort.loaded);
+	}
+
+	@Test
+	void rejectsForbiddenUserAfterValidatingExpensePotCoherence() {
+		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
+		FakeExpenseSharesPort loadExpenseSharesPort =
+				new FakeExpenseSharesPort(fixture.expenseShares());
+		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseShares(
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
+						fixture.command(3, fixture.bobId)));
+
+		assertEquals("EXPENSE_SHARES_UPDATE_FORBIDDEN", exception.ruleCode());
+		assertTrue(loadExpenseSharesPort.loaded);
+	}
+
+	private static final class UpdateExpenseSharesFixture {
+		private final PotId potId = PotId.of(UUID.randomUUID());
+		private final ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
+		private final ShareholderId aliceId = ShareholderId.of(UUID.randomUUID());
+		private final ShareholderId bobId = ShareholderId.of(UUID.randomUUID());
+		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Permission> userPermissions = Set.of(new Permission("EXPENSE", "UPDATE"));
+
+		private UpdateExpenseSharesContext context(boolean deleted) {
+			return context(deleted, Map.of());
+		}
+
+		private UpdateExpenseSharesContext context(
+				boolean deleted,
+				Map<ShareholderId, UserId> shareholderUsers) {
+			return new UpdateExpenseSharesContext(
+					new PotGlobalVersion(potId, 3),
+					deleted,
+					false,
+					creatorId,
+					Set.of(aliceId, bobId),
+					shareholderUsers);
+		}
+
+		private ExpenseShares expenseShares() {
+			return ExpenseShares.reconstitute(potId, Set.of(expenseShare(aliceId, Weight.of(Fraction.of(1, 1)))));
+		}
+
+		private UpdateExpenseSharesCommand command(long expectedVersion, ShareholderId shareholderId) {
+			return new UpdateExpenseSharesCommand(
+					expenseId.value(),
+					Set.of(new UpdateExpenseSharesCommand.ExpenseShareInput(shareholderId.value(), 1, 1)),
+					expectedVersion);
+		}
+
+		private ExpenseShare expenseShare(ShareholderId shareholderId, Weight weight) {
+			return new ExpenseShare(expenseId, shareholderId, weight);
+		}
+
+		private UpdateExpenseSharesService service(
+				UpdateExpenseSharesContext context,
+				FakeExpenseSharesPort loadExpenseSharesPort) {
+			return new UpdateExpenseSharesService(
+					new FakeExpenseContextPort(context),
+					loadExpenseSharesPort,
+					new FakePotGlobalVersionPort(),
+					new FakeRecordingExpenseSharesPort(),
+					new FakeEventPublisherPort(),
+					new PotAuthorizationGuard());
+		}
+	}
+
+	private static final class FakeExpenseContextPort
+			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort {
+
+		private final UpdateExpenseSharesContext context;
+		private ExpenseId loadedExpenseId;
+
+		private FakeExpenseContextPort(UpdateExpenseSharesContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public UpdateExpenseSharesContext loadUpdateExpenseSharesContext(ExpenseId expenseId) {
+			loadedExpenseId = expenseId;
+			return context;
+		}
+	}
+
+	private static final class FakeExpenseSharesPort
+			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort {
+
+		private final ExpenseShares expenseShares;
+		private boolean loaded;
+		private ExpenseId loadedExpenseId;
+		private long loadedAtVersion;
+
+		private FakeExpenseSharesPort(ExpenseShares expenseShares) {
+			this.expenseShares = expenseShares;
+		}
+
+		@Override
+		public ExpenseShares loadActiveAtVersion(ExpenseId expenseId, long version) {
+			loaded = true;
+			loadedExpenseId = expenseId;
+			loadedAtVersion = version;
+			return expenseShares;
+		}
+	}
+
+	private static final class FakePotGlobalVersionPort
+			implements com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort {
+
+		private PotGlobalVersion expectedActiveVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public void updateIfActive(PotGlobalVersion expectedActiveVersion, PotGlobalVersion nextVersion) {
+			this.expectedActiveVersion = expectedActiveVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeRecordingExpenseSharesPort
+			implements com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort {
+
+		private ExpenseShares saved;
+		private ExpenseId savedExpenseId;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public void save(
+				ExpenseId expenseId,
+				ExpenseShares expenseShares,
+				PotGlobalVersion currentVersion,
+				PotGlobalVersion nextVersion) {
+			this.savedExpenseId = expenseId;
+			this.saved = expenseShares;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeEventPublisherPort
+			implements com.kartaguez.pocoma.engine.port.out.event.EventPublisherPort {
+
+		private ExpenseSharesUpdatedEvent published;
+
+		@Override
+		public void publish(ExpenseSharesUpdatedEvent event) {
+			published = event;
+		}
+	}
+}

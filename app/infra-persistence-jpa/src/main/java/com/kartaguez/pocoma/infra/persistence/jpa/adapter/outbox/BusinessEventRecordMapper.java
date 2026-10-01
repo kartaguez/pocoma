@@ -1,0 +1,200 @@
+package com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox;
+
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
+import com.kartaguez.pocoma.engine.event.RecordedEvent;
+import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersWeightsUpdatedEvent;
+import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
+
+/** Maps the legacy JSON outbox representation at the infrastructure boundary only. */
+public final class BusinessEventRecordMapper {
+
+	private final ObjectMapper objectMapper;
+
+	public BusinessEventRecordMapper(ObjectMapper objectMapper) {
+		this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper must not be null");
+	}
+
+	public RecordedEvent<? extends BusinessEvent> toRecordedEvent(BusinessEventEnvelope envelope) {
+		Objects.requireNonNull(envelope, "envelope must not be null");
+		JsonNode payload = readPayload(envelope.payloadJson());
+		verifyCoherence(envelope, payload);
+		BusinessEvent event = eventFrom(envelope, payload);
+		return new RecordedEvent<>(
+				envelope.id(),
+				event,
+				envelope.createdAt(),
+				EventTraceMetadata.of(envelope.traceId(), envelope.commandCommittedAtNanos()));
+	}
+
+	public BusinessEventEnvelope toEnvelope(RecordedEvent<? extends BusinessEvent> recordedEvent) {
+		Objects.requireNonNull(recordedEvent, "recordedEvent must not be null");
+		EventProjection projection = EventProjection.from(recordedEvent.event());
+		return new BusinessEventEnvelope(
+				recordedEvent.eventId(),
+				recordedEvent.event().eventType().value(),
+				projection.potId(),
+				projection.aggregateId(),
+				projection.version(),
+				writePayload(recordedEvent.event(), projection),
+				recordedEvent.traceMetadata().traceId().orElse(null),
+				recordedEvent.traceMetadata().commandCommittedAtNanos().orElse(null),
+				recordedEvent.recordedAt());
+	}
+
+	private BusinessEvent eventFrom(BusinessEventEnvelope envelope, JsonNode payload) {
+		return switch (envelope.eventType()) {
+			case "POT_CREATED" -> new PotCreatedEvent(envelope.potId(), envelope.version());
+			case "POT_DELETED" -> new PotDeletedEvent(envelope.potId(), envelope.version());
+			case "POT_DETAILS_UPDATED" -> new PotDetailsUpdatedEvent(envelope.potId(), envelope.version());
+			case "POT_SHAREHOLDERS_ADDED" -> new PotShareholdersAddedEvent(
+					envelope.potId(), shareholderIds(payload), envelope.version());
+			case "POT_SHAREHOLDERS_DETAILS_UPDATED" -> new PotShareholdersDetailsUpdatedEvent(
+					envelope.potId(), shareholderIds(payload), envelope.version());
+			case "POT_SHAREHOLDERS_WEIGHTS_UPDATED" -> new PotShareholdersWeightsUpdatedEvent(
+					envelope.potId(), shareholderIds(payload), envelope.version());
+			case "EXPENSE_CREATED" -> new ExpenseCreatedEvent(
+					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
+			case "EXPENSE_DELETED" -> new ExpenseDeletedEvent(
+					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
+			case "EXPENSE_DETAILS_UPDATED" -> new ExpenseDetailsUpdatedEvent(
+					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
+			case "EXPENSE_SHARES_UPDATED" -> new ExpenseSharesUpdatedEvent(
+					ExpenseId.of(envelope.aggregateId()), envelope.potId(), envelope.version());
+			default -> throw new IllegalArgumentException("Unsupported business event type: " + envelope.eventType());
+		};
+	}
+
+	private String writePayload(BusinessEvent event, EventProjection projection) {
+		ObjectNode payload = objectMapper.createObjectNode();
+		payload.put("eventType", event.eventType().value());
+		payload.put("potId", projection.potId().value().toString());
+		payload.put("aggregateId", projection.aggregateId().toString());
+		payload.put("version", projection.version());
+		Set<ShareholderId> shareholderIds = shareholderIds(event);
+		if (shareholderIds != null) {
+			ArrayNode array = payload.putArray("shareholderIds");
+			shareholderIds.stream().map(id -> id.value().toString()).sorted().forEach(array::add);
+		}
+		try {
+			return objectMapper.writeValueAsString(payload);
+		}
+		catch (JsonProcessingException exception) {
+			throw new IllegalArgumentException("Could not serialize business event", exception);
+		}
+	}
+
+	private JsonNode readPayload(String payloadJson) {
+		try {
+			return objectMapper.readTree(payloadJson);
+		}
+		catch (JsonProcessingException exception) {
+			throw new IllegalArgumentException("Invalid business event payload", exception);
+		}
+	}
+
+	private static void verifyCoherence(BusinessEventEnvelope envelope, JsonNode payload) {
+		verifyTextIfPresent(payload, "eventType", envelope.eventType());
+		verifyUuidIfPresent(payload, "potId", envelope.potId().value());
+		verifyUuidIfPresent(payload, "aggregateId", envelope.aggregateId());
+		if (payload.has("version")
+				&& (!payload.path("version").isIntegralNumber()
+						|| payload.path("version").longValue() != envelope.version())) {
+			throw incoherent("version", payload.path("version"), Long.toString(envelope.version()));
+		}
+	}
+
+	private static void verifyTextIfPresent(JsonNode payload, String field, String expected) {
+		if (payload.has(field) && (!payload.path(field).isTextual()
+				|| !expected.equals(payload.path(field).textValue()))) {
+			throw incoherent(field, payload.path(field), expected);
+		}
+	}
+
+	private static void verifyUuidIfPresent(JsonNode payload, String field, UUID expected) {
+		if (!payload.has(field)) return;
+		JsonNode value = payload.path(field);
+		try {
+			if (!value.isTextual() || !expected.equals(UUID.fromString(value.textValue()))) {
+				throw incoherent(field, value, expected.toString());
+			}
+		}
+		catch (IllegalArgumentException exception) {
+			throw incoherent(field, value, expected.toString());
+		}
+	}
+
+	private static IllegalArgumentException incoherent(String field, JsonNode actual, String expected) {
+		return new IllegalArgumentException("Incoherent business event payload field " + field
+				+ ": expected " + expected + ", got " + actual);
+	}
+
+	private static Set<ShareholderId> shareholderIds(JsonNode payload) {
+		JsonNode node = payload.path("shareholderIds");
+		if (!node.isArray()) {
+			return Set.of();
+		}
+		Set<ShareholderId> ids = new LinkedHashSet<>();
+		node.forEach(value -> ids.add(ShareholderId.of(UUID.fromString(value.asText()))));
+		return Set.copyOf(ids);
+	}
+
+	private static Set<ShareholderId> shareholderIds(BusinessEvent event) {
+		return switch (event) {
+			case PotShareholdersAddedEvent typed -> typed.shareholderIds();
+			case PotShareholdersDetailsUpdatedEvent typed -> typed.shareholderIds();
+			case PotShareholdersWeightsUpdatedEvent typed -> typed.shareholderIds();
+			default -> null;
+		};
+	}
+
+	private record EventProjection(PotId potId, UUID aggregateId, long version) {
+
+		private static EventProjection from(BusinessEvent event) {
+			return switch (event) {
+				case ExpenseCreatedEvent typed -> expense(typed.expenseId(), typed.potId(), typed.version());
+				case ExpenseDeletedEvent typed -> expense(typed.expenseId(), typed.potId(), typed.version());
+				case ExpenseDetailsUpdatedEvent typed -> expense(typed.expenseId(), typed.potId(), typed.version());
+				case ExpenseSharesUpdatedEvent typed -> expense(typed.expenseId(), typed.potId(), typed.version());
+				case PotCreatedEvent typed -> pot(typed.potId(), typed.version());
+				case PotDeletedEvent typed -> pot(typed.potId(), typed.version());
+				case PotDetailsUpdatedEvent typed -> pot(typed.potId(), typed.version());
+				case PotShareholdersAddedEvent typed -> pot(typed.potId(), typed.version());
+				case PotShareholdersDetailsUpdatedEvent typed -> pot(typed.potId(), typed.version());
+				case PotShareholdersWeightsUpdatedEvent typed -> pot(typed.potId(), typed.version());
+				default -> throw new IllegalArgumentException(
+						"Unsupported business event: " + event.getClass().getName());
+			};
+		}
+
+		private static EventProjection expense(ExpenseId expenseId, PotId potId, long version) {
+			return new EventProjection(potId, expenseId.value(), version);
+		}
+
+		private static EventProjection pot(PotId potId, long version) {
+			return new EventProjection(potId, potId.value(), version);
+		}
+	}
+}

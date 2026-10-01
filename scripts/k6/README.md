@@ -1,20 +1,16 @@
 # Pocoma k6 Load Tests
 
+> **Historical / superseded write-path suite.** The scenarios in this directory still target the
+> synchronous Pot/Expense mutation endpoints removed by Lot 6.8. They are retained as load-model
+> reference only and must not be used to validate the canonical write path. A future suite must
+> submit `POST /api/v1/commands` and observe the separate Command worker.
+
 Suite de tests de charge pour le serveur HTTP Pocoma. Les scripts créent leurs propres données de test avec des labels préfixés `K6`, exécutent des commandes valides, des conflits concurrents et des requêtes incohérentes, puis scrutent `/actuator/prometheus`.
 
-## Prérequis
+## Prérequis historiques
 
-- k6 installé localement.
-- Monolith Pocoma lancé, de préférence avec PostgreSQL :
-
-```bash
-cd app
-docker compose -f docker-compose.postgres.yml up -d
-./mvnw -pl runtime-monolith -am install -DskipTests
-./mvnw -pl runtime-monolith spring-boot:run -Dspring-boot.run.profiles=postgres
-```
-
-- Actuator Prometheus disponible sur `http://localhost:8080/actuator/prometheus`.
+Cette suite n'a plus de runtime supporté : le monolithe et les endpoints synchrones qu'elle ciblait
+ont été supprimés. Les commandes ci-dessous sont conservées uniquement comme référence de charge.
 
 ## Smoke
 
@@ -102,7 +98,9 @@ Les timers Prometheus sont échantillonnés par delta `sum/count` entre deux scr
 
 ## Projection Back Pressure
 
-Ce scénario cible spécifiquement la nouvelle chaîne `business_event_outbox` -> `projection_tasks` -> workers segmentés. Il génère un burst de commandes, tout en continuant à lire les balances et à scraper Prometheus.
+Ce scénario historique ciblait l'ancienne chaîne `business_event_outbox` -> `projection_tasks` ->
+workers segmentés. La commande ci-dessous est conservée comme référence de charge et ne valide pas
+les runtimes canoniques actuels.
 
 ```bash
 cd app
@@ -115,7 +113,7 @@ SCRAPE_INTERVAL_SECONDS=2 \
 k6 run ../scripts/k6/projection_backpressure.js
 ```
 
-La lecture attendue est simple : pendant le burst, `pocoma_observed_projection_outbox_pending` et/ou `pocoma_observed_projection_tasks_pending` peuvent monter. Après la fin de la charge, ces jauges doivent redescendre pendant que le gap de projection revient vers zéro.
+La lecture attendue historique était une montée du backlog pendant le burst, suivie de son drainage.
 
 ## Nettoyage
 

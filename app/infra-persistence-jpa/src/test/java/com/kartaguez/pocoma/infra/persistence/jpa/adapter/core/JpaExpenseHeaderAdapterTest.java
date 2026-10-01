@@ -16,16 +16,16 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.value.Amount;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;
 
@@ -52,6 +52,7 @@ class JpaExpenseHeaderAdapterTest {
 		assertEquals(potId, loaded.potId());
 		assertEquals(payerId, loaded.payerId());
 		assertEquals(Label.of("Dinner"), loaded.label());
+		assertEquals(java.time.LocalDate.parse("2026-01-01"), loaded.date());
 		assertFalse(loaded.deleted());
 		assertEquals(2, repository.findActiveAtVersion(expenseId.value(), 2).orElseThrow().startedAtVersion());
 		assertNull(repository.findActiveAtVersion(expenseId.value(), 2).orElseThrow().endedAtVersion());
@@ -90,14 +91,18 @@ class JpaExpenseHeaderAdapterTest {
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		adapter.saveNew(expenseHeader(expenseId, potId, payerId, "Initial", false), 2);
 
-		ExpenseHeader next = expenseHeader(expenseId, potId, payerId, "Renamed", false);
+		ExpenseHeader next = ExpenseHeader.reconstitute(expenseId, potId, payerId,
+				Amount.of(Fraction.of(42, 1)), Label.of("Renamed"),
+				java.time.LocalDate.parse("2026-02-02"), false);
 		adapter.save(next, new PotGlobalVersion(potId, 3), new PotGlobalVersion(potId, 4));
 
 		ExpenseHeader stillActiveAtCurrentVersion = adapter.loadActiveAtVersion(expenseId, 3);
 		ExpenseHeader newVersion = adapter.loadActiveAtVersion(expenseId, 4);
 		assertEquals(Label.of("Initial"), stillActiveAtCurrentVersion.label());
+		assertEquals(java.time.LocalDate.parse("2026-01-01"), stillActiveAtCurrentVersion.date());
 		assertEquals(4L, repository.findActiveAtVersion(expenseId.value(), 3).orElseThrow().endedAtVersion());
 		assertEquals(Label.of("Renamed"), newVersion.label());
+		assertEquals(java.time.LocalDate.parse("2026-02-02"), newVersion.date());
 		assertNull(repository.findActiveAtVersion(expenseId.value(), 4).orElseThrow().endedAtVersion());
 	}
 
@@ -144,6 +149,7 @@ class JpaExpenseHeaderAdapterTest {
 				payerId,
 				Amount.of(Fraction.of(42, 1)),
 				Label.of(label),
+				java.time.LocalDate.parse("2026-01-01"),
 				deleted);
 	}
 

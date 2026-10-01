@@ -1,0 +1,24 @@
+meta {
+  name: 06 Read Pot V2
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/pots/{{potId}}?version={{v2}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Pot V2 contains the updated label", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().potId).to.equal(bru.getVar("potId"));
+    expect(res.getBody().version).to.equal(2);
+    expect(res.getBody().label).to.equal(bru.getVar("updatedLabel"));
+  });
+}

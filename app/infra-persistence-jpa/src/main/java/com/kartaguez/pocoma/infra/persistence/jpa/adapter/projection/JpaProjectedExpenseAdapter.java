@@ -7,19 +7,18 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.ExpenseShares;
-import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.port.out.persistence.ProjectedExpensePort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseShareEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseShareRepository;
 
 @Component
-public class JpaProjectedExpenseAdapter implements ProjectedExpensePort {
+public class JpaProjectedExpenseAdapter {
 
 	private final JpaExpenseHeaderRepository expenseHeaderRepository;
 	private final JpaExpenseShareRepository expenseShareRepository;
@@ -35,29 +34,12 @@ public class JpaProjectedExpenseAdapter implements ProjectedExpensePort {
 				"expenseShareRepository must not be null");
 	}
 
-	@Override
 	@Transactional(readOnly = true)
 	public Collection<ProjectedExpense> loadActiveAtVersion(PotId potId, long version) {
 		Objects.requireNonNull(potId, "potId must not be null");
 
 		return expenseHeaderRepository.findByPotActiveNotDeletedAtVersion(potId.value(), version).stream()
 				.map(header -> loadProjectedExpense(header.expenseId(), version))
-				.toList();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public Collection<ProjectedExpense> loadActiveAtSourceOnly(
-			PotId potId,
-			long sourceVersion,
-			long comparedVersion) {
-		Objects.requireNonNull(potId, "potId must not be null");
-
-		return expenseHeaderRepository.findExpenseIdsActiveAtSourceOnly(
-				potId.value(),
-				sourceVersion,
-				comparedVersion).stream()
-				.map(expenseId -> loadProjectedExpense(expenseId, sourceVersion))
 				.toList();
 	}
 

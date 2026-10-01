@@ -1,9 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,16 +13,16 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.association.ExpenseShare;
-import com.kartaguez.pocoma.domain.projection.ProjectedExpense;
-import com.kartaguez.pocoma.domain.value.Amount;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseShareEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;
@@ -42,60 +40,6 @@ class JpaProjectedExpenseAdapterTest {
 
 	@Autowired
 	private JpaExpenseShareRepository expenseShareRepository;
-
-	@Test
-	void loadsExpensesCreatedBetweenComparedAndSourceVersions() {
-		Fixture fixture = new Fixture();
-		saveHeader(fixture.header("Dinner", false), 3, null);
-		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 3, null);
-
-		Collection<ProjectedExpense> sourceOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 3, 2);
-		Collection<ProjectedExpense> comparedOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 2, 3);
-
-		assertEquals(1, sourceOnly.size());
-		assertEquals(Label.of("Dinner"), sourceOnly.iterator().next().header().label());
-		assertTrue(comparedOnly.isEmpty());
-	}
-
-	@Test
-	void loadsPreviousAndTargetExpenseStatesWhenHeaderChanged() {
-		Fixture fixture = new Fixture();
-		saveHeader(fixture.header("Initial", false), 2, 4L);
-		saveHeader(fixture.header("Updated", false), 4, null);
-		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 2, null);
-
-		ProjectedExpense previousOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 3, 4).iterator().next();
-		ProjectedExpense targetOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 4, 3).iterator().next();
-
-		assertEquals(Label.of("Initial"), previousOnly.header().label());
-		assertEquals(Label.of("Updated"), targetOnly.header().label());
-	}
-
-	@Test
-	void loadsPreviousAndTargetExpenseStatesWhenSharesChanged() {
-		Fixture fixture = new Fixture();
-		saveHeader(fixture.header("Dinner", false), 2, null);
-		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 2, 4L);
-		saveShares(fixture.potId, Set.of(fixture.share(fixture.bobId, Fraction.ONE)), 4, null);
-
-		ProjectedExpense previousOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 3, 4).iterator().next();
-		ProjectedExpense targetOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 4, 3).iterator().next();
-
-		assertEquals(Set.of(fixture.aliceId), previousOnly.shares().shares().keySet());
-		assertEquals(Set.of(fixture.bobId), targetOnly.shares().shares().keySet());
-	}
-
-	@Test
-	void doesNotLoadDeletedExpenseAsTargetState() {
-		Fixture fixture = new Fixture();
-		saveHeader(fixture.header("Dinner", false), 2, 4L);
-		saveHeader(fixture.header("Dinner", true), 4, null);
-		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 2, null);
-
-		Collection<ProjectedExpense> targetOnly = adapter.loadActiveAtSourceOnly(fixture.potId, 4, 3);
-
-		assertTrue(targetOnly.isEmpty());
-	}
 
 	@Test
 	void loadsActiveExpensesAtVersion() {
@@ -135,6 +79,7 @@ class JpaProjectedExpenseAdapterTest {
 					payerId,
 					Amount.of(Fraction.of(42, 1)),
 					Label.of(label),
+					java.time.LocalDate.parse("2026-01-01"),
 					deleted);
 		}
 

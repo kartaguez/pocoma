@@ -15,7 +15,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-shared-runtime-spring-config</artifactId>
+			<artifactId>pocoma-orchestrator-command-admission</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-authentication-spring-security</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -30,7 +35,47 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-http-rest-spring</artifactId>
+			<artifactId>pocoma-engine-command-result</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-projection-read</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-infra-projection-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-infra-read-persistence</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-infra-projection-json-schema</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-http-write-command</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-http-read-query</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-engine-pot-read</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-observability</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -64,26 +109,49 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-binding-pot-command-spring</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-locator-consumption-command</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-supra-consumption-worker</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<directory>../runtime-monolith/src/main/resources</directory>
-				<includes>
-					<include>db/migration/**</include>
-				</includes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<skip>false</skip>
+					<classifier>exec</classifier>
 				</configuration>
 			</plugin>
 		</plugins>

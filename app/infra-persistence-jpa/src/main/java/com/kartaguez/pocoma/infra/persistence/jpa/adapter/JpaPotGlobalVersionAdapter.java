@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.JpaPotGlobalVersionEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.JpaPotGlobalVersionRepository;
@@ -23,7 +23,9 @@ public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
 	@Override
 	@Transactional
 	public void save(PotGlobalVersion potGlobalVersion) {
-		repository.save(JpaPotGlobalVersionEntity.from(potGlobalVersion));
+		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
+		repository.saveAndFlush(JpaPotGlobalVersionEntity.from(potGlobalVersion));
+		insertMetadata(potGlobalVersion);
 	}
 
 	@Override
@@ -43,6 +45,15 @@ public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
 
 		if (updatedRows != 1) {
 			throw new VersionConflictException("Pot global version has been modified by another operation");
+		}
+
+		insertMetadata(nextVersion);
+	}
+
+	private void insertMetadata(PotGlobalVersion version) {
+		int insertedRows = repository.insertVersionMetadata(version.potId().value(), version.version());
+		if (insertedRows != 1) {
+			throw new IllegalStateException("Pot version metadata was not created");
 		}
 	}
 }

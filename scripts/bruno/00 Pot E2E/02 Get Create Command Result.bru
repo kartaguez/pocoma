@@ -1,0 +1,33 @@
+meta {
+  name: 02 Get Create Command Result
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/command-results/{{createCommandId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Result is either still hidden or APPLIED", function () {
+    expect([404, 200]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getBody().status).to.equal("APPLIED");
+      expect(res.getBody().potId).to.match(/^[0-9a-f-]{36}$/i);
+      expect(res.getBody().resultingVersion).to.equal(1);
+    }
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().status === "APPLIED") {
+    bru.setVar("potId", res.getBody().potId);
+    bru.setVar("v1", String(res.getBody().resultingVersion));
+  }
+}

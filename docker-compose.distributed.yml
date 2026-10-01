@@ -9,7 +9,6 @@ x-pocoma-java-environment: &pocoma-java-environment
   POCOMA_POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-pocoma}
   POCOMA_POSTGRES_USER: ${POSTGRES_USER:-pocoma}
   POCOMA_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pocoma}
-  POCOMA_NATS_SERVERS: ${NATS_URL:-nats://nats:4222}
 
 services:
   postgres:
@@ -33,17 +32,6 @@ services:
       retries: 10
       start_period: 5s
 
-  nats:
-    image: nats:2
-    command: ["-js", "-m", "8222"]
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-    networks:
-      pocoma-distributed:
-        aliases:
-          - nats
-
   pocoma-api:
     build:
       <<: *pocoma-java-build
@@ -59,88 +47,129 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
-  pocoma-business-events-dispatcher-0:
+  pocoma-event-consumption-worker-0:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+        RUNTIME_MODULE: runtime-event-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-event-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
+      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-0
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 0
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
-  pocoma-business-events-dispatcher-1:
+  pocoma-event-consumption-worker-1:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-business-events-outbox-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-business-events-outbox-dispatcher
+        RUNTIME_MODULE: runtime-event-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-event-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
+      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-1
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 1
+      POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
-  pocoma-balance-tasks-dispatcher-0:
+  pocoma-task-consumption-worker-0:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_MODULE: runtime-task-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 0
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: "true"
+      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: canonical-projection-task-worker-0
+      POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: 0
+      POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
 
-  pocoma-balance-tasks-dispatcher-1:
+  pocoma-task-consumption-worker-1:
     build:
       <<: *pocoma-java-build
       args:
-        RUNTIME_MODULE: runtime-balance-calculation-tasks-dispatcher
-        RUNTIME_ARTIFACT: pocoma-runtime-balance-calculation-tasks-dispatcher
+        RUNTIME_MODULE: runtime-task-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-task-consumption-worker
     expose:
       - "8080"
     environment:
       <<: *pocoma-java-environment
-      POCOMA_PROJECTION_WORKER_SEGMENT_INDEX: 1
-      POCOMA_PROJECTION_WORKER_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
+      POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: "true"
+      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: canonical-projection-task-worker-1
+      POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: 1
+      POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
     networks:
       - pocoma-distributed
     depends_on:
       postgres:
         condition: service_healthy
-      nats:
-        condition: service_started
+
+  pocoma-command-consumption-worker:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-command-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-command-consumption-worker
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_COMMAND_CONSUMPTION_ENABLED: "true"
+    networks:
+      - pocoma-distributed
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pocoma-latest-known-version-consumption-worker:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-latest-known-version-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-latest-known-version-consumption-worker
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_ENABLED: "true"
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_POLL_INTERVAL: ${POCOMA_LATEST_KNOWN_VERSION_POLL_INTERVAL:-250ms}
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_MAX_CANDIDATES_INSPECTED: ${POCOMA_LATEST_KNOWN_VERSION_MAX_CANDIDATES:-200}
+      POCOMA_LATEST_KNOWN_VERSION_CONSUMPTION_MAX_CONSUMPTIONS_EXECUTED: ${POCOMA_LATEST_KNOWN_VERSION_MAX_CONSUMPTIONS:-50}
+    networks:
+      - pocoma-distributed
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:latest
@@ -154,13 +183,17 @@ services:
     depends_on:
       pocoma-api:
         condition: service_started
-      pocoma-business-events-dispatcher-0:
+      pocoma-event-consumption-worker-0:
         condition: service_started
-      pocoma-business-events-dispatcher-1:
+      pocoma-event-consumption-worker-1:
         condition: service_started
-      pocoma-balance-tasks-dispatcher-0:
+      pocoma-task-consumption-worker-0:
         condition: service_started
-      pocoma-balance-tasks-dispatcher-1:
+      pocoma-task-consumption-worker-1:
+        condition: service_started
+      pocoma-command-consumption-worker:
+        condition: service_started
+      pocoma-latest-known-version-consumption-worker:
         condition: service_started
 
   grafana:

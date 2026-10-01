@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -14,19 +15,19 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.Name;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.context.DeletePotContext;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.JpaPotGlobalVersionEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaPotHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;
@@ -54,7 +55,8 @@ class JpaPotContextAdapterTest {
 	void loadsCreateExpenseContextFromCurrentPotVersion() {
 		PotId potId = PotId.of(UUID.randomUUID());
 		UserId creatorId = UserId.of(UUID.randomUUID());
-		Shareholder activeShareholder = shareholder(potId);
+		UserId memberId = UserId.of(UUID.randomUUID());
+		Shareholder activeShareholder = shareholder(potId, false, memberId);
 		Shareholder inactiveShareholder = shareholder(potId);
 		Shareholder deletedShareholder = shareholder(potId, true);
 		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 3)));
@@ -76,6 +78,7 @@ class JpaPotContextAdapterTest {
 		assertEquals(false, context.deleted());
 		assertEquals(creatorId, context.creatorId());
 		assertEquals(Set.of(activeShareholder.id()), context.shareholderIds());
+		assertEquals(Map.of(activeShareholder.id(), memberId), context.shareholderUsers());
 	}
 
 	@Test
@@ -107,12 +110,16 @@ class JpaPotContextAdapterTest {
 	}
 
 	private static Shareholder shareholder(PotId potId, boolean deleted) {
+		return shareholder(potId, deleted, null);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted, UserId userId) {
 		return Shareholder.reconstitute(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,
 				Name.of("Alice"),
 				Weight.of(Fraction.of(1, 1)),
-				null,
+				userId,
 				deleted);
 	}
 

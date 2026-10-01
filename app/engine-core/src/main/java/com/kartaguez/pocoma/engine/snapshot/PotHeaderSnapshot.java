@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.engine.snapshot;
 
 import java.util.Objects;
 
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record PotHeaderSnapshot(PotId id, Label label, UserId creatorId, boolean deleted, long version) {
 

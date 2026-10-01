@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.aggregate.PotShareholders;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaShareholderRepository;
@@ -27,7 +27,6 @@ public class JpaPotShareholdersAdapter implements PotShareholdersPort {
 		this.repository = Objects.requireNonNull(repository, "repository must not be null");
 	}
 
-	@Override
 	@Transactional(readOnly = true)
 	public PotShareholders loadActiveAtVersion(PotId potId, long version) {
 		Objects.requireNonNull(potId, "potId must not be null");

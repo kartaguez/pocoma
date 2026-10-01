@@ -1,0 +1,40 @@
+name: Pocoma CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: build-and-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            app/pom.xml
+            app/*/pom.xml
+            app/.mvn/wrapper/maven-wrapper.properties
+      - name: Verify Maven Wrapper
+        run: test -x mvnw && test -f .mvn/wrapper/maven-wrapper.properties
+      - name: Compile and test
+        run: ./mvnw --batch-mode --no-transfer-progress test
+      - name: Check whitespace errors
+        working-directory: .
+        run: git diff --check HEAD^ HEAD

@@ -1,0 +1,40 @@
+meta {
+  name: 04 Update Pot Details
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "commandType": "POT_DETAILS_UPDATE_V1",
+    "payload": {
+      "potId": "{{potId}}",
+      "label": "{{updatedLabel}}",
+      "expectedVersion": {{v1}}
+    }
+  }
+}
+
+tests {
+  test("UpdatePotDetails is durably accepted", function () {
+    expect(res.getStatus()).to.equal(202);
+    expect(res.getBody().commandId).to.match(/^[0-9a-f-]{36}$/i);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 202) {
+    bru.setVar("updateCommandId", res.getBody().commandId);
+  }
+}

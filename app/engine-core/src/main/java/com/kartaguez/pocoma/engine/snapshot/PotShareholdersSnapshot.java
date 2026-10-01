@@ -3,8 +3,8 @@ package com.kartaguez.pocoma.engine.snapshot;
 import java.util.Objects;
 import java.util.Set;
 
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 public record PotShareholdersSnapshot(PotId potId, Set<Shareholder> shareholders, long version) {
 

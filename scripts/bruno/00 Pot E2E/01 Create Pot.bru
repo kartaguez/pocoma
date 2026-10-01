@@ -1,0 +1,39 @@
+meta {
+  name: 01 Create Pot
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "commandType": "POT_CREATE_V1",
+    "payload": {
+      "label": "{{initialLabel}}",
+      "creatorId": "{{pocomaUserId}}"
+    }
+  }
+}
+
+tests {
+  test("CreatePot is durably accepted", function () {
+    expect(res.getStatus()).to.equal(202);
+    expect(res.getBody().commandId).to.match(/^[0-9a-f-]{36}$/i);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 202) {
+    bru.setVar("createCommandId", res.getBody().commandId);
+  }
+}

@@ -3,8 +3,8 @@ package com.kartaguez.pocoma.infra.persistence.jpa.entity;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

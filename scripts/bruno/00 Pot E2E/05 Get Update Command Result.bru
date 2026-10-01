@@ -1,0 +1,32 @@
+meta {
+  name: 05 Get Update Command Result
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/command-results/{{updateCommandId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Result is either still hidden or APPLIED", function () {
+    expect([404, 200]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getBody().status).to.equal("APPLIED");
+      expect(res.getBody().potId).to.equal(bru.getVar("potId"));
+      expect(res.getBody().resultingVersion).to.equal(2);
+    }
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().status === "APPLIED") {
+    bru.setVar("v2", String(res.getBody().resultingVersion));
+  }
+}

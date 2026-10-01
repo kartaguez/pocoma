@@ -1,0 +1,24 @@
+meta {
+  name: 03 Read Pot V1
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/pots/{{potId}}?version={{v1}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Pot V1 is available with the initial label", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().potId).to.equal(bru.getVar("potId"));
+    expect(res.getBody().version).to.equal(1);
+    expect(res.getBody().label).to.equal(bru.getVar("initialLabel"));
+  });
+}

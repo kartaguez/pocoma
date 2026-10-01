@@ -3,10 +3,10 @@ package com.kartaguez.pocoma.infra.persistence.jpa.entity.core;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

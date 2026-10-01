@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -14,22 +15,22 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.kartaguez.pocoma.domain.aggregate.ExpenseHeader;
-import com.kartaguez.pocoma.domain.aggregate.PotHeader;
-import com.kartaguez.pocoma.domain.entity.Shareholder;
-import com.kartaguez.pocoma.domain.value.Amount;
-import com.kartaguez.pocoma.domain.value.Fraction;
-import com.kartaguez.pocoma.domain.value.Label;
-import com.kartaguez.pocoma.domain.value.Name;
-import com.kartaguez.pocoma.domain.value.UserId;
-import com.kartaguez.pocoma.domain.value.Weight;
-import com.kartaguez.pocoma.domain.value.id.ExpenseId;
-import com.kartaguez.pocoma.domain.value.id.PotId;
-import com.kartaguez.pocoma.domain.value.id.ShareholderId;
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.context.UpdateExpenseSharesContext;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.model.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaExpenseHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.JpaPotGlobalVersionEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaPotHeaderEntity;
@@ -63,8 +64,9 @@ class JpaExpenseContextAdapterTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
 		UserId creatorId = UserId.of(UUID.randomUUID());
+		UserId memberId = UserId.of(UUID.randomUUID());
 		Shareholder payer = shareholder(potId);
-		Shareholder activeShareholder = shareholder(potId);
+		Shareholder activeShareholder = shareholder(potId, false, memberId);
 		Shareholder inactiveShareholder = shareholder(potId);
 		Shareholder deletedShareholder = shareholder(potId, true);
 		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 4)));
@@ -79,6 +81,7 @@ class JpaExpenseContextAdapterTest {
 						payer.id(),
 						Amount.of(Fraction.of(42, 1)),
 						Label.of("Lunch"),
+						java.time.LocalDate.parse("2026-01-01"),
 						false),
 				2,
 				null));
@@ -93,6 +96,7 @@ class JpaExpenseContextAdapterTest {
 		assertEquals(false, context.deleted());
 		assertEquals(creatorId, context.creatorId());
 		assertEquals(Set.of(payer.id(), activeShareholder.id()), context.shareholderIds());
+		assertEquals(Map.of(activeShareholder.id(), memberId), context.shareholderUsers());
 	}
 
 	@Test
@@ -113,6 +117,7 @@ class JpaExpenseContextAdapterTest {
 						payer.id(),
 						Amount.of(Fraction.of(42, 1)),
 						Label.of("Deleted expense"),
+						java.time.LocalDate.parse("2026-01-01"),
 						true),
 				5,
 				null));
@@ -136,12 +141,16 @@ class JpaExpenseContextAdapterTest {
 	}
 
 	private static Shareholder shareholder(PotId potId, boolean deleted) {
+		return shareholder(potId, deleted, null);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted, UserId userId) {
 		return Shareholder.reconstitute(
 				ShareholderId.of(UUID.randomUUID()),
 				potId,
 				Name.of("Alice"),
 				Weight.of(Fraction.of(1, 1)),
-				null,
+				userId,
 				deleted);
 	}
 
