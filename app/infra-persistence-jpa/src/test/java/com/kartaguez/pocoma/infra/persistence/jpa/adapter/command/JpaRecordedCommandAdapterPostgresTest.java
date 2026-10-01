@@ -88,14 +88,14 @@ class JpaRecordedCommandAdapterPostgresTest {
 		jdbc.update("delete from consumption_slots");
 		jdbc.update("delete from recorded_commands");
 		jdbc.update("delete from external_identities");
+		jdbc.update("delete from users");
 		executor = Executors.newFixedThreadPool(2);
 	}
 
 	@Test
 	void resolvesProvisionedExternalIdentitiesExactlyInsideTheCallingTransaction() {
 		UUID userId = uuid(200);
-		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				"https://issuer.example", "subject-1", userId);
+		insertBinding("https://issuer.example", "subject-1", userId);
 
 		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
 				new ExternalIdentity("https://issuer.example", "subject-1")).orElseThrow()));
@@ -108,18 +108,27 @@ class JpaRecordedCommandAdapterPostgresTest {
 	@Test
 	void permitsSeveralExternalIdentitiesForOneUserButKeepsEachExternalKeyUnique() {
 		UUID userId = uuid(201);
-		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				"https://issuer-a.example", "subject-a", userId);
-		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				"https://issuer-b.example", "subject-b", userId);
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		insertBindingRow("https://issuer-a.example", "subject-a", userId);
+		insertBindingRow("https://issuer-b.example", "subject-b", userId);
 
 		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
 				new ExternalIdentity("https://issuer-a.example", "subject-a")).orElseThrow()));
 		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
 				new ExternalIdentity("https://issuer-b.example", "subject-b")).orElseThrow()));
 		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
-				"insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				"https://issuer-a.example", "subject-a", uuid(202)));
+				"insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				"https://issuer-a.example", "subject-a", userId, UUID.randomUUID()));
+	}
+
+	private void insertBinding(String issuer, String subject, UUID userId) {
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		insertBindingRow(issuer, subject, userId);
+	}
+
+	private void insertBindingRow(String issuer, String subject, UUID userId) {
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				issuer, subject, userId, UUID.randomUUID());
 	}
 
 	@AfterEach

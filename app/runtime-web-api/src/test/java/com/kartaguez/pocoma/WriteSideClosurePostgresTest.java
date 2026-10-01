@@ -116,7 +116,7 @@ class WriteSideClosurePostgresTest {
 	void cleanAndAssembleRuntimeRoles() {
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
-		jdbc.execute("truncate table external_identities, recorded_commands, consumption_inputs, "
+		jdbc.execute("truncate table external_identities, users, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 		worker = pollingWorker();
@@ -134,8 +134,9 @@ class WriteSideClosurePostgresTest {
 	void committedHttpAdmissionIsConsumedThroughTheRealPollingLoop() throws Exception {
 		UUID userId = UUID.randomUUID();
 		String label = "write-side-closure-" + UUID.randomUUID();
-		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				ISSUER, SUBJECT, userId);
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				ISSUER, SUBJECT, userId, UUID.randomUUID());
 		String payload = mapper.writeValueAsString(java.util.Map.of("label", label, "creatorId", userId));
 		String body = mapper.writeValueAsString(java.util.Map.of(
 				"commandType", PotCommandTypes.POT_CREATE_V1.value(),

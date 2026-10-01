@@ -476,6 +476,16 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void httpLayersDoNotAccessTheUserIdentityPersistenceAuthorityDirectly() {
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
+						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void authenticatedPrincipalBelongsToTheNeutralAuthenticationBoundary() {
 		Set<String> definitions = CLASSES.stream()
 				.filter(javaClass -> javaClass.getSimpleName().equals("AuthenticatedExternalPrincipal"))

@@ -122,8 +122,7 @@ class CommandCompletionE2EPostgresTest {
 
 		try (ConfigurableApplicationContext commandContext = commandContext()) {
 			cleanDatabase(jdbc);
-			jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-					ISSUER, SUBJECT, userId);
+			insertBinding(jdbc, userId);
 			applied = admit(commandContext, UUID.randomUUID(), BASE_TIME,
 					payload(appliedLabel, userId), Set.of("pocoma:pot:create"));
 			rejected = admit(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(1),
@@ -211,8 +210,7 @@ class CommandCompletionE2EPostgresTest {
 
 		try (ConfigurableApplicationContext webContext = webContext()) {
 			cleanDatabase(jdbc);
-			jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-					ISSUER, SUBJECT, userId);
+			insertBinding(jdbc, userId);
 			int port = ((WebServerApplicationContext) webContext).getWebServer().getPort();
 			HttpClient http = HttpClient.newBuilder().connectTimeout(HTTP_TIMEOUT).build();
 			String baseUrl = "http://127.0.0.1:" + port;
@@ -437,7 +435,7 @@ class CommandCompletionE2EPostgresTest {
 
 	private static void cleanDatabase(JdbcTemplate jdbc) {
 		jdbc.execute("""
-				truncate table external_identities, recorded_commands, command_outcomes,
+				truncate table external_identities, users, recorded_commands, command_outcomes,
 				command_terminal_events, business_event_outbox, projection_tasks,
 				consumption_inputs, consumption_results, consumption_slots, consumption_claims,
 				expense_shares, expense_headers, shareholders, pot_headers,
@@ -447,6 +445,12 @@ class CommandCompletionE2EPostgresTest {
 			jdbc.execute("truncate table pocoma_read.projection_failure, pocoma_read.projection_artifact, "
 					+ "pocoma_read.projection_root cascade");
 		}
+	}
+
+	private static void insertBinding(JdbcTemplate jdbc, UUID userId) {
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				ISSUER, SUBJECT, userId, UUID.randomUUID());
 	}
 
 	private static void await(Supplier<Boolean> condition) throws InterruptedException {

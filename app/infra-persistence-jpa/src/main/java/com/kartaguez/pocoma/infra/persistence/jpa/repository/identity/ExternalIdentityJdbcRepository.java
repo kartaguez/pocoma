@@ -9,9 +9,24 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ExternalIdentityJdbcRepository {
 	private static final String SELECT_USER_ID = """
-			select pocoma_user_id
+			select user_id
 			from external_identities
 			where issuer = ? and subject = ?
+			""";
+	private static final String SELECT_EXACT_USER_ID = """
+			select user_id
+			from external_identities
+			where issuer = ? and subject = ? and binding_id = ?
+			""";
+	private static final String LOCK_EXACT_USER_ID = SELECT_EXACT_USER_ID + " for update";
+	private static final String ACQUIRE = """
+			insert into external_identities (issuer, subject, user_id, binding_id)
+			values (?, ?, ?, ?)
+			on conflict (issuer, subject) do nothing
+			""";
+	private static final String DETACH = """
+			delete from external_identities
+			where issuer = ? and subject = ? and binding_id = ?
 			""";
 
 	private final JdbcTemplate jdbc;
@@ -22,7 +37,28 @@ public class ExternalIdentityJdbcRepository {
 
 	public Optional<UUID> findUserId(String issuer, String subject) {
 		return jdbc.query(SELECT_USER_ID,
-				(result, rowNumber) -> result.getObject("pocoma_user_id", UUID.class), issuer, subject)
+				(result, rowNumber) -> result.getObject("user_id", UUID.class), issuer, subject)
 				.stream().findFirst();
+	}
+
+	public Optional<UUID> findUserId(String issuer, String subject, UUID bindingId) {
+		return queryUserId(SELECT_EXACT_USER_ID, issuer, subject, bindingId);
+	}
+
+	public Optional<UUID> lockCurrentBinding(String issuer, String subject, UUID bindingId) {
+		return queryUserId(LOCK_EXACT_USER_ID, issuer, subject, bindingId);
+	}
+
+	public boolean acquire(String issuer, String subject, UUID userId, UUID bindingId) {
+		return jdbc.update(ACQUIRE, issuer, subject, userId, bindingId) == 1;
+	}
+
+	public boolean detach(String issuer, String subject, UUID bindingId) {
+		return jdbc.update(DETACH, issuer, subject, bindingId) == 1;
+	}
+
+	private Optional<UUID> queryUserId(String sql, String issuer, String subject, UUID bindingId) {
+		return jdbc.query(sql, (result, rowNumber) -> result.getObject("user_id", UUID.class),
+				issuer, subject, bindingId).stream().findFirst();
 	}
 }

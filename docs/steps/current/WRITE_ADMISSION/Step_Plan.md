@@ -109,6 +109,29 @@ backfill reproductible sur les fixtures historiques.
 **DONE.** L’autorité primaire peut servir simultanément les anciens consumers et les contrats
 cibles, sans faire de B une version ordinale ni créer de registre d’identités libres.
 
+**Résultat WA.2 — DONE (2026-10-01).**
+
+- commit : `feat: establish user identity persistence` ; baseline WA.1 :
+  `fd08cd281d8c938460e42cb91c037aa40d70587d` ;
+- migration : `V18__user_identity_binding_authority.sql` crée `users(user_id UUID PK)`, backfille
+  chaque UUID distinct de V9, enrichit `external_identities` avec `user_id` et `binding_id UUID NOT
+  NULL`, conserve la PK `(issuer, subject)`, rend B globalement unique et pose la FK
+  `Binding -> User ON DELETE RESTRICT` ;
+- primitives : `UserAuthorityPort.create/findById`, resolver legacy `findUserId(E)`,
+  `ExternalIdentityBindingPort.findUserId(E,B)`, `lockCurrentBinding(E,B)`, `acquire(E,U,B)` et
+  `detach(E,B)` ; tous les adapters exigent et rejoignent la transaction appelante ;
+- arbitrage : `acquire` utilise l’insert PostgreSQL `ON CONFLICT (issuer,subject) DO NOTHING` et ne
+  retourne que `ACQUIRED` ou `CONFLICT` ; `detach` conditionne le DELETE sur E+B ;
+- preuves PostgreSQL : migration vide et V17 prépeuplée, UUID historiques et resolver legacy
+  conservés, contraintes finales/FK, B faux, B unique, User inconnu, concurrence acquire avec un
+  seul gagnant, detach stale après reattach et blocage réel d’un detach concurrent jusqu’au commit
+  de la transaction tenant `lockCurrentBinding` ;
+- preuves de non-régression : admission/consommation Command et E2E existants verts, guard HTTP sans
+  accès direct aux adapters/repositories User/Identity, tests d’architecture et reactor Maven
+  complet verts ;
+- périmètre : aucun changement Command/RecordedCommand, aucun fait ou projection User/Identity,
+  aucun endpoint, aucune Registration et aucune implémentation WA.3+.
+
 ### WA.3 — Expand de l’envelope Command et compatibilité historique
 
 **Prérequis.** WA.2.

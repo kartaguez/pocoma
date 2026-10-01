@@ -16,9 +16,18 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 
 @Testcontainers
 class PrimaryMigrationsPostgresTest {
@@ -37,7 +46,7 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV17() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV18() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -47,7 +56,7 @@ class PrimaryMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(17, result.migrationsExecuted);
+		assertEquals(18, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -63,6 +72,7 @@ class PrimaryMigrationsPostgresTest {
 				tableNames.add(resultSet.getString(1));
 			}
 			assertTrue(tableNames.containsAll(Set.of(
+					"users",
 					"consumption_slots",
 					"consumption_claims",
 					"projection_tasks",
@@ -97,10 +107,10 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void existingV1ThroughV17DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
+	void existingV1ThroughV18DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
 		Flyway initialOwner = flyway(true);
 		initialOwner.clean();
-		assertEquals(17, initialOwner.migrate().migrationsExecuted);
+		assertEquals(18, initialOwner.migrate().migrationsExecuted);
 		Map<String, Integer> historyBefore = migrationHistory();
 
 		Flyway relocatedOwner = flyway(false);
@@ -114,6 +124,58 @@ class PrimaryMigrationsPostgresTest {
 			assertEquals(1, statement.executeUpdate("delete from pot_global_versions "
 					+ "where pot_id='10000000-0000-0000-0000-000000000099'"));
 		}
+	}
+
+	@Test
+	void migrationV18BackfillsHistoricalUsersAndExactBindingOccurrences() throws Exception {
+		Flyway throughV17 = Flyway.configure()
+				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+				.locations("classpath:db/migration")
+				.target("17")
+				.cleanDisabled(false)
+				.load();
+		throughV17.clean();
+		assertEquals(17, throughV17.migrate().migrationsExecuted);
+
+		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					insert into external_identities (issuer, subject, pocoma_user_id) values
+					('issuer-a', 'subject-a', '10000000-0000-0000-0000-000000000001'),
+					('issuer-b', 'subject-b', '10000000-0000-0000-0000-000000000001'),
+					('issuer-c', 'subject-c', '10000000-0000-0000-0000-000000000002')
+					""");
+		}
+
+		Flyway latest = flyway(false);
+		assertEquals(1, latest.migrate().migrationsExecuted);
+
+		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
+			assertEquals(2, scalar(statement, "select count(*) from users"));
+			assertEquals(3, scalar(statement, "select count(*) from external_identities"));
+			assertEquals(3, scalar(statement, "select count(distinct binding_id) from external_identities"));
+			assertEquals(0, scalar(statement, "select count(*) from external_identities where binding_id is null"));
+			assertEquals(0, scalar(statement, """
+					select count(*) from external_identities e
+					left join users u on u.user_id = e.user_id
+					where u.user_id is null
+					"""));
+			try (ResultSet result = statement.executeQuery("""
+					select user_id from external_identities
+					where issuer = 'issuer-a' and subject = 'subject-a'
+					""")) {
+				assertTrue(result.next());
+				assertEquals("10000000-0000-0000-0000-000000000001", result.getString(1));
+			}
+		}
+
+		DriverManagerDataSource dataSource = new DriverManagerDataSource(
+				POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+		var legacyResolver = new JpaExternalIdentityResolverAdapter(
+				new ExternalIdentityJdbcRepository(new JdbcTemplate(dataSource)));
+		var resolved = new TransactionTemplate(new DataSourceTransactionManager(dataSource)).execute(status ->
+				legacyResolver.findUserId(new ExternalIdentity("issuer-a", "subject-a")));
+		assertEquals(new PocomaUserId(java.util.UUID.fromString("10000000-0000-0000-0000-000000000001")),
+				resolved.orElseThrow());
 	}
 
 	@Test
@@ -224,7 +286,14 @@ class PrimaryMigrationsPostgresTest {
 				history.put(resultSet.getString("version"), resultSet.getInt("checksum"));
 			}
 		}
-		assertEquals(17, history.size());
+		assertEquals(18, history.size());
 		return history;
+	}
+
+	private static int scalar(Statement statement, String sql) throws Exception {
+		try (ResultSet result = statement.executeQuery(sql)) {
+			assertTrue(result.next());
+			return result.getInt(1);
+		}
 	}
 }

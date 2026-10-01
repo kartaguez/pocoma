@@ -66,7 +66,7 @@ class CommandAdmissionPostgresTest {
 	void cleanDatabase() {
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
-		jdbc.execute("truncate table external_identities, recorded_commands, consumption_inputs, "
+		jdbc.execute("truncate table external_identities, users, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
 				+ "command_outcomes, command_terminal_events, projection_tasks, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
@@ -75,8 +75,9 @@ class CommandAdmissionPostgresTest {
 	@Test
 	void authenticatedProvisionedIdentityDurablyAcceptsWithoutAnySynchronousEffects() throws Exception {
 		UUID userId = UUID.randomUUID();
-		jdbc.update("insert into external_identities (issuer,subject,pocoma_user_id) values (?,?,?)",
-				ISSUER, SUBJECT, userId);
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				ISSUER, SUBJECT, userId, UUID.randomUUID());
 		Instant issuedAt = Instant.now().minusSeconds(30).truncatedTo(ChronoUnit.SECONDS);
 		Instant expiresAt = Instant.now().plusSeconds(300).truncatedTo(ChronoUnit.SECONDS);
 		Instant beforeSubmission = Instant.now().minusSeconds(1);
