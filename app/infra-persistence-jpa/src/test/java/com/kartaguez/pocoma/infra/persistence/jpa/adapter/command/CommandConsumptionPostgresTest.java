@@ -147,6 +147,8 @@ class CommandConsumptionPostgresTest {
 		jdbc.update("delete from command_outcomes");
 		jdbc.update("delete from recorded_commands");
 		jdbc.update("delete from external_identities");
+		jdbc.update("delete from external_identity_binding_facts");
+		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 		clock = Clock.fixed(NOW, ZoneOffset.UTC);
 		transactions = new SpringTransactionRunner(new TransactionTemplate(transactionManager));

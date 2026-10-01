@@ -4,4 +4,6 @@ package com.kartaguez.pocoma.domain.useridentity;
 public interface ExternalIdentityBindingFactPort {
 
 	void append(ExternalIdentityBindingFact fact);
+
+	java.util.Optional<ExternalIdentityBindingFact> findByEventId(java.util.UUID eventId);
 }

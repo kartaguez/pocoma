@@ -506,12 +506,11 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void bindingLifecyclePersistenceRemainsSeparateFromTheCurrentBindingAuthorityAndCommandRuntime() {
+	void bindingLifecycleWriterIsAtomicWhileReadProjectionRemainsOutsideWriteAuthorityAndCommandRuntime() {
 		Set<String> authorityDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter");
-		assertFalse(authorityDependencies.stream().anyMatch(name ->
-				name.contains("BindingFact") || name.contains("BindingStream")),
-				"the existing binding authority writer must not emit facts or mutate streams in WA.6.1");
+		assertTrue(authorityDependencies.stream().anyMatch(name -> name.contains("BindingFact")));
+		assertTrue(authorityDependencies.stream().anyMatch(name -> name.contains("BindingStream")));
 
 		Set<String> lifecycleToAuthorityDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(
@@ -539,6 +538,19 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), commandRuntimeLifecycleDependencies,
 				"Command processing must not consult binding lifecycle persistence");
+
+		noClasses().that().resideInAnyPackage(
+				ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".runtime.command..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.binding..")
+				.check(CLASSES);
+		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".locator.consumption.binding..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
+						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..")
+				.check(CLASSES);
+		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.binding..")
+				.check(CLASSES);
 	}
 
 	@Test

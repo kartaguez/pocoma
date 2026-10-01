@@ -46,7 +46,8 @@ class Pcl8DatabaseDemolitionPostgresTest {
 			"external_identity_binding_facts", "flyway_schema_history");
 	private static final Set<String> READ_KEEP_TABLES = Set.of(
 			"projection_root", "projection_artifact", "projection_failure",
-			"source_version_watermarks", "flyway_schema_history");
+			"source_version_watermarks", "current_external_identity_binding",
+			"flyway_schema_history");
 
 	@Container
 	private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
@@ -69,16 +70,16 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
 		MigrateResult readUpgrade = migrateRead(upgradeUrl, null);
 		assertEquals(5, primaryUpgrade.migrationsExecuted);
-		assertEquals(1, readUpgrade.migrationsExecuted);
+		assertEquals(2, readUpgrade.migrationsExecuted);
 		assertHistoricalHistoryUnchanged(primaryHistory, migrationHistory(upgradeUrl, "public", 15));
 		assertHistoricalHistoryUnchanged(readHistory, migrationHistory(upgradeUrl, "pocoma_read", 7));
 		assertEquals(20, successfulMigrationCount(upgradeUrl, "public"));
-		assertEquals(8, successfulMigrationCount(upgradeUrl, "pocoma_read"));
+		assertEquals(9, successfulMigrationCount(upgradeUrl, "pocoma_read"));
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
 		assertEquals(20, migratePrimary(bootstrapUrl, null).migrationsExecuted);
-		assertEquals(8, migrateRead(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(9, migrateRead(bootstrapUrl, null).migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 
 		assertEquals(structuralFingerprint(upgradeUrl), structuralFingerprint(bootstrapUrl));

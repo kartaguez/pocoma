@@ -72,6 +72,8 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 
 	@BeforeEach
 	void cleanDatabase() {
+		jdbc.execute("drop trigger if exists reject_binding_fact on external_identity_binding_facts");
+		jdbc.execute("drop function if exists reject_binding_fact()");
 		jdbc.update("delete from external_identity_binding_facts");
 		jdbc.update("delete from external_identities");
 		jdbc.update("delete from external_identity_binding_streams");
@@ -159,10 +161,14 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 		assertEquals(BindingDetachResult.NOT_CURRENT,
 				inTransaction(() -> bindings.detach(identity, first)));
 		assertEquals(user.id(), inTransaction(() -> bindings.findUserId(identity, second)).orElseThrow());
+		assertEquals(3L, jdbc.queryForObject("select current_revision from external_identity_binding_streams "
+				+ "where issuer=? and subject=?", Long.class, identity.issuer(), identity.subject()));
+		assertEquals(3, jdbc.queryForObject("select count(*) from external_identity_binding_facts "
+				+ "where issuer=? and subject=?", Integer.class, identity.issuer(), identity.subject()));
 	}
 
 	@Test
-	void existingBindingWritersDoNotProduceLifecycleFactsOrStreamsYet() {
+	void bindingWritersAdvanceOneStreamAndAppendOneFactPerSuccessfulMutation() {
 		User user = createUser(45);
 		ExternalIdentity identity = identity("issuer", "wa-6-1-runtime-boundary");
 		BindingId bindingId = bindingId(46);
@@ -172,10 +178,12 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 		assertEquals(BindingDetachResult.DETACHED,
 				inTransaction(() -> bindings.detach(identity, bindingId)));
 
-		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_streams",
+		assertEquals(1, jdbc.queryForObject("select count(*) from external_identity_binding_streams",
 				Integer.class));
-		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_facts",
+		assertEquals(2, jdbc.queryForObject("select count(*) from external_identity_binding_facts",
 				Integer.class));
+		assertEquals(2L, jdbc.queryForObject("select current_revision from external_identity_binding_streams "
+				+ "where issuer=? and subject=?", Long.class, identity.issuer(), identity.subject()));
 	}
 
 	@Test
@@ -198,6 +206,104 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 		assertEquals(1, results.stream().filter(BindingAcquireResult.CONFLICT::equals).count());
 		assertEquals(1, jdbc.queryForObject("select count(*) from external_identities where issuer=? and subject=?",
 				Integer.class, identity.issuer(), identity.subject()));
+		assertEquals(1, jdbc.queryForObject("select count(*) from external_identity_binding_facts where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject()));
+		assertEquals(1L, jdbc.queryForObject("select current_revision from external_identity_binding_streams where issuer=? and subject=?",
+				Long.class, identity.issuer(), identity.subject()));
+	}
+
+	@Test
+	void concurrentDetachHasExactlyOneWinnerAndDoesNotCreateARevisionGap() throws Exception {
+		User user = createUser(54);
+		ExternalIdentity identity = identity("issuer", "detach-race");
+		BindingId bindingId = bindingId(540);
+		assertEquals(BindingAcquireResult.ACQUIRED,
+				inTransaction(() -> bindings.acquire(identity, user.id(), bindingId)));
+		CountDownLatch ready = new CountDownLatch(2);
+		CountDownLatch start = new CountDownLatch(1);
+
+		Future<BindingDetachResult> one = executor.submit(() -> concurrentDetach(identity, bindingId, ready, start));
+		Future<BindingDetachResult> two = executor.submit(() -> concurrentDetach(identity, bindingId, ready, start));
+		assertTrue(ready.await(5, TimeUnit.SECONDS));
+		start.countDown();
+
+		List<BindingDetachResult> results = List.of(one.get(10, TimeUnit.SECONDS), two.get(10, TimeUnit.SECONDS));
+		assertEquals(1, results.stream().filter(BindingDetachResult.DETACHED::equals).count());
+		assertEquals(1, results.stream().filter(BindingDetachResult.NOT_CURRENT::equals).count());
+		assertEquals(2L, revision(identity));
+		assertEquals(2, factCount(identity));
+	}
+
+	@Test
+	void concurrentAttachAndDetachSerializeOnTheStreamWithoutLosingFacts() throws Exception {
+		User first = createUser(541);
+		User second = createUser(542);
+		ExternalIdentity identity = identity("issuer", "attach-detach-race");
+		BindingId firstBinding = bindingId(543);
+		BindingId secondBinding = bindingId(544);
+		assertEquals(BindingAcquireResult.ACQUIRED,
+				inTransaction(() -> bindings.acquire(identity, first.id(), firstBinding)));
+		CountDownLatch ready = new CountDownLatch(2);
+		CountDownLatch start = new CountDownLatch(1);
+
+		Future<BindingDetachResult> detach = executor.submit(() -> inTransaction(() -> {
+			ready.countDown();
+			await(start);
+			return bindings.detach(identity, firstBinding);
+		}));
+		Future<BindingAcquireResult> attach = executor.submit(() -> concurrentAcquire(
+				identity, second.id(), secondBinding, ready, start));
+		assertTrue(ready.await(5, TimeUnit.SECONDS));
+		start.countDown();
+
+		assertEquals(BindingDetachResult.DETACHED, detach.get(10, TimeUnit.SECONDS));
+		BindingAcquireResult attachResult = attach.get(10, TimeUnit.SECONDS);
+		if (attachResult == BindingAcquireResult.ACQUIRED) {
+			assertEquals(second.id(), inTransaction(() -> bindings.findUserId(identity, secondBinding)).orElseThrow());
+			assertEquals(3L, revision(identity));
+			assertEquals(3, factCount(identity));
+		}
+		else {
+			assertEquals(BindingAcquireResult.CONFLICT, attachResult);
+			assertTrue(inTransaction(() -> bindings.findUserId(identity, firstBinding)).isEmpty());
+			assertEquals(2L, revision(identity));
+			assertEquals(2, factCount(identity));
+		}
+	}
+
+	@Test
+	void factAppendFailureRollsBackAuthorityAndRevisionTogether() {
+		User user = createUser(55);
+		ExternalIdentity identity = identity("issuer", "forced-fact-failure");
+		jdbc.execute("create function reject_binding_fact() returns trigger language plpgsql as $$ begin raise exception 'forced'; end $$");
+		jdbc.execute("create trigger reject_binding_fact before insert on external_identity_binding_facts "
+				+ "for each row execute function reject_binding_fact()");
+
+		assertThrows(RuntimeException.class, () -> inTransaction(() ->
+				bindings.acquire(identity, user.id(), bindingId(56))));
+
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identities where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject()));
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_streams where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject()));
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_facts where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject()));
+	}
+
+	@Test
+	void revisionAllocationFailureAfterAuthorityMutationRollsBackWithoutAFact() {
+		User user = createUser(57);
+		ExternalIdentity identity = identity("issuer", "forced-revision-failure");
+		jdbc.update("insert into external_identity_binding_streams(issuer, subject, current_revision) values (?, ?, ?)",
+				identity.issuer(), identity.subject(), Long.MAX_VALUE);
+
+		assertThrows(ArithmeticException.class, () -> inTransaction(() ->
+				bindings.acquire(identity, user.id(), bindingId(58))));
+
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identities where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject()));
+		assertEquals(Long.MAX_VALUE, revision(identity));
+		assertEquals(0, factCount(identity));
 	}
 
 	@Test
@@ -243,6 +349,25 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 			await(start);
 			return bindings.acquire(identity, userId, bindingId);
 		});
+	}
+
+	private BindingDetachResult concurrentDetach(ExternalIdentity identity, BindingId bindingId,
+			CountDownLatch ready, CountDownLatch start) {
+		return inTransaction(() -> {
+			ready.countDown();
+			await(start);
+			return bindings.detach(identity, bindingId);
+		});
+	}
+
+	private long revision(ExternalIdentity identity) {
+		return jdbc.queryForObject("select current_revision from external_identity_binding_streams "
+				+ "where issuer=? and subject=?", Long.class, identity.issuer(), identity.subject());
+	}
+
+	private int factCount(ExternalIdentity identity) {
+		return jdbc.queryForObject("select count(*) from external_identity_binding_facts where issuer=? and subject=?",
+				Integer.class, identity.issuer(), identity.subject());
 	}
 
 	private boolean awaitPostgresLockWait(int backendPid, Duration timeout) throws InterruptedException {

@@ -17,6 +17,12 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 			from external_identity_binding_streams
 			where issuer = ? and subject = ?
 			""";
+	private static final String LOCK = FIND + " for update";
+	private static final String ADVANCE = """
+			update external_identity_binding_streams
+			set current_revision = ?
+			where issuer = ? and subject = ? and current_revision = ?
+			""";
 
 	private final JdbcTemplate jdbc;
 
@@ -29,7 +35,22 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 	}
 
 	public Optional<ExternalIdentityBindingStreamRow> find(String issuer, String subject) {
-		return jdbc.query(FIND, (result, rowNumber) -> new ExternalIdentityBindingStreamRow(
+		return query(FIND, issuer, subject);
+	}
+
+	public ExternalIdentityBindingStreamRow lock(String issuer, String subject) {
+		return query(LOCK, issuer, subject).orElseThrow(() ->
+				new IllegalStateException("Binding stream disappeared for " + issuer + "/" + subject));
+	}
+
+	public void advance(String issuer, String subject, long expectedRevision, long nextRevision) {
+		if (jdbc.update(ADVANCE, nextRevision, issuer, subject, expectedRevision) != 1) {
+			throw new IllegalStateException("Binding stream revision changed while locked");
+		}
+	}
+
+	private Optional<ExternalIdentityBindingStreamRow> query(String sql, String issuer, String subject) {
+		return jdbc.query(sql, (result, rowNumber) -> new ExternalIdentityBindingStreamRow(
 				result.getString("issuer"), result.getString("subject"), result.getLong("current_revision")),
 				issuer, subject).stream().findFirst();
 	}

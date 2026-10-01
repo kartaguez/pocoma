@@ -433,7 +433,8 @@ class CommandCompletionE2EPostgresTest {
 
 	private static void cleanDatabase(JdbcTemplate jdbc) {
 		jdbc.execute("""
-				truncate table external_identities, users, recorded_commands, command_outcomes,
+				truncate table external_identity_binding_facts, external_identity_binding_streams,
+				 external_identities, users, recorded_commands, command_outcomes,
 				command_terminal_events, business_event_outbox, projection_tasks,
 				consumption_inputs, consumption_results, consumption_slots, consumption_claims,
 				expense_shares, expense_headers, shareholders, pot_headers,

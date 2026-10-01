@@ -413,6 +413,24 @@ mutations réussies ; reprises des tests stale-detach WA.2 et continuité WA.4.
 **Clôture.** Tous les chemins de mutation autorisés passent par cette frontière et une inspection
 PostgreSQL montre exactement un fait à la révision suivante pour chaque mutation committée.
 
+**Résultat WA.6.2 — DONE (2026-10-01).**
+
+- `JpaExternalIdentityBindingAdapter` conserve la transaction appelante obligatoire et exécute,
+  pour Attach comme pour Detach, l'ordre unique `stream E FOR UPDATE → authority row E` ; la
+  création idempotente du stream à `0`, la mutation de `external_identities`, l'allocation
+  `Math.addExact(current_revision, 1)`, l'update compare-and-set du stream et l'append du fait sont
+  dans le même commit PostgreSQL ;
+- Attach committé produit exactement un `ExternalIdentityAttached(eventId,E,U,B,revision,recordedAt)` ;
+  Detach supprime exclusivement `(E,B)` et produit exactement un `ExternalIdentityDetached` sur
+  succès. `CONFLICT` et `NOT_CURRENT`, notamment le stale detach WA.2 après rebind, ne changent ni
+  révision ni journal ;
+- `external_identities(issuer,subject,user_id,binding_id)` reste l'unique autorité WRITE ; streams
+  et facts n'introduisent aucune décision métier concurrente ;
+- les preuves PostgreSQL couvrent attach/detach, reattach, conflits, attach/attach,
+  attach/detach et detach/detach concurrents, continuité des révisions, unicité du fait, overflow,
+  rollback forcé sur append et continuité WA.4 : un lock Command exact E+B bloque le detach jusqu'au
+  commit métier.
+
 #### WA.6.3 — READ model `CURRENT_BINDING` et règle d’apply
 
 **Objectif.** Exposer l’état courant déterministe d’une E, y compris son détachement explicite.
@@ -483,6 +501,33 @@ retry, restart, claim perdu, redistribution de segments et multi-worker ; métri
 **Clôture.** Les séquences `Attach(B1) → Detach(B1) → Attach(B2)` et tous leurs replays/permutations
 autorisées convergent vers `ATTACHED/B2` à la révision maximale.
 
+**Résultat WA.6.3 — DONE (2026-10-01).**
+
+- la migration READ `V9__current_external_identity_binding.sql` crée
+  `pocoma_read.current_external_identity_binding`, clé `(issuer,subject)`, avec
+  `binding_revision`, `binding_status`, `user_id` nullable seulement pour `DETACHED`, `binding_id`,
+  `source_event_id` et `projected_at` ; la tombstone Detach reste donc explicite ;
+- `JdbcCurrentBindingAdapter` applique exclusivement la révision : supérieure `APPLIED`, inférieure
+  `STALE`, égale/identique `DUPLICATE`, égale/divergente
+  `CurrentBindingInvariantException`. Ni la fraîcheur ni l'ordre ne comparent les BindingId ; les
+  tests `@1 → @3 → @2` et saut de révision conservent `@3` ;
+- `JdbcBindingFactDiscoveryAdapter` exécute de courts scans SQL `READ COMMITTED`, bornés et
+  partitionnés par `partition_hash(E)`. Il sélectionne les facts sans Consumption `DONE` et les
+  retries éligibles sans claim vivant ; son keyset `(issuer,subject,binding_revision)` est uniquement
+  éphémère dans un `openSearch` et chaque nouveau scan/restart repart sans curseur. Aucun watermark
+  global, ordre UUID ou frontière exclusive `recorded_at` n'existe ;
+- la clé canonique est `IDENTITY_BINDING_FACT[event_id] / CURRENT_BINDING_PROJECTOR[]`. Le locator
+  recharge par `event_id`, applique la projection, écrit la provenance et finalise le claim sous le
+  fence Consumption dans la même transaction ; échec technique reste `PENDING` avec retry, donnée
+  manquante/collision divergente est terminale et observable ;
+- le runtime dédié `runtime-binding-consumption-worker` réutilise le claim, lease, retry, fence et
+  terminal `DONE` canoniques. Les preuves Testcontainers couvrent duplicate discovery, retry,
+  reconstruction après restart, claim perdu, multi-worker et finalisation idempotente. La preuve
+  anti-skip réelle laisse F1 non committé, consomme F2, committe F1 puis le retrouve au scan suivant ;
+  F1 et F2 terminent `DONE` ;
+- le consumer ne lit ni ne modifie l'autorité, le Command worker ne dépend pas de `CURRENT_BINDING`
+  et aucune couche HTTP n'y accède.
+
 #### WA.6.4 — Bootstrap borné des bindings V18
 
 **Objectif.** Initialiser `CURRENT_BINDING` sans faux historique et sans perdre une mutation réelle.
@@ -510,6 +555,24 @@ finale autorité/projection après rattrapage.
 
 **Clôture.** Le compteur de rows `revision=0` attendu est expliqué, le job peut être rejoué sans
 effet et tout stream `revision>0` converge uniquement via ses faits réels.
+
+**Résultat WA.6.4 — DONE (2026-10-01).**
+
+- `HistoricalBindingBootstrap` lit par pages bornées/keyset
+  `external_identities JOIN external_identity_binding_streams` avec `current_revision = 0` et écrit
+  `ATTACHED@0` avec U/B autoritatifs et `source_event_id = NULL` ; aucun fact historique synthétique
+  n'est créé ;
+- le bootstrap s'exécute au démarrage du runtime avant le polling, peut être interrompu, repris et
+  rejoué. Il réutilise la même règle d'apply : absence insérée, `@0` identique no-op, `@1+` conservé,
+  `@0` divergent signalé sans overwrite ;
+- les tests PostgreSQL couvrent plusieurs pages, double exécution/restart, mutation avant, pendant
+  et après bootstrap, ainsi que les deux ordres `bootstrap @0 → mutation @1` et
+  `mutation/consumer @1 → tentative bootstrap @0` ; l'état final reste toujours `@1` ;
+- la preuve verticale couvre `Attach → fact durable → consumer → ATTACHED`, puis
+  `Detach → fact durable → DETACHED`, puis reattach avec nouveau B → `ATTACHED` sur ce nouveau B ;
+- la vague s'arrête ici : aucun changement de `COMMAND_RESULT`, loader/payload/ownership, aucun GET
+  ou contrôle HTTP par `CURRENT_BINDING`, aucune implémentation WA.6.5+, WA.7 ni modification de
+  `Step_Canon.md`.
 
 #### WA.6.5 — `COMMAND_RESULT` V1/V2 : contexte durable et matérialisation
 

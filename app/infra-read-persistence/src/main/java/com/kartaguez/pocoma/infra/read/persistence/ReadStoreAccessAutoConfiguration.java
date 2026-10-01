@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
+import com.kartaguez.pocoma.engine.read.binding.CurrentBindingProjectionPort;
 
 @AutoConfiguration(after = DataSourceTransactionManagerAutoConfiguration.class)
 @ConditionalOnClass(JdbcOperations.class)
@@ -30,6 +31,12 @@ public class ReadStoreAccessAutoConfiguration {
 	LatestKnownVersionPersistencePort latestKnownVersionPersistencePort(
 			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
 		return new JdbcLatestKnownVersionAdapter(jdbc, properties.getSchema());
+	}
+
+	@Bean
+	CurrentBindingProjectionPort currentBindingProjectionPort(
+			@ReadStore JdbcOperations jdbc, ReadStoreProperties properties) {
+		return new JdbcCurrentBindingAdapter(jdbc, properties.getSchema());
 	}
 
 }

@@ -25,4 +25,11 @@ public class JpaExternalIdentityBindingFactAdapter implements ExternalIdentityBi
 	public void append(ExternalIdentityBindingFact fact) {
 		repository.append(mapper.toRow(fact));
 	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+	public java.util.Optional<ExternalIdentityBindingFact> findByEventId(java.util.UUID eventId) {
+		requireNonNull(eventId, "eventId must not be null");
+		return repository.findByEventId(eventId).map(mapper::toFact);
+	}
 }

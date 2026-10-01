@@ -116,7 +116,7 @@ class WriteSideClosurePostgresTest {
 	void cleanAndAssembleRuntimeRoles() {
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
-		jdbc.execute("truncate table external_identities, users, recorded_commands, consumption_inputs, "
+		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 		worker = pollingWorker();
