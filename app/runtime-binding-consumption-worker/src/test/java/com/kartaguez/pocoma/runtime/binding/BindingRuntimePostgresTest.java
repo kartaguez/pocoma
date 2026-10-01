@@ -106,6 +106,46 @@ class BindingRuntimePostgresTest {
 		assertCurrent(raced,1,CurrentBindingStatus.DETACHED,live,null);
 	}
 
+	@Test void mutationAndConsumerWinWhenBootstrapReadRevisionZeroBeforeTheMutation() {
+		PocomaUserId user=user(26);insertUser(user);ExternalIdentity e=id("bootstrap-read-race");
+		BindingId historicalBinding=binding(26);
+		jdbc.update("insert into external_identities values (?,?,?,?)",
+				e.issuer(),e.subject(),user.value(),historicalBinding.value());
+		insertStream(e,0);
+		HistoricalBindingCandidate readAtZero=historical.findRevisionZeroPage(Optional.empty(),10).stream()
+				.filter(candidate->candidate.externalIdentity().equals(e)).findFirst().orElseThrow();
+
+		assertEquals(BindingDetachResult.DETACHED,
+				transactions.runInTransaction(()->bindings.detach(e,historicalBinding)));
+		orchestrator.run(input("bootstrap-read-race-consumer"));
+		assertEquals(CurrentBindingApplyResult.STALE,transactions.runInTransaction(()->projection.apply(
+				new CurrentBinding(readAtZero.externalIdentity(),new BindingRevision(0),CurrentBindingStatus.ATTACHED,
+						readAtZero.userId(),readAtZero.bindingId(),null,clock.instant()))));
+
+		assertCurrent(e,1,CurrentBindingStatus.DETACHED,historicalBinding,null);
+		assertEquals(1L,count("external_identity_binding_facts"));
+	}
+
+	@Test void bootstrapThenDetachAndRebindConvergesToTheHighestRealRevisionWithoutSyntheticFacts() {
+		PocomaUserId firstUser=user(27),secondUser=user(28);insertUser(firstUser);insertUser(secondUser);
+		ExternalIdentity e=id("bootstrap-write-race");BindingId first=binding(27),second=binding(28);
+		jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),first.value());
+		insertStream(e,0);
+		var firstBootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
+		transactions.runInTransaction(()->{firstBootstrap.runPage(Optional.empty(),10);return null;});
+		assertCurrent(e,0,CurrentBindingStatus.ATTACHED,first,firstUser);
+
+		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,first)));
+		assertEquals(BindingAcquireResult.ACQUIRED,transactions.runInTransaction(()->bindings.acquire(e,secondUser,second)));
+		orchestrator.run(input("bootstrap-write-race-consumer"));
+		assertCurrent(e,2,CurrentBindingStatus.ATTACHED,second,secondUser);
+
+		var reconstructedBootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
+		transactions.runInTransaction(()->{reconstructedBootstrap.runPage(Optional.empty(),10);return null;});
+		assertCurrent(e,2,CurrentBindingStatus.ATTACHED,second,secondUser);
+		assertEquals(2L,count("external_identity_binding_facts"));
+	}
+
 	@Test void technicalFailureRetriesAfterAReconstructedScanAndThenFinalizesIdempotently() {
 		PocomaUserId user=user(30);insertUser(user);ExternalIdentity e=id("retry");BindingId b=binding(30);
 		transactions.runInTransaction(()->bindings.acquire(e,user,b));

@@ -184,6 +184,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 				Integer.class));
 		assertEquals(2L, jdbc.queryForObject("select current_revision from external_identity_binding_streams "
 				+ "where issuer=? and subject=?", Long.class, identity.issuer(), identity.subject()));
+		assertEquals(List.of(1L, 2L), factRevisions(identity));
 	}
 
 	@Test
@@ -368,6 +369,12 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 	private int factCount(ExternalIdentity identity) {
 		return jdbc.queryForObject("select count(*) from external_identity_binding_facts where issuer=? and subject=?",
 				Integer.class, identity.issuer(), identity.subject());
+	}
+
+	private List<Long> factRevisions(ExternalIdentity identity) {
+		return jdbc.queryForList("select binding_revision from external_identity_binding_facts "
+				+ "where issuer=? and subject=? order by binding_revision", Long.class,
+				identity.issuer(), identity.subject());
 	}
 
 	private boolean awaitPostgresLockWait(int backendPid, Duration timeout) throws InterruptedException {

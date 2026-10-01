@@ -738,6 +738,52 @@ et lock WA.4 restent valides ; les workers ne lisent pas `CURRENT_BINDING` pour 
 **Clôture.** La matrice de courses passe de manière répétable sous Testcontainers avec au moins deux
 workers et après restart.
 
+**Résultat WA.6.7 — DONE (2026-10-01).**
+
+- audit global du lock-order : tous les accès production aux trois tables binding ont été recensés.
+  `ExternalIdentityJdbcRepository.lockCurrentBinding` est le seul lock d'autorité E et ne connaît
+  pas le stream ; `ExternalIdentityBindingStreamJdbcRepository.lock` est le seul lock de stream et
+  ne connaît pas l'autorité. Le seul writer qui combine les deux est
+  `JpaExternalIdentityBindingAdapter`, avec l'ordre structurel gardé `stream E → authority E` dans
+  `acquire` et `detach`. Aucun chemin `authority E → stream E` n'existe. Le worker Command ne prend
+  que le lock d'autorité exact E+B ; il ne consulte ni stream, facts ni `CURRENT_BINDING` ;
+- classification : resolvers legacy/exact et discovery/bootstrap sont des READ non-locking ;
+  `lockCurrentBinding` est authority-lock-only ; les repositories lifecycle sont stream-lock-only
+  ou append-only ; `acquire`/`detach` sont `stream → authority`. Les accès SQL directs à
+  `external_identities`, streams, facts, `CURRENT_BINDING`, `recorded_commands` et
+  `command_outcomes` sont figés par `Wa67BindingArchitectureTest` dans leurs adapters propriétaires ;
+- matrice mutation : Attach/Attach, Attach/Detach et Detach/Detach PostgreSQL sérialisent sur le
+  stream, ont un seul résultat fonctionnel par état, et ne perdent ni update ni fact. Conflict
+  attach et stale detach ne consomment aucune revision. Le test WA.4 maintient le lock exact E+B
+  jusqu'au commit Command et fait attendre Detach(B) ; Command(B1) et Detach(B0) stale ne peuvent
+  supprimer B1. Les rollbacks après mutation d'autorité, échec d'allocation et échec d'append
+  restaurent autorité, revision et journal ensemble ; l'overflow ne produit ni fact ni autorité ;
+- propriété forte : pour une identité créée après WA.6, chaque mutation réussie ajoute exactement
+  une revision et un fact ; le test vérifie explicitement `facts = 1..N`. Une identité historique
+  commence à 0 et sa première mutation réussie produit `@1`. La contrainte unique `(E,revision)` et
+  l'unicité `event_id` interdisent double fact et trou masqué par duplication ;
+- append-only : le scan de tout `src/main/java` exige l'unique `INSERT` du fact repository et
+  interdit tout `UPDATE`/`DELETE` de `external_identity_binding_facts`. Les suppressions restent
+  limitées aux fixtures de test ;
+- convergence : les tests PostgreSQL couvrent duplicate, stale, saut et ordre `@3,@1,@2` pour
+  ATTACHED/DETACHED. Seule la revision maximale valide gagne ; same-revision/same-payload est
+  `DUPLICATE`, same-revision/divergent-payload lève une invariant failure observable ;
+- discovery/Consumption : la requête bornée sélectionne uniquement slots absents ou PENDING
+  retry-eligible, exclut DONE, partitionne par hash(E), et ordonne par `(issuer,subject,revision)`.
+  Son cursor est un champ de l'itérateur de scan, jamais persisté. Il n'existe aucun watermark
+  binding, `recorded_at > last_seen` ou `event_id > last_seen`; chaque nouveau scan repart sans
+  cursor. La late-commit race, les nouveaux facts, duplicate discovery, deux workers, expiration de
+  claim, lost claim et retry après reconstruction d'orchestrator convergent via Consumption(eventId) ;
+- bootstrap : les courses réelles PostgreSQL prouvent A (lecture E@0, mutation/consumer @1, apply
+  tardif @0), B (apply @0 puis mutation/consumer @1), C (pagination, reconstruction du bootstrap et
+  reprise depuis le début) et D (detach/rebind pendant/après bootstrap). Le résultat conserve la
+  plus grande revision réelle et le nombre de facts reste exactement celui des mutations : aucun
+  fact synthétique @0 ;
+- matrice consumer : consumer/consumer et lost-claim/worker concurrent sont fenced par Consumption ;
+  consumer/bootstrap converge par comparaison de revision ; retry/new facts repart d'un scan sûr.
+  Les tests reconstruisent l'orchestrator et le bootstrap, tandis que les E2E reconstruisent les
+  application contexts event/task : aucune propriété ne dépend du cursor ou d'un état Java durable.
+
 #### WA.6.8 — Frontières d’architecture et preuves de clôture
 
 **Objectif.** Verrouiller la séparation core/app/infra/api/worker et démontrer la non-régression
@@ -762,6 +808,44 @@ reactors impactés puis reactor Maven complet.
 **Clôture WA.6.** Journal de faits et projection rattrapés, bootstrap achevé/mesuré, aucun failed slot
 V2 non traité, GET sans accès primaire, matrice E1/E2 et V1/V2 verte, architecture verte, runbook et
 rollback de déploiement documentés. Aucun code WA.7 de contraction n’est inclus.
+
+**Résultat WA.6.8 — DONE (2026-10-01).**
+
+- `COMMAND_RESULT` V1 conserve exactement `submittedByUserId`, sans reconstruction d'E ni subject
+  synthétique ; ses rows, tâches et projections historiques restent matérialisables. V2 capture et
+  publie E exacte, sans U ni lookup binding. Retry/restart d'une tâche V2 conserve E ; E1/E2 liées au
+  même U restent distinctes et detach/rebind ne transfère jamais la visibilité V2 ;
+- le vrai validateur NetworkNT accepte les formes V1 historique et V2 complète, puis rejette V1 avec
+  champs exact-E, V2 avec `submittedByUserId`, V2 sans discriminateur, forme vide et forme V2
+  incomplète. Le `oneOf` et `additionalProperties:false` rendent les formes disjointes ;
+- la matrice finale V2 est historique : E1 reste visible après attach, detach et rebind même/autre U,
+  E2 reste invisible quel que soit son U. La matrice V1 est volontairement legacy : visible lorsque
+  `CURRENT_BINDING(E)=U`, invisible après convergence d'un detach ou rebind autre U, de nouveau
+  visible après detach + rebind même U ;
+- les GET Command result et self-service utilisent seulement `pocoma_read`. La preuve SQL runtime
+  interdit `recorded_commands`, `command_outcomes`, `external_identities`, streams/facts binding,
+  tables Pot/Event primaires et tables Consumption ; les guards excluent ports/repositories WRITE.
+  Les réponses inexistante, non visible, non ready, binding absent/detached et caller non autorisé
+  restent non-oracle selon les conventions `NotFound`/404 existantes ;
+- les guards finaux figent l'autorité unique `external_identities`, l'ownership projection de
+  `CURRENT_BINDING`, l'absence de READ dans le worker Command, E+B sans U dans l'envelope V2,
+  l'absence de fallback legacy et de lookup binding pour la visibilité V2, l'isolation V1 et le
+  domaine User/Identity JDK-only. L'audit SQL n'a trouvé aucune exception cachée ; les jointures
+  directes de discovery/bootstrap et du loader de projection sont les exceptions READ
+  intentionnelles, dans leurs adapters dédiés ;
+- synthèse de clôture : WA.6 est fermé. Autorité binding = `external_identities`; revision = stream
+  monotone 0 historique puis 1..N ; transaction = authority/revision/fact atomiques ; lock-order =
+  stream puis authority ; facts = journal append-only ; discovery = scan keyset éphémère sans
+  watermark ; identité Consumption = eventId ; `CURRENT_BINDING` appartient à READ ; bootstrap =
+  ATTACHED@0 sans fact ; V1 = LEGACY_USER ; V2 = EXACT_EXTERNAL_IDENTITY ; GET result = projection
+  READ et, uniquement pour V1, `CURRENT_BINDING`; self-service = `CURRENT_BINDING`; révocation V1 =
+  EVENTUAL ; concurrence/restart/architecture = prouvés par PostgreSQL, E2E et guards.
+
+**Dette legacy restante assumée.** V1 conserve la visibilité par userId, l'autorisation via
+`CURRENT_BINDING`, la révocation EVENTUAL et la restauration possible après rebind du même E vers le
+même U. Cette dette n'est pas un défaut WA.6 et ne peut disparaître qu'avec la contraction future de
+V1. Aucun travail WA.7 n'est inclus. `Step_Canon.md` a été réaudité sans contradiction : changement
+canonique **NO**.
 
 **Ordre d’implémentation.** `WA.6.1 → WA.6.2 → WA.6.3 → WA.6.4 → WA.6.5 → WA.6.6 → WA.6.7 →
 WA.6.8`. WA.6.3 peut être développé en parallèle de WA.6.2 après gel des contrats, mais son activation
