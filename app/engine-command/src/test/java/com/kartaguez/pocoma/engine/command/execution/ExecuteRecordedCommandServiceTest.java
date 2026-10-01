@@ -14,12 +14,20 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
+import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
+import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
+import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.decode.CommandPayloadDecoder;
@@ -32,12 +40,16 @@ import com.kartaguez.pocoma.engine.command.dispatch.MissingCommandUseCaseExcepti
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 
@@ -48,6 +60,10 @@ class ExecuteRecordedCommandServiceTest {
 	private static final CommandId COMMAND_ID = new CommandId(UUID.randomUUID());
 	private static final CommandType COMMAND_TYPE = new CommandType("TEST_COMMAND_V1");
 	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 1);
+	private static final ExternalIdentity EXTERNAL_IDENTITY =
+			new ExternalIdentity("https://issuer.example", "subject-1");
+	private static final BindingId BINDING_ID = new BindingId(UUID.randomUUID());
+	private static final PocomaUserId RESOLVED_USER = new PocomaUserId(UUID.randomUUID());
 
 	@Test
 	void missingRecordedCommandIsATechnicalFailure() {
@@ -64,6 +80,60 @@ class ExecuteRecordedCommandServiceTest {
 
 		assertExpired(beforeExpiry);
 		assertExpired(atExpiry);
+	}
+
+	@Test
+	void targetV2LocksExactBindingTranslatesAuthoritiesAndDispatchesResolvedUser() {
+		RecordingBindings bindings = new RecordingBindings(Optional.of(RESOLVED_USER));
+		AtomicReference<CommandExecutionAuthorization> received = new AtomicReference<>();
+		ExecuteRecordedCommandService service = service(target(NOW.plusSeconds(60)),
+				decoderRegistry(), dispatcher(authorization -> {
+					received.set(authorization);
+					return success(List.of(), List.of());
+				}), events(List.of()), bindings);
+
+		assertInstanceOf(RecordedCommandExecutionResult.Succeeded.class, service.execute(COMMAND_ID));
+
+		ResolvedCommandAuthorization authorization = assertInstanceOf(
+				ResolvedCommandAuthorization.class, received.get());
+		assertEquals(RESOLVED_USER, authorization.userId());
+		assertEquals(Set.of(new Permission("POT", "CREATE")), authorization.permissions());
+		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(0, bindings.nonLockingLookupCalls.get());
+		assertEquals(EXTERNAL_IDENTITY, bindings.lockedIdentity.get());
+		assertEquals(BINDING_ID, bindings.lockedBinding.get());
+	}
+
+	@Test
+	void targetV2MissingExactOccurrenceHasOnePublicRejectionAndNoFallback() {
+		RecordingBindings bindings = new RecordingBindings(Optional.empty());
+		Fixture fixture = new Fixture(Optional.of(target(NOW.plusSeconds(60))),
+				success(List.of(), List.of()), List.of(), bindings);
+
+		RecordedCommandExecutionResult.Rejected result = assertInstanceOf(
+				RecordedCommandExecutionResult.Rejected.class, fixture.service.execute(COMMAND_ID));
+
+		assertEquals(new TerminalReason("CALLER_IDENTITY_NOT_CURRENT"), result.reason());
+		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(0, bindings.nonLockingLookupCalls.get());
+		assertEquals(0, fixture.decodeCalls.get());
+		assertEquals(0, fixture.dispatchCalls.get());
+		assertEquals(0, fixture.appendCalls.get());
+	}
+
+	@Test
+	void targetV2ExpirationIsEvaluatedAtWorkerAfterExactBindingResolution() {
+		RecordingBindings bindings = new RecordingBindings(Optional.of(RESOLVED_USER));
+		Fixture fixture = new Fixture(Optional.of(target(NOW)),
+				success(List.of(), List.of()), List.of(), bindings);
+
+		RecordedCommandExecutionResult.Rejected result = assertInstanceOf(
+				RecordedCommandExecutionResult.Rejected.class, fixture.service.execute(COMMAND_ID));
+
+		assertEquals(new TerminalReason("AUTHORIZATION_EXPIRED"), result.reason());
+		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(0, fixture.decodeCalls.get());
+		assertEquals(0, fixture.dispatchCalls.get());
 	}
 
 	@Test
@@ -178,6 +248,13 @@ class ExecuteRecordedCommandServiceTest {
 		return new RecordedCommand(COMMAND_ID, COMMAND_TYPE, "payload", NOW.minusSeconds(1), authorization);
 	}
 
+	private static RecordedCommand target(Instant validUntil) {
+		return new RecordedCommand(COMMAND_ID, COMMAND_TYPE, "payload", NOW.minusSeconds(1),
+				new TargetCommandEnvelope(EXTERNAL_IDENTITY, BINDING_ID,
+						new CommandAuthenticationEvidence(
+								Set.of("pocoma:pot:create", "provider:ignored"), validUntil)));
+	}
+
 	private static CommandUseCaseResult.Succeeded success(
 			List<CommandExecutionInput> inputs,
 			List<BusinessEvent> events) {
@@ -205,7 +282,7 @@ class ExecuteRecordedCommandServiceTest {
 	private static CommandDispatcher dispatcher(UseCaseExecution execution) {
 		return new CommandDispatcher(List.of(new CommandUseCase<TestCommand>() {
 			@Override public Class<TestCommand> commandClass() { return TestCommand.class; }
-			@Override public CommandUseCaseResult execute(AuthorizationSnapshot authorization, TestCommand command) {
+			@Override public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, TestCommand command) {
 				return execution.execute(authorization);
 			}
 		}));
@@ -225,7 +302,18 @@ class ExecuteRecordedCommandServiceTest {
 			CommandDispatcher dispatcher,
 			EventAppendPort events) {
 		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
-				decoder, dispatcher, events, CLOCK);
+				decoder, dispatcher, events, new RecordingBindings(Optional.empty()),
+				new ExternalAuthorityPermissionTranslator(), CLOCK);
+	}
+
+	private static ExecuteRecordedCommandService service(
+			RecordedCommand recorded,
+			CommandDecoder decoder,
+			CommandDispatcher dispatcher,
+			EventAppendPort events,
+			ExternalIdentityBindingPort bindings) {
+		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
+				decoder, dispatcher, events, bindings, new ExternalAuthorityPermissionTranslator(), CLOCK);
 	}
 
 	private static CommandExecutionArtifact artifact(
@@ -247,7 +335,7 @@ class ExecuteRecordedCommandServiceTest {
 
 	@FunctionalInterface
 	private interface UseCaseExecution {
-		CommandUseCaseResult execute(AuthorizationSnapshot authorization);
+		CommandUseCaseResult execute(CommandExecutionAuthorization authorization);
 	}
 
 	private static final class TechnicalFailure extends RuntimeException {}
@@ -274,13 +362,24 @@ class ExecuteRecordedCommandServiceTest {
 
 		private Fixture(Optional<RecordedCommand> recorded, UseCaseExecution execution,
 				List<CommandExecutionArtifact> artifacts) {
+			this(recorded, execution, artifacts, new RecordingBindings(Optional.empty()));
+		}
+
+		private Fixture(Optional<RecordedCommand> recorded, CommandUseCaseResult result,
+				List<CommandExecutionArtifact> artifacts, ExternalIdentityBindingPort bindings) {
+			this(recorded, authorization -> result, artifacts, bindings);
+		}
+
+		private Fixture(Optional<RecordedCommand> recorded, UseCaseExecution execution,
+				List<CommandExecutionArtifact> artifacts, ExternalIdentityBindingPort bindings) {
 			CommandDecoder decoder = (type, payload) -> {
 				decodeCalls.incrementAndGet();
 				return new TestCommand(payload);
 			};
 			CommandUseCase<TestCommand> useCase = new CommandUseCase<>() {
 				@Override public Class<TestCommand> commandClass() { return TestCommand.class; }
-				@Override public CommandUseCaseResult execute(AuthorizationSnapshot authorization, TestCommand command) {
+				@Override public CommandUseCaseResult execute(
+						CommandExecutionAuthorization authorization, TestCommand command) {
 					dispatchCalls.incrementAndGet();
 					return execution.execute(authorization);
 				}
@@ -291,7 +390,42 @@ class ExecuteRecordedCommandServiceTest {
 				return artifacts;
 			};
 			this.service = new ExecuteRecordedCommandService(recordedCommands(recorded), decoder,
-					new CommandDispatcher(List.of(useCase)), events, CLOCK);
+					new CommandDispatcher(List.of(useCase)), events, bindings,
+					new ExternalAuthorityPermissionTranslator(), CLOCK);
+		}
+	}
+
+	private static final class RecordingBindings implements ExternalIdentityBindingPort {
+		private final Optional<PocomaUserId> lockedUser;
+		private final AtomicInteger lockCalls = new AtomicInteger();
+		private final AtomicInteger nonLockingLookupCalls = new AtomicInteger();
+		private final AtomicReference<ExternalIdentity> lockedIdentity = new AtomicReference<>();
+		private final AtomicReference<BindingId> lockedBinding = new AtomicReference<>();
+
+		private RecordingBindings(Optional<PocomaUserId> lockedUser) {
+			this.lockedUser = lockedUser;
+		}
+
+		@Override public Optional<PocomaUserId> findUserId(ExternalIdentity identity, BindingId bindingId) {
+			nonLockingLookupCalls.incrementAndGet();
+			throw new AssertionError("TARGET_V2 must not use non-locking exact resolution");
+		}
+
+		@Override public Optional<PocomaUserId> lockCurrentBinding(
+				ExternalIdentity identity, BindingId bindingId) {
+			lockCalls.incrementAndGet();
+			lockedIdentity.set(identity);
+			lockedBinding.set(bindingId);
+			return lockedUser;
+		}
+
+		@Override public BindingAcquireResult acquire(
+				ExternalIdentity identity, PocomaUserId userId, BindingId bindingId) {
+			throw new UnsupportedOperationException("not used by Command execution");
+		}
+
+		@Override public BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId) {
+			throw new UnsupportedOperationException("not used by Command execution");
 		}
 	}
 

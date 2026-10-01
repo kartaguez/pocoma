@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdateExpenseSharesCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort;
@@ -29,7 +29,7 @@ public final class UpdateExpenseSharesCommandUseCaseAdapter
 	@Override public Class<UpdateExpenseSharesCommand> commandClass() { return UpdateExpenseSharesCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, UpdateExpenseSharesCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, UpdateExpenseSharesCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.updateExpenseShares(invocation.recording(expenseContextPort), expenseSharesPort,
 						potGlobalVersionPort, invocation, authorizationPolicy)

@@ -806,6 +806,32 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void targetCommandConsumptionKeepsIdentityResolutionInsideTheWriteWorkerBoundary() {
+		assertEquals(Set.of("externalIdentity", "bindingId", "authenticationEvidence"),
+				fieldNames(ROOT_PACKAGE + ".engine.command.model.TargetCommandEnvelope"),
+				"TARGET_V2 must contain E, B and AuthN evidence only");
+
+		Set<String> executionDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".engine.command.execution.ExecuteRecordedCommandService");
+		assertTrue(executionDependencies.contains(
+				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingPort"));
+		assertFalse(executionDependencies.contains(
+				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"),
+				"TARGET_V2 execution must never fall back to legacy E-to-U resolution");
+		assertTrue(executionDependencies.stream().noneMatch(name -> name.contains(".read.")
+				|| name.contains("Keycloak") || name.contains("Jwt")),
+				"TARGET_V2 execution must depend on neither READ nor provider-specific authentication");
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".orchestrator.command.admission..")
+				.should().dependOnClassesThat().haveFullyQualifiedName(
+						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingPort")
+				.check(CLASSES);
+	}
+
+	@Test
 	void commandResultReadDependsOnlyOnTheExactReadProjectionPath() {
 		String service = ROOT_PACKAGE + ".engine.command.result.GetCommandResultService";
 		Set<String> dependencies = directDependencyNames(service);

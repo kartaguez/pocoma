@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotDetailsCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
@@ -28,7 +28,7 @@ public final class UpdatePotDetailsCommandUseCaseAdapter
 	@Override public Class<UpdatePotDetailsCommand> commandClass() { return UpdatePotDetailsCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, UpdatePotDetailsCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, UpdatePotDetailsCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.updatePotDetails(invocation.recording(potContextPort), potHeaderPort,
 						potGlobalVersionPort, invocation, authorizationPolicy)

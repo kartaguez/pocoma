@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.Command;
 
 /** Explicit immutable dispatcher from decoded Command classes to specialized use cases. */
@@ -28,7 +28,7 @@ public final class CommandDispatcher {
 						}));
 	}
 
-	public CommandUseCaseResult dispatch(AuthorizationSnapshot authorization, Command command) {
+	public CommandUseCaseResult dispatch(CommandExecutionAuthorization authorization, Command command) {
 		requireNonNull(authorization, "authorization must not be null");
 		requireNonNull(command, "command must not be null");
 		CommandUseCase<?> useCase = useCases.get(command.getClass());
@@ -38,7 +38,7 @@ public final class CommandDispatcher {
 
 	private static <C extends Command> CommandUseCaseResult execute(
 			CommandUseCase<C> useCase,
-			AuthorizationSnapshot authorization,
+			CommandExecutionAuthorization authorization,
 			Command command) {
 		return requireNonNull(useCase.execute(authorization, useCase.commandClass().cast(command)),
 				"Command use case result must not be null");

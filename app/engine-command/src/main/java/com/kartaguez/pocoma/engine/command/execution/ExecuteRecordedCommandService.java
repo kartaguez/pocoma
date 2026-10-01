@@ -4,15 +4,22 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
+import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.model.Command;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 
@@ -20,11 +27,15 @@ import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 public final class ExecuteRecordedCommandService implements ExecuteRecordedCommandUseCase {
 
 	private static final TerminalReason AUTHORIZATION_EXPIRED = new TerminalReason("AUTHORIZATION_EXPIRED");
+	private static final TerminalReason CALLER_IDENTITY_NOT_CURRENT =
+			new TerminalReason("CALLER_IDENTITY_NOT_CURRENT");
 
 	private final RecordedCommandPort recordedCommands;
 	private final CommandDecoder decoder;
 	private final CommandDispatcher dispatcher;
 	private final EventAppendPort events;
+	private final ExternalIdentityBindingPort bindings;
+	private final ExternalAuthorityPermissionTranslator permissions;
 	private final Clock clock;
 
 	public ExecuteRecordedCommandService(
@@ -32,11 +43,15 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 			CommandDecoder decoder,
 			CommandDispatcher dispatcher,
 			EventAppendPort events,
+			ExternalIdentityBindingPort bindings,
+			ExternalAuthorityPermissionTranslator permissions,
 			Clock clock) {
 		this.recordedCommands = requireNonNull(recordedCommands, "recordedCommands must not be null");
 		this.decoder = requireNonNull(decoder, "decoder must not be null");
 		this.dispatcher = requireNonNull(dispatcher, "dispatcher must not be null");
 		this.events = requireNonNull(events, "events must not be null");
+		this.bindings = requireNonNull(bindings, "bindings must not be null");
+		this.permissions = requireNonNull(permissions, "permissions must not be null");
 		this.clock = requireNonNull(clock, "clock must not be null");
 	}
 
@@ -46,12 +61,16 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		RecordedCommand recorded = requireNonNull(recordedCommands.findById(commandId),
 				"recordedCommands.findById must not return null")
 				.orElseThrow(() -> new RecordedCommandNotFoundException(commandId));
-		if (!clock.instant().isBefore(recorded.authorization().validUntil())) {
+		Optional<CommandExecutionAuthorization> prepared = prepareAuthorization(recorded);
+		if (prepared.isEmpty()) {
+			return new RecordedCommandExecutionResult.Rejected(CALLER_IDENTITY_NOT_CURRENT, List.of());
+		}
+		if (!clock.instant().isBefore(validUntil(recorded))) {
 			return new RecordedCommandExecutionResult.Rejected(AUTHORIZATION_EXPIRED, List.of());
 		}
 
 		Command command = decoder.decode(recorded.commandType(), recorded.serializedPayload());
-		CommandUseCaseResult result = dispatcher.dispatch(recorded.authorization(), command);
+		CommandUseCaseResult result = dispatcher.dispatch(prepared.orElseThrow(), command);
 		if (result instanceof CommandUseCaseResult.Rejected rejected) {
 			return new RecordedCommandExecutionResult.Rejected(rejected.reason(), rejected.inputs());
 		}
@@ -75,5 +94,22 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		}
 		return new RecordedCommandExecutionResult.Succeeded(
 				succeeded.inputs(), succeeded.appliedResult(), artifacts);
+	}
+
+	private Optional<CommandExecutionAuthorization> prepareAuthorization(RecordedCommand recorded) {
+		return switch (recorded.envelope()) {
+			case AuthorizationSnapshot legacy -> Optional.of(legacy);
+			case TargetCommandEnvelope target -> bindings.lockCurrentBinding(
+					target.externalIdentity(), target.bindingId())
+					.map(userId -> new ResolvedCommandAuthorization(userId,
+							permissions.translate(target.authenticationEvidence().externalAuthorities())));
+		};
+	}
+
+	private static java.time.Instant validUntil(RecordedCommand recorded) {
+		return switch (recorded.envelope()) {
+			case AuthorizationSnapshot legacy -> legacy.validUntil();
+			case TargetCommandEnvelope target -> target.authenticationEvidence().validUntil();
+		};
 	}
 }

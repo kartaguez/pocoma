@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreateExpenseCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseSharesPort;
@@ -31,7 +31,7 @@ public final class CreateExpenseCommandUseCaseAdapter extends AbstractPotCommand
 	@Override public Class<CreateExpenseCommand> commandClass() { return CreateExpenseCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, CreateExpenseCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, CreateExpenseCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.createExpense(invocation.recording(potContextPort), potGlobalVersionPort,
 						expenseHeaderPort, expenseSharesPort, invocation, authorizationPolicy)

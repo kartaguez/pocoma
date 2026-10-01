@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.UpdatePotShareholdersWeightsCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
@@ -32,7 +32,7 @@ public final class UpdatePotShareholdersWeightsCommandUseCaseAdapter
 
 	@Override
 	public CommandUseCaseResult execute(
-			AuthorizationSnapshot authorization,
+			CommandExecutionAuthorization authorization,
 			UpdatePotShareholdersWeightsCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.updateShareholderWeights(

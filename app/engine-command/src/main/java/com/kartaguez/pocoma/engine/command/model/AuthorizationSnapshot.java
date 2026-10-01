@@ -15,7 +15,7 @@ public record AuthorizationSnapshot(
 		Instant authenticatedAt,
 		Instant issuedAt,
 		Instant validUntil,
-		String issuer) implements RecordedCommandEnvelope {
+		String issuer) implements RecordedCommandEnvelope, CommandExecutionAuthorization {
 
 	public AuthorizationSnapshot {
 		requireNonNull(userId, "userId must not be null");

@@ -1,13 +1,11 @@
-package com.kartaguez.pocoma.orchestrator.command.admission;
+package com.kartaguez.pocoma.domain.authorization;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.kartaguez.pocoma.domain.authorization.PocomaPermissions.VIEW_ARCHIVE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-
-import com.kartaguez.pocoma.domain.authorization.Permission;
 
 class ExternalAuthorityPermissionTranslatorTest {
 	private final ExternalAuthorityPermissionTranslator translator = new ExternalAuthorityPermissionTranslator();

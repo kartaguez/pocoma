@@ -40,6 +40,8 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
+import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.context.UpdatePotDetailsContext;
@@ -80,6 +82,21 @@ class PotCommandUseCaseAdapterTest {
 		assertEquals(UserId.of(USER_ID), received.get().userId());
 		assertEquals(permissions, received.get().permissions());
 		assertThrows(UnsupportedOperationException.class, () -> received.get().permissions().clear());
+	}
+
+	@Test
+	void targetResolvedAuthorizationSuppliesTheCurrentUserToTheBusinessPolicyContext() {
+		AtomicReference<UserContext> received = new AtomicReference<>();
+		TestAdapter adapter = new TestAdapter((invocation, userContext) -> {
+			received.set(userContext);
+			return snapshot(POT_ID, 1);
+		});
+		Set<Permission> permissions = Set.of(new Permission("POT", "CREATE"));
+
+		adapter.execute(new ResolvedCommandAuthorization(new PocomaUserId(USER_ID), permissions), command());
+
+		assertEquals(UserId.of(USER_ID), received.get().userId());
+		assertEquals(permissions, received.get().permissions());
 	}
 
 	@Test
@@ -356,7 +373,8 @@ class PotCommandUseCaseAdapterTest {
 		private final AdaptedExecution execution;
 		private TestAdapter(AdaptedExecution execution) { this.execution = execution; }
 		@Override public Class<CreatePotCommand> commandClass() { return CreatePotCommand.class; }
-		@Override public CommandUseCaseResult execute(AuthorizationSnapshot authorization, CreatePotCommand command) {
+		@Override public CommandUseCaseResult execute(
+				CommandExecutionAuthorization authorization, CreatePotCommand command) {
 			return executeAdapted(authorization, command, execution);
 		}
 	}

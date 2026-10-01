@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.engine.exception.VersionConflictException;
@@ -22,7 +22,7 @@ import com.kartaguez.pocoma.engine.snapshot.PotShareholdersSnapshot;
 abstract class AbstractPotCommandUseCaseAdapter<C extends Command> implements CommandUseCase<C> {
 
 	protected final CommandUseCaseResult executeAdapted(
-			AuthorizationSnapshot authorization,
+			CommandExecutionAuthorization authorization,
 			C command,
 			AdaptedExecution execution) {
 		requireNonNull(command, "command must not be null");

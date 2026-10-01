@@ -68,6 +68,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseHeaderA
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseSharesAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotHeaderAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotShareholdersAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
@@ -83,7 +84,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecorded
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.orchestrator.command.admission.AuthorizationSnapshotFactory;
-import com.kartaguez.pocoma.orchestrator.command.admission.ExternalAuthorityPermissionTranslator;
+import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
@@ -468,7 +469,8 @@ class CommandCompletionE2EPostgresTest {
 			JpaCommandConsumptionDiscoveryAdapter.class, JdbcCommandOutcomeAdapter.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class,
 			ExternalIdentityJdbcRepository.class,
-			JpaExternalIdentityResolverAdapter.class, JpaPotGlobalVersionAdapter.class,
+			JpaExternalIdentityResolverAdapter.class, JpaExternalIdentityBindingAdapter.class,
+			JpaPotGlobalVersionAdapter.class,
 			JpaPotContextAdapter.class, JpaExpenseContextAdapter.class, JpaPotHeaderAdapter.class,
 			JpaPotShareholdersAdapter.class, JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,
 			JpaPotCommandEventAppendAdapter.class})

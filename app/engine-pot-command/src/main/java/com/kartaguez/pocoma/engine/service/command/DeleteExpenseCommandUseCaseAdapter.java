@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeleteExpenseCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.ExpenseHeaderPort;
@@ -27,7 +27,7 @@ public final class DeleteExpenseCommandUseCaseAdapter extends AbstractPotCommand
 	@Override public Class<DeleteExpenseCommand> commandClass() { return DeleteExpenseCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, DeleteExpenseCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, DeleteExpenseCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.deleteExpense(invocation.recording(expenseContextPort), expenseHeaderPort,
 						potGlobalVersionPort, invocation, authorizationPolicy)

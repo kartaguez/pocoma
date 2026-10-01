@@ -3,7 +3,7 @@ package com.kartaguez.pocoma.engine.service.command;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.DeletePotCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotContextPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
@@ -27,7 +27,7 @@ public final class DeletePotCommandUseCaseAdapter extends AbstractPotCommandUseC
 	@Override public Class<DeletePotCommand> commandClass() { return DeletePotCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, DeletePotCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, DeletePotCommand command) {
 		return executeAdapted(authorization, command, (invocation, userContext) ->
 				PotBusinessUseCaseFactory.deletePot(invocation.recording(potContextPort), potHeaderPort,
 						potGlobalVersionPort, invocation, authorizationPolicy).deletePot(userContext, command));

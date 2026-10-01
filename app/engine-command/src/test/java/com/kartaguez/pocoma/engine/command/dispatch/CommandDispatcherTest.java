@@ -18,6 +18,7 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
@@ -31,7 +32,7 @@ class CommandDispatcherTest {
 
 	@Test
 	void dispatchesTheExactCommandClassAndPassesAuthorizationUnchanged() {
-		AtomicReference<AuthorizationSnapshot> received = new AtomicReference<>();
+		AtomicReference<CommandExecutionAuthorization> received = new AtomicReference<>();
 		TestBusinessEvent first = new TestBusinessEvent("created");
 		TestBusinessEvent second = new TestBusinessEvent("updated");
 		CommandUseCase<TestCommand> useCase = useCase((authorization, command) -> {
@@ -86,7 +87,8 @@ class CommandDispatcherTest {
 	private static CommandUseCase<TestCommand> useCase(Executor executor) {
 		return new CommandUseCase<>() {
 			@Override public Class<TestCommand> commandClass() { return TestCommand.class; }
-			@Override public CommandUseCaseResult execute(AuthorizationSnapshot authorization, TestCommand command) {
+			@Override public CommandUseCaseResult execute(
+					CommandExecutionAuthorization authorization, TestCommand command) {
 				return executor.execute(authorization, command);
 			}
 		};
@@ -94,7 +96,7 @@ class CommandDispatcherTest {
 
 	@FunctionalInterface
 	private interface Executor {
-		CommandUseCaseResult execute(AuthorizationSnapshot authorization, TestCommand command);
+		CommandUseCaseResult execute(CommandExecutionAuthorization authorization, TestCommand command);
 	}
 
 	private record TestCommand(String value) implements Command {}

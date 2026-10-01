@@ -210,6 +210,28 @@ Claim perdu, exception métier et failure d’append rollbackent la mutation. Le
 
 **DONE.** Le worker cible n’utilise plus le User figé à l’admission et protège WA5, WA8 et WA11.
 
+**Résultat WA.4 — DONE (2026-10-01).**
+
+- le reload de la Command prépare localement un contexte d’exécution `LEGACY_V1` ou `TARGET_V2` ;
+  V1 conserve son snapshot historique, tandis que V2 résout exclusivement l’occurrence exacte
+  `(ExternalIdentity, BindingId)` par `lockCurrentBinding(E,B)` et traduit l’évidence AuthN au worker ;
+- le `SELECT ... FOR UPDATE` exact est acquis dans la transaction fenced portée par
+  `TransactionalExecuteConsumptionUseCase` ; cette même transaction couvre reload, résolution,
+  policies sur l’état primaire courant, mutation métier, append Event, résultat durable et
+  finalisation CAS du claim, de sorte que le lock reste détenu jusqu’au commit métier ;
+- toute absence de l’occurrence exacte — identité inconnue, B faux/ancien/détaché, reattach vers le
+  même U ou un autre U — produit uniquement `CALLER_IDENTITY_NOT_CURRENT`, sans second lookup et sans
+  fallback `findUserId(E)` ;
+- les tests PostgreSQL prouvent le blocage d’un detach concurrent jusqu’au commit, le rejet lorsque
+  le detach précède le lock, les deux formes de reattach, ainsi que le rollback de la mutation et la
+  libération du lock sur échec technique ; les preuves existantes de claim/fence, append et
+  multi-worker restent vertes ;
+- les guards empêchent l’ajout de U/Permission dans `TargetCommandEnvelope`, le fallback legacy, les
+  dépendances READ/provider-specific du worker et la résolution de binding dans l’admission HTTP ;
+- périmètre : comportement HTTP et production POST V1 inchangés, aucune implémentation WA.5+, aucune
+  modification de `Step_Canon.md`. Tests ciblés, PostgreSQL, architecture, reactor pertinent et
+  reactor Maven complet : verts.
+
 ### WA.5 — Produce : admission ouverte et sans lecture primaire
 
 **Prérequis.** WA.4 déployable et WA.3 compatible.

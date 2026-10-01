@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.orchestrator.command.admission;
+package com.kartaguez.pocoma.domain.authorization;
 
 import static java.util.Objects.requireNonNull;
 
@@ -6,8 +6,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.kartaguez.pocoma.domain.authorization.Permission;
 
 /** Translates the stable external Pocoma authority namespace into generic permissions. */
 public final class ExternalAuthorityPermissionTranslator {

@@ -7,7 +7,7 @@ import java.util.List;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.port.in.command.intent.CreatePotCommand;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.engine.port.out.persistence.PotHeaderPort;
@@ -28,7 +28,7 @@ public final class CreatePotCommandUseCaseAdapter extends AbstractPotCommandUseC
 	@Override public Class<CreatePotCommand> commandClass() { return CreatePotCommand.class; }
 
 	@Override
-	public CommandUseCaseResult execute(AuthorizationSnapshot authorization, CreatePotCommand command) {
+	public CommandUseCaseResult execute(CommandExecutionAuthorization authorization, CreatePotCommand command) {
 		requireNonNull(authorization, "authorization must not be null");
 		requireNonNull(command, "command must not be null");
 		if (!command.creatorId().equals(authorization.userId().value())) {
