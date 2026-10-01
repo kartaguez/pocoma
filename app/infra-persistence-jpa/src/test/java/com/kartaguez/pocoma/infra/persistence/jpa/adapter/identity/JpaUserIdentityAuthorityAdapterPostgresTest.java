@@ -72,7 +72,9 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 
 	@BeforeEach
 	void cleanDatabase() {
+		jdbc.update("delete from external_identity_binding_facts");
 		jdbc.update("delete from external_identities");
+		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 		executor = Executors.newFixedThreadPool(2);
 	}
@@ -157,6 +159,23 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 		assertEquals(BindingDetachResult.NOT_CURRENT,
 				inTransaction(() -> bindings.detach(identity, first)));
 		assertEquals(user.id(), inTransaction(() -> bindings.findUserId(identity, second)).orElseThrow());
+	}
+
+	@Test
+	void existingBindingWritersDoNotProduceLifecycleFactsOrStreamsYet() {
+		User user = createUser(45);
+		ExternalIdentity identity = identity("issuer", "wa-6-1-runtime-boundary");
+		BindingId bindingId = bindingId(46);
+
+		assertEquals(BindingAcquireResult.ACQUIRED,
+				inTransaction(() -> bindings.acquire(identity, user.id(), bindingId)));
+		assertEquals(BindingDetachResult.DETACHED,
+				inTransaction(() -> bindings.detach(identity, bindingId)));
+
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_streams",
+				Integer.class));
+		assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_facts",
+				Integer.class));
 	}
 
 	@Test

@@ -476,7 +476,11 @@ class HexagonalArchitectureTest {
 				"User", USER_IDENTITY_DOMAIN_PACKAGE + ".User",
 				"PocomaUserId", USER_IDENTITY_DOMAIN_PACKAGE + ".PocomaUserId",
 				"ExternalIdentity", USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentity",
-				"BindingId", USER_IDENTITY_DOMAIN_PACKAGE + ".BindingId");
+				"BindingId", USER_IDENTITY_DOMAIN_PACKAGE + ".BindingId",
+				"BindingRevision", USER_IDENTITY_DOMAIN_PACKAGE + ".BindingRevision",
+				"ExternalIdentityBindingFact", USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingFact",
+				"ExternalIdentityAttached", USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityAttached",
+				"ExternalIdentityDetached", USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityDetached");
 
 		canonicalOwners.forEach((simpleName, owner) -> {
 			Set<String> definitions = CLASSES.stream()
@@ -499,6 +503,42 @@ class HexagonalArchitectureTest {
 						"org.keycloak..",
 						"jakarta.persistence..")
 				.check(CLASSES);
+	}
+
+	@Test
+	void bindingLifecyclePersistenceRemainsSeparateFromTheCurrentBindingAuthorityAndCommandRuntime() {
+		Set<String> authorityDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter");
+		assertFalse(authorityDependencies.stream().anyMatch(name ->
+				name.contains("BindingFact") || name.contains("BindingStream")),
+				"the existing binding authority writer must not emit facts or mutate streams in WA.6.1");
+
+		Set<String> lifecycleToAuthorityDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(
+						ROOT_PACKAGE + ".infra.persistence.jpa"))
+				.filter(javaClass -> javaClass.getSimpleName().contains("BindingFact")
+						|| javaClass.getSimpleName().contains("BindingStream"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.map(javaClass -> javaClass.getName())
+				.filter(name -> name.endsWith("ExternalIdentityJdbcRepository")
+						|| name.endsWith("JpaExternalIdentityBindingAdapter")
+						|| name.endsWith("ExternalIdentityBindingPort"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), lifecycleToAuthorityDependencies,
+				"the lifecycle journal and stream must not become a second binding authority");
+
+		Set<String> commandRuntimeLifecycleDependencies = CLASSES.stream()
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.command")
+						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".runtime.command"))
+				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				.map(Dependency::getTargetClass)
+				.map(javaClass -> javaClass.getName())
+				.filter(name -> name.endsWith("ExternalIdentityBindingFactPort")
+						|| name.endsWith("ExternalIdentityBindingStreamPort"))
+				.collect(Collectors.toUnmodifiableSet());
+		assertEquals(Set.of(), commandRuntimeLifecycleDependencies,
+				"Command processing must not consult binding lifecycle persistence");
 	}
 
 	@Test

@@ -347,6 +347,37 @@ n’est créé pour les rows V18.
 **Clôture.** Le schéma extensif est déployable avant tout writer et permet d’ordonner durablement les
 mutations d’une E sans compteur global.
 
+**Résultat WA.6.1 — DONE (2026-10-01).**
+
+- baseline : `de74108fdb94352f0bab7206083a82db72801d9a` ; commit dédié :
+  `feat: establish external identity binding lifecycle schema` ;
+- migration : `V20__external_identity_binding_lifecycle.sql` crée les tables WRITE extensives
+  `external_identity_binding_streams` et `external_identity_binding_facts`, sans trigger et sans
+  modifier `external_identities`, qui reste l’unique autorité du binding ;
+- contrats : `BindingRevision` accepte `0` pour le bootstrap, rejette les valeurs négatives et reste
+  locale à une E ; `ExternalIdentityAttached` porte eventId, E, U, B, révision positive et
+  recordedAt ; `ExternalIdentityDetached` porte eventId, E, B, révision positive et recordedAt,
+  sans User inventé ;
+- persistence : rows, mapper, repositories JDBC et ports/adapters transactionnels non encore câblés
+  représentent la création idempotente d’un stream à `0`, sa lecture et l’append des deux formes de
+  faits ; aucune primitive de lock, allocation ou incrément de révision n’est introduite ;
+- schéma : stream clé `(issuer,subject)` avec révision `>= 0` ; journal clé `event_id`, unicité
+  `(issuer,subject,binding_revision)`, révision `>= 1`, FK vers le stream et User Attached, formes
+  `ATTACHED`/`DETACHED` disjointes, `binding_id` obligatoire, `partition_hash` dérivé de E et indexé
+  pour le futur discovery ;
+- bootstrap : chaque E héritée de V18/V19 reçoit exactement un stream à révision `0` via
+  `INSERT ... ON CONFLICT DO NOTHING` ; U et B autoritatifs restent inchangés et aucun fait
+  historique synthétique n’est créé ; plusieurs E possèdent chacune leur propre révision `0`, sans
+  compteur global ;
+- preuves : unitaires domaine et mapper ; PostgreSQL/Testcontainers sur base vide, upgrade V19
+  prérempli, idempotence du bootstrap, contraintes de révision/unicité/type/formes/FK, persistence
+  des deux variantes et absence de mutation de l’autorité ; preuve explicite que les writers
+  `acquire/detach` existants ne créent ni stream ni fait ; migrations Flyway, architecture et
+  reactor pertinent `architecture-tests -am` verts ; reactor Maven complet vert ;
+- limites : aucun writer Attach/Detach modifié, aucune allocation `nextRevision`, aucun consumer,
+  aucune Consumption de binding fact, aucune projection READ, aucun `CURRENT_BINDING`, aucun job de
+  bootstrap READ, aucun endpoint et aucune implémentation WA.6.2+ ; `Step_Canon.md` inchangé.
+
 #### WA.6.2 — Mutation atomique Attach/Detach, allocation et append
 
 **Objectif.** Faire de la mutation d’autorité et de son fait une seule unité atomique.
