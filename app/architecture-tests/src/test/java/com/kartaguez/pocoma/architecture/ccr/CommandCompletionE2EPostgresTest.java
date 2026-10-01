@@ -8,10 +8,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -48,7 +46,11 @@ import com.kartaguez.pocoma.PotReadConfiguration;
 import com.kartaguez.pocoma.ProjectionReadConfiguration;
 import com.kartaguez.pocoma.WebAuthorizationConfiguration;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
+import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
@@ -83,11 +85,6 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandC
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
-import com.kartaguez.pocoma.orchestrator.command.admission.AuthorizationSnapshotFactory;
-import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
@@ -124,14 +121,16 @@ class CommandCompletionE2EPostgresTest {
 		try (ConfigurableApplicationContext commandContext = commandContext()) {
 			cleanDatabase(jdbc);
 			insertBinding(jdbc, userId);
-			applied = admit(commandContext, UUID.randomUUID(), BASE_TIME,
+			applied = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME, userId,
 					payload(appliedLabel, userId), Set.of("pocoma:pot:create"));
-			rejected = admit(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(1),
+			rejected = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(1), userId,
 					payload(rejectedLabel, userId), Set.of());
-			failed = admit(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(2),
+			failed = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(2), userId,
 					payload(failedLabel, userId), Set.of("pocoma:pot:create"));
 
 			assertEquals(3, count(jdbc, "select count(*) from recorded_commands"));
+			assertEquals(3, count(jdbc,
+					"select count(*) from recorded_commands where envelope_version=1"));
 			assertEquals(0, count(jdbc, "select count(*) from command_outcomes"));
 			assertEquals(0, count(jdbc, "select count(*) from command_terminal_events"));
 			assertEquals(0, count(jdbc, "select count(*) from projection_tasks"));
@@ -211,52 +210,50 @@ class CommandCompletionE2EPostgresTest {
 
 		try (ConfigurableApplicationContext webContext = webContext()) {
 			cleanDatabase(jdbc);
-			insertBinding(jdbc, userId);
+			BindingId bindingId = insertBinding(jdbc, userId);
 			int port = ((WebServerApplicationContext) webContext).getWebServer().getPort();
 			HttpClient http = HttpClient.newBuilder().connectTimeout(HTTP_TIMEOUT).build();
 			String baseUrl = "http://127.0.0.1:" + port;
 			ObjectMapper mapper = webContext.getBean(ObjectMapper.class);
 
-			UUID createCommandId = submit(http, baseUrl, mapper, PotCommandTypes.POT_CREATE_V1.value(),
+			UUID createCommandId = submit(http, baseUrl, mapper, bindingId,
+					PotCommandTypes.POT_CREATE_V1.value(),
 					Map.of("label", initialLabel, "creatorId", userId.toString()));
+			assertEquals(2, jdbc.queryForObject(
+					"select envelope_version from recorded_commands where command_id=?",
+					Integer.class, createCommandId));
 			assertEquals(404, get(http, baseUrl, "/api/v1/command-results/" + createCommandId).statusCode());
 
 			runPotPipeline();
-			JsonNode created = commandResult(http, baseUrl, mapper, createCommandId);
-			UUID potId = UUID.fromString(created.path("potId").asText());
-			assertEquals(1L, created.path("resultingVersion").asLong());
+			assertOutcome(jdbc, new CommandId(createCommandId), "APPLIED", "COMMAND_APPLIED",
+					TerminalOutcome.SUCCESS);
+			UUID potId = jdbc.queryForObject("select pot_id from pot_headers where label=?",
+					UUID.class, initialLabel);
 			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
 
-			UUID updateCommandId = submit(http, baseUrl, mapper, PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
+			UUID updateCommandId = submit(http, baseUrl, mapper, bindingId,
+					PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
 					Map.of("potId", potId.toString(), "label", updatedLabel, "expectedVersion", 1));
 			runPotPipeline();
-			JsonNode updated = commandResult(http, baseUrl, mapper, updateCommandId);
-			assertEquals(potId.toString(), updated.path("potId").asText());
-			assertEquals(2L, updated.path("resultingVersion").asLong());
+			assertOutcome(jdbc, new CommandId(updateCommandId), "APPLIED", "COMMAND_APPLIED",
+					TerminalOutcome.SUCCESS);
 			assertPot(http, baseUrl, mapper, potId, 2, updatedLabel);
 			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
 		}
 	}
 
-	private UUID submit(HttpClient http, String baseUrl, ObjectMapper mapper, String commandType,
+	private UUID submit(HttpClient http, String baseUrl, ObjectMapper mapper, BindingId bindingId,
+			String commandType,
 			Map<String, ?> payload)
 			throws Exception {
 		HttpResponse<String> response = http.send(request(baseUrl, "/api/v1/commands")
 				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
 				.POST(HttpRequest.BodyPublishers.ofByteArray(mapper.writeValueAsBytes(
-						Map.of("commandType", commandType, "payload", payload)))).build(),
+						Map.of("commandType", commandType, "bindingId", bindingId.value(),
+								"payload", payload)))).build(),
 				HttpResponse.BodyHandlers.ofString());
 		assertEquals(202, response.statusCode(), response.body());
 		return UUID.fromString(mapper.readTree(response.body()).path("commandId").asText());
-	}
-
-	private JsonNode commandResult(HttpClient http, String baseUrl, ObjectMapper mapper, UUID commandId)
-			throws Exception {
-		HttpResponse<String> response = get(http, baseUrl, "/api/v1/command-results/" + commandId);
-		assertEquals(200, response.statusCode(), response.body());
-		JsonNode result = mapper.readTree(response.body());
-		assertEquals("APPLIED", result.path("status").asText());
-		return result;
 	}
 
 	private void assertPot(HttpClient http, String baseUrl, ObjectMapper mapper, UUID potId,
@@ -295,17 +292,17 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
-	private CommandId admit(ConfigurableApplicationContext context, UUID commandId, Instant submittedAt,
+	private CommandId admitHistoricalLegacy(ConfigurableApplicationContext context, UUID commandId,
+			Instant submittedAt, UUID userId,
 			String serializedPayload, Set<String> authorities) {
-		var service = new SubmitRecordedCommandService(
-				context.getBean(ExternalIdentityResolverPort.class),
-				context.getBean(RecordedCommandPort.class),
-				() -> new CommandId(commandId),
-				new AuthorizationSnapshotFactory(new CommandAuthorizationTtl(Duration.ofMinutes(15)),
-						new ExternalAuthorityPermissionTranslator()),
-				Clock.fixed(submittedAt, ZoneOffset.UTC), context.getBean(TransactionRunner.class));
-		return service.submit(new SubmitRecordedCommandInput(PotCommandTypes.POT_CREATE_V1,
-				serializedPayload, principal(authorities))).commandId();
+		CommandId id = new CommandId(commandId);
+		var snapshot = new AuthorizationSnapshot(new PocomaUserId(userId),
+				new ExternalAuthorityPermissionTranslator().translate(authorities),
+				submittedAt.minusSeconds(1), submittedAt.minusSeconds(1), submittedAt.plusSeconds(600), ISSUER);
+		context.getBean(TransactionRunner.class).runInTransaction(() ->
+				context.getBean(RecordedCommandPort.class).insert(new RecordedCommand(
+						id, PotCommandTypes.POT_CREATE_V1, serializedPayload, submittedAt, snapshot)));
+		return id;
 	}
 
 	private static AuthenticatedExternalPrincipal principal(Set<String> authorities) {
@@ -448,10 +445,12 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
-	private static void insertBinding(JdbcTemplate jdbc, UUID userId) {
+	private static BindingId insertBinding(JdbcTemplate jdbc, UUID userId) {
+		BindingId bindingId = new BindingId(UUID.randomUUID());
 		jdbc.update("insert into users (user_id) values (?)", userId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
-				ISSUER, SUBJECT, userId, UUID.randomUUID());
+				ISSUER, SUBJECT, userId, bindingId.value());
+		return bindingId;
 	}
 
 	private static void await(Supplier<Boolean> condition) throws InterruptedException {

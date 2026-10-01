@@ -1,8 +1,7 @@
 package com.kartaguez.pocoma.orchestrator.command.admission;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -17,12 +16,14 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.RecordedCommandEnvelopeVersion;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
@@ -31,16 +32,16 @@ import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedC
 class SubmitRecordedCommandServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-05T12:00:00Z");
 	private static final CommandId COMMAND_ID = new CommandId(UUID.randomUUID());
-	private static final PocomaUserId USER_ID = new PocomaUserId(UUID.randomUUID());
+	private static final BindingId BINDING_ID = new BindingId(UUID.randomUUID());
 
 	@Test
-	void resolvesRecordsAndReturnsTheServerGeneratedIdentityInsideOneTransaction() {
+	void recordsTargetEnvelopeFromPrincipalAndClientBindingInsideOneTransaction() {
 		List<RecordedCommand> inserted = new ArrayList<>();
 		CountingTransactions transactions = new CountingTransactions();
-		SubmitRecordedCommandService service = service(Optional.of(USER_ID), inserted, transactions);
+		SubmitRecordedCommandService service = service(inserted, transactions);
 
 		var result = service.submit(new SubmitRecordedCommandInput(
-				new CommandType("POT_CREATE_V1"), "{\"label\":\"Trip\"}", principal()));
+				new CommandType("POT_CREATE_V1"), BINDING_ID, "{\"label\":\"Trip\"}", principal()));
 
 		assertEquals(COMMAND_ID, result.commandId());
 		assertEquals(1, transactions.calls);
@@ -48,32 +49,26 @@ class SubmitRecordedCommandServiceTest {
 		RecordedCommand command = inserted.getFirst();
 		assertEquals(COMMAND_ID, command.commandId());
 		assertEquals(NOW, command.submittedAt());
-		assertEquals(USER_ID, command.authorization().userId());
-		assertEquals(NOW.plusSeconds(300), command.authorization().validUntil());
-	}
-
-	@Test
-	void unknownIdentityCreatesNoCommand() {
-		List<RecordedCommand> inserted = new ArrayList<>();
-		assertThrows(UserNotProvisionedException.class,
-				() -> service(Optional.empty(), inserted, new CountingTransactions()).submit(
-						new SubmitRecordedCommandInput(new CommandType("TYPE"), "{}", principal())));
-		assertTrue(inserted.isEmpty());
+		assertEquals(RecordedCommandEnvelopeVersion.TARGET_V2, command.envelope().version());
+		TargetCommandEnvelope envelope = assertInstanceOf(TargetCommandEnvelope.class, command.envelope());
+		assertEquals(new ExternalIdentity("https://issuer.example", "subject"), envelope.externalIdentity());
+		assertEquals(BINDING_ID, envelope.bindingId());
+		assertEquals(Set.of("pocoma:pot:create", "provider:untranslated"),
+				envelope.authenticationEvidence().externalAuthorities());
+		assertEquals(NOW.plusSeconds(300), envelope.authenticationEvidence().validUntil());
 	}
 
 	private static SubmitRecordedCommandService service(
-			Optional<PocomaUserId> userId,
 			List<RecordedCommand> inserted,
 			TransactionRunner transactions) {
 		return new SubmitRecordedCommandService(
-				identity -> userId,
 				new RecordedCommandPort() {
 					@Override public void insert(RecordedCommand command) { inserted.add(command); }
 					@Override public Optional<RecordedCommand> findById(CommandId commandId) { return Optional.empty(); }
 				},
 				() -> COMMAND_ID,
-				new AuthorizationSnapshotFactory(new CommandAuthorizationTtl(Duration.ofMinutes(5)),
-						new ExternalAuthorityPermissionTranslator()),
+				new CommandAuthenticationEvidenceFactory(
+						new CommandAuthorizationTtl(Duration.ofMinutes(5))),
 				Clock.fixed(NOW, ZoneOffset.UTC),
 				transactions);
 	}
@@ -81,7 +76,7 @@ class SubmitRecordedCommandServiceTest {
 	private static AuthenticatedExternalPrincipal principal() {
 		return new AuthenticatedExternalPrincipal(
 				"https://issuer.example", "subject", NOW.minusSeconds(120), NOW.minusSeconds(60),
-				NOW.plusSeconds(600), Set.of("pocoma:pot:create"));
+				NOW.plusSeconds(600), Set.of("pocoma:pot:create", "provider:untranslated"));
 	}
 
 	private static final class CountingTransactions implements TransactionRunner {

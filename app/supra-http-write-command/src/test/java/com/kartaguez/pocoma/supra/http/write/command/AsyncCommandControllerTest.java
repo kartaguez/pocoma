@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmittedCommand;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
@@ -27,15 +28,17 @@ class AsyncCommandControllerTest {
 	@Test
 	void acceptsAnOpaquePayloadWithoutDecodingTheCommand() throws Exception {
 		UUID commandId = UUID.randomUUID();
+		UUID bindingId = UUID.randomUUID();
 		AuthenticatedExternalPrincipal principal = principal();
 		when(commands.submit(org.mockito.ArgumentMatchers.any())).thenReturn(new SubmittedCommand(new CommandId(commandId)));
 		var response = controller.submit(new SubmitCommandRequest(
-				"FUTURE_COMMAND_V1", objectMapper.readTree("{\"unexpected\":true}")), principal);
+				"FUTURE_COMMAND_V1", bindingId, objectMapper.readTree("{\"unexpected\":true}")), principal);
 		assertEquals(commandId, response.commandId());
 		assertEquals("ACCEPTED", response.status());
 		ArgumentCaptor<SubmitRecordedCommandInput> input = ArgumentCaptor.forClass(SubmitRecordedCommandInput.class);
 		verify(commands).submit(input.capture());
 		assertEquals("FUTURE_COMMAND_V1", input.getValue().commandType().value());
+		assertEquals(new BindingId(bindingId), input.getValue().bindingId());
 		assertEquals("{\"unexpected\":true}", input.getValue().serializedPayload());
 		assertEquals(principal, input.getValue().principal());
 	}
@@ -43,9 +46,13 @@ class AsyncCommandControllerTest {
 	@Test
 	void rejectsOnlyInvalidHttpEnvelopeFields() {
 		assertEquals("INVALID_COMMAND_TYPE", assertThrows(InvalidRequestException.class,
-				() -> controller.submit(new SubmitCommandRequest(" ", objectMapper.createObjectNode()), principal())).code());
+				() -> controller.submit(new SubmitCommandRequest(" ", UUID.randomUUID(),
+						objectMapper.createObjectNode()), principal())).code());
+		assertEquals("INVALID_BINDING_ID", assertThrows(InvalidRequestException.class,
+				() -> controller.submit(new SubmitCommandRequest("TYPE", null,
+						objectMapper.createObjectNode()), principal())).code());
 		assertEquals("INVALID_COMMAND_PAYLOAD_ENVELOPE", assertThrows(InvalidRequestException.class,
-				() -> controller.submit(new SubmitCommandRequest("TYPE", null), principal())).code());
+				() -> controller.submit(new SubmitCommandRequest("TYPE", UUID.randomUUID(), null), principal())).code());
 	}
 
 	private static AuthenticatedExternalPrincipal principal() {

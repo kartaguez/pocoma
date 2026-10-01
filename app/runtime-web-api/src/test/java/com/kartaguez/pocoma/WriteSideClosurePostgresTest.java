@@ -133,13 +133,15 @@ class WriteSideClosurePostgresTest {
 	@Test
 	void committedHttpAdmissionIsConsumedThroughTheRealPollingLoop() throws Exception {
 		UUID userId = UUID.randomUUID();
+		UUID bindingId = UUID.randomUUID();
 		String label = "write-side-closure-" + UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
-				ISSUER, SUBJECT, userId, UUID.randomUUID());
+				ISSUER, SUBJECT, userId, bindingId);
 		String payload = mapper.writeValueAsString(java.util.Map.of("label", label, "creatorId", userId));
 		String body = mapper.writeValueAsString(java.util.Map.of(
 				"commandType", PotCommandTypes.POT_CREATE_V1.value(),
+				"bindingId", bindingId,
 				"payload", mapper.readTree(payload)));
 
 		String response = http.perform(post("/api/v1/commands")
@@ -152,6 +154,8 @@ class WriteSideClosurePostgresTest {
 		UUID commandId = UUID.fromString(mapper.readTree(response).path("commandId").asText());
 
 		assertEquals(1, count("recorded_commands", "command_id", commandId));
+		assertEquals(2, jdbc.queryForObject(
+				"select envelope_version from recorded_commands where command_id=?", Integer.class, commandId));
 		worker.start();
 		await(() -> count("pot_headers", "label", label) == 1);
 
@@ -166,6 +170,40 @@ class WriteSideClosurePostgresTest {
 				"select terminal_outcome from consumption_slots where consumable_type='COMMAND'", String.class));
 		assertEquals(0, jdbc.queryForObject(
 				"select count(*) from consumption_slots where current_claim_id is not null", Integer.class));
+	}
+
+	@Test
+	void staleBindingIsAcceptedThenRejectedByTheWorkerWithoutBusinessMutation() throws Exception {
+		UUID userId = UUID.randomUUID();
+		UUID currentBinding = UUID.randomUUID();
+		UUID staleBinding = UUID.randomUUID();
+		String label = "write-side-stale-" + UUID.randomUUID();
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				ISSUER, SUBJECT, userId, currentBinding);
+		String body = mapper.writeValueAsString(java.util.Map.of(
+				"commandType", PotCommandTypes.POT_CREATE_V1.value(),
+				"bindingId", staleBinding,
+				"payload", java.util.Map.of("label", label, "creatorId", userId)));
+
+		String response = http.perform(post("/api/v1/commands")
+				.with(jwt().jwt(token())).contentType(MediaType.APPLICATION_JSON).content(body))
+				.andExpect(status().isAccepted())
+				.andExpect(jsonPath("$.status").value("ACCEPTED"))
+				.andReturn().getResponse().getContentAsString();
+		UUID commandId = UUID.fromString(mapper.readTree(response).path("commandId").asText());
+		assertEquals(staleBinding, jdbc.queryForObject(
+				"select binding_id from recorded_commands where command_id=?", UUID.class, commandId));
+
+		worker.start();
+		await(() -> count("command_outcomes", "command_id", commandId) == 1);
+
+		assertEquals("REJECTED", jdbc.queryForObject(
+				"select outcome_type from command_outcomes where command_id=?", String.class, commandId));
+		assertEquals("CALLER_IDENTITY_NOT_CURRENT", jdbc.queryForObject(
+				"select public_code from command_outcomes where command_id=?", String.class, commandId));
+		assertEquals(0, count("pot_headers", "label", label));
+		assertEquals(0, jdbc.queryForObject("select count(*) from business_event_outbox", Integer.class));
 	}
 
 	private ConsumptionPollingWorker pollingWorker() {

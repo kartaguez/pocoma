@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -8,10 +10,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.sql.Timestamp;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(properties = {
@@ -47,7 +50,8 @@ class CommandAdmissionPostgresTest {
 	private static final String SUBJECT = "external-subject";
 
 	@Container static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
-			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
+			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma")
+			.withCommand("postgres", "-c", "log_statement=all");
 
 	@DynamicPropertySource
 	static void database(DynamicPropertyRegistry registry) {
@@ -73,37 +77,152 @@ class CommandAdmissionPostgresTest {
 	}
 
 	@Test
-	void authenticatedProvisionedIdentityDurablyAcceptsWithoutAnySynchronousEffects() throws Exception {
+	void knownIdentityAndCurrentBindingPersistExactTargetEnvelopeWithoutPrimarySelect() throws Exception {
 		UUID userId = UUID.randomUUID();
+		UUID bindingId = UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
-				ISSUER, SUBJECT, userId, UUID.randomUUID());
+				ISSUER, SUBJECT, userId, bindingId);
 		Instant issuedAt = Instant.now().minusSeconds(30).truncatedTo(ChronoUnit.SECONDS);
 		Instant expiresAt = Instant.now().plusSeconds(300).truncatedTo(ChronoUnit.SECONDS);
-		Instant beforeSubmission = Instant.now().minusSeconds(1);
+		String begin = "wa5_begin_" + UUID.randomUUID();
+		String end = "wa5_end_" + UUID.randomUUID();
+		jdbc.queryForObject("select ?", String.class, begin);
 
-		String response = http.perform(post("/api/v1/commands")
-				.with(jwt().jwt(token(issuedAt, expiresAt, SUBJECT)))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"commandType\":\"FUTURE_COMMAND_V1\",\"payload\":{\"business\":\"invalid-but-opaque\"}}"))
-				.andExpect(status().isAccepted())
-				.andExpect(jsonPath("$.status").value("ACCEPTED"))
-				.andReturn().getResponse().getContentAsString();
+		UUID commandId = submit(SUBJECT, bindingId, issuedAt, expiresAt,
+				"{\"commandType\":\"FUTURE_COMMAND_V1\",\"bindingId\":\"" + bindingId
+						+ "\",\"externalIdentity\":{\"issuer\":\"attacker\",\"subject\":\"attacker\"},"
+						+ "\"payload\":{\"business\":\"invalid-but-opaque\"}}");
 
-		UUID commandId = UUID.fromString(objectMapper.readTree(response).path("commandId").asText());
+		jdbc.queryForObject("select ?", String.class, end);
+		String admissionSql = statementsBetween(begin, end).toLowerCase();
+		assertFalse(admissionSql.contains(" from users"), admissionSql);
+		assertFalse(admissionSql.contains(" from external_identities"), admissionSql);
+		assertFalse(admissionSql.contains(" from pot_"), admissionSql);
+		assertFalse(admissionSql.contains(" from business_event_outbox"), admissionSql);
+		assertFalse(admissionSql.contains(" from consumption_"), admissionSql);
+		assertFalse(admissionSql.contains(" from projection_"), admissionSql);
+		assertFalse(admissionSql.contains(" from command_outcomes"), admissionSql);
+		assertFalse(admissionSql.contains(" from command_terminal_events"), admissionSql);
+
 		var row = jdbc.queryForMap("select * from recorded_commands where command_id=?", commandId);
 		assertEquals("FUTURE_COMMAND_V1", row.get("command_type"));
 		assertEquals("{\"business\":\"invalid-but-opaque\"}", row.get("payload_json"));
-		assertEquals(userId, row.get("auth_user_id"));
+		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
+		assertNull(row.get("auth_user_id"));
 		assertEquals(ISSUER, row.get("auth_issuer"));
-		assertEquals(issuedAt, ((Timestamp) row.get("auth_authenticated_at")).toInstant());
-		assertEquals(issuedAt, ((Timestamp) row.get("auth_issued_at")).toInstant());
+		assertEquals(SUBJECT, row.get("auth_subject"));
+		assertEquals(bindingId, row.get("binding_id"));
+		assertNull(row.get("auth_permissions_json"));
+		assertNull(row.get("auth_authenticated_at"));
+		assertNull(row.get("auth_issued_at"));
 		assertEquals(expiresAt, ((Timestamp) row.get("auth_valid_until")).toInstant());
-		Instant submittedAt = ((Timestamp) row.get("submitted_at")).toInstant();
-		assertTrue(!submittedAt.isBefore(beforeSubmission) && !submittedAt.isAfter(Instant.now().plusSeconds(1)));
-		assertTrue(row.get("auth_permissions_json").toString().contains("POT"));
-		assertTrue(row.get("auth_permissions_json").toString().contains("EXPENSE"));
-		assertTrue(!row.get("auth_permissions_json").toString().contains("future"));
+		JsonNode authorities = objectMapper.readTree(row.get("auth_external_authorities_json").toString());
+		assertEquals(Set.of("pocoma:pot:create", "pocoma:expense:update", "future:value"),
+				objectMapper.convertValue(authorities,
+						objectMapper.getTypeFactory().constructCollectionType(Set.class, String.class)));
+		assertNoSynchronousEffects();
+	}
+
+	@Test
+	void unknownFalseAndDetachedBindingsAreIndistinguishablyAcceptedAsTargetV2() throws Exception {
+		UUID userId = UUID.randomUUID();
+		UUID currentBinding = UUID.randomUUID();
+		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				ISSUER, SUBJECT, userId, currentBinding);
+		Instant issuedAt = Instant.now().minusSeconds(10).truncatedTo(ChronoUnit.SECONDS);
+		Instant expiresAt = Instant.now().plusSeconds(300).truncatedTo(ChronoUnit.SECONDS);
+
+		UUID falseBinding = UUID.randomUUID();
+		UUID first = submit(SUBJECT, falseBinding, issuedAt, expiresAt, body(falseBinding));
+		UUID detachedBinding = UUID.randomUUID();
+		UUID second = submit("detached-subject", detachedBinding, issuedAt, expiresAt, body(detachedBinding));
+		UUID unknownBinding = UUID.randomUUID();
+		UUID third = submit("unknown-subject", unknownBinding, issuedAt, expiresAt, body(unknownBinding));
+
+		assertEquals(3, count("recorded_commands"));
+		assertTarget(first, SUBJECT, falseBinding);
+		assertTarget(second, "detached-subject", detachedBinding);
+		assertTarget(third, "unknown-subject", unknownBinding);
+		assertNoSynchronousEffects();
+	}
+
+	@Test
+	void missingEmptyAndMalformedBindingAreStructuralRejectionsWithoutDurableRow() throws Exception {
+		Instant issuedAt = Instant.now().minusSeconds(10);
+		Instant expiresAt = Instant.now().plusSeconds(300);
+		http.perform(post("/api/v1/commands").with(jwt().jwt(token(issuedAt, expiresAt, SUBJECT)))
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"commandType\":\"TYPE\",\"payload\":{}}"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value("INVALID_BINDING_ID"));
+		for (String invalid : new String[] {"", "not-a-uuid"}) {
+			http.perform(post("/api/v1/commands").with(jwt().jwt(token(issuedAt, expiresAt, SUBJECT)))
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("{\"commandType\":\"TYPE\",\"bindingId\":\"" + invalid
+							+ "\",\"payload\":{}}"))
+					.andExpect(status().isBadRequest());
+		}
+		assertEquals(0, count("recorded_commands"));
+	}
+
+	@Test
+	void rejectsMissingAuthenticationAndInvalidAuthenticatedPrincipalWithoutRecording() throws Exception {
+		UUID bindingId = UUID.randomUUID();
+		http.perform(post("/api/v1/commands").contentType(MediaType.APPLICATION_JSON)
+				.content(body(bindingId)))
+				.andExpect(status().isUnauthorized());
+		Instant issuedAt = Instant.now().minusSeconds(10);
+		Jwt withoutAuthTime = Jwt.withTokenValue("test-token").header("alg", "none")
+				.issuer(ISSUER).subject(SUBJECT).issuedAt(issuedAt)
+				.expiresAt(Instant.now().plusSeconds(300)).claim("scope", "pocoma:pot:create").build();
+		http.perform(post("/api/v1/commands").with(jwt().jwt(withoutAuthTime))
+				.contentType(MediaType.APPLICATION_JSON).content(body(bindingId)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.code").value("INVALID_AUTHENTICATED_PRINCIPAL"));
+		assertEquals(0, count("recorded_commands"));
+	}
+
+	@Test
+	void rejectsAnOversizedRequestBeforeAdmission() throws Exception {
+		UUID bindingId = UUID.randomUUID();
+		String content = "{\"commandType\":\"TYPE\",\"bindingId\":\"" + bindingId
+				+ "\",\"payload\":{\"value\":\"" + "x".repeat(600) + "\"}}";
+		http.perform(post("/api/v1/commands")
+				.with(jwt().jwt(token(Instant.now().minusSeconds(10), Instant.now().plusSeconds(300), SUBJECT)))
+				.contentType(MediaType.APPLICATION_JSON).content(content))
+				.andExpect(status().isPayloadTooLarge())
+				.andExpect(jsonPath("$.code").value("COMMAND_PAYLOAD_TOO_LARGE"));
+		assertEquals(0, count("recorded_commands"));
+	}
+
+	private UUID submit(String subject, UUID bindingId, Instant issuedAt, Instant expiresAt, String body)
+			throws Exception {
+		String response = http.perform(post("/api/v1/commands")
+				.with(jwt().jwt(token(issuedAt, expiresAt, subject)))
+				.contentType(MediaType.APPLICATION_JSON).content(body))
+				.andExpect(status().isAccepted())
+				.andExpect(jsonPath("$.status").value("ACCEPTED"))
+				.andReturn().getResponse().getContentAsString();
+		return UUID.fromString(objectMapper.readTree(response).path("commandId").asText());
+	}
+
+	private static String body(UUID bindingId) {
+		return "{\"commandType\":\"TYPE\",\"bindingId\":\"" + bindingId + "\",\"payload\":{}}";
+	}
+
+	private void assertTarget(UUID commandId, String subject, UUID bindingId) {
+		var row = jdbc.queryForMap("select envelope_version, auth_subject, binding_id, auth_user_id, "
+				+ "auth_permissions_json from recorded_commands where command_id=?", commandId);
+		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
+		assertEquals(subject, row.get("auth_subject"));
+		assertEquals(bindingId, row.get("binding_id"));
+		assertNull(row.get("auth_user_id"));
+		assertNull(row.get("auth_permissions_json"));
+	}
+
+	private void assertNoSynchronousEffects() {
 		assertEquals(0, count("consumption_slots"));
 		assertEquals(0, count("consumption_claims"));
 		assertEquals(0, count("business_event_outbox"));
@@ -113,44 +232,12 @@ class CommandAdmissionPostgresTest {
 		assertEquals(0, count("pot_headers"));
 	}
 
-	@Test
-	void rejectsMissingAuthenticationAndUnprovisionedIdentitiesWithoutRecording() throws Exception {
-		http.perform(post("/api/v1/commands").contentType(MediaType.APPLICATION_JSON)
-				.content("{\"commandType\":\"TYPE\",\"payload\":{}}"))
-				.andExpect(status().isUnauthorized());
-		http.perform(post("/api/v1/commands")
-				.with(jwt().jwt(token(Instant.now().minusSeconds(10), Instant.now().plusSeconds(300), "unknown")))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"commandType\":\"TYPE\",\"payload\":{}}"))
-				.andExpect(status().isForbidden())
-				.andExpect(jsonPath("$.code").value("USER_NOT_PROVISIONED"));
-		assertEquals(0, count("recorded_commands"));
-	}
-
-	@Test
-	void rejectsAnAuthenticatedTokenThatDoesNotMeetThePocomaAuthTimeProfile() throws Exception {
-		Instant issuedAt = Instant.now().minusSeconds(10);
-		Jwt withoutAuthTime = Jwt.withTokenValue("test-token").header("alg", "none")
-				.issuer(ISSUER).subject(SUBJECT).issuedAt(issuedAt)
-				.expiresAt(Instant.now().plusSeconds(300)).claim("scope", "pocoma:pot:create").build();
-
-		http.perform(post("/api/v1/commands").with(jwt().jwt(withoutAuthTime))
-				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"commandType\":\"TYPE\",\"payload\":{}}"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(jsonPath("$.code").value("INVALID_AUTHENTICATED_PRINCIPAL"));
-		assertEquals(0, count("recorded_commands"));
-	}
-
-	@Test
-	void rejectsAnOversizedRequestBeforeAdmission() throws Exception {
-		String content = "{\"commandType\":\"TYPE\",\"payload\":{\"value\":\"" + "x".repeat(600) + "\"}}";
-		http.perform(post("/api/v1/commands")
-				.with(jwt().jwt(token(Instant.now().minusSeconds(10), Instant.now().plusSeconds(300), SUBJECT)))
-				.contentType(MediaType.APPLICATION_JSON).content(content))
-				.andExpect(status().isPayloadTooLarge())
-				.andExpect(jsonPath("$.code").value("COMMAND_PAYLOAD_TOO_LARGE"));
-		assertEquals(0, count("recorded_commands"));
+	private String statementsBetween(String begin, String end) {
+		String logs = POSTGRES.getLogs();
+		int start = logs.lastIndexOf(begin);
+		int finish = logs.indexOf(end, start + begin.length());
+		assertTrue(start >= 0 && finish > start, "SQL capture markers were not found in PostgreSQL logs");
+		return logs.substring(start + begin.length(), finish);
 	}
 
 	private Jwt token(Instant issuedAt, Instant expiresAt, String subject) {

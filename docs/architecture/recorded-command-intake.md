@@ -15,6 +15,11 @@ Le payload de l'envelope HTTP doit être un nœud JSON présent et la requête e
 l'enregistrement. Un `CommandType` inconnu ou un payload métier invalide peuvent donc être
 acceptés, puis échouer techniquement pendant la consommation.
 
+Le body JSON conserve `commandType` et `payload` et exige désormais `bindingId`, représenté par une
+chaîne UUID JSON (désérialisée en `UUID`, puis enveloppée dans le value object opaque `BindingId`).
+Ce choix est local au contrat existant, n'ajoute aucun endpoint V2 et rend l'absence, la chaîne vide
+ou une valeur non UUID structurellement rejetables avant toute persistence.
+
 Les limites natives Tomcat de formulaire ou de multipart ne bornent pas un body JSON arbitraire.
 Le runtime conserve donc un filtre servlet ciblé sur cette route : `Content-Length` est refusé tôt
 lorsqu'il est disponible, et le flux reste compté pour les transferts sans longueur fiable.
@@ -59,9 +64,10 @@ appartient au worker.
 `BindingId` absent ou mal formé provoque un rejet HTTP structurel sans enregistrement. Un ID bien
 formé mais faux, ancien ou inexistant produit une Command durable et `202 Accepted`.
 
-L'admission peut capturer les claims ou autorités externes attestés strictement nécessaires à
-l'évaluation future. Elle ne les traduit pas en décision d'AuthZ métier. La représentation durable
-exacte reste à planifier ; elle est provider-neutral si approprié et ne contient jamais le JWT brut.
+L'admission capture exactement les autorités externes attestées provider-neutral et `validUntil`
+dans `CommandAuthenticationEvidence`. Elle ne les traduit pas en décision d'AuthZ métier. Aucun JWT
+brut, token, `PocomaUserId`, `Permission` métier, `authenticatedAt`, `issuedAt` ou claim inutilisé
+n'est persisté dans l'envelope `TARGET_V2`.
 
 L'évidence durable peut notamment borner sa validité par :
 

@@ -442,6 +442,32 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), providerSpecificTypes,
 				"command admission must receive only AuthenticatedExternalPrincipal");
+
+		assertEquals(Set.of("commandType", "bindingId", "serializedPayload", "principal"),
+				fieldNames(ROOT_PACKAGE
+						+ ".orchestrator.command.admission.model.SubmitRecordedCommandInput"),
+				"admission input must carry the client BindingId and provider-neutral principal");
+		Set<String> serviceDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".orchestrator.command.admission.SubmitRecordedCommandService");
+		assertTrue(serviceDependencies.contains(
+				ROOT_PACKAGE + ".engine.command.model.TargetCommandEnvelope"));
+		assertFalse(serviceDependencies.stream().anyMatch(name -> name.endsWith("AuthorizationSnapshot")
+				|| name.endsWith("Permission") || name.endsWith("ExternalIdentityResolverPort")
+				|| name.endsWith("ExternalIdentityBindingPort")),
+				"TARGET_V2 admission must neither resolve User/binding nor translate AuthZ");
+
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".orchestrator.command.admission..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
+						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
+						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.pot.read..",
+						ROOT_PACKAGE + ".engine.read..",
+						ROOT_PACKAGE + ".infra.read..")
+				.check(CLASSES);
 	}
 
 	@Test
@@ -828,6 +854,13 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".orchestrator.command.admission..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingPort")
+				.check(CLASSES);
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".orchestrator.command.admission..")
+				.should().dependOnClassesThat().haveFullyQualifiedName(
+						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort")
 				.check(CLASSES);
 	}
 

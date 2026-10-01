@@ -248,6 +248,41 @@ dispatcher, use case Pot, Event ou Consumption appelé dans la requête HTTP.
 
 **DONE.** Toute nouvelle Command est produite au format cible et l’admission satisfait WA1–WA7.
 
+**Résultat WA.5 — DONE (2026-10-01).**
+
+- baseline WA.4 : `8f65eab266f6a9938f485bd4d8a93db7eb20cf48` ; commit du lot :
+  `feat: produce target command envelopes` ;
+- contrat HTTP : le body JSON de `POST /api/v1/commands` ajoute `bindingId`, chaîne UUID explicite
+  désérialisée en `UUID` puis construite en `BindingId` opaque ; l’endpoint, `commandType`, `payload`,
+  la réponse `202` et le commit synchrone de la row restent inchangés ;
+- production : le POST construit exclusivement `TargetCommandEnvelope/TARGET_V2` avec
+  l’`ExternalIdentity(issuer,subject)` exacte du principal, le B fourni par le client, le payload et
+  `CommandAuthenticationEvidence` ; aucun champ client ne permet de choisir E ;
+- admission : suppression de `findUserId(E)`, du port resolver et du rejet
+  `USER_NOT_PROVISIONED` dans ce chemin ; suppression de la construction
+  d’`AuthorizationSnapshot` et de la traduction anticipée authorities → `Permission` ;
+- évidence AuthN : seules les authorities externes attestées provider-neutral et
+  `validUntil=min(token.exp, submittedAt+TTL)` sont persistées ; aucun token/JWT, User résolu,
+  permission métier, `authenticatedAt`, `issuedAt` ou claim supplémentaire n’est écrit en V2 ;
+- admission ouverte : E inconnue et B UUID valide, ainsi que B faux, ancien ou détaché, suivent tous
+  `insert TARGET_V2 → commit → 202` ; B absent, vide ou non UUID produit `400` sans row durable ;
+- preuve zéro lecture primaire : le test HTTP PostgreSQL capture les statements serveur entre deux
+  marqueurs autour du POST et exclut tout SELECT User/Identity, Pot, Event, Consumption ou READ ; il
+  vérifie aussi l’absence d’effet synchrone. Les guards interdisent en complément resolver/binding
+  ports, adapters/repositories Identity, READ et use cases Pot depuis HTTP/admission ;
+- compatibilité WA.4 : un E2E PostgreSQL prouve `POST TARGET_V2 → worker → AuthZ → mutation/outcome`
+  pour B courant ; un second prouve `POST 202` avec B stale puis
+  `CALLER_IDENTITY_NOT_CURRENT`, sans mutation métier ;
+- legacy : le POST ne produit plus V1 ; le modèle, le mapper, les colonnes et le consumer
+  `LEGACY_V1` restent présents, et l’E2E historique recharge/consomme encore des rows V1 ; aucune
+  migration destructive n’est ajoutée ;
+- validations : tests unitaires admission/HTTP, intégrations HTTP et Command PostgreSQL, worker
+  mono/multi-runtime, E2E WA.5, 51 guards d’architecture, reactor pertinent et reactor Maven complet
+  exécutés avec succès ;
+- hors périmètre conservé : aucune WA.6+, aucune évolution de `COMMAND_RESULT`, aucun endpoint de
+  binding, aucune Registration/Attach/Detach, aucun changement du lock ou des policies WA.4, aucune
+  suppression des colonnes ou du consumer V1, aucune modification de `Step_Canon.md`.
+
 ### WA.6 — READ : résultat Command et binding self-service
 
 **Prérequis.** WA.5 ; faits User/Identity avec B disponibles depuis WA.1–WA.2.

@@ -11,15 +11,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.orchestrator.command.admission.AuthorizationSnapshotFactory;
+import com.kartaguez.pocoma.orchestrator.command.admission.CommandAuthenticationEvidenceFactory;
 import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.out.CommandIdGenerator;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.command-admission", name = "enabled", havingValue = "true")
@@ -32,10 +30,9 @@ public class CommandAdmissionConfiguration {
 	}
 
 	@Bean
-	AuthorizationSnapshotFactory authorizationSnapshotFactory(
-			@Value("${pocoma.command-admission.authorization-ttl:PT15M}") Duration ttl,
-			ExternalAuthorityPermissionTranslator permissions) {
-		return new AuthorizationSnapshotFactory(new CommandAuthorizationTtl(ttl), permissions);
+	CommandAuthenticationEvidenceFactory commandAuthenticationEvidenceFactory(
+			@Value("${pocoma.command-admission.authorization-ttl:PT15M}") Duration ttl) {
+		return new CommandAuthenticationEvidenceFactory(new CommandAuthorizationTtl(ttl));
 	}
 
 	@Bean
@@ -45,13 +42,12 @@ public class CommandAdmissionConfiguration {
 
 	@Bean
 	SubmitRecordedCommandUseCase submitRecordedCommandUseCase(
-			ExternalIdentityResolverPort identities,
 			RecordedCommandPort commands,
 			CommandIdGenerator commandIds,
-			AuthorizationSnapshotFactory snapshots,
+			CommandAuthenticationEvidenceFactory authenticationEvidence,
 			Clock clock,
 			TransactionRunner transactions) {
 		return new SubmitRecordedCommandService(
-				identities, commands, commandIds, snapshots, clock, transactions);
+				commands, commandIds, authenticationEvidence, clock, transactions);
 	}
 }

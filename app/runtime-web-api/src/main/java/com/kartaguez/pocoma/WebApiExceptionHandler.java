@@ -12,7 +12,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.kartaguez.pocoma.orchestrator.command.admission.ExpiredAuthenticatedPrincipalException;
 import com.kartaguez.pocoma.orchestrator.command.admission.InvalidAuthenticatedExternalPrincipalException;
-import com.kartaguez.pocoma.orchestrator.command.admission.UserNotProvisionedException;
 import com.kartaguez.pocoma.supra.http.write.command.InvalidRequestException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,10 +28,6 @@ public class WebApiExceptionHandler {
 			MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
 	ResponseEntity<ApiErrorResponse> badRequest(Exception exception, HttpServletRequest request) {
 		return error("INVALID_REQUEST", exception.getMessage(), HttpStatus.BAD_REQUEST, request);
-	}
-	@ExceptionHandler(UserNotProvisionedException.class)
-	ResponseEntity<ApiErrorResponse> unprovisioned(UserNotProvisionedException exception, HttpServletRequest request) {
-		return error("USER_NOT_PROVISIONED", exception.getMessage(), HttpStatus.FORBIDDEN, request);
 	}
 	@ExceptionHandler({InvalidAuthenticatedExternalPrincipalException.class, ExpiredAuthenticatedPrincipalException.class})
 	ResponseEntity<ApiErrorResponse> invalidPrincipal(RuntimeException exception, HttpServletRequest request) {

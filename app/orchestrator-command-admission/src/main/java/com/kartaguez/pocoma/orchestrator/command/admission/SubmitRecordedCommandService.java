@@ -4,8 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
@@ -14,24 +14,22 @@ import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecorde
 import com.kartaguez.pocoma.orchestrator.command.admission.port.out.CommandIdGenerator;
 
 public final class SubmitRecordedCommandService implements SubmitRecordedCommandUseCase {
-	private final ExternalIdentityResolverPort identities;
 	private final RecordedCommandPort commands;
 	private final CommandIdGenerator commandIds;
-	private final AuthorizationSnapshotFactory snapshots;
+	private final CommandAuthenticationEvidenceFactory authenticationEvidence;
 	private final Clock clock;
 	private final TransactionRunner transactions;
 
 	public SubmitRecordedCommandService(
-			ExternalIdentityResolverPort identities,
 			RecordedCommandPort commands,
 			CommandIdGenerator commandIds,
-			AuthorizationSnapshotFactory snapshots,
+			CommandAuthenticationEvidenceFactory authenticationEvidence,
 			Clock clock,
 			TransactionRunner transactions) {
-		this.identities = requireNonNull(identities, "identities must not be null");
 		this.commands = requireNonNull(commands, "commands must not be null");
 		this.commandIds = requireNonNull(commandIds, "commandIds must not be null");
-		this.snapshots = requireNonNull(snapshots, "snapshots must not be null");
+		this.authenticationEvidence = requireNonNull(authenticationEvidence,
+				"authenticationEvidence must not be null");
 		this.clock = requireNonNull(clock, "clock must not be null");
 		this.transactions = requireNonNull(transactions, "transactions must not be null");
 	}
@@ -41,8 +39,6 @@ public final class SubmitRecordedCommandService implements SubmitRecordedCommand
 		requireNonNull(input, "input must not be null");
 		return transactions.runInTransaction(() -> {
 			var principal = input.principal();
-			var userId = identities.findUserId(principal.identity())
-					.orElseThrow(() -> new UserNotProvisionedException(principal.identity()));
 			var submittedAt = clock.instant();
 			var commandId = commandIds.generate();
 			commands.insert(new RecordedCommand(
@@ -50,7 +46,8 @@ public final class SubmitRecordedCommandService implements SubmitRecordedCommand
 					input.commandType(),
 					input.serializedPayload(),
 					submittedAt,
-					snapshots.create(userId, principal, submittedAt)));
+					new TargetCommandEnvelope(principal.identity(), input.bindingId(),
+							authenticationEvidence.create(principal, submittedAt))));
 			return new SubmittedCommand(commandId);
 		});
 	}

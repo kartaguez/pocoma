@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
 
@@ -45,12 +46,15 @@ public final class AsyncCommandController {
 		if (request.commandType() == null || request.commandType().isBlank()) {
 			throw new InvalidRequestException("INVALID_COMMAND_TYPE", "commandType is required");
 		}
+		if (request.bindingId() == null) {
+			throw new InvalidRequestException("INVALID_BINDING_ID", "bindingId is required");
+		}
 		if (request.payload() == null) {
 			throw new InvalidRequestException("INVALID_COMMAND_PAYLOAD_ENVELOPE", "payload is required");
 		}
 		try {
 			var accepted = commands.submit(new SubmitRecordedCommandInput(new CommandType(request.commandType()),
-					objectMapper.writeValueAsString(request.payload()), principal));
+					new BindingId(request.bindingId()), objectMapper.writeValueAsString(request.payload()), principal));
 			return new AcceptedCommandResponse(accepted.commandId().value());
 		}
 		catch (JsonProcessingException exception) {
