@@ -46,8 +46,12 @@ import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.RecordedCommandEnvelopeVersion;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandAlreadyExistsException;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
@@ -152,6 +156,83 @@ class JpaRecordedCommandAdapterPostgresTest {
 	}
 
 	@Test
+	void insertsAndReloadsTheExactTargetV2EnvelopeWithoutLegacyIdentityOrJwt() {
+		TargetCommandEnvelope envelope = new TargetCommandEnvelope(
+				new ExternalIdentity("https://issuer.example", "subject-42"),
+				new BindingId(uuid(42)),
+				new CommandAuthenticationEvidence(Set.of("scope:pot:create", "group:finance"),
+						NOW.plusSeconds(300)));
+		RecordedCommand expected = new RecordedCommand(new CommandId(uuid(2)),
+				new CommandType("POT_CREATE_V1"), "{\"name\":\"shared\"}", NOW, envelope);
+
+		inTransaction(() -> { commands.insert(expected); return null; });
+		JpaRecordedCommandAdapter restarted = new JpaRecordedCommandAdapter(
+				new JpaRecordedCommandRepository(jdbc), new ObjectMapper());
+		RecordedCommand reloaded = inTransaction(() -> restarted.findById(expected.commandId()).orElseThrow());
+
+		assertEquals(expected, reloaded);
+		assertEquals(RecordedCommandEnvelopeVersion.TARGET_V2, reloaded.envelope().version());
+		assertEquals(2, jdbc.queryForObject(
+				"select envelope_version from recorded_commands where command_id=?", Integer.class, uuid(2)));
+		assertEquals(0, jdbc.queryForObject("""
+				select count(*) from recorded_commands
+				where command_id=? and (auth_user_id is not null or auth_permissions_json is not null
+				 or auth_authenticated_at is not null or auth_issued_at is not null)
+				""", Integer.class, uuid(2)));
+		assertEquals(0, jdbc.queryForObject("""
+				select count(*) from information_schema.columns
+				where table_schema='public' and table_name='recorded_commands'
+				  and column_name in ('jwt','raw_jwt','access_token','id_token')
+				""", Integer.class));
+	}
+
+	@Test
+	void restartReloadsAndDiscoversLegacyV1AndTargetV2InTheExistingStableOrder() {
+		RecordedCommand legacy = command(uuid(70), NOW.minusSeconds(2), "legacy", Set.of());
+		RecordedCommand target = new RecordedCommand(new CommandId(uuid(71)),
+				new CommandType("POT_CREATE_V1"), "target", NOW.minusSeconds(1),
+				new TargetCommandEnvelope(
+						new ExternalIdentity("https://issuer.example", "subject-71"),
+						new BindingId(uuid(171)),
+						new CommandAuthenticationEvidence(Set.of("scope:pot:create"),
+								NOW.plusSeconds(300))));
+		inTransaction(() -> {
+			commands.insert(legacy);
+			commands.insert(target);
+			return null;
+		});
+
+		JpaRecordedCommandAdapter restarted = new JpaRecordedCommandAdapter(
+				new JpaRecordedCommandRepository(jdbc), new ObjectMapper());
+
+		assertEquals(legacy, inTransaction(() -> restarted.findById(legacy.commandId()).orElseThrow()));
+		assertEquals(target, inTransaction(() -> restarted.findById(target.commandId()).orElseThrow()));
+		assertEquals(List.of(legacy.commandId().value(), target.commandId().value()), discoverAll(NOW));
+	}
+
+	@Test
+	void reloadsHistoricalV1WithoutInventingSubjectBindingOrTargetEvidence() {
+		jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,auth_user_id,auth_issuer,
+				 auth_authenticated_at,auth_issued_at,auth_valid_until,auth_permissions_json)
+				values (?,'HISTORICAL_V1','historical',?,?,?,?,?,?,'[]'::jsonb)
+				""", uuid(3), Timestamp.from(NOW), uuid(103), "legacy-issuer",
+				Timestamp.from(NOW.minusSeconds(30)), Timestamp.from(NOW.minusSeconds(20)),
+				Timestamp.from(NOW.plusSeconds(60)));
+
+		RecordedCommand historical = inTransaction(() -> commands.findById(new CommandId(uuid(3))).orElseThrow());
+
+		assertEquals(RecordedCommandEnvelopeVersion.LEGACY_V1, historical.envelope().version());
+		assertEquals(new PocomaUserId(uuid(103)), historical.authorization().userId());
+		assertEquals(0, jdbc.queryForObject("""
+				select count(*) from recorded_commands
+				where command_id=? and (auth_subject is not null or binding_id is not null
+				 or auth_external_authorities_json is not null)
+				""", Integer.class, uuid(3)));
+	}
+
+	@Test
 	void preservesEmptyAndNonJsonPayloadsWithoutParsingThem() {
 		RecordedCommand empty = command(uuid(1), NOW, "", Set.of());
 		RecordedCommand invalidJson = command(uuid(2), NOW.plusSeconds(1), "not-json", Set.of());
@@ -232,6 +313,31 @@ class JpaRecordedCommandAdapterPostgresTest {
 				values (?,'TYPE', '', ?, ?, ' ', ?, ?, ?, '[]'::jsonb)
 				""", uuid(5), Timestamp.from(NOW), uuid(50), Timestamp.from(NOW), Timestamp.from(NOW),
 				Timestamp.from(NOW.plusSeconds(1))));
+	}
+
+	@Test
+	void envelopeVersionConstraintsRejectPartialOrCrossVersionShapes() {
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_issuer,
+				 auth_subject,binding_id,auth_valid_until,auth_external_authorities_json)
+				values (?,'TYPE','{}',?,2,'issuer',null,?,?, '[]'::jsonb)
+				""", uuid(60), Timestamp.from(NOW), uuid(160), Timestamp.from(NOW.plusSeconds(60))));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_user_id,auth_issuer,
+				 auth_subject,binding_id,auth_authenticated_at,auth_issued_at,auth_valid_until,
+				 auth_permissions_json,auth_external_authorities_json)
+				values (?,'TYPE','{}',?,2,?,'issuer','subject',?,?,?,?,?,'[]'::jsonb,'[]'::jsonb)
+				""", uuid(61), Timestamp.from(NOW), uuid(161), uuid(261), Timestamp.from(NOW),
+				Timestamp.from(NOW), Timestamp.from(NOW.plusSeconds(60))));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_user_id,auth_issuer,
+				 auth_authenticated_at,auth_issued_at,auth_valid_until,auth_permissions_json,auth_subject)
+				values (?,'TYPE','{}',?,1,?,'issuer',?,?,?,'[]'::jsonb,'invented-subject')
+				""", uuid(62), Timestamp.from(NOW), uuid(162), Timestamp.from(NOW),
+				Timestamp.from(NOW), Timestamp.from(NOW.plusSeconds(60))));
 	}
 
 	@Test

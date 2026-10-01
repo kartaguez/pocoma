@@ -9,10 +9,14 @@ public record RecordedCommandRow(
 		String commandType,
 		String payloadJson,
 		Instant submittedAt,
+		int envelopeVersion,
 		UUID authUserId,
 		String authIssuer,
+		String authSubject,
+		UUID bindingId,
 		Instant authAuthenticatedAt,
 		Instant authIssuedAt,
 		Instant authValidUntil,
-		String authPermissionsJson) {
+		String authPermissionsJson,
+		String authExternalAuthoritiesJson) {
 }

@@ -150,6 +150,47 @@ existantes avant toute future contrainte `NOT NULL`.
 **DONE.** Le store accepte la représentation cible et chaque row historique possède un chemin de
 traitement explicite.
 
+**Résultat WA.3 — DONE (2026-10-01).**
+
+- baseline WA.2 : `3a8a27ca9ff75298f0ad273bb020d329428d5e45` ; commit du lot :
+  `feat: expand recorded command envelopes` ;
+- audit de départ : `RecordedCommand` portait uniquement l'`AuthorizationSnapshot` V1
+  (`auth_user_id`, issuer, temps et permissions déjà traduites), V8 ne stockait ni subject ni
+  `binding_id`, le POST construisait ce V1 après résolution E→U et le worker rechargeait puis
+  consommait ce même snapshot ; discovery restait indexée uniquement par
+  `(submitted_at, command_id)` ;
+- représentation Java : `RecordedCommandEnvelope` est scellée entre
+  `AuthorizationSnapshot`/`LEGACY_V1` et `TargetCommandEnvelope`/`TARGET_V2` ; V2 contient exactement
+  `ExternalIdentity(issuer,subject)`, `BindingId` et `CommandAuthenticationEvidence` ; le
+  constructeur V1 et l'accesseur d'exécution legacy restent disponibles pour la compatibilité
+  source et binaire du runtime courant ;
+- évidence AuthN V2 : uniquement les autorités externes attestées provider-neutral requises pour
+  la future traduction au worker et `validUntil` requis par son contrôle d'expiration ; ni JWT brut,
+  ni `PocomaUserId`, ni permissions métier traduites, ni claims temporels inutilisés ne sont
+  persistés dans V2 ;
+- migration : `V19__recorded_command_envelope_expand.sql` ajoute `envelope_version SMALLINT NOT
+  NULL DEFAULT 1`, `auth_subject`, `binding_id` et `auth_external_authorities_json`, rend seulement
+  les colonnes exclusives V1 nullables et impose par contraintes deux formes disjointes et
+  exhaustives ; le default V1 permet à un binaire producteur WA.2 de continuer à écrire pendant
+  l'expand ;
+- stratégie historique : chaque row antérieure reçoit explicitement `envelope_version=1` par la
+  migration ; les colonnes V2 restent nulles et aucune ExternalIdentity, aucun subject, aucun B et
+  aucune évidence cible ne sont synthétisés ; le mapper choisit exclusivement par discriminateur,
+  rejette toute version inconnue et ne contient aucune heuristique de nullabilité ;
+- persistence : l'adapter écrit et relit exactement les deux variantes ; un V2 complet survit à la
+  reconstruction de l'adapter/reload, tandis qu'une row V1 historique reste lisible par le chemin
+  legacy et processable par le worker existant ; payload, type, id et dates existants restent
+  inchangés ;
+- preuves migration/store : bootstrap V1→V19, validation Flyway, upgrade V18 prérempli, conservation
+  exacte d'une row historique, contraintes rejetant les formes partielles/croisées, round-trips V1
+  et V2, absence de colonne JWT, ordre/discovery et transactions du store ;
+- preuves de non-régression : modèle/mapper, admission PostgreSQL actuelle, worker PostgreSQL
+  mono-worker et multi-worker, E2E Command/COMMAND_RESULT, démolition/bootstrap de schéma et les 50
+  guards `HexagonalArchitectureTest`, puis reactor Maven complet, tous verts ;
+- périmètre : aucun changement de DTO ou comportement HTTP, aucune production V2 par le POST,
+  aucune résolution `(E,B)->U`, aucun traitement métier V2, aucune évolution AuthZ ou READ, aucune
+  suppression legacy, aucun changement de canon et aucune implémentation WA.4+.
+
 ### WA.4 — Consume : résolution et continuité transactionnelles au worker
 
 **Prérequis.** WA.3.

@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandAlreadyExistsException;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
@@ -30,12 +32,21 @@ public class JpaRecordedCommandAdapter implements RecordedCommandPort {
 	@Transactional(propagation = Propagation.MANDATORY)
 	public void insert(RecordedCommand command) {
 		requireNonNull(command, "command must not be null");
-		var authorization = command.authorization();
-		int inserted = repository.insert(new RecordedCommandRow(
-				command.commandId().value(), command.commandType().value(), command.serializedPayload(),
-				command.submittedAt(), authorization.userId().value(), authorization.issuer(),
-				authorization.authenticatedAt(), authorization.issuedAt(), authorization.validUntil(),
-				mapper.permissionsJson(authorization.permissions())));
+		RecordedCommandRow row = switch (command.envelope()) {
+			case AuthorizationSnapshot legacy -> new RecordedCommandRow(
+					command.commandId().value(), command.commandType().value(), command.serializedPayload(),
+					command.submittedAt(), legacy.version().storageValue(), legacy.userId().value(), legacy.issuer(),
+					null, null, legacy.authenticatedAt(), legacy.issuedAt(), legacy.validUntil(),
+					mapper.permissionsJson(legacy.permissions()), null);
+			case TargetCommandEnvelope target -> new RecordedCommandRow(
+					command.commandId().value(), command.commandType().value(), command.serializedPayload(),
+					command.submittedAt(), target.version().storageValue(), null,
+					target.externalIdentity().issuer(), target.externalIdentity().subject(),
+					target.bindingId().value(), null, null,
+					target.authenticationEvidence().validUntil(), null,
+					mapper.externalAuthoritiesJson(target.authenticationEvidence().externalAuthorities()));
+		};
+		int inserted = repository.insert(row);
 		if (inserted == 0) throw new RecordedCommandAlreadyExistsException(command.commandId());
 		if (inserted != 1) {
 			throw new IllegalStateException("record Command expected one affected row but got " + inserted);

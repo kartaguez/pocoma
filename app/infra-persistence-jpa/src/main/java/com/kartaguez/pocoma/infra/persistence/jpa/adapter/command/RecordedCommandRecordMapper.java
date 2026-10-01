@@ -12,8 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
+import com.kartaguez.pocoma.engine.command.model.RecordedCommandEnvelopeVersion;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.RecordedCommandRow;
@@ -39,13 +44,29 @@ public final class RecordedCommandRecordMapper {
 		return array.toString();
 	}
 
+	public String externalAuthoritiesJson(Set<String> authorities) {
+		ArrayNode array = objectMapper.createArrayNode();
+		requireNonNull(authorities, "authorities must not be null").stream()
+				.sorted()
+				.forEach(array::add);
+		return array.toString();
+	}
+
 	public RecordedCommand toDomain(RecordedCommandRow row) {
 		requireNonNull(row, "row must not be null");
-		AuthorizationSnapshot authorization = new AuthorizationSnapshot(
-				new PocomaUserId(row.authUserId()), permissions(row.authPermissionsJson()),
-				row.authAuthenticatedAt(), row.authIssuedAt(), row.authValidUntil(), row.authIssuer());
+		var version = RecordedCommandEnvelopeVersion.fromStorageValue(row.envelopeVersion());
+		var envelope = switch (version) {
+			case LEGACY_V1 -> new AuthorizationSnapshot(
+					new PocomaUserId(row.authUserId()), permissions(row.authPermissionsJson()),
+					row.authAuthenticatedAt(), row.authIssuedAt(), row.authValidUntil(), row.authIssuer());
+			case TARGET_V2 -> new TargetCommandEnvelope(
+					new ExternalIdentity(row.authIssuer(), row.authSubject()), new BindingId(row.bindingId()),
+					new CommandAuthenticationEvidence(
+							textValues(row.authExternalAuthoritiesJson(), "external authorities"),
+							row.authValidUntil()));
+		};
 		return new RecordedCommand(new CommandId(row.commandId()), new CommandType(row.commandType()),
-				row.payloadJson(), row.submittedAt(), authorization);
+				row.payloadJson(), row.submittedAt(), envelope);
 	}
 
 	private Set<Permission> permissions(String json) {
@@ -70,5 +91,25 @@ public final class RecordedCommandRecordMapper {
 			}
 		}
 		return Set.copyOf(permissions);
+	}
+
+	private Set<String> textValues(String json, String description) {
+		JsonNode root;
+		try {
+			root = objectMapper.readTree(requireNonNull(json, description + " JSON must not be null"));
+		} catch (JsonProcessingException exception) {
+			throw new IllegalStateException("Invalid durable Command " + description + " JSON", exception);
+		}
+		if (root == null || !root.isArray()) {
+			throw new IllegalStateException("Durable Command " + description + " JSON must be an array");
+		}
+		Set<String> values = new LinkedHashSet<>();
+		for (JsonNode item : root) {
+			if (!item.isTextual()) {
+				throw new IllegalStateException("Each durable Command " + description + " value must be textual");
+			}
+			values.add(item.textValue());
+		}
+		return Set.copyOf(values);
 	}
 }

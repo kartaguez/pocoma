@@ -15,7 +15,7 @@ public record AuthorizationSnapshot(
 		Instant authenticatedAt,
 		Instant issuedAt,
 		Instant validUntil,
-		String issuer) {
+		String issuer) implements RecordedCommandEnvelope {
 
 	public AuthorizationSnapshot {
 		requireNonNull(userId, "userId must not be null");
@@ -25,5 +25,10 @@ public record AuthorizationSnapshot(
 		requireNonNull(validUntil, "validUntil must not be null");
 		requireNonNull(issuer, "issuer must not be null");
 		if (issuer.isBlank()) throw new IllegalArgumentException("issuer must not be blank");
+	}
+
+	@Override
+	public RecordedCommandEnvelopeVersion version() {
+		return RecordedCommandEnvelopeVersion.LEGACY_V1;
 	}
 }

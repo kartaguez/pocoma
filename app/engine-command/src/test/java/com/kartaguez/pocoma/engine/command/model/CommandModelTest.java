@@ -20,6 +20,8 @@ import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 
 class CommandModelTest {
@@ -56,6 +58,23 @@ class CommandModelTest {
 				new CommandType("TYPE_V1"), "", NOW, authorization()).serializedPayload());
 		assertEquals(" ", new RecordedCommand(new CommandId(UUID.randomUUID()),
 				new CommandType("TYPE_V1"), " ", NOW, authorization()).serializedPayload());
+	}
+
+	@Test
+	void targetEnvelopeRetainsOnlyExternalIdentityBindingAndMinimalAuthenticationEvidence() {
+		Set<String> authorities = new HashSet<>(Set.of("scope:pot:create"));
+		TargetCommandEnvelope envelope = new TargetCommandEnvelope(
+				new ExternalIdentity("https://issuer.example", "subject-42"),
+				new BindingId(UUID.randomUUID()),
+				new CommandAuthenticationEvidence(authorities, NOW.plusSeconds(60)));
+		authorities.clear();
+
+		RecordedCommand command = new RecordedCommand(new CommandId(UUID.randomUUID()),
+				new CommandType("POT_CREATE_V1"), "{}", NOW, envelope);
+
+		assertEquals(RecordedCommandEnvelopeVersion.TARGET_V2, command.envelope().version());
+		assertEquals(Set.of("scope:pot:create"), envelope.authenticationEvidence().externalAuthorities());
+		assertThrows(IllegalStateException.class, command::authorization);
 	}
 
 	@Test

@@ -800,7 +800,7 @@ class HexagonalArchitectureTest {
 		assertEquals(Set.of(), forbiddenDurableExecutionTypes,
 				"engine-command execution contracts must not expose claiming or fencing state");
 
-		assertEquals(Set.of("commandId", "commandType", "serializedPayload", "submittedAt", "authorization"),
+		assertEquals(Set.of("commandId", "commandType", "serializedPayload", "submittedAt", "envelope"),
 				fieldNames(ROOT_PACKAGE + ".engine.command.model.RecordedCommand"),
 				"RecordedCommand must contain durable request data and no consumption lifecycle");
 	}

@@ -46,7 +46,7 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV18() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV19() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -56,7 +56,7 @@ class PrimaryMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(18, result.migrationsExecuted);
+		assertEquals(19, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -102,15 +102,16 @@ class PrimaryMigrationsPostgresTest {
 			assertEquals(Set.of(
 					"command_id", "command_type", "payload_json", "submitted_at", "auth_user_id",
 					"auth_issuer", "auth_authenticated_at", "auth_issued_at", "auth_valid_until",
-					"auth_permissions_json"), columns);
+					"auth_permissions_json", "envelope_version", "auth_subject", "binding_id",
+					"auth_external_authorities_json"), columns);
 		}
 	}
 
 	@Test
-	void existingV1ThroughV18DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
+	void existingV1ThroughV19DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
 		Flyway initialOwner = flyway(true);
 		initialOwner.clean();
-		assertEquals(18, initialOwner.migrate().migrationsExecuted);
+		assertEquals(19, initialOwner.migrate().migrationsExecuted);
 		Map<String, Integer> historyBefore = migrationHistory();
 
 		Flyway relocatedOwner = flyway(false);
@@ -123,6 +124,52 @@ class PrimaryMigrationsPostgresTest {
 					+ "values ('10000000-0000-0000-0000-000000000099', 1)");
 			assertEquals(1, statement.executeUpdate("delete from pot_global_versions "
 					+ "where pot_id='10000000-0000-0000-0000-000000000099'"));
+		}
+	}
+
+	@Test
+	void migrationV19PreservesHistoricalCommandsAndMarksOnlyTheirActualLegacyShape() throws Exception {
+		Flyway throughV18 = Flyway.configure()
+				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+				.locations("classpath:db/migration")
+				.target("18")
+				.cleanDisabled(false)
+				.load();
+		throughV18.clean();
+		assertEquals(18, throughV18.migrate().migrationsExecuted);
+
+		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					insert into recorded_commands
+					(command_id,command_type,payload_json,submitted_at,auth_user_id,auth_issuer,
+					 auth_authenticated_at,auth_issued_at,auth_valid_until,auth_permissions_json)
+					values ('10000000-0000-0000-0000-000000000019','HISTORICAL_V1','historical-payload',
+					 now(),'20000000-0000-0000-0000-000000000019','historical-issuer',now(),now(),
+					 now() + interval '1 hour','[{"objectType":"POT","action":"CREATE"}]'::jsonb)
+					""");
+		}
+
+		Flyway latest = flyway(false);
+		assertEquals(1, latest.migrate().migrationsExecuted);
+
+		try (Connection connection = connection(); Statement statement = connection.createStatement();
+				ResultSet result = statement.executeQuery("""
+						select envelope_version, command_type, payload_json, auth_user_id, auth_issuer,
+						       auth_permissions_json::text, auth_subject, binding_id,
+						       auth_external_authorities_json
+						from recorded_commands
+						where command_id='10000000-0000-0000-0000-000000000019'
+						""")) {
+			assertTrue(result.next());
+			assertEquals(1, result.getInt("envelope_version"));
+			assertEquals("HISTORICAL_V1", result.getString("command_type"));
+			assertEquals("historical-payload", result.getString("payload_json"));
+			assertEquals("20000000-0000-0000-0000-000000000019", result.getString("auth_user_id"));
+			assertEquals("historical-issuer", result.getString("auth_issuer"));
+			assertTrue(result.getString("auth_permissions_json").contains("CREATE"));
+			assertEquals(null, result.getString("auth_subject"));
+			assertEquals(null, result.getObject("binding_id"));
+			assertEquals(null, result.getString("auth_external_authorities_json"));
 		}
 	}
 
@@ -146,7 +193,11 @@ class PrimaryMigrationsPostgresTest {
 					""");
 		}
 
-		Flyway latest = flyway(false);
+		Flyway latest = Flyway.configure()
+				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+				.locations("classpath:db/migration")
+				.target("18")
+				.load();
 		assertEquals(1, latest.migrate().migrationsExecuted);
 
 		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
@@ -286,7 +337,7 @@ class PrimaryMigrationsPostgresTest {
 				history.put(resultSet.getString("version"), resultSet.getInt("checksum"));
 			}
 		}
-		assertEquals(18, history.size());
+		assertEquals(19, history.size());
 		return history;
 	}
 
