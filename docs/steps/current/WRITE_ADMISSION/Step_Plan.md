@@ -674,6 +674,46 @@ binding attaché/détaché et absence de paramètres d’identité. Ajouter expl
 **Clôture.** Les deux GET utilisent exclusivement `pocoma_read`/artefacts et toutes les décisions
 d’identité proviennent du principal authentifié.
 
+**Résultat WA.6.5–WA.6.6 — DONE.** L'implémentation retient la hiérarchie scellée
+`CommandResultVisibility` avec les records `LegacyUser(UUID userId)` et
+`ExactExternalIdentity(ExternalIdentity identity)`. Le loader branche uniquement sur
+`recorded_commands.envelope_version` : V1 exige `auth_user_id`, V2 exige le couple durable
+`auth_issuer/auth_subject`; il ne consulte ni binding, ni resolver User/Identity, ni
+`CURRENT_BINDING`. Les trois outcomes `APPLIED/REJECTED/FAILED` sont projetés pour les deux formes.
+
+Le payload V1 conserve exactement ses champs historiques, dont `submittedByUserId`, sans subject
+synthétisé. Le payload V2 est une forme JSON disjointe portant
+`visibility=EXACT_EXTERNAL_IDENTITY` et
+`visibleToExternalIdentity={issuer,subject}`, sans userId, BindingId ni BindingRevision. Le schéma
+`oneOf` et le service READ rejettent les formes mixtes/inconnues comme violations d'invariant. Le
+type physique, la target version et la clé `COMMAND_RESULT` restent inchangés. Une tâche V2 laissée
+`PENDING` par l'ancien loader avec un claim expiré est reprise après redémarrage par le worker
+existant et se matérialise sans reset de slot, réécriture de RecordedCommand ou destruction V1.
+
+`GET /api/v1/commands/{commandId}/result` lit uniquement l'artefact exact `COMMAND_RESULT`. Pour V2,
+l'autorisation est l'égalité exacte issuer+subject avec E issue de
+`AuthenticatedExternalPrincipal`; detach, absence ou rebind de `CURRENT_BINDING` ne changent pas
+la visibilité. Pour V1 seulement, E est recherchée dans `CURRENT_BINDING` READ et U courant est
+comparé à `submittedByUserId`. La révocation V1 est donc EVENTUAL : l'ancien accès persiste pendant
+le lag, puis disparaît après projection du detach. Un rebind vers U2 ne restaure pas un résultat de
+U1 ; un rebind vers le même U restaure l'accès, conséquence assumée de la sémantique legacy par
+userId.
+
+Le self-service final est `GET /api/v1/me/binding`, sans paramètre d'identité : E provient seulement
+du principal. Un binding `ATTACHED` retourne le DTO minimal `userId, bindingId, bindingRevision,
+status`; une tombstone `DETACHED` et une absence retournent toutes deux `404`, sans exposer l'ancien
+BindingId. Les lectures `find` de `CURRENT_BINDING` s'exécutent dans une transaction read-only.
+
+La preuve SQL PostgreSQL encadre les deux GET par des marqueurs et observe uniquement
+`pocoma_read.projection_root`/artefacts et `pocoma_read.current_external_identity_binding`; elle
+interdit explicitement `recorded_commands`, `command_outcomes`, `external_identities`, les tables de
+stream/facts de binding, Pot/Event et Consumption primaires. Les guards ArchUnit excluent également
+des controllers HTTP READ `infra-persistence-jpa`, les ports Command WRITE, l'infrastructure de
+transaction WRITE et Consumption. Les tests couvrent payloads V1/V2, outcomes V2, E exacte et
+homonymes issuer/subject, compatibilité V1, incohérences, reprise V2 après claim/restart, chaîne HTTP
+V2, self-service attached/detached/absent, AuthN/non-oracle, cohérence legacy et preuve zéro SELECT
+primaire. Le lot n'implémente aucune clôture WA.6.7/WA.6.8 et ne modifie pas `Step_Canon.md`.
+
 #### WA.6.7 — Concurrence, idempotence et reprise opérationnelle
 
 **Objectif.** Prouver la convergence de la chaîne complète sous course, replay et redémarrage.

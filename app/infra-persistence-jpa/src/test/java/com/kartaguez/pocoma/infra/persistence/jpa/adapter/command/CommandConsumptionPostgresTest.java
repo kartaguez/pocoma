@@ -71,6 +71,7 @@ import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
+import com.kartaguez.pocoma.engine.command.result.CommandResultVisibility;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
@@ -184,7 +185,8 @@ class CommandConsumptionPostgresTest {
 						CommandResultProjectionDefinition.PROJECTION_TYPE,
 						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
 						new TargetObjectId(command.commandId().value().toString()), 1));
-		assertEquals(command.authorization().userId().value(), input.submittedByUserId());
+		assertEquals(command.authorization().userId().value(),
+				((CommandResultVisibility.LegacyUser) input.visibility()).userId());
 	}
 
 	@Test

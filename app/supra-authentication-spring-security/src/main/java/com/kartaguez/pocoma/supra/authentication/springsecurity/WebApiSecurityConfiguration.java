@@ -28,7 +28,8 @@ public class WebApiSecurityConfiguration {
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests
-						.requestMatchers("/api/v1/commands", "/api/v1/command-results/**", "/api/v1/pots/**")
+						.requestMatchers("/api/v1/commands", "/api/v1/commands/*/result",
+								"/api/v1/command-results/**", "/api/v1/me/binding", "/api/v1/pots/**")
 						.authenticated().anyRequest().permitAll())
 				.oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults())
 						.authenticationEntryPoint((request, response, exception) -> writeError(objectMapper,

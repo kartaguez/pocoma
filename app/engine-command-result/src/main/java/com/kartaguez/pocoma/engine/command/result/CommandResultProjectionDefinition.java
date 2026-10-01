@@ -31,19 +31,42 @@ public final class CommandResultProjectionDefinition {
 	private static final JsonValue OUTCOME = object(Map.of(
 			"type", string("string"),
 			"enum", array(string("APPLIED"), string("REJECTED"), string("FAILED"))));
-	private static final JsonValue SCHEMA = object(Map.of(
+	private static final JsonValue EXTERNAL_IDENTITY = object(Map.of(
 			"type", string("object"),
-			"properties", object(Map.of(
-					"commandId", UUID,
-					"submittedByUserId", UUID,
-					"outcome", OUTCOME,
-					"potId", NULLABLE_UUID,
-					"resultingVersion", NULLABLE_VERSION,
-					"code", NULLABLE_STRING,
-					"resolvedAt", STRING)),
-			"required", new JsonArray(List.of("commandId", "submittedByUserId", "outcome", "potId",
-					"resultingVersion", "code", "resolvedAt").stream().map(JsonString::new).map(JsonValue.class::cast).toList()),
+			"properties", object(Map.of("issuer", STRING, "subject", STRING)),
+			"required", array(string("issuer"), string("subject")),
 			"additionalProperties", new JsonBoolean(false)));
+	private static final Map<String, JsonValue> COMMON_PROPERTIES = Map.of(
+			"commandId", UUID,
+			"outcome", OUTCOME,
+			"potId", NULLABLE_UUID,
+			"resultingVersion", NULLABLE_VERSION,
+			"code", NULLABLE_STRING,
+			"resolvedAt", STRING);
+	private static final JsonValue V1_SCHEMA = schemaWith(
+			Map.of("submittedByUserId", UUID), List.of("submittedByUserId"));
+	private static final JsonValue V2_SCHEMA = schemaWith(Map.of(
+			"visibility", object(Map.of("const", string("EXACT_EXTERNAL_IDENTITY"))),
+			"visibleToExternalIdentity", EXTERNAL_IDENTITY),
+			List.of("visibility", "visibleToExternalIdentity"));
+	private static final JsonValue SCHEMA = object(Map.of("oneOf", array(V1_SCHEMA, V2_SCHEMA)));
+	/*
+	 * V1 deliberately retains its exact historical fields. V2 is a disjoint object shape;
+	 * neither schema accepts mixed visibility data because additionalProperties is false.
+	 */
+	private static JsonValue schemaWith(Map<String, JsonValue> visibilityProperties,
+			List<String> visibilityRequired) {
+		Map<String, JsonValue> properties = new java.util.HashMap<>(COMMON_PROPERTIES);
+		properties.putAll(visibilityProperties);
+		List<String> required = new java.util.ArrayList<>(List.of(
+				"commandId", "outcome", "potId", "resultingVersion", "code", "resolvedAt"));
+		required.addAll(visibilityRequired);
+		return object(Map.of(
+			"type", string("object"),
+			"properties", object(Map.copyOf(properties)),
+			"required", new JsonArray(required.stream().map(JsonString::new).map(JsonValue.class::cast).toList()),
+			"additionalProperties", new JsonBoolean(false)));
+	}
 	public static final ProjectionDefinition DEFINITION = new ProjectionDefinition(
 			PROJECTION_TYPE, TARGET_OBJECT_TYPE,
 			List.of(new ArtifactDefinition(RESULT, new Cardinality(1, 1), SCHEMA)));

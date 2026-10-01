@@ -70,6 +70,9 @@ class CommandAdmissionResourceServerTest {
 	void rejectsMissingAndInvalidSignatures() throws Exception {
 		mvc.perform(post("/api/v1/commands")).andExpect(status().isUnauthorized());
 		mvc.perform(get("/api/v1/command-results/" + java.util.UUID.randomUUID())).andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/v1/commands/" + java.util.UUID.randomUUID() + "/result"))
+				.andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/v1/me/binding")).andExpect(status().isUnauthorized());
 		mvc.perform(get("/api/v1/pots/" + java.util.UUID.randomUUID()).param("version", "1"))
 				.andExpect(status().isUnauthorized());
 		JwtEncoder untrusted = encoder(UNTRUSTED_KEYS);

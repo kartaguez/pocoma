@@ -323,6 +323,25 @@ class JpaRecordedCommandAdapterPostgresTest {
 				insert into recorded_commands
 				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_issuer,
 				 auth_subject,binding_id,auth_valid_until,auth_external_authorities_json)
+				values (?,'TYPE','{}',?,3,'issuer','subject',?,?, '[]'::jsonb)
+				""", uuid(59), Timestamp.from(NOW), uuid(159), Timestamp.from(NOW.plusSeconds(60))));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_user_id,auth_issuer,
+				 auth_authenticated_at,auth_issued_at,auth_valid_until,auth_permissions_json)
+				values (?,'TYPE','{}',?,1,null,'issuer',?,?,?,'[]'::jsonb)
+				""", uuid(58), Timestamp.from(NOW), Timestamp.from(NOW), Timestamp.from(NOW),
+				Timestamp.from(NOW.plusSeconds(60))));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_issuer,
+				 auth_subject,binding_id,auth_valid_until,auth_external_authorities_json)
+				values (?,'TYPE','{}',?,2,null,'subject',?,?, '[]'::jsonb)
+				""", uuid(57), Timestamp.from(NOW), uuid(157), Timestamp.from(NOW.plusSeconds(60))));
+		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+				insert into recorded_commands
+				(command_id,command_type,payload_json,submitted_at,envelope_version,auth_issuer,
+				 auth_subject,binding_id,auth_valid_until,auth_external_authorities_json)
 				values (?,'TYPE','{}',?,2,'issuer',null,?,?, '[]'::jsonb)
 				""", uuid(60), Timestamp.from(NOW), uuid(160), Timestamp.from(NOW.plusSeconds(60))));
 		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""

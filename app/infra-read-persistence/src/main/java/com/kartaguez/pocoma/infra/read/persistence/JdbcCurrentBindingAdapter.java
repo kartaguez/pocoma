@@ -57,7 +57,7 @@ public class JdbcCurrentBindingAdapter implements CurrentBindingProjectionPort {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+	@Transactional(readOnly = true)
 	public Optional<CurrentBinding> find(ExternalIdentity identity) {
 		return jdbc.query("select issuer, subject, binding_revision, binding_status, user_id, binding_id, "
 				+ "source_event_id, projected_at from " + table + " where issuer=? and subject=?",

@@ -3,24 +3,18 @@ package com.kartaguez.pocoma.supra.http.read.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
-import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
-import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 
 class CommandResultControllerTest {
-	private static final UUID USER_ID = UUID.randomUUID();
 	private static final UUID COMMAND_ID = UUID.randomUUID();
 	private static final UUID POT_ID = UUID.randomUUID();
 	private static final Instant NOW = Instant.parse("2026-09-29T10:00:00Z");
@@ -34,17 +28,21 @@ class CommandResultControllerTest {
 	}
 
 	@Test void hidesNotReadyAndFailedExactProjectionsAsNotFound() {
-		assertEquals(HttpStatus.NOT_FOUND, controller(new GetCommandResultService(
-				(key, definition) -> new ProjectionReadResult.NotReady(key))).get(COMMAND_ID, PRINCIPAL).getStatusCode());
-		assertEquals(HttpStatus.NOT_FOUND, controller(new GetCommandResultService(
-				(key, definition) -> new ProjectionReadResult.Failed(key))).get(COMMAND_ID, PRINCIPAL).getStatusCode());
+		assertEquals(HttpStatus.NOT_FOUND,
+				controller(new GetCommandResult.NotFound()).get(COMMAND_ID, PRINCIPAL).getStatusCode());
 	}
 
-	@Test void hidesUnknownIdentityAndOwnerMismatchAsNotFound() {
-		var unknown = new CommandResultController((commandId, userId) -> { throw new AssertionError("must not query"); },
-				identity -> Optional.empty(), transactions());
-		assertEquals(HttpStatus.NOT_FOUND, unknown.get(COMMAND_ID, PRINCIPAL).getStatusCode());
+	@Test void hidesOwnerMismatchAsNotFound() {
 		assertEquals(HttpStatus.NOT_FOUND, controller(new GetCommandResult.NotFound()).get(COMMAND_ID, PRINCIPAL).getStatusCode());
+	}
+
+	@Test void passesOnlyTheAuthenticatedExternalIdentityToTheReadUseCase() {
+		ExternalIdentity expected = PRINCIPAL.identity();
+		var controller = new CommandResultController((commandId, requester) -> {
+			assertEquals(expected, requester);
+			return new GetCommandResult.NotFound();
+		});
+		assertEquals(HttpStatus.NOT_FOUND, controller.get(COMMAND_ID, PRINCIPAL).getStatusCode());
 	}
 
 	private static void assertResponse(GetCommandResult result, HttpStatus status, String publicStatus, String code) {
@@ -55,12 +53,6 @@ class CommandResultControllerTest {
 	}
 	private static CommandResultController controller(GetCommandResult result) { return controller((id, user) -> result); }
 	private static CommandResultController controller(GetCommandResultUseCase results) {
-		return new CommandResultController(results, identity -> Optional.of(new PocomaUserId(USER_ID)), transactions());
-	}
-	private static TransactionRunner transactions() {
-		return new TransactionRunner() {
-			@Override public <T> T runInTransaction(Supplier<T> action) { return action.get(); }
-			@Override public void runAfterCommit(Runnable action) { action.run(); }
-		};
+		return new CommandResultController(results);
 	}
 }

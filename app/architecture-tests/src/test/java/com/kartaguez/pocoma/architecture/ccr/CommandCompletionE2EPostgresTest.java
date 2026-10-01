@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.architecture.ccr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -58,6 +61,7 @@ import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
+import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingUseCase;
 import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.JpaPotGlobalVersionAdapter;
@@ -90,6 +94,7 @@ import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeCon
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.http.read.query.CommandResultController;
+import com.kartaguez.pocoma.supra.http.read.query.CurrentBindingController;
 import com.kartaguez.pocoma.supra.http.read.query.PotQueryController;
 import com.kartaguez.pocoma.supra.http.write.command.AsyncCommandController;
 import com.kartaguez.pocoma.supra.authentication.springsecurity.WebApiSecurityConfiguration;
@@ -104,7 +109,8 @@ class CommandCompletionE2EPostgresTest {
 
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
-			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
+			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma")
+			.withCommand("postgres", "-c", "log_statement=all");
 
 	@Test
 	void admissionThroughCommandEventTaskAndExactReadProducesAllTerminalResultsDurably() throws Exception {
@@ -175,29 +181,54 @@ class CommandCompletionE2EPostgresTest {
 		assertEquals(3, count(jdbc, "select count(*) from pocoma_read.projection_artifact artifact "
 				+ "join pocoma_read.projection_root root on root.id=artifact.projection_root_id "
 				+ "where root.projection_type='COMMAND_RESULT'"));
+		UUID currentBindingId = jdbc.queryForObject(
+				"select binding_id from external_identities where issuer=? and subject=?",
+				UUID.class, ISSUER, SUBJECT);
+		jdbc.update("""
+				insert into pocoma_read.current_external_identity_binding
+				(issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
+				values (?, ?, 0, 'ATTACHED', ?, ?, null, ?)
+				on conflict (issuer,subject) do update set user_id=excluded.user_id,
+				 binding_id=excluded.binding_id,binding_status='ATTACHED'
+				""", ISSUER, SUBJECT, userId, currentBindingId, java.sql.Timestamp.from(BASE_TIME));
 
 		try (ConfigurableApplicationContext readContext = readContext()) {
 			GetCommandResultUseCase results = readContext.getBean(GetCommandResultUseCase.class);
-			CommandResultController controller = new CommandResultController(results,
-					identity -> Optional.of(new PocomaUserId(userId)), directTransactions());
+			CommandResultController controller = new CommandResultController(results);
+			CurrentBindingController bindingController = new CurrentBindingController(
+					readContext.getBean(GetCurrentBindingUseCase.class));
 			var principal = principal(Set.of());
+			String begin = "wa66_get_begin_" + UUID.randomUUID();
+			String end = "wa66_get_end_" + UUID.randomUUID();
+			jdbc.execute("select '" + begin + "'");
 
 			var appliedResponse = controller.get(applied.value(), principal);
 			assertEquals(HttpStatus.OK, appliedResponse.getStatusCode());
 			assertEquals("APPLIED", appliedResponse.getBody().status());
 			assertEquals(appliedPotId, appliedResponse.getBody().potId());
 			assertEquals(1L, appliedResponse.getBody().resultingVersion());
-			assertInstanceOf(GetCommandResult.Applied.class, results.get(applied, userId));
+			assertInstanceOf(GetCommandResult.Applied.class, results.get(applied, principal.identity()));
 
 			var rejectedResponse = controller.get(rejected.value(), principal);
 			assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
 			assertEquals("REJECTED", rejectedResponse.getBody().status());
-			assertInstanceOf(GetCommandResult.Rejected.class, results.get(rejected, userId));
+			assertInstanceOf(GetCommandResult.Rejected.class, results.get(rejected, principal.identity()));
 
 			var failedResponse = controller.get(failed.value(), principal);
 			assertEquals(HttpStatus.OK, failedResponse.getStatusCode());
 			assertEquals("FAILED", failedResponse.getBody().status());
-			assertInstanceOf(GetCommandResult.Failed.class, results.get(failed, userId));
+			assertInstanceOf(GetCommandResult.Failed.class, results.get(failed, principal.identity()));
+			assertEquals(HttpStatus.OK, bindingController.get(principal).getStatusCode());
+			jdbc.execute("select '" + end + "'");
+
+			String getSql = statementsBetween(begin, end).toLowerCase();
+			assertTrue(getSql.contains("pocoma_read.projection_root"));
+			assertTrue(getSql.contains("pocoma_read.current_external_identity_binding"));
+			for (String forbidden : List.of("recorded_commands", "command_outcomes", "external_identities",
+					"external_identity_binding_streams", "external_identity_binding_facts", "pot_headers",
+					"business_event_outbox", "consumption_slots", "consumption_inputs", "consumption_results")) {
+				assertFalse(getSql.contains(forbidden), "GET must not read primary table " + forbidden);
+			}
 		}
 	}
 
@@ -211,10 +242,19 @@ class CommandCompletionE2EPostgresTest {
 		try (ConfigurableApplicationContext webContext = webContext()) {
 			cleanDatabase(jdbc);
 			BindingId bindingId = insertBinding(jdbc, userId);
+			insertCurrentBinding(jdbc, userId, bindingId);
 			int port = ((WebServerApplicationContext) webContext).getWebServer().getPort();
 			HttpClient http = HttpClient.newBuilder().connectTimeout(HTTP_TIMEOUT).build();
 			String baseUrl = "http://127.0.0.1:" + port;
 			ObjectMapper mapper = webContext.getBean(ObjectMapper.class);
+			HttpResponse<String> selfService = get(http, baseUrl,
+					"/api/v1/me/binding?issuer=https://attacker.invalid&subject=someone-else");
+			assertEquals(200, selfService.statusCode(), selfService.body());
+			JsonNode currentBinding = mapper.readTree(selfService.body());
+			assertEquals(userId.toString(), currentBinding.path("userId").asText());
+			assertEquals(bindingId.value().toString(), currentBinding.path("bindingId").asText());
+			assertEquals(0, currentBinding.path("bindingRevision").asLong());
+			assertEquals("ATTACHED", currentBinding.path("status").asText());
 
 			UUID createCommandId = submit(http, baseUrl, mapper, bindingId,
 					PotCommandTypes.POT_CREATE_V1.value(),
@@ -227,6 +267,10 @@ class CommandCompletionE2EPostgresTest {
 			runPotPipeline();
 			assertOutcome(jdbc, new CommandId(createCommandId), "APPLIED", "COMMAND_APPLIED",
 					TerminalOutcome.SUCCESS);
+			HttpResponse<String> createResult = get(http, baseUrl,
+					"/api/v1/commands/" + createCommandId + "/result");
+			assertEquals(200, createResult.statusCode());
+			assertEquals("APPLIED", mapper.readTree(createResult.body()).get("status").asText());
 			UUID potId = jdbc.queryForObject("select pot_id from pot_headers where label=?",
 					UUID.class, initialLabel);
 			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
@@ -237,8 +281,26 @@ class CommandCompletionE2EPostgresTest {
 			runPotPipeline();
 			assertOutcome(jdbc, new CommandId(updateCommandId), "APPLIED", "COMMAND_APPLIED",
 					TerminalOutcome.SUCCESS);
+			assertEquals(200, get(http, baseUrl,
+					"/api/v1/commands/" + updateCommandId + "/result").statusCode());
 			assertPot(http, baseUrl, mapper, potId, 2, updatedLabel);
 			assertPot(http, baseUrl, mapper, potId, 1, initialLabel);
+
+			jdbc.update("""
+					update pocoma_read.current_external_identity_binding
+					set binding_status='DETACHED', user_id=null
+					where issuer=? and subject=?
+					""", ISSUER, SUBJECT);
+			assertEquals(404, get(http, baseUrl, "/api/v1/me/binding").statusCode());
+			assertEquals(200, get(http, baseUrl,
+					"/api/v1/commands/" + createCommandId + "/result").statusCode());
+			jdbc.update("delete from pocoma_read.current_external_identity_binding where issuer=? and subject=?",
+					ISSUER, SUBJECT);
+			assertEquals(404, get(http, baseUrl, "/api/v1/me/binding").statusCode());
+			UUID reboundUserId = UUID.randomUUID();
+			insertCurrentBinding(jdbc, reboundUserId, new BindingId(UUID.randomUUID()));
+			assertEquals(200, get(http, baseUrl,
+					"/api/v1/commands/" + createCommandId + "/result").statusCode());
 		}
 	}
 
@@ -420,13 +482,6 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
-	private static TransactionRunner directTransactions() {
-		return new TransactionRunner() {
-			@Override public <T> T runInTransaction(Supplier<T> action) { return action.get(); }
-			@Override public void runAfterCommit(Runnable action) { action.run(); }
-		};
-	}
-
 	private static int count(JdbcTemplate jdbc, String sql, Object... arguments) {
 		return jdbc.queryForObject(sql, Integer.class, arguments);
 	}
@@ -444,6 +499,10 @@ class CommandCompletionE2EPostgresTest {
 			jdbc.execute("truncate table pocoma_read.projection_failure, pocoma_read.projection_artifact, "
 					+ "pocoma_read.projection_root cascade");
 		}
+		if (jdbc.queryForObject("select to_regclass('pocoma_read.current_external_identity_binding') is not null",
+				Boolean.class)) {
+			jdbc.execute("truncate table pocoma_read.current_external_identity_binding");
+		}
 	}
 
 	private static BindingId insertBinding(JdbcTemplate jdbc, UUID userId) {
@@ -454,10 +513,26 @@ class CommandCompletionE2EPostgresTest {
 		return bindingId;
 	}
 
+	private static void insertCurrentBinding(JdbcTemplate jdbc, UUID userId, BindingId bindingId) {
+		jdbc.update("""
+				insert into pocoma_read.current_external_identity_binding
+				(issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
+				values (?, ?, 0, 'ATTACHED', ?, ?, null, ?)
+				""", ISSUER, SUBJECT, userId, bindingId.value(), java.sql.Timestamp.from(BASE_TIME));
+	}
+
 	private static void await(Supplier<Boolean> condition) throws InterruptedException {
 		Instant deadline = Instant.now().plusSeconds(10);
 		while (!condition.get() && Instant.now().isBefore(deadline)) Thread.sleep(20);
 		assertEquals(true, condition.get());
+	}
+
+	private static String statementsBetween(String begin, String end) {
+		String logs = POSTGRES.getLogs();
+		int start = logs.lastIndexOf(begin);
+		int finish = logs.lastIndexOf(end);
+		assertTrue(start >= 0 && finish > start, "SQL capture markers were not found in PostgreSQL logs");
+		return logs.substring(start, finish);
 	}
 
 	@SpringBootConfiguration
@@ -526,7 +601,8 @@ class CommandCompletionE2EPostgresTest {
 			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
 			JpaRecordedCommandRepository.class, JpaExternalIdentityResolverAdapter.class,
 			ExternalIdentityJdbcRepository.class,
-			AsyncCommandController.class, CommandResultController.class, PotQueryController.class,
+			AsyncCommandController.class, CommandResultController.class, CurrentBindingController.class,
+			PotQueryController.class,
 			WebApiSecurityConfiguration.class})
 	static class WebTestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }

@@ -39,14 +39,24 @@ public final class CommandResultProjector implements ProjectionProjector<Command
 			outcome = "FAILED";
 			code = new JsonString(((CommandOutcome.Failed) input.outcome()).publicFailureCode());
 		}
-		JsonObject payload = new JsonObject(Map.of(
+		Map<String, JsonValue> common = new java.util.HashMap<>(Map.of(
 				"commandId", new JsonString(commandId),
-				"submittedByUserId", new JsonString(input.submittedByUserId().toString()),
 				"outcome", new JsonString(outcome),
 				"potId", potId,
 				"resultingVersion", version,
 				"code", code,
 				"resolvedAt", new JsonString(input.outcome().resolvedAt().toString())));
+		if (input.visibility() instanceof CommandResultVisibility.LegacyUser legacy) {
+			common.put("submittedByUserId", new JsonString(legacy.userId().toString()));
+		} else if (input.visibility() instanceof CommandResultVisibility.ExactExternalIdentity exact) {
+			common.put("visibility", new JsonString("EXACT_EXTERNAL_IDENTITY"));
+			common.put("visibleToExternalIdentity", new JsonObject(Map.of(
+					"issuer", new JsonString(exact.identity().issuer()),
+					"subject", new JsonString(exact.identity().subject()))));
+		} else {
+			throw new IllegalStateException("Unsupported COMMAND_RESULT visibility");
+		}
+		JsonObject payload = new JsonObject(Map.copyOf(common));
 		return new Projection(key, List.of(new ProjectionArtifact(
 				CommandResultProjectionDefinition.RESULT, new ArtifactKey(commandId), payload)));
 	}

@@ -548,7 +548,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
 						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..")
 				.check(CLASSES);
-		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http..")
+		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.binding..")
 				.check(CLASSES);
 	}
@@ -922,6 +922,8 @@ class HexagonalArchitectureTest {
 		Set<String> dependencies = directDependencyNames(service);
 		assertTrue(dependencies.contains(
 				ROOT_PACKAGE + ".engine.port.in.projection.read.ExactProjectionReadUseCase"));
+		assertTrue(dependencies.contains(
+				ROOT_PACKAGE + ".engine.command.result.LegacyCurrentBindingUserQuery"));
 		Set<String> forbidden = dependencies.stream()
 				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.command.port.out.CommandOutcomeQueryPort")
 						|| name.startsWith(ROOT_PACKAGE + ".infra.")
@@ -930,6 +932,31 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), forbidden,
 				"COMMAND_RESULT reads must not bypass the exact READ projection path");
+
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".infra.persistence.jpa..",
+						ROOT_PACKAGE + ".infra.tx..",
+						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".domain.consumption..")
+				.check(CLASSES);
+		Set<String> controllerDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.http.read.query.CommandResultController");
+		assertFalse(controllerDependencies.contains(
+				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"));
+		assertFalse(controllerDependencies.contains(
+				ROOT_PACKAGE + ".engine.port.out.transaction.TransactionRunner"));
+		Set<String> bindingControllerDependencies = directDependencyNames(
+				ROOT_PACKAGE + ".supra.http.read.query.CurrentBindingController");
+		assertTrue(bindingControllerDependencies.contains(
+				ROOT_PACKAGE + ".engine.read.binding.GetCurrentBindingUseCase"));
+		assertFalse(bindingControllerDependencies.contains(
+				ROOT_PACKAGE + ".engine.read.binding.CurrentBindingProjectionPort"));
+		assertEquals(Set.of("identity"), fieldNames(
+				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility$ExactExternalIdentity"));
+		assertEquals(Set.of("userId"), fieldNames(
+				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility$LegacyUser"));
 	}
 
 	@Test
