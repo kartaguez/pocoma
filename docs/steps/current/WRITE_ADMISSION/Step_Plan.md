@@ -11,11 +11,12 @@ Strategy: expand → consume → produce → read → contract
 ## 1. Baseline et portée
 
 - branche : `v2-make-it-pull` ;
-- HEAD local et distant : `00de08c3fbe3aef9290b7183d9b85331bd6b7582` ;
+- HEAD local et distant au cadrage WA.6 : `bbb794cf7eaf533bc8ca1710a3dd0c8f400ce94a` ;
 - divergence : `0/0` ;
-- working tree initial : propre ;
+- working tree initial au cadrage WA.6 : uniquement `WA6_Audit.md` non suivi ;
 - autorité normative : [`Step_Canon.md`](Step_Canon.md), WA1–WA11 ;
-- audit factuel : [`step_audit.md`](step_audit.md).
+- audits factuels : [`step_audit.md`](step_audit.md) et
+  [`WA6_Audit.md`](WA6_Audit.md) pour le cadrage détaillé de WA.6.
 
 Ce plan ferme l’écart transversal entre l’admission Command actuelle et le canon WRITE_ADMISSION.
 Il prépare les fondations User/Identity dont REGISTRATION dépend, migre Command sans big-bang et
@@ -60,7 +61,8 @@ envelope historique qui ne les contient pas.
 sans changer encore le comportement runtime.
 
 **Changements.** Créer ou stabiliser l’ownership neutre de `User`, `PocomaUserId`,
-`ExternalIdentity`, `BindingId`, `ExternalIdentityAttached(E,U,B)` et des ports User/Identity.
+`ExternalIdentity`, `BindingId` et des ports User/Identity. Les faits de lifecycle du binding ne sont
+pas créés par ce lot et sont explicitement planifiés en WA.6.
 Déplacer `AuthenticatedExternalPrincipal` dans une frontière d’authentification provider-neutral.
 Conserver `domain-pot.value.UserId` comme référence locale adaptée explicitement à la frontière.
 Supprimer toute seconde définition canonique dans le même lot.
@@ -285,21 +287,293 @@ dispatcher, use case Pot, Event ou Consumption appelé dans la requête HTTP.
 
 ### WA.6 — READ : résultat Command et binding self-service
 
-**Prérequis.** WA.5 ; faits User/Identity avec B disponibles depuis WA.1–WA.2.
+**État du cadrage : CLOSED.** Le présent plan applique les conclusions de
+[`WA6_Audit.md`](WA6_Audit.md). Il ne modifie pas le canon et ne laisse aucune question bloquante.
 
-**Objectif.** Supprimer toute résolution primaire des GET concernés et permettre au client de
-retrouver son occurrence courante.
+**Prérequis.** WA.5 ; autorité User/ExternalIdentity/Binding et protections concurrentes WA.2 ;
+consommation V2 transactionnelle WA.4. Contrairement à l’hypothèse de l’ancien plan, WA.1–WA.2
+n’ont pas créé de faits de lifecycle : WA.6 les introduit.
 
-**Changements.** Faire porter à la chaîne `COMMAND_RESULT` une ownership READ dérivée de l’E capturée,
-sans dépendre de `auth_user_id`. Ajouter une projection User/Identity minimale construite depuis les
-faits Attached/Detached et un GET self-service `E authentifiée -> U+B`. Les apply sont
-occurrence-aware : un detach B1 ou un fait stale ne retire jamais B2.
+#### Décisions figées pour tout le lot
 
-**Preuves.** Les controllers et use cases GET ne dépendent que de READ. Une autre E du même U ne lit
-pas le résultat. Attach B1, detach B1, attach B2 converge vers B2 ; un événement stale ne réactive ni
-ne supprime la mauvaise occurrence. Le worker Command n’injecte jamais cette projection.
+- L’unique autorité reste `external_identities(issuer, subject, user_id, binding_id)`. Le journal de
+  faits et `CURRENT_BINDING` sont respectivement la trace durable des mutations et une projection ;
+  aucun des deux n’est un second store de décision WRITE.
+- L’ordre est une `binding_revision BIGINT` monotone **par** `(issuer, subject)`. `binding_id` reste
+  opaque, non ordonné et n’est jamais comparé pour établir la fraîcheur.
+- Toute ligne V18 déjà attachée reçoit l’état de stream `revision = 0`. Aucun fait historique n’est
+  inventé. La première mutation réelle réussie reçoit la révision `1`, puis `n + 1`.
+- Une mutation réussie effectue, dans une transaction PostgreSQL unique : verrou du stream de E,
+  contrôle/mutation de l’autorité, allocation de la révision, append du fait correspondant. Une
+  transaction en conflit ou un detach stale n’avance pas la révision et n’émet aucun fait.
+- `COMMAND_RESULT` conserve deux politiques de visibilité distinctes. V1 reste autorisé par le
+  `userId` historique ; V2 est visible par l’ExternalIdentity exacte capturée dans la Command. E est
+  ici une clé de visibilité immuable, pas le propriétaire métier du résultat et pas une copie de
+  l’autorité de binding.
+- Pour V2, ni `bindingId`, ni `bindingRevision`, ni un `userId` résolu ne sont nécessaires à la
+  visibilité du résultat : les figer ferait dépendre une permission historique du lifecycle futur.
+  Le couple exact `auth_issuer/auth_subject`, déjà durable dans `RecordedCommand V2`, est suffisant.
 
-**DONE.** Résultat Command et identité self-service sont construits exclusivement depuis READ.
+#### WA.6.1 — Contrats de lifecycle et schéma WRITE extensif
+
+**Objectif.** Donner à chaque E un stream ordonné et rendre chaque mutation réelle reconstructible.
+
+**Fichiers/modules probables.** `domain-user-identity` pour `BindingRevision`,
+`ExternalIdentityAttached` et `ExternalIdentityDetached` ; `infra-persistence-jpa` pour les ports et
+adapters JDBC, les entités/rows éventuelles et la migration Flyway suivant V19 ; tests de migration
+dans ce même module. Les records de domaine restent framework-free et JDK-only.
+
+**Modèle/SQL.** Ajouter une table primaire de stream, par exemple
+`external_identity_binding_streams(issuer, subject, current_revision)`, clé primaire `(issuer,
+subject)`, `current_revision >= 0`. Ajouter un journal append-only, par exemple
+`external_identity_binding_facts(event_id, issuer, subject, binding_revision, fact_type, user_id,
+binding_id, recorded_at, partition_hash)`, avec PK `event_id`, unicité `(issuer, subject,
+binding_revision)`, FK/contraintes de forme et `binding_revision >= 1`. `Attached` porte au minimum
+`E, userId, bindingId, revision, recordedAt, eventId`; `Detached` porte `E, bindingId, revision,
+recordedAt, eventId`, sans User inventé. La clé de partition est dérivée de E.
+
+**Runtime/transaction.** Aucun polling n’est activé dans cette sous-étape. La migration crée une row
+de stream à `0` pour chaque E V18 actuellement attachée, avec `INSERT ... ON CONFLICT DO NOTHING` ;
+elle ne crée aucune row de fait.
+
+**Invariants.** Une seule séquence locale existe par E ; la révision `0` signifie exclusivement
+« état hérité/bootstrap » ; tout fait réel a une révision strictement positive ; les contraintes
+interdisent un fait partiel, une révision dupliquée ou une variante inconnue.
+
+**Tests/preuves.** Tests unitaires des value objects/faits ; Testcontainers de bootstrap V18→nouvelle
+migration, schéma vide, migration rejouée par Flyway, contraintes et unicité ; preuve qu’aucun fait
+n’est créé pour les rows V18.
+
+**Clôture.** Le schéma extensif est déployable avant tout writer et permet d’ordonner durablement les
+mutations d’une E sans compteur global.
+
+#### WA.6.2 — Mutation atomique Attach/Detach, allocation et append
+
+**Objectif.** Faire de la mutation d’autorité et de son fait une seule unité atomique.
+
+**Fichiers/modules probables.** `domain-user-identity` (`ExternalIdentityBindingPort`, résultats
+d’acquisition/détachement enrichis si nécessaire), `infra-persistence-jpa`
+(`JpaExternalIdentityBindingAdapter`, `ExternalIdentityJdbcRepository`, nouveaux adapters de stream
+et journal), et la couche app/use case qui possède les transactions Attach/Detach. Aucun caller de
+production ne doit muter directement la table d’autorité.
+
+**Modèle/SQL.** Pour une E nouvelle, créer le stream à `0` par upsert, puis le verrouiller
+`FOR UPDATE`. Pour une E existante, verrouiller directement la même row. Après mutation autoritative
+réussie, calculer `next = current + 1`, mettre à jour le stream et insérer le fait avec `next`. Un
+overflow est une erreur technique fermée. `Attached` enregistre exactement U et B écrits ;
+`Detached` enregistre exactement B supprimé.
+
+**Runtime/transaction.** L’application Attach/Detach ouvre l’unique transaction ; les adapters
+restent `Propagation.MANDATORY`. Ordre de lock obligatoire pour tous les writers : stream E, puis row
+autoritative E. Attach : lock → contrôle de conflit → insertion d’autorité → incrément → append.
+Detach : lock → `DELETE ... WHERE E AND binding_id = B` → si une row est supprimée, incrément et
+append ; sinon `NOT_CURRENT`, sans incrément/fait. Commit ou rollback couvre les cinq opérations.
+Le lock WA.4 sur l’autorité continue de bloquer le detach jusqu’au commit métier de la Command.
+
+**Invariants.** Aucun état d’autorité committé ne peut manquer son fait ; aucun fait ne décrit une
+mutation rollbackée ; deux writers de la même E sont sérialisés ; des E différentes restent
+indépendantes ; `Detached(B1)` stale après `Attached(B2)` conserve B2 et n’émet rien.
+
+**Tests/preuves.** Unitaires des résultats et de l’absence d’append sur échec ; PostgreSQL à deux
+transactions pour attach/attach, attach/detach, detach/detach et Command/detach ; rollback forcé
+entre mutation et append ; concurrence multi-thread prouvant les révisions contiguës des seules
+mutations réussies ; reprises des tests stale-detach WA.2 et continuité WA.4.
+
+**Clôture.** Tous les chemins de mutation autorisés passent par cette frontière et une inspection
+PostgreSQL montre exactement un fait à la révision suivante pour chaque mutation committée.
+
+#### WA.6.3 — READ model `CURRENT_BINDING` et règle d’apply
+
+**Objectif.** Exposer l’état courant déterministe d’une E, y compris son détachement explicite.
+
+**Fichiers/modules probables.** Nouveau moteur User/Identity READ dédié (module du type
+`engine-user-identity-read`) ou extension strictement bornée de `engine-read-projection` ;
+`infra-read-persistence` pour l’adapter JDBC et sa migration READ ; un locator/runtime dédié calqué
+sur `runtime-latest-known-version-consumption-worker`, le Consumption générique et ses métriques.
+
+**Modèle/SQL.** Table `pocoma_read.current_external_identity_binding`, clé naturelle `(issuer,
+subject)`, colonnes `binding_revision`, `binding_status` (`ATTACHED|DETACHED`), `user_id`,
+`binding_id`, `source_event_id`, `projected_at`. `binding_id` reste présent sur la tombstone ;
+`user_id` est obligatoire seulement pour `ATTACHED` et nul pour `DETACHED`. Révision `>= 0` ;
+`source_event_id` nul uniquement pour un bootstrap révision `0`.
+
+**Runtime/transaction.** Un consumer direct lit les faits de binding par curseur borné, utilise une
+clé Consumption stable dérivée de `event_id`, puis applique et finalise sous le fence générique.
+L’upsert compare exclusivement la révision : supérieure → remplace ; inférieure → stale/no-op ;
+égale et contenu identique → duplicate/no-op ; égale et contenu divergent → invariant failure
+observable, jamais overwrite. Une arrivée hors ordre `B2@3` avant `B1@1/2` reste B2.
+
+**Invariants.** La projection n’écrit jamais l’autorité et le worker Command ne la consulte jamais ;
+un detach reste observable ; un replay/duplicate/stale message ne régresse pas l’état ; l’ordre ne
+dépend jamais de B.
+
+**Tests/preuves.** Unitaires de la machine d’apply ; PostgreSQL pour create/update/tombstone,
+duplicate identique, collision divergente, inférieur, saut de révision et concurrence ; runtime
+Testcontainers pour retry, restart, claim perdu et multi-worker ; métriques backlog/failure.
+
+**Clôture.** Les séquences `Attach(B1) → Detach(B1) → Attach(B2)` et tous leurs replays/permutations
+autorisées convergent vers `ATTACHED/B2` à la révision maximale.
+
+#### WA.6.4 — Bootstrap borné des bindings V18
+
+**Objectif.** Initialiser `CURRENT_BINDING` sans faux historique et sans perdre une mutation réelle.
+
+**Fichiers/modules probables.** Port et use case de bootstrap dans le moteur User/Identity READ ;
+reader primaire dédié et writer READ dans les adapters ; wiring dans un job administratif dédié ou
+un mode one-shot du runtime identity, plus runbook sous `docs/`.
+
+**Modèle/SQL.** Lecture keyset-paginée et bornée de l’autorité jointe au stream sur `(issuer,
+subject)`, uniquement lorsque `current_revision = 0`. Écriture `ATTACHED, revision=0, user_id,
+binding_id, source_event_id=NULL`. Aucun `ExternalIdentityAttached` n’est synthétisé.
+
+**Runtime/transaction.** Le job est restartable, paramétré par taille de page et curseur. L’upsert
+réutilise la règle de fraîcheur : absence → insert 0 ; row 0 identique → no-op ; row >0 → conserver
+la mutation projetée ; row 0 divergente → relire l’autorité/stream et retenter ou signaler un
+invariant, sans overwrite aveugle. Le déploiement active le consumer de faits avant ou avec le job,
+de sorte qu’une mutation concurrente à révision `1+` gagne toujours.
+
+**Invariants.** Idempotent, borné, reproductible ; aucune collision avec la première mutation réelle
+(`0` contre `1`) ; aucune dépendance à l’ordre de BindingId ; aucune invention de fait.
+
+**Tests/preuves.** Testcontainers avec base V18 préremplie, pages multiples, interruption/reprise,
+double exécution, mutation avant/pendant/après la page, detach et rebind concurrents ; comparaison
+finale autorité/projection après rattrapage.
+
+**Clôture.** Le compteur de rows `revision=0` attendu est expliqué, le job peut être rejoué sans
+effet et tout stream `revision>0` converge uniquement via ses faits réels.
+
+#### WA.6.5 — `COMMAND_RESULT` V1/V2 : contexte durable et matérialisation
+
+**Objectif.** Matérialiser effectivement les résultats V2 sans casser les artefacts V1 existants.
+
+**Fichiers/modules probables.** `engine-command-result` (`CommandResultProjectionInput`, loader,
+projector, définition/payload), `infra-persistence-jpa`
+(`JdbcCommandResultProjectionInputLoader`) et `runtime-task-consumption-worker`. Le terminal event,
+la policy et la clé de ProjectionTask existants restent inchangés : ils identifient déjà sans
+ambiguïté le `commandId` permettant de relire la `RecordedCommand` exacte.
+
+**Modèle/SQL.** Introduire un contexte de visibilité discriminé :
+`LEGACY_USER(userId)` pour V1, `EXACT_EXTERNAL_IDENTITY(issuer,subject)` pour V2. Le loader branche
+sur `recorded_commands.envelope_version`, jamais sur un NULL : V1 exige `auth_user_id`; V2 exige
+`auth_issuer/auth_subject` et ne lit pas `auth_user_id`. Étendre la définition du payload par deux
+formes exclusives : la forme V1 existante reste byte-for-byte compatible ; la forme V2 porte un
+discriminant et `visibleToExternalIdentity{issuer,subject}` sans `submittedByUserId`.
+
+**Stratégie de compatibilité.** Conserver le même type physique, la même target version et la même
+clé `COMMAND_RESULT`. C’est le plus petit changement sûr : les tâches V2 déjà créées restent en
+retry permanent grâce à `ProjectionTaskRetryPolicy` et réussiront après déploiement du loader ; les
+terminal events pas encore matérialisés seront découverts normalement. Aucun slot n’est réinitialisé,
+aucune row primaire n’est réécrite et aucun artefact V1 immuable n’est rematérialisé. Les payloads V2
+nomment E comme `visibleToExternalIdentity`, jamais `owner`.
+
+**Runtime/transaction.** L’outcome et le terminal event restent écrits dans la transaction fenced de
+la Command. Le routage exact est découvert après commit ; le loader recharge l’outcome et le
+contexte depuis la même `RecordedCommand`. Aucun lookup de binding n’intervient. La projection V2
+est écrite/finalisée sous le même type par le moteur de ProjectionTask existant avec ses garanties
+immuables.
+
+**Invariants.** V1 continue strictement par son `auth_user_id`; V2 utilise exclusivement E capturée ;
+E1 et E2 liées au même U restent séparées ; detach/rebind ne transfère pas la visibilité historique ;
+V1 ne reçoit jamais de subject inventé. B, révision et U résolu sont volontairement absents du
+contexte de visibilité V2. Un éventuel futur besoin d’audit `executedAsUserId` serait un autre fait à
+capturer dans la transaction WA.4, pas une condition de lecture WA.6.
+
+**Tests/preuves.** Unitaires loader/projector pour deux variantes et toutes formes invalides ;
+PostgreSQL V1 persisted → artefact historique inchangé ; V2 applied/rejected/failed → artefact V2 ;
+task V2 antérieurement en retry qui réussit après activation ; terminal event V2 non encore découvert
+qui suit la chaîne normale ; retry/restart/immutabilité/conflit de payload ; backlog V1 toujours
+consommable ; aucun changement de policy ou de clé de matérialisation.
+
+**Clôture.** Une Command V2 terminale obtient un résultat READ sans `auth_user_id`, tandis que les
+goldens et comportements V1 restent inchangés.
+
+#### WA.6.6 — GET self-service et autorisation READ-only
+
+**Objectif.** Servir le binding courant et les résultats sans lecture du schéma primaire.
+
+**Fichiers/modules probables.** Ports/read services dans le moteur User/Identity READ et
+`engine-command-result`; `infra-read-persistence`; `supra-http-read-query` pour controllers/DTO ;
+`runtime-web-api` pour le wiring AuthN et suppression du resolver primaire des GET.
+
+**Contrats HTTP.** Ajouter un GET self-service (chemin final aligné aux conventions API, par exemple
+`GET /api/v1/me/binding`) sans issuer/subject client : E provient uniquement de
+`AuthenticatedExternalPrincipal`; réponse attachée minimale `userId, bindingId, bindingRevision,
+status`, et réponse détachée/non trouvée non-oracle définie par le contrat HTTP. Conserver
+`GET /api/v1/commands/{commandId}/result` avec `commandId + AuthN` uniquement.
+
+**Runtime/autorisation.** Lire l’unique projection `COMMAND_RESULT`, puis appliquer sa forme. Pour V2,
+comparer en READ E authentifiée au couple exact du payload. Pour le V1 historique, résoudre E dans
+`CURRENT_BINDING` READ puis comparer le `userId` au `submittedByUserId` historique : c’est le
+comportement legacy courant transposé côté READ, pas une migration V1 vers E. Une forme mixte ou
+inconnue est une invariant failure. Toute absence/non-ready/non-ownership conserve la réponse
+non-oracle actuelle.
+
+**Invariants.** Aucun paramètre ne permet de choisir E ; aucun controller/use case GET n’importe le
+repository Identity WRITE, `recorded_commands`, `command_outcomes` ou Consumption ; E2 ne lit jamais
+le résultat V2 de E1, même si elles partagent U ; le statut futur du binding n’altère pas ce contrôle
+V2.
+
+**Tests/preuves.** MVC/AuthN : token E exact, issuer/subject homonymes, E1/E2 même U, inconnu,
+détaché/rebind, commandId absent/non-ready/non-owned ; spy/statement capture prouvant zéro SELECT
+primaire ; E2 refusée sur V2 ; V1 autorisé/refusé via le `CURRENT_BINDING` READ uniquement ; contrat
+de réponse binding attaché/détaché et absence de paramètres d’identité.
+
+**Clôture.** Les deux GET utilisent exclusivement `pocoma_read`/artefacts et toutes les décisions
+d’identité proviennent du principal authentifié.
+
+#### WA.6.7 — Concurrence, idempotence et reprise opérationnelle
+
+**Objectif.** Prouver la convergence de la chaîne complète sous course, replay et redémarrage.
+
+**Fichiers/modules probables.** Tests d’intégration des runtimes identity/task, suites PostgreSQL et
+E2E dans `architecture-tests`; propriétés/métriques des workers et runbook WA.6.
+
+**Scénarios.** `Attached(B1@1) → Detached(B1@2) → Attached(B2@3)` avec replay tardif de `@1/@2` ;
+duplicate `@3`; livraison `@3,@1,@2`; detach B1 stale après B2 ; deux attach concurrents ; detach
+pendant Command WA.4 ; crash avant/après append, avant/après apply et avant finalisation ; bootstrap
+en concurrence avec `@1`; redémarrage/multi-worker. Pour `COMMAND_RESULT`, couvrir V1 backlog,
+terminal V2 déjà existant, outcome V2 nouveau, duplicate task et E1/E2 même U.
+
+**Stratégie transactionnelle.** Les tests inspectent simultanément autorité, stream, journal,
+Consumption/provenance et READ : aucun commit partiel n’est accepté. Un retry technique peut
+réexécuter un apply, jamais une mutation d’autorité déjà finalisée hors de son idempotency contract.
+
+**Invariants/tests.** Révision maximale et contenu correspondant gagnent ; le nombre de faits égale
+le nombre de mutations réussies ; aucune lacune causée par un échec fonctionnel ; stale detach WA.2
+et lock WA.4 restent valides ; les workers ne lisent pas `CURRENT_BINDING` pour décider une Command.
+
+**Clôture.** La matrice de courses passe de manière répétable sous Testcontainers avec au moins deux
+workers et après restart.
+
+#### WA.6.8 — Frontières d’architecture et preuves de clôture
+
+**Objectif.** Verrouiller la séparation core/app/infra/api/worker et démontrer la non-régression
+WA.2–WA.5.
+
+**Fichiers/modules probables.** `architecture-tests/HexagonalArchitectureTest` et guards spécialisés,
+POMs/composition roots uniquement pour les dépendances nécessaires ; documentation opérationnelle
+et résultat de step après implémentation.
+
+**Guards à ajouter/étendre.** Domaine User/Identity JDK-only ; un seul adapter d’autorité de binding ;
+mutation autoritative uniquement derrière le use case transactionnel ; HTTP READ sans
+`infra-persistence-jpa`, repositories WRITE ou transactions primaires ; worker Command sans moteur
+Identity READ ; runtime Identity READ sans droit d’écriture sur l’autorité ; V2 result sans
+`auth_user_id`, resolver User ou fallback legacy ; V1 sans `auth_subject` synthétisé ; sens des
+dépendances core/app→ports et infra→adapters sans cycle.
+
+**Preuves de non-régression.** Rejouer les tests ciblés WA.2 attach/detach/stale, WA.3 round-trip V1/V2,
+WA.4 lock/TOCTOU/rollback, WA.5 admission ouverte/zéro SELECT ; migrations V18→HEAD et base neuve ;
+tests unitaires, PostgreSQL/Testcontainers, HTTP/AuthN/AuthZ, E2E Command→result, architecture tests,
+reactors impactés puis reactor Maven complet.
+
+**Clôture WA.6.** Journal de faits et projection rattrapés, bootstrap achevé/mesuré, aucun failed slot
+V2 non traité, GET sans accès primaire, matrice E1/E2 et V1/V2 verte, architecture verte, runbook et
+rollback de déploiement documentés. Aucun code WA.7 de contraction n’est inclus.
+
+**Ordre d’implémentation.** `WA.6.1 → WA.6.2 → WA.6.3 → WA.6.4 → WA.6.5 → WA.6.6 → WA.6.7 →
+WA.6.8`. WA.6.3 peut être développé en parallèle de WA.6.2 après gel des contrats, mais son activation
+attend le journal durable. WA.6.5 peut être développé après WA.6.1 et s’active avant WA.6.6. WA.6.4
+s’exécute après activation du consumer WA.6.3. La clôture reste séquentielle.
 
 ### WA.7 — Contract des représentations legacy
 
@@ -355,13 +629,16 @@ architecture alignées. REGISTRATION peut commencer sur ces fondations.
 - couverture WA1–WA11 explicite ;
 - aucune modification de canon ;
 - `git diff --check` propre ;
-- liste de fichiers modifiés limitée aux deux `Step_Plan.md` de WRITE_ADMISSION et REGISTRATION.
-
-Commit prévu : `docs: refine registration implementation plan`
-
-Push prévu : `origin/v2-make-it-pull`
+- plan WA.6 découpé en huit sous-étapes atomiques avec frontières transactionnelles, migrations,
+  runtime, tests et critères de clôture explicites ;
+- distinction V1/V2 de `COMMAND_RESULT` explicite, sans migration exact-E de V1 ni fallback
+  heuristique ;
+- audit du plan validé par 78 tests existants ciblés verts : modèle User/Identity (3), modèle
+  `COMMAND_RESULT` (4), mapper `RecordedCommand` (4), adapter PostgreSQL `RecordedCommand` (15),
+  chaîne PostgreSQL `COMMAND_RESULT` (1) et guards `HexagonalArchitectureTest` (51) ;
+- liste de fichiers modifiés par ce cadrage limitée à ce `Step_Plan.md` ; `WA6_Audit.md` reste le
+  livrable d’audit préexistant non suivi.
 
 Blocking questions : **0**
 
-Le commit et le push sont seulement annoncés : ils ne sont pas exécutés pendant cette session de
-planification.
+Aucun code, test, migration, commit ou push n’est produit pendant cette session de planification.
