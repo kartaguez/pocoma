@@ -69,21 +69,42 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		Map<String, MigrationIdentity> readHistory = migrationHistory(upgradeUrl, "pocoma_read", 7);
 
 		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
-		MigrateResult readUpgrade = migrateRead(upgradeUrl, null);
+		MigrateResult readExpand = migrateRead(upgradeUrl, "12");
+		// V13 intentionally requires the facts-only projection to have caught up first.
+		materializeTerminalBindingsForMigrationFixture(upgradeUrl);
+		MigrateResult readContract = migrateRead(upgradeUrl, null);
 		assertEquals(8, primaryUpgrade.migrationsExecuted);
-		assertEquals(5, readUpgrade.migrationsExecuted);
+		assertEquals(5, readExpand.migrationsExecuted);
+		assertEquals(1, readContract.migrationsExecuted);
 		assertHistoricalHistoryUnchanged(primaryHistory, migrationHistory(upgradeUrl, "public", 15));
 		assertHistoricalHistoryUnchanged(readHistory, migrationHistory(upgradeUrl, "pocoma_read", 7));
 		assertEquals(23, successfulMigrationCount(upgradeUrl, "public"));
-		assertEquals(12, successfulMigrationCount(upgradeUrl, "pocoma_read"));
+		assertEquals(13, successfulMigrationCount(upgradeUrl, "pocoma_read"));
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
 		assertEquals(23, migratePrimary(bootstrapUrl, null).migrationsExecuted);
-		assertEquals(12, migrateRead(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(13, migrateRead(bootstrapUrl, null).migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 
 		assertEquals(structuralFingerprint(upgradeUrl), structuralFingerprint(bootstrapUrl));
+	}
+
+	private static void materializeTerminalBindingsForMigrationFixture(String url) throws SQLException {
+		try (Connection connection = connection(url); Statement statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					insert into pocoma_read.current_external_identity_binding
+					 (issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
+					select issuer,subject,binding_revision,fact_type,
+					 case when fact_type='ATTACHED' then user_id else null end,
+					 case when fact_type='ATTACHED' then binding_id else null end,
+					 event_id,now()
+					from (select distinct on (issuer,subject) issuer,subject,binding_revision,
+					      fact_type,user_id,binding_id,event_id
+					      from external_identity_binding_facts
+					      order by issuer,subject,binding_revision desc) terminal
+					""");
+		}
 	}
 
 	private static void createDatabase(String database) throws SQLException {

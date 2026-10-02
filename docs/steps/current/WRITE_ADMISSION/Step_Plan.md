@@ -1393,3 +1393,32 @@ après vérification du journal et de la projection. Les facts R0 restent marqu�
 
 Les dettes `LOW` historiques sont consignées dans [`Step_debt.md`](Step_debt.md) et ne sont pas
 modifiées par cette Wave. `Step_Canon.md` est inchangé. **WA.7 STATUS: NOT STARTED.**
+
+### Correction de preuve du cutover WA.6F (audit externe, 2026-10-02)
+
+**Finding MAJOR corrigé.** La vérification de V12 allait de chaque row READ présente vers un fact
+de même E/R/payload. Elle pouvait laisser passer une E absente de READ ou une projection à une
+révision réelle mais non terminale. V12 appartient à la baseline commitée et poussée ; elle reste
+inchangée. La migration READ forward-only V13 ajoute une gate fail-closed avant que le déploiement
+ne puisse considérer le cutover comme achevé.
+
+V13 sélectionne le fact de révision maximale par `(issuer,subject)` avec `DISTINCT ON`, exige la
+même cardinalité entre les E terminales et `CURRENT_BINDING`, puis compare les deux ensembles par
+`FULL JOIN`. Elle rejette une E manquante ou supplémentaire, une R stale, un état différent, U/B
+divergents pour ATTACHED, U/B non nuls pour DETACHED et toute provenance différente de l'`event_id`
+terminal. Le résultat ne modifie aucune row métier ; toute divergence lève
+`CURRENT_BINDING differs from terminal binding fact journal` et fait échouer Flyway. La seule
+réparation automatique de provenance reste celle de V12 pour une row dont le payload a été prouvé
+exact. La migration d'une base avec facts existants et READ vide échoue donc jusqu'à ce que le
+consumer facts-only ait reconstruit et vérifié la projection ; aucun bootstrap primaire n'est
+réintroduit.
+
+Les tests PostgreSQL de V13 prouvent l'échec transactionnel pour E manquante, projection stale,
+E supplémentaire, état/U/B divergents et `source_event_id` incorrect, ainsi que le succès pour
+R0 baseline, ATTACHED, DETACHED et reattach avec provenance terminale exacte. Les tests runtime
+facts-only restent la preuve de reconstruction depuis READ vide ; V13 est la preuve de cutover
+sur la base à migrer. Les tests ciblés READ, le reactor pertinent
+`infra-read-persistence,architecture-tests,runtime-binding-consumption-worker -am test -q` et
+le reactor complet `./mvnw test -q` sont verts avec V13 ; le test de démolition matérialise la
+projection facts-only avant cette gate sur l'upgrade historique. **WA.6F : DONE ; WA.6G : DONE ;
+WA.6 STATUS: CLOSED ; WA.7 STATUS: NOT STARTED.**
