@@ -4,7 +4,7 @@
 Step: WRITE_ADMISSION
 Phase: IMPLEMENTATION PLANNED
 Authority: Step_Canon.md — WA1–WA11
-Sequencing: WA.1 → WA.2 → WA.3 → WA.4 → WA.5 → WA.6 → WA.7 → WA.8
+Sequencing: WA.1 → WA.2 → WA.3 → WA.4 → WA.5 → WA.6 → WA.6A → WA.6B → WA.6D → WA.6C → WA.6E → WA.6F → WA.6G → WA.7 → WA.8
 Strategy: expand → consume → produce → read → contract
 ```
 
@@ -16,7 +16,9 @@ Strategy: expand → consume → produce → read → contract
 - working tree initial au cadrage WA.6 : uniquement `WA6_Audit.md` non suivi ;
 - autorité normative : [`Step_Canon.md`](Step_Canon.md), WA1–WA11 ;
 - audits factuels : [`step_audit.md`](step_audit.md) et
-  [`WA6_Audit.md`](WA6_Audit.md) pour le cadrage détaillé de WA.6.
+  [`WA6_Audit.md`](WA6_Audit.md) pour le cadrage détaillé de WA.6 ;
+- audit d'alignement du canon final :
+  [`Binding_Canon_Alignment_Audit.md`](Binding_Canon_Alignment_Audit.md), verdict `PASS WITH GAPS`.
 
 Ce plan ferme l’écart transversal entre l’admission Command actuelle et le canon WRITE_ADMISSION.
 Il prépare les fondations User/Identity dont REGISTRATION dépend, migre Command sans big-bang et
@@ -48,6 +50,8 @@ envelope historique qui ne les contient pas.
 - Le worker résout autoritativement `(E,B) -> U`, évalue les capabilities et l’AuthZ, puis maintient
   B courant jusqu’au commit de la mutation métier dans la transaction fenced.
 - Chaque occurrence de binding reçoit un B opaque, unique et jamais réutilisé.
+- `BindingRevision R` appartient à E et ordonne ses mutations ; elle peut servir de version interne
+  au CAS, mais la Command ne la porte jamais et son fence métier reste `(E,B)`.
 - Les endpoints GET lisent exclusivement READ/projections, jamais les tables WRITE, les outcomes
   primaires ou Consumption.
 - La projection self-service est strictement indexée par l’ExternalIdentity authentifiée et n’est
@@ -296,7 +300,9 @@ n’ont pas créé de faits de lifecycle : WA.6 les introduit.
 
 #### Décisions figées pour tout le lot
 
-- L’unique autorité reste `external_identities(issuer, subject, user_id, binding_id)`. Le journal de
+- Dans l'état livré WA.6, `external_identities(issuer, subject, user_id, binding_id)` porte la
+  row active et `external_identity_binding_streams` porte R même après detach. Ensemble, ils
+  constituent l'autorité composite explicitée pour la cible en WA.6A. Le journal de
   faits et `CURRENT_BINDING` sont respectivement la trace durable des mutations et une projection ;
   aucun des deux n’est un second store de décision WRITE.
 - L’ordre est une `binding_revision BIGINT` monotone **par** `(issuer, subject)`. `binding_id` reste
@@ -329,8 +335,8 @@ subject)`, `current_revision >= 0`. Ajouter un journal append-only, par exemple
 `external_identity_binding_facts(event_id, issuer, subject, binding_revision, fact_type, user_id,
 binding_id, recorded_at, partition_hash)`, avec PK `event_id`, unicité `(issuer, subject,
 binding_revision)`, FK/contraintes de forme et `binding_revision >= 1`. `Attached` porte au minimum
-`E, userId, bindingId, revision, recordedAt, eventId`; `Detached` porte `E, bindingId, revision,
-recordedAt, eventId`, sans User inventé. La clé de partition est dérivée de E.
+`E, userId, bindingId, revision, recordedAt, eventId`; la forme `Detached` sans U décrite ici est
+**l'état livré en WA.6.1**, corrigé par WA.6B–WA.6D ci-dessous. La clé de partition est dérivée de E.
 
 **Runtime/transaction.** Aucun polling n’est activé dans cette sous-étape. La migration crée une row
 de stream à `0` pour chaque E V18 actuellement attachée, avec `INSERT ... ON CONFLICT DO NOTHING` ;
@@ -399,7 +405,8 @@ restent `Propagation.MANDATORY`. Ordre de lock obligatoire pour tous les writers
 autoritative E. Attach : lock → contrôle de conflit → insertion d’autorité → incrément → append.
 Detach : lock → `DELETE ... WHERE E AND binding_id = B` → si une row est supprimée, incrément et
 append ; sinon `NOT_CURRENT`, sans incrément/fait. Commit ou rollback couvre les cinq opérations.
-Le lock WA.4 sur l’autorité continue de bloquer le detach jusqu’au commit métier de la Command.
+Le lock WA.4 sur l’autorité bloque alors le detach jusqu’au commit métier de la Command ;
+WA.6C remplace explicitement ce comportement historique.
 
 **Invariants.** Aucun état d’autorité committé ne peut manquer son fait ; aucun fait ne décrit une
 mutation rollbackée ; deux writers de la même E sont sérialisés ; des E différentes restent
@@ -442,8 +449,9 @@ sur `runtime-latest-known-version-consumption-worker`, le Consumption génériqu
 
 **Modèle/SQL.** Table `pocoma_read.current_external_identity_binding`, clé naturelle `(issuer,
 subject)`, colonnes `binding_revision`, `binding_status` (`ATTACHED|DETACHED`), `user_id`,
-`binding_id`, `source_event_id`, `projected_at`. `binding_id` reste présent sur la tombstone ;
-`user_id` est obligatoire seulement pour `ATTACHED` et nul pour `DETACHED`. Révision `>= 0` ;
+`binding_id`, `source_event_id`, `projected_at`. La tombstone avec ancien `binding_id` décrite ici
+est **l'état livré en WA.6.3** ; WA.6E la migre vers `user_id=NULL, binding_id=NULL`.
+Révision `>= 0` ;
 `source_event_id` nul uniquement pour un bootstrap révision `0`.
 
 **Discovery/Consumption.** Réutiliser le locator pull canonique de Command/LKV, sans watermark global
@@ -530,7 +538,9 @@ autorisées convergent vers `ATTACHED/B2` à la révision maximale.
 
 #### WA.6.4 — Bootstrap borné des bindings V18
 
-**Objectif.** Initialiser `CURRENT_BINDING` sans faux historique et sans perdre une mutation réelle.
+**Objectif historique WA.6.4.** Initialiser `CURRENT_BINDING` sans faux historique et sans perdre
+une mutation réelle. WA.6D/WA.6F remplacent ce bootstrap primaire par des facts de baseline
+identifiés comme données de migration, puis par un replay exclusivement fondé sur les facts.
 
 **Fichiers/modules probables.** Port et use case de bootstrap dans le moteur User/Identity READ ;
 reader primaire dédié et writer READ dans les adapters ; wiring dans un job administratif dédié ou
@@ -733,7 +743,8 @@ réexécuter un apply, jamais une mutation d’autorité déjà finalisée hors 
 
 **Invariants/tests.** Révision maximale et contenu correspondant gagnent ; le nombre de faits égale
 le nombre de mutations réussies ; aucune lacune causée par un échec fonctionnel ; stale detach WA.2
-et lock WA.4 restent valides ; les workers ne lisent pas `CURRENT_BINDING` pour décider une Command.
+et lock WA.4 étaient alors valides ; WA.6C remplace ce lock. Les workers ne lisent pas
+`CURRENT_BINDING` pour décider une Command.
 
 **Clôture.** La matrice de courses passe de manière répétable sous Testcontainers avec au moins deux
 workers et après restart.
@@ -861,9 +872,327 @@ WA.6.8`. WA.6.3 peut être développé en parallèle de WA.6.2 après gel des co
 attend le journal durable. WA.6.5 peut être développé après WA.6.1 et s’active avant WA.6.6. WA.6.4
 s’exécute après activation du consumer WA.6.3. La clôture reste séquentielle.
 
+### WA.6A–WA.6G — Réalignement du canon final avant WA.7
+
+**Statut : PLANIFIÉ, non implémenté.** Le canon [`Step_Canon.md`](Step_Canon.md) reste fermé.
+Les paragraphes « Résultat WA.1–WA.6 — DONE » et les formes SQL précédentes décrivent l'état
+livré à leur date, et non la cible après réalignement. Les sous-lots suivants les remplacent comme
+prescription technique. Aucun changement de WA.7/WA.8 n'est exécuté ici.
+
+**Décisions communes.** Conserver l'autorité composite WRITE existante :
+`external_identity_binding_streams(E,current_revision)` persiste après detach ;
+`external_identities(E,U,B)` existe exactement quand E est ATTACHED. L'état DETACHED est
+`stream présent + row active absente` ; `stream absent` signifie E jamais connue. Cette relation
+est lue par le WRITE dans sa propre base, jamais depuis `CURRENT_BINDING`. La contrainte d'unicité
+globale historique de B vient d'un registre permanent `external_identity_binding_occurrences`
+avec `binding_id UUID PRIMARY KEY`, une row par **occurrence attachée**, jamais supprimée. Les
+facts, avec deux rows possibles pour un même B (attach et detach), ne peuvent pas porter seuls
+une contrainte `UNIQUE(binding_id)`. Les nouvelles acquisitions génèrent B côté domaine/adapter
+WRITE au moment de l'Attach ; ni le caller ni la Command ne choisissent un B à créer. L'adapter
+réserve B dans le registre dans la même transaction que l'authority, R et le fact. La collision
+UUID, improbable mais possible, est traitée comme conflit de clé : rollback au savepoint ou de la
+transaction, nouvelle tentative avec **un nouveau** B, jamais réutilisation du candidat. Le
+résultat d'acquisition expose B seulement après succès ; un retry d'une acquisition committée
+doit retrouver son résultat via une clé d'idempotence métier si le caller en possède une, ou être
+un nouvel Attach soumis aux règles de conflit, jamais rejouer un B proposé. REGISTRATION future
+utilisera ce port et recevra B pour `Registered(U,B)` ; aucune Registration n'est implémentée ici.
+
+Les writers Attach/Detach/Reattach conservent leur verrou court de stream E, dans l'ordre
+`stream E → réserve occurrence B → authority E → fact E,R` pour Attach, et
+`stream E → authority E → fact E,R` pour Detach ; ils effectuent l'ensemble dans une transaction
+PostgreSQL. Ce verrou sérialise les **mutations de binding**, pas la phase métier d'une Command.
+R n'avance que si la mutation et son fact committent. Le registre persiste après detach et restart ;
+un rollback annule sa réservation. La commande V2 garde `E+B+payload+authenticationEvidence`,
+sans R, U d'admission, JWT brut ni lecture métier à l'admission. V1 reste compatible jusqu'à WA.7.
+
+**Déploiement transversal.** L'ordre d'exécution est A → B (writer préparé, inactif) → D
+(backfill complet et activation writer) → C → E → F → G. EXPAND les structures et lecteurs compatibles ; MIGRATE sous
+préconditions vérifiées ; SWITCH les writers, le fence puis les projections ; VERIFY sur PostgreSQL
+et replay ; CONTRACT seulement lorsque les preuves sont acquises. Des versions mixtes ne doivent
+pas écrire des rows que l'autre version ne sait pas protéger : suspendre les writers de binding
+pendant le backfill et le basculement du port, puis n'activer que les writers nouveaux. Les
+Commands peuvent continuer à être admises durant cette fenêtre ; ne relancer leur exécution V2
+qu'une fois le registre et le CAS déployés. Après chaque sous-lot, les tests ciblés et le reactor
+pertinent doivent rester verts ; chaque migration est additive avant sa contraction. Ne jamais
+abandonner le verrou WA.4 avant la preuve PostgreSQL du CAS.
+
+#### WA.6A — Unicité historique de B et support de l'autorité
+
+**Prérequis.** WA.6 livré ; inventaire des rows actives, facts et streams sur la base cible.
+**Objectif.** Fermer A1/J1 durablement, sans remodeler l'autorité composite qui satisfait B1/C1.
+**État initial réel.** `external_identities.binding_id` est unique seulement pour les actifs ;
+`acquire(E,U,B)` accepte B du caller ; le stream conserve déjà R après detach.
+**État cible.** Registre `external_identity_binding_occurrences(binding_id PK, issuer, subject,
+user_id, attached_revision, created_at)` avec E et U non nuls, FK vers stream/User, unicité
+`(issuer,subject,attached_revision)` ; aucune suppression métier, aucun UPDATE d'identité.
+`external_identities` et stream restent l'autorité ATTACHED/DETACHED décrite plus haut ; index
+exact E+B actif conservé. Le registre est la preuve permanente de réservation globale B, non une
+projection READ ni un compteur de révision.
+
+**Changements.** Migrations WRITE après V20 : EXPAND du registre et du journal, MIGRATE du
+registre, puis contraintes/CONTRACT après WA.6D ; ne modifier aucune migration déjà appliquée.
+Adapter `JpaExternalIdentityBindingAdapter` et port
+`ExternalIdentityBindingPort` : remplacer le chemin public `acquire(E,U,B)` par `acquire(E,U)`
+retournant le B neuf en cas de succès ; production d'un B opaque UUID dans l'adapter, réservation
+en base et fact Attached atomiques. Conserver les fixtures d'injection de B uniquement dans les
+tests du repository ou SQL, pour prouver que la contrainte refuse la réutilisation. La cohérence
+`active B ↔ registre(E,U,B)` est vérifiée par le writer et une contrainte FK/trigger ciblée si une
+écriture SQL directe peut contourner l'adapter ; les droits DB de mutation sont limités au writer.
+**Migration/data strategy.** Backfill initial du registre depuis tous les `ATTACHED` facts et les
+rows actives R0 ; compléter les occurrences initiales déjà détachées depuis les `DETACHED@1`
+seulement après la récupération fiable de U en WA.6D. Pour éviter une protection incomplète,
+garder l'ancien writer arrêté jusqu'à cette complétion ; le SWITCH définitif du port attend WA.6D.
+Préflight : même B associé à deux attaches distinctes, U contradictoire, stream manquant ou B
+impossible à attribuer => migration arrêtée avec rapport, jamais correction silencieuse.
+**Transactions/concurrency.** Deux inserts concurrents d'un même B ne peuvent tous deux
+committer ; la PK globale tranche, y compris sur E différentes. Attach conflictuel, stale detach,
+collision, échec de fact ou rollback ne consomment ni B réservé ni R durable. La nouvelle tentative
+génère un autre B après rollback. **Compatibilité historique.** Les B déjà détachés doivent être
+réservés avant l'ouverture du writer nouveau ; aucune nouvelle occurrence ne reprend un B ancien.
+**Tests/preuves.** Fresh DB, upgrade V18/V20 prérempli, B1 après detach sur E1 puis sur E2,
+deux réutilisations concurrentes, rollback, retry et restart ; rejets SQL persistants pour B
+historique détaché ; R continue après detach et ATTACHED/DETACHED restent sans ambiguïté.
+**Non-objectifs.** Table d'autorité unique, Registration, interprétation ordinale/temps de B.
+**DONE.** Schéma et nouveau port prêts, préflight historique chiffré, ancien writer suspendu ;
+la complétion du registre, le retrait effectif de `acquire(E,U,B)` et la réouverture des writers
+sont le SWITCH de WA.6D, avant WA.6C. Aucun writer partiellement protégé n'est activé.
+
+#### WA.6B — Facts de lifecycle canoniques pour les nouveaux writes
+
+**Prérequis.** WA.6A EXPAND ; le port ancien ne produit plus pendant le SWITCH.
+**Objectif.** Fermer la partie « Detached sans U » de D1 pour les mutations futures.
+**État initial réel.** Attached contient E/U/B/R ; Detached et sa contrainte SQL imposent U nul.
+**État cible.** Les deux variantes portent exactement E/U/B/R comme information métier ; les
+colonnes techniques `event_id`, `recorded_at`, `partition_hash` restent techniques. Detached
+identifie l'occurrence invalidée et son U au moment de la suppression.
+**Changements.** EXPAND la contrainte de shape pour accepter temporairement les anciennes rows
+DETACHED nulles ; adapter `ExternalIdentityDetached`, `ExternalIdentityBindingFactRecordMapper`,
+row mapper, writer et sérialisation. Detach lit U de la row active exacte E+B **sous le lock de
+stream**, puis supprime cette row et écrit `Detached(E,U,B,R+1)` dans la même transaction. Un
+detach stale ne connaît pas U et n'émet aucun fact. Le fact n'est jamais enrichi à partir de READ.
+**Migration/data strategy.** Anciennes rows nulles restent lisibles pendant l'EXPAND ; le NOT NULL
+et la nouvelle contrainte commune ATTACHED/DETACHED attendent WA.6D et sa vérification.
+**Transactions/concurrency.** Lock stream par E, lecture U, suppression exacte, avance R et append
+atomiques ; fact append failure rollback tout ; reattach génère un autre B, même vers U identique.
+**Compatibilité historique.** Reader transitoire accepte les anciens DETACHED nulls mais ne les
+présente pas comme canoniques au replay final. **Tests/preuves.** Fact Attached et Detached exacts
+E/U/B/R, attach/attach, detach/detach, stale detach, reattach même/autre U, rollback et absence de
+trou de R. **Non-objectifs.** Rejouer les données historiques ou changer la projection ici.
+**DONE.** Le nouveau writer (activé seulement après WA.6D) émet tout fact DETACHED avec U ; les
+facts restent append-only en production,
+uniques par E+R et contigus pour les mutations réussies.
+
+#### WA.6C — Fence optimiste de Command V2 au commit
+
+**Prérequis.** WA.6A/WA.6B et WA.6D, writers cohérents et registre complet ; preuve du CAS en environnement PostgreSQL avant
+suppression de `lockCurrentBinding` dans le worker. **Objectif.** Remplacer le lock pessimiste long
+de WA.4, en conservant WA11, F1/G1/I1 et le rejet J1 non-oracle.
+**État initial réel.** `SELECT ... FOR UPDATE` sur `external_identities(E,B)` est gardé durant AuthZ,
+Pot, Event, outcome et finalisation du claim ; Detach attend cette phase.
+**État cible.** Dans la transaction métier `READ COMMITTED`, lire sans lock le tuple cohérent
+`stream E JOIN active E` : `E, state=ATTACHED, U, B, R`. Une absence/mismatch E+B donne
+`CALLER_IDENTITY_NOT_CURRENT`. Après capabilities/AuthZ, état métier, mutations, append Event et
+préparation du résultat, **avant** publication d'outcome, provenance et finalisation du claim,
+exécuter le fence SQL suivant sur la même connexion/transaction :
+
+```sql
+UPDATE external_identity_binding_streams AS s
+SET current_revision = s.current_revision
+WHERE s.issuer = :issuer AND s.subject = :subject
+  AND s.current_revision = :observed_r
+  AND EXISTS (
+    SELECT 1 FROM external_identities AS a
+    WHERE a.issuer = s.issuer AND a.subject = s.subject
+      AND a.user_id = :observed_u AND a.binding_id = :command_b
+  );
+```
+
+Une row affectée = fence acquis ; zéro = fence perdu. Le no-op UPDATE crée un tuple PostgreSQL
+mais n'avance pas R et n'émet aucun fact. Son row lock de stream dure jusqu'au commit de cette
+transaction, **uniquement après** le travail métier. Les writers prennent le même stream lock avant
+toute mutation. Si Detach committe d'abord, PostgreSQL `READ COMMITTED` réévalue la condition après
+attente et voit R différent ; le CAS échoue. Si le CAS gagne, Detach attend le commit de la Command.
+Il n'existe donc aucune fenêtre validation réussie → detach committé → commit Command. Le
+`SELECT ... FOR UPDATE` long est interdit dans la cible ; le verrou interne bref du CAS jusqu'au
+commit est admis. Deux Commands sous B inchangé peuvent toutes deux réussir séquentiellement au
+fence final ; leur concurrence Pot/target reste réglée par les mécanismes métier existants, sans
+verrou binding durant leur phase métier. Le no-op UPDATE, son coût et l'ordre des locks avec Pot et
+claim doivent être contrôlés par les tests PostgreSQL ; les writers n'acquièrent aucun lock Pot.
+
+**Changements.** Port WRITE `observeCurrentBinding(E,B)` retournant U+R localement (R ne sort pas
+dans `RecordedCommand`), puis `fenceObservedBinding(E,U,B,R)` ; intégration dans
+`ExecuteRecordedCommandService`, `CommandConsumptionExecution` et frontière
+`TransactionalExecuteConsumptionUseCase`. Pour V2, l'outcome `Applied/Rejected`, les rows de
+provenance et le terminal claim CAS n'écrivent qu'après fence réussi et avant le commit ; V1 garde
+sa voie historique jusqu'à WA.7. Si le dispatcher retourne un rejet métier, fencer également avant
+de le publier : le résultat décrit alors un examen sous une occurrence encore courante.
+**Migration/data strategy.** Aucune colonne Command ni migration SQL de Command ; conserver
+temporairement l'ancien port locké derrière le switch, puis supprimer son appel et le SQL
+`LOCK_EXACT_USER_ID` une fois les preuves obtenues.
+**Transactions/concurrency.** Fence zéro : lever un signal typé qui force le rollback de **toute**
+la transaction métier (Pot, Event, outcome préparé, provenance, claim). Après rollback, une
+transaction neuve sous le claim encore valide recharge uniquement l'autorité E+B : si B n'est plus
+courant, publier `Rejected(CALLER_IDENTITY_NOT_CURRENT)` et terminaliser le claim par son CAS dans
+cette transaction ; si E+B est encore courant, traiter comme conflit technique et retenter le
+traitement complet. Aucun lookup U/historique n'est rendu public. Timeout, deadlock, SQL exception,
+claim perdu ou commit incertain suivent la politique technique existante ; un claim perdu ne
+terminalise jamais. La transaction de rejet est elle-même fenced par le claim. Aucun succès ni
+Event de la transaction rollbackée n'est visible. Le CAS est le **dernier contrôle de binding**
+avant les seules écritures courtes d'outcome/provenance/claim et commit.
+**Compatibilité historique.** V1 inchangé ; admission V2 garde 202 pour B syntaxiquement valide
+mais faux ; aucune R en Command. **Tests/preuves.** Testcontainers à barrières de transactions :
+Command observe B1/R1, Detach committe R2 pendant le travail métier, CAS zéro, zéro Pot/Event/
+outcome succès ; reattach U1/B2/R3 et U2/B2/R3 idem ; sans mutation CAS un et commit ; deux
+Commands même B sans sérialisation durant AuthZ/travail et avec règles Pot inchangées ; mesure de
+barrière prouvant Detach committé avant libération du travail Command ; rollback et pannes SQL.
+Remplacer le test `targetBindingLockIsHeldUntilBusinessCommitAndBlocksConcurrentDetach` qui prouve
+l'ancien modèle ; adapter les autres tests de `CommandConsumptionPostgresTest`, unités de service
+et guards `Wa67BindingArchitectureTest`. **Non-objectifs.** CAS comme précondition client,
+nouveau framework d'events ou changement d'AuthZ. **DONE.** Lock pessimiste long retiré ;
+optimistic fence et rollback prouvés, non-oracle conservé.
+
+#### WA.6D — Récupération historique et replay canonique des facts
+
+**Prérequis.** WA.6A/WA.6B nouveaux contrats prêts ; writers suspendus pour snapshot/backfill ; WA.6A
+registre encore sous gate si l'historique manque. **Objectif.** Fermer D1 et finir le registre B.
+**État initial réel.** V20 a créé des streams R0 sans fact initial ; DETACHED historiques ont U nul ;
+le bootstrap R0 lit encore l'autorité primaire.
+**État cible.** Pour chaque stream issu de V18, un fact `ATTACHED(E,U,B,R0)` de **baseline de
+migration**, identifié par `record_origin=MIGRATION_BASELINE` (métadonnée de provenance, pas un
+événement observé ni un nouveau type métier). Les facts normaux portent
+`record_origin=LIFECYCLE`. Les faits DETACHED historiques sont complétés avec le U exact de leur
+occurrence. Le journal seul rejoue toute E ; R0 est la baseline de l'état existant au passage V20,
+et R1+ sont les mutations réellement enregistrées.
+**Changements.** EXPAND `external_identity_binding_facts` pour R0 et `record_origin` avec default
+`LIFECYCLE` ; `CHECK` : R0 seulement ATTACHED+baseline, R>0 seulement lifecycle, U et B non nuls
+pour les deux types ; conserver `UNIQUE(E,R)` et PK `event_id`. Le mapper de domaine voit toujours
+Attached/Detached E/U/B/R ; l'origine de baseline reste métadonnée du record persistant. Pour
+chaque E, rejouer R0 puis R1…Rn, vérifier continuité et correspondance finale avec stream/active.
+**Migration/data strategy.** Source fiable de U pour DETACHED@R : `ATTACHED` fact antérieur de
+la même E et du même B, ou baseline R0. Pour une occurrence R0 déjà détachée dont l'active V18 a
+disparu, utiliser le snapshot vérifié de `external_identities` pris au cutover V18→V20, ou une
+sauvegarde/WAL équivalente portant exactement E/U/B à ce point ; recouper E+B avec le premier
+DETACHED et les facts ultérieurs. Une row READ/bootstrap, une Command ou une supposition à partir
+du User courant ne sont pas des sources suffisantes. Préflight compté : chaque R0 doit avoir un
+E/U/B prouvable, chaque DETACHED doit retrouver une unique attache précédente, tout B doit désigner
+une seule occurrence ; si preuve absente/contradictoire, **arrêt de la migration et de la gate
+WA.7**, restauration de la source, sans valeur fabriquée. Backfill transactionnel par lots
+restartables, identifiants de facts R0 déterministes/stables ou ledger de migration, et contrôle
+`ON CONFLICT` identique seulement ; U des DETACHED existants est corrigé dans une migration de
+réparation historique unique et tracée, avant de déclarer le journal append-only canonique. Aucun
+UPDATE/DELETE de fact n'est autorisé dans le runtime normal. Finaliser le registre B avec toutes
+les occurrences R0 et R1+, puis activer ses contraintes et le nouveau writer.
+**Transactions/concurrency.** Freeze des writers et snapshot cohérent ; migration répétable et
+rollback par transaction de lot, jamais trou durable de R ; writer futur insère R+1+fact+registre
+atomiquement. Le SWITCH active alors le writer WA.6B et retire le port public acceptant B.
+**Compatibilité historique.** Facts R0 explicitement marqués baseline ; pas de
+réécriture des dates en prétendu timestamp d'Attach ; `recorded_at` de baseline = instant de
+migration, provenance du snapshot conservée dans le ledger. **Tests/preuves.** Upgrade V18/V20,
+historique R0 encore attaché, R0 détaché, R0 reattaché, U manquant mais récupérable, source absente
+ou contradictoire => fail fermé ; comptages E/R/B, contraintes et facts-only replay exact.
+**Non-objectifs.** Reconstitution spéculative d'événements passés. **DONE.** Zéro fact incomplet,
+une baseline justifiée par stream historique, R continu, registre global complet, état replayé
+égal à l'autorité et provenance de migration vérifiable.
+
+#### WA.6E — Forme canonique de CURRENT_BINDING DETACHED
+
+**Prérequis.** WA.6B nouveaux facts et WA.6D historique complet.
+**Objectif.** Fermer E1 sans perdre E2. **État initial réel.** READ V9 impose
+`binding_id NOT NULL` et stocke l'ancien B sur DETACHED ; `CurrentBinding` et les tests l'attendent.
+**État cible.** Une row par E, `binding_revision NOT NULL`; ATTACHED impose U+B non nuls ;
+DETACHED impose U+B nuls et garde R. Aucune row reste distincte de DETACHED@R.
+**Changements.** Migrations READ après V9 : EXPAND nullabilité de B, MIGRATE des rows, puis
+contrainte/CONTRACT ; ne modifier aucune migration déjà appliquée. Modèle `CurrentBinding`, mapper JDBC,
+`BindingFactConsumptionLocator`, apply/upsert et contrainte de shape ; un Detach fact garde B
+pour l'histoire mais projette `(E,R,DETACHED,null,null,source_event_id)`. Self-service conserve
+`getAttached` et peut répondre 404 pour absent et DETACHED, sans fusion interne des états.
+**Migration/data strategy.** SWITCH consumer vers nouvelle forme, arrêter les anciens workers READ,
+normaliser les rows DETACHED existantes par `UPDATE ... SET binding_id=NULL` en gardant E/R/source,
+rejouer facts après backfill ; VERIFY zéro DETACHED avec B et zéro ATTACHED incomplet ; CONTRACT
+nouvelle contrainte CHECK et suppression du NOT NULL seulement après preuve des données.
+**Transactions/concurrency.** Upsert uniquement si R supérieure ; R inférieure stale ignorée ;
+R égale et payload identique duplicate ; R égale divergent erreur. Claim/finalisation et apply
+restent atomiques ; late commit et multi-worker ne ressuscitent pas B.
+**Compatibilité historique.** Adapter de lecture transitoire accepte l'ancienne tombstone avant
+normalisation ; aucun endpoint WRITE ne la consulte. **Tests/preuves.** ATTACHED E/R/U/B →
+DETACHED E/R+1/null/null → REATTACHED E/R+2/U/B2 ; une row par E, absent ≠ DETACHED, duplicate,
+stale, equal-divergent, replay déterministe, endpoint self-service ; remplacer l'assertion ancien
+B du test `CurrentBindingPersistencePostgresTest` et les attentes associées des tests runtime.
+**Non-objectifs.** Nouveau statut HTTP ou API de supervision. **DONE.** Schéma et données READ
+imposent la forme canonique ; aucune projection DETACHED ne conserve B.
+
+#### WA.6F — Cutover facts-only et retrait du bootstrap primaire
+
+**Prérequis.** WA.6D replay historique exact ; WA.6E READ canonique et consumer activé.
+**Objectif.** Supprimer la dépendance permanente de READ à l'autorité primaire pour R0.
+**État initial réel.** `HistoricalBindingBootstrap` et `findRevisionZeroPage` lisent
+`external_identities` au R0 et écrivent une projection `source_event_id=NULL`.
+**État cible.** Discovery/Consumption incluent les facts baseline R0 ; chaque projection provient
+d'un fact, avec son `event_id` ; rebuild `facts only → CURRENT_BINDING` exact. Aucun bootstrap
+primaire au démarrage. **Changements.** EXPAND discovery pour R0 et source de baseline, appliquer
+le même claim/idempotence/retry que R1+ ; migrer les rows READ R0 de `source_event_id=NULL` via
+replay de baseline et vérifier l'identité de payload ; SWITCH le runtime ; retirer
+`HistoricalBindingBootstrap`, `JdbcBindingFactDiscoveryAdapter.findRevisionZeroPage`, wiring/job
+et exceptions d'architecture associées ; CONTRACT `source_event_id NOT NULL` pour toute row READ
+issue d'un fact et la règle bootstrap obsolète.
+**Migration/data strategy.** Consumer facts R0 d'abord ou replay complet sur une projection de
+comparaison ; bascule seulement après égalité par E/R/state/U/B et nombre de rows, y compris
+DETACHED. Ne supprimer le bootstrap primaire qu'après cette preuve et après que tous les workers
+READ utilisent le nouveau consumer ; rollback de déploiement conserve les facts, l'ancien job reste
+désactivé. **Transactions/concurrency.** Même scan sans watermark, claims et upsert par R que R1+ ;
+late commit, retry, restart, multi-worker et stale/duplicate facts convergent.
+**Compatibilité historique.** Baselines R0 sont traitées comme état migré, pas comme Attach observé
+au temps R0. **Tests/preuves.** Rebuild sur schema READ vide pour attached, detached, reattach
+même/autre U, V18/V20 migré, retry, restart, multi-worker, late commit, stale/duplicate ; absence
+de lecture primaire dans le runtime READ et absence de READ côté WRITE.
+**Non-objectifs.** Modifier les endpoints ou l'AuthZ. **DONE.** Tout E connu est reconstruisible
+depuis les facts ; bootstrap primaire et ses ports supprimés.
+
+#### WA.6G — Preuves de clôture et gate WA.7
+
+**Prérequis.** WA.6A, WA.6B, WA.6D, WA.6C, WA.6E et WA.6F SWITCH/VERIFY/CONTRACT terminés.
+**Objectif.** Fermer tous les gaps de l'audit et le remplacement WA.4 avant WA.7.
+**État initial réel.** Audit `PASS WITH GAPS` et tests qui prouvent certaines anciennes formes.
+**État cible.** Audit conservé comme preuve historique ; preuves nouvelles de l'alignement final.
+**Changements.** Mettre à jour les guards d'architecture, fixtures et documentation de résultat ;
+retirer seulement les anciens paths dont les consommateurs ont été migrés : lock exact pessimiste
+du worker, surcharge publique `acquire(E,U,B)`, bootstrap primaire, ancien CHECK Detached, vieux
+tests de tombstone et de blocage Command/Detach. Conserver la résolution exacte E+B autoritative
+nécessaire aux contrôles WRITE et les ports V1 jusqu'à WA.7.
+**Migration/data strategy.** Requêtes de comptage et d'égalité : streams ↔ registre ↔ facts ↔
+authority ↔ projection ; aucun B répété entre occurrences, aucune R manquante, aucun U nul dans
+un fact, aucune projection DETACHED avec B. Documenter la source des baselines et le rollback de
+chaque migration. **Transactions/concurrency.** Rejouer les ordonnancements PostgreSQL de WA.6A–F,
+y compris Detach committé pendant le travail Command, CAS réussi, CAS perdu, claim perdu, fact
+append failure et deux Commands sous B. **Compatibilité historique.** V1 conservé exactement
+jusqu'à WA.7 ; admission V2 et HTTP READ conservent leurs contrats.
+**Tests/preuves.** Tests ciblés Testcontainers, migrations fresh/upgrade, `Wa67BindingArchitectureTest`,
+`HexagonalArchitectureTest`, E2E Command/READ, reactor pertinent ; scans statiques : pas de
+`FOR UPDATE` du binding actif dans le worker, pas de Command R, pas de WRITE sur
+`CURRENT_BINDING`. **Non-objectifs.** WA.7/WA.8, REGISTRATION, délégation, actor≠subject, Keycloak,
+Pot redesign, API de supervision, framework générique d'events, optimisation hors fence.
+**DONE / gate WA.7.** Toutes les lignes suivantes sont prouvées `PASS` : B historique non
+réutilisable ; autorité ATTACHED/DETACHED et R survivant au detach ; R contigu sans consommation
+sur échec ; facts Attached et Detached exacts E/U/B/R append-only ; baseline/historique reconstruits
+depuis facts ; CURRENT_BINDING ATTACHED U+B non nuls et DETACHED U+B nuls avec R, absence distincte ;
+Command porte E+B sans R, fence logique `(E,B)` ; lock pessimiste long retiré et CAS au commit ;
+Command vs Detach, reattach même U, reattach autre U, et sans concurrence ; CAS perdu rollbacke
+Pot/Event/outcome succès ; WRITE ne consomme jamais CURRENT_BINDING ; admission V2 inchangée,
+`CALLER_IDENTITY_NOT_CURRENT` non-oracle ; tests PostgreSQL ciblés, architecture et reactor pertinent
+verts. **WA.7 ne commence pas avant cette gate.**
+
+**Traçabilité exhaustive de l'audit.** A1/J1 → WA.6A, WA.6C, WA.6G (registre et stale B) ;
+D1 → WA.6B, WA.6D, WA.6F, WA.6G (U des facts, baseline, replay) ; E1 → WA.6E–WA.6G
+(shape READ) ; H1 → WA.6C/WA.6G (remplacement explicite demandé du lock). B1/C1/D2/E2/
+F1/G1/I1/K1/L1 classés `NONE` → préservation vérifiée par WA.6A–WA.6G selon leurs frontières :
+R, autorité, apply, distinction absent/DETACHED, envelope, admission, fence `(E,B)`,
+actor==subject, séparation READ/WRITE. WA.1/WA.3/WA.5 n'ont aucune migration intrinsèque ;
+WA.2, WA.4 et WA.6 ont chacun remédiation et preuve de sortie. Aucune modification hors canon,
+audit ou demande explicite de fence optimiste n'est incluse.
+
 ### WA.7 — Contract des représentations legacy
 
-**Prérequis.** WA.5 produit uniquement le nouveau format, WA.6 sert READ, backlog legacy drainé et
+**Prérequis.** Gate WA.6G validée ; WA.5 produit uniquement le nouveau format, WA.6 sert READ, backlog legacy drainé et
 mesuré à zéro.
 
 **Objectif.** Retirer les branches de compatibilité devenues inutiles.
@@ -910,7 +1239,7 @@ architecture alignées. REGISTRATION peut commencer sur ces fondations.
 
 ## 5. Validation documentaire
 
-- séquencement WA.1–WA.8 inchangé ;
+- séquencement WA.1–WA.8 enrichi par WA.6A–WA.6G avant WA.7 ;
 - stratégie expand/consume/produce/read/contract conservée ;
 - couverture WA1–WA11 explicite ;
 - aucune modification de canon ;
@@ -927,4 +1256,6 @@ architecture alignées. REGISTRATION peut commencer sur ces fondations.
 
 Blocking questions : **0**
 
-Aucun code, test, migration, commit ou push n’est produit pendant cette session de planification.
+Les résultats et métriques WA.6 ci-dessus sont des preuves historiques antérieures à l'audit
+d'alignement. La gate WA.6G définit désormais la cible et aucune de ses preuves n'est déclarée
+exécutée par cette seule modification documentaire.
