@@ -1120,6 +1120,14 @@ avec un nouvel adapter ; les tests runtime Binding et Command et les règles d'a
 réexécutés dans le reactor pertinent. Ce résultat décrit le code et les bases de test : la
 complétude d'une base de déploiement se décide par son inventaire V21/V22, jamais par hypothèse.
 
+**Correction du contrat SQL après `13ee62b4` — V23 (2026-10-02).** V20 conservait un CHECK
+`fact_type IN (ATTACHED, DETACHED)` après V21 ; le domaine SQL était déjà rejeté par cette
+contrainte séparée. V23 consolide ce CHECK et celui de provenance de V21 en un contrat final
+unique : `R0 = ATTACHED + MIGRATION_BASELINE` ; `R>0 = (ATTACHED | DETACHED) + LIFECYCLE`.
+Les tests PostgreSQL prouvent les trois formes acceptées, toutes les combinaisons interdites,
+l'upgrade V22→V23 sans mutation métier et le bootstrap neuf. WA.6A : DONE ; WA.6B : DONE ;
+WA.6D : DONE ; gap de contrat SQL : CLOSED ; WA.6C : NOT STARTED.
+
 #### WA.6E — Forme canonique de CURRENT_BINDING DETACHED
 
 **Prérequis.** WA.6B nouveaux facts et WA.6D historique complet.

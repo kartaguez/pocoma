@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,6 +90,97 @@ class ExternalIdentityBindingCanonicalMigrationPostgresTest {
             assertEquals(2, count(s, "select count(*) from external_identity_binding_occurrences"));
             assertEquals(2, count(s, "select current_revision from external_identity_binding_streams where issuer='issuer' and subject='subject'"));
         }
+    }
+
+    @Test void v23ClosesEveryFactTypeAndOriginCombinationInPostgres() throws Exception {
+        flyway(null, false).migrate();
+        try (Connection c = connection(); Statement s = c.createStatement()) {
+            s.executeUpdate("insert into users values ('" + U1 + "')");
+
+            assertFactAccepted(s, "attached-baseline", 0, "ATTACHED", "MIGRATION_BASELINE");
+            assertFactAccepted(s, "attached-lifecycle", 1, "ATTACHED", "LIFECYCLE");
+            assertFactAccepted(s, "detached-lifecycle", 1, "DETACHED", "LIFECYCLE");
+
+            assertFactRejected(s, "detached-baseline", 0, "DETACHED", "MIGRATION_BASELINE");
+            assertFactRejected(s, "later-baseline", 1, "ATTACHED", "MIGRATION_BASELINE");
+            assertFactRejected(s, "zero-lifecycle", 0, "ATTACHED", "LIFECYCLE");
+            assertFactRejected(s, "unknown-type", 1, "WHATEVER", "LIFECYCLE");
+            assertFactRejected(s, "unknown-origin", 1, "ATTACHED", "UNKNOWN");
+            assertEquals(3, count(s, "select count(*) from external_identity_binding_facts"));
+        }
+    }
+
+    @Test void validV22RowsUpgradeToV23WithoutChangingBusinessData() throws Exception {
+        flyway("22", false).migrate();
+        String before;
+        try (Connection c = connection(); Statement s = c.createStatement()) {
+            s.executeUpdate("insert into users values ('" + U1 + "')");
+            prepareOccurrence(s, "upgrade", 1);
+            s.executeUpdate(factInsert("upgrade", 1, "ATTACHED", "LIFECYCLE"));
+            before = singleString(s, "select row_to_json(f)::text from external_identity_binding_facts f "
+                    + "where subject='upgrade'");
+        }
+        assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+        try (Connection c = connection(); Statement s = c.createStatement()) {
+            assertEquals(before, singleString(s, "select row_to_json(f)::text from external_identity_binding_facts f "
+                    + "where subject='upgrade'"));
+            assertEquals(23, count(s, "select max(version::integer) from flyway_schema_history where success"));
+        }
+    }
+
+    @Test void v23ConsolidatesTheExistingV22TypeCheckWithoutOpeningTheDomain() throws Exception {
+        flyway("22", false).migrate();
+        try (Connection c = connection(); Statement s = c.createStatement()) {
+            s.executeUpdate("insert into users values ('" + U1 + "')");
+            prepareOccurrence(s, "bad-upgrade", 1);
+            SQLException rejected = assertThrows(SQLException.class,
+                    () -> s.executeUpdate(factInsert("bad-upgrade", 1, "WHATEVER", "LIFECYCLE")));
+            assertTrue(message(rejected).contains("ck_external_identity_binding_facts_type"));
+        }
+        assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+        try (Connection c = connection(); Statement s = c.createStatement()) {
+            SQLException rejected = assertThrows(SQLException.class,
+                    () -> s.executeUpdate(factInsert("bad-upgrade", 1, "WHATEVER", "LIFECYCLE")));
+            assertTrue(message(rejected).contains("ck_external_identity_binding_facts_origin"));
+            assertEquals(0, count(s, "select count(*) from pg_constraint "
+                    + "where conname='ck_external_identity_binding_facts_type'"));
+        }
+    }
+
+    private static void assertFactAccepted(Statement s, String subject, long revision,
+            String type, String origin) throws Exception {
+        prepareOccurrence(s, subject, revision);
+        assertEquals(1, s.executeUpdate(factInsert(subject, revision, type, origin)));
+    }
+
+    private static void assertFactRejected(Statement s, String subject, long revision,
+            String type, String origin) throws Exception {
+        prepareOccurrence(s, subject, revision);
+        SQLException rejected = assertThrows(SQLException.class,
+                () -> s.executeUpdate(factInsert(subject, revision, type, origin)));
+        assertTrue(message(rejected).contains("ck_external_identity_binding_facts_origin"),
+                () -> "Wrong SQL constraint rejected " + subject + ": " + message(rejected));
+    }
+
+    private static void prepareOccurrence(Statement s, String subject, long revision) throws Exception {
+        s.executeUpdate("insert into external_identity_binding_streams values ('issuer','" + subject + "'," + revision + ")");
+        s.executeUpdate("insert into external_identity_binding_occurrences values ('" + bindingFor(subject)
+                + "','issuer','" + subject + "','" + U1 + "'," + revision + ",now())");
+    }
+
+    private static String factInsert(String subject, long revision, String type, String origin) {
+        return "insert into external_identity_binding_facts "
+                + "(event_id,issuer,subject,binding_revision,fact_type,user_id,binding_id,recorded_at,partition_hash,record_origin) "
+                + "values (gen_random_uuid(),'issuer','" + subject + "'," + revision + ",'" + type
+                + "','" + U1 + "','" + bindingFor(subject) + "',now(),42,'" + origin + "')";
+    }
+
+    private static String bindingFor(String subject) {
+        return UUID.nameUUIDFromBytes(subject.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+    }
+
+    private static String singleString(Statement s, String sql) throws Exception {
+        try (ResultSet r = s.executeQuery(sql)) { assertTrue(r.next()); return r.getString(1); }
     }
 
     private void historicalDetached(boolean reattach) throws Exception {
