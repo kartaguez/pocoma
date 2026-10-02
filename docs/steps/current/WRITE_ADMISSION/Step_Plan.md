@@ -1094,6 +1094,32 @@ ou contradictoire => fail fermé ; comptages E/R/B, contraintes et facts-only re
 une baseline justifiée par stream historique, R continu, registre global complet, état replayé
 égal à l'autorité et provenance de migration vérifiable.
 
+**Résultat de la Wave 1 — WA.6A/WA.6B/WA.6D (2026-10-02).** Les migrations WRITE V21 et V22
+ajoutent le registre permanent de B, la provenance `record_origin` et la réparation historique.
+**Statut d'implémentation : WA.6A DONE ; WA.6B DONE ; WA.6D DONE sur les bases de test.**
+V21 conserve temporairement la lisibilité SQL des anciens `DETACHED` sans U et crée la table
+`external_identity_binding_baseline_evidence` pour les preuves E/U/B issues d'un snapshot/WAL
+vérifié. V22 produit les baselines `ATTACHED@R0` marquées `MIGRATION_BASELINE`, complète U des
+anciens `DETACHED` depuis l'`ATTACHED(E,B)` exact, remplit le registre depuis toutes les attaches,
+vérifie la continuité E/R et l'état final contre l'autorité composite, puis rend U obligatoire et
+lie les rows actives/facts au registre. Toute occurrence R0 détachée sans preuve E/U/B, tout
+historique contradictoire ou tout stream R0 vide arrête la migration avec `MIGRATION BLOCKED` ;
+aucun U n'est déduit du User courant, de READ ou d'une Command. Pour une telle base, appliquer
+V21 sous writers Binding suspendus, charger l'évidence vérifiée avec sa `source_ref`, puis
+appliquer V22 ; le nouveau writer ne démarre pas tant que V22 échoue.
+
+Le port public est désormais `acquire(E,U)` et retourne le B généré par le writer. Une collision
+UUID tente un nouveau candidat sans réserver l'ancien ; réservation, mutation active, R et fact
+`ATTACHED` committent ensemble. Le detach lit U sur l'occurrence active exacte sous le lock court
+du stream, puis supprime cette occurrence et émet `DETACHED(E,U,B,R+1)` dans la même transaction.
+Un detach stale n'écrit ni stream nouveau, ni fact, ni R. Le lock pessimiste de Command,
+`CURRENT_BINDING` et la forme E+B sans R de la Command restent inchangés. Les tests PostgreSQL
+couvrent la base neuve, les upgrades V18/V20, R0 attaché/détaché/reattaché, l'échec fermé sans
+preuve, l'unicité historique de B, collision, concurrence, rollback, échec d'append et reprise
+avec un nouvel adapter ; les tests runtime Binding et Command et les règles d'architecture sont
+réexécutés dans le reactor pertinent. Ce résultat décrit le code et les bases de test : la
+complétude d'une base de déploiement se décide par son inventaire V21/V22, jamais par hypothèse.
+
 #### WA.6E — Forme canonique de CURRENT_BINDING DETACHED
 
 **Prérequis.** WA.6B nouveaux facts et WA.6D historique complet.

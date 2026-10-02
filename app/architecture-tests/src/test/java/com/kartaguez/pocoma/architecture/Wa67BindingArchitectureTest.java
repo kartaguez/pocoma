@@ -19,6 +19,8 @@ class Wa67BindingArchitectureTest {
 			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingStreamJdbcRepository.java";
 	private static final String FACT_REPOSITORY =
 			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.java";
+	private static final String OCCURRENCE_REPOSITORY =
+			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingOccurrenceJdbcRepository.java";
 	private static final String DISCOVERY_ADAPTER =
 			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/identity/JdbcBindingFactDiscoveryAdapter.java";
 
@@ -28,6 +30,7 @@ class Wa67BindingArchitectureTest {
 				"external_identities", Set.of(IDENTITY_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_streams", Set.of(STREAM_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_facts", Set.of(FACT_REPOSITORY, DISCOVERY_ADAPTER),
+				"external_identity_binding_occurrences", Set.of(OCCURRENCE_REPOSITORY),
 				"current_external_identity_binding", Set.of(
 						"infra-read-persistence/src/main/java/com/kartaguez/pocoma/infra/read/persistence/JdbcCurrentBindingAdapter.java"),
 				"recorded_commands", Set.of(
@@ -46,6 +49,9 @@ class Wa67BindingArchitectureTest {
 	void bindingFactsAreAppendOnlyAndBindingMutationsLockStreamBeforeAuthority() throws IOException {
 		String facts = Files.readString(appRoot().resolve(FACT_REPOSITORY)).toLowerCase();
 		assertTrue(facts.contains("insert into external_identity_binding_facts"));
+		String occurrences = Files.readString(appRoot().resolve(OCCURRENCE_REPOSITORY)).toLowerCase();
+		assertTrue(occurrences.contains("insert into external_identity_binding_occurrences"));
+		assertTrue(!occurrences.contains("delete from external_identity_binding_occurrences"));
 		assertTrue(!facts.contains("update external_identity_binding_facts"));
 		assertTrue(!facts.contains("delete from external_identity_binding_facts"));
 		for (Path file : productionJavaFiles()) {

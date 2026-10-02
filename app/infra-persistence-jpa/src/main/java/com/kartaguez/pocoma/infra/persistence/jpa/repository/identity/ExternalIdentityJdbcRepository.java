@@ -41,6 +41,10 @@ public class ExternalIdentityJdbcRepository {
 				.stream().findFirst();
 	}
 
+	public boolean hasActiveBinding(String issuer, String subject) {
+		return findUserId(issuer, subject).isPresent();
+	}
+
 	public Optional<UUID> findUserId(String issuer, String subject, UUID bindingId) {
 		return queryUserId(SELECT_EXACT_USER_ID, issuer, subject, bindingId);
 	}

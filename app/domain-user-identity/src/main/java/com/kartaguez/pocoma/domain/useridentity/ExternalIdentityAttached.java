@@ -19,12 +19,7 @@ public record ExternalIdentityAttached(
 		requireNonNull(externalIdentity, "externalIdentity must not be null");
 		requireNonNull(userId, "userId must not be null");
 		requireNonNull(bindingId, "bindingId must not be null");
-		requirePositive(bindingRevision);
+		requireNonNull(bindingRevision, "bindingRevision must not be null");
 		requireNonNull(recordedAt, "recordedAt must not be null");
-	}
-
-	private static void requirePositive(BindingRevision revision) {
-		requireNonNull(revision, "bindingRevision must not be null");
-		if (revision.value() == 0) throw new IllegalArgumentException("bindingRevision must be positive for a fact");
 	}
 }

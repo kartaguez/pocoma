@@ -116,7 +116,7 @@ class WriteSideClosurePostgresTest {
 	void cleanAndAssembleRuntimeRoles() {
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
-		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
+		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_occurrences, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
 		worker = pollingWorker();
@@ -136,6 +136,7 @@ class WriteSideClosurePostgresTest {
 		UUID bindingId = UUID.randomUUID();
 		String label = "write-side-closure-" + UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
+		reserveCurrentBinding(userId, bindingId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				ISSUER, SUBJECT, userId, bindingId);
 		String payload = mapper.writeValueAsString(java.util.Map.of("label", label, "creatorId", userId));
@@ -179,6 +180,7 @@ class WriteSideClosurePostgresTest {
 		UUID staleBinding = UUID.randomUUID();
 		String label = "write-side-stale-" + UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
+		reserveCurrentBinding(userId, currentBinding);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				ISSUER, SUBJECT, userId, currentBinding);
 		String body = mapper.writeValueAsString(java.util.Map.of(
@@ -240,6 +242,12 @@ class WriteSideClosurePostgresTest {
 	private int count(String table, String column, Object value) {
 		return jdbc.queryForObject(
 				"select count(*) from " + table + " where " + column + "=?", Integer.class, value);
+	}
+
+	private void reserveCurrentBinding(UUID userId, UUID bindingId) {
+		jdbc.update("insert into external_identity_binding_streams values (?,?,0)", ISSUER, SUBJECT);
+		jdbc.update("insert into external_identity_binding_occurrences values (?,?,?,?,0,now())",
+				bindingId, ISSUER, SUBJECT, userId);
 	}
 
 	private static void await(BooleanSupplier condition) {

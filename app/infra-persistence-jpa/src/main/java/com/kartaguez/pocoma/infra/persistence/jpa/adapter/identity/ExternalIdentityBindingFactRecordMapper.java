@@ -23,9 +23,9 @@ public final class ExternalIdentityBindingFactRecordMapper {
 			factType = "ATTACHED";
 			userId = attached.userId().value();
 		}
-		else if (fact instanceof ExternalIdentityDetached) {
+		else if (fact instanceof ExternalIdentityDetached detached) {
 			factType = "DETACHED";
-			userId = null;
+			userId = detached.userId().value();
 		}
 		else {
 			throw new IllegalArgumentException("Unsupported binding fact: " + fact.getClass().getName());
@@ -49,7 +49,7 @@ public final class ExternalIdentityBindingFactRecordMapper {
 			case "ATTACHED" -> new ExternalIdentityAttached(row.eventId(), identity,
 					new PocomaUserId(row.userId()), bindingId, revision, row.recordedAt());
 			case "DETACHED" -> new ExternalIdentityDetached(row.eventId(), identity,
-					bindingId, revision, row.recordedAt());
+					new PocomaUserId(row.userId()), bindingId, revision, row.recordedAt());
 			default -> throw new IllegalArgumentException("Unsupported binding fact type: " + row.factType());
 		};
 	}

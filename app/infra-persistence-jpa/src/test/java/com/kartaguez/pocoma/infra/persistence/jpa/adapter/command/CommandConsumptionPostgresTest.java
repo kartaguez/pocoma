@@ -149,6 +149,7 @@ class CommandConsumptionPostgresTest {
 		jdbc.update("delete from recorded_commands");
 		jdbc.update("delete from external_identities");
 		jdbc.update("delete from external_identity_binding_facts");
+		jdbc.update("delete from external_identity_binding_occurrences");
 		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 		clock = Clock.fixed(NOW, ZoneOffset.UTC);
@@ -254,8 +255,7 @@ class CommandConsumptionPostgresTest {
 	void targetBindingLockIsHeldUntilBusinessCommitAndBlocksConcurrentDetach() throws Exception {
 		ExternalIdentity identity = identity("current");
 		PocomaUserId user = user(101);
-		BindingId binding = binding(201);
-		bind(identity, user, binding);
+		BindingId binding = bind(identity, user);
 		RecordedCommand command = targetCommand(identity, binding, "locked", NOW.plusSeconds(60));
 		insert(command);
 		CountDownLatch mutationWritten = new CountDownLatch(1);
@@ -287,8 +287,7 @@ class CommandConsumptionPostgresTest {
 	void targetDetachedBeforeLockIsRejectedWithoutBusinessMutation() {
 		ExternalIdentity identity = identity("detached");
 		PocomaUserId user = user(102);
-		BindingId binding = binding(202);
-		bind(identity, user, binding);
+		BindingId binding = bind(identity, user);
 		RecordedCommand command = targetCommand(identity, binding, "detached", NOW.plusSeconds(60));
 		insert(command);
 		transactions.runInTransaction(() -> bindings.detach(identity, binding));
@@ -320,7 +319,7 @@ class CommandConsumptionPostgresTest {
 	@Test
 	void targetWrongBindingIsRejectedWithTheSamePublicReason() {
 		ExternalIdentity identity = identity("wrong-binding");
-		bind(identity, user(107), binding(208));
+		bind(identity, user(107));
 		RecordedCommand command = targetCommand(
 				identity, binding(209), "wrong-binding", NOW.plusSeconds(60));
 		insert(command);
@@ -342,8 +341,7 @@ class CommandConsumptionPostgresTest {
 	void targetTechnicalRollbackReleasesBindingLockAndKeepsNoMutation() throws Exception {
 		ExternalIdentity identity = identity("rollback");
 		PocomaUserId user = user(106);
-		BindingId binding = binding(206);
-		bind(identity, user, binding);
+		BindingId binding = bind(identity, user);
 		RecordedCommand command = targetCommand(identity, binding, "rollback", NOW.plusSeconds(60));
 		insert(command);
 		CountDownLatch mutationWritten = new CountDownLatch(1);
@@ -556,16 +554,14 @@ class CommandConsumptionPostgresTest {
 
 	private void assertStaleAfterReattach(PocomaUserId originalUser, PocomaUserId reattachedUser) {
 		ExternalIdentity identity = identity("reattach-" + reattachedUser.value());
-		BindingId firstBinding = binding(301);
-		BindingId secondBinding = binding(302);
-		bind(identity, originalUser, firstBinding);
+		BindingId firstBinding = bind(identity, originalUser);
 		RecordedCommand command = targetCommand(identity, firstBinding, "stale", NOW.plusSeconds(60));
 		insert(command);
 		ensureUser(reattachedUser);
 		transactions.runInTransaction(() -> {
 			assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding));
-			assertEquals(com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult.ACQUIRED,
-					bindings.acquire(identity, reattachedUser, secondBinding));
+			assertEquals(com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult.Status.ACQUIRED,
+					bindings.acquire(identity, reattachedUser).status());
 		});
 		AtomicInteger businessCalls = new AtomicInteger();
 
@@ -596,11 +592,9 @@ class CommandConsumptionPostgresTest {
 				command.commandId().value()));
 	}
 
-	private void bind(ExternalIdentity identity, PocomaUserId user, BindingId binding) {
+	private BindingId bind(ExternalIdentity identity, PocomaUserId user) {
 		ensureUser(user);
-		transactions.runInTransaction(() -> assertEquals(
-				com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult.ACQUIRED,
-				bindings.acquire(identity, user, binding)));
+		return transactions.runInTransaction(() -> bindings.acquire(identity, user)).bindingId();
 	}
 
 	private void ensureUser(PocomaUserId user) {

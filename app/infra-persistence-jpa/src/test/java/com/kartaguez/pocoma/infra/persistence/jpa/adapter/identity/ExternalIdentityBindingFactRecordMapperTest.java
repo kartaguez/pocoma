@@ -1,7 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
@@ -30,7 +29,8 @@ class ExternalIdentityBindingFactRecordMapperTest {
 				EVENT_ID, identity, new PocomaUserId(USER_ID), new BindingId(BINDING_ID),
 				new BindingRevision(1), RECORDED_AT));
 		var detached = mapper.toRow(new ExternalIdentityDetached(
-				EVENT_ID, identity, new BindingId(BINDING_ID), new BindingRevision(2), RECORDED_AT));
+				EVENT_ID, identity, new PocomaUserId(USER_ID), new BindingId(BINDING_ID),
+				new BindingRevision(2), RECORDED_AT));
 
 		assertEquals("ATTACHED", attached.factType());
 		assertEquals(USER_ID, attached.userId());
@@ -40,7 +40,7 @@ class ExternalIdentityBindingFactRecordMapperTest {
 		assertEquals(BINDING_ID, attached.bindingId());
 		assertEquals(RECORDED_AT, attached.recordedAt());
 		assertEquals("DETACHED", detached.factType());
-		assertNull(detached.userId());
+		assertEquals(USER_ID, detached.userId());
 		assertEquals(2, detached.bindingRevision());
 	}
 

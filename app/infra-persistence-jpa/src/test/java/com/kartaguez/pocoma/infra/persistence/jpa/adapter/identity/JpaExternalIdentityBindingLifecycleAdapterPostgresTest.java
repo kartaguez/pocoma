@@ -61,6 +61,7 @@ class JpaExternalIdentityBindingLifecycleAdapterPostgresTest {
 	void cleanDatabase() {
 		jdbc.update("delete from external_identity_binding_facts");
 		jdbc.update("delete from external_identities");
+		jdbc.update("delete from external_identity_binding_occurrences");
 		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 	}
@@ -92,13 +93,17 @@ class JpaExternalIdentityBindingLifecycleAdapterPostgresTest {
 		Instant secondRecordedAt = Instant.parse("2026-10-01T10:16:30Z");
 		jdbc.update("insert into users (user_id) values (?)", userId.value());
 		inTransaction(() -> { streams.createIfAbsent(identity); return null; });
+		jdbc.update("insert into external_identity_binding_occurrences "
+				+ "(binding_id, issuer, subject, user_id, attached_revision, created_at) "
+				+ "values (?, ?, ?, ?, 1, now())", bindingId.value(), identity.issuer(),
+				identity.subject(), userId.value());
 
 		inTransaction(() -> {
 			facts.append(new ExternalIdentityAttached(
 					UUID.fromString("30000000-0000-0000-0000-000000000001"), identity, userId, bindingId,
 					new BindingRevision(1), firstRecordedAt));
 			facts.append(new ExternalIdentityDetached(
-					UUID.fromString("30000000-0000-0000-0000-000000000002"), identity, bindingId,
+					UUID.fromString("30000000-0000-0000-0000-000000000002"), identity, userId, bindingId,
 					new BindingRevision(2), secondRecordedAt));
 			return null;
 		});
@@ -111,13 +116,13 @@ class JpaExternalIdentityBindingLifecycleAdapterPostgresTest {
 				+ "where fact_type='ATTACHED' and user_id=? and binding_id=?", Integer.class,
 				userId.value(), bindingId.value()));
 		assertEquals(1, jdbc.queryForObject("select count(*) from external_identity_binding_facts "
-				+ "where fact_type='DETACHED' and user_id is null and binding_id=?", Integer.class,
-				bindingId.value()));
+				+ "where fact_type='DETACHED' and user_id=? and binding_id=?", Integer.class,
+				userId.value(), bindingId.value()));
 		assertEquals(0, jdbc.queryForObject("select count(*) from external_identities", Integer.class));
 		assertEquals(new BindingRevision(0),
 				inTransaction(() -> streams.findCurrentRevision(identity)).orElseThrow());
 		assertThrows(IllegalTransactionStateException.class, () -> facts.append(new ExternalIdentityDetached(
-				UUID.randomUUID(), identity, bindingId, new BindingRevision(3), Instant.now())));
+				UUID.randomUUID(), identity, userId, bindingId, new BindingRevision(3), Instant.now())));
 	}
 
 	private <T> T inTransaction(Supplier<T> action) {

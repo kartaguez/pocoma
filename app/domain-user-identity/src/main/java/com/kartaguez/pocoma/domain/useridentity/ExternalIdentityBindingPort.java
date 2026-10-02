@@ -15,7 +15,7 @@ public interface ExternalIdentityBindingPort {
 	 */
 	Optional<PocomaUserId> lockCurrentBinding(ExternalIdentity identity, BindingId bindingId);
 
-	BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId, BindingId bindingId);
+	BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId);
 
 	BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId);
 }

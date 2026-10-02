@@ -225,7 +225,8 @@ class CommandCompletionE2EPostgresTest {
 			assertTrue(getSql.contains("pocoma_read.projection_root"));
 			assertTrue(getSql.contains("pocoma_read.current_external_identity_binding"));
 			for (String forbidden : List.of("recorded_commands", "command_outcomes", "external_identities",
-					"external_identity_binding_streams", "external_identity_binding_facts", "pot_headers",
+					"external_identity_binding_streams", "external_identity_binding_facts",
+					"external_identity_binding_occurrences", "pot_headers",
 					"business_event_outbox", "consumption_slots", "consumption_inputs", "consumption_results")) {
 				assertFalse(getSql.contains(forbidden), "GET must not read primary table " + forbidden);
 			}
@@ -488,7 +489,8 @@ class CommandCompletionE2EPostgresTest {
 
 	private static void cleanDatabase(JdbcTemplate jdbc) {
 		jdbc.execute("""
-				truncate table external_identity_binding_facts, external_identity_binding_streams,
+				truncate table external_identity_binding_facts, external_identity_binding_occurrences,
+				 external_identity_binding_baseline_evidence, external_identity_binding_streams,
 				 external_identities, users, recorded_commands, command_outcomes,
 				command_terminal_events, business_event_outbox, projection_tasks,
 				consumption_inputs, consumption_results, consumption_slots, consumption_claims,
@@ -508,6 +510,9 @@ class CommandCompletionE2EPostgresTest {
 	private static BindingId insertBinding(JdbcTemplate jdbc, UUID userId) {
 		BindingId bindingId = new BindingId(UUID.randomUUID());
 		jdbc.update("insert into users (user_id) values (?)", userId);
+		jdbc.update("insert into external_identity_binding_streams values (?,?,0)", ISSUER, SUBJECT);
+		jdbc.update("insert into external_identity_binding_occurrences values (?,?,?,?,0,now())",
+				bindingId.value(), ISSUER, SUBJECT, userId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				ISSUER, SUBJECT, userId, bindingId.value());
 		return bindingId;

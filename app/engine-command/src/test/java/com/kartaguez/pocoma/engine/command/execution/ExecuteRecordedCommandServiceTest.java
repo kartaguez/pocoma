@@ -420,7 +420,7 @@ class ExecuteRecordedCommandServiceTest {
 		}
 
 		@Override public BindingAcquireResult acquire(
-				ExternalIdentity identity, PocomaUserId userId, BindingId bindingId) {
+				ExternalIdentity identity, PocomaUserId userId) {
 			throw new UnsupportedOperationException("not used by Command execution");
 		}
 

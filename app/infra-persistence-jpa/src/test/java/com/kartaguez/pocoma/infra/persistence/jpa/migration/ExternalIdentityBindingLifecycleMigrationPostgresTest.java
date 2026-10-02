@@ -48,7 +48,7 @@ class ExternalIdentityBindingLifecycleMigrationPostgresTest {
 					""");
 		}
 
-		assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+		assertEquals(1, flyway("20", false).migrate().migrationsExecuted);
 
 		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
 			assertEquals(2, scalar(statement, "select count(*) from external_identity_binding_streams"));
@@ -75,7 +75,7 @@ class ExternalIdentityBindingLifecycleMigrationPostgresTest {
 
 	@Test
 	void v20EnforcesLocalStreamAndCompleteKnownFactShapes() throws Exception {
-		assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+		assertEquals(1, flyway("20", false).migrate().migrationsExecuted);
 		try (Connection connection = connection(); Statement statement = connection.createStatement()) {
 			statement.executeUpdate("insert into users (user_id) values "
 					+ "('10000000-0000-0000-0000-000000000001')");

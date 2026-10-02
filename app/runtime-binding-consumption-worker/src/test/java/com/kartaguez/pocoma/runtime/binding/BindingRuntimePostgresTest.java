@@ -58,18 +58,18 @@ class BindingRuntimePostgresTest {
 		jdbc.execute("drop trigger if exists reject_current_binding on pocoma_read.current_external_identity_binding");
 		jdbc.execute("drop function if exists pocoma_read.reject_current_binding()");
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims, "
-				+ "external_identity_binding_facts, external_identity_binding_streams, external_identities, users cascade");
+				+ "external_identity_binding_facts, external_identity_binding_occurrences, external_identity_binding_streams, external_identities, users cascade");
 		jdbc.execute("truncate table pocoma_read.current_external_identity_binding");
 	}
 
 	@Test void attachDetachReattachTraversesAuthorityFactConsumptionAndCurrentBinding() {
-		PocomaUserId user=user(1); insertUser(user); ExternalIdentity e=id("e2e"); BindingId b1=binding(1), b2=binding(2);
-		assertEquals(BindingAcquireResult.ACQUIRED,transactions.runInTransaction(()->bindings.acquire(e,user,b1)));
+		PocomaUserId user=user(1); insertUser(user); ExternalIdentity e=id("e2e");
+		BindingId b1=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		assertEquals(1L,count("external_identity_binding_facts")); orchestrator.run(input("a"));
 		assertCurrent(e,1,CurrentBindingStatus.ATTACHED,b1,user);
 		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,b1)));
 		orchestrator.run(input("b")); assertCurrent(e,2,CurrentBindingStatus.DETACHED,b1,null);
-		assertEquals(BindingAcquireResult.ACQUIRED,transactions.runInTransaction(()->bindings.acquire(e,user,b2)));
+		BindingId b2=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		orchestrator.run(input("c")); assertCurrent(e,3,CurrentBindingStatus.ATTACHED,b2,user);
 		assertEquals(3L,count("external_identity_binding_facts"));
 	}
@@ -77,7 +77,7 @@ class BindingRuntimePostgresTest {
 	@Test void lateCommitBeforeTheEphemeralCursorIsFoundOnTheNextScan() throws Exception {
 		PocomaUserId u1=user(11),u2=user(12);insertUser(u1);insertUser(u2);
 		ExternalIdentity early=id("a-early"), later=id("z-later"); BindingId b1=binding(11),b2=binding(12);
-		insertStream(early,1);insertStream(later,1);UUID f1=UUID.randomUUID(),f2=UUID.randomUUID();
+		insertStream(early,1);insertStream(later,1);reserve(early,u1,b1,1);reserve(later,u2,b2,1);UUID f1=UUID.randomUUID(),f2=UUID.randomUUID();
 		try(Connection t1=dataSource.getConnection()){
 			t1.setAutoCommit(false); insertFact(t1,f1,early,u1,b1);
 			insertFact(null,f2,later,u2,b2);
@@ -92,7 +92,7 @@ class BindingRuntimePostgresTest {
 	}
 
 	@Test void historicalBootstrapIsPagedRestartableAndCannotOverwriteRevisionOne() {
-		for(int i=20;i<25;i++){PocomaUserId u=user(i);insertUser(u);ExternalIdentity e=id("history-"+i);BindingId b=binding(i);jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),u.value(),b.value());insertStream(e,0);}
+		for(int i=20;i<25;i++){PocomaUserId u=user(i);insertUser(u);ExternalIdentity e=id("history-"+i);BindingId b=binding(i);insertStream(e,0);reserve(e,u,b,0);jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),u.value(),b.value());}
 		var bootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
 		Optional<HistoricalBindingSourcePort.ExternalIdentityCursor> cursor=Optional.empty();
 		do{var c=cursor;cursor=transactions.runInTransaction(()->bootstrap.runPage(c,2));}while(cursor.isPresent());
@@ -109,9 +109,9 @@ class BindingRuntimePostgresTest {
 	@Test void mutationAndConsumerWinWhenBootstrapReadRevisionZeroBeforeTheMutation() {
 		PocomaUserId user=user(26);insertUser(user);ExternalIdentity e=id("bootstrap-read-race");
 		BindingId historicalBinding=binding(26);
+		insertStream(e,0);reserve(e,user,historicalBinding,0);
 		jdbc.update("insert into external_identities values (?,?,?,?)",
 				e.issuer(),e.subject(),user.value(),historicalBinding.value());
-		insertStream(e,0);
 		HistoricalBindingCandidate readAtZero=historical.findRevisionZeroPage(Optional.empty(),10).stream()
 				.filter(candidate->candidate.externalIdentity().equals(e)).findFirst().orElseThrow();
 
@@ -129,14 +129,14 @@ class BindingRuntimePostgresTest {
 	@Test void bootstrapThenDetachAndRebindConvergesToTheHighestRealRevisionWithoutSyntheticFacts() {
 		PocomaUserId firstUser=user(27),secondUser=user(28);insertUser(firstUser);insertUser(secondUser);
 		ExternalIdentity e=id("bootstrap-write-race");BindingId first=binding(27),second=binding(28);
+		insertStream(e,0);reserve(e,firstUser,first,0);
 		jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),first.value());
-		insertStream(e,0);
 		var firstBootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
 		transactions.runInTransaction(()->{firstBootstrap.runPage(Optional.empty(),10);return null;});
 		assertCurrent(e,0,CurrentBindingStatus.ATTACHED,first,firstUser);
 
 		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,first)));
-		assertEquals(BindingAcquireResult.ACQUIRED,transactions.runInTransaction(()->bindings.acquire(e,secondUser,second)));
+		second=transactions.runInTransaction(()->bindings.acquire(e,secondUser)).bindingId();
 		orchestrator.run(input("bootstrap-write-race-consumer"));
 		assertCurrent(e,2,CurrentBindingStatus.ATTACHED,second,secondUser);
 
@@ -147,8 +147,8 @@ class BindingRuntimePostgresTest {
 	}
 
 	@Test void technicalFailureRetriesAfterAReconstructedScanAndThenFinalizesIdempotently() {
-		PocomaUserId user=user(30);insertUser(user);ExternalIdentity e=id("retry");BindingId b=binding(30);
-		transactions.runInTransaction(()->bindings.acquire(e,user,b));
+		PocomaUserId user=user(30);insertUser(user);ExternalIdentity e=id("retry");
+		BindingId b=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		jdbc.execute("create function pocoma_read.reject_current_binding() returns trigger language plpgsql as $$ begin raise exception 'temporary'; end $$");
 		jdbc.execute("create trigger reject_current_binding before insert on pocoma_read.current_external_identity_binding for each row execute function pocoma_read.reject_current_binding()");
 		orchestrator.run(input("retry-first"));
@@ -163,8 +163,8 @@ class BindingRuntimePostgresTest {
 	}
 
 	@Test void lostClaimRollsBackProjectionBeforeWinnerAndMultipleWorkersConverge() throws Exception {
-		PocomaUserId user=user(40);insertUser(user);ExternalIdentity e=id("lost-claim");BindingId b=binding(40);
-		transactions.runInTransaction(()->bindings.acquire(e,user,b));
+		PocomaUserId user=user(40);insertUser(user);ExternalIdentity e=id("lost-claim");
+		BindingId b=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		var located=locator.openSearch().next().orElseThrow();
 		var stale=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),new WorkerId("stale"),new ClaimLease(Duration.ofMillis(1))))).claim();
 		Thread.sleep(10);
@@ -174,7 +174,7 @@ class BindingRuntimePostgresTest {
 		execute.execute(new ExecuteConsumptionInput(winner.slotId(),winner.claimId(),located.execution()));
 		assertCurrent(e,1,CurrentBindingStatus.ATTACHED,b,user);
 
-		for(int i=41;i<51;i++){int n=i;PocomaUserId u=user(n);insertUser(u);transactions.runInTransaction(()->bindings.acquire(id("multi-"+n),u,binding(n)));}
+		for(int i=41;i<51;i++){int n=i;PocomaUserId u=user(n);insertUser(u);transactions.runInTransaction(()->bindings.acquire(id("multi-"+n),u));}
 		try(var pool=Executors.newFixedThreadPool(2)){
 			var a=pool.submit(()->orchestrator.run(input("worker-a")));var c=pool.submit(()->orchestrator.run(input("worker-b")));
 			a.get(10,TimeUnit.SECONDS);c.get(10,TimeUnit.SECONDS);
@@ -186,6 +186,7 @@ class BindingRuntimePostgresTest {
 
 	private void insertUser(PocomaUserId u){jdbc.update("insert into users(user_id) values (?)",u.value());}
 	private void insertStream(ExternalIdentity e,long revision){jdbc.update("insert into external_identity_binding_streams values (?,?,?)",e.issuer(),e.subject(),revision);}
+	private void reserve(ExternalIdentity e,PocomaUserId u,BindingId b,long revision){jdbc.update("insert into external_identity_binding_occurrences values (?,?,?,?,?,now())",b.value(),e.issuer(),e.subject(),u.value(),revision);}
 	private void insertFact(Connection c,UUID event,ExternalIdentity e,PocomaUserId u,BindingId b)throws Exception{
 		String sql="insert into external_identity_binding_facts(event_id,issuer,subject,binding_revision,fact_type,user_id,binding_id,recorded_at,partition_hash) values (?,?,?,?,?,?,?,?,hashtext(jsonb_build_array(?,?)::text))";
 		if(c==null){jdbc.update(sql,event,e.issuer(),e.subject(),1,"ATTACHED",u.value(),b.value(),Timestamp.from(Instant.now()),e.issuer(),e.subject());return;}

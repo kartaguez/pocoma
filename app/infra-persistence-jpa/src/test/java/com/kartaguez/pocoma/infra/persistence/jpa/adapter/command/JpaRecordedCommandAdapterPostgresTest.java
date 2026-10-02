@@ -93,6 +93,7 @@ class JpaRecordedCommandAdapterPostgresTest {
 		jdbc.update("delete from recorded_commands");
 		jdbc.update("delete from external_identities");
 		jdbc.update("delete from external_identity_binding_facts");
+		jdbc.update("delete from external_identity_binding_occurrences");
 		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 		executor = Executors.newFixedThreadPool(2);
@@ -133,8 +134,14 @@ class JpaRecordedCommandAdapterPostgresTest {
 	}
 
 	private void insertBindingRow(String issuer, String subject, UUID userId) {
+		UUID bindingId = UUID.randomUUID();
+		jdbc.update("insert into external_identity_binding_streams (issuer,subject,current_revision) "
+				+ "values (?,?,0)", issuer, subject);
+		jdbc.update("insert into external_identity_binding_occurrences "
+				+ "(binding_id,issuer,subject,user_id,attached_revision,created_at) "
+				+ "values (?,?,?,?,0,now())", bindingId, issuer, subject, userId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
-				issuer, subject, userId, UUID.randomUUID());
+				issuer, subject, userId, bindingId);
 	}
 
 	@AfterEach
