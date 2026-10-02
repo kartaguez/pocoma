@@ -272,6 +272,10 @@ class CommandConsumptionPostgresTest {
 
 		try (var executor = Executors.newFixedThreadPool(2)) {
 			var worker = executor.submit(() -> run(value -> {
+				jdbc.update("""
+						insert into pot_headers(id, pot_id, started_at_version, label, creator_id, deleted)
+						values (?, ?, ?, ?, ?, false)
+						""", UUID.randomUUID(), APPLIED_POT_ID, 7L, "stale Pot", user.value());
 				jdbc.update("insert into lot65_command_effects(effect_id, owner) values (?, ?)",
 						UUID.randomUUID(), "target-current");
 				mutationWritten.countDown();
@@ -290,6 +294,8 @@ class CommandConsumptionPostgresTest {
 		}
 
 		assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
+		assertEquals(0, jdbc.queryForObject("select count(*) from pot_headers where pot_id = ?",
+				Integer.class, APPLIED_POT_ID));
 		assertEquals(0, jdbc.queryForObject("select count(*) from business_event_outbox", Integer.class));
 		assertEquals(TerminalOutcome.REJECTED, slot(command.commandId()).terminalOutcome().orElseThrow());
 		assertEquals(new TerminalReason("CALLER_IDENTITY_NOT_CURRENT"),
@@ -461,11 +467,17 @@ class CommandConsumptionPostgresTest {
 		BindingId binding = bind(identity, user(127));
 		RecordedCommand command = targetCommand(identity, binding, "lost", NOW.plusSeconds(60));
 		insert(command);
+		var acquire = new TransactionalAcquireConsumptionUseCase(
+				new AcquireConsumptionService(lifecycle, clock), transactions);
+		var claim = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(
+				new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(command.commandId()),
+						new WorkerId("lost-check"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		jdbc.update("update consumption_slots set current_claim_id = null where slot_id = ?", claim.slotId());
 		var recovery = new BindingFenceRecoveryExecuteUseCase(input -> {
 			throw new BindingFenceLostException(command.commandId(), identity, binding);
 		}, transactions, lifecycle, bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
 		assertThrows(LostClaimException.class, () -> recovery.execute(new ExecuteConsumptionInput(
-				UUID.randomUUID(), com.kartaguez.pocoma.domain.consumption.claim.ClaimId.generate(), context -> {
+				claim.slotId(), claim.claimId(), context -> {
 						throw new AssertionError("unused");
 				})));
 		assertEquals(0, terminalResolutionCount(command.commandId()));

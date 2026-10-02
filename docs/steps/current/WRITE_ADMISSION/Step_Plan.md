@@ -1067,6 +1067,10 @@ Command relit E+B dans une nouvelle transaction sous le claim courant : occurren
 rejet `CALLER_IDENTITY_NOT_CURRENT` et terminalisation CAS ; occurrence encore courante →
 `BindingFenceConflictException` classée transitoire pour retry. Claim perdu → aucune
 terminalisation.
+Avec les writers actuels, un zéro SQL suivi de E+B toujours courant n'a pas d'ordonnancement
+normal : toute avancée de R remplace ou supprime B, et le registre interdit la réutilisation de
+B. Le test injecte le signal typé pour vérifier néanmoins le chemin de conflit technique ; les
+pannes SQL suivent la classification transitoire existante.
 
 Les barrières Testcontainers/PostgreSQL prouvent Detach committé pendant le travail métier,
 avant le fence Command : R change, fence zéro, mutation et succès rollbackés, puis rejet exact.
