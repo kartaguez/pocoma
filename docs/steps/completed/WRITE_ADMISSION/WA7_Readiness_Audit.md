@@ -1,5 +1,10 @@
 # WA.7 Readiness Audit — Command V1 contraction
 
+> Snapshot historique de readiness, supersédé le 2026-10-02 : WA.7 et WA.8 sont DONE et
+> WRITE_ADMISSION est CLOSED. Les gates de cutover des bases déployées décrites ici restent des
+> prérequis opérationnels ; les statuts « NOT STARTED » ci-dessous décrivent uniquement la baseline
+> de cet audit.
+
 ## 1. Repository baseline
 
 Branch `v2-make-it-pull`, start HEAD `6eb277b19ad84460d21775b0f236184bc56125c9`; `HEAD...origin/v2-make-it-pull = 0/0`. WA.6 is CLOSED, WA.7 NOT STARTED according to `Step_Plan.md`. Two pre-existing untracked files (`AGENTS.md`, `docs/testing/Reactor_Verification_Policy.md`) are outside this scope. Authority is `Step_Canon.md` WA1–WA11, with `Step_Plan.md` sequencing. This audit examines source and migrations; it does not measure any deployed database.

@@ -5,8 +5,13 @@ WA.6 FINAL AUDIT: PASS
 WA.6 STATUS: CLOSED
 Blocking/Major/Minor findings: 0
 LOW hardening debts: 2
-WA.7 STATUS: NOT STARTED
+WA.7 STATUS: DONE
+WA.8 STATUS: DONE
+WRITE_ADMISSION STATUS: CLOSED
 ```
+
+Cette dette LOW reste explicitement conservée après la clôture définitive du 2026-10-02 ; elle ne
+bloque pas WRITE_ADMISSION et ne rouvre aucun lot.
 
 Ce document enregistre les réserves résiduelles de l'audit final de WA.6. Elles concernent
 uniquement le durcissement futur des preuves d'architecture : elles ne décrivent aucun défaut

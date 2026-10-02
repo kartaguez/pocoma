@@ -2,11 +2,28 @@
 
 ```text
 Step: WRITE_ADMISSION
-Phase: IMPLEMENTATION PLANNED
+Phase: CLOSED
 Authority: Step_Canon.md — WA1–WA11
 Sequencing: WA.1 → WA.2 → WA.3 → WA.4 → WA.5 → WA.6 → WA.6A → WA.6B → WA.6D → WA.6C → WA.6E → WA.6F → WA.6G → WA.7 → WA.8
 Strategy: expand → consume → produce → read → contract
 ```
+
+## Clôture définitive — 2026-10-02
+
+```text
+WRITE_ADMISSION
+STATUS: CLOSED
+WA.1–WA.8: DONE
+WA1–WA11: PROVEN
+Closed: 2026-10-02
+```
+
+WA.7 et WA.8 sont terminés et leurs preuves finales passent les gates architecture-tests et full
+reactor. Les représentations runtime legacy de Command V1 sont contractées. Le cutover d'une base
+déployée demeure conditionné aux preflights WA.7 ; il s'agit d'une contrainte de déploiement, pas
+d'un step restant ouvert. Les dettes LOW enregistrées restent des dettes et ne rouvrent pas
+WRITE_ADMISSION. Les plans, statuts et audits antérieurs ci-dessous sont conservés comme historique
+et sont supersédés par cette synthèse finale.
 
 ## 1. Baseline et portée
 

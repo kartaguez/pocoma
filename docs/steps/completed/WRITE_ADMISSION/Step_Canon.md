@@ -2,9 +2,26 @@
 
 ```text
 Step: WRITE_ADMISSION
-Phase: FRAMING CLOSED
+Phase: FRAMING AND IMPLEMENTATION CLOSED
 Authority: WA1–WA11
 ```
+
+## Clôture définitive — 2026-10-02
+
+```text
+WRITE_ADMISSION
+STATUS: CLOSED
+WA.1–WA.8: DONE
+WA1–WA11: PROVEN
+Closed: 2026-10-02
+```
+
+Les représentations runtime legacy de Command V1 ont été contractées. Le cutover opérationnel
+d'une base déployée reste soumis aux preflights WA.7 (arrêt des anciens writers/workers et gates
+WRITE/READ sur les bases concernées) : c'est une contrainte de déploiement, pas un lot ouvert de
+WRITE_ADMISSION. Les dettes LOW explicitement conservées restent des dettes et ne rouvrent pas le
+step. Les phases et statuts plus anciens ci-dessous constituent l'historique des décisions et sont
+supersédés par cette clôture.
 
 Ce document est l'autorité normative de WRITE_ADMISSION. Il fixe les frontières entre admission
 HTTP, traitement WRITE autoritatif et READ. Il ne constitue ni un plan d'implémentation, ni un

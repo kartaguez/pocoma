@@ -10,7 +10,8 @@ Ce document est l'autorité normative du cadrage REGISTRATION. Il fixe le métie
 architecturales que le futur plan d'implémentation devra respecter ; il ne constitue ni ce plan, ni
 un design Java, SQL ou HTTP détaillé.
 
-Le canon transversal [`WRITE_ADMISSION`](../WRITE_ADMISSION/Step_Canon.md) complète et prévaut sur
+Le canon transversal [`WRITE_ADMISSION`](../../completed/WRITE_ADMISSION/Step_Canon.md)
+complète et prévaut sur
 ce document pour les frontières HTTP WRITE/READ, l'identité de binding et `BindingId`.
 
 Les audits [`step_audit.md`](step_audit.md) et [`domain_audit.md`](domain_audit.md) sont des preuves

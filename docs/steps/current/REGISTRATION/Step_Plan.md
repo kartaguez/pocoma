@@ -5,7 +5,7 @@ Step: REGISTRATION
 Phase: IMPLEMENTATION PLANNED
 Authorities:
   - Step_Canon.md — D1–D33
-  - ../WRITE_ADMISSION/Step_Canon.md — WA1–WA11
+  - ../../completed/WRITE_ADMISSION/Step_Canon.md — WA1–WA11
 Sequencing: REG.1 → REG.2 → REG.3 → REG.4 → REG.5
 Prerequisite: WRITE_ADMISSION WA.1–WA.8 complete
 ```
@@ -17,7 +17,8 @@ Prerequisite: WRITE_ADMISSION WA.1–WA.8 complete
 - divergence : `0/0` ;
 - working tree initial : propre ;
 - autorité REGISTRATION : [`Step_Canon.md`](Step_Canon.md), D1–D33 ;
-- autorité transverse : [`../WRITE_ADMISSION/Step_Canon.md`](../WRITE_ADMISSION/Step_Canon.md),
+- autorité transverse :
+  [`../../completed/WRITE_ADMISSION/Step_Canon.md`](../../completed/WRITE_ADMISSION/Step_Canon.md),
   WA1–WA11.
 
 Ce plan remplace intégralement le plan superseded en sept lots. Il ne modifie aucun canon. Les
