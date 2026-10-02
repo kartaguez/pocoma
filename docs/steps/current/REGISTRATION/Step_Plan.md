@@ -5,7 +5,7 @@ Step: REGISTRATION
 Phase: IMPLEMENTATION PLANNED
 Baseline: v2-make-it-pull @ 6ccb69b1103878ebe010a406b940d28fac2226ab
 Authorities: Step_Canon.md (D1–D33), WRITE_ADMISSION/Step_Canon.md (WA1–WA11)
-Sequence: REG.1 → REG.2 → REG.3 → REG.4 → REG.5
+Sequence: REG.0 → REG.1 → REG.2 → REG.3 → REG.4 → REG.5
 Verdict: READY FOR IMPLEMENTATION
 Blocking questions: 0
 ```
@@ -19,18 +19,36 @@ l'AuthN JWT et le principal externe attesté. Registration les réutilise : aucu
 modèle User/Identity, binding, resolver ou store courant.
 
 Le chemin `CURRENT_BINDING` **actuel** consomme directement `external_identity_binding_facts`
-et applique la vue READ sous claim Consumption. Ce n'est pas encore un `ProjectionTask` standard.
-La standardisation conditionnelle étudiée dans
-[la révision ARCHITECTURE](../ARCHITECTURE/Three_Engine_Families_Revision.md) n'est pas un
-prérequis à Registration et n'est pas déclenchée par ce plan.
+et applique la vue READ sous claim Consumption. Ce n'est donc pas encore une projection standard
+de bout en bout. **Sa standardisation est désormais un prérequis architectural de Registration**
+et constitue REG.0 : une évolution autoritative du binding doit être exposée comme Event, routée
+par la mécanique Event → ProjectionTask, puis matérialisée par le pipeline standard de projection
+(route/validation/projector/artifact) vers `CURRENT_BINDING`.
+
+Cette décision ne confond pas deux familles sémantiques. `COMMAND_RESULT` et le futur résultat
+de Registration répondent à « qu'est devenue mon intention ? » ; `CURRENT_BINDING` répond à
+« quel est l'état observable courant du binding ? ». Le code existant de `COMMAND_RESULT`
+réutilise techniquement ProjectionTask/projector/artifact pour matérialiser son résultat READ :
+cette réutilisation de mécanique ne transforme pas un résultat d'intention en projection d'état.
 
 ```text
 POST Registration: JWT → AuthenticatedExternalPrincipal → E → R(E) durable → 202
                    aucune résolution E→U/B, aucun User, aucun binding
-worker Registration: R(E) → Registered(U,B) + User(U) + Binding(E,U,B)
+worker Registration: R(E) → RegistrationOutcome(Registered(U,B))
+                             + User(U) + Binding(E,U,B)
                              + UserCreated(U) + ExternalIdentityAttached(E,U,B)
-                         ou Rejected(EXTERNAL_IDENTITY_ALREADY_USED)
-résultat projeté READ + CURRENT_BINDING READ → GET Registration
+                         ou RegistrationOutcome(Rejected(EXTERNAL_IDENTITY_ALREADY_USED))
+
+chaîne résultat d'intention:
+RegistrationOutcome → Event terminal de résultat → ProjectionTask(REGISTRATION_RESULT)
+                    → artefact READ REGISTRATION_RESULT
+
+chaîne état du système:
+ExternalIdentityAttached / Detached → Event
+                                    → ProjectionTask(CURRENT_BINDING)
+                                    → projector/artifact CURRENT_BINDING
+
+REGISTRATION_RESULT READ + CURRENT_BINDING READ → GET Registration
 self identity READ → CreatePot(E,B) → Command worker → COMMAND_RESULT READ → Pot READ
 ```
 
@@ -108,15 +126,24 @@ Registration peut réussir. Deux requests distinctes concurrentes pour E, sans D
 intercalé, donnent exactement un succès et un rejet. Le retry de **la même** R recharge
 d'abord son outcome et ne réapplique aucun effet.
 
-### 3.3 Résultat READ
+### 3.3 Résultat READ : famille Request/Result
 
-Une task `REGISTRATION_RESULT` de clé `(requestId, version=1)` est assurée dans la
-transaction qui écrit l'outcome, **à partir de REG.4**, quand le producteur est disponible.
-Le producteur recharge cet outcome depuis WRITE dans le worker ProjectionTask et publie
-une projection immutable contenant `requestId`, `creator E` et
-`Registered(U,B)` ou seulement `Rejected(EXTERNAL_IDENTITY_ALREADY_USED)`.
-Cette lecture primaire du worker n'est jamais celle du GET. Les outcomes REG.3 antérieurs
-sont repris par un backfill idempotent de tasks fondé sur les outcomes terminaux.
+Le résultat Registration appartient sémantiquement à la même famille que `COMMAND_RESULT` :
+il répond à une intention identifiée par `requestId`, et non à une question sur l'état courant
+du modèle métier. Cela n'interdit pas de réutiliser la mécanique technique déjà employée par
+`COMMAND_RESULT` pour sa matérialisation READ.
+
+À partir de REG.4, l'outcome terminal produit un Event de résultat ; la policy Event →
+ProjectionTask assure une task `REGISTRATION_RESULT` de clé `(requestId, version=1)`.
+Le producer recharge l'outcome autoritatif depuis WRITE dans le worker ProjectionTask et publie
+un artefact immutable contenant `requestId`, `creator E` et `Registered(U,B)` ou seulement
+`Rejected(EXTERNAL_IDENTITY_ALREADY_USED)`. La création de la task ne doit pas être un effet
+direct spécifique du worker Registration : elle passe par la même frontière Event →
+ProjectionTask que les autres matérialisations pilotées par Event.
+
+Cette lecture primaire du worker n'est jamais celle du GET. Les outcomes antérieurs à
+l'activation de cette route sont repris par un backfill idempotent au niveau Event/task,
+sans écriture directe de l'artefact READ.
 
 Le GET lit le résultat projeté et `CURRENT_BINDING` depuis READ :
 
@@ -133,6 +160,41 @@ request/outcome/User/binding/faits WRITE ni les tables Consumption. Aucun état
 `PENDING`, `PROCESSING` ou `FAILED` public.
 
 ## 4. Lots démontrables et committables
+
+### REG.0 — Normaliser CURRENT_BINDING en projection standard
+
+Avant d'implémenter le flux Registration, remplacer le consumer direct
+`external_identity_binding_facts → CURRENT_BINDING` par la chaîne canonique :
+
+```text
+évolution autoritative Binding
+→ Event ExternalIdentityAttached / ExternalIdentityDetached
+→ policy/route Event → ProjectionTask(CURRENT_BINDING)
+→ worker ProjectionTask standard
+→ validation + loader + projector CURRENT_BINDING
+→ projection artifact / root READ
+→ sélection monotone du CURRENT_BINDING
+```
+
+La source de vérité reste le primaire Binding. Registration ne connaît ni
+`CURRENT_BINDING`, ni son projector, ni sa task : son succès écrit le binding et le fait/Event
+autoritatif ; la chaîne générique prend le relais. Attach/Detach et tout futur producteur de
+changement de binding doivent emprunter exactement le même chemin.
+
+La migration doit préserver les garanties WA.6 : révision monotone, tombstone de detach,
+anti-régression lorsqu'un Event ancien est rejoué ou terminé après un Event plus récent,
+idempotence, retry, multi-worker, restart et absence de double artefact. Supprimer le runtime
+direct CURRENT_BINDING seulement après preuve d'équivalence et de convergence du nouveau chemin.
+
+**Preuves :** Attached r1 → CURRENT_BINDING r1 ; Detached r2 → tombstone r2 ; Attached r3 →
+r3 ; traitement hors ordre r3 puis r1/r2 ne régresse jamais ; replay idempotent ; deux workers ;
+restart/takeover ; une évolution Binding produit bien une task CURRENT_BINDING via Event et aucun
+writer direct READ ne subsiste.
+
+**Vérification pré-déclarée :** slices **EVENT + PROJECTION + BINDING** et gate architecture.
+Réutiliser les tests PostgreSQL WA.6 comme matrice de non-régression et les déplacer/adapter au
+pipeline canonique plutôt que dupliquer leurs invariants. Full reactor non à ce lot, sauf
+escalade imposée par une frontière réellement traversée.
 
 ### REG.1 — Request durable et admission authentifiée
 
@@ -188,10 +250,13 @@ Gate architecture requis ; full reactor non.
 
 ### REG.4 — Projection du résultat et GET exclusivement READ
 
-Créer producteur/task `REGISTRATION_RESULT`, projection/store READ, use case de
-visibilité et GET. Activer l'émission de tasks et le producteur dans le même lot ;
-backfill idempotent les outcomes antérieurs sans insérer manuellement projection
-ou faits. Réutiliser le `CURRENT_BINDING` actuel, sans attendre sa standardisation.
+Créer l'Event terminal de résultat, sa route vers `REGISTRATION_RESULT`, le
+producer/projector, le store READ, le use case de visibilité et le GET. Activer la route
+Event → ProjectionTask et le producer dans le même lot ; backfill idempotent les outcomes
+antérieurs sans insérer manuellement artefact READ ou fait métier.
+
+Réutiliser exclusivement le `CURRENT_BINDING` **standardisé par REG.0**. Le GET ne connaît
+pas le chemin de production de cette projection ; il ne voit que son contrat READ.
 
 **Preuves :** résultat avant/après binding ; auteur exact voit son rejet, autre E
 non ; succès seulement sous E/U/B exact ; detach masque B1 ; reattach B2 vers U
@@ -207,11 +272,15 @@ full reactor non.
 ### REG.5 — Premier Bruno E2E autonome et clôture
 
 Le fixture prépare uniquement l'AuthN technique de E. Il ne crée manuellement
-aucun User, binding, outcome, fait, task ou projection.
+aucun User, binding, outcome, Event, task ou projection.
 
 ```text
-unknown authenticated E → POST Registration → Registered(U,B) visible
-→ GET self binding = U/B → POST CreatePot(E,B) → Command worker
+unknown authenticated E → POST Registration → worker Registration
+→ RegistrationOutcome + binding + Events
+→ REGISTRATION_RESULT via Event → ProjectionTask
+→ CURRENT_BINDING via binding Event → ProjectionTask
+→ Registered(U,B) visible + GET self binding = U/B
+→ POST CreatePot(E,B) → Command worker
 → COMMAND_RESULT READ → Pot READ
 ```
 
@@ -239,7 +308,9 @@ Les nouveaux modules exigent un gate d'architecture ; un changement
 documentaire seul ne lance aucun slice.
 
 Les canons et audits historiques restent inchangés sauf contradiction
-factuelle prouvée. Ne pas rouvrir D1–D33. Le Bruno E2E entièrement réel
+factuelle prouvée. Ne pas rouvrir D1–D33. REG.0 est toutefois une évolution explicite
+du mécanisme livré par WA.6 : préserver ses invariants et preuves, mais remplacer son
+chemin direct de matérialisation CURRENT_BINDING par le pipeline standard de projection. Le Bruno E2E entièrement réel
 est la condition de clôture, jamais un fixture qui préinsère ses effets.
 
 **Décisions d'implémentation ouvertes : aucune.** Les détails locaux de
