@@ -1,5 +1,7 @@
 # Audit factuel des usages READ et des matérialisations dérivées
 
+> **Baseline factuelle.** Les décisions cibles et le plan de migration sont désormais dans le [plan global des matérialisations READ](Read_Materialization_Gap_and_Migration_Plan.md). Les observations ci-dessous décrivent le code au 2 octobre 2026 et ne changent pas avec ce plan.
+
 État : audit descriptif, sans architecture cible ni modification applicative. Baseline : `v2-make-it-pull`, 2 octobre 2026.
 
 ## 1. Baseline et méthode

@@ -1,5 +1,7 @@
 # Audit architectural — CURRENT_BINDING et Registration Request/Result
 
+> **Hypothèse cible remplacée (2026-10-03).** Le [plan global des matérialisations READ](../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md) conserve les observations du pipeline direct Binding Fact→CURRENT_BINDING, mais abandonne les lots Event→ProjectionTask et la visibilité Registered conditionnée par le binding courant. Ce document reste un audit historique.
+
 Date : 2026-10-02. **Audit seul ; aucune implémentation décidée ici.** Les liens ci-dessous pointent vers le code et les documents de la baseline. « Event » désigne un enregistrement durable consommable, pas nécessairement la table Pot `business_event_outbox`.
 
 ## A. Baseline et vérification

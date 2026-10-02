@@ -1,318 +1,55 @@
-# REGISTRATION — Plan d'implémentation rebaseliné
+# REGISTRATION — plan rebaseliné sur les trois contrats READ
 
 ```text
 Step: REGISTRATION
-Phase: IMPLEMENTATION PLANNED
-Baseline: v2-make-it-pull @ 6ccb69b1103878ebe010a406b940d28fac2226ab
-Authorities: Step_Canon.md (D1–D33), WRITE_ADMISSION/Step_Canon.md (WA1–WA11)
-Sequence: REG.0 → REG.1 → REG.2 → REG.3 → REG.4 → REG.5
-Verdict: READY FOR IMPLEMENTATION
-Blocking questions: 0
+Phase: IMPLEMENTATION PLANNED, sous dépendance des fondations Result
+Authority: Step_Canon.md et ../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md
+Sequence: REG.1 → REG.2 → REG.3 → REG.4 → REG.5
 ```
 
-## 1. Fondation livrée et cible
+Ce plan remplace l'ancien REG.0 Event→ProjectionTask CURRENT_BINDING, l'ancien `REGISTRATION_RESULT@1` et le GET conditionné par le binding courant. L'[audit d'écart global](../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md) contient les références au code, les alternatives de stockage, le failure model, le cutover de COMMAND_RESULT et les preuves transversales. Le [Canon](Step_Canon.md) fixe le métier. Les audits historiques [step](step_audit.md), [domain](domain_audit.md) et [Current Binding](Current_Binding_Registration_Architecture_Audit.md) restent des traces factuelles ou d'anciennes hypothèses, pas des instructions de pipeline.
 
-WRITE_ADMISSION est clos. Le code fournit `ExternalIdentity`, `PocomaUserId`, `BindingId`,
-`User`, `UserAuthorityPort`, `ExternalIdentityBindingPort`, le stream de révision, les
-occurrences et faits de binding, le worker Consumption Binding, `CURRENT_BINDING` en READ,
-l'AuthN JWT et le principal externe attesté. Registration les réutilise : aucun deuxième
-modèle User/Identity, binding, resolver ou store courant.
-
-Le chemin `CURRENT_BINDING` **actuel** consomme directement `external_identity_binding_facts`
-et applique la vue READ sous claim Consumption. Ce n'est donc pas encore une projection standard
-de bout en bout. **Sa standardisation est désormais un prérequis architectural de Registration**
-et constitue REG.0 : une évolution autoritative du binding doit être exposée comme Event, routée
-par la mécanique Event → ProjectionTask, puis matérialisée par le pipeline standard de projection
-(route/validation/projector/artifact) vers `CURRENT_BINDING`.
-
-Cette décision ne confond pas deux familles sémantiques. `COMMAND_RESULT` et le futur résultat
-de Registration répondent à « qu'est devenue mon intention ? » ; `CURRENT_BINDING` répond à
-« quel est l'état observable courant du binding ? ». Le code existant de `COMMAND_RESULT`
-réutilise techniquement ProjectionTask/projector/artifact pour matérialiser son résultat READ :
-cette réutilisation de mécanique ne transforme pas un résultat d'intention en projection d'état.
+## Architecture cible
 
 ```text
-POST Registration: JWT → AuthenticatedExternalPrincipal → E → R(E) durable → 202
-                   aucune résolution E→U/B, aucun User, aucun binding
-worker Registration: R(E) → RegistrationOutcome(Registered(U,B))
-                             + User(U) + Binding(E,U,B)
-                             + UserCreated(U) + ExternalIdentityAttached(E,U,B)
-                         ou RegistrationOutcome(Rejected(EXTERNAL_IDENTITY_ALREADY_USED))
+POST Registration(authenticated E, payload)
+  → RegistrationRequest(requestId, requesterExternalIdentity=E, payload) durable
+  → 202 + requestId
+  → Consumption Registration : reload, claim, retry, fencing
+  → outcome terminal unique : Registered(U,B) ou Rejected(EXTERNAL_IDENTITY_ALREADY_USED)
+  → source terminale durable → Consumption Result → immutable REGISTRATION_RESULT
+  → GET(requestId, authenticated E) si E = request.requesterExternalIdentity
 
-chaîne résultat d'intention:
-RegistrationOutcome → Event terminal de résultat → ProjectionTask(REGISTRATION_RESULT)
-                    → artefact READ REGISTRATION_RESULT
-
-chaîne état du système:
-ExternalIdentityAttached / Detached → Event
-                                    → ProjectionTask(CURRENT_BINDING)
-                                    → projector/artifact CURRENT_BINDING
-
-REGISTRATION_RESULT READ + CURRENT_BINDING READ → GET Registration
-self identity READ → CreatePot(E,B) → Command worker → COMMAND_RESULT READ → Pot READ
+sur succès uniquement, dans le commit autoritatif du terminal :
+  User(U) + Binding(E,U,B) + UserCreated(U) + ExternalIdentityAttached(E,U,B)
+  → Binding Fact durable → Consumption Binding → advance CURRENT_BINDING(E,R,value)
+  → GET self binding → B pour la première Command(E,B)
 ```
 
-La cohérence READ est éventuelle. Aucun GET ne lit le primaire WRITE ou les tables Consumption.
-Absence, non-terminalité, retard de projection et non-ownership produisent le même `404` opaque.
+Le commit autoritatif du succès réunit U, B, outcome et faits. Les deux matérialisations READ sont asynchrones et indépendantes. `REGISTRATION_RESULT` n'attend ni ne lit `CURRENT_BINDING` ; l'inverse aussi. Après detach/B2, E lit encore le résultat Registered historique. `Rejected` reste lisible sans B. Aucun ResponseToken, ProjectionTask Result, ProjectionTask Current ou Event Binding de pure conversion n'est requis.
 
-## 2. Ownership physique retenu
+## Modules et contrats à concevoir
 
-Les noms ci-dessous désignent les **nouveaux** modules Registration. Les renommages du step
-ARCHITECTURE ne sont pas supposés déjà réalisés. Si ce refactoring précède un lot, utiliser le
-nom final sans couche transitoire.
+Réutiliser `domain-user-identity` pour E/U/B, l'autorité `ExternalIdentityBindingPort` et son stream de révision ; `engine-consumption`, `orchestrator-consumption` et `supra-consumption-worker` pour les claims/leases/retries ; `locator-consumption-binding`, `runtime-binding-consumption-worker` et `JdbcCurrentBindingAdapter` pour CURRENT_BINDING. Les noms exacts des futurs modules Registration/Result sont à fixer au lot concerné, avec un gate architectural si les frontières Maven changent. Les responsabilités requises sont : admission WRITE, request/outcome autoritatifs, exécution sous claim fenced, store Result/read par id, HTTP POST/GET et runtime worker. Ne créer ni deuxième autorité Binding ni deuxième moteur Consumption.
 
-| Module | Responsabilité et ports | Dépendances et raison d'exister |
+Le POST prend E exclusivement du principal JWT ; pas de résolution E→U, contrôle de disponibilité, B, User, outcome ou fait métier à l'admission. La request est immutable, irrévocable, identifiée par un UUID serveur et committée avant réponse. AuthN absente/invalide → 401 sans request ; toute E attestée → request seule et 202. Le GET prend `requestId` et E authentifiée, lit uniquement le store Result, rend 404 opaque pour absent/non matérialisé/non-owner ; aucun état Consumption ni failure technique public.
+
+L'exécution gagne le lock/l'arbitrage de la même autorité Binding qu'Attach/Detach. Elle crée U seulement sur le chemin gagnant, obtient un B neuf, écrit outcome unique et `UserCreated` ; l'autorité Binding émet une seule fois `ExternalIdentityAttached`. Sur conflit, seul `Rejected(EXTERNAL_IDENTITY_ALREADY_USED)` est écrit. Deux requests concurrentes pour E : un succès et un rejet, sans User orphelin. Le retry de la même request recharge l'outcome et ne rejoue pas ses effets. Exception ou perte de claim rollbacke la transition entière. Le fait Binding durable existant est la source de CURRENT_BINDING ; son tombstone/révision restent inchangés.
+
+Le résultat dérive de l'outcome terminal et de l'owner E de la request. Une découverte directe des outcomes est le premier choix à examiner ; un terminal Event atomique avec l'outcome peut être retenu si nécessaire à la discovery/reprise/provenance. La matérialisation `ensureResult(requestId,E,outcome)` doit être immutable, idempotente et refuser un payload divergent au même id. La représentation SQL sera choisie avec le lot Result commun à COMMAND_RESULT, selon l'analyse du plan global. L'échec du worker Result est diagnostiqué et réessayé techniquement ; il ne devient jamais un troisième outcome Registration.
+
+## Lots et preuves
+
+| Lot / dépendance | Travail et preuve de sortie | Frontière de vérification prévue |
 |---|---|---|
-| `engine-write-registration` | Request, outcome, ports request/outcome/UserCreated, admission et transition. | Domaine User/Identity et contrats transactionnels neutres ; use case WRITE distinct de Command et de Consumption. |
-| `engine-consumption-registration` | Discovery, reload de R, callback et classification. | WRITE Registration et protocole Consumption existant ; aucune logique de claim, retry ou polling dupliquée. |
-| `runtime-registration-consumption-worker` | Composition Spring, propriétés, polling, lifecycle et métriques. | Modules Registration, worker générique et infra ; processus déployable autonome. |
-| `projection-registration-result` | Loader de l'outcome autoritatif et producteur `REGISTRATION_RESULT` pour ProjectionTask. | Contrats de projection et port d'outcome ; ni claim ni GET. |
-| `engine-read-registration` | Port du résultat projeté, visibilité avec `CURRENT_BINDING`, use case GET. | Contrats READ neutres et User/Identity ; aucune dépendance WRITE/Consumption/infra primaire. |
-| `supra-http-registration` | Contrôleurs POST/GET et DTO HTTP. | Use cases WRITE/READ et principal AuthN ; séparé de l'HTTP Command. |
+| REG.1, après cadrage Result | Request durable, discovery, POST JWT. Prouver commit avant 202, immutabilité, E seule, 401, zéro U/B/outcome/fait avant worker. | WEB `./mvnw -pl runtime-web-api -am test` ; SQL actuel ciblé. |
+| REG.2, après REG.1 | Transition WRITE et outcome unique via l'autorité Binding. Prouver concurrence de deux requests, Attach/Detach, B neuf, un `UserCreated`/`Attached`, rejet sans B, rollback à chaque point et reprise même request. | BINDING `./mvnw -pl runtime-binding-consumption-worker -am test` et COMMAND `./mvnw -pl runtime-command-consumption-worker -am test` si contrat Binding partagé changé ; tests SQL ciblés. |
+| REG.3, après REG.2 | Worker Registration avec discovery/reload, claim, lease, retry, takeover et finalisation fenced existants. Prouver restart, multi-worker, claim perdu et aucune double mutation. | Nouvelle ancre `./mvnw -pl runtime-registration-consumption-worker -am test` si ce runtime est créé. |
+| REG.4, après REG.3 et infrastructure Result | Source terminale, `ensureResult`, GET owner E et backfill éventuel. Prouver Registered et Rejected lisibles par E, E2→404, detach/B2 sans perte d'accès, retry/replay/divergence et zéro lecture READ→READ. | Nouvelle ancre Result/Registration + WEB ; BINDING seulement si son comportement change. |
+| REG.5, après REG.4 et migration COMMAND_RESULT | E2E réel : E→request→Result, Binding Fact→Current→B→première Command(E,B)→CommandResult ; workers Result et Binding arrêtés alternativement pour prouver la convergence indépendante. Prouver ancien B refusé et anciens résultats encore accessibles. | Slices affectées composées ; gate architecture si nouveaux modules/frontières ; gate reactor complet seulement à la clôture de la grande Wave ou intégration qui l'exige. |
 
-`runtime-web-api` câble HTTP, use cases et adapters. `infra-persistence-jpa` implémente les
-ports WRITE et migrations ; `infra-read-persistence` implémente le port de résultat READ.
-Les orchestrateurs Consumption existants restent génériques : **pas de
-`orchestrator-registration`**. Les DTO du résultat utilisés par READ sont des contrats
-neutres de projection, jamais importés depuis l'engine WRITE.
+Avant toute modification de `app/`, relire [`Reactor_Verification_Policy.md`](../../../testing/Reactor_Verification_Policy.md) et déclarer impact permis/interdit, slices primaire/secondaires, base, gate et conditions d'escalade. `architecture-tests` est un gate global aux vrais changements de modules/frontières, pas un ajout automatique aux slices. Ne pas lancer le reactor complet comme boucle locale. La politique du checkout indique encore `Trusted baseline: NONE` : ne pas supposer une baseline certifiée pour la vérification SQL.
 
-## 3. Décisions techniques fermées
+## Décisions à fermer avant le code concerné
 
-### 3.1 Admission
-
-`RegistrationRequestId(UUID)` et `capturedAt` sont générés côté serveur. La request
-immutable contient `requestId`, `creatorExternalIdentity`, `capturedAt` ; ni JWT,
-UserId, BindingId, état, claim, lease ou retry. Le POST dérive E exclusivement de
-`AuthenticatedExternalPrincipal.identity()`. Il ne consulte ni
-`ExternalIdentityResolverPort`, ni `ExternalIdentityBindingPort`, ni
-`UserAuthorityPort`, ni la disponibilité de E.
-
-Modifier `WebApiSecurityConfiguration` pour installer la chaîne JWT quand Registration est
-activée et rendre `/api/v1/registrations` et `/api/v1/registrations/*` authentifiés.
-Sans JWT valide : `401`, aucune request. E connue ou inconnue : `202`, une request seule.
-Aucun scope ou capability métier Registration supplémentaire.
-
-### 3.2 Acquisition atomique, outcome et faits
-
-Étendre **l'autorité existante** `ExternalIdentityBindingPort` avec une opération
-`acquireForNewUser(E, User)`, spécifique à la création initiale d'un User, sans créer une
-deuxième autorité. L'adapter réutilise lock du stream `(issuer,subject)`, vérification du
-binding actif, réservation de B, mise à jour de l'autorité, avance de révision et append
-de `ExternalIdentityAttached`. Après le lock et le test de conflit, il insère U
-**uniquement sur le chemin gagnant**, avant les écritures référencées par FK. Sur conflit,
-il retourne `CONFLICT` sans insérer U ni fait. `acquire(E,U)` reste pour l'attach d'un
-User préexistant ; factoriser la séquence commune dans l'adapter.
-
-L'executor génère U pendant la transition, jamais au POST. Sous
-`TransactionalExecuteConsumptionUseCase`, dans la **même transaction** que le CAS final
-du claim, il appelle `acquireForNewUser`, écrit l'outcome terminal propre à R et, sur
-succès, append `UserCreated(U)`. `ExternalIdentityAttached` est déjà produit par
-l'autorité Binding : ne jamais l'append une seconde fois. Toute exception ou perte de
-claim rollbacke User, binding, outcome et faits. Aucun savepoint, `REQUIRES_NEW`,
-delete User compensatoire ni catch d'une transaction PostgreSQL abortée.
-
-`UserCreated` appartient à la **famille métier User/Identity**. Son journal durable
-append-only `user_identity_user_facts` porte `event_id`, `request_id`, `user_id`,
-`recorded_at` et le type `USER_CREATED` ; `request_id` est unique pour ce fait.
-Il est écrit dans la même transaction que le journal de binding, User, binding et outcome.
-La table `external_identity_binding_facts` reste spécialisée : son stream E/B et son
-worker ne sont pas élargis artificiellement à un fait sans E/B. L'outcome autoritatif,
-unique par `request_id`, reste distinct des slots/results Consumption et des faits.
-
-Si E est courante au point d'arbitrage, écrire seulement
-`Rejected(EXTERNAL_IDENTITY_ALREADY_USED)` et finaliser le claim dans la transaction.
-Un Detach ultérieur ne change pas ce résultat ; si Detach a gagné avant l'arbitrage,
-Registration peut réussir. Deux requests distinctes concurrentes pour E, sans Detach
-intercalé, donnent exactement un succès et un rejet. Le retry de **la même** R recharge
-d'abord son outcome et ne réapplique aucun effet.
-
-### 3.3 Résultat READ : famille Request/Result
-
-Le résultat Registration appartient sémantiquement à la même famille que `COMMAND_RESULT` :
-il répond à une intention identifiée par `requestId`, et non à une question sur l'état courant
-du modèle métier. Cela n'interdit pas de réutiliser la mécanique technique déjà employée par
-`COMMAND_RESULT` pour sa matérialisation READ.
-
-À partir de REG.4, l'outcome terminal produit un Event de résultat ; la policy Event →
-ProjectionTask assure une task `REGISTRATION_RESULT` de clé `(requestId, version=1)`.
-Le producer recharge l'outcome autoritatif depuis WRITE dans le worker ProjectionTask et publie
-un artefact immutable contenant `requestId`, `creator E` et `Registered(U,B)` ou seulement
-`Rejected(EXTERNAL_IDENTITY_ALREADY_USED)`. La création de la task ne doit pas être un effet
-direct spécifique du worker Registration : elle passe par la même frontière Event →
-ProjectionTask que les autres matérialisations pilotées par Event.
-
-Cette lecture primaire du worker n'est jamais celle du GET. Les outcomes antérieurs à
-l'activation de cette route sont repris par un backfill idempotent au niveau Event/task,
-sans écriture directe de l'artefact READ.
-
-Le GET lit le résultat projeté et `CURRENT_BINDING` depuis READ :
-
-```text
-caller = creator E, Registered(U,B), CURRENT_BINDING(E) = ATTACHED(U,B) → 200
-caller = creator E, Rejected(EXTERNAL_IDENTITY_ALREADY_USED)          → 200
-toute autre combinaison                                                → 404 opaque
-```
-
-Sont masqués : binding absent/détaché, B2 avec le même U, U2/B2, autre E du même U,
-projection absente et request inconnue. La révision monotone de `CURRENT_BINDING`
-empêche un fait ancien de réactiver B1 après B2. Aucun GET ne consulte les tables
-request/outcome/User/binding/faits WRITE ni les tables Consumption. Aucun état
-`PENDING`, `PROCESSING` ou `FAILED` public.
-
-## 4. Lots démontrables et committables
-
-### REG.0 — Normaliser CURRENT_BINDING en projection standard
-
-Avant d'implémenter le flux Registration, remplacer le consumer direct
-`external_identity_binding_facts → CURRENT_BINDING` par la chaîne canonique :
-
-```text
-évolution autoritative Binding
-→ Event ExternalIdentityAttached / ExternalIdentityDetached
-→ policy/route Event → ProjectionTask(CURRENT_BINDING)
-→ worker ProjectionTask standard
-→ validation + loader + projector CURRENT_BINDING
-→ projection artifact / root READ
-→ sélection monotone du CURRENT_BINDING
-```
-
-La source de vérité reste le primaire Binding. Registration ne connaît ni
-`CURRENT_BINDING`, ni son projector, ni sa task : son succès écrit le binding et le fait/Event
-autoritatif ; la chaîne générique prend le relais. Attach/Detach et tout futur producteur de
-changement de binding doivent emprunter exactement le même chemin.
-
-La migration doit préserver les garanties WA.6 : révision monotone, tombstone de detach,
-anti-régression lorsqu'un Event ancien est rejoué ou terminé après un Event plus récent,
-idempotence, retry, multi-worker, restart et absence de double artefact. Supprimer le runtime
-direct CURRENT_BINDING seulement après preuve d'équivalence et de convergence du nouveau chemin.
-
-**Preuves :** Attached r1 → CURRENT_BINDING r1 ; Detached r2 → tombstone r2 ; Attached r3 →
-r3 ; traitement hors ordre r3 puis r1/r2 ne régresse jamais ; replay idempotent ; deux workers ;
-restart/takeover ; une évolution Binding produit bien une task CURRENT_BINDING via Event et aucun
-writer direct READ ne subsiste.
-
-**Vérification pré-déclarée :** slices **EVENT + PROJECTION + BINDING** et gate architecture.
-Réutiliser les tests PostgreSQL WA.6 comme matrice de non-régression et les déplacer/adapter au
-pipeline canonique plutôt que dupliquer leurs invariants. Full reactor non à ce lot, sauf
-escalade imposée par une frontière réellement traversée.
-
-### REG.1 — Request durable et admission authentifiée
-
-Créer modèles, port/repository/table request, discovery ordonnée
-`(capturedAt, requestId)` et POST `202`. Ajouter WRITE Registration, HTTP Registration
-et wiring WEB. La discovery peut filtrer DONE, occupé et non éligible, mais ne crée
-aucun slot avant acquire. Aucun worker Registration actif.
-
-**Preuves :** JWT connu/inconnu → request seule et `202` ; absent/invalide → `401`
-sans ligne ; round-trip immutable ; ordering/pagination ; zéro SELECT primaire d'identité
-au POST ; aucun User, binding, outcome ou fait.
-
-**Vérification pré-déclarée :** impact WEB et persistence request/discovery ; slice **WEB**
-`./mvnw -pl runtime-web-api -am test`. Gate global
-`./mvnw -pl architecture-tests -am test` requis pour modules/frontières nouveaux.
-Migration nouvelle : test PostgreSQL ciblé du schéma courant. Full reactor : non.
-
-### REG.2 — Transition WRITE et concurrence
-
-Ajouter `acquireForNewUser` à l'autorité Binding, outcome unique, journal
-`UserCreated`, use case et adapters. L'executor reste inactif jusqu'à REG.3.
-Tester avec deux connexions PostgreSQL réellement concurrentes et une barrière au
-lock du stream.
-
-**Preuves :** R1(E) || R2(E) → un Registered, un Rejected, un seul
-User/binding/Attached/UserCreated ; conflit sans User candidat ; aucun User orphelin ;
-retry de R → même outcome ; concurrence Registration/Attach/Detach ; échec après chaque
-écriture et perte de claim → rollback complet ; aucun delete User ; outcome unique
-par contrainte `request_id`.
-
-**Vérification pré-déclarée :** impact WRITE Registration, Binding et persistence ;
-slices **BINDING + COMMAND** car le port Binding est partagé avec le fence Command :
-`./mvnw -pl runtime-binding-consumption-worker,runtime-command-consumption-worker -am test`.
-Gate architecture requis pour port/module ; tests PostgreSQL ciblés ; full reactor non.
-
-### REG.3 — Exécution asynchrone réelle
-
-Créer `engine-consumption-registration` et
-`runtime-registration-consumption-worker`. Adapter R à la clé
-`REGISTRATION_REQUEST/requestId` + `REGISTRATION_PROCESSOR`, recharger R après
-claim, appeler REG.2 sous transaction fenced et utiliser polling/lease/retry/takeover
-génériques. L'état public ne vient jamais de Consumption. Aucun `UserRegistered`.
-
-**Preuves :** discovery bornée, acquire paresseux, restart, plusieurs workers,
-takeover, perte de claim, unicité outcome/faits, rejet sans faits User/Identity,
-failure technique réessayée sans troisième résultat public.
-
-**Vérification pré-déclarée :** nouveau slice Registration, anchor
-`runtime-registration-consumption-worker` :
-`./mvnw -pl runtime-registration-consumption-worker -am test`.
-BINDING secondaire seulement si son comportement change à nouveau.
-Gate architecture requis ; full reactor non.
-
-### REG.4 — Projection du résultat et GET exclusivement READ
-
-Créer l'Event terminal de résultat, sa route vers `REGISTRATION_RESULT`, le
-producer/projector, le store READ, le use case de visibilité et le GET. Activer la route
-Event → ProjectionTask et le producer dans le même lot ; backfill idempotent les outcomes
-antérieurs sans insérer manuellement artefact READ ou fait métier.
-
-Réutiliser exclusivement le `CURRENT_BINDING` **standardisé par REG.0**. Le GET ne connaît
-pas le chemin de production de cette projection ; il ne voit que son contrat READ.
-
-**Preuves :** résultat avant/après binding ; auteur exact voit son rejet, autre E
-non ; succès seulement sous E/U/B exact ; detach masque B1 ; reattach B2 vers U
-ou U2 ne réactive pas B1 ; faits Binding hors ordre/rejoués ; absence de projection
-→ même `404` ; traces SQL et guards prouvent zéro lecture WRITE/Consumption du GET ;
-backfill rejouable.
-
-**Vérification pré-déclarée :** slices **PROJECTION + BINDING + WEB**
-`./mvnw -pl runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-web-api -am test`.
-Gate architecture requis pour modules READ/producteur ; migration READ ciblée ;
-full reactor non.
-
-### REG.5 — Premier Bruno E2E autonome et clôture
-
-Le fixture prépare uniquement l'AuthN technique de E. Il ne crée manuellement
-aucun User, binding, outcome, Event, task ou projection.
-
-```text
-unknown authenticated E → POST Registration → worker Registration
-→ RegistrationOutcome + binding + Events
-→ REGISTRATION_RESULT via Event → ProjectionTask
-→ CURRENT_BINDING via binding Event → ProjectionTask
-→ Registered(U,B) visible + GET self binding = U/B
-→ POST CreatePot(E,B) → Command worker
-→ COMMAND_RESULT READ → Pot READ
-```
-
-Compléter D1–D33 et les négatifs REG.1–REG.4 : concurrence, claim perdu,
-known/unknown E, rejet sans owner divulgué, B1 périmé/B2 accepté,
-restart et multi-worker. Vérifier les migrations nouvelles sur installation
-courante et upgrade représentatif. La politique indique encore
-`Trusted baseline: NONE` : ne pas présumer d'une baseline certifiée.
-
-**Vérification pré-déclarée :** WEB + Registration + COMMAND + BINDING + PROJECTION :
-`./mvnw -pl runtime-web-api,runtime-registration-consumption-worker,runtime-command-consumption-worker,runtime-binding-consumption-worker,runtime-task-consumption-worker -am test`.
-Gate `./mvnw -pl architecture-tests -am test` requis. À la clôture de ce
-milestone multi-module, `./mvnw test` est le gate d'intégration global,
-**une fois**, après les slices ; il n'est pas la boucle de chaque lot.
-Bruno E2E et tests PostgreSQL sont obligatoires.
-
-## 5. Instructions aux sessions d'implémentation
-
-Avant toute modification sous `app/`, lire
-`docs/testing/Reactor_Verification_Policy.md` et déclarer pour le lot
-impacts permis/interdits, slices, base, gate et conditions d'escalade.
-Les commandes du §4 sont les ancres initiales ; une frontière franchie
-inopinément doit être expliquée et le scope révisé **avant** de poursuivre.
-Les nouveaux modules exigent un gate d'architecture ; un changement
-documentaire seul ne lance aucun slice.
-
-Les canons et audits historiques restent inchangés sauf contradiction
-factuelle prouvée. Ne pas rouvrir D1–D33. REG.0 est toutefois une évolution explicite
-du mécanisme livré par WA.6 : préserver ses invariants et preuves, mais remplacer son
-chemin direct de matérialisation CURRENT_BINDING par le pipeline standard de projection. Le Bruno E2E entièrement réel
-est la condition de clôture, jamais un fixture qui préinsère ses effets.
-
-**Décisions d'implémentation ouvertes : aucune.** Les détails locaux de
-nommage SQL/Java et de wiring suivent les conventions du repository sans
-changer les frontières, résultats ou preuves fixés ici.
+La forme physique du store Result, la découverte directe de l'outcome versus un terminal Event, le diagnostic des failures Result et la méthode de cutover/backfill de COMMAND_RESULT sont décrits dans le plan global. Aucun de ces choix ne change l'owner historique E, la séparation des deux READ ou la source Binding Fact. Une violation démontrée de la garantie de non-réattribution `(issuer,subject)` doit être résolue au niveau AuthN/issuer avant de s'appuyer sur E pour l'ownership ; elle ne justifie pas à elle seule un ResponseToken.

@@ -8,7 +8,8 @@ Next phase: implementation planning
 
 Ce document est l'autorité normative du cadrage REGISTRATION. Il fixe le métier et les frontières
 architecturales que le futur plan d'implémentation devra respecter ; il ne constitue ni ce plan, ni
-un design Java, SQL ou HTTP détaillé.
+un design Java, SQL ou HTTP détaillé. La visibilité historique et les trois contrats READ sont
+précisés par le [plan global des matérialisations](../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md).
 
 Le canon transversal [`WRITE_ADMISSION`](../../completed/WRITE_ADMISSION/Step_Canon.md)
 complète et prévaut sur
@@ -106,10 +107,11 @@ DetachExternalIdentity sont hors du use case Registration, mais doivent employer
 de binding et le même invariant global.
 
 `BindingId` identifie l'occurrence précise du rattachement. Il est opaque, unique, non ordinal,
-non réutilisable et sans sémantique temporelle ; seule l'égalité compte. Chaque acquisition ou
+non réutilisable, non secret et sans sémantique temporelle ; seule l'égalité compte. Chaque acquisition ou
 Attach réussi génère un B neuf, y compris après detach/reattach vers le même User. Detach invalide
-l'occurrence courante. L'absence d'historique durable des anciennes occurrences reste compatible
-avec cet invariant.
+l'occurrence courante, sans effacer sa signification historique. Les occurrences anciennes restent
+durables dans l'autorité de binding existante. B sert de fence pour une nouvelle intention au nom
+de U ; il n'est pas une credential d'authentification.
 
 ## 3. RegistrationRequest et admission
 
@@ -152,20 +154,18 @@ Consumption ou aux mécanismes d'exploitation, jamais à la RegistrationRequest 
 La visibilité d'un résultat exige l'égalité exacte entre l'ExternalIdentity du caller et celle
 capturée immuablement par la request.
 
-Pour `Registered(U,B)`, l'occurrence courante exacte `Binding(E,U,B)` doit en plus exister au moment
-de la lecture.
+Pour `Registered(U,B)`, la visibilité dépend seulement de l'égalité avec E capturée par la request.
 Une autre identité du même User ne peut pas lire ce résultat. Si E est détachée ou rattachée à un
-autre User, le résultat demeure terminal et durable mais n'est plus fonctionnellement visible via E.
-Un detach puis reattach, même vers U, produit un nouveau B et ne réactive jamais la visibilité de
-l'ancienne occurrence.
+autre User, son détenteur authentifié peut encore lire le résultat historique. Un detach puis
+reattach produit un nouveau B pour les nouvelles intentions, sans modifier l'owner du résultat.
 
 Pour `Rejected(EXTERNAL_IDENTITY_ALREADY_USED)`, seule l'identité créatrice exacte peut voir le
 résultat ; aucun owner existant ni `PocomaUserId` ne lui est révélé.
 
 La traduction HTTP, la représentation READ et la manière de masquer absence, non-disponibilité et
-non-ownership restent des décisions d'implémentation. Le endpoint construit exclusivement depuis
-READ/projections, sans lecture du primaire WRITE, et ne consulte ni n'expose le lifecycle
-Consumption. La cohérence éventuelle de READ est acceptée.
+non-ownership restent des décisions d'implémentation. Le endpoint lit le Result matérialisé,
+sans lecture du primaire WRITE ni de CURRENT_BINDING, et ne consulte ni n'expose le lifecycle
+Consumption. La cohérence éventuelle de READ est acceptée. Aucun ResponseToken n'est prévu.
 
 ## 5. Atomicité et concurrence
 
@@ -323,7 +323,7 @@ présent canon. Une décision technique encore ouverte ne rouvre pas le cadrage 
 | D16 — Registration irrévocable | §3 |
 | D17 — seul rejet fonctionnel actuel | §4 |
 | D18 — acceptation = intention durable seulement | §3 |
-| D19 — visibilité liée à l'occurrence exacte `E,U,B` | §4.1 |
+| D19 — visibilité historique liée à E exacte, sans contrôle du binding courant (décision révisée) | §4.1 |
 | D20 — résultat terminal unique et immutable | §4, §5.2 |
 | D21 — aucun état technique dans le READ | §4, §7 |
 | D22 — fait métier durable du succès | §5.1, §6 |

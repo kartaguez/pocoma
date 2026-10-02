@@ -1,5 +1,7 @@
 # Révision ciblée — WRITE, READ et CONSUMPTION
 
+> **Cible partiellement remplacée (2026-10-03).** Le [plan global des matérialisations READ](Read_Materialization_Gap_and_Migration_Plan.md) conserve les constats de code ci-dessous, mais abandonne la migration de CURRENT_BINDING vers Event→ProjectionTask et fait sortir COMMAND_RESULT du modèle Projection. Les lots et le graphe cible de ce document ne doivent pas être exécutés tels quels pour ces deux capacités.
+
 Date : 2026-10-02. Complément à [l'audit initial](Consumption_Workers_Runtimes_Audit.md). Les constats et le graphe **actuels** de cet audit restent sa baseline ; la présente révision remplace **sa cible de 43 modules et son ordre de migration**. Branche `v2-make-it-pull`, HEAD de la révision `3a4ba96195db28686fdc5c3ba8dceab8157c7282`, working tree propre au départ. Aucun code applicatif n'est modifié. Les noms ci-dessous sont des destinations de migration, pas des noms déjà présents dans le reactor. Vérification déclarée pour ce document : aucun slice Maven, aucune base de données, aucun gate global et aucun reactor complet ; impact de production interdit dans `app/`.
 
 ## 1. Décision sur la taxonomie
