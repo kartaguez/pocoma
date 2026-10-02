@@ -847,6 +847,15 @@ même U. Cette dette n'est pas un défaut WA.6 et ne peut disparaître qu'avec l
 V1. Aucun travail WA.7 n'est inclus. `Step_Canon.md` a été réaudité sans contradiction : changement
 canonique **NO**.
 
+#### Clôture de l'audit final
+
+- `WA.6 FINAL AUDIT: PASS` ;
+- `WA.6 STATUS: CLOSED` ;
+- findings Blocking/Major/Minor : `0` ;
+- dettes de durcissement `LOW` : `2`, documentées dans [`Step_debt.md`](Step_debt.md) ;
+- aucune de ces dettes ne justifie la réouverture de WA.6 ;
+- `WA.7 STATUS: NOT STARTED`.
+
 **Ordre d’implémentation.** `WA.6.1 → WA.6.2 → WA.6.3 → WA.6.4 → WA.6.5 → WA.6.6 → WA.6.7 →
 WA.6.8`. WA.6.3 peut être développé en parallèle de WA.6.2 après gel des contrats, mais son activation
 attend le journal durable. WA.6.5 peut être développé après WA.6.1 et s’active avant WA.6.6. WA.6.4
