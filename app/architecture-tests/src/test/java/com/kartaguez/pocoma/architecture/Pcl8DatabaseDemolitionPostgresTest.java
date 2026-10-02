@@ -71,16 +71,16 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
 		MigrateResult readUpgrade = migrateRead(upgradeUrl, null);
 		assertEquals(8, primaryUpgrade.migrationsExecuted);
-		assertEquals(2, readUpgrade.migrationsExecuted);
+		assertEquals(5, readUpgrade.migrationsExecuted);
 		assertHistoricalHistoryUnchanged(primaryHistory, migrationHistory(upgradeUrl, "public", 15));
 		assertHistoricalHistoryUnchanged(readHistory, migrationHistory(upgradeUrl, "pocoma_read", 7));
 		assertEquals(23, successfulMigrationCount(upgradeUrl, "public"));
-		assertEquals(9, successfulMigrationCount(upgradeUrl, "pocoma_read"));
+		assertEquals(12, successfulMigrationCount(upgradeUrl, "pocoma_read"));
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
 		assertEquals(23, migratePrimary(bootstrapUrl, null).migrationsExecuted);
-		assertEquals(9, migrateRead(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(12, migrateRead(bootstrapUrl, null).migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 
 		assertEquals(structuralFingerprint(upgradeUrl), structuralFingerprint(bootstrapUrl));

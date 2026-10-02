@@ -1326,3 +1326,70 @@ Blocking questions : **0**
 Les résultats et métriques WA.6 ci-dessus sont des preuves historiques antérieures à l'audit
 d'alignement. La gate WA.6G définit désormais la cible et aucune de ses preuves n'est déclarée
 exécutée par cette seule modification documentaire.
+
+## 6. Résultat de la Wave 2 — WA.6E → WA.6F → WA.6G (2026-10-02)
+
+Les mentions antérieures « WA.6 CLOSED » décrivent l'ancien périmètre WA.6.1–WA.6.8. Le présent
+résultat concerne le réalignement WA.6A–WA.6G du canon fermé ; les preuves historiques restent
+consultables plus haut sans être confondues avec la forme finale.
+
+**WA.6E — DONE.** READ V10 élargit `binding_id` à nullable ; V11 normalise les tombstones
+historiques DETACHED en `user_id=NULL, binding_id=NULL`, conserve E/R/source et impose le CHECK
+ATTACHED U+B non nuls / DETACHED U+B nuls. Le modèle, le mapper et le locator projettent le
+Detach fact `(E,U,B,R)` en `(E,R,DETACHED,NULL,NULL,event_id)`. Une row absente reste distincte
+d'une tombstone et le self-service conserve son 404 pour ces deux cas. L'upsert garde les règles
+R supérieure/appliquée, R inférieure/stale, R égale identique/duplicate et R égale divergente/
+erreur. La preuve PostgreSQL couvre fresh V11, upgrade V9 d'une ancienne tombstone, rejets SQL
+des formes incomplètes, cycle attach/detach/reattach, source et self-service ; le reactor ciblé
+WA.6E est vert avant le travail WA.6F.
+
+**WA.6F — DONE.** Le curseur de discovery accepte R0 ; les facts R0 `MIGRATION_BASELINE` passent
+par la même identité Consumption `event_id`, claim, retry, apply et redécouverte keyset éphémère
+que R1+. La provenance Consumption versionne le *fact immuable* à 1 ; la révision métier R=0
+reste dans le fact et `CURRENT_BINDING`. READ V12 vérifie chaque row présente contre le fact
+exact E/R/état/U/B et son éventuel `source_event_id`, renseigne les anciens R0 depuis le vrai
+`event_id`, puis impose `source_event_id NOT NULL`. La migration échoue fermée si un journal
+nécessaire manque ou contredit la projection ; elle ne lit pas l'autorité active WRITE.
+Le test PostgreSQL reconstruit READ vide depuis les facts seuls pour R0 attaché, detached,
+reattach même U et autre U, compare par E/R/état/U/B/source et nombre de rows, puis recommence
+après vidage de READ et des slots avec un nouvel orchestrateur. Les tests existants de retry,
+late commit, claim perdu et multi-worker restent verts. `HistoricalBindingBootstrap`,
+`findRevisionZeroPage`, le port/source, le wiring et les propriétés du job primaire ont été
+supprimés ; le guard d'ownership ne permet plus la lecture de `external_identities` ou du stream
+dans l'adapter de discovery READ.
+
+**WA.6G — DONE.** Les guards `Wa67BindingArchitectureTest` et
+`HexagonalArchitectureTest`, le reactor pertinent `architecture-tests,runtime-binding-consumption-worker -am test -q`
+et ses suites PostgreSQL sont verts. Le test de démolition compare désormais bootstrap et upgrade
+jusqu'à READ V12 et confirme l'historique des migrations déjà appliquées. Les suites historiques
+WA.6A/B/D/C demeurent dans ce reactor : registre B permanent, facts E/U/B/R et baseline,
+continuité de R, rollback d'append, fence optimiste Command V2, claim perdu, rejet non-oracle,
+compatibilité V1 et absence d'accès WRITE à `CURRENT_BINDING`. Le reactor complet et le contrôle
+final Git passent également : `./mvnw test -q` et `git diff --check` ont réussi. La comparaison
+SQL facts-only du test runtime vérifie `distinct on (E)` à R maximale contre chaque row READ,
+y compris état, U, B et `source_event_id`, avec zéro différence et le même nombre d'E. Les tests
+PostgreSQL de migration couvrent base neuve, ancienne tombstone V9, provenance R0 V9→V12 et
+bootstrap/upgrade historique ; les tests Command rejouent les ordonnancements et rollbacks WA.6C.
+Les scans de production ne trouvent plus `HistoricalBindingBootstrap`, `findRevisionZeroPage` ou
+`lockCurrentBinding`, et le guard d'ownership réserve l'écriture `CURRENT_BINDING` à son adapter
+READ. Aucun test cassé n'a été désactivé ; les anciens tests du bootstrap primaire ont été
+remplacés par la reconstruction depuis facts et les assertions de tombstone ont été canonisées.
+
+**WA.6 STATUS: CLOSED.** WA.6E, WA.6F et WA.6G sont DONE. Les dettes LOW ci-dessous ne bloquent
+pas cette clôture. Aucun code WA.7 ou WA.8 n'a été introduit.
+
+**Rollback des migrations READ.** V10 est additive : un rollback applicatif vers l'ancien writer
+reste possible tant que V11 n'est pas appliquée. Pour V11, suspendre les workers READ avant
+MIGRATE/SWITCH ; l'ancien binaire ne doit pas redémarrer après la normalisation car il écrit B
+sur DETACHED. Un rollback après V11 restaure le snapshot READ V9 ou redéploie le binaire canonique
+et rejoue les facts ; ne jamais recréer l'ancien B depuis la tombstone. Pour V12, conserver les
+facts et la sauvegarde pré-migration ; une erreur annule la transaction Flyway entière. Après
+CONTRACT `source_event_id NOT NULL`, un retour au bootstrap primaire est interdit ; reconstruire
+READ et ses slots depuis le journal sur une base restaurée ou poursuivre avec le consumer
+facts-only. Les writers de binding doivent être suspendus pendant la réparation historique V21/V22
+déjà décrite ci-dessus, puis les workers READ arrêtés pendant les migrations V10–V12 et réactivés
+après vérification du journal et de la projection. Les facts R0 restent marqués
+`MIGRATION_BASELINE`, jamais interprétés comme Attach observés historiquement.
+
+Les dettes `LOW` historiques sont consignées dans [`Step_debt.md`](Step_debt.md) et ne sont pas
+modifiées par cette Wave. `Step_Canon.md` est inchangé. **WA.7 STATUS: NOT STARTED.**

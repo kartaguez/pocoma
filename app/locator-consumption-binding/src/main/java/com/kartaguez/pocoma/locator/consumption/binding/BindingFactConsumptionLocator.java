@@ -60,9 +60,11 @@ public final class BindingFactConsumptionLocator implements ConsumptionLocator {
 		var status = fact instanceof ExternalIdentityAttached ? CurrentBindingStatus.ATTACHED : CurrentBindingStatus.DETACHED;
 		var userId = fact instanceof ExternalIdentityAttached attached ? attached.userId() : null;
 		projection.apply(new CurrentBinding(fact.externalIdentity(), fact.bindingRevision(), status, userId,
-				fact.bindingId(), fact.eventId(), clock.instant()));
+				status == CurrentBindingStatus.ATTACHED ? fact.bindingId() : null, fact.eventId(), clock.instant()));
+		// The provenance subject is the immutable fact (event_id), whose own version is always 1.
+		// Binding revision may be 0 for a migration baseline and remains in the fact payload.
 		return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(),
-				List.of(new ConsumptionInput(slotId, CONSUMABLE_TYPE, eventId.toString(), fact.bindingRevision().value())),
+				List.of(new ConsumptionInput(slotId, CONSUMABLE_TYPE, eventId.toString(), 1)),
 				List.of());
 	}
 

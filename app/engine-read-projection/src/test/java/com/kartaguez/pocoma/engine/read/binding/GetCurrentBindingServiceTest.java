@@ -50,7 +50,8 @@ class GetCurrentBindingServiceTest {
 
 	private static CurrentBinding binding(CurrentBindingStatus status, PocomaUserId userId) {
 		return new CurrentBinding(IDENTITY, new BindingRevision(7), status, userId,
-				new BindingId(UUID.randomUUID()), UUID.randomUUID(), NOW);
+				status == CurrentBindingStatus.ATTACHED ? new BindingId(UUID.randomUUID()) : null,
+				UUID.randomUUID(), NOW);
 	}
 
 	private static CurrentBindingProjectionPort port(

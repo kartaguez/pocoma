@@ -27,8 +27,8 @@ class Wa67BindingArchitectureTest {
 	@Test
 	void directProductionSqlAccessesStayInsideTheirDeclaredOwners() throws IOException {
 		Map<String, Set<String>> expected = Map.of(
-				"external_identities", Set.of(IDENTITY_REPOSITORY, STREAM_REPOSITORY, DISCOVERY_ADAPTER),
-				"external_identity_binding_streams", Set.of(STREAM_REPOSITORY, DISCOVERY_ADAPTER),
+				"external_identities", Set.of(IDENTITY_REPOSITORY, STREAM_REPOSITORY),
+				"external_identity_binding_streams", Set.of(STREAM_REPOSITORY),
 				"external_identity_binding_facts", Set.of(FACT_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_occurrences", Set.of(OCCURRENCE_REPOSITORY),
 				"current_external_identity_binding", Set.of(
@@ -43,6 +43,18 @@ class Wa67BindingArchitectureTest {
 			assertEquals(access.getValue(), productionJavaFilesContaining(access.getKey()),
 					() -> "Unexpected direct SQL access to " + access.getKey());
 		}
+	}
+
+	@Test
+	void readRuntimeDiscoversOnlyFactsAndHasNoPrimaryBootstrap() throws IOException {
+		String discovery = Files.readString(appRoot().resolve(DISCOVERY_ADAPTER));
+		String runtime = Files.readString(appRoot().resolve(
+				"runtime-binding-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/binding/BindingRuntimeConfiguration.java"));
+		assertTrue(discovery.contains("from external_identity_binding_facts fact"));
+		assertTrue(!discovery.contains("external_identities"));
+		assertTrue(!discovery.contains("findRevisionZeroPage"));
+		assertTrue(!runtime.contains("HistoricalBindingBootstrap"));
+		assertTrue(!runtime.contains("historicalBindingBootstrap"));
 	}
 
 	@Test

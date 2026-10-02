@@ -187,10 +187,10 @@ class CommandCompletionE2EPostgresTest {
 		jdbc.update("""
 				insert into pocoma_read.current_external_identity_binding
 				(issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
-				values (?, ?, 0, 'ATTACHED', ?, ?, null, ?)
+				values (?, ?, 0, 'ATTACHED', ?, ?, ?, ?)
 				on conflict (issuer,subject) do update set user_id=excluded.user_id,
 				 binding_id=excluded.binding_id,binding_status='ATTACHED'
-				""", ISSUER, SUBJECT, userId, currentBindingId, java.sql.Timestamp.from(BASE_TIME));
+				""", ISSUER, SUBJECT, userId, currentBindingId, UUID.randomUUID(), java.sql.Timestamp.from(BASE_TIME));
 
 		try (ConfigurableApplicationContext readContext = readContext()) {
 			GetCommandResultUseCase results = readContext.getBean(GetCommandResultUseCase.class);
@@ -289,7 +289,7 @@ class CommandCompletionE2EPostgresTest {
 
 			jdbc.update("""
 					update pocoma_read.current_external_identity_binding
-					set binding_status='DETACHED', user_id=null
+					set binding_status='DETACHED', user_id=null, binding_id=null
 					where issuer=? and subject=?
 					""", ISSUER, SUBJECT);
 			assertEquals(404, get(http, baseUrl, "/api/v1/me/binding").statusCode());
@@ -522,8 +522,8 @@ class CommandCompletionE2EPostgresTest {
 		jdbc.update("""
 				insert into pocoma_read.current_external_identity_binding
 				(issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
-				values (?, ?, 0, 'ATTACHED', ?, ?, null, ?)
-				""", ISSUER, SUBJECT, userId, bindingId.value(), java.sql.Timestamp.from(BASE_TIME));
+				values (?, ?, 0, 'ATTACHED', ?, ?, ?, ?)
+				""", ISSUER, SUBJECT, userId, bindingId.value(), UUID.randomUUID(), java.sql.Timestamp.from(BASE_TIME));
 	}
 
 	private static void await(Supplier<Boolean> condition) throws InterruptedException {

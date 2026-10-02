@@ -46,7 +46,8 @@ public class JdbcCurrentBindingAdapter implements CurrentBindingProjectionPort {
 				""".formatted(table), this::map,
 				value.externalIdentity().issuer(), value.externalIdentity().subject(),
 				value.bindingRevision().value(), value.status().name(),
-				value.userId() == null ? null : value.userId().value(), value.bindingId().value(),
+				value.userId() == null ? null : value.userId().value(),
+				value.bindingId() == null ? null : value.bindingId().value(),
 				value.sourceEventId(), Timestamp.from(value.projectedAt()));
 		if (!changed.isEmpty()) return CurrentBindingApplyResult.APPLIED;
 		CurrentBinding current = find(value.externalIdentity()).orElseThrow();
@@ -70,7 +71,7 @@ public class JdbcCurrentBindingAdapter implements CurrentBindingProjectionPort {
 				new BindingRevision(rs.getLong("binding_revision")),
 				CurrentBindingStatus.valueOf(rs.getString("binding_status")),
 				userId == null ? null : new PocomaUserId(userId),
-				new BindingId(rs.getObject("binding_id", UUID.class)),
+				rs.getObject("binding_id", UUID.class) == null ? null : new BindingId(rs.getObject("binding_id", UUID.class)),
 				rs.getObject("source_event_id", UUID.class), rs.getTimestamp("projected_at").toInstant());
 	}
 }

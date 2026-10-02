@@ -1,7 +1,6 @@
 package com.kartaguez.pocoma.runtime.binding;
 
 import java.time.Clock;
-import java.util.Optional;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,9 +42,5 @@ public class BindingRuntimeConfiguration {
 	@Bean BindingFactConsumptionLocator bindingLocator(BindingConsumptionProperties p,BindingFactDiscoveryPort d,ExternalIdentityBindingFactPort f,CurrentBindingProjectionPort projection,Clock c){return new BindingFactConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),d,f,projection,c);}
 	@Bean ConsumptionOrchestrator bindingOrchestrator(BindingFactConsumptionLocator l,AcquireConsumptionUseCase a,ExecuteConsumptionUseCase e,HandleConsumptionFailureUseCase f){return new SequentialConsumptionOrchestrator(l,a,e,f);}
 	@Bean ConsumptionPollingWorker bindingWorker(ConsumptionOrchestrator o,BindingConsumptionProperties p,Clock c){return new ConsumptionPollingWorker(o,new ConsumptionWorkerSettings(p.isEnabled(),new WorkerId(p.getWorkerId()),new ClaimLease(p.getClaimLease()),new ConsumptionOrchestrationBudget(p.getMaxCandidatesInspected(),p.getMaxConsumptionsExecuted()),p.getPollInterval(),p.getRuntimeFailureBackoff()),c,new ConditionConsumptionWaiter());}
-	@Bean Runnable historicalBindingBootstrap(HistoricalBindingSourcePort s,CurrentBindingProjectionPort p,Clock c,TransactionRunner t,BindingConsumptionProperties properties){
-		var bootstrap=new HistoricalBindingBootstrap(s,p,c);
-		return ()->{if(!properties.isBootstrapEnabled())return; Optional<HistoricalBindingSourcePort.ExternalIdentityCursor> cursor=Optional.empty(); do {var current=cursor; cursor=t.runInTransaction(()->bootstrap.runPage(current,properties.getBootstrapPageSize()));} while(cursor.isPresent());};
-	}
-	@Bean SmartLifecycle bindingWorkerLifecycle(ConsumptionPollingWorker w,Runnable historicalBindingBootstrap){return new BindingWorkerLifecycle(w,historicalBindingBootstrap);}
+	@Bean SmartLifecycle bindingWorkerLifecycle(ConsumptionPollingWorker w){return new BindingWorkerLifecycle(w);}
 }

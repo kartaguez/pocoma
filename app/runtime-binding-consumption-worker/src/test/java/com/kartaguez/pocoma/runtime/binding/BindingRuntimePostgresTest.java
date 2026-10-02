@@ -38,7 +38,7 @@ import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrches
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
 
 @SpringBootTest(classes=PocomaBindingConsumptionWorkerApplication.class, properties={
-		"pocoma.binding-consumption.enabled=false", "pocoma.binding-consumption.bootstrap-enabled=false",
+		"pocoma.binding-consumption.enabled=false",
 		"spring.jpa.hibernate.ddl-auto=validate"})
 class BindingRuntimePostgresTest {
 	private static final PostgreSQLContainer<?> POSTGRES=new PostgreSQLContainer<>("postgres:17-alpine")
@@ -49,7 +49,7 @@ class BindingRuntimePostgresTest {
 	}
 	@Autowired JdbcTemplate jdbc; @Autowired DataSource dataSource;
 	@Autowired ExternalIdentityBindingPort bindings; @Autowired ConsumptionOrchestrator orchestrator;
-	@Autowired CurrentBindingProjectionPort projection; @Autowired HistoricalBindingSourcePort historical;
+	@Autowired CurrentBindingProjectionPort projection;
 	@Autowired TransactionRunner transactions; @Autowired Clock clock;
 	@Autowired BindingFactConsumptionLocator locator; @Autowired AcquireConsumptionUseCase acquire;
 	@Autowired ExecuteConsumptionUseCase execute; @Autowired HandleConsumptionFailureUseCase handleFailure;
@@ -68,7 +68,7 @@ class BindingRuntimePostgresTest {
 		assertEquals(1L,count("external_identity_binding_facts")); orchestrator.run(input("a"));
 		assertCurrent(e,1,CurrentBindingStatus.ATTACHED,b1,user);
 		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,b1)));
-		orchestrator.run(input("b")); assertCurrent(e,2,CurrentBindingStatus.DETACHED,b1,null);
+		orchestrator.run(input("b")); assertCurrent(e,2,CurrentBindingStatus.DETACHED,null,null);
 		BindingId b2=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		orchestrator.run(input("c")); assertCurrent(e,3,CurrentBindingStatus.ATTACHED,b2,user);
 		assertEquals(3L,count("external_identity_binding_facts"));
@@ -91,59 +91,62 @@ class BindingRuntimePostgresTest {
 		assertEquals(2L,jdbc.queryForObject("select count(*) from consumption_slots where status='DONE' and consumer_type='CURRENT_BINDING_PROJECTOR'",Long.class));
 	}
 
-	@Test void historicalBootstrapIsPagedRestartableAndCannotOverwriteRevisionOne() {
-		for(int i=20;i<25;i++){PocomaUserId u=user(i);insertUser(u);ExternalIdentity e=id("history-"+i);BindingId b=binding(i);insertStream(e,0);reserve(e,u,b,0);jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),u.value(),b.value());}
-		var bootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
-		Optional<HistoricalBindingSourcePort.ExternalIdentityCursor> cursor=Optional.empty();
-		do{var c=cursor;cursor=transactions.runInTransaction(()->bootstrap.runPage(c,2));}while(cursor.isPresent());
-		assertEquals(5L,count("pocoma_read.current_external_identity_binding"));
-		transactions.runInTransaction(()->{bootstrap.runPage(Optional.empty(),2);return null;});
-		assertEquals(5L,count("pocoma_read.current_external_identity_binding"));
-
-		ExternalIdentity raced=id("history-20"); BindingId live=binding(99);UUID event=UUID.randomUUID();
-		transactions.runInTransaction(()->projection.apply(new CurrentBinding(raced,new BindingRevision(1),CurrentBindingStatus.DETACHED,null,live,event,Instant.now())));
-		transactions.runInTransaction(()->{bootstrap.runPage(Optional.empty(),2);return null;});
-		assertCurrent(raced,1,CurrentBindingStatus.DETACHED,live,null);
+	@Test void baselineFactsRebuildAttachedDetachedAndReattachedWithoutPrimaryBootstrap() {
+		PocomaUserId firstUser=user(20), secondUser=user(21);
+		insertUser(firstUser); insertUser(secondUser);
+		ExternalIdentity attached=id("baseline-attached"), detached=id("baseline-detached"),
+				sameUser=id("baseline-same-user"), otherUser=id("baseline-other-user");
+		for (ExternalIdentity e : java.util.List.of(attached,detached,sameUser,otherUser)) {
+			insertStream(e,0); BindingId b=binding(Math.abs(e.subject().hashCode())+100);
+			reserve(e,firstUser,b,0); insertBaselineFact(e,firstUser,b);
+			jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),b.value());
+		}
+		assertEquals(4L,count("external_identity_binding_facts"));
+		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(detached,binding(Math.abs(detached.subject().hashCode())+100))));
+		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(sameUser,binding(Math.abs(sameUser.subject().hashCode())+100))));
+		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(otherUser,binding(Math.abs(otherUser.subject().hashCode())+100))));
+		BindingId sameB=transactions.runInTransaction(()->bindings.acquire(sameUser,firstUser)).bindingId();
+		BindingId otherB=transactions.runInTransaction(()->bindings.acquire(otherUser,secondUser)).bindingId();
+		assertEquals(0L,count("pocoma_read.current_external_identity_binding"));
+		var rebuild = orchestrator.run(input("facts-only-rebuild"));
+		assertEquals(count("external_identity_binding_facts"), count("consumption_slots"),
+				() -> rebuild + " " + jdbc.queryForList("select status from consumption_slots"));
+		assertEquals(9L,jdbc.queryForObject("select count(*) from consumption_slots where status='DONE'",Long.class),
+				() -> jdbc.queryForList("select c.failure_message from consumption_claims c where c.failure_message is not null").toString());
+		assertEquals(0L,jdbc.queryForObject("select count(*) from consumption_claims where failure_message is not null",Long.class),
+				() -> jdbc.queryForList("select failure_message from consumption_claims where failure_message is not null").toString());
+		assertEquals(4L,count("pocoma_read.current_external_identity_binding"),
+				() -> jdbc.queryForList("select issuer,subject,binding_revision from pocoma_read.current_external_identity_binding").toString());
+		assertCurrent(attached,0,CurrentBindingStatus.ATTACHED,binding(Math.abs(attached.subject().hashCode())+100),firstUser);
+		assertCurrent(detached,1,CurrentBindingStatus.DETACHED,null,null);
+		assertCurrent(sameUser,2,CurrentBindingStatus.ATTACHED,sameB,firstUser);
+		assertCurrent(otherUser,2,CurrentBindingStatus.ATTACHED,otherB,secondUser);
+		assertEquals(4L,count("pocoma_read.current_external_identity_binding"));
+		assertEquals(0L,jdbc.queryForObject("select count(*) from pocoma_read.current_external_identity_binding where source_event_id is null",Long.class));
+		assertEquals(0L,jdbc.queryForObject("""
+				select count(*) from (
+				 select distinct on (issuer,subject) issuer,subject,binding_revision,fact_type,user_id,binding_id,event_id
+				 from external_identity_binding_facts order by issuer,subject,binding_revision desc
+				) f full join pocoma_read.current_external_identity_binding p
+				 on p.issuer=f.issuer and p.subject=f.subject
+				where f.event_id is null or p.source_event_id is null
+				 or p.binding_revision<>f.binding_revision or p.source_event_id<>f.event_id
+				 or p.binding_status<>f.fact_type
+				 or (f.fact_type='ATTACHED' and (p.user_id is distinct from f.user_id or p.binding_id is distinct from f.binding_id))
+				 or (f.fact_type='DETACHED' and (p.user_id is not null or p.binding_id is not null))
+				""",Long.class));
+		assertEquals(count("external_identity_binding_facts"),count("consumption_slots"));
+		jdbc.execute("truncate table pocoma_read.current_external_identity_binding");
+		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims cascade");
+		new SequentialConsumptionOrchestrator(locator,acquire,execute,handleFailure).run(input("facts-only-restart"));
+		assertCurrent(detached,1,CurrentBindingStatus.DETACHED,null,null);
+		assertCurrent(otherUser,2,CurrentBindingStatus.ATTACHED,otherB,secondUser);
+		assertEquals(4L,count("pocoma_read.current_external_identity_binding"));
 	}
 
-	@Test void mutationAndConsumerWinWhenBootstrapReadRevisionZeroBeforeTheMutation() {
-		PocomaUserId user=user(26);insertUser(user);ExternalIdentity e=id("bootstrap-read-race");
-		BindingId historicalBinding=binding(26);
-		insertStream(e,0);reserve(e,user,historicalBinding,0);
-		jdbc.update("insert into external_identities values (?,?,?,?)",
-				e.issuer(),e.subject(),user.value(),historicalBinding.value());
-		HistoricalBindingCandidate readAtZero=historical.findRevisionZeroPage(Optional.empty(),10).stream()
-				.filter(candidate->candidate.externalIdentity().equals(e)).findFirst().orElseThrow();
-
-		assertEquals(BindingDetachResult.DETACHED,
-				transactions.runInTransaction(()->bindings.detach(e,historicalBinding)));
-		orchestrator.run(input("bootstrap-read-race-consumer"));
-		assertEquals(CurrentBindingApplyResult.STALE,transactions.runInTransaction(()->projection.apply(
-				new CurrentBinding(readAtZero.externalIdentity(),new BindingRevision(0),CurrentBindingStatus.ATTACHED,
-						readAtZero.userId(),readAtZero.bindingId(),null,clock.instant()))));
-
-		assertCurrent(e,1,CurrentBindingStatus.DETACHED,historicalBinding,null);
-		assertEquals(1L,count("external_identity_binding_facts"));
-	}
-
-	@Test void bootstrapThenDetachAndRebindConvergesToTheHighestRealRevisionWithoutSyntheticFacts() {
-		PocomaUserId firstUser=user(27),secondUser=user(28);insertUser(firstUser);insertUser(secondUser);
-		ExternalIdentity e=id("bootstrap-write-race");BindingId first=binding(27),second=binding(28);
-		insertStream(e,0);reserve(e,firstUser,first,0);
-		jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),first.value());
-		var firstBootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
-		transactions.runInTransaction(()->{firstBootstrap.runPage(Optional.empty(),10);return null;});
-		assertCurrent(e,0,CurrentBindingStatus.ATTACHED,first,firstUser);
-
-		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,first)));
-		second=transactions.runInTransaction(()->bindings.acquire(e,secondUser)).bindingId();
-		orchestrator.run(input("bootstrap-write-race-consumer"));
-		assertCurrent(e,2,CurrentBindingStatus.ATTACHED,second,secondUser);
-
-		var reconstructedBootstrap=new HistoricalBindingBootstrap(historical,projection,clock);
-		transactions.runInTransaction(()->{reconstructedBootstrap.runPage(Optional.empty(),10);return null;});
-		assertCurrent(e,2,CurrentBindingStatus.ATTACHED,second,secondUser);
-		assertEquals(2L,count("external_identity_binding_facts"));
+	private void insertBaselineFact(ExternalIdentity e,PocomaUserId u,BindingId b) {
+		jdbc.update("insert into external_identity_binding_facts(event_id,issuer,subject,binding_revision,fact_type,user_id,binding_id,recorded_at,partition_hash,record_origin) values (?,?,?,?,?,?,?,now(),hashtext(jsonb_build_array(?,?)::text),'MIGRATION_BASELINE')",
+				UUID.randomUUID(),e.issuer(),e.subject(),0,"ATTACHED",u.value(),b.value(),e.issuer(),e.subject());
 	}
 
 	@Test void technicalFailureRetriesAfterAReconstructedScanAndThenFinalizesIdempotently() {
