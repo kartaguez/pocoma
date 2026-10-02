@@ -46,16 +46,10 @@ public final class CommandResultProjector implements ProjectionProjector<Command
 				"resultingVersion", version,
 				"code", code,
 				"resolvedAt", new JsonString(input.outcome().resolvedAt().toString())));
-		if (input.visibility() instanceof CommandResultVisibility.LegacyUser legacy) {
-			common.put("submittedByUserId", new JsonString(legacy.userId().toString()));
-		} else if (input.visibility() instanceof CommandResultVisibility.ExactExternalIdentity exact) {
-			common.put("visibility", new JsonString("EXACT_EXTERNAL_IDENTITY"));
-			common.put("visibleToExternalIdentity", new JsonObject(Map.of(
-					"issuer", new JsonString(exact.identity().issuer()),
-					"subject", new JsonString(exact.identity().subject()))));
-		} else {
-			throw new IllegalStateException("Unsupported COMMAND_RESULT visibility");
-		}
+		common.put("visibility", new JsonString("EXACT_EXTERNAL_IDENTITY"));
+		common.put("visibleToExternalIdentity", new JsonObject(Map.of(
+				"issuer", new JsonString(input.visibility().identity().issuer()),
+				"subject", new JsonString(input.visibility().identity().subject()))));
 		JsonObject payload = new JsonObject(Map.copyOf(common));
 		return new Projection(key, List.of(new ProjectionArtifact(
 				CommandResultProjectionDefinition.RESULT, new ArtifactKey(commandId), payload)));

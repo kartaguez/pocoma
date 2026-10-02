@@ -40,8 +40,7 @@ class CommandResultTest {
 
 	@Test
 	void projectsTheThreeTerminalOutcomesFromAuthoritativeInputs() {
-		for (CommandResultVisibility visibility : List.of(legacyVisibility(),
-				new CommandResultVisibility.ExactExternalIdentity(IDENTITY))) {
+		for (CommandResultVisibility visibility : List.of(new CommandResultVisibility(IDENTITY))) {
 			assertPayload(new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW), visibility,
 					"APPLIED", POT_ID.toString(), 7L, null);
 			assertPayload(new CommandOutcome.Rejected(COMMAND_ID, "POT_VERSION_CONFLICT", NOW), visibility,
@@ -53,7 +52,7 @@ class CommandResultTest {
 
 	@Test
 	void projectsAndAuthorizesTargetV2ByExactExternalIdentityWithoutBindingLookup() {
-		CommandResultVisibility visibility = new CommandResultVisibility.ExactExternalIdentity(IDENTITY);
+		CommandResultVisibility visibility = new CommandResultVisibility(IDENTITY);
 		Projection projection = new CommandResultProjector().project(KEY,
 				new CommandResultProjectionInput(new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW), visibility));
 		JsonObject payload = assertInstanceOf(JsonObject.class, projection.artifacts().getFirst().payload());
@@ -65,10 +64,7 @@ class CommandResultTest {
 
 		ValidatedProjection ready = new ProjectionValidator((schema, value) -> true)
 				.validate(CommandResultProjectionDefinition.DEFINITION, projection);
-		LegacyCurrentBindingUserQuery forbiddenBindingLookup = identity -> {
-			throw new AssertionError("V2 visibility must not consult CURRENT_BINDING");
-		};
-		var service = service(new ProjectionReadResult.Ready(ready), forbiddenBindingLookup);
+		var service = service(new ProjectionReadResult.Ready(ready));
 		assertInstanceOf(GetCommandResult.Applied.class, service.get(COMMAND_ID, IDENTITY));
 		assertInstanceOf(GetCommandResult.NotFound.class,
 				service.get(COMMAND_ID, new ExternalIdentity("other-issuer", "subject")));
@@ -80,7 +76,7 @@ class CommandResultTest {
 	void enforcesCommandIdentityAndSingleTerminalProjectionVersion() {
 		var projector = new CommandResultProjector();
 		var input = new CommandResultProjectionInput(
-				new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW), legacyVisibility());
+				new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW), new CommandResultVisibility(IDENTITY));
 		assertThrows(IllegalStateException.class, () -> projector.project(new ProjectionKey(
 				CommandResultProjectionDefinition.PROJECTION_TYPE,
 				CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
@@ -118,20 +114,6 @@ class CommandResultTest {
 		assertEquals(CommandOutcome.PUBLIC_FAILURE_CODE, failed.code());
 	}
 
-	@Test
-	void legacyVisibilityFollowsOnlyTheCurrentReadBindingUser() {
-		ValidatedProjection ready = validated(new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW));
-		assertInstanceOf(GetCommandResult.NotFound.class,
-				service(new ProjectionReadResult.Ready(ready), noAttachedUser())
-						.get(COMMAND_ID, IDENTITY));
-		assertInstanceOf(GetCommandResult.NotFound.class,
-				service(new ProjectionReadResult.Ready(ready), attachedUser(UUID.randomUUID()))
-						.get(COMMAND_ID, IDENTITY));
-		// Legacy V1 only retained U, so a later reattach of the same E to the same U restores access.
-		assertInstanceOf(GetCommandResult.Applied.class,
-				service(new ProjectionReadResult.Ready(ready), attachedUser(USER_ID))
-						.get(COMMAND_ID, IDENTITY));
-	}
 
 	@Test
 	void invalidReadyPayloadIsNotVisible() {
@@ -149,7 +131,7 @@ class CommandResultTest {
 	void rejectsMixedLegacyAndExactIdentityVisibilityAsAnInvariantFailure() {
 		Projection exact = new CommandResultProjector().project(KEY, new CommandResultProjectionInput(
 				new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW),
-				new CommandResultVisibility.ExactExternalIdentity(IDENTITY)));
+				new CommandResultVisibility(IDENTITY)));
 		JsonObject exactPayload = assertInstanceOf(JsonObject.class, exact.artifacts().getFirst().payload());
 		var mixedValues = new HashMap<>(exactPayload.values());
 		mixedValues.put("submittedByUserId", new JsonString(USER_ID.toString()));
@@ -163,22 +145,39 @@ class CommandResultTest {
 				() -> service(new ProjectionReadResult.Ready(ready)).get(COMMAND_ID, IDENTITY));
 	}
 
-	private static GetCommandResultService service(ProjectionReadResult result) {
-		return service(result, attachedBindings());
+	@Test
+	void rejectsAReadyResultWhoseDurableIdentityDisagreesWithItsRequestedKey() {
+		Projection exact = new CommandResultProjector().project(KEY, new CommandResultProjectionInput(
+				new CommandOutcome.Applied(COMMAND_ID, POT_ID, 7, NOW),
+				new CommandResultVisibility(IDENTITY)));
+		JsonObject payload = assertInstanceOf(JsonObject.class, exact.artifacts().getFirst().payload());
+		var wrongPayload = new HashMap<>(payload.values());
+		wrongPayload.put("commandId", new JsonString(UUID.randomUUID().toString()));
+		Projection divergentPayload = new Projection(KEY, List.of(new ProjectionArtifact(
+				CommandResultProjectionDefinition.RESULT, new ArtifactKey(COMMAND_ID.value().toString()),
+				new JsonObject(wrongPayload))));
+		Projection divergentArtifactKey = new Projection(KEY, List.of(new ProjectionArtifact(
+				CommandResultProjectionDefinition.RESULT, new ArtifactKey(UUID.randomUUID().toString()), payload)));
+		var permissiveValidator = new ProjectionValidator((schema, value) -> true);
+		assertThrows(IllegalStateException.class, () -> service(new ProjectionReadResult.Ready(
+				permissiveValidator.validate(CommandResultProjectionDefinition.DEFINITION, divergentPayload)))
+				.get(COMMAND_ID, IDENTITY));
+		assertThrows(IllegalStateException.class, () -> service(new ProjectionReadResult.Ready(
+				permissiveValidator.validate(CommandResultProjectionDefinition.DEFINITION, divergentArtifactKey)))
+				.get(COMMAND_ID, IDENTITY));
 	}
 
-	private static GetCommandResultService service(ProjectionReadResult result,
-			LegacyCurrentBindingUserQuery currentBindingUsers) {
+	private static GetCommandResultService service(ProjectionReadResult result) {
 		return new GetCommandResultService((key, definition) -> {
 			assertEquals(KEY, key);
 			assertEquals(CommandResultProjectionDefinition.DEFINITION, definition);
 			return result;
-		}, currentBindingUsers);
+		});
 	}
 
 	private static ValidatedProjection validated(CommandOutcome outcome) {
 		Projection projection = new CommandResultProjector().project(
-				KEY, new CommandResultProjectionInput(outcome, legacyVisibility()));
+				KEY, new CommandResultProjectionInput(outcome, new CommandResultVisibility(IDENTITY)));
 		return new ProjectionValidator((schema, payload) -> true)
 				.validate(CommandResultProjectionDefinition.DEFINITION, projection);
 	}
@@ -199,20 +198,4 @@ class CommandResultTest {
 				payload.values().get("code"));
 	}
 
-	private static CommandResultVisibility legacyVisibility() {
-		return new CommandResultVisibility.LegacyUser(USER_ID);
-	}
-
-	private static LegacyCurrentBindingUserQuery attachedBindings() {
-		return attachedUser(USER_ID);
-	}
-
-	private static LegacyCurrentBindingUserQuery noAttachedUser() {
-		return identity -> java.util.Optional.empty();
-	}
-
-	private static LegacyCurrentBindingUserQuery attachedUser(UUID userId) {
-		return identity -> IDENTITY.equals(identity)
-				? java.util.Optional.of(userId) : java.util.Optional.empty();
-	}
 }

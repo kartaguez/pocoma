@@ -7,7 +7,7 @@ import java.util.Set;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
-/** Execution-only authorization prepared from a locked TARGET_V2 binding occurrence. */
+/** Execution-only authorization prepared from the current binding occurrence. */
 public record ResolvedCommandAuthorization(
 		PocomaUserId userId,
 		Set<Permission> permissions) implements CommandExecutionAuthorization {

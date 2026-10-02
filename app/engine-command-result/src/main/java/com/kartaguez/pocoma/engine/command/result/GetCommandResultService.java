@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.projection.JsonNull;
@@ -20,13 +21,12 @@ import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUs
 import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
 
 public final class GetCommandResultService implements GetCommandResultUseCase {
+	private static final Set<String> FIELDS = Set.of("commandId", "outcome", "potId",
+			"resultingVersion", "code", "resolvedAt", "visibility", "visibleToExternalIdentity");
 	private final ExactProjectionReadUseCase projections;
-	private final LegacyCurrentBindingUserQuery currentBindingUsers;
 
-	public GetCommandResultService(ExactProjectionReadUseCase projections,
-			LegacyCurrentBindingUserQuery currentBindingUsers) {
+	public GetCommandResultService(ExactProjectionReadUseCase projections) {
 		this.projections = requireNonNull(projections, "projections must not be null");
-		this.currentBindingUsers = requireNonNull(currentBindingUsers, "currentBindingUsers must not be null");
 	}
 
 	@Override
@@ -38,35 +38,35 @@ public final class GetCommandResultService implements GetCommandResultUseCase {
 				new TargetObjectId(commandId.value().toString()), 1);
 		ProjectionReadResult read = projections.get(key, CommandResultProjectionDefinition.DEFINITION);
 		if (!(read instanceof ProjectionReadResult.Ready ready)) return new GetCommandResult.NotFound();
-		return visibleResult(ready, requester);
+		return visibleResult(ready, commandId, requester);
 	}
 
-	private GetCommandResult visibleResult(ProjectionReadResult.Ready ready, ExternalIdentity requester) {
+	private GetCommandResult visibleResult(ProjectionReadResult.Ready ready, CommandId commandId,
+			ExternalIdentity requester) {
+		if (!ready.projection().projection().projectionKey().equals(new ProjectionKey(
+				CommandResultProjectionDefinition.PROJECTION_TYPE,
+				CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
+				new TargetObjectId(commandId.value().toString()), 1))) {
+			throw new IllegalStateException("COMMAND_RESULT projection key does not match requested Command");
+		}
 		ProjectionArtifact artifact = ready.projection().projection().artifacts().getFirst();
 		if (!(artifact.payload() instanceof JsonObject object)) {
 			throw new IllegalStateException("COMMAND_RESULT payload is not an object");
 		}
 		Map<String, JsonValue> values = object.values();
-		boolean legacy = values.containsKey("submittedByUserId");
-		boolean exact = values.containsKey("visibility") || values.containsKey("visibleToExternalIdentity");
-		if (legacy == exact) throw new IllegalStateException("COMMAND_RESULT has an incoherent visibility shape");
-		if (legacy) {
-			UUID submittedBy = UUID.fromString(string(values, "submittedByUserId"));
-			boolean visible = currentBindingUsers.findAttachedUser(requester)
-					.map(userId -> userId.equals(submittedBy)).orElse(false);
-			if (!visible) return new GetCommandResult.NotFound();
-		} else {
-			if (!"EXACT_EXTERNAL_IDENTITY".equals(string(values, "visibility"))) {
-				throw new IllegalStateException("Unknown COMMAND_RESULT visibility");
-			}
-			JsonValue identityValue = values.get("visibleToExternalIdentity");
-			if (!(identityValue instanceof JsonObject identity)) {
-				throw new IllegalStateException("Invalid COMMAND_RESULT external identity");
-			}
-			ExternalIdentity visibleTo = new ExternalIdentity(string(identity.values(), "issuer"),
-					string(identity.values(), "subject"));
-			if (!visibleTo.equals(requester)) return new GetCommandResult.NotFound();
+		if (!values.keySet().equals(FIELDS)
+				|| !artifact.artifactKey().value().equals(commandId.value().toString())
+				|| !string(values, "commandId").equals(commandId.value().toString())
+				|| !"EXACT_EXTERNAL_IDENTITY".equals(string(values, "visibility"))) {
+			throw new IllegalStateException("COMMAND_RESULT has an incoherent visibility shape");
 		}
+		JsonValue identityValue = values.get("visibleToExternalIdentity");
+		if (!(identityValue instanceof JsonObject identity)) {
+			throw new IllegalStateException("Invalid COMMAND_RESULT external identity");
+		}
+		ExternalIdentity visibleTo = new ExternalIdentity(string(identity.values(), "issuer"),
+				string(identity.values(), "subject"));
+		if (!visibleTo.equals(requester)) return new GetCommandResult.NotFound();
 		try {
 			Instant resolvedAt = Instant.parse(string(values, "resolvedAt"));
 			return switch (string(values, "outcome")) {

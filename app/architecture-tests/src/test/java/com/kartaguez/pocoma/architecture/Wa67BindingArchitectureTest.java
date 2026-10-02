@@ -46,6 +46,27 @@ class Wa67BindingArchitectureTest {
 	}
 
 	@Test
+	void currentRuntimeHasOnlyTheCanonicalCommandAndExactResultShape() throws IOException {
+		Set<String> forbidden = Set.of("AuthorizationSnapshot", "RecordedCommandEnvelopeVersion",
+				"LEGACY_V1", "envelope_version", "auth_user_id", "auth_authenticated_at",
+				"auth_issued_at", "auth_permissions_json", "submittedByUserId",
+				"LegacyCurrentBindingUserQuery");
+		for (Path file : productionJavaFiles()) {
+			String source = Files.readString(file);
+			for (String token : forbidden) {
+				assertTrue(!source.contains(token), () -> file + " still contains " + token);
+			}
+		}
+		String resultRead = Files.readString(appRoot().resolve(
+				"engine-command-result/src/main/java/com/kartaguez/pocoma/engine/command/result/GetCommandResultService.java"));
+		assertTrue(!resultRead.contains("CurrentBinding"));
+		String command = Files.readString(appRoot().resolve(
+				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/RecordedCommand.java"));
+		assertTrue(!command.contains("PocomaUserId"));
+		assertTrue(!command.contains("BindingRevision"));
+	}
+
+	@Test
 	void readRuntimeDiscoversOnlyFactsAndHasNoPrimaryBootstrap() throws IOException {
 		String discovery = Files.readString(appRoot().resolve(DISCOVERY_ADAPTER));
 		String runtime = Files.readString(appRoot().resolve(

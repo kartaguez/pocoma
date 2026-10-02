@@ -39,7 +39,7 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
@@ -344,14 +344,12 @@ class PotCommandUseCaseAdapterTest {
 		assertEquals(List.of(), result.inputs());
 	}
 
-	private static AuthorizationSnapshot authorization(Set<Permission> permissions) {
+	private static ResolvedCommandAuthorization authorization(Set<Permission> permissions) {
 		return authorization(USER_ID, permissions);
 	}
 
-	private static AuthorizationSnapshot authorization(UUID userId, Set<Permission> permissions) {
-		return new AuthorizationSnapshot(new PocomaUserId(userId), permissions,
-				Instant.parse("2026-01-01T00:00:00Z"), Instant.parse("2026-01-01T00:00:00Z"),
-				Instant.parse("2027-01-01T00:00:00Z"), "test");
+	private static ResolvedCommandAuthorization authorization(UUID userId, Set<Permission> permissions) {
+		return new ResolvedCommandAuthorization(new PocomaUserId(userId), permissions);
 	}
 
 	private static void assertInvocationBelongsTo(CommandUseCaseResult executionResult, UUID expectedId) {

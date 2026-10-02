@@ -65,7 +65,6 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandService;
 import com.kartaguez.pocoma.engine.command.execution.BindingFenceConflictException;
 import com.kartaguez.pocoma.engine.command.execution.BindingFenceLostException;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.Command;
@@ -143,6 +142,7 @@ class CommandConsumptionPostgresTest {
 
 	private Clock clock;
 	private SpringTransactionRunner transactions;
+	private BindingId defaultBinding;
 
 	@BeforeEach
 	void setUp() {
@@ -163,6 +163,7 @@ class CommandConsumptionPostgresTest {
 		jdbc.update("delete from users");
 		clock = Clock.fixed(NOW, ZoneOffset.UTC);
 		transactions = new SpringTransactionRunner(new TransactionTemplate(transactionManager));
+		defaultBinding = null;
 	}
 
 	@Test
@@ -195,8 +196,7 @@ class CommandConsumptionPostgresTest {
 						CommandResultProjectionDefinition.PROJECTION_TYPE,
 						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
 						new TargetObjectId(command.commandId().value().toString()), 1));
-		assertEquals(command.authorization().userId().value(),
-				((CommandResultVisibility.LegacyUser) input.visibility()).userId());
+		assertEquals(command.envelope().externalIdentity(), input.visibility().identity());
 	}
 
 	@Test
@@ -877,23 +877,20 @@ class CommandConsumptionPostgresTest {
 		return lifecycle.findSlot(CommandConsumptionKeys.forCommand(commandId)).orElseThrow();
 	}
 
-	private static RecordedCommand command(String payload, Instant validUntil) {
+	private RecordedCommand command(String payload, Instant validUntil) {
 		return command(TYPE, payload, validUntil);
 	}
 
-	private static RecordedCommand command(CommandType type, String payload, Instant validUntil) {
+	private RecordedCommand command(CommandType type, String payload, Instant validUntil) {
 		return command(type, payload, validUntil, NOW);
 	}
 
-	private static RecordedCommand command(CommandType type, String payload, Instant validUntil,
+	private RecordedCommand command(CommandType type, String payload, Instant validUntil,
 			Instant submittedAt) {
-		Instant issuedAt = NOW.minusSeconds(60);
-		return new RecordedCommand(
-				new CommandId(UUID.randomUUID()), type, payload, submittedAt,
-				new AuthorizationSnapshot(
-						new PocomaUserId(UUID.randomUUID()),
-						Set.of(new Permission("POT", "CREATE")),
-						issuedAt, issuedAt, validUntil, "test-issuer"));
+		if (defaultBinding == null) defaultBinding = bind(identity("default"), user(999));
+		return new RecordedCommand(new CommandId(UUID.randomUUID()), type, payload, submittedAt,
+				new TargetCommandEnvelope(identity("default"), defaultBinding,
+						new CommandAuthenticationEvidence(Set.of("pocoma:pot:create"), validUntil)));
 	}
 
 	private static RecordedCommand targetCommand(

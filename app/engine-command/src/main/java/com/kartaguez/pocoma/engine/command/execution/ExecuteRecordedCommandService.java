@@ -18,9 +18,7 @@ import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
-import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 
@@ -62,22 +60,22 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		RecordedCommand recorded = requireNonNull(recordedCommands.findById(commandId),
 				"recordedCommands.findById must not return null")
 				.orElseThrow(() -> new RecordedCommandNotFoundException(commandId));
-		Optional<ObservedBinding> observed = switch (recorded.envelope()) {
-			case AuthorizationSnapshot ignored -> Optional.empty();
-			case TargetCommandEnvelope target -> bindings.observeCurrentBinding(
-					target.externalIdentity(), target.bindingId());
-		};
-		Optional<CommandExecutionAuthorization> prepared = prepareAuthorization(recorded, observed);
-		if (prepared.isEmpty()) {
+		var target = recorded.envelope();
+		Optional<ObservedBinding> observed = bindings.observeCurrentBinding(
+				target.externalIdentity(), target.bindingId());
+		if (observed.isEmpty()) {
 			return new RecordedCommandExecutionResult.Rejected(CALLER_IDENTITY_NOT_CURRENT, List.of());
 		}
-		if (!clock.instant().isBefore(validUntil(recorded))) {
+		CommandExecutionAuthorization prepared = new ResolvedCommandAuthorization(
+				observed.orElseThrow().userId(),
+				permissions.translate(target.authenticationEvidence().externalAuthorities()));
+		if (!clock.instant().isBefore(target.authenticationEvidence().validUntil())) {
 			fence(recorded, observed);
 			return new RecordedCommandExecutionResult.Rejected(AUTHORIZATION_EXPIRED, List.of());
 		}
 
 		Command command = decoder.decode(recorded.commandType(), recorded.serializedPayload());
-		CommandUseCaseResult result = dispatcher.dispatch(prepared.orElseThrow(), command);
+		CommandUseCaseResult result = dispatcher.dispatch(prepared, command);
 		if (result instanceof CommandUseCaseResult.Rejected rejected) {
 			fence(recorded, observed);
 			return new RecordedCommandExecutionResult.Rejected(rejected.reason(), rejected.inputs());
@@ -106,31 +104,13 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 				succeeded.inputs(), succeeded.appliedResult(), artifacts);
 	}
 
-	private Optional<CommandExecutionAuthorization> prepareAuthorization(
-			RecordedCommand recorded, Optional<ObservedBinding> observed) {
-		return switch (recorded.envelope()) {
-			case AuthorizationSnapshot legacy -> Optional.of(legacy);
-			case TargetCommandEnvelope target -> observed
-					.map(binding -> new ResolvedCommandAuthorization(binding.userId(),
-							permissions.translate(target.authenticationEvidence().externalAuthorities())));
-		};
-	}
-
 	private void fence(RecordedCommand recorded, Optional<ObservedBinding> observed) {
-		if (recorded.envelope() instanceof TargetCommandEnvelope target) {
-			ObservedBinding binding = observed.orElseThrow();
-			if (!bindings.fenceObservedBinding(target.externalIdentity(), binding.userId(),
-					target.bindingId(), binding.revision())) {
-				throw new BindingFenceLostException(recorded.commandId(),
-						target.externalIdentity(), target.bindingId());
-			}
+		var target = recorded.envelope();
+		ObservedBinding binding = observed.orElseThrow();
+		if (!bindings.fenceObservedBinding(target.externalIdentity(), binding.userId(),
+				target.bindingId(), binding.revision())) {
+			throw new BindingFenceLostException(recorded.commandId(),
+					target.externalIdentity(), target.bindingId());
 		}
-	}
-
-	private static java.time.Instant validUntil(RecordedCommand recorded) {
-		return switch (recorded.envelope()) {
-			case AuthorizationSnapshot legacy -> legacy.validUntil();
-			case TargetCommandEnvelope target -> target.authenticationEvidence().validUntil();
-		};
 	}
 }

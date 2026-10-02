@@ -155,8 +155,8 @@ class WriteSideClosurePostgresTest {
 		UUID commandId = UUID.fromString(mapper.readTree(response).path("commandId").asText());
 
 		assertEquals(1, count("recorded_commands", "command_id", commandId));
-		assertEquals(2, jdbc.queryForObject(
-				"select envelope_version from recorded_commands where command_id=?", Integer.class, commandId));
+		assertEquals(SUBJECT, jdbc.queryForObject(
+				"select auth_subject from recorded_commands where command_id=?", String.class, commandId));
 		worker.start();
 		await(() -> count("pot_headers", "label", label) == 1);
 

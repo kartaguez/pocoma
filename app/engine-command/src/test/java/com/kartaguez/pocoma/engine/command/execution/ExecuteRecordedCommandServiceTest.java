@@ -37,7 +37,6 @@ import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCase;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
 import com.kartaguez.pocoma.engine.command.dispatch.MissingCommandUseCaseException;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
@@ -272,9 +271,7 @@ class ExecuteRecordedCommandServiceTest {
 	}
 
 	private static RecordedCommand recorded(Instant validUntil) {
-		AuthorizationSnapshot authorization = new AuthorizationSnapshot(new PocomaUserId(UUID.randomUUID()),
-				Set.of(), NOW.minusSeconds(10), NOW.minusSeconds(5), validUntil, "issuer");
-		return new RecordedCommand(COMMAND_ID, COMMAND_TYPE, "payload", NOW.minusSeconds(1), authorization);
+		return target(validUntil);
 	}
 
 	private static RecordedCommand target(Instant validUntil) {
@@ -331,7 +328,7 @@ class ExecuteRecordedCommandServiceTest {
 			CommandDispatcher dispatcher,
 			EventAppendPort events) {
 		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
-				decoder, dispatcher, events, new RecordingBindings(Optional.empty()),
+				decoder, dispatcher, events, new RecordingBindings(Optional.of(RESOLVED_USER)),
 				new ExternalAuthorityPermissionTranslator(), CLOCK);
 	}
 
@@ -391,7 +388,7 @@ class ExecuteRecordedCommandServiceTest {
 
 		private Fixture(Optional<RecordedCommand> recorded, UseCaseExecution execution,
 				List<CommandExecutionArtifact> artifacts) {
-			this(recorded, execution, artifacts, new RecordingBindings(Optional.empty()));
+			this(recorded, execution, artifacts, new RecordingBindings(Optional.of(RESOLVED_USER)));
 		}
 
 		private Fixture(Optional<RecordedCommand> recorded, CommandUseCaseResult result,

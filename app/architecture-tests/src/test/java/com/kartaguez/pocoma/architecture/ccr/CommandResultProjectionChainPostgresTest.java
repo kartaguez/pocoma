@@ -69,7 +69,7 @@ class CommandResultProjectionChainPostgresTest {
 			awaitProjection(jdbc, commandId);
 			Map<String, Object> payload = jdbc.queryForMap("""
 					select artifact_key, payload #>> '{commandId}' as command_id,
-					       payload #>> '{submittedByUserId}' as user_id,
+					       payload #>> '{visibleToExternalIdentity,subject}' as subject,
 					       payload #>> '{outcome}' as outcome,
 					       payload #>> '{potId}' as pot_id,
 					       payload #>> '{resultingVersion}' as resulting_version
@@ -80,7 +80,7 @@ class CommandResultProjectionChainPostgresTest {
 					""", commandId.toString());
 			assertEquals(commandId.toString(), payload.get("artifact_key"));
 			assertEquals(commandId.toString(), payload.get("command_id"));
-			assertEquals(userId.toString(), payload.get("user_id"));
+			assertEquals(userId.toString(), payload.get("subject"));
 			assertEquals("APPLIED", payload.get("outcome"));
 			assertEquals(potId.toString(), payload.get("pot_id"));
 			assertEquals("7", payload.get("resulting_version"));
@@ -178,10 +178,11 @@ class CommandResultProjectionChainPostgresTest {
 	private void seedAppliedCommand(JdbcTemplate jdbc, UUID commandId, UUID userId, UUID potId) {
 		jdbc.update("""
 				insert into recorded_commands (
-				  command_id, command_type, payload_json, submitted_at, auth_user_id, auth_issuer,
-				  auth_authenticated_at, auth_issued_at, auth_valid_until, auth_permissions_json
-				) values (?, 'TEST_V1', '{}', ?, ?, 'test', ?, ?, ?, '[]'::jsonb)
-				""", commandId, timestamp(NOW), userId, timestamp(NOW), timestamp(NOW),
+				  command_id, command_type, payload_json, submitted_at,
+				  auth_issuer, auth_subject, binding_id, auth_valid_until,
+				  auth_external_authorities_json
+				) values (?, 'TEST', '{}', ?, 'test', ?, ?, ?, '[]'::jsonb)
+				""", commandId, timestamp(NOW), userId.toString(), UUID.randomUUID(),
 				timestamp(NOW.plusSeconds(60)));
 		jdbc.update("""
 				insert into command_outcomes
@@ -199,10 +200,10 @@ class CommandResultProjectionChainPostgresTest {
 			String subject, UUID potId) {
 		jdbc.update("""
 				insert into recorded_commands (
-				  command_id, command_type, payload_json, submitted_at, envelope_version,
+				  command_id, command_type, payload_json, submitted_at,
 				  auth_issuer, auth_subject, binding_id, auth_valid_until,
 				  auth_external_authorities_json
-				) values (?, 'TEST_V2', '{}', ?, 2, ?, ?, ?, ?, '[]'::jsonb)
+				) values (?, 'TEST', '{}', ?, ?, ?, ?, ?, '[]'::jsonb)
 				""", commandId, timestamp(NOW), issuer, subject, UUID.randomUUID(),
 				timestamp(NOW.plusSeconds(60)));
 		jdbc.update("""

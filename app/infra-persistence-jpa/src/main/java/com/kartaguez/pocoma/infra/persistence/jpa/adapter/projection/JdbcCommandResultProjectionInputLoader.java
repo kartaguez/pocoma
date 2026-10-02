@@ -41,19 +41,13 @@ public class JdbcCommandResultProjectionInputLoader implements CommandResultProj
 		var outcome = outcomes.findByCommandId(commandId)
 				.orElseThrow(() -> new IllegalStateException("Command terminal Event has no durable outcome"));
 		CommandResultVisibility visibility = jdbc.query("""
-				select envelope_version, auth_user_id, auth_issuer, auth_subject
+				select auth_issuer, auth_subject
 				from recorded_commands where command_id = ?
 				""", rs -> {
 			if (!rs.next()) throw new IllegalStateException("Command outcome has no recorded Command");
-			short version = rs.getShort("envelope_version");
-			CommandResultVisibility result = switch (version) {
-				case 1 -> new CommandResultVisibility.LegacyUser(requireNonNull(
-						rs.getObject("auth_user_id", UUID.class), "V1 recorded Command has no authorization user"));
-				case 2 -> new CommandResultVisibility.ExactExternalIdentity(new ExternalIdentity(
-						requireNonNull(rs.getString("auth_issuer"), "V2 recorded Command has no auth issuer"),
-						requireNonNull(rs.getString("auth_subject"), "V2 recorded Command has no auth subject")));
-				default -> throw new IllegalStateException("Unknown recorded Command envelope version " + version);
-			};
+			CommandResultVisibility result = new CommandResultVisibility(new ExternalIdentity(
+					requireNonNull(rs.getString("auth_issuer"), "recorded Command has no auth issuer"),
+					requireNonNull(rs.getString("auth_subject"), "recorded Command has no auth subject")));
 			if (rs.next()) throw new IllegalStateException("Duplicate recorded Command");
 			return result;
 		}, commandId.value());

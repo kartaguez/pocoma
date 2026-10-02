@@ -30,9 +30,12 @@ import com.kartaguez.pocoma.domain.authorization.PocomaPermissions;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
@@ -116,11 +119,27 @@ class CommandConsumptionMultiWorkerPostgresTest {
 				clock, new ConditionConsumptionWaiter());
 	}
 
-	private static RecordedCommand command(String payload, UUID userId) {
+	private RecordedCommand command(String payload, UUID userId) {
 		Instant now = Instant.now();
+		ExternalIdentity identity = new ExternalIdentity("runtime-test", "subject-" + UUID.randomUUID());
+		BindingId binding = createBinding(identity, userId);
 		return new RecordedCommand(new CommandId(UUID.randomUUID()), PotCommandTypes.POT_CREATE_V1, payload, now,
-				new AuthorizationSnapshot(new PocomaUserId(userId), Set.of(PocomaPermissions.POT_CREATE),
-						now.minusSeconds(10), now.minusSeconds(10), now.plusSeconds(60), "runtime-test"));
+				new TargetCommandEnvelope(identity, binding,
+						new CommandAuthenticationEvidence(Set.of("pocoma:pot:create"), now.plusSeconds(60))));
+	}
+
+	private BindingId createBinding(ExternalIdentity identity, UUID userId) {
+		UUID binding = UUID.randomUUID();
+		jdbc.update("insert into users(user_id) values (?) on conflict do nothing", userId);
+		jdbc.update("insert into external_identity_binding_streams(issuer,subject,current_revision) values (?,?,0)",
+				identity.issuer(), identity.subject());
+		jdbc.update("""
+				insert into external_identity_binding_occurrences
+				(binding_id,issuer,subject,user_id,attached_revision,created_at) values (?,?,?,?,0,now())
+				""", binding, identity.issuer(), identity.subject(), userId);
+		jdbc.update("insert into external_identities(issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				identity.issuer(), identity.subject(), userId, binding);
+		return new BindingId(binding);
 	}
 
 	private static void await(BooleanSupplier condition) {

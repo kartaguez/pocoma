@@ -67,7 +67,7 @@ class NetworkntJsonSchemaValidatorTest {
 	}
 
 	@Test
-	void commandResultSchemaAcceptsOnlyTheHistoricalV1OrDiscriminatedExactV2Shape() {
+	void commandResultSchemaAcceptsOnlyTheExactIdentityShape() {
 		var schema = CommandResultProjectionDefinition.DEFINITION.artifactDefinitions().getFirst().schema();
 		var common = new java.util.HashMap<String, com.kartaguez.pocoma.domain.projection.JsonValue>();
 		common.put("commandId", uuid("10000000-0000-4000-8000-000000000001"));
@@ -79,7 +79,7 @@ class NetworkntJsonSchemaValidatorTest {
 
 		var v1 = new java.util.HashMap<>(common);
 		v1.put("submittedByUserId", uuid("30000000-0000-4000-8000-000000000001"));
-		assertTrue(validator.isValid(schema, new JsonObject(v1)), "historical V1 payload must remain valid");
+		assertFalse(validator.isValid(schema, new JsonObject(v1)), "V1 payload must fail after cutover");
 
 		var exactIdentity = new JsonObject(Map.of(
 				"issuer", new JsonString("https://issuer.example"),

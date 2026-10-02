@@ -6,8 +6,7 @@ import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
 /** User and capabilities prepared authoritatively for one Command execution. */
-public sealed interface CommandExecutionAuthorization
-		permits AuthorizationSnapshot, ResolvedCommandAuthorization {
+public interface CommandExecutionAuthorization {
 
 	PocomaUserId userId();
 

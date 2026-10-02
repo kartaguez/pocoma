@@ -95,7 +95,7 @@ class CurrentBindingTerminalCutoverMigrationPostgresTest {
 		project("reattached", 2, "ATTACHED", U2, B2, reattached);
 
 		flyway(null).migrate();
-		assertEquals(13, jdbc.queryForObject("select max(version::int) from pocoma_read.flyway_schema_history where success", Integer.class));
+		assertEquals(14, jdbc.queryForObject("select max(version::int) from pocoma_read.flyway_schema_history where success", Integer.class));
 		assertEquals(3L, jdbc.queryForObject("select count(*) from pocoma_read.current_external_identity_binding", Long.class));
 		assertEquals(0L, jdbc.queryForObject("""
 				with terminal as (

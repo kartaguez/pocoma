@@ -68,11 +68,11 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		Map<String, MigrationIdentity> primaryHistory = migrationHistory(upgradeUrl, "public", 15);
 		Map<String, MigrationIdentity> readHistory = migrationHistory(upgradeUrl, "pocoma_read", 7);
 
-		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
+		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, "23");
 		MigrateResult readExpand = migrateRead(upgradeUrl, "12");
 		// V13 intentionally requires the facts-only projection to have caught up first.
 		materializeTerminalBindingsForMigrationFixture(upgradeUrl);
-		MigrateResult readContract = migrateRead(upgradeUrl, null);
+		MigrateResult readContract = migrateRead(upgradeUrl, "13");
 		assertEquals(8, primaryUpgrade.migrationsExecuted);
 		assertEquals(5, readExpand.migrationsExecuted);
 		assertEquals(1, readContract.migrationsExecuted);
@@ -83,8 +83,8 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
-		assertEquals(23, migratePrimary(bootstrapUrl, null).migrationsExecuted);
-		assertEquals(13, migrateRead(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(23, migratePrimary(bootstrapUrl, "23").migrationsExecuted);
+		assertEquals(13, migrateRead(bootstrapUrl, "13").migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 
 		assertEquals(structuralFingerprint(upgradeUrl), structuralFingerprint(bootstrapUrl));

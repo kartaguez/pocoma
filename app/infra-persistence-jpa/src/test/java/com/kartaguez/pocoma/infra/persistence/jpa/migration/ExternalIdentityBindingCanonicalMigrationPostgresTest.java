@@ -120,7 +120,7 @@ class ExternalIdentityBindingCanonicalMigrationPostgresTest {
             before = singleString(s, "select row_to_json(f)::text from external_identity_binding_facts f "
                     + "where subject='upgrade'");
         }
-        assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+        assertEquals(1, flyway("23", false).migrate().migrationsExecuted);
         try (Connection c = connection(); Statement s = c.createStatement()) {
             assertEquals(before, singleString(s, "select row_to_json(f)::text from external_identity_binding_facts f "
                     + "where subject='upgrade'"));
@@ -137,7 +137,7 @@ class ExternalIdentityBindingCanonicalMigrationPostgresTest {
                     () -> s.executeUpdate(factInsert("bad-upgrade", 1, "WHATEVER", "LIFECYCLE")));
             assertTrue(message(rejected).contains("ck_external_identity_binding_facts_type"));
         }
-        assertEquals(1, flyway(null, false).migrate().migrationsExecuted);
+        assertEquals(1, flyway("23", false).migrate().migrationsExecuted);
         try (Connection c = connection(); Statement s = c.createStatement()) {
             SQLException rejected = assertThrows(SQLException.class,
                     () -> s.executeUpdate(factInsert("bad-upgrade", 1, "WHATEVER", "LIFECYCLE")));

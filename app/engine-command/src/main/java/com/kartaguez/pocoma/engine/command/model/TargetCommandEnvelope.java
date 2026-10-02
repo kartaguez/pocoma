@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 public record TargetCommandEnvelope(
 		ExternalIdentity externalIdentity,
 		BindingId bindingId,
-		CommandAuthenticationEvidence authenticationEvidence) implements RecordedCommandEnvelope {
+		CommandAuthenticationEvidence authenticationEvidence) {
 
 	public TargetCommandEnvelope {
 		requireNonNull(externalIdentity, "externalIdentity must not be null");
@@ -17,8 +17,4 @@ public record TargetCommandEnvelope(
 		requireNonNull(authenticationEvidence, "authenticationEvidence must not be null");
 	}
 
-	@Override
-	public RecordedCommandEnvelopeVersion version() {
-		return RecordedCommandEnvelopeVersion.TARGET_V2;
-	}
 }

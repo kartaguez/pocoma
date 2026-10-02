@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.event.EventType;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.engine.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.command.model.Command;
 import com.kartaguez.pocoma.engine.command.model.CommandAppliedResult;
@@ -25,9 +25,8 @@ import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
 class CommandDispatcherTest {
 
-	private static final Instant NOW = Instant.parse("2026-01-01T00:00:00Z");
-	private static final AuthorizationSnapshot AUTHORIZATION = new AuthorizationSnapshot(
-			new PocomaUserId(UUID.randomUUID()), Set.of(), NOW, NOW, NOW.plusSeconds(60), "issuer");
+	private static final CommandExecutionAuthorization AUTHORIZATION = new ResolvedCommandAuthorization(
+			new PocomaUserId(UUID.randomUUID()), Set.of());
 	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 1);
 
 	@Test

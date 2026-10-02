@@ -30,20 +30,18 @@ class CommandModelTest {
 	private static final CommandAppliedResult APPLIED = new CommandAppliedResult(UUID.randomUUID(), 7);
 
 	@Test
-	void recordsGenericImmutableCommandAndAuthorizationData() {
-		Set<Permission> permissions = new HashSet<>();
-		permissions.add(new Permission("POT", "CREATE"));
-		AuthorizationSnapshot authorization = new AuthorizationSnapshot(
-				new PocomaUserId(UUID.randomUUID()), permissions, NOW.minusSeconds(10), NOW.minusSeconds(5),
-				NOW.plusSeconds(60), "pocoma-auth");
-		permissions.clear();
-
+	void recordsGenericImmutableCommandAndAuthenticationEvidence() {
+		Set<String> authorities = new HashSet<>(Set.of("scope:pot:create"));
+		TargetCommandEnvelope envelope = new TargetCommandEnvelope(
+				new ExternalIdentity("https://issuer.example", "subject-42"),
+				new BindingId(UUID.randomUUID()),
+				new CommandAuthenticationEvidence(authorities, NOW.plusSeconds(60)));
 		RecordedCommand command = new RecordedCommand(
-				new CommandId(UUID.randomUUID()), new CommandType("POT_CREATE_V1"), "{}", NOW, authorization);
-
-		assertEquals(Set.of(new Permission("POT", "CREATE")), command.authorization().permissions());
+				new CommandId(UUID.randomUUID()), new CommandType("POT_CREATE_V1"), "{}", NOW, envelope);
+		authorities.clear();
+		assertEquals(Set.of("scope:pot:create"), command.envelope().authenticationEvidence().externalAuthorities());
 		assertThrows(UnsupportedOperationException.class,
-				() -> command.authorization().permissions().add(new Permission("POT", "DELETE")));
+				() -> command.envelope().authenticationEvidence().externalAuthorities().add("other"));
 	}
 
 	@Test
@@ -53,11 +51,11 @@ class CommandModelTest {
 		assertThrows(NullPointerException.class, () -> new CommandType(null));
 		assertThrows(IllegalArgumentException.class, () -> new CommandType(" "));
 		assertThrows(NullPointerException.class, () -> new RecordedCommand(
-				new CommandId(UUID.randomUUID()), new CommandType("TYPE_V1"), null, NOW, authorization()));
+				new CommandId(UUID.randomUUID()), new CommandType("TYPE_V1"), null, NOW, envelope()));
 		assertEquals("", new RecordedCommand(new CommandId(UUID.randomUUID()),
-				new CommandType("TYPE_V1"), "", NOW, authorization()).serializedPayload());
+				new CommandType("TYPE_V1"), "", NOW, envelope()).serializedPayload());
 		assertEquals(" ", new RecordedCommand(new CommandId(UUID.randomUUID()),
-				new CommandType("TYPE_V1"), " ", NOW, authorization()).serializedPayload());
+				new CommandType("TYPE_V1"), " ", NOW, envelope()).serializedPayload());
 	}
 
 	@Test
@@ -72,9 +70,8 @@ class CommandModelTest {
 		RecordedCommand command = new RecordedCommand(new CommandId(UUID.randomUUID()),
 				new CommandType("POT_CREATE_V1"), "{}", NOW, envelope);
 
-		assertEquals(RecordedCommandEnvelopeVersion.TARGET_V2, command.envelope().version());
+		assertSame(envelope, command.envelope());
 		assertEquals(Set.of("scope:pot:create"), envelope.authenticationEvidence().externalAuthorities());
-		assertThrows(IllegalStateException.class, command::authorization);
 	}
 
 	@Test
@@ -100,9 +97,9 @@ class CommandModelTest {
 				"EVENT", "TYPE", "id", OptionalLong.of(0), Optional.empty(), NOW));
 	}
 
-	private static AuthorizationSnapshot authorization() {
-		return new AuthorizationSnapshot(new PocomaUserId(UUID.randomUUID()), Set.of(), NOW, NOW,
-				NOW.plusSeconds(60), "issuer");
+	private static TargetCommandEnvelope envelope() {
+		return new TargetCommandEnvelope(new ExternalIdentity("issuer", "subject"),
+				new BindingId(UUID.randomUUID()), new CommandAuthenticationEvidence(Set.of(), NOW.plusSeconds(60)));
 	}
 
 	private record TestBusinessEvent(String change) implements BusinessEvent {

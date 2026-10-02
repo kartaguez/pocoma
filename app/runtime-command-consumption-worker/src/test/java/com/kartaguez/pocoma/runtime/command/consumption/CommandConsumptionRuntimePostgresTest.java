@@ -36,10 +36,13 @@ import com.kartaguez.pocoma.domain.authorization.PocomaPermissions;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
@@ -204,12 +207,31 @@ class CommandConsumptionRuntimePostgresTest {
 		return lifecycle.findSlot(CommandConsumptionKeys.forCommand(commandId)).orElseThrow();
 	}
 
-	private static RecordedCommand command(CommandType type, String payload, UUID userId,
+	private RecordedCommand command(CommandType type, String payload, UUID userId,
 			Set<com.kartaguez.pocoma.domain.authorization.Permission> permissions, Instant validUntil) {
-		Instant issuedAt = Instant.now().minusSeconds(30);
+		ExternalIdentity identity = new ExternalIdentity("runtime-test", "subject-" + UUID.randomUUID());
+		BindingId binding = createBinding(identity, userId);
+		Set<String> authorities = permissions.stream()
+				.map(permission -> "pocoma:" + permission.objectType().toLowerCase(java.util.Locale.ROOT)
+						+ ":" + permission.action().toLowerCase(java.util.Locale.ROOT))
+				.collect(java.util.stream.Collectors.toUnmodifiableSet());
 		return new RecordedCommand(new CommandId(UUID.randomUUID()), type, payload, Instant.now(),
-				new AuthorizationSnapshot(new PocomaUserId(userId), permissions, issuedAt, issuedAt,
-						validUntil, "runtime-test"));
+				new TargetCommandEnvelope(identity, binding,
+						new CommandAuthenticationEvidence(authorities, validUntil)));
+	}
+
+	private BindingId createBinding(ExternalIdentity identity, UUID userId) {
+		UUID binding = UUID.randomUUID();
+		jdbc.update("insert into users(user_id) values (?) on conflict do nothing", userId);
+		jdbc.update("insert into external_identity_binding_streams(issuer,subject,current_revision) values (?,?,0)",
+				identity.issuer(), identity.subject());
+		jdbc.update("""
+				insert into external_identity_binding_occurrences
+				(binding_id,issuer,subject,user_id,attached_revision,created_at) values (?,?,?,?,0,now())
+				""", binding, identity.issuer(), identity.subject(), userId);
+		jdbc.update("insert into external_identities(issuer,subject,user_id,binding_id) values (?,?,?,?)",
+				identity.issuer(), identity.subject(), userId, binding);
+		return new BindingId(binding);
 	}
 
 	private static void await(BooleanSupplier condition) {

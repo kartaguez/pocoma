@@ -109,14 +109,14 @@ class CommandAdmissionPostgresTest {
 		var row = jdbc.queryForMap("select * from recorded_commands where command_id=?", commandId);
 		assertEquals("FUTURE_COMMAND_V1", row.get("command_type"));
 		assertEquals("{\"business\":\"invalid-but-opaque\"}", row.get("payload_json"));
-		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
-		assertNull(row.get("auth_user_id"));
+		assertFalse(row.containsKey("envelope_version"));
+		assertFalse(row.containsKey("auth_user_id"));
 		assertEquals(ISSUER, row.get("auth_issuer"));
 		assertEquals(SUBJECT, row.get("auth_subject"));
 		assertEquals(bindingId, row.get("binding_id"));
-		assertNull(row.get("auth_permissions_json"));
-		assertNull(row.get("auth_authenticated_at"));
-		assertNull(row.get("auth_issued_at"));
+		assertFalse(row.containsKey("auth_permissions_json"));
+		assertFalse(row.containsKey("auth_authenticated_at"));
+		assertFalse(row.containsKey("auth_issued_at"));
 		assertEquals(expiresAt, ((Timestamp) row.get("auth_valid_until")).toInstant());
 		JsonNode authorities = objectMapper.readTree(row.get("auth_external_authorities_json").toString());
 		assertEquals(Set.of("pocoma:pot:create", "pocoma:expense:update", "future:value"),
@@ -215,13 +215,12 @@ class CommandAdmissionPostgresTest {
 	}
 
 	private void assertTarget(UUID commandId, String subject, UUID bindingId) {
-		var row = jdbc.queryForMap("select envelope_version, auth_subject, binding_id, auth_user_id, "
-				+ "auth_permissions_json from recorded_commands where command_id=?", commandId);
-		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
+		var row = jdbc.queryForMap("select * from recorded_commands where command_id=?", commandId);
+		assertFalse(row.containsKey("envelope_version"));
 		assertEquals(subject, row.get("auth_subject"));
 		assertEquals(bindingId, row.get("binding_id"));
-		assertNull(row.get("auth_user_id"));
-		assertNull(row.get("auth_permissions_json"));
+		assertFalse(row.containsKey("auth_user_id"));
+		assertFalse(row.containsKey("auth_permissions_json"));
 	}
 
 	private void assertNoSynchronousEffects() {

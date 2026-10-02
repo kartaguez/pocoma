@@ -43,17 +43,10 @@ public final class CommandResultProjectionDefinition {
 			"resultingVersion", NULLABLE_VERSION,
 			"code", NULLABLE_STRING,
 			"resolvedAt", STRING);
-	private static final JsonValue V1_SCHEMA = schemaWith(
-			Map.of("submittedByUserId", UUID), List.of("submittedByUserId"));
-	private static final JsonValue V2_SCHEMA = schemaWith(Map.of(
+	private static final JsonValue SCHEMA = schemaWith(Map.of(
 			"visibility", object(Map.of("const", string("EXACT_EXTERNAL_IDENTITY"))),
 			"visibleToExternalIdentity", EXTERNAL_IDENTITY),
 			List.of("visibility", "visibleToExternalIdentity"));
-	private static final JsonValue SCHEMA = object(Map.of("oneOf", array(V1_SCHEMA, V2_SCHEMA)));
-	/*
-	 * V1 deliberately retains its exact historical fields. V2 is a disjoint object shape;
-	 * neither schema accepts mixed visibility data because additionalProperties is false.
-	 */
 	private static JsonValue schemaWith(Map<String, JsonValue> visibilityProperties,
 			List<String> visibilityRequired) {
 		Map<String, JsonValue> properties = new java.util.HashMap<>(COMMON_PROPERTIES);

@@ -22,7 +22,6 @@ import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.command.model.RecordedCommandEnvelopeVersion;
 import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
@@ -49,7 +48,6 @@ class SubmitRecordedCommandServiceTest {
 		RecordedCommand command = inserted.getFirst();
 		assertEquals(COMMAND_ID, command.commandId());
 		assertEquals(NOW, command.submittedAt());
-		assertEquals(RecordedCommandEnvelopeVersion.TARGET_V2, command.envelope().version());
 		TargetCommandEnvelope envelope = assertInstanceOf(TargetCommandEnvelope.class, command.envelope());
 		assertEquals(new ExternalIdentity("https://issuer.example", "subject"), envelope.externalIdentity());
 		assertEquals(BINDING_ID, envelope.bindingId());

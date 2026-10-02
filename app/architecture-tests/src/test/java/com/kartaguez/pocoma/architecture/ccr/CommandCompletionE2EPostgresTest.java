@@ -52,7 +52,9 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.AuthorizationSnapshot;
+import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
@@ -126,17 +128,17 @@ class CommandCompletionE2EPostgresTest {
 
 		try (ConfigurableApplicationContext commandContext = commandContext()) {
 			cleanDatabase(jdbc);
-			insertBinding(jdbc, userId);
-			applied = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME, userId,
+			BindingId bindingId = insertBinding(jdbc, userId);
+			applied = admitTarget(commandContext, UUID.randomUUID(), BASE_TIME, bindingId,
 					payload(appliedLabel, userId), Set.of("pocoma:pot:create"));
-			rejected = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(1), userId,
+			rejected = admitTarget(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(1), bindingId,
 					payload(rejectedLabel, userId), Set.of());
-			failed = admitHistoricalLegacy(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(2), userId,
+			failed = admitTarget(commandContext, UUID.randomUUID(), BASE_TIME.plusMillis(2), bindingId,
 					payload(failedLabel, userId), Set.of("pocoma:pot:create"));
 
 			assertEquals(3, count(jdbc, "select count(*) from recorded_commands"));
 			assertEquals(3, count(jdbc,
-					"select count(*) from recorded_commands where envelope_version=1"));
+					"select count(*) from recorded_commands where auth_subject is not null and binding_id is not null"));
 			assertEquals(0, count(jdbc, "select count(*) from command_outcomes"));
 			assertEquals(0, count(jdbc, "select count(*) from command_terminal_events"));
 			assertEquals(0, count(jdbc, "select count(*) from projection_tasks"));
@@ -260,9 +262,9 @@ class CommandCompletionE2EPostgresTest {
 			UUID createCommandId = submit(http, baseUrl, mapper, bindingId,
 					PotCommandTypes.POT_CREATE_V1.value(),
 					Map.of("label", initialLabel, "creatorId", userId.toString()));
-			assertEquals(2, jdbc.queryForObject(
-					"select envelope_version from recorded_commands where command_id=?",
-					Integer.class, createCommandId));
+			assertEquals(SUBJECT, jdbc.queryForObject(
+					"select auth_subject from recorded_commands where command_id=?",
+					String.class, createCommandId));
 			assertEquals(404, get(http, baseUrl, "/api/v1/command-results/" + createCommandId).statusCode());
 
 			runPotPipeline();
@@ -355,16 +357,15 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
-	private CommandId admitHistoricalLegacy(ConfigurableApplicationContext context, UUID commandId,
-			Instant submittedAt, UUID userId,
+	private CommandId admitTarget(ConfigurableApplicationContext context, UUID commandId,
+			Instant submittedAt, BindingId bindingId,
 			String serializedPayload, Set<String> authorities) {
 		CommandId id = new CommandId(commandId);
-		var snapshot = new AuthorizationSnapshot(new PocomaUserId(userId),
-				new ExternalAuthorityPermissionTranslator().translate(authorities),
-				submittedAt.minusSeconds(1), submittedAt.minusSeconds(1), submittedAt.plusSeconds(600), ISSUER);
+		var envelope = new TargetCommandEnvelope(new ExternalIdentity(ISSUER, SUBJECT), bindingId,
+				new CommandAuthenticationEvidence(authorities, submittedAt.plusSeconds(600)));
 		context.getBean(TransactionRunner.class).runInTransaction(() ->
 				context.getBean(RecordedCommandPort.class).insert(new RecordedCommand(
-						id, PotCommandTypes.POT_CREATE_V1, serializedPayload, submittedAt, snapshot)));
+						id, PotCommandTypes.POT_CREATE_V1, serializedPayload, submittedAt, envelope)));
 		return id;
 	}
 

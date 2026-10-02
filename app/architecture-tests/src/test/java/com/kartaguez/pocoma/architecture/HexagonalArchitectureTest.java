@@ -922,8 +922,8 @@ class HexagonalArchitectureTest {
 		Set<String> dependencies = directDependencyNames(service);
 		assertTrue(dependencies.contains(
 				ROOT_PACKAGE + ".engine.port.in.projection.read.ExactProjectionReadUseCase"));
-		assertTrue(dependencies.contains(
-				ROOT_PACKAGE + ".engine.command.result.LegacyCurrentBindingUserQuery"));
+		assertFalse(dependencies.stream().anyMatch(name -> name.contains("Binding")),
+				"Command result GET must not resolve current binding");
 		Set<String> forbidden = dependencies.stream()
 				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.command.port.out.CommandOutcomeQueryPort")
 						|| name.startsWith(ROOT_PACKAGE + ".infra.")
@@ -954,9 +954,7 @@ class HexagonalArchitectureTest {
 		assertFalse(bindingControllerDependencies.contains(
 				ROOT_PACKAGE + ".engine.read.binding.CurrentBindingProjectionPort"));
 		assertEquals(Set.of("identity"), fieldNames(
-				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility$ExactExternalIdentity"));
-		assertEquals(Set.of("userId"), fieldNames(
-				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility$LegacyUser"));
+				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility"));
 	}
 
 	@Test

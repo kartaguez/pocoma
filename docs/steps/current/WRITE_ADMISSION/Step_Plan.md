@@ -1259,6 +1259,53 @@ audit ou demande explicite de fence optimiste n'est incluse.
 
 ### WA.7 — Contract des représentations legacy
 
+#### Verification scope (déclaré avant modification du code)
+
+- Expected production impact : migration WRITE `recorded_commands`, modèle/persistence/exécution
+  Command, loader/projector/GET `COMMAND_RESULT`, gate de migration READ.
+- Primary slice : COMMAND (`./mvnw -pl runtime-command-consumption-worker -am test`).
+- Secondary slices : PROJECTION et WEB (`./mvnw -pl runtime-task-consumption-worker,runtime-web-api -am test`).
+- Forbidden production impact : EVENT, BINDING et LKV ; aucune modification du canon, des migrations
+  appliquées, de Registration ou de Keycloak.
+- Required local proof : Command target round-trip, worker E+B/fence, projection exact-E, admission,
+  migrations WRITE et READ PostgreSQL fresh/upgrade et rejets fail-closed.
+- Global architecture gate : REQUIRED (`./mvnw -pl architecture-tests -am test`) pour la clôture WA.
+- Full reactor : REQUIRED (`./mvnw test`) après les tranches et la gate d'architecture, pour cette
+  clôture de Wave majeure.
+- Database verification : HISTORICAL ciblé pour l'upgrade V23→V24 et READ V13→V14 ; fresh install
+  jusqu'au schéma final. Les migrations déjà appliquées restent immuables.
+- Next mandatory global gate : WA.7 avant tout travail WA.8, puis preuve finale de Wave.
+- Escalation conditions : changement de comportement d'un autre runtime ou d'un contrat partagé
+  hors COMMAND/PROJECTION/WEB ; la tranche correspondante doit être annoncée avant expansion.
+
+**WA.7 — DONE (preuve logicielle, 2026-10-02).** Le checkout alternatif part de
+`1446628aafc1b3ca65f08b0039bc957081afbc6d`, working tree initial propre, divergence
+distante `0/0`. WRITE V24 verrouille `recorded_commands`, refuse V1 pending ou terminale,
+version inconnue, target invalide et slot Command incohérent avant DDL, puis supprime les cinq
+colonnes/discriminants V1 et impose les neuf colonnes canoniques non nulles. READ V14 refuse les
+artifacts `COMMAND_RESULT` V1, mixed ou malformés sans les modifier. Les tests PostgreSQL
+`RecordedCommandContractionMigrationPostgresTest`, `PrimaryMigrationsPostgresTest` et
+`CommandResultExactIdentityCutoverMigrationPostgresTest` passent : fresh, upgrade V23→V24 et
+V13→V14, rejets fail-closed et shape final. La persistance Command target round-trip, le worker
+E+B, les fences et rollbacks, la projection exact-E, le GET non-oracle et le self-service binding
+passent dans les suites des slices COMMAND, PROJECTION et WEB. Les guards d'architecture passent ;
+le scan du Java de production ne trouve plus les symboles V1 ciblés. Aucun impact de production
+hors COMMAND/PROJECTION/WEB n'a été nécessaire.
+
+Exécution (depuis `app/`, Java 21, cache Maven local, `-o -q`) :
+`./mvnw -pl infra-persistence-jpa,infra-read-persistence -am test -Dtest=RecordedCommandContractionMigrationPostgresTest,CommandResultExactIdentityCutoverMigrationPostgresTest -Dsurefire.failIfNoSpecifiedTests=false`
+PASS ; `./mvnw -pl runtime-command-consumption-worker,runtime-task-consumption-worker,runtime-web-api -am test`
+PASS ; `./mvnw -pl architecture-tests -am test` PASS ; `./mvnw test` PASS. Le premier essai
+du reactor pertinent a relevé deux assertions de migration historique comptant V24 au lieu de
+s'arrêter à V23 ; leurs cibles Flyway ont été corrigées, puis le reactor a passé. Avant la remise
+en service de Docker, un essai Testcontainers avait échoué sans preuve PostgreSQL. Aucune suite
+n'a été ignorée ou désactivée pour obtenir le résultat final.
+
+Ces tests prouvent la logique fail-closed sur des fixtures PostgreSQL ; **aucun preflight sur une
+base de production/déployée n'a été exécuté**. Le cutover opérationnel exige l'arrêt des anciens
+writers, la mesure du backlog V1 à zéro et l'exécution réussie des gates WRITE et READ sur les
+bases concernées avant le déploiement du runtime target-only.
+
 **Prérequis.** Gate WA.6G validée ; WA.5 produit uniquement le nouveau format, WA.6 sert READ, backlog legacy drainé et
 mesuré à zéro.
 
@@ -1287,6 +1334,32 @@ multi-worker ; aucune lecture primaire au POST ou aux GET ; guards d’ownership
 
 **DONE.** Matrice WA1–WA11 complète, aucun chemin legacy actif, documentation opérationnelle et
 architecture alignées. REGISTRATION peut commencer sur ces fondations.
+
+**WA.8 — DONE (preuve finale, 2026-10-02).** Scope : primaire WEB pour le GET
+`COMMAND_RESULT` ; aucune slice secondaire de production, impact interdit COMMAND/EVENT/
+PROJECTION/BINDING/LKV. Le gate d'architecture et le reactor complet sont requis pour la clôture
+de Wave. La recherche de contre-exemple a trouvé qu'un payload READY dont `commandId` ou
+`artifactKey` contredisait la clé demandée pouvait être servi après corruption durable. Le GET
+vérifie désormais clé de projection, clé d'artifact et `commandId` ; le test de régression injecte
+des valeurs divergentes. Aucune nouvelle architecture n'a été introduite et il n'y a pas eu de
+franchissement inattendu de slice.
+
+La matrice finale s'appuie sur `CommandAdmissionPostgresTest` (E+B admise, E inconnue admise,
+B malformé rejeté, aucune lecture primaire), `CommandConsumptionPostgresTest` (stale B,
+detach/reattach même U ou autre U, ordre detach/fence, rollback Pot/Event/outcome, deux Commands,
+retry, claim perdu et fence sans avancement R ni fact), les tests runtime restart/multi-worker,
+`CommandCompletionE2EPostgresTest` (HTTP → Command → Event → projection → GET pour APPLIED,
+REJECTED, FAILED, résultat visible après detach/reattach, self-service READ et absence de SELECT
+primaire au GET), `CommandResultTest` (exact E, pending/absent/nonowner non-oracle, clés durables
+divergentes) et les guards d'ownership. Les chemins rares inspectés incluent retry/restart,
+duplicate delivery, late commit, malformed durable rows, equal-revision divergence, stale
+projection et transaction boundaries ; les suites pertinentes du reactor les exercent.
+
+Exécution finale (depuis `app/`, Java 21, cache Maven local, `-o -q`) :
+`./mvnw -pl engine-command-result -am test -Dtest=CommandResultTest -Dsurefire.failIfNoSpecifiedTests=false`
+PASS ; `./mvnw -pl runtime-web-api -am test` PASS ;
+`./mvnw -pl architecture-tests -am test` PASS ; `./mvnw test` PASS.
+`git diff --check` PASS. **WRITE_ADMISSION implementation/proof scope: CLOSED.**
 
 ## 4. Matrice de traçabilité WA1–WA11
 
@@ -1421,4 +1494,4 @@ sur la base à migrer. Les tests ciblés READ, le reactor pertinent
 `infra-read-persistence,architecture-tests,runtime-binding-consumption-worker -am test -q` et
 le reactor complet `./mvnw test -q` sont verts avec V13 ; le test de démolition matérialise la
 projection facts-only avant cette gate sur l'upgrade historique. **WA.6F : DONE ; WA.6G : DONE ;
-WA.6 STATUS: CLOSED ; WA.7 STATUS: NOT STARTED.**
+WA.6 STATUS: CLOSED ; WA.7 STATUS: DONE ; WA.8 STATUS: DONE.**

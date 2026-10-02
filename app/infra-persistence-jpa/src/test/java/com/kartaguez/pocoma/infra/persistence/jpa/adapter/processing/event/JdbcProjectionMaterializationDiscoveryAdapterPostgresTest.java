@@ -325,11 +325,11 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 			int partitionHash) {
 		jdbc.update("""
 				insert into recorded_commands (
-				  command_id, command_type, payload_json, submitted_at, auth_user_id, auth_issuer,
-				  auth_authenticated_at, auth_issued_at, auth_valid_until, auth_permissions_json
-				) values (?, 'TEST_V1', '{}', ?, ?, 'test', ?, ?, ?, '[]'::jsonb)
-				""", commandId, java.sql.Timestamp.from(recordedAt), UUID.randomUUID(),
-				java.sql.Timestamp.from(recordedAt), java.sql.Timestamp.from(recordedAt),
+				  command_id, command_type, payload_json, submitted_at,
+				  auth_issuer, auth_subject, binding_id, auth_valid_until,
+				  auth_external_authorities_json
+				) values (?, 'TEST', '{}', ?, 'test', ?, ?, ?, '[]'::jsonb)
+				""", commandId, java.sql.Timestamp.from(recordedAt), commandId.toString(), UUID.randomUUID(),
 				java.sql.Timestamp.from(recordedAt.plusSeconds(60)));
 		jdbc.update("""
 				insert into command_outcomes
