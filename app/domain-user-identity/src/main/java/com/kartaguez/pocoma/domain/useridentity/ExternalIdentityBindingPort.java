@@ -10,10 +10,12 @@ public interface ExternalIdentityBindingPort {
 
 	Optional<PocomaUserId> findUserId(ExternalIdentity identity, BindingId bindingId);
 
-	/**
-	 * Locks the exact current occurrence until the caller's surrounding transaction completes.
-	 */
-	Optional<PocomaUserId> lockCurrentBinding(ExternalIdentity identity, BindingId bindingId);
+	/** A single non-locking snapshot of the current WRITE authority and its stream revision. */
+	Optional<ObservedBinding> observeCurrentBinding(ExternalIdentity identity, BindingId bindingId);
+
+	/** Final PostgreSQL CAS, in the caller's business transaction. */
+	boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
+			BindingId bindingId, BindingRevision revision);
 
 	BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId);
 

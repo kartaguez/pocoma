@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.binding.pot.command.spring.PotCommandBindingConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
@@ -36,6 +37,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionExecution;
+import com.kartaguez.pocoma.locator.consumption.command.BindingFenceRecoveryExecuteUseCase;
 import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionLocator;
 import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionFailurePolicy;
 import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionTechnicalFailureClassifier;
@@ -93,10 +95,14 @@ public class CommandConsumptionRuntimeConfiguration {
 	ExecuteConsumptionUseCase commandConsumptionExecute(
 			JpaConsumptionLifecycleAdapter lifecycle,
 			JpaConsumptionProvenanceAdapter provenance,
+			ExternalIdentityBindingPort bindings,
+			JdbcCommandOutcomeAdapter outcomes,
 			TransactionRunner transactions,
 			Clock clock) {
-		return new TransactionalExecuteConsumptionUseCase(
-				new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
+		return new BindingFenceRecoveryExecuteUseCase(
+				new TransactionalExecuteConsumptionUseCase(
+						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
+				transactions, lifecycle, bindings, outcomes, clock);
 	}
 
 	@Bean

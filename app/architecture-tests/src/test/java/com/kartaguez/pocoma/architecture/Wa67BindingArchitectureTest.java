@@ -27,7 +27,7 @@ class Wa67BindingArchitectureTest {
 	@Test
 	void directProductionSqlAccessesStayInsideTheirDeclaredOwners() throws IOException {
 		Map<String, Set<String>> expected = Map.of(
-				"external_identities", Set.of(IDENTITY_REPOSITORY, DISCOVERY_ADAPTER),
+				"external_identities", Set.of(IDENTITY_REPOSITORY, STREAM_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_streams", Set.of(STREAM_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_facts", Set.of(FACT_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_occurrences", Set.of(OCCURRENCE_REPOSITORY),
@@ -62,14 +62,36 @@ class Wa67BindingArchitectureTest {
 
 		String authority = Files.readString(appRoot().resolve(IDENTITY_REPOSITORY)).toLowerCase();
 		String stream = Files.readString(appRoot().resolve(STREAM_REPOSITORY)).toLowerCase();
-		assertTrue(authority.contains("for update"));
+		assertTrue(!authority.contains("for update"));
 		assertTrue(!authority.contains("external_identity_binding_streams"));
-		assertTrue(!stream.contains("external_identities"));
+		assertTrue(stream.contains("join external_identities"));
+		assertTrue(stream.contains("set current_revision = s.current_revision"));
+		assertTrue(stream.contains("and a.user_id = ? and a.binding_id = ?"));
 
 		String writer = Files.readString(appRoot().resolve(
 				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/identity/JpaExternalIdentityBindingAdapter.java"));
 		assertOrdered(writer, "public BindingAcquireResult acquire", "streams.lock(", "repository.acquire(");
 		assertOrdered(writer, "public BindingDetachResult detach", "streams.lock(", "repository.detach(");
+	}
+
+	@Test
+	void commandV2ObservesWithoutBindingLockAndFencesBeforeOutcomeAndClaim() throws IOException {
+		String service = Files.readString(appRoot().resolve(
+				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/execution/ExecuteRecordedCommandService.java"));
+		String stream = Files.readString(appRoot().resolve(STREAM_REPOSITORY));
+		String recorded = Files.readString(appRoot().resolve(
+				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/RecordedCommand.java"));
+		String consumption = Files.readString(appRoot().resolve(
+				"locator-consumption-command/src/main/java/com/kartaguez/pocoma/locator/consumption/command/CommandConsumptionExecution.java"));
+		assertTrue(service.contains("bindings.observeCurrentBinding("));
+		assertTrue(service.contains("bindings.fenceObservedBinding("));
+		assertTrue(!service.contains("lockCurrentBinding("));
+		assertTrue(!recorded.contains("BindingRevision"));
+		assertTrue(stream.contains("set current_revision = s.current_revision"));
+		assertTrue(stream.contains("s.current_revision = ?"));
+		assertTrue(stream.contains("a.user_id = ? and a.binding_id = ?"));
+		assertTrue(!consumption.contains("fenceObservedBinding("));
+		assertTrue(consumption.contains("outcomes.publish("));
 	}
 
 	private static void assertOrdered(String source, String method, String first, String second) {

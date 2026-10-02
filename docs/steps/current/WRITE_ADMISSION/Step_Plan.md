@@ -1051,6 +1051,34 @@ et guards `Wa67BindingArchitectureTest`. **Non-objectifs.** CAS comme précondit
 nouveau framework d'events ou changement d'AuthZ. **DONE.** Lock pessimiste long retiré ;
 optimistic fence et rollback prouvés, non-oracle conservé.
 
+**Résultat WA.6C (2026-10-02).** L'observation WRITE retenue est
+`ExternalIdentityBindingPort.observeCurrentBinding(E,B)` : un seul `SELECT` sans lock joint
+`external_identity_binding_streams` à `external_identities` et retourne U+R pour l'occurrence
+exacte. R reste local au worker ; ni `RecordedCommand`, ni envelope V2, ni HTTP ne le portent.
+`fenceObservedBinding(E,U,B,R)` exécute dans la transaction métier `READ COMMITTED` le
+`UPDATE external_identity_binding_streams s SET current_revision = s.current_revision WHERE
+s.issuer = ? AND s.subject = ? AND s.current_revision = ? AND EXISTS (SELECT 1 FROM
+external_identities a WHERE a.issuer = s.issuer AND a.subject = s.subject AND a.user_id = ?
+AND a.binding_id = ?)` ; une row signifie succès. Le service exécute ce fence après le
+dispatcher et l'append Event, y compris pour un rejet métier ou une expiration, mais avant
+`CommandConsumptionExecution` (outcome), la provenance, le CAS terminal du claim et le commit.
+Un fence zéro lève `BindingFenceLostException` et rollbacke la transaction entière. Le wrapper
+Command relit E+B dans une nouvelle transaction sous le claim courant : occurrence absente →
+rejet `CALLER_IDENTITY_NOT_CURRENT` et terminalisation CAS ; occurrence encore courante →
+`BindingFenceConflictException` classée transitoire pour retry. Claim perdu → aucune
+terminalisation.
+
+Les barrières Testcontainers/PostgreSQL prouvent Detach committé pendant le travail métier,
+avant le fence Command : R change, fence zéro, mutation et succès rollbackés, puis rejet exact.
+Elles prouvent aussi le cas inverse : fence Command acquis, Detach attend le commit Command
+avant de prendre le stream lock. Deux Commands sous B inchangé entrent simultanément dans
+leur travail et leurs fences réussissent séquentiellement. Le fence ne change ni R ni les
+facts. Ordre des locks audité : writers Binding `stream E → authority E → fact E,R`, sans
+lock Pot ; Command V2 `locks métier → stream E au fence → outcome/provenance/claim` ;
+la récupération prend le lock claim puis lit seulement l'autorité sans lock. Aucun chemin
+inverse Pot/stream ni claim/stream n'est introduit par ces changements. V1 garde son
+`AuthorizationSnapshot` et sa voie d'exécution historique. Aucune WA.6E+ n'est implémentée.
+
 #### WA.6D — Récupération historique et replay canonique des facts
 
 **Prérequis.** WA.6A/WA.6B nouveaux contrats prêts ; writers suspendus pour snapshot/backfill ; WA.6A
@@ -1126,7 +1154,8 @@ contrainte séparée. V23 consolide ce CHECK et celui de provenance de V21 en un
 unique : `R0 = ATTACHED + MIGRATION_BASELINE` ; `R>0 = (ATTACHED | DETACHED) + LIFECYCLE`.
 Les tests PostgreSQL prouvent les trois formes acceptées, toutes les combinaisons interdites,
 l'upgrade V22→V23 sans mutation métier et le bootstrap neuf. WA.6A : DONE ; WA.6B : DONE ;
-WA.6D : DONE ; gap de contrat SQL : CLOSED ; WA.6C : NOT STARTED.
+WA.6D : DONE ; gap de contrat SQL : CLOSED ; WA.6C : NOT STARTED à cette baseline
+(résultat WA.6C du 2026-10-02 documenté ci-dessus).
 
 #### WA.6E — Forme canonique de CURRENT_BINDING DETACHED
 

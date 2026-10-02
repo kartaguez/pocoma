@@ -18,7 +18,6 @@ public class ExternalIdentityJdbcRepository {
 			from external_identities
 			where issuer = ? and subject = ? and binding_id = ?
 			""";
-	private static final String LOCK_EXACT_USER_ID = SELECT_EXACT_USER_ID + " for update";
 	private static final String ACQUIRE = """
 			insert into external_identities (issuer, subject, user_id, binding_id)
 			values (?, ?, ?, ?)
@@ -47,10 +46,6 @@ public class ExternalIdentityJdbcRepository {
 
 	public Optional<UUID> findUserId(String issuer, String subject, UUID bindingId) {
 		return queryUserId(SELECT_EXACT_USER_ID, issuer, subject, bindingId);
-	}
-
-	public Optional<UUID> lockCurrentBinding(String issuer, String subject, UUID bindingId) {
-		return queryUserId(LOCK_EXACT_USER_ID, issuer, subject, bindingId);
 	}
 
 	public boolean acquire(String issuer, String subject, UUID userId, UUID bindingId) {

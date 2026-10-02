@@ -15,6 +15,7 @@ import com.kartaguez.pocoma.engine.command.decode.InvalidCommandPayloadException
 import com.kartaguez.pocoma.engine.command.decode.UnknownCommandTypeException;
 import com.kartaguez.pocoma.engine.command.dispatch.MissingCommandUseCaseException;
 import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
+import com.kartaguez.pocoma.engine.command.execution.BindingFenceConflictException;
 import com.kartaguez.pocoma.engine.command.execution.RecordedCommandNotFoundException;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionTechnicalFailureClassifier;
@@ -45,6 +46,7 @@ public final class CommandConsumptionTechnicalFailureClassifier implements Consu
 	}
 
 	private static Classification classificationFor(RuntimeException failure) {
+		if (failure instanceof BindingFenceConflictException) return transientFailure("BINDING_FENCE_CONFLICT");
 		if (failure instanceof RecordedCommandNotFoundException) {
 			return terminal("COMMAND_NOT_FOUND", CommandConsumptionFailureCategory.COMMAND_INPUT_NOT_FOUND);
 		}

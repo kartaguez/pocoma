@@ -22,6 +22,7 @@ import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityAttached;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityDetached;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
+import com.kartaguez.pocoma.domain.useridentity.ObservedBinding;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingStreamJdbcRepository;
@@ -61,12 +62,23 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.MANDATORY)
-	public Optional<PocomaUserId> lockCurrentBinding(ExternalIdentity identity, BindingId bindingId) {
+	@Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+	public Optional<ObservedBinding> observeCurrentBinding(ExternalIdentity identity, BindingId bindingId) {
 		requireNonNull(identity, "identity must not be null");
 		requireNonNull(bindingId, "bindingId must not be null");
-		return repository.lockCurrentBinding(identity.issuer(), identity.subject(), bindingId.value())
-				.map(PocomaUserId::new);
+		return streams.observeExact(identity.issuer(), identity.subject(), bindingId.value())
+				.map(row -> new ObservedBinding(new PocomaUserId(row.userId()), new BindingRevision(row.revision())));
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
+	public boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
+			BindingId bindingId, BindingRevision revision) {
+		requireNonNull(identity, "identity must not be null");
+		requireNonNull(userId, "userId must not be null");
+		requireNonNull(bindingId, "bindingId must not be null");
+		requireNonNull(revision, "revision must not be null");
+		return streams.fenceExact(identity.issuer(), identity.subject(), userId.value(), bindingId.value(), revision.value());
 	}
 
 	@Override

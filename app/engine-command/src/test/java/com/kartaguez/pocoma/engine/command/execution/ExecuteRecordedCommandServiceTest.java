@@ -64,6 +64,8 @@ class ExecuteRecordedCommandServiceTest {
 			new ExternalIdentity("https://issuer.example", "subject-1");
 	private static final BindingId BINDING_ID = new BindingId(UUID.randomUUID());
 	private static final PocomaUserId RESOLVED_USER = new PocomaUserId(UUID.randomUUID());
+	private static final com.kartaguez.pocoma.domain.useridentity.BindingRevision REVISION =
+			new com.kartaguez.pocoma.domain.useridentity.BindingRevision(7);
 
 	@Test
 	void missingRecordedCommandIsATechnicalFailure() {
@@ -83,7 +85,7 @@ class ExecuteRecordedCommandServiceTest {
 	}
 
 	@Test
-	void targetV2LocksExactBindingTranslatesAuthoritiesAndDispatchesResolvedUser() {
+	void targetV2ObservesAndFencesExactBindingTranslatesAuthoritiesAndDispatchesResolvedUser() {
 		RecordingBindings bindings = new RecordingBindings(Optional.of(RESOLVED_USER));
 		AtomicReference<CommandExecutionAuthorization> received = new AtomicReference<>();
 		ExecuteRecordedCommandService service = service(target(NOW.plusSeconds(60)),
@@ -98,7 +100,8 @@ class ExecuteRecordedCommandServiceTest {
 				ResolvedCommandAuthorization.class, received.get());
 		assertEquals(RESOLVED_USER, authorization.userId());
 		assertEquals(Set.of(new Permission("POT", "CREATE")), authorization.permissions());
-		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(1, bindings.observeCalls.get());
+		assertEquals(1, bindings.fenceCalls.get());
 		assertEquals(0, bindings.nonLockingLookupCalls.get());
 		assertEquals(EXTERNAL_IDENTITY, bindings.lockedIdentity.get());
 		assertEquals(BINDING_ID, bindings.lockedBinding.get());
@@ -114,7 +117,8 @@ class ExecuteRecordedCommandServiceTest {
 				RecordedCommandExecutionResult.Rejected.class, fixture.service.execute(COMMAND_ID));
 
 		assertEquals(new TerminalReason("CALLER_IDENTITY_NOT_CURRENT"), result.reason());
-		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(1, bindings.observeCalls.get());
+		assertEquals(0, bindings.fenceCalls.get());
 		assertEquals(0, bindings.nonLockingLookupCalls.get());
 		assertEquals(0, fixture.decodeCalls.get());
 		assertEquals(0, fixture.dispatchCalls.get());
@@ -131,9 +135,34 @@ class ExecuteRecordedCommandServiceTest {
 				RecordedCommandExecutionResult.Rejected.class, fixture.service.execute(COMMAND_ID));
 
 		assertEquals(new TerminalReason("AUTHORIZATION_EXPIRED"), result.reason());
-		assertEquals(1, bindings.lockCalls.get());
+		assertEquals(1, bindings.observeCalls.get());
+		assertEquals(1, bindings.fenceCalls.get());
 		assertEquals(0, fixture.decodeCalls.get());
 		assertEquals(0, fixture.dispatchCalls.get());
+	}
+
+	@Test
+	void targetV2BusinessRejectionIsFencedBeforeReturn() {
+		RecordingBindings bindings = new RecordingBindings(Optional.of(RESOLVED_USER));
+		var service = service(target(NOW.plusSeconds(60)), decoderRegistry(),
+				dispatcher(new CommandUseCaseResult.Rejected(new TerminalReason("BUSINESS_CONFLICT"), List.of())),
+				events(List.of()), bindings);
+		assertInstanceOf(RecordedCommandExecutionResult.Rejected.class, service.execute(COMMAND_ID));
+		assertEquals(1, bindings.fenceCalls.get());
+	}
+
+	@Test
+	void targetV2LostFenceRaisesTypedFailureAfterBusinessWork() {
+		RecordingBindings bindings = new RecordingBindings(Optional.of(RESOLVED_USER));
+		bindings.fenceSucceeds = false;
+		AtomicInteger business = new AtomicInteger();
+		var service = service(target(NOW.plusSeconds(60)), decoderRegistry(), dispatcher(authorization -> {
+			business.incrementAndGet();
+			return success(List.of(), List.of());
+		}), events(List.of()), bindings);
+		assertThrows(BindingFenceLostException.class, () -> service.execute(COMMAND_ID));
+		assertEquals(1, business.get());
+		assertEquals(1, bindings.fenceCalls.get());
 	}
 
 	@Test
@@ -397,10 +426,12 @@ class ExecuteRecordedCommandServiceTest {
 
 	private static final class RecordingBindings implements ExternalIdentityBindingPort {
 		private final Optional<PocomaUserId> lockedUser;
-		private final AtomicInteger lockCalls = new AtomicInteger();
+		private final AtomicInteger observeCalls = new AtomicInteger();
+		private final AtomicInteger fenceCalls = new AtomicInteger();
 		private final AtomicInteger nonLockingLookupCalls = new AtomicInteger();
 		private final AtomicReference<ExternalIdentity> lockedIdentity = new AtomicReference<>();
 		private final AtomicReference<BindingId> lockedBinding = new AtomicReference<>();
+		private boolean fenceSucceeds = true;
 
 		private RecordingBindings(Optional<PocomaUserId> lockedUser) {
 			this.lockedUser = lockedUser;
@@ -408,15 +439,23 @@ class ExecuteRecordedCommandServiceTest {
 
 		@Override public Optional<PocomaUserId> findUserId(ExternalIdentity identity, BindingId bindingId) {
 			nonLockingLookupCalls.incrementAndGet();
-			throw new AssertionError("TARGET_V2 must not use non-locking exact resolution");
+			throw new AssertionError("Initial TARGET_V2 observation must include revision");
 		}
 
-		@Override public Optional<PocomaUserId> lockCurrentBinding(
+		@Override public Optional<com.kartaguez.pocoma.domain.useridentity.ObservedBinding> observeCurrentBinding(
 				ExternalIdentity identity, BindingId bindingId) {
-			lockCalls.incrementAndGet();
+			observeCalls.incrementAndGet();
 			lockedIdentity.set(identity);
 			lockedBinding.set(bindingId);
-			return lockedUser;
+			return lockedUser.map(user -> new com.kartaguez.pocoma.domain.useridentity.ObservedBinding(user, REVISION));
+		}
+
+		@Override public boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
+				BindingId bindingId, com.kartaguez.pocoma.domain.useridentity.BindingRevision revision) {
+			fenceCalls.incrementAndGet();
+			assertEquals(REVISION, revision);
+			assertEquals(lockedUser.orElseThrow(), userId);
+			return fenceSucceeds;
 		}
 
 		@Override public BindingAcquireResult acquire(

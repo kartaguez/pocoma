@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.domain.useridentity.ObservedBinding;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandDispatcher;
 import com.kartaguez.pocoma.engine.command.dispatch.CommandUseCaseResult;
@@ -61,22 +62,30 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 		RecordedCommand recorded = requireNonNull(recordedCommands.findById(commandId),
 				"recordedCommands.findById must not return null")
 				.orElseThrow(() -> new RecordedCommandNotFoundException(commandId));
-		Optional<CommandExecutionAuthorization> prepared = prepareAuthorization(recorded);
+		Optional<ObservedBinding> observed = switch (recorded.envelope()) {
+			case AuthorizationSnapshot ignored -> Optional.empty();
+			case TargetCommandEnvelope target -> bindings.observeCurrentBinding(
+					target.externalIdentity(), target.bindingId());
+		};
+		Optional<CommandExecutionAuthorization> prepared = prepareAuthorization(recorded, observed);
 		if (prepared.isEmpty()) {
 			return new RecordedCommandExecutionResult.Rejected(CALLER_IDENTITY_NOT_CURRENT, List.of());
 		}
 		if (!clock.instant().isBefore(validUntil(recorded))) {
+			fence(recorded, observed);
 			return new RecordedCommandExecutionResult.Rejected(AUTHORIZATION_EXPIRED, List.of());
 		}
 
 		Command command = decoder.decode(recorded.commandType(), recorded.serializedPayload());
 		CommandUseCaseResult result = dispatcher.dispatch(prepared.orElseThrow(), command);
 		if (result instanceof CommandUseCaseResult.Rejected rejected) {
+			fence(recorded, observed);
 			return new RecordedCommandExecutionResult.Rejected(rejected.reason(), rejected.inputs());
 		}
 
 		CommandUseCaseResult.Succeeded succeeded = (CommandUseCaseResult.Succeeded) result;
 		if (succeeded.events().isEmpty()) {
+			fence(recorded, observed);
 			return new RecordedCommandExecutionResult.Succeeded(
 					succeeded.inputs(), succeeded.appliedResult(), List.of());
 		}
@@ -92,18 +101,30 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 			throw new CommandExecutionInvariantViolationException("Event append returned " + artifacts.size()
 					+ " artifacts for " + succeeded.events().size() + " events");
 		}
+		fence(recorded, observed);
 		return new RecordedCommandExecutionResult.Succeeded(
 				succeeded.inputs(), succeeded.appliedResult(), artifacts);
 	}
 
-	private Optional<CommandExecutionAuthorization> prepareAuthorization(RecordedCommand recorded) {
+	private Optional<CommandExecutionAuthorization> prepareAuthorization(
+			RecordedCommand recorded, Optional<ObservedBinding> observed) {
 		return switch (recorded.envelope()) {
 			case AuthorizationSnapshot legacy -> Optional.of(legacy);
-			case TargetCommandEnvelope target -> bindings.lockCurrentBinding(
-					target.externalIdentity(), target.bindingId())
-					.map(userId -> new ResolvedCommandAuthorization(userId,
+			case TargetCommandEnvelope target -> observed
+					.map(binding -> new ResolvedCommandAuthorization(binding.userId(),
 							permissions.translate(target.authenticationEvidence().externalAuthorities())));
 		};
+	}
+
+	private void fence(RecordedCommand recorded, Optional<ObservedBinding> observed) {
+		if (recorded.envelope() instanceof TargetCommandEnvelope target) {
+			ObservedBinding binding = observed.orElseThrow();
+			if (!bindings.fenceObservedBinding(target.externalIdentity(), binding.userId(),
+					target.bindingId(), binding.revision())) {
+				throw new BindingFenceLostException(recorded.commandId(),
+						target.externalIdentity(), target.bindingId());
+			}
+		}
 	}
 
 	private static java.time.Instant validUntil(RecordedCommand recorded) {

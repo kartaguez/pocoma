@@ -141,7 +141,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
         ExternalIdentity identity = identity("command-lock");
         BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
         assertEquals(user, inTransaction(() -> legacyResolver.findUserId(identity)).orElseThrow());
-        assertEquals(user, inTransaction(() -> bindings.lockCurrentBinding(identity, binding)).orElseThrow());
+        assertEquals(user, inTransaction(() -> bindings.observeCurrentBinding(identity, binding)).orElseThrow().userId());
     }
 
     @Test void concurrentDetachesAdvanceOnlyOnceAndRetryKeepsTheSameHistory() throws Exception {

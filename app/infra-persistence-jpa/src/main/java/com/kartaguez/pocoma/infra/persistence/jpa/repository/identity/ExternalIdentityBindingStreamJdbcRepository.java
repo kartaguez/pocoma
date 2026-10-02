@@ -1,6 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.repository.identity;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,6 +23,22 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 			update external_identity_binding_streams
 			set current_revision = ?
 			where issuer = ? and subject = ? and current_revision = ?
+			""";
+	private static final String OBSERVE_EXACT = """
+			select a.user_id, s.current_revision
+			from external_identity_binding_streams s
+			join external_identities a on a.issuer = s.issuer and a.subject = s.subject
+			where s.issuer = ? and s.subject = ? and a.binding_id = ?
+			""";
+	private static final String FENCE_EXACT = """
+			update external_identity_binding_streams as s
+			set current_revision = s.current_revision
+			where s.issuer = ? and s.subject = ? and s.current_revision = ?
+			  and exists (
+			    select 1 from external_identities as a
+			    where a.issuer = s.issuer and a.subject = s.subject
+			      and a.user_id = ? and a.binding_id = ?
+			  )
 			""";
 
 	private final JdbcTemplate jdbc;
@@ -48,6 +65,18 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 			throw new IllegalStateException("Binding stream revision changed while locked");
 		}
 	}
+
+	public Optional<ObservedBindingRow> observeExact(String issuer, String subject, UUID bindingId) {
+		return jdbc.query(OBSERVE_EXACT, (rs, row) -> new ObservedBindingRow(
+				rs.getObject("user_id", UUID.class), rs.getLong("current_revision")),
+				issuer, subject, bindingId).stream().findFirst();
+	}
+
+	public boolean fenceExact(String issuer, String subject, UUID userId, UUID bindingId, long revision) {
+		return jdbc.update(FENCE_EXACT, issuer, subject, revision, userId, bindingId) == 1;
+	}
+
+	public record ObservedBindingRow(UUID userId, long revision) {}
 
 	private Optional<ExternalIdentityBindingStreamRow> query(String sql, String issuer, String subject) {
 		return jdbc.query(sql, (result, rowNumber) -> new ExternalIdentityBindingStreamRow(
