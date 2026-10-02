@@ -97,7 +97,10 @@ ExternalIdentity {
 ```
 
 Elle ne capture pas un `PocomaUserId` obtenu par lecture primaire synchrone. Une Command nécessitant
-un User existant capture aussi le `BindingId` présenté par le client.
+un User existant capture aussi le `BindingId` présenté par le client, jamais la
+`BindingRevision`. Pour WRITE_ADMISSION actuel, l'acteur authentifié et le sujet effectif sont la
+même personne : `actor == subject`. L'`ExternalIdentity E` capturée est celle de l'acteur qui agit
+pour son propre binding Pocoma.
 
 ## 3. Command et occurrence de binding
 
@@ -109,7 +112,9 @@ un User existant capture aussi le `BindingId` présenté par le client.
 Une Command durable contient conceptuellement `ExternalIdentity E`, `BindingId B`, le payload et
 l'évidence d'authentification nécessaire. L'admission ne vérifie ni l'existence ni l'actualité de B.
 Au traitement, le worker consulte l'autorité User/Identity primaire. La Command n'est attribuée à un
-`PocomaUserId` que si `(E,B)` correspond exactement au binding actuellement actif.
+`PocomaUserId` que si `(E,B)` correspond exactement au binding actuellement actif. B est le fence
+logique de la Command ; `BindingRevision` n'est ni portée par la Command, ni fournie par le client
+comme précondition métier de son exécution.
 
 ### WA6 — `BindingId`
 
@@ -120,6 +125,22 @@ Il est opaque, unique, non ordinal, non réutilisable et sans sémantique tempor
 compte. Le type canonique peut être un value object autour d'un UUID, conformément aux conventions
 du repository. Chaque Attach produit un nouveau `BindingId`, y compris après detach/reattach vers le
 même User.
+
+`BindingRevision R` est distinct de B : c'est le numéro strictement monotone des changements de
+binding pour une `ExternalIdentity E`. R appartient conceptuellement à E, pas à une occurrence B.
+Chaque mutation autoritative de binding (attach, detach, reattach) incrémente R et prolonge sans
+rupture l'ordre logique de l'histoire de E. R ordonne les faits et permet la convergence des
+projections ; il n'identifie pas une occurrence et ne sert pas de fence à une Command. Le type SQL
+du compteur et sa stratégie d'allocation ne sont pas fixés ici.
+
+Si un contrat de transport emploie le terme « binding token », ce terme désigne une représentation
+de l'occurrence B. Il n'introduit aucune identité métier distincte de `BindingId`.
+
+`BindingId` ne représente jamais une délégation, une impersonation, un droit de supervision ou un
+« agir au nom de ». Une future opération où `actor != effectiveSubject` devra porter un contexte
+explicite d'exécution, par exemple `actor`, `effectiveSubject` et `delegationEvidence`, sans changer
+le sens de `ExternalIdentity`, `BindingId` ou `BindingRevision`. Ce contexte n'appartient pas au
+contrat WRITE_ADMISSION actuel.
 
 ### WA7 — Forme, jamais vérité métier
 
@@ -144,12 +165,14 @@ inexistant, detach et reattach vers le même ou un autre User. Aucun autre `Bind
 ### WA11 — Continuité transactionnelle
 
 > Lorsqu'une Command est exécutée sous `(ExternalIdentity E, BindingId B)`, l'occurrence B doit
-> rester autoritativement courante pendant toute la transition métier de la Command.
+> rester autoritativement courante pendant toute la transition métier de la Command, jusqu'au
+> commit métier.
 
 La résolution `(E,B) -> PocomaUserId` et la mutation métier appartiennent donc à une frontière
 transactionnelle empêchant Attach ou Detach concurrent de rendre B obsolète entre validation et
-commit. Row lock, conditional write ou autre primitive PostgreSQL relèvent du plan ; le présent
-canon impose l'invariant, pas la primitive.
+commit. Le fence logique reste l'occurrence `(E,B)`, jamais la `BindingRevision R`. Le présent canon
+impose cet invariant métier et transactionnel, sans imposer `SELECT ... FOR UPDATE`, row lock, CAS,
+advisory lock ou autre primitive d'implémentation.
 
 La chaîne Command canonique est :
 
@@ -159,48 +182,94 @@ HTTP -> AuthN -> E -> B présenté -> validation structurelle
 
 worker fenced -> reload -> résolution autoritative (E,B) -> U
               -> capabilities/AuthZ -> état métier courant -> mutation ou rejet
+              -> maintien de B courant jusqu'au commit métier
 ```
 
 ## 4. Modèle User/Identity et lifecycle
 
 ### WA9 — READ self-service du binding courant
 
-Une vue READ permet à l'ExternalIdentity authentifiée de retrouver son binding courant :
+`CURRENT_BINDING` est la projection READ self-service mutable, indexée par `ExternalIdentity E`,
+qui permet à l'identité authentifiée de connaître son état courant projeté :
 
 ```text
-authenticated ExternalIdentity E
-  -> READ projection
-  -> PocomaUserId U + BindingId B
+CURRENT_BINDING(E)
+  externalIdentity = E
+  bindingRevision = R
+  state = ATTACHED | DETACHED
+
+  si ATTACHED : userId = U, bindingId = B
+  si DETACHED : userId = null, bindingId = null
 ```
 
-Elle est strictement self-service : E vient de l'AuthN et aucun caller ne recherche une
-`ExternalIdentity` arbitraire. Elle ne lit jamais le primaire et accepte la cohérence éventuelle de
-READ. `AUTH(Pot,V)` ne porte pas cette donnée. En l'absence de projection adaptée, une projection
-User/Identity minimale est requise ; son nom et son layout restent des choix de plan.
+Elle possède au plus une valeur courante par E, est reconstruisible depuis les faits canoniques et
+conserve la dernière R lorsque E est détachée. Une projection E avec `state=DETACHED` signifie que E
+a une histoire de binding mais aucun binding courant ; l'absence de projection pour E signifie
+qu'aucune connaissance projetée n'est disponible pour E. Un detach ne supprime donc pas
+conceptuellement E de `CURRENT_BINDING`.
 
-Le worker Command ne consomme jamais cette projection : son contrôle `(E,B) -> U` reste
-autoritatif sur le primaire.
+La vue est strictement self-service : E vient de l'AuthN et aucun caller ne recherche une
+`ExternalIdentity` arbitraire. L'endpoint READ ne lit jamais le primaire et accepte la cohérence
+éventuelle de READ. `AUTH(Pot,V)` ne porte pas cette donnée. Le statut HTTP exact exposé au client
+en cas de detach (par exemple `200`, `204` ou `404`) reste un choix d'implémentation ultérieur.
+
+Le worker WRITE ne consomme jamais `CURRENT_BINDING` pour décider d'exécuter une Command : son
+contrôle `(E,B) -> U` utilise l'autorité primaire WRITE.
 
 ### WA10 — Lifecycle de l'occurrence
 
-```text
-Registration réussie -> User U -> Binding(E,U,B) -> Registered(U,B)
-Attach réussi         -> Binding(E,U,Bn) -> résultat contenant Bn
-Detach                 -> invalide ou supprime l'occurrence courante
-```
-
-Tout attach ultérieur produit un nouveau `BindingId`. Un B n'est jamais réutilisé. Aucun historique
-des bindings n'est requis uniquement pour satisfaire cet invariant.
-
-`BindingId` appartient au domaine User/Identity. Le fait de création d'occurrence est :
+L'autorité WRITE possède conceptuellement un état courant par `ExternalIdentity E`, y compris
+lorsqu'elle est détachée :
 
 ```text
-ExternalIdentityAttached(E,U,B)
+BINDING_AUTHORITY(E)
+  bindingRevision = R
+  state = ATTACHED | DETACHED
+
+  si ATTACHED : userId = U, bindingId = B
+  si DETACHED : aucun binding courant
 ```
 
-Un futur fait Detach identifie lui aussi l'occurrence B invalidée, afin qu'un fait stale ne puisse
-pas supprimer une occurrence plus récente. Ces faits permettent de construire la projection
-self-service sans relire le primaire pour découvrir B.
+Cette forme est conceptuelle et n'impose pas une table unique. Après detach, l'autorité conserve
+l'état `DETACHED` et suffisamment d'information sur la dernière R pour que la prochaine mutation
+produise la révision suivante. L'absence d'une row de binding actif ne décrit donc pas, à elle
+seule, toute la vérité métier de E.
+
+Le lifecycle conceptuel d'une même E peut être :
+
+```text
+R1 ATTACHED(E,U1,B1)
+R2 DETACHED(E,U1,B1)
+R3 ATTACHED(E,U1,B2)
+R4 DETACHED(E,U1,B2)
+R5 ATTACHED(E,U2,B3)
+```
+
+Une Registration réussie crée User U puis attache E à U sous un nouveau B et produit
+`Registered(U,B)` ; un Attach ou Reattach réussi crée également un nouveau B, y compris vers le
+même U, et retourne ce B. Un Detach invalide le B courant. Chaque mutation autoritative fait
+avancer la révision propre à E. Un B n'est jamais réutilisé.
+
+Le lifecycle produit une histoire durable de faits canoniques append-only, conceptuellement :
+
+```text
+ExternalIdentityAttached(E,U,B,R)
+ExternalIdentityDetached(E,U,B,R)
+```
+
+Chaque fait porte E et R ; le detach identifie l'occurrence B invalidée. Pour un même E, R définit
+l'ordre de l'histoire et un fait stale ne peut ni supprimer ni remplacer une occurrence plus
+récente. Les faits sont immuables ; `CURRENT_BINDING` est leur projection READ mutable et
+reconstruisible. B et R ne sont jamais interchangeables. Les noms Java et le schéma SQL des faits
+ne sont pas fixés ici.
+
+Les responsabilités sont distinctes :
+
+| Élément | Rôle |
+|---|---|
+| Binding authority WRITE | Vérité courante autoritative, utilisée pour résoudre et fencer les Commands. |
+| Binding facts | Histoire durable append-only de E, ordonnée par R. |
+| `CURRENT_BINDING` | Vue courante READ mutable, reconstruisible depuis les faits. |
 
 ## 5. Enveloppe durable et résultat Command
 
@@ -212,10 +281,15 @@ RecordedCommand
   commandType
   payload
   submittedAt
-  ExternalIdentity
-  BindingId
+  ExternalIdentity E
+  BindingId B
   authenticationEvidence
 ```
+
+La Command ne porte pas `BindingRevision R`. B identifie déjà l'occurrence exacte revendiquée ;
+tout detach/reattach crée un nouveau B. Une ancienne Command sous B1 reste invalide après création
+de B2, même si E est rattachée au même U. R ordonne l'histoire du binding et la convergence de
+`CURRENT_BINDING` ; elle ne détermine pas directement la validité d'une Command.
 
 `PocomaUserId` n'est pas une identité résolue à l'admission. L'admission ne traduit pas les
 `scope/scp` en décision d'AuthZ ; elle capture seulement l'évidence attestée requise. Le worker
@@ -234,18 +308,23 @@ plan.
 | WA1 | §2 AuthN, capture et absence de décision métier |
 | WA2 | §1 et §2 zéro lecture primaire HTTP WRITE |
 | WA3 | §2 admission ouverte à toute E authentifiée |
-| WA4 | §2 capture durable de E et B, jamais U résolu |
-| WA5 | §3 sémantique de la Command sous occurrence B |
-| WA6 | §3 identité et propriétés de `BindingId` |
+| WA4 | §2 capture durable de E et B, jamais U résolu ni R ; actor == subject |
+| WA5 | §3 sémantique de la Command sous occurrence B, validée sur l'autorité WRITE |
+| WA6 | §3 identité et propriétés de B, ordre propre à E porté par R, sans troisième identité « token » |
 | WA7 | §3 validation structurelle seulement |
 | WA8 | §3 rejet unique non-oracle |
-| WA9 | §4 projection READ self-service |
-| WA10 | §4 lifecycle Registration/Attach/Detach |
-| WA11 | §3 continuité transactionnelle jusqu'au commit métier |
+| WA9 | §4 `CURRENT_BINDING(E)` mutable, avec état `DETACHED` et dernière R conservée |
+| WA10 | §4 autorité WRITE, faits append-only et lifecycle Registration/Attach/Detach ordonné par R |
+| WA11 | §3 fence logique `(E,B)` maintenu jusqu'au commit, sans primitive imposée |
 
 ## 7. Verdict
 
 **FRAMING CLOSED**
+
+Le cadrage Binding / Command / fencing est fermé : B identifie l'occurrence et fence la Command ;
+R ordonne les mutations de E et les faits ; l'autorité WRITE conserve l'état détaché et la dernière
+révision ; `CURRENT_BINDING` est la projection READ mutable. Aucune question architecturale ne
+reste ouverte sur ces responsabilités.
 
 Les choix de schéma, ports, locks, migration des Commands historiques, représentation durable des
 capabilities et layout des projections appartiennent au futur plan d'implémentation. Aucun de ces
