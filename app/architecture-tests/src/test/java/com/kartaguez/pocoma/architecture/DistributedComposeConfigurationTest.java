@@ -20,7 +20,7 @@ class DistributedComposeConfigurationTest {
 				"\n  pocoma-command-consumption-worker:\n");
 
 		assertEquals(2, occurrences(compose,
-				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES"));
 		assertCanonicalTaskWorker(taskWorker0, 0);
 		assertCanonicalTaskWorker(taskWorker1, 1);
 		assertFalse(compose.contains("POCOMA_TASK_CONSUMPTION_"));
@@ -38,8 +38,11 @@ class DistributedComposeConfigurationTest {
 				"app/runtime-task-consumption-worker/src/main/resources/application-postgres.properties"));
 		String commandProfile = Files.readString(findRepositoryFile(
 				"app/runtime-command-consumption-worker/src/main/resources/application-postgres.properties"));
+		String resultProfile = Files.readString(findRepositoryFile(
+				"app/runtime-command-result-consumption-worker/src/main/resources/application-postgres.properties"));
 
 		assertEquals(commandProfile, taskProfile);
+		assertEquals(commandProfile, resultProfile);
 	}
 
 	@Test
@@ -55,7 +58,8 @@ class DistributedComposeConfigurationTest {
 	void distributedCompositionRunsAndScrapesTheCommandConsumptionWorker() throws IOException {
 		String compose = Files.readString(findRepositoryFile("docker-compose.distributed.yml"));
 		String prometheus = Files.readString(findRepositoryFile("docker/prometheus/prometheus.distributed.yml"));
-		String service = section(compose, "  pocoma-command-consumption-worker:\n", "\n  prometheus:\n");
+		String service = section(compose, "  pocoma-command-consumption-worker:\n",
+				"\n  pocoma-command-result-consumption-worker:\n");
 
 		assertTrue(service.contains("RUNTIME_MODULE: runtime-command-consumption-worker"));
 		assertTrue(service.contains("RUNTIME_ARTIFACT: pocoma-runtime-command-consumption-worker"));
@@ -67,6 +71,12 @@ class DistributedComposeConfigurationTest {
 		assertTrue(compose.contains("pocoma-command-consumption-worker:\n        condition: service_started"));
 		assertTrue(prometheus.contains("job_name: pocoma-command-consumption-worker"));
 		assertTrue(prometheus.contains("pocoma-command-consumption-worker:8080"));
+		String resultService = section(compose, "  pocoma-command-result-consumption-worker:\n",
+				"\n  pocoma-latest-known-version-consumption-worker:\n");
+		assertTrue(resultService.contains("RUNTIME_MODULE: runtime-command-result-consumption-worker"));
+		assertTrue(resultService.contains("POCOMA_COMMAND_RESULT_CONSUMPTION_ENABLED: \"true\""));
+		assertTrue(compose.contains("pocoma-command-result-consumption-worker:\n        condition: service_started"));
+		assertTrue(prometheus.contains("pocoma-command-result-consumption-worker:8080"));
 	}
 
 	private static Path findRepositoryFile(String name) {
@@ -95,9 +105,9 @@ class DistributedComposeConfigurationTest {
 		assertTrue(service.contains("<<: *pocoma-java-environment"));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: \"true\""));
 		assertTrue(service.contains(
-				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES"));
 		assertTrue(service.contains(
-				"POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"));
+				"POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES"));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: "
 				+ "canonical-projection-task-worker-" + segmentIndex));
 		assertTrue(service.contains("POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: " + segmentIndex));

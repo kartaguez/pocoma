@@ -62,11 +62,6 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 				         pot_id::text as target_object_id, version as target_version,
 				         pot_partition_hash as partition_hash, created_at as recorded_at
 				  from business_event_outbox
-				  union all
-				  select event_id, event_type, 'COMMAND' as target_object_type,
-				         command_id::text as target_object_id, 1::bigint as target_version,
-				         command_partition_hash as partition_hash, recorded_at
-				  from command_terminal_events
 				)
 				select event.event_id, event.event_type, event.target_object_type,
 				       event.target_object_id, event.target_version, event.recorded_at,

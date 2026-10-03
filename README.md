@@ -75,9 +75,13 @@ cd app
   -Dspring-boot.run.profiles=postgres \
   -Dspring-boot.run.arguments="--pocoma.command-consumption.enabled=true"
 
+./mvnw -pl runtime-command-result-consumption-worker spring-boot:run \
+  -Dspring-boot.run.profiles=postgres \
+  -Dspring-boot.run.arguments="--pocoma.command-result-consumption.enabled=true"
+
 ./mvnw -pl runtime-event-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"
+  -Dspring-boot.run.arguments="--pocoma.event-consumption.enabled=true --pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES"
 
 ./mvnw -pl runtime-latest-known-version-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
@@ -85,12 +89,12 @@ cd app
 
 ./mvnw -pl runtime-task-consumption-worker spring-boot:run \
   -Dspring-boot.run.profiles=postgres \
-  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT --pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT"
+  -Dspring-boot.run.arguments="--pocoma.projection-task-consumption.enabled=true --pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES --pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES"
 ```
 
 ### Docker Compose Modes
 
-The supported Compose mode runs one API runtime, one Command consumption worker, one dedicated latest-known
+The supported Compose mode runs one API runtime, one Command consumption worker, one Command Result consumer, one dedicated latest-known
 consumer, two Event consumption workers, two canonical ProjectionTask workers, PostgreSQL,
 Prometheus, and Grafana:
 

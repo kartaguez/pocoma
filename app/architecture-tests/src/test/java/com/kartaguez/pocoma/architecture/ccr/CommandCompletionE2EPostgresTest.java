@@ -84,7 +84,8 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoric
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaProjectedExpenseAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaAuthProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcCommandResultProjectionInputLoader;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultStore;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
@@ -93,6 +94,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalId
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.http.read.query.CommandResultController;
@@ -115,7 +117,7 @@ class CommandCompletionE2EPostgresTest {
 			.withCommand("postgres", "-c", "log_statement=all");
 
 	@Test
-	void admissionThroughCommandEventTaskAndExactReadProducesAllTerminalResultsDurably() throws Exception {
+	void admissionThroughCommandTerminalEventAndResultProducesAllTerminalResultsDurably() throws Exception {
 		JdbcTemplate jdbc = jdbc();
 		UUID userId = UUID.randomUUID();
 		String appliedLabel = "ccr-applied-" + UUID.randomUUID();
@@ -161,28 +163,16 @@ class CommandCompletionE2EPostgresTest {
 					applied.value()));
 		}
 
-		try (ConfigurableApplicationContext firstEventContext = eventContext()) {
-			firstEventContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		try (ConfigurableApplicationContext resultContext = resultContext()) {
+			resultContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
 		}
-		assertTerminalTasks(jdbc, applied, rejected, failed);
-		try (ConfigurableApplicationContext restartedEventContext = eventContext()) {
-			restartedEventContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		assertEquals(3, count(jdbc, "select count(*) from command_results"));
+		try (ConfigurableApplicationContext restartedResultContext = resultContext()) {
+			restartedResultContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
 		}
-		assertEquals(3, count(jdbc, "select count(*) from projection_tasks where projection_type='COMMAND_RESULT'"));
-
-		try (ConfigurableApplicationContext taskContext = taskContext()) {
-			taskContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
-			await(() -> count(jdbc, "select count(*) from pocoma_read.projection_root "
-					+ "where projection_type='COMMAND_RESULT'") == 3);
-		}
-		try (ConfigurableApplicationContext restartedTaskContext = taskContext()) {
-			restartedTaskContext.getBean(ConsumptionPollingWorker.class).runOneCycle();
-		}
-		assertEquals(3, count(jdbc, "select count(*) from pocoma_read.projection_root "
-				+ "where projection_type='COMMAND_RESULT'"));
-		assertEquals(3, count(jdbc, "select count(*) from pocoma_read.projection_artifact artifact "
-				+ "join pocoma_read.projection_root root on root.id=artifact.projection_root_id "
-				+ "where root.projection_type='COMMAND_RESULT'"));
+		assertEquals(3, count(jdbc, "select count(*) from command_results"));
+		assertEquals(0, count(jdbc, "select count(*) from projection_tasks where projection_type='COMMAND_RESULT'"));
+		assertEquals(0, count(jdbc, "select count(*) from pocoma_read.projection_root where projection_type='COMMAND_RESULT'"));
 		UUID currentBindingId = jdbc.queryForObject(
 				"select binding_id from external_identities where issuer=? and subject=?",
 				UUID.class, ISSUER, SUBJECT);
@@ -224,7 +214,7 @@ class CommandCompletionE2EPostgresTest {
 			jdbc.execute("select '" + end + "'");
 
 			String getSql = statementsBetween(begin, end).toLowerCase();
-			assertTrue(getSql.contains("pocoma_read.projection_root"));
+			assertTrue(getSql.contains("command_results"));
 			assertTrue(getSql.contains("pocoma_read.current_external_identity_binding"));
 			for (String forbidden : List.of("recorded_commands", "command_outcomes", "external_identities",
 					"external_identity_binding_streams", "external_identity_binding_facts",
@@ -346,6 +336,9 @@ class CommandCompletionE2EPostgresTest {
 		try (ConfigurableApplicationContext context = cleanCommandContext()) {
 			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
 		}
+		try (ConfigurableApplicationContext context = resultContext()) {
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
 		try (ConfigurableApplicationContext context = potEventContext()) {
 			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
 		}
@@ -390,33 +383,24 @@ class CommandCompletionE2EPostgresTest {
 				"pocoma.command-consumption.max-consumptions-executed=10").run();
 	}
 
-	private ConfigurableApplicationContext eventContext() {
-		return application(EventTestApplication.class).properties(
-				"pocoma.event-consumption.enabled=false",
-				"pocoma.event-consumption.projection-types=COMMAND_RESULT",
-				"pocoma.event-consumption.max-consumptions-executed=10").run();
+	private ConfigurableApplicationContext resultContext() {
+		return application(ResultTestApplication.class).properties(
+				"pocoma.command-result-consumption.enabled=false",
+				"pocoma.command-result-consumption.max-consumptions-executed=10").run();
 	}
 
 	private ConfigurableApplicationContext potEventContext() {
 		return application(EventTestApplication.class).properties(
 				"pocoma.event-consumption.enabled=false",
-				"pocoma.event-consumption.projection-types=COMMAND_RESULT,AUTH,READ_POT",
+				"pocoma.event-consumption.projection-types=AUTH,READ_POT,POT_BALANCES",
 				"pocoma.event-consumption.max-consumptions-executed=10").run();
-	}
-
-	private ConfigurableApplicationContext taskContext() {
-		return application(TaskTestApplication.class).properties(
-				"pocoma.projection-task-consumption.enabled=true",
-				"pocoma.projection-task-consumption.catalog-projection-types=COMMAND_RESULT",
-				"pocoma.projection-task-consumption.locator-projection-types=COMMAND_RESULT",
-				"pocoma.projection-task-consumption.poll-interval=20ms").run();
 	}
 
 	private ConfigurableApplicationContext potTaskContext() {
 		return application(TaskTestApplication.class).properties(
 				"pocoma.projection-task-consumption.enabled=true",
-				"pocoma.projection-task-consumption.catalog-projection-types=COMMAND_RESULT,AUTH,READ_POT",
-				"pocoma.projection-task-consumption.locator-projection-types=COMMAND_RESULT,AUTH,READ_POT",
+				"pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES",
+				"pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES",
 				"pocoma.projection-task-consumption.max-consumptions-executed=10",
 				"pocoma.projection-task-consumption.poll-interval=1h").run();
 	}
@@ -474,14 +458,6 @@ class CommandCompletionE2EPostgresTest {
 				where consumable_type='COMMAND'
 				  and consumable_components=cast(? as jsonb)
 				""", String.class, "[\"" + commandId.value() + "\"]"));
-	}
-
-	private static void assertTerminalTasks(JdbcTemplate jdbc, CommandId... commands) {
-		for (CommandId command : commands) {
-			assertEquals(1, count(jdbc, "select count(*) from projection_tasks "
-					+ "where projection_type='COMMAND_RESULT' and target_object_type='COMMAND' "
-					+ "and target_object_id=? and target_version=1", command.value().toString()));
-		}
 	}
 
 	private static int count(JdbcTemplate jdbc, String sql, Object... arguments) {
@@ -580,11 +556,19 @@ class CommandCompletionE2EPostgresTest {
 	static class EventTestApplication {}
 
 	@SpringBootConfiguration
+	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
+			ReadStoreMigrationAutoConfiguration.class})
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@Import({CommandResultRuntimeConfiguration.class, JdbcCommandResultStore.class, JdbcCommandResultSource.class})
+	static class ResultTestApplication {}
+
+	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
 	@Import({CanonicalProjectionTaskRuntimeConfiguration.class, JdbcCommandOutcomeAdapter.class,
-			JdbcCommandResultProjectionInputLoader.class, JpaPotHeaderAdapter.class,
+			JpaPotHeaderAdapter.class,
 			JpaPotShareholdersAdapter.class, JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,
 			JpaProjectedExpenseAdapter.class, JpaHistoricalPotSnapshotSourceAdapter.class,
 			JpaHistoricalPotBalanceSourceAdapter.class, JpaAuthProjectionInputLoader.class,
@@ -593,7 +577,8 @@ class CommandCompletionE2EPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@Import({ProjectionReadConfiguration.class, CommandResultReadConfiguration.class})
+	@Import({ProjectionReadConfiguration.class, CommandResultReadConfiguration.class,
+			JdbcCommandResultStore.class})
 	static class ReadTestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
 	}
@@ -606,6 +591,7 @@ class CommandCompletionE2EPostgresTest {
 			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,
 			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
 			JpaRecordedCommandRepository.class, JpaExternalIdentityResolverAdapter.class,
+			JdbcCommandResultStore.class,
 			ExternalIdentityJdbcRepository.class,
 			AsyncCommandController.class, CommandResultController.class, CurrentBindingController.class,
 			PotQueryController.class,

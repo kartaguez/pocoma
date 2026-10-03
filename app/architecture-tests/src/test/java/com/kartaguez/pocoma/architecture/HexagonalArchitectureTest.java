@@ -917,21 +917,22 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void commandResultReadDependsOnlyOnTheExactReadProjectionPath() {
+	void commandResultReadDependsOnlyOnImmutableResultStore() {
 		String service = ROOT_PACKAGE + ".engine.command.result.GetCommandResultService";
 		Set<String> dependencies = directDependencyNames(service);
 		assertTrue(dependencies.contains(
-				ROOT_PACKAGE + ".engine.port.in.projection.read.ExactProjectionReadUseCase"));
+				ROOT_PACKAGE + ".engine.command.result.CommandResultStore"));
 		assertFalse(dependencies.stream().anyMatch(name -> name.contains("Binding")),
 				"Command result GET must not resolve current binding");
 		Set<String> forbidden = dependencies.stream()
 				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.command.port.out.CommandOutcomeQueryPort")
 						|| name.startsWith(ROOT_PACKAGE + ".infra.")
 						|| name.startsWith(ROOT_PACKAGE + ".domain.consumption.")
-						|| name.contains("RecordedCommand"))
+						|| name.contains("RecordedCommand")
+						|| name.contains("Projection"))
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), forbidden,
-				"COMMAND_RESULT reads must not bypass the exact READ projection path");
+				"COMMAND_RESULT GET must read only its immutable Result store");
 
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
@@ -953,8 +954,8 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".engine.read.binding.GetCurrentBindingUseCase"));
 		assertFalse(bindingControllerDependencies.contains(
 				ROOT_PACKAGE + ".engine.read.binding.CurrentBindingProjectionPort"));
-		assertEquals(Set.of("identity"), fieldNames(
-				ROOT_PACKAGE + ".engine.command.result.CommandResultVisibility"));
+		assertEquals(Set.of("owner", "outcome"), fieldNames(
+				ROOT_PACKAGE + ".engine.command.result.ImmutableCommandResult"));
 	}
 
 	@Test

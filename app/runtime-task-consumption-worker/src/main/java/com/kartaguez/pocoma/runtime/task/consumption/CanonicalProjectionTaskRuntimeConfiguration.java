@@ -23,9 +23,6 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionInputLoader;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjector;
 import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
@@ -93,8 +90,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	}
 	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
 			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader,
-			ObjectProvider<AuthProjectionInputLoader> authLoaders,
-			ObjectProvider<CommandResultProjectionInputLoader> commandResultLoaders) {
+			ObjectProvider<AuthProjectionInputLoader> authLoaders) {
 		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
 		var available = new ArrayList<ProjectionProducerDeclaration<?>>();
 		available.addAll(List.of(
@@ -114,16 +110,6 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 			available.add(new ProjectionProducerDeclaration<>(AuthProjectionDefinition.PROJECTION_TYPE,
 					AuthProjectionDefinition.TARGET_OBJECT_TYPE, AuthProjectionDefinition.DEFINITION,
 					authLoader, new AuthProjector()));
-		}
-		if (configured.contains(CommandResultProjectionDefinition.PROJECTION_TYPE)) {
-			CommandResultProjectionInputLoader commandResultLoader = commandResultLoaders.getIfAvailable();
-			if (commandResultLoader == null) {
-				throw new IllegalStateException("COMMAND_RESULT requires a CommandResultProjectionInputLoader");
-			}
-			available.add(new ProjectionProducerDeclaration<>(CommandResultProjectionDefinition.PROJECTION_TYPE,
-						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
-						CommandResultProjectionDefinition.DEFINITION,
-						commandResultLoader, new CommandResultProjector()));
 		}
 		var selected = available.stream().filter(declaration -> configured.contains(declaration.projectionType())).toList();
 		if (selected.size() != configured.size()) {

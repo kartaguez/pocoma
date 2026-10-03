@@ -15,23 +15,19 @@ import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjecti
 import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 
 class PocomaProjectionMaterializationPolicyTest {
 	@Test
-	void declaresBusinessAndCommandTerminalEventMaterializations() {
+	void declaresOnlyVersionedBusinessEventMaterializations() {
 		var policy = PocomaProjectionMaterializationPolicy.policy();
 		var expected = Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE);
 
-		assertEquals(13, policy.materializations().size());
-		assertEquals(java.util.stream.Stream.concat(
-				PocomaEventTypes.all().stream(), CommandTerminalEventTypes.all().stream()).collect(
-						java.util.stream.Collectors.toUnmodifiableSet()), policy.materializations().keySet());
+		assertEquals(PocomaEventTypes.all().size(), policy.materializations().size());
+		assertEquals(PocomaEventTypes.all(), policy.materializations().keySet());
 		PocomaEventTypes.all().forEach(eventType ->
 				assertEquals(expected, policy.materializations().get(eventType)));
-		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(
-				Set.of(CommandResultProjectionDefinition.PROJECTION_TYPE),
+		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(null,
 				policy.materializations().get(eventType)));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
 	}

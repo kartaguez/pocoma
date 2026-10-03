@@ -36,9 +36,10 @@ class Wa67BindingArchitectureTest {
 				"recorded_commands", Set.of(
 						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaRecordedCommandRepository.java",
 						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java",
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JdbcCommandResultProjectionInputLoader.java"),
+						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandResultSource.java"),
 				"command_outcomes", Set.of(
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandOutcomeAdapter.java"));
+						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandOutcomeAdapter.java",
+						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandResultSource.java"));
 		for (var access : expected.entrySet()) {
 			assertEquals(access.getValue(), productionJavaFilesContaining(access.getKey()),
 					() -> "Unexpected direct SQL access to " + access.getKey());

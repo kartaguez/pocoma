@@ -74,8 +74,6 @@ import com.kartaguez.pocoma.engine.command.model.CommandType;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
-import com.kartaguez.pocoma.engine.command.result.CommandResultVisibility;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
@@ -91,7 +89,6 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcCommandResultProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
@@ -191,12 +188,12 @@ class CommandConsumptionPostgresTest {
 		assertEquals(7L, jdbc.queryForObject(
 				"select resulting_version from command_outcomes where command_id = ?", Long.class,
 				command.commandId().value()));
-		var input = new JdbcCommandResultProjectionInputLoader(
-				new JdbcCommandOutcomeAdapter(jdbc), jdbc).load(new ProjectionKey(
-						CommandResultProjectionDefinition.PROJECTION_TYPE,
-						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
-						new TargetObjectId(command.commandId().value().toString()), 1));
-		assertEquals(command.envelope().externalIdentity(), input.visibility().identity());
+		UUID terminalEventId = jdbc.queryForObject(
+				"select event_id from command_terminal_events where command_id=?", UUID.class,
+				command.commandId().value());
+		var source = new JdbcCommandResultSource(jdbc).reload(terminalEventId);
+		assertEquals(command.envelope().externalIdentity(), source.requester());
+		assertEquals(command.commandId(), source.outcome().commandId());
 	}
 
 	@Test

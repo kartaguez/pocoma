@@ -102,22 +102,13 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 	}
 
 	@Test
-	void discoversCommandTerminalEventsAsCommandVersionOneWithoutReadingOutcomePayload() {
+	void terminalCommandEventsAreNotDiscoveredAsVersionedProjections() {
 		UUID eventId = uuid(90);
 		UUID commandId = uuid(190);
 		insertAppliedCommandEvent(eventId, commandId, NOW, 0);
 
-		ProjectionMaterializationCandidate candidate = discovery.findCandidates(
-				routes(COMMAND_APPLIED, COMMAND_RESULT), WorkerSegment.single(), Optional.empty(), 10)
-				.getFirst();
-
-		assertEquals(eventId, candidate.eventId());
-		assertEquals(COMMAND_APPLIED, candidate.eventType());
-		assertEquals(COMMAND_RESULT, candidate.projectionType());
-		assertEquals(new TargetObjectType("COMMAND"), candidate.targetObjectType());
-		assertEquals(new TargetObjectId(commandId.toString()), candidate.targetObjectId());
-		assertEquals(1, candidate.targetVersion());
-		assertEquals(NOW, candidate.recordedAt());
+		assertTrue(discovery.findCandidates(routes(COMMAND_APPLIED, COMMAND_RESULT),
+				WorkerSegment.single(), Optional.empty(), 10).isEmpty());
 	}
 
 	@Test

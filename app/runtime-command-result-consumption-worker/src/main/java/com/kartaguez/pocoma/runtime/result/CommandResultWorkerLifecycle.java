@@ -1,0 +1,14 @@
+package com.kartaguez.pocoma.runtime.result;
+
+import org.springframework.context.SmartLifecycle;
+import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+
+final class CommandResultWorkerLifecycle implements SmartLifecycle {
+	private final ConsumptionPollingWorker worker;
+	private boolean started;
+	CommandResultWorkerLifecycle(ConsumptionPollingWorker worker) { this.worker = worker; }
+	@Override public void start() { worker.start(); started = true; }
+	@Override public void stop() { worker.requestStop(); started = false; }
+	@Override public void stop(Runnable callback) { worker.requestStop(callback); started = false; }
+	@Override public boolean isRunning() { return started && worker.isRunning(); }
+}

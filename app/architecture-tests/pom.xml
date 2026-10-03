@@ -64,6 +64,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-runtime-command-result-consumption-worker</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-locator-consumption-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
