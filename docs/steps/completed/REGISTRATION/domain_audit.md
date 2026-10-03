@@ -48,11 +48,11 @@ Le dossier `docs/steps/current/REGISTRATION/` contenait un seul document avant c
 
 ### 2.2 Code et schéma déterminants
 
-- [`PocomaUserId`](../../../../app/engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/PocomaUserId.java)
+- [`PocomaUserId`](https://github.com/kartaguez/pocoma/blob/2bef2319e61b78b9886d0afb0702235d85fbc80d/app/engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/PocomaUserId.java)
   et [`domain-pot.value.UserId`](../../../../app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/value/UserId.java) ;
-- [`ExternalIdentity`](../../../../app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/ExternalIdentity.java),
-  [`AuthenticatedExternalPrincipal`](../../../../app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/AuthenticatedExternalPrincipal.java)
-  et [`ExternalIdentityResolverPort`](../../../../app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/port/out/ExternalIdentityResolverPort.java) ;
+- [`ExternalIdentity`](https://github.com/kartaguez/pocoma/blob/7f0eb38af5fccc85bb1ba98773989ac130ee32e5/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/ExternalIdentity.java),
+  [`AuthenticatedExternalPrincipal`](https://github.com/kartaguez/pocoma/blob/7f0eb38af5fccc85bb1ba98773989ac130ee32e5/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/AuthenticatedExternalPrincipal.java)
+  et [`ExternalIdentityResolverPort`](https://github.com/kartaguez/pocoma/blob/7f0eb38af5fccc85bb1ba98773989ac130ee32e5/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/port/out/ExternalIdentityResolverPort.java) ;
 - [`SubmitRecordedCommandService`](../../../../app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/SubmitRecordedCommandService.java),
   qui exige aujourd'hui une identité déjà provisionnée ;
 - [`JpaExternalIdentityResolverAdapter`](../../../../app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/identity/JpaExternalIdentityResolverAdapter.java)

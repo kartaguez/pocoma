@@ -15,7 +15,7 @@ Date : 2026-10-02. Complément à [l'audit initial](../../completed/ARCHITECTURE
 
 Les trois familles suffisent aux **capacités applicatives exécutables** : WRITE applique une intention au primaire, READ répond depuis le store READ, CONSUMPTION garantit le traitement d'un consommable. Elles ne couvrent volontairement pas les modèles, contrats, projections, policies, workers, adapters et runtimes. Aucune quatrième famille d'engine n'est démontrée. `engine-core` n'est pas une capacité exécutable ; `engine-projection-*` mélange actuellement lecture, production et consommation de Task. Le préfixe `engine-` doit être retiré des simples modèles et des producteurs.
 
-Une famille conceptuelle ne commande pas un module par use case. La cible physique proposée compte **47 modules**, comme l'état actuel, pour protéger des directions de dépendance utiles. La hausse par rapport à la cible précédente de 43 vient surtout de la séparation du READ Command Result, de l'identité Command et du chemin futur `CURRENT_BINDING`. Ce chiffre est une hypothèse de graphe à valider lot par lot.
+Une famille conceptuelle ne commande pas un module par use case. Dans le snapshot initial, la cible physique proposée comptait **47 modules**, comme la baseline alors auditée, pour protéger des directions de dépendance utiles. La hausse par rapport à la cible précédente de 43 vient surtout de la séparation du READ Command Result, de l'identité Command et du chemin futur `CURRENT_BINDING`. Ce chiffre est une hypothèse de graphe à valider lot par lot.
 
 ## 2. Points du code qui décident la cible
 
@@ -96,7 +96,7 @@ Une seule classification principale par ligne. « Hors engine » désigne une ca
 | COMMAND_RESULT producer | `projection-command-result` | `...projection.commandresult` |
 | CURRENT_BINDING producer cible | `projection-current-binding` | `...projection.currentbinding` |
 | Worker générique | `supra-consumption-worker` | `...worker.consumption` |
-| Composition des six processus | les six `runtime-*` | `...runtime.<capability>.{configuration,lifecycle,adapter}` |
+| Composition des six processus (snapshot antérieur) | les six `runtime-*` de la baseline historique | `...runtime.<capability>.{configuration,lifecycle,adapter}` |
 
 Les packages proposés décrivent l'ownership ; leur graphie exacte peut suivre la convention Java du lot. Les locators Event/LKV ne fusionnent plus dans leurs runtimes : ils portent du traitement applicatif. Le runtime Binding ne reçoit pas non plus son locator ; le module spécialisé reste une vraie frontière contre une dépendance à Spring. Si un adapter technique local est finalement placé dans un runtime, la règle est `adapter → ports/domain`, jamais `adapter → configuration/lifecycle` ; `configuration → adapter` est autorisé.
 

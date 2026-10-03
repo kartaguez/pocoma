@@ -17,3 +17,7 @@ Baseline : `c14751f`, 2026-10-03. Revue statique de `app/*/src/main`, migrations
 ## Décision de gate
 
 Les contradictions portant sur le comportement actuel sont fermées dans F/A/G. Les documents historiques qui les contiennent restent lisibles avec bandeau de provenance ; ils ne sont plus des sources CURRENT. Aucune contradiction bloquante non résolue n'empêche le déplacement de REGISTRATION, POT_E2E et des seuls snapshots ARCHITECTURE. La cible `Three_Engine_Families_Revision` reste active et explicitement **TARGET**. Le reclassement des 43 `docs/plans/*` est préparé par la matrice de l'[audit](Documentation_Rationalization_Audit.md#8-audit-exhaustif-de-docsplans), sans move dans cette vague.
+
+## Clôture structurelle — baseline `6968e6e4ee171c6a451cf3d217457b9bc70416dd`
+
+La matrice de l’audit de rationalisation a été appliquée : 37 plans exécutés sont sous `plans/completed/` et six propositions remplacées sous `archive/`. Les phrases précédentes décrivent le gate DOC.5 et ses seuls déplacements, pas la structure finale. Les sources CURRENT restent Functional Model, Architecture et System Guarantees ; la révision des trois familles reste TARGET. Les liens vers les symboles de code supprimés dans trois audits historiques ont été épinglés aux commits qui contiennent réellement ces fichiers. Les anciens chemins absolus de l’audit Registration sont conservés comme texte de provenance.

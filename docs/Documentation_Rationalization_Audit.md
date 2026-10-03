@@ -2,6 +2,8 @@
 
 Date : 2026-10-03. Portée : lecture seule du dépôt, sauf création de ce rapport. Aucun déplacement, suppression, réécriture de document existant ou changement de code. Aucune commande Maven.
 
+> **Snapshot historique et classement appliqué — 2026-10-03.** Depuis la baseline `6968e6e4ee171c6a451cf3d217457b9bc70416dd`, les 37 plans exécutés sont dans `plans/completed/` et les six propositions supplantées dans `archive/`. Les chemins `docs/plans/*` et les mentions « vague ultérieure » de la matrice ci-dessous décrivent la situation avant déplacement.
+
 > **Mise à jour DOC.1–DOC.7 partiels — 2026-10-03.** Les §§1–16 conservent le diagnostic de la baseline pré-migration ; leurs chemins `steps/current/REGISTRATION` et `steps/current/POT_E2E` sont historiques. La taxonomie fermée et les statuts sont précisés en §17. Les sources CURRENT sont [Functional Model](product/Functional_Model.md), [Architecture](architecture/Architecture.md), [System Guarantees](guarantees/System_Guarantees.md) ; la [validation DOC.5](Documentation_Truth_Validation.md) est verte pour les premiers moves.
 
 ## 1. Baseline

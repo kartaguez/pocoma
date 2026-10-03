@@ -4,7 +4,7 @@
 
 Before planning, implementing, or verifying any change under `app/`, read:
 
-`app/docs/testing/Reactor_Verification_Policy.md`
+`docs/testing/Reactor_Verification_Policy.md`
 
 That document is normative.
 

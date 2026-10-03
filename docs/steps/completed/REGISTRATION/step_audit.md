@@ -1,4 +1,4 @@
-> **Statut documentaire : SUPERSEDED — snapshot antérieur à la chaîne Registration livrée. Les hypothèses CURRENT_BINDING/Event→Task et les liens vers des symboles supprimés restent comme preuve historique ; voir [Architecture](../../../architecture/Architecture.md).**
+> **Statut documentaire : SUPERSEDED — snapshot antérieur à la chaîne Registration livrée. Les hypothèses CURRENT_BINDING/Event→Task et les anciens chemins absolus de machine restent comme preuve historique ; voir [Architecture](../../../architecture/Architecture.md).**
 
 # Audit de cadrage — `RegistrationRequest` et `docs/steps`
 
@@ -36,11 +36,11 @@ PocomaUserId
 
 Constats :
 
-- La validation JWT est installée dans [`WebApiSecurityConfiguration`](/Users/julien.guezennec/Dev/projects/pocoma/app/supra-authentication-spring-security/src/main/java/com/kartaguez/pocoma/supra/authentication/springsecurity/WebApiSecurityConfiguration.java:22).
-- [`AuthenticatedExternalPrincipal`](/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/AuthenticatedExternalPrincipal.java:8) fournit déjà tout ce qui est nécessaire pour capturer l’identité externe sans résoudre un User : `issuer`, `subject`, dates d’authentification et autorités.
+- La validation JWT est installée dans `WebApiSecurityConfiguration` (`/Users/julien.guezennec/Dev/projects/pocoma/app/supra-authentication-spring-security/src/main/java/com/kartaguez/pocoma/supra/authentication/springsecurity/WebApiSecurityConfiguration.java:22` ; chemin absolu de la baseline auditée).
+- `AuthenticatedExternalPrincipal` (`/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/model/AuthenticatedExternalPrincipal.java:8` ; chemin absolu de la baseline auditée) fournit déjà tout ce qui est nécessaire pour capturer l’identité externe sans résoudre un User : `issuer`, `subject`, dates d’authentification et autorités.
 - Sa méthode `identity()` produit exactement `ExternalIdentity(issuer, subject)`.
-- La résolution est effectuée par [`ExternalIdentityResolverPort`](/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/port/out/ExternalIdentityResolverPort.java:8).
-- La table [`external_identities`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/resources/db/migration/V9__external_identities.sql:1) impose l’unicité de `(issuer, subject)`.
+- La résolution est effectuée par `ExternalIdentityResolverPort` (`/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/port/out/ExternalIdentityResolverPort.java:8` ; chemin absolu de la baseline auditée).
+- La table `external_identities` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/resources/db/migration/V9__external_identities.sql:1` ; chemin absolu de la baseline auditée) impose l’unicité de `(issuer, subject)`.
 
 Contrainte de propriété actuelle : `AuthenticatedExternalPrincipal` et `ExternalIdentity` vivent dans `orchestrator-command-admission`, alors qu’ils sont déjà utilisés par les controllers READ. Leur contenu est réutilisable, mais leur emplacement crée un couplage nominal à Command. Un cadrage Registration devrait leur donner une propriété neutre, sans inventer un second modèle d’identité équivalent.
 
@@ -64,7 +64,7 @@ RegistrationRequest
   → demande durable spécifique
 ```
 
-La frontière Command reste intacte : [`SubmitRecordedCommandService`](/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/SubmitRecordedCommandService.java:39) continue d’exiger un `PocomaUserId` et de rejeter une identité inconnue.
+La frontière Command reste intacte : `SubmitRecordedCommandService` (`/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-command-admission/src/main/java/com/kartaguez/pocoma/orchestrator/command/admission/SubmitRecordedCommandService.java:39` ; chemin absolu de la baseline auditée) continue d’exiger un `PocomaUserId` et de rejeter une identité inconnue.
 
 Proposition de cadrage :
 
@@ -83,21 +83,21 @@ Aucune généralisation supplémentaire du moteur Consumption n’est requise pa
 
 | Mécanisme | Existant | Réutilisable tel quel | Adaptation nécessaire | Preuve code |
 |---|---|---:|---|---|
-| Identité structurelle | `ConsumableIdentity`, `ConsumerIdentity`, `ConsumptionKey` | Oui | Nouvelle convention Registration | [`ConsumptionKey`](/Users/julien.guezennec/Dev/projects/pocoma/app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/key/ConsumptionKey.java:5) |
-| Création du slot | Création paresseuse à l’acquisition | Oui | Aucune colonne d’état dans RegistrationRequest | [`JpaConsumptionLifecycleAdapter.acquire`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/consumption/JpaConsumptionLifecycleAdapter.java:62) |
-| Unicité d’une consommation | Clé structurelle unique | Oui | Types/components Registration | [`V4__consumption_engine.sql`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/resources/db/migration/V4__consumption_engine.sql:15) |
-| Eligibility | Discovery propre à chaque famille | Partiellement | Requête de discovery Registration | [`JpaCommandConsumptionDiscoveryRepository`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java:23) |
-| Claim | Claim atomique avec tentative et worker | Oui | Aucune | [`ConsumptionLifecyclePersistencePort`](/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/out/consumption/ConsumptionLifecyclePersistencePort.java:18) |
-| Lease/takeover | Lease fixe, reprise après expiration | Oui | Dimensionner le lease ; aucun heartbeat existant | [`JpaConsumptionLifecycleAdapter`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/consumption/JpaConsumptionLifecycleAdapter.java:99) |
-| Retry | `RetryAfter` puis nouvelle tentative | Oui | Classifier/policy Registration | [`DefaultConsumptionFailurePolicy`](/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/DefaultConsumptionFailurePolicy.java:13) |
-| Échec terminal | `DONE/FAILED`, raison, failure du claim | Oui | Définir les codes stables et l’éventuel résultat public | [`HandleConsumptionFailureService`](/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/HandleConsumptionFailureService.java:38) |
-| Fencing | CAS sur `current_claim_id` | Oui | L’effet get-or-create doit être dans la transaction fenced | [`ExecuteConsumptionService`](/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/ExecuteConsumptionService.java:39) |
-| Transaction métier | Travail + provenance + terminalisation | Oui | Nouvel adaptateur d’exécution Registration | [`TransactionalExecuteConsumptionUseCase`](/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/transaction/consumption/TransactionalExecuteConsumptionUseCase.java:10) |
+| Identité structurelle | `ConsumableIdentity`, `ConsumerIdentity`, `ConsumptionKey` | Oui | Nouvelle convention Registration | `ConsumptionKey` (`/Users/julien.guezennec/Dev/projects/pocoma/app/domain-consumption/src/main/java/com/kartaguez/pocoma/domain/consumption/key/ConsumptionKey.java:5` ; chemin absolu de la baseline auditée) |
+| Création du slot | Création paresseuse à l’acquisition | Oui | Aucune colonne d’état dans RegistrationRequest | `JpaConsumptionLifecycleAdapter.acquire` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/consumption/JpaConsumptionLifecycleAdapter.java:62` ; chemin absolu de la baseline auditée) |
+| Unicité d’une consommation | Clé structurelle unique | Oui | Types/components Registration | `V4__consumption_engine.sql` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/resources/db/migration/V4__consumption_engine.sql:15` ; chemin absolu de la baseline auditée) |
+| Eligibility | Discovery propre à chaque famille | Partiellement | Requête de discovery Registration | `JpaCommandConsumptionDiscoveryRepository` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java:23` ; chemin absolu de la baseline auditée) |
+| Claim | Claim atomique avec tentative et worker | Oui | Aucune | `ConsumptionLifecyclePersistencePort` (`/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/out/consumption/ConsumptionLifecyclePersistencePort.java:18` ; chemin absolu de la baseline auditée) |
+| Lease/takeover | Lease fixe, reprise après expiration | Oui | Dimensionner le lease ; aucun heartbeat existant | `JpaConsumptionLifecycleAdapter` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/consumption/JpaConsumptionLifecycleAdapter.java:99` ; chemin absolu de la baseline auditée) |
+| Retry | `RetryAfter` puis nouvelle tentative | Oui | Classifier/policy Registration | `DefaultConsumptionFailurePolicy` (`/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/DefaultConsumptionFailurePolicy.java:13` ; chemin absolu de la baseline auditée) |
+| Échec terminal | `DONE/FAILED`, raison, failure du claim | Oui | Définir les codes stables et l’éventuel résultat public | `HandleConsumptionFailureService` (`/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/HandleConsumptionFailureService.java:38` ; chemin absolu de la baseline auditée) |
+| Fencing | CAS sur `current_claim_id` | Oui | L’effet get-or-create doit être dans la transaction fenced | `ExecuteConsumptionService` (`/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/ExecuteConsumptionService.java:39` ; chemin absolu de la baseline auditée) |
+| Transaction métier | Travail + provenance + terminalisation | Oui | Nouvel adaptateur d’exécution Registration | `TransactionalExecuteConsumptionUseCase` (`/Users/julien.guezennec/Dev/projects/pocoma/app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/transaction/consumption/TransactionalExecuteConsumptionUseCase.java:10` ; chemin absolu de la baseline auditée) |
 | Crash avant commit | Rollback puis takeover après expiration | Oui | Aucune si l’effet reste PostgreSQL transactionnel | Même chaîne |
-| Polling | `ConsumptionPollingWorker` permanent | Oui | Propriétés et lifecycle Registration | [`ConsumptionPollingWorker`](/Users/julien.guezennec/Dev/projects/pocoma/app/supra-consumption-worker/src/main/java/com/kartaguez/pocoma/supra/consumption/ConsumptionPollingWorker.java:16) |
-| Budget/fairness | Limites candidats/exécutions | Oui, dans une famille | Ordering/fairness de discovery à définir | [`SequentialConsumptionOrchestrator`](/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestrator.java:24) |
+| Polling | `ConsumptionPollingWorker` permanent | Oui | Propriétés et lifecycle Registration | `ConsumptionPollingWorker` (`/Users/julien.guezennec/Dev/projects/pocoma/app/supra-consumption-worker/src/main/java/com/kartaguez/pocoma/supra/consumption/ConsumptionPollingWorker.java:16` ; chemin absolu de la baseline auditée) |
+| Budget/fairness | Limites candidats/exécutions | Oui, dans une famille | Ordering/fairness de discovery à définir | `SequentialConsumptionOrchestrator` (`/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestrator.java:24` ; chemin absolu de la baseline auditée) |
 | Ordering | Défini par chaque discovery | Non générique | `capturedAt, requestId` est cohérent avec Command | Repository Command ci-dessus |
-| Segmentation | Présente pour Event/ProjectionTask, absente pour Command | Optionnelle | Pas nécessaire en V1 sauf besoin de débit | [`ProjectionTaskConsumptionOrchestrator`](/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ProjectionTaskConsumptionOrchestrator.java:22) |
+| Segmentation | Présente pour Event/ProjectionTask, absente pour Command | Optionnelle | Pas nécessaire en V1 sauf besoin de débit | `ProjectionTaskConsumptionOrchestrator` (`/Users/julien.guezennec/Dev/projects/pocoma/app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ProjectionTaskConsumptionOrchestrator.java:22` ; chemin absolu de la baseline auditée) |
 
 Limite canonique importante : Consumption ne renouvelle pas les leases. Un traitement dépassant le lease peut être repris par un autre worker ; le fencing protège alors le commit du gagnant.
 
@@ -150,7 +150,7 @@ Proposition minimale :
 Constat :
 
 - `COMMAND_RESULT` possède un outcome primaire, un terminal Event, puis une projection READ.
-- Le pipeline Event actuel ne découvre que `business_event_outbox` et `command_terminal_events`, explicitement dans [`JdbcProjectionMaterializationDiscoveryAdapter`](/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java:57).
+- Le pipeline Event actuel ne découvre que `business_event_outbox` et `command_terminal_events`, explicitement dans `JdbcProjectionMaterializationDiscoveryAdapter` (`/Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java:57` ; chemin absolu de la baseline auditée).
 - Ajouter des Registration terminal Events est possible, mais demande d’étendre cette source et la policy de routes ; ce n’est pas automatique.
 
 Proposition de cadrage :
@@ -275,9 +275,9 @@ Une projection terminale peut embarquer `issuer + subject` pour ce contrôle, ou
 
 | Sujet | Objectif | État proposé | Destination proposée | Justification |
 |---|---|---|---|---|
-| EPT | Event → ProjectionTask | COMPLETED | `completed/EPT` | [`Step_Plan`](/Users/julien.guezennec/Dev/projects/pocoma/docs/steps/EPT/Step_Plan.md:1) déclare globalement `DONE`; clôture le 2026-09-27 |
+| EPT | Event → ProjectionTask | COMPLETED | `completed/EPT` | `Step_Plan` (`/Users/julien.guezennec/Dev/projects/pocoma/docs/steps/EPT/Step_Plan.md:1` ; chemin absolu de la baseline auditée) déclare globalement `DONE`; clôture le 2026-09-27 |
 | PCL | Suppression du legacy projection/query | COMPLETED | `completed/PCL` | Les huit lots sont `DONE`; clôture PCL.8 le 2026-09-29 |
-| CCR | Résultat terminal des Commands | COMPLETED | `completed/CCR` | [`Step_Plan`](/Users/julien.guezennec/Dev/projects/pocoma/docs/steps/CCR/Step_Plan.md:5) déclare `DONE` et « formellement clôturé » |
+| CCR | Résultat terminal des Commands | COMPLETED | `completed/CCR` | `Step_Plan` (`/Users/julien.guezennec/Dev/projects/pocoma/docs/steps/CCR/Step_Plan.md:5` ; chemin absolu de la baseline auditée) déclare `DONE` et « formellement clôturé » |
 | POT_E2E | Flux Command → résultat → READ_POT autorisé | AMBIGUOUS | provisoirement `current/POT_E2E` | Le document parle de « Delivered slice » et les commits indiquent une livraison, mais aucun statut/avis de clôture formel n’existe |
 | AUTH | Aucun répertoire | — | Aucun déplacement | AUTH existe comme projection et sujet d’architecture, pas comme step autonome dans `docs/steps` |
 | REGISTRATION | Nouveau bootstrap User | CURRENT | `current/REGISTRATION` | Cadrage actif distinct de CCR |
@@ -338,12 +338,12 @@ docs/steps/POT_E2E
 
 Références à mettre à jour :
 
-- [`docs/README.md`](/Users/julien.guezennec/Dev/projects/pocoma/docs/README.md:9) :
+- `docs/README.md` (`/Users/julien.guezennec/Dev/projects/pocoma/docs/README.md:9` ; chemin absolu de la baseline auditée) :
   - liens EPT ;
   - section qui présente encore EPT comme « Active implementation step » ;
   - ajout des index `current` et `completed`.
-- [`docs/pipeline-event-materialization-plan.md`](/Users/julien.guezennec/Dev/projects/pocoma/docs/pipeline-event-materialization-plan.md:3) : deux liens EPT.
-- [`docs/architecture/consumption-event-pull-runtime.md`](/Users/julien.guezennec/Dev/projects/pocoma/docs/architecture/consumption-event-pull-runtime.md:3) : lien vers le canon EPT.
+- `docs/pipeline-event-materialization-plan.md` (`/Users/julien.guezennec/Dev/projects/pocoma/docs/pipeline-event-materialization-plan.md:3` ; chemin absolu de la baseline auditée) : deux liens EPT.
+- `docs/architecture/consumption-event-pull-runtime.md` (`/Users/julien.guezennec/Dev/projects/pocoma/docs/architecture/consumption-event-pull-runtime.md:3` ; chemin absolu de la baseline auditée) : lien vers le canon EPT.
 - `docs/steps/EPT/Step_Plan.md`, lignes 553-554 : chemins littéraux vers lui-même.
 - `docs/steps/PCL/Step_Plan.md`, lignes 1129-1130 : chemins littéraux vers lui-même.
 
