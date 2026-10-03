@@ -1,6 +1,8 @@
 # REGISTRATION — plan rebaseliné sur les trois contrats READ
 
-**WAVE 2: DONE — REG.1/REG.2/REG.3 ; REG.4/REG.5 non commencés.**
+**WAVE 2: ROUVERTE, CORRECTION BLOQUÉE À FIX.1 — REG.1/REG.2/REG.3 historiquement terminés ; REG.4/REG.5 non commencés.**
+
+La clôture antérieure ci-dessous est conservée comme historique. La correction demandée à partir du HEAD `6e889099` a été arrêtée au GO/NO-GO PostgreSQL : le test à deux transactions de l'[audit de correction](Wave2_Optimistic_Binding_and_Module_Boundary_Audit.md#22-journal-de-correction--fix1-gono-go-2026-10-03) montre qu'un `NOT EXISTS` dans l'`UPDATE` conditionnel peut rester fondé sur le snapshot antérieur après attente d'une mutation active. Aucun writer ni arc Maven n'a été modifié. Wave 2 ne redevient pas DONE sans nouvelle preuve et gates finaux ; Wave 3 reste interdite.
 
 ## Journal Wave 2 — Registration Core (2026-10-03)
 
