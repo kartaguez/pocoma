@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
@@ -27,6 +28,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.engine.registration.ImmutableRegistrationResult;
+import com.kartaguez.pocoma.engine.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.registration.RegistrationResultStore;
 
 @SpringBootTest(properties = {
         "spring.jpa.hibernate.ddl-auto=validate",
@@ -47,6 +52,7 @@ class RegistrationAdmissionPostgresTest {
     @Autowired WebApplicationContext context;
     @Autowired JdbcTemplate jdbc;
     @Autowired ObjectMapper json;
+    @Autowired RegistrationResultStore results;
     MockMvc http;
 
     @BeforeEach void clean() {
@@ -89,6 +95,18 @@ class RegistrationAdmissionPostgresTest {
         UUID id = submit("immutable");
         assertThrows(Exception.class, () -> jdbc.update("update registration_requests set subject='attacker' where request_id=?", id));
         assertEquals("immutable", jdbc.queryForObject("select subject from registration_requests where request_id=?", String.class, id));
+    }
+
+    @Test void resultGetIsOpaqueAndOwnedByHistoricalRequestIssuer() throws Exception {
+        UUID id = submit("owner");
+        String path = "/api/v1/registrations/" + id + "/result";
+        http.perform(get(path).with(jwt().jwt(token("owner")))).andExpect(status().isNotFound());
+        results.ensureResult(new ImmutableRegistrationResult(
+                new ExternalIdentity("https://issuer.test", "owner"), new RegistrationOutcome.Rejected(id)));
+        http.perform(get(path).with(jwt().jwt(token("owner")))).andExpect(status().isOk());
+        http.perform(get(path).with(jwt().jwt(token("other")))).andExpect(status().isNotFound());
+        assertEquals("REJECTED", json.readTree(http.perform(get(path).with(jwt().jwt(token("owner"))))
+                .andReturn().getResponse().getContentAsString()).path("status").asText());
     }
 
     private UUID submit(String subject) throws Exception {
