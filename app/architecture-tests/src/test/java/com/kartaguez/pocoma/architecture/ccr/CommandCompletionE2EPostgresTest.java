@@ -45,6 +45,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kartaguez.pocoma.CommandAdmissionConfiguration;
 import com.kartaguez.pocoma.CommandResultReadConfiguration;
+import com.kartaguez.pocoma.RegistrationAdmissionConfiguration;
+import com.kartaguez.pocoma.RegistrationController;
+import com.kartaguez.pocoma.RegistrationResultController;
+import com.kartaguez.pocoma.RegistrationResultReadConfiguration;
 import com.kartaguez.pocoma.PotReadConfiguration;
 import com.kartaguez.pocoma.ProjectionReadConfiguration;
 import com.kartaguez.pocoma.WebAuthorizationConfiguration;
@@ -86,15 +90,29 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaAuthProj
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultStore;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationRequestStore;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationDiscovery;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationResultStore;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationResultDiscovery;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcUserCreatedFactAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaUserAuthorityAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JdbcBindingFactDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingFactAdapter;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
+import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.UserJdbcRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.registration.RegistrationRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.binding.BindingRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
 import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.http.read.query.CommandResultController;
@@ -297,6 +315,88 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
+	@Test
+	void registrationThroughBothReadConsumersFeedsFirstCommandAndRejectedRegistration() throws Exception {
+		JdbcTemplate jdbc = jdbc();
+		try (ConfigurableApplicationContext webContext = webContext()) {
+			cleanDatabase(jdbc);
+			int port = ((WebServerApplicationContext) webContext).getWebServer().getPort();
+			String baseUrl = "http://127.0.0.1:" + port;
+			HttpClient http = HttpClient.newBuilder().connectTimeout(HTTP_TIMEOUT).build();
+			ObjectMapper mapper = webContext.getBean(ObjectMapper.class);
+			UUID requestId = submitRegistration(http, baseUrl, mapper);
+			assertEquals(0, count(jdbc, "select count(*) from registration_outcomes"));
+			assertEquals(404, get(http, baseUrl, "/api/v1/registrations/" + requestId + "/result").statusCode());
+			try (ConfigurableApplicationContext context = registrationContext()) {
+				context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+			}
+			assertEquals("REGISTERED", jdbc.queryForObject("select outcome_type from registration_outcomes where request_id=?",
+					String.class, requestId));
+			try (ConfigurableApplicationContext context = registrationResultContext()) {
+				context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+			}
+			HttpResponse<String> registrationResult = get(http, baseUrl,
+					"/api/v1/registrations/" + requestId + "/result");
+			assertEquals(200, registrationResult.statusCode(), registrationResult.body());
+			JsonNode registered = mapper.readTree(registrationResult.body());
+			assertEquals("REGISTERED", registered.path("status").asText());
+			assertEquals(404, http.send(HttpRequest.newBuilder(URI.create(baseUrl
+					+ "/api/v1/registrations/" + requestId + "/result"))
+					.header("Authorization", "Bearer other-e2e-token").GET().build(),
+					HttpResponse.BodyHandlers.ofString()).statusCode());
+			assertEquals(404, get(http, baseUrl, "/api/v1/me/binding").statusCode());
+			try (ConfigurableApplicationContext context = bindingContext()) {
+				context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+			}
+			HttpResponse<String> currentResponse = get(http, baseUrl, "/api/v1/me/binding");
+			assertEquals(200, currentResponse.statusCode(), currentResponse.body());
+			JsonNode current = mapper.readTree(currentResponse.body());
+			assertEquals("ATTACHED", current.path("status").asText());
+			assertEquals(registered.path("bindingId").asText(), current.path("bindingId").asText());
+			UUID userId = UUID.fromString(registered.path("userId").asText());
+			BindingId bindingId = new BindingId(UUID.fromString(current.path("bindingId").asText()));
+			UUID commandId = submit(http, baseUrl, mapper, bindingId,
+					PotCommandTypes.POT_CREATE_V1.value(),
+					Map.of("label", "registration-first-pot", "creatorId", userId.toString()));
+			runPotPipeline();
+			assertEquals(200, get(http, baseUrl, "/api/v1/command-results/" + commandId).statusCode());
+			assertEquals("APPLIED", mapper.readTree(get(http, baseUrl,
+					"/api/v1/command-results/" + commandId).body()).path("status").asText());
+
+			int usersBefore = count(jdbc, "select count(*) from users");
+			int bindingsBefore = count(jdbc, "select count(*) from external_identity_binding_occurrences");
+			int attachedBefore = count(jdbc, "select count(*) from external_identity_binding_facts where fact_type='ATTACHED'");
+			UUID rejectedId = submitRegistration(http, baseUrl, mapper);
+			try (ConfigurableApplicationContext context = registrationContext()) {
+				context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+			}
+			try (ConfigurableApplicationContext context = registrationResultContext()) {
+				context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+			}
+			JsonNode rejected = mapper.readTree(get(http, baseUrl,
+					"/api/v1/registrations/" + rejectedId + "/result").body());
+			assertEquals("REJECTED", rejected.path("status").asText());
+			assertEquals("EXTERNAL_IDENTITY_ALREADY_USED", rejected.path("code").asText());
+			assertEquals(usersBefore, count(jdbc, "select count(*) from users"));
+			assertEquals(bindingsBefore, count(jdbc, "select count(*) from external_identity_binding_occurrences"));
+			assertEquals(attachedBefore, count(jdbc, "select count(*) from external_identity_binding_facts where fact_type='ATTACHED'"));
+			try (ConfigurableApplicationContext context = registrationContext()) {
+				var tx = context.getBean(TransactionRunner.class);
+				var bindings = context.getBean(JpaExternalIdentityBindingAdapter.class);
+				tx.runInTransaction(() -> { bindings.detach(new ExternalIdentity(ISSUER, SUBJECT), bindingId); return null; });
+			}
+			assertEquals(200, get(http, baseUrl, "/api/v1/registrations/" + requestId + "/result").statusCode());
+		}
+	}
+
+	private UUID submitRegistration(HttpClient http, String baseUrl, ObjectMapper mapper) throws Exception {
+		HttpResponse<String> response = http.send(request(baseUrl, "/api/v1/registrations")
+				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+				.POST(HttpRequest.BodyPublishers.ofString("{}")).build(), HttpResponse.BodyHandlers.ofString());
+		assertEquals(202, response.statusCode(), response.body());
+		return UUID.fromString(mapper.readTree(response.body()).path("requestId").asText());
+	}
+
 	private UUID submit(HttpClient http, String baseUrl, ObjectMapper mapper, BindingId bindingId,
 			String commandType,
 			Map<String, ?> payload)
@@ -389,6 +489,21 @@ class CommandCompletionE2EPostgresTest {
 				"pocoma.command-result-consumption.max-consumptions-executed=10").run();
 	}
 
+	private ConfigurableApplicationContext registrationContext() {
+		return application(RegistrationTestApplication.class).properties(
+				"pocoma.registration-consumption.enabled=false").run();
+	}
+
+	private ConfigurableApplicationContext registrationResultContext() {
+		return application(RegistrationResultTestApplication.class).properties(
+				"pocoma.registration-result-consumption.enabled=false").run();
+	}
+
+	private ConfigurableApplicationContext bindingContext() {
+		return application(BindingTestApplication.class).properties(
+				"pocoma.binding-consumption.enabled=false").run();
+	}
+
 	private ConfigurableApplicationContext potEventContext() {
 		return application(EventTestApplication.class).properties(
 				"pocoma.event-consumption.enabled=false",
@@ -417,6 +532,7 @@ class CommandCompletionE2EPostgresTest {
 						Map.entry("spring.flyway.enabled", "true"),
 						Map.entry("spring.flyway.locations", "classpath:db/migration"),
 						Map.entry("pocoma.command-admission.enabled", "true"),
+						Map.entry("pocoma.registration-admission.enabled", "true"),
 						Map.entry("pocoma.command-result-read.enabled", "true"),
 						Map.entry("pocoma.pot-read.enabled", "true")))
 				.run();
@@ -469,6 +585,7 @@ class CommandCompletionE2EPostgresTest {
 				truncate table external_identity_binding_facts, external_identity_binding_occurrences,
 				 external_identity_binding_baseline_evidence, external_identity_binding_streams,
 				 external_identities, users, recorded_commands, command_outcomes,
+				 registration_results, registration_outcomes, user_created_facts, registration_requests,
 				command_terminal_events, business_event_outbox, projection_tasks,
 				consumption_inputs, consumption_results, consumption_slots, consumption_claims,
 				expense_shares, expense_headers, shareholders, pot_headers,
@@ -564,6 +681,37 @@ class CommandCompletionE2EPostgresTest {
 	static class ResultTestApplication {}
 
 	@SpringBootConfiguration
+	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
+			ReadStoreMigrationAutoConfiguration.class})
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@Import({RegistrationRuntimeConfiguration.class, JdbcRegistrationRequestStore.class,
+			JdbcRegistrationOutcomeStore.class, JdbcRegistrationDiscovery.class,
+			JdbcUserCreatedFactAdapter.class, JpaUserAuthorityAdapter.class,
+			JpaExternalIdentityBindingAdapter.class, ExternalIdentityJdbcRepository.class,
+			UserJdbcRepository.class,
+			ExternalIdentityBindingFactJdbcRepository.class})
+	static class RegistrationTestApplication {}
+
+	@SpringBootConfiguration
+	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
+			ReadStoreMigrationAutoConfiguration.class})
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@Import({RegistrationResultRuntimeConfiguration.class, JdbcRegistrationRequestStore.class,
+			JdbcRegistrationOutcomeStore.class, JdbcRegistrationResultStore.class,
+			JdbcRegistrationResultDiscovery.class})
+	static class RegistrationResultTestApplication {}
+
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@Import({BindingRuntimeConfiguration.class, JdbcBindingFactDiscoveryAdapter.class,
+			JpaExternalIdentityBindingFactAdapter.class, ExternalIdentityBindingFactJdbcRepository.class})
+	static class BindingTestApplication {}
+
+	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
@@ -588,12 +736,15 @@ class CommandCompletionE2EPostgresTest {
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
 	@Import({CommandAdmissionConfiguration.class, CommandResultReadConfiguration.class,
+			RegistrationAdmissionConfiguration.class, RegistrationResultReadConfiguration.class,
 			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,
 			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
+			JdbcRegistrationRequestStore.class, JdbcRegistrationResultStore.class,
 			JpaRecordedCommandRepository.class, JpaExternalIdentityResolverAdapter.class,
 			JdbcCommandResultStore.class,
 			ExternalIdentityJdbcRepository.class,
 			AsyncCommandController.class, CommandResultController.class, CurrentBindingController.class,
+			RegistrationController.class, RegistrationResultController.class,
 			PotQueryController.class,
 			WebApiSecurityConfiguration.class})
 	static class WebTestApplication {
@@ -604,7 +755,7 @@ class CommandCompletionE2EPostgresTest {
 	static class JwtTestConfiguration {
 		@Bean JwtDecoder jwtDecoder() {
 			return token -> org.springframework.security.oauth2.jwt.Jwt.withTokenValue(token)
-					.header("alg", "none").issuer(ISSUER).subject(SUBJECT)
+					.header("alg", "none").issuer(ISSUER).subject(token.equals("other-e2e-token") ? "other" : SUBJECT)
 					.issuedAt(BASE_TIME).expiresAt(BASE_TIME.plusSeconds(600))
 					.claim("auth_time", BASE_TIME.minusSeconds(1).getEpochSecond())
 					.claim("scope", "pocoma:pot:create pocoma:pot:update pocoma:pot:view").build();

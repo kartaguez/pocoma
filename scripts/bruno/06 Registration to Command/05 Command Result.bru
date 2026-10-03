@@ -1,0 +1,22 @@
+meta {
+  name: 05 Command Result
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/command-results/{{registrationCommandId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Command Result is pending or terminal", function () {
+    expect([404, 200]).to.include(res.getStatus());
+    if (res.getStatus() === 200) expect(["APPLIED", "REJECTED", "FAILED"]).to.include(res.getBody().status);
+  });
+}
