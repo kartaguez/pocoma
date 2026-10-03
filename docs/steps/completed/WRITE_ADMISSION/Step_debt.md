@@ -1,5 +1,7 @@
 # WRITE_ADMISSION — Dette résiduelle WA.6
 
+> **Suivi vivant :** [DEBT-WA6-01 — ordre des locks Binding](../../../debts/BINDING_LOCK_ORDER_GUARD/Debt.md) et [DEBT-WA6-02 — guards SQL ownership / append-only](../../../debts/SQL_APPEND_ONLY_GUARDS/Debt.md). Le présent document conserve la provenance historique du Step clos ; les fiches du registre portent désormais le suivi de ces deux dettes.
+
 ```text
 WA.6 FINAL AUDIT: PASS
 WA.6 STATUS: CLOSED

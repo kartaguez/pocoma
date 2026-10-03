@@ -8,10 +8,11 @@ Sources **CURRENT** de l’état livré :
 
 La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves et leurs limites.
 
-## Cibles et historique
+## Cibles, dettes et historique
 
-- **TARGET / travail actif** : [révision des trois familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux historiques 47→47 ne sont pas exécutables sur les 51 modules et neuf runtimes actuels.
+- **TARGET / réflexion préparatoire** : [révision des trois familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux historiques 47→47 ne sont pas exécutables sur les 51 modules et neuf runtimes actuels.
 - **TARGET / références spécialisées** : [architecture READ cible](architecture/read-side-target.md) et [contrats du kernel d’autorisation](architecture/authorization-kernel-contracts.md) ; leur portée est indiquée dans chaque document.
+- **DEBTS** : [registre des dettes techniques](debts/README.md), pour les écarts connus et acceptés sans en faire une source normative du système ni un Step automatiquement actif.
 - **HISTORICAL-COMPLETED** : [Steps livrés](steps/completed/) et [plans exécutés](plans/completed/).
 - **SUPERSEDED** : [archives](archive/). La [matrice de classement](Documentation_Rationalization_Audit.md#8-audit-exhaustif-de-docsplans) conserve la provenance des 43 plans.
 
