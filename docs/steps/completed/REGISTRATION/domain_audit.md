@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — Step livré et conservé comme preuve. La règle actuelle est dans [Functional Model](../../../product/Functional_Model.md), [Architecture](../../../architecture/Architecture.md) et [System Guarantees](../../../guarantees/System_Guarantees.md). Les jalons et formulations de plan ci-dessous sont historiques.**
+
 # REGISTRATION — audit de cadrage métier et architectural
 
 Date : 2026-09-30
@@ -26,9 +28,9 @@ Le dossier `docs/steps/current/REGISTRATION/` contenait un seul document avant c
 ### 2.1 Documents
 
 - [`docs/steps/current/REGISTRATION/step_audit.md`](step_audit.md), premier audit Registration ;
-- [`docs/steps/completed/CCR/RegisterUser_Identity_Audit.md`](../../completed/CCR/RegisterUser_Identity_Audit.md),
+- [`docs/steps/completed/CCR/RegisterUser_Identity_Audit.md`](../CCR/RegisterUser_Identity_Audit.md),
   inventaire antérieur de la chaîne d'identité et du bootstrap absent ;
-- [`docs/steps/completed/CCR/Step_Canon.md`](../../completed/CCR/Step_Canon.md), autorité sur les
+- [`docs/steps/completed/CCR/Step_Canon.md`](../CCR/Step_Canon.md), autorité sur les
   outcomes et terminal Events des Commands ;
 - [`docs/use-case-families.md`](../../../use-case-families.md), séparation intention métier,
   enveloppe durable et Consumption ;

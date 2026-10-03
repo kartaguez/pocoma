@@ -1,3 +1,5 @@
+> **Statut documentaire : SUPERSEDED — snapshot antérieur à la chaîne Registration livrée. Les hypothèses CURRENT_BINDING/Event→Task et les liens vers des symboles supprimés restent comme preuve historique ; voir [Architecture](../../../architecture/Architecture.md).**
+
 # Audit de cadrage — `RegistrationRequest` et `docs/steps`
 
 ## A. Baseline repository

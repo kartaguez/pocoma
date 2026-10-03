@@ -32,7 +32,7 @@ POM, configuration, canon ou plan REGISTRATION n'est modifié.
 - [`REGISTRATION/Step_Canon.md`](../REGISTRATION/Step_Canon.md), autorité actuelle D1–D33 ;
 - [`REGISTRATION/Step_Plan.md`](../REGISTRATION/Step_Plan.md), plan d'implémentation actuel, à
   réviser avant toute implémentation ;
-- [`CCR/Step_Canon.md`](../../completed/CCR/Step_Canon.md), outcome terminal, terminal Event et
+- [`CCR/Step_Canon.md`](../CCR/Step_Canon.md), outcome terminal, terminal Event et
   projection `COMMAND_RESULT` ;
 - [`authorization-kernel-contracts.md`](../../../architecture/authorization-kernel-contracts.md),
   séparation capacités courantes / relations métier et partage des policies WRITE/READ ;
@@ -62,8 +62,8 @@ historique par Pot et version métier ; ce n'est pas une autorité User/Identity
 
 - [`REGISTRATION/step_audit.md`](../REGISTRATION/step_audit.md) et
   [`REGISTRATION/domain_audit.md`](../REGISTRATION/domain_audit.md) ;
-- [`CCR/RegisterUser_Identity_Audit.md`](../../completed/CCR/RegisterUser_Identity_Audit.md) ;
-- [`CCR/Step_Plan.md`](../../completed/CCR/Step_Plan.md) ;
+- [`CCR/RegisterUser_Identity_Audit.md`](../CCR/RegisterUser_Identity_Audit.md) ;
+- [`CCR/Step_Plan.md`](../CCR/Step_Plan.md) ;
 - plans historiques Command, Consumption, Event, Projection et READ sous `docs/plans/` lorsque
   nécessaires à la traçabilité.
 

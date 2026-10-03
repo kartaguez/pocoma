@@ -19,7 +19,7 @@ La cible sépare strictement :
 
 Le code actuel n'est pas la spécification. Les noms de composants et les mécanismes de composition
 non arrêtés dans ce document restent ouverts jusqu'à l'audit d'écart préalable à l'implémentation.
-Le document [`consumption-task-balance-runtime.md`](consumption-task-balance-runtime.md) décrit le
+Le document [Architecture](Architecture.md) décrit le
 runtime transitionnel actuellement livré ; lorsqu'il conserve une identité de pipeline, une
 comparaison de contenu ou une provenance générique contraire à la présente cible, ce document-ci
 prévaut.

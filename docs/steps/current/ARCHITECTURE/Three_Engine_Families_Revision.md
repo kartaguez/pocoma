@@ -1,8 +1,15 @@
+> **Statut documentaire : TARGET actif.** Plan de migration des frontières et familles de modules. Les noms, comptes et voies proposés ici ne sont pas l’architecture CURRENT ; voir [Architecture](../../../architecture/Architecture.md).
+
 # Révision ciblée — WRITE, READ et CONSUMPTION
 
-> **Cible partiellement remplacée (2026-10-03).** Le [plan global des matérialisations READ](Read_Materialization_Gap_and_Migration_Plan.md) conserve les constats de code ci-dessous, mais abandonne la migration de CURRENT_BINDING vers Event→ProjectionTask et fait sortir COMMAND_RESULT du modèle Projection. Les lots et le graphe cible de ce document ne doivent pas être exécutés tels quels pour ces deux capacités.
+## Rebaseline TARGET — 2026-10-03
 
-Date : 2026-10-02. Complément à [l'audit initial](Consumption_Workers_Runtimes_Audit.md). Les constats et le graphe **actuels** de cet audit restent sa baseline ; la présente révision remplace **sa cible de 43 modules et son ordre de migration**. Branche `v2-make-it-pull`, HEAD de la révision `3a4ba96195db28686fdc5c3ba8dceab8157c7282`, working tree propre au départ. Aucun code applicatif n'est modifié. Les noms ci-dessous sont des destinations de migration, pas des noms déjà présents dans le reactor. Vérification déclarée pour ce document : aucun slice Maven, aucune base de données, aucun gate global et aucun reactor complet ; impact de production interdit dans `app/`.
+La séparation conceptuelle WRITE/READ/CONSUMPTION et les lots de refonte restent le **chantier actif**. Le HEAD a désormais **51 modules dans `app/pom.xml`, dont neuf `runtime-*`** : `runtime-web-api`, `runtime-command-consumption-worker`, `runtime-command-result-consumption-worker`, `runtime-event-consumption-worker`, `runtime-task-consumption-worker`, `runtime-binding-consumption-worker`, `runtime-latest-known-version-consumption-worker`, `runtime-registration-consumption-worker`, `runtime-registration-result-consumption-worker`. Les tables de transformation et le calcul 47→47 ci-dessous sont un **snapshot de cible antérieur aux nouveaux modules Result/Registration** : ils doivent être étendus avant toute implémentation et ne sont ni un inventaire CURRENT ni un nombre cible approuvé pour le HEAD. La voie CURRENT_BINDING directe reste CURRENT ; le lot 7 de conversion en Task n’est qu’une proposition conditionnelle. La source CURRENT est [Architecture](../../../architecture/Architecture.md). **Travaux ouverts :** (1) reconstituer la matrice de transformation sur les 51 modules réels ; (2) préserver les workers Result directs et la voie Binding directe dans les lots de renommage ; (3) démontrer les éventuelles nouvelles frontières READ et la conversion conditionnelle de CURRENT_BINDING par les gates prévus. Les sections 1–9 et l’annexe ci-dessous sont le **snapshot historique de la proposition**, non un plan exécutable tel quel ; seule cette rebaseline et la direction des trois familles restent actives.
+
+
+> **Cible partiellement remplacée (2026-10-03).** Le [plan global des matérialisations READ](../../completed/ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md) conserve les constats de code ci-dessous, mais abandonne la migration de CURRENT_BINDING vers Event→ProjectionTask et fait sortir COMMAND_RESULT du modèle Projection. Les lots et le graphe cible de ce document ne doivent pas être exécutés tels quels pour ces deux capacités.
+
+Date : 2026-10-02. Complément à [l'audit initial](../../completed/ARCHITECTURE/Consumption_Workers_Runtimes_Audit.md). Les constats et le graphe **actuels** de cet audit restent sa baseline ; la présente révision remplace **sa cible de 43 modules et son ordre de migration**. Branche `v2-make-it-pull`, HEAD de la révision `3a4ba96195db28686fdc5c3ba8dceab8157c7282`, working tree propre au départ. Aucun code applicatif n'est modifié. Les noms ci-dessous sont des destinations de migration, pas des noms déjà présents dans le reactor. Vérification déclarée pour ce document : aucun slice Maven, aucune base de données, aucun gate global et aucun reactor complet ; impact de production interdit dans `app/`.
 
 ## 1. Décision sur la taxonomie
 
@@ -220,15 +227,15 @@ Les tests de preuve cités dans l'audit initial restent requis. Ajouter au lot 7
 WRITE : `engine-write-command`, `engine-write-pot` (admission WRITE dans `orchestrator-command-admission`).
 READ : `engine-read-pot`, `engine-read-command-result`, `engine-read-binding`, `engine-read-projection-exact`.
 CONSUMPTION : `engine-consumption`, `engine-consumption-command`, `engine-consumption-event`, `engine-consumption-projection-task`, `engine-consumption-binding`, `engine-consumption-lkv`.
-NOT ENGINES : projections `projection-core`, `projection-contracts`, `projection-pot`, `projection-command-result`, `projection-current-binding` ; worker `supra-consumption-worker` ; les six runtimes ; adapters `infra-*` ; domaines `domain-*`.
+NOT ENGINES : projections `projection-core`, `projection-contracts`, `projection-pot`, `projection-command-result`, `projection-current-binding` ; worker `supra-consumption-worker` ; les runtimes de la baseline historique ; adapters `infra-*` ; domaines `domain-*`.
 
-CURRENT MODULE COUNT: 47
+HISTORICAL BASELINE MODULE COUNT: 47 (current HEAD: 51)
 PREVIOUS TARGET: 43
-REVISED TARGET: 47
+HISTORICAL TARGET SNAPSHOT: 47 (à rebaseliner avant exécution)
 
 ### TARGET PHYSICAL MODULES
 
-La liste numérotée exacte et la classification exhaustive des 47 modules actuels figurent dans l'annexe ci-dessous.
+La liste numérotée exacte et la classification exhaustive des 47 modules de la baseline historique figurent dans l'annexe ci-dessous.
 
 ### CONCEPTUAL ENGINES
 
@@ -342,4 +349,4 @@ Une classification principale est attribuée à chaque module actuel. `RENAME` p
 46. `architecture-tests`
 47. `domain-command`
 
-Le module `domain-command` est **ajouté** pour `CommandId` et les contrats d’identité partagés ; aucun autre nouveau module n’est créé hors destinations de split. Comptage : 47 actuels − 4 MERGE + 3 sorties nettes des deux SPLIT + 1 ajout = 47 cibles.
+Le module `domain-command` est **ajouté** pour `CommandId` et les contrats d’identité partagés ; aucun autre nouveau module n’est créé hors destinations de split. Comptage : 47 dans la baseline historique − 4 MERGE + 3 sorties nettes des deux SPLIT + 1 ajout = 47 cibles.

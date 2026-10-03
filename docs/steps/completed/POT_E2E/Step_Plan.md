@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — Step livré et conservé comme preuve. La règle actuelle est dans [Functional Model](../../../product/Functional_Model.md), [Architecture](../../../architecture/Architecture.md) et [System Guarantees](../../../guarantees/System_Guarantees.md). Les jalons et formulations de plan ci-dessous sont historiques.**
+
 # POT_E2E — First end-to-end Pot flow
 
 ## Goal

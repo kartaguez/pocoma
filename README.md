@@ -177,16 +177,14 @@ Prometheus metrics track, among other things:
 - distribution of the signed distance between known and projected versions, without interpreting it as continuity or readiness;
 - retries and failures observed by the worker or load tests.
 
-These metrics address the main risk of the asynchronous projection architecture: a projection can temporarily lag behind. Rather than assuming this lag is negligible, the application measures it.
+These metrics expose asynchronous projection lag for diagnosis. No latency, throughput, or availability SLA is specified; see `docs/guarantees/System_Guarantees.md`.
 
 ## Design Notes
 
-- Start architecture work from `docs/README.md`, the index of current canonical documents.
+- Start from [documentation](docs/README.md): [Functional Model](docs/product/Functional_Model.md), [Architecture](docs/architecture/Architecture.md), and [System Guarantees](docs/guarantees/System_Guarantees.md).
 - Command admission and execution are separate transactions. The winning execution transaction writes Pot state, business Events, provenance, fencing and terminal state atomically.
 - The write-side closure is documented in `docs/architecture/write-side-closure.md`.
-- The current Event/Task Balance pipeline is documented in
-  `docs/architecture/consumption-event-pull-runtime.md` and
-  `docs/architecture/consumption-task-balance-runtime.md`; `docs/projection-workers.md` is historical.
+- The current Event → ProjectionTask chain is summarized in `docs/architecture/Architecture.md`; `docs/projection-workers.md` is historical.
 - Event and Task Balance workers are partitioned by stable `potId` hash through
   `pocoma.projection.worker.segment-index` and `segment-count`.
 - Canonical exact projection reads remain isolated from the retired legacy HTTP Query stack.

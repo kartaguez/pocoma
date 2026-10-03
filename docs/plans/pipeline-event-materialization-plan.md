@@ -1,8 +1,8 @@
 # Plan de matérialisation des événements en tâches de pipeline
 
 > Document historique superseded pour le nouveau chemin par
-> [`steps/EPT/Step_Canon.md`](steps/EPT/Step_Canon.md) et
-> [`steps/EPT/Step_Plan.md`](steps/EPT/Step_Plan.md). Il reste conservé pour expliquer la trajectoire
+> [`steps/completed/EPT/Step_Canon.md`](../steps/completed/EPT/Step_Canon.md) et
+> [`steps/completed/EPT/Step_Plan.md`](../steps/completed/EPT/Step_Plan.md). Il reste conservé pour expliquer la trajectoire
 > pipeline antérieure ; ses registres, generations et stratégies ne contraignent pas EPT.
 
 ## Objectif

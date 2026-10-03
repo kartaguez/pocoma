@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — méthode et diagnostic de latence, sans mesure canonique ni SLA ; voir [System Guarantees](../../../guarantees/System_Guarantees.md).**
+
 # POT_E2E — audit de la latence Command acceptée → READ_POT READY
 
 ## Conclusion

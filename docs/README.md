@@ -1,64 +1,22 @@
-# Pocoma architecture documentation
+# Documentation Pocoma
 
-Commencer ici, puis lire uniquement les documents canoniques correspondant au chantier en cours. Ne
-refaire un audit global du repository que si la documentation est insuffisante, ambiguë ou doit être
-vérifiée avant une modification.
+Sources transversales de l'état **CURRENT**, vérifiées contre le HEAD `c14751f` :
 
-## Start here
+1. [Functional Model](product/Functional_Model.md) — comportement et parcours observables.
+2. [Architecture](architecture/Architecture.md) — chaînes et modules exécutés.
+3. [System Guarantees](guarantees/System_Guarantees.md) — propriétés, preuves et limites.
 
-### Active implementation steps
+La [matrice DOC.5](Documentation_Truth_Validation.md) trace leur validation croisée. Une proposition **TARGET** dans un Step actif ne décrit pas le système livré.
 
-- [EPT — Event → ProjectionTask canon](steps/EPT/Step_Canon.md) — architecture cible active de la
-  matérialisation des Events en ProjectionTasks.
-- [EPT — implementation tracker](steps/EPT/Step_Plan.md) — avancement, prochain lot et critères de
-  sortie du step EPT.
+## Travaux et historique
 
-### Write side
+- **TARGET actif** : [refonte des familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md).
+- **Steps livrés, historiques** : [REGISTRATION](steps/completed/REGISTRATION/Step_Plan.md), [POT_E2E](steps/completed/POT_E2E/Step_Plan.md), [ARCHITECTURE R1/R2](steps/completed/ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md), [WRITE_ADMISSION](steps/completed/WRITE_ADMISSION/Step_Plan.md), [CCR](steps/completed/CCR/Step_Plan.md), [EPT](steps/completed/EPT/Step_Plan.md), [PCL](steps/completed/PCL/Step_Plan.md).
+- **Plans historiques exécutés** : [classification figée](Documentation_Rationalization_Audit.md#8-audit-exhaustif-de-docsplans) ; leur déplacement vers `plans/completed/` est une vague ultérieure.
+- **Archives et hypothèses supplantées** : les anciens audits portent un bandeau historique ; voir [l'audit de rationalisation](Documentation_Rationalization_Audit.md). Le reclassement massif des plans attend la vague suivante.
 
-- [Clôture du write side](architecture/write-side-closure.md) — voie canonique de mutation et legacy Command retiré.
-- [Runtime de consommation Command](architecture/command-consumption-runtime.md) — composition, polling et exploitation du Command worker.
-- [Exécution transactionnelle](architecture/consumption-transactional-execution.md) — frontière transactionnelle, fencing et failure handling génériques.
+## Références spécialisées et exploitation
 
-### Read side
-
-- [État actuel du read side](architecture/read-side-current-state.md) — description factuelle de l'existant : GET, sources SQL, temporalité et Balance.
-- [Architecture canonique du Read side et des projections](architecture/read-side-target.md) — cible normative root/artifacts/result, contrats partagés, ports universels et plan de refonte challengeable.
-- [Reconstruction historique d'un Pot](architecture/pot-historical-reconstruction.md) — temporalité primaire exacte, fragments reconstructibles et limite `updatedAt`.
-- [Plan directeur du Lot 7](plans/lot-7-read-side-implementation-plan.md) — séquencement de réalisation, subordonné à la cible normative.
-- [Plan détaillé du Lot 7.9.1](plans/lot-7.9.1-versioned-query-contracts-plan.md) — contrats framework-free monoprojection, génération serving, état terminal et enveloppe versionnée.
-- [Plan de révision monoprojection du Lot 7.9.1](plans/lot-7.9.1-monoprojection-contract-revision-plan.md) — justification, migration et critères de la révision livrée.
-- [Design du Lot 7.9.2](plans/lot-7.9.2-query-version-resolution-design.md) — resolver monoprojection CURRENT/EXACT, résultats typés et absence de fallback.
-- [Design du Lot 7.14.1](plans/lot-7.14.1-pipeline-version-lifecycle-design.md) — lifecycle minimal declared/active/serving, frontière Claim et control store autoritatif.
-- [Plan d'implémentation du Lot 7.14.1](plans/lot-7.14.1-pipeline-version-lifecycle-implementation-plan.md) — réalisation livrée, tests de concurrence et intégration Query Kernel.
-- [LatestKnownVersion](plans/lot-7.4-source-version-watermark-plan.md) — dossier de réalisation du consumer direct ; les noms watermark qui y subsistent sont de compatibilité.
-- [Plan détaillé du Lot 7.7](plans/lot-7.7-pot-version-user-indexes-and-keyset-pagination-plan.md) — dossier de réalisation de la metadata et de l'index shadow. Sa sélection current par égalité à latest-known est superseded : l'index cible ne fournit que des candidats, ensuite résolus et autorisés à une businessVersion commune.
-
-### Consumption pipelines
-
-- [Exécution canonique des tâches de projection](architecture/projection-task-execution.md) — identité par `ProjectionKey`, préparation hors transaction, publication immutable et finalisation
-  fenced atomique.
-- [Event pull runtime](architecture/consumption-event-pull-runtime.md) — Event durable vers matérialisation de Tasks.
-- [Task Balance runtime](architecture/consumption-task-balance-runtime.md) — Task durable vers projection Balance immuable.
-- [Cutover LatestKnownVersion](operations/latest-known-version-cutover.md) — préflight read-only et bascule sans slots terminaux artificiels.
-
-### Structural references
-
-- [Matrice des dépendances](architecture/module-dependency-matrix.md) — responsabilités et directions de dépendance des modules.
-- [Ownership des types](architecture/type-ownership.md) — propriétaire canonique des principaux contrats et types.
-- [Familles de use cases](use-case-families.md) — inventaire transversal des familles fonctionnelles.
-
-### Development
-
-- [Continuous integration](development/ci.md) — workflow GitHub permanent, validation Maven complète et protection de branche.
-
-### Command persistence and intake
-
-- [Admission des Recorded Commands](architecture/recorded-command-intake.md) — frontière HTTP/authentification et sémantique `202 Accepted`.
-- [Persistence des Recorded Commands](architecture/recorded-command-persistence.md) — schéma durable, immutabilité et discovery.
-
-## Historical material
-
-Les documents datés, [projection-workers.md](projection-workers.md), les plans détaillés clôturés et
-les runbooks de cutover décrivent des décisions de réalisation antérieures ou des chemins
-transitionnels. Lorsqu'un dossier de réalisation conserve un vocabulaire ou un comportement shadow
-superseded, la cible normative et le plan directeur courant prévalent.
+- [Transaction Consumption](architecture/consumption-transactional-execution.md), [exécution ProjectionTask](architecture/projection-task-execution.md), [reconstruction historique Pot](architecture/pot-historical-reconstruction.md).
+- [Politique de vérification](testing/Reactor_Verification_Policy.md), [CI](development/ci.md).
+- [Runbooks](operations/cmd-start-runtimes.md) et SQL associé sous `operations/sql/`.

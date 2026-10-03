@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — snapshot/R1–R2 exécutés. Les assertions pré-Registration, l’ancien résultat via ProjectionTask et les liens vers des symboles supprimés ne décrivent pas le HEAD ; voir [Architecture](../../../architecture/Architecture.md).**
+
 # Audit architectural — Consumption, workers et runtimes
 
 Date : 2026-10-02. Périmètre : checkout courant de `app/` ; aucune modification applicative.

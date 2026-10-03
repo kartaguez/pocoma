@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — Step livré et conservé comme preuve. La règle actuelle est dans [Functional Model](../../../product/Functional_Model.md), [Architecture](../../../architecture/Architecture.md) et [System Guarantees](../../../guarantees/System_Guarantees.md). Les jalons et formulations de plan ci-dessous sont historiques.**
+
 # REGISTRATION — plan rebaseliné sur les trois contrats READ
 
 **FIX-ARCH et WAVE 3 : DONE. Wave 2 Registration Core reste implémentée ; FIX.1 reste historiquement bloqué et différé.**

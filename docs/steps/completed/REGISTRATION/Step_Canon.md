@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — Step livré et conservé comme preuve. La règle actuelle est dans [Functional Model](../../../product/Functional_Model.md), [Architecture](../../../architecture/Architecture.md) et [System Guarantees](../../../guarantees/System_Guarantees.md). Les jalons et formulations de plan ci-dessous sont historiques.**
+
 # REGISTRATION — Canon métier et architectural
 
 ```text
@@ -11,7 +13,7 @@ architecturales que le futur plan d'implémentation devra respecter ; il ne cons
 un design Java, SQL ou HTTP détaillé. La visibilité historique et les trois contrats READ sont
 précisés par le [plan global des matérialisations](../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md).
 
-Le canon transversal [`WRITE_ADMISSION`](../../completed/WRITE_ADMISSION/Step_Canon.md)
+Le canon transversal [`WRITE_ADMISSION`](../WRITE_ADMISSION/Step_Canon.md)
 complète et prévaut sur
 ce document pour les frontières HTTP WRITE/READ, l'identité de binding et `BindingId`.
 

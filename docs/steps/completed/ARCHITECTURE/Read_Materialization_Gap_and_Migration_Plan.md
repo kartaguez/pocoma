@@ -1,3 +1,5 @@
+> **Statut documentaire : HISTORICAL-COMPLETED — snapshot/R1–R2 exécutés. Les assertions pré-Registration, l’ancien résultat via ProjectionTask et les liens vers des symboles supprimés ne décrivent pas le HEAD ; voir [Architecture](../../../architecture/Architecture.md).**
+
 # Matérialisations READ — audit d'écart et plan global
 
 Statut : **plan canonique ; Wave 1 R1/R2 DONE**. Branche : `v2-make-it-pull`, baseline d'implémentation `e24f124acd4c81252e8416c557bb351511f91f4a` (2026-10-03). La [baseline descriptive](Read_Usage_and_Derived_Materialization_Audit.md) décrit les usages antérieurs ; les sections « actuel » ci-dessous gardent cette trace historique. Le présent document fixe la cible et prévaut sur les directions incompatibles du [plan Registration](../REGISTRATION/Step_Plan.md) et de l'[audit Registration antérieur](../REGISTRATION/Current_Binding_Registration_Architecture_Audit.md).
@@ -124,7 +126,7 @@ Le graphe de dépendances est `R1 → R2 → G1 → G2 → G3 → E1`, avec `R1 
 
 ## 7. Estimation relative d'effort
 
-Référence : **WA.6A + WA.6B + WA.6C = 100 unités**, sans conversion en jours. Le [plan WRITE_ADMISSION achevé](../../completed/WRITE_ADMISSION/Step_Plan.md) décrit WA.6A comme registre global des occurrences B, réservation et reprise historique avec migrations/contraintes ; WA.6B comme canonicalisation des facts Attached/Detached et de leur writer atomique ; WA.6C comme remplacement du verrou long par le fence optimiste Command, avec rollback et ordonnancements PostgreSQL. Les commits `13ee62b4`, `15c87867` et `52915f81` corroborent ces surfaces. La référence combine donc schéma, concurrence, cutover et preuves, plutôt qu'un simple volume de lignes.
+Référence : **WA.6A + WA.6B + WA.6C = 100 unités**, sans conversion en jours. Le [plan WRITE_ADMISSION achevé](../WRITE_ADMISSION/Step_Plan.md) décrit WA.6A comme registre global des occurrences B, réservation et reprise historique avec migrations/contraintes ; WA.6B comme canonicalisation des facts Attached/Detached et de leur writer atomique ; WA.6C comme remplacement du verrou long par le fence optimiste Command, avec rollback et ordonnancements PostgreSQL. Les commits `13ee62b4`, `15c87867` et `52915f81` corroborent ces surfaces. La référence combine donc schéma, concurrence, cutover et preuves, plutôt qu'un simple volume de lignes.
 
 | Lot | Effort relatif | Incertitude | Principaux facteurs |
 |---|---:|---|---|
