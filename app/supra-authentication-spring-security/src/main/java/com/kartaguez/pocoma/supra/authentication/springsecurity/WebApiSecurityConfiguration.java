@@ -20,7 +20,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
-@ConditionalOnExpression("'${pocoma.command-admission.enabled:false}' == 'true' or "
+@ConditionalOnExpression("'${pocoma.registration-admission.enabled:true}' == 'true' or "
+		+ "'${pocoma.command-admission.enabled:false}' == 'true' or "
 		+ "'${pocoma.command-result-read.enabled:false}' == 'true' or '${pocoma.pot-read.enabled:false}' == 'true'")
 public class WebApiSecurityConfiguration {
 	@Bean
@@ -28,7 +29,7 @@ public class WebApiSecurityConfiguration {
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests
-						.requestMatchers("/api/v1/commands", "/api/v1/commands/*/result",
+						.requestMatchers("/api/v1/registrations", "/api/v1/commands", "/api/v1/commands/*/result",
 								"/api/v1/command-results/**", "/api/v1/me/binding", "/api/v1/pots/**")
 						.authenticated().anyRequest().permitAll())
 				.oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults())

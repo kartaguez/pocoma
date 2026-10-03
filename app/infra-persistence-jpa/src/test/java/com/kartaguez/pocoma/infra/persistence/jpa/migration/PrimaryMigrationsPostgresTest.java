@@ -46,7 +46,7 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV26() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV27() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -56,7 +56,7 @@ class PrimaryMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(26, result.migrationsExecuted);
+		assertEquals(27, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -72,6 +72,7 @@ class PrimaryMigrationsPostgresTest {
 				tableNames.add(resultSet.getString(1));
 			}
 			assertTrue(tableNames.containsAll(Set.of(
+					"registration_requests",
 					"users",
 					"consumption_slots",
 					"consumption_claims",
@@ -111,10 +112,10 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void existingV1ThroughV26DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
+	void existingV1ThroughV27DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
 		Flyway initialOwner = flyway(true);
 		initialOwner.clean();
-		assertEquals(26, initialOwner.migrate().migrationsExecuted);
+		assertEquals(27, initialOwner.migrate().migrationsExecuted);
 		Map<String, Integer> historyBefore = migrationHistory();
 
 		Flyway relocatedOwner = flyway(false);
@@ -344,7 +345,7 @@ class PrimaryMigrationsPostgresTest {
 				history.put(resultSet.getString("version"), resultSet.getInt("checksum"));
 			}
 		}
-		assertEquals(26, history.size());
+		assertEquals(27, history.size());
 		return history;
 	}
 
