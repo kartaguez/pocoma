@@ -75,6 +75,7 @@
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-command-result-consumption-worker</module>
+		<module>runtime-registration-consumption-worker</module>
 		<module>runtime-latest-known-version-consumption-worker</module>
 		<module>runtime-binding-consumption-worker</module>
 		<module>runtime-task-consumption-worker</module>
