@@ -1,8 +1,26 @@
 # REGISTRATION — plan rebaseliné sur les trois contrats READ
 
-**WAVE 2: ROUVERTE, CORRECTION BLOQUÉE À FIX.1 — REG.1/REG.2/REG.3 historiquement terminés ; REG.4/REG.5 non commencés.**
+**WAVE 2 Registration Core : implémentée ; tentative FIX.1 bloquée historiquement et différée. Wave 3 suit FIX-ARCH.**
 
-La clôture antérieure ci-dessous est conservée comme historique. La correction demandée à partir du HEAD `6e889099` a été arrêtée au GO/NO-GO PostgreSQL : le test à deux transactions de l'[audit de correction](Wave2_Optimistic_Binding_and_Module_Boundary_Audit.md#22-journal-de-correction--fix1-gono-go-2026-10-03) montre qu'un `NOT EXISTS` dans l'`UPDATE` conditionnel peut rester fondé sur le snapshot antérieur après attente d'une mutation active. Aucun writer ni arc Maven n'a été modifié. Wave 2 ne redevient pas DONE sans nouvelle preuve et gates finaux ; Wave 3 reste interdite.
+La clôture antérieure ci-dessous est conservée comme historique. La tentative de correction optimiste demandée à partir du HEAD `6e889099` a été arrêtée au GO/NO-GO PostgreSQL dans l'[audit de correction](Wave2_Optimistic_Binding_and_Module_Boundary_Audit.md#22-journal-de-correction--fix1-gono-go-2026-10-03). Aucun writer Binding n'a été modifié. La présente session conserve le locking existant comme baseline ; FIX.1 est différé à un chantier global distinct.
+
+## Session FIX-ARCH puis Wave 3 — déclaration préalable
+
+Baseline : branche `v2-make-it-pull`, HEAD local et distant `79d0bd3c40df42a709b2be64557fcaffbcf351b6`, divergence `0/0`. Seul `docs/architecture/mermaid-diagram.png` est non suivi ; il reste intact. La politique normative est `docs/testing/Reactor_Verification_Policy.md` (`Trusted baseline: NONE`) ; les tests SQL utilisent la chaîne Flyway configurée, sans gate historique séparé.
+
+FIX-ARCH — impact permis : POM `engine-registration` et `runtime-registration-consumption-worker`, guard architectural, documentation. Impact interdit : Binding, Command, Registration métier et schéma. Primary slice : `./mvnw -pl runtime-registration-consumption-worker -am test`. Secondary slice : `./mvnw -pl runtime-web-api -am test`. Gate architecture : `./mvnw -pl architecture-tests -am test`, requis par changement d'arcs Maven. Full reactor : non requis pour FIX-ARCH, requis à la clôture Wave 3. Escalade : toute modification d'un moteur partagé ou du contrat Binding imposerait une nouvelle déclaration avant code.
+
+REG.4 — impact permis : Result Registration immutable, persistence append-only, source/discovery outcome, Consumption Result, GET owner E et preuves. Impact interdit : ProjectionTask, CURRENT_BINDING, décision Registration/Binding et locking. Primary slice : runtime Result dédié si créé, `./mvnw -pl runtime-registration-result-consumption-worker -am test`. Secondary : `./mvnw -pl runtime-web-api -am test`. Architecture gate si module/arc ajouté. Full reactor : clôture Wave 3. Escalade : changement d'une primitive Consumption partagée ou contrat Registration Core.
+
+C1 — impact permis : preuves de convergence de CURRENT_BINDING, correction locale si écart démontré. Impact interdit : autorité WRITE, locking, Command fencing, Result. Primary slice : `./mvnw -pl runtime-binding-consumption-worker -am test` si comportement modifié ; tests ciblés du store sinon. Secondary : aucune par défaut. Architecture gate seulement si frontière modifiée. Full reactor : clôture Wave 3. Escalade : contrat partagé ou autre runtime touché.
+
+REG.5/E1 — impact permis : parcours E2E HTTP et workers réels, scénario Bruno, documentation. Impact interdit : fixtures de B/Outcome/Result/CurrentBinding, modification Binding et nouvelles sémantiques métier. Primary slice : runtime le plus étroit qui couvre l'E2E réel, à choisir après inspection du wiring. Secondary : slices des runtimes effectivement touchés. Architecture gate et full reactor requis au gate final Wave 3. Escalade : frontière impossible à traverser ou besoin d'une mutation de locking.
+
+### FIX-ARCH — exécution
+
+Au HEAD initial, toutes les sources `main` de `engine-registration` importaient zéro classe Consumption. Les seuls modules directement utilisés sont `domain-user-identity` et `engine-core` (`TransactionRunner`). L'arc `engine-registration → engine-consumption` a été remplacé par l'arc direct `engine-registration → engine-core`. Le runtime Registration assemble et importe directement `domain-consumption` et `engine-consumption` ; ses deux dépendances Maven directes ont été ajoutées. Un guard dans `architecture-tests` vérifie le POM et les imports du moteur. Aucun schéma ni locking Binding n'a changé.
+
+Gates exécutés depuis `app/` avec `JAVA_HOME=/Users/Kartaguez/.sdkman/candidates/java/current` : `./mvnw -pl runtime-registration-consumption-worker -am test` a d'abord échoué dans le sandbox sur l'initialisation Mockito/Testcontainers ; la relance de la même slice avec `-q` hors sandbox est **PASS**. `./mvnw -pl runtime-web-api -am test -q` et `./mvnw -pl architecture-tests -am test -q`, hors sandbox, sont **PASS**. Aucun crossing inattendu. Gate architecture requis et passé. Full reactor non exécuté à FIX-ARCH ; réservé au gate Wave 3. Migration : aucune. Mode Consumption : sans objet pour cette correction. Commit : à renseigner après création.
 
 ## Journal Wave 2 — Registration Core (2026-10-03)
 

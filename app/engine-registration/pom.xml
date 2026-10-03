@@ -6,6 +6,6 @@
  <artifactId>pocoma-engine-registration</artifactId>
  <dependencies>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-user-identity</artifactId><version>${project.version}</version></dependency>
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-consumption</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-core</artifactId><version>${project.version}</version></dependency>
  </dependencies>
 </project>
