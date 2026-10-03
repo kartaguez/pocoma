@@ -84,13 +84,22 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
 	public BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId) {
+		return acquireWithInitializer(identity, userId, () -> {});
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
+	public BindingAcquireResult acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId,
+			Runnable initializer) {
 		requireNonNull(identity, "identity must not be null");
 		requireNonNull(userId, "userId must not be null");
+		requireNonNull(initializer, "initializer must not be null");
 		streams.createIfAbsent(identity.issuer(), identity.subject());
 		long current = streams.lock(identity.issuer(), identity.subject()).currentRevision();
 		if (repository.hasActiveBinding(identity.issuer(), identity.subject())) {
 			return BindingAcquireResult.conflict();
 		}
+		initializer.run();
 		long next = Math.addExact(current, 1L);
 		BindingId bindingId = null;
 		for (int attempt = 0; attempt < 8; attempt++) {

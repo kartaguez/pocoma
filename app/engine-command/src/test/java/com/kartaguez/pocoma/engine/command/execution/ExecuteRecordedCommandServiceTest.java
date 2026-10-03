@@ -459,6 +459,10 @@ class ExecuteRecordedCommandServiceTest {
 				ExternalIdentity identity, PocomaUserId userId) {
 			throw new UnsupportedOperationException("not used by Command execution");
 		}
+		@Override public BindingAcquireResult acquireWithInitializer(
+				ExternalIdentity identity, PocomaUserId userId, Runnable initializer) {
+			throw new UnsupportedOperationException("not used by Command execution");
+		}
 
 		@Override public BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId) {
 			throw new UnsupportedOperationException("not used by Command execution");

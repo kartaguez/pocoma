@@ -19,5 +19,9 @@ public interface ExternalIdentityBindingPort {
 
 	BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId);
 
+	/** Acquire under the same stream lock, invoking the initializer only after availability is proven.
+	 * The initializer and the acquisition participate in the caller's single transaction. */
+	BindingAcquireResult acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId, Runnable initializer);
+
 	BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId);
 }

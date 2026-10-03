@@ -65,7 +65,7 @@ class RegistrationAdmissionPostgresTest {
         assertNotEquals(first, second);
         assertEquals(2, count("registration_requests"));
         for (String table : new String[] {"users", "external_identities", "external_identity_binding_facts",
-                "business_event_outbox", "command_outcomes"})
+                "business_event_outbox", "registration_outcomes", "user_created_facts", "command_outcomes"})
             assertEquals(0, count(table), table);
     }
 
