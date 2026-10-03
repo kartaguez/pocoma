@@ -52,6 +52,21 @@ class CurrentBindingPersistencePostgresTest {
 		assertNull(current.userId()); assertNull(current.bindingId());
 	}
 
+	@Test void attachDetachReattachCannotBeResurrectedByOldFact() {
+		UUID firstEvent = UUID.randomUUID(), detachedEvent = UUID.randomUUID(), thirdEvent = UUID.randomUUID();
+		BindingId third = new BindingId(UUID.randomUUID());
+		assertEquals(CurrentBindingApplyResult.APPLIED, apply(attached(1, first, firstEvent)));
+		assertEquals(CurrentBindingApplyResult.APPLIED, apply(detached(2, first, detachedEvent)));
+		assertEquals(CurrentBindingStatus.DETACHED, find().status());
+		assertEquals(CurrentBindingApplyResult.APPLIED, apply(attached(3, third, thirdEvent)));
+		assertEquals(CurrentBindingApplyResult.DUPLICATE, apply(attached(3, third, thirdEvent)));
+		assertThrows(CurrentBindingInvariantException.class,
+				() -> apply(attached(3, first, thirdEvent)));
+		assertEquals(CurrentBindingApplyResult.STALE, apply(attached(1, first, firstEvent)));
+		assertEquals(3, find().bindingRevision().value());
+		assertEquals(third, find().bindingId());
+	}
+
 	@Test void equalRevisionDivergenceIsObservableAndBootstrapZeroNeverOverwritesOne() {
 		UUID event=UUID.randomUUID();
 		apply(attached(1, first, event));
