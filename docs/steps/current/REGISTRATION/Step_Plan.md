@@ -1,8 +1,78 @@
 # REGISTRATION — plan rebaseliné sur les trois contrats READ
 
+**WAVE 2: DONE — REG.1/REG.2/REG.3 ; REG.4/REG.5 non commencés.**
+
+## Journal Wave 2 — Registration Core (2026-10-03)
+
+Baseline : `git fetch origin` exécuté ; branche `v2-make-it-pull` ; HEAD
+`1b04b5b3d85cc5e874fcac01a419a91657a1b6e1` ; divergence local/distant `0/0` ;
+seul `docs/architecture/mermaid-diagram.png` est non suivi et doit rester intact.
+Les quatre documents canoniques ont été relus. Aucun changement distant post-Wave-1.
+
+### Déclaration de vérification avant code
+
+| Lot | Impact de production permis | Impact interdit | Slice primaire | Slices secondaires | Base DB | Gate | Escalade |
+|---|---|---|---|---|---|---|---|
+| REG.1 | request Registration, SQL courant, admission HTTP AuthN, wiring WEB | User, Binding, outcome, faits, Consumption générique, READ | `./mvnw -pl runtime-web-api -am test` | persistance Registration ciblée | historique Flyway existant ; baseline trusted NONE | architecture si modules/arcs nouveaux ; FULL seulement clôture Wave 2 | frontière Binding/Command/Consumption réellement franchie |
+| REG.2 | outcome, transition User/Binding existante, faits et SQL courant Registration | seconde autorité/lock/stream Binding, CURRENT_BINDING READ, REG.4/5 | `./mvnw -pl runtime-binding-consumption-worker -am test` | `./mvnw -pl runtime-command-consumption-worker -am test` uniquement si contrat Binding partagé modifié ; PostgreSQL Registration ciblé | historique Flyway existant | architecture si frontières nouvelles ; FULL seulement clôture Wave 2 | contrat Command/Binding partagé ou ordre de lock modifié |
+| REG.3 | locator/runtime Registration, wiring Consumption existant, tests fenced | primitive Consumption générique sans obstacle démontré, REG.4/5 | `./mvnw -pl runtime-registration-consumption-worker -am test` si créé | BINDING, persistance Registration ; COMMAND si contrat partagé modifié | historique Flyway existant | `./mvnw -pl architecture-tests -am test` si nouveaux modules/arcs ; puis `./mvnw test` au milestone | obstacle concret des primitives génériques |
+
+### Décision Consumption préalable à REG.3
+
+- Projection Task : `projectionEngine.execute(task)` prépare hors transaction finale ; `TransactionalFinalizeConsumptionUseCase` ouvre la transaction, `FinalizeConsumptionService` verrouille d'abord le claim, publie la projection et terminalise dans cette transaction. Les écritures durables sont projection + transition du slot.
+- Command Result : `CommandResultConsumptionLocator` recharge source/outcome/intention et matérialise dans son callback ; `TransactionalExecuteConsumptionUseCase` englobe ce callback, la provenance et le CAS terminal. Les écritures durables sont Result + provenance + transition du slot.
+- Command WRITE : `CommandConsumptionExecution` appelle le métier dans `Execute` ; WA.6 documente l'ordre `locks métier → stream E au fence → outcome/provenance/claim`.
+- Registration candidate : arbitrer sous le lock `stream E` de l'autorité Binding, puis créer U, acquérir B, écrire UserCreated et outcome ; la publication du Binding Fact est déjà intégrée à `acquire`. Toutes ces écritures et le CAS terminal doivent partager une transaction. **Mode retenu : Execute.** `Finalize` prendrait claim avant stream, ordre inverse de WA.6. Avec `Execute`, le CAS terminal perdu provoque rollback de l'ensemble des effets, sans nouvelle primitive Consumption.
+
+### REG.1 — journal d'implémentation
+
+Baseline : HEAD et divergence indiqués ci-dessus ; aucun commit distant nouveau. Décision : le Canon ne définit aucun attribut de profil ; le payload courant est l'objet JSON vide `{}`. Le POST `/api/v1/registrations` accepte ce contrat et refuse les champs qui tentent de fournir E. Le `requestId` est un UUID serveur. `AdmitRegistrationService` ouvre et termine la transaction avant le retour 202. Le store SQL V27 conserve E `(issuer,subject)` exactement, `payload` JSONB et `created_at` ; PK et trigger interdisent duplication, update et delete. Aucun état technique de traitement n'est dans la request.
+
+Fichiers/modules : `engine-registration` (request, port, admission), `infra-persistence-jpa` (V27 et adapter JDBC), `runtime-web-api` (controller/config), `supra-authentication-spring-security` (route authentifiée), test PostgreSQL WEB. La sécurité JWT réutilise le resolver du principal existant ; aucune résolution E→U ni écriture métier à l'admission.
+
+Slice déclarée : `./mvnw -pl runtime-web-api -am test`, avec persistance Registration ciblée. Base DB : chaîne Flyway existante, car le statut normatif reste `Trusted baseline: NONE`. Gate architecture requis par `engine-registration` et ses dépendances. Aucun crossing inattendu. Commandes exécutées : `./mvnw -pl runtime-web-api -am test` (échec d'environnement : JVM/Mockito dans le sandbox), puis la même commande avec `JAVA_HOME=/Users/Kartaguez/.sdkman/candidates/java/current` hors sandbox ; relances `JAVA_HOME=... ./mvnw -pl runtime-web-api -am test -q` après correction des attentes de migration V27/V28 et du parsing HTTP. Dernière exécution : **PASS**. Le reactor complet n'a pas servi de boucle REG.1.
+
+Preuves : `RegistrationAdmissionPostgresTest` lit la request immédiatement après le 202, vérifie l'E exacte, le replay HTTP avec un deuxième UUID, l'absence de U/B/outcome/faits/Events, 401 sans request, refus du spoofing par payload et l'interdiction SQL de mutation. `PrimaryMigrationsPostgresTest` valide V27/V28 sur la chaîne existante. Commit REG.1 : `72eac6b9137ce42757e03d899a12b3d799dacda3`.
+
+### REG.2 — journal d'implémentation
+
+Décision : `ExternalIdentityBindingPort.acquireWithInitializer` et son adapter existant prennent `stream E`, contrôlent l'autorité primaire, puis invoquent l'initialisation du User uniquement sur le chemin libre, avant de réserver B, avancer R et append le Binding Fact habituel. Le callback crée `User(U)` et `user_created_facts`; `ExecuteRegistrationService` écrit ensuite l'unique outcome. Le tout se déroule dans la transaction externe `Execute` ; le chemin conflict n'invoque pas l'initialisation. V28 impose outcome terminal Registered/Rejected par CHECK, FK et PK requestId ; les outcomes et faits sont immutables. Aucun nouveau lock, stream, table d'autorité Binding ou accès CURRENT_BINDING.
+
+Fichiers/modules : port `domain-user-identity`, adapter Binding existant, `engine-registration` (transition/outcome/fact port), `infra-persistence-jpa` (V28 et adapters JDBC), test du faux port côté `engine-command`, tests PostgreSQL Registration. Le contrat Binding partagé ayant changé, la slice COMMAND secondaire déclarée a été exécutée. Aucun crossing inattendu et aucune primitive Consumption générique modifiée.
+
+Slices exécutées : `JAVA_HOME=... ./mvnw -pl runtime-binding-consumption-worker -am test -q` **PASS**, puis **PASS** après ajout de la course Detach ; `JAVA_HOME=... ./mvnw -pl runtime-command-consumption-worker -am test -q` **PASS** ; tests PostgreSQL `RegistrationAuthorityPostgresTest` inclus dans la dépendance persistence. Base DB : chaîne Flyway existante ; gate architecture requis par module/frontière nouveaux. Reactor complet réservé au gate final. `RegistrationAuthorityPostgresTest` prouve succès et replay sans duplication, deux requests concurrentes même E avec exactement un gagnant, courses Registration/Attach et Registration/Detach via le même stream, rejet sur E déjà attachée, detach suivi d'un B neuf, révisions contiguës et rollback de U/B/faits/outcome lors d'une panne. Aucun fait synthétique historique ni écriture directe CURRENT_BINDING. Commit REG.2 : `47cf9b51a8fb679f64424221c41a00431ebe8976`.
+
+### REG.3 — journal d'implémentation
+
+Décision : runtime dédié `runtime-registration-consumption-worker`, discovery JDBC de la request et reload autoritatif pendant `Execute`; clés `REGISTRATION_REQUEST` / `REGISTRATION_WORKER_V1`. `SequentialConsumptionOrchestrator`, claim/lease/provenance, retry, takeover, terminal CAS et polling restent les primitives existantes. La failure technique `IllegalStateException` est classée invariant terminal Consumption ; les autres exceptions techniques sont réessayées. Le conflit E déjà utilisé produit `RegistrationOutcome.Rejected` et un terminal Consumption REJECTED, jamais une failure technique. Un outcome déjà présent est relu sans rejouer U/B/faits.
+
+Fichiers/modules : nouveau runtime Registration, `JdbcRegistrationDiscovery` dans `infra-persistence-jpa`, tests PostgreSQL runtime. Aucun changement générique Consumption. Slice exécutée : `JAVA_HOME=... ./mvnw -pl runtime-registration-consumption-worker -am test -q` **PASS** ; les derniers ajouts de preuve W1/W2 tardive et de classification d'invariant sont inclus dans le reactor final **PASS**. Secondary BINDING et persistance exécutées ; COMMAND exécutée à cause du port partagé REG.2. Base DB : chaîne Flyway ; gate architecture `JAVA_HOME=... ./mvnw -pl architecture-tests -am test -q` **PASS**. Commit REG.3 : `6daba15f4353ebcb82f3fc856011b31731681879`.
+
+`RegistrationRuntimePostgresTest` couvre deux requests, restart, replay, panne transitoire suivie de retry, takeover, claim perdu avant commit, reprise tardive de W1 après commit de W2 et multi-worker. Le CAS terminal et les écritures métier appartiennent à la même transaction ; la perte du claim rollbacke U, B, outcome et faits. Le worker n'attend pas CURRENT_BINDING et ne produit ni `REGISTRATION_RESULT`, ni ProjectionTask, ni Event de conversion.
+
+### Matrice de preuves Wave 2
+
+| Invariant | Preuve ciblée |
+|---|---|
+| E exacte, UUID serveur, commit avant 202, replay HTTP nouveau | `RegistrationAdmissionPostgresTest.authenticatedRequestCommitsExactlyTheAttestedIdentityBefore202AndReplayIsNew` |
+| AuthN absente/invalide et spoofing sans request | `RegistrationAdmissionPostgresTest.unauthenticatedAndSpoofedPayloadLeaveNoRequest` |
+| Request immutable ; admission sans U/B/outcome/fait/Event | `RegistrationAdmissionPostgresTest.sqlRejectsMutation` et assertions de tables après POST |
+| Succès : U, B neuf, UserCreated, Attached/Binding Fact, Registered cohérents et uniques | `RegistrationAuthorityPostgresTest.successIsAtomicAndRetryDoesNotReplayEffects` |
+| Rejet : outcome unique, aucune nouvelle mutation/fait | `RegistrationAuthorityPostgresTest.existingAttachRejectsWithoutCreatingUserAndDetachAllowsFreshOccurrence` |
+| Deux requests même E ; pas de User orphelin | `RegistrationAuthorityPostgresTest.twoConcurrentRequestsChooseOneWinnerWithoutAnOrphan` |
+| Registration vs Attach ; même stream et lock order | `RegistrationAuthorityPostgresTest.registrationAndAttachArbitrateThroughTheSameStream` ; slices BINDING et COMMAND |
+| Detach puis Registration et course Detach/Registration ; B neuf et R contigu | `RegistrationAuthorityPostgresTest.existingAttachRejectsWithoutCreatingUserAndDetachAllowsFreshOccurrence`, `registrationAndDetachAreOrderedByTheAuthoritativeStream` |
+| Rollback technique de la transition entière | `RegistrationAuthorityPostgresTest.technicalFailureRollsBackUserBindingFactAndOutcome` |
+| Restart, retry, outcome non rejoué | `RegistrationRuntimePostgresTest.workerDrainsTwoRequestsAndRestartCannotReplayTheWinner`, `technicalFailureRetriesWithoutBusinessOutcome` |
+| Takeover, multi-worker, stale claim et reprise tardive W1 | `RegistrationRuntimePostgresTest.takeoverFencesStaleExecutionAndTwoWorkersConverge`, `workerThatBeganBeforeTakeoverCannotPublishAfterWinnerCommits` |
+| Binding Facts append-only, pas de synthetic historical fact, Attach/Detach et Command fencing conservés | slices BINDING/COMMAND et gate architecture existants ; V27/V28 n'écrivent pas les faits Binding historiques |
+
+Clôture Wave 2 : gate architecture **PASS** ; `JAVA_HOME=/Users/Kartaguez/.sdkman/candidates/java/current ./mvnw test -q` **PASS** sur l'état final. Le reactor complet a été exécuté au gate architectural, puis répété après l'ajout du test concurrent Detach et du classement explicite `IllegalArgumentException` en invariant technique ; il n'a pas servi de boucle locale REG.1/2/3. Aucun crossing inattendu : la dépendance COMMAND du port Binding était prévue comme secondary conditionnelle et a été vérifiée. Aucun scope REG.4/REG.5 traité. Le PNG utilisateur non suivi reste intact.
+
+
 ```text
 Step: REGISTRATION
-Phase: IMPLEMENTATION PLANNED, après R1 et R2 du plan global
+Phase: REGISTRATION CORE IMPLEMENTED ; REG.4/REG.5 PLANNED, après R1 et R2 du plan global
 Authority: Step_Canon.md et ../ARCHITECTURE/Read_Materialization_Gap_and_Migration_Plan.md
 Sequence: REG.1 → REG.2 → REG.3 → REG.4 → REG.5
 ```
