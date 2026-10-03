@@ -1,6 +1,6 @@
-# DEBT-MOD-01 — topologie cible C.1 : grammaire, supra et frontières
+# DEBT-MOD-01 — topologie cible C.2 : rôles logiques et validation Maven
 
-**Statut : TARGET / proposition non livrée.** Les noms et POM ci-dessous ne décrivent pas le reactor exécutable. Les décisions [BC-01 à BC-16](Modularity_Boundary_Challenge.md#p-boundary-decisions) bornent cette cible ; les trois zones `TBD` ne deviennent pas des décisions par leur présence au catalogue. La [dette](../../../debts/MODULE_TAXONOMY/Debt.md) reste OPEN.
+**Statut : TARGET / proposition non livrée.** Les rôles logiques et les POM physiques sont distingués en section N. Les noms ci-dessous ne décrivent pas le reactor exécutable. Les décisions [BC-01 à BC-16](Modularity_Boundary_Challenge.md#p-boundary-decisions) bornent cette cible ; les trois zones `TBD` ne deviennent pas des décisions par leur présence au catalogue. La [dette](../../../debts/MODULE_TAXONOMY/Debt.md) reste OPEN.
 
 ## A. Baseline et autorité
 
@@ -69,18 +69,18 @@ Un supra adapte une **entrée/sortie concrète** et peut porter le séquencement
 
 | Protocole concret | Supra responsibility | POM or package | Invoked engine/orchestrator | Ports / excluded |
 | --- | --- | --- | --- | --- |
-| HTTP/JWT Command, Pot, Result, Binding, Registration | DTO/errors/principal et mapping IO | un POM `supra-http-api` MEDIUM ; cinq POM route refusés | admit/read engines | ports applicatifs ; pas de resolver PRIMARY concret |
-| Command candidate/slot | discovery→authoritative reload→issue | POM `supra-consume-command` MEDIUM | consume Command + Consumption | discovery/source ports ; SQL infra |
-| Event candidate metadata | metadata-only→ensure Task→issue | POM `supra-consume-event` MEDIUM | produce Task + Consumption | Event discovery/Task ensure ; pas EventLoader artificiel |
+| HTTP/JWT Command, Pot, Result, Binding, Registration | DTO/errors/principal et mapping IO | C.1 : POM MEDIUM ; C.2 : voir N | admit/read engines | ports applicatifs ; pas de resolver PRIMARY concret |
+| Command candidate/slot | discovery→authoritative reload→issue | C.1 : POM MEDIUM ; C.2 : voir N | consume Command + Consumption | discovery/source ports ; SQL infra |
+| Event candidate metadata | metadata-only→ensure Task→issue | C.1 : POM MEDIUM ; C.2 : voir N | produce Task + Consumption | Event discovery/Task ensure ; pas EventLoader artificiel |
 | ProjectionTask candidate | Task key→Task engine→issue | package `supra` dans runtime Task ; POM rejeté faute d’autre client | consume ProjectionTask | Task ports ; pure projector hors supra |
-| Binding fact candidate | discovery→reload fact eventId→issue | POM `supra-consume-binding` MEDIUM | materialize Current + Consumption | fact ports ; R rule engine, SQL infra |
+| Binding fact candidate | discovery→reload fact eventId→issue | C.1 : POM MEDIUM ; C.2 : voir N | materialize Current + Consumption | fact ports ; R rule engine, SQL infra |
 | Command Result terminal candidate | Event/outcome/Command reload→issue | package `supra` runtime Result ; POM séparé non démontré | materialize Command Result | source ports ; terminal policy engine |
-| Registration Request candidate | request reload→issue | POM `supra-consume-registration` MEDIUM, réservé à Request | consume Registration | request ports ; arbitrage engine |
+| Registration Request candidate | request reload→issue | C.1 : POM MEDIUM pour Request ; C.2 : voir N | consume Registration | request ports ; arbitrage engine |
 | Registration Outcome candidate | request/outcome reload→issue | package `supra` runtime Registration Result ; POM rejeté pour préserver sa closure | materialize Registration Result | outcome ports ; owner E engine |
 | LKV Event candidate | Event metadata→max issue | package `supra` runtime LKV provisoire ; POM TBD, non créé | advance Pot watermark TBD | discovery/max ports ; aucune readiness |
 | Tick/segment de worker | poll/cadence→Consumption generic | POM `supra-poll-consumption` STRONG | orchestrator Consumption | ni business policy ni SQL |
 
-Le POM HTTP unique sépare traduction de protocole et composition Spring. Son MEDIUM demande de confirmer à la migration qu’un package Web ne donne pas la même protection. Les POM supra Command/Event/Binding/Registration Request isolent la glue en dehors du process donné et empêchent qu’un runtime en devienne l’owner par commodité ; leur score MEDIUM laisse ouverte une dissolution en package après mesure. Les supras Task/Results/LKV **existent conceptuellement** même sans POM.
+La proposition C.1 de POM HTTP sépare traduction de protocole et composition Spring ; C.2 statue en section N. Son MEDIUM demande de confirmer à la migration qu’un package Web ne donne pas la même protection. Les propositions C.1 de POM supra Command/Event/Binding/Registration Request portaient cette direction ; C.2 les requalifie physiquement en section N sans changer leur rôle. Les supras Task/Results/LKV **existent conceptuellement** même sans POM.
 
 ## E. Contracts, ports, domaines et `engine-core`
 
@@ -120,9 +120,9 @@ Chaque runtime actuel a une Spring application et un POM. Cela ne démontre ni u
 
 Dans tous les cas, le runtime ne possède que Spring configuration, activation, cadence/backoff, metrics de process, transactions et choix des implémentations. Les packages supra locaux Task/Results/LKV sont des responsabilités distinctes du runtime même lorsqu’ils y cohabitent physiquement.
 
-## H. Matrice canonique des arcs TARGET
+## H. Matrice canonique des arcs logiques TARGET
 
-**Seule source de vérité des arcs structurels du catalogue.** `A → B` signifie que A importe B. `Required? yes` concerne la proposition ferme ou l’enveloppe actuelle compatible ; `TBD? yes` signifie que l’arc devra être revalidé avant migration. Les imports de bibliothèques externes sont omis. Les `Dependencies` et `Dependents` des fiches TM sont calculés à partir de cette matrice. Aucun arc runtime→runtime, engine→runtime, generic Consumption→business capability, projector pur→SQL/Spring. Le tri topologique de ces arcs est acyclique. Les chaînes fonctionnelles en section I décrivent un ordre d’exécution, **pas** un sens d’import Maven.
+**Source de vérité des arcs logiques C.1 ; la matrice Maven contractée et canonique est en N.** `A → B` signifie que A importe B. `Required? yes` concerne la proposition ferme ou l’enveloppe actuelle compatible ; `TBD? yes` signifie que l’arc devra être revalidé avant migration. Les imports de bibliothèques externes sont omis. Trois arcs C.1 manquants sont rétablis sur preuve CURRENT : Command→domain-event (EventAppendPort/CommandTerminalEventTypes), persistence→contracts-observability (TraceContextHolder), Web→contracts-observability (TraceCorrelationFilter). Leur maintien TARGET est prudent tant que ces usages existent ; ce n’est pas un nouveau rôle. Les `Dependencies` et `Dependents` des fiches TM sont calculés à partir de cette matrice. Aucun arc runtime→runtime, engine→runtime, generic Consumption→business capability, projector pur→SQL/Spring. Le tri topologique de ces arcs est acyclique. Les chaînes fonctionnelles en section I décrivent un ordre d’exécution, **pas** un sens d’import Maven.
 
 | From TM | To TM | Reason | Required? | TBD? |
 | --- | --- | --- | --- | --- |
@@ -138,6 +138,7 @@ Dans tous les cas, le runtime ne possède que Spring configuration, activation, 
 | TM-15 | TM-14 | utilise engine-consumption pour traiter le protocole acquire/finalize | yes | no |
 | TM-16 | TM-15 | adapte vers orchestrator-consumption | yes | no |
 | TM-16 | TM-06 | adapte vers domain-consumption | yes | no |
+| TM-17 | TM-02 | utilise domain-event pour identité event minimale | yes | no |
 | TM-17 | TM-03 | utilise domain-user-identity pour valeurs et facts purs | yes | no |
 | TM-17 | TM-11 | utilise port-binding-authority pour spi de mutation/arbitrage primaire | yes | no |
 | TM-17 | TM-14 | utilise engine-consumption pour traiter le protocole acquire/finalize | yes | no |
@@ -206,6 +207,7 @@ Dans tous les cas, le runtime ne possède que Spring configuration, activation, 
 | TM-38 | TM-15 | adapte vers orchestrator-consumption | yes | no |
 | TM-38 | TM-23 | adapte vers engine-consume-registration | yes | no |
 | TM-39 | TM-12 | implémente le contrat de port-transaction | yes | no |
+| TM-40 | TM-10 | implémente le contrat de contracts-observability | yes | no |
 | TM-40 | TM-11 | implémente le contrat de port-binding-authority | yes | no |
 | TM-40 | TM-12 | implémente le contrat de port-transaction | yes | no |
 | TM-40 | TM-13 | implémente le contrat de port-projection | yes | no |
@@ -230,6 +232,7 @@ Dans tous les cas, le runtime ne possède que Spring configuration, activation, 
 | TM-42 | TM-31 | implémente le contrat de engine-materialize-current-binding | yes | no |
 | TM-42 | TM-32 | implémente le contrat de engine-read-current-binding | yes | no |
 | TM-42 | TM-33 | implémente le contrat de engine-advance-pot-watermark | conditional | yes |
+| TM-43 | TM-10 | compose contracts-observability | yes | no |
 | TM-43 | TM-34 | compose supra-http-api | yes | no |
 | TM-43 | TM-39 | compose infra-tx-spring | yes | no |
 | TM-43 | TM-40 | compose infra-persistence-jpa | yes | no |
@@ -359,7 +362,7 @@ Dans tous les cas, le runtime ne possède que Spring configuration, activation, 
 
 ## K. Target module catalog
 
-Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une prescription de package. Les listes `Dependencies`/`Dependents` sont dérivées de H. `Verb` est obligatoire pour les engines hors cœur ; `Concrete IO adapted` pour les supras ; `Deployment-only` pour les runtimes. `STRONG` sur un engine protège la séparation application→adapter/runtime ; les splits internes de capacité restent discutables si un même POM peut protéger la même direction.
+Chaque fiche conserve la **proposition logique C.1** ; les décisions physiques C.2 de la section N prévalent sur ses champs `Status`, `Boundary strength` et `Why Maven` lorsqu’un POM devient package. Les listes `Dependencies`/`Dependents` sont dérivées de H. `Verb` est obligatoire pour les engines hors cœur ; `Concrete IO adapted` pour les supras ; `Deployment-only` pour les runtimes. `STRONG` sur un engine protège la séparation application→adapter/runtime ; les splits internes de capacité restent discutables si un même POM peut protéger la même direction.
 
 ### TARGET MODULE TM-01
 
@@ -389,7 +392,7 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Responsibilities: types Event indépendants de Pot.
 - Excluded responsibilities: RecordedEvent Pot, production Task.
 - Dependencies: aucune interne.
-- Dependents: TM-04, TM-26.
+- Dependents: TM-04, TM-17, TM-26.
 - Forbidden dependency protected: évite le cycle Pot/Event.
 - Supporting BC: BC-08, BC-16.
 - Current sources: `domain-event`.
@@ -528,7 +531,7 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Responsibilities: TraceContext et holder.
 - Excluded responsibilities: provider, métriques LKV.
 - Dependencies: aucune interne.
-- Dependents: TM-51.
+- Dependents: TM-40, TM-43, TM-51.
 - Forbidden dependency protected: persistence et HTTP échangent une trace sans arc infra→runtime.
 - Supporting BC: BC-11, BC-16.
 - Current sources: `observability`.
@@ -652,7 +655,7 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Verb: consume.
 - Responsibilities: identity, outcome, E+B fence, fail policy.
 - Excluded responsibilities: SQL, polling, HTTP, Result.
-- Dependencies: TM-03, TM-11, TM-14.
+- Dependencies: TM-02, TM-03, TM-11, TM-14.
 - Dependents: TM-18, TM-19, TM-20, TM-21, TM-35, TM-40.
 - Forbidden dependency protected: moteur exécutable sans runtime/adapters.
 - Supporting BC: BC-03, BC-04, BC-05.
@@ -1064,7 +1067,7 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Owner: Primary/Consumption SQL.
 - Responsibilities: clusters Command/Registration/Binding/Result/Task/Consumption.
 - Excluded responsibilities: business policy, READ current store.
-- Dependencies: TM-11, TM-12, TM-13, TM-14, TM-17, TM-18, TM-19, TM-20, TM-21, TM-22, TM-23, TM-24, TM-25, TM-26, TM-27, TM-30, TM-31, TM-33, TM-09.
+- Dependencies: TM-10, TM-11, TM-12, TM-13, TM-14, TM-17, TM-18, TM-19, TM-20, TM-21, TM-22, TM-23, TM-24, TM-25, TM-26, TM-27, TM-30, TM-31, TM-33, TM-09.
 - Dependents: TM-43, TM-44, TM-45, TM-46, TM-47, TM-48, TM-49, TM-50, TM-51.
 - Forbidden dependency protected: frontière application→JPA; split interne non prouvé.
 - Supporting BC: BC-12, BC-13.
@@ -1116,7 +1119,7 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Deployment-only: Spring wiring, activation, cadence, telemetry and implementation choice.
 - Responsibilities: wiring Spring, activation, choix adapters.
 - Excluded responsibilities: DTO, policy, E→U orchestration.
-- Dependencies: TM-34, TM-39, TM-40, TM-41, TM-42.
+- Dependencies: TM-10, TM-34, TM-39, TM-40, TM-41, TM-42.
 - Dependents: aucun module de production cible.
 - Forbidden dependency protected: racine HTTP exécutable distincte des workers.
 - Supporting BC: BC-14, BC-16.
@@ -1284,9 +1287,9 @@ Chaque fiche est une **frontière Maven proposée ou enveloppe TBD**, pas une pr
 - Current sources: `architecture-tests`.
 - Why Maven rather than package? gate Maven séparé des slices locales; score strong à revérifier pour toute frontière non forte.
 
-## L. Recalibrage des strengths, compte et zones TBD
+## L. Scores C.1 avant validation physique C.2
 
-Après la passe de rôles et supras : **52 emplacements**, dont **48 PROPOSED + 4 TBD** ; strengths **30 STRONG, 18 MEDIUM, 4 TBD**, zéro WEAK. Reactor CURRENT : 51 modules, neuf runtimes. Cible conditionnelle : six runtimes PROPOSED et trois runtimes TBD (les deux Results et LKV) ; les neuf loops restent indépendantes. Le compte peut diminuer si des MEDIUM sont ramenés à des packages, ou varier si les TBD sont résolus autrement. Il n’est pas un objectif.
+Comptage provisoire C.1, remplacé pour Maven par la section N : **52 emplacements**, dont **48 PROPOSED + 4 TBD** ; strengths **30 STRONG, 18 MEDIUM, 4 TBD**, zéro WEAK. Reactor CURRENT : 51 modules, neuf runtimes. Cible conditionnelle : six runtimes PROPOSED et trois runtimes TBD (les deux Results et LKV) ; les neuf loops restent indépendantes. Le compte peut diminuer si des MEDIUM sont ramenés à des packages, ou varier si les TBD sont résolus autrement. Il n’est pas un objectif.
 
 Recalibrages notables : `port-transaction` STRONG→MEDIUM ; `domain-event`, `orchestrator-consumption`, `engine-produce-projection-task`, `infra-read-persistence`, `contracts-observability` restent MEDIUM ; admission Command est reclassée d’orchestrator MEDIUM en engine MEDIUM ; les quatre supra Consumption physiques sont MEDIUM ; les workers Command/Event/Task/Binding/Registration passent STRONG→MEDIUM car loop≠process ; les deux Result runtimes passent STRONG→TBD ; LKV work/runtime MEDIUM provisoire→TBD. Le POM HTTP supra est MEDIUM, Web runtime reste STRONG.
 
@@ -1299,3 +1302,324 @@ Avant un plan détaillé : stabiliser valeurs/ports avant dissolution d’`engin
 La cible préserve conceptuellement : Command E+B et fencing ; Registration sans User orphelin et outcome unique ; Results 0..1 immuables, owner E historique, indépendants du Binding courant ; Current Binding revision/tombstone/divergence et absence de délai borné ; Consumption claim séparé, retry et late-commit protection ; exact @V sans fallback ; projection input→projector pur→key→validator de sortie→persistence ; aucun Results/Current→ProjectionTask. Ces propriétés dépendent ensuite de la composition transactionnelle et des preuves CURRENT ; la topologie seule ne les exécute pas.
 
 Vérification C.1 : audit documentaire/statique, aucun slice Maven déclaré, aucune commande Maven ni gate global ni reactor complet. La matrice H a été vérifiée sans cycle ; le mapping couvre les 51 modules CURRENT et les fiches reprennent exactement les arcs H. Aucun code, POM, SQL ou runtime n’est changé.
+
+## N. Physical Boundary Validation (C.2)
+
+**Cette section gouverne la forme Maven cible.** Les 52 fiches K restent la topologie **logique** C.1 (52 responsabilités nommées) ; leurs scores et arguments de POM sont des hypothèses antérieures lorsqu’une ligne ci-dessous conclut `PACKAGE_ONLY` ou `TBD_PHYSICAL`. `KEEP_POM` signifie que Maven protège une direction ou une racine concrète, pas que la séparation doit durer éternellement. `PACKAGE_ONLY` garde le rôle et un package explicite. `TBD_PHYSICAL` ne préjuge ni le besoin fonctionnel LKV, ni le nombre final de processus. La mesure ci-dessous porte sur les **arcs TARGET H**, pas sur le `dependency:tree` Maven CURRENT ni sur la taille en classes.
+
+### N.1 Baseline, méthode et limites de preuve
+
+Pour C.2 : `git fetch origin` réussi ; HEAD local et `origin/v2-make-it-pull` = `65137b7eec2dd278350ff83b284d3a5552cbbfc1`, divergence `0/0`, `git status --short` vide. Aucun commit depuis `65137b7e` à l’ouverture. Trois arcs C.1 ont été complétés sur imports CURRENT : TM-17→02 ([EventAppendPort](../../../../app/engine-command/src/main/java/com/kartaguez/pocoma/engine/command/port/out/EventAppendPort.java), [CommandTerminalEventTypes](../../../../app/engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/CommandTerminalEventTypes.java)), TM-40→10 ([adapter JPA](../../../../app/infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandOutcomeAdapter.java) utilisant `TraceContextHolder`), TM-43→10 ([TraceCorrelationFilter](../../../../app/runtime-web-api/src/main/java/com/kartaguez/pocoma/TraceCorrelationFilter.java)). Ils corrigent une omission d’inventaire, sans changer le rôle de ces composants ni les BC.
+
+La closure transitive est l’ensemble des TM accessibles par parcours des arcs H. Le fan-in direct compte les consommateurs immédiats ; le fan-in transitif compte tous les modules dont la closure contient le TM. Une faible valeur ne condamne pas un POM : un port peut protéger une direction cruciale. Inversement, beaucoup de consommateurs ne prouvent pas un POM. `infra-persistence-jpa` a 20 imports directs et entraîne une closure de 30 TM ; tout runtime qui l’importe reçoit cette closure. Un split d’engine protège souvent son **API directe** mais pas encore la closure complète du runtime.
+
+### N.2 Matrice de décision physique complète
+
+`Direct deps`/`Transitive deps` comptent les nœuds TM logiques avant contraction. `Direct consumers` est un fan-in direct ; les preuves et parents sont détaillés en N.3/N.4. Le statut C.1 est repris tel quel, sans le confondre avec la décision physique.
+
+| TM | Role | Current C.1 status | Direct deps | Transitive deps | Direct consumers | Protection Maven / parent naturel | Decision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| TM-01 `domain-authorization` | domain | PROPOSED/STRONG | 0 | 0 | 2 | dans Pot/Command : Authorization→moteur ou SQL | KEEP_POM |
+| TM-02 `domain-event` | domain | PROPOSED/MEDIUM | 0 | 0 | 3 | dans domain-pot : Command→Pot pour BusinessEvent/EventType | KEEP_POM |
+| TM-03 `domain-user-identity` | domain | PROPOSED/STRONG | 0 | 0 | 8 | dans authority Binding : READ→ports de mutation PRIMARY | KEEP_POM |
+| TM-04 `domain-pot` | domain | PROPOSED/STRONG | 1 | 1 | 7 | dans Pot engine : projection/event→mutation Pot | KEEP_POM |
+| TM-05 `domain-pot-policy` | domain | PROPOSED/STRONG | 2 | 3 | 2 | package dans TM-04 ; guard N.4 | PACKAGE_ONLY |
+| TM-06 `domain-consumption` | domain | PROPOSED/STRONG | 0 | 0 | 3 | dans engine Consumption : capacités→transactions/engine | KEEP_POM |
+| TM-07 `domain-projection` | domain | PROPOSED/STRONG | 0 | 0 | 6 | dans Task : GET exact→worker/Task | KEEP_POM |
+| TM-08 `contracts-authentication` | contracts | PROPOSED/MEDIUM | 1 | 1 | 2 | package dans TM-18 ; guard N.4 | PACKAGE_ONLY |
+| TM-09 `contracts-registration` | contracts | PROPOSED/STRONG | 1 | 1 | 5 | dans admit/consume Registration : un autre processus→ce moteur | KEEP_POM |
+| TM-10 `contracts-observability` | contracts | PROPOSED/MEDIUM | 0 | 0 | 3 | dans Web : JPA→runtime, ou dans JPA : Web→JPA | KEEP_POM |
+| TM-11 `port-binding-authority` | port | PROPOSED/STRONG | 1 | 1 | 3 | dans domain-user-identity : READ→authority PRIMARY | KEEP_POM |
+| TM-12 `port-transaction` | port | PROPOSED/MEDIUM | 0 | 0 | 10 | dans Consumption : Registration/Pot→Consumption sans motif | KEEP_POM |
+| TM-13 `port-projection` | port | PROPOSED/STRONG | 1 | 1 | 6 | dans Task : exact GET/projector→worker | KEEP_POM |
+| TM-14 `engine-consumption` | engine | PROPOSED/STRONG | 2 | 2 | 9 | dans capability : autre capability→capacité hôte | KEEP_POM |
+| TM-15 `orchestrator-consumption` | orchestrator | PROPOSED/MEDIUM | 1 | 3 | 6 | package dans TM-14 ; guard N.4 | PACKAGE_ONLY |
+| TM-16 `supra-poll-consumption` | supra | PROPOSED/STRONG | 2 | 4 | 8 | dans runtime worker : sept runtimes→runtime pair | KEEP_POM |
+| TM-17 `engine-consume-command` | engine | PROPOSED/STRONG | 4 | 6 | 6 | dans runtime Command : Result/Pot→process worker | KEEP_POM |
+| TM-18 `engine-admit-command` | engine | PROPOSED/MEDIUM | 3 | 8 | 2 | dans consume Command : Web→worker/Binding/Consumption | KEEP_POM |
+| TM-19 `engine-write-pot` | engine | PROPOSED/STRONG | 4 | 10 | 1 | dans Command générique : Command→règles Pot | KEEP_POM |
+| TM-20 `engine-read-command-result` | engine | PROPOSED/STRONG | 2 | 7 | 3 | dans materializer : Web GET→terminal source | KEEP_POM |
+| TM-21 `engine-materialize-command-result` | engine | PROPOSED/STRONG | 4 | 9 | 2 | dans read Result : HTTP GET→terminal source/Consumption | KEEP_POM |
+| TM-22 `engine-admit-registration` | engine | PROPOSED/STRONG | 2 | 3 | 2 | dans consume Registration : Web→Binding authority | KEEP_POM |
+| TM-23 `engine-consume-registration` | engine | PROPOSED/STRONG | 4 | 6 | 2 | dans admit Registration : Web→Binding authority | KEEP_POM |
+| TM-24 `engine-materialize-registration-result` | engine | PROPOSED/STRONG | 3 | 5 | 2 | dans consume Registration : Result worker→Binding authority | KEEP_POM |
+| TM-25 `engine-read-registration-result` | engine | PROPOSED/STRONG | 1 | 2 | 2 | package dans TM-22 ; guard N.4 | PACKAGE_ONLY |
+| TM-26 `engine-produce-projection-task` | engine | PROPOSED/MEDIUM | 4 | 4 | 2 | dans Task engine : Event worker→Task processing | KEEP_POM |
+| TM-27 `engine-consume-projection-task` | engine | PROPOSED/STRONG | 5 | 6 | 2 | dans generic Consumption : protocole→Task | KEEP_POM |
+| TM-28 `engine-read-projection` | engine | PROPOSED/STRONG | 2 | 2 | 1 | dans Task : exact GET→Task worker | KEEP_POM |
+| TM-29 `engine-project-pot` | engine | PROPOSED/STRONG | 3 | 4 | 1 | dans Task runtime : projector→Spring/SQL | KEEP_POM |
+| TM-30 `engine-read-pot` | engine | PROPOSED/STRONG | 5 | 8 | 2 | dans HTTP supra : query→Web/PRIMARY concret | KEEP_POM |
+| TM-31 `engine-materialize-current-binding` | engine | PROPOSED/STRONG | 3 | 4 | 3 | dans Binding authority : current→WRITE | KEEP_POM |
+| TM-32 `engine-read-current-binding` | engine | PROPOSED/STRONG | 1 | 1 | 2 | dans materialize Current : GET→Consumption/transaction | KEEP_POM |
+| TM-33 `engine-advance-pot-watermark` | engine | TBD/TBD | 3 | 5 | 3 | forme process/POM ou owner non établie | TBD_PHYSICAL |
+| TM-34 `supra-http-api` | supra | PROPOSED/MEDIUM | 7 | 21 | 1 | dans runtime Web : HTTP/JWT supra→JPA PRIMARY concret | KEEP_POM |
+| TM-35 `supra-consume-command` | supra | PROPOSED/MEDIUM | 2 | 8 | 1 | package dans TM-44 ; guard N.4 | PACKAGE_ONLY |
+| TM-36 `supra-consume-event` | supra | PROPOSED/MEDIUM | 2 | 9 | 1 | package dans TM-45 ; guard N.4 | PACKAGE_ONLY |
+| TM-37 `supra-consume-binding` | supra | PROPOSED/MEDIUM | 2 | 6 | 1 | package dans TM-47 ; guard N.4 | PACKAGE_ONLY |
+| TM-38 `supra-consume-registration` | supra | PROPOSED/MEDIUM | 2 | 8 | 1 | package dans TM-49 ; guard N.4 | PACKAGE_ONLY |
+| TM-39 `infra-tx-spring` | infra | PROPOSED/STRONG | 1 | 1 | 9 | dans engine : application→Spring transactions | KEEP_POM |
+| TM-40 `infra-persistence-jpa` | infra | PROPOSED/STRONG | 20 | 30 | 9 | dans engine : engine→JPA ; dans runtime : runtimes pairs→runtime | KEEP_POM |
+| TM-41 `infra-projection-adapters` | infra | PROPOSED/STRONG | 2 | 2 | 2 | dans Task runtime : Web→runtime Task ; dans projector : calcul→SQL | KEEP_POM |
+| TM-42 `infra-read-persistence` | infra | PROPOSED/MEDIUM | 3 | 9 | 4 | dans Binding read : query→JDBC | KEEP_POM |
+| TM-43 `runtime-web-api` | runtime | PROPOSED/STRONG | 6 | 36 | 0 | dans worker runtime : HTTP→worker lifecycle | KEEP_POM |
+| TM-44 `runtime-command-consumption-worker` | runtime | PROPOSED/MEDIUM | 4 | 34 | 0 | dans autre runtime : runtime→runtime | KEEP_POM |
+| TM-45 `runtime-event-consumption-worker` | runtime | PROPOSED/MEDIUM | 4 | 34 | 0 | dans autre runtime : runtime→runtime | KEEP_POM |
+| TM-46 `runtime-task-consumption-worker` | runtime | PROPOSED/MEDIUM | 7 | 37 | 0 | dans autre runtime : runtime→runtime | KEEP_POM |
+| TM-47 `runtime-binding-consumption-worker` | runtime | PROPOSED/MEDIUM | 5 | 36 | 0 | dans autre runtime : runtime→runtime | KEEP_POM |
+| TM-48 `runtime-command-result-consumption-worker` | runtime | TBD/TBD | 4 | 33 | 0 | forme process/POM ou owner non établie | TBD_PHYSICAL |
+| TM-49 `runtime-registration-consumption-worker` | runtime | PROPOSED/MEDIUM | 4 | 34 | 0 | dans autre runtime : runtime→runtime | KEEP_POM |
+| TM-50 `runtime-registration-result-consumption-worker` | runtime | TBD/TBD | 4 | 33 | 0 | forme process/POM ou owner non établie | TBD_PHYSICAL |
+| TM-51 `runtime-latest-known-version-consumption-worker` | runtime | TBD/TBD | 6 | 35 | 0 | forme process/POM ou owner non établie | TBD_PHYSICAL |
+| TM-52 `architecture-tests` | verification | PROPOSED/STRONG | 0 | 0 | 0 | dans production : slices locales→gate global | KEEP_POM |
+
+### N.3 KEEP_POM : import interdit réellement protégé
+
+Le tableau rend explicites les quatre tests demandés. « Si fusion » désigne le parent naturel ou le déplacement naïf qui ferait entrer l’import ; ce n’est pas une opération à implémenter. Le dernier champ indique pourquoi une simple convention de package ne suffit pas pour cette frontière. Pour les runtimes workers, `KEEP_POM` protège surtout une **racine Spring exécutable actuelle** ; l’autonomie de déploiement future n’est pas démontrée.
+
+| TM | Si fusion : import devenu possible | Danger | Consommateurs bénéficiaires | Pourquoi package/test seul insuffisant |
+| --- | --- | --- | --- | --- |
+| TM-01 | dans Pot/Command : Authorization→moteur ou SQL | calcul d’accès devient couplé au provider | Pot WRITE/READ et Command | frontière pure partagée à trois capacités |
+| TM-02 | dans domain-pot : Command→Pot pour BusinessEvent/EventType | Command générique importe Pot seulement pour Event | Command, Event discovery, SQL | interdiction transitive de capacité visible par Maven |
+| TM-03 | dans authority Binding : READ→ports de mutation PRIMARY | GET Current peut invoquer authority | Registration, Command, READ Binding | Maven empêche l’import de l’API WRITE |
+| TM-04 | dans Pot engine : projection/event→mutation Pot | modèle partage une closure WRITE | Command, projectors, Event | pureté du modèle garantie hors moteurs |
+| TM-06 | dans engine Consumption : capacités→transactions/engine | modèle claim/lease perd sa pureté | tous consumers et adapters | partage transverse sans engine/runtime |
+| TM-07 | dans Task : GET exact→worker/Task | identity @V et validator dépendent de Task | producer, query, adapter | Maven protège le contrat exact multi-process |
+| TM-09 | dans admit/consume Registration : un autre processus→ce moteur | Web/Result worker importent authority ou Consumption | Web, deux workers, persistence | contrat durable partagé sans moteur propriétaire |
+| TM-10 | dans Web : JPA→runtime, ou dans JPA : Web→JPA | trace traverse deux couches sans dépendance inverse | Web et persistence SQL | ThreadLocal/trace sont partagés entre modules non parent-enfant |
+| TM-11 | dans domain-user-identity : READ→authority PRIMARY | Current Binding query voit acquire/detach | Command, Registration, Binding READ | séparation physique valeur vs ports WRITE |
+| TM-12 | dans Consumption : Registration/Pot→Consumption sans motif | TransactionRunner partagé créerait faux owner | plusieurs engines et Spring adapter | aucun parent neutre existant ; petit POM légitime |
+| TM-13 | dans Task : exact GET/projector→worker | ports exacts couplés au polling | GET, Task, producer, adapters | Maven bloque Task closure côté query |
+| TM-14 | dans capability : autre capability→capacité hôte | protocole transverse perd neutralité | huit loops et adapters | module sans business imports vérifiable |
+| TM-16 | dans runtime worker : sept runtimes→runtime pair | runtime→runtime et Spring wiring croisé | huit runtimes | shared polling a plusieurs racines réelles |
+| TM-17 | dans runtime Command : Result/Pot→process worker | Command semantics prennent Spring/process | Command, Result, Pot, SQL | application réutilisée hors runtime |
+| TM-18 | dans consume Command : Web→worker/Binding/Consumption | admission synchrone prend closure worker | Web et SQL admission | Maven coupe la direction Web→execution |
+| TM-19 | dans Command générique : Command→règles Pot | dispatch générique devient Pot-specific | Command et persistence | séparation capacité générique vs mutation Pot |
+| TM-20 | dans materializer : Web GET→terminal source | GET importe Event/outcome/policy de matérialisation | supra HTTP, SQL Result | barrière directe réelle malgré closure Web SQL encore large |
+| TM-21 | dans read Result : HTTP GET→terminal source/Consumption | lecture importe work Result | Result worker, persistence | barrière application directe ; closure runtime demeure à réduire |
+| TM-22 | dans consume Registration : Web→Binding authority | admission importe arbitrage et Consumption | Web, SQL admission | Maven évite Binding dans module d’entrée |
+| TM-23 | dans admit Registration : Web→Binding authority | Web importe traitement fenced | worker Request, SQL | Maven isole authority/transaction complexe |
+| TM-24 | dans consume Registration : Result worker→Binding authority | Result terminal importe mutation primaire | worker Outcome, SQL | boucles indépendantes et imports différents |
+| TM-26 | dans Task engine : Event worker→Task processing | producer metadata tire projector/worker Task | Event supra et SQL discovery | aucun autre parent ne garde metadata-only et ports SQL |
+| TM-27 | dans generic Consumption : protocole→Task | générique importe capability | Task worker, projection adapter | BC-07 impose direction à la frontière |
+| TM-28 | dans Task : exact GET→Task worker | READ exact importe orchestration Task | Pot read et Web | Maven garde query sans Task direct |
+| TM-29 | dans Task runtime : projector→Spring/SQL | calcul pur pourrait lire DB | Task et source loaders | moteur pur partagé hors runtime |
+| TM-30 | dans HTTP supra : query→Web/PRIMARY concret | orchestration E→U revient au contrôleur | Web et exact read | port source E→U reste testable sans HTTP |
+| TM-31 | dans Binding authority : current→WRITE | materializer reçoit API mutation primaire | Binding worker, READ adapter | port READ/current indépendant des ports authority |
+| TM-32 | dans materialize Current : GET→Consumption/transaction | query self importe worker et authority | Web, READ adapter | Maven protège READ de la production |
+| TM-34 | dans runtime Web : HTTP/JWT supra→JPA PRIMARY concret | régression E→U direct controller | Web routes et admission/query | Maven exclut SQL du compile classpath du supra |
+| TM-39 | dans engine : application→Spring transactions | contrat transaction devient Spring | neuf runtimes | provider interchangeable hors engines |
+| TM-40 | dans engine : engine→JPA ; dans runtime : runtimes pairs→runtime | adapter SQL devient dépendance applicative ou croise les processus | neuf runtimes | Maven sépare application et provider; split interne non prouvé |
+| TM-41 | dans Task runtime : Web→runtime Task ; dans projector : calcul→SQL | pureté calcul/validation ou racines séparées perdues | Web et Task | deux consommateurs, adapter interchangeable |
+| TM-42 | dans Binding read : query→JDBC | READ current et LKV collés au store | Web, Binding, Task, LKV | provider partagé par quatre processus |
+| TM-43 | dans worker runtime : HTTP→worker lifecycle | process synchrone et worker couplés | déploiement Web | racine exécutable indépendante |
+| TM-44 | dans autre runtime : runtime→runtime | composition Command propagée | process Command actuel | racine Spring exécutable actuelle |
+| TM-45 | dans autre runtime : runtime→runtime | composition Event propagée | process Event actuel | racine Spring exécutable actuelle |
+| TM-46 | dans autre runtime : runtime→runtime | composition Task propagée | process Task actuel | racine Spring exécutable actuelle |
+| TM-47 | dans autre runtime : runtime→runtime | composition Binding propagée | process Binding actuel | racine Spring exécutable actuelle |
+| TM-49 | dans autre runtime : runtime→runtime | composition Request propagée | process Registration actuel | racine Spring exécutable actuelle |
+| TM-52 | dans production : slices locales→gate global | preuve globale lancée par défaut | validation architecturale | sélection Maven explicite du gate |
+
+Points de prudence : les deux moteurs Command Result TM-20/21 protègent le GET contre un **import applicatif direct** du materializer, mais `TM-20→TM-17` (BC-04) et `TM-43→TM-40` maintiennent une closure Web large. Cette limite interdit de prétendre que le runtime Web n’embarque plus Command/terminal tant que BC-04 et le cluster SQL n’ont pas été traités. Les trois moteurs Registration TM-22/23/24 gardent des imports réellement différents ; le GET TM-25 est requalifié package N.4. `contracts-registration` TM-09 évite que Web, worker Request, worker Outcome et SQL importent un moteur Registration juste pour request/outcome/Result. `port-transaction` TM-12 reste un petit POM : aucun parent naturel neutre ne le reçoit sans faire dépendre Registration/Pot/Command de Consumption ou de Spring. `contracts-authentication` TM-08, au contraire, est consommé seulement par admission Command et supra HTTP, qui importe déjà cette admission.
+
+`contracts-observability` TM-10 est conservé malgré son apparence de micro-POM : CURRENT prouve `TraceCorrelationFilter` côté Web et plusieurs adapters JPA côté SQL sur `TraceContextHolder`. Son parent Web ferait importer un runtime par JPA ; son parent JPA ferait importer le provider SQL par Web. C.1 avait omis ces deux arcs TARGET ; les ignorer aurait produit un faux `PACKAGE_ONLY`. `domain-event` TM-02 reste distinct car Command utilise `BusinessEvent`/`EventType` génériques sans devenir Pot-specific ; l’insérer dans `domain-pot` introduirait cet import métier.
+
+### N.4 PACKAGE_ONLY : rôle préservé et guard
+
+Chaque rôle reste dans un package dédié au sein du POM indiqué. **La responsabilité reste `supra` lorsqu’elle est physiquement dans un runtime ; cette colocation ne rend pas le runtime propriétaire de sa sémantique.** Les tests de package sont une contrainte cible à ajouter lors de la migration, non des gates déjà livrées. Pour les packages `supra`, le runtime peut câbler infra et engine, mais la classe supra ne doit pas importer l’implémentation SQL ni les classes de configuration Spring ; le guard doit vérifier les imports de ces packages, pas seulement les POM.
+
+| TM / rôle préservé | Natural parent POM | Target package | Forbidden dependency still protected how? |
+| --- | --- | --- | --- |
+| TM-05 `domain` | TM-04 `domain-pot` | `com.kartaguez.pocoma.domain.pot.policy` | domain-pot reste pur ; package policy ne peut importer infra via règle structurelle |
+| TM-08 `contracts` | TM-18 `engine-admit-command` | `com.kartaguez.pocoma.engine.command.admit.authentication` | admission reste neutre Spring ; supra HTTP importe déjà admission |
+| TM-15 `orchestrator` | TM-14 `engine-consumption` | `com.kartaguez.pocoma.engine.consumption.orchestration` | aucun import business dans protocole générique ; package guard |
+| TM-25 `engine` | TM-22 `engine-admit-registration` | `com.kartaguez.pocoma.engine.registration.readresult` | GET ne peut importer Binding authority, Consumption ou SQL ; guard package |
+| TM-35 `supra` | TM-44 `runtime-command-consumption-worker` | `com.kartaguez.pocoma.runtime.command.supra` | supra n’importe pas infra SQL/Spring config ; règle import de package |
+| TM-36 `supra` | TM-45 `runtime-event-consumption-worker` | `com.kartaguez.pocoma.runtime.event.supra` | supra reste metadata-only et n’importe pas SQL ; règle package et tests |
+| TM-37 `supra` | TM-47 `runtime-binding-consumption-worker` | `com.kartaguez.pocoma.runtime.binding.supra` | supra n’importe pas SQL ni ne possède la règle R ; règle package |
+| TM-38 `supra` | TM-49 `runtime-registration-consumption-worker` | `com.kartaguez.pocoma.runtime.registration.supra` | supra Request n’importe pas SQL concret ; résultat garde sa glue locale |
+
+La contraction n’efface pas les différences sémantiques : `orchestrator-consumption` garde Sequential et AcquireThenFinalize en package de `engine-consumption`, sans ProjectionTask ; `engine-read-registration-result` reste un engine GET dans le POM d’admission, sans importer Binding authority ni Consumption ; `domain-pot-policy` reste une politique pure ; les quatre supras de consommation gardent discovery/reload/adaptation, tandis que SQL reste infra et backoff runtime. Leurs consommateurs directs C.1 sont chacun **un seul runtime** ; le POM n’évite aucune closure entre processus. Les règles ArchUnit/`architecture-tests` proposées doivent bloquer les imports du package `supra` vers `infra.*`, Spring config et les autres runtimes, et bloquer tout import `engine.registration.readresult` vers `port.binding.authority` ou `engine.consumption`. Aucun gate global n’est déclenché pour cette édition documentaire.
+
+### N.5 Supra HTTP : comparaison des deux formes
+
+| Option | Closure et imports | Réutilisation/testabilité | Décision |
+| --- | --- | --- | --- |
+| A — TM-43 runtime→TM-34 supra POM | TM-34 : 7 deps directs, 21 transitifs, 1 consommateur ; aucun arc vers infra SQL/JPA ; Web reste à 36 TM transitifs via TM-40 | un seul runtime consomme, mais routes/DTO/principal compilent sans implémentation PRIMARY | **KEEP_POM** : interdit à la compilation HTTP supra→adapter E→U PRIMARY concret |
+| B — package supra.http dans TM-43 | même code exécuté et closure Web totale inchangée ; imports JPA/PRIMARY deviennent légaux dans les classes HTTP | package/ArchUnit pourrait détecter ensuite, mais n’empêche pas à la compilation une régression du franchissement E→U | écarté à ce stade ; protection Maven concrète de BC-14 |
+
+Le POM HTTP unique reste distinct de la composition Web ; aucun POM par route. En revanche, les quatre POM supra Consumption TM-35/36/37/38 sont `PACKAGE_ONLY` : chacun n’a qu’un runtime consommateur, et leur éventuel import SQL doit être gardé au niveau package. Le supra polling TM-16 reste `KEEP_POM` avec **huit** consommateurs : l’absorber dans un runtime créerait des arcs runtime→runtime, l’absorber dans le moteur Consumption ferait entrer cadence et lifecycle Spring dans le protocole.
+
+### N.6 Registration, Command Result, infra et runtimes
+
+**Registration.** TM-09 contracts a cinq consommateurs directs (les quatre engines Registration et l’adapter SQL) ; Web et les deux loops l’utilisent transitivement et protège un langage durable neutre. TM-22 admit et TM-23 consume restent POM : Web ne doit pas importer l’arbitrage Binding. TM-24 materialize reste POM : le Result worker ne doit pas importer l’authority Binding de TM-23. TM-25 read a seulement `contracts-registration` comme dépendance directe ; ses deux consommateurs (supra HTTP et SQL) importent déjà TM-22. Son package dans TM-22 ajoute l’abstraction de transaction TM-12 au GET, mais ni Binding authority ni Consumption. Le guard interdit explicitement ces deux dernières dépendances. TM-38 supra Request a un seul runtime consommateur ; package dans TM-49. La glue Outcome reste un package supra distinct dans TM-50, même si le statut physique de ce runtime reste TBD.
+
+**Command Result.** TM-20 read dépend encore de TM-17 Command pour le modèle actuel (BC-04) ; TM-21 materialize ajoute Pot/Event/Consumption. Les deux POM restent conservés pour bloquer un import direct du terminal côté GET ; la mesure **ne** leur attribue pas une réduction de la closure Web totale : TM-43 a 36/52 TM transitifs et TM-40 importe TM-21. Une décision ultérieure sur BC-04 ou les adapters pourrait rendre cette barrière plus efficace, sans autoriser ici un `contracts-command` arbitraire.
+
+**Infra.** TM-39 Spring transaction, TM-40 SQL PRIMARY/Consumption, TM-41 exact projection/JSON et TM-42 READ current/LKV restent quatre providers distincts. TM-40 a une large closure mais son split interne n’est pas décidé en C.2 : même transaction, même datasource, même JPA et même POM restent différents. TM-41 a deux consommateurs, TM-42 en a quatre ; leur fusion avec TM-40 exposerait des implémentations mutuellement inutiles aux queries/projectors et brouillerait exact @V, current et watermark.
+
+**Runtimes.** Web et cinq workers Command/Event/Task/Binding/Registration Request sont `KEEP_POM` comme racines Spring exécutable CURRENT, sans conclure à des déploiements autonomes éternels. Command Result, Registration Result et LKV restent `TBD_PHYSICAL` : chacun garde son slot et sa loop indépendante ; la nécessité d’une Spring application, d’un POM et d’un déploiement séparés dans la cible finale n’est pas établie. Neuf loops subsistent même si un futur processus en compose plusieurs. Aucun rapprochement de loops n’est prescrit.
+
+| Runtime | Slot distinct ? | Loop distincte ? | Spring app indépendante CURRENT ? | POM cible | Déploiement autonome TARGET |
+| --- | --- | --- | --- | --- | --- |
+| runtime-web-api | sans objet | HTTP | oui | KEEP_POM | oui : surface HTTP |
+| runtime-command-consumption-worker | oui | oui | oui | KEEP_POM | non démontré |
+| runtime-event-consumption-worker | oui | oui | oui | KEEP_POM | non démontré |
+| runtime-task-consumption-worker | oui | oui | oui | KEEP_POM | non démontré |
+| runtime-binding-consumption-worker | oui | oui | oui | KEEP_POM | non démontré |
+| runtime-command-result-consumption-worker | oui | oui | oui | TBD_PHYSICAL | non démontré |
+| runtime-registration-consumption-worker | oui | oui | oui | KEEP_POM | non démontré |
+| runtime-registration-result-consumption-worker | oui | oui | oui | TBD_PHYSICAL | non démontré |
+| runtime-latest-known-version-consumption-worker | oui | oui | oui | TBD_PHYSICAL | non démontré |
+
+### N.7 Matrice canonique des arcs Maven physiques
+
+Projection de H en contractant exactement les huit TM `PACKAGE_ONLY` vers leur parent ; arcs internes supprimés et doublons dédupliqués. La colonne origine renvoie aux arcs logiques H (et donc à leur raison explicite). Les quatre nœuds `TBD_PHYSICAL` et leurs arcs sont conservés **conditionnellement** pour préserver la compatibilité CURRENT. Si un TBD devient package, la contraction devra être recalculée avant migration. Cette matrice est la source unique des arcs Maven cibles C.2 ; H demeure la source des arcs **logiques**. `A→B` signifie A dépend de B.
+
+| From POM | To POM | Origine logique / justification | Conditional? |
+| --- | --- | --- | --- |
+| TM-04 | TM-01 | TM-05→TM-01 | no |
+| TM-04 | TM-02 | TM-04→TM-02 | no |
+| TM-09 | TM-03 | TM-09→TM-03 | no |
+| TM-11 | TM-03 | TM-11→TM-03 | no |
+| TM-13 | TM-07 | TM-13→TM-07 | no |
+| TM-14 | TM-06 | TM-14→TM-06 | no |
+| TM-14 | TM-12 | TM-14→TM-12 | no |
+| TM-16 | TM-06 | TM-16→TM-06 | no |
+| TM-16 | TM-14 | TM-16→TM-15 | no |
+| TM-17 | TM-02 | TM-17→TM-02 | no |
+| TM-17 | TM-03 | TM-17→TM-03 | no |
+| TM-17 | TM-11 | TM-17→TM-11 | no |
+| TM-17 | TM-14 | TM-17→TM-14 | no |
+| TM-18 | TM-03 | TM-08→TM-03 | no |
+| TM-18 | TM-12 | TM-18→TM-12 | no |
+| TM-18 | TM-17 | TM-18→TM-17 | no |
+| TM-19 | TM-04 | TM-19→TM-04, TM-19→TM-05 | no |
+| TM-19 | TM-12 | TM-19→TM-12 | no |
+| TM-19 | TM-17 | TM-19→TM-17 | no |
+| TM-20 | TM-03 | TM-20→TM-03 | no |
+| TM-20 | TM-17 | TM-20→TM-17 | no |
+| TM-21 | TM-04 | TM-21→TM-04 | no |
+| TM-21 | TM-14 | TM-21→TM-14 | no |
+| TM-21 | TM-17 | TM-21→TM-17 | no |
+| TM-21 | TM-20 | TM-21→TM-20 | no |
+| TM-22 | TM-09 | TM-22→TM-09, TM-25→TM-09 | no |
+| TM-22 | TM-12 | TM-22→TM-12 | no |
+| TM-23 | TM-09 | TM-23→TM-09 | no |
+| TM-23 | TM-11 | TM-23→TM-11 | no |
+| TM-23 | TM-12 | TM-23→TM-12 | no |
+| TM-23 | TM-14 | TM-23→TM-14 | no |
+| TM-24 | TM-09 | TM-24→TM-09 | no |
+| TM-24 | TM-12 | TM-24→TM-12 | no |
+| TM-24 | TM-14 | TM-24→TM-14 | no |
+| TM-26 | TM-02 | TM-26→TM-02 | no |
+| TM-26 | TM-04 | TM-26→TM-04 | no |
+| TM-26 | TM-07 | TM-26→TM-07 | no |
+| TM-26 | TM-13 | TM-26→TM-13 | no |
+| TM-27 | TM-07 | TM-27→TM-07 | no |
+| TM-27 | TM-12 | TM-27→TM-12 | no |
+| TM-27 | TM-13 | TM-27→TM-13 | no |
+| TM-27 | TM-14 | TM-27→TM-14, TM-27→TM-15 | no |
+| TM-28 | TM-07 | TM-28→TM-07 | no |
+| TM-28 | TM-13 | TM-28→TM-13 | no |
+| TM-29 | TM-04 | TM-29→TM-04 | no |
+| TM-29 | TM-07 | TM-29→TM-07 | no |
+| TM-29 | TM-13 | TM-29→TM-13 | no |
+| TM-30 | TM-01 | TM-30→TM-01 | no |
+| TM-30 | TM-03 | TM-30→TM-03 | no |
+| TM-30 | TM-04 | TM-30→TM-04, TM-30→TM-05 | no |
+| TM-30 | TM-28 | TM-30→TM-28 | no |
+| TM-31 | TM-03 | TM-31→TM-03 | no |
+| TM-31 | TM-12 | TM-31→TM-12 | no |
+| TM-31 | TM-14 | TM-31→TM-14 | no |
+| TM-32 | TM-03 | TM-32→TM-03 | no |
+| TM-33 | TM-04 | TM-33→TM-04 | yes |
+| TM-33 | TM-06 | TM-33→TM-06 | yes |
+| TM-33 | TM-14 | TM-33→TM-14 | yes |
+| TM-34 | TM-18 | TM-34→TM-08, TM-34→TM-18 | no |
+| TM-34 | TM-20 | TM-34→TM-20 | no |
+| TM-34 | TM-22 | TM-34→TM-22, TM-34→TM-25 | no |
+| TM-34 | TM-30 | TM-34→TM-30 | no |
+| TM-34 | TM-32 | TM-34→TM-32 | no |
+| TM-39 | TM-12 | TM-39→TM-12 | no |
+| TM-40 | TM-09 | TM-40→TM-09 | no |
+| TM-40 | TM-10 | TM-40→TM-10 | no |
+| TM-40 | TM-11 | TM-40→TM-11 | no |
+| TM-40 | TM-12 | TM-40→TM-12 | no |
+| TM-40 | TM-13 | TM-40→TM-13 | no |
+| TM-40 | TM-14 | TM-40→TM-14 | no |
+| TM-40 | TM-17 | TM-40→TM-17 | no |
+| TM-40 | TM-18 | TM-40→TM-18 | no |
+| TM-40 | TM-19 | TM-40→TM-19 | no |
+| TM-40 | TM-20 | TM-40→TM-20 | no |
+| TM-40 | TM-21 | TM-40→TM-21 | no |
+| TM-40 | TM-22 | TM-40→TM-22, TM-40→TM-25 | no |
+| TM-40 | TM-23 | TM-40→TM-23 | no |
+| TM-40 | TM-24 | TM-40→TM-24 | no |
+| TM-40 | TM-26 | TM-40→TM-26 | no |
+| TM-40 | TM-27 | TM-40→TM-27 | no |
+| TM-40 | TM-30 | TM-40→TM-30 | no |
+| TM-40 | TM-31 | TM-40→TM-31 | no |
+| TM-40 | TM-33 | TM-40→TM-33 | yes |
+| TM-41 | TM-07 | TM-41→TM-07 | no |
+| TM-41 | TM-13 | TM-41→TM-13 | no |
+| TM-42 | TM-31 | TM-42→TM-31 | no |
+| TM-42 | TM-32 | TM-42→TM-32 | no |
+| TM-42 | TM-33 | TM-42→TM-33 | yes |
+| TM-43 | TM-10 | TM-43→TM-10 | no |
+| TM-43 | TM-34 | TM-43→TM-34 | no |
+| TM-43 | TM-39 | TM-43→TM-39 | no |
+| TM-43 | TM-40 | TM-43→TM-40 | no |
+| TM-43 | TM-41 | TM-43→TM-41 | no |
+| TM-43 | TM-42 | TM-43→TM-42 | no |
+| TM-44 | TM-14 | TM-35→TM-15 | no |
+| TM-44 | TM-16 | TM-44→TM-16 | no |
+| TM-44 | TM-17 | TM-35→TM-17 | no |
+| TM-44 | TM-39 | TM-44→TM-39 | no |
+| TM-44 | TM-40 | TM-44→TM-40 | no |
+| TM-45 | TM-14 | TM-36→TM-15 | no |
+| TM-45 | TM-16 | TM-45→TM-16 | no |
+| TM-45 | TM-26 | TM-36→TM-26 | no |
+| TM-45 | TM-39 | TM-45→TM-39 | no |
+| TM-45 | TM-40 | TM-45→TM-40 | no |
+| TM-46 | TM-16 | TM-46→TM-16 | no |
+| TM-46 | TM-27 | TM-46→TM-27 | no |
+| TM-46 | TM-29 | TM-46→TM-29 | no |
+| TM-46 | TM-39 | TM-46→TM-39 | no |
+| TM-46 | TM-40 | TM-46→TM-40 | no |
+| TM-46 | TM-41 | TM-46→TM-41 | no |
+| TM-46 | TM-42 | TM-46→TM-42 | no |
+| TM-47 | TM-14 | TM-37→TM-15 | no |
+| TM-47 | TM-16 | TM-47→TM-16 | no |
+| TM-47 | TM-31 | TM-37→TM-31 | no |
+| TM-47 | TM-39 | TM-47→TM-39 | no |
+| TM-47 | TM-40 | TM-47→TM-40 | no |
+| TM-47 | TM-42 | TM-47→TM-42 | no |
+| TM-48 | TM-16 | TM-48→TM-16 | yes |
+| TM-48 | TM-21 | TM-48→TM-21 | yes |
+| TM-48 | TM-39 | TM-48→TM-39 | yes |
+| TM-48 | TM-40 | TM-48→TM-40 | yes |
+| TM-49 | TM-14 | TM-38→TM-15 | no |
+| TM-49 | TM-16 | TM-49→TM-16 | no |
+| TM-49 | TM-23 | TM-38→TM-23 | no |
+| TM-49 | TM-39 | TM-49→TM-39 | no |
+| TM-49 | TM-40 | TM-49→TM-40 | no |
+| TM-50 | TM-16 | TM-50→TM-16 | yes |
+| TM-50 | TM-24 | TM-50→TM-24 | yes |
+| TM-50 | TM-39 | TM-50→TM-39 | yes |
+| TM-50 | TM-40 | TM-50→TM-40 | yes |
+| TM-51 | TM-10 | TM-51→TM-10 | yes |
+| TM-51 | TM-16 | TM-51→TM-16 | yes |
+| TM-51 | TM-33 | TM-51→TM-33 | yes |
+| TM-51 | TM-39 | TM-51→TM-39 | yes |
+| TM-51 | TM-40 | TM-51→TM-40 | yes |
+| TM-51 | TM-42 | TM-51→TM-42 | yes |
+
+**Contrôle graphe : 136 arcs Maven physiques conditionnels (117 entre POM fermes), 44 nœuds si les quatre TBD gardent un POM ; aucun cycle** (parcours DFS). Les cinq interdictions structurelles restent vraies dans les arcs POM : pas de générique Consumption→capability, engine→runtime, runtime→runtime, projector→SQL/Spring ni Current Binding query→Binding authority. Les règles de package N.4 sont nécessaires pour la même interdiction à l’intérieur des POM fusionnés. GET Pot E→U demeure derrière un port applicatif TBD ; Results restent hors ProjectionTask.
+
+### N.8 Comptes distincts, limites et vérification
+
+**Architecture logique : 52 entrées TM (51 responsabilités de production + `architecture-tests` hors production). Topologie Maven ferme : 40 POM `KEEP_POM` (39 de production + le gate de test) ; 8 rôles `PACKAGE_ONLY` ; 4 zones `TBD_PHYSICAL`.** La cible de continuité maximale serait **44 POM** et **136 arcs** si tous les TBD gardent leur POM (117 arcs entre POM fermes) ; la cible ferme contient 40 POM, et les TBD pourraient être contractés différemment. Le nombre 51 du reactor CURRENT n’est pas un objectif à battre. Le nombre de classes et la closure de code d’un runtime ne diminuent pas automatiquement quand deux POM sont réunis : seule la granularité du graphe change.
+
+Limites à lever avant un plan de migration : tester les imports réels de chaque `PACKAGE_ONLY` contre les guards proposés ; confirmer que la cohabitation TM-22/TM-25 ne tire pas un port WRITE par un import Java oublié ; vérifier la closure Command Result après BC-04 ; décider LKV fonctionnellement hors C.2 ; préciser la source/owner E→U hors C.2 ; décider la forme de process des trois runtimes TBD. La cible garde append-only Binding, R/tombstone/divergence, E+B fencing, outcomes/Results immuables et owner historique, commits Consumption fenced et exact @V ; aucun nouveau chemin Results/Current via ProjectionTask.
+
+Vérification de cette édition : lecture statique des documents et imports ciblés, calcul automatisé des closures et fan-in sur H, contraction des huit nœuds package et DFS des arcs physiques. Aucun slice Maven déclaré pour une édition documentaire ; aucun Maven, test, gate global ou reactor complet exécuté. Aucun code, POM, SQL ou runtime modifié.
