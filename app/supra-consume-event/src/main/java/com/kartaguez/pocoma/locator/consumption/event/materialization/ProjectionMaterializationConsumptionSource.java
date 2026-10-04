@@ -43,7 +43,7 @@ public final class ProjectionMaterializationConsumptionSource
 		@Override
 		public java.util.List<ProjectionMaterializationCandidate> nextPage(int limit) {
 			if (limit < 1) throw new IllegalArgumentException("limit must be positive");
-			var page = discovery.findCandidates(routes, segment, cursor, limit);
+			var page = discovery.findCandidates(routes, segment.segmentIndex(), segment.segmentCount(), cursor, limit);
 			if (!page.isEmpty()) cursor = Optional.of(page.getLast().orderingKey());
 			return page;
 		}

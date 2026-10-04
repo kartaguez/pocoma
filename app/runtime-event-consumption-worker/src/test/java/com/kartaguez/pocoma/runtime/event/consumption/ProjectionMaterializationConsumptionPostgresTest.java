@@ -57,6 +57,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.engine.processing.event.materialization.ProduceProjectionTaskService;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
@@ -139,7 +140,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		var effectStarted = new CountDownLatch(1);
 		var allowCommit = new CountDownLatch(1);
 		var blockingTasks = new AfterEnsureBlockingStore(tasks, effectStarted, allowCommit);
-		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, blockingTasks);
+		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(blockingTasks));
 
 		try (var executor = Executors.newSingleThreadExecutor()) {
 			var result = executor.submit(() -> service.finalize(candidate, claim));
@@ -186,7 +187,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		clock.set(NOW.plusSeconds(30));
 
 		assertEquals(FencedMutationResult.APPLIED,
-				new ProjectionMaterializationConsumptionService(finalizeConsumption, tasks)
+				new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(tasks))
 						.finalize(candidate, expiring));
 		assertSuccessful(expiring);
 
@@ -197,7 +198,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		var counting = new CountingStore(tasks);
 
 		assertEquals(FencedMutationResult.LOST_CLAIM,
-				new ProjectionMaterializationConsumptionService(finalizeConsumption, counting)
+				new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(counting))
 						.finalize(candidate, stale));
 		assertEquals(0, counting.calls.get());
 		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(winner.slotId()).orElseThrow().currentClaimId());
@@ -302,7 +303,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	private ConsumptionOrchestrator orchestrator(
 			Map<EventType, Set<ProjectionType>> routes, ProjectionTaskStorePort store) {
 		var source = new ProjectionMaterializationConsumptionSource(routes, WorkerSegment.single(), discovery);
-		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, store);
+		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(store));
 		return new AcquireThenFinalizeConsumptionOrchestrator<>(source,
 				ProjectionMaterializationConsumptionKeys::consumptionKey, acquire, service);
 	}

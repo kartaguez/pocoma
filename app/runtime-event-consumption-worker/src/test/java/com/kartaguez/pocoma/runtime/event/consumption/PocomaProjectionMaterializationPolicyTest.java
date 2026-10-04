@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Map;
 import java.util.Set;
 
+import com.kartaguez.pocoma.engine.processing.event.materialization.PocomaProjectionMaterializationPolicy;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.event.EventType;

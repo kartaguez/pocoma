@@ -26,6 +26,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.engine.processing.event.materialization.ProduceProjectionTaskService;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
@@ -50,7 +51,7 @@ class ProjectionMaterializationConsumptionServiceTest {
 		var tasks = new RecordingTasks();
 		var finalizer = new ApplyingFinalizer();
 
-		var result = new ProjectionMaterializationConsumptionService(finalizer, tasks)
+		var result = new ProjectionMaterializationConsumptionService(finalizer, new ProduceProjectionTaskService(tasks))
 				.finalize(CANDIDATE, CLAIM);
 
 		assertEquals(FencedMutationResult.APPLIED, result);
@@ -67,7 +68,7 @@ class ProjectionMaterializationConsumptionServiceTest {
 		FinalizeConsumptionUseCase stale = input -> FencedMutationResult.LOST_CLAIM;
 
 		assertEquals(FencedMutationResult.LOST_CLAIM,
-				new ProjectionMaterializationConsumptionService(stale, tasks).finalize(CANDIDATE, CLAIM));
+				new ProjectionMaterializationConsumptionService(stale, new ProduceProjectionTaskService(tasks)).finalize(CANDIDATE, CLAIM));
 		assertEquals(0, tasks.calls.get());
 	}
 
@@ -79,7 +80,7 @@ class ProjectionMaterializationConsumptionServiceTest {
 		};
 
 		RuntimeException actual = assertThrows(RuntimeException.class,
-				() -> new ProjectionMaterializationConsumptionService(new ApplyingFinalizer(), tasks)
+				() -> new ProjectionMaterializationConsumptionService(new ApplyingFinalizer(), new ProduceProjectionTaskService(tasks))
 						.finalize(CANDIDATE, CLAIM));
 		assertSame(failure, actual);
 	}

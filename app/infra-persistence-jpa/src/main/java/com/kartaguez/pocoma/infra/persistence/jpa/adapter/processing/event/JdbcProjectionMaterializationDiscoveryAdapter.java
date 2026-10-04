@@ -39,10 +39,11 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 	@Transactional(readOnly = true)
 	public List<ProjectionMaterializationCandidate> findCandidates(
 			Map<EventType, Set<ProjectionType>> suppliedRoutes,
-			WorkerSegment segment,
+			int segmentIndex,
+			int segmentCount,
 			Optional<ProjectionMaterializationOrderingKey> afterExclusive,
 			int limit) {
-		requireNonNull(segment, "segment must not be null");
+		var segment = new WorkerSegment(segmentIndex, segmentCount);
 		requireNonNull(afterExclusive, "afterExclusive must not be null");
 		if (limit < 1) throw new IllegalArgumentException("limit must be positive");
 
@@ -100,6 +101,14 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 		parameters.add(limit);
 
 		return List.copyOf(jdbc.query(sql, this::candidate, parameters.toArray()));
+	}
+
+	/** Compatibility API for CURRENT callers; the engine port uses primitive segment coordinates. */
+	public List<ProjectionMaterializationCandidate> findCandidates(
+			Map<EventType, Set<ProjectionType>> routes, WorkerSegment segment,
+			Optional<ProjectionMaterializationOrderingKey> afterExclusive, int limit) {
+		requireNonNull(segment, "segment must not be null");
+		return findCandidates(routes, segment.segmentIndex(), segment.segmentCount(), afterExclusive, limit);
 	}
 
 	private ProjectionMaterializationCandidate candidate(ResultSet result, int row) throws SQLException {

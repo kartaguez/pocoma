@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.runtime.event.consumption;
+package com.kartaguez.pocoma.engine.processing.event.materialization;
 
 import static java.util.Map.entry;
 

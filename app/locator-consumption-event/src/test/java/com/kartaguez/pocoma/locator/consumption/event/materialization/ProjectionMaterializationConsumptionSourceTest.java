@@ -90,7 +90,7 @@ class ProjectionMaterializationConsumptionSourceTest {
 		assertThrows(NullPointerException.class, () -> ProjectionMaterializationConsumptionKeys.consumptionKey(null));
 		var source = new ProjectionMaterializationConsumptionSource(
 				Map.of(EVENT_TYPE, Set.of(READ_POT)), WorkerSegment.single(),
-				(routes, segment, cursor, limit) -> List.of());
+				(routes, segmentIndex, segmentCount, cursor, limit) -> List.of());
 		assertThrows(IllegalArgumentException.class, () -> source.openSearch().nextPage(0));
 	}
 
@@ -112,9 +112,10 @@ class ProjectionMaterializationConsumptionSourceTest {
 
 		@Override
 		public List<ProjectionMaterializationCandidate> findCandidates(
-				Map<EventType, Set<ProjectionType>> actualRoutes, WorkerSegment segment,
+				Map<EventType, Set<ProjectionType>> actualRoutes, int segmentIndex, int segmentCount,
 				Optional<ProjectionMaterializationOrderingKey> cursor, int limit) {
-			routes.add(actualRoutes); segments.add(segment); cursors.add(cursor); limits.add(limit);
+			routes.add(actualRoutes); segments.add(new WorkerSegment(segmentIndex, segmentCount));
+			cursors.add(cursor); limits.add(limit);
 			return pages.remove();
 		}
 	}

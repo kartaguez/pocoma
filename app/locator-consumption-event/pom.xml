@@ -4,6 +4,7 @@
 	<parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
 	<artifactId>pocoma-locator-consumption-event</artifactId>
 	<dependencies>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-event</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-processing-event</artifactId><version>${project.version}</version></dependency>

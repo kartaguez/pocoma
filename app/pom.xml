@@ -50,6 +50,7 @@
 		<module>contracts-registration</module>
 		<module>engine-registration</module>
 		<module>engine-processing-event</module>
+		<module>engine-produce-projection-task</module>
 		<module>engine-pot-command</module>
 		<module>port-projection</module>
 		<module>engine-projection-read</module>
@@ -69,6 +70,7 @@
 		<module>orchestrator-command-admission</module>
 		<module>orchestrator-poll-consumption</module>
 		<module>locator-consumption-event</module>
+		<module>supra-consume-event</module>
 		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-binding</module>
 		<module>locator-consumption-command</module>

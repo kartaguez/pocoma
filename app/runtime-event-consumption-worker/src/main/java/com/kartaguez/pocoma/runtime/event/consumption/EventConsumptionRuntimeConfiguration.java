@@ -23,6 +23,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.processing.event.materialization.PocomaProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.processing.event.materialization.ProduceProjectionTaskService;
 import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
@@ -106,7 +108,7 @@ public class EventConsumptionRuntimeConfiguration {
 	@Bean
 	ProjectionMaterializationConsumptionService projectionMaterializationConsumptionService(
 			FinalizeConsumptionUseCase finalizeConsumption, JdbcProjectionTaskStoreAdapter tasks) {
-		return new ProjectionMaterializationConsumptionService(finalizeConsumption, tasks);
+		return new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(tasks));
 	}
 
 	@Bean
