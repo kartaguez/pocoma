@@ -41,7 +41,7 @@ class HexagonalArchitectureTest {
 			+ ".engine.read.projection.service";
 	private static final String PROJECTION_READ_EXCEPTION_PACKAGE = ROOT_PACKAGE
 			+ ".engine.read.projection.exception";
-	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.pot.read";
+	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.pot";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
@@ -391,9 +391,10 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pot.authorization",
 						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
-						PROJECTION_READ_PORT_PACKAGE));
+						PROJECTION_READ_PORT_PACKAGE,
+                        USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.transaction"));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,
-				"engine-pot-read must depend only on the JDK, authorization and Pot domains, "
+				"engine-read-pot must depend only on the JDK, authorization and Pot domains, "
 						+ "domain-projection and engine-projection-read");
 	}
 
@@ -503,13 +504,13 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".supra.http.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
 						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
-						ROOT_PACKAGE + ".engine.pot.read..",
+						ROOT_PACKAGE + ".engine.read.pot..",
 						ROOT_PACKAGE + ".engine.read..",
 						ROOT_PACKAGE + ".infra.read..")
 				.check(CLASSES);
@@ -639,7 +640,7 @@ class HexagonalArchitectureTest {
 						.anyMatch(dependency -> dependency.getTargetClass().getPackageName()
 								.startsWith("org.springframework.security")))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(
-						ROOT_PACKAGE + ".supra.authentication.springsecurity"))
+						ROOT_PACKAGE + ".runtime.web.authentication"))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".runtime"))
 				.map(javaClass -> javaClass.getName())
 				.collect(Collectors.toUnmodifiableSet());
@@ -647,17 +648,17 @@ class HexagonalArchitectureTest {
 				"only the Spring authentication supra and runtime composition may know Spring Security");
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write.command..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.pot..",
-						ROOT_PACKAGE + ".engine.command.result..",
+						ROOT_PACKAGE + ".engine.read.commandresult..",
 						ROOT_PACKAGE + ".engine.projection..",
 						ROOT_PACKAGE + ".locator.consumption..",
 						ROOT_PACKAGE + ".orchestrator.consumption..")
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
@@ -948,14 +949,14 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".supra.http.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort")
 				.check(CLASSES);
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra.http.write.command..",
+						ROOT_PACKAGE + ".supra.http.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort")
@@ -964,10 +965,10 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void commandResultReadDependsOnlyOnImmutableResultStore() {
-		String service = ROOT_PACKAGE + ".engine.command.result.GetCommandResultService";
+		String service = ROOT_PACKAGE + ".engine.read.commandresult.GetCommandResultService";
 		Set<String> dependencies = directDependencyNames(service);
 		assertTrue(dependencies.contains(
-				ROOT_PACKAGE + ".engine.command.result.CommandResultStore"));
+				ROOT_PACKAGE + ".engine.read.commandresult.CommandResultStore"));
 		assertFalse(dependencies.stream().anyMatch(name -> name.contains("Binding")),
 				"Command result GET must not resolve current binding");
 		Set<String> forbidden = dependencies.stream()
@@ -981,7 +982,7 @@ class HexagonalArchitectureTest {
 				"COMMAND_RESULT GET must read only its immutable Result store");
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa..",
 						ROOT_PACKAGE + ".infra.tx..",
@@ -989,19 +990,19 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.consumption..")
 				.check(CLASSES);
 		Set<String> controllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.read.query.CommandResultController");
+				ROOT_PACKAGE + ".supra.http.read.CommandResultController");
 		assertFalse(controllerDependencies.contains(
 				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"));
 		assertFalse(controllerDependencies.contains(
 				ROOT_PACKAGE + ".port.transaction.TransactionRunner"));
 		Set<String> bindingControllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.read.query.CurrentBindingController");
+				ROOT_PACKAGE + ".supra.http.read.CurrentBindingController");
 		assertTrue(bindingControllerDependencies.contains(
 				ROOT_PACKAGE + ".engine.read.currentbinding.GetCurrentBindingUseCase"));
 		assertFalse(bindingControllerDependencies.contains(
 				ROOT_PACKAGE + ".engine.materialize.currentbinding.port.CurrentBindingWritePort"));
 		assertEquals(Set.of("owner", "outcome"), fieldNames(
-				ROOT_PACKAGE + ".engine.command.result.ImmutableCommandResult"));
+				ROOT_PACKAGE + ".engine.read.commandresult.ImmutableCommandResult"));
 	}
 
 	@Test
@@ -1036,7 +1037,8 @@ class HexagonalArchitectureTest {
 				persistencePackage + ".adapter.command",
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
 						ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".domain.authorization",
-						ROOT_PACKAGE + ".engine.command.result",
+						ROOT_PACKAGE + ".engine.read.commandresult",
+                        ROOT_PACKAGE + ".engine.materialize.commandresult",
 						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".contracts.observability.trace",
 						"org.springframework", "com.fasterxml.jackson"));
@@ -1307,7 +1309,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void httpAdmissionCannotMutateThePotWriteModelDirectly() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write.command..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.write.pot.usecase..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
@@ -1316,7 +1318,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		Set<String> asyncControllerDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".supra.http.write.command.AsyncCommandController");
+				ROOT_PACKAGE + ".supra.http.write.AsyncCommandController");
 		assertTrue(asyncControllerDependencies.stream()
 				.anyMatch(name -> name.endsWith(".SubmitRecordedCommandUseCase")));
 	}

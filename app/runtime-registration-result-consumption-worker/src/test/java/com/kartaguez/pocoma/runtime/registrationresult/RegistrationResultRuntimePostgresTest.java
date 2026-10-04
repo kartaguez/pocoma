@@ -31,6 +31,8 @@ import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.registration.*;
+import com.kartaguez.pocoma.engine.read.registrationresult.*;
+import com.kartaguez.pocoma.supra.consume.registrationresult.RegistrationResultConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
 

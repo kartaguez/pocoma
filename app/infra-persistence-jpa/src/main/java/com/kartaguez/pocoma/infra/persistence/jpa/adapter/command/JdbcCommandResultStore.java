@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
-import com.kartaguez.pocoma.engine.command.result.CommandResultStore;
-import com.kartaguez.pocoma.engine.command.result.ImmutableCommandResult;
+import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
+import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
 
 @Component
 public final class JdbcCommandResultStore implements CommandResultStore {

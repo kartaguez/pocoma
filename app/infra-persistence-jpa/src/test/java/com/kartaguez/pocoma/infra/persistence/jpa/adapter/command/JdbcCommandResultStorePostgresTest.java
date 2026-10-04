@@ -21,7 +21,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
-import com.kartaguez.pocoma.engine.command.result.ImmutableCommandResult;
+import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
 
 @Testcontainers
 class JdbcCommandResultStorePostgresTest {

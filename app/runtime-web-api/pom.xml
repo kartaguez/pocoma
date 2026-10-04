@@ -13,21 +13,18 @@
 	<name>pocoma-runtime-web-api</name>
 
 	<dependencies>
+<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-oauth2-resource-server</artifactId></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-authentication</artifactId><version>${project.version}</version></dependency>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-registration-result</artifactId><version>${project.version}</version></dependency>
+
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-current-binding</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
-
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-registration</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-registration</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-admit-command</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-authentication-spring-security</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -42,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-command-result</artifactId>
+			<artifactId>pocoma-engine-read-command-result</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -67,17 +64,17 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-http-write-command</artifactId>
+			<artifactId>pocoma-supra-http-write</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-http-read-query</artifactId>
+			<artifactId>pocoma-supra-http-read</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-pot-read</artifactId>
+			<artifactId>pocoma-engine-read-pot</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

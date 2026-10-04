@@ -3,6 +3,8 @@
  <parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
  <artifactId>pocoma-runtime-registration-result-consumption-worker</artifactId>
  <dependencies>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-registration-result</artifactId><version>${project.version}</version></dependency>
+
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>

@@ -61,7 +61,7 @@ class Wa67BindingArchitectureTest {
 			}
 		}
 		String resultRead = Files.readString(appRoot().resolve(
-				"engine-command-result/src/main/java/com/kartaguez/pocoma/engine/command/result/GetCommandResultService.java"));
+				"engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/GetCommandResultService.java"));
 		assertTrue(!resultRead.contains("CurrentBinding"));
 		String command = Files.readString(appRoot().resolve(
 				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/RecordedCommand.java"));

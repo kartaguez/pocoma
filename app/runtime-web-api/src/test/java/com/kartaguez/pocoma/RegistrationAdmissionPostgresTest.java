@@ -29,9 +29,9 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.registration.ImmutableRegistrationResult;
+import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
 import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
-import com.kartaguez.pocoma.engine.registration.RegistrationResultStore;
+import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 @SpringBootTest(properties = {
         "spring.jpa.hibernate.ddl-auto=validate",

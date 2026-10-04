@@ -72,8 +72,8 @@ import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ExecuteProjecti
 import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineService;
 import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerCatalog;
 import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerDeclaration;
-import com.kartaguez.pocoma.engine.pot.read.PotReads;
-import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
+import com.kartaguez.pocoma.engine.read.pot.PotReads;
+import com.kartaguez.pocoma.engine.read.pot.ReadPotResult;
 import com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReads;
 import com.kartaguez.pocoma.engine.consume.projectiontask.historical.HistoricalPotReconstructionException;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;

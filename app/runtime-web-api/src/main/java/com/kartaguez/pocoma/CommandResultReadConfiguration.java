@@ -4,9 +4,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
-import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
-import com.kartaguez.pocoma.engine.command.result.CommandResultStore;
+import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultService;
+import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultUseCase;
+import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
 import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingService;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;

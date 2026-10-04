@@ -9,14 +9,15 @@ import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Component;
+import com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultDiscovery;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
-import com.kartaguez.pocoma.engine.command.result.CommandResultSource;
+import com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultSource;
 
 @Component
-public final class JdbcCommandResultSource {
+public final class JdbcCommandResultSource implements CommandResultDiscovery {
 	public static final String CONSUMER_TYPE = "COMMAND_RESULT_MATERIALIZER_V2";
 	private final JdbcOperations jdbc;
 
@@ -84,9 +85,6 @@ public final class JdbcCommandResultSource {
 		return new CommandResultSource(event.commandId(), event.eventType(), outcome,
 				recorded.commandId(), recorded.requester());
 	}
-
-	public record Candidate(UUID eventId, UUID commandId, Cursor cursor) {}
-	public record Cursor(Instant recordedAt, UUID eventId) {}
 	private record Event(UUID commandId, String eventType) {}
 	private record Recorded(UUID commandId, ExternalIdentity requester) {}
 }

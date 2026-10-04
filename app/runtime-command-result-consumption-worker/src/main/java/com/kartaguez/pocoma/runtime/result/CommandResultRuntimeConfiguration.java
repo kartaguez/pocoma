@@ -13,13 +13,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.engine.command.result.CommandResultStore;
-import com.kartaguez.pocoma.engine.command.result.MaterializeCommandResultService;
+import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
+import com.kartaguez.pocoma.engine.materialize.commandresult.MaterializeCommandResultService;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.*;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.*;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
+import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
+import com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultDiscovery;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
@@ -40,7 +41,7 @@ public class CommandResultRuntimeConfiguration {
 	@Bean ExecuteConsumptionUseCase commandResultExecute(JpaConsumptionLifecycleAdapter l,JpaConsumptionProvenanceAdapter p,TransactionRunner t,Clock c){return new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(l,p,c),t);}
 	@Bean HandleConsumptionFailureUseCase commandResultFailure(JpaConsumptionLifecycleAdapter l,TransactionRunner t,Clock c){return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(l,l,CommandResultConsumptionLocator.failurePolicy(),c),t);}
 	@Bean MaterializeCommandResultService commandResultMaterializer(CommandResultStore store){return new MaterializeCommandResultService(store);}
-	@Bean CommandResultConsumptionLocator commandResultLocator(CommandResultConsumptionProperties p,JdbcCommandResultSource s,MaterializeCommandResultService m,Clock c){return new CommandResultConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),s,m,c);}
+	@Bean CommandResultConsumptionLocator commandResultLocator(CommandResultConsumptionProperties p,CommandResultDiscovery s,MaterializeCommandResultService m,Clock c){return new CommandResultConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),s,m,c);}
 	@Bean ConsumptionOrchestrator commandResultOrchestrator(CommandResultConsumptionLocator l,AcquireConsumptionUseCase a,ExecuteConsumptionUseCase e,HandleConsumptionFailureUseCase f){return new SequentialConsumptionOrchestrator(l,a,e,f);}
 	@Bean ConsumptionPollingWorker commandResultWorker(ConsumptionOrchestrator o,CommandResultConsumptionProperties p,Clock c){return new ConsumptionPollingWorker(o,new ConsumptionWorkerSettings(p.isEnabled(),new WorkerId(p.getWorkerId()),new ClaimLease(p.getClaimLease()),new ConsumptionOrchestrationBudget(p.getMaxCandidatesInspected(),p.getMaxConsumptionsExecuted()),p.getPollInterval(),p.getRuntimeFailureBackoff()),c,new ConditionConsumptionWaiter());}
 	@Bean SmartLifecycle commandResultWorkerLifecycle(ConsumptionPollingWorker w){return new CommandResultWorkerLifecycle(w);}

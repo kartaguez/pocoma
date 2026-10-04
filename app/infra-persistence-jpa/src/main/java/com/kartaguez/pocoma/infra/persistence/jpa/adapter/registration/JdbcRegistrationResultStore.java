@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.registration.ImmutableRegistrationResult;
+import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
 import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
-import com.kartaguez.pocoma.engine.registration.RegistrationResultStore;
+import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 @Component
 public final class JdbcRegistrationResultStore implements RegistrationResultStore {

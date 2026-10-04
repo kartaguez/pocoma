@@ -47,12 +47,17 @@
 		<module>engine-command</module>
 		<module>engine-consume-command</module>
 		<module>supra-consume-command</module>
-		<module>engine-command-result</module>
+		<module>supra-consume-command-result</module>
+		<module>engine-read-command-result</module>
+		<module>engine-materialize-command-result</module>
 		<module>contracts-registration</module>
 		<module>engine-admit-registration</module>
 		<module>engine-consume-registration</module>
 		<module>supra-consume-registration</module>
+		<module>supra-consume-registration-result</module>
 		<module>engine-registration</module>
+		<module>engine-read-registration-result</module>
+		<module>engine-materialize-registration-result</module>
 		<module>engine-processing-event</module>
 		<module>engine-produce-projection-task</module>
 		<module>engine-pot-command</module>
@@ -62,7 +67,7 @@
 		<module>engine-projection-task</module>
 		<module>engine-consume-projection-task</module>
 		<module>supra-consume-projection-task</module>
-		<module>engine-pot-read</module>
+		<module>engine-read-pot</module>
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
 		<module>projector-pot</module>
@@ -86,9 +91,8 @@
 		<module>supra-consume-binding</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
-		<module>supra-http-write-command</module>
-		<module>supra-http-read-query</module>
-		<module>supra-authentication-spring-security</module>
+		<module>supra-http-write</module>
+		<module>supra-http-read</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-command-result-consumption-worker</module>

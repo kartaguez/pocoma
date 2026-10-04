@@ -2,8 +2,8 @@ package com.kartaguez.pocoma;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.kartaguez.pocoma.engine.registration.GetRegistrationResultService;
-import com.kartaguez.pocoma.engine.registration.RegistrationResultStore;
+import com.kartaguez.pocoma.engine.read.registrationresult.GetRegistrationResultService;
+import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 @Configuration
 public class RegistrationResultReadConfiguration {

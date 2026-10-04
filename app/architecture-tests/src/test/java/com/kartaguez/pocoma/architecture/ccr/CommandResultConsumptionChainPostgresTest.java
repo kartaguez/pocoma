@@ -28,7 +28,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
-import com.kartaguez.pocoma.engine.command.result.MaterializeCommandResultService;
+import com.kartaguez.pocoma.engine.materialize.commandresult.MaterializeCommandResultService;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
@@ -41,7 +41,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandRes
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultStore;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
-import com.kartaguez.pocoma.runtime.result.CommandResultConsumptionLocator;
+import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
 import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;

@@ -8,10 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultDiscovery;
 
 /** Discovers durable terminal Outcomes; the consumer reloads the Request and Outcome. */
 @Component
-public final class JdbcRegistrationResultDiscovery {
+public final class JdbcRegistrationResultDiscovery implements RegistrationResultDiscovery {
     public static final String CONSUMER_TYPE = "REGISTRATION_RESULT_MATERIALIZER_V1";
     private final JdbcTemplate jdbc;
     public JdbcRegistrationResultDiscovery(JdbcTemplate jdbc) { this.jdbc = jdbc; }
@@ -44,6 +45,4 @@ public final class JdbcRegistrationResultDiscovery {
                 new Cursor(rs.getTimestamp(2).toInstant(), rs.getObject(1, UUID.class))),
                 args.toArray()).stream().findFirst();
     }
-    public record Candidate(UUID requestId, Cursor cursor) {}
-    public record Cursor(Instant decidedAt, UUID requestId) {}
 }

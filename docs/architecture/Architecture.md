@@ -26,7 +26,7 @@ L'autorité Binding écrit des facts `ExternalIdentityAttached`/detached, avec o
 
 Consumption LKV lit les Events Pot et avance un repère de **dernière version connue**. Ce repère renseigne la découverte/progression ; il ne sélectionne pas la version de `GET /pots/{id}` et ne prouve pas que `AUTH@V` ou `READ_POT@V` sont prêtes. Il n'est pas une route Query/CURRENT ni une garantie de « serving ».
 
-Sources : [Binding locator](../../app/locator-consumption-binding/src/main/java/com/kartaguez/pocoma/locator/consumption/binding/BindingFactConsumptionLocator.java), [store courant](../../app/infra-read-persistence/src/main/java/com/kartaguez/pocoma/infra/read/persistence/JdbcCurrentBindingAdapter.java), [LKV](../../app/locator-consumption-latest-known-version/src/main/java/com/kartaguez/pocoma/locator/consumption/latestknownversion/LatestKnownVersionConsumptionLocator.java), [GET Pot](../../app/supra-http-read-query/src/main/java/com/kartaguez/pocoma/supra/http/read/query/PotQueryController.java).
+Sources : [Binding locator](../../app/locator-consumption-binding/src/main/java/com/kartaguez/pocoma/locator/consumption/binding/BindingFactConsumptionLocator.java), [store courant](../../app/infra-read-persistence/src/main/java/com/kartaguez/pocoma/infra/read/persistence/JdbcCurrentBindingAdapter.java), [LKV](../../app/locator-consumption-latest-known-version/src/main/java/com/kartaguez/pocoma/locator/consumption/latestknownversion/LatestKnownVersionConsumptionLocator.java), [GET Pot](../../app/supra-http-read/src/main/java/com/kartaguez/pocoma/supra/http/read/PotQueryController.java).
 
 ## Protocole Consumption et transactions
 
