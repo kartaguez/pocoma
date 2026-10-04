@@ -9,9 +9,10 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>pocoma-infra-projection-persistence</artifactId>
-	<name>pocoma-infra-projection-persistence</name>
+	<artifactId>pocoma-infra-persistence-projection-jpa</artifactId>
+	<name>pocoma-infra-persistence-projection-jpa</name>
 	<dependencies>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-projection</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-port-projection</artifactId>

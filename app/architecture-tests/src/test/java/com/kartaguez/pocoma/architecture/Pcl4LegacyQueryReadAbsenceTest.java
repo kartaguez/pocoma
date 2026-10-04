@@ -79,7 +79,7 @@ class Pcl4LegacyQueryReadAbsenceTest {
 		assertTrue(Files.exists(app.resolve("engine-projection-balance/src/main/java/com/kartaguez/pocoma/engine/projection/balance/CalculatePotBalancesAtVersionService.java")));
 
 		assertTrue(Files.exists(app.resolve("engine-projection-read/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java")));
-		assertTrue(Files.exists(app.resolve("infra-projection-persistence/src/main/java/com/kartaguez/pocoma/infra/projection/persistence/JdbcProjectionStoreAdapter.java")));
+		assertTrue(Files.exists(app.resolve("infra-persistence-projection-jpa/src/main/java/com/kartaguez/pocoma/infra/projection/persistence/JdbcProjectionStoreAdapter.java")));
 	}
 
 	private static List<Path> productionFiles(Path app, String suffix) throws IOException {

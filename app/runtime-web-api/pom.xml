@@ -50,7 +50,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-projection-persistence</artifactId>
+			<artifactId>pocoma-infra-persistence-projection-jpa</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -60,7 +60,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-projection-json-schema</artifactId>
+			<artifactId>pocoma-infra-projection-validation-networknt</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

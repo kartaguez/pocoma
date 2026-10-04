@@ -42,7 +42,7 @@ import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfigurat
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionProperties;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
-import com.kartaguez.pocoma.runtime.event.consumption.PocomaProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.processing.event.materialization.PocomaProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers

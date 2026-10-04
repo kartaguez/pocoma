@@ -292,9 +292,13 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".infra..",
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".orchestrator..",
 						"org.springframework..",
 						"jakarta.persistence..")
+				.check(CLASSES);
+		// TARGET gives the Task specialization one explicit engine -> generic orchestrator edge.
+		noClasses().that().resideInAPackage(ENGINE_PACKAGE)
+				.and().resideOutsideOfPackage(ROOT_PACKAGE + ".engine.projection.task..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".orchestrator..")
 				.check(CLASSES);
 	}
 
@@ -434,9 +438,10 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.consumption",
 						ROOT_PACKAGE + ".engine.port.in.consumption",
 						ROOT_PACKAGE + ".engine.port.out.consumption",
-						ROOT_PACKAGE + ".port.projection"));
+						ROOT_PACKAGE + ".port.projection",
+						ROOT_PACKAGE + ".orchestrator.consumption"));
 		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
-				"engine-projection-task must remain a pure application module");
+				"engine-consume-projection-task may use only generic Consumption orchestration");
 
 		noClasses()
 				.that().resideInAPackage(taskPackage + "..")
