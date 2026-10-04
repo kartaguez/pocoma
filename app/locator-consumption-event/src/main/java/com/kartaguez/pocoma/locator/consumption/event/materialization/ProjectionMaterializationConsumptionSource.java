@@ -12,7 +12,7 @@ import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.orchestrator.consumption.fenced.FencedConsumptionCandidateSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.fenced.FencedConsumptionCandidateSource;
 

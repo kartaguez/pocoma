@@ -17,7 +17,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.failure.ConsumptionFailur
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.registration.ExecuteRegistrationService;
-import com.kartaguez.pocoma.engine.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationDiscovery;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;

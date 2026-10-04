@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionSource;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 class EventConsumptionRuntimeSpringBindingTest {
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

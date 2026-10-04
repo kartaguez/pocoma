@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 @Configuration
 public class SpringTransactionRunnerConfiguration {

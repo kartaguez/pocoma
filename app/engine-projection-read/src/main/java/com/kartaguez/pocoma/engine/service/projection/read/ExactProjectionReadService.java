@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.engine.exception.projection.read.StoredProjectionInvariantViolationException;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.port.projection.ProjectionReadPort;
 
 final class ExactProjectionReadService implements ExactProjectionReadUseCase {
 	private final ProjectionReadPort readPort;

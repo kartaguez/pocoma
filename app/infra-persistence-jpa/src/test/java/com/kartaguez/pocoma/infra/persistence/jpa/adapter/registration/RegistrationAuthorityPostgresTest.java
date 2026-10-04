@@ -24,6 +24,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.useridentity.*;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.registration.*;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.*;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.*;

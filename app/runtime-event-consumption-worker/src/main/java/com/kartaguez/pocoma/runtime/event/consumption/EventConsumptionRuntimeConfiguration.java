@@ -21,9 +21,9 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
@@ -40,9 +40,9 @@ import com.kartaguez.pocoma.locator.consumption.event.materialization.Projection
 import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(EventConsumptionProperties.class)

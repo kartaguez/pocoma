@@ -30,7 +30,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.registration.ImmutableRegistrationResult;
-import com.kartaguez.pocoma.engine.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.registration.RegistrationResultStore;
 
 @SpringBootTest(properties = {

@@ -36,8 +36,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinal
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureContext;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionPublicationResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.projection.ProjectionPublicationResult;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
 
 class ProjectionTaskConsumptionServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-20T10:00:00Z");

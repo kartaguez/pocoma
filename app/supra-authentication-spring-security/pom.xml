@@ -14,7 +14,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-authentication-contracts</artifactId>
+			<artifactId>pocoma-contracts-authentication</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

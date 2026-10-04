@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 /** Owns the transaction containing business work, provenance and the final CAS. */
 public final class TransactionalExecuteConsumptionUseCase implements ExecuteConsumptionUseCase {

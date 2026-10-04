@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.User;
-import com.kartaguez.pocoma.domain.useridentity.UserAuthorityPort;
+import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.UserJdbcRepository;
 
 @Component

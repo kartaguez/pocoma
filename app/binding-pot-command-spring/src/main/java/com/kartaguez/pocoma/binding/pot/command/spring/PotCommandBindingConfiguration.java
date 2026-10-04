@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicy;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.service.command.PotAuthorizationGuard;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;

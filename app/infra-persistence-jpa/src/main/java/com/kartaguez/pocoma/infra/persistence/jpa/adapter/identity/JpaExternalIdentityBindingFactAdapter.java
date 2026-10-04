@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFactPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingFactPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
 
 @Component

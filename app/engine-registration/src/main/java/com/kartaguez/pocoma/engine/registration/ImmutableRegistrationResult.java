@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.registration;
 
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+
 import java.util.Objects;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 

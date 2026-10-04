@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Clock;
 import java.util.List;
 
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.execution.BindingFenceConflictException;
 import com.kartaguez.pocoma.engine.command.execution.BindingFenceLostException;
 import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionI
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 /** Rechecks exact WRITE authority only after the failed business transaction has rolled back. */
 public final class BindingFenceRecoveryExecuteUseCase implements ExecuteConsumptionUseCase {

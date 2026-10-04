@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.runtime.registrationresult;
 
 import org.springframework.context.SmartLifecycle;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 final class RegistrationResultWorkerLifecycle implements SmartLifecycle {
     private final ConsumptionPollingWorker worker;

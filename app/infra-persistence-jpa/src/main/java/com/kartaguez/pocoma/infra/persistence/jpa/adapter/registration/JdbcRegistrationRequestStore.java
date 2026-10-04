@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.registration.RegistrationRequest;
+import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.registration.RegistrationRequestStore;
 
 @Component

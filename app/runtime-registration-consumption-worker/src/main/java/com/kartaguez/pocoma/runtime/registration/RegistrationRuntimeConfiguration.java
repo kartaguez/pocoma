@@ -13,10 +13,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
-import com.kartaguez.pocoma.domain.useridentity.UserAuthorityPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.registration.*;
 import com.kartaguez.pocoma.engine.service.consumption.*;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.*;
@@ -26,8 +26,8 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.*;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.*;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(RegistrationConsumptionProperties.class)

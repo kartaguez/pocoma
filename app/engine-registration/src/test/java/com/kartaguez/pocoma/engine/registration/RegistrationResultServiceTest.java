@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.registration;
 
+import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.Instant;
 import java.util.HashMap;

@@ -49,7 +49,7 @@ import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionPublicationResult;
+import com.kartaguez.pocoma.port.projection.ProjectionPublicationResult;
 import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
 
 @Testcontainers

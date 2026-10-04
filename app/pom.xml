@@ -34,28 +34,31 @@
 		<module>domain-authorization</module>
 		<module>domain-event</module>
 		<module>domain-user-identity</module>
-		<module>authentication-contracts</module>
+		<module>contracts-authentication</module>
 		<module>domain-pot</module>
 		<module>domain-pot-projection</module>
 		<module>domain-projection-balance</module>
 		<module>domain-projection</module>
 		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>
+		<module>port-transaction</module>
+		<module>port-binding-authority</module>
 		<module>engine-core</module>
 		<module>engine-consumption</module>
 		<module>engine-command</module>
 		<module>engine-command-result</module>
+		<module>contracts-registration</module>
 		<module>engine-registration</module>
 		<module>engine-processing-event</module>
 		<module>engine-pot-command</module>
-		<module>engine-projection-contracts</module>
+		<module>port-projection</module>
 		<module>engine-projection-read</module>
 		<module>engine-projection-task</module>
 		<module>engine-pot-read</module>
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
 		<module>engine-read-projection</module>
-		<module>observability</module>
+		<module>contracts-observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-persistence-jpa</module>
 		<module>infra-projection-persistence</module>
@@ -63,7 +66,7 @@
 		<module>infra-projection-json-schema</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>
-		<module>supra-consumption-worker</module>
+		<module>orchestrator-poll-consumption</module>
 		<module>locator-consumption-event</module>
 		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-binding</module>

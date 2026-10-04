@@ -29,7 +29,7 @@ import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.pot.read.PotView;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 
 import jakarta.servlet.http.HttpServletRequest;

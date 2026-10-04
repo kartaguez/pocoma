@@ -47,7 +47,7 @@ import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
 import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionKeys;

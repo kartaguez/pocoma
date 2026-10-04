@@ -22,9 +22,9 @@ import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionPublicationResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.projection.ProjectionPublicationResult;
+import com.kartaguez.pocoma.port.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
 
 public final class JdbcProjectionStoreAdapter implements ProjectionReadPort, ProjectionWritePort {
 	private static final Comparator<ProjectionArtifact> ARTIFACT_ORDER = Comparator

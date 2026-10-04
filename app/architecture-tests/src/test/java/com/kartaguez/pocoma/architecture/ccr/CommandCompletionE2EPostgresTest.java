@@ -69,7 +69,7 @@ import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingUseCase;
 import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.JpaPotGlobalVersionAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaRecordedCommandAdapter;
@@ -114,7 +114,7 @@ import com.kartaguez.pocoma.runtime.registration.RegistrationRuntimeConfiguratio
 import com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.binding.BindingRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.supra.http.read.query.CommandResultController;
 import com.kartaguez.pocoma.supra.http.read.query.CurrentBindingController;
 import com.kartaguez.pocoma.supra.http.read.query.PotQueryController;

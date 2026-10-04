@@ -59,8 +59,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
 import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
@@ -79,9 +79,9 @@ import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionEx
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
 import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
 		"pocoma.projection-task-consumption.enabled=true",

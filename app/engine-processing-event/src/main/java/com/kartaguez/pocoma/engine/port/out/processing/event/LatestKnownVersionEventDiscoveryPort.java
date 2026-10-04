@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 
 /** Best-effort Event discovery for the independent latest-known-version consumer. */
 public interface LatestKnownVersionEventDiscoveryPort {

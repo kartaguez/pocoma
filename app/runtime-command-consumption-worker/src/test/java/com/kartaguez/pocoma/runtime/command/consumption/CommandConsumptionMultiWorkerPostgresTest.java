@@ -39,14 +39,14 @@ import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionKeys;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",

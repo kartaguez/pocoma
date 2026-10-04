@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.engine.command.result.CommandResultStore;
 import com.kartaguez.pocoma.engine.command.result.MaterializeCommandResultService;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.*;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
@@ -25,8 +25,8 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.*;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.*;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(CommandResultConsumptionProperties.class)

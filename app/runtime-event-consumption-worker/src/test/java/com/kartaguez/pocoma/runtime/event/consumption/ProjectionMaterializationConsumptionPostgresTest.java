@@ -58,8 +58,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResu
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;

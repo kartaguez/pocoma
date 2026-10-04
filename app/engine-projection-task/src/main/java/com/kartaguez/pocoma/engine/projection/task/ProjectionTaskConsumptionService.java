@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFa
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Prepared;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Temporary;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Terminal;

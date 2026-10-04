@@ -32,7 +32,7 @@ class HexagonalArchitectureTest {
 	private static final String PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection..";
 	private static final String READ_PROJECTION_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.projection..";
 	private static final String PROJECTION_CONTRACTS_ENGINE_PACKAGE = ROOT_PACKAGE
-			+ ".engine.port.out.projection..";
+			+ ".port.projection..";
 	private static final String PROJECTION_READ_PORT_PACKAGE = ROOT_PACKAGE
 			+ ".engine.port.in.projection.read";
 	private static final String PROJECTION_READ_SERVICE_PACKAGE = ROOT_PACKAGE
@@ -299,6 +299,45 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
+	void foundationContractsAndPortsStayInwardOnly() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".authentication..",
+						ROOT_PACKAGE + ".observability..",
+						ROOT_PACKAGE + ".contracts.registration..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..", ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..", "org.springframework.security..",
+						"jakarta.persistence..")
+				.check(CLASSES);
+		noClasses()
+				.that().resideInAPackage(ROOT_PACKAGE + ".port..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".engine..", ROOT_PACKAGE + ".infra..",
+						ROOT_PACKAGE + ".runtime..")
+				.check(CLASSES);
+	}
+
+	@Test
+	void genericConsumptionHasNoCapabilitySpecificDependencies() {
+		noClasses()
+				.that().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.consumption..",
+						ROOT_PACKAGE + ".engine.port.in.consumption..",
+						ROOT_PACKAGE + ".engine.port.out.consumption..",
+						ROOT_PACKAGE + ".engine.service.consumption..",
+						ROOT_PACKAGE + ".engine.service.transaction.consumption..",
+						ROOT_PACKAGE + ".orchestrator.consumption..",
+						ROOT_PACKAGE + ".orchestrator.poll.consumption..")
+				.should().dependOnClassesThat().resideInAnyPackage(
+						ROOT_PACKAGE + ".domain.event..", ROOT_PACKAGE + ".domain.pot..",
+						ROOT_PACKAGE + ".domain.projection..", ROOT_PACKAGE + ".domain.useridentity..",
+						ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".engine.registration..",
+						ROOT_PACKAGE + ".engine.projection.task..", ROOT_PACKAGE + ".engine.read..")
+				.check(CLASSES);
+	}
+
+	@Test
 	void projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain() {
 		String contractsPackage = PROJECTION_CONTRACTS_ENGINE_PACKAGE.substring(0,
 				PROJECTION_CONTRACTS_ENGINE_PACKAGE.length() - 2);
@@ -395,7 +434,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.consumption",
 						ROOT_PACKAGE + ".engine.port.in.consumption",
 						ROOT_PACKAGE + ".engine.port.out.consumption",
-						ROOT_PACKAGE + ".engine.port.out.projection"));
+						ROOT_PACKAGE + ".port.projection"));
 		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
 				"engine-projection-task must remain a pure application module");
 
@@ -739,8 +778,9 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".domain.consumption.claim",
 				ROOT_PACKAGE + ".domain.consumption.key",
 				ROOT_PACKAGE + ".domain.consumption.lifecycle",
-				ROOT_PACKAGE + ".domain.consumption.provenance"), packages,
-				"domain-consumption must contain only claim, key, lifecycle and provenance families");
+				ROOT_PACKAGE + ".domain.consumption.provenance",
+				ROOT_PACKAGE + ".domain.consumption.segmentation"), packages,
+				"domain-consumption contains generic claim, key, lifecycle, provenance and segmentation");
 	}
 
 	@Test
@@ -850,7 +890,7 @@ class HexagonalArchitectureTest {
 		String commandPackage = ROOT_PACKAGE + ".engine.command";
 		Set<String> allowedPackages = Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
 				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event",
-				USER_IDENTITY_DOMAIN_PACKAGE);
+				USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.binding.authority");
 		Set<String> dependenciesOutsideCommand = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".result"))
@@ -892,7 +932,7 @@ class HexagonalArchitectureTest {
 		Set<String> executionDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".engine.command.execution.ExecuteRecordedCommandService");
 		assertTrue(executionDependencies.contains(
-				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingPort"));
+				ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort"));
 		assertFalse(executionDependencies.contains(
 				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"),
 				"TARGET_V2 execution must never fall back to legacy E-to-U resolution");
@@ -905,7 +945,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".supra.http.write.command..",
 						ROOT_PACKAGE + ".orchestrator.command.admission..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
-						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityBindingPort")
+						ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort")
 				.check(CLASSES);
 		noClasses()
 				.that().resideInAnyPackage(
@@ -947,7 +987,7 @@ class HexagonalArchitectureTest {
 		assertFalse(controllerDependencies.contains(
 				USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort"));
 		assertFalse(controllerDependencies.contains(
-				ROOT_PACKAGE + ".engine.port.out.transaction.TransactionRunner"));
+				ROOT_PACKAGE + ".port.transaction.TransactionRunner"));
 		Set<String> bindingControllerDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".supra.http.read.query.CurrentBindingController");
 		assertTrue(bindingControllerDependencies.contains(
@@ -973,7 +1013,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.consumption..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.poll.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.command..",
 						ROOT_PACKAGE + ".locator.consumption.command..",
@@ -1298,7 +1338,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".supra.consumption..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.poll.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".locator..",
 						ROOT_PACKAGE + ".domain.task..",

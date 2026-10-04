@@ -1,13 +1,16 @@
 package com.kartaguez.pocoma.engine.registration;
 
+import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+
 import java.util.Objects;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.User;
-import com.kartaguez.pocoma.domain.useridentity.UserAuthorityPort;
+import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 
 /** Runs inside the fenced Consumption Execute transaction. */
 public final class ExecuteRegistrationService {

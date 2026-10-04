@@ -56,7 +56,7 @@ import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfigu
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionKeys;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers
 class DurableEventToProjectionPostgresTest {

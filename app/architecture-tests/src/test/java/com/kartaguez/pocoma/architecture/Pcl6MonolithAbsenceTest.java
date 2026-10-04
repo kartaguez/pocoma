@@ -114,7 +114,7 @@ class Pcl6MonolithAbsenceTest {
 				"engine-projection-balance/src/main/java/com/kartaguez/pocoma/engine/projection/balance/CalculatePotBalancesAtVersionService.java",
 				"engine-projection-pot/src/main/java/com/kartaguez/pocoma/engine/projection/pot/ReadPotProjectionInputLoader.java",
 				"engine-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/engine/ProjectionEngineService.java",
-				"orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ProjectionTaskConsumptionOrchestrator.java",
+				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/ProjectionTaskConsumptionOrchestrator.java",
 				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
 				"engine-projection-read/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {

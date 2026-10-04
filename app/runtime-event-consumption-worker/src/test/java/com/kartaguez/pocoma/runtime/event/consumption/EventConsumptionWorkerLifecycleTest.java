@@ -16,9 +16,9 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 class EventConsumptionWorkerLifecycleTest {
 

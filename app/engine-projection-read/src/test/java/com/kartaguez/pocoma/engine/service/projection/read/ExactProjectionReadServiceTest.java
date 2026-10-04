@@ -30,7 +30,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
 import com.kartaguez.pocoma.engine.exception.projection.read.StoredProjectionInvariantViolationException;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.port.projection.ProjectionReadPort;
 
 class ExactProjectionReadServiceTest {
 	private static final ProjectionType PROJECTION_TYPE = new ProjectionType("TEST");

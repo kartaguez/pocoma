@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.service.projection.read;
 
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUseCase;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionReadPort;
+import com.kartaguez.pocoma.port.projection.ProjectionReadPort;
 
 public final class ExactProjectionReads {
 	private ExactProjectionReads() {

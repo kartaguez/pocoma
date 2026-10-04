@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorkerObservation;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerObservation;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;

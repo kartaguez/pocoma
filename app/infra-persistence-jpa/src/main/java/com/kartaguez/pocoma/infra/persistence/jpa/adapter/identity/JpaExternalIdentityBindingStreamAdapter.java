@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingStreamPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingStreamPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingStreamJdbcRepository;
 
 @Component

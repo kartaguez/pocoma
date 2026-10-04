@@ -84,7 +84,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumpti
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionProvenancePersistencePort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;

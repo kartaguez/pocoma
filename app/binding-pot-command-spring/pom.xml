@@ -4,6 +4,8 @@
 	<parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
 	<artifactId>pocoma-binding-pot-command-spring</artifactId>
 	<dependencies>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
+
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-command</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-pot-command</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot-policy</artifactId><version>${project.version}</version></dependency>

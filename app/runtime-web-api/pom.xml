@@ -13,6 +13,10 @@
 	<name>pocoma-runtime-web-api</name>
 
 	<dependencies>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
+
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-registration</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
@@ -76,7 +80,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-observability</artifactId>
+			<artifactId>pocoma-contracts-observability</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -139,7 +143,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-supra-consumption-worker</artifactId>
+			<artifactId>pocoma-orchestrator-poll-consumption</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

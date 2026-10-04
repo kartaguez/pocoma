@@ -20,7 +20,7 @@ import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionCandidate;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersion;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionUpdate;

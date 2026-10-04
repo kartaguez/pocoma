@@ -27,7 +27,7 @@ import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
 import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoder;
 import com.kartaguez.pocoma.engine.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.command.decode.CommandPayloadDecoder;

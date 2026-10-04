@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.engine.registration.GetRegistrationResultService;
-import com.kartaguez.pocoma.engine.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 
 @RestController
 @RequestMapping("/api/v1/registrations")

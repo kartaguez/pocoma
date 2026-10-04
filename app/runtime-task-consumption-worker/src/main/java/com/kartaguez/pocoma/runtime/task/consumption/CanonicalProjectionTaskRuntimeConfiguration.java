@@ -29,8 +29,8 @@ import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDe
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
 import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionInputLoader;
 import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjector;
@@ -58,11 +58,11 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.projection.jsonschema.NetworkntJsonSchemaValidator;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(CanonicalProjectionTaskProperties.class)

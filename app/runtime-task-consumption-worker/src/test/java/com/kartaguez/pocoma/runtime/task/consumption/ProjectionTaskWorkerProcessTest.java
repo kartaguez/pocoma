@@ -19,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers
 class ProjectionTaskWorkerProcessTest {
@@ -76,7 +76,7 @@ class ProjectionTaskWorkerProcessTest {
 			Path reactorRoot = applicationClasses.getParent().getParent().getParent();
 			Path workerClasses = Path.of(ConsumptionPollingWorker.class.getProtectionDomain()
 					.getCodeSource().getLocation().toURI()).toAbsolutePath().normalize();
-			Path expectedWorkerTarget = reactorRoot.resolve("supra-consumption-worker/target");
+			Path expectedWorkerTarget = reactorRoot.resolve("orchestrator-poll-consumption/target");
 			assertTrue(workerClasses.startsWith(expectedWorkerTarget), () ->
 					"ConsumptionPollingWorker must come from the current reactor, not an installed SNAPSHOT: "
 							+ workerClasses);

@@ -52,7 +52,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;

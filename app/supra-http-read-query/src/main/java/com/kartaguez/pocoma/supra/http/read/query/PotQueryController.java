@@ -18,7 +18,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;

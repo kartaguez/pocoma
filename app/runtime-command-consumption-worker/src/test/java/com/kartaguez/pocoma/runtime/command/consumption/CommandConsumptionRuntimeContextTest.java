@@ -17,7 +17,7 @@ import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
 import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",

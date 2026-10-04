@@ -15,12 +15,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.binding.pot.command.spring.PotCommandBindingConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
@@ -44,10 +44,10 @@ import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumpti
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorkerObservation;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerObservation;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 

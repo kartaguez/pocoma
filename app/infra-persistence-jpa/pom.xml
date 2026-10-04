@@ -13,6 +13,10 @@
 	<name>pocoma-infra-persistence-jpa</name>
 
 	<dependencies>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
+
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-registration</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
@@ -96,7 +100,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-observability</artifactId>
+			<artifactId>pocoma-contracts-observability</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

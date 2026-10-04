@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.CommandAuthenticationEvidenceFactory;
 import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;

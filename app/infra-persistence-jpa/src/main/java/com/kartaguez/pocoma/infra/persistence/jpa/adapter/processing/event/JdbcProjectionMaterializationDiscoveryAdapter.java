@@ -24,7 +24,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 
 /** PostgreSQL metadata-only discovery of due Event to Projection consequences. */
 public class JdbcProjectionMaterializationDiscoveryAdapter implements ProjectionMaterializationDiscoveryPort {

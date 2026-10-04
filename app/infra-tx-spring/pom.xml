@@ -13,6 +13,8 @@
 	<name>pocoma-infra-tx-spring</name>
 
 	<dependencies>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
+
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-engine-core</artifactId>

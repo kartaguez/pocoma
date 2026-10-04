@@ -29,7 +29,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionKeys;
 import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionService;
@@ -39,7 +39,7 @@ import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(properties = {
 		"pocoma.event-consumption.enabled=false",

@@ -7,7 +7,7 @@ import java.time.Clock;
 import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
 import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmittedCommand;
 import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;

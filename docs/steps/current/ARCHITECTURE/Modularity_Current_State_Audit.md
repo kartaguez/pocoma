@@ -215,3 +215,15 @@ Les dettes [WA6-01](../../../debts/BINDING_LOCK_ORDER_GUARD/Debt.md) et [WA6-02]
 **Asymétries à préserver :** Event metadata-only ; Command/Binding/Results à reload autoritaire selon leurs sources ; Task identifiée par `ProjectionKey` ; Results directs immuables ; CURRENT_BINDING monotone mutable ; LKV maximum observé.
 
 **Questions bloquant une architecture cible :** valeur protectrice des frontières physiques, ownership des policies, dépendance des Results aux contrats Command/Registration, cohésion transactionnelle de persistence, frontière READ de E→U et utilité aval LKV.
+
+## H. Delta CURRENT après WP1 (2026-10-04, gates globaux verts)
+
+Les sections A–G ci-dessus restent l'audit historique au HEAD `4bf164d5` et ne décrivent plus intégralement le checkout de travail. À partir de la baseline d'exécution `9d71a2d9`, WP1 a effectué les changements structurels suivants ; le gate global et le full reactor sont verts.
+
+- `authentication-contracts` et `observability` ont été renommés respectivement `contracts-authentication` et `contracts-observability`. `contracts-registration` contient désormais `RegistrationRequest` et `RegistrationOutcome`, dont les anciens exemplaires dans `engine-registration` ont été supprimés.
+- `port-transaction` porte `TransactionRunner` ; `port-binding-authority` porte les quatre interfaces d'autorité Binding (`ExternalIdentityBindingPort`, `ExternalIdentityBindingStreamPort`, `ExternalIdentityBindingFactPort`, `UserAuthorityPort`) ; `port-projection` remplace `engine-projection-contracts` et porte les ports read/write et le résultat de publication. Les implémentations restent dans les adapters CURRENT. `ExternalIdentityResolverPort` reste dans `domain-user-identity` en attente de TBD-E2U.
+- `domain-consumption` porte désormais `WorkerSegment` et `PartitionHash`. `engine-consumption` importe `port-transaction` et `domain-consumption`, plus `engine-core`. `orchestrator-consumption` ne dépend que de `engine-consumption`. La spécialisation `ProjectionTaskConsumptionOrchestrator` est hébergée provisoirement dans le runtime Task CURRENT jusqu'à WP2/D.08.
+- `supra-consumption-worker` a été renommé/rehome en `orchestrator-poll-consumption` ; les huit workers fermes et le runtime LKV CURRENT ont basculé sur cette frontière générique. Aucun bridge TARGET → legacy n'a été créé.
+- `engine-core` demeure un module CURRENT. En sont sortis uniquement `TransactionRunner`, `WorkerSegment` et `PartitionHash`. Il conserve notamment `RecordedEvent`, `EventTraceMetadata`, `BusinessEventEnvelope`, `PotGlobalVersion`, `UserContext`, les snapshots Pot/Expense, les exceptions et `PotPartitioner` legacy. Aucun SQL ou migration n'a été déplacé.
+
+Le plan à six WP, le registre des bridges et le rapport de vérification locale sont dans [le plan](Modularity_Migration_Plan.md) et [le rapport WP1](Modularity_WP1_Execution_Report.md). La [TARGET](Modularity_Target_Topology.md) reste normative : les 54 POM et 147 arcs fermes ne sont **pas** revendiqués comme CURRENT après WP1.

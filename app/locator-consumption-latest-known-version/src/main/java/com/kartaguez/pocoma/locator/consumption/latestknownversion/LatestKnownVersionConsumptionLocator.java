@@ -20,7 +20,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecuti
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.LatestKnownVersionEventDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionUseCase;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;

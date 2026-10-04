@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 public final class TransactionalAcquireConsumptionUseCase implements AcquireConsumptionUseCase {
 

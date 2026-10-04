@@ -18,8 +18,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
 import com.kartaguez.pocoma.engine.port.out.processing.event.LatestKnownVersionEventDiscoveryPort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionService;
 import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionUseCase;
 import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
@@ -42,9 +42,9 @@ import com.kartaguez.pocoma.locator.consumption.latestknownversion.LatestKnownVe
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 

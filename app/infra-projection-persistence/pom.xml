@@ -14,7 +14,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-projection-contracts</artifactId>
+			<artifactId>pocoma-port-projection</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

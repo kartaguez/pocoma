@@ -1,11 +1,13 @@
 package com.kartaguez.pocoma.engine.registration;
 
+import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
+
 import java.time.Clock;
 import java.util.Objects;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 /** Returns only after the request insert transaction has committed. */
 public final class AdmitRegistrationService {

@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationDiscoveryPort;
 import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 
 class ProjectionMaterializationConsumptionSourceTest {
 	private static final UUID EVENT_A = UUID.fromString("10000000-0000-0000-0000-000000000001");

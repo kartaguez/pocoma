@@ -19,7 +19,7 @@ import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityAttached;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityDetached;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.useridentity.ObservedBinding;
