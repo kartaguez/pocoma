@@ -9,13 +9,16 @@ import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Candidate;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Cursor;
 
 /** Metadata-only discovery; execution reloads the immutable request. */
 @Component
-public final class JdbcRegistrationDiscovery {
+public final class JdbcRegistrationDiscovery implements RegistrationDiscoveryPort {
     private final JdbcTemplate jdbc;
     public JdbcRegistrationDiscovery(JdbcTemplate jdbc) { this.jdbc = jdbc; }
-    public Optional<Candidate> next(int segmentIndex, int segmentCount, Instant now, Optional<Cursor> after) {
+    @Override public Optional<Candidate> next(int segmentIndex, int segmentCount, Instant now, Optional<Cursor> after) {
         if (segmentCount < 1 || segmentIndex < 0 || segmentIndex >= segmentCount) throw new IllegalArgumentException("invalid segment");
         String cursor = after.isPresent() ? "and (request.created_at, request.request_id) > (?, ?)" : "";
         String sql = """
@@ -42,6 +45,4 @@ public final class JdbcRegistrationDiscovery {
                 new Cursor(rs.getTimestamp(2).toInstant(), rs.getObject(1, UUID.class))),
                 args.toArray()).stream().findFirst();
     }
-    public record Candidate(UUID requestId, Cursor cursor) {}
-    public record Cursor(Instant createdAt, UUID requestId) {}
 }

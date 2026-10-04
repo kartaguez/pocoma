@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import com.kartaguez.pocoma.orchestrator.command.admission.InvalidAuthenticatedExternalPrincipalException;
+import com.kartaguez.pocoma.engine.admit.command.InvalidAuthenticatedExternalPrincipalException;
 
 class SpringSecurityExternalPrincipalAdapterTest {
 	private static final Instant AUTHENTICATED_AT = Instant.parse("2026-09-05T10:00:00Z");

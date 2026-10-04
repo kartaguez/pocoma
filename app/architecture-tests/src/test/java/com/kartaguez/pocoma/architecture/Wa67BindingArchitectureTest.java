@@ -64,7 +64,7 @@ class Wa67BindingArchitectureTest {
 				"engine-command-result/src/main/java/com/kartaguez/pocoma/engine/command/result/GetCommandResultService.java"));
 		assertTrue(!resultRead.contains("CurrentBinding"));
 		String command = Files.readString(appRoot().resolve(
-				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/RecordedCommand.java"));
+				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/RecordedCommand.java"));
 		assertTrue(!command.contains("PocomaUserId"));
 		assertTrue(!command.contains("BindingRevision"));
 	}
@@ -113,12 +113,12 @@ class Wa67BindingArchitectureTest {
 	@Test
 	void commandV2ObservesWithoutBindingLockAndFencesBeforeOutcomeAndClaim() throws IOException {
 		String service = Files.readString(appRoot().resolve(
-				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/execution/ExecuteRecordedCommandService.java"));
+				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/execution/ExecuteRecordedCommandService.java"));
 		String stream = Files.readString(appRoot().resolve(STREAM_REPOSITORY));
 		String recorded = Files.readString(appRoot().resolve(
-				"engine-command/src/main/java/com/kartaguez/pocoma/engine/command/model/RecordedCommand.java"));
+				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/RecordedCommand.java"));
 		String consumption = Files.readString(appRoot().resolve(
-				"locator-consumption-command/src/main/java/com/kartaguez/pocoma/locator/consumption/command/CommandConsumptionExecution.java"));
+				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/consumption/CommandConsumptionExecution.java"));
 		assertTrue(service.contains("bindings.observeCurrentBinding("));
 		assertTrue(service.contains("bindings.fenceObservedBinding("));
 		assertTrue(!service.contains("lockCurrentBinding("));

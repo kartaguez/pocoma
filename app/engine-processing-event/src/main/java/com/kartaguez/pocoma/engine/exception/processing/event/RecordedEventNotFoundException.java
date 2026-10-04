@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.exception.processing.event;
+package com.kartaguez.pocoma.engine.write.pot.exception.processing.event;
 
 import static java.util.Objects.requireNonNull;
 

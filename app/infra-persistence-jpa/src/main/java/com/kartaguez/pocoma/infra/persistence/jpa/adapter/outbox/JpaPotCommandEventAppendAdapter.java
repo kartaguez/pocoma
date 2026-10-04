@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.event.BusinessEvent;
-import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
-import com.kartaguez.pocoma.engine.command.model.CommandExecutionArtifact;
-import com.kartaguez.pocoma.engine.command.model.CommandExecutionInput;
-import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
+import com.kartaguez.pocoma.engine.consume.command.execution.CommandExecutionInvariantViolationException;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionArtifact;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput;
+import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;

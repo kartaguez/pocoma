@@ -1,0 +1,307 @@
+package com.kartaguez.pocoma.engine.write.pot.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.domain.authorization.Permission;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContext;
+import com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEvent;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.write.pot.input.AddPotShareholdersInput;
+import com.kartaguez.pocoma.engine.write.pot.snapshot.PotShareholdersSnapshot;
+import com.kartaguez.pocoma.engine.write.pot.security.UserContext;
+
+class AddPotShareholdersServiceTest {
+
+	@Test
+	void addsPotShareholders() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		FakePotContextPort loadAddPotShareholdersContextPort =
+				new FakePotContextPort(fixture.context(false));
+		FakePotShareholdersPort loadPotShareholdersPort =
+				new FakePotShareholdersPort(fixture.potShareholders());
+		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
+		FakeRecordingPotShareholdersPort replacePotShareholdersPort = new FakeRecordingPotShareholdersPort();
+		FakeEventPublisherPort publishPotShareholdersAddedEventPort =
+				new FakeEventPublisherPort();
+		AddPotShareholdersService addPotShareholdersService = new AddPotShareholdersService(
+				loadAddPotShareholdersContextPort,
+				loadPotShareholdersPort,
+				updatePotGlobalVersionPort,
+				replacePotShareholdersPort,
+				publishPotShareholdersAddedEventPort,
+				new PotAuthorizationGuard());
+
+		PotShareholdersSnapshot snapshot = addPotShareholdersService.addPotShareholders(
+				new UserContext(fixture.creatorId, fixture.userPermissions),
+				new AddPotShareholdersInput(
+						fixture.potId.value(),
+						Set.of(
+								new AddPotShareholdersInput.ShareholderInput("Alice", 1, 2),
+								new AddPotShareholdersInput.ShareholderInput("Bob", 3, 4)),
+						3));
+
+		assertEquals(fixture.potId, snapshot.potId());
+		assertEquals(3, snapshot.shareholders().size());
+		assertEquals(4, snapshot.version());
+		assertEquals(fixture.potId, loadAddPotShareholdersContextPort.loadedPotId);
+		assertEquals(fixture.potId, loadPotShareholdersPort.loadedPotId);
+		assertEquals(3, loadPotShareholdersPort.loadedAtVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
+		assertEquals(3, replacePotShareholdersPort.saved.shareholders().size());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replacePotShareholdersPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replacePotShareholdersPort.nextVersion);
+		assertEquals(2, publishPotShareholdersAddedEventPort.published.shareholderIds().size());
+		assertEquals(fixture.potId, publishPotShareholdersAddedEventPort.published.potId());
+		assertEquals(4, publishPotShareholdersAddedEventPort.published.version());
+	}
+
+	@Test
+	void rejectsAlreadyDeletedPotWithoutLoadingFullPotShareholders() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		FakePotShareholdersPort loadPotShareholdersPort =
+				new FakePotShareholdersPort(fixture.potShareholders());
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(true), loadPotShareholdersPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> addPotShareholdersService.addPotShareholders(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3)));
+
+		assertEquals("POT_ALREADY_DELETED", exception.ruleCode());
+		assertFalse(loadPotShareholdersPort.loaded);
+	}
+
+	@Test
+	void rejectsVersionConflictWithoutLoadingFullPotShareholders() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		FakePotShareholdersPort loadPotShareholdersPort =
+				new FakePotShareholdersPort(fixture.potShareholders());
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false), loadPotShareholdersPort);
+
+		VersionConflictException exception = assertThrows(
+				VersionConflictException.class,
+				() -> addPotShareholdersService.addPotShareholders(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(2)));
+
+		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertFalse(loadPotShareholdersPort.loaded);
+	}
+
+	@Test
+	void rejectsUserNotCreatorWithoutLoadingFullPotShareholders() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		FakePotShareholdersPort loadPotShareholdersPort =
+				new FakePotShareholdersPort(fixture.potShareholders());
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false), loadPotShareholdersPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> addPotShareholdersService.addPotShareholders(
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
+						fixture.command(3)));
+
+		assertEquals("POT_SHAREHOLDERS_ADD_FORBIDDEN", exception.ruleCode());
+		assertFalse(loadPotShareholdersPort.loaded);
+	}
+
+	@Test
+	void rejectsUserWithoutPermissionsWithoutLoadingFullPotShareholders() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		FakePotShareholdersPort loadPotShareholdersPort =
+				new FakePotShareholdersPort(fixture.potShareholders());
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false), loadPotShareholdersPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> addPotShareholdersService.addPotShareholders(
+						new UserContext(fixture.creatorId, Set.of(new Permission("SHAREHOLDER", "DELETE"))),
+						fixture.command(3)));
+
+		assertEquals("MISSING_PERMISSION", exception.ruleCode());
+		assertFalse(loadPotShareholdersPort.loaded);
+	}
+
+	@Test
+	void rejectsNullCommand() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false));
+
+		assertThrows(NullPointerException.class, () -> addPotShareholdersService.addPotShareholders(
+				new UserContext(fixture.creatorId, fixture.userPermissions),
+				null));
+	}
+
+	@Test
+	void rejectsNullUserContext() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false));
+
+		assertThrows(NullPointerException.class, () -> addPotShareholdersService.addPotShareholders(
+				null,
+				fixture.command(3)));
+	}
+
+	@Test
+	void rejectsNullLoadedContext() {
+		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
+		AddPotShareholdersService addPotShareholdersService = fixture.service(null);
+
+		assertThrows(NullPointerException.class, () -> addPotShareholdersService.addPotShareholders(
+				new UserContext(fixture.creatorId, fixture.userPermissions),
+				fixture.command(3)));
+	}
+
+	private static final class AddPotShareholdersFixture {
+		private final PotId potId = PotId.of(UUID.randomUUID());
+		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Permission> userPermissions = Set.of(new Permission("SHAREHOLDER", "CREATE"));
+		private final Shareholder existingShareholder = Shareholder.reconstitute(
+				ShareholderId.of(UUID.randomUUID()),
+				potId,
+				Name.of("Existing"),
+				Weight.of(Fraction.of(1, 1)),
+				null,
+				false);
+
+		private AddPotShareholdersContext context(boolean deleted) {
+			return new AddPotShareholdersContext(
+					new PotGlobalVersion(potId, 3),
+					deleted,
+					creatorId);
+		}
+
+		private PotShareholders potShareholders() {
+			return PotShareholders.reconstitute(potId, Set.of(existingShareholder));
+		}
+
+		private AddPotShareholdersInput command(long expectedVersion) {
+			return new AddPotShareholdersInput(
+					potId.value(),
+					Set.of(new AddPotShareholdersInput.ShareholderInput("Alice", 1, 2)),
+					expectedVersion);
+		}
+
+		private AddPotShareholdersService service(AddPotShareholdersContext context) {
+			return service(context, new FakePotShareholdersPort(potShareholders()));
+		}
+
+		private AddPotShareholdersService service(
+				AddPotShareholdersContext context,
+				FakePotShareholdersPort loadPotShareholdersPort) {
+			return new AddPotShareholdersService(
+					new FakePotContextPort(context),
+					loadPotShareholdersPort,
+					new FakePotGlobalVersionPort(),
+					new FakeRecordingPotShareholdersPort(),
+					new FakeEventPublisherPort(),
+					new PotAuthorizationGuard());
+		}
+	}
+
+	private static final class FakePotContextPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.PotContextPort {
+
+		private final AddPotShareholdersContext context;
+		private PotId loadedPotId;
+
+		private FakePotContextPort(AddPotShareholdersContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public AddPotShareholdersContext loadAddPotShareholdersContext(PotId potId) {
+			loadedPotId = potId;
+			return context;
+		}
+	}
+
+	private static final class FakePotShareholdersPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.PotShareholdersPort {
+
+		private final PotShareholders potShareholders;
+		private boolean loaded;
+		private PotId loadedPotId;
+		private long loadedAtVersion;
+
+		private FakePotShareholdersPort(PotShareholders potShareholders) {
+			this.potShareholders = potShareholders;
+		}
+
+		@Override
+		public PotShareholders loadActiveAtVersion(PotId potId, long version) {
+			loaded = true;
+			loadedPotId = potId;
+			loadedAtVersion = version;
+			return potShareholders;
+		}
+
+		@Override
+		public void save(PotShareholders potShareholders, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private static final class FakePotGlobalVersionPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.PotGlobalVersionPort {
+
+		private PotGlobalVersion expectedActiveVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public void updateIfActive(PotGlobalVersion expectedActiveVersion, PotGlobalVersion nextVersion) {
+			this.expectedActiveVersion = expectedActiveVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeRecordingPotShareholdersPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.PotShareholdersPort {
+
+		private PotShareholders saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public PotShareholders loadActiveAtVersion(PotId potId, long version) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void save(PotShareholders potShareholders, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = potShareholders;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeEventPublisherPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.event.EventPublisherPort {
+
+		private PotShareholdersAddedEvent published;
+
+		@Override
+		public void publish(PotShareholdersAddedEvent event) {
+			published = event;
+		}
+	}
+}

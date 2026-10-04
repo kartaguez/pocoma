@@ -3,8 +3,8 @@ package com.kartaguez.pocoma.engine.command.result;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 
 /** Reads the immutable terminal Result using the historical authenticated E. */
 public final class GetCommandResultService implements GetCommandResultUseCase {

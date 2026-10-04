@@ -8,7 +8,7 @@ import java.util.Locale;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
-import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
+import com.kartaguez.pocoma.engine.write.pot.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionTechnicalFailureClassifier;
 
 public final class LatestKnownVersionFailureClassifier implements ConsumptionTechnicalFailureClassifier {

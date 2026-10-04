@@ -7,7 +7,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.kartaguez.pocoma.orchestrator.command.admission.InvalidAuthenticatedExternalPrincipalException;
+import com.kartaguez.pocoma.engine.admit.command.InvalidAuthenticatedExternalPrincipalException;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 
 public final class AuthenticatedExternalPrincipalArgumentResolver implements HandlerMethodArgumentResolver {

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.kartaguez.pocoma.orchestrator.command.admission.ExpiredAuthenticatedPrincipalException;
-import com.kartaguez.pocoma.orchestrator.command.admission.InvalidAuthenticatedExternalPrincipalException;
+import com.kartaguez.pocoma.engine.admit.command.ExpiredAuthenticatedPrincipalException;
+import com.kartaguez.pocoma.engine.admit.command.InvalidAuthenticatedExternalPrincipalException;
 import com.kartaguez.pocoma.supra.http.write.command.InvalidRequestException;
 
 import jakarta.servlet.http.HttpServletRequest;

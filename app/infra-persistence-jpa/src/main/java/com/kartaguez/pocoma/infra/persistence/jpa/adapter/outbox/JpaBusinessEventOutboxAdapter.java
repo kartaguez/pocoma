@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.engine.event.EventTraceMetadata;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
-import com.kartaguez.pocoma.engine.port.out.event.BusinessEventAppendPort;
+import com.kartaguez.pocoma.engine.write.pot.port.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;

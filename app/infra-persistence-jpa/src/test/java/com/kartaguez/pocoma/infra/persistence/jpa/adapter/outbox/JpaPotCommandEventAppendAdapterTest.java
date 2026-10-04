@@ -24,7 +24,7 @@ import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
 import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.command.execution.CommandExecutionInvariantViolationException;
+import com.kartaguez.pocoma.engine.consume.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 

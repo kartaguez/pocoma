@@ -198,7 +198,7 @@ class HexagonalArchitectureTest {
 
 		Set<String> legacyAuthorizationTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getName().equals(ROOT_PACKAGE + ".domain.pot.policy.scope.Scope")
-						|| javaClass.getName().equals(ROOT_PACKAGE + ".engine.command.model.Permission"))
+						|| javaClass.getName().equals(ROOT_PACKAGE + ".engine.consume.command.model.Permission"))
 				.map(javaClass -> javaClass.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), legacyAuthorizationTypes,
@@ -209,8 +209,8 @@ class HexagonalArchitectureTest {
 	void targetApplicationAndProcessingPackagesDoNotDependOnLegacyEngineTypes() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.service.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
@@ -338,7 +338,7 @@ class HexagonalArchitectureTest {
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.event..", ROOT_PACKAGE + ".domain.pot..",
 						ROOT_PACKAGE + ".domain.projection..", ROOT_PACKAGE + ".domain.useridentity..",
-						ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".engine.registration..",
+						ROOT_PACKAGE + ".engine.consume.command..", ROOT_PACKAGE + ".engine.registration..",
 						ROOT_PACKAGE + ".engine.consume.projectiontask..", ROOT_PACKAGE + ".engine.read..")
 				.check(CLASSES);
 	}
@@ -466,7 +466,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void commandAdmissionConsumesOnlyTheProviderNeutralAuthenticatedPrincipal() {
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.command.admission..")
+				.that().resideInAPackage(ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						"org.springframework..",
 						"org.springframework.security..",
@@ -478,7 +478,7 @@ class HexagonalArchitectureTest {
 
 		Set<String> providerSpecificTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(
-						ROOT_PACKAGE + ".orchestrator.command.admission"))
+						ROOT_PACKAGE + ".engine.admit.command"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(Dependency::getTargetClass)
 				.map(javaClass -> javaClass.getName())
@@ -490,12 +490,12 @@ class HexagonalArchitectureTest {
 
 		assertEquals(Set.of("commandType", "bindingId", "serializedPayload", "principal"),
 				fieldNames(ROOT_PACKAGE
-						+ ".orchestrator.command.admission.model.SubmitRecordedCommandInput"),
+						+ ".engine.admit.command.model.SubmitRecordedCommandInput"),
 				"admission input must carry the client BindingId and provider-neutral principal");
 		Set<String> serviceDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".orchestrator.command.admission.SubmitRecordedCommandService");
+				ROOT_PACKAGE + ".engine.admit.command.SubmitRecordedCommandService");
 		assertTrue(serviceDependencies.contains(
-				ROOT_PACKAGE + ".engine.command.model.TargetCommandEnvelope"));
+				ROOT_PACKAGE + ".engine.consume.command.model.TargetCommandEnvelope"));
 		assertFalse(serviceDependencies.stream().anyMatch(name -> name.endsWith("AuthorizationSnapshot")
 				|| name.endsWith("Permission") || name.endsWith("ExternalIdentityResolverPort")
 				|| name.endsWith("ExternalIdentityBindingPort")),
@@ -504,11 +504,11 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".supra.http.write.command..",
-						ROOT_PACKAGE + ".orchestrator.command.admission..")
+						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
 						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.pot.read..",
 						ROOT_PACKAGE + ".engine.read..",
 						ROOT_PACKAGE + ".infra.read..")
@@ -573,7 +573,7 @@ class HexagonalArchitectureTest {
 				"the lifecycle journal and stream must not become a second binding authority");
 
 		Set<String> commandRuntimeLifecycleDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.command")
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.consume.command")
 						|| javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".runtime.command"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(Dependency::getTargetClass)
@@ -585,7 +585,7 @@ class HexagonalArchitectureTest {
 				"Command processing must not consult binding lifecycle persistence");
 
 		noClasses().that().resideInAnyPackage(
-				ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".runtime.command..")
+				ROOT_PACKAGE + ".engine.consume.command..", ROOT_PACKAGE + ".runtime.command..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.currentbinding..")
 				.check(CLASSES);
 		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.consume.binding..")
@@ -659,11 +659,11 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read.query..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.command.port.out..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.port.out..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".binding..",
 						ROOT_PACKAGE + ".locator.consumption..",
-						ROOT_PACKAGE + ".orchestrator.command.admission.port.in..",
+						ROOT_PACKAGE + ".engine.admit.command.port.in..",
 						ROOT_PACKAGE + ".orchestrator.consumption..")
 				.check(CLASSES);
 	}
@@ -672,14 +672,14 @@ class HexagonalArchitectureTest {
 	void consumptionEngineDoesNotDependOnOuterLayers() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.context.consumption..",
+						ROOT_PACKAGE + ".engine.write.pot.context.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
 						ROOT_PACKAGE + ".engine.port.out.consumption..",
 						ROOT_PACKAGE + ".engine.service.consumption..",
 						ROOT_PACKAGE + ".engine.service.transaction.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.context..",
-						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.write.pot.context..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
 						ROOT_PACKAGE + ".engine.processing..",
@@ -793,8 +793,8 @@ class HexagonalArchitectureTest {
 	void functionalCommandUseCasesDoNotDependOnDurableConsumption() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.consumption.claim..",
@@ -807,10 +807,10 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.context..",
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.port.out.persistence..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.write.pot.context..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
+						ROOT_PACKAGE + ".engine.write.pot.port.persistence..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine..processing.command..",
@@ -824,8 +824,8 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
@@ -839,13 +839,13 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void potCommandAdaptersStayOutsideTransactionsInfrastructureAndEventSerialization() {
-		String commandServicePackage = ROOT_PACKAGE + ".engine.service.command..";
-		String decoderPackage = ROOT_PACKAGE + ".engine.pot.command.decode..";
+		String commandServicePackage = ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..";
+		String decoderPackage = ROOT_PACKAGE + ".engine.consume.command.pot.decode..";
 
 		noClasses()
 				.that().resideInAPackage(commandServicePackage)
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".infra..",
 						"org.springframework..",
 						"jakarta.persistence..",
@@ -854,9 +854,8 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.context..",
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.write.pot.context..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage("com.fasterxml.jackson..")
 				.check(CLASSES);
@@ -864,14 +863,14 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(decoderPackage)
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".infra..",
 						"org.springframework..",
 						"jakarta.persistence..")
 				.check(CLASSES);
 
 		Set<String> adapterTransactionDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".engine.service.command"))
+				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".engine.consume.command.pot.dispatch"))
 				.filter(javaClass -> javaClass.getSimpleName().endsWith("CommandUseCaseAdapter"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(dependency -> dependency.getTargetClass().getName())
@@ -881,7 +880,7 @@ class HexagonalArchitectureTest {
 				"Pot Command adapters must join the caller transaction instead of creating one");
 
 		Set<String> commandConsumptionDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.service.command"))
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".engine.consume.command.pot.dispatch"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(dependency -> dependency.getTargetClass().getName())
 				.filter(name -> name.startsWith(ROOT_PACKAGE + ".domain.consumption."))
@@ -893,13 +892,14 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts() {
-		String commandPackage = ROOT_PACKAGE + ".engine.command";
+		String commandPackage = ROOT_PACKAGE + ".engine.consume.command";
 		Set<String> allowedPackages = Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
 				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event",
 				USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.binding.authority");
 		Set<String> dependenciesOutsideCommand = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
-				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".result"))
+				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".pot"))
+				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".consumption"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(dependency -> dependency.getTargetClass())
 				.filter(target -> !target.getPackageName().startsWith("java."))
@@ -909,7 +909,7 @@ class HexagonalArchitectureTest {
 				.map(target -> target.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideCommand,
-				"engine-command may depend only on its own contracts, User/Identity, generic BusinessEvent, TerminalReason and the JDK");
+				"the generic Command kernel must not import Pot dispatch or infrastructure");
 
 		noClasses()
 				.that().resideInAPackage(commandPackage + "..")
@@ -925,18 +925,18 @@ class HexagonalArchitectureTest {
 				"engine-command execution contracts must not expose claiming or fencing state");
 
 		assertEquals(Set.of("commandId", "commandType", "serializedPayload", "submittedAt", "envelope"),
-				fieldNames(ROOT_PACKAGE + ".engine.command.model.RecordedCommand"),
+				fieldNames(ROOT_PACKAGE + ".engine.consume.command.model.RecordedCommand"),
 				"RecordedCommand must contain durable request data and no consumption lifecycle");
 	}
 
 	@Test
 	void targetCommandConsumptionKeepsIdentityResolutionInsideTheWriteWorkerBoundary() {
 		assertEquals(Set.of("externalIdentity", "bindingId", "authenticationEvidence"),
-				fieldNames(ROOT_PACKAGE + ".engine.command.model.TargetCommandEnvelope"),
+				fieldNames(ROOT_PACKAGE + ".engine.consume.command.model.TargetCommandEnvelope"),
 				"TARGET_V2 must contain E, B and AuthN evidence only");
 
 		Set<String> executionDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".engine.command.execution.ExecuteRecordedCommandService");
+				ROOT_PACKAGE + ".engine.consume.command.execution.ExecuteRecordedCommandService");
 		assertTrue(executionDependencies.contains(
 				ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort"));
 		assertFalse(executionDependencies.contains(
@@ -949,14 +949,14 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".supra.http.write.command..",
-						ROOT_PACKAGE + ".orchestrator.command.admission..")
+						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						ROOT_PACKAGE + ".port.binding.authority.ExternalIdentityBindingPort")
 				.check(CLASSES);
 		noClasses()
 				.that().resideInAnyPackage(
 						ROOT_PACKAGE + ".supra.http.write.command..",
-						ROOT_PACKAGE + ".orchestrator.command.admission..")
+						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().haveFullyQualifiedName(
 						USER_IDENTITY_DOMAIN_PACKAGE + ".ExternalIdentityResolverPort")
 				.check(CLASSES);
@@ -971,7 +971,7 @@ class HexagonalArchitectureTest {
 		assertFalse(dependencies.stream().anyMatch(name -> name.contains("Binding")),
 				"Command result GET must not resolve current binding");
 		Set<String> forbidden = dependencies.stream()
-				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.command.port.out.CommandOutcomeQueryPort")
+				.filter(name -> name.equals(ROOT_PACKAGE + ".engine.consume.command.port.out.CommandOutcomeQueryPort")
 						|| name.startsWith(ROOT_PACKAGE + ".infra.")
 						|| name.startsWith(ROOT_PACKAGE + ".domain.consumption.")
 						|| name.contains("RecordedCommand")
@@ -985,7 +985,7 @@ class HexagonalArchitectureTest {
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa..",
 						ROOT_PACKAGE + ".infra.tx..",
-						ROOT_PACKAGE + ".engine.command.port.out..",
+						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".domain.consumption..")
 				.check(CLASSES);
 		Set<String> controllerDependencies = directDependencyNames(
@@ -1008,11 +1008,11 @@ class HexagonalArchitectureTest {
 	void commandConsumptionRuntimeComposesGenericPollingWithoutKnowingCommandPayloadsOrHttp() {
 		String runtimePackage = ROOT_PACKAGE + ".runtime.command.consumption";
 		noClasses()
-				.that().resideInAPackage(runtimePackage + "..")
+				.that().haveSimpleName("CommandConsumptionRuntimeConfiguration")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.command.model..",
-						ROOT_PACKAGE + ".engine.command.decode..",
-						ROOT_PACKAGE + ".engine.command.dispatch..",
+						ROOT_PACKAGE + ".engine.consume.command.model..",
+						ROOT_PACKAGE + ".engine.consume.command.decode..",
+						ROOT_PACKAGE + ".engine.consume.command.dispatch..",
 						ROOT_PACKAGE + ".engine.pot..",
 						ROOT_PACKAGE + ".domain.pot..",
 						ROOT_PACKAGE + ".supra.http..")
@@ -1021,8 +1021,8 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".orchestrator.poll.consumption..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.command..",
-						ROOT_PACKAGE + ".locator.consumption.command..",
+						ROOT_PACKAGE + ".engine.consume.command..",
+						ROOT_PACKAGE + ".supra.consume.command..",
 						ROOT_PACKAGE + ".engine.service.consumption..")
 				.check(CLASSES);
 	}
@@ -1035,7 +1035,8 @@ class HexagonalArchitectureTest {
 		Set<String> dependencies = dependenciesOutside(
 				persistencePackage + ".adapter.command",
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
-						ROOT_PACKAGE + ".engine.command", ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".engine.command.result",
 						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".contracts.observability.trace",
 						"org.springframework", "com.fasterxml.jackson"));
@@ -1058,7 +1059,7 @@ class HexagonalArchitectureTest {
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".engine..processing.command..",
 						ROOT_PACKAGE + ".engine..processing.task..",
-						ROOT_PACKAGE + ".engine.port.in.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
 						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
 						ROOT_PACKAGE + ".engine.service.taskcreation..",
 						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
@@ -1114,8 +1115,8 @@ class HexagonalArchitectureTest {
 	void functionalUseCaseFamiliesDoNotDependOnConsumptionDomain() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.service.transaction.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.consumption.claim..",
@@ -1164,14 +1165,13 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void commandLocatorOwnsConsumptionIdentityAndStaysIndependentFromPotAndOuterLayers() {
-		String locatorPackage = ROOT_PACKAGE + ".locator.consumption.command..";
+		String locatorPackage = ROOT_PACKAGE + ".supra.consume.command..";
 		noClasses()
 				.that().resideInAPackage(locatorPackage)
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.pot..",
-						ROOT_PACKAGE + ".engine.service.command..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".infra..",
-						ROOT_PACKAGE + ".supra..",
 						ROOT_PACKAGE + ".runtime..",
 						"org.springframework..",
 						"jakarta.persistence..",
@@ -1182,7 +1182,7 @@ class HexagonalArchitectureTest {
 				.filter(javaClass -> javaClass.getSimpleName().equals("CommandConsumptionKeys"))
 				.map(javaClass -> javaClass.getPackageName())
 				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of(ROOT_PACKAGE + ".locator.consumption.command"), keyOwners,
+		assertEquals(Set.of(ROOT_PACKAGE + ".supra.consume.command"), keyOwners,
 				"the Command locator specialization must own its ConsumptionKey convention");
 	}
 
@@ -1278,7 +1278,7 @@ class HexagonalArchitectureTest {
 
 		Set<String> businessPorts = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().equals(
-						ROOT_PACKAGE + ".engine.port.in.command.usecase"))
+						ROOT_PACKAGE + ".engine.write.pot.usecase"))
 				.map(javaClass -> javaClass.getSimpleName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(
@@ -1300,7 +1300,7 @@ class HexagonalArchitectureTest {
 				"UpdatePotShareholdersDetailsCommandUseCaseAdapter", "UpdatePotShareholdersDetailsUseCase",
 				"UpdatePotShareholdersWeightsCommandUseCaseAdapter", "UpdatePotShareholdersWeightsUseCase");
 		adapterPorts.forEach((adapter, port) -> assertTrue(directDependencyNames(
-				ROOT_PACKAGE + ".engine.service.command." + adapter).stream()
+				ROOT_PACKAGE + ".engine.consume.command.pot.dispatch." + adapter).stream()
 				.anyMatch(name -> name.endsWith("." + port)), adapter + " must use " + port));
 	}
 
@@ -1309,10 +1309,10 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.port.in.command.usecase..",
-						ROOT_PACKAGE + ".engine.service.command..",
-						ROOT_PACKAGE + ".binding.pot.command.spring..",
-						ROOT_PACKAGE + ".locator.consumption.command..")
+						ROOT_PACKAGE + ".engine.write.pot.usecase..",
+						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
+						ROOT_PACKAGE + ".runtime.command.consumption..",
+						ROOT_PACKAGE + ".supra.consume.command..")
 				.check(CLASSES);
 
 		Set<String> asyncControllerDependencies = directDependencyNames(

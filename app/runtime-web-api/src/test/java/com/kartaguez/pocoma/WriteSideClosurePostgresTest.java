@@ -36,13 +36,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.binding.pot.command.spring.PotCommandBindingConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
+import com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandUseCase;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
-import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
+import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
@@ -57,10 +56,10 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionExecution;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionLocator;
-import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionFailurePolicy;
-import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionTechnicalFailureClassifier;
+import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;
+import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocator;
+import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicy;
+import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifier;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
@@ -78,7 +77,7 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumpt
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=https://issuer.test",
 		"spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://issuer.test/jwks"
 })
-@Import(PotCommandBindingConfiguration.class)
+@Import(WriteSidePotCommandBindingConfiguration.class)
 @Testcontainers
 @DirtiesContext
 class WriteSideClosurePostgresTest {

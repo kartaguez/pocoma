@@ -14,7 +14,7 @@
 
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-authentication</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-user-identity</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-command-admission</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-command</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-command-result</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-pot-read</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-core</artifactId><version>${project.version}</version></dependency>

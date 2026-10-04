@@ -10,9 +10,10 @@ import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.registration.RegistrationOutcomeStore;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;
 
 @Component
-public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeStore {
+public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeStore, RegistrationOutcomeRepository {
     private final JdbcTemplate jdbc;
     public JdbcRegistrationOutcomeStore(JdbcTemplate jdbc) { this.jdbc = jdbc; }
     @Override public Optional<RegistrationOutcome> find(UUID requestId) {

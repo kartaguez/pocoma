@@ -12,9 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.exception.VersionConflictException;
-import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.port.out.persistence.PotShareholdersPort;
+import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotShareholdersPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.core.JpaShareholderEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaShareholderRepository;
 

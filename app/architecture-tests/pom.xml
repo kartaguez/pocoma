@@ -36,7 +36,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-orchestrator-command-admission</artifactId>
+			<artifactId>pocoma-engine-admit-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -84,7 +84,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-locator-consumption-command</artifactId>
+			<artifactId>pocoma-supra-consume-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -138,13 +138,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-command</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-pot-command</artifactId>
+			<artifactId>pocoma-engine-consume-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

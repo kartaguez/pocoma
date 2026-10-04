@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.command.result;
 
 import java.util.Optional;
 
-import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 
 /** Insert once; an identical replay is a no-op and a divergent replay is an invariant violation. */
 public interface CommandResultStore {

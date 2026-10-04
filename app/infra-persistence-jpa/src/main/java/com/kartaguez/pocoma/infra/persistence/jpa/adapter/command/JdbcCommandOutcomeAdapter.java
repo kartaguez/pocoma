@@ -11,11 +11,11 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
-import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
-import com.kartaguez.pocoma.engine.command.port.out.CommandOutcomePublicationPort;
-import com.kartaguez.pocoma.engine.command.port.out.CommandOutcomeQueryPort;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandTerminalEventTypes;
+import com.kartaguez.pocoma.engine.consume.command.port.out.CommandOutcomePublicationPort;
+import com.kartaguez.pocoma.engine.consume.command.port.out.CommandOutcomeQueryPort;
 import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 @Component

@@ -9,8 +9,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 
 class CommandResultTest {
 	private static final CommandId ID = new CommandId(UUID.randomUUID());

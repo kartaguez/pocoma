@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.engine.command.model.CommandType;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
+import com.kartaguez.pocoma.engine.admit.command.model.SubmitRecordedCommandInput;
+import com.kartaguez.pocoma.engine.admit.command.port.in.SubmitRecordedCommandUseCase;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

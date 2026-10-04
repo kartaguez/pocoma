@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.jdbc.Sql;
 
-import com.kartaguez.pocoma.engine.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.JpaPotGlobalVersionRepository;
 
 @DataJpaTest

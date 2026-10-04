@@ -10,14 +10,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
-import com.kartaguez.pocoma.orchestrator.command.admission.CommandAuthenticationEvidenceFactory;
-import com.kartaguez.pocoma.orchestrator.command.admission.SubmitRecordedCommandService;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.out.CommandIdGenerator;
+import com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactory;
+import com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandService;
+import com.kartaguez.pocoma.engine.admit.command.model.CommandAuthorizationTtl;
+import com.kartaguez.pocoma.engine.admit.command.port.in.SubmitRecordedCommandUseCase;
+import com.kartaguez.pocoma.engine.admit.command.port.out.CommandIdGenerator;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.command-admission", name = "enabled", havingValue = "true")

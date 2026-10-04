@@ -7,8 +7,8 @@
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
 
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-binding-pot-command-spring</artifactId><version>${project.version}</version></dependency>
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-command</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-write-pot</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-command</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>

@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.kartaguez.pocoma.engine.command.discovery.CommandDiscoveryCursor;
+import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
 
 @Repository
 public class JpaCommandConsumptionDiscoveryRepository {

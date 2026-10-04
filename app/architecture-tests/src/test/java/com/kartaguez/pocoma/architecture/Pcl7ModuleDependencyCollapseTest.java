@@ -63,7 +63,7 @@ class Pcl7ModuleDependencyCollapseTest {
 	void canonicalInfrastructureRemainsConcrete() {
 		Path app = appRoot();
 		List<String> protectedFiles = List.of(
-				"engine-pot-command/src/main/java/com/kartaguez/pocoma/engine/port/out/event/BusinessEventAppendPort.java",
+				"engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/event/BusinessEventAppendPort.java",
 				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
 				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JpaEventPort.java",
 				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java",

@@ -36,21 +36,21 @@ import com.kartaguez.pocoma.domain.authorization.PocomaPermissions;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.model.CommandType;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.command.port.out.EventAppendPort;
-import com.kartaguez.pocoma.engine.command.port.out.RecordedCommandPort;
-import com.kartaguez.pocoma.engine.pot.command.decode.PotCommandTypes;
+import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
+import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionKeys;
+import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeys;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=true",

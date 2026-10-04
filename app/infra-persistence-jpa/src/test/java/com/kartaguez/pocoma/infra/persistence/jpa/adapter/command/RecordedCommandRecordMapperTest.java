@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.command.model.CommandAuthenticationEvidence;
-import com.kartaguez.pocoma.engine.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.RecordedCommandRow;
 
 class RecordedCommandRecordMapperTest {

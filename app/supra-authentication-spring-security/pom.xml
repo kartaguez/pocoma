@@ -19,7 +19,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-orchestrator-command-admission</artifactId>
+			<artifactId>pocoma-engine-admit-command</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;

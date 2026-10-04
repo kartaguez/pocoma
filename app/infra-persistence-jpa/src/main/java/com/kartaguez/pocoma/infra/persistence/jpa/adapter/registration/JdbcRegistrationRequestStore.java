@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.registration.RegistrationRequestStore;
+import com.kartaguez.pocoma.engine.admit.registration.RegistrationRequestRecorder;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationRequestReader;
 
 @Component
-public final class JdbcRegistrationRequestStore implements RegistrationRequestStore {
+public final class JdbcRegistrationRequestStore implements RegistrationRequestStore, RegistrationRequestRecorder, RegistrationRequestReader {
     private final JdbcTemplate jdbc;
     public JdbcRegistrationRequestStore(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 

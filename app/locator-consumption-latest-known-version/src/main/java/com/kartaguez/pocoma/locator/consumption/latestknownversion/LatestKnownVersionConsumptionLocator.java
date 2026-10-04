@@ -14,7 +14,7 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.event.RecordedEvent;
-import com.kartaguez.pocoma.engine.exception.processing.event.RecordedEventNotFoundException;
+import com.kartaguez.pocoma.engine.write.pot.exception.processing.event.RecordedEventNotFoundException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;

@@ -29,6 +29,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.registration.*;
+import com.kartaguez.pocoma.supra.consume.registration.RegistrationConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
 

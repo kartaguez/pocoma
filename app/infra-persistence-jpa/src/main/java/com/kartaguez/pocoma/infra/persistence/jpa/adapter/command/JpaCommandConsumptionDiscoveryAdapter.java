@@ -8,10 +8,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.engine.command.discovery.CommandConsumptionCandidate;
-import com.kartaguez.pocoma.engine.command.discovery.CommandDiscoveryCursor;
-import com.kartaguez.pocoma.engine.command.model.CommandId;
-import com.kartaguez.pocoma.engine.command.port.out.CommandConsumptionDiscoveryPort;
+import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionCandidate;
+import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.port.out.CommandConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 
 @Component

@@ -1,9 +1,5 @@
 package com.kartaguez.pocoma.engine.registration;
 
-import java.util.UUID;
-
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-
-public interface UserCreatedFactPort {
-    void append(UUID requestId, PocomaUserId userId);
-}
+/** Temporary WP3 bridge for the legacy Registration Result integration tests. */
+@Deprecated(forRemoval = true)
+public interface UserCreatedFactPort extends com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort {}

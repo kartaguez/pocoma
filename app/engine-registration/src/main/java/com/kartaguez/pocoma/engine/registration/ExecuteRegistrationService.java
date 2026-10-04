@@ -1,48 +1,24 @@
 package com.kartaguez.pocoma.engine.registration;
 
-import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
-
-import java.util.Objects;
 import java.util.UUID;
-
-import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
+import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.domain.useridentity.User;
 import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;
 
-/** Runs inside the fenced Consumption Execute transaction. */
+/** Temporary legacy-to-TARGET facade; execution policy lives in engine-consume-registration. */
+@Deprecated(forRemoval = true)
 public final class ExecuteRegistrationService {
-    private final RegistrationRequestStore requests;
-    private final RegistrationOutcomeStore outcomes;
-    private final UserAuthorityPort users;
-    private final ExternalIdentityBindingPort bindings;
-    private final UserCreatedFactPort userFacts;
+    private final com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService target;
 
     public ExecuteRegistrationService(RegistrationRequestStore requests, RegistrationOutcomeStore outcomes,
             UserAuthorityPort users, ExternalIdentityBindingPort bindings, UserCreatedFactPort userFacts) {
-        this.requests = Objects.requireNonNull(requests);
-        this.outcomes = Objects.requireNonNull(outcomes);
-        this.users = Objects.requireNonNull(users);
-        this.bindings = Objects.requireNonNull(bindings);
-        this.userFacts = Objects.requireNonNull(userFacts);
+        target = new com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService(
+                requests::find, new RegistrationOutcomeRepository() {
+                    @Override public java.util.Optional<RegistrationOutcome> find(UUID id) { return outcomes.find(id); }
+                    @Override public void insert(RegistrationOutcome outcome) { outcomes.insert(outcome); }
+                }, users, bindings, userFacts);
     }
 
-    public RegistrationOutcome execute(UUID requestId) {
-        Objects.requireNonNull(requestId);
-        var request = requests.find(requestId).orElseThrow(() -> new IllegalStateException("RegistrationRequest missing"));
-        var existing = outcomes.find(requestId);
-        if (existing.isPresent()) return existing.orElseThrow();
-        PocomaUserId userId = new PocomaUserId(UUID.randomUUID());
-        var acquired = bindings.acquireWithInitializer(request.requesterExternalIdentity(), userId, () -> {
-            users.create(new User(userId));
-            userFacts.append(requestId, userId);
-        });
-        RegistrationOutcome outcome = acquired.status() == BindingAcquireResult.Status.ACQUIRED
-                ? new RegistrationOutcome.Registered(requestId, userId, acquired.bindingId())
-                : new RegistrationOutcome.Rejected(requestId);
-        outcomes.insert(outcome);
-        return outcome;
-    }
+    public RegistrationOutcome execute(UUID requestId) { return target.execute(requestId); }
 }

@@ -39,19 +39,24 @@
 		<module>domain-pot-projection</module>
 		<module>domain-projection-balance</module>
 		<module>domain-projection</module>
-		<module>domain-pot-policy</module>
 		<module>domain-consumption</module>
 		<module>port-transaction</module>
 		<module>port-binding-authority</module>
 		<module>engine-core</module>
 		<module>engine-consumption</module>
 		<module>engine-command</module>
+		<module>engine-consume-command</module>
+		<module>supra-consume-command</module>
 		<module>engine-command-result</module>
 		<module>contracts-registration</module>
+		<module>engine-admit-registration</module>
+		<module>engine-consume-registration</module>
+		<module>supra-consume-registration</module>
 		<module>engine-registration</module>
 		<module>engine-processing-event</module>
 		<module>engine-produce-projection-task</module>
 		<module>engine-pot-command</module>
+		<module>engine-write-pot</module>
 		<module>port-projection</module>
 		<module>engine-read-projection</module>
 		<module>engine-projection-task</module>
@@ -72,6 +77,7 @@
 		<module>infra-projection-validation-networknt</module>
 		<module>orchestrator-consumption</module>
 		<module>orchestrator-command-admission</module>
+		<module>engine-admit-command</module>
 		<module>orchestrator-poll-consumption</module>
 		<module>locator-consumption-event</module>
 		<module>supra-consume-event</module>

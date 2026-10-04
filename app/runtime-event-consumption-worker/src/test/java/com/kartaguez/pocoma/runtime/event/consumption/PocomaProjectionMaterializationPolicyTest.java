@@ -15,7 +15,7 @@ import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefin
 import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandTerminalEventTypes;
 
 class PocomaProjectionMaterializationPolicyTest {
 	@Test

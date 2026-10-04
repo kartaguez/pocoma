@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.UUID;
 
-import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 
 public final class MaterializeCommandResultService {
 	private final CommandResultStore store;

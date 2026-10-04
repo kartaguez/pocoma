@@ -19,9 +19,10 @@
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
 
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-registration</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-registration</artifactId><version>${project.version}</version></dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-orchestrator-command-admission</artifactId>
+			<artifactId>pocoma-engine-admit-command</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -132,13 +133,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-binding-pot-command-spring</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-locator-consumption-command</artifactId>
+			<artifactId>pocoma-supra-consume-command</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

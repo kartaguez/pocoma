@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.engine.command.model.CommandId;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmitRecordedCommandInput;
-import com.kartaguez.pocoma.orchestrator.command.admission.model.SubmittedCommand;
-import com.kartaguez.pocoma.orchestrator.command.admission.port.in.SubmitRecordedCommandUseCase;
+import com.kartaguez.pocoma.engine.admit.command.model.SubmitRecordedCommandInput;
+import com.kartaguez.pocoma.engine.admit.command.model.SubmittedCommand;
+import com.kartaguez.pocoma.engine.admit.command.port.in.SubmitRecordedCommandUseCase;
 
 class AsyncCommandControllerTest {
 	private final ObjectMapper objectMapper = new ObjectMapper();

@@ -14,7 +14,7 @@
 
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-command</artifactId>
+			<artifactId>pocoma-engine-consume-command</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
