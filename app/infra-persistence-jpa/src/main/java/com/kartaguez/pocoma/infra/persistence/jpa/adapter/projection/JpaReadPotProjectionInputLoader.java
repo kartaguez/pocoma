@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection;
 
+import com.kartaguez.pocoma.engine.read.projection.HistoricalPotSnapshotSource;
+
 import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
@@ -20,9 +22,9 @@ import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInputLoader;
 
 @Component
 public class JpaReadPotProjectionInputLoader implements ReadPotProjectionInputLoader {
-	private final JpaHistoricalPotSnapshotSourceAdapter source;
+	private final HistoricalPotSnapshotSource source;
 
-	public JpaReadPotProjectionInputLoader(JpaHistoricalPotSnapshotSourceAdapter source) {
+	public JpaReadPotProjectionInputLoader(HistoricalPotSnapshotSource source) {
 		this.source = requireNonNull(source, "source must not be null");
 	}
 

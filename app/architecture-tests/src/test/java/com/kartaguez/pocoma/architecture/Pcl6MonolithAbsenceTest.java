@@ -116,7 +116,7 @@ class Pcl6MonolithAbsenceTest {
 				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/engine/ProjectionEngineService.java",
 				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/ProjectionTaskConsumptionOrchestrator.java",
 				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
-				"engine-projection-read/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java");
+				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {
 			assertTrue(Files.isRegularFile(app.resolve(protectedFile)), () -> "Missing " + protectedFile);
 		}

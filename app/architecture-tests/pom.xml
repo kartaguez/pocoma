@@ -162,7 +162,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-projection-read</artifactId>
+			<artifactId>pocoma-engine-read-projection</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

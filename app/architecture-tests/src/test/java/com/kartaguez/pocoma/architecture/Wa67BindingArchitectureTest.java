@@ -32,7 +32,7 @@ class Wa67BindingArchitectureTest {
 				"external_identity_binding_facts", Set.of(FACT_REPOSITORY, DISCOVERY_ADAPTER),
 				"external_identity_binding_occurrences", Set.of(OCCURRENCE_REPOSITORY),
 				"current_external_identity_binding", Set.of(
-						"infra-read-persistence/src/main/java/com/kartaguez/pocoma/infra/read/persistence/JdbcCurrentBindingAdapter.java"),
+						"infra-persistence-read-jpa/src/main/java/com/kartaguez/pocoma/infra/read/persistence/JdbcCurrentBindingAdapter.java"),
 				"recorded_commands", Set.of(
 						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaRecordedCommandRepository.java",
 						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java",
