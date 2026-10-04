@@ -13,7 +13,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingFactPort;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.read.binding.*;
@@ -39,7 +38,7 @@ public class BindingRuntimeConfiguration {
 	@Bean AcquireConsumptionUseCase bindingAcquire(JpaConsumptionLifecycleAdapter l,TransactionRunner t,Clock c){return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(l,c),t);}
 	@Bean ExecuteConsumptionUseCase bindingExecute(JpaConsumptionLifecycleAdapter l,JpaConsumptionProvenanceAdapter p,TransactionRunner t,Clock c){return new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(l,p,c),t);}
 	@Bean HandleConsumptionFailureUseCase bindingFailure(JpaConsumptionLifecycleAdapter l,TransactionRunner t,Clock c){return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(l,l,new BindingFactFailurePolicy(),c),t);}
-	@Bean BindingFactConsumptionLocator bindingLocator(BindingConsumptionProperties p,BindingFactDiscoveryPort d,ExternalIdentityBindingFactPort f,CurrentBindingProjectionPort projection,Clock c){return new BindingFactConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),d,f,projection,c);}
+	@Bean BindingFactConsumptionLocator bindingLocator(BindingConsumptionProperties p,BindingFactDiscoveryPort d,BindingFactReadPort f,CurrentBindingProjectionPort projection,Clock c){return new BindingFactConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),d,f,new MaterializeCurrentBindingService(projection,c),c);}
 	@Bean ConsumptionOrchestrator bindingOrchestrator(BindingFactConsumptionLocator l,AcquireConsumptionUseCase a,ExecuteConsumptionUseCase e,HandleConsumptionFailureUseCase f){return new SequentialConsumptionOrchestrator(l,a,e,f);}
 	@Bean ConsumptionPollingWorker bindingWorker(ConsumptionOrchestrator o,BindingConsumptionProperties p,Clock c){return new ConsumptionPollingWorker(o,new ConsumptionWorkerSettings(p.isEnabled(),new WorkerId(p.getWorkerId()),new ClaimLease(p.getClaimLease()),new ConsumptionOrchestrationBudget(p.getMaxCandidatesInspected(),p.getMaxConsumptionsExecuted()),p.getPollInterval(),p.getRuntimeFailureBackoff()),c,new ConditionConsumptionWaiter());}
 	@Bean SmartLifecycle bindingWorkerLifecycle(ConsumptionPollingWorker w){return new BindingWorkerLifecycle(w);}

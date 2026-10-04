@@ -9,16 +9,13 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityAttached;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
-import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingFactPort;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.read.binding.BindingFactCursor;
 import com.kartaguez.pocoma.engine.read.binding.BindingFactDiscoveryPort;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBinding;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingProjectionPort;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingStatus;
+import com.kartaguez.pocoma.engine.read.binding.BindingFactReadPort;
+import com.kartaguez.pocoma.engine.read.binding.MaterializeCurrentBindingService;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;
@@ -28,15 +25,15 @@ public final class BindingFactConsumptionLocator implements ConsumptionLocator {
 	public static final String CONSUMER_TYPE = "CURRENT_BINDING_PROJECTOR";
 	private final int segmentIndex, segmentCount;
 	private final BindingFactDiscoveryPort discovery;
-	private final ExternalIdentityBindingFactPort facts;
-	private final CurrentBindingProjectionPort projection;
+	private final BindingFactReadPort facts;
+	private final MaterializeCurrentBindingService materializer;
 	private final BindingFactFailureClassifier classifier;
 	private final Clock clock;
 
 	public BindingFactConsumptionLocator(int segmentIndex, int segmentCount, BindingFactDiscoveryPort discovery,
-			ExternalIdentityBindingFactPort facts, CurrentBindingProjectionPort projection, Clock clock) {
+			BindingFactReadPort facts, MaterializeCurrentBindingService materializer, Clock clock) {
 		this.segmentIndex = segmentIndex; this.segmentCount = segmentCount; this.discovery = discovery;
-		this.facts = facts; this.projection = projection; this.clock = clock;
+		this.facts = facts; this.materializer = materializer; this.clock = clock;
 		this.classifier = new BindingFactFailureClassifier(clock);
 	}
 
@@ -57,10 +54,7 @@ public final class BindingFactConsumptionLocator implements ConsumptionLocator {
 	private ConsumptionExecutionResult execute(UUID eventId, UUID slotId) {
 		ExternalIdentityBindingFact fact = facts.findByEventId(eventId)
 				.orElseThrow(() -> new BindingFactNotFoundException(eventId));
-		var status = fact instanceof ExternalIdentityAttached ? CurrentBindingStatus.ATTACHED : CurrentBindingStatus.DETACHED;
-		var userId = fact instanceof ExternalIdentityAttached attached ? attached.userId() : null;
-		projection.apply(new CurrentBinding(fact.externalIdentity(), fact.bindingRevision(), status, userId,
-				status == CurrentBindingStatus.ATTACHED ? fact.bindingId() : null, fact.eventId(), clock.instant()));
+		materializer.apply(fact);
 		// The provenance subject is the immutable fact (event_id), whose own version is always 1.
 		// Binding revision may be 0 for a migration baseline and remains in the fact payload.
 		return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(),

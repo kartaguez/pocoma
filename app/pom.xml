@@ -62,6 +62,9 @@
 		<module>engine-projection-pot</module>
 		<module>projector-pot</module>
 		<module>engine-read-projection</module>
+		<module>engine-read-current-binding</module>
+		<module>engine-materialize-current-binding</module>
+		<module>infra-persistence-read-jpa</module>
 		<module>contracts-observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-persistence-jpa</module>
@@ -75,6 +78,7 @@
 		<module>supra-consume-event</module>
 		<module>locator-consumption-latest-known-version</module>
 		<module>locator-consumption-binding</module>
+		<module>supra-consume-binding</module>
 		<module>locator-consumption-command</module>
 		<module>binding-pot-command-spring</module>
 		<module>supra-http-write-command</module>

@@ -14,6 +14,7 @@
 	<name>pocoma-infra-read-persistence</name>
 
 	<dependencies>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jpa</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
 
 		<dependency>

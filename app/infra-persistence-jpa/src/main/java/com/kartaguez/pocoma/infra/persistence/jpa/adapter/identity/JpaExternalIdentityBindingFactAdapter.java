@@ -8,10 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingFactPort;
+import com.kartaguez.pocoma.engine.read.binding.BindingFactReadPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
 
 @Component
-public class JpaExternalIdentityBindingFactAdapter implements ExternalIdentityBindingFactPort {
+public class JpaExternalIdentityBindingFactAdapter implements ExternalIdentityBindingFactPort, BindingFactReadPort {
 	private final ExternalIdentityBindingFactJdbcRepository repository;
 	private final ExternalIdentityBindingFactRecordMapper mapper;
 
