@@ -83,4 +83,4 @@ The first unprivileged Registration slice could not access the Docker socket; re
 
 There was no unexpected production slice crossing. The global architecture gate and full reactor were required and run because WP3 changes seven Maven boundaries and transaction-sensitive Command/Registration flows. Postgres proofs used the current schema; the full reactor also ran its existing historical migration tests as part of the user-required global gate. SQL, migration and schema changes: **NO**.
 
-Delivery commit, push and final divergence are recorded after Git closure.
+The implementation and verification were committed as `a2835a3b7b94925938152bc92cc3c4c615ee70d4` and pushed to `origin/v2-make-it-pull`. This documentation closeout records the green gates and is committed on the same branch. After the final push, local and remote heads are equal (divergence `0/0`) and the working tree is clean.

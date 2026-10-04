@@ -1,6 +1,6 @@
 # DEBT-MOD-01 — plan de migration Maven CURRENT → TARGET
 
-**Statut : migration pilotée en six Work Packages ; WP1 — Foundations DONE ; WP2 — Projection & Technical READ DONE ; WP3 — Business WRITE implémenté, gate de clôture en cours ; WP4–WP6 PLANNED.** Baseline de conception `704177a0`, baseline d'exécution `9d71a2d9`. Sources d'autorité : [audit CURRENT](Modularity_Current_State_Audit.md) et [topologie TARGET normative](Modularity_Target_Topology.md). Cette page ordonne la migration ; la TARGET demeure normative. Les 54 POM fermes, 147 arcs physiques et trois responsabilités LKV `TBD_PHYSICAL` sont ceux de la TARGET. `domain-pot-policy` reste un package de `domain-pot`.
+**Statut : migration pilotée en six Work Packages ; WP1 — Foundations DONE ; WP2 — Projection & Technical READ DONE ; WP3 — Business WRITE DONE ; WP4–WP6 PLANNED.** Baseline de conception `704177a0`, baseline d'exécution `9d71a2d9`. Sources d'autorité : [audit CURRENT](Modularity_Current_State_Audit.md) et [topologie TARGET normative](Modularity_Target_Topology.md). Cette page ordonne la migration ; la TARGET demeure normative. Les 54 POM fermes, 147 arcs physiques et trois responsabilités LKV `TBD_PHYSICAL` sont ceux de la TARGET. `domain-pot-policy` reste un package de `domain-pot`.
 
 ## 0. Unités de pilotage
 
