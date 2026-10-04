@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionInputLoader;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionInputLoader;
 
 public final class PotBalancesProjectionInputLoader implements ProjectionInputLoader<PotBalances> {
 	private final CalculatePotBalancesAtVersionUseCase calculator;

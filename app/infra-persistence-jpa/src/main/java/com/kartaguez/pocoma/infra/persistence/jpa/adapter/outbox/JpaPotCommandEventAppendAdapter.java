@@ -26,7 +26,7 @@ import com.kartaguez.pocoma.engine.event.RecordedEvent;
 import com.kartaguez.pocoma.engine.legacy.event.BusinessEventEnvelope;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
-import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 /** Appends typed Pot Events inside the winning Command consumption transaction. */
 @Component

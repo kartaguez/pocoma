@@ -21,9 +21,9 @@ import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
-import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
-import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationDiscoveryPort;
-import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationDiscoveryPort;
+import com.kartaguez.pocoma.engine.produce.projectiontask.ordering.ProjectionMaterializationOrderingKey;
 import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 
 /** PostgreSQL metadata-only discovery of due Event to Projection consequences. */

@@ -198,7 +198,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-persistence-projection-jpa</artifactId>
+			<artifactId>pocoma-infra-persistence-projection-jdbc</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

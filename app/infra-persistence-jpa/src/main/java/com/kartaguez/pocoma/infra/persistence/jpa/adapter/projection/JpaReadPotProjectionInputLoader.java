@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection;
 
-import com.kartaguez.pocoma.engine.read.projection.HistoricalPotSnapshotSource;
+import com.kartaguez.pocoma.engine.consume.projectiontask.historical.HistoricalPotSnapshotSource;
 
 import static java.util.Objects.requireNonNull;
 
@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInput;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInput.ExpenseInput;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInput.ShareInput;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInput.ShareholderInput;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput.ExpenseInput;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput.ShareInput;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput.ShareholderInput;
 import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInputLoader;
 
 @Component

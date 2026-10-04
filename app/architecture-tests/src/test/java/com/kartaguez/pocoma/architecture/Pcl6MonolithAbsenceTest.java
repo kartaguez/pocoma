@@ -113,10 +113,10 @@ class Pcl6MonolithAbsenceTest {
 				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
 				"engine-projection-balance/src/main/java/com/kartaguez/pocoma/engine/projection/balance/CalculatePotBalancesAtVersionService.java",
 				"engine-projection-pot/src/main/java/com/kartaguez/pocoma/engine/projection/pot/ReadPotProjectionInputLoader.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/engine/ProjectionEngineService.java",
-				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/ProjectionTaskConsumptionOrchestrator.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionOrchestrator.java",
 				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
-				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java");
+				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {
 			assertTrue(Files.isRegularFile(app.resolve(protectedFile)), () -> "Missing " + protectedFile);
 		}

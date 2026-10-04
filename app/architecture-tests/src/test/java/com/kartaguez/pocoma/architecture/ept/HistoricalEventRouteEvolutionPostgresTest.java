@@ -32,17 +32,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
 import com.kartaguez.pocoma.domain.pot.event.PotCreatedEvent;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionProperties;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
-import com.kartaguez.pocoma.engine.processing.event.materialization.PocomaProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.PocomaProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers

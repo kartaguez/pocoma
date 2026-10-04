@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.projection.balance;
 
+import com.kartaguez.pocoma.projector.pot.balance.PotBalancesProjector;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -22,13 +24,13 @@ import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.balance.Balance;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalances;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.TemporaryProjectionPreparationException;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerDeclaration;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.engine.consume.projectiontask.TemporaryProjectionPreparationException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerDeclaration;
 
 class PotBalancesProjectorTest {
 	@Test

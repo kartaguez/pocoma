@@ -10,7 +10,7 @@
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
 
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-projection-jpa</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-projection-jdbc</artifactId><version>${project.version}</version></dependency>
 		<!-- Owns the read-store migrations required by the canonical projection store. -->
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>

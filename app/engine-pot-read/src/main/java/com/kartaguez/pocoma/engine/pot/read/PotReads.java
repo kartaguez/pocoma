@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
-import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUseCase;
+import com.kartaguez.pocoma.engine.read.projection.port.ExactProjectionReadUseCase;
 
 public final class PotReads {
 	private PotReads() {

@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.engine.projection.pot;
 
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput;
+
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionInputLoader;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionInputLoader;
 
 @FunctionalInterface
 

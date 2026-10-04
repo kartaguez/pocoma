@@ -20,7 +20,7 @@ import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotUseCase;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 
 import io.swagger.v3.oas.annotations.Operation;

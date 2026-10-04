@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kartaguez.pocoma.engine.command.model.CommandId;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

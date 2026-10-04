@@ -1,12 +1,12 @@
 package com.kartaguez.pocoma.runtime.task.consumption;
 
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskExecutionResult;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskExecutionResult;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskKeys;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -39,13 +39,13 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.port.projection.ProjectionPublicationResult;
 import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionBudgetLimit;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;

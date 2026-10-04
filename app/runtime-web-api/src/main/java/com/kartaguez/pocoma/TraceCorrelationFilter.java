@@ -9,8 +9,8 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.kartaguez.pocoma.observability.trace.TraceContext;
-import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContext;
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

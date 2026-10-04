@@ -17,14 +17,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.kartaguez.pocoma.domain.event.EventType;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.processing.event.materialization.ProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
-import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionSource;
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSource;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 

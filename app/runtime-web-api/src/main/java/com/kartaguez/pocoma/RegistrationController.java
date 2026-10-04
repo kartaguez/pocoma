@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.engine.registration.AdmitRegistrationService;
 
 @RestController

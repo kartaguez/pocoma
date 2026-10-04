@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.architecture;
 
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -22,9 +24,9 @@ class HexagonalArchitectureTest {
 	private static final String DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain..";
 	private static final String AUTHORIZATION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.authorization..";
 	private static final String USER_IDENTITY_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.useridentity";
-	private static final String AUTHENTICATION_CONTRACT_PACKAGE = ROOT_PACKAGE + ".authentication";
+	private static final String AUTHENTICATION_CONTRACT_PACKAGE = ROOT_PACKAGE + ".contracts.authentication";
 	private static final String POT_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot..";
-	private static final String POT_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.pot.projection.definition";
+	private static final String POT_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE + ".domain.projection.pot.definition";
 	private static final String POT_POLICY_PACKAGE = ROOT_PACKAGE + ".domain.pot.policy..";
 	private static final String POT_AUTHORIZATION_PACKAGE = ROOT_PACKAGE + ".domain.pot.authorization..";
 	private static final String BALANCE_PROJECTION_DOMAIN_PACKAGE = ROOT_PACKAGE
@@ -34,17 +36,17 @@ class HexagonalArchitectureTest {
 	private static final String PROJECTION_CONTRACTS_ENGINE_PACKAGE = ROOT_PACKAGE
 			+ ".port.projection..";
 	private static final String PROJECTION_READ_PORT_PACKAGE = ROOT_PACKAGE
-			+ ".engine.port.in.projection.read";
+			+ ".engine.read.projection.port";
 	private static final String PROJECTION_READ_SERVICE_PACKAGE = ROOT_PACKAGE
-			+ ".engine.service.projection.read";
+			+ ".engine.read.projection.service";
 	private static final String PROJECTION_READ_EXCEPTION_PACKAGE = ROOT_PACKAGE
-			+ ".engine.exception.projection.read";
+			+ ".engine.read.projection.exception";
 	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.pot.read";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
 	private static final String INFRA_PROJECTION_PERSISTENCE_PACKAGE = ROOT_PACKAGE
-			+ ".infra.projection.persistence..";
+			+ ".infra.persistence.projection.jdbc..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
 
 	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
@@ -297,7 +299,7 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 		// TARGET gives the Task specialization one explicit engine -> generic orchestrator edge.
 		noClasses().that().resideInAPackage(ENGINE_PACKAGE)
-				.and().resideOutsideOfPackage(ROOT_PACKAGE + ".engine.projection.task..")
+				.and().resideOutsideOfPackage(ROOT_PACKAGE + ".engine.consume.projectiontask..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".orchestrator..")
 				.check(CLASSES);
 	}
@@ -337,7 +339,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.event..", ROOT_PACKAGE + ".domain.pot..",
 						ROOT_PACKAGE + ".domain.projection..", ROOT_PACKAGE + ".domain.useridentity..",
 						ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".engine.registration..",
-						ROOT_PACKAGE + ".engine.projection.task..", ROOT_PACKAGE + ".engine.read..")
+						ROOT_PACKAGE + ".engine.consume.projectiontask..", ROOT_PACKAGE + ".engine.read..")
 				.check(CLASSES);
 	}
 
@@ -403,7 +405,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
 						ROOT_PACKAGE + ".engine.pipeline..",
-						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".infra.read.persistence..",
 						ROOT_PACKAGE + ".supra..",
 						ROOT_PACKAGE + ".runtime..")
@@ -420,7 +421,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
 						ROOT_PACKAGE + ".engine.pipeline..",
-						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".infra.read.persistence..",
 						ROOT_PACKAGE + ".supra..",
 						ROOT_PACKAGE + ".runtime..")
@@ -429,12 +429,13 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept() {
-		String taskPackage = ROOT_PACKAGE + ".engine.projection.task";
+		String taskPackage = ROOT_PACKAGE + ".engine.consume.projectiontask";
 		Set<String> dependenciesOutsideProjectionTask = dependenciesOutside(
 				taskPackage,
 				Set.of(
 						taskPackage,
 						ROOT_PACKAGE + ".domain.projection",
+						ROOT_PACKAGE + ".domain.pot",
 						ROOT_PACKAGE + ".domain.consumption",
 						ROOT_PACKAGE + ".engine.port.in.consumption",
 						ROOT_PACKAGE + ".engine.port.out.consumption",
@@ -585,15 +586,15 @@ class HexagonalArchitectureTest {
 
 		noClasses().that().resideInAnyPackage(
 				ROOT_PACKAGE + ".engine.command..", ROOT_PACKAGE + ".runtime.command..")
-				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.binding..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.currentbinding..")
 				.check(CLASSES);
-		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".locator.consumption.binding..")
+		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.consume.binding..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
 						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..")
 				.check(CLASSES);
 		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
-				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.binding..")
+				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.currentbinding..")
 				.check(CLASSES);
 	}
 
@@ -996,9 +997,9 @@ class HexagonalArchitectureTest {
 		Set<String> bindingControllerDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".supra.http.read.query.CurrentBindingController");
 		assertTrue(bindingControllerDependencies.contains(
-				ROOT_PACKAGE + ".engine.read.binding.GetCurrentBindingUseCase"));
+				ROOT_PACKAGE + ".engine.read.currentbinding.GetCurrentBindingUseCase"));
 		assertFalse(bindingControllerDependencies.contains(
-				ROOT_PACKAGE + ".engine.read.binding.CurrentBindingProjectionPort"));
+				ROOT_PACKAGE + ".engine.materialize.currentbinding.port.CurrentBindingWritePort"));
 		assertEquals(Set.of("owner", "outcome"), fieldNames(
 				ROOT_PACKAGE + ".engine.command.result.ImmutableCommandResult"));
 	}
@@ -1036,7 +1037,7 @@ class HexagonalArchitectureTest {
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
 						ROOT_PACKAGE + ".engine.command", ROOT_PACKAGE + ".domain.authorization",
 						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
-						ROOT_PACKAGE + ".observability.trace",
+						ROOT_PACKAGE + ".contracts.observability.trace",
 						"org.springframework", "com.fasterxml.jackson"));
 		assertEquals(Set.of(), dependencies,
 				"Command persistence may depend only on generic Command contracts and infrastructure libraries");
@@ -1413,7 +1414,6 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.authorization..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
-						ROOT_PACKAGE + ".engine.read.projection..",
 						ROOT_PACKAGE + ".infra.read.persistence..",
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..")

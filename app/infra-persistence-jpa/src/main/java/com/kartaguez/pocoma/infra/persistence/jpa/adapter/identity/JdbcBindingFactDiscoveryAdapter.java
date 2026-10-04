@@ -10,9 +10,9 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.kartaguez.pocoma.engine.read.binding.BindingFactCandidate;
-import com.kartaguez.pocoma.engine.read.binding.BindingFactCursor;
-import com.kartaguez.pocoma.engine.read.binding.BindingFactDiscoveryPort;
+import com.kartaguez.pocoma.engine.materialize.currentbinding.BindingFactCandidate;
+import com.kartaguez.pocoma.engine.materialize.currentbinding.BindingFactCursor;
+import com.kartaguez.pocoma.engine.materialize.currentbinding.BindingFactDiscoveryPort;
 
 /** Short READ COMMITTED scans. Cursors are invocation-local and never persisted. */
 @Component

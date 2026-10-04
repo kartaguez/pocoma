@@ -1,5 +1,12 @@
 package com.kartaguez.pocoma.engine.projection.task;
 
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationInvariantViolationException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskRetryPolicy;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskExecutionResult;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -119,7 +126,7 @@ class ProjectionTaskConsumptionServiceTest {
 	}
 
 	private static ProjectionTaskConsumptionService service(
-			com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase projectionEngine,
+			com.kartaguez.pocoma.engine.consume.projectiontask.engine.ExecuteProjectionTaskUseCase projectionEngine,
 			ProjectionWritePort writer,
 			com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase finalizer,
 			com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase retry) {

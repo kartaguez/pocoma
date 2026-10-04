@@ -1,5 +1,9 @@
 package com.kartaguez.pocoma.runtime.binding;
 
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
@@ -32,8 +36,9 @@ import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.*;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
-import com.kartaguez.pocoma.engine.read.binding.*;
-import com.kartaguez.pocoma.locator.consumption.binding.BindingFactConsumptionLocator;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.*;
+import com.kartaguez.pocoma.engine.materialize.currentbinding.*;
+import com.kartaguez.pocoma.supra.consume.binding.BindingFactConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
@@ -50,7 +55,7 @@ class BindingRuntimePostgresTest {
 	}
 	@Autowired JdbcTemplate jdbc; @Autowired DataSource dataSource;
 	@Autowired ExternalIdentityBindingPort bindings; @Autowired ConsumptionOrchestrator orchestrator;
-	@Autowired CurrentBindingProjectionPort projection;
+	@Autowired CurrentBindingReadPort projection;
 	@Autowired TransactionRunner transactions; @Autowired Clock clock;
 	@Autowired BindingFactConsumptionLocator locator; @Autowired AcquireConsumptionUseCase acquire;
 	@Autowired ExecuteConsumptionUseCase execute; @Autowired HandleConsumptionFailureUseCase handleFailure;

@@ -18,13 +18,13 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.pot.read.PotView;
 import com.kartaguez.pocoma.engine.pot.read.ReadPotResult;

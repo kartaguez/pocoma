@@ -1,5 +1,11 @@
 package com.kartaguez.pocoma.engine.projection.task.engine;
 
+import com.kartaguez.pocoma.domain.projection.projector.ProjectionProjector;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionInputLoader;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerDeclaration;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -23,13 +29,13 @@ import com.kartaguez.pocoma.domain.projection.ProjectionValidationException;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationInvariantViolationException;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Prepared;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Temporary;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome.Terminal;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.TemporaryProjectionPreparationException;
-import com.kartaguez.pocoma.engine.projection.task.TerminalProjectionPreparationException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationInvariantViolationException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome.Prepared;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome.Temporary;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionPreparationOutcome.Terminal;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.engine.consume.projectiontask.TemporaryProjectionPreparationException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.TerminalProjectionPreparationException;
 
 class ProjectionEngineServiceTest {
 	private static final ProjectionType TYPE = new ProjectionType("READ_POT");

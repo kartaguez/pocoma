@@ -10,14 +10,14 @@ import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernel;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolver;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
-import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUseCase;
-import com.kartaguez.pocoma.engine.port.in.projection.read.ProjectionReadResult;
+import com.kartaguez.pocoma.engine.read.projection.port.ExactProjectionReadUseCase;
+import com.kartaguez.pocoma.engine.read.projection.port.ProjectionReadResult;
 
 final class ReadPotService implements ReadPotUseCase {
 	private static final RequiredCurrentCapabilities REQUIRED_CAPABILITIES =

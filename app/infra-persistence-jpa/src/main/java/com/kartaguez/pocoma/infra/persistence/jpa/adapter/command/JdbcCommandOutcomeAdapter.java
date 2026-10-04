@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.engine.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
 import com.kartaguez.pocoma.engine.command.port.out.CommandOutcomePublicationPort;
 import com.kartaguez.pocoma.engine.command.port.out.CommandOutcomeQueryPort;
-import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 @Component
 public class JdbcCommandOutcomeAdapter

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationRelations;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;

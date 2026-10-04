@@ -50,7 +50,7 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.domain.projection.ValidatedProjection;
 import com.kartaguez.pocoma.port.projection.ProjectionPublicationResult;
-import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
+import com.kartaguez.pocoma.infra.persistence.projection.jdbc.JdbcProjectionStoreAdapter;
 
 @Testcontainers
 class JdbcProjectionStoreAdapterPostgresTest {

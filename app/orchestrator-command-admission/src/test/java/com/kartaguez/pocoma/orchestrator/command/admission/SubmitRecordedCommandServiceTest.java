@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.model.CommandId;

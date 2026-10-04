@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.projection.pot;
 
+import com.kartaguez.pocoma.projector.pot.AuthProjectionInput;
+import com.kartaguez.pocoma.projector.pot.AuthProjector;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -9,7 +12,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;

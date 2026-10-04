@@ -22,10 +22,10 @@ import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskKeys;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 
 public class JdbcProjectionTaskStoreAdapter implements ProjectionTaskStorePort {
 	private final JdbcTemplate jdbc;

@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.locator.consumption.event.materialization;
 
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionService;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,11 +28,11 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.engine.processing.event.materialization.ProduceProjectionTaskService;
-import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProduceProjectionTaskService;
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 
 class ProjectionMaterializationConsumptionServiceTest {
 	private static final Instant RECORDED_AT = Instant.parse("2026-09-26T10:00:00Z");

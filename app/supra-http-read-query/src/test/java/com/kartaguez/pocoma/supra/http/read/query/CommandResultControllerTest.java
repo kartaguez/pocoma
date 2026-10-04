@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResult;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;

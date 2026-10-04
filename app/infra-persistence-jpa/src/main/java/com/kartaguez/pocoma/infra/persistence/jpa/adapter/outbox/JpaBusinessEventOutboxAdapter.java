@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox;
 
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContext;
+
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -14,7 +16,7 @@ import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.engine.port.out.event.BusinessEventAppendPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
-import com.kartaguez.pocoma.observability.trace.TraceContextHolder;
+import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 @Component("jpaBusinessEventOutboxAdapter")
 public class JpaBusinessEventOutboxAdapter implements BusinessEventAppendPort {

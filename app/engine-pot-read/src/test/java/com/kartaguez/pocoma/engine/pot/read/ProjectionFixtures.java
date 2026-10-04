@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.pot.read;
 
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 
 import java.math.BigDecimal;
 import java.util.List;

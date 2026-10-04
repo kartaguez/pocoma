@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.architecture;
 
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -25,7 +28,8 @@ class Wp2BoundaryTest {
         for (Path source : javaSources(app.resolve("projector-pot/src/main/java"))) {
             String code = Files.readString(source);
             for (String forbidden : Set.of("org.springframework", "jakarta.persistence", "java.sql",
-                    "com.kartaguez.pocoma.runtime", "com.kartaguez.pocoma.infra")) {
+                    "com.kartaguez.pocoma.runtime", "com.kartaguez.pocoma.infra",
+                    "com.kartaguez.pocoma.engine")) {
                 assertFalse(code.contains(forbidden), () -> source + " imports " + forbidden);
             }
         }
@@ -44,13 +48,54 @@ class Wp2BoundaryTest {
         }
         assertEquals(Set.of("domain-user-identity"),
                 internalDependencies(app.resolve("engine-read-current-binding/pom.xml")));
+        assertFalse(internalDependencies(app.resolve("engine-read-current-binding/pom.xml"))
+                .contains("port-projection"));
+        assertFalse(internalDependencies(app.resolve("engine-read-current-binding/pom.xml"))
+                .contains("port-binding-authority"));
+        assertFalse(internalDependencies(app.resolve("engine-materialize-current-binding/pom.xml"))
+                .contains("port-projection"));
         for (Path source : javaSources(app.resolve("engine-read-current-binding/src/main/java"))) {
             String code = Files.readString(source);
             assertFalse(code.contains("ExternalIdentityBindingFactPort"));
             assertFalse(code.contains("port.binding.authority"));
         }
-        assertFalse(internalDependencies(app.resolve("infra-persistence-read-jpa/pom.xml"))
+        assertFalse(internalDependencies(app.resolve("infra-persistence-read-jdbc/pom.xml"))
                 .contains("engine-processing-event"));
+    }
+
+    @Test
+    void physicalOwnersKeepTheirArchitecturalJavaNamespaces() throws IOException {
+        Path app = appRoot();
+        Map<String, String> owners = Map.ofEntries(
+                Map.entry("domain-user-identity", "domain.useridentity"),
+                Map.entry("domain-projection", "domain.projection"),
+                Map.entry("projector-pot", "projector.pot"),
+                Map.entry("engine-produce-projection-task", "engine.produce.projectiontask"),
+                Map.entry("engine-consume-projection-task", "engine.consume.projectiontask"),
+                Map.entry("engine-materialize-current-binding", "engine.materialize.currentbinding"),
+                Map.entry("engine-read-current-binding", "engine.read.currentbinding"),
+                Map.entry("engine-read-projection", "engine.read.projection"),
+                Map.entry("supra-consume-event", "supra.consume.event"),
+                Map.entry("supra-consume-projection-task", "supra.consume.projectiontask"),
+                Map.entry("supra-consume-binding", "supra.consume.binding"),
+                Map.entry("infra-persistence-projection-jdbc", "infra.persistence.projection.jdbc"),
+                Map.entry("infra-persistence-read-jdbc", "infra.persistence.read.jdbc"),
+                Map.entry("infra-projection-validation-networknt", "infra.projection.validation.networknt"),
+                Map.entry("orchestrator-poll-consumption", "orchestrator.poll.consumption"),
+                Map.entry("contracts-registration", "contracts.registration"),
+                Map.entry("contracts-authentication", "contracts.authentication"),
+                Map.entry("contracts-observability", "contracts.observability"),
+                Map.entry("port-projection", "port.projection"),
+                Map.entry("port-binding-authority", "port.binding.authority"),
+                Map.entry("port-transaction", "port.transaction"));
+        for (var owner : owners.entrySet()) {
+            for (Path source : javaSources(app.resolve(owner.getKey() + "/src/main/java"))) {
+                String code = Files.readString(source);
+                String prefix = "package com.kartaguez.pocoma." + owner.getValue();
+                assertTrue(code.startsWith(prefix + ";") || code.startsWith(prefix + "."),
+                        () -> source + " has a package outside " + prefix);
+            }
+        }
     }
 
     @Test
@@ -68,7 +113,7 @@ class Wp2BoundaryTest {
                 }
             }
         }
-        assertTrue(Files.isRegularFile(app.resolve("engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java")));
+        assertTrue(Files.isRegularFile(app.resolve("engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java")));
         assertFalse(Files.exists(app.resolve("engine-projection-read/pom.xml")));
         assertFalse(Files.exists(app.resolve("engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/AdvanceLatestKnownVersionService.java")));
     }

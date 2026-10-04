@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 import com.kartaguez.pocoma.orchestrator.consumption.fenced.FencedConsumptionCandidateSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.fenced.FencedConsumptionCandidateSource;
 

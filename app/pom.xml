@@ -63,11 +63,11 @@
 		<module>projector-pot</module>
 		<module>engine-read-current-binding</module>
 		<module>engine-materialize-current-binding</module>
-		<module>infra-persistence-read-jpa</module>
+		<module>infra-persistence-read-jdbc</module>
 		<module>contracts-observability</module>
 		<module>infra-tx-spring</module>
 		<module>infra-persistence-jpa</module>
-		<module>infra-persistence-projection-jpa</module>
+		<module>infra-persistence-projection-jdbc</module>
 		<module>infra-read-persistence</module>
 		<module>infra-projection-validation-networknt</module>
 		<module>orchestrator-consumption</module>

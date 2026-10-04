@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
 import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.command.result.CommandResultStore;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingProjectionPort;
-import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingService;
-import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingUseCase;
+import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
+import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingService;
+import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.command-result-read", name = "enabled", havingValue = "true")
@@ -20,7 +20,7 @@ public class CommandResultReadConfiguration {
 	}
 
 	@Bean
-	GetCurrentBindingUseCase getCurrentBindingUseCase(CurrentBindingProjectionPort currentBindings) {
+	GetCurrentBindingUseCase getCurrentBindingUseCase(CurrentBindingReadPort currentBindings) {
 		return new GetCurrentBindingService(currentBindings);
 	}
 }

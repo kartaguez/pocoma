@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.port.out.processing.event;
 
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,7 +14,7 @@ import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
-import com.kartaguez.pocoma.engine.processing.event.ordering.ProjectionMaterializationOrderingKey;
+import com.kartaguez.pocoma.engine.produce.projectiontask.ordering.ProjectionMaterializationOrderingKey;
 
 class ProjectionMaterializationDiscoveryModelTest {
 	private static final UUID EVENT_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");

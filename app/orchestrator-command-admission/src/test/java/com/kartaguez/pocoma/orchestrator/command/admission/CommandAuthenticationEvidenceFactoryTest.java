@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.orchestrator.command.admission.model.CommandAuthorizationTtl;
 
 class CommandAuthenticationEvidenceFactoryTest {

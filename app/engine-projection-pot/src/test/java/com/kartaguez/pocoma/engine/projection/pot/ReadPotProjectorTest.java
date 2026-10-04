@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.engine.projection.pot;
 
+import com.kartaguez.pocoma.projector.pot.ReadPotProjectionInput;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjector;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -26,7 +29,7 @@ import com.kartaguez.pocoma.domain.projection.JsonObject;
 import com.kartaguez.pocoma.domain.projection.JsonString;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 
 class ReadPotProjectorTest {
 	@Test

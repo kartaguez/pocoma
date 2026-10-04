@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionException;
-import com.kartaguez.pocoma.engine.read.projection.HistoricalPotSnapshotSource;
+import com.kartaguez.pocoma.engine.consume.projectiontask.historical.HistoricalPotReconstructionException;
+import com.kartaguez.pocoma.engine.consume.projectiontask.historical.HistoricalPotSnapshotSource;
 import com.kartaguez.pocoma.domain.pot.version.PotVersionMetadata;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseHeaderRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.core.JpaExpenseShareRepository;

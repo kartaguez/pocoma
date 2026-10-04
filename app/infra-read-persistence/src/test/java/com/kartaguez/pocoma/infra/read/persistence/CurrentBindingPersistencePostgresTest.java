@@ -1,5 +1,9 @@
 package com.kartaguez.pocoma.infra.read.persistence;
 
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingApplyResult;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcCurrentBindingAdapter;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Instant;
@@ -18,7 +22,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.flywaydb.core.Flyway;
 
 import com.kartaguez.pocoma.domain.useridentity.*;
-import com.kartaguez.pocoma.engine.read.binding.*;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.*;
+import com.kartaguez.pocoma.engine.materialize.currentbinding.*;
 
 @Testcontainers
 class CurrentBindingPersistencePostgresTest {

@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.processing.event.materialization;
 
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProjectionMaterializationPolicy;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;

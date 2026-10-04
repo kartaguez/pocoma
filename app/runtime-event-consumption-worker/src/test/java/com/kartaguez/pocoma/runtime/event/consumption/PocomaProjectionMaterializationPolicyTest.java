@@ -6,14 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Map;
 import java.util.Set;
 
-import com.kartaguez.pocoma.engine.processing.event.materialization.PocomaProjectionMaterializationPolicy;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.PocomaProjectionMaterializationPolicy;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
 

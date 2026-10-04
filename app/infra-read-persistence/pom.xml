@@ -15,12 +15,12 @@
 
 	<dependencies>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-processing-event</artifactId><version>${project.version}</version></dependency>
-  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jpa</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>
 
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-persistence-projection-jpa</artifactId>
+			<artifactId>pocoma-infra-persistence-projection-jdbc</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

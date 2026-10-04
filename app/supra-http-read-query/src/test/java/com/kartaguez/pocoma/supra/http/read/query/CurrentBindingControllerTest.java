@@ -10,12 +10,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBinding;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingStatus;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
 
 class CurrentBindingControllerTest {
 	private static final Instant NOW = Instant.parse("2026-10-01T10:00:00Z");

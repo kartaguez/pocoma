@@ -27,7 +27,9 @@ Grammaire officielle : `domain-*`, `contracts-*`, `port-*`, `engine-*`, `project
 
 `contracts-authentication` porte le principal authentifié transverse et reste indépendant de Spring Security/JWT ; Command admission, Registration admission et de futurs consumers peuvent l'utiliser sans importer un engine métier. `contracts-registration` porte le langage durable partagé des quatre engines Registration. `contracts-observability` porte le contrat de trace partagé. `domain-pot-policy` demeure le seul rôle `PACKAGE_ONLY`, dans `domain-pot`.
 
-Les cinq infra fermes sont `infra-tx-spring` (implémentation de `port-transaction`), `infra-persistence-primary-jpa` (ports PRIMARY/Consumption regroupés transactionnellement), `infra-persistence-read-jpa` (READ direct Current Binding ; LKV provisoire seulement sous décision ultérieure), `infra-persistence-projection-jpa` (root, artifact, failure, exact read/store) et `infra-projection-validation-networknt` (validation JSON Schema technique). Le cluster PRIMARY n'est pas redécoupé ici. La validation Networknt n'est pas fusionnée avec la persistence de projection.
+Les cinq infra fermes sont `infra-tx-spring` (implémentation de `port-transaction`), `infra-persistence-primary-jpa` (ports PRIMARY/Consumption regroupés transactionnellement), `infra-persistence-read-jdbc` (READ direct Current Binding ; LKV provisoire seulement sous décision ultérieure), `infra-persistence-projection-jdbc` (root, artifact, failure, exact read/store) et `infra-projection-validation-networknt` (validation JSON Schema technique). Le cluster PRIMARY n'est pas redécoupé ici. La validation Networknt n'est pas fusionnée avec la persistence de projection.
+
+**Règle de namespace (WP2.1).** Le package Java exprime la même responsabilité architecturale que son POM propriétaire. Les deux noms JDBC reflètent `spring-jdbc` et leurs adapters `Jdbc*`; aucune technologie JPA n’est introduite. `port-projection` porte les contrats de la projection historique exacte `@V` et de son travail de matérialisation. `CURRENT_BINDING` est une vue courante mutable/convergente issue directement des Binding facts : son modèle et ses invariants sont dans `domain-user-identity`, `CurrentBindingWritePort` dans `engine-materialize-current-binding` et `CurrentBindingReadPort` dans `engine-read-current-binding`. `infra-persistence-read-jdbc` fournit un adapter concret aux deux ports. Les moteurs Current Binding ne dépendent pas de `port-projection`, et le moteur de lecture Current Binding ne dépend pas du WRITE de Binding authority. Ce checkpoint ne change ni les 58 responsabilités logiques, ni les 54 POM fermes, ni `PACKAGE_ONLY`/`TBD_PHYSICAL`.
 
 ## 3. Table finale des frontières
 
@@ -79,8 +81,8 @@ Une ligne représente une responsabilité logique, même lorsque son nom est aus
 | `supra-http-read` | supra | KEEP_POM | `supra-http-read` |
 | `supra-http-write` | supra | KEEP_POM | `supra-http-write` |
 | `infra-persistence-primary-jpa` | infra | KEEP_POM | `infra-persistence-primary-jpa` |
-| `infra-persistence-projection-jpa` | infra | KEEP_POM | `infra-persistence-projection-jpa` |
-| `infra-persistence-read-jpa` | infra | KEEP_POM | `infra-persistence-read-jpa` |
+| `infra-persistence-projection-jdbc` | infra | KEEP_POM | `infra-persistence-projection-jdbc` |
+| `infra-persistence-read-jdbc` | infra | KEEP_POM | `infra-persistence-read-jdbc` |
 | `infra-projection-validation-networknt` | infra | KEEP_POM | `infra-projection-validation-networknt` |
 | `infra-tx-spring` | infra | KEEP_POM | `infra-tx-spring` |
 | `runtime-binding-consumption-worker` | runtime | KEEP_POM | `runtime-binding-consumption-worker` |
@@ -129,15 +131,15 @@ Cette table répond au niveau des **responsabilités de module** et non des clas
 | `observability` | Compteurs et contrat métrique | KEEP / RENAME | `contracts-observability` | `contracts-observability` | Contrat de trace partagé ; instrumentation concrète dans les compositions/adapters. |
 | `infra-tx-spring` | TransactionRunner Spring | KEEP / RENAME | `infra-tx-spring` | `infra-tx-spring` | Implémentation Spring du `port-transaction`. |
 | `infra-persistence-jpa` | Adapters WRITE, discovery, Result, loaders | MERGE | `infra-persistence-primary-jpa` | `infra-persistence-primary-jpa` | Les adapters PRIMARY/Consumption, loaders historiques Pot/Task et stores Command/Registration restent dans le cluster PRIMARY ; les stores READ direct et projection exacte sont déjà dans deux autres modules CURRENT. |
-| `infra-projection-persistence` | Store exact root/artifact/failure | KEEP / RENAME | `infra-persistence-projection-jpa` | `infra-persistence-projection-jpa` | Persistance exacte de projection. |
-| `infra-read-persistence` | Store Current Binding, LKV, migrations READ | TBD | `infra-persistence-read-jpa`, `engine-advance-pot-watermark` | `infra-persistence-read-jpa` ; — (TBD_PHYSICAL LKV) | Store Current Binding ferme ; persistance LKV sous décision fonctionnelle/physique encore ouverte. |
+| `infra-projection-persistence` | Store exact root/artifact/failure | KEEP / RENAME | `infra-persistence-projection-jdbc` | `infra-persistence-projection-jdbc` | Persistance exacte de projection. |
+| `infra-read-persistence` | Store Current Binding, LKV, migrations READ | TBD | `infra-persistence-read-jdbc`, `engine-advance-pot-watermark` | `infra-persistence-read-jdbc` ; — (TBD_PHYSICAL LKV) | Store Current Binding ferme ; persistance LKV sous décision fonctionnelle/physique encore ouverte. |
 | `infra-projection-json-schema` | Validation JSON Schema | KEEP / RENAME | `infra-projection-validation-networknt` | `infra-projection-validation-networknt` | Adapter de validation technique distinct de la persistence. |
 | `orchestrator-consumption` | Deux orchestrateurs et orchestration Task | SPLIT | `orchestrator-consumption`, `engine-consume-projection-task` | `orchestrator-consumption`, `engine-consume-projection-task` | Sequential/AcquireThenFinalize génériques conservés ; spécialisation Task vers engine Task. |
 | `orchestrator-command-admission` | Admission Command E+B et evidence | KEEP / RENAME | `engine-admit-command`, `port-binding-authority` | `engine-admit-command`, `port-binding-authority` | Admission et preuve E+B ; autorité Binding derrière le port. |
 | `supra-consumption-worker` | Polling, budget, wait, lifecycle | KEEP / RENAME | `orchestrator-poll-consumption` | `orchestrator-poll-consumption` | Polling générique, sans supra polling TARGET. |
 | `locator-consumption-event` | Discovery metadata et ensure Task | SPLIT | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique ensure Task → engine ; candidate/reload/issue → supra ; SQL/discovery → PRIMARY ; cadence/config → poll/runtime Event. |
 | `locator-consumption-latest-known-version` | Discovery/reload Event, advance LKV, failure | TBD | `engine-advance-pot-watermark`, `supra-consume-lkv`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` ; — (TBD_PHYSICAL LKV) | Sémantique advance et glue candidate/reload/issue LKV restent TBD ; SQL de discovery PRIMARY séparé du store LKV physique encore indécis ; polling/config dans orchestrator/runtime LKV TBD. |
-| `locator-consumption-binding` | Discovery/reload fact, current apply, failure | SPLIT | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa`, `orchestrator-poll-consumption` | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa`, `orchestrator-poll-consumption` | Sémantique apply Current Binding → engine ; candidate/reload/issue → supra ; SQL fact/READ → adapters ; polling/config → poll/runtime Binding. |
+| `locator-consumption-binding` | Discovery/reload fact, current apply, failure | SPLIT | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc`, `orchestrator-poll-consumption` | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc`, `orchestrator-poll-consumption` | Sémantique apply Current Binding → engine ; candidate/reload/issue → supra ; SQL fact/READ → adapters ; polling/config → poll/runtime Binding. |
 | `locator-consumption-command` | Discovery/reload Command, callback, fence, failure | SPLIT | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique Command → engine ; candidate/reload/issue → supra ; SQL → PRIMARY ; polling/config → poll/runtime Command. |
 | `binding-pot-command-spring` | Binding Spring du dispatch Pot | MERGE | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot-policy` | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot` | Câblage provider dans la composition Command ; dispatch Pot au moteur WRITE ; policy reste package-only. |
 | `supra-http-write-command` | HTTP admission Command | KEEP / RENAME | `supra-http-write`, `engine-admit-command` | `supra-http-write`, `engine-admit-command` | Adapter HTTP vers moteur d'admission Command. |
@@ -206,8 +208,8 @@ Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les s
 | `supra-http-read` | `supra-http-read-query` |
 | `supra-http-write` | `supra-http-write-command` |
 | `infra-persistence-primary-jpa` | `engine-core`, `engine-command-result`, `engine-registration`, `engine-projection-balance`, `engine-projection-pot`, `infra-persistence-jpa`, `locator-consumption-event`, `locator-consumption-latest-known-version`, `locator-consumption-binding`, `locator-consumption-command` |
-| `infra-persistence-projection-jpa` | `infra-projection-persistence` |
-| `infra-persistence-read-jpa` | `infra-read-persistence`, `locator-consumption-binding` |
+| `infra-persistence-projection-jdbc` | `infra-projection-persistence` |
+| `infra-persistence-read-jdbc` | `infra-read-persistence`, `locator-consumption-binding` |
 | `infra-projection-validation-networknt` | `infra-projection-json-schema` |
 | `infra-tx-spring` | `infra-tx-spring` |
 | `runtime-binding-consumption-worker` | `runtime-binding-consumption-worker` |
@@ -300,17 +302,17 @@ Tous ces supras sont exempts de SQL concret et de polling générique. Les sept 
 | `supra-consume-registration` | `orchestrator-consumption`, `engine-consume-registration` |
 | `infra-tx-spring` | `port-transaction` |
 | `infra-persistence-primary-jpa` | `contracts-registration`, `contracts-observability`, `port-binding-authority`, `port-transaction`, `port-projection`, `engine-consumption`, `engine-consume-command`, `engine-admit-command`, `engine-write-pot`, `engine-read-command-result`, `engine-materialize-command-result`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `engine-produce-projection-task`, `engine-consume-projection-task`, `engine-read-pot`, `engine-materialize-current-binding`, `engine-advance-pot-watermark` † |
-| `infra-persistence-projection-jpa` | `domain-projection`, `port-projection` |
-| `infra-persistence-read-jpa` | `engine-materialize-current-binding`, `engine-read-current-binding`, `engine-advance-pot-watermark` † |
-| `runtime-web-api` | `contracts-observability`, `supra-http-write`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jpa`, `infra-persistence-read-jpa`, `infra-projection-validation-networknt`, `supra-http-read` |
+| `infra-persistence-projection-jdbc` | `domain-projection`, `port-projection` |
+| `infra-persistence-read-jdbc` | `engine-materialize-current-binding`, `engine-read-current-binding`, `engine-advance-pot-watermark` † |
+| `runtime-web-api` | `contracts-observability`, `supra-http-write`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `infra-projection-validation-networknt`, `supra-http-read` |
 | `runtime-command-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-command`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
 | `runtime-event-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-event`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
-| `runtime-task-consumption-worker` | `orchestrator-poll-consumption`, `projector-pot`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jpa`, `infra-persistence-read-jpa`, `supra-consume-projection-task` |
-| `runtime-binding-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-binding`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa` |
+| `runtime-task-consumption-worker` | `orchestrator-poll-consumption`, `projector-pot`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `supra-consume-projection-task` |
+| `runtime-binding-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-binding`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc` |
 | `runtime-command-result-consumption-worker` | `orchestrator-poll-consumption`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `supra-consume-command-result` |
 | `runtime-registration-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-registration`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
 | `runtime-registration-result-consumption-worker` | `orchestrator-poll-consumption`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `supra-consume-registration-result` |
-| `runtime-latest-known-version-consumption-worker` | `contracts-observability` †, `orchestrator-poll-consumption` †, `infra-tx-spring` †, `infra-persistence-primary-jpa` †, `infra-persistence-read-jpa` †, `supra-consume-lkv` † |
+| `runtime-latest-known-version-consumption-worker` | `contracts-observability` †, `orchestrator-poll-consumption` †, `infra-tx-spring` †, `infra-persistence-primary-jpa` †, `infra-persistence-read-jdbc` †, `supra-consume-lkv` † |
 | `architecture-tests` | — |
 | `supra-consume-projection-task` | `orchestrator-consumption`, `engine-consume-projection-task` |
 | `supra-consume-command-result` | `orchestrator-consumption`, `engine-materialize-command-result` |
@@ -365,13 +367,13 @@ La seule contraction ferme est `domain-pot-policy → domain-pot` ; ses arcs int
 | `supra-consume-registration` | `orchestrator-consumption`, `engine-consume-registration` |
 | `infra-tx-spring` | `port-transaction` |
 | `infra-persistence-primary-jpa` | `contracts-registration`, `contracts-observability`, `port-binding-authority`, `port-transaction`, `port-projection`, `engine-consumption`, `engine-consume-command`, `engine-admit-command`, `engine-write-pot`, `engine-read-command-result`, `engine-materialize-command-result`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `engine-produce-projection-task`, `engine-consume-projection-task`, `engine-read-pot`, `engine-materialize-current-binding` |
-| `infra-persistence-projection-jpa` | `domain-projection`, `port-projection` |
-| `infra-persistence-read-jpa` | `engine-materialize-current-binding`, `engine-read-current-binding` |
-| `runtime-web-api` | `contracts-observability`, `supra-http-write`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jpa`, `infra-persistence-read-jpa`, `infra-projection-validation-networknt`, `supra-http-read` |
+| `infra-persistence-projection-jdbc` | `domain-projection`, `port-projection` |
+| `infra-persistence-read-jdbc` | `engine-materialize-current-binding`, `engine-read-current-binding` |
+| `runtime-web-api` | `contracts-observability`, `supra-http-write`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `infra-projection-validation-networknt`, `supra-http-read` |
 | `runtime-command-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-command`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
 | `runtime-event-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-event`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
-| `runtime-task-consumption-worker` | `orchestrator-poll-consumption`, `projector-pot`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jpa`, `infra-persistence-read-jpa`, `supra-consume-projection-task` |
-| `runtime-binding-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-binding`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa` |
+| `runtime-task-consumption-worker` | `orchestrator-poll-consumption`, `projector-pot`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `supra-consume-projection-task` |
+| `runtime-binding-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-binding`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc` |
 | `runtime-command-result-consumption-worker` | `orchestrator-poll-consumption`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `supra-consume-command-result` |
 | `runtime-registration-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-registration`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
 | `runtime-registration-result-consumption-worker` | `orchestrator-poll-consumption`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `supra-consume-registration-result` |
@@ -404,8 +406,8 @@ Fan-in/out ci-dessous = nombre d'arcs directs du graphe physique ferme. Closure 
 | `engine-consume-projection-task` | 2 | 6 | 10 |
 | `engine-materialize-current-binding` | 3 | 3 | 4 |
 | `infra-persistence-primary-jpa` | 8 | 19 | 29 |
-| `infra-persistence-projection-jpa` | 2 | 2 | 2 |
-| `infra-persistence-read-jpa` | 3 | 2 | 6 |
+| `infra-persistence-projection-jdbc` | 2 | 2 | 2 |
+| `infra-persistence-read-jdbc` | 3 | 2 | 6 |
 | `infra-projection-validation-networknt` | 1 | 2 | 2 |
 | `supra-http-write` | 1 | 3 | 14 |
 | `supra-http-read` | 1 | 4 | 18 |

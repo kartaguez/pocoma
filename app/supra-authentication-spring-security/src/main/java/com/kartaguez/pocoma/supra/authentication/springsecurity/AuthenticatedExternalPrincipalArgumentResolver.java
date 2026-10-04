@@ -8,7 +8,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.kartaguez.pocoma.orchestrator.command.admission.InvalidAuthenticatedExternalPrincipalException;
-import com.kartaguez.pocoma.authentication.AuthenticatedExternalPrincipal;
+import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 
 public final class AuthenticatedExternalPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
 	private final SpringSecurityExternalPrincipalAdapter adapter;
