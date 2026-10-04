@@ -55,6 +55,8 @@
 		<module>port-projection</module>
 		<module>engine-projection-read</module>
 		<module>engine-projection-task</module>
+		<module>engine-consume-projection-task</module>
+		<module>supra-consume-projection-task</module>
 		<module>engine-pot-read</module>
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>

@@ -58,7 +58,8 @@ import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaCons
 import com.kartaguez.pocoma.infra.projection.jsonschema.NetworkntJsonSchemaValidator;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
@@ -132,8 +133,9 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 		if (!catalog.projectionTypes().containsAll(locatorTypes)) {
 			throw new IllegalStateException("locator-projection-types must be a subset of catalog-projection-types");
 		}
-		return new ProjectionTaskConsumptionOrchestrator(locatorTypes,
-				properties.getSegmentIndex(),properties.getSegmentCount(),tasks,acquire,execute);
+		return new ProjectionTaskConsumptionOrchestrator(
+				new ProjectionTaskCandidateSource(locatorTypes, properties.getSegmentIndex(),
+						properties.getSegmentCount(), tasks), acquire, execute);
 	}
 	@Bean ConsumptionPollingWorker canonicalProjectionWorker(ConsumptionOrchestrator orchestrator,
 			CanonicalProjectionTaskProperties properties,Clock clock){

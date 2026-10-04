@@ -4,6 +4,8 @@
 	<parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
 	<artifactId>pocoma-runtime-task-consumption-worker</artifactId>
 	<dependencies>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-projection-task</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-consume-projection-task</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-projection</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-projection</artifactId><version>${project.version}</version></dependency>

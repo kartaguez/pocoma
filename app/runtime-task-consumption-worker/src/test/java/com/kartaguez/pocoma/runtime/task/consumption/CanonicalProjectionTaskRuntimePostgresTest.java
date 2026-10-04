@@ -79,7 +79,7 @@ import com.kartaguez.pocoma.engine.read.projection.HistoricalPotReconstructionEx
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
 import com.kartaguez.pocoma.infra.projection.persistence.JdbcProjectionStoreAdapter;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 

@@ -2,6 +2,8 @@ package com.kartaguez.pocoma.runtime.task.consumption;
 
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskExecutionResult;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
@@ -41,6 +43,8 @@ import com.kartaguez.pocoma.engine.projection.task.ProjectionPreparationOutcome;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
 import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionBudgetLimit;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
@@ -69,7 +73,7 @@ class ProjectionTaskConsumptionOrchestratorTest {
 				new AcquireResult.Acquired(claim())));
 		var service = service(events);
 		var orchestrator = new ProjectionTaskConsumptionOrchestrator(
-				Set.of(TYPE), 0, 1, store,
+				new ProjectionTaskCandidateSource(Set.of(TYPE), 0, 1, store),
 				input -> {
 					String id = input.consumptionKey().consumable().components().get(2);
 					events.add("acquire:" + id);
