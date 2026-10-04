@@ -57,6 +57,7 @@
 		<module>engine-pot-read</module>
 		<module>engine-projection-balance</module>
 		<module>engine-projection-pot</module>
+		<module>projector-pot</module>
 		<module>engine-read-projection</module>
 		<module>contracts-observability</module>
 		<module>infra-tx-spring</module>
