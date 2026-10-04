@@ -96,6 +96,131 @@ Une ligne représente une responsabilité logique, même lorsque son nom est aus
 
 **Comptage recalculé : 58 responsabilités logiques, 54 POM fermes `KEEP_POM` (53 de production et le gate), 1 `PACKAGE_ONLY`, 3 `TBD_PHYSICAL`.** Les trois TBD sont `engine-advance-pot-watermark`, `supra-consume-lkv` et `runtime-latest-known-version-consumption-worker`. Aucun POM LKV n'est compté comme ferme.
 
+## 3 bis. CURRENT → TARGET Migration Traceability
+
+Cette table répond au niveau des **responsabilités de module** et non des classes ou des commits. Sa colonne CURRENT reprend exactement les 51 modules de la section C de l'[audit CURRENT](Modularity_Current_State_Audit.md). `KEEP / RENAME` conserve principalement la frontière, `SPLIT` répartit les responsabilités, `MERGE` rejoint une frontière plus large, `DISSOLVE AS MAVEN BOUNDARY` retire la frontière autonome, et `TBD` signale une dépendance réelle à une décision LKV ouverte. Les noms de la colonne « responsabilités » désignent des **rôles logiques TARGET**, ceux de la colonne POM des **frontières physiques fermes** ; `domain-pot-policy` est un package de `domain-pot`. `— (TBD_PHYSICAL)` signifie qu'aucun POM LKV n'est décidé. Les POM runtime sont des frontières de composition, sans décision ici sur les pods futurs.
+
+| CURRENT module | CURRENT role summary | TARGET disposition | TARGET logical responsibilities | TARGET physical POM(s) | Migration notes |
+| --- | --- | --- | --- | --- | --- |
+| `domain-authorization` | Capacités, permissions, traduction | KEEP / RENAME | `domain-authorization` | `domain-authorization` | Vocabulaire d'autorisation pur. |
+| `domain-event` | Contrat Event transversal | KEEP / RENAME | `domain-event` | `domain-event` | Contrat Event partagé. |
+| `domain-user-identity` | E, U, B, facts et ports d'autorité | SPLIT | `domain-user-identity`, `port-binding-authority` | `domain-user-identity`, `port-binding-authority` | Modèle/facts d'identité séparés du port d'autorité Binding. |
+| `authentication-contracts` | Principal externe attesté | KEEP / RENAME | `contracts-authentication` | `contracts-authentication` | Contrat authentifié indépendant du provider Spring/JWT. |
+| `domain-pot` | Pot, Expense, valeurs et BusinessEvent | KEEP / RENAME | `domain-pot` | `domain-pot` | Modèle Pot et événement métier. |
+| `domain-pot-projection` | Définitions AUTH/READ_POT/BALANCES | SPLIT | `domain-projection`, `projector-pot` | `domain-projection`, `projector-pot` | Définitions/identifiants de projection et calcul Pot déterministe séparés. |
+| `domain-projection-balance` | Modèle et calcul Balance | SPLIT | `projector-pot`, `domain-pot` | `projector-pot`, `domain-pot` | Calcul BALANCES dans le projector Pot ; valeurs métier Pot dans le domaine. |
+| `domain-projection` | ProjectionKey, artifact, validator | KEEP / RENAME | `domain-projection` | `domain-projection` | Contrat et validation pure de projection exacte. |
+| `domain-pot-policy` | Kernel et facts d'autorisation Pot | DISSOLVE AS MAVEN BOUNDARY | `domain-pot-policy` | `domain-pot` | Rôle logique conservé en `PACKAGE_ONLY` ; aucun POM policy autonome. |
+| `domain-consumption` | Key, slot, claim, lease, provenance | KEEP / RENAME | `domain-consumption` | `domain-consumption` | Modèle commun Consumption. |
+| `engine-core` | Transactions, snapshots, Event, segments, erreurs | SPLIT | `port-transaction`, `domain-consumption`, `engine-write-pot`, `domain-pot`, `infra-persistence-primary-jpa` | `port-transaction`, `domain-consumption`, `engine-write-pot`, `domain-pot`, `infra-persistence-primary-jpa` | `TransactionRunner` → port ; WorkerSegment/PartitionHash → domaine Consumption ; snapshots/versions Pot et UserContext → moteur WRITE/domaine Pot selon leur rôle ; RecordedEvent/EventTraceMetadata Pot → domaine Pot ; wrappers SQL legacy → adapter PRIMARY. Aucun core TARGET. |
+| `engine-consumption` | Acquire, Execute, Finalize, failure | KEEP / RENAME | `engine-consumption` | `engine-consumption` | Mécanique transactionnelle de consommation. |
+| `engine-command` | Command, dispatch, exécution, outcome | SPLIT | `engine-consume-command`, `engine-admit-command`, `domain-event` | `engine-consume-command`, `engine-admit-command`, `domain-event` | Langage/exécution Command et outcome vers consume ; admission vers admit ; Event partagé vers domaine. Le contrat Command Result reste soumis à `TBD-COMMAND-CONTRACT`, sans cible inventée. |
+| `engine-command-result` | Result, materializer, GET, owner | SPLIT | `engine-materialize-command-result`, `engine-read-command-result`, `supra-consume-command-result`, `infra-persistence-primary-jpa` | `engine-materialize-command-result`, `engine-read-command-result`, `supra-consume-command-result`, `infra-persistence-primary-jpa` | Matérialisation et GET/owner séparés ; intégration candidate/issue et store PRIMARY. `TBD-COMMAND-CONTRACT` reste ouvert. |
+| `engine-registration` | Admission, exécution, outcome, Result GET | SPLIT | `contracts-registration`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `supra-consume-registration`, `supra-consume-registration-result`, `infra-persistence-primary-jpa` | `contracts-registration`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `supra-consume-registration`, `supra-consume-registration-result`, `infra-persistence-primary-jpa` | Langage Request/Outcome partagé ; admission, exécution, matérialisation et lecture distinctes ; glue des deux workers et adapters PRIMARY. |
+| `engine-processing-event` | Discovery/policy Event et LKV | TBD | `engine-produce-projection-task`, `domain-event`, `engine-advance-pot-watermark` | `engine-produce-projection-task`, `domain-event` ; — (TBD_PHYSICAL LKV) | Production de Task et contrat Event fermes ; avance du watermark partiellement TBD, owner fonctionnel non tranché. |
+| `engine-pot-command` | Use cases de mutation Pot | KEEP / RENAME | `engine-write-pot`, `domain-pot-policy` | `engine-write-pot`, `domain-pot` | Mutation WRITE ; policy Pot utilisée comme rôle package-only. |
+| `engine-projection-contracts` | Ports lecture/publication exactes | KEEP / RENAME | `port-projection` | `port-projection` | Contrats applicatifs de lecture et publication exacte. |
+| `engine-projection-read` | Lecture exacte et revalidation | KEEP / RENAME | `engine-read-projection` | `engine-read-projection` | Lecture générique d'une projection exacte `@V`, distincte de l'ancien module CURRENT `engine-read-projection`. |
+| `engine-projection-task` | Task, catalog, préparation, retry, publication | SPLIT | `engine-produce-projection-task`, `engine-consume-projection-task`, `supra-consume-projection-task`, `port-projection` | `engine-produce-projection-task`, `engine-consume-projection-task`, `supra-consume-projection-task`, `port-projection` | Création/consommation de Task séparées ; catalog/reload/issue vers glue Task ; publication exacte par port. |
+| `engine-pot-read` | Interprétation AUTH/READ_POT et autorisation | KEEP / RENAME | `engine-read-pot`, `domain-pot-policy` | `engine-read-pot`, `domain-pot` | GET Pot exact et policy package-only ; dépendance au port E→U encore `TBD-E2U`. |
+| `engine-projection-balance` | Source historique, calcul, loader, projector | SPLIT | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | Calcul pur BALANCES vers projector ; orchestration Task, ports de chargement et adapter historique séparés. |
+| `engine-projection-pot` | Loaders et projectors AUTH/READ_POT | SPLIT | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | Calcul pur AUTH/READ_POT vers projector ; coordination Task, ports et loaders PRIMARY distincts. |
+| `engine-read-projection` | Current Binding, LKV, reconstruction Pot | TBD | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot`, `engine-advance-pot-watermark` | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot` ; — (TBD_PHYSICAL LKV) | Ancien agrégat CURRENT : production et GET Current Binding directs ; `HistoricalPotSnapshotSource` fournit l'input historique via le port de projection au projector Pot ; avance LKV partiellement TBD. Il **ne** devient **pas** le `engine-read-projection` TARGET (lecture générique `@V`). |
+| `observability` | Compteurs et contrat métrique | KEEP / RENAME | `contracts-observability` | `contracts-observability` | Contrat de trace partagé ; instrumentation concrète dans les compositions/adapters. |
+| `infra-tx-spring` | TransactionRunner Spring | KEEP / RENAME | `infra-tx-spring` | `infra-tx-spring` | Implémentation Spring du `port-transaction`. |
+| `infra-persistence-jpa` | Adapters WRITE, discovery, Result, loaders | MERGE | `infra-persistence-primary-jpa` | `infra-persistence-primary-jpa` | Les adapters PRIMARY/Consumption, loaders historiques Pot/Task et stores Command/Registration restent dans le cluster PRIMARY ; les stores READ direct et projection exacte sont déjà dans deux autres modules CURRENT. |
+| `infra-projection-persistence` | Store exact root/artifact/failure | KEEP / RENAME | `infra-persistence-projection-jpa` | `infra-persistence-projection-jpa` | Persistance exacte de projection. |
+| `infra-read-persistence` | Store Current Binding, LKV, migrations READ | TBD | `infra-persistence-read-jpa`, `engine-advance-pot-watermark` | `infra-persistence-read-jpa` ; — (TBD_PHYSICAL LKV) | Store Current Binding ferme ; persistance LKV sous décision fonctionnelle/physique encore ouverte. |
+| `infra-projection-json-schema` | Validation JSON Schema | KEEP / RENAME | `infra-projection-validation-networknt` | `infra-projection-validation-networknt` | Adapter de validation technique distinct de la persistence. |
+| `orchestrator-consumption` | Deux orchestrateurs et orchestration Task | SPLIT | `orchestrator-consumption`, `engine-consume-projection-task` | `orchestrator-consumption`, `engine-consume-projection-task` | Sequential/AcquireThenFinalize génériques conservés ; spécialisation Task vers engine Task. |
+| `orchestrator-command-admission` | Admission Command E+B et evidence | KEEP / RENAME | `engine-admit-command`, `port-binding-authority` | `engine-admit-command`, `port-binding-authority` | Admission et preuve E+B ; autorité Binding derrière le port. |
+| `supra-consumption-worker` | Polling, budget, wait, lifecycle | KEEP / RENAME | `orchestrator-poll-consumption` | `orchestrator-poll-consumption` | Polling générique, sans supra polling TARGET. |
+| `locator-consumption-event` | Discovery metadata et ensure Task | SPLIT | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique ensure Task → engine ; candidate/reload/issue → supra ; SQL/discovery → PRIMARY ; cadence/config → poll/runtime Event. |
+| `locator-consumption-latest-known-version` | Discovery/reload Event, advance LKV, failure | TBD | `engine-advance-pot-watermark`, `supra-consume-lkv`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` ; — (TBD_PHYSICAL LKV) | Sémantique advance et glue candidate/reload/issue LKV restent TBD ; SQL de discovery PRIMARY séparé du store LKV physique encore indécis ; polling/config dans orchestrator/runtime LKV TBD. |
+| `locator-consumption-binding` | Discovery/reload fact, current apply, failure | SPLIT | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa`, `orchestrator-poll-consumption` | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jpa`, `orchestrator-poll-consumption` | Sémantique apply Current Binding → engine ; candidate/reload/issue → supra ; SQL fact/READ → adapters ; polling/config → poll/runtime Binding. |
+| `locator-consumption-command` | Discovery/reload Command, callback, fence, failure | SPLIT | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique Command → engine ; candidate/reload/issue → supra ; SQL → PRIMARY ; polling/config → poll/runtime Command. |
+| `binding-pot-command-spring` | Binding Spring du dispatch Pot | MERGE | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot-policy` | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot` | Câblage provider dans la composition Command ; dispatch Pot au moteur WRITE ; policy reste package-only. |
+| `supra-http-write-command` | HTTP admission Command | KEEP / RENAME | `supra-http-write`, `engine-admit-command` | `supra-http-write`, `engine-admit-command` | Adapter HTTP vers moteur d'admission Command. |
+| `supra-http-read-query` | HTTP Pot, Result Command, Current Binding | SPLIT | `supra-http-read`, `engine-read-pot`, `engine-read-command-result`, `engine-read-current-binding`, `domain-user-identity` | `supra-http-read`, `engine-read-pot`, `engine-read-command-result`, `engine-read-current-binding`, `domain-user-identity` | DTO/erreurs/GET vers supra ; lectures exactes vers engines ; identité E/U dans le domaine, résolution E→U primaire derrière un port encore `TBD-E2U`. |
+| `supra-authentication-spring-security` | AuthN Spring et principal JWT | SPLIT | `contracts-authentication`, `runtime-web-api` | `contracts-authentication`, `runtime-web-api` | Contrat principal attesté transverse ; provider Spring Security/JWT concret composé par Web. |
+| `runtime-web-api` | Compose HTTP, stores, auth et use cases | KEEP / RENAME | `runtime-web-api`, `supra-http-write`, `supra-http-read`, `engine-admit-command`, `engine-admit-registration`, `engine-read-pot`, `engine-read-command-result`, `engine-read-registration-result`, `engine-read-current-binding` | `runtime-web-api`, `supra-http-write`, `supra-http-read`, `engine-admit-command`, `engine-admit-registration`, `engine-read-pot`, `engine-read-command-result`, `engine-read-registration-result`, `engine-read-current-binding` | Racine Web et câblage des moteurs admit/read pertinents ; provider Security concret ici. |
+| `runtime-event-consumption-worker` | Compose Event→Task, policy et polling | KEEP / RENAME | `runtime-event-consumption-worker`, `supra-consume-event`, `engine-produce-projection-task`, `orchestrator-poll-consumption` | `runtime-event-consumption-worker`, `supra-consume-event`, `engine-produce-projection-task`, `orchestrator-poll-consumption` | Racine Event ; policy de matérialisation Task et composition, polling générique via orchestrator. |
+| `runtime-command-result-consumption-worker` | Compose Result direct, locator et retry | SPLIT | `runtime-command-result-consumption-worker`, `supra-consume-command-result`, `engine-materialize-command-result`, `orchestrator-poll-consumption` | `runtime-command-result-consumption-worker`, `supra-consume-command-result`, `engine-materialize-command-result`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; matérialisation vers engine ; retry/cadence générique vers poll ; racine conservée. |
+| `runtime-registration-result-consumption-worker` | Compose Registration Result, locator et retry | SPLIT | `runtime-registration-result-consumption-worker`, `supra-consume-registration-result`, `engine-materialize-registration-result`, `orchestrator-poll-consumption` | `runtime-registration-result-consumption-worker`, `supra-consume-registration-result`, `engine-materialize-registration-result`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; matérialisation vers engine ; retry/cadence générique vers poll ; racine conservée. |
+| `runtime-registration-consumption-worker` | Compose Registration, locator et retry | SPLIT | `runtime-registration-consumption-worker`, `supra-consume-registration`, `engine-consume-registration`, `orchestrator-poll-consumption` | `runtime-registration-consumption-worker`, `supra-consume-registration`, `engine-consume-registration`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; exécution vers engine ; retry/cadence générique vers poll ; racine conservée. |
+| `runtime-latest-known-version-consumption-worker` | Compose LKV, métriques et polling | TBD | `runtime-latest-known-version-consumption-worker`, `supra-consume-lkv`, `engine-advance-pot-watermark`, `orchestrator-poll-consumption` | `orchestrator-poll-consumption` ; — (TBD_PHYSICAL LKV) | Racine, glue et moteur LKV tous partiellement TBD ; métriques/polling connus mais composition physique et owner fonctionnel non décidés. |
+| `runtime-binding-consumption-worker` | Compose Binding fact consumer | KEEP / RENAME | `runtime-binding-consumption-worker`, `supra-consume-binding`, `engine-materialize-current-binding`, `orchestrator-poll-consumption` | `runtime-binding-consumption-worker`, `supra-consume-binding`, `engine-materialize-current-binding`, `orchestrator-poll-consumption` | Racine Binding, glue fact et matérialisation Current ; polling générique. |
+| `runtime-task-consumption-worker` | Compose catalog, Task, producers, retry | SPLIT | `runtime-task-consumption-worker`, `supra-consume-projection-task`, `engine-consume-projection-task`, `projector-pot`, `orchestrator-poll-consumption` | `runtime-task-consumption-worker`, `supra-consume-projection-task`, `engine-consume-projection-task`, `projector-pot`, `orchestrator-poll-consumption` | Catalog/selection de composition dans runtime ; reload/issue vers supra ; traitement et calcul pur séparés ; polling générique. |
+| `runtime-command-consumption-worker` | Compose Command, Pot et consumption | KEEP / RENAME | `runtime-command-consumption-worker`, `supra-consume-command`, `engine-consume-command`, `engine-write-pot`, `orchestrator-poll-consumption` | `runtime-command-consumption-worker`, `supra-consume-command`, `engine-consume-command`, `engine-write-pot`, `orchestrator-poll-consumption` | Racine Command, dispatch Pot et wiring ; polling générique. |
+| `architecture-tests` | Gate de frontières et E2E | KEEP / RENAME | `architecture-tests` | `architecture-tests` | Gate global conservé ; aucune vérification Maven pour cette modification documentaire. |
+
+Pour les workers Result et Registration, la glue locator aujourd'hui logée dans les runtimes rejoint le supra spécifique ; les huit POM runtime fermes demeurent des racines. Aucune ligne ci-dessus ne décide `TBD-LKV`, `TBD-E2U` ou `TBD-COMMAND-CONTRACT`.
+
+### Vue inverse compacte
+
+Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les simples dépendances de composition runtime sont omises, sauf lorsque le runtime porte aujourd’hui la glue ou la policy concernée. Les trois lignes LKV sont des responsabilités `TBD_PHYSICAL` ; `domain-pot-policy` est `PACKAGE_ONLY` dans `domain-pot`.
+
+| TARGET POM / responsibility | Main CURRENT sources |
+| --- | --- |
+| `domain-authorization` | `domain-authorization` |
+| `domain-consumption` | `domain-consumption`, `engine-core` |
+| `domain-event` | `domain-event`, `engine-command`, `engine-processing-event` |
+| `domain-pot` | `domain-pot`, `domain-projection-balance`, `engine-core` |
+| `domain-pot-policy` (PACKAGE_ONLY) | `domain-pot-policy`, `engine-pot-command`, `engine-pot-read`, `binding-pot-command-spring` |
+| `domain-projection` | `domain-pot-projection`, `domain-projection` |
+| `domain-user-identity` | `domain-user-identity`, `supra-http-read-query` |
+| `contracts-authentication` | `authentication-contracts`, `supra-authentication-spring-security` |
+| `contracts-observability` | `observability` |
+| `contracts-registration` | `engine-registration` |
+| `port-binding-authority` | `domain-user-identity`, `orchestrator-command-admission` |
+| `port-projection` | `engine-projection-contracts`, `engine-projection-task`, `engine-projection-balance`, `engine-projection-pot`, `engine-read-projection` |
+| `port-transaction` | `engine-core` |
+| `engine-admit-command` | `engine-command`, `orchestrator-command-admission`, `supra-http-write-command` |
+| `engine-admit-registration` | `engine-registration` |
+| `engine-advance-pot-watermark` (TBD_PHYSICAL) | `engine-processing-event`, `engine-read-projection`, `infra-read-persistence`, `locator-consumption-latest-known-version` |
+| `engine-consume-command` | `engine-command`, `locator-consumption-command` |
+| `engine-consume-projection-task` | `engine-projection-task`, `engine-projection-balance`, `engine-projection-pot`, `orchestrator-consumption` |
+| `engine-consume-registration` | `engine-registration` |
+| `engine-consumption` | `engine-consumption` |
+| `engine-materialize-command-result` | `engine-command-result` |
+| `engine-materialize-current-binding` | `engine-read-projection`, `locator-consumption-binding` |
+| `engine-materialize-registration-result` | `engine-registration` |
+| `engine-produce-projection-task` | `engine-processing-event`, `engine-projection-task`, `locator-consumption-event`, `runtime-event-consumption-worker` |
+| `engine-read-command-result` | `engine-command-result`, `supra-http-read-query` |
+| `engine-read-current-binding` | `engine-read-projection`, `supra-http-read-query` |
+| `engine-read-pot` | `engine-pot-read`, `supra-http-read-query` |
+| `engine-read-projection` | `engine-projection-read` |
+| `engine-read-registration-result` | `engine-registration` |
+| `engine-write-pot` | `engine-core`, `engine-pot-command`, `binding-pot-command-spring` |
+| `projector-pot` | `domain-pot-projection`, `domain-projection-balance`, `engine-projection-balance`, `engine-projection-pot`, `engine-read-projection` |
+| `orchestrator-consumption` | `orchestrator-consumption` |
+| `orchestrator-poll-consumption` | `supra-consumption-worker`, `locator-consumption-event`, `locator-consumption-latest-known-version`, `locator-consumption-binding`, `locator-consumption-command` |
+| `supra-consume-binding` | `locator-consumption-binding` |
+| `supra-consume-command` | `locator-consumption-command` |
+| `supra-consume-command-result` | `engine-command-result`, `runtime-command-result-consumption-worker` |
+| `supra-consume-event` | `locator-consumption-event` |
+| `supra-consume-lkv` (TBD_PHYSICAL) | `locator-consumption-latest-known-version`, `runtime-latest-known-version-consumption-worker` |
+| `supra-consume-projection-task` | `engine-projection-task`, `runtime-task-consumption-worker` |
+| `supra-consume-registration` | `engine-registration`, `runtime-registration-consumption-worker` |
+| `supra-consume-registration-result` | `engine-registration`, `runtime-registration-result-consumption-worker` |
+| `supra-http-read` | `supra-http-read-query` |
+| `supra-http-write` | `supra-http-write-command` |
+| `infra-persistence-primary-jpa` | `engine-core`, `engine-command-result`, `engine-registration`, `engine-projection-balance`, `engine-projection-pot`, `infra-persistence-jpa`, `locator-consumption-event`, `locator-consumption-latest-known-version`, `locator-consumption-binding`, `locator-consumption-command` |
+| `infra-persistence-projection-jpa` | `infra-projection-persistence` |
+| `infra-persistence-read-jpa` | `infra-read-persistence`, `locator-consumption-binding` |
+| `infra-projection-validation-networknt` | `infra-projection-json-schema` |
+| `infra-tx-spring` | `infra-tx-spring` |
+| `runtime-binding-consumption-worker` | `runtime-binding-consumption-worker` |
+| `runtime-command-consumption-worker` | `binding-pot-command-spring`, `runtime-command-consumption-worker` |
+| `runtime-command-result-consumption-worker` | `runtime-command-result-consumption-worker` |
+| `runtime-event-consumption-worker` | `runtime-event-consumption-worker` |
+| `runtime-latest-known-version-consumption-worker` (TBD_PHYSICAL) | `runtime-latest-known-version-consumption-worker` |
+| `runtime-registration-consumption-worker` | `runtime-registration-consumption-worker` |
+| `runtime-registration-result-consumption-worker` | `runtime-registration-result-consumption-worker` |
+| `runtime-task-consumption-worker` | `runtime-task-consumption-worker` |
+| `runtime-web-api` | `supra-authentication-spring-security`, `runtime-web-api` |
+| `architecture-tests` | `architecture-tests` |
+
 ## 4. Supra et chaînes d'exécution
 
 Les deux supras HTTP sont des POM. `supra-http-write` adapte principal, DTO/request, admission/write et erreurs/réponses HTTP vers `engine-admit-command` et `engine-admit-registration`, sans SQL concret. `supra-http-read` adapte GET Pot, Command Result, Registration Result et Current Binding, DTO/read response et 404 opaque vers les moteurs read ; il n'importe pas l'adapter PRIMARY E→U. `runtime-web-api` compose les deux ; il n'y a pas de runtime Web read/write séparé.
