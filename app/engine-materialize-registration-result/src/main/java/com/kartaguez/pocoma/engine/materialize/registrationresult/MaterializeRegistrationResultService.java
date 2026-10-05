@@ -3,8 +3,9 @@ package com.kartaguez.pocoma.engine.materialize.registrationresult;
 import java.util.Objects;
 import java.util.UUID;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
+import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
 import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 /** Materializes the durable decision without consulting current Binding state. */
@@ -25,6 +26,10 @@ public final class MaterializeRegistrationResultService {
         if (!discoveredRequestId.equals(request.requestId()) || !request.requestId().equals(outcome.requestId())) {
             throw new IllegalStateException("Registration Request and Outcome disagree");
         }
-        results.ensureResult(new ImmutableRegistrationResult(request.requesterExternalIdentity(), outcome));
+        PublishedRegistrationResult published = switch (outcome) {
+            case RegistrationOutcome.Registered registered -> new PublishedRegistrationResult.Registered(registered.requestId(), registered.userId(), registered.bindingId());
+            case RegistrationOutcome.Rejected rejected -> new PublishedRegistrationResult.Rejected(rejected.requestId());
+        };
+        results.ensureResult(new ImmutableRegistrationResult(request.requesterExternalIdentity(), published));
     }
 }

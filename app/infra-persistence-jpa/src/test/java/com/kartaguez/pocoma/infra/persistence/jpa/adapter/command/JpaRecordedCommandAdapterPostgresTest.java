@@ -42,18 +42,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionCandidate;
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandAlreadyExistsException;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandAlreadyExistsException;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 
 @SpringBootTest(properties = {
@@ -77,7 +76,7 @@ class JpaRecordedCommandAdapterPostgresTest {
 	}
 
 	@Autowired private JpaRecordedCommandAdapter commands;
-	@Autowired private JpaExternalIdentityResolverAdapter identities;
+	@Autowired private ExternalIdentityJdbcRepository identities;
 	@Autowired private JpaCommandConsumptionDiscoveryAdapter discovery;
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private PlatformTransactionManager transactionManager;
@@ -102,12 +101,9 @@ class JpaRecordedCommandAdapterPostgresTest {
 		UUID userId = uuid(200);
 		insertBinding("https://issuer.example", "subject-1", userId);
 
-		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
-				new ExternalIdentity("https://issuer.example", "subject-1")).orElseThrow()));
-		assertTrue(inTransaction(() -> identities.findUserId(
-				new ExternalIdentity("https://issuer.example", "subject-2"))).isEmpty());
-		assertThrows(IllegalTransactionStateException.class, () -> identities.findUserId(
-				new ExternalIdentity("https://issuer.example", "subject-1")));
+		assertEquals(userId, inTransaction(() -> identities.findUserId("https://issuer.example", "subject-1").orElseThrow()));
+		assertTrue(inTransaction(() -> identities.findUserId("https://issuer.example", "subject-2")).isEmpty());
+
 	}
 
 	@Test
@@ -117,10 +113,8 @@ class JpaRecordedCommandAdapterPostgresTest {
 		insertBindingRow("https://issuer-a.example", "subject-a", userId);
 		insertBindingRow("https://issuer-b.example", "subject-b", userId);
 
-		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
-				new ExternalIdentity("https://issuer-a.example", "subject-a")).orElseThrow()));
-		assertEquals(new PocomaUserId(userId), inTransaction(() -> identities.findUserId(
-				new ExternalIdentity("https://issuer-b.example", "subject-b")).orElseThrow()));
+		assertEquals(userId, inTransaction(() -> identities.findUserId("https://issuer-a.example", "subject-a").orElseThrow()));
+		assertEquals(userId, inTransaction(() -> identities.findUserId("https://issuer-b.example", "subject-b").orElseThrow()));
 		assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
 				"insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				"https://issuer-a.example", "subject-a", userId, UUID.randomUUID()));
@@ -418,7 +412,7 @@ class JpaRecordedCommandAdapterPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@Import({JpaRecordedCommandAdapter.class, JpaCommandConsumptionDiscoveryAdapter.class,
-			JpaExternalIdentityResolverAdapter.class, ExternalIdentityJdbcRepository.class,
+			ExternalIdentityJdbcRepository.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class})
 	static class TestApplication {
 		@Bean ObjectMapper objectMapper() { return new ObjectMapper(); }

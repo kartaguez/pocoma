@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.materialize.registrationresult;
 import com.kartaguez.pocoma.engine.read.registrationresult.*;
 
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.Instant;
@@ -28,7 +28,7 @@ class RegistrationResultServiceTest {
         materializer.materialize(id);
         materializer.materialize(id);
         assertEquals(1, rows.size());
-        assertEquals(Optional.of(outcome), new GetRegistrationResultService(results).get(id, E1));
+        assertEquals(Optional.of(new PublishedRegistrationResult.Rejected(id)), new GetRegistrationResultService(results).get(id, E1));
         assertTrue(new GetRegistrationResultService(results).get(id, E2).isEmpty());
     }
 

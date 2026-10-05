@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.registration.RegistrationOutcomeStore;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;
 

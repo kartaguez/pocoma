@@ -17,7 +17,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.PocomaCommandResultConsumptionWorkerApplication;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResult;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultService;
 import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;

@@ -36,16 +36,16 @@ import com.kartaguez.pocoma.domain.authorization.PocomaPermissions;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
@@ -77,7 +77,7 @@ class CommandConsumptionRuntimePostgresTest {
 		registry.add("spring.datasource.password", POSTGRES::getPassword);
 	}
 
-	@Autowired RecordedCommandPort commands;
+	@Autowired RecordedCommandInsertionPort commands;
 	@Autowired TransactionRunner transactions;
 	@Autowired JpaConsumptionLifecycleAdapter lifecycle;
 	@Autowired JdbcTemplate jdbc;

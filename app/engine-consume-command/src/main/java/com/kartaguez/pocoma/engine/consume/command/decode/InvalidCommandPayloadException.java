@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.consume.command.decode;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 /** Technical failure raised when a registered decoder cannot produce its declared Command type. */
 public final class InvalidCommandPayloadException extends RuntimeException {

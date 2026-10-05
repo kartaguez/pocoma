@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.consume.command.model;
+package com.kartaguez.pocoma.contracts.command;
 
 import static java.util.Objects.requireNonNull;
 

@@ -8,8 +8,8 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Component;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.engine.read.commandresult.PublishedCommandResult;
 import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
 import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
 
@@ -21,7 +21,7 @@ public final class JdbcCommandResultStore implements CommandResultStore {
 
 	@Override
 	public void ensureResult(ImmutableCommandResult result) {
-		CommandOutcome outcome = result.outcome();
+		PublishedCommandResult outcome = result.outcome();
 		Shape shape = shape(outcome);
 		jdbc.update("""
 			insert into command_results (command_id, owner_issuer, owner_subject, schema_version,
@@ -44,12 +44,12 @@ public final class JdbcCommandResultStore implements CommandResultStore {
 			from command_results where command_id = ?
 			""", (rs, row) -> {
 			if (rs.getInt("schema_version") != 1) throw new IllegalStateException("Unsupported Command Result schema");
-			CommandOutcome outcome = switch (rs.getString("outcome_type")) {
-				case "APPLIED" -> new CommandOutcome.Applied(commandId, rs.getObject("pot_id", UUID.class),
+			PublishedCommandResult outcome = switch (rs.getString("outcome_type")) {
+				case "APPLIED" -> new PublishedCommandResult.Applied(commandId, rs.getObject("pot_id", UUID.class),
 						rs.getLong("resulting_version"), rs.getTimestamp("resolved_at").toInstant());
-				case "REJECTED" -> new CommandOutcome.Rejected(commandId, rs.getString("public_code"),
+				case "REJECTED" -> new PublishedCommandResult.Rejected(commandId, rs.getString("public_code"),
 						rs.getTimestamp("resolved_at").toInstant());
-				case "FAILED" -> new CommandOutcome.Failed(commandId, rs.getString("public_code"),
+				case "FAILED" -> new PublishedCommandResult.Failed(commandId, rs.getString("public_code"),
 						rs.getTimestamp("resolved_at").toInstant());
 				default -> throw new IllegalStateException("Invalid Command Result outcome");
 			};
@@ -58,11 +58,11 @@ public final class JdbcCommandResultStore implements CommandResultStore {
 		}, commandId.value()).stream().findFirst();
 	}
 
-	private static Shape shape(CommandOutcome outcome) {
+	private static Shape shape(PublishedCommandResult outcome) {
 		return switch (outcome) {
-			case CommandOutcome.Applied applied -> new Shape("APPLIED", applied.potId(), applied.resultingVersion(), null);
-			case CommandOutcome.Rejected rejected -> new Shape("REJECTED", null, null, rejected.rejectionCode());
-			case CommandOutcome.Failed failed -> new Shape("FAILED", null, null, failed.publicFailureCode());
+			case PublishedCommandResult.Applied applied -> new Shape("APPLIED", applied.potId(), applied.resultingVersion(), null);
+			case PublishedCommandResult.Rejected rejected -> new Shape("REJECTED", null, null, rejected.rejectionCode());
+			case PublishedCommandResult.Failed failed -> new Shape("FAILED", null, null, failed.publicFailureCode());
 		};
 	}
 

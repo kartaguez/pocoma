@@ -12,6 +12,7 @@
 	<artifactId>pocoma-engine-admit-command</artifactId>
 	<name>pocoma-engine-admit-command</name>
 	<dependencies>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-command</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
 
 		<dependency>
@@ -22,11 +23,6 @@
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-domain-user-identity</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-consume-command</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

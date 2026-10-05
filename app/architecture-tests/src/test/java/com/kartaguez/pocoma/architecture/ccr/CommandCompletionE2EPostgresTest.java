@@ -55,16 +55,16 @@ import com.kartaguez.pocoma.WebAuthorizationConfiguration;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResult;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
@@ -81,7 +81,6 @@ import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseSharesA
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotHeaderAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotShareholdersAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
@@ -463,7 +462,7 @@ class CommandCompletionE2EPostgresTest {
 		var envelope = new TargetCommandEnvelope(new ExternalIdentity(ISSUER, SUBJECT), bindingId,
 				new CommandAuthenticationEvidence(authorities, submittedAt.plusSeconds(600)));
 		context.getBean(TransactionRunner.class).runInTransaction(() ->
-				context.getBean(RecordedCommandPort.class).insert(new RecordedCommand(
+				context.getBean(RecordedCommandInsertionPort.class).insert(new RecordedCommand(
 						id, PotCommandTypes.POT_CREATE_V1, serializedPayload, submittedAt, envelope)));
 		return id;
 	}
@@ -649,7 +648,7 @@ class CommandCompletionE2EPostgresTest {
 			JpaCommandConsumptionDiscoveryAdapter.class, JdbcCommandOutcomeAdapter.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class,
 			ExternalIdentityJdbcRepository.class,
-			JpaExternalIdentityResolverAdapter.class, JpaExternalIdentityBindingAdapter.class,
+			JpaExternalIdentityBindingAdapter.class,
 			JpaPotGlobalVersionAdapter.class,
 			JpaPotContextAdapter.class, JpaExpenseContextAdapter.class, JpaPotHeaderAdapter.class,
 			JpaPotShareholdersAdapter.class, JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,
@@ -746,7 +745,7 @@ class CommandCompletionE2EPostgresTest {
 			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,
 			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
 			JdbcRegistrationRequestStore.class, JdbcRegistrationResultStore.class,
-			JpaRecordedCommandRepository.class, JpaExternalIdentityResolverAdapter.class,
+			JpaRecordedCommandRepository.class,
 			JdbcCommandResultStore.class,
 			ExternalIdentityJdbcRepository.class,
 			AsyncCommandController.class, CommandResultController.class, CurrentBindingController.class,

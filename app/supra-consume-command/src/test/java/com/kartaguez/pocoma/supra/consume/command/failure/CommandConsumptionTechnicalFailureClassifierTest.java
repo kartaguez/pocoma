@@ -18,8 +18,8 @@ import com.kartaguez.pocoma.engine.consume.command.decode.InvalidCommandPayloadE
 import com.kartaguez.pocoma.engine.consume.command.decode.UnknownCommandTypeException;
 import com.kartaguez.pocoma.engine.consume.command.execution.CommandExecutionInvariantViolationException;
 import com.kartaguez.pocoma.engine.consume.command.execution.RecordedCommandNotFoundException;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 
 class CommandConsumptionTechnicalFailureClassifierTest {

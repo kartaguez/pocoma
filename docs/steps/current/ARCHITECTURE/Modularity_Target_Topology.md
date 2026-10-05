@@ -254,7 +254,7 @@ Tous ces supras sont exempts de SQL concret et de polling générique. Les sept 
 | ProjectionTask | `runtime-task-consumption-worker → orchestrator-poll-consumption → supra-consume-projection-task → orchestrator-consumption → engine-consume-projection-task → projector-pot` |
 | Binding → Current | `runtime-binding-consumption-worker → orchestrator-poll-consumption → supra-consume-binding → orchestrator-consumption → engine-materialize-current-binding` |
 | Current Binding GET | `runtime-web-api → supra-http-read → engine-read-current-binding` |
-| Pot GET | `runtime-web-api → supra-http-read → engine-read-pot → TBD-E2U port → engine-read-projection` |
+| Pot GET | `runtime-web-api → supra-http-read → engine-read-pot → engine-read-current-binding + engine-read-projection` |
 
 ## 5. Matrice canonique des arcs logiques
 
@@ -435,3 +435,9 @@ Fan-in/out ci-dessous = nombre d'arcs directs du graphe physique ferme. Closure 
 C, C.1 et C.2 expliquaient les frontières initiales ; leurs anciens choix de colocation et leurs anciens comptages ne sont plus normatifs. Les noms remplacés dans cette révision ne sont pas des cibles supplémentaires : le projecteur pur passe dans la famille `projector-*`, le polling générique dans `orchestrator-*`, HTTP se sépare en write/read, les sept supras Consumption ont leur POM, et les providers infra expriment rôle puis technologie. Le reactor n'est pas minimisé pour lui-même : les POM matérialisent les frontières choisies.
 
 Vérification déclarée : édition documentaire seule, aucun slice Maven applicatif ; contrôle statique du mapping, des noms, des arcs, des cycles, des fan-in/out et des closures ; `git diff --check`. Aucun Maven, architecture gate ou full reactor nécessaire.
+
+Les matrices et les comptes 54 POM / 147 arcs précédents sont des snapshots de conception **pré-checkpoint** ; ils ne décrivent plus le graphe courant après POST-WP4.A/B/C. Le graphe Maven actuel contient 73 POM et 354 arcs internes directs, legacy inclus, sans cycle. Le delta ci-dessous prévaut sur les arcs provisoires et les statuts TBD antérieurs.
+
+## Delta normatif POST-WP4.A/B/C livré et vérifié (2026-10-04)
+
+`contracts-command` possède uniquement CommandId, CommandType, RecordedCommand, TargetCommandEnvelope et CommandAuthenticationEvidence, valeurs de l’intake durable. `engine-admit-command` possède l’insertion, `engine-consume-command` la relecture et CommandOutcome. `engine-read-command-result` possède PublishedCommandResult et son Result immuable sans dépendance vers consume. RegistrationRequest reste dans `contracts-registration` ; RegistrationOutcome appartient à `engine-consume-registration`, et PublishedRegistrationResult à `engine-read-registration-result`. Les deux materializers convertissent après validation des sources. `engine-read-pot → engine-read-current-binding` remplace la résolution E→U PRIMARY ; le GET lit l’identité projetée convergente avant AUTH@V et READ_POT@V. Les tableaux et décomptes antérieurs décrivent le TARGET avant ce delta ; leurs arcs provisoires Command/E2U sont remplacés par ces arcs. La matérialisation CURRENT_BINDING suit C2 (maximum R), documenté dans [l’audit des révisions](Modularity_Post_WP4_Current_Binding_Revision_Audit.md). `TBD-COMMAND-CONTRACT` et `TBD-E2U` sont RESOLVED après preuves. `TBD-LKV` reste OPEN.

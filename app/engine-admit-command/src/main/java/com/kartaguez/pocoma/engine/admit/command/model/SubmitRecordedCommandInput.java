@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 public record SubmitRecordedCommandInput(
 		CommandType commandType,

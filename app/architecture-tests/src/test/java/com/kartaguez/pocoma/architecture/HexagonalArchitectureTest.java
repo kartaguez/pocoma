@@ -392,7 +392,7 @@ class HexagonalArchitectureTest {
 						POT_PROJECTION_DOMAIN_PACKAGE,
 						ROOT_PACKAGE + ".domain.projection",
 						PROJECTION_READ_PORT_PACKAGE,
-                        USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.transaction"));
+                        USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".engine.read.currentbinding"));
 		assertEquals(Set.of(), dependenciesOutsidePotRead,
 				"engine-read-pot must depend only on the JDK, authorization and Pot domains, "
 						+ "domain-projection and engine-projection-read");
@@ -496,7 +496,7 @@ class HexagonalArchitectureTest {
 		Set<String> serviceDependencies = directDependencyNames(
 				ROOT_PACKAGE + ".engine.admit.command.SubmitRecordedCommandService");
 		assertTrue(serviceDependencies.contains(
-				ROOT_PACKAGE + ".engine.consume.command.model.TargetCommandEnvelope"));
+				ROOT_PACKAGE + ".contracts.command.TargetCommandEnvelope"));
 		assertFalse(serviceDependencies.stream().anyMatch(name -> name.endsWith("AuthorizationSnapshot")
 				|| name.endsWith("Permission") || name.endsWith("ExternalIdentityResolverPort")
 				|| name.endsWith("ExternalIdentityBindingPort")),
@@ -896,7 +896,8 @@ class HexagonalArchitectureTest {
 		String commandPackage = ROOT_PACKAGE + ".engine.consume.command";
 		Set<String> allowedPackages = Set.of(commandPackage, ROOT_PACKAGE + ".domain.authorization",
 				ROOT_PACKAGE + ".domain.consumption.lifecycle", ROOT_PACKAGE + ".domain.event",
-				USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.binding.authority");
+				USER_IDENTITY_DOMAIN_PACKAGE, ROOT_PACKAGE + ".port.binding.authority",
+				ROOT_PACKAGE + ".contracts.command");
 		Set<String> dependenciesOutsideCommand = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(commandPackage))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".pot"))
@@ -926,14 +927,14 @@ class HexagonalArchitectureTest {
 				"engine-command execution contracts must not expose claiming or fencing state");
 
 		assertEquals(Set.of("commandId", "commandType", "serializedPayload", "submittedAt", "envelope"),
-				fieldNames(ROOT_PACKAGE + ".engine.consume.command.model.RecordedCommand"),
+				fieldNames(ROOT_PACKAGE + ".contracts.command.RecordedCommand"),
 				"RecordedCommand must contain durable request data and no consumption lifecycle");
 	}
 
 	@Test
 	void targetCommandConsumptionKeepsIdentityResolutionInsideTheWriteWorkerBoundary() {
 		assertEquals(Set.of("externalIdentity", "bindingId", "authenticationEvidence"),
-				fieldNames(ROOT_PACKAGE + ".engine.consume.command.model.TargetCommandEnvelope"),
+				fieldNames(ROOT_PACKAGE + ".contracts.command.TargetCommandEnvelope"),
 				"TARGET_V2 must contain E, B and AuthN evidence only");
 
 		Set<String> executionDependencies = directDependencyNames(
@@ -1036,7 +1037,8 @@ class HexagonalArchitectureTest {
 		Set<String> dependencies = dependenciesOutside(
 				persistencePackage + ".adapter.command",
 				Set.of(commandPersistencePackage, commandRepositoryPackage,
-						ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".domain.authorization",
+						ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".engine.admit.command.port.out",
+						ROOT_PACKAGE + ".contracts.command", ROOT_PACKAGE + ".domain.authorization",
 						ROOT_PACKAGE + ".engine.read.commandresult",
                         ROOT_PACKAGE + ".engine.materialize.commandresult",
 						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,

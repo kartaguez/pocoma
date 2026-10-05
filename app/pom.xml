@@ -50,6 +50,7 @@
 		<module>supra-consume-command-result</module>
 		<module>engine-read-command-result</module>
 		<module>engine-materialize-command-result</module>
+		<module>contracts-command</module>
 		<module>contracts-registration</module>
 		<module>engine-admit-registration</module>
 		<module>engine-consume-registration</module>

@@ -9,16 +9,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandAlreadyExistsException;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandAlreadyExistsException;
 import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.RecordedCommandRow;
 
 @Component
-public class JpaRecordedCommandAdapter implements RecordedCommandPort {
+public class JpaRecordedCommandAdapter implements RecordedCommandPort, RecordedCommandInsertionPort {
 	private final JpaRecordedCommandRepository repository;
 	private final RecordedCommandRecordMapper mapper;
 

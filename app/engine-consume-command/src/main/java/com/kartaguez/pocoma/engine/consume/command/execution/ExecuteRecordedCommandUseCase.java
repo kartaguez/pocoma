@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.command.execution;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Executes the authoritative durable Command identified by its business identifier. */
 @FunctionalInterface

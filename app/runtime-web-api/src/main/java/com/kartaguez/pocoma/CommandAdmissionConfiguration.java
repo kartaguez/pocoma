@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactory;
 import com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandService;
@@ -42,7 +42,7 @@ public class CommandAdmissionConfiguration {
 
 	@Bean
 	SubmitRecordedCommandUseCase submitRecordedCommandUseCase(
-			RecordedCommandPort commands,
+			RecordedCommandInsertionPort commands,
 			CommandIdGenerator commandIds,
 			CommandAuthenticationEvidenceFactory authenticationEvidence,
 			Clock clock,

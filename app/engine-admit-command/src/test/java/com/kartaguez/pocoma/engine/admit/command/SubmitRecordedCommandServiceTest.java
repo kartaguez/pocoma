@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.admit.command.model.CommandAuthorizationTtl;
 import com.kartaguez.pocoma.engine.admit.command.model.SubmitRecordedCommandInput;
@@ -60,9 +60,8 @@ class SubmitRecordedCommandServiceTest {
 			List<RecordedCommand> inserted,
 			TransactionRunner transactions) {
 		return new SubmitRecordedCommandService(
-				new RecordedCommandPort() {
+				new RecordedCommandInsertionPort() {
 					@Override public void insert(RecordedCommand command) { inserted.add(command); }
-					@Override public Optional<RecordedCommand> findById(CommandId commandId) { return Optional.empty(); }
 				},
 				() -> COMMAND_ID,
 				new CommandAuthenticationEvidenceFactory(

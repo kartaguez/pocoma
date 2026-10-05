@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,10 @@ import com.kartaguez.pocoma.engine.read.pot.PotView;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotResult;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotUseCase;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotForExternalIdentityService;
-import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.domain.useridentity.BindingId;
+import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBinding;
+import com.kartaguez.pocoma.domain.useridentity.currentbinding.CurrentBindingStatus;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,8 +100,8 @@ class PotQueryControllerTest {
 
 	private static PotQueryController controller(ReadPotUseCase useCase, boolean knownIdentity) {
 		return new PotQueryController(new ReadPotForExternalIdentityService(useCase,
-                identity -> knownIdentity ? Optional.of(new PocomaUserId(USER_ID)) : Optional.empty(),
-                new ExternalAuthorityPermissionTranslator(), transactions()));
+                identity -> knownIdentity ? Optional.of(new CurrentBinding(identity, new BindingRevision(1), CurrentBindingStatus.ATTACHED, new PocomaUserId(USER_ID), new BindingId(UUID.randomUUID()), UUID.randomUUID(), Instant.now())) : Optional.empty(),
+                new ExternalAuthorityPermissionTranslator()));
 	}
 
 	private static ProjectionKey key(boolean auth) {
@@ -114,10 +116,4 @@ class PotQueryControllerTest {
 		return request;
 	}
 
-	private static TransactionRunner transactions() {
-		return new TransactionRunner() {
-			@Override public <T> T runInTransaction(Supplier<T> action) { return action.get(); }
-			@Override public void runAfterCommit(Runnable action) { action.run(); }
-		};
-	}
 }

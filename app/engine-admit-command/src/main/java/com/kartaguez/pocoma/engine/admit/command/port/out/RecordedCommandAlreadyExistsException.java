@@ -1,8 +1,8 @@
-package com.kartaguez.pocoma.engine.consume.command.port.out;
+package com.kartaguez.pocoma.engine.admit.command.port.out;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Technical failure raised when a durable Command id is recorded more than once. */
 public final class RecordedCommandAlreadyExistsException extends RuntimeException {

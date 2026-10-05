@@ -30,7 +30,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.read.registrationresult.RegistrationResultStore;
 
 @SpringBootTest(properties = {
@@ -102,7 +103,7 @@ class RegistrationAdmissionPostgresTest {
         String path = "/api/v1/registrations/" + id + "/result";
         http.perform(get(path).with(jwt().jwt(token("owner")))).andExpect(status().isNotFound());
         results.ensureResult(new ImmutableRegistrationResult(
-                new ExternalIdentity("https://issuer.test", "owner"), new RegistrationOutcome.Rejected(id)));
+                new ExternalIdentity("https://issuer.test", "owner"), new PublishedRegistrationResult.Rejected(id)));
         http.perform(get(path).with(jwt().jwt(token("owner")))).andExpect(status().isOk());
         http.perform(get(path).with(jwt().jwt(token("other")))).andExpect(status().isNotFound());
         assertEquals("REJECTED", json.readTree(http.perform(get(path).with(jwt().jwt(token("owner"))))

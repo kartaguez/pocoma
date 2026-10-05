@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionCandidate;
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 

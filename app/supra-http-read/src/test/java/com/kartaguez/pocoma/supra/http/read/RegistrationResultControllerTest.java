@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.engine.read.registrationresult.GetRegistrationResultService;
 import com.kartaguez.pocoma.engine.read.registrationresult.ImmutableRegistrationResult;
@@ -25,7 +25,7 @@ class RegistrationResultControllerTest {
         var store = new MemoryStore();
         var controller = new RegistrationResultController(new GetRegistrationResultService(store));
         var absent = controller.get(ID, principal("owner"));
-        store.result = new ImmutableRegistrationResult(OWNER, new RegistrationOutcome.Rejected(ID));
+        store.result = new ImmutableRegistrationResult(OWNER, new PublishedRegistrationResult.Rejected(ID));
         var nonOwner = controller.get(ID, principal("other"));
         assertEquals(404, absent.getStatusCode().value());
         assertEquals(absent.getStatusCode(), nonOwner.getStatusCode());

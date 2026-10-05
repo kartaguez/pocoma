@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandTerminalEventTypes;
 import com.kartaguez.pocoma.engine.consume.command.port.out.CommandOutcomePublicationPort;

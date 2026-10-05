@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.contracts.registration;
+package com.kartaguez.pocoma.engine.consume.registration;
 
 import java.util.UUID;
 

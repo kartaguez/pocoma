@@ -19,7 +19,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecuti
 import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationDiscoveryPort.Cursor;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;

@@ -9,13 +9,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.RecordedCommandRow;
 
 /** Maps the generic Command envelope without interpreting its opaque payload. */

@@ -1,6 +1,8 @@
 # Complément post-WP4 — ownership Command / Registration
 
-**Statut : audit documentaire, proposition non implémentée.** Complète [l'audit des décisions ouvertes](Modularity_Post_WP4_Open_Decisions_Audit.md). `TBD-COMMAND-CONTRACT` reste **OPEN**. Ce texte ne lance pas POST-WP4.A/B/C et ne change ni `TBD-E2U`, ni `TBD-LKV`, ni CURRENT_BINDING. Les sources `app/*/src/main` et les POM au HEAD priment sur les anciens plans.
+**Invariant normatif POST-WP4.A :** « contracts-command possède le langage stable de la Command admise et durable, nécessaire à son identité et à son transfert admission → persistence → consumption. » Il ne signifie pas « types Command utilisés par plusieurs modules ». CommandId, CommandType, RecordedCommand, TargetCommandEnvelope et CommandAuthenticationEvidence satisfont cet invariant : leurs valeurs sont fixées à l'admission, persistées, puis relues pour la consommation. CommandOutcome en est exclu : il naît à l'exécution. Le Result publié appartient au moteur READ.
+
+**Statut : audit historique complété par POST-WP4.A vérifié ; `TBD-COMMAND-CONTRACT` RESOLVED.** Complète [l'audit des décisions ouvertes](Modularity_Post_WP4_Open_Decisions_Audit.md). Les mentions OPEN ci-dessous décrivent l’état au HEAD audité. Ce texte historique ne lançait pas POST-WP4.A/B/C et ne change ni `TBD-E2U`, ni `TBD-LKV`, ni CURRENT_BINDING. Les sources `app/*/src/main` et les POM au HEAD priment sur les anciens plans.
 
 ## 1. Baseline et méthode
 
@@ -146,3 +148,7 @@ Analyse XML des POM de production au HEAD : **72 modules, 306 arcs, aucun cycle*
 ## Réponse finale
 
 **YES.** La frontière envisagée pour Command révèle la même incohérence de cycle de vie dans Registration : un outcome né uniquement de l'exécution est possédé par `contracts-registration` et sert directement de contenu au Result READ. La request Registration, elle, est déjà un vrai contrat durable d'intake, et ses ports TARGET sont déjà séparés. La correction doit donc porter sur l'outcome et le modèle publié, sans forcer une identité de modules ni toucher à la transaction métier Registration. **Même cycle sémantique → même principe d'ownership ; cycles différents → asymétrie justifiée.**
+
+## Delta d’implémentation POST-WP4.A (2026-10-04)
+
+Les cinq valeurs d’intake Command identifiées ci-dessus ont été transférées à `contracts-command`. Les deux outcomes d’exécution appartiennent désormais à leurs moteurs consume ; les deux Results publiés utilisent chacun un modèle READ autonome. Le materializer reste la frontière unique entre outcome et publication. Les preuves et le graphe effectif sont détaillés dans [le rapport d’exécution](Modularity_Post_WP4_Checkpoint_Execution_Report.md). Les constats de couplage plus haut décrivent le HEAD initial, avant ce delta.

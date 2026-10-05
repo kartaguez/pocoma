@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.admit.command.port.out;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 public interface CommandIdGenerator {
 

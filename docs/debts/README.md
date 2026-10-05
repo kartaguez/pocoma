@@ -12,4 +12,4 @@ Statuts : **OPEN** (à traiter ultérieurement), **IN_PROGRESS** (chantier expli
 
 ## Décisions ouvertes de modularité
 
-`TBD-COMMAND-CONTRACT` est une **décision ouverte**, pas une dette de criticité évaluée. Sa source de vérité est le [POST-WP4 checkpoint du plan de migration](../steps/current/ARCHITECTURE/Modularity_Migration_Plan.md). Il reste **OPEN** pendant WP4 ; la consolidation finale ne peut pas le clore silencieusement. Le checkpoint doit inventorier les consommateurs réels après WP4 et décider de l’ownership de `CommandId`, `CommandOutcome`, `RecordedCommand` et des contrats Result partagés.
+`TBD-COMMAND-CONTRACT` et `TBD-E2U` sont **RESOLVED** par le [checkpoint post-WP4 vérifié](../steps/current/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). Le premier fixe l’ownership de l’intake Command, des outcomes et des Results publiés ; le second fixe GET Pot sur CURRENT_BINDING convergent et son invariant C2. Ces identifiants étaient des décisions ouvertes, sans criticité de dette inventée. `TBD-LKV` reste **OPEN** et hors de ce checkpoint.

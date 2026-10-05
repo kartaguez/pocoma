@@ -17,8 +17,8 @@ import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultService;
 import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
 import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
+import com.kartaguez.pocoma.engine.read.commandresult.PublishedCommandResult;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 class CommandResultControllerTest {
 	private static final UUID COMMAND_ID = UUID.randomUUID();
@@ -51,7 +51,7 @@ class CommandResultControllerTest {
         var controller = new CommandResultController(new GetCommandResultService(store));
         var absent = controller.get(COMMAND_ID, PRINCIPAL);
         store.ensureResult(new ImmutableCommandResult(new ExternalIdentity("issuer", "other"),
-                new CommandOutcome.Rejected(new CommandId(COMMAND_ID), "DENIED", NOW)));
+                new PublishedCommandResult.Rejected(new CommandId(COMMAND_ID), "DENIED", NOW)));
         var nonOwner = controller.get(COMMAND_ID, PRINCIPAL);
         assertEquals(HttpStatus.NOT_FOUND, absent.getStatusCode());
         assertEquals(absent.getStatusCode(), nonOwner.getStatusCode());

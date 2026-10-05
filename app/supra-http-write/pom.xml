@@ -11,6 +11,7 @@
 	<artifactId>pocoma-supra-http-write</artifactId>
 	<name>pocoma-supra-http-write</name>
 	<dependencies>
+<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-command</artifactId><version>${project.version}</version></dependency>
 <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-admit-registration</artifactId><version>${project.version}</version></dependency>
 
 		<dependency>

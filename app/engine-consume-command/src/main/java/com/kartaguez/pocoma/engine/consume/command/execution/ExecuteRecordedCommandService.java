@@ -16,8 +16,8 @@ import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandUseCaseResult
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionArtifact;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
 import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;

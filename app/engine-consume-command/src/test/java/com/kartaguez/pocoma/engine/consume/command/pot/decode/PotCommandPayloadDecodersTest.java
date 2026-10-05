@@ -142,6 +142,6 @@ class PotCommandPayloadDecodersTest {
 		return template.formatted(values);
 	}
 
-	private record Case(com.kartaguez.pocoma.engine.consume.command.model.CommandType type, String payload, Command expected) {
+	private record Case(com.kartaguez.pocoma.contracts.command.CommandType type, String payload, Command expected) {
 	}
 }

@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Structural candidate selected without reserving or decoding its durable Command. */
 public record CommandConsumptionCandidate(CommandId commandId, Instant submittedAt) {

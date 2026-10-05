@@ -9,9 +9,8 @@ import com.kartaguez.pocoma.engine.read.pot.PotReads;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotUseCase;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotForExternalIdentityUseCase;
 import com.kartaguez.pocoma.engine.read.pot.ReadPotForExternalIdentityService;
-import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityResolverPort;
+import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.pot-read", name = "enabled", havingValue = "true")
@@ -22,8 +21,8 @@ public class PotReadConfiguration {
 	}
     @Bean
     ReadPotForExternalIdentityUseCase readPotForExternalIdentityUseCase(ReadPotUseCase pots,
-            ExternalIdentityResolverPort identities, TransactionRunner transactions) {
-        return new ReadPotForExternalIdentityService(pots, identities,
-                new ExternalAuthorityPermissionTranslator(), transactions);
+            GetCurrentBindingUseCase bindings) {
+        return new ReadPotForExternalIdentityService(pots, bindings,
+                new ExternalAuthorityPermissionTranslator());
     }
 }

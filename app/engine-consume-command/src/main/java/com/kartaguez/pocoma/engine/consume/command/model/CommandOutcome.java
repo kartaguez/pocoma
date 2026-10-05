@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.consume.command.model;
 
+import com.kartaguez.pocoma.contracts.command.CommandId;
+
 import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;

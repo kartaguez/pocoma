@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 class CommandDecoderRegistryTest {
 

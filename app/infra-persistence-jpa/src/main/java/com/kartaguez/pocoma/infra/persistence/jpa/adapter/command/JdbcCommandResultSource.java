@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultDiscovery;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultSource;
 

@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Instant;
 
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.admit.command.model.CommandAuthorizationTtl;
 
 /** Captures only the provider-neutral AuthN evidence required by TARGET_V2 consumption. */

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionCandidate;
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.port.out.CommandConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 

@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Instant;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Exclusive PostgreSQL keyset cursor. Ordering is deliberately database-owned. */
 public record CommandDiscoveryCursor(Instant submittedAt, CommandId commandId) {

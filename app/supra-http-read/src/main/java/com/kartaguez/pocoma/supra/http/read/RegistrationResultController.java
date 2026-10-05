@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kartaguez.pocoma.contracts.authentication.AuthenticatedExternalPrincipal;
 import com.kartaguez.pocoma.engine.read.registrationresult.GetRegistrationResultService;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
 
 @RestController
 @RequestMapping("/api/v1/registrations")
@@ -20,12 +20,12 @@ public final class RegistrationResultController {
     public ResponseEntity<RegistrationResultResponse> get(@PathVariable UUID requestId,
             AuthenticatedExternalPrincipal principal) {
         return results.get(requestId, principal.identity()).map(outcome -> {
-            if (outcome instanceof RegistrationOutcome.Registered registered) {
+            if (outcome instanceof PublishedRegistrationResult.Registered registered) {
                 return ResponseEntity.ok(new RegistrationResultResponse(requestId, "REGISTERED",
                         registered.userId().value(), registered.bindingId().value(), null));
             }
             return ResponseEntity.ok(new RegistrationResultResponse(requestId, "REJECTED", null, null,
-                    RegistrationOutcome.Rejected.CODE));
+                    PublishedRegistrationResult.Rejected.CODE));
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 

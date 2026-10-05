@@ -29,7 +29,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
 import com.kartaguez.pocoma.engine.registration.*;
 import com.kartaguez.pocoma.engine.read.registrationresult.*;
 import com.kartaguez.pocoma.supra.consume.registrationresult.RegistrationResultConsumptionLocator;
@@ -76,14 +77,14 @@ class RegistrationResultRuntimePostgresTest {
         orchestrator.run(input("first"));
         assertEquals(2, count("registration_results"));
         assertEquals(2, jdbc.queryForObject("select count(*) from consumption_slots where status='DONE' and consumer_type='REGISTRATION_RESULT_MATERIALIZER_V1'", Integer.class));
-        assertInstanceOf(RegistrationOutcome.Registered.class, get(registered, "one"));
-        assertInstanceOf(RegistrationOutcome.Rejected.class, get(rejected, "one"));
+        assertInstanceOf(PublishedRegistrationResult.Registered.class, get(registered, "one"));
+        assertInstanceOf(PublishedRegistrationResult.Rejected.class, get(rejected, "one"));
         assertTrue(new GetRegistrationResultService(results).get(registered, new ExternalIdentity("issuer", "other")).isEmpty());
         orchestrator.run(input("restarted"));
         assertEquals(2, count("registration_results"));
         assertEquals(0, jdbc.queryForObject("select count(*) from projection_tasks where projection_type='REGISTRATION_RESULT'", Integer.class));
-        assertInstanceOf(RegistrationOutcome.Registered.class, get(registered, "one"));
-        var original = (RegistrationOutcome.Registered) get(registered, "one");
+        assertInstanceOf(PublishedRegistrationResult.Registered.class, get(registered, "one"));
+        var original = (PublishedRegistrationResult.Registered) get(registered, "one");
         tx.runInTransaction(() -> {
             bindings.detach(new ExternalIdentity("issuer", "one"), original.bindingId());
             PocomaUserId replacement = new PocomaUserId(UUID.randomUUID());
@@ -144,7 +145,7 @@ class RegistrationResultRuntimePostgresTest {
         });
         return id;
     }
-    private RegistrationOutcome get(UUID id, String subject) {
+    private PublishedRegistrationResult get(UUID id, String subject) {
         return new GetRegistrationResultService(results).get(id, new ExternalIdentity("issuer", subject)).orElseThrow();
     }
     private int count(String table) { return jdbc.queryForObject("select count(*) from " + table, Integer.class); }

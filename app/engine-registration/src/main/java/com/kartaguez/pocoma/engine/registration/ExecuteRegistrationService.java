@@ -1,7 +1,7 @@
 package com.kartaguez.pocoma.engine.registration;
 
 import java.util.UUID;
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
 import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;

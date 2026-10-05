@@ -39,16 +39,16 @@ import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandUseCaseResult
 import com.kartaguez.pocoma.engine.consume.command.dispatch.MissingCommandUseCaseException;
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandAppliedResult;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandAuthenticationEvidence;
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
 import com.kartaguez.pocoma.engine.consume.command.model.ResolvedCommandAuthorization;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
 import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
 import com.kartaguez.pocoma.engine.consume.command.port.out.EventAppendPort;
 
@@ -471,9 +471,6 @@ class ExecuteRecordedCommandServiceTest {
 
 	private static RecordedCommandPort recordedCommands(Optional<RecordedCommand> recorded) {
 		return new RecordedCommandPort() {
-			@Override public void insert(RecordedCommand command) {
-				throw new UnsupportedOperationException("not used by execution tests");
-			}
 			@Override public Optional<RecordedCommand> findById(CommandId commandId) { return recorded; }
 		};
 	}

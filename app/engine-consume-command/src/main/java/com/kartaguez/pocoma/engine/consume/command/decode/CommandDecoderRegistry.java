@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 /** Immutable registry of payload decoders, keyed by stable Command type. */
 public final class CommandDecoderRegistry implements CommandDecoder {

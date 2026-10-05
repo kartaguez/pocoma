@@ -64,7 +64,7 @@ class Wa67BindingArchitectureTest {
 				"engine-read-command-result/src/main/java/com/kartaguez/pocoma/engine/read/commandresult/GetCommandResultService.java"));
 		assertTrue(!resultRead.contains("CurrentBinding"));
 		String command = Files.readString(appRoot().resolve(
-				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/RecordedCommand.java"));
+				"contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/RecordedCommand.java"));
 		assertTrue(!command.contains("PocomaUserId"));
 		assertTrue(!command.contains("BindingRevision"));
 	}
@@ -116,7 +116,7 @@ class Wa67BindingArchitectureTest {
 				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/execution/ExecuteRecordedCommandService.java"));
 		String stream = Files.readString(appRoot().resolve(STREAM_REPOSITORY));
 		String recorded = Files.readString(appRoot().resolve(
-				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/RecordedCommand.java"));
+				"contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/RecordedCommand.java"));
 		String consumption = Files.readString(appRoot().resolve(
 				"engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/consumption/CommandConsumptionExecution.java"));
 		assertTrue(service.contains("bindings.observeCurrentBinding("));

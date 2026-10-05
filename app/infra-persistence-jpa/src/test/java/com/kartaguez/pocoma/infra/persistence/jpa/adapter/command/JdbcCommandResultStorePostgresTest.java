@@ -19,9 +19,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
+import com.kartaguez.pocoma.engine.read.commandresult.PublishedCommandResult;
 
 @Testcontainers
 class JdbcCommandResultStorePostgresTest {
@@ -47,13 +48,13 @@ class JdbcCommandResultStorePostgresTest {
 	@Test void insertIdenticalReplayDivergenceAndImmutableOwner() {
 		CommandId id = recorded();
 		ImmutableCommandResult first = new ImmutableCommandResult(OWNER,
-				new CommandOutcome.Applied(id, UUID.randomUUID(), 7, NOW));
+				new PublishedCommandResult.Applied(id, UUID.randomUUID(), 7, NOW));
 		store.ensureResult(first);
 		store.ensureResult(first);
 		assertEquals(first, store.find(id).orElseThrow());
 		assertEquals(1L, jdbc.queryForObject("select count(*) from command_results", Long.class));
 		assertThrows(IllegalStateException.class, () -> store.ensureResult(new ImmutableCommandResult(OWNER,
-				new CommandOutcome.Applied(id, UUID.randomUUID(), 7, NOW))));
+				new PublishedCommandResult.Applied(id, UUID.randomUUID(), 7, NOW))));
 		assertThrows(IllegalStateException.class, () -> store.ensureResult(new ImmutableCommandResult(
 				new ExternalIdentity("issuer", "different"), first.outcome())));
 		assertThrows(DataAccessException.class, () -> jdbc.update(

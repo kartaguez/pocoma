@@ -26,7 +26,6 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityResolverAdapter;
 import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
 
 @Testcontainers
@@ -230,10 +229,9 @@ class PrimaryMigrationsPostgresTest {
 
 		DriverManagerDataSource dataSource = new DriverManagerDataSource(
 				POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
-		var legacyResolver = new JpaExternalIdentityResolverAdapter(
-				new ExternalIdentityJdbcRepository(new JdbcTemplate(dataSource)));
+		var identityRepository = new ExternalIdentityJdbcRepository(new JdbcTemplate(dataSource));
 		var resolved = new TransactionTemplate(new DataSourceTransactionManager(dataSource)).execute(status ->
-				legacyResolver.findUserId(new ExternalIdentity("issuer-a", "subject-a")));
+				identityRepository.findUserId("issuer-a", "subject-a").map(PocomaUserId::new));
 		assertEquals(new PocomaUserId(java.util.UUID.fromString("10000000-0000-0000-0000-000000000001")),
 				resolved.orElseThrow());
 	}

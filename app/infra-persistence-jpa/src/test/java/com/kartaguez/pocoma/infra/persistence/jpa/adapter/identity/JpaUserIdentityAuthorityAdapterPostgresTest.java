@@ -43,7 +43,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 
     @Autowired JpaUserAuthorityAdapter users;
     @Autowired JpaExternalIdentityBindingAdapter bindings;
-    @Autowired JpaExternalIdentityResolverAdapter legacyResolver;
+    @Autowired ExternalIdentityJdbcRepository identities;
     @Autowired JdbcTemplate jdbc;
     @Autowired PlatformTransactionManager transactionManager;
 
@@ -136,11 +136,11 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
         } finally { executor.shutdownNow(); }
     }
 
-    @Test void exactCommandLockAndLegacyLookupRemainAvailable() {
+    @Test void exactCommandLockAndAuthorityLookupRemainAvailable() {
         PocomaUserId user = createUser(4);
         ExternalIdentity identity = identity("command-lock");
         BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
-        assertEquals(user, inTransaction(() -> legacyResolver.findUserId(identity)).orElseThrow());
+        assertEquals(user, inTransaction(() -> identities.findUserId(identity.issuer(), identity.subject()).map(PocomaUserId::new)).orElseThrow());
         assertEquals(user, inTransaction(() -> bindings.observeCurrentBinding(identity, binding)).orElseThrow().userId());
     }
 
@@ -297,7 +297,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
 
     @SpringBootConfiguration @EnableAutoConfiguration
     @Import({JpaUserAuthorityAdapter.class, JpaExternalIdentityBindingAdapter.class,
-            JpaExternalIdentityResolverAdapter.class, UserJdbcRepository.class,
+            UserJdbcRepository.class,
             ExternalIdentityJdbcRepository.class})
     static class TestApplication {}
 }

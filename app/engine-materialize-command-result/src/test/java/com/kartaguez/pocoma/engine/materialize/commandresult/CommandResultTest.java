@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
 import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultService;
 import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResult;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 
 class CommandResultTest {
@@ -28,7 +28,7 @@ class CommandResultTest {
 				new CommandOutcome.Failed(ID, CommandOutcome.PUBLIC_FAILURE_CODE, NOW) }) {
 			MemoryStore store = new MemoryStore();
 			new MaterializeCommandResultService(store).materialize(ID.value(), source(outcome));
-			assertEquals(new ImmutableCommandResult(OWNER, outcome), store.value);
+			assertEquals(new ImmutableCommandResult(OWNER, MaterializeCommandResultService.publish(outcome)), store.value);
 			GetCommandResultService get = new GetCommandResultService(store);
 			assertInstanceOf(GetCommandResult.NotFound.class, get.get(ID, new ExternalIdentity("issuer", "other")));
 			assertInstanceOf(GetCommandResult.NotFound.class, get.get(ID, new ExternalIdentity("other", "subject")));
@@ -67,7 +67,7 @@ class CommandResultTest {
 		assertThrows(IllegalStateException.class, () -> materializer.materialize(ID.value(),
 				source(new CommandOutcome.Rejected(ID, "DIFFERENT", NOW))));
 		assertThrows(IllegalStateException.class, () -> store.ensureResult(new ImmutableCommandResult(
-				new ExternalIdentity("other", "subject"), outcome)));
+				new ExternalIdentity("other", "subject"), MaterializeCommandResultService.publish(outcome))));
 	}
 
 	private static CommandResultSource source(CommandOutcome outcome) {

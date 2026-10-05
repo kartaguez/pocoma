@@ -4,9 +4,9 @@ import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
 
-import com.kartaguez.pocoma.engine.consume.command.model.RecordedCommand;
-import com.kartaguez.pocoma.engine.consume.command.model.TargetCommandEnvelope;
-import com.kartaguez.pocoma.engine.consume.command.port.out.RecordedCommandPort;
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+import com.kartaguez.pocoma.engine.admit.command.port.out.RecordedCommandInsertionPort;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.admit.command.model.SubmitRecordedCommandInput;
 import com.kartaguez.pocoma.engine.admit.command.model.SubmittedCommand;
@@ -14,14 +14,14 @@ import com.kartaguez.pocoma.engine.admit.command.port.in.SubmitRecordedCommandUs
 import com.kartaguez.pocoma.engine.admit.command.port.out.CommandIdGenerator;
 
 public final class SubmitRecordedCommandService implements SubmitRecordedCommandUseCase {
-	private final RecordedCommandPort commands;
+	private final RecordedCommandInsertionPort commands;
 	private final CommandIdGenerator commandIds;
 	private final CommandAuthenticationEvidenceFactory authenticationEvidence;
 	private final Clock clock;
 	private final TransactionRunner transactions;
 
 	public SubmitRecordedCommandService(
-			RecordedCommandPort commands,
+			RecordedCommandInsertionPort commands,
 			CommandIdGenerator commandIds,
 			CommandAuthenticationEvidenceFactory authenticationEvidence,
 			Clock clock,

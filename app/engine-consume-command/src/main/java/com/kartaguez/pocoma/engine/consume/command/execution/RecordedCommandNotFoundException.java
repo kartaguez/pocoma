@@ -2,7 +2,7 @@ package com.kartaguez.pocoma.engine.consume.command.execution;
 
 import static java.util.Objects.requireNonNull;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Technical failure raised when the authoritative Command cannot be reloaded. */
 public final class RecordedCommandNotFoundException extends RuntimeException {

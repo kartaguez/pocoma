@@ -1,5 +1,15 @@
 package com.kartaguez.pocoma.engine.consume.command.model;
 
+import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
+
+import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
+
+import com.kartaguez.pocoma.contracts.command.RecordedCommand;
+
+import com.kartaguez.pocoma.contracts.command.CommandType;
+
+import com.kartaguez.pocoma.contracts.command.CommandId;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandPayloadDecoder;
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 abstract class AbstractJacksonCommandPayloadDecoder<C extends Command> implements CommandPayloadDecoder<C> {
 

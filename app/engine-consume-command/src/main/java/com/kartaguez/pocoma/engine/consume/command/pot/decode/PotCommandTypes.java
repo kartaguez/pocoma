@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.command.pot.decode;
 
-import com.kartaguez.pocoma.engine.consume.command.model.CommandType;
+import com.kartaguez.pocoma.contracts.command.CommandType;
 
 /** Stable identifiers for durable Pot Command payload contracts. */
 public final class PotCommandTypes {

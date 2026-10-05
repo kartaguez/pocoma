@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.consume.command.execution.RecordedCommandExecutionResult;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionArtifact;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;

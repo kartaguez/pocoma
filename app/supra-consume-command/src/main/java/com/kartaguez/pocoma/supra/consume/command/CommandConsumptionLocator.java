@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionCandidate;
 import com.kartaguez.pocoma.engine.consume.command.discovery.CommandDiscoveryCursor;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;
 import com.kartaguez.pocoma.engine.consume.command.port.out.CommandConsumptionDiscoveryPort;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;

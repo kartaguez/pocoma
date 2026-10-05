@@ -1,6 +1,6 @@
 package com.kartaguez.pocoma.engine.registration;
 
-import com.kartaguez.pocoma.contracts.registration.RegistrationOutcome;
+import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 
 import java.util.Optional;
 import java.util.UUID;

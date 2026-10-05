@@ -3,8 +3,7 @@ package com.kartaguez.pocoma.engine.read.commandresult;
 import static java.util.Objects.requireNonNull;
 
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandId;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
+import com.kartaguez.pocoma.contracts.command.CommandId;
 
 /** Reads the immutable terminal Result using the historical authenticated E. */
 public final class GetCommandResultService implements GetCommandResultUseCase {
@@ -22,16 +21,16 @@ public final class GetCommandResultService implements GetCommandResultUseCase {
 		if (stored.isEmpty() || !stored.orElseThrow().owner().equals(requester)) {
 			return new GetCommandResult.NotFound();
 		}
-		CommandOutcome outcome = stored.orElseThrow().outcome();
+		PublishedCommandResult outcome = stored.orElseThrow().outcome();
 		if (!outcome.commandId().equals(commandId)) {
 			throw new IllegalStateException("Command Result identity does not match requested Command");
 		}
 		return switch (outcome) {
-			case CommandOutcome.Applied applied -> new GetCommandResult.Applied(
+			case PublishedCommandResult.Applied applied -> new GetCommandResult.Applied(
 					applied.potId(), applied.resultingVersion(), applied.resolvedAt());
-			case CommandOutcome.Rejected rejected -> new GetCommandResult.Rejected(
+			case PublishedCommandResult.Rejected rejected -> new GetCommandResult.Rejected(
 					rejected.rejectionCode(), rejected.resolvedAt());
-			case CommandOutcome.Failed failed -> new GetCommandResult.Failed(
+			case PublishedCommandResult.Failed failed -> new GetCommandResult.Failed(
 					failed.publicFailureCode(), failed.resolvedAt());
 		};
 	}
