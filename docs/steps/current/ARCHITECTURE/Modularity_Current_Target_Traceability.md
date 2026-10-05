@@ -14,7 +14,7 @@ This file was absent at the requested path at the WP5 baseline `c592464922f0a2fb
 | `orchestrator-command-admission`, `binding-pot-command-spring` | removed empty shells | `engine-admit-command`, Command runtime composition |
 | `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `infra-projection-validation-networknt`, `infra-tx-spring` | kept | same TARGET modules |
 | Eight firm runtimes | kept as composition roots | same TARGET runtime modules |
-| `engine-processing-event`, `infra-read-persistence`, `locator-consumption-latest-known-version`, LKV runtime | kept provisional, pending `TBD-LKV` | no physical TARGET LKV owner selected |
+| `engine-processing-event`, `infra-read-persistence`, `locator-consumption-latest-known-version`, LKV runtime | LKV ownership resolved by the pre-WP6 audit; CURRENT remains provisional until implementation | `engine-materialize-latest-known-version`, `supra-consume-lkv`, retained independent LKV runtime, specialized store in `infra-persistence-read-jdbc` |
 | `domain-pot-projection`, `domain-projection-balance` | retained for D.24/WP6; empty POM shells | `domain-projection`, `domain-pot`, `projector-pot` after WP6 consolidation |
 
-The retained LKV modules must not be counted as firm TARGET POMs. The WP6 domain shells are separate planned work. `TBD-COMMAND-CONTRACT` and `TBD-E2U` remain resolved; `TBD-LKV` remains open.
+The retained CURRENT LKV modules are implementation bridges until WP6. The WP6 domain shells are separate planned work. `TBD-COMMAND-CONTRACT`, `TBD-E2U` and `TBD-LKV` are resolved; the [LKV audit](Modularity_LKV_Convergent_Index_Audit.md) selects three specialized TARGET POMs without starting WP6.
