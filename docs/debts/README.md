@@ -9,6 +9,7 @@ Statuts : **OPEN** (à traiter ultérieurement), **IN_PROGRESS** (chantier expli
 | DEBT-WA6-01 | [Guard global d'ordre des locks Binding](BINDING_LOCK_ORDER_GUARD/Debt.md) | LOW | OPEN | Audit WA.6 clos | Le guard ne prouve pas exhaustivement l'absence d'un chemin `authority -> stream`. | [Dette historique](../steps/completed/WRITE_ADMISSION/Step_debt.md#debt-wa6-01--global-binding-lock-order-guard-is-not-semantically-exhaustive) |
 | DEBT-WA6-02 | [Guards SQL ownership / append-only](SQL_APPEND_ONLY_GUARDS/Debt.md) | LOW | OPEN | Audit WA.6 clos | Les scans syntaxiques protègent des régressions connues sans prouver tous les futurs chemins SQL. | [Dette historique](../steps/completed/WRITE_ADMISSION/Step_debt.md#debt-wa6-02--sql-ownership--append-only-guards-are-syntactic-tripwires) |
 | DEBT-MOD-01 | [Taxonomie et familles de modules](MODULE_TAXONOMY/Debt.md) | UNRATED | RESOLVED | Re-audit final | CURRENT et TARGET convergent ; les cinq findings post-WP6 sont résolus et revérifiés. | [Re-audit PASS](../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) |
+| DEBT-TEST-01 | [Flakiness du test PostgreSQL de takeover](TAKEOVER_TEST_FLAKINESS/Debt.md) | UNRATED | OPEN | Vérification repository quality | Un scénario de takeover a échoué une fois puis réussi au retry ciblé, au reactor complet et en CI ; défaut runtime non établi. | [Test concerné](../../app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/ccr/CommandResultConsumptionChainPostgresTest.java) |
 
 ## Décisions ouvertes de modularité
 
