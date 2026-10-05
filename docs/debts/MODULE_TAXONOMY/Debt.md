@@ -1,8 +1,8 @@
 # DEBT-MOD-01 — Taxonomie et familles de modules
 
-- Statut : **RESOLVED** par WP6
+- Statut : **RESOLVED** par le re-audit final PASS
 - Severity : **UNRATED** — aucune criticité n'a été établie pour cette dette architecturale.
-- Exécution : WP1–WP6 terminés ; preuve finale dans le rapport WP6.
+- Exécution : WP1–WP6, correction POST-WP6 et re-audit final terminés.
 
 ## Écart connu
 
@@ -12,7 +12,7 @@ Cette taxonomie rend moins immédiates les réponses à ces questions : qui poss
 
 ## Direction architecturale à instruire
 
-La [réflexion TARGET existante](../../steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md) distingue trois familles conceptuelles de capacités exécutables :
+La [réflexion TARGET historique](../../steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md) distingue trois familles conceptuelles de capacités exécutables :
 
 - **WRITE** applique une intention au primaire : admission et exécution de Command, Registration, mutations métier.
 - **READ** répond à une question depuis le modèle READ : lecture exacte Pot, Command Result, Registration Result, Current Binding.
@@ -22,8 +22,8 @@ Ces familles n'imposent pas exactement trois modules. La question est celle de l
 
 ## Résolution vérifiée
 
-La matrice CURRENT→TARGET finale, le graphe Maven, les guards, les journeys et les preuves Postgres sont consignés dans [Modularity_WP6_Execution_Report.md](../../steps/current/ARCHITECTURE/Modularity_WP6_Execution_Report.md).
+La chaîne de preuve est conservée par la [topologie TARGET](../../steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), le [rapport WP6](../../steps/completed/ARCHITECTURE/Modularity_WP6_Execution_Report.md), l'[audit indépendant FAIL](../../steps/completed/ARCHITECTURE/Modularity_Final_Independent_Audit.md), la [correction POST-WP6](../../steps/completed/ARCHITECTURE/Modularity_Post_WP6_Closure_Report.md) et le [re-audit final PASS](../../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md).
 
 Cette matrice doit préserver les décisions CURRENT récentes : Command Result direct hors ProjectionTask générique, Registration Result direct, CURRENT_BINDING direct depuis Binding Fact, projections versionnées Pot via Event → ProjectionTask, distinction runtime / engine / infra / domain et les 9 runtimes présents. La source du comportement livré reste l'[Architecture CURRENT](../../architecture/Architecture.md).
 
-Le document des [trois familles](../../steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md) est désormais **HISTORICAL migration material**. La topologie CURRENT obtenue et ses spécialisations C2 sont décrites par la topologie finale et le rapport WP6.
+Le document des [trois familles](../../steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md) est désormais **HISTORICAL migration material**. La topologie CURRENT obtenue et ses spécialisations C2 sont décrites par la topologie finale et le rapport WP6.

@@ -18,4 +18,4 @@ Baseline `c14751f` (2026-10-03). **GUARANTEED BY CODE/SCHEMA** désigne une prop
 | Latence acceptation → READ_POT READY | [Audit POT_E2E](../steps/completed/POT_E2E/E2E_Latency_Observability_Audit.md) décrit un proxy `submitted_at` → `done_at`. | Proxy sensible aux horloges et instants avant commit ; aucune distribution canonique publiée. | Méthode/diagnostic historique ; aucune valeur MEASURED canonique. |
 | Disponibilité, p95/p99, débit, SLA/SLO | Aucune preuve actuelle chiffrée dans le corpus audité. | Pas de maximum de traitement ni engagement chiffré. | NOT SPECIFIED. |
 
-Une cible de [refonte des familles de moteurs](../steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md) est **TARGET** : elle ne renforce aucune propriété ci-dessus tant que le code et les preuves ne l'ont pas livrée.
+La [refonte des familles de moteurs](../steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md) est un matériau de conception historique. Sa migration est close par le [re-audit final PASS](../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) ; les garanties normatives restent celles explicitement décrites dans ce document.

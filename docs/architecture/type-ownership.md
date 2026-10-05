@@ -118,4 +118,4 @@ lifecycle sont absentes du schéma final depuis V16.
 
 ## Décision post-WP4
 
-Les contrats capability possèdent l’intake durable seulement ; les moteurs consume possèdent les outcomes terminaux, et les moteurs read-result les modèles publiés. Les materializers assurent la conversion après vérification des sources. Voir [le rapport post-WP4](../steps/current/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). Les autres lignes historiques de cette page doivent être lues avec la [topologie TARGET](../steps/current/ARCHITECTURE/Modularity_Target_Topology.md).
+Les contrats capability possèdent l’intake durable seulement ; les moteurs consume possèdent les outcomes terminaux, et les moteurs read-result les modèles publiés. Les materializers assurent la conversion après vérification des sources. Voir [le rapport post-WP4](../steps/completed/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). Les autres lignes historiques de cette page doivent être lues avec la [topologie TARGET](../steps/completed/ARCHITECTURE/Modularity_Target_Topology.md).

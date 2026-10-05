@@ -10,8 +10,8 @@ La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves 
 
 ## Architecture finale, dettes et historique
 
-- **CURRENT = TARGET ACHIEVED** : [topologie finale](steps/current/ARCHITECTURE/Modularity_Target_Topology.md), [traçabilité](steps/current/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et [rapport WP6](steps/current/ARCHITECTURE/Modularity_WP6_Execution_Report.md).
-- **HISTORICAL design** : [révision des trois familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux et anciens comptes sont des matériaux de migration superseded.
+- **CURRENT = TARGET ACHIEVED** : l'[Architecture](architecture/Architecture.md) reste la source normative ; la [topologie finale](steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), la [traçabilité](steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et le [re-audit final PASS](steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) en conservent la preuve historique.
+- **HISTORICAL design** : [révision des trois familles de moteurs](steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux et anciens comptes sont des matériaux de migration superseded.
 - **TARGET / références spécialisées** : [architecture READ cible](architecture/read-side-target.md) et [contrats du kernel d’autorisation](architecture/authorization-kernel-contracts.md) ; leur portée est indiquée dans chaque document.
 - **DEBTS** : [registre des dettes techniques](debts/README.md), pour les écarts connus et acceptés sans en faire une source normative du système ni un Step automatiquement actif.
 - **HISTORICAL-COMPLETED** : [Steps livrés](steps/completed/) et [plans exécutés](plans/completed/).

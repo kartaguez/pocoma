@@ -1,6 +1,6 @@
 # Architecture — CURRENT after WP6
 
-Baseline architecture: WP6 consolidation on branch `v2-make-it-pull`. This page describes the delivered runtime chains. The [final topology](../steps/current/ARCHITECTURE/Modularity_Target_Topology.md), [CURRENT→TARGET traceability](../steps/current/ARCHITECTURE/Modularity_Current_Target_Traceability.md) and [WP6 report](../steps/current/ARCHITECTURE/Modularity_WP6_Execution_Report.md) provide the module catalogue and verification evidence.
+Baseline architecture: final Modularity re-audit on branch `v2-make-it-pull`. This page describes the delivered runtime chains. The completed work-step archive preserves the [final topology](../steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), [CURRENT→TARGET traceability](../steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md), [WP6 report](../steps/completed/ARCHITECTURE/Modularity_WP6_Execution_Report.md) and [final PASS](../steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md).
 
 ## Command and Pot write
 
