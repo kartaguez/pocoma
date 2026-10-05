@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class RegistrationModuleBoundaryTest {
     @Test
-    void registrationEngineDoesNotDependOnConsumption() throws IOException {
+    void registrationLegacyFacadeIsGoneAndExecutionRemainsInTargetEngine() throws IOException {
         Path app = appRoot();
-        String pom = Files.readString(app.resolve("engine-registration/pom.xml"));
-        assertFalse(pom.contains("<artifactId>pocoma-engine-consumption</artifactId>"));
-        assertFalse(pom.contains("<artifactId>pocoma-domain-consumption</artifactId>"));
-        assertTrue(pom.contains("<artifactId>pocoma-engine-core</artifactId>"));
+        assertFalse(Files.exists(app.resolve("engine-registration/pom.xml")));
+        String pom = Files.readString(app.resolve("engine-consume-registration/pom.xml"));
+        assertFalse(pom.contains("<artifactId>pocoma-engine-core</artifactId>"));
+        assertFalse(pom.contains("<artifactId>pocoma-infra-"));
 
-        Path main = app.resolve("engine-registration/src/main");
+        Path main = app.resolve("engine-consume-registration/src/main");
         try (var files = Files.walk(main)) {
             for (Path file : files.filter(Files::isRegularFile).toList()) {
                 String source = Files.readString(file);

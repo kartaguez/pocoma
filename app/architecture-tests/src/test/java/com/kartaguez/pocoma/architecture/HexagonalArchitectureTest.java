@@ -43,7 +43,7 @@ class HexagonalArchitectureTest {
 			+ ".engine.read.projection.exception";
 	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.pot";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
-	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.jpa..";
+	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.primary.jpa..";
 	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
 	private static final String INFRA_PROJECTION_PERSISTENCE_PACKAGE = ROOT_PACKAGE
 			+ ".infra.persistence.projection.jdbc..";
@@ -64,7 +64,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pot.event..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".engine.event..",
-						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.outbox..")
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.outbox..")
 				.check(CLASSES);
 
 		noClasses()
@@ -223,13 +223,12 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void potBusinessEventsBelongToTheDomainWhileRecordingMetadataRemainsInTheEngine() {
+	void potBusinessEventsAndRecordingMetadataBelongToTheDomain() {
 		Set<String> engineEventTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".engine.event"))
 				.map(javaClass -> javaClass.getSimpleName())
 				.collect(Collectors.toUnmodifiableSet());
-		assertEquals(Set.of("EventTraceMetadata", "RecordedEvent"), engineEventTypes,
-				"engine.event must contain only application recording metadata");
+		assertEquals(Set.of(), engineEventTypes, "engine.event must have no types after D.22");
 
 		Set<String> potEventTypes = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().equals(ROOT_PACKAGE + ".domain.pot.event"))
@@ -238,6 +237,8 @@ class HexagonalArchitectureTest {
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(
 				"BusinessEvent",
+				"EventTraceMetadata",
+				"RecordedEvent",
 				"ExpenseCreatedEvent",
 				"ExpenseDeletedEvent",
 				"ExpenseDetailsUpdatedEvent",
@@ -441,6 +442,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".engine.port.in.consumption",
 						ROOT_PACKAGE + ".engine.port.out.consumption",
 						ROOT_PACKAGE + ".port.projection",
+						ROOT_PACKAGE + ".projector.pot",
 						ROOT_PACKAGE + ".orchestrator.consumption"));
 		assertEquals(Set.of(), dependenciesOutsideProjectionTask,
 				"engine-consume-projection-task may use only generic Consumption orchestration");
@@ -507,8 +509,8 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".supra.http.write..",
 						ROOT_PACKAGE + ".engine.admit.command..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
-						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.identity..",
 						ROOT_PACKAGE + ".engine.consume.command.pot.dispatch..",
 						ROOT_PACKAGE + ".engine.read.pot..",
 						ROOT_PACKAGE + ".engine.read..",
@@ -554,13 +556,13 @@ class HexagonalArchitectureTest {
 	@Test
 	void bindingLifecycleWriterIsAtomicWhileReadProjectionRemainsOutsideWriteAuthorityAndCommandRuntime() {
 		Set<String> authorityDependencies = directDependencyNames(
-				ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter");
+				ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingAdapter");
 		assertTrue(authorityDependencies.stream().anyMatch(name -> name.contains("BindingFact")));
 		assertTrue(authorityDependencies.stream().anyMatch(name -> name.contains("BindingStream")));
 
 		Set<String> lifecycleToAuthorityDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(
-						ROOT_PACKAGE + ".infra.persistence.jpa"))
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa"))
 				.filter(javaClass -> javaClass.getSimpleName().contains("BindingFact")
 						|| javaClass.getSimpleName().contains("BindingStream"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
@@ -591,8 +593,8 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.consume.binding..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..",
-						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..")
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.identity..")
 				.check(CLASSES);
 		noClasses().that().resideInAPackage(ROOT_PACKAGE + ".supra.http.write..")
 				.should().dependOnClassesThat().resideInAPackage(ROOT_PACKAGE + ".engine.read.currentbinding..")
@@ -604,8 +606,8 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra.persistence.jpa.repository.identity..",
-						ROOT_PACKAGE + ".infra.persistence.jpa.adapter.identity..")
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.identity..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.identity..")
 				.check(CLASSES);
 	}
 
@@ -714,11 +716,11 @@ class HexagonalArchitectureTest {
 		Set<String> claimTokenDependencies = CLASSES.stream()
 				.filter(javaClass -> targetPortNames.contains(javaClass.getSimpleName())
 						|| javaClass.getPackageName().startsWith(
-								ROOT_PACKAGE + ".infra.persistence.jpa.adapter.consumption")
+								ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.consumption")
 						|| javaClass.getPackageName().startsWith(
-								ROOT_PACKAGE + ".infra.persistence.jpa.entity.consumption")
+								ROOT_PACKAGE + ".infra.persistence.primary.jpa.entity.consumption")
 						|| javaClass.getPackageName().startsWith(
-								ROOT_PACKAGE + ".infra.persistence.jpa.repository.consumption"))
+								ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.consumption"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.map(dependency -> dependency.getTargetClass())
 				.filter(target -> target.getSimpleName().equals("ClaimToken"))
@@ -985,7 +987,7 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http.read..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra.persistence.jpa..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa..",
 						ROOT_PACKAGE + ".infra.tx..",
 						ROOT_PACKAGE + ".engine.consume.command.port.out..",
 						ROOT_PACKAGE + ".domain.consumption..")
@@ -1031,7 +1033,7 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void commandPersistenceDependsInwardAndIntroducesNoJpaEntity() {
-		String persistencePackage = ROOT_PACKAGE + ".infra.persistence.jpa";
+		String persistencePackage = ROOT_PACKAGE + ".infra.persistence.primary.jpa";
 		String commandPersistencePackage = persistencePackage + ".adapter.command";
 		String commandRepositoryPackage = persistencePackage + ".repository.command";
 		Set<String> dependencies = dependenciesOutside(
@@ -1079,7 +1081,7 @@ class HexagonalArchitectureTest {
 						"io.nats..")
 				.check(CLASSES);
 
-		Set<String> recordedEventFields = CLASSES.get(ROOT_PACKAGE + ".engine.event.RecordedEvent")
+		Set<String> recordedEventFields = CLASSES.get(ROOT_PACKAGE + ".domain.pot.event.RecordedEvent")
 				.getAllFields().stream()
 				.map(field -> field.getName())
 				.collect(Collectors.toUnmodifiableSet());
@@ -1090,7 +1092,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void recordedProcessingModelsDoNotCarryClaimOrLeaseState() {
 		assertEquals(Set.of("eventId", "event", "recordedAt", "traceMetadata"),
-				fieldNames(ROOT_PACKAGE + ".engine.event.RecordedEvent"));
+				fieldNames(ROOT_PACKAGE + ".domain.pot.event.RecordedEvent"));
 	}
 
 	@Test
@@ -1133,8 +1135,7 @@ class HexagonalArchitectureTest {
 	void functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption() {
 		noClasses()
 				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine.projection.balance..",
-						ROOT_PACKAGE + ".engine.projection.pot..")
+						ROOT_PACKAGE + ".projector.pot..")
 				.should().dependOnClassesThat().resideInAnyPackage(
 						ROOT_PACKAGE + ".domain.consumption..",
 						ROOT_PACKAGE + ".engine.port.in.consumption..",
@@ -1150,7 +1151,7 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideInAPackage(ROOT_PACKAGE + ".supra.http..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".infra.persistence.jpa..",
+						ROOT_PACKAGE + ".infra.persistence.primary.jpa..",
 						"jakarta.persistence..")
 				.check(CLASSES);
 	}
@@ -1389,7 +1390,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
 		Set<String> actualDependencies = CLASSES.stream()
-				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.jpa"))
+				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.primary.jpa"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
 				.filter(dependency -> dependency.getTargetClass().getPackageName().startsWith(ROOT_PACKAGE + ".supra"))
 				.map(HexagonalArchitectureTest::dependencyKey)

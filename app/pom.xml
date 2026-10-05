@@ -42,9 +42,7 @@
 		<module>domain-consumption</module>
 		<module>port-transaction</module>
 		<module>port-binding-authority</module>
-		<module>engine-core</module>
 		<module>engine-consumption</module>
-		<module>engine-command</module>
 		<module>engine-consume-command</module>
 		<module>supra-consume-command</module>
 		<module>supra-consume-command-result</module>
@@ -56,42 +54,32 @@
 		<module>engine-consume-registration</module>
 		<module>supra-consume-registration</module>
 		<module>supra-consume-registration-result</module>
-		<module>engine-registration</module>
 		<module>engine-read-registration-result</module>
 		<module>engine-materialize-registration-result</module>
 		<module>engine-processing-event</module>
 		<module>engine-produce-projection-task</module>
-		<module>engine-pot-command</module>
 		<module>engine-write-pot</module>
 		<module>port-projection</module>
 		<module>engine-read-projection</module>
-		<module>engine-projection-task</module>
 		<module>engine-consume-projection-task</module>
 		<module>supra-consume-projection-task</module>
 		<module>engine-read-pot</module>
-		<module>engine-projection-balance</module>
-		<module>engine-projection-pot</module>
 		<module>projector-pot</module>
 		<module>engine-read-current-binding</module>
 		<module>engine-materialize-current-binding</module>
 		<module>infra-persistence-read-jdbc</module>
 		<module>contracts-observability</module>
 		<module>infra-tx-spring</module>
-		<module>infra-persistence-jpa</module>
+		<module>infra-persistence-primary-jpa</module>
 		<module>infra-persistence-projection-jdbc</module>
 		<module>infra-read-persistence</module>
 		<module>infra-projection-validation-networknt</module>
 		<module>orchestrator-consumption</module>
-		<module>orchestrator-command-admission</module>
 		<module>engine-admit-command</module>
 		<module>orchestrator-poll-consumption</module>
-		<module>locator-consumption-event</module>
 		<module>supra-consume-event</module>
 		<module>locator-consumption-latest-known-version</module>
-		<module>locator-consumption-binding</module>
 		<module>supra-consume-binding</module>
-		<module>locator-consumption-command</module>
-		<module>binding-pot-command-spring</module>
 		<module>supra-http-write</module>
 		<module>supra-http-read</module>
 		<module>runtime-web-api</module>

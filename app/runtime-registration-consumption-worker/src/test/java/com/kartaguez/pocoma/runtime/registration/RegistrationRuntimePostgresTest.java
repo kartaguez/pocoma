@@ -28,7 +28,10 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.engine.registration.*;
+import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
+import com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationRequestStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
 import com.kartaguez.pocoma.supra.consume.registration.RegistrationConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
@@ -46,7 +49,7 @@ class RegistrationRuntimePostgresTest {
     }
 
     @Autowired JdbcTemplate jdbc;
-    @Autowired RegistrationRequestStore requests;
+    @Autowired JdbcRegistrationRequestStore requests;
     @Autowired TransactionRunner transactions;
     @Autowired ConsumptionOrchestrator orchestrator;
     @Autowired RegistrationConsumptionLocator locator;

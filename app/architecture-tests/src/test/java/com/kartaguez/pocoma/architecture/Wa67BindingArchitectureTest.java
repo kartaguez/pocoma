@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test;
 
 class Wa67BindingArchitectureTest {
 	private static final String IDENTITY_REPOSITORY =
-			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityJdbcRepository.java";
+			"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityJdbcRepository.java";
 	private static final String STREAM_REPOSITORY =
-			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingStreamJdbcRepository.java";
+			"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingStreamJdbcRepository.java";
 	private static final String FACT_REPOSITORY =
-			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.java";
+			"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.java";
 	private static final String OCCURRENCE_REPOSITORY =
-			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/identity/ExternalIdentityBindingOccurrenceJdbcRepository.java";
+			"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingOccurrenceJdbcRepository.java";
 	private static final String DISCOVERY_ADAPTER =
-			"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/identity/JdbcBindingFactDiscoveryAdapter.java";
+			"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/identity/JdbcBindingFactDiscoveryAdapter.java";
 
 	@Test
 	void directProductionSqlAccessesStayInsideTheirDeclaredOwners() throws IOException {
@@ -36,12 +36,12 @@ class Wa67BindingArchitectureTest {
 				"current_external_identity_binding", Set.of(
 						"infra-persistence-read-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/JdbcCurrentBindingAdapter.java"),
 				"recorded_commands", Set.of(
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaRecordedCommandRepository.java",
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java",
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandResultSource.java"),
+						"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/command/JpaRecordedCommandRepository.java",
+						"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/command/JpaCommandConsumptionDiscoveryRepository.java",
+						"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JdbcCommandResultSource.java"),
 				"command_outcomes", Set.of(
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandOutcomeAdapter.java",
-						"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JdbcCommandResultSource.java"));
+						"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JdbcCommandOutcomeAdapter.java",
+						"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JdbcCommandResultSource.java"));
 		for (var access : expected.entrySet()) {
 			assertEquals(access.getValue(), productionJavaFilesContaining(access.getKey()),
 					() -> "Unexpected direct SQL access to " + access.getKey());
@@ -105,7 +105,7 @@ class Wa67BindingArchitectureTest {
 		assertTrue(stream.contains("and a.user_id = ? and a.binding_id = ?"));
 
 		String writer = Files.readString(appRoot().resolve(
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/identity/JpaExternalIdentityBindingAdapter.java"));
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/identity/JpaExternalIdentityBindingAdapter.java"));
 		assertOrdered(writer, "public BindingAcquireResult acquire", "streams.lock(", "repository.acquire(");
 		assertOrdered(writer, "public BindingDetachResult detach", "streams.lock(", "repository.detach(");
 	}
@@ -164,7 +164,7 @@ class Wa67BindingArchitectureTest {
 		Path candidate = Path.of("").toAbsolutePath();
 		while (candidate != null) {
 			if (Files.exists(candidate.resolve("architecture-tests/pom.xml"))
-					&& Files.exists(candidate.resolve("infra-persistence-jpa/pom.xml"))) return candidate;
+					&& Files.exists(candidate.resolve("infra-persistence-primary-jpa/pom.xml"))) return candidate;
 			candidate = candidate.getParent();
 		}
 		throw new IllegalStateException("Cannot locate the app reactor root");

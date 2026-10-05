@@ -70,42 +70,42 @@ import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultUseCase;
 import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 import com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandTypes;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.JpaPotGlobalVersionAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaRecordedCommandAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandOutcomeAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.context.JpaExpenseContextAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.context.JpaPotContextAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseHeaderAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseSharesAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotHeaderAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotShareholdersAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaProjectedExpenseAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaAuthProjectionInputLoader;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultStore;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationRequestStore;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationDiscovery;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationResultStore;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationResultDiscovery;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcRegistrationResultSource;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.registration.JdbcUserCreatedFactAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaUserAuthorityAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JdbcBindingFactDiscoveryAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.identity.JpaExternalIdentityBindingFactAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandOutcomeAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaAuthProjectionInputLoader;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultSource;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationRequestStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationDiscovery;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationResultStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationResultDiscovery;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationResultSource;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcUserCreatedFactAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserAuthorityAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JdbcBindingFactDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingFactAdapter;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.command.JpaRecordedCommandRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityJdbcRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.identity.UserJdbcRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.command.JpaRecordedCommandRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityJdbcRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityBindingFactJdbcRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.UserJdbcRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
@@ -642,8 +642,8 @@ class CommandCompletionE2EPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CommandConsumptionRuntimeConfiguration.class, JpaRecordedCommandAdapter.class,
 			JpaCommandConsumptionDiscoveryAdapter.class, JdbcCommandOutcomeAdapter.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class,
@@ -672,24 +672,24 @@ class CommandCompletionE2EPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import(EventConsumptionRuntimeConfiguration.class)
 	static class EventTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CommandResultRuntimeConfiguration.class, JdbcCommandResultStore.class, JdbcCommandResultSource.class})
 	static class ResultTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({RegistrationRuntimeConfiguration.class, JdbcRegistrationRequestStore.class,
 			JdbcRegistrationOutcomeStore.class, JdbcRegistrationDiscovery.class,
 			JdbcUserCreatedFactAdapter.class, JpaUserAuthorityAdapter.class,
@@ -701,8 +701,8 @@ class CommandCompletionE2EPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({RegistrationResultRuntimeConfiguration.class, JdbcRegistrationRequestStore.class,
 			JdbcRegistrationOutcomeStore.class, JdbcRegistrationResultStore.class,
 			JdbcRegistrationResultDiscovery.class, JdbcRegistrationResultSource.class})
@@ -710,16 +710,16 @@ class CommandCompletionE2EPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({BindingRuntimeConfiguration.class, JdbcBindingFactDiscoveryAdapter.class,
 			JpaExternalIdentityBindingFactAdapter.class, ExternalIdentityBindingFactJdbcRepository.class})
 	static class BindingTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CanonicalProjectionTaskRuntimeConfiguration.class, JdbcCommandOutcomeAdapter.class,
 			JpaPotHeaderAdapter.class,
 			JpaPotShareholdersAdapter.class, JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,
@@ -738,8 +738,8 @@ class CommandCompletionE2EPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CommandAdmissionConfiguration.class, CommandResultReadConfiguration.class,
 			RegistrationAdmissionConfiguration.class, RegistrationResultReadConfiguration.class,
 			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,

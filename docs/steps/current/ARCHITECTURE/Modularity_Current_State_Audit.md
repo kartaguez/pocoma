@@ -2,6 +2,8 @@
 
 **Statut : audit factuel au HEAD `4bf164d5`, 2026-10-03.** Ce rapport remplace les anciens inventaires comme base d'observation de la modularité. Il ne décide aucun module cible, renommage, déplacement ou Step d'exécution. Les appréciations de frontières sont des hypothèses à éprouver, pas des instructions de refonte.
 
+**Note de portée WP5 :** ce document conserve intentionnellement son snapshot historique `4bf164d5`. Pour le reactor après les extractions WP1–WP4 et la matérialisation WP5, voir [le rapport d'exécution WP5](Modularity_WP5_Execution_Report.md). Les anciennes lignes CURRENT ci-dessous ne doivent pas être lues comme l'inventaire du HEAD WP5.
+
 La lecture est **multi-axes** : READ décrit la nature d'une information exposée, tandis que Consumption décrit un protocole possible de sa production. Une capacité peut relever simultanément des deux axes, sans passer par Event→ProjectionTask. Les noms `engine-*` ne définissent ni ces axes ni une frontière Maven souhaitable.
 
 ## A. Baseline et méthode

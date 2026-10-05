@@ -31,7 +31,10 @@ import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
-import com.kartaguez.pocoma.engine.registration.*;
+import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
+import com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationRequestStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.JdbcRegistrationOutcomeStore;
 import com.kartaguez.pocoma.engine.read.registrationresult.*;
 import com.kartaguez.pocoma.supra.consume.registrationresult.RegistrationResultConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
@@ -51,8 +54,8 @@ class RegistrationResultRuntimePostgresTest {
 
     @Autowired JdbcTemplate jdbc;
     @Autowired TransactionRunner tx;
-    @Autowired RegistrationRequestStore requests;
-    @Autowired RegistrationOutcomeStore outcomes;
+    @Autowired JdbcRegistrationRequestStore requests;
+    @Autowired JdbcRegistrationOutcomeStore outcomes;
     @Autowired RegistrationResultStore results;
     @Autowired UserAuthorityPort users;
     @Autowired ExternalIdentityBindingPort bindings;

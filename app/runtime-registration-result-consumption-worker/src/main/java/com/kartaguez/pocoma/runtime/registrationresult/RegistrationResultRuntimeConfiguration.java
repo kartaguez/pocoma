@@ -18,10 +18,10 @@ import com.kartaguez.pocoma.engine.materialize.registrationresult.MaterializeReg
 import com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultSourcePort;
 import com.kartaguez.pocoma.engine.service.consumption.*;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.*;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.*;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.*;
 import com.kartaguez.pocoma.supra.consume.registrationresult.RegistrationResultConsumptionLocator;
 import com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultDiscovery;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.*;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.*;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;

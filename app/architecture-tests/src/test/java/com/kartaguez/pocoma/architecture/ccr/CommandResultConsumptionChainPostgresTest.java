@@ -37,8 +37,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultSource;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandResultStore;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultSource;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStore;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
@@ -174,8 +174,8 @@ class CommandResultConsumptionChainPostgresTest {
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,
 			ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CommandResultRuntimeConfiguration.class, JdbcCommandResultSource.class,
 			JdbcCommandResultStore.class})
 	static class TestApplication {}

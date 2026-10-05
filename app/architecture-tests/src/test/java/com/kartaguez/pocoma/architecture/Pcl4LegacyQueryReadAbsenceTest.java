@@ -73,10 +73,10 @@ class Pcl4LegacyQueryReadAbsenceTest {
 		assertFalse(Files.exists(app.resolve("domain-projection-legacy/pom.xml")));
 		assertTrue(Files.exists(app.resolve("engine-processing-event/src/main/java/com/kartaguez/pocoma/engine/read/projection/LatestKnownVersion.java")));
 
-		Path historicalBalanceSource = app.resolve("infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java");
+		Path historicalBalanceSource = app.resolve("infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java");
 		assertTrue(contains(historicalBalanceSource, "implements HistoricalPotBalanceSourcePort"));
 		assertFalse(contains(historicalBalanceSource, "PotBalanceProjectionPort"));
-		assertTrue(Files.exists(app.resolve("engine-projection-balance/src/main/java/com/kartaguez/pocoma/engine/projection/balance/CalculatePotBalancesAtVersionService.java")));
+		assertTrue(Files.exists(app.resolve("engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/CalculatePotBalancesAtVersionService.java")));
 
 		assertTrue(Files.exists(app.resolve("engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java")));
 		assertTrue(Files.exists(app.resolve("infra-persistence-projection-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/projection/jdbc/JdbcProjectionStoreAdapter.java")));

@@ -30,7 +30,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProjectionMaterializationPolicy;
 import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
 import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionKeys;
 import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionService;
 import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSource;
