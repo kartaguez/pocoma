@@ -1,20 +1,27 @@
 package com.kartaguez.pocoma.architecture;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import com.kartaguez.pocoma.domain.consumption.claim.Claim;
+import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 
 /** Maven and source-boundary proof for the consolidated WP6 topology. */
 class Wp5TargetTopologyTest {
@@ -71,6 +78,8 @@ class Wp5TargetTopologyTest {
                 "LKV engine must not use ProjectionTask or PRIMARY Pot reads");
         assertFalse(graph.get("supra-consume-lkv").stream().anyMatch(d -> d.contains("projection-task")),
                 "LKV supra -> ProjectionTask");
+        assertFalse(graph.get("runtime-event-consumption-worker").contains("engine-consume-command"),
+                "Event processing/runtime must not depend on the Command execution capability");
         for (String module : Set.of("engine-produce-projection-task", "engine-consume-projection-task",
                 "supra-consume-projection-task", "runtime-task-consumption-worker")) {
             assertFalse(graph.get(module).stream().anyMatch(d -> d.contains("latest-known-version") || d.equals("supra-consume-lkv")),
@@ -82,6 +91,25 @@ class Wp5TargetTopologyTest {
         }
         Set<String> visited = new HashSet<>();
         for (String module : graph.keySet()) assertFalse(cycle(module, graph, visited, new HashSet<>()), module);
+    }
+
+    @Test void domainConsumptionExportsOnlyTheExplicitTargetProtocolSurface() throws Exception {
+        Path sources = APP.resolve("domain-consumption/src/main/java");
+        try (var files = Files.walk(sources)) {
+            for (Path source : files.filter(path -> path.toString().endsWith(".java")).toList()) {
+                assertFalse(Files.readString(source).contains("@Deprecated"),
+                        source + " must not expose staged compatibility APIs");
+            }
+        }
+        assertFalse(Files.exists(sources.resolve(
+                "com/kartaguez/pocoma/domain/consumption/claim/ClaimToken.java")));
+        assertEquals(Set.of(
+                "claimId", "slotId", "claimedBy", "attemptNumber", "claimedAt", "leaseUntil",
+                "invalidatedAt", "endedAt", "failure", "endReason"), recordComponents(Claim.class));
+        assertEquals(Set.of("consumable", "consumer"), recordComponents(ConsumptionKey.class));
+        assertEquals(Set.of("slotId", "consumptionKey", "revision", "status", "terminalOutcome",
+                "terminalReason", "currentClaimId", "nextClaimAt", "createdAt", "doneAt"),
+                recordComponents(ConsumptionSlot.class));
     }
 
     @Test void pureFamiliesHaveNoFrameworkOrPersistenceImports() throws Exception {
@@ -119,6 +147,11 @@ class Wp5TargetTopologyTest {
         }
         active.remove(module);
         return false;
+    }
+
+    private static Set<String> recordComponents(Class<?> type) {
+        return Arrays.stream(type.getRecordComponents()).map(component -> component.getName())
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     private static Set<String> dependencies(Path pom) throws Exception {

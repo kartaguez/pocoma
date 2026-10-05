@@ -1,6 +1,6 @@
 # DEBT-MOD-01 — topologie TARGET courante
 
-**Statut : TARGET ACHIEVED par WP6.** La table finale et le delta WP6 décrivent la topologie CURRENT livrée. Les sections de migration plus anciennes sont conservées comme provenance historique lorsqu'elles sont explicitement signalées comme superseded. La [dette de modularité](../../../debts/MODULE_TAXONOMY/Debt.md) est résolue par la convergence vérifiée CURRENT = TARGET.
+**Statut : TARGET ACHIEVED après clôture corrective POST-WP6.** La table finale, le delta WP6 et le [rapport POST-WP6](Modularity_Post_WP6_Closure_Report.md) décrivent la topologie CURRENT livrée. Les sections de migration plus anciennes sont conservées comme provenance historique lorsqu'elles sont explicitement signalées comme superseded. La fermeture administrative de la [dette de modularité](../../../debts/MODULE_TAXONOMY/Debt.md) reste soumise au re-audit final.
 
 ## 1. Baseline et portée
 
@@ -454,4 +454,12 @@ WP6 matérialise les trois responsabilités physiques LKV : `engine-materialize-
 
 ## État physique final WP6
 
-Le reactor CURRENT contient 58 POM enfants : 57 de production et `architecture-tests`. Le graphe réel compte 234 arcs internes directs de production selon la méthode WP5, sans cycle, dépendance interne manquante, arc TARGET→legacy, POM legacy de migration ou frontière provisoire. Les deux spécialisations de convergent current-state index sont CURRENT_BINDING et LKV. La projection historique exacte reste une famille distincte gouvernée par ProjectionTask.
+Le reactor WP6 contenait 58 POM enfants : 57 de production et `architecture-tests`. Son rapport annonçait 234 arcs ; cette valeur est conservée comme résultat historique WP6. Les deux spécialisations de convergent current-state index sont CURRENT_BINDING et LKV. La projection historique exacte reste une famille distincte gouvernée par ProjectionTask.
+
+## Correction bornée POST-WP6
+
+Le finding B-01 ne révélait pas une responsabilité TARGET absente : `ClaimToken`, le contexte `compatibilityKey`, les fabriques/transitions dépréciées de `Claim` et `ConsumptionSlot`, et le constructeur/mapping historique de `ConsumptionKey` n'avaient plus de consommateur de production. Ils ont été supprimés sans toucher aux primitives TARGET `ConsumableIdentity`, `ConsumerIdentity`, `ConsumptionKey`, `ConsumptionSlot`, `ClaimId` et `Claim`.
+
+Le finding B-02 était une dépendance POM obsolète : aucune source `main`, aucun bean et aucun wiring Event n'utilisait Command ; seul un test de policy importait une constante Command pour une assertion négative redondante. L'arc `runtime-event-consumption-worker → engine-consume-command` est supprimé et interdit par le gate d'architecture.
+
+Le graphe CURRENT contient toujours 58 POM enfants : 57 de production et `architecture-tests`. Il contient **226 arcs internes directs de production**, ou **234 dépendances internes tous scopes** lorsque les 8 dépendances de test sont incluses. La définition normative exclut `test` et `provided`; 226 est donc le compteur architectural. Il reste zéro cycle, zéro dépendance interne manquante, zéro arc TARGET→legacy, zéro POM legacy/provisoire, zéro cluster de compatibilité legacy embarqué et zéro arc de production inexpliqué.

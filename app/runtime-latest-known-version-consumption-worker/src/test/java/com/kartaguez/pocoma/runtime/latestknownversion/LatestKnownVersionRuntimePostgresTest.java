@@ -95,7 +95,7 @@ class LatestKnownVersionRuntimePostgresTest {
 	}
 
 	@Test
-	void consumesOutOfOrderDuplicateAndOldEventsWithoutCreatingProjectionWork() {
+	void convergesToTwelveFromDurableInsertionOrderTenTwelveElevenWithoutCreatingProjectionWork() {
 		PotId potId = PotId.of(UUID.randomUUID());
 		outbox.append(new PotCreatedEvent(potId, 10));
 		outbox.append(new PotCreatedEvent(potId, 12));

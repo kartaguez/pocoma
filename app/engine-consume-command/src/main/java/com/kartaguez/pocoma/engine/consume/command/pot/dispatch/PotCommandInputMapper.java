@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import com.kartaguez.pocoma.engine.consume.command.pot.intent.*;
 import com.kartaguez.pocoma.engine.write.pot.input.*;
 
-/** Temporary B16 bridge from durable Command payloads to Pot WRITE inputs. */
+/** Maps durable Command payloads to the typed Pot WRITE inputs owned by the target engine. */
 final class PotCommandInputMapper {
     private PotCommandInputMapper() {}
 

@@ -15,7 +15,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 
-/** Target atomic persistence boundary. It never uses the legacy ClaimToken. */
+/** Atomic persistence boundary fenced exclusively by the current slot and ClaimId. */
 public interface ConsumptionLifecyclePersistencePort {
 
 	AcquireResult acquire(

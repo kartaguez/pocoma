@@ -103,14 +103,6 @@ public class JdbcProjectionMaterializationDiscoveryAdapter implements Projection
 		return List.copyOf(jdbc.query(sql, this::candidate, parameters.toArray()));
 	}
 
-	/** Compatibility API for CURRENT callers; the engine port uses primitive segment coordinates. */
-	public List<ProjectionMaterializationCandidate> findCandidates(
-			Map<EventType, Set<ProjectionType>> routes, WorkerSegment segment,
-			Optional<ProjectionMaterializationOrderingKey> afterExclusive, int limit) {
-		requireNonNull(segment, "segment must not be null");
-		return findCandidates(routes, segment.segmentIndex(), segment.segmentCount(), afterExclusive, limit);
-	}
-
 	private ProjectionMaterializationCandidate candidate(ResultSet result, int row) throws SQLException {
 		return new ProjectionMaterializationCandidate(
 				result.getObject("event_id", UUID.class),

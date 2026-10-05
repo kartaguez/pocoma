@@ -1,6 +1,6 @@
-# CURRENT → TARGET traceability after WP6
+# CURRENT → TARGET traceability after POST-WP6 closure
 
-Status: **CURRENT = TARGET ACHIEVED** at WP6. The [WP6 execution report](Modularity_WP6_Execution_Report.md) carries the measured graph and verification evidence. Earlier WP reports remain historical migration evidence.
+Status: **CURRENT = TARGET ACHIEVED** after the bounded POST-WP6 closure. The [WP6 execution report](Modularity_WP6_Execution_Report.md) remains historical evidence for WP6; the [POST-WP6 closure report](Modularity_Post_WP6_Closure_Report.md) carries the corrective proof required by the independent audit.
 
 | CURRENT residue at WP6 baseline | Final TARGET owner | WP6 action |
 | --- | --- | --- |
@@ -28,6 +28,9 @@ The common operational foundation is generic Consumption. No generic convergent-
 ## Final state
 
 - Every production POM has a recognized architectural family and owner through its name and the final topology catalogue.
-- No migration bridge, locator POM, legacy shell, provisional physical boundary or architectural TBD remains.
+- `domain-consumption` exports only the explicit generic TARGET identities, slot lifecycle and claim lifecycle; its embedded compatibility API has been removed.
+- Event processing/runtime has no production dependency on Command execution; the stale test-only POM dependency has been removed.
+- No migration bridge, embedded compatibility cluster, locator POM, legacy shell, provisional physical boundary or architectural TBD remains.
 - `CURRENT_BINDING !→ ProjectionTask`, `LKV !→ ProjectionTask`, and `ProjectionTask !→ LKV` are guarded.
+- `Event processing/runtime !→ Command execution capability` and the approved `domain-consumption` record surface are guarded.
 - SQL/schema/migration contents are unchanged.

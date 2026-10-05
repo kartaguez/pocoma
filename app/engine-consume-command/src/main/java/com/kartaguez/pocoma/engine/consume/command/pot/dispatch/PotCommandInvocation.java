@@ -31,7 +31,7 @@ import com.kartaguez.pocoma.engine.write.pot.port.event.EventPublisherPort;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseContextPort;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotContextPort;
 
-/** Invocation-local capture of typed Events and business versions read by a legacy service. */
+/** Invocation-local capture of typed Events and business versions produced by Pot WRITE. */
 final class PotCommandInvocation implements EventPublisherPort {
 
 	private final Set<CommandExecutionInput> inputs = new LinkedHashSet<>();

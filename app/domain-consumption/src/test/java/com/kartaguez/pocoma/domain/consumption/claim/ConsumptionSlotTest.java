@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
@@ -20,7 +22,9 @@ class ConsumptionSlotTest {
 
 	private static final UUID SLOT_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
 	private static final Instant NOW = Instant.parse("2026-08-30T10:00:00Z");
-	private static final ConsumptionKey KEY = new ConsumptionKey("work", List.of("42"));
+	private static final ConsumptionKey KEY = new ConsumptionKey(
+			new ConsumableIdentity("TEST_WORK", List.of("42")),
+			new ConsumerIdentity("TEST_PROCESSOR", List.of()));
 	private static final TerminalReason REASON = new TerminalReason("BUSINESS_CONFLICT");
 
 	@Test

@@ -265,8 +265,7 @@ public class JpaConsumptionLifecycleAdapter
 				Optional.ofNullable(entity.invalidatedAt()),
 				Optional.ofNullable(entity.endedAt()),
 				failure,
-				Optional.ofNullable(entity.endReason()),
-				Optional.empty());
+				Optional.ofNullable(entity.endReason()));
 	}
 
 	private KeyParameters parameters(ConsumptionKey key) {

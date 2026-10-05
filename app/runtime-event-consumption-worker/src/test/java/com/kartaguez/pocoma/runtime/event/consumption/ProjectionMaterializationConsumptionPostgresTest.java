@@ -309,7 +309,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	}
 
 	private ProjectionMaterializationCandidate candidate(ProjectionType projectionType) {
-		return discovery.findCandidates(routes(projectionType), WorkerSegment.single(), Optional.empty(), 10)
+		return discovery.findCandidates(routes(projectionType), 0, 1, Optional.empty(), 10)
 				.stream().filter(value -> value.projectionType().equals(projectionType)).findFirst().orElseThrow();
 	}
 

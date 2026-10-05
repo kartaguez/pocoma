@@ -1,6 +1,6 @@
 # DEBT-MOD-01 — plan de migration Maven CURRENT → TARGET
 
-**Statut : migration pilotée en six Work Packages, désormais achevée ; WP1 à WP6, WP2.1 et POST-WP4.A/B/C sont DONE.** Baseline de conception `704177a0`, baseline WP6 `e9c55573bcc701b0aced0f6a575ad4b59675ddc4`. Sources d'autorité de l'état final : [topologie TARGET atteinte](Modularity_Target_Topology.md), [traçabilité CURRENT→TARGET](Modularity_Current_Target_Traceability.md) et [rapport WP6](Modularity_WP6_Execution_Report.md). Les 54 POM fermes et 147 arcs physiques restent un snapshot historique de conception ; le graphe final vérifié contient 58 POM enfants et 234 arcs. `TBD-LKV` est matérialisé par trois responsabilités spécialisées, sans moteur générique convergent-index. `domain-pot-policy` reste un package de `domain-pot`.
+**Statut : migration pilotée en six Work Packages, complétée par la clôture corrective bornée POST-WP6.** Baseline de conception `704177a0`, baseline WP6 `e9c55573bcc701b0aced0f6a575ad4b59675ddc4`, baseline POST-WP6 `2fdfbf92baa35fbcad18f028c8de473e8f49069b`. Sources d'autorité de l'état final : [topologie TARGET atteinte](Modularity_Target_Topology.md), [traçabilité CURRENT→TARGET](Modularity_Current_Target_Traceability.md) et [rapport POST-WP6](Modularity_Post_WP6_Closure_Report.md). Les 54 POM fermes et 147 arcs physiques restent un snapshot historique de conception ; le graphe final vérifié contient 58 POM enfants, 226 arcs internes de production et 234 dépendances internes tous scopes. `TBD-LKV` est matérialisé par trois responsabilités spécialisées, sans moteur générique convergent-index. `domain-pot-policy` reste un package de `domain-pot`.
 
 ## 0. Unités de pilotage
 
@@ -293,3 +293,7 @@ D.19, D.21, D.22 et D.23 sont livrés et vérifiés dans le [rapport WP5](Modula
 ## Clôture WP6 — Consolidation finale
 
 D.24–D.27 sont livrés et vérifiés dans le [rapport WP6](Modularity_WP6_Execution_Report.md). Les lignes `PLANNED` ci-dessus sont conservées comme historique de planification. Les anciens shells domaine et les trois POM legacy LKV ont disparu ; B15 est retiré. `engine-materialize-latest-known-version`, `supra-consume-lkv` et le runtime LKV indépendant matérialisent la décision H2. CURRENT et TARGET convergent sans moteur générique convergent-index. Le graphe final réel remplace les snapshots 54/147 : 58 POM enfants, 234 arcs, zéro cycle, zéro dépendance interne manquante, zéro TARGET→legacy et zéro frontière provisoire.
+
+## Clôture corrective POST-WP6
+
+L'audit indépendant a conservé WP6 ouvert pour deux anomalies embarquées : une API Consumption de compatibilité sans consommateur réel et une dépendance POM Event→Command utilisée uniquement par un test. Le lot POST-WP6 les retire sans nouvelle famille ni déplacement de responsabilité. Le [rapport POST-WP6](Modularity_Post_WP6_Closure_Report.md) porte l'inventaire, la classification, les guards et les preuves finales. Le compteur normatif est désormais explicite : 226 arcs de production ; les 234 dépendances tous scopes incluent 8 dépendances de test et ne doivent pas être présentées comme des arcs de production.

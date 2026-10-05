@@ -15,7 +15,6 @@ import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefin
 import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.consume.command.model.CommandTerminalEventTypes;
 
 class PocomaProjectionMaterializationPolicyTest {
 	@Test
@@ -28,8 +27,6 @@ class PocomaProjectionMaterializationPolicyTest {
 		assertEquals(PocomaEventTypes.all(), policy.materializations().keySet());
 		PocomaEventTypes.all().forEach(eventType ->
 				assertEquals(expected, policy.materializations().get(eventType)));
-		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(null,
-				policy.materializations().get(eventType)));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
 	}
 

@@ -41,13 +41,4 @@ class ConsumptionKeyTest {
 				new ConsumptionKey(event, new ConsumerIdentity("PIPELINE", List.of("notifications", "1"))));
 	}
 
-	@Test
-	@SuppressWarnings("removal")
-	void mapsLegacyCommandAndEventKeysToExplicitIdentities() {
-		assertEquals(new ConsumptionKey(new ConsumableIdentity("COMMAND", List.of("c1")),
-				new ConsumerIdentity("COMMAND_PROCESSOR", List.of())), new ConsumptionKey("command", List.of("c1")));
-		assertEquals(new ConsumptionKey(new ConsumableIdentity("EVENT", List.of("e1")),
-				new ConsumerIdentity("PIPELINE", List.of("balances", "2"))),
-				new ConsumptionKey("event", List.of("balances", "2", "e1")));
-	}
 }

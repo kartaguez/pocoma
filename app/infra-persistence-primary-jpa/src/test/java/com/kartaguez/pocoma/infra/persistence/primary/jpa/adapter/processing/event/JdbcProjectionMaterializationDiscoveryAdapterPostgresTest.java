@@ -52,7 +52,6 @@ import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
 import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
 import com.kartaguez.pocoma.engine.produce.projectiontask.ordering.ProjectionMaterializationOrderingKey;
-import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
@@ -108,7 +107,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		insertAppliedCommandEvent(eventId, commandId, NOW, 0);
 
 		assertTrue(discovery.findCandidates(routes(COMMAND_APPLIED, COMMAND_RESULT),
-				WorkerSegment.single(), Optional.empty(), 10).isEmpty());
+				0, 1, Optional.empty(), 10).isEmpty());
 	}
 
 	@Test
@@ -118,7 +117,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		insertEvent(eventId, POT_CREATED, potId, 7, NOW, 0, UNPARSEABLE_PAYLOAD);
 
 		List<ProjectionMaterializationCandidate> candidates = discovery.findCandidates(
-				routes(POT_CREATED, READ_POT), WorkerSegment.single(), Optional.empty(), 10);
+				routes(POT_CREATED, READ_POT), 0, 1, Optional.empty(), 10);
 
 		assertEquals(1, candidates.size());
 		var candidate = candidates.getFirst();
@@ -131,9 +130,9 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		assertEquals(NOW, candidate.recordedAt());
 
 		assertTrue(discovery.findCandidates(
-				routes(POT_DELETED, READ_POT), WorkerSegment.single(), Optional.empty(), 10).isEmpty());
+				routes(POT_DELETED, READ_POT), 0, 1, Optional.empty(), 10).isEmpty());
 		assertTrue(discovery.findCandidates(
-				Map.of(), WorkerSegment.single(), Optional.empty(), 10).isEmpty());
+				Map.of(), 0, 1, Optional.empty(), 10).isEmpty());
 	}
 
 	@Test
@@ -141,11 +140,11 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		insertEvent(uuid(2), POT_CREATED, uuid(102), 1, NOW, 0, UNPARSEABLE_PAYLOAD);
 
 		assertEquals(List.of(READ_POT), discovery.findCandidates(
-				routes(POT_CREATED, READ_POT), WorkerSegment.single(), Optional.empty(), 10).stream()
+				routes(POT_CREATED, READ_POT), 0, 1, Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::projectionType).toList());
 		assertEquals(List.of(POT_BALANCES, READ_POT), discovery.findCandidates(
 				Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES)),
-				WorkerSegment.single(), Optional.empty(), 10).stream()
+				0, 1, Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::projectionType).toList());
 	}
 
@@ -159,7 +158,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 				scan(initialRoutes, 1));
 		done(historicalEvent, READ_POT);
 		assertTrue(discovery.findCandidates(
-				initialRoutes, WorkerSegment.single(), Optional.empty(), 1).isEmpty());
+				initialRoutes, 0, 1, Optional.empty(), 1).isEmpty());
 
 		Map<EventType, Set<ProjectionType>> enrichedRoutes =
 				Map.of(POT_CREATED, Set.of(READ_POT, POT_BALANCES));
@@ -187,7 +186,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		done(doneExact, READ_POT);
 
 		assertEquals(Set.of(noSlot, busy, notReady, doneOtherProjection), discovery.findCandidates(
-				routes(POT_CREATED, READ_POT), WorkerSegment.single(), Optional.empty(), 10).stream()
+				routes(POT_CREATED, READ_POT), 0, 1, Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::eventId).collect(java.util.stream.Collectors.toSet()));
 	}
 
@@ -202,11 +201,11 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 
 		assertEquals(List.of(inside, inside), discovery.findCandidates(
 				routes,
-				new WorkerSegment(0, 2), Optional.empty(), 10).stream()
+				0, 2, Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::eventId).toList());
 		assertEquals(List.of(outside, outside), discovery.findCandidates(
 				routes,
-				new WorkerSegment(1, 2), Optional.empty(), 10).stream()
+				1, 2, Optional.empty(), 10).stream()
 				.map(ProjectionMaterializationCandidate::eventId).toList());
 	}
 
@@ -240,30 +239,30 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		insertEvent(second, POT_CREATED, uuid(141), 1, NOW.plusSeconds(1), 0, UNPARSEABLE_PAYLOAD);
 		Map<EventType, Set<ProjectionType>> routes = routes(POT_CREATED, READ_POT);
 
-		var firstPage = discovery.findCandidates(routes, WorkerSegment.single(), Optional.empty(), 1);
+		var firstPage = discovery.findCandidates(routes, 0, 1, Optional.empty(), 1);
 		assertEquals(first, firstPage.getFirst().eventId());
 		done(second, READ_POT);
-		assertTrue(discovery.findCandidates(routes, WorkerSegment.single(),
+		assertTrue(discovery.findCandidates(routes, 0, 1,
 				Optional.of(firstPage.getFirst().orderingKey()), 1).isEmpty());
 		assertEquals(first, discovery.findCandidates(
-				routes, WorkerSegment.single(), Optional.empty(), 1).getFirst().eventId());
+				routes, 0, 1, Optional.empty(), 1).getFirst().eventId());
 		done(first, READ_POT);
 		assertTrue(discovery.findCandidates(
-				routes, WorkerSegment.single(), Optional.empty(), 1).isEmpty());
+				routes, 0, 1, Optional.empty(), 1).isEmpty());
 	}
 
 	@Test
 	void rejectsInvalidArgumentsAndRouteContents() {
 		assertThrows(IllegalArgumentException.class, () -> discovery.findCandidates(
-				Map.of(), WorkerSegment.single(), Optional.empty(), 0));
+				Map.of(), 0, 1, Optional.empty(), 0));
 		var nullEventType = new HashMap<EventType, Set<ProjectionType>>();
 		nullEventType.put(null, Set.of(READ_POT));
 		assertThrows(NullPointerException.class, () -> discovery.findCandidates(
-				nullEventType, WorkerSegment.single(), Optional.empty(), 1));
+				nullEventType, 0, 1, Optional.empty(), 1));
 		var nullProjectionTypes = new HashMap<EventType, Set<ProjectionType>>();
 		nullProjectionTypes.put(POT_CREATED, null);
 		assertThrows(NullPointerException.class, () -> discovery.findCandidates(
-				nullProjectionTypes, WorkerSegment.single(), Optional.empty(), 1));
+				nullProjectionTypes, 0, 1, Optional.empty(), 1));
 	}
 
 	private List<ProjectionMaterializationOrderingKey> scan(
@@ -271,7 +270,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 		var keys = new ArrayList<ProjectionMaterializationOrderingKey>();
 		Optional<ProjectionMaterializationOrderingKey> cursor = Optional.empty();
 		while (true) {
-			var page = discovery.findCandidates(routes, WorkerSegment.single(), cursor, limit);
+			var page = discovery.findCandidates(routes, 0, 1, cursor, limit);
 			if (page.isEmpty()) return List.copyOf(keys);
 			for (var candidate : page) {
 				keys.add(candidate.orderingKey());
