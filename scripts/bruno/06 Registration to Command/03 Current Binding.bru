@@ -1,0 +1,29 @@
+meta {
+  name: 03 Current Binding
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/me/binding
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Binding is pending or attached", function () {
+    expect([404, 200]).to.include(res.getStatus());
+    if (res.getStatus() === 200) {
+      expect(res.getBody().status).to.equal("ATTACHED");
+      expect(res.getBody().bindingId).to.match(/^[0-9a-f-]{36}$/i);
+    }
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200) bru.setVar("currentBindingId", res.getBody().bindingId);
+}

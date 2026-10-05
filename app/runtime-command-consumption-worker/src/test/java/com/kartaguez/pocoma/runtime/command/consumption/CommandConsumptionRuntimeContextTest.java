@@ -11,13 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
 import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
-import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionLocator;
+import com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandUseCase;
+import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcher;
+import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",
@@ -32,12 +34,16 @@ class CommandConsumptionRuntimeContextTest {
 	@Autowired ConsumptionPollingWorker worker;
 	@Autowired @Qualifier("commandConsumptionWorkerLifecycle") SmartLifecycle lifecycle;
 	@Autowired Environment environment;
+	@Autowired ApplicationContext context;
 
 	@Test
 	void composesTheGenericWorkerAndCommandLocatorWithConservativeDefaults() {
 		assertNotNull(locator);
 		assertNotNull(orchestrator);
 		assertNotNull(executeRecordedCommand);
+		assertEquals(1, context.getBeansOfType(CommandDispatcher.class).size(), "one active Pot dispatch");
+		assertEquals(1, context.getBeansOfType(ExecuteRecordedCommandUseCase.class).size(),
+				"one active Command execution engine");
 		assertNotNull(worker);
 		assertInstanceOf(CommandConsumptionWorkerLifecycle.class, lifecycle);
 		assertEquals(Duration.ofSeconds(30), properties.getClaimLease());

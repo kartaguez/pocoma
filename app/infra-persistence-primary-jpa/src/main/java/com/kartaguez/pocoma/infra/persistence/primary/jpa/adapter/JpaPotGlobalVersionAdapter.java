@@ -1,0 +1,59 @@
+package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter;
+
+import java.util.Objects;
+
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotGlobalVersionPort;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.JpaPotGlobalVersionEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.JpaPotGlobalVersionRepository;
+
+@Component
+public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
+
+	private final JpaPotGlobalVersionRepository repository;
+
+	public JpaPotGlobalVersionAdapter(JpaPotGlobalVersionRepository repository) {
+		this.repository = Objects.requireNonNull(repository, "repository must not be null");
+	}
+
+	@Override
+	@Transactional
+	public void save(PotGlobalVersion potGlobalVersion) {
+		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
+		repository.saveAndFlush(JpaPotGlobalVersionEntity.from(potGlobalVersion));
+		insertMetadata(potGlobalVersion);
+	}
+
+	@Override
+	@Transactional
+	public void updateIfActive(PotGlobalVersion expectedActiveVersion, PotGlobalVersion nextVersion) {
+		Objects.requireNonNull(expectedActiveVersion, "expectedActiveVersion must not be null");
+		Objects.requireNonNull(nextVersion, "nextVersion must not be null");
+
+		if (!expectedActiveVersion.potId().equals(nextVersion.potId())) {
+			throw new IllegalArgumentException("nextVersion must reference the same pot as expectedActiveVersion");
+		}
+
+		int updatedRows = repository.updateIfActive(
+				expectedActiveVersion.potId().value(),
+				expectedActiveVersion.version(),
+				nextVersion.version());
+
+		if (updatedRows != 1) {
+			throw new VersionConflictException("Pot global version has been modified by another operation");
+		}
+
+		insertMetadata(nextVersion);
+	}
+
+	private void insertMetadata(PotGlobalVersion version) {
+		int insertedRows = repository.insertVersionMetadata(version.potId().value(), version.version());
+		if (insertedRows != 1) {
+			throw new IllegalStateException("Pot version metadata was not created");
+		}
+	}
+}

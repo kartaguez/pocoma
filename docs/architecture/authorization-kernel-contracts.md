@@ -9,7 +9,7 @@ le code déjà livré.
 Il précise, sans les remplacer :
 
 - l'[architecture cible du read side](read-side-target.md), notamment sa section 10 ;
-- le [plan directeur du Lot 7](../plans/lot-7-read-side-implementation-plan.md), notamment 7.9.3 et
+- l’[ancien plan directeur du Lot 7, SUPERSEDED](../archive/lot-7-read-side-implementation-plan.md), notamment 7.9.3 et
   7.10 ;
 - la [reconstruction historique canonique](pot-historical-reconstruction.md), qui définit comment
   `creator_id` et les Shareholders actifs permettent de reconstruire les faits à une version ;

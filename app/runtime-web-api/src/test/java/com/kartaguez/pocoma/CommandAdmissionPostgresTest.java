@@ -1,4 +1,5 @@
 package com.kartaguez.pocoma;
+import com.kartaguez.pocoma.supra.http.write.CommandRequestSizeFilter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -70,7 +71,7 @@ class CommandAdmissionPostgresTest {
 	void cleanDatabase() {
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
-		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
+		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_occurrences, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
 				+ "consumption_results, consumption_slots, consumption_claims, business_event_outbox, "
 				+ "command_outcomes, command_terminal_events, projection_tasks, "
 				+ "expense_shares, expense_headers, shareholders, pot_headers, pot_global_versions cascade");
@@ -81,6 +82,7 @@ class CommandAdmissionPostgresTest {
 		UUID userId = UUID.randomUUID();
 		UUID bindingId = UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
+		reserveCurrentBinding(userId, bindingId);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				ISSUER, SUBJECT, userId, bindingId);
 		Instant issuedAt = Instant.now().minusSeconds(30).truncatedTo(ChronoUnit.SECONDS);
@@ -108,14 +110,14 @@ class CommandAdmissionPostgresTest {
 		var row = jdbc.queryForMap("select * from recorded_commands where command_id=?", commandId);
 		assertEquals("FUTURE_COMMAND_V1", row.get("command_type"));
 		assertEquals("{\"business\":\"invalid-but-opaque\"}", row.get("payload_json"));
-		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
-		assertNull(row.get("auth_user_id"));
+		assertFalse(row.containsKey("envelope_version"));
+		assertFalse(row.containsKey("auth_user_id"));
 		assertEquals(ISSUER, row.get("auth_issuer"));
 		assertEquals(SUBJECT, row.get("auth_subject"));
 		assertEquals(bindingId, row.get("binding_id"));
-		assertNull(row.get("auth_permissions_json"));
-		assertNull(row.get("auth_authenticated_at"));
-		assertNull(row.get("auth_issued_at"));
+		assertFalse(row.containsKey("auth_permissions_json"));
+		assertFalse(row.containsKey("auth_authenticated_at"));
+		assertFalse(row.containsKey("auth_issued_at"));
 		assertEquals(expiresAt, ((Timestamp) row.get("auth_valid_until")).toInstant());
 		JsonNode authorities = objectMapper.readTree(row.get("auth_external_authorities_json").toString());
 		assertEquals(Set.of("pocoma:pot:create", "pocoma:expense:update", "future:value"),
@@ -129,6 +131,7 @@ class CommandAdmissionPostgresTest {
 		UUID userId = UUID.randomUUID();
 		UUID currentBinding = UUID.randomUUID();
 		jdbc.update("insert into users (user_id) values (?)", userId);
+		reserveCurrentBinding(userId, currentBinding);
 		jdbc.update("insert into external_identities (issuer,subject,user_id,binding_id) values (?,?,?,?)",
 				ISSUER, SUBJECT, userId, currentBinding);
 		Instant issuedAt = Instant.now().minusSeconds(10).truncatedTo(ChronoUnit.SECONDS);
@@ -213,13 +216,12 @@ class CommandAdmissionPostgresTest {
 	}
 
 	private void assertTarget(UUID commandId, String subject, UUID bindingId) {
-		var row = jdbc.queryForMap("select envelope_version, auth_subject, binding_id, auth_user_id, "
-				+ "auth_permissions_json from recorded_commands where command_id=?", commandId);
-		assertEquals(2, ((Number) row.get("envelope_version")).intValue());
+		var row = jdbc.queryForMap("select * from recorded_commands where command_id=?", commandId);
+		assertFalse(row.containsKey("envelope_version"));
 		assertEquals(subject, row.get("auth_subject"));
 		assertEquals(bindingId, row.get("binding_id"));
-		assertNull(row.get("auth_user_id"));
-		assertNull(row.get("auth_permissions_json"));
+		assertFalse(row.containsKey("auth_user_id"));
+		assertFalse(row.containsKey("auth_permissions_json"));
 	}
 
 	private void assertNoSynchronousEffects() {
@@ -250,5 +252,11 @@ class CommandAdmissionPostgresTest {
 
 	private int count(String table) {
 		return jdbc.queryForObject("select count(*) from " + table, Integer.class);
+	}
+
+	private void reserveCurrentBinding(UUID userId, UUID bindingId) {
+		jdbc.update("insert into external_identity_binding_streams values (?,?,0)", ISSUER, SUBJECT);
+		jdbc.update("insert into external_identity_binding_occurrences values (?,?,?,?,0,now())",
+				bindingId, ISSUER, SUBJECT, userId);
 	}
 }

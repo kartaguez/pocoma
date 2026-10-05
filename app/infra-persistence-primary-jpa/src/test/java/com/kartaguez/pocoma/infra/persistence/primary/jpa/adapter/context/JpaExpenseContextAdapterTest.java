@@ -1,0 +1,162 @@
+package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Name;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.write.pot.context.DeleteExpenseContext;
+import com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext;
+import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseHeaderEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.JpaPotGlobalVersionEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaPotHeaderEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaShareholderEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaExpenseHeaderRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.JpaPotGlobalVersionRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaPotHeaderRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaShareholderRepository;
+
+@DataJpaTest
+@Import(JpaExpenseContextAdapter.class)
+class JpaExpenseContextAdapterTest {
+
+	@Autowired
+	private JpaExpenseContextAdapter adapter;
+
+	@Autowired
+	private JpaExpenseHeaderRepository expenseHeaderRepository;
+
+	@Autowired
+	private JpaPotGlobalVersionRepository potGlobalVersionRepository;
+
+	@Autowired
+	private JpaPotHeaderRepository potHeaderRepository;
+
+	@Autowired
+	private JpaShareholderRepository shareholderRepository;
+
+	@Test
+	void loadsUpdateExpenseSharesContextFromCurrentPotVersion() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
+		UserId creatorId = UserId.of(UUID.randomUUID());
+		UserId memberId = UserId.of(UUID.randomUUID());
+		Shareholder payer = shareholder(potId);
+		Shareholder activeShareholder = shareholder(potId, false, memberId);
+		Shareholder inactiveShareholder = shareholder(potId);
+		Shareholder deletedShareholder = shareholder(potId, true);
+		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 4)));
+		potHeaderRepository.save(JpaPotHeaderEntity.from(
+				PotHeader.reconstitute(potId, Label.of("Pot"), creatorId, false),
+				1,
+				null));
+		expenseHeaderRepository.save(JpaExpenseHeaderEntity.from(
+				ExpenseHeader.reconstitute(
+						expenseId,
+						potId,
+						payer.id(),
+						Amount.of(Fraction.of(42, 1)),
+						Label.of("Lunch"),
+						java.time.LocalDate.parse("2026-01-01"),
+						false),
+				2,
+				null));
+		shareholderRepository.save(JpaShareholderEntity.from(payer, 1, null));
+		shareholderRepository.save(JpaShareholderEntity.from(activeShareholder, 3, null));
+		shareholderRepository.save(JpaShareholderEntity.from(inactiveShareholder, 1, 4L));
+		shareholderRepository.save(JpaShareholderEntity.from(deletedShareholder, 1, null));
+
+		UpdateExpenseSharesContext context = adapter.loadUpdateExpenseSharesContext(expenseId);
+
+		assertEquals(new PotGlobalVersion(potId, 4), context.potGlobalVersion());
+		assertEquals(false, context.deleted());
+		assertEquals(creatorId, context.creatorId());
+		assertEquals(Set.of(payer.id(), activeShareholder.id()), context.shareholderIds());
+		assertEquals(Map.of(activeShareholder.id(), memberId), context.shareholderUsers());
+	}
+
+	@Test
+	void loadsDeletedExpenseContext() {
+		PotId potId = PotId.of(UUID.randomUUID());
+		ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
+		UserId creatorId = UserId.of(UUID.randomUUID());
+		Shareholder payer = shareholder(potId);
+		potGlobalVersionRepository.save(JpaPotGlobalVersionEntity.from(new PotGlobalVersion(potId, 5)));
+		potHeaderRepository.save(JpaPotHeaderEntity.from(
+				PotHeader.reconstitute(potId, Label.of("Pot"), creatorId, false),
+				1,
+				null));
+		expenseHeaderRepository.save(JpaExpenseHeaderEntity.from(
+				ExpenseHeader.reconstitute(
+						expenseId,
+						potId,
+						payer.id(),
+						Amount.of(Fraction.of(42, 1)),
+						Label.of("Deleted expense"),
+						java.time.LocalDate.parse("2026-01-01"),
+						true),
+				5,
+				null));
+
+		DeleteExpenseContext context = adapter.loadDeleteExpenseContext(expenseId);
+
+		assertEquals(new PotGlobalVersion(potId, 5), context.potGlobalVersion());
+		assertEquals(true, context.deleted());
+		assertEquals(creatorId, context.creatorId());
+	}
+
+	@Test
+	void rejectsUnknownExpenseContext() {
+		assertThrows(
+				BusinessEntityNotFoundException.class,
+				() -> adapter.loadUpdateExpenseDetailsContext(ExpenseId.of(UUID.randomUUID())));
+	}
+
+	private static Shareholder shareholder(PotId potId) {
+		return shareholder(potId, false);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted) {
+		return shareholder(potId, deleted, null);
+	}
+
+	private static Shareholder shareholder(PotId potId, boolean deleted, UserId userId) {
+		return Shareholder.reconstitute(
+				ShareholderId.of(UUID.randomUUID()),
+				potId,
+				Name.of("Alice"),
+				Weight.of(Fraction.of(1, 1)),
+				userId,
+				deleted);
+	}
+
+	@SpringBootApplication
+	@EntityScan("com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories("com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
+	static class TestApplication {
+	}
+}

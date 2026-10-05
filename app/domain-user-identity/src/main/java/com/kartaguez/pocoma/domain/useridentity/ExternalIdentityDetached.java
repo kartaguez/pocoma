@@ -9,6 +9,7 @@ import java.util.UUID;
 public record ExternalIdentityDetached(
 		UUID eventId,
 		ExternalIdentity externalIdentity,
+		PocomaUserId userId,
 		BindingId bindingId,
 		BindingRevision bindingRevision,
 		Instant recordedAt) implements ExternalIdentityBindingFact {
@@ -16,6 +17,7 @@ public record ExternalIdentityDetached(
 	public ExternalIdentityDetached {
 		requireNonNull(eventId, "eventId must not be null");
 		requireNonNull(externalIdentity, "externalIdentity must not be null");
+		requireNonNull(userId, "userId must not be null");
 		requireNonNull(bindingId, "bindingId must not be null");
 		requirePositive(bindingRevision);
 		requireNonNull(recordedAt, "recordedAt must not be null");

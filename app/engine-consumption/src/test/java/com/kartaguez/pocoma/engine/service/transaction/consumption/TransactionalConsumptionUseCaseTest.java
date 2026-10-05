@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionOutcome;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 class TransactionalConsumptionUseCaseTest {
 

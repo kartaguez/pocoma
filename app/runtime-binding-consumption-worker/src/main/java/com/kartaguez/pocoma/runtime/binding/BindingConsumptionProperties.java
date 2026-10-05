@@ -5,17 +5,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("pocoma.binding-consumption")
 public class BindingConsumptionProperties {
-	private boolean enabled, bootstrapEnabled = true;
-	private int segmentIndex, segmentCount = 1, maxCandidatesInspected = 100, maxConsumptionsExecuted = 10, bootstrapPageSize = 100;
+	private boolean enabled;
+	private int segmentIndex, segmentCount = 1, maxCandidatesInspected = 100, maxConsumptionsExecuted = 10;
 	private String workerId = "binding-consumption-worker";
 	private Duration claimLease = Duration.ofSeconds(30), pollInterval = Duration.ofSeconds(1), runtimeFailureBackoff = Duration.ofSeconds(5);
 	public boolean isEnabled(){return enabled;} public void setEnabled(boolean v){enabled=v;}
-	public boolean isBootstrapEnabled(){return bootstrapEnabled;} public void setBootstrapEnabled(boolean v){bootstrapEnabled=v;}
 	public int getSegmentIndex(){return segmentIndex;} public void setSegmentIndex(int v){segmentIndex=v;}
 	public int getSegmentCount(){return segmentCount;} public void setSegmentCount(int v){segmentCount=v;}
 	public int getMaxCandidatesInspected(){return maxCandidatesInspected;} public void setMaxCandidatesInspected(int v){maxCandidatesInspected=v;}
 	public int getMaxConsumptionsExecuted(){return maxConsumptionsExecuted;} public void setMaxConsumptionsExecuted(int v){maxConsumptionsExecuted=v;}
-	public int getBootstrapPageSize(){return bootstrapPageSize;} public void setBootstrapPageSize(int v){bootstrapPageSize=v;}
 	public String getWorkerId(){return workerId;} public void setWorkerId(String v){workerId=v;}
 	public Duration getClaimLease(){return claimLease;} public void setClaimLease(Duration v){claimLease=v;}
 	public Duration getPollInterval(){return pollInterval;} public void setPollInterval(Duration v){pollInterval=v;}

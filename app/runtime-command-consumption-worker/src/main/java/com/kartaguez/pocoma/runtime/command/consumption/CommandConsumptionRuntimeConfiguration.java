@@ -12,40 +12,42 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kartaguez.pocoma.binding.pot.command.spring.PotCommandBindingConfiguration;
+import com.kartaguez.pocoma.runtime.command.consumption.PotCommandBindingConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
-import com.kartaguez.pocoma.engine.command.execution.ExecuteRecordedCommandUseCase;
+import com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort;
+import com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.command.JdbcCommandOutcomeAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionInputRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionResultRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaCommandConsumptionDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandOutcomeAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionClaimRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionInputRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionResultRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionExecution;
-import com.kartaguez.pocoma.locator.consumption.command.CommandConsumptionLocator;
-import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionFailurePolicy;
-import com.kartaguez.pocoma.locator.consumption.command.failure.CommandConsumptionTechnicalFailureClassifier;
+import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;
+import com.kartaguez.pocoma.engine.consume.command.consumption.BindingFenceRecoveryExecuteUseCase;
+import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocator;
+import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicy;
+import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifier;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorkerObservation;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerObservation;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -93,10 +95,14 @@ public class CommandConsumptionRuntimeConfiguration {
 	ExecuteConsumptionUseCase commandConsumptionExecute(
 			JpaConsumptionLifecycleAdapter lifecycle,
 			JpaConsumptionProvenanceAdapter provenance,
+			ExternalIdentityBindingPort bindings,
+			JdbcCommandOutcomeAdapter outcomes,
 			TransactionRunner transactions,
 			Clock clock) {
-		return new TransactionalExecuteConsumptionUseCase(
-				new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
+		return new BindingFenceRecoveryExecuteUseCase(
+				new TransactionalExecuteConsumptionUseCase(
+						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
+				transactions, lifecycle, bindings, outcomes, clock);
 	}
 
 	@Bean

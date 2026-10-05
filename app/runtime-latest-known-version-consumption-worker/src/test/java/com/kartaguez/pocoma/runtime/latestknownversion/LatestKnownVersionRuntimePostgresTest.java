@@ -43,13 +43,13 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
-import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionPersistencePort;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
-import com.kartaguez.pocoma.locator.consumption.latestknownversion.LatestKnownVersionConsumptionLocator;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionInput;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionPersistencePort;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
+import com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionLocator;
@@ -95,23 +95,22 @@ class LatestKnownVersionRuntimePostgresTest {
 	}
 
 	@Test
-	void consumesOutOfOrderDuplicateAndOldEventsWithoutCreatingProjectionWork() {
+	void convergesToTwelveFromDurableInsertionOrderTenTwelveElevenWithoutCreatingProjectionWork() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		outbox.append(new PotCreatedEvent(potId, 3));
-		outbox.append(new PotCreatedEvent(potId, 2));
-		outbox.append(new PotCreatedEvent(potId, 3));
-		outbox.append(new PotCreatedEvent(potId, 1));
+		outbox.append(new PotCreatedEvent(potId, 10));
+		outbox.append(new PotCreatedEvent(potId, 12));
+		outbox.append(new PotCreatedEvent(potId, 11));
 
 		orchestrator.run(input());
 
-		assertEquals(3L, version(potId));
+		assertEquals(12L, version(potId));
 		for (var event : events.findAll()) {
 			var slot = lifecycle.findSlot(LatestKnownVersionConsumptionLocator.key(event.id())).orElseThrow();
 			assertEquals(TerminalOutcome.SUCCESS, slot.terminalOutcome().orElseThrow());
 			assertEquals(1, provenance.findInputs(slot.slotId()).size());
 			assertTrue(provenance.findResults(slot.slotId()).isEmpty());
 		}
-		assertEquals(4L, jdbc.queryForObject("select count(*) from consumption_slots "
+		assertEquals(3L, jdbc.queryForObject("select count(*) from consumption_slots "
 				+ "where consumable_type='EVENT' "
 				+ "and jsonb_array_length(consumable_components)=1 "
 				+ "and consumer_type='SOURCE_VERSION_WATERMARK' "

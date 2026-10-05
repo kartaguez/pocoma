@@ -1,0 +1,326 @@
+package com.kartaguez.pocoma.engine.write.pot.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
+import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.domain.authorization.Permission;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseDetailsContext;
+import com.kartaguez.pocoma.domain.pot.event.ExpenseDetailsUpdatedEvent;
+import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
+import com.kartaguez.pocoma.engine.write.pot.input.UpdateExpenseDetailsInput;
+import com.kartaguez.pocoma.engine.write.pot.snapshot.ExpenseHeaderSnapshot;
+import com.kartaguez.pocoma.engine.write.pot.security.UserContext;
+
+class UpdateExpenseDetailsServiceTest {
+
+	@Test
+	void updatesExpenseDetails() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		FakeExpenseContextPort loadContextPort =
+				new FakeExpenseContextPort(fixture.context(false));
+		FakeExpenseHeaderPort loadExpenseHeaderPort =
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		FakePotGlobalVersionPort updatePotGlobalVersionPort = new FakePotGlobalVersionPort();
+		FakeRecordingExpenseHeaderPort replaceExpenseHeaderPort = new FakeRecordingExpenseHeaderPort();
+		FakeEventPublisherPort publishEventPort = new FakeEventPublisherPort();
+		UpdateExpenseDetailsService service = new UpdateExpenseDetailsService(
+				loadContextPort,
+				loadExpenseHeaderPort,
+				updatePotGlobalVersionPort,
+				replaceExpenseHeaderPort,
+				publishEventPort,
+				new PotAuthorizationGuard());
+
+		ExpenseHeaderSnapshot snapshot = service.updateExpenseDetails(
+				new UserContext(fixture.creatorId, fixture.userPermissions),
+				fixture.command(3, fixture.nextPayerId));
+
+		assertEquals(fixture.expenseId, snapshot.id());
+		assertEquals(fixture.potId, snapshot.potId());
+		assertEquals(fixture.nextPayerId, snapshot.payerId());
+		assertEquals(Amount.of(Fraction.of(84, 1)), snapshot.amount());
+		assertEquals(Label.of("Updated dinner"), snapshot.label());
+		assertEquals(java.time.LocalDate.parse("2026-02-02"), snapshot.date());
+		assertFalse(snapshot.deleted());
+		assertEquals(4, snapshot.version());
+		assertEquals(fixture.expenseId, loadContextPort.loadedExpenseId);
+		assertEquals(fixture.expenseId, loadExpenseHeaderPort.loadedExpenseId);
+		assertEquals(3, loadExpenseHeaderPort.loadedAtVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), updatePotGlobalVersionPort.expectedActiveVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), updatePotGlobalVersionPort.nextVersion);
+		assertEquals(fixture.nextPayerId, replaceExpenseHeaderPort.saved.payerId());
+		assertEquals(java.time.LocalDate.parse("2026-02-02"), replaceExpenseHeaderPort.saved.date());
+		assertEquals(new PotGlobalVersion(fixture.potId, 3), replaceExpenseHeaderPort.currentVersion);
+		assertEquals(new PotGlobalVersion(fixture.potId, 4), replaceExpenseHeaderPort.nextVersion);
+		assertEquals(new ExpenseDetailsUpdatedEvent(fixture.expenseId, fixture.potId, 4), publishEventPort.published);
+	}
+
+	@Test
+	void allowsPotMemberToUpdateExpenseDetails() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		UserId memberId = UserId.of(UUID.randomUUID());
+		UpdateExpenseDetailsContext context = fixture.context(false, Map.of(fixture.payerId, memberId));
+
+		ExpenseHeaderSnapshot snapshot = fixture.service(
+				context,
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false)))
+				.updateExpenseDetails(
+						new UserContext(memberId, fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId));
+
+		assertEquals(fixture.expenseId, snapshot.id());
+	}
+
+	@Test
+	void rejectsExpenseWhosePotDoesNotMatchAuthorizationRelations() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		PotId unrelatedPotId = PotId.of(UUID.randomUUID());
+		UpdateExpenseDetailsContext unrelatedContext = new UpdateExpenseDetailsContext(
+				new PotGlobalVersion(unrelatedPotId, 3),
+				false,
+				fixture.creatorId,
+				Set.of(fixture.payerId, fixture.nextPayerId));
+		FakeExpenseHeaderPort expenseHeaders = new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		FakePotGlobalVersionPort versions = new FakePotGlobalVersionPort();
+		FakeRecordingExpenseHeaderPort writes = new FakeRecordingExpenseHeaderPort();
+		FakeEventPublisherPort events = new FakeEventPublisherPort();
+		UpdateExpenseDetailsService service = new UpdateExpenseDetailsService(
+				new FakeExpenseContextPort(unrelatedContext),
+				expenseHeaders,
+				versions,
+				writes,
+				events,
+				new PotAuthorizationGuard());
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId)));
+
+		assertEquals("AUTHORIZATION_CONFIGURATION_ERROR", exception.ruleCode());
+		assertTrue(expenseHeaders.loaded);
+		assertNull(versions.nextVersion);
+		assertNull(writes.saved);
+		assertNull(events.published);
+	}
+
+	@Test
+	void rejectsAlreadyDeletedExpenseWithoutLoadingFullExpenseHeader() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		FakeExpenseHeaderPort loadExpenseHeaderPort =
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		UpdateExpenseDetailsService service = fixture.service(fixture.context(true), loadExpenseHeaderPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId)));
+
+		assertEquals("EXPENSE_ALREADY_DELETED", exception.ruleCode());
+		assertFalse(loadExpenseHeaderPort.loaded);
+	}
+
+	@Test
+	void rejectsVersionConflictBeforeApplyingTheRequestedDateChange() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		FakeExpenseHeaderPort loadExpenseHeaderPort =
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
+
+		VersionConflictException exception = assertThrows(
+				VersionConflictException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(2, fixture.nextPayerId)));
+
+		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertFalse(loadExpenseHeaderPort.loaded);
+	}
+
+	@Test
+	void rejectsUnknownPayerWithoutLoadingFullExpenseHeader() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		FakeExpenseHeaderPort loadExpenseHeaderPort =
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(fixture.creatorId, fixture.userPermissions),
+						fixture.command(3, ShareholderId.of(UUID.randomUUID()))));
+
+		assertEquals("SHAREHOLDER_NOT_PRESENT", exception.ruleCode());
+		assertFalse(loadExpenseHeaderPort.loaded);
+	}
+
+	@Test
+	void rejectsForbiddenUserAfterValidatingExpensePotCoherence() {
+		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
+		FakeExpenseHeaderPort loadExpenseHeaderPort =
+				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
+		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
+
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> service.updateExpenseDetails(
+						new UserContext(UserId.of(UUID.randomUUID()), fixture.userPermissions),
+						fixture.command(3, fixture.nextPayerId)));
+
+		assertEquals("EXPENSE_DETAILS_UPDATE_FORBIDDEN", exception.ruleCode());
+		assertTrue(loadExpenseHeaderPort.loaded);
+	}
+
+	private static final class UpdateExpenseDetailsFixture {
+		private final PotId potId = PotId.of(UUID.randomUUID());
+		private final ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
+		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
+		private final ShareholderId nextPayerId = ShareholderId.of(UUID.randomUUID());
+		private final UserId creatorId = UserId.of(UUID.randomUUID());
+		private final Set<Permission> userPermissions = Set.of(new Permission("EXPENSE", "UPDATE"));
+		private final Amount amount = Amount.of(Fraction.of(42, 1));
+		private final Label label = Label.of("Dinner");
+
+		private UpdateExpenseDetailsContext context(boolean deleted) {
+			return context(deleted, Map.of());
+		}
+
+		private UpdateExpenseDetailsContext context(
+				boolean deleted,
+				Map<ShareholderId, UserId> shareholderUsers) {
+			return new UpdateExpenseDetailsContext(
+					new PotGlobalVersion(potId, 3),
+					deleted,
+					false,
+					creatorId,
+					Set.of(payerId, nextPayerId),
+					shareholderUsers);
+		}
+
+		private ExpenseHeader expenseHeader(boolean deleted) {
+			return ExpenseHeader.reconstitute(expenseId, potId, payerId, amount, label,
+					java.time.LocalDate.parse("2026-01-01"), deleted);
+		}
+
+		private UpdateExpenseDetailsInput command(long expectedVersion, ShareholderId payerId) {
+			return new UpdateExpenseDetailsInput(
+					expenseId.value(),
+					payerId.value(),
+					84,
+					1,
+					"Updated dinner",
+					java.time.LocalDate.parse("2026-02-02"),
+					expectedVersion);
+		}
+
+		private UpdateExpenseDetailsService service(
+				UpdateExpenseDetailsContext context,
+				FakeExpenseHeaderPort loadExpenseHeaderPort) {
+			return new UpdateExpenseDetailsService(
+					new FakeExpenseContextPort(context),
+					loadExpenseHeaderPort,
+					new FakePotGlobalVersionPort(),
+					new FakeRecordingExpenseHeaderPort(),
+					new FakeEventPublisherPort(),
+					new PotAuthorizationGuard());
+		}
+	}
+
+	private static final class FakeExpenseContextPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseContextPort {
+
+		private final UpdateExpenseDetailsContext context;
+		private ExpenseId loadedExpenseId;
+
+		private FakeExpenseContextPort(UpdateExpenseDetailsContext context) {
+			this.context = context;
+		}
+
+		@Override
+		public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
+			loadedExpenseId = expenseId;
+			return context;
+		}
+	}
+
+	private static final class FakeExpenseHeaderPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseHeaderPort {
+
+		private final ExpenseHeader expenseHeader;
+		private boolean loaded;
+		private ExpenseId loadedExpenseId;
+		private long loadedAtVersion;
+
+		private FakeExpenseHeaderPort(ExpenseHeader expenseHeader) {
+			this.expenseHeader = expenseHeader;
+		}
+
+		@Override
+		public ExpenseHeader loadActiveAtVersion(ExpenseId expenseId, long version) {
+			loaded = true;
+			loadedExpenseId = expenseId;
+			loadedAtVersion = version;
+			return expenseHeader;
+		}
+	}
+
+	private static final class FakePotGlobalVersionPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.PotGlobalVersionPort {
+
+		private PotGlobalVersion expectedActiveVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public void updateIfActive(PotGlobalVersion expectedActiveVersion, PotGlobalVersion nextVersion) {
+			this.expectedActiveVersion = expectedActiveVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeRecordingExpenseHeaderPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseHeaderPort {
+
+		private ExpenseHeader saved;
+		private PotGlobalVersion currentVersion;
+		private PotGlobalVersion nextVersion;
+
+		@Override
+		public void save(ExpenseHeader expenseHeader, PotGlobalVersion currentVersion, PotGlobalVersion nextVersion) {
+			this.saved = expenseHeader;
+			this.currentVersion = currentVersion;
+			this.nextVersion = nextVersion;
+		}
+	}
+
+	private static final class FakeEventPublisherPort
+			implements com.kartaguez.pocoma.engine.write.pot.port.event.EventPublisherPort {
+
+		private ExpenseDetailsUpdatedEvent published;
+
+		@Override
+		public void publish(ExpenseDetailsUpdatedEvent event) {
+			published = event;
+		}
+	}
+}

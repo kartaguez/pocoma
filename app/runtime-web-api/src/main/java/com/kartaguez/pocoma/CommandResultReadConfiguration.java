@@ -4,33 +4,23 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kartaguez.pocoma.engine.command.result.GetCommandResultService;
-import com.kartaguez.pocoma.engine.command.result.GetCommandResultUseCase;
-import com.kartaguez.pocoma.engine.command.result.LegacyCurrentBindingUserQuery;
-import com.kartaguez.pocoma.engine.port.in.projection.read.ExactProjectionReadUseCase;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingProjectionPort;
-import com.kartaguez.pocoma.engine.read.binding.CurrentBindingStatus;
-import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingService;
-import com.kartaguez.pocoma.engine.read.binding.GetCurrentBindingUseCase;
+import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultService;
+import com.kartaguez.pocoma.engine.read.commandresult.GetCommandResultUseCase;
+import com.kartaguez.pocoma.engine.read.commandresult.CommandResultStore;
+import com.kartaguez.pocoma.engine.read.currentbinding.port.CurrentBindingReadPort;
+import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingService;
+import com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingUseCase;
 
 @Configuration
 @ConditionalOnProperty(prefix = "pocoma.command-result-read", name = "enabled", havingValue = "true")
 public class CommandResultReadConfiguration {
 	@Bean
-	GetCommandResultUseCase getCommandResultUseCase(ExactProjectionReadUseCase projections,
-			LegacyCurrentBindingUserQuery currentBindingUsers) {
-		return new GetCommandResultService(projections, currentBindingUsers);
+	GetCommandResultUseCase getCommandResultUseCase(CommandResultStore results) {
+		return new GetCommandResultService(results);
 	}
 
 	@Bean
-	LegacyCurrentBindingUserQuery legacyCurrentBindingUserQuery(CurrentBindingProjectionPort currentBindings) {
-		return identity -> currentBindings.find(identity)
-				.filter(binding -> binding.status() == CurrentBindingStatus.ATTACHED)
-				.map(binding -> binding.userId().value());
-	}
-
-	@Bean
-	GetCurrentBindingUseCase getCurrentBindingUseCase(CurrentBindingProjectionPort currentBindings) {
+	GetCurrentBindingUseCase getCurrentBindingUseCase(CurrentBindingReadPort currentBindings) {
 		return new GetCurrentBindingService(currentBindings);
 	}
 }

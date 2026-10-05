@@ -1,0 +1,2 @@
+com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration
+com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration

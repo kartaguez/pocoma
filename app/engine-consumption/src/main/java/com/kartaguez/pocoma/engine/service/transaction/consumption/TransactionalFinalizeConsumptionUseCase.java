@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 public final class TransactionalFinalizeConsumptionUseCase implements FinalizeConsumptionUseCase {
 	private final FinalizeConsumptionUseCase delegate;

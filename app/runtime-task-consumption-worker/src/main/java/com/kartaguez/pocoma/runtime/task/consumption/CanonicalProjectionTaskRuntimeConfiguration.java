@@ -23,49 +23,47 @@ import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.ProjectionValidator;
 import com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculator;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionInputLoader;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjector;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.projection.ProjectionWritePort;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.engine.projection.balance.CalculatePotBalancesAtVersionService;
-import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjectionInputLoader;
-import com.kartaguez.pocoma.engine.projection.balance.PotBalancesProjector;
-import com.kartaguez.pocoma.engine.projection.pot.AuthProjectionInputLoader;
-import com.kartaguez.pocoma.engine.projection.pot.AuthProjector;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjectionInputLoader;
-import com.kartaguez.pocoma.engine.projection.pot.ReadPotProjector;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskConsumptionService;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskRetryPolicy;
-import com.kartaguez.pocoma.engine.projection.task.engine.ExecuteProjectionTaskUseCase;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionEngineService;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerCatalog;
-import com.kartaguez.pocoma.engine.projection.task.engine.ProjectionProducerDeclaration;
+import com.kartaguez.pocoma.port.projection.ProjectionWritePort;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.engine.consume.projectiontask.input.CalculatePotBalancesAtVersionService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectionInputLoader;
+import com.kartaguez.pocoma.projector.pot.balance.PotBalancesProjector;
+import com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectionInputLoader;
+import com.kartaguez.pocoma.projector.pot.AuthProjector;
+import com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectionInputLoader;
+import com.kartaguez.pocoma.projector.pot.ReadPotProjector;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskRetryPolicy;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ExecuteProjectionTaskUseCase;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineService;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerCatalog;
+import com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionProducerDeclaration;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.HandleConsumptionFailureService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalHandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionClaimRepository;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
-import com.kartaguez.pocoma.infra.projection.jsonschema.NetworkntJsonSchemaValidator;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionClaimRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.infra.projection.validation.networknt.NetworkntJsonSchemaValidator;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
-import com.kartaguez.pocoma.orchestrator.consumption.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionOrchestrator;
+import com.kartaguez.pocoma.supra.consume.projectiontask.ProjectionTaskCandidateSource;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionWorkerSettings;
-import com.kartaguez.pocoma.supra.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @Configuration
 @EnableConfigurationProperties(CanonicalProjectionTaskProperties.class)
@@ -93,8 +91,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	}
 	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
 			JpaHistoricalPotBalanceSourceAdapter balances, ReadPotProjectionInputLoader readPotLoader,
-			ObjectProvider<AuthProjectionInputLoader> authLoaders,
-			ObjectProvider<CommandResultProjectionInputLoader> commandResultLoaders) {
+			ObjectProvider<AuthProjectionInputLoader> authLoaders) {
 		Set<ProjectionType> configured = projectionTypes(properties.getCatalogProjectionTypes(), "catalog-projection-types");
 		var available = new ArrayList<ProjectionProducerDeclaration<?>>();
 		available.addAll(List.of(
@@ -114,16 +111,6 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 			available.add(new ProjectionProducerDeclaration<>(AuthProjectionDefinition.PROJECTION_TYPE,
 					AuthProjectionDefinition.TARGET_OBJECT_TYPE, AuthProjectionDefinition.DEFINITION,
 					authLoader, new AuthProjector()));
-		}
-		if (configured.contains(CommandResultProjectionDefinition.PROJECTION_TYPE)) {
-			CommandResultProjectionInputLoader commandResultLoader = commandResultLoaders.getIfAvailable();
-			if (commandResultLoader == null) {
-				throw new IllegalStateException("COMMAND_RESULT requires a CommandResultProjectionInputLoader");
-			}
-			available.add(new ProjectionProducerDeclaration<>(CommandResultProjectionDefinition.PROJECTION_TYPE,
-						CommandResultProjectionDefinition.TARGET_OBJECT_TYPE,
-						CommandResultProjectionDefinition.DEFINITION,
-						commandResultLoader, new CommandResultProjector()));
 		}
 		var selected = available.stream().filter(declaration -> configured.contains(declaration.projectionType())).toList();
 		if (selected.size() != configured.size()) {
@@ -146,8 +133,9 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 		if (!catalog.projectionTypes().containsAll(locatorTypes)) {
 			throw new IllegalStateException("locator-projection-types must be a subset of catalog-projection-types");
 		}
-		return new ProjectionTaskConsumptionOrchestrator(locatorTypes,
-				properties.getSegmentIndex(),properties.getSegmentCount(),tasks,acquire,execute);
+		return new ProjectionTaskConsumptionOrchestrator(
+				new ProjectionTaskCandidateSource(locatorTypes, properties.getSegmentIndex(),
+						properties.getSegmentCount(), tasks), acquire, execute);
 	}
 	@Bean ConsumptionPollingWorker canonicalProjectionWorker(ConsumptionOrchestrator orchestrator,
 			CanonicalProjectionTaskProperties properties,Clock clock){

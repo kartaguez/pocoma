@@ -1,0 +1,18 @@
+package com.kartaguez.pocoma.engine.write.pot.snapshot;
+
+import java.util.Objects;
+import java.util.Set;
+
+import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+
+public record PotShareholdersSnapshot(PotId potId, Set<Shareholder> shareholders, long version) {
+
+	public PotShareholdersSnapshot {
+		Objects.requireNonNull(potId, "potId must not be null");
+		shareholders = Set.copyOf(Objects.requireNonNull(shareholders, "shareholders must not be null"));
+		if (version < 1) {
+			throw new IllegalArgumentException("version must be greater than or equal to 1");
+		}
+	}
+}

@@ -59,7 +59,7 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
-      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
       POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-0
       POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 0
       POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
@@ -80,7 +80,7 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_EVENT_CONSUMPTION_ENABLED: "true"
-      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_EVENT_CONSUMPTION_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
       POCOMA_EVENT_CONSUMPTION_WORKER_ID: event-materializer-1
       POCOMA_EVENT_CONSUMPTION_SEGMENT_INDEX: 1
       POCOMA_EVENT_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
@@ -101,8 +101,8 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: "true"
-      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
-      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
+      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
       POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: canonical-projection-task-worker-0
       POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: 0
       POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
@@ -123,8 +123,8 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_PROJECTION_TASK_CONSUMPTION_ENABLED: "true"
-      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
-      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES,COMMAND_RESULT
+      POCOMA_PROJECTION_TASK_CONSUMPTION_CATALOG_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
+      POCOMA_PROJECTION_TASK_CONSUMPTION_LOCATOR_PROJECTION_TYPES: AUTH,READ_POT,POT_BALANCES
       POCOMA_PROJECTION_TASK_CONSUMPTION_WORKER_ID: canonical-projection-task-worker-1
       POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_INDEX: 1
       POCOMA_PROJECTION_TASK_CONSUMPTION_SEGMENT_COUNT: ${POCOMA_SEGMENT_COUNT:-2}
@@ -145,6 +145,23 @@ services:
     environment:
       <<: *pocoma-java-environment
       POCOMA_COMMAND_CONSUMPTION_ENABLED: "true"
+    networks:
+      - pocoma-distributed
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pocoma-command-result-consumption-worker:
+    build:
+      <<: *pocoma-java-build
+      args:
+        RUNTIME_MODULE: runtime-command-result-consumption-worker
+        RUNTIME_ARTIFACT: pocoma-runtime-command-result-consumption-worker
+    expose:
+      - "8080"
+    environment:
+      <<: *pocoma-java-environment
+      POCOMA_COMMAND_RESULT_CONSUMPTION_ENABLED: "true"
     networks:
       - pocoma-distributed
     depends_on:
@@ -192,6 +209,8 @@ services:
       pocoma-task-consumption-worker-1:
         condition: service_started
       pocoma-command-consumption-worker:
+        condition: service_started
+      pocoma-command-result-consumption-worker:
         condition: service_started
       pocoma-latest-known-version-consumption-worker:
         condition: service_started

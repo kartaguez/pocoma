@@ -1,5 +1,7 @@
 # Pocoma Bruno collection
 
+`06 Registration to Command` exercises the new identity's first command. Set `accessToken` to a real bearer token for an ExternalIdentity E with `pocoma:pot:create` authority; Bruno cannot mint the external issuer's token. Run step 01 once, then poll steps 02 and 03 until both return 200. Step 02 must report `REGISTERED` for a new E; an already attached E produces `REJECTED` and stops the flow. Step 03 captures the current `bindingId` from the authenticated self endpoint. Run step 04 only after that capture, then poll step 05 until 200. No BindingId or UserId is hardcoded or inserted by Bruno. The Registration, Result, Binding, Command and Command Result workers must be running. A one-shot CLI sequence may encounter legitimate 404s while the workers converge.
+
 `00 Pot E2E` is the canonical reference flow for the asynchronous API:
 
 ```text

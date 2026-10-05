@@ -1,7 +1,7 @@
 # Event pull consumption runtime
 
 The active Event runtime is the canonical EPT materializer described by
-[`../steps/EPT/Step_Canon.md`](../steps/EPT/Step_Canon.md). It turns durable Event metadata into
+[`../steps/completed/EPT/Step_Canon.md`](../steps/completed/EPT/Step_Canon.md). It turns durable Event metadata into
 canonical `ProjectionTask` rows; it does not calculate projections.
 
 ## Active graph

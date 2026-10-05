@@ -73,7 +73,7 @@ class Pcl5PipelineLifecycleAbsenceTest {
 	void historicalLifecycleMigrationExistsExactlyOnceAndIsPreserved() throws IOException {
 		Path app = appRoot();
 		Path migration = app.resolve(
-				"infra-persistence-jpa/src/main/resources/db/migration/V12__pipeline_version_lifecycle.sql");
+				"infra-persistence-primary-jpa/src/main/resources/db/migration/V12__pipeline_version_lifecycle.sql");
 		List<Path> occurrences = files(app, V12_FILE_NAME);
 		assertEquals(1, occurrences.size(), () -> "Expected exactly one " + V12_FILE_NAME + " but found "
 				+ occurrences.stream().map(app::relativize).toList());

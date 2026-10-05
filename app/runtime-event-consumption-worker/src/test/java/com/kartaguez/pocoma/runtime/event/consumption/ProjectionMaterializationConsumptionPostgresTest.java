@@ -57,25 +57,26 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
-import com.kartaguez.pocoma.engine.processing.segmentation.WorkerSegment;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTask;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskStorePort;
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.ProduceProjectionTaskService;
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
+import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTask;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskCandidate;
+import com.kartaguez.pocoma.port.projection.task.ProjectionTaskStorePort;
 import com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionService;
 import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalAcquireConsumptionUseCase;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.entity.consumption.JpaConsumptionSlotEntity;
-import com.kartaguez.pocoma.infra.persistence.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
-import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionKeys;
-import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionService;
-import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionSource;
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionKeys;
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionService;
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSource;
 import com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
@@ -139,7 +140,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		var effectStarted = new CountDownLatch(1);
 		var allowCommit = new CountDownLatch(1);
 		var blockingTasks = new AfterEnsureBlockingStore(tasks, effectStarted, allowCommit);
-		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, blockingTasks);
+		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(blockingTasks));
 
 		try (var executor = Executors.newSingleThreadExecutor()) {
 			var result = executor.submit(() -> service.finalize(candidate, claim));
@@ -186,7 +187,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		clock.set(NOW.plusSeconds(30));
 
 		assertEquals(FencedMutationResult.APPLIED,
-				new ProjectionMaterializationConsumptionService(finalizeConsumption, tasks)
+				new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(tasks))
 						.finalize(candidate, expiring));
 		assertSuccessful(expiring);
 
@@ -197,7 +198,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		var counting = new CountingStore(tasks);
 
 		assertEquals(FencedMutationResult.LOST_CLAIM,
-				new ProjectionMaterializationConsumptionService(finalizeConsumption, counting)
+				new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(counting))
 						.finalize(candidate, stale));
 		assertEquals(0, counting.calls.get());
 		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(winner.slotId()).orElseThrow().currentClaimId());
@@ -302,13 +303,13 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	private ConsumptionOrchestrator orchestrator(
 			Map<EventType, Set<ProjectionType>> routes, ProjectionTaskStorePort store) {
 		var source = new ProjectionMaterializationConsumptionSource(routes, WorkerSegment.single(), discovery);
-		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, store);
+		var service = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(store));
 		return new AcquireThenFinalizeConsumptionOrchestrator<>(source,
 				ProjectionMaterializationConsumptionKeys::consumptionKey, acquire, service);
 	}
 
 	private ProjectionMaterializationCandidate candidate(ProjectionType projectionType) {
-		return discovery.findCandidates(routes(projectionType), WorkerSegment.single(), Optional.empty(), 10)
+		return discovery.findCandidates(routes(projectionType), 0, 1, Optional.empty(), 10)
 				.stream().filter(value -> value.projectionType().equals(projectionType)).findFirst().orElseThrow();
 	}
 

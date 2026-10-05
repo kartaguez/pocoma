@@ -18,7 +18,10 @@
 | Projection AUTH read-side | `AuthProjectionDefinition`, `AuthProjectionInput`, loader exact et `AuthProjector` | `domain-pot-projection`, `engine-projection-pot`, adapter JPA en infrastructure |
 | Consommation durable générique | `ConsumptionKey`, `ConsumptionSlot`, `Claim`, `ClaimId` | `domain-consumption` |
 | Événement enregistré | `RecordedEvent`, `EventTraceMetadata` | `engine-core` |
-| Commande durable rejouable cible | `engine.command.model.RecordedCommand` | `engine-command` |
+| Command admise durable | `CommandId`, `CommandType`, `RecordedCommand`, `TargetCommandEnvelope`, `CommandAuthenticationEvidence` | `contracts-command` |
+| Issues d’exécution Command/Registration | `CommandOutcome`, `RegistrationOutcome` | `engine-consume-command`, `engine-consume-registration` |
+| Results directs publiés | `PublishedCommandResult`, `PublishedRegistrationResult` | `engine-read-command-result`, `engine-read-registration-result` |
+| Intake durable Registration | `RegistrationRequest` | `contracts-registration` |
 | Entrées et résultats de use case | `*Input`, `*Result` | engine qui expose le use case |
 | État et entités persistés | `Jpa*Entity`, `Jpa*Status` | `infra-persistence-jpa` |
 | Polling et capacité | `ConsumptionPollingWorker`, budgets de cycle | `supra-consumption-worker` |
@@ -112,3 +115,7 @@ PCL.8.
 Le modèle pipeline/generation/lifecycle/serving et ses modules ont été retirés par PCL.5. La
 migration historique V12 reste append-only sous la propriété de `infra-persistence-jpa`; ses tables
 lifecycle sont absentes du schéma final depuis V16.
+
+## Décision post-WP4
+
+Les contrats capability possèdent l’intake durable seulement ; les moteurs consume possèdent les outcomes terminaux, et les moteurs read-result les modèles publiés. Les materializers assurent la conversion après vérification des sources. Voir [le rapport post-WP4](../steps/completed/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). Les autres lignes historiques de cette page doivent être lues avec la [topologie TARGET](../steps/completed/ARCHITECTURE/Modularity_Target_Topology.md).

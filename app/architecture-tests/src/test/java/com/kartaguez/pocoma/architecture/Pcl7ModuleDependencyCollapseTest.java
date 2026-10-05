@@ -63,16 +63,16 @@ class Pcl7ModuleDependencyCollapseTest {
 	void canonicalInfrastructureRemainsConcrete() {
 		Path app = appRoot();
 		List<String> protectedFiles = List.of(
-				"engine-pot-command/src/main/java/com/kartaguez/pocoma/engine/port/out/event/BusinessEventAppendPort.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JpaEventPort.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaHistoricalPotSnapshotSourceAdapter.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
-				"infra-projection-persistence/src/main/java/com/kartaguez/pocoma/infra/projection/persistence/JdbcProjectionStoreAdapter.java",
-				"engine-projection-read/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java",
-				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/AdvanceLatestKnownVersionService.java",
-				"engine-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/engine/ProjectionEngineService.java");
+				"engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/event/BusinessEventAppendPort.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JpaEventPort.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotSnapshotSourceAdapter.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
+				"infra-persistence-projection-jdbc/src/main/java/com/kartaguez/pocoma/infra/persistence/projection/jdbc/JdbcProjectionStoreAdapter.java",
+				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java",
+				"engine-materialize-latest-known-version/src/main/java/com/kartaguez/pocoma/engine/materialize/latestknownversion/AdvanceLatestKnownVersionService.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java");
 		for (String protectedFile : protectedFiles) {
 			assertTrue(Files.isRegularFile(app.resolve(protectedFile)), () -> "Missing " + protectedFile);
 		}

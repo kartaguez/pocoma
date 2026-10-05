@@ -1,0 +1,29 @@
+meta {
+  name: 02 Registration Result
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/registrations/{{registrationRequestId}}/result
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+}
+
+tests {
+  test("Result is pending or terminal", function () {
+    expect([404, 200]).to.include(res.getStatus());
+    if (res.getStatus() === 200) expect(["REGISTERED", "REJECTED"]).to.include(res.getBody().status);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 200 && res.getBody().status === "REGISTERED") {
+    bru.setVar("registrationUserId", res.getBody().userId);
+    bru.setVar("registrationBindingId", res.getBody().bindingId);
+  }
+}

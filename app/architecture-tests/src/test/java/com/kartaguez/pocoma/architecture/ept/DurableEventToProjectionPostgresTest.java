@@ -32,31 +32,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseCreatedEvent;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.projection.ProjectionKey;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
 import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.domain.projection.TargetObjectType;
-import com.kartaguez.pocoma.engine.port.out.processing.event.ProjectionMaterializationCandidate;
-import com.kartaguez.pocoma.engine.projection.task.ProjectionTaskKeys;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseHeaderAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaExpenseSharesAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotHeaderAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.core.JpaPotShareholdersAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaProjectedExpenseAdapter;
-import com.kartaguez.pocoma.infra.persistence.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
-import com.kartaguez.pocoma.locator.consumption.event.materialization.ProjectionMaterializationConsumptionKeys;
+import com.kartaguez.pocoma.engine.produce.projectiontask.port.ProjectionMaterializationCandidate;
+import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskKeys;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotBalanceSourceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
+import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionKeys;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers
 class DurableEventToProjectionPostgresTest {
@@ -309,15 +309,15 @@ class DurableEventToProjectionPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class, ReadStoreMigrationAutoConfiguration.class})
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({EventConsumptionRuntimeConfiguration.class, JpaBusinessEventOutboxAdapter.class})
 	static class EventTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.entity")
-	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.jpa.repository")
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CanonicalProjectionTaskRuntimeConfiguration.class,
 			JpaPotHeaderAdapter.class, JpaPotShareholdersAdapter.class,
 			JpaExpenseHeaderAdapter.class, JpaExpenseSharesAdapter.class,

@@ -54,7 +54,7 @@ class Pcl6MonolithAbsenceTest {
 	@Test
 	void primaryMigrationsV1ToV3HaveOneOwnerAndPreservedBytes() throws IOException {
 		Path app = appRoot();
-		Path owner = app.resolve("infra-persistence-jpa/src/main/resources/db/migration");
+		Path owner = app.resolve("infra-persistence-primary-jpa/src/main/resources/db/migration");
 		for (var migration : PRIMARY_MIGRATION_SHA_256.entrySet()) {
 			List<Path> occurrences = filesNamed(app, migration.getKey());
 			assertEquals(List.of(owner.resolve(migration.getKey())), occurrences,
@@ -108,15 +108,15 @@ class Pcl6MonolithAbsenceTest {
 	void canonicalResponsibilitiesRemainPresent() {
 		Path app = appRoot();
 		List<String> protectedFiles = List.of(
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/command/JpaRecordedCommandAdapter.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
-				"infra-persistence-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
-				"engine-projection-balance/src/main/java/com/kartaguez/pocoma/engine/projection/balance/CalculatePotBalancesAtVersionService.java",
-				"engine-projection-pot/src/main/java/com/kartaguez/pocoma/engine/projection/pot/ReadPotProjectionInputLoader.java",
-				"engine-projection-task/src/main/java/com/kartaguez/pocoma/engine/projection/task/engine/ProjectionEngineService.java",
-				"orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/ProjectionTaskConsumptionOrchestrator.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JpaRecordedCommandAdapter.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java",
+				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/CalculatePotBalancesAtVersionService.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/ReadPotProjectionInputLoader.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java",
+				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionOrchestrator.java",
 				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
-				"engine-projection-read/src/main/java/com/kartaguez/pocoma/engine/service/projection/read/ExactProjectionReadService.java");
+				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {
 			assertTrue(Files.isRegularFile(app.resolve(protectedFile)), () -> "Missing " + protectedFile);
 		}

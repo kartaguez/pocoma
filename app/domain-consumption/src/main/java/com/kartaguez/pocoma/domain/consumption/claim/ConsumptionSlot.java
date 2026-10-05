@@ -2,14 +2,12 @@ package com.kartaguez.pocoma.domain.consumption.claim;
 
 import static java.util.Objects.requireNonNull;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ConsumptionStatus;
-import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 
@@ -65,18 +63,6 @@ public record ConsumptionSlot(
 				Optional.empty(), createdAt, createdAt, Optional.empty());
 	}
 
-	/** Compatibility factory for the persistence-free legacy engine. */
-	@Deprecated(forRemoval = true)
-	public static ConsumptionSlot initial(ConsumptionKey key) {
-		requireNonNull(key, "key must not be null");
-		return initial(legacySlotIdFor(key), key, Instant.EPOCH);
-	}
-
-	static UUID legacySlotIdFor(ConsumptionKey key) {
-		return UUID.nameUUIDFromBytes(requireNonNull(key, "key must not be null")
-				.toString().getBytes(StandardCharsets.UTF_8));
-	}
-
 	public ConsumptionSlot withCurrentClaim(ClaimId claimId) {
 		requirePending();
 		return pending(revision + 1, Optional.of(requireNonNull(claimId, "claimId must not be null")), nextClaimAt);
@@ -109,32 +95,6 @@ public record ConsumptionSlot(
 		requirePending();
 		return done(revision + 1, TerminalOutcome.ABANDONED,
 				Optional.of(requireNonNull(reason, "reason must not be null")), abandonedAt);
-	}
-
-	@Deprecated(forRemoval = true)
-	public ConsumptionSlot acquired() {
-		requirePending();
-		return pending(revision + 1, currentClaimId, nextClaimAt);
-	}
-
-	@Deprecated(forRemoval = true)
-	public ConsumptionSlot completed() {
-		requirePending();
-		return done(revision + 1, TerminalOutcome.SUCCESS, Optional.empty(), createdAt);
-	}
-
-	@Deprecated(forRemoval = true)
-	public ConsumptionSlot failed(ProcessingFailure failure) {
-		requirePending();
-		requireNonNull(failure, "failure must not be null");
-		return done(revision + 1, TerminalOutcome.FAILED,
-				Optional.of(new TerminalReason(failure.code().value())), createdAt);
-	}
-
-	@Deprecated(forRemoval = true)
-	public ConsumptionSlot released() {
-		requirePending();
-		return pending(revision + 1, Optional.empty(), nextClaimAt);
 	}
 
 	private ConsumptionSlot pending(long targetRevision, Optional<ClaimId> claimId, Instant claimableAt) {

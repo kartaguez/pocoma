@@ -1,0 +1,99 @@
+package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
+import com.kartaguez.pocoma.domain.projection.balance.ProjectedExpense;
+import com.kartaguez.pocoma.domain.pot.value.Amount;
+import com.kartaguez.pocoma.domain.pot.value.Fraction;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Weight;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseHeaderEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseShareEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaExpenseHeaderRepository;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaExpenseShareRepository;
+
+@DataJpaTest
+@Import(JpaProjectedExpenseAdapter.class)
+class JpaProjectedExpenseAdapterTest {
+
+	@Autowired
+	private JpaProjectedExpenseAdapter adapter;
+
+	@Autowired
+	private JpaExpenseHeaderRepository expenseHeaderRepository;
+
+	@Autowired
+	private JpaExpenseShareRepository expenseShareRepository;
+
+	@Test
+	void loadsActiveExpensesAtVersion() {
+		Fixture fixture = new Fixture();
+		saveHeader(fixture.header("Old", false), 2, 4L);
+		saveHeader(fixture.header("Current", false), 4, null);
+		saveShares(fixture.potId, Set.of(fixture.share(fixture.aliceId, Fraction.ONE)), 2, 4L);
+		saveShares(fixture.potId, Set.of(fixture.share(fixture.bobId, Fraction.ONE)), 4, null);
+
+		ProjectedExpense projectedExpense = adapter.loadActiveAtVersion(fixture.potId, 4).iterator().next();
+
+		assertEquals(Label.of("Current"), projectedExpense.header().label());
+		assertEquals(Set.of(fixture.bobId), projectedExpense.shares().shares().keySet());
+	}
+
+	private void saveHeader(ExpenseHeader header, long startedAtVersion, Long endedAtVersion) {
+		expenseHeaderRepository.save(JpaExpenseHeaderEntity.from(header, startedAtVersion, endedAtVersion));
+	}
+
+	private void saveShares(PotId potId, Set<ExpenseShare> shares, long startedAtVersion, Long endedAtVersion) {
+		expenseShareRepository.saveAll(shares.stream()
+				.map(share -> JpaExpenseShareEntity.from(potId, share, startedAtVersion, endedAtVersion))
+				.toList());
+	}
+
+	private static final class Fixture {
+		private final PotId potId = PotId.of(UUID.randomUUID());
+		private final ExpenseId expenseId = ExpenseId.of(UUID.randomUUID());
+		private final ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
+		private final ShareholderId aliceId = ShareholderId.of(UUID.randomUUID());
+		private final ShareholderId bobId = ShareholderId.of(UUID.randomUUID());
+
+		private ExpenseHeader header(String label, boolean deleted) {
+			return ExpenseHeader.reconstitute(
+					expenseId,
+					potId,
+					payerId,
+					Amount.of(Fraction.of(42, 1)),
+					Label.of(label),
+					java.time.LocalDate.parse("2026-01-01"),
+					deleted);
+		}
+
+		private ExpenseShare share(ShareholderId shareholderId, Fraction weight) {
+			return new ExpenseShare(
+					expenseId,
+					shareholderId,
+					Weight.of(weight));
+		}
+	}
+
+	@SpringBootApplication
+	@EntityScan("com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories("com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
+	static class TestApplication {
+	}
+}

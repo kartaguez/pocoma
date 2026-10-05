@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.HandleConsumptionFailureInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
-import com.kartaguez.pocoma.engine.port.out.transaction.TransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 public final class TransactionalHandleConsumptionFailureUseCase implements HandleConsumptionFailureUseCase {
 

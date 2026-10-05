@@ -19,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.PocomaTaskConsumptionWorkerApplication;
-import com.kartaguez.pocoma.supra.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 
 @Testcontainers
 class ProjectionTaskWorkerProcessTest {
@@ -60,8 +60,8 @@ class ProjectionTaskWorkerProcessTest {
 				"--spring.datasource.password=" + POSTGRES.getPassword(),
 				"--spring.datasource.driver-class-name=org.postgresql.Driver",
 				"--pocoma.projection-task-consumption.enabled=true",
-				"--pocoma.projection-task-consumption.catalog-projection-types=COMMAND_RESULT,AUTH,READ_POT",
-				"--pocoma.projection-task-consumption.locator-projection-types=COMMAND_RESULT,AUTH,READ_POT")
+				"--pocoma.projection-task-consumption.catalog-projection-types=AUTH,READ_POT,POT_BALANCES",
+				"--pocoma.projection-task-consumption.locator-projection-types=AUTH,READ_POT,POT_BALANCES")
 				.redirectErrorStream(true)
 				.redirectOutput(output.toFile())
 				.start();
@@ -76,7 +76,7 @@ class ProjectionTaskWorkerProcessTest {
 			Path reactorRoot = applicationClasses.getParent().getParent().getParent();
 			Path workerClasses = Path.of(ConsumptionPollingWorker.class.getProtectionDomain()
 					.getCodeSource().getLocation().toURI()).toAbsolutePath().normalize();
-			Path expectedWorkerTarget = reactorRoot.resolve("supra-consumption-worker/target");
+			Path expectedWorkerTarget = reactorRoot.resolve("orchestrator-poll-consumption/target");
 			assertTrue(workerClasses.startsWith(expectedWorkerTarget), () ->
 					"ConsumptionPollingWorker must come from the current reactor, not an installed SNAPSHOT: "
 							+ workerClasses);

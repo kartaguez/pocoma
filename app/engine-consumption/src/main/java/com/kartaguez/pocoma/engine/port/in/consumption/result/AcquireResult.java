@@ -9,7 +9,7 @@ import com.kartaguez.pocoma.domain.consumption.claim.Claim;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 
-/** Target acquisition result, introduced alongside the legacy result for staged migration. */
+/** Result of attempting to acquire one explicit Consumption slot. */
 public sealed interface AcquireResult {
 
 	record Acquired(Claim claim) implements AcquireResult {

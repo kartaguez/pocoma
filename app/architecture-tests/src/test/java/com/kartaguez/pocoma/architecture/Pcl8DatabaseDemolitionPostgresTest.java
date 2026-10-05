@@ -43,7 +43,8 @@ class Pcl8DatabaseDemolitionPostgresTest {
 			"shareholders", "expense_headers", "expense_shares", "pot_version_metadata",
 			"recorded_commands", "command_outcomes", "command_terminal_events",
 			"users", "external_identities", "external_identity_binding_streams",
-			"external_identity_binding_facts", "flyway_schema_history");
+			"external_identity_binding_facts", "external_identity_binding_occurrences",
+			"external_identity_binding_baseline_evidence", "flyway_schema_history");
 	private static final Set<String> READ_KEEP_TABLES = Set.of(
 			"projection_root", "projection_artifact", "projection_failure",
 			"source_version_watermarks", "current_external_identity_binding",
@@ -67,22 +68,43 @@ class Pcl8DatabaseDemolitionPostgresTest {
 		Map<String, MigrationIdentity> primaryHistory = migrationHistory(upgradeUrl, "public", 15);
 		Map<String, MigrationIdentity> readHistory = migrationHistory(upgradeUrl, "pocoma_read", 7);
 
-		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, null);
-		MigrateResult readUpgrade = migrateRead(upgradeUrl, null);
-		assertEquals(5, primaryUpgrade.migrationsExecuted);
-		assertEquals(2, readUpgrade.migrationsExecuted);
+		MigrateResult primaryUpgrade = migratePrimary(upgradeUrl, "23");
+		MigrateResult readExpand = migrateRead(upgradeUrl, "12");
+		// V13 intentionally requires the facts-only projection to have caught up first.
+		materializeTerminalBindingsForMigrationFixture(upgradeUrl);
+		MigrateResult readContract = migrateRead(upgradeUrl, "13");
+		assertEquals(8, primaryUpgrade.migrationsExecuted);
+		assertEquals(5, readExpand.migrationsExecuted);
+		assertEquals(1, readContract.migrationsExecuted);
 		assertHistoricalHistoryUnchanged(primaryHistory, migrationHistory(upgradeUrl, "public", 15));
 		assertHistoricalHistoryUnchanged(readHistory, migrationHistory(upgradeUrl, "pocoma_read", 7));
-		assertEquals(20, successfulMigrationCount(upgradeUrl, "public"));
-		assertEquals(9, successfulMigrationCount(upgradeUrl, "pocoma_read"));
+		assertEquals(23, successfulMigrationCount(upgradeUrl, "public"));
+		assertEquals(13, successfulMigrationCount(upgradeUrl, "pocoma_read"));
 		assertFinalSchema(upgradeUrl, true);
 
 		String bootstrapUrl = databaseUrl(BOOTSTRAP_DATABASE);
-		assertEquals(20, migratePrimary(bootstrapUrl, null).migrationsExecuted);
-		assertEquals(9, migrateRead(bootstrapUrl, null).migrationsExecuted);
+		assertEquals(23, migratePrimary(bootstrapUrl, "23").migrationsExecuted);
+		assertEquals(13, migrateRead(bootstrapUrl, "13").migrationsExecuted);
 		assertFinalSchema(bootstrapUrl, false);
 
 		assertEquals(structuralFingerprint(upgradeUrl), structuralFingerprint(bootstrapUrl));
+	}
+
+	private static void materializeTerminalBindingsForMigrationFixture(String url) throws SQLException {
+		try (Connection connection = connection(url); Statement statement = connection.createStatement()) {
+			statement.executeUpdate("""
+					insert into pocoma_read.current_external_identity_binding
+					 (issuer,subject,binding_revision,binding_status,user_id,binding_id,source_event_id,projected_at)
+					select issuer,subject,binding_revision,fact_type,
+					 case when fact_type='ATTACHED' then user_id else null end,
+					 case when fact_type='ATTACHED' then binding_id else null end,
+					 event_id,now()
+					from (select distinct on (issuer,subject) issuer,subject,binding_revision,
+					      fact_type,user_id,binding_id,event_id
+					      from external_identity_binding_facts
+					      order by issuer,subject,binding_revision desc) terminal
+					""");
+		}
 	}
 
 	private static void createDatabase(String database) throws SQLException {

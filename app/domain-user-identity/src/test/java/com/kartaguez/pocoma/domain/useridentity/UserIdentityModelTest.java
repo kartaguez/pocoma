@@ -77,39 +77,43 @@ class UserIdentityModelTest {
 		assertEquals(recordedAt, fact.recordedAt());
 		assertEquals(fact, new ExternalIdentityAttached(
 				eventId, identity, userId, bindingId, new BindingRevision(1), recordedAt));
-		assertThrows(IllegalArgumentException.class, () -> new ExternalIdentityAttached(
-				eventId, identity, userId, bindingId, new BindingRevision(0), recordedAt));
+		assertEquals(new BindingRevision(0), new ExternalIdentityAttached(
+				eventId, identity, userId, bindingId, new BindingRevision(0), recordedAt).bindingRevision());
 		assertAttachedNullRejected(eventId, identity, userId, bindingId, recordedAt);
 	}
 
 	@Test
-	void detachedFactRequiresACompletePositiveRevisionShapeWithoutUserId() {
+	void detachedFactRequiresACompletePositiveRevisionShapeWithUserId() {
 		UUID eventId = UUID.fromString("30000000-0000-0000-0000-000000000002");
 		ExternalIdentity identity = new ExternalIdentity("issuer", "subject");
+		PocomaUserId userId = new PocomaUserId(UUID.fromString("40000000-0000-0000-0000-000000000002"));
 		BindingId bindingId = new BindingId(UUID.fromString("50000000-0000-0000-0000-000000000002"));
 		Instant recordedAt = Instant.parse("2026-10-01T10:16:30Z");
 		ExternalIdentityDetached fact = new ExternalIdentityDetached(
-				eventId, identity, bindingId, new BindingRevision(2), recordedAt);
+				eventId, identity, userId, bindingId, new BindingRevision(2), recordedAt);
 
 		assertEquals(eventId, fact.eventId());
 		assertEquals(identity, fact.externalIdentity());
+		assertEquals(userId, fact.userId());
 		assertEquals(bindingId, fact.bindingId());
 		assertEquals(new BindingRevision(2), fact.bindingRevision());
 		assertEquals(recordedAt, fact.recordedAt());
 		assertEquals(fact, new ExternalIdentityDetached(
-				eventId, identity, bindingId, new BindingRevision(2), recordedAt));
+				eventId, identity, userId, bindingId, new BindingRevision(2), recordedAt));
 		assertThrows(IllegalArgumentException.class, () -> new ExternalIdentityDetached(
-				eventId, identity, bindingId, new BindingRevision(0), recordedAt));
+				eventId, identity, userId, bindingId, new BindingRevision(0), recordedAt));
 		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
-				null, identity, bindingId, new BindingRevision(1), recordedAt));
+				null, identity, userId, bindingId, new BindingRevision(1), recordedAt));
 		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
-				eventId, null, bindingId, new BindingRevision(1), recordedAt));
+				eventId, null, userId, bindingId, new BindingRevision(1), recordedAt));
 		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
-				eventId, identity, null, new BindingRevision(1), recordedAt));
+				eventId, identity, null, bindingId, new BindingRevision(1), recordedAt));
 		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
-				eventId, identity, bindingId, null, recordedAt));
+				eventId, identity, userId, null, new BindingRevision(1), recordedAt));
 		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
-				eventId, identity, bindingId, new BindingRevision(1), null));
+				eventId, identity, userId, bindingId, null, recordedAt));
+		assertThrows(NullPointerException.class, () -> new ExternalIdentityDetached(
+				eventId, identity, userId, bindingId, new BindingRevision(1), null));
 	}
 
 	private static void assertAttachedNullRejected(UUID eventId, ExternalIdentity identity,

@@ -1,0 +1,38 @@
+meta {
+  name: 04 Create Pot with Current Binding
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/commands
+  body: json
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{accessToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "commandType": "POT_CREATE_V1",
+    "bindingId": "{{currentBindingId}}",
+    "payload": {
+      "label": "Registration Bruno Pot",
+      "creatorId": "{{registrationUserId}}"
+    }
+  }
+}
+
+tests {
+  test("Command accepted with the observed BindingId", function () {
+    expect(res.getStatus()).to.equal(202);
+    expect(res.getBody().commandId).to.match(/^[0-9a-f-]{36}$/i);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 202) bru.setVar("registrationCommandId", res.getBody().commandId);
+}

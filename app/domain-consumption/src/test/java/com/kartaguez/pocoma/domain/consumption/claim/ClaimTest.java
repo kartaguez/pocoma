@@ -7,19 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 
 class ClaimTest {
 
 	private static final Instant NOW = Instant.parse("2026-08-27T10:00:00Z");
-	private static final ConsumptionKey KEY = new ConsumptionKey("work", List.of("42"));
-
 	@Test
 	void leaseExpiryDoesNotCloseOrInvalidateTheClaim() {
 		Claim claim = claim();
@@ -47,24 +44,16 @@ class ClaimTest {
 	}
 
 	@Test
-	@SuppressWarnings("removal")
-	void compatibilityTokenIsDerivedFromClaimId() {
-		Claim claim = claim();
-		assertEquals(claim.claimId(), claim.token().toClaimId());
-		assertTrue(claim.isOwnedBy(claim.token(), NOW.plusSeconds(1)));
-	}
-
-	@Test
 	void validatesAttemptAndPreventsASecondClosure() {
 		assertThrows(IllegalArgumentException.class,
-				() -> Claim.active(ClaimId.generate(), KEY, new WorkerId("worker"), 0, NOW,
+				() -> Claim.active(ClaimId.generate(), UUID.randomUUID(), new WorkerId("worker"), 0, NOW,
 						new ClaimLease(Duration.ofSeconds(30))));
 		Claim ended = claim().succeedAt(NOW.plusSeconds(1));
 		assertThrows(IllegalStateException.class, () -> ended.releaseAt(NOW.plusSeconds(2)));
 	}
 
 	private static Claim claim() {
-		return Claim.active(ClaimId.generate(), KEY, new WorkerId("worker-1"), 3, NOW,
+		return Claim.active(ClaimId.generate(), UUID.randomUUID(), new WorkerId("worker-1"), 3, NOW,
 				new ClaimLease(Duration.ofSeconds(30)));
 	}
 }

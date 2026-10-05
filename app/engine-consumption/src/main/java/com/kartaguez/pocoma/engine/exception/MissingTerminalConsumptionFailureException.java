@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.engine.exception;
+package com.kartaguez.pocoma.engine.write.pot.exception;
 
 import static java.util.Objects.requireNonNull;
 

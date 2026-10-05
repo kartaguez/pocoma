@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 
 /** One immutable snapshot in the claim history of a consumption. */
@@ -20,8 +19,7 @@ public record Claim(
 		Optional<Instant> invalidatedAt,
 		Optional<Instant> endedAt,
 		Optional<ProcessingFailure> failure,
-		Optional<ClaimEndReason> endReason,
-		Optional<ConsumptionKey> compatibilityKey) {
+		Optional<ClaimEndReason> endReason) {
 
 	public Claim {
 		requireNonNull(claimId, "claimId must not be null");
@@ -36,7 +34,6 @@ public record Claim(
 		endedAt = requireNonNull(endedAt, "endedAt must not be null");
 		failure = requireNonNull(failure, "failure must not be null");
 		endReason = requireNonNull(endReason, "endReason must not be null");
-		compatibilityKey = requireNonNull(compatibilityKey, "compatibilityKey must not be null");
 		if (!leaseUntil.isAfter(claimedAt)) {
 			throw new IllegalArgumentException("leaseUntil must be after claimedAt");
 		}
@@ -66,52 +63,7 @@ public record Claim(
 			ClaimLease lease) {
 		requireNonNull(lease, "lease must not be null");
 		return new Claim(claimId, slotId, workerId, attemptNumber, claimedAt, claimedAt.plus(lease.duration()),
-				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
-	}
-
-	/** Compatibility factory for callers that still identify a Claim by its ConsumptionKey. */
-	@Deprecated(forRemoval = true)
-	public static Claim active(
-			ClaimId claimId,
-			ConsumptionKey key,
-			WorkerId workerId,
-			int attemptNumber,
-			Instant claimedAt,
-			ClaimLease lease) {
-		Claim claim = active(claimId, ConsumptionSlot.legacySlotIdFor(key), workerId, attemptNumber, claimedAt, lease);
-		return claim.withCompatibilityKey(key);
-	}
-
-	/** Compatibility overload. The distinct token is deliberately not retained. */
-	@Deprecated(forRemoval = true)
-	public static Claim active(
-			ClaimId claimId,
-			ConsumptionKey key,
-			ClaimToken ignoredToken,
-			WorkerId workerId,
-			Instant claimedAt,
-			ClaimLease lease) {
-		requireNonNull(ignoredToken, "token must not be null");
-		return active(claimId, key, workerId, 1, claimedAt, lease);
-	}
-
-	@Deprecated(forRemoval = true)
-	public ClaimToken token() {
-		return ClaimToken.from(claimId);
-	}
-
-	/** Legacy context only. New code must navigate through {@link #slotId()}. */
-	@Deprecated(forRemoval = true)
-	public ConsumptionKey consumptionKey() {
-		return compatibilityKey.orElseThrow(() ->
-				new IllegalStateException("ConsumptionKey is not retained by target Claims; load the slot by slotId"));
-	}
-
-	/** Attaches non-persisted context for legacy processing adapters. */
-	@Deprecated(forRemoval = true)
-	public Claim withCompatibilityKey(ConsumptionKey key) {
-		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil, invalidatedAt,
-				endedAt, failure, endReason, Optional.of(requireNonNull(key, "key must not be null")));
+				Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 	}
 
 	public boolean isOpen() {
@@ -126,11 +78,6 @@ public record Claim(
 	public boolean isLeaseExpiredAt(Instant instant) {
 		requireNonNull(instant, "instant must not be null");
 		return !leaseUntil.isAfter(instant);
-	}
-
-	@Deprecated(forRemoval = true)
-	public boolean isOwnedBy(ClaimToken candidateToken, Instant instant) {
-		return token().equals(requireNonNull(candidateToken, "candidateToken must not be null")) && isActiveAt(instant);
 	}
 
 	public Claim succeedAt(Instant instant) {
@@ -153,33 +100,23 @@ public record Claim(
 		return invalidateAt(instant, ClaimEndReason.ABANDONED);
 	}
 
-	@Deprecated(forRemoval = true)
-	public Claim endAt(Instant instant) {
-		return succeedAt(instant);
-	}
-
 	public Claim failAt(Instant instant, ProcessingFailure processingFailure) {
 		return endAt(instant, ClaimEndReason.PROCESSING_FAILURE,
 				Optional.of(requireNonNull(processingFailure, "processingFailure must not be null")));
-	}
-
-	@Deprecated(forRemoval = true)
-	public Claim invalidateAt(Instant instant) {
-		return invalidateForTakeoverAt(instant);
 	}
 
 	private Claim endAt(Instant instant, ClaimEndReason reason, Optional<ProcessingFailure> processingFailure) {
 		requireOpen();
 		requireNonNull(instant, "instant must not be null");
 		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil,
-				Optional.empty(), Optional.of(instant), processingFailure, Optional.of(reason), compatibilityKey);
+				Optional.empty(), Optional.of(instant), processingFailure, Optional.of(reason));
 	}
 
 	private Claim invalidateAt(Instant instant, ClaimEndReason reason) {
 		requireOpen();
 		requireNonNull(instant, "instant must not be null");
 		return new Claim(claimId, slotId, claimedBy, attemptNumber, claimedAt, leaseUntil,
-				Optional.of(instant), Optional.empty(), Optional.empty(), Optional.of(reason), compatibilityKey);
+				Optional.of(instant), Optional.empty(), Optional.empty(), Optional.of(reason));
 	}
 
 	private void requireOpen() {

@@ -3,10 +3,15 @@
   <parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
   <artifactId>pocoma-runtime-binding-consumption-worker</artifactId>
   <dependencies>
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-locator-consumption-binding</artifactId><version>${project.version}</version></dependency>
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consumption-worker</artifactId><version>${project.version}</version></dependency>
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-jpa</artifactId><version>${project.version}</version></dependency>
-    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-materialize-current-binding</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-supra-consume-binding</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
+  <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
+
+
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-primary-jpa</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-tx-spring</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-actuator</artifactId></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-flyway</artifactId></dependency>

@@ -6,33 +6,27 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Map;
 import java.util.Set;
 
+import com.kartaguez.pocoma.engine.produce.projectiontask.materialization.PocomaProjectionMaterializationPolicy;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.pot.event.PocomaEventTypes;
-import com.kartaguez.pocoma.domain.pot.projection.definition.AuthProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.PotBalancesProjectionDefinition;
-import com.kartaguez.pocoma.domain.pot.projection.definition.ReadPotProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.AuthProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.PotBalancesProjectionDefinition;
+import com.kartaguez.pocoma.domain.projection.pot.definition.ReadPotProjectionDefinition;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
-import com.kartaguez.pocoma.engine.command.model.CommandTerminalEventTypes;
-import com.kartaguez.pocoma.engine.command.result.CommandResultProjectionDefinition;
 
 class PocomaProjectionMaterializationPolicyTest {
 	@Test
-	void declaresBusinessAndCommandTerminalEventMaterializations() {
+	void declaresOnlyVersionedBusinessEventMaterializations() {
 		var policy = PocomaProjectionMaterializationPolicy.policy();
 		var expected = Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE);
 
-		assertEquals(13, policy.materializations().size());
-		assertEquals(java.util.stream.Stream.concat(
-				PocomaEventTypes.all().stream(), CommandTerminalEventTypes.all().stream()).collect(
-						java.util.stream.Collectors.toUnmodifiableSet()), policy.materializations().keySet());
+		assertEquals(PocomaEventTypes.all().size(), policy.materializations().size());
+		assertEquals(PocomaEventTypes.all(), policy.materializations().keySet());
 		PocomaEventTypes.all().forEach(eventType ->
 				assertEquals(expected, policy.materializations().get(eventType)));
-		CommandTerminalEventTypes.all().forEach(eventType -> assertEquals(
-				Set.of(CommandResultProjectionDefinition.PROJECTION_TYPE),
-				policy.materializations().get(eventType)));
 		assertThrows(UnsupportedOperationException.class, policy.materializations()::clear);
 	}
 

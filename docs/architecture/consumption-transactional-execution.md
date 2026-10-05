@@ -87,15 +87,17 @@ appel HTTP, un email, une écriture dans une seconde base ou tout autre effet ir
 sa transaction ; cette sortie sera livrée et consommée ultérieurement avec son propre
 `ConsumptionSlot`. Un callback `runAfterCommit` ne constitue pas une garantie de livraison.
 
-## Frontière legacy
+## Frontière TARGET
 
 Le chemin `ExecuteConsumptionUseCase` ne dépend pas d'un execution guard séparé et ne cumule jamais
-deux mécanismes de fencing. L'ancien module guard Command a été supprimé ; les contrats legacy qui
-subsistent concernent uniquement les flux Event, Task ou projection encore conservés.
+deux mécanismes de fencing. Un `ConsumptionKey` est toujours formé d'une `ConsumableIdentity` et
+d'une `ConsumerIdentity` explicites. Le slot est identifié par `slotId` et son propriétaire courant
+par `ClaimId`; le Claim ne transporte ni copie de la clé ni token de compatibilité. Les transitions
+de slot exigent le Claim courant lorsqu'elles modifient son ownership ou le terminalisent.
 
 ## Spécialisation Command
 
-`locator-consumption-command` possède la convention de clé, la discovery, l'adaptation du résultat
+`supra-consume-command` possède la convention de clé, la discovery, l'adaptation du résultat
 Command et la classification technique. Il réutilise sans duplication
 `SequentialConsumptionOrchestrator`, `TransactionalExecuteConsumptionUseCase` et le failure handler
 générique. Il ne recharge ni ne décode une Command avant l'acquisition.
@@ -103,12 +105,13 @@ générique. Il ne recharge ni ne décode une Command avant l'acquisition.
 Dans la transaction gagnante, `JpaPotCommandEventAppendAdapter` convertit les Events Pot typés et
 les insère dans l'outbox avec une propagation `MANDATORY`. Un rejet n'appelle jamais ce port. Le CAS
 final fence donc ensemble mutation métier, Events et provenance. Le runtime
-`runtime-command-consumption-worker` appelle désormais ce locator via la boucle générique.
+`runtime-command-consumption-worker` compose ce supra avec la boucle générique.
 
-## Responsabilités du Lot 4
+## Spécialisations CURRENT
 
-Le Lot 4 devra assembler les wrappers transactionnels dans les runtimes, adapter les couches
-spécialisées pour produire `ConsumptionExecutionResult`, migrer successivement les workers Command,
-Event et Task, classifier leurs exceptions techniques hors de la transaction métier, puis supprimer
-les appels au guard et les APIs `ClaimToken` devenues sans consommateur. Il devra aussi vérifier que
-tous les effets externes des workers passent par une Task ou une outbox.
+`domain-consumption` porte uniquement les primitives et le protocole générique explicite.
+`engine-consumption` porte acquire/execute/finalize et la gestion transactionnelle des échecs.
+`orchestrator-consumption` coordonne une tentative ; `orchestrator-poll-consumption` répète le
+traitement. Les supras Command, Event, ProjectionTask, Binding, Results, Registration et LKV adaptent
+leurs consumables propres sans réintroduire de protocole parallèle. Les effets externes restent
+produits comme Task ou ligne d'outbox transactionnelle avant leur livraison indépendante.
