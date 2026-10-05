@@ -55,7 +55,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-read-persistence</artifactId>
+			<artifactId>pocoma-infra-persistence-read-jdbc</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

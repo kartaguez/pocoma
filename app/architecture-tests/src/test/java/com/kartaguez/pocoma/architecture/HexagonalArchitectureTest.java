@@ -44,12 +44,10 @@ class HexagonalArchitectureTest {
 	private static final String POT_READ_ENGINE_PACKAGE = ROOT_PACKAGE + ".engine.read.pot";
 	private static final String ENGINE_PACKAGE = ROOT_PACKAGE + ".engine..";
 	private static final String INFRA_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.primary.jpa..";
-	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.read.persistence..";
+	private static final String INFRA_READ_PERSISTENCE_PACKAGE = ROOT_PACKAGE + ".infra.persistence.read.jdbc..";
 	private static final String INFRA_PROJECTION_PERSISTENCE_PACKAGE = ROOT_PACKAGE
 			+ ".infra.persistence.projection.jdbc..";
 	private static final String SUPRA_PACKAGE = ROOT_PACKAGE + ".supra..";
-
-	private static final Set<String> ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES = Set.of();
 
 	private static final JavaClasses CLASSES = new ClassFileImporter()
 			.withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
@@ -407,7 +405,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
 						ROOT_PACKAGE + ".engine.pipeline..",
-						ROOT_PACKAGE + ".infra.read.persistence..",
+						ROOT_PACKAGE + ".infra.persistence.read.jdbc..",
 						ROOT_PACKAGE + ".supra..",
 						ROOT_PACKAGE + ".runtime..")
 				.check(CLASSES);
@@ -423,7 +421,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
 						ROOT_PACKAGE + ".engine.pipeline..",
-						ROOT_PACKAGE + ".infra.read.persistence..",
+						ROOT_PACKAGE + ".infra.persistence.read.jdbc..",
 						ROOT_PACKAGE + ".supra..",
 						ROOT_PACKAGE + ".runtime..")
 				.check(CLASSES);
@@ -1059,26 +1057,19 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void eventProcessingDependsOnlyOnEventsPipelinesAndGenericConsumption() {
+	void lkvSupraDependsOnlyOnItsSpecializedEngineAndGenericConsumption() {
 		noClasses()
-				.that().resideInAnyPackage(ROOT_PACKAGE + ".engine..processing.event..")
+				.that().resideInAnyPackage(ROOT_PACKAGE + ".supra.consume.lkv..")
 				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine..processing.command..",
-						ROOT_PACKAGE + ".engine..processing.task..",
-						ROOT_PACKAGE + ".engine.consume.command.pot..",
-						ROOT_PACKAGE + ".engine.port.in.taskcreation..",
-						ROOT_PACKAGE + ".engine.service.taskcreation..",
-						ROOT_PACKAGE + ".engine.port.in.taskexecution..",
-						ROOT_PACKAGE + ".engine.service.taskexecution..",
-						ROOT_PACKAGE + ".engine.taskmaterialization..",
+						ROOT_PACKAGE + ".engine.consume.command..",
+						ROOT_PACKAGE + ".engine.consume.projectiontask..",
+						ROOT_PACKAGE + ".engine.produce.projectiontask..",
+						ROOT_PACKAGE + ".port.projection..",
 						ROOT_PACKAGE + ".infra..",
-						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".orchestrator..",
 						"org.springframework..",
 						"jakarta.persistence..",
-						"com.fasterxml.jackson..",
-						"io.nats..")
+						"java.sql..")
 				.check(CLASSES);
 
 		Set<String> recordedEventFields = CLASSES.get(ROOT_PACKAGE + ".domain.pot.event.RecordedEvent")
@@ -1097,15 +1088,6 @@ class HexagonalArchitectureTest {
 
 	@Test
 	void processingReconciliationDoesNotDependOnExecutionGuardsAndObsoleteDecoratorsAreGone() {
-		noClasses()
-				.that().resideInAnyPackage(
-						ROOT_PACKAGE + ".engine..processing.command..",
-						ROOT_PACKAGE + ".engine..processing.event..",
-						ROOT_PACKAGE + ".engine..processing.task..")
-				.should().dependOnClassesThat().resideInAPackage(
-						ROOT_PACKAGE + ".engine..execution..")
-				.check(CLASSES);
-
 		Set<String> obsoleteDecorators = Set.of(
 				"TransactionalCompleteTaskProcessingUseCase",
 				"TransactionalFailTaskProcessingUseCase");
@@ -1200,10 +1182,10 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".orchestrator.consumption",
 				ROOT_PACKAGE + ".runtime.task.consumption");
 		Set<String> latestKnownVersionTypes = Set.of(
-				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersion",
-				ROOT_PACKAGE + ".engine.read.projection.AdvanceLatestKnownVersionUseCase",
-				ROOT_PACKAGE + ".engine.read.projection.LatestKnownVersionPersistencePort",
-				ROOT_PACKAGE + ".infra.read.persistence.JdbcLatestKnownVersionAdapter");
+				ROOT_PACKAGE + ".engine.materialize.latestknownversion.LatestKnownVersion",
+				ROOT_PACKAGE + ".engine.materialize.latestknownversion.AdvanceLatestKnownVersionUseCase",
+				ROOT_PACKAGE + ".engine.materialize.latestknownversion.LatestKnownVersionPersistencePort",
+				ROOT_PACKAGE + ".infra.persistence.read.jdbc.JdbcLatestKnownVersionAdapter");
 		Set<String> forbiddenDependencies = CLASSES.stream()
 				.filter(javaClass -> projectionRuntimePackages.stream()
 						.anyMatch(prefix -> javaClass.getPackageName().startsWith(prefix)))
@@ -1220,7 +1202,7 @@ class HexagonalArchitectureTest {
 	@Test
 	void latestKnownVersionIsADirectGenericConsumptionWithoutTaskOrProjectionArtifacts() {
 		String locator = ROOT_PACKAGE
-				+ ".locator.consumption.latestknownversion.LatestKnownVersionConsumptionLocator";
+				+ ".supra.consume.lkv.LatestKnownVersionConsumptionLocator";
 		Set<String> dependencies = directDependencyNames(locator);
 
 		assertTrue(dependencies.stream().anyMatch(name -> name.endsWith(".ConsumptionLocator")));
@@ -1365,16 +1347,6 @@ class HexagonalArchitectureTest {
 				.check(CLASSES);
 
 		noClasses()
-				.that().resideInAPackage(ROOT_PACKAGE + ".locator.consumption..")
-				.should().dependOnClassesThat().resideInAnyPackage(
-						ROOT_PACKAGE + ".supra..",
-						ROOT_PACKAGE + ".runtime..",
-						ROOT_PACKAGE + ".infra..",
-						"org.springframework..",
-						"jakarta.persistence..")
-				.check(CLASSES);
-
-		noClasses()
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.event.consumption..")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.event.consumption..")
@@ -1388,7 +1360,7 @@ class HexagonalArchitectureTest {
 	}
 
 	@Test
-	void infraToSupraDependenciesAreLimitedToTheKnownMigrationAllowList() {
+	void primaryLkvAdaptersDependOnlyOnTheFinalLkvSupraContracts() {
 		Set<String> actualDependencies = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(ROOT_PACKAGE + ".infra.persistence.primary.jpa"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
@@ -1396,8 +1368,12 @@ class HexagonalArchitectureTest {
 				.map(HexagonalArchitectureTest::dependencyKey)
 				.collect(Collectors.toUnmodifiableSet());
 
-		assertEquals(ALLOWED_INFRA_TO_SUPRA_DEPENDENCIES, actualDependencies,
-				"Any infra-to-supra dependency must be explicitly allow-listed for migration");
+		assertFalse(actualDependencies.isEmpty(), "the LKV Event adapters must remain visible to this guard");
+		assertTrue(actualDependencies.stream().allMatch(dependency ->
+				dependency.startsWith(ROOT_PACKAGE + ".infra.persistence.primary.jpa.adapter.processing.event.")
+				|| dependency.startsWith(ROOT_PACKAGE + ".infra.persistence.primary.jpa.repository.consumption.")));
+		assertTrue(actualDependencies.stream().allMatch(dependency ->
+				dependency.contains(" -> " + ROOT_PACKAGE + ".supra.consume.lkv.")));
 	}
 
 	@Test
@@ -1419,7 +1395,7 @@ class HexagonalArchitectureTest {
 						ROOT_PACKAGE + ".domain.authorization..",
 						ROOT_PACKAGE + ".domain.pipeline..",
 						ROOT_PACKAGE + ".domain.projection.legacy..",
-						ROOT_PACKAGE + ".infra.read.persistence..",
+						ROOT_PACKAGE + ".infra.persistence.read.jdbc..",
 						SUPRA_PACKAGE,
 						ROOT_PACKAGE + ".runtime..")
 				.check(CLASSES);

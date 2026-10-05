@@ -22,7 +22,7 @@ class Pcl8DatabaseDemolitionTest {
 	private static final String PRIMARY_DROP_MIGRATION =
 			"infra-persistence-primary-jpa/src/main/resources/db/migration/V16__drop_legacy_projection_runtime_structures.sql";
 	private static final String READ_DROP_MIGRATION =
-			"infra-read-persistence/src/main/resources/db/read-store/migration/V8__drop_legacy_read_projection_structures.sql";
+			"infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V8__drop_legacy_read_projection_structures.sql";
 	private static final Map<String, String> HISTORICAL_MIGRATION_SHA_256 = Map.ofEntries(
 			entry("infra-persistence-primary-jpa/src/main/resources/db/migration/V1__init_schema.sql", "d35a440f7ac3d3722176844fc29c3ab9b515e864d77fb9788eb12639ad712ae4"),
 			entry("infra-persistence-primary-jpa/src/main/resources/db/migration/V2__projection_outbox_tasks.sql", "998ac4c5c4a57eb4e074f8e905630395ec03a0b58f78c367c5c5fd45f5617150"),
@@ -39,13 +39,13 @@ class Pcl8DatabaseDemolitionTest {
 			entry("infra-persistence-primary-jpa/src/main/resources/db/migration/V13__canonical_projection_tasks.sql", "f30f354b8aba453494b048e09515ed549e612820ab5ae24d6efdc543cbc8a5f8"),
 			entry("infra-persistence-primary-jpa/src/main/resources/db/migration/V14__expense_business_date.sql", "898806ceaf415bab032b110669b561c3070bfad85d5796333272635987adb212"),
 			entry("infra-persistence-primary-jpa/src/main/resources/db/migration/V15__canonical_business_event_types.sql", "3b3ab42acf93de6c32b9bee80332acc15fdc323f5428f5401bb63f1aac475f74"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V1__initialize_read_store.sql", "5b17be9a75d1ef35ca2c3c511dadafbfe2bf1bda2b38b2d1214753c215d186e2"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V2__generic_projection_foundation.sql", "694a1decb3d180bc2accd96ae0c1753848f416423a69c87bf3d61c2441182f78"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V3__remove_projection_coverage.sql", "15781dd12400d860caba787363869fc309669ca7313a1991e983732dd17f2cc8"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V4__add_source_version_watermarks.sql", "5fbe10ce43eb0d24c6aa4e64a4272511949380a0fc5c3fbeef54c760370ad17e"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V5__canonical_pot_projection.sql", "4ffaba7276f7135825f0e22ac37d96d909aaf2b6a06e7fc425209a0de05df619"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V6__pot_version_metadata_and_user_index.sql", "9d2af4a62f93e83730f04e920c27cca02bf195cf0c8e40ae92636bdb4821d31f"),
-			entry("infra-read-persistence/src/main/resources/db/read-store/migration/V7__canonical_projection_store.sql", "1b63a453b5d3aca7d4cc20b6ba02ede52ab948373bfed411a97a36c2edeb57c8"));
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V1__initialize_read_store.sql", "5b17be9a75d1ef35ca2c3c511dadafbfe2bf1bda2b38b2d1214753c215d186e2"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V2__generic_projection_foundation.sql", "694a1decb3d180bc2accd96ae0c1753848f416423a69c87bf3d61c2441182f78"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V3__remove_projection_coverage.sql", "15781dd12400d860caba787363869fc309669ca7313a1991e983732dd17f2cc8"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V4__add_source_version_watermarks.sql", "5fbe10ce43eb0d24c6aa4e64a4272511949380a0fc5c3fbeef54c760370ad17e"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V5__canonical_pot_projection.sql", "4ffaba7276f7135825f0e22ac37d96d909aaf2b6a06e7fc425209a0de05df619"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V6__pot_version_metadata_and_user_index.sql", "9d2af4a62f93e83730f04e920c27cca02bf195cf0c8e40ae92636bdb4821d31f"),
+			entry("infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V7__canonical_projection_store.sql", "1b63a453b5d3aca7d4cc20b6ba02ede52ab948373bfed411a97a36c2edeb57c8"));
 
 	private static final List<String> PRIMARY_DROPS = List.of(
 			"drop table public.balance_projection_entries;",
@@ -166,7 +166,7 @@ class Pcl8DatabaseDemolitionTest {
 		Path candidate = Path.of("").toAbsolutePath();
 		while (candidate != null) {
 			if (Files.exists(candidate.resolve("architecture-tests/pom.xml"))
-					&& Files.exists(candidate.resolve("infra-read-persistence/pom.xml"))) return candidate;
+					&& Files.exists(candidate.resolve("infra-persistence-read-jdbc/pom.xml"))) return candidate;
 			candidate = candidate.getParent();
 		}
 		throw new IllegalStateException("Cannot locate the app reactor root");

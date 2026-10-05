@@ -1,6 +1,6 @@
 # DEBT-MOD-01 — topologie TARGET courante
 
-**Statut : TARGET documentaire, non livrée.** Cette page est la vue normative de la topologie visée après C.2. Elle ne décrit ni les POM actuellement créés ni un plan de migration. Les décisions [BC-01 à BC-16](Modularity_Boundary_Challenge.md#p-boundary-decisions), la distinction [CURRENT](Modularity_Current_State_Audit.md)/TARGET et les invariants métier restent acquis. La [dette de modularité](../../../debts/MODULE_TAXONOMY/Debt.md) reste OPEN.
+**Statut : TARGET ACHIEVED par WP6.** La table finale et le delta WP6 décrivent la topologie CURRENT livrée. Les sections de migration plus anciennes sont conservées comme provenance historique lorsqu'elles sont explicitement signalées comme superseded. La [dette de modularité](../../../debts/MODULE_TAXONOMY/Debt.md) est résolue par la convergence vérifiée CURRENT = TARGET.
 
 ## 1. Baseline et portée
 
@@ -29,7 +29,7 @@ Grammaire officielle : `domain-*`, `contracts-*`, `port-*`, `engine-*`, `project
 
 Les cinq infra fermes sont `infra-tx-spring` (implémentation de `port-transaction`), `infra-persistence-primary-jpa` (ports PRIMARY/Consumption regroupés transactionnellement), `infra-persistence-read-jdbc` (READ direct Current Binding ; LKV provisoire seulement sous décision ultérieure), `infra-persistence-projection-jdbc` (root, artifact, failure, exact read/store) et `infra-projection-validation-networknt` (validation JSON Schema technique). Le cluster PRIMARY n'est pas redécoupé ici. La validation Networknt n'est pas fusionnée avec la persistence de projection.
 
-**Règle de namespace (WP2.1).** Le package Java exprime la même responsabilité architecturale que son POM propriétaire. Les deux noms JDBC reflètent `spring-jdbc` et leurs adapters `Jdbc*`; aucune technologie JPA n’est introduite. `port-projection` porte les contrats de la projection historique exacte `@V` et de son travail de matérialisation. `CURRENT_BINDING` est une vue courante mutable/convergente issue directement des Binding facts : son modèle et ses invariants sont dans `domain-user-identity`, `CurrentBindingWritePort` dans `engine-materialize-current-binding` et `CurrentBindingReadPort` dans `engine-read-current-binding`. `infra-persistence-read-jdbc` fournit un adapter concret aux deux ports. Les moteurs Current Binding ne dépendent pas de `port-projection`, et le moteur de lecture Current Binding ne dépend pas du WRITE de Binding authority. Ce checkpoint ne change ni les 58 responsabilités logiques, ni les 54 POM fermes, ni `PACKAGE_ONLY`/`TBD_PHYSICAL`.
+**Règle de namespace (WP2.1).** Le package Java exprime la même responsabilité architecturale que son POM propriétaire. Les deux noms JDBC reflètent `spring-jdbc` et leurs adapters `Jdbc*`; aucune technologie JPA n’est introduite. `port-projection` porte les contrats de la projection historique exacte `@V` et de son travail de matérialisation. `CURRENT_BINDING` est une vue courante mutable/convergente issue directement des Binding facts : son modèle et ses invariants sont dans `domain-user-identity`, `CurrentBindingWritePort` dans `engine-materialize-current-binding` et `CurrentBindingReadPort` dans `engine-read-current-binding`. `infra-persistence-read-jdbc` fournit un adapter concret aux deux ports. Les moteurs Current Binding ne dépendent pas de `port-projection`, et le moteur de lecture Current Binding ne dépend pas du WRITE de Binding authority. Ce checkpoint ne change ni les 58 responsabilités logiques, ni les 54 POM fermes, ni `PACKAGE_ONLY`/`HISTORICAL_UNDECIDED_RESOLVED_WP6`.
 
 ## 3. Table finale des frontières
 
@@ -52,7 +52,7 @@ Une ligne représente une responsabilité logique, même lorsque son nom est aus
 | `port-transaction` | port | KEEP_POM | `port-transaction` |
 | `engine-admit-command` | engine | KEEP_POM | `engine-admit-command` |
 | `engine-admit-registration` | engine | KEEP_POM | `engine-admit-registration` |
-| `engine-advance-pot-watermark` | engine | TBD_PHYSICAL | — |
+| `engine-materialize-latest-known-version` | engine | KEEP_POM | `engine-materialize-latest-known-version` |
 | `engine-consume-command` | engine | KEEP_POM | `engine-consume-command` |
 | `engine-consume-projection-task` | engine | KEEP_POM | `engine-consume-projection-task` |
 | `engine-consume-registration` | engine | KEEP_POM | `engine-consume-registration` |
@@ -74,7 +74,7 @@ Une ligne représente une responsabilité logique, même lorsque son nom est aus
 | `supra-consume-command` | supra | KEEP_POM | `supra-consume-command` |
 | `supra-consume-command-result` | supra | KEEP_POM | `supra-consume-command-result` |
 | `supra-consume-event` | supra | KEEP_POM | `supra-consume-event` |
-| `supra-consume-lkv` | supra | TBD_PHYSICAL | — |
+| `supra-consume-lkv` | supra | KEEP_POM | `supra-consume-lkv` |
 | `supra-consume-projection-task` | supra | KEEP_POM | `supra-consume-projection-task` |
 | `supra-consume-registration` | supra | KEEP_POM | `supra-consume-registration` |
 | `supra-consume-registration-result` | supra | KEEP_POM | `supra-consume-registration-result` |
@@ -89,18 +89,18 @@ Une ligne représente une responsabilité logique, même lorsque son nom est aus
 | `runtime-command-consumption-worker` | runtime | KEEP_POM | `runtime-command-consumption-worker` |
 | `runtime-command-result-consumption-worker` | runtime | KEEP_POM | `runtime-command-result-consumption-worker` |
 | `runtime-event-consumption-worker` | runtime | KEEP_POM | `runtime-event-consumption-worker` |
-| `runtime-latest-known-version-consumption-worker` | runtime | TBD_PHYSICAL | — |
+| `runtime-latest-known-version-consumption-worker` | runtime | KEEP_POM | `runtime-latest-known-version-consumption-worker` |
 | `runtime-registration-consumption-worker` | runtime | KEEP_POM | `runtime-registration-consumption-worker` |
 | `runtime-registration-result-consumption-worker` | runtime | KEEP_POM | `runtime-registration-result-consumption-worker` |
 | `runtime-task-consumption-worker` | runtime | KEEP_POM | `runtime-task-consumption-worker` |
 | `runtime-web-api` | runtime | KEEP_POM | `runtime-web-api` |
 | `architecture-tests` | verification | KEEP_POM | `architecture-tests` |
 
-**Comptage recalculé : 58 responsabilités logiques, 54 POM fermes `KEEP_POM` (53 de production et le gate), 1 `PACKAGE_ONLY`, 3 `TBD_PHYSICAL`.** Les trois TBD sont `engine-advance-pot-watermark`, `supra-consume-lkv` et `runtime-latest-known-version-consumption-worker`. Aucun POM LKV n'est compté comme ferme.
+**Comptage CURRENT WP6 : 58 POM enfants, dont 57 POM de production et `architecture-tests`.** Aucun POM n'est provisoire ou `HISTORICAL_UNDECIDED_RESOLVED_WP6`. `domain-pot-policy` reste un rôle package dans `domain-pot`, sans POM artificiel.
 
 ## 3 bis. CURRENT → TARGET Migration Traceability
 
-Cette table répond au niveau des **responsabilités de module** et non des classes ou des commits. Sa colonne CURRENT reprend exactement les 51 modules de la section C de l'[audit CURRENT](Modularity_Current_State_Audit.md). `KEEP / RENAME` conserve principalement la frontière, `SPLIT` répartit les responsabilités, `MERGE` rejoint une frontière plus large, `DISSOLVE AS MAVEN BOUNDARY` retire la frontière autonome, et `TBD` signale une dépendance réelle à une décision LKV ouverte. Les noms de la colonne « responsabilités » désignent des **rôles logiques TARGET**, ceux de la colonne POM des **frontières physiques fermes** ; `domain-pot-policy` est un package de `domain-pot`. `— (TBD_PHYSICAL)` signifie qu'aucun POM LKV n'est décidé. Les POM runtime sont des frontières de composition, sans décision ici sur les pods futurs.
+Cette table répond au niveau des **responsabilités de module** et non des classes ou des commits. Sa colonne CURRENT reprend exactement les 51 modules de la section C de l'[audit CURRENT](Modularity_Current_State_Audit.md). `KEEP / RENAME` conserve principalement la frontière, `SPLIT` répartit les responsabilités, `MERGE` rejoint une frontière plus large, `DISSOLVE AS MAVEN BOUNDARY` retire la frontière autonome, et `TBD` signale une dépendance réelle à une décision LKV ouverte. Les noms de la colonne « responsabilités » désignent des **rôles logiques TARGET**, ceux de la colonne POM des **frontières physiques fermes** ; `domain-pot-policy` est un package de `domain-pot`. `— (HISTORICAL_UNDECIDED_RESOLVED_WP6)` signifie qu'aucun POM LKV n'est décidé. Les POM runtime sont des frontières de composition, sans décision ici sur les pods futurs.
 
 | CURRENT module | CURRENT role summary | TARGET disposition | TARGET logical responsibilities | TARGET physical POM(s) | Migration notes |
 | --- | --- | --- | --- | --- | --- |
@@ -119,7 +119,7 @@ Cette table répond au niveau des **responsabilités de module** et non des clas
 | `engine-command` | Command, dispatch, exécution, outcome | SPLIT | `engine-consume-command`, `engine-admit-command`, `domain-event` | `engine-consume-command`, `engine-admit-command`, `domain-event` | Langage/exécution Command et outcome vers consume ; admission vers admit ; Event partagé vers domaine. Le contrat Command Result reste soumis à `TBD-COMMAND-CONTRACT`, sans cible inventée. |
 | `engine-command-result` | Result, materializer, GET, owner | SPLIT | `engine-materialize-command-result`, `engine-read-command-result`, `supra-consume-command-result`, `infra-persistence-primary-jpa` | `engine-materialize-command-result`, `engine-read-command-result`, `supra-consume-command-result`, `infra-persistence-primary-jpa` | Matérialisation et GET/owner séparés ; intégration candidate/issue et store PRIMARY. `TBD-COMMAND-CONTRACT` reste ouvert. |
 | `engine-registration` | Admission, exécution, outcome, Result GET | SPLIT | `contracts-registration`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `supra-consume-registration`, `supra-consume-registration-result`, `infra-persistence-primary-jpa` | `contracts-registration`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `supra-consume-registration`, `supra-consume-registration-result`, `infra-persistence-primary-jpa` | Langage Request/Outcome partagé ; admission, exécution, matérialisation et lecture distinctes ; glue des deux workers et adapters PRIMARY. |
-| `engine-processing-event` | Discovery/policy Event et LKV | TBD | `engine-produce-projection-task`, `domain-event`, `engine-advance-pot-watermark` | `engine-produce-projection-task`, `domain-event` ; — (TBD_PHYSICAL LKV) | Production de Task et contrat Event fermes ; avance du watermark partiellement TBD, owner fonctionnel non tranché. |
+| `engine-processing-event` | Discovery/policy Event et LKV | TBD | `engine-produce-projection-task`, `domain-event`, `engine-materialize-latest-known-version` | `engine-produce-projection-task`, `domain-event` ; — (HISTORICAL_UNDECIDED_RESOLVED_WP6 LKV) | Production de Task et contrat Event fermes ; avance du watermark partiellement TBD, owner fonctionnel non tranché. |
 | `engine-pot-command` | Use cases de mutation Pot | KEEP / RENAME | `engine-write-pot`, `domain-pot-policy` | `engine-write-pot`, `domain-pot` | Mutation WRITE ; policy Pot utilisée comme rôle package-only. |
 | `engine-projection-contracts` | Ports lecture/publication exactes | KEEP / RENAME | `port-projection` | `port-projection` | Contrats applicatifs de lecture et publication exacte. |
 | `engine-projection-read` | Lecture exacte et revalidation | KEEP / RENAME | `engine-read-projection` | `engine-read-projection` | Lecture générique d'une projection exacte `@V`, distincte de l'ancien module CURRENT `engine-read-projection`. |
@@ -127,18 +127,18 @@ Cette table répond au niveau des **responsabilités de module** et non des clas
 | `engine-pot-read` | Interprétation AUTH/READ_POT et autorisation | KEEP / RENAME | `engine-read-pot`, `domain-pot-policy` | `engine-read-pot`, `domain-pot` | GET Pot exact et policy package-only ; dépendance au port E→U encore `TBD-E2U`. |
 | `engine-projection-balance` | Source historique, calcul, loader, projector | SPLIT | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | Calcul pur BALANCES vers projector ; orchestration Task, ports de chargement et adapter historique séparés. |
 | `engine-projection-pot` | Loaders et projectors AUTH/READ_POT | SPLIT | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | `projector-pot`, `engine-consume-projection-task`, `port-projection`, `infra-persistence-primary-jpa` | Calcul pur AUTH/READ_POT vers projector ; coordination Task, ports et loaders PRIMARY distincts. |
-| `engine-read-projection` | Current Binding, LKV, reconstruction Pot | TBD | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot`, `engine-advance-pot-watermark` | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot` ; — (TBD_PHYSICAL LKV) | Ancien agrégat CURRENT : production et GET Current Binding directs ; `HistoricalPotSnapshotSource` fournit l'input historique via le port de projection au projector Pot ; avance LKV partiellement TBD. Il **ne** devient **pas** le `engine-read-projection` TARGET (lecture générique `@V`). |
+| `engine-read-projection` | Current Binding, LKV, reconstruction Pot | TBD | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot`, `engine-materialize-latest-known-version` | `engine-materialize-current-binding`, `engine-read-current-binding`, `port-projection`, `projector-pot` ; — (HISTORICAL_UNDECIDED_RESOLVED_WP6 LKV) | Ancien agrégat CURRENT : production et GET Current Binding directs ; `HistoricalPotSnapshotSource` fournit l'input historique via le port de projection au projector Pot ; avance LKV partiellement TBD. Il **ne** devient **pas** le `engine-read-projection` TARGET (lecture générique `@V`). |
 | `observability` | Compteurs et contrat métrique | KEEP / RENAME | `contracts-observability` | `contracts-observability` | Contrat de trace partagé ; instrumentation concrète dans les compositions/adapters. |
 | `infra-tx-spring` | TransactionRunner Spring | KEEP / RENAME | `infra-tx-spring` | `infra-tx-spring` | Implémentation Spring du `port-transaction`. |
 | `infra-persistence-jpa` | Adapters WRITE, discovery, Result, loaders | MERGE | `infra-persistence-primary-jpa` | `infra-persistence-primary-jpa` | Les adapters PRIMARY/Consumption, loaders historiques Pot/Task et stores Command/Registration restent dans le cluster PRIMARY ; les stores READ direct et projection exacte sont déjà dans deux autres modules CURRENT. |
 | `infra-projection-persistence` | Store exact root/artifact/failure | KEEP / RENAME | `infra-persistence-projection-jdbc` | `infra-persistence-projection-jdbc` | Persistance exacte de projection. |
-| `infra-read-persistence` | Store Current Binding, LKV, migrations READ | TBD | `infra-persistence-read-jdbc`, `engine-advance-pot-watermark` | `infra-persistence-read-jdbc` ; — (TBD_PHYSICAL LKV) | Store Current Binding ferme ; persistance LKV sous décision fonctionnelle/physique encore ouverte. |
+| `infra-read-persistence` | Store Current Binding, LKV, migrations READ | TBD | `infra-persistence-read-jdbc`, `engine-materialize-latest-known-version` | `infra-persistence-read-jdbc` ; — (HISTORICAL_UNDECIDED_RESOLVED_WP6 LKV) | Store Current Binding ferme ; persistance LKV sous décision fonctionnelle/physique encore ouverte. |
 | `infra-projection-json-schema` | Validation JSON Schema | KEEP / RENAME | `infra-projection-validation-networknt` | `infra-projection-validation-networknt` | Adapter de validation technique distinct de la persistence. |
 | `orchestrator-consumption` | Deux orchestrateurs et orchestration Task | SPLIT | `orchestrator-consumption`, `engine-consume-projection-task` | `orchestrator-consumption`, `engine-consume-projection-task` | Sequential/AcquireThenFinalize génériques conservés ; spécialisation Task vers engine Task. |
 | `orchestrator-command-admission` | Admission Command E+B et evidence | KEEP / RENAME | `engine-admit-command`, `port-binding-authority` | `engine-admit-command`, `port-binding-authority` | Admission et preuve E+B ; autorité Binding derrière le port. |
 | `supra-consumption-worker` | Polling, budget, wait, lifecycle | KEEP / RENAME | `orchestrator-poll-consumption` | `orchestrator-poll-consumption` | Polling générique, sans supra polling TARGET. |
 | `locator-consumption-event` | Discovery metadata et ensure Task | SPLIT | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-produce-projection-task`, `supra-consume-event`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique ensure Task → engine ; candidate/reload/issue → supra ; SQL/discovery → PRIMARY ; cadence/config → poll/runtime Event. |
-| `locator-consumption-latest-known-version` | Discovery/reload Event, advance LKV, failure | TBD | `engine-advance-pot-watermark`, `supra-consume-lkv`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` ; — (TBD_PHYSICAL LKV) | Sémantique advance et glue candidate/reload/issue LKV restent TBD ; SQL de discovery PRIMARY séparé du store LKV physique encore indécis ; polling/config dans orchestrator/runtime LKV TBD. |
+| `locator-consumption-latest-known-version` | Discovery/reload Event, advance LKV, failure | TBD | `engine-materialize-latest-known-version`, `supra-consume-lkv`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` ; — (HISTORICAL_UNDECIDED_RESOLVED_WP6 LKV) | Sémantique advance et glue candidate/reload/issue LKV restent TBD ; SQL de discovery PRIMARY séparé du store LKV physique encore indécis ; polling/config dans orchestrator/runtime LKV TBD. |
 | `locator-consumption-binding` | Discovery/reload fact, current apply, failure | SPLIT | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc`, `orchestrator-poll-consumption` | `engine-materialize-current-binding`, `supra-consume-binding`, `infra-persistence-primary-jpa`, `infra-persistence-read-jdbc`, `orchestrator-poll-consumption` | Sémantique apply Current Binding → engine ; candidate/reload/issue → supra ; SQL fact/READ → adapters ; polling/config → poll/runtime Binding. |
 | `locator-consumption-command` | Discovery/reload Command, callback, fence, failure | SPLIT | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | `engine-consume-command`, `supra-consume-command`, `infra-persistence-primary-jpa`, `orchestrator-poll-consumption` | Sémantique Command → engine ; candidate/reload/issue → supra ; SQL → PRIMARY ; polling/config → poll/runtime Command. |
 | `binding-pot-command-spring` | Binding Spring du dispatch Pot | MERGE | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot-policy` | `runtime-command-consumption-worker`, `engine-write-pot`, `domain-pot` | Câblage provider dans la composition Command ; dispatch Pot au moteur WRITE ; policy reste package-only. |
@@ -150,7 +150,7 @@ Cette table répond au niveau des **responsabilités de module** et non des clas
 | `runtime-command-result-consumption-worker` | Compose Result direct, locator et retry | SPLIT | `runtime-command-result-consumption-worker`, `supra-consume-command-result`, `engine-materialize-command-result`, `orchestrator-poll-consumption` | `runtime-command-result-consumption-worker`, `supra-consume-command-result`, `engine-materialize-command-result`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; matérialisation vers engine ; retry/cadence générique vers poll ; racine conservée. |
 | `runtime-registration-result-consumption-worker` | Compose Registration Result, locator et retry | SPLIT | `runtime-registration-result-consumption-worker`, `supra-consume-registration-result`, `engine-materialize-registration-result`, `orchestrator-poll-consumption` | `runtime-registration-result-consumption-worker`, `supra-consume-registration-result`, `engine-materialize-registration-result`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; matérialisation vers engine ; retry/cadence générique vers poll ; racine conservée. |
 | `runtime-registration-consumption-worker` | Compose Registration, locator et retry | SPLIT | `runtime-registration-consumption-worker`, `supra-consume-registration`, `engine-consume-registration`, `orchestrator-poll-consumption` | `runtime-registration-consumption-worker`, `supra-consume-registration`, `engine-consume-registration`, `orchestrator-poll-consumption` | Locator/classification/issue vers supra ; exécution vers engine ; retry/cadence générique vers poll ; racine conservée. |
-| `runtime-latest-known-version-consumption-worker` | Compose LKV, métriques et polling | TBD | `runtime-latest-known-version-consumption-worker`, `supra-consume-lkv`, `engine-advance-pot-watermark`, `orchestrator-poll-consumption` | `orchestrator-poll-consumption` ; — (TBD_PHYSICAL LKV) | Racine, glue et moteur LKV tous partiellement TBD ; métriques/polling connus mais composition physique et owner fonctionnel non décidés. |
+| `runtime-latest-known-version-consumption-worker` | Compose LKV, métriques et polling | TBD | `runtime-latest-known-version-consumption-worker`, `supra-consume-lkv`, `engine-materialize-latest-known-version`, `orchestrator-poll-consumption` | `orchestrator-poll-consumption` ; — (HISTORICAL_UNDECIDED_RESOLVED_WP6 LKV) | Racine, glue et moteur LKV tous partiellement TBD ; métriques/polling connus mais composition physique et owner fonctionnel non décidés. |
 | `runtime-binding-consumption-worker` | Compose Binding fact consumer | KEEP / RENAME | `runtime-binding-consumption-worker`, `supra-consume-binding`, `engine-materialize-current-binding`, `orchestrator-poll-consumption` | `runtime-binding-consumption-worker`, `supra-consume-binding`, `engine-materialize-current-binding`, `orchestrator-poll-consumption` | Racine Binding, glue fact et matérialisation Current ; polling générique. |
 | `runtime-task-consumption-worker` | Compose catalog, Task, producers, retry | SPLIT | `runtime-task-consumption-worker`, `supra-consume-projection-task`, `engine-consume-projection-task`, `projector-pot`, `orchestrator-poll-consumption` | `runtime-task-consumption-worker`, `supra-consume-projection-task`, `engine-consume-projection-task`, `projector-pot`, `orchestrator-poll-consumption` | Catalog/selection de composition dans runtime ; reload/issue vers supra ; traitement et calcul pur séparés ; polling générique. |
 | `runtime-command-consumption-worker` | Compose Command, Pot et consumption | KEEP / RENAME | `runtime-command-consumption-worker`, `supra-consume-command`, `engine-consume-command`, `engine-write-pot`, `orchestrator-poll-consumption` | `runtime-command-consumption-worker`, `supra-consume-command`, `engine-consume-command`, `engine-write-pot`, `orchestrator-poll-consumption` | Racine Command, dispatch Pot et wiring ; polling générique. |
@@ -160,7 +160,7 @@ Pour les workers Result et Registration, la glue locator aujourd'hui logée dans
 
 ### Vue inverse compacte
 
-Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les simples dépendances de composition runtime sont omises, sauf lorsque le runtime porte aujourd’hui la glue ou la policy concernée. Les trois lignes LKV sont des responsabilités `TBD_PHYSICAL` ; `domain-pot-policy` est `PACKAGE_ONLY` dans `domain-pot`.
+Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les simples dépendances de composition runtime sont omises, sauf lorsque le runtime porte aujourd’hui la glue ou la policy concernée. Les trois lignes LKV sont des responsabilités `HISTORICAL_UNDECIDED_RESOLVED_WP6` ; `domain-pot-policy` est `PACKAGE_ONLY` dans `domain-pot`.
 
 | TARGET POM / responsibility | Main CURRENT sources |
 | --- | --- |
@@ -179,7 +179,7 @@ Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les s
 | `port-transaction` | `engine-core` |
 | `engine-admit-command` | `engine-command`, `orchestrator-command-admission`, `supra-http-write-command` |
 | `engine-admit-registration` | `engine-registration` |
-| `engine-advance-pot-watermark` (TBD_PHYSICAL) | `engine-processing-event`, `engine-read-projection`, `infra-read-persistence`, `locator-consumption-latest-known-version` |
+| `engine-materialize-latest-known-version` (HISTORICAL_UNDECIDED_RESOLVED_WP6) | `engine-processing-event`, `engine-read-projection`, `infra-read-persistence`, `locator-consumption-latest-known-version` |
 | `engine-consume-command` | `engine-command`, `locator-consumption-command` |
 | `engine-consume-projection-task` | `engine-projection-task`, `engine-projection-balance`, `engine-projection-pot`, `orchestrator-consumption` |
 | `engine-consume-registration` | `engine-registration` |
@@ -201,7 +201,7 @@ Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les s
 | `supra-consume-command` | `locator-consumption-command` |
 | `supra-consume-command-result` | `engine-command-result`, `runtime-command-result-consumption-worker` |
 | `supra-consume-event` | `locator-consumption-event` |
-| `supra-consume-lkv` (TBD_PHYSICAL) | `locator-consumption-latest-known-version`, `runtime-latest-known-version-consumption-worker` |
+| `supra-consume-lkv` (HISTORICAL_UNDECIDED_RESOLVED_WP6) | `locator-consumption-latest-known-version`, `runtime-latest-known-version-consumption-worker` |
 | `supra-consume-projection-task` | `engine-projection-task`, `runtime-task-consumption-worker` |
 | `supra-consume-registration` | `engine-registration`, `runtime-registration-consumption-worker` |
 | `supra-consume-registration-result` | `engine-registration`, `runtime-registration-result-consumption-worker` |
@@ -216,7 +216,7 @@ Chaque entrée nomme les sources CURRENT principales du rôle/POM TARGET ; les s
 | `runtime-command-consumption-worker` | `binding-pot-command-spring`, `runtime-command-consumption-worker` |
 | `runtime-command-result-consumption-worker` | `runtime-command-result-consumption-worker` |
 | `runtime-event-consumption-worker` | `runtime-event-consumption-worker` |
-| `runtime-latest-known-version-consumption-worker` (TBD_PHYSICAL) | `runtime-latest-known-version-consumption-worker` |
+| `runtime-latest-known-version-consumption-worker` (HISTORICAL_UNDECIDED_RESOLVED_WP6) | `runtime-latest-known-version-consumption-worker` |
 | `runtime-registration-consumption-worker` | `runtime-registration-consumption-worker` |
 | `runtime-registration-result-consumption-worker` | `runtime-registration-result-consumption-worker` |
 | `runtime-task-consumption-worker` | `runtime-task-consumption-worker` |
@@ -236,7 +236,7 @@ Les deux supras HTTP sont des POM. `supra-http-write` adapte principal, DTO/requ
 | `supra-consume-registration` | candidate Request → reload par ports → `engine-consume-registration` → issue | `runtime-registration-consumption-worker` |
 | `supra-consume-command-result` | candidate terminal Event/outcome/Command → reload par ports → `engine-materialize-command-result` → issue | `runtime-command-result-consumption-worker` |
 | `supra-consume-registration-result` | candidate Outcome → reload Request/Outcome par ports → `engine-materialize-registration-result` → issue | `runtime-registration-result-consumption-worker` |
-| `supra-consume-lkv` | candidate Event LKV → reload/maximum par ports à préciser → `engine-advance-pot-watermark` → issue ; tout ceci reste TBD-LKV | `runtime-latest-known-version-consumption-worker` TBD |
+| `supra-consume-lkv` | candidate Event LKV → reload/maximum par ports à préciser → `engine-materialize-latest-known-version` → issue ; tout ceci reste TBD-LKV | `runtime-latest-known-version-consumption-worker` TBD |
 
 Tous ces supras sont exempts de SQL concret et de polling générique. Les sept premiers sont des POM fermes ; LKV reste une responsabilité logique conditionnelle. Les flèches suivantes décrivent **l'ordre d'exécution et le câblage** ; elles ne prétendent pas que chaque flèche est un import Maven direct. Les imports effectifs sont en sections 5 et 6.
 
@@ -294,16 +294,16 @@ Tous ces supras sont exempts de SQL concret et de polling générique. Les sept 
 | `engine-read-pot` | `domain-authorization`, `domain-user-identity`, `domain-pot`, `domain-pot-policy`, `engine-read-projection` |
 | `engine-materialize-current-binding` | `domain-user-identity`, `port-transaction`, `engine-consumption` |
 | `engine-read-current-binding` | `domain-user-identity` |
-| `engine-advance-pot-watermark` | `domain-pot` †, `domain-consumption` †, `engine-consumption` † |
+| `engine-materialize-latest-known-version` | `domain-pot` †, `domain-consumption` †, `engine-consumption` † |
 | `supra-http-write` | `contracts-authentication`, `engine-admit-command`, `engine-admit-registration` |
 | `supra-consume-command` | `orchestrator-consumption`, `engine-consume-command` |
 | `supra-consume-event` | `orchestrator-consumption`, `engine-produce-projection-task` |
 | `supra-consume-binding` | `orchestrator-consumption`, `engine-materialize-current-binding` |
 | `supra-consume-registration` | `orchestrator-consumption`, `engine-consume-registration` |
 | `infra-tx-spring` | `port-transaction` |
-| `infra-persistence-primary-jpa` | `contracts-registration`, `contracts-observability`, `port-binding-authority`, `port-transaction`, `port-projection`, `engine-consumption`, `engine-consume-command`, `engine-admit-command`, `engine-write-pot`, `engine-read-command-result`, `engine-materialize-command-result`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `engine-produce-projection-task`, `engine-consume-projection-task`, `engine-read-pot`, `engine-materialize-current-binding`, `engine-advance-pot-watermark` † |
+| `infra-persistence-primary-jpa` | `contracts-registration`, `contracts-observability`, `port-binding-authority`, `port-transaction`, `port-projection`, `engine-consumption`, `engine-consume-command`, `engine-admit-command`, `engine-write-pot`, `engine-read-command-result`, `engine-materialize-command-result`, `engine-admit-registration`, `engine-consume-registration`, `engine-materialize-registration-result`, `engine-read-registration-result`, `engine-produce-projection-task`, `engine-consume-projection-task`, `engine-read-pot`, `engine-materialize-current-binding`, `engine-materialize-latest-known-version` † |
 | `infra-persistence-projection-jdbc` | `domain-projection`, `port-projection` |
-| `infra-persistence-read-jdbc` | `engine-materialize-current-binding`, `engine-read-current-binding`, `engine-advance-pot-watermark` † |
+| `infra-persistence-read-jdbc` | `engine-materialize-current-binding`, `engine-read-current-binding`, `engine-materialize-latest-known-version` † |
 | `runtime-web-api` | `contracts-observability`, `supra-http-write`, `infra-tx-spring`, `infra-persistence-primary-jpa`, `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `infra-projection-validation-networknt`, `supra-http-read` |
 | `runtime-command-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-command`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
 | `runtime-event-consumption-worker` | `orchestrator-poll-consumption`, `supra-consume-event`, `infra-tx-spring`, `infra-persistence-primary-jpa` |
@@ -319,7 +319,7 @@ Tous ces supras sont exempts de SQL concret et de polling générique. Les sept 
 | `supra-consume-registration-result` | `orchestrator-consumption`, `engine-materialize-registration-result` |
 | `infra-projection-validation-networknt` | `domain-projection`, `port-projection` |
 | `supra-http-read` | `engine-read-command-result`, `engine-read-registration-result`, `engine-read-pot`, `engine-read-current-binding` |
-| `supra-consume-lkv` | `orchestrator-consumption` †, `engine-advance-pot-watermark` † |
+| `supra-consume-lkv` | `orchestrator-consumption` †, `engine-materialize-latest-known-version` † |
 
 **163 arcs logiques dans l'enveloppe conditionnelle ; 148 arcs hors conditions explicites ; zéro cycle.** Les dépendances de bibliothèque externes ne sont pas représentées. Le calcul des closures et du fan-in utilise les arcs directs ci-dessus, sans confondre responsabilité logique et POM.
 
@@ -450,4 +450,8 @@ L'identité Maven PRIMARY est `infra-persistence-primary-jpa`. Les packages Java
 
 L'[audit LKV](Modularity_LKV_Convergent_Index_Audit.md) résout `TBD-LKV`. LKV et `CURRENT_BINDING` sont deux spécialisations physiques distinctes de la famille conceptuelle **convergent current-state index**, classifiées C2 (convergence par maximum). H2 est retenue : aucune nouvelle abstraction de moteur ou de stockage générique ; claim, fencing, provenance, finalisation, retry et polling restent fournis par les engines/orchestrateurs Consumption existants.
 
-Les trois responsabilités physiques LKV sont désormais fermes pour WP6 : `engine-advance-pot-watermark` est remplacé par `engine-materialize-latest-known-version`; `supra-consume-lkv` et `runtime-latest-known-version-consumption-worker` sont conservés. Le runtime reste un consumer Event indépendant du pipeline Event→ProjectionTask. `infra-persistence-read-jdbc` fournit le store LKV spécialisé en plus de CURRENT_BINDING ; aucun `engine-read-latest-known-version` n'est créé sans consommateur aval réel. Les tableaux et comptes pré-audit qui marquent ces responsabilités `TBD_PHYSICAL` sont superseded par ce delta. WP6 reste NOT STARTED.
+WP6 matérialise les trois responsabilités physiques LKV : `engine-materialize-latest-known-version`, `supra-consume-lkv` et `runtime-latest-known-version-consumption-worker`. Le runtime reste un consumer Event indépendant du pipeline Event→ProjectionTask. `infra-persistence-read-jdbc` fournit le store LKV spécialisé en plus de CURRENT_BINDING ; aucun `engine-read-latest-known-version` n'est créé sans consommateur aval réel. Les tableaux et comptes pré-audit qui marquent ces responsabilités comme historiquement indécises sont superseded par ce delta. WP6 est DONE.
+
+## État physique final WP6
+
+Le reactor CURRENT contient 58 POM enfants : 57 de production et `architecture-tests`. Le graphe réel compte 234 arcs internes directs de production selon la méthode WP5, sans cycle, dépendance interne manquante, arc TARGET→legacy, POM legacy de migration ou frontière provisoire. Les deux spécialisations de convergent current-state index sont CURRENT_BINDING et LKV. La projection historique exacte reste une famille distincte gouvernée par ProjectionTask.

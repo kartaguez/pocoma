@@ -16,18 +16,20 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/** Maven and source-boundary proof for the firm WP5 topology. */
+/** Maven and source-boundary proof for the consolidated WP6 topology. */
 class Wp5TargetTopologyTest {
     private static final Path APP = Path.of("..").toAbsolutePath().normalize();
     private static final Set<String> REMOVED = Set.of("engine-core", "engine-command", "engine-pot-command",
             "engine-registration", "engine-projection-task", "engine-projection-pot",
             "engine-projection-balance", "locator-consumption-command", "locator-consumption-event",
-            "locator-consumption-binding", "orchestrator-command-admission", "binding-pot-command-spring");
+            "locator-consumption-binding", "orchestrator-command-admission", "binding-pot-command-spring",
+            "engine-processing-event", "infra-read-persistence", "locator-consumption-latest-known-version",
+            "domain-pot-projection", "domain-projection-balance");
 
-    @Test void firmLegacyModulesAreGoneAndLkvRemainsExplicit() throws Exception {
+    @Test void legacyModulesAreGoneAndLkvHasFinalSpecializedOwners() throws Exception {
         for (String module : REMOVED) assertFalse(Files.exists(APP.resolve(module + "/pom.xml")), module);
-        for (String module : Set.of("engine-processing-event", "infra-read-persistence",
-                "locator-consumption-latest-known-version", "runtime-latest-known-version-consumption-worker")) {
+        for (String module : Set.of("engine-materialize-latest-known-version", "supra-consume-lkv",
+                "runtime-latest-known-version-consumption-worker")) {
             assertTrue(Files.isRegularFile(APP.resolve(module + "/pom.xml")), module);
         }
         for (String module : Set.of("infra-persistence-primary-jpa", "infra-persistence-projection-jdbc",
@@ -62,6 +64,18 @@ class Wp5TargetTopologyTest {
         assertFalse(graph.get("engine-read-pot").contains("infra-persistence-primary-jpa"));
         assertFalse(graph.get("engine-read-pot").contains("port-binding-authority"));
         assertFalse(graph.get("engine-read-current-binding").contains("port-binding-authority"));
+        assertFalse(graph.get("engine-materialize-current-binding").stream()
+                .anyMatch(d -> d.contains("projection-task")), "CURRENT_BINDING -> ProjectionTask");
+        assertFalse(graph.get("engine-materialize-latest-known-version").stream()
+                .anyMatch(d -> d.contains("projection-task") || d.equals("infra-persistence-primary-jpa")),
+                "LKV engine must not use ProjectionTask or PRIMARY Pot reads");
+        assertFalse(graph.get("supra-consume-lkv").stream().anyMatch(d -> d.contains("projection-task")),
+                "LKV supra -> ProjectionTask");
+        for (String module : Set.of("engine-produce-projection-task", "engine-consume-projection-task",
+                "supra-consume-projection-task", "runtime-task-consumption-worker")) {
+            assertFalse(graph.get(module).stream().anyMatch(d -> d.contains("latest-known-version") || d.equals("supra-consume-lkv")),
+                    module + " -> LKV");
+        }
         for (String result : Set.of("engine-read-command-result", "engine-read-registration-result")) {
             assertFalse(graph.get(result).stream().anyMatch(d -> d.startsWith("engine-consume-") ||
                     d.equals("engine-read-current-binding") || d.contains("projection-task")), result);

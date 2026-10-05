@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
-import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersion;
-import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionUpdate;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionInput;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersion;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionUpdate;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 

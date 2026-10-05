@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventConsumptionCandidate;
-import com.kartaguez.pocoma.engine.port.out.processing.event.LatestKnownVersionEventDiscoveryPort;
-import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
+import com.kartaguez.pocoma.supra.consume.lkv.EventConsumptionCandidate;
+import com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionEventDiscoveryPort;
+import com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKey;
 import com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHash;
 import com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegment;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaLatestKnownVersionEventDiscoveryRepository;

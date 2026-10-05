@@ -71,7 +71,7 @@ class Pcl4LegacyQueryReadAbsenceTest {
 			}
 		}
 		assertFalse(Files.exists(app.resolve("domain-projection-legacy/pom.xml")));
-		assertTrue(Files.exists(app.resolve("engine-processing-event/src/main/java/com/kartaguez/pocoma/engine/read/projection/LatestKnownVersion.java")));
+		assertTrue(Files.exists(app.resolve("engine-materialize-latest-known-version/src/main/java/com/kartaguez/pocoma/engine/materialize/latestknownversion/LatestKnownVersion.java")));
 
 		Path historicalBalanceSource = app.resolve("infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/projection/JpaHistoricalPotBalanceSourceAdapter.java");
 		assertTrue(contains(historicalBalanceSource, "implements HistoricalPotBalanceSourcePort"));
@@ -107,7 +107,7 @@ class Pcl4LegacyQueryReadAbsenceTest {
 		Path candidate = Path.of("").toAbsolutePath();
 		while (candidate != null) {
 			if (Files.exists(candidate.resolve("architecture-tests/pom.xml"))
-					&& Files.exists(candidate.resolve("infra-read-persistence/pom.xml"))) {
+					&& Files.exists(candidate.resolve("infra-persistence-read-jdbc/pom.xml"))) {
 				return candidate;
 			}
 			candidate = candidate.getParent();

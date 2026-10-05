@@ -99,8 +99,8 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.J
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserAuthorityAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JdbcBindingFactDiscoveryAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingFactAdapter;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.command.JpaCommandConsumptionDiscoveryRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.command.JpaRecordedCommandRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.ExternalIdentityJdbcRepository;
@@ -109,6 +109,7 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity.Us
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerConfiguration;
 import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.latestknownversion.LatestKnownVersionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.registration.RegistrationRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimeConfiguration;
@@ -120,6 +121,9 @@ import com.kartaguez.pocoma.supra.http.read.CurrentBindingController;
 import com.kartaguez.pocoma.supra.http.read.PotQueryController;
 import com.kartaguez.pocoma.supra.http.write.AsyncCommandController;
 import com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPort;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaLatestKnownVersionEventDiscoveryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaLatestKnownVersionEventDiscoveryRepository;
 
 @Testcontainers
 class CommandCompletionE2EPostgresTest {
@@ -394,6 +398,51 @@ class CommandCompletionE2EPostgresTest {
 		}
 	}
 
+	@Test
+	void eventFeedsIndependentLkvAndExactProjectionPipelines() {
+		JdbcTemplate jdbc = jdbc();
+		UUID userId = UUID.randomUUID();
+		CommandId commandId;
+		try (ConfigurableApplicationContext context = cleanCommandContext()) {
+			cleanDatabase(jdbc);
+			BindingId bindingId = insertBinding(jdbc, userId);
+			commandId = admitTarget(context, UUID.randomUUID(), BASE_TIME, bindingId,
+					payload("independent-lkv-projection", userId), Set.of("pocoma:pot:create"));
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
+		UUID potId = jdbc.queryForObject("select pot_id from command_outcomes where command_id=?",
+				UUID.class, commandId.value());
+		assertEquals(1, count(jdbc, "select count(*) from business_event_outbox where pot_id=?", potId));
+		assertEquals(0, count(jdbc, "select count(*) from projection_tasks"));
+
+		try (ConfigurableApplicationContext context = lkvContext()) {
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
+		assertEquals(1L, jdbc.queryForObject(
+				"select latest_version_seen from pocoma_read.source_version_watermarks where pot_id=?",
+				Long.class, potId));
+		assertEquals(0, count(jdbc, "select count(*) from projection_tasks"),
+				"LKV must progress without scheduling exact projections");
+
+		try (ConfigurableApplicationContext context = potEventContext()) {
+			context.getBean(ConsumptionPollingWorker.class).runOneCycle();
+		}
+		assertEquals(3, count(jdbc, "select count(*) from projection_tasks where target_object_id=?",
+				potId.toString()));
+		assertEquals(1L, jdbc.queryForObject(
+				"select latest_version_seen from pocoma_read.source_version_watermarks where pot_id=?",
+				Long.class, potId));
+
+		try (ConfigurableApplicationContext context = potTaskContext()) {
+			ConsumptionPollingWorker worker = context.getBean(ConsumptionPollingWorker.class);
+			worker.runOneCycle();
+			worker.runOneCycle();
+			worker.runOneCycle();
+		}
+		assertEquals(3, count(jdbc, "select count(*) from pocoma_read.projection_root where target_object_id=?",
+				potId.toString()));
+	}
+
 	private UUID submitRegistration(HttpClient http, String baseUrl, ObjectMapper mapper) throws Exception {
 		HttpResponse<String> response = http.send(request(baseUrl, "/api/v1/registrations")
 				.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -516,6 +565,12 @@ class CommandCompletionE2EPostgresTest {
 				"pocoma.event-consumption.max-consumptions-executed=10").run();
 	}
 
+	private ConfigurableApplicationContext lkvContext() {
+		return application(LkvTestApplication.class).properties(
+				"pocoma.latest-known-version-consumption.enabled=false",
+				"pocoma.latest-known-version-consumption.max-consumptions-executed=10").run();
+	}
+
 	private ConfigurableApplicationContext potTaskContext() {
 		return application(TaskTestApplication.class).properties(
 				"pocoma.projection-task-consumption.enabled=true",
@@ -604,6 +659,10 @@ class CommandCompletionE2EPostgresTest {
 				Boolean.class)) {
 			jdbc.execute("truncate table pocoma_read.current_external_identity_binding");
 		}
+		if (jdbc.queryForObject("select to_regclass('pocoma_read.source_version_watermarks') is not null",
+				Boolean.class)) {
+			jdbc.execute("truncate table pocoma_read.source_version_watermarks");
+		}
 	}
 
 	private static BindingId insertBinding(JdbcTemplate jdbc, UUID userId) {
@@ -676,6 +735,15 @@ class CommandCompletionE2EPostgresTest {
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import(EventConsumptionRuntimeConfiguration.class)
 	static class EventTestApplication {}
+
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
+	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
+	@Import({LatestKnownVersionRuntimeConfiguration.class, JpaEventPort.class,
+			JpaLatestKnownVersionEventDiscoveryAdapter.class,
+			JpaLatestKnownVersionEventDiscoveryRepository.class})
+	static class LkvTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class,

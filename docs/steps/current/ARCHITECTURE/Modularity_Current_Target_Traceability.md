@@ -1,20 +1,33 @@
-# CURRENT → TARGET traceability at WP5
+# CURRENT → TARGET traceability after WP6
 
-This file was absent at the requested path at the WP5 baseline `c592464922f0a2fb0550e19575ea816c1fcadd70`. It records the physical ownership established by WP5. The [TARGET topology](Modularity_Target_Topology.md) remains normative; the [WP5 execution report](Modularity_WP5_Execution_Report.md) contains the full pre-audit, test evidence and bridge ledger.
+Status: **CURRENT = TARGET ACHIEVED** at WP6. The [WP6 execution report](Modularity_WP6_Execution_Report.md) carries the measured graph and verification evidence. Earlier WP reports remain historical migration evidence.
 
-| Baseline CURRENT | WP5 disposition | TARGET owner |
+| CURRENT residue at WP6 baseline | Final TARGET owner | WP6 action |
 | --- | --- | --- |
-| `engine-command`, `engine-pot-command` | removed empty shells | `engine-consume-command`, `engine-write-pot` |
-| `engine-registration` | removed facade and duplicate ports | `engine-admit-registration`, `engine-consume-registration`, PRIMARY |
-| `engine-projection-task` | removed test shell; tests moved | `engine-consume-projection-task` |
-| `engine-projection-balance`, `engine-projection-pot` | moved input loaders and historical balance calculation; removed POMs | `engine-consume-projection-task.input`, PRIMARY SQL adapters, `projector-pot` pure computation |
-| `engine-core` | moved recorded Event values, SQL envelope and partitioner; removed POM | `domain-pot`, `infra-persistence-primary-jpa` |
-| `infra-persistence-jpa` | renamed/repackaged, same migration bytes | `infra-persistence-primary-jpa` |
-| `locator-consumption-command`, `locator-consumption-event`, `locator-consumption-binding` | removed empty shells; Event tests moved | capability supras, engines, PRIMARY, `orchestrator-poll-consumption` |
-| `orchestrator-command-admission`, `binding-pot-command-spring` | removed empty shells | `engine-admit-command`, Command runtime composition |
-| `infra-persistence-projection-jdbc`, `infra-persistence-read-jdbc`, `infra-projection-validation-networknt`, `infra-tx-spring` | kept | same TARGET modules |
-| Eight firm runtimes | kept as composition roots | same TARGET runtime modules |
-| `engine-processing-event`, `infra-read-persistence`, `locator-consumption-latest-known-version`, LKV runtime | LKV ownership resolved by the pre-WP6 audit; CURRENT remains provisional until implementation | `engine-materialize-latest-known-version`, `supra-consume-lkv`, retained independent LKV runtime, specialized store in `infra-persistence-read-jdbc` |
-| `domain-pot-projection`, `domain-projection-balance` | retained for D.24/WP6; empty POM shells | `domain-projection`, `domain-pot`, `projector-pot` after WP6 consolidation |
+| LKV model, use case and write port in `engine-processing-event` | `engine-materialize-latest-known-version` | REHOME; legacy POM deleted |
+| LKV candidate, durable Event reload, issue and failure policy in `locator-consumption-latest-known-version` | `supra-consume-lkv` | REHOME; locator POM deleted |
+| LKV max-upsert plus shared READ bootstrap in `infra-read-persistence` | `infra-persistence-read-jdbc` | REHOME with identical migration bytes and classpath location; legacy POM deleted |
+| independent LKV composition root | `runtime-latest-known-version-consumption-worker` | KEEP and rewire to final engine/supra/infra owners |
+| empty `domain-pot-projection` shell | `domain-projection` and existing exact projection owners | DELETE |
+| empty `domain-projection-balance` shell and tests | `domain-pot` for values/tests; `projector-pot` for pure projection | REHOME tests; DELETE shell |
+| Event → ProjectionTask policy tests left under the mixed Event shell | `engine-produce-projection-task` | REHOME |
 
-The retained CURRENT LKV modules are implementation bridges until WP6. The WP6 domain shells are separate planned work. `TBD-COMMAND-CONTRACT`, `TBD-E2U` and `TBD-LKV` are resolved; the [LKV audit](Modularity_LKV_Convergent_Index_Audit.md) selects three specialized TARGET POMs without starting WP6.
+## Final architectural families
+
+| Responsibility | Family | Boundary justification | Semantic owner |
+| --- | --- | --- | --- |
+| `engine-materialize-current-binding` | convergent current-state index, C2 | full ATTACHED/DETACHED payload and same-revision divergence policy | CURRENT_BINDING write side |
+| `engine-read-current-binding` | READ | real GET Pot and self-service consumers | CURRENT_BINDING read side |
+| `supra-consume-binding` + Binding runtime | Consumption specialization/runtime | Binding Fact discovery, reload and independent lifecycle | CURRENT_BINDING ingestion |
+| `engine-materialize-latest-known-version` | convergent current-state index, C2 | scalar `PotId → max successfully consumed PotVersion`; gaps allowed | LKV write side |
+| `supra-consume-lkv` + LKV runtime | Consumption specialization/runtime | durable Event candidate/reload and independent consumer lifecycle | LKV ingestion |
+| `engine-consume-projection-task`, `projector-pot`, exact projection persistence/read | exact historical projection `@V` | each requested AUTH/READ_POT/POT_BALANCES key is immutable and versioned | ProjectionTask pipeline |
+
+The common operational foundation is generic Consumption. No generic convergent-index engine, domain, port, orchestrator or repository exists. LKV has no read engine because it has no production read consumer.
+
+## Final state
+
+- Every production POM has a recognized architectural family and owner through its name and the final topology catalogue.
+- No migration bridge, locator POM, legacy shell, provisional physical boundary or architectural TBD remains.
+- `CURRENT_BINDING !→ ProjectionTask`, `LKV !→ ProjectionTask`, and `ProjectionTask !→ LKV` are guarded.
+- SQL/schema/migration contents are unchanged.

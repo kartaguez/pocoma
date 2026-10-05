@@ -37,7 +37,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-domain-pot-projection</artifactId>
+			<artifactId>pocoma-domain-projection</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -67,6 +67,12 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
+			<artifactId>pocoma-runtime-latest-known-version-consumption-worker</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-runtime-command-result-consumption-worker</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
@@ -91,7 +97,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-locator-consumption-latest-known-version</artifactId>
+			<artifactId>pocoma-supra-consume-lkv</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -131,12 +137,7 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-engine-processing-event</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-port-projection</artifactId>
@@ -163,7 +164,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>
-			<artifactId>pocoma-infra-read-persistence</artifactId>
+			<artifactId>pocoma-infra-persistence-read-jdbc</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>

@@ -12,7 +12,7 @@
 
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-projection-jdbc</artifactId><version>${project.version}</version></dependency>
 		<!-- Owns the read-store migrations required by the canonical projection store. -->
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-read-persistence</artifactId><version>${project.version}</version></dependency>
+		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-poll-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-orchestrator-consumption</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-primary-jpa</artifactId><version>${project.version}</version></dependency>
@@ -20,7 +20,7 @@
 
 
 
-		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-domain-pot-projection</artifactId><version>${project.version}</version></dependency>
+
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-projection-validation-networknt</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-projection</artifactId><version>${project.version}</version><scope>test</scope></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-read-pot</artifactId><version>${project.version}</version><scope>test</scope></dependency>

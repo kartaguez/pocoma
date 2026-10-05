@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.pot.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.pot.event.RecordedEvent;
-import com.kartaguez.pocoma.engine.port.out.processing.event.EventPort;
+import com.kartaguez.pocoma.supra.consume.lkv.EventPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapper;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
 

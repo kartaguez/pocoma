@@ -8,9 +8,10 @@ Sources **CURRENT** de l’état livré :
 
 La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves et leurs limites.
 
-## Cibles, dettes et historique
+## Architecture finale, dettes et historique
 
-- **TARGET / réflexion préparatoire** : [révision des trois familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux historiques 47→47 ne sont pas exécutables sur les 51 modules et neuf runtimes actuels.
+- **CURRENT = TARGET ACHIEVED** : [topologie finale](steps/current/ARCHITECTURE/Modularity_Target_Topology.md), [traçabilité](steps/current/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et [rapport WP6](steps/current/ARCHITECTURE/Modularity_WP6_Execution_Report.md).
+- **HISTORICAL design** : [révision des trois familles de moteurs](steps/current/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux et anciens comptes sont des matériaux de migration superseded.
 - **TARGET / références spécialisées** : [architecture READ cible](architecture/read-side-target.md) et [contrats du kernel d’autorisation](architecture/authorization-kernel-contracts.md) ; leur portée est indiquée dans chaque document.
 - **DEBTS** : [registre des dettes techniques](debts/README.md), pour les écarts connus et acceptés sans en faire une source normative du système ni un Step automatiquement actif.
 - **HISTORICAL-COMPLETED** : [Steps livrés](steps/completed/) et [plans exécutés](plans/completed/).

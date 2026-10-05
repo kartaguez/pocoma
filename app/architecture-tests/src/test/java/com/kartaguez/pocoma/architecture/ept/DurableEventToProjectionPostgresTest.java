@@ -51,8 +51,8 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.Jpa
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaHistoricalPotSnapshotSourceAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaReadPotProjectionInputLoader;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionKeys;
 import com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfiguration;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration;

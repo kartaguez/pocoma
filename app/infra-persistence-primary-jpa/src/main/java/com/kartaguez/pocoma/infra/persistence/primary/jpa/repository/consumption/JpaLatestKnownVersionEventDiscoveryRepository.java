@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.kartaguez.pocoma.engine.processing.event.ordering.EventOrderingKey;
+import com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKey;
 
 @Repository
 public class JpaLatestKnownVersionEventDiscoveryRepository {

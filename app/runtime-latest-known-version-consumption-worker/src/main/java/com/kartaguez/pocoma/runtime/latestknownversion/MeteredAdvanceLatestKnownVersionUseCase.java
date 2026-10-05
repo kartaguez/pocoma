@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionInput;
-import com.kartaguez.pocoma.engine.read.projection.AdvanceLatestKnownVersionUseCase;
-import com.kartaguez.pocoma.engine.read.projection.LatestKnownVersionUpdate;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionInput;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionUseCase;
+import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionUpdate;
 
 final class MeteredAdvanceLatestKnownVersionUseCase implements AdvanceLatestKnownVersionUseCase {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MeteredAdvanceLatestKnownVersionUseCase.class);

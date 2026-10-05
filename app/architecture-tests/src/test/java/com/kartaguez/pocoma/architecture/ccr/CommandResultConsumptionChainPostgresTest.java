@@ -39,8 +39,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultSource;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStore;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreAccessAutoConfiguration;
-import com.kartaguez.pocoma.infra.read.persistence.ReadStoreMigrationAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
+import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
 import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
