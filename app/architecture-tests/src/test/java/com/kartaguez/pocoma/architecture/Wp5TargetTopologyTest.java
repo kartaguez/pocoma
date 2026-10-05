@@ -22,7 +22,7 @@ class Wp5TargetTopologyTest {
     private static final Set<String> REMOVED = Set.of("engine-core", "engine-command", "engine-pot-command",
             "engine-registration", "engine-projection-task", "engine-projection-pot",
             "engine-projection-balance", "locator-consumption-command", "locator-consumption-event",
-            "locator-consumption-binding");
+            "locator-consumption-binding", "orchestrator-command-admission", "binding-pot-command-spring");
 
     @Test void firmLegacyModulesAreGoneAndLkvRemainsExplicit() throws Exception {
         for (String module : REMOVED) assertFalse(Files.exists(APP.resolve(module + "/pom.xml")), module);
