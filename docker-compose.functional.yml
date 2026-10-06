@@ -1,0 +1,72 @@
+name: pocoma-functional
+
+services:
+  postgres:
+    image: postgres:16.6
+    environment:
+      POSTGRES_DB: pocoma
+      POSTGRES_USER: pocoma
+      POSTGRES_PASSWORD: pocoma-local-only
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/functional-init.sql:/docker-entrypoint-initdb.d/functional-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pocoma -d pocoma"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    command: ["start-dev", "--import-realm", "--hostname=http://localhost:8081", "--health-enabled=true"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/pocoma
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: pocoma
+      KC_DB_PASSWORD: pocoma-local-only
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin-local-only
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - ./docker/keycloak/pocoma-realm.json:/opt/keycloak/data/import/pocoma-realm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9000; printf 'GET /health/ready HTTP/1.0\r\n\r\n' >&3; grep -q '200 OK' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  runtime-monolith:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        RUNTIME_MODULE: runtime-monolith
+        RUNTIME_ARTIFACT: pocoma-runtime-monolith
+    environment:
+      POCOMA_POSTGRES_URL: jdbc:postgresql://postgres:5432/pocoma
+      POCOMA_POSTGRES_USER: pocoma
+      POCOMA_POSTGRES_PASSWORD: pocoma-local-only
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8081/realms/pocoma
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/pocoma/protocol/openid-connect/certs
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080; printf 'GET /actuator/health/readiness HTTP/1.0\r\n\r\n' >&3; grep -q '200' <&3"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+volumes:
+  postgres-data:

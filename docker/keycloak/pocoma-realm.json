@@ -1,0 +1,73 @@
+{
+  "realm": "pocoma",
+  "enabled": true,
+  "sslRequired": "none",
+  "clientScopes": [
+    {
+      "name": "basic",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "false", "display.on.consent.screen": "false" },
+      "protocolMappers": [
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": { "access.token.claim": "true" }
+        },
+        {
+          "name": "auth_time",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "AUTH_TIME",
+            "claim.name": "auth_time",
+            "jsonType.label": "long",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    { "name": "pocoma:pot:create", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } },
+    { "name": "pocoma:pot:view", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } }
+  ],
+  "clients": [
+    {
+      "clientId": "pocoma-local",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://127.0.0.1:8765/callback"],
+      "serviceAccountsEnabled": false,
+      "defaultClientScopes": ["basic", "pocoma:pot:create", "pocoma:pot:view"],
+      "protocolMappers": [
+        {
+          "name": "pocoma-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "pocoma-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "bruno",
+      "enabled": true,
+      "firstName": "Bruno",
+      "lastName": "Local",
+      "email": "bruno@pocoma.local",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [{ "type": "password", "value": "bruno-local-only", "temporary": false }]
+    }
+  ]
+}
