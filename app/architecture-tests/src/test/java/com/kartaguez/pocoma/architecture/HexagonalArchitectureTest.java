@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -1348,12 +1349,14 @@ class HexagonalArchitectureTest {
 
 		noClasses()
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.event.consumption..")
+				.and().areNotAnnotatedWith(SpringBootApplication.class)
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.event.consumption..")
 				.check(CLASSES);
 
 		noClasses()
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.task.consumption..")
+				.and().areNotAnnotatedWith(SpringBootApplication.class)
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.task.consumption..")
 				.check(CLASSES);

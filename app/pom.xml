@@ -84,6 +84,8 @@
 <module>supra-consume-lkv</module>
 		<module>supra-http-write</module>
 		<module>supra-http-read</module>
+		<module>composition-runtime-spring</module>
+		<module>runtime-monolith</module>
 		<module>runtime-web-api</module>
 		<module>runtime-event-consumption-worker</module>
 		<module>runtime-command-result-consumption-worker</module>

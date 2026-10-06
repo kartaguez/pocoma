@@ -73,7 +73,7 @@ class Wa67BindingArchitectureTest {
 	void readRuntimeDiscoversOnlyFactsAndHasNoPrimaryBootstrap() throws IOException {
 		String discovery = Files.readString(appRoot().resolve(DISCOVERY_ADAPTER));
 		String runtime = Files.readString(appRoot().resolve(
-				"runtime-binding-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/binding/BindingRuntimeConfiguration.java"));
+				"composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/binding/BindingRuntimeConfiguration.java"));
 		assertTrue(discovery.contains("from external_identity_binding_facts fact"));
 		assertTrue(!discovery.contains("external_identities"));
 		assertTrue(!discovery.contains("findRevisionZeroPage"));

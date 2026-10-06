@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 class Pcl6MonolithAbsenceTest {
 
 	private static final Set<String> REMOVED_MODULES = Set.of(
-			"runtime-monolith",
 			"supra-worker-balance-calculation-events-spring",
 			"shared-supra-dispatcher-projection",
 			"infra-event-publisher-spring");
@@ -49,6 +48,17 @@ class Pcl6MonolithAbsenceTest {
 				.filter(path -> forbiddenArtifacts.stream().anyMatch(artifact -> contains(path, artifact)))
 				.map(app::relativize).map(Path::toString).collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), residual);
+	}
+
+	@Test
+	void functionalMonolithIsACompositionRootAndNotAReplacementForDistributedRuntimes() throws IOException {
+		Path app = appRoot();
+		assertTrue(Files.isRegularFile(app.resolve("runtime-monolith/pom.xml")));
+		String pom = Files.readString(app.resolve("runtime-monolith/pom.xml"));
+		assertFalse(pom.contains("pocoma-runtime-web-api"));
+		assertFalse(pom.contains("pocoma-runtime-command-consumption-worker"));
+		assertFalse(pom.contains("pocoma-runtime-event-consumption-worker"));
+		assertTrue(pom.contains("pocoma-composition-runtime-spring"));
 	}
 
 	@Test
@@ -115,7 +125,7 @@ class Pcl6MonolithAbsenceTest {
 				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/input/ReadPotProjectionInputLoader.java",
 				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/engine/ProjectionEngineService.java",
 				"engine-consume-projection-task/src/main/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionOrchestrator.java",
-				"runtime-task-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
+				"composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java",
 				"engine-read-projection/src/main/java/com/kartaguez/pocoma/engine/read/projection/service/ExactProjectionReadService.java");
 		for (String protectedFile : protectedFiles) {
 			assertTrue(Files.isRegularFile(app.resolve(protectedFile)), () -> "Missing " + protectedFile);

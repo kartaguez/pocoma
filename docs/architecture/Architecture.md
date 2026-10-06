@@ -33,7 +33,12 @@ Neither index uses ProjectionTask. LKV and the exact projection pipeline observe
 
 PRIMARY persistence is `infra-persistence-primary-jpa`. Direct mutable READ stores for CURRENT_BINDING and LKV plus the READ bootstrap live in `infra-persistence-read-jdbc`. Exact projection persistence is `infra-persistence-projection-jdbc`. Transaction integration is `infra-tx-spring`.
 
-The reactor has nine independent runtime composition roots: Web, Command, Command Result, Event, ProjectionTask, Binding, LKV, Registration and Registration Result. No runtime depends on another runtime.
+The reactor has nine independent distributed runtime composition roots: Web, Command, Command Result, Event, ProjectionTask, Binding, LKV, Registration and Registration Result. The functional-test deployment adds `runtime-monolith`, a thin composition root that imports the reusable Spring composition fragments and the same supras; it is not a business engine or an alternative processing path. No runtime depends on another runtime.
+
+The monolith's exact deployment composition and verification contract are recorded in
+[runtime-monolith](runtime-monolith.md). The shared Spring wiring lives in the non-runtime
+`composition-runtime-spring` module so distributed runtimes and the functional-test process use
+the same worker, HTTP, datasource and lifecycle definitions.
 
 ## Documentation status
 
