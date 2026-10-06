@@ -29,20 +29,10 @@
         }
       ]
     },
-    { "name": "pocoma:pot:create", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } },
-    { "name": "pocoma:pot:view", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } }
-  ],
-  "clients": [
     {
-      "clientId": "pocoma-local",
-      "enabled": true,
+      "name": "pocoma-api-access",
       "protocol": "openid-connect",
-      "publicClient": true,
-      "directAccessGrantsEnabled": false,
-      "standardFlowEnabled": true,
-      "redirectUris": ["http://127.0.0.1:8765/callback"],
-      "serviceAccountsEnabled": false,
-      "defaultClientScopes": ["basic", "pocoma:pot:create", "pocoma:pot:view"],
+      "attributes": { "include.in.token.scope": "false", "display.on.consent.screen": "false" },
       "protocolMappers": [
         {
           "name": "pocoma-api-audience",
@@ -56,6 +46,25 @@
           }
         }
       ]
+    },
+    { "name": "pocoma:pot:create", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } },
+    { "name": "pocoma:pot:view", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } },
+    { "name": "pocoma:pot:update", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } },
+    { "name": "pocoma:pot:delete", "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" } }
+  ],
+  "clients": [
+    {
+      "clientId": "pocoma-functional-tests",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://127.0.0.1:8765/callback"],
+      "serviceAccountsEnabled": false,
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "defaultClientScopes": ["basic", "pocoma-api-access"],
+      "optionalClientScopes": ["pocoma:pot:create", "pocoma:pot:view", "pocoma:pot:update", "pocoma:pot:delete"]
     }
   ],
   "users": [
