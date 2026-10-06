@@ -101,6 +101,9 @@ class RegistrationAdmissionPostgresTest {
     @Test void resultGetIsOpaqueAndOwnedByHistoricalRequestIssuer() throws Exception {
         UUID id = submit("owner");
         String path = "/api/v1/registrations/" + id + "/result";
+        String unauthenticated = http.perform(get(path)).andExpect(status().isUnauthorized())
+                .andReturn().getResponse().getContentAsString();
+        assertEquals("INVALID_TOKEN", json.readTree(unauthenticated).path("code").asText());
         http.perform(get(path).with(jwt().jwt(token("owner")))).andExpect(status().isNotFound());
         results.ensureResult(new ImmutableRegistrationResult(
                 new ExternalIdentity("https://issuer.test", "owner"), new PublishedRegistrationResult.Rejected(id)));

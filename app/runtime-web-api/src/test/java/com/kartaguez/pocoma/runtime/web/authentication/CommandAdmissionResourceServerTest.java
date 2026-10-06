@@ -73,6 +73,8 @@ class CommandAdmissionResourceServerTest {
 		mvc.perform(get("/api/v1/commands/" + java.util.UUID.randomUUID() + "/result"))
 				.andExpect(status().isUnauthorized());
 		mvc.perform(get("/api/v1/me/binding")).andExpect(status().isUnauthorized());
+		mvc.perform(get("/api/v1/registrations/" + java.util.UUID.randomUUID() + "/result"))
+				.andExpect(status().isUnauthorized());
 		mvc.perform(get("/api/v1/pots/" + java.util.UUID.randomUUID()).param("version", "1"))
 				.andExpect(status().isUnauthorized());
 		JwtEncoder untrusted = encoder(UNTRUSTED_KEYS);
@@ -138,7 +140,7 @@ class CommandAdmissionResourceServerTest {
 	@EnableAutoConfiguration
 	@Import({WebApiSecurityConfiguration.class, ProbeController.class})
 	static class TestApplication {
-		@Bean
+		@Bean("webApiObjectMapper")
 		ObjectMapper objectMapper() {
 			return new ObjectMapper();
 		}
