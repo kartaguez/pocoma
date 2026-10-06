@@ -14,11 +14,13 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kartaguez.pocoma.PocomaObjectMapperConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -67,26 +69,26 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSetti
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 @EnableConfigurationProperties(CanonicalProjectionTaskProperties.class)
+@Import(PocomaObjectMapperConfiguration.class)
 @ConditionalOnProperty(name = "pocoma.projection-task-consumption.enabled", havingValue = "true")
 public class CanonicalProjectionTaskRuntimeConfiguration {
-	@Bean @ConditionalOnMissingBean Clock canonicalProjectionClock(){return Clock.systemUTC();}
-	@Bean @ConditionalOnMissingBean ObjectMapper canonicalProjectionObjectMapper(){return new ObjectMapper();}
+	@Bean Clock canonicalProjectionClock(){return Clock.systemUTC();}
 	@Bean TransactionRunner canonicalProjectionTransactions(PlatformTransactionManager manager){
 		return new SpringTransactionRunner(new TransactionTemplate(manager));
 	}
 	@Bean JpaConsumptionLifecycleAdapter canonicalProjectionLifecycle(JpaConsumptionSlotRepository slots,
-			JpaConsumptionClaimRepository claims,ObjectMapper mapper){return new JpaConsumptionLifecycleAdapter(slots,claims,mapper);}
+			JpaConsumptionClaimRepository claims,@Qualifier("webApiObjectMapper") ObjectMapper mapper){return new JpaConsumptionLifecycleAdapter(slots,claims,mapper);}
 	@Bean AcquireConsumptionUseCase canonicalProjectionAcquire(@Qualifier("canonicalProjectionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
-			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,Clock clock){return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle,clock),tx);}
+			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,@Qualifier("canonicalProjectionClock") Clock clock){return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle,clock),tx);}
 	@Bean FinalizeConsumptionUseCase canonicalProjectionFinalizer(@Qualifier("canonicalProjectionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
-			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,Clock clock){return new TransactionalFinalizeConsumptionUseCase(new FinalizeConsumptionService(lifecycle,clock),tx);}
+			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,@Qualifier("canonicalProjectionClock") Clock clock){return new TransactionalFinalizeConsumptionUseCase(new FinalizeConsumptionService(lifecycle,clock),tx);}
 	@Bean HandleConsumptionFailureUseCase canonicalProjectionRetry(@Qualifier("canonicalProjectionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
-			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,Clock clock,CanonicalProjectionTaskProperties properties){
+			@Qualifier("canonicalProjectionTransactions") TransactionRunner tx,@Qualifier("canonicalProjectionClock") Clock clock,CanonicalProjectionTaskProperties properties){
 		return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(lifecycle,lifecycle,
 				new ProjectionTaskRetryPolicy(attempt -> properties.getRetryDelay()),clock),tx);
 	}
 	@Bean JdbcProjectionTaskStoreAdapter canonicalProjectionTasks(JdbcTemplate jdbc){return new JdbcProjectionTaskStoreAdapter(jdbc);}
-	@Bean ProjectionValidator canonicalProjectionValidator(ObjectMapper mapper){
+	@Bean ProjectionValidator canonicalProjectionValidator(@Qualifier("webApiObjectMapper") ObjectMapper mapper){
 		return new ProjectionValidator(new NetworkntJsonSchemaValidator(mapper));
 	}
 	@Bean ProjectionProducerCatalog canonicalProjectionProducerCatalog(CanonicalProjectionTaskProperties properties,
@@ -124,7 +126,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	}
 	@Bean ProjectionTaskConsumptionService canonicalProjectionExecutor(@Qualifier("canonicalProjectionEngine") ExecuteProjectionTaskUseCase projectionEngine,
 			ProjectionWritePort writer,@Qualifier("canonicalProjectionFinalizer") FinalizeConsumptionUseCase finalizer,
-			@Qualifier("canonicalProjectionRetry") HandleConsumptionFailureUseCase retry,Clock clock){
+			@Qualifier("canonicalProjectionRetry") HandleConsumptionFailureUseCase retry,@Qualifier("canonicalProjectionClock") Clock clock){
 		return new ProjectionTaskConsumptionService(projectionEngine,writer,finalizer,retry,clock);
 	}
 	@Bean ConsumptionOrchestrator canonicalProjectionOrchestrator(CanonicalProjectionTaskProperties properties,
@@ -142,7 +144,7 @@ public class CanonicalProjectionTaskRuntimeConfiguration {
 	}
 	@Bean ConsumptionPollingWorker canonicalProjectionWorker(
 			@Qualifier("canonicalProjectionOrchestrator") ConsumptionOrchestrator orchestrator,
-			CanonicalProjectionTaskProperties properties,Clock clock){
+			CanonicalProjectionTaskProperties properties,@Qualifier("canonicalProjectionClock") Clock clock){
 		return new ConsumptionPollingWorker(orchestrator,new ConsumptionWorkerSettings(properties.isEnabled(),
 				new WorkerId(properties.getWorkerId()),new ClaimLease(properties.getClaimLease()),
 				new ConsumptionOrchestrationBudget(properties.getMaxCandidatesInspected(),properties.getMaxConsumptionsExecuted()),

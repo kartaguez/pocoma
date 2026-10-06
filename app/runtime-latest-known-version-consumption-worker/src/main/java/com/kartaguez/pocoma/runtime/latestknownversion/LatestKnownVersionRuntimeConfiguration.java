@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.runtime.latestknownversion;
 import java.time.Clock;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -77,20 +78,21 @@ public class LatestKnownVersionRuntimeConfiguration {
 
 	@Bean
 	AcquireConsumptionUseCase acquireConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			TransactionRunner transactions, Clock clock) {
+			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock) {
 		return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle, clock), transactions);
 	}
 
 	@Bean
 	ExecuteConsumptionUseCase executeConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			JpaConsumptionProvenanceAdapter provenance, TransactionRunner transactions, Clock clock) {
+			JpaConsumptionProvenanceAdapter provenance,
+			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock) {
 		return new TransactionalExecuteConsumptionUseCase(
 				new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
 	}
 
 	@Bean
 	HandleConsumptionFailureUseCase handleConsumptionFailureUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			TransactionRunner transactions, Clock clock) {
+			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock) {
 		return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(lifecycle, lifecycle,
 						new LatestKnownVersionFailurePolicy(), clock), transactions);

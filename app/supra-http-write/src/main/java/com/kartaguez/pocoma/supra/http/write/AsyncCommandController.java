@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.supra.http.write;
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +33,8 @@ public final class AsyncCommandController {
 	private final SubmitRecordedCommandUseCase commands;
 	private final ObjectMapper objectMapper;
 
-	public AsyncCommandController(SubmitRecordedCommandUseCase commands, ObjectMapper objectMapper) {
+	public AsyncCommandController(SubmitRecordedCommandUseCase commands,
+			@Qualifier("webApiObjectMapper") ObjectMapper objectMapper) {
 		this.commands = requireNonNull(commands, "commands must not be null");
 		this.objectMapper = requireNonNull(objectMapper, "objectMapper must not be null");
 	}

@@ -1,14 +1,12 @@
 package com.kartaguez.pocoma;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Bean;
 import com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfiguration;
 
 /** HTTP composition shared by the distributed Web runtime and runtime-monolith. */
 @Import({
+        PocomaObjectMapperConfiguration.class,
         CommandAdmissionConfiguration.class,
         CommandResultReadConfiguration.class,
         OpenApiConfiguration.class,
@@ -20,13 +18,6 @@ import com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfigurati
         WebApiSecurityConfiguration.class
 })
 public class PocomaWebRuntimeConfiguration {
-
-    @Bean
-    @ConditionalOnMissingBean
-    ObjectMapper webApiObjectMapper() {
-        return new ObjectMapper().findAndRegisterModules();
-    }
-
     @Bean
     TraceCorrelationFilter traceCorrelationFilter() {
         return new TraceCorrelationFilter();

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -24,7 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 		+ "'${pocoma.command-result-read.enabled:false}' == 'true' or '${pocoma.pot-read.enabled:false}' == 'true'")
 public class WebApiSecurityConfiguration {
 	@Bean
-	SecurityFilterChain webApiSecurityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
+	SecurityFilterChain webApiSecurityFilterChain(HttpSecurity http,
+			@Qualifier("webApiObjectMapper") ObjectMapper objectMapper) throws Exception {
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(requests -> requests

@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.infra.projection.validation.networknt.NetworkntJsonS
 
 public class ProjectionReadConfiguration {
 	@Bean
-	ProjectionValidator projectionValidator(ObjectMapper mapper) {
+	ProjectionValidator projectionValidator(@Qualifier("webApiObjectMapper") ObjectMapper mapper) {
 		return new ProjectionValidator(new NetworkntJsonSchemaValidator(mapper));
 	}
 

@@ -2,6 +2,7 @@ package com.kartaguez.pocoma;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
@@ -16,6 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -30,6 +32,7 @@ import com.kartaguez.pocoma.runtime.registration.RegistrationConsumptionProperti
 import com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultConsumptionProperties;
 import com.kartaguez.pocoma.runtime.result.CommandResultConsumptionProperties;
 import com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskProperties;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
 @Testcontainers
 class RuntimeMonolithPostgresTest {
@@ -67,6 +70,14 @@ class RuntimeMonolithPostgresTest {
         Map<String, ConsumptionPollingWorker> workers = context.getBeansOfType(ConsumptionPollingWorker.class);
         try {
             assertEquals(WORKER_BEANS, workers.keySet());
+            assertEquals(Set.of(
+                    "transactionRunner", "registrationTransactionRunner",
+                    "registrationResultTransactionRunner", "bindingTransactionRunner",
+                    "commandConsumptionTransactionRunner", "commandResultTransactionRunner",
+                    "consumptionTransactionRunner", "canonicalProjectionTransactions"),
+                    context.getBeansOfType(TransactionRunner.class).keySet());
+            assertEquals(1, context.getBeansOfType(ObjectMapper.class).size());
+            assertSame(context.getBean("webApiObjectMapper"), context.getBean("objectMapper"));
             assertEquals(LIFECYCLE_BEANS, LIFECYCLE_BEANS.stream()
                     .filter(name -> context.getBean(name) instanceof SmartLifecycle).collect(java.util.stream.Collectors.toSet()));
             await(() -> workers.values().stream().allMatch(ConsumptionPollingWorker::isRunning));

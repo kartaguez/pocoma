@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
@@ -41,7 +42,7 @@ import com.kartaguez.pocoma.engine.consume.command.pot.dispatch.UpdatePotShareho
 public class PotCommandBindingConfiguration {
 
 	@Bean
-	CommandDecoder potCommandDecoder(ObjectMapper objectMapper) {
+	CommandDecoder potCommandDecoder(@Qualifier("webApiObjectMapper") ObjectMapper objectMapper) {
 		return new CommandDecoderRegistry(PotCommandPayloadDecoders.all(objectMapper));
 	}
 
@@ -84,7 +85,7 @@ public class PotCommandBindingConfiguration {
 			CommandDispatcher dispatcher,
 			EventAppendPort events,
 			ExternalIdentityBindingPort bindings,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		return new ExecuteRecordedCommandService(commands, decoder, dispatcher, events,
 				bindings, new ExternalAuthorityPermissionTranslator(), clock);
 	}

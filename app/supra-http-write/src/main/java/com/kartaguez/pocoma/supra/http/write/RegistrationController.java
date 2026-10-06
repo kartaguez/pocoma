@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.supra.http.write;
 import java.util.UUID;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,8 @@ import com.kartaguez.pocoma.engine.admit.registration.AdmitRegistrationService;
 public final class RegistrationController {
     private final AdmitRegistrationService admission;
     private final ObjectMapper mapper;
-    public RegistrationController(AdmitRegistrationService admission, ObjectMapper mapper) {
+    public RegistrationController(AdmitRegistrationService admission,
+            @Qualifier("webApiObjectMapper") ObjectMapper mapper) {
         this.admission = admission;
         this.mapper = mapper;
     }

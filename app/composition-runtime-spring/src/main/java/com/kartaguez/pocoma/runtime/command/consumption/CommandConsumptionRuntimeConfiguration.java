@@ -9,10 +9,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kartaguez.pocoma.PocomaObjectMapperConfiguration;
 import com.kartaguez.pocoma.runtime.command.consumption.PotCommandBindingConfiguration;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
@@ -53,14 +55,11 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumpt
 import io.micrometer.core.instrument.MeterRegistry;
 
 @EnableConfigurationProperties(CommandConsumptionProperties.class)
-@org.springframework.context.annotation.Import(PotCommandBindingConfiguration.class)
+@Import({PocomaObjectMapperConfiguration.class, PotCommandBindingConfiguration.class})
 public class CommandConsumptionRuntimeConfiguration {
 
-	@Bean @ConditionalOnMissingBean
+	@Bean
 	Clock commandConsumptionClock() { return Clock.systemUTC(); }
-
-	@Bean @ConditionalOnMissingBean
-	ObjectMapper commandConsumptionObjectMapper() { return new ObjectMapper().findAndRegisterModules(); }
 
 	@Bean
 	TransactionRunner commandConsumptionTransactionRunner(PlatformTransactionManager manager) {
@@ -71,7 +70,7 @@ public class CommandConsumptionRuntimeConfiguration {
 	JpaConsumptionLifecycleAdapter commandConsumptionLifecycle(
 			JpaConsumptionSlotRepository slots,
 			JpaConsumptionClaimRepository claims,
-			ObjectMapper mapper) {
+			@Qualifier("webApiObjectMapper") ObjectMapper mapper) {
 		return new JpaConsumptionLifecycleAdapter(slots, claims, mapper);
 	}
 
@@ -86,7 +85,7 @@ public class CommandConsumptionRuntimeConfiguration {
 	AcquireConsumptionUseCase commandConsumptionAcquire(
 			@Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		return new TransactionalAcquireConsumptionUseCase(
 				new AcquireConsumptionService(lifecycle, clock), transactions);
 	}
@@ -98,7 +97,7 @@ public class CommandConsumptionRuntimeConfiguration {
 			ExternalIdentityBindingPort bindings,
 			JdbcCommandOutcomeAdapter outcomes,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		return new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(
 						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
@@ -109,7 +108,7 @@ public class CommandConsumptionRuntimeConfiguration {
 	HandleConsumptionFailureUseCase commandConsumptionHandleFailure(
 			@Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(
 						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
@@ -117,7 +116,7 @@ public class CommandConsumptionRuntimeConfiguration {
 
 	@Bean
 	CommandConsumptionExecution commandConsumptionExecution(ExecuteRecordedCommandUseCase commands,
-			JdbcCommandOutcomeAdapter outcomes, Clock clock) {
+			JdbcCommandOutcomeAdapter outcomes, @Qualifier("commandConsumptionClock") Clock clock) {
 		return new CommandConsumptionExecution(commands, outcomes, clock);
 	}
 
@@ -125,7 +124,7 @@ public class CommandConsumptionRuntimeConfiguration {
 	CommandConsumptionLocator commandConsumptionLocator(
 			JpaCommandConsumptionDiscoveryAdapter discovery,
 			CommandConsumptionExecution execution,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		return new CommandConsumptionLocator(
 				discovery, execution, new CommandConsumptionTechnicalFailureClassifier(clock), clock);
 	}
@@ -149,7 +148,7 @@ public class CommandConsumptionRuntimeConfiguration {
 			@Qualifier("commandConsumptionOrchestrator") ConsumptionOrchestrator orchestrator,
 			CommandConsumptionProperties properties,
 			@Qualifier("commandConsumptionPollingObservation") ConsumptionPollingWorkerObservation observation,
-			Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock) {
 		var settings = new ConsumptionWorkerSettings(
 				properties.isEnabled(),
 				new WorkerId(workerId(properties)),

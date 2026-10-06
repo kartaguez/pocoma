@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public final class CommandRequestSizeFilter extends OncePerRequestFilter {
 	private final ObjectMapper objectMapper;
 
 	public CommandRequestSizeFilter(@Value("${pocoma.command-admission.max-request-bytes:262144}") long maximumBytes,
-			ObjectMapper objectMapper) {
+			@Qualifier("webApiObjectMapper") ObjectMapper objectMapper) {
 		if (maximumBytes <= 0) throw new IllegalArgumentException("maximumBytes must be positive");
 		this.maximumBytes = maximumBytes;
 		this.objectMapper = objectMapper;

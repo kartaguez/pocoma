@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +24,6 @@ import com.kartaguez.pocoma.engine.admit.command.port.out.CommandIdGenerator;
 public class CommandAdmissionConfiguration {
 
 	@Bean
-	@ConditionalOnMissingBean
 	Clock commandAdmissionClock() {
 		return Clock.systemUTC();
 	}
@@ -44,8 +44,8 @@ public class CommandAdmissionConfiguration {
 			RecordedCommandInsertionPort commands,
 			CommandIdGenerator commandIds,
 			CommandAuthenticationEvidenceFactory authenticationEvidence,
-			Clock clock,
-			TransactionRunner transactions) {
+			@Qualifier("commandAdmissionClock") Clock clock,
+			@Qualifier("transactionRunner") TransactionRunner transactions) {
 		return new SubmitRecordedCommandService(
 				commands, commandIds, authenticationEvidence, clock, transactions);
 	}
