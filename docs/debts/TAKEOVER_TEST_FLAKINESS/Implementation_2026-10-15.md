@@ -1,6 +1,8 @@
 # DEBT-TEST-01 — Horloge contrôlée et preuve directe du fencing
 
-Statut de validation : **NOT_EXECUTED** pour les scénarios PostgreSQL. Correctif de tests livré pour revue, sans validation d'exécution ni de compilation de la classe modifiée. Diagnostic historique : **INCONCLUSIVE**. Statut recommandé de la dette : **OPEN**, en attente de preuves exécutées.
+Statut de la première livraison : **NOT_EXECUTED** pour les scénarios PostgreSQL. Correctif de tests livré pour revue, sans validation d'exécution ni de compilation de la classe modifiée. Diagnostic historique : **INCONCLUSIVE**. Statut alors recommandé de la dette : **OPEN**, en attente de preuves exécutées.
+
+La validation a ensuite été reprise avec Docker et `-pl architecture-tests -am`, sans installation artificielle de SNAPSHOT : voir les [résultats PostgreSQL ultérieurs](Validation_2026-10-15.md). Les blocages et statuts ci-dessous sont conservés comme historique de la première livraison.
 
 Référence : [audit complet](Audit_2026-10-15.md), commit `eef30128b21222c74a20f85d9145cf62167d20a7`. [Diff exact des tests](fix-20261015/Tests.patch).
 
