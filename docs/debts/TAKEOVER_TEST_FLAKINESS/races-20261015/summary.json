@@ -1,0 +1,48 @@
+{
+  "per_scenario": {
+    "twoConcurrentTakeoversInstallOnlyOneCurrentClaim": 100,
+    "inFlightPublicationLosesFenceAndUnblocksWinnerPublication": 100,
+    "rolledBackFinalCasReleasesSlotAndAllowsTakeover": 100,
+    "committedFinalCasMakesWaitingTakeoverObserveDone": 100,
+    "rolledBackTakeoverLetsWaitingContenderReuseAttemptTwo": 100
+  },
+  "blocking_operations": {
+    "rolledBackFinalCasReleasesSlotAndAllowsTakeover": {
+      "INSERT_CONFLICT": 100
+    },
+    "committedFinalCasMakesWaitingTakeoverObserveDone": {
+      "INSERT_CONFLICT": 100
+    },
+    "twoConcurrentTakeoversInstallOnlyOneCurrentClaim": {
+      "FOR_UPDATE": 100
+    },
+    "rolledBackTakeoverLetsWaitingContenderReuseAttemptTwo": {
+      "INSERT_CONFLICT": 100
+    },
+    "inFlightPublicationLosesFenceAndUnblocksWinnerPublication": {
+      "INSERT_CONFLICT": 100
+    }
+  },
+  "simultaneous_takeover_winners": {
+    "C2-acquire": 82,
+    "C3-acquire": 18
+  },
+  "campaign_passed": 500,
+  "observed_lock_waits": 500,
+  "pilot_passed": 5,
+  "regression_passed": {
+    "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest": 7,
+    "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest": 3
+  },
+  "total_passed": 515,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "repeat_compilations": 0,
+  "local_snapshots_after_campaign": {
+    "runtime-command-result-consumption-worker": [],
+    "runtime-registration-consumption-worker": [],
+    "runtime-registration-result-consumption-worker": [],
+    "runtime-binding-consumption-worker": []
+  }
+}

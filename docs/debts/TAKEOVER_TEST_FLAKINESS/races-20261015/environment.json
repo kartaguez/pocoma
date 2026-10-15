@@ -1,0 +1,12 @@
+{
+  "base_commit": "4a07b1117ed56f0f5a44ba6ae2a888de730b2d84",
+  "branch": "test/takeover-races",
+  "test_source_sha256": "d72cf739bd3fb3de2cbb154e774d5f9789b68843fdcca6972a72d9e1d81b220c",
+  "test_class": "com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest",
+  "jdk": "Eclipse Adoptium 21",
+  "maven": "3.9.14",
+  "postgres": "17.11",
+  "docker_engine": "29.4.0",
+  "full_reactor_projects": 61,
+  "selected_projects": 60
+}
