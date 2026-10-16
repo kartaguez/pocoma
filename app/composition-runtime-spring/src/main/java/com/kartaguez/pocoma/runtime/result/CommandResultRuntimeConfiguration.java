@@ -2,12 +2,10 @@ package com.kartaguez.pocoma.runtime.result;
 
 import java.time.Clock;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -31,20 +29,30 @@ import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.*;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;
 
 @EnableConfigurationProperties(CommandResultConsumptionProperties.class)
 @Import(PocomaObjectMapperConfiguration.class)
 public class CommandResultRuntimeConfiguration {
 	@Bean Clock commandResultClock(){return Clock.systemUTC();}
-	@Bean TransactionRunner commandResultTransactionRunner(PlatformTransactionManager manager){return new SpringTransactionRunner(new TransactionTemplate(manager));}
+	@Bean TransactionRunner commandResultTransactionRunner(PlatformTransactionManager manager){return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));}
 	@Bean JpaConsumptionLifecycleAdapter commandResultLifecycle(JpaConsumptionSlotRepository s,JpaConsumptionClaimRepository c,@Qualifier("webApiObjectMapper") ObjectMapper m){return new JpaConsumptionLifecycleAdapter(s,c,m);}
 	@Bean JpaConsumptionProvenanceAdapter commandResultProvenance(JpaConsumptionInputRepository i,JpaConsumptionResultRepository r){return new JpaConsumptionProvenanceAdapter(i,r);}
 	@Bean AcquireConsumptionUseCase commandResultAcquire(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("commandResultTransactionRunner") TransactionRunner t,@Qualifier("commandResultClock") Clock c){return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(l,c),t);}
-	@Bean ExecuteConsumptionUseCase commandResultExecute(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("commandResultProvenance") JpaConsumptionProvenanceAdapter p,@Qualifier("commandResultTransactionRunner") TransactionRunner t,@Qualifier("commandResultClock") Clock c){return new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(l,p,c),t);}
-	@Bean HandleConsumptionFailureUseCase commandResultFailure(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("commandResultTransactionRunner") TransactionRunner t,@Qualifier("commandResultClock") Clock c){return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(l,l,CommandResultConsumptionLocator.failurePolicy(),c),t);}
+	@Bean ExecuteConsumptionUseCase commandResultExecute(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("commandResultProvenance") JpaConsumptionProvenanceAdapter p,@Qualifier("commandResultTransactionRunner") TransactionRunner t,@Qualifier("commandResultClock") Clock c, @Qualifier("commandResultTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant){return new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(terminalParticipant.finalizer()),t);}
+	@Bean HandleConsumptionFailureUseCase commandResultFailure(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("commandResultTransactionRunner") TransactionRunner t,@Qualifier("commandResultClock") Clock c, @Qualifier("commandResultTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant){return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(l,l,CommandResultConsumptionLocator.failurePolicy(),c, terminalParticipant.finalizer()),t);}
 	@Bean MaterializeCommandResultService commandResultMaterializer(CommandResultStore store){return new MaterializeCommandResultService(store);}
 	@Bean CommandResultConsumptionLocator commandResultLocator(CommandResultConsumptionProperties p,CommandResultDiscovery s,MaterializeCommandResultService m,@Qualifier("commandResultClock") Clock c){return new CommandResultConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),s,m,c);}
-	@Bean ConsumptionOrchestrator commandResultOrchestrator(CommandResultConsumptionLocator l,@Qualifier("commandResultAcquire") AcquireConsumptionUseCase a,@Qualifier("commandResultExecute") ExecuteConsumptionUseCase e,@Qualifier("commandResultFailure") HandleConsumptionFailureUseCase f){return new SequentialConsumptionOrchestrator(l,a,e,f);}
+	@Bean ConsumptionOrchestrator commandResultOrchestrator(CommandResultConsumptionLocator l,@Qualifier("commandResultAcquire") AcquireConsumptionUseCase a,@Qualifier("commandResultExecute") ExecuteConsumptionUseCase e,@Qualifier("commandResultFailure") HandleConsumptionFailureUseCase f, @Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter ownership){return guarded(new SequentialConsumptionOrchestrator(l,a,e,f, ownership));}
 	@Bean ConsumptionPollingWorker commandResultWorker(@Qualifier("commandResultOrchestrator") ConsumptionOrchestrator o,CommandResultConsumptionProperties p,@Qualifier("commandResultClock") Clock c){return new ConsumptionPollingWorker(o,new ConsumptionWorkerSettings(p.isEnabled(),new WorkerId(p.getWorkerId()),new ClaimLease(p.getClaimLease()),new ConsumptionOrchestrationBudget(p.getMaxCandidatesInspected(),p.getMaxConsumptionsExecuted()),p.getPollInterval(),p.getRuntimeFailureBackoff()),c,new ConditionConsumptionWaiter());}
 	@Bean SmartLifecycle commandResultWorkerLifecycle(@Qualifier("commandResultWorker") ConsumptionPollingWorker w){return new CommandResultWorkerLifecycle(w);}
+	private static ConsumptionOrchestrator guarded(ConsumptionOrchestrator delegate) {
+		return new ConsumptionOwnerOrchestrator(delegate);
+}
+	@Bean ConsumptionTerminalParticipant commandResultTerminalParticipant(@Qualifier("commandResultLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
+			@Qualifier("commandResultProvenance") JpaConsumptionProvenanceAdapter provenance, @Qualifier("commandResultClock") Clock clock) {
+		return new ConsumptionTerminalParticipant(lifecycle, provenance, clock);
+	}
 }

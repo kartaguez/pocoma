@@ -28,6 +28,8 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionI
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 
 class AcquireConsumptionPreconditionTest {
 	private static final Instant NOW = Instant.parse("2026-09-14T08:00:00Z");
@@ -52,6 +54,23 @@ class AcquireConsumptionPreconditionTest {
 	}
 
 	private record StubPersistence(AtomicInteger calls) implements ConsumptionLifecyclePersistencePort {
+		@Override public void terminalize(UUID slotId, ClaimId claimId,
+				ConsumptionFinalization terminal, Instant now) {
+			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
+				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
+					throw new LostClaimException(slotId, claimId);
+			} else {
+				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
+				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
+						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
+					throw new LostClaimException(slotId, claimId);
+			}
+		}
+		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
+			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
+				throw new LostClaimException(slotId, claimId);
+		}
+
 		@Override public AcquireResult acquire(ConsumptionKey key, ClaimId claimId, WorkerId workerId,
 				ClaimLease lease, Instant now) {
 			calls.incrementAndGet();

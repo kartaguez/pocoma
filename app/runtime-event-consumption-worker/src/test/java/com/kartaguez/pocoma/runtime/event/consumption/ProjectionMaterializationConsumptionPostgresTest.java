@@ -82,6 +82,9 @@ import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
+import com.kartaguez.pocoma.domain.projection.TargetObjectId;
+import com.kartaguez.pocoma.domain.projection.TargetObjectType;
+import java.sql.Timestamp;
 
 @SpringBootTest(classes = ProjectionMaterializationConsumptionPostgresTest.TestApplication.class, properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",
@@ -180,7 +183,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	}
 
 	@Test
-	void expiredCurrentClaimMayFinalizeButTakeoverFencesTheOldClaimBeforeEnsure() {
+	void expiredCurrentClaimMayFinalizeAndStaleEnsureRollsBackAfterTakeover() {
 		insertEvent(uuid(3), uuid(103), 9, NOW, UNPARSEABLE_PAYLOAD);
 		ProjectionMaterializationCandidate candidate = candidate(READ_POT);
 		Claim expiring = acquired(acquire.acquire(input(candidate, "worker-a")));
@@ -200,7 +203,8 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		assertEquals(FencedMutationResult.LOST_CLAIM,
 				new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(counting))
 						.finalize(candidate, stale));
-		assertEquals(0, counting.calls.get());
+		assertEquals(1, counting.calls.get());
+		assertEquals(0, jdbc.queryForObject("select count(*) from projection_tasks", Integer.class));
 		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(winner.slotId()).orElseThrow().currentClaimId());
 		assertEquals(Optional.of(ClaimEndReason.TAKEN_OVER),
 				lifecycle.findClaim(stale.claimId()).orElseThrow().endReason());
@@ -332,7 +336,7 @@ class ProjectionMaterializationConsumptionPostgresTest {
 				  status, attempt_count, created_at
 				) values (?, ?, ?, 0, ?, ?, ?, 'PENDING', 0, ?)
 				""", eventId, POT_CREATED.value(), potId, potId, version, payload,
-				java.sql.Timestamp.from(createdAt));
+				Timestamp.from(createdAt));
 	}
 
 	private int count(String sql) {
@@ -346,8 +350,8 @@ class ProjectionMaterializationConsumptionPostgresTest {
 	private static ConsumptionKey key(UUID eventId, ProjectionType projectionType) {
 		return ProjectionMaterializationConsumptionKeys.consumptionKey(
 				new ProjectionMaterializationCandidate(eventId, POT_CREATED, projectionType,
-						new com.kartaguez.pocoma.domain.projection.TargetObjectType("POT"),
-						new com.kartaguez.pocoma.domain.projection.TargetObjectId(uuid(999).toString()), 1, NOW));
+						new TargetObjectType("POT"),
+						new TargetObjectId(uuid(999).toString()), 1, NOW));
 	}
 
 	private static ConsumptionOrchestrationInput orchestrationInput(

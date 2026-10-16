@@ -37,6 +37,8 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionClaimClosureException;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException;
 
 class SequentialConsumptionOrchestratorTest {
 	private static final Instant NOW = Instant.parse("2026-08-31T10:00:00Z");
@@ -86,6 +88,27 @@ class SequentialConsumptionOrchestratorTest {
 		assertInstanceOf(ConsumptionOrchestrationResult.Idle.class, orchestrator.run(input(3, 3)));
 		assertEquals(0, classifications.get());
 		assertEquals(0, failures.get());
+	}
+
+	@Test
+	void unconfirmedOrCommittedResolutionAndClosureAnomalyNeverReachTheBusinessClassifier() {
+		for (RuntimeException failure : List.of(
+				new ConsumptionTransactionResolutionException(
+					ConsumptionTransactionResolutionException.Outcome.UNKNOWN,
+					ConsumptionTransactionResolutionException.Phase.ROLLBACK,
+					new LostClaimException(claim().slotId(), claim().claimId())),
+				new ConsumptionTransactionResolutionException(
+					ConsumptionTransactionResolutionException.Outcome.COMMITTED,
+					ConsumptionTransactionResolutionException.Phase.COMMIT,
+					new IllegalStateException("observation")),
+				new ConsumptionClaimClosureException("close", claim().slotId(), claim().claimId(), 0, null))) {
+			var located = new LocatedConsumption(key(1), context -> success(), ignored -> { throw new AssertionError("must not classify resolution/closure"); });
+			var orchestrator = new SequentialConsumptionOrchestrator(() -> single(located),
+				ignored -> new AcquireResult.Acquired(claim()), ignored -> { throw failure; },
+				ignored -> { throw new AssertionError("must not finalize uncertain or committed work"); });
+			var result = assertInstanceOf(ConsumptionOrchestrationResult.RuntimeFailure.class, orchestrator.run(input(1,1)));
+			assertSame(failure, result.cause());
+		}
 	}
 
 	@Test

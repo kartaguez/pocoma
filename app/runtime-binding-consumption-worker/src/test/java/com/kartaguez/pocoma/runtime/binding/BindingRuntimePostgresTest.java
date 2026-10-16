@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -43,11 +42,43 @@ import com.kartaguez.pocoma.supra.consume.binding.BindingFactConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(classes=PocomaBindingConsumptionWorkerApplication.class, properties={
 		"pocoma.binding-consumption.enabled=false",
 		"spring.jpa.hibernate.ddl-auto=validate"})
 class BindingRuntimePostgresTest {
+	@Autowired
+	private ApplicationContext wp2Context;
+
+	@Test
+	void publicConsumptionEntrypointsRejectPhysicalAmbientTransaction() {
+		var manager = wp2Context.getBean(PlatformTransactionManager.class);
+		new TransactionTemplate(manager).execute(status -> {
+			var acquisitions = wp2Context.getBeansOfType(AcquireConsumptionUseCase.class);
+			Assertions.assertFalse(acquisitions.isEmpty());
+			acquisitions.values().forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.acquire(null)));
+			wp2Context.getBeansOfType(ExecuteConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.execute(null)));
+			wp2Context.getBeansOfType(FinalizeConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.finalizeConsumption(null)));
+			wp2Context.getBeansOfType(HandleConsumptionFailureUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.handle(null)));
+			wp2Context.getBeansOfType(ConsumptionOrchestrator.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.run(null)));
+			Assertions.assertFalse(status.isRollbackOnly());
+			return null;
+		});
+	}
+
 	private static final PostgreSQLContainer<?> POSTGRES=new PostgreSQLContainer<>("postgres:17-alpine")
 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
 	static{POSTGRES.start();}
@@ -103,7 +134,7 @@ class BindingRuntimePostgresTest {
 		insertUser(firstUser); insertUser(secondUser);
 		ExternalIdentity attached=id("baseline-attached"), detached=id("baseline-detached"),
 				sameUser=id("baseline-same-user"), otherUser=id("baseline-other-user");
-		for (ExternalIdentity e : java.util.List.of(attached,detached,sameUser,otherUser)) {
+		for (ExternalIdentity e : List.of(attached,detached,sameUser,otherUser)) {
 			insertStream(e,0); BindingId b=binding(Math.abs(e.subject().hashCode())+100);
 			reserve(e,firstUser,b,0); insertBaselineFact(e,firstUser,b);
 			jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),b.value());

@@ -66,6 +66,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.NotR
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",
@@ -189,7 +190,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		assertEquals(Optional.of(ClaimEndReason.TAKEN_OVER),
 				lifecycle.findClaim(first.claimId()).orElseThrow().endReason());
 		assertEquals(Optional.of(second.claimId()), lifecycle.findSlot(key).orElseThrow().currentClaimId());
-		assertFalse(inTransaction(() -> lifecycle.tryTerminalize(
+		assertThrows(LostClaimException.class, () -> inTransaction(() -> lifecycle.tryTerminalize(
 				first.slotId(), first.claimId(), TerminalOutcome.SUCCESS,
 				Optional.empty(), NOW.plusSeconds(31))));
 		assertTrue(inTransaction(() -> lifecycle.tryTerminalize(
@@ -261,7 +262,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		Claim stale = acquired(inTransaction(() -> acquire(key, "old", NOW)));
 		Claim winner = acquired(inTransaction(() -> acquire(key, "new", NOW.plusSeconds(30))));
 
-		assertEquals(FencedMutationResult.LOST_CLAIM, inTransaction(() -> lifecycle.handleFailure(
+		assertThrows(LostClaimException.class, () -> inTransaction(() -> lifecycle.handleFailure(
 				stale.slotId(), stale.claimId(), failure("late"), new Fail(), NOW.plusSeconds(31))));
 		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(key).orElseThrow().currentClaimId());
 		assertTrue(lifecycle.findClaim(winner.claimId()).orElseThrow().isOpen());

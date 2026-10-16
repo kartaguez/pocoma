@@ -82,6 +82,20 @@ import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.domain.projection.ArtifactKey;
+import com.kartaguez.pocoma.domain.projection.ProjectionArtifact;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(properties = {
 		"pocoma.projection-task-consumption.enabled=true",
@@ -92,6 +106,29 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWork
 })
 @Testcontainers
 class CanonicalProjectionTaskRuntimePostgresTest {
+	@Autowired
+	private ApplicationContext wp2Context;
+
+	@Test
+	void publicConsumptionEntrypointsRejectPhysicalAmbientTransaction() {
+		var manager = wp2Context.getBean(PlatformTransactionManager.class);
+		new TransactionTemplate(manager).execute(status -> {
+			var acquisitions = wp2Context.getBeansOfType(AcquireConsumptionUseCase.class);
+			Assertions.assertFalse(acquisitions.isEmpty());
+			acquisitions.values().forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.acquire(null)));
+			wp2Context.getBeansOfType(ExecuteConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.execute(null)));
+			wp2Context.getBeansOfType(FinalizeConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.finalizeConsumption(null)));
+			wp2Context.getBeansOfType(HandleConsumptionFailureUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.handle(null)));
+			wp2Context.getBeansOfType(ConsumptionOrchestrator.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.run(null)));
+			Assertions.assertFalse(status.isRollbackOnly());
+			return null;
+		});
+	}
+
 	@Container
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
@@ -133,7 +170,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	void activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph() {
 		assertEquals(1, context.getBeansOfType(CanonicalProjectionTaskRuntimeConfiguration.class).size());
 		assertFalse(Arrays.stream(context.getBeanDefinitionNames()).map(context::getType)
-				.filter(java.util.Objects::nonNull).map(Class::getName)
+				.filter(Objects::nonNull).map(Class::getName)
 				.anyMatch(name -> name.contains(".taskexecution.")
 						|| name.contains(".locator.consumption.task.")
 						|| name.endsWith("TaskConsumptionRuntimeConfiguration")));
@@ -141,7 +178,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals(1, context.getBeansOfType(ProjectionTaskWorkerLifecycle.class).size());
 
 		ConsumptionOrchestrator activeOrchestrator = context.getBean(ConsumptionOrchestrator.class);
-		assertInstanceOf(ProjectionTaskConsumptionOrchestrator.class, activeOrchestrator);
+		assertInstanceOf(ProjectionTaskConsumptionOrchestrator.class, assertInstanceOf(ConsumptionOwnerOrchestrator.class, activeOrchestrator).delegate());
 		assertInstanceOf(ProjectionEngineService.class, context.getBean(ExecuteProjectionTaskUseCase.class));
 		assertEquals(Set.of(AuthProjectionDefinition.PROJECTION_TYPE, ReadPotProjectionDefinition.PROJECTION_TYPE,
 				PotBalancesProjectionDefinition.PROJECTION_TYPE),
@@ -192,7 +229,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals(Set.of(data.firstShareholderId().toString(), data.secondShareholderId().toString()),
 				beforeArtifacts.stream()
 						.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
-						.map(artifact -> artifact.artifactKey().value()).collect(java.util.stream.Collectors.toSet()));
+						.map(artifact -> artifact.artifactKey().value()).collect(Collectors.toSet()));
 		assertTrue(beforeArtifacts.stream()
 				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
 				.allMatch(artifact -> ((JsonObject) artifact.payload()).values().get("userId")
@@ -250,12 +287,12 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 
 		var projection = reader.findProjection(key).orElseThrow();
 		assertEquals(2, projection.artifacts().size());
-		var valuesByShareholder = projection.artifacts().stream().collect(java.util.stream.Collectors.toMap(
+		var valuesByShareholder = projection.artifacts().stream().collect(Collectors.toMap(
 				artifact -> artifact.artifactKey().value(),
 				artifact -> (JsonObject) ((JsonObject) artifact.payload()).values().get("balance")));
-		assertEquals(new JsonNumber(java.math.BigDecimal.TEN),
+		assertEquals(new JsonNumber(BigDecimal.TEN),
 				valuesByShareholder.get(data.payerId().toString()).values().get("numerator"));
-		assertEquals(new JsonNumber(java.math.BigDecimal.valueOf(-10)),
+		assertEquals(new JsonNumber(BigDecimal.valueOf(-10)),
 				valuesByShareholder.get(data.shareholderId().toString()).values().get("numerator"));
 		assertCanonicalConsumptionSucceeded();
 	}
@@ -298,14 +335,14 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		assertEquals("Group trip", pot.name().value());
 		assertEquals(Set.of(data.payerId(), data.shareholderId(), data.otherShareholderId()),
 				pot.shareholders().stream().map(view -> view.shareholderId().value())
-						.collect(java.util.stream.Collectors.toSet()));
+						.collect(Collectors.toSet()));
 		assertEquals(Set.of(data.firstExpenseId(), data.secondExpenseId()),
-				pot.expenses().stream().map(view -> view.expenseId().value()).collect(java.util.stream.Collectors.toSet()));
+				pot.expenses().stream().map(view -> view.expenseId().value()).collect(Collectors.toSet()));
 		assertEquals(Set.of(data.payerId(), data.otherShareholderId()),
-				pot.expenses().stream().map(view -> view.payerShareholderId().value()).collect(java.util.stream.Collectors.toSet()));
+				pot.expenses().stream().map(view -> view.payerShareholderId().value()).collect(Collectors.toSet()));
 		assertEquals(Set.of(data.payerId(), data.shareholderId(), data.otherShareholderId()),
 				pot.expenses().stream().flatMap(expense -> expense.shares().stream())
-						.map(share -> share.shareholderId().value()).collect(java.util.stream.Collectors.toSet()));
+						.map(share -> share.shareholderId().value()).collect(Collectors.toSet()));
 		assertEquals(1, count("select count(*) from pocoma_read.projection_root where projection_type='READ_POT' "
 				+ "and target_object_type='POT' and target_object_id='" + data.potId() + "' and target_version=2"));
 	}
@@ -315,7 +352,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		ProjectionKey key = readPotKey(UUID.randomUUID(), 17);
 		var claim = assertInstanceOf(AcquireResult.Acquired.class,
 				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
-						new WorkerId("canonical-failure-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						new WorkerId("canonical-failure-test"), new ClaimLease(Duration.ofSeconds(30)),
 						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
 				.claim();
 		Instant failedAt = Instant.parse("2026-09-20T10:00:00Z");
@@ -362,7 +399,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		ProjectionKey key = key();
 		var claim = assertInstanceOf(AcquireResult.Acquired.class,
 				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
-						new WorkerId("canonical-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						new WorkerId("canonical-test"), new ClaimLease(Duration.ofSeconds(30)),
 						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
 				.claim();
 		var validated = validator.validate(PotBalancesProjectionDefinition.DEFINITION,
@@ -382,7 +419,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		ProjectionKey key = key();
 		var claim = assertInstanceOf(AcquireResult.Acquired.class,
 				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
-						new WorkerId("canonical-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						new WorkerId("canonical-test"), new ClaimLease(Duration.ofSeconds(30)),
 						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
 				.claim();
 		var validated = validator.validate(PotBalancesProjectionDefinition.DEFINITION,
@@ -404,7 +441,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		ProjectionKey key = key();
 		var claim = assertInstanceOf(AcquireResult.Acquired.class,
 				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
-						new WorkerId("canonical-test"), new ClaimLease(java.time.Duration.ofSeconds(30)),
+						new WorkerId("canonical-test"), new ClaimLease(Duration.ofSeconds(30)),
 						ConsumptionAcquisitionPrecondition.alwaysSatisfied())))
 				.claim();
 		Instant failedAt = Instant.parse("2026-09-20T10:00:00.123456789Z");
@@ -420,6 +457,44 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 				+ "and terminal_outcome='FAILED'"));
 		assertEquals(1, count("select count(*) from consumption_claims "
 				+ "where end_reason='PROCESSING_FAILURE'"));
+	}
+
+	@Test
+	void staleProjectionPublishAndFailureRollBackTheirRealSql() {
+		for (boolean failure : List.of(false, true)) {
+			ProjectionKey key = key();
+			var claim = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
+					new WorkerId("stale-projection"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+			// Controlled expiry followed by the real Acquire/Takeover protocol.
+			jdbc.update("update consumption_claims set lease_until=claimed_at + interval '1 microsecond' where claim_id=?", claim.claimId().value());
+			var winner = assertInstanceOf(AcquireResult.Acquired.class,
+				acquire.acquire(new AcquireConsumptionInput(ProjectionTaskKeys.consumptionKey(key),
+					new WorkerId("winner-projection"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+			var artifact = new ProjectionArtifact(PotBalancesProjectionDefinition.BALANCE,
+				new ArtifactKey(UUID.randomUUID().toString()),
+				new JsonObject(Map.of(
+					"shareholderId", new JsonString(UUID.randomUUID().toString()),
+					"balance", new JsonObject(Map.of(
+						"numerator", new JsonNumber(BigDecimal.ZERO),
+						"denominator", new JsonNumber(BigDecimal.ONE))))));
+			var validated = validator.validate(PotBalancesProjectionDefinition.DEFINITION, new Projection(key, List.of(artifact)));
+			var processingFailure = new ProcessingFailure(new ProcessingFailureCode("STALE_PROJECTION"), "projection", "stale", Instant.now());
+			var invoked = new AtomicBoolean();
+			assertEquals(FencedMutationResult.LOST_CLAIM,
+				finalizer.finalizeConsumption(new FinalizeConsumptionInput(claim.slotId(), claim.claimId(),
+					failure ? new TerminalFailure(processingFailure) : new Success(), () -> {
+						invoked.set(true);
+						if (failure) writer.recordFailure(new ProjectionFailure(ProjectionFailureId.random(), key, Instant.now()));
+						else writer.publish(validated);
+					})));
+			assertTrue(invoked.get());
+			assertFalse(reader.findProjection(key).isPresent());
+			assertFalse(reader.hasFailure(key));
+			assertEquals(0, count("select count(*) from pocoma_read.projection_artifact"));
+			assertEquals(winner.claimId().value(), jdbc.queryForObject("select current_claim_id from consumption_slots where slot_id=?", UUID.class, claim.slotId()));
+			assertEquals(0, count("select count(*) from consumption_claims where ended_at is not null"));
+		}
 	}
 
 	private ProjectionKey key() {
@@ -455,7 +530,7 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 	private Map<String, String> projectedAuthRelations(ProjectionKey key) {
 		return reader.findProjection(key).orElseThrow().artifacts().stream()
 				.filter(artifact -> artifact.artifactType().equals(AuthProjectionDefinition.SHAREHOLDER_USER))
-				.collect(java.util.stream.Collectors.toMap(
+				.collect(Collectors.toMap(
 						artifact -> artifact.artifactKey().value(),
 						artifact -> ((JsonString) ((JsonObject) artifact.payload()).values().get("userId")).value()));
 	}
@@ -483,8 +558,8 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		UUID expenseId = UUID.randomUUID();
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 2)", potId);
 		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values (?, 1, ?), (?, 2, ?)",
-				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
+				potId, Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
 				+ "values (?, ?, 1, null, 'Trip', ?, false)", UUID.randomUUID(), potId, UUID.randomUUID());
 		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
@@ -514,8 +589,8 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		UUID secondExpenseId = UUID.randomUUID();
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 2)", potId);
 		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values (?, 1, ?), (?, 2, ?)",
-				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
+				potId, Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")));
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
 				+ "values (?, ?, 1, null, 'Group trip', ?, false)", UUID.randomUUID(), potId, creatorUserId);
 		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "
@@ -556,9 +631,9 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 3)", potId);
 		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values "
 				+ "(?, 1, ?), (?, 2, ?), (?, 3, ?)",
-				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
+				potId, Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
 				+ "values (?, ?, 1, 3, 'Trip', ?, false), (?, ?, 3, null, 'Trip', ?, true)",
 				UUID.randomUUID(), potId, creatorUserId, UUID.randomUUID(), potId, creatorUserId);
@@ -586,9 +661,9 @@ class CanonicalProjectionTaskRuntimePostgresTest {
 		jdbc.update("insert into pot_global_versions(pot_id, version) values (?, 3)", potId);
 		jdbc.update("insert into pot_version_metadata(pot_id, version, created_at) values "
 				+ "(?, 1, ?), (?, 2, ?), (?, 3, ?)",
-				potId, java.sql.Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
-				potId, java.sql.Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
+				potId, Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-02-02T10:00:00Z")),
+				potId, Timestamp.from(Instant.parse("2026-03-03T10:00:00Z")));
 		jdbc.update("insert into pot_headers(id, pot_id, started_at_version, ended_at_version, label, creator_id, deleted) "
 				+ "values (?, ?, 1, null, 'Trip', ?, false)", UUID.randomUUID(), potId, creatorUserId);
 		jdbc.update("insert into shareholders(id, shareholder_id, pot_id, started_at_version, ended_at_version, "

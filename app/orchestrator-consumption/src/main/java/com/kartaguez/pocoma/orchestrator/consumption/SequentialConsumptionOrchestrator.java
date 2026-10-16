@@ -20,6 +20,10 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionBudgetLimi
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationCounters;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionClaimClosureException;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException;
+import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionQueryPort;
+import com.kartaguez.pocoma.engine.service.consumption.ConsumptionOwnership;
 
 /** Sequential pull orchestration. It never owns a transaction or acquires work ahead of execution. */
 public final class SequentialConsumptionOrchestrator implements ConsumptionOrchestrator {
@@ -27,9 +31,17 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 	private final AcquireConsumptionUseCase acquire;
 	private final ExecuteConsumptionUseCase execute;
 	private final HandleConsumptionFailureUseCase handleFailure;
+	private final ConsumptionQueryPort query;
 
 	public SequentialConsumptionOrchestrator(ConsumptionLocator locator, AcquireConsumptionUseCase acquire,
 			ExecuteConsumptionUseCase execute, HandleConsumptionFailureUseCase handleFailure) {
+		this(locator, acquire, execute, handleFailure, null);
+	}
+
+	public SequentialConsumptionOrchestrator(ConsumptionLocator locator, AcquireConsumptionUseCase acquire,
+			ExecuteConsumptionUseCase execute, HandleConsumptionFailureUseCase handleFailure,
+			ConsumptionQueryPort query) {
+		this.query = query;
 		this.locator = requireNonNull(locator, "locator must not be null");
 		this.acquire = requireNonNull(acquire, "acquire must not be null");
 		this.execute = requireNonNull(execute, "execute must not be null");
@@ -122,6 +134,14 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 		}
 		catch (RuntimeException executionFailure) {
 			try {
+				if (executionFailure instanceof ConsumptionClaimClosureException) return executionFailure;
+				if (executionFailure instanceof ConsumptionTransactionResolutionException resolution) {
+					if (resolution.outcome() != ConsumptionTransactionResolutionException.Outcome.ROLLED_BACK || query == null)
+						return resolution;
+					if (ConsumptionOwnership.noLongerCurrent(query, claim.slotId(), claim.claimId())) return null;
+					if (!(resolution.getCause() instanceof RuntimeException original)) return resolution;
+					executionFailure = original;
+				} else if (ConsumptionOwnership.lostAfterSqlRollback(query, claim.slotId(), claim.claimId(), executionFailure)) return null;
 				var processingFailure = requireNonNull(
 						located.failureClassifier().classify(executionFailure), "classifier returned null");
 				handleFailure.handle(new HandleConsumptionFailureInput(
@@ -129,6 +149,10 @@ public final class SequentialConsumptionOrchestrator implements ConsumptionOrche
 				return null;
 			}
 			catch (RuntimeException infrastructureFailure) {
+				if (infrastructureFailure instanceof LostClaimException) return null;
+				try {
+					if (ConsumptionOwnership.lostAfterSqlRollback(query, claim.slotId(), claim.claimId(), infrastructureFailure)) return null;
+				} catch (RuntimeException lookupFailure) { lookupFailure.addSuppressed(infrastructureFailure); return lookupFailure; }
 				return infrastructureFailure;
 			}
 		}

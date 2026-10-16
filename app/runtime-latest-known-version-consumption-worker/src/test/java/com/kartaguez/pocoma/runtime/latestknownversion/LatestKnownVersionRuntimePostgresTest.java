@@ -57,12 +57,39 @@ import com.kartaguez.pocoma.orchestrator.consumption.locator.ConsumptionSearch;
 import com.kartaguez.pocoma.orchestrator.consumption.locator.LocatedConsumption;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(properties = {
 		"pocoma.latest-known-version-consumption.enabled=false",
 		"spring.jpa.hibernate.ddl-auto=validate"
 })
 class LatestKnownVersionRuntimePostgresTest {
+	@Autowired
+	private ApplicationContext wp2Context;
+
+	@Test
+	void publicConsumptionEntrypointsRejectPhysicalAmbientTransaction() {
+		var manager = wp2Context.getBean(PlatformTransactionManager.class);
+		new TransactionTemplate(manager).execute(status -> {
+			var acquisitions = wp2Context.getBeansOfType(AcquireConsumptionUseCase.class);
+			Assertions.assertFalse(acquisitions.isEmpty());
+			acquisitions.values().forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.acquire(null)));
+			wp2Context.getBeansOfType(ExecuteConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.execute(null)));
+			wp2Context.getBeansOfType(FinalizeConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.finalizeConsumption(null)));
+			wp2Context.getBeansOfType(HandleConsumptionFailureUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.handle(null)));
+			wp2Context.getBeansOfType(ConsumptionOrchestrator.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.run(null)));
+			Assertions.assertFalse(status.isRollbackOnly());
+			return null;
+		});
+	}
+
 	private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17-alpine")
 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
 	static { POSTGRES.start(); }
@@ -230,7 +257,7 @@ class LatestKnownVersionRuntimePostgresTest {
 		UUID eventId = events.findAll().getFirst().id();
 		var acquired = (AcquireResult.Acquired) acquire.acquire(new AcquireConsumptionInput(
 				LatestKnownVersionConsumptionLocator.key(eventId), new WorkerId("rollback-worker"),
-				new ClaimLease(java.time.Duration.ofSeconds(30))));
+				new ClaimLease(Duration.ofSeconds(30))));
 
 		assertThrows(ExpectedFailure.class, () -> execute.execute(new ExecuteConsumptionInput(
 				acquired.claim().slotId(), acquired.claim().claimId(), context -> {
@@ -302,7 +329,7 @@ class LatestKnownVersionRuntimePostgresTest {
 
 	private static ConsumptionOrchestrationInput input() {
 		return new ConsumptionOrchestrationInput(new WorkerId("latest-known-version-worker"),
-				new ClaimLease(java.time.Duration.ofSeconds(30)), new ConsumptionOrchestrationBudget(20, 10));
+				new ClaimLease(Duration.ofSeconds(30)), new ConsumptionOrchestrationBudget(20, 10));
 	}
 
 	private static ConsumptionLocator oneShot(LocatedConsumption located) {

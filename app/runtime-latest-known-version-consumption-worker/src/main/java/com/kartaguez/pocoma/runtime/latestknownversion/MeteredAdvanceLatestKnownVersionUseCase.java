@@ -63,7 +63,11 @@ final class MeteredAdvanceLatestKnownVersionUseCase implements AdvanceLatestKnow
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 			@Override
 			public void afterCommit() {
-				action.run();
+				try { action.run(); }
+				catch (RuntimeException observationFailure) {
+					try { LOGGER.warn("Committed LKV observation failed", observationFailure); }
+					catch (RuntimeException ignored) { /* Best effort observation only. */ }
+				}
 			}
 		});
 	}

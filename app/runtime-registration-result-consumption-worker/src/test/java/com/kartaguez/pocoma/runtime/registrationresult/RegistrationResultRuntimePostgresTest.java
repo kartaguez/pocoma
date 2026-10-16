@@ -29,7 +29,6 @@ import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptio
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
-import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.read.registrationresult.PublishedRegistrationResult;
 import com.kartaguez.pocoma.engine.consume.registration.ExecuteRegistrationService;
 import com.kartaguez.pocoma.engine.consume.registration.UserCreatedFactPort;
@@ -39,10 +38,40 @@ import com.kartaguez.pocoma.engine.read.registrationresult.*;
 import com.kartaguez.pocoma.supra.consume.registrationresult.RegistrationResultConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.*;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(classes = PocomaRegistrationResultConsumptionWorkerApplication.class, properties = {
         "pocoma.registration-result-consumption.enabled=false", "spring.jpa.hibernate.ddl-auto=validate"})
 class RegistrationResultRuntimePostgresTest {
+	@Autowired
+	private ApplicationContext wp2Context;
+
+	@Test
+	void publicConsumptionEntrypointsRejectPhysicalAmbientTransaction() {
+		var manager = wp2Context.getBean(PlatformTransactionManager.class);
+		new TransactionTemplate(manager).execute(status -> {
+			var acquisitions = wp2Context.getBeansOfType(AcquireConsumptionUseCase.class);
+			Assertions.assertFalse(acquisitions.isEmpty());
+			acquisitions.values().forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.acquire(null)));
+			wp2Context.getBeansOfType(ExecuteConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.execute(null)));
+			wp2Context.getBeansOfType(FinalizeConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.finalizeConsumption(null)));
+			wp2Context.getBeansOfType(HandleConsumptionFailureUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.handle(null)));
+			wp2Context.getBeansOfType(ConsumptionOrchestrator.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.run(null)));
+			Assertions.assertFalse(status.isRollbackOnly());
+			return null;
+		});
+	}
+
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17-alpine")
             .withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
     static { POSTGRES.start(); }
@@ -53,7 +82,7 @@ class RegistrationResultRuntimePostgresTest {
     }
 
     @Autowired JdbcTemplate jdbc;
-    @Autowired TransactionRunner tx;
+	@Autowired @Qualifier("registrationResultTransactionRunner") TransactionRunner tx;
     @Autowired JdbcRegistrationRequestStore requests;
     @Autowired JdbcRegistrationOutcomeStore outcomes;
     @Autowired RegistrationResultStore results;

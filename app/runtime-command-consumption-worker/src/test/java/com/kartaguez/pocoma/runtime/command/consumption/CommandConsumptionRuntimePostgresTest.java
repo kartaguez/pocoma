@@ -39,7 +39,6 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.contracts.command.CommandId;
 import com.kartaguez.pocoma.contracts.command.CommandType;
-import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.contracts.command.TargetCommandEnvelope;
 import com.kartaguez.pocoma.contracts.command.CommandAuthenticationEvidence;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
@@ -52,6 +51,35 @@ import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapter;
 import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeys;
+import com.kartaguez.pocoma.domain.authorization.Permission;
+import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
+import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
+import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
+import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.AcquireConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.ExecuteConsumptionUseCase;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
+import com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionService;
+import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=true",
@@ -189,6 +217,93 @@ class CommandConsumptionRuntimePostgresTest {
 		assertEquals(secondDate, expenseDate(expenseId, 4));
 	}
 
+	@Autowired PlatformTransactionManager transactionManager;
+	@Autowired @Qualifier("commandConsumptionAcquire") AcquireConsumptionUseCase publicAcquire;
+	@Autowired @Qualifier("commandConsumptionExecute") ExecuteConsumptionUseCase publicExecute;
+	@Autowired @Qualifier("commandConsumptionHandleFailure") HandleConsumptionFailureUseCase publicFailure;
+	@Autowired @Qualifier("commandConsumptionOrchestrator") ConsumptionOrchestrator publicOrchestrator;
+	@Autowired @Qualifier("commandConsumptionTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant;
+
+	@Test
+	void publicOwnersRejectAmbientTransactionsBeforeTheirDelegates() {
+		new TransactionTemplate(transactionManager).execute(status -> {
+			Assertions.assertThrows(IllegalStateException.class, () -> publicAcquire.acquire(null));
+			Assertions.assertThrows(IllegalStateException.class, () -> publicExecute.execute(null));
+			Assertions.assertThrows(IllegalStateException.class, () -> publicFailure.handle(null));
+			Assertions.assertThrows(IllegalStateException.class, () -> publicOrchestrator.run(null));
+			var publicFinalize = new TransactionalFinalizeConsumptionUseCase(terminalParticipant.finalizer(), transactions);
+			Assertions.assertThrows(IllegalStateException.class, () -> publicFinalize.finalizeConsumption(null));
+			assertTrue(!status.isRollbackOnly());
+			return null;
+		});
+	}
+
+	@Test
+	void requiredParticipantSharesXidAndLossEscapesUntilPhysicalRollback() {
+		jdbc.execute("create table if not exists wp2_owner_effects(id uuid primary key, xid bigint not null)");
+		var key = new ConsumptionKey(
+			new ConsumableIdentity("WP2_TEST", List.of(UUID.randomUUID().toString())),
+			new ConsumerIdentity("WP2_TEST", List.of("owner")));
+		Instant now = Instant.now();
+		var old = Assertions.assertInstanceOf(AcquireResult.Acquired.class,
+			transactions.runInTransaction(() -> lifecycle.acquire(key, new ClaimId(UUID.randomUUID()),
+				new WorkerId("old"), new ClaimLease(Duration.ofSeconds(30)), now))).claim();
+		var winner = Assertions.assertInstanceOf(AcquireResult.Acquired.class,
+			transactions.runInTransaction(() -> lifecycle.acquire(key, new ClaimId(UUID.randomUUID()),
+				new WorkerId("winner"), new ClaimLease(Duration.ofSeconds(30)), now.plusSeconds(30)))).claim();
+		UUID effect = UUID.randomUUID();
+		var participant = new ExecuteConsumptionService(terminalParticipant.finalizer());
+		Assertions.assertThrows(LostClaimException.class,
+			() -> transactions.runInTransaction(() -> {
+				long xid = jdbc.queryForObject("select txid_current()", Long.class);
+				return participant.execute(new ExecuteConsumptionInput(old.slotId(), old.claimId(), context -> {
+					new TransactionTemplate(transactionManager).execute(status -> {
+						assertEquals(xid, jdbc.queryForObject("select txid_current()", Long.class));
+						jdbc.update("insert into wp2_owner_effects values (?,?)", effect, xid);
+						return null;
+					});
+					return new ConsumptionExecutionResult(
+						new BusinessConsumptionOutcome.Success(), List.of(), List.of());
+				}));
+			}));
+		assertEquals(0, jdbc.queryForObject("select count(*) from wp2_owner_effects where id=?", Integer.class, effect));
+		assertEquals(winner.claimId(), lifecycle.findSlot(old.slotId()).orElseThrow().currentClaimId().orElseThrow());
+	}
+
+	@Test
+	void postCommitObservationFailureIsReportedAsCommittedAndCannotBecomeBusinessFailure() {
+		jdbc.execute("create table if not exists wp2_resolution_effects(id uuid primary key)");
+		UUID id = UUID.randomUUID();
+		var failure = Assertions.assertThrows(
+			ConsumptionTransactionResolutionException.class,
+			() -> transactions.runInTransaction(() -> {
+				jdbc.update("insert into wp2_resolution_effects values (?)", id);
+				TransactionSynchronizationManager.registerSynchronization(
+					new TransactionSynchronization() {
+						@Override public void afterCommit() { throw new IllegalStateException("observer failed after commit"); }
+					});
+			}));
+		assertEquals(ConsumptionTransactionResolutionException.Outcome.COMMITTED, failure.outcome());
+		assertEquals(1, jdbc.queryForObject("select count(*) from wp2_resolution_effects where id=?", Integer.class, id));
+	}
+
+	@Test
+	void ownerNeverReturnsAppliedWhenDeferredConstraintRejectsItsCommit() {
+		jdbc.execute("create table if not exists wp2_resolution_effects(id uuid primary key)");
+		jdbc.execute("create table if not exists wp2_resolution_guard(id uuid primary key, parent uuid references wp2_resolution_effects(id) deferrable initially deferred)");
+		UUID id = UUID.randomUUID();
+		var failure = Assertions.assertThrows(
+			ConsumptionTransactionResolutionException.class,
+			() -> transactions.runInTransaction(() -> {
+				jdbc.update("insert into wp2_resolution_effects values (?)", id);
+				jdbc.update("insert into wp2_resolution_guard values (?,?)", id, UUID.randomUUID());
+				return FencedMutationResult.APPLIED;
+			}));
+		assertTrue(failure.outcome() != ConsumptionTransactionResolutionException.Outcome.COMMITTED);
+		assertEquals(0, jdbc.queryForObject("select count(*) from wp2_resolution_effects where id=?", Integer.class, id));
+		assertEquals(0, jdbc.queryForObject("select count(*) from wp2_resolution_guard where id=?", Integer.class, id));
+	}
+
 	private void awaitSuccessful(RecordedCommand command) {
 		transactions.runInTransaction(() -> commands.insert(command));
 		ConsumptionSlot slot = awaitTerminal(command.commandId());
@@ -209,13 +324,13 @@ class CommandConsumptionRuntimePostgresTest {
 	}
 
 	private RecordedCommand command(CommandType type, String payload, UUID userId,
-			Set<com.kartaguez.pocoma.domain.authorization.Permission> permissions, Instant validUntil) {
+			Set<Permission> permissions, Instant validUntil) {
 		ExternalIdentity identity = new ExternalIdentity("runtime-test", "subject-" + UUID.randomUUID());
 		BindingId binding = createBinding(identity, userId);
 		Set<String> authorities = permissions.stream()
-				.map(permission -> "pocoma:" + permission.objectType().toLowerCase(java.util.Locale.ROOT)
-						+ ":" + permission.action().toLowerCase(java.util.Locale.ROOT))
-				.collect(java.util.stream.Collectors.toUnmodifiableSet());
+				.map(permission -> "pocoma:" + permission.objectType().toLowerCase(Locale.ROOT)
+						+ ":" + permission.action().toLowerCase(Locale.ROOT))
+				.collect(Collectors.toUnmodifiableSet());
 		return new RecordedCommand(new CommandId(UUID.randomUUID()), type, payload, Instant.now(),
 				new TargetCommandEnvelope(identity, binding,
 						new CommandAuthenticationEvidence(authorities, validUntil)));

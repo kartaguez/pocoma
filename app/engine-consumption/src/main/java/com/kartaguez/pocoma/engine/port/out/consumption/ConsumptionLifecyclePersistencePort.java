@@ -14,12 +14,18 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 
 /** Atomic persistence boundary fenced exclusively by the current slot and ClaimId. */
 public interface ConsumptionLifecyclePersistencePort {
 
 	AcquireResult acquire(
 			ConsumptionKey key, ClaimId claimId, WorkerId workerId, ClaimLease lease, Instant now);
+
+	void terminalize(UUID slotId, ClaimId claimId,
+			ConsumptionFinalization finalization, Instant now);
+
+	void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now);
 
 	/** Locks the Slot and confirms that the supplied Claim still owns it. */
 	boolean lockCurrentClaim(UUID slotId, ClaimId claimId);

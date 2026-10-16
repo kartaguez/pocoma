@@ -48,6 +48,7 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSetti
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
 
 @Configuration
 @EnableConfigurationProperties(LatestKnownVersionConsumptionProperties.class)
@@ -61,7 +62,7 @@ public class LatestKnownVersionRuntimeConfiguration {
 
 	@Bean
 	TransactionRunner consumptionTransactionRunner(PlatformTransactionManager manager) {
-		return new SpringTransactionRunner(new TransactionTemplate(manager));
+		return new LatestKnownVersionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));
 	}
 
 	@Bean
@@ -85,17 +86,17 @@ public class LatestKnownVersionRuntimeConfiguration {
 	@Bean
 	ExecuteConsumptionUseCase executeConsumptionUseCase(JpaConsumptionLifecycleAdapter lifecycle,
 			JpaConsumptionProvenanceAdapter provenance,
-			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock) {
+			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock, @Qualifier("latestKnownVersionTerminalParticipant") TerminalParticipant terminalParticipant) {
 		return new TransactionalExecuteConsumptionUseCase(
-				new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
+				new ExecuteConsumptionService(terminalParticipant.finalizer()), transactions);
 	}
 
 	@Bean
 	HandleConsumptionFailureUseCase handleConsumptionFailureUseCase(JpaConsumptionLifecycleAdapter lifecycle,
-			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock) {
+			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions, Clock clock, @Qualifier("latestKnownVersionTerminalParticipant") TerminalParticipant terminalParticipant) {
 		return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(lifecycle, lifecycle,
-						new LatestKnownVersionFailurePolicy(), clock), transactions);
+						new LatestKnownVersionFailurePolicy(), clock, terminalParticipant.finalizer()), transactions);
 	}
 
 	@Bean
@@ -117,8 +118,8 @@ public class LatestKnownVersionRuntimeConfiguration {
 	@Bean
 	ConsumptionOrchestrator consumptionOrchestrator(LatestKnownVersionConsumptionLocator locator,
 			AcquireConsumptionUseCase acquire, ExecuteConsumptionUseCase execute,
-			HandleConsumptionFailureUseCase handleFailure) {
-		return new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure);
+			HandleConsumptionFailureUseCase handleFailure, JpaConsumptionLifecycleAdapter ownership) {
+		return guarded(new SequentialConsumptionOrchestrator(locator, acquire, execute, handleFailure, ownership));
 	}
 
 	@Bean
@@ -135,5 +136,20 @@ public class LatestKnownVersionRuntimeConfiguration {
 	@Bean
 	SmartLifecycle latestKnownVersionWorkerLifecycle(ConsumptionPollingWorker worker) {
 		return new LatestKnownVersionWorkerLifecycle(worker);
+	}
+	private static ConsumptionOrchestrator guarded(ConsumptionOrchestrator delegate) {
+		return input -> {
+			LatestKnownVersionOwnerTransactionRunner.requireNoAmbientTransaction();
+			return delegate.run(input);
+		};
+}
+	@Bean TerminalParticipant latestKnownVersionTerminalParticipant(JpaConsumptionLifecycleAdapter lifecycle,
+			JpaConsumptionProvenanceAdapter provenance, Clock clock) {
+		return new TerminalParticipant(lifecycle, provenance, clock);
+	}
+	private record TerminalParticipant(FinalizeConsumptionService finalizer) {
+		TerminalParticipant(JpaConsumptionLifecycleAdapter lifecycle, JpaConsumptionProvenanceAdapter provenance, Clock clock) {
+			this(new FinalizeConsumptionService(lifecycle, provenance, clock));
+		}
 	}
 }

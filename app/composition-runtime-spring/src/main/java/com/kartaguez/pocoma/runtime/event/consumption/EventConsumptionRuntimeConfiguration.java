@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -48,6 +46,8 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSettings;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
 
 @EnableConfigurationProperties(EventConsumptionProperties.class)
 @Import(PocomaObjectMapperConfiguration.class)
@@ -58,7 +58,7 @@ public class EventConsumptionRuntimeConfiguration {
 
 	@Bean
 	TransactionRunner consumptionTransactionRunner(PlatformTransactionManager manager) {
-		return new SpringTransactionRunner(new TransactionTemplate(manager));
+		return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));
 	}
 
 	@Bean
@@ -87,7 +87,7 @@ public class EventConsumptionRuntimeConfiguration {
 			@Qualifier("consumptionTransactionRunner") TransactionRunner transactions,
 			@Qualifier("eventConsumptionClock") Clock clock) {
 		return new TransactionalFinalizeConsumptionUseCase(
-				new FinalizeConsumptionService(lifecycle, clock), transactions);
+				new FinalizeConsumptionService(lifecycle, clock), transactions, lifecycle);
 	}
 
 	@Bean
@@ -121,8 +121,9 @@ public class EventConsumptionRuntimeConfiguration {
 	ConsumptionOrchestrator consumptionOrchestrator(ProjectionMaterializationConsumptionSource source,
 			@Qualifier("acquireConsumptionUseCase") AcquireConsumptionUseCase acquire,
 			ProjectionMaterializationConsumptionService finalizeConsumption) {
-		return new AcquireThenFinalizeConsumptionOrchestrator<>(source,
+		var delegate = new AcquireThenFinalizeConsumptionOrchestrator<>(source,
 				ProjectionMaterializationConsumptionKeys::consumptionKey, acquire, finalizeConsumption);
+		return new ConsumptionOwnerOrchestrator(delegate);
 	}
 
 	@Bean

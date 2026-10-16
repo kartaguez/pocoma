@@ -16,6 +16,10 @@ import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVer
 import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionUpdate;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Meter;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.Mockito;
 
 class MeteredAdvanceLatestKnownVersionUseCaseTest {
 
@@ -64,6 +68,27 @@ class MeteredAdvanceLatestKnownVersionUseCaseTest {
 		assertThrows(ExpectedFailure.class, () -> metered.advanceToAtLeast(input));
 
 		assertEquals(1.0, count("error"));
+	}
+
+	@Test
+	void observationExceptionCannotEscapeTheCommittedCallback() {
+		Counter broken = Mockito.mock(Counter.class);
+		Mockito.doThrow(new IllegalStateException("meter unavailable")).when(broken).increment();
+		var throwingRegistry = new SimpleMeterRegistry() {
+			@Override protected Counter newCounter(Meter.Id id) {
+				return "advanced".equals(id.getTag("outcome")) ? broken : super.newCounter(id);
+			}
+		};
+        try {
+			var pot = PotId.of(UUID.randomUUID());
+			var metered = new MeteredAdvanceLatestKnownVersionUseCase(
+				ignored -> new LatestKnownVersionUpdate.Advanced(new LatestKnownVersion(pot, 8)), throwingRegistry);
+			TransactionSynchronizationManager.initSynchronization();
+			metered.advanceToAtLeast(new AdvanceLatestKnownVersionInput(pot, 8, Instant.now()));
+			Assertions.assertDoesNotThrow(() -> TransactionSynchronizationManager.getSynchronizations()
+				.forEach(synchronization -> synchronization.afterCommit()));
+			Mockito.verify(broken).increment();
+        } finally { throwingRegistry.close(); }
 	}
 
 	private double count(String outcome) {

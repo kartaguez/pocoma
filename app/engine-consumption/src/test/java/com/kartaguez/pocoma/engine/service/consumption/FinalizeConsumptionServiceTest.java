@@ -28,6 +28,9 @@ import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumption
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
+import java.time.Duration;
 
 class FinalizeConsumptionServiceTest {
 	private static final UUID SLOT_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
@@ -35,7 +38,7 @@ class FinalizeConsumptionServiceTest {
 	private static final Instant NOW = Instant.parse("2026-09-20T08:00:00Z");
 
 	@Test
-	void locksAndFencesBeforeApplyingTheDurableEffect() {
+	void appliesEffectBeforeFencing() {
 		List<String> calls = new ArrayList<>();
 		var lifecycle = new RecordingLifecycle(calls, true, true);
 
@@ -43,22 +46,20 @@ class FinalizeConsumptionServiceTest {
 				SLOT_ID, CLAIM_ID, new Success(), () -> calls.add("effect")));
 
 		assertEquals(FencedMutationResult.APPLIED, result);
-		assertEquals(List.of("lock", "effect", "terminalize"), calls);
+		assertEquals(List.of("effect", "terminalize"), calls);
 	}
 
 	@Test
-	void staleClaimCannotApplyItsDurableEffect() {
+	void staleClaimSignalsRollbackAfterProvisionalEffect() {
 		List<String> calls = new ArrayList<>();
 
-		var result = service(new RecordingLifecycle(calls, false, true)).finalizeConsumption(
-				new FinalizeConsumptionInput(SLOT_ID, CLAIM_ID, new Success(), () -> calls.add("effect")));
-
-		assertEquals(FencedMutationResult.LOST_CLAIM, result);
-		assertEquals(List.of("lock"), calls);
+		assertThrows(LostClaimException.class, () -> service(new RecordingLifecycle(calls, false, true)).finalizeConsumption(
+				new FinalizeConsumptionInput(SLOT_ID, CLAIM_ID, new Success(), () -> calls.add("effect"))));
+		assertEquals(List.of("effect", "terminalize"), calls);
 	}
 
 	@Test
-	void terminalFailureAppliesItsEffectBetweenTheFenceAndSlotTermination() {
+	void terminalFailureAppliesItsEffectBeforeSlotTermination() {
 		List<String> calls = new ArrayList<>();
 		var lifecycle = new RecordingLifecycle(calls, true, true);
 		var failure = failure();
@@ -67,18 +68,18 @@ class FinalizeConsumptionServiceTest {
 				SLOT_ID, CLAIM_ID, new TerminalFailure(failure), () -> calls.add("recordFailure")));
 
 		assertEquals(FencedMutationResult.APPLIED, result);
-		assertEquals(List.of("lock", "recordFailure", "fail"), calls);
+		assertEquals(List.of("recordFailure", "fail"), calls);
 		assertEquals(failure, lifecycle.failure);
 	}
 
 	@Test
-	void anImpossiblePostLockFenceLossFailsTheTransaction() {
+	void casLossSignalsRollback() {
 		List<String> calls = new ArrayList<>();
 		var lifecycle = new RecordingLifecycle(calls, true, false);
 
-		assertThrows(IllegalStateException.class, () -> service(lifecycle).finalizeConsumption(
+		assertThrows(LostClaimException.class, () -> service(lifecycle).finalizeConsumption(
 				new FinalizeConsumptionInput(SLOT_ID, CLAIM_ID, new Success(), () -> calls.add("effect"))));
-		assertEquals(List.of("lock", "effect", "terminalize"), calls);
+		assertEquals(List.of("effect", "terminalize"), calls);
 	}
 
 	private static FinalizeConsumptionService service(ConsumptionLifecyclePersistencePort lifecycle) {
@@ -90,6 +91,23 @@ class FinalizeConsumptionServiceTest {
 	}
 
 	private static final class RecordingLifecycle implements ConsumptionLifecyclePersistencePort {
+		@Override public void terminalize(UUID slotId, ClaimId claimId,
+				ConsumptionFinalization terminal, Instant now) {
+			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
+				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
+					throw new LostClaimException(slotId, claimId);
+			} else {
+				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
+				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
+						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
+					throw new LostClaimException(slotId, claimId);
+			}
+		}
+		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
+			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
+				throw new LostClaimException(slotId, claimId);
+		}
+
 		private final List<String> calls;
 		private final boolean ownsClaim;
 		private final boolean mutationSucceeds;
@@ -108,7 +126,7 @@ class FinalizeConsumptionServiceTest {
 		@Override public boolean tryTerminalize(UUID slotId, ClaimId claimId, TerminalOutcome outcome,
 				Optional<TerminalReason> reason, Instant doneAt) {
 			calls.add("terminalize");
-			return mutationSucceeds;
+			return ownsClaim && mutationSucceeds;
 		}
 		@Override public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId,
 				ProcessingFailure value, FailureDecision decision, Instant now) {

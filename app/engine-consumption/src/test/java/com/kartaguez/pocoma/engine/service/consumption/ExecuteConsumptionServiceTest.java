@@ -34,6 +34,9 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecuti
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionProvenancePersistencePort;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
+import java.time.Duration;
 
 class ExecuteConsumptionServiceTest {
 
@@ -134,7 +137,7 @@ class ExecuteConsumptionServiceTest {
 	}
 
 	private static ConsumptionExecutionResult successfulResult(
-			UUID slotId, com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome outcome) {
+			UUID slotId, BusinessConsumptionOutcome outcome) {
 		return new ConsumptionExecutionResult(outcome, List.of(input(slotId)), List.of(result(slotId)));
 	}
 
@@ -149,6 +152,23 @@ class ExecuteConsumptionServiceTest {
 	}
 
 	private static final class RecordingLifecycle implements ConsumptionLifecyclePersistencePort {
+		@Override public void terminalize(UUID slotId, ClaimId claimId,
+				ConsumptionFinalization terminal, Instant now) {
+			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
+				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
+					throw new LostClaimException(slotId, claimId);
+			} else {
+				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
+				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
+						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
+					throw new LostClaimException(slotId, claimId);
+			}
+		}
+		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
+			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
+				throw new LostClaimException(slotId, claimId);
+		}
+
 		private final List<String> calls;
 		private final boolean fencingResult;
 		private TerminalOutcome outcome;

@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.consumption.claim.Claim;
-import com.kartaguez.pocoma.domain.consumption.claim.ClaimEndReason;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
@@ -27,7 +26,6 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
@@ -41,6 +39,10 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.Jpa
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionClaimRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionClaimClosureException;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
+import java.util.function.IntSupplier;
 
 /** PostgreSQL implementation of the target consumption persistence contracts. */
 public class JpaConsumptionLifecycleAdapter
@@ -134,71 +136,73 @@ public class JpaConsumptionLifecycleAdapter
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public boolean tryTerminalize(
-			UUID slotId,
-			ClaimId claimId,
-			TerminalOutcome outcome,
-			Optional<TerminalReason> reason,
-			Instant doneAt) {
-		requireNonNull(slotId, "slotId must not be null");
-		requireNonNull(claimId, "claimId must not be null");
-		requireNonNull(outcome, "outcome must not be null");
-		requireNonNull(reason, "reason must not be null");
-		requireNonNull(doneAt, "doneAt must not be null");
-		if (outcome != TerminalOutcome.SUCCESS && outcome != TerminalOutcome.REJECTED) {
+	public void terminalize(UUID slotId, ClaimId claimId,
+			ConsumptionFinalization finalization, Instant now) {
+		requireNonNull(slotId); requireNonNull(claimId); requireNonNull(finalization); requireNonNull(now);
+		var outcome = finalization instanceof ConsumptionFinalization.Success
+				? TerminalOutcome.SUCCESS
+				: finalization instanceof ConsumptionFinalization.Rejected
+					? TerminalOutcome.REJECTED : TerminalOutcome.FAILED;
+		String reason = finalization instanceof ConsumptionFinalization.Rejected rejected
+				? rejected.rejectionCode()
+				: finalization instanceof ConsumptionFinalization.TerminalFailure terminal
+					? terminal.failure().code().value() : null;
+		requireWinningCas(slots.terminalize(slotId, claimId.value(), outcome.name(), reason, now), slotId, claimId);
+		if (finalization instanceof ConsumptionFinalization.TerminalFailure terminal) {
+			closeClaim(slotId, claimId, () -> failClaim(slotId, claimId, terminal.failure(), now));
+		} else {
+			closeClaim(slotId, claimId, () -> claims.end(slotId, claimId.value(), outcome.name(), now));
+		}
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
+	public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
+		requireNonNull(slotId); requireNonNull(claimId); requireNonNull(failure); requireNonNull(nextClaimAt); requireNonNull(now);
+		requireWinningCas(slots.scheduleRetry(slotId, claimId.value(), nextClaimAt), slotId, claimId);
+		closeClaim(slotId, claimId, () -> failClaim(slotId, claimId, failure, now));
+	}
+
+	private int failClaim(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant now) {
+		return claims.fail(slotId, claimId.value(), failure.code().value(), failure.category(),
+				failure.message(), failure.occurredAt(), now);
+	}
+
+	private static void requireWinningCas(int updated, UUID slotId, ClaimId claimId) {
+		if (updated == 0) throw new LostClaimException(slotId, claimId);
+		requireExactlyOne(updated, "Consumption CAS");
+	}
+
+	private static void closeClaim(UUID slotId, ClaimId claimId, IntSupplier close) {
+		int updated;
+		try { updated = close.getAsInt(); }
+		catch (RuntimeException failure) {
+			throw new ConsumptionClaimClosureException("close Claim", slotId, claimId, null, failure);
+		}
+		if (updated != 1) throw new ConsumptionClaimClosureException("close Claim", slotId, claimId, updated, null);
+	}
+
+	/** Transitional APIs delegate to the same rollback-signalling suffix. */
+	@Override
+	@Transactional(propagation = Propagation.MANDATORY)
+	public boolean tryTerminalize(UUID slotId, ClaimId claimId, TerminalOutcome outcome, Optional<TerminalReason> reason, Instant now) {
+		requireNonNull(outcome); requireNonNull(reason);
+		if (outcome != TerminalOutcome.SUCCESS && outcome != TerminalOutcome.REJECTED)
 			throw new IllegalArgumentException("Only SUCCESS and REJECTED are execution terminal outcomes");
-		}
-		if (reason.isPresent() != (outcome == TerminalOutcome.REJECTED)) {
+		if (reason.isPresent() != (outcome == TerminalOutcome.REJECTED))
 			throw new IllegalArgumentException("execution terminal outcome and reason are inconsistent");
-		}
-		int updated = slots.terminalize(
-				slotId, claimId.value(), outcome.name(), reason.map(TerminalReason::code).orElse(null), doneAt);
-		if (updated == 0) {
-			return false;
-		}
-		requireExactlyOne(updated, "terminalize slot");
-		ClaimEndReason claimEndReason = outcome == TerminalOutcome.SUCCESS
-				? ClaimEndReason.SUCCESS : ClaimEndReason.REJECTED;
-		requireExactlyOne(
-				claims.end(slotId, claimId.value(), claimEndReason.name(), doneAt), "end winning Claim");
+		terminalize(slotId, claimId, outcome == TerminalOutcome.SUCCESS
+				? new ConsumptionFinalization.Success()
+				: new ConsumptionFinalization.Rejected(reason.orElseThrow().code()), now);
 		return true;
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public FencedMutationResult handleFailure(
-			UUID slotId,
-			ClaimId claimId,
-			ProcessingFailure failure,
-			FailureDecision decision,
-			Instant now) {
-		requireNonNull(slotId, "slotId must not be null");
-		requireNonNull(claimId, "claimId must not be null");
-		requireNonNull(failure, "failure must not be null");
-		requireNonNull(decision, "decision must not be null");
-		requireNonNull(now, "now must not be null");
-
-		int updated;
-		if (decision instanceof RetryAfter retry) {
-			updated = slots.scheduleRetry(slotId, claimId.value(), now.plus(retry.duration()));
-		} else if (decision instanceof Fail) {
-			updated = slots.terminalize(
-					slotId, claimId.value(), TerminalOutcome.FAILED.name(), failure.code().value(), now);
-		} else {
-			throw new IllegalStateException("Unsupported failure decision " + decision.getClass().getName());
-		}
-		if (updated == 0) {
-			return FencedMutationResult.LOST_CLAIM;
-		}
-		requireExactlyOne(updated, "apply failure decision");
-		requireExactlyOne(claims.fail(
-				slotId,
-				claimId.value(),
-				failure.code().value(),
-				failure.category(),
-				failure.message(),
-				failure.occurredAt(),
-				now), "end failed Claim");
+	public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId, ProcessingFailure failure, FailureDecision decision, Instant now) {
+		requireNonNull(decision);
+		if (decision instanceof RetryAfter retry) scheduleRetry(slotId, claimId, failure, now.plus(retry.duration()), now);
+		else terminalize(slotId, claimId, new ConsumptionFinalization.TerminalFailure(failure), now);
 		return FencedMutationResult.APPLIED;
 	}
 

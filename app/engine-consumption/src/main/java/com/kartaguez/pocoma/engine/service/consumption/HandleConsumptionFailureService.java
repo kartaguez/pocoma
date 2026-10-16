@@ -16,6 +16,7 @@ import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResu
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.HandleConsumptionFailureUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionQueryPort;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 
 public final class HandleConsumptionFailureService implements HandleConsumptionFailureUseCase {
 
@@ -23,12 +24,18 @@ public final class HandleConsumptionFailureService implements HandleConsumptionF
 	private final ConsumptionLifecyclePersistencePort persistence;
 	private final ConsumptionFailurePolicy policy;
 	private final Clock clock;
+	private final FinalizeConsumptionUseCase finalizer;
 
 	public HandleConsumptionFailureService(
 			ConsumptionQueryPort query,
 			ConsumptionLifecyclePersistencePort persistence,
 			ConsumptionFailurePolicy policy,
 			Clock clock) {
+		this(query, persistence, policy, clock, new FinalizeConsumptionService(persistence, clock));
+	}
+
+	public HandleConsumptionFailureService(ConsumptionQueryPort query, ConsumptionLifecyclePersistencePort persistence, ConsumptionFailurePolicy policy, Clock clock, FinalizeConsumptionUseCase finalizer) {
+		this.finalizer = requireNonNull(finalizer);
 		this.query = requireNonNull(query, "query must not be null");
 		this.persistence = requireNonNull(persistence, "persistence must not be null");
 		this.policy = requireNonNull(policy, "policy must not be null");
@@ -46,10 +53,12 @@ public final class HandleConsumptionFailureService implements HandleConsumptionF
 		var now = clock.instant();
 		FailureDecision decision = policy.decide(new FailureContext(input.failure(), claim.attemptNumber(), now));
 		if (decision instanceof Fail) {
-			return new FinalizeConsumptionService(persistence, clock).finalizeConsumption(
+			return finalizer.finalizeConsumption(
 					new FinalizeConsumptionInput(input.slotId(), input.claimId(),
 							new TerminalFailure(input.failure()), input.terminalFailureEffect()));
 		}
-		return persistence.handleFailure(input.slotId(), input.claimId(), input.failure(), decision, now);
+		var retry = (FailureDecision.RetryAfter) decision;
+		persistence.scheduleRetry(input.slotId(), input.claimId(), input.failure(), now.plus(retry.duration()), now);
+		return FencedMutationResult.APPLIED;
 	}
 }

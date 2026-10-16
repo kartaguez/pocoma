@@ -3,12 +3,10 @@ package com.kartaguez.pocoma.runtime.command.consumption;
 import java.time.Clock;
 import java.util.UUID;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -53,6 +51,9 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionWorkerSetti
 import com.kartaguez.pocoma.orchestrator.poll.consumption.wait.ConditionConsumptionWaiter;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;
 
 @EnableConfigurationProperties(CommandConsumptionProperties.class)
 @Import({PocomaObjectMapperConfiguration.class, PotCommandBindingConfiguration.class})
@@ -63,7 +64,7 @@ public class CommandConsumptionRuntimeConfiguration {
 
 	@Bean
 	TransactionRunner commandConsumptionTransactionRunner(PlatformTransactionManager manager) {
-		return new SpringTransactionRunner(new TransactionTemplate(manager));
+		return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));
 	}
 
 	@Bean
@@ -97,21 +98,21 @@ public class CommandConsumptionRuntimeConfiguration {
 			ExternalIdentityBindingPort bindings,
 			JdbcCommandOutcomeAdapter outcomes,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			@Qualifier("commandConsumptionClock") Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock, @Qualifier("commandConsumptionTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant) {
+		var participant = new ExecuteConsumptionService(terminalParticipant.finalizer());
 		return new BindingFenceRecoveryExecuteUseCase(
-				new TransactionalExecuteConsumptionUseCase(
-						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
-				transactions, lifecycle, bindings, outcomes, clock);
+				new TransactionalExecuteConsumptionUseCase(participant, transactions),
+				transactions, participant, bindings, outcomes, clock);
 	}
 
 	@Bean
 	HandleConsumptionFailureUseCase commandConsumptionHandleFailure(
 			@Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			@Qualifier("commandConsumptionClock") Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock, @Qualifier("commandConsumptionTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant) {
 		return new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(
-						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
+						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock, terminalParticipant.finalizer()), transactions);
 	}
 
 	@Bean
@@ -134,8 +135,8 @@ public class CommandConsumptionRuntimeConfiguration {
 			CommandConsumptionLocator locator,
 			@Qualifier("commandConsumptionAcquire") AcquireConsumptionUseCase acquire,
 			@Qualifier("commandConsumptionExecute") ExecuteConsumptionUseCase execute,
-			@Qualifier("commandConsumptionHandleFailure") HandleConsumptionFailureUseCase failure) {
-		return new SequentialConsumptionOrchestrator(locator, acquire, execute, failure);
+			@Qualifier("commandConsumptionHandleFailure") HandleConsumptionFailureUseCase failure, @Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter ownership) {
+		return guarded(new SequentialConsumptionOrchestrator(locator, acquire, execute, failure, ownership));
 	}
 
 	@Bean
@@ -172,5 +173,12 @@ public class CommandConsumptionRuntimeConfiguration {
 		return configured == null || configured.isBlank()
 				? "command-consumption-" + UUID.randomUUID()
 				: configured;
+	}
+	private static ConsumptionOrchestrator guarded(ConsumptionOrchestrator delegate) {
+		return new ConsumptionOwnerOrchestrator(delegate);
+}
+	@Bean ConsumptionTerminalParticipant commandConsumptionTerminalParticipant(@Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter lifecycle,
+			@Qualifier("commandConsumptionProvenance") JpaConsumptionProvenanceAdapter provenance, @Qualifier("commandConsumptionClock") Clock clock) {
+		return new ConsumptionTerminalParticipant(lifecycle, provenance, clock);
 	}
 }

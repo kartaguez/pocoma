@@ -96,6 +96,10 @@ import com.kartaguez.pocoma.engine.service.transaction.consumption.Transactional
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionClaimClosureException;
+import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+import java.sql.Timestamp;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",
@@ -216,7 +220,7 @@ class TransactionalConsumptionExecutionPostgresTest {
 	}
 
 	@Test
-	void shortFinalizationLocksBeforeTheEffectAndAnExpiredCurrentClaimMayFinish() throws Exception {
+	void takeoverDuringProvisionalEffectWinsBeforeFinalCas() throws Exception {
 		Claim claim = acquire("short-finalization-wins", "worker-a");
 		clock.set(NOW.plusSeconds(30));
 		CountDownLatch effectStarted = new CountDownLatch(1);
@@ -229,15 +233,81 @@ class TransactionalConsumptionExecutionPostgresTest {
 					await(allowEffect);
 				})));
 		assertTrue(effectStarted.await(10, TimeUnit.SECONDS));
-		Future<com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult> takeover =
+		Future<AcquireResult> takeover =
 				executor.submit(() -> acquire.acquire(new AcquireConsumptionInput(
 						key("short-finalization-wins"), new WorkerId("worker-b"), LEASE)));
 
+		var winner = assertInstanceOf(AcquireResult.Acquired.class,
+				takeover.get(10, TimeUnit.SECONDS)).claim();
+		assertEquals(0, observedCount("lot3_business_effects"));
 		allowEffect.countDown();
-		assertEquals(FencedMutationResult.APPLIED, finalization.get(10, TimeUnit.SECONDS));
-		assertInstanceOf(com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone.class,
-				takeover.get(10, TimeUnit.SECONDS));
+		assertEquals(FencedMutationResult.LOST_CLAIM, finalization.get(10, TimeUnit.SECONDS));
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(claim.slotId()).orElseThrow().currentClaimId());
+	}
+
+	@Test
+	void expiredCurrentClaimCanStillFinalizeWithoutTakeover() {
+		Claim claim = acquire("expired-finalizer", "worker-a");
+		clock.set(NOW.plusSeconds(30));
+		assertEquals(FencedMutationResult.APPLIED, finalizeConsumption.finalizeConsumption(
+				new FinalizeConsumptionInput(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), () -> writeBusiness("expired"))));
 		assertEquals(1, observedCount("lot3_business_effects"));
+	}
+
+	@Test
+	void winningCasAndEffectsRollBackWhenClaimClosureRefuses() {
+		Claim claim = acquire("closure-refused", "worker-a");
+		assertThrows(ConsumptionClaimClosureException.class,
+				() -> finalizeConsumption.finalizeConsumption(new FinalizeConsumptionInput(claim.slotId(), claim.claimId(),
+					new ConsumptionFinalization.Success(), () -> {
+						writeBusiness("closure-refused");
+						jdbc.update("update consumption_claims set invalidated_at=?, end_reason='TAKEN_OVER' where claim_id=?",
+								Timestamp.from(clock.instant()), claim.claimId().value());
+					})));
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(ConsumptionStatus.PENDING, lifecycle.findSlot(claim.slotId()).orElseThrow().status());
+		assertEquals(Optional.of(claim.claimId()), lifecycle.findSlot(claim.slotId()).orElseThrow().currentClaimId());
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().invalidatedAt().isEmpty());
+	}
+
+	@Test
+	void retryCasAndScheduleRollBackWhenClaimClosureRefuses() {
+		Claim claim = acquire("retry-closure-refused", "worker-a");
+		var before = lifecycle.findSlot(claim.slotId()).orElseThrow();
+		var failure = new ProcessingFailure(new ProcessingFailureCode("RETRY_REFUSED"), "transient", "retry", NOW);
+		assertThrows(ConsumptionClaimClosureException.class,
+			() -> transactions.runInTransaction(() -> {
+				jdbc.update("update consumption_claims set invalidated_at=?, end_reason='TAKEN_OVER' where claim_id=?",
+					Timestamp.from(NOW), claim.claimId().value());
+				return new HandleConsumptionFailureService(lifecycle, lifecycle,
+					context -> new FailureDecision.RetryAfter(Duration.ofSeconds(5)), clock)
+					.handle(new HandleConsumptionFailureInput(claim.slotId(), claim.claimId(), failure,
+						() -> { throw new AssertionError("Retry must not invoke a terminal publication"); }));
+			}));
+		assertEquals(before, lifecycle.findSlot(claim.slotId()).orElseThrow());
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().invalidatedAt().isEmpty());
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(0, observedCount("consumption_inputs"));
+		assertEquals(0, observedCount("consumption_results"));
+	}
+
+	@Test
+	void deferredConstraintRefusesCommitAfterWinningCasAndRollsBackEverything() {
+		jdbc.execute("create table if not exists lot3_commit_guard (id uuid primary key, parent uuid references lot3_business_effects(effect_id) deferrable initially deferred)");
+		Claim claim = acquire("commit-refused", "worker-a");
+		assertThrows(RuntimeException.class, () -> finalizeConsumption.finalizeConsumption(
+			new FinalizeConsumptionInput(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), () -> {
+				writeBusiness("commit-refused");
+				jdbc.update("insert into lot3_commit_guard values (?,?)", UUID.randomUUID(), UUID.randomUUID());
+			})));
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(0, observedCount("lot3_commit_guard"));
+		assertEquals(ConsumptionStatus.PENDING, lifecycle.findSlot(claim.slotId()).orElseThrow().status());
+		assertEquals(Optional.of(claim.claimId()), lifecycle.findSlot(claim.slotId()).orElseThrow().currentClaimId());
+		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
 	}
 
 	@Test
@@ -504,6 +574,23 @@ class TransactionalConsumptionExecutionPostgresTest {
 	}
 
 	private static final class BlockingTerminalizationPort implements ConsumptionLifecyclePersistencePort {
+		@Override public void terminalize(UUID slotId, ClaimId claimId,
+				ConsumptionFinalization terminal, Instant now) {
+			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
+				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
+					throw new LostClaimException(slotId, claimId);
+			} else {
+				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
+				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
+						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
+					throw new LostClaimException(slotId, claimId);
+			}
+		}
+		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
+			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
+				throw new LostClaimException(slotId, claimId);
+		}
+
 		private final ConsumptionLifecyclePersistencePort delegate;
 		private final CountDownLatch reached;
 		private final CountDownLatch proceed;
@@ -532,7 +619,7 @@ class TransactionalConsumptionExecutionPostgresTest {
 		}
 
 		@Override
-		public com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult acquire(
+		public AcquireResult acquire(
 				ConsumptionKey key, ClaimId claimId, WorkerId workerId, ClaimLease lease, Instant now) {
 			return delegate.acquire(key, claimId, workerId, lease, now);
 		}
@@ -540,7 +627,7 @@ class TransactionalConsumptionExecutionPostgresTest {
 		@Override
 		public FencedMutationResult handleFailure(
 				UUID slotId, ClaimId claimId, ProcessingFailure failure,
-				com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision decision,
+				FailureDecision decision,
 				Instant now) {
 			return delegate.handleFailure(slotId, claimId, failure, decision, now);
 		}

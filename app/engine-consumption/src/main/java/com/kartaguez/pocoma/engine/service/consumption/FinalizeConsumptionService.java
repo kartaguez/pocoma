@@ -1,49 +1,55 @@
 package com.kartaguez.pocoma.engine.service.consumption;
 
 import static java.util.Objects.requireNonNull;
-
 import java.time.Clock;
-import java.util.Optional;
-
-import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.Success;
-import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization.TerminalFailure;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
+import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionProvenancePersistencePort;
+import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
+import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
+import java.util.List;
+import java.util.UUID;
 
+/** Participant: effects and provenance precede the single terminal CAS/claim suffix. */
 public final class FinalizeConsumptionService implements FinalizeConsumptionUseCase {
 	private final ConsumptionLifecyclePersistencePort lifecycle;
+	private final ConsumptionProvenancePersistencePort provenance;
 	private final Clock clock;
 
+	public FinalizeConsumptionService(ConsumptionLifecyclePersistencePort lifecycle,
+			ConsumptionProvenancePersistencePort provenance, Clock clock) {
+		this.lifecycle = requireNonNull(lifecycle);
+		this.provenance = requireNonNull(provenance);
+		this.clock = requireNonNull(clock);
+	}
+
+	/** Compatibility for callers without provenance; nonempty provenance is never discarded. */
 	public FinalizeConsumptionService(ConsumptionLifecyclePersistencePort lifecycle, Clock clock) {
-		this.lifecycle = requireNonNull(lifecycle, "lifecycle must not be null");
-		this.clock = requireNonNull(clock, "clock must not be null");
+		this(lifecycle, new ConsumptionProvenancePersistencePort() {
+			public List<ConsumptionInput> findInputs(UUID slotId) { return List.of(); }
+			public List<ConsumptionResult> findResults(UUID slotId) { return List.of(); }
+			public void appendInputs(List<ConsumptionInput> inputs) {
+				if (!inputs.isEmpty()) throw new IllegalStateException("Provenance adapter required");
+			}
+			public void appendResults(List<ConsumptionResult> results) {
+				if (!results.isEmpty()) throw new IllegalStateException("Provenance adapter required");
+			}
+		}, clock);
 	}
 
 	@Override
 	public FencedMutationResult finalizeConsumption(FinalizeConsumptionInput input) {
-		requireNonNull(input, "input must not be null");
-		if (!lifecycle.lockCurrentClaim(input.slotId(), input.claimId())) {
-			return FencedMutationResult.LOST_CLAIM;
+		requireNonNull(input);
+		if (input.inputs().stream().anyMatch(i -> !i.slotId().equals(input.slotId()))
+				|| input.results().stream().anyMatch(r -> !r.slotId().equals(input.slotId()))) {
+			throw new IllegalArgumentException("Provenance belongs to another slot");
 		}
 		input.durableEffect().apply();
-		var now = clock.instant();
-		if (input.finalization() instanceof Success) {
-			if (!lifecycle.tryTerminalize(input.slotId(), input.claimId(), TerminalOutcome.SUCCESS,
-					Optional.empty(), now)) {
-				throw new IllegalStateException("Current Claim changed while its Slot was locked");
-			}
+		provenance.appendInputs(input.inputs());
+		provenance.appendResults(input.results());
+		lifecycle.terminalize(input.slotId(), input.claimId(), input.finalization(), clock.instant());
 			return FencedMutationResult.APPLIED;
 		}
-		var terminal = (TerminalFailure) input.finalization();
-		FencedMutationResult result = lifecycle.handleFailure(
-				input.slotId(), input.claimId(), terminal.failure(), new Fail(), now);
-		if (result != FencedMutationResult.APPLIED) {
-			throw new IllegalStateException("Current Claim changed while its Slot was locked");
 		}
-		return result;
-	}
-}

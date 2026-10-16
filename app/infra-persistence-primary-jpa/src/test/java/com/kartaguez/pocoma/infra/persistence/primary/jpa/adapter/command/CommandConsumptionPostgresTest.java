@@ -1,12 +1,15 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.SQLException;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandOutcome;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,7 +46,6 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
-import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.consumption.claim.ClaimLease;
 import com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlot;
 import com.kartaguez.pocoma.domain.consumption.claim.WorkerId;
@@ -56,8 +58,6 @@ import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.domain.pot.event.PotDeletedEvent;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
-import com.kartaguez.pocoma.domain.projection.ProjectionKey;
-import com.kartaguez.pocoma.domain.projection.TargetObjectId;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistry;
 import com.kartaguez.pocoma.engine.consume.command.decode.CommandPayloadDecoder;
 import com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcher;
@@ -105,6 +105,22 @@ import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTech
 import com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestrator;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
+import com.kartaguez.pocoma.domain.consumption.claim.ClaimId;
+import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
+import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
+import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
+import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.FinalizeConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
+import com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionService;
+import com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalFinalizeConsumptionUseCase;
+import java.time.ZoneId;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
 
 @SpringBootTest(properties = {
 		"spring.jpa.hibernate.ddl-auto=validate",
@@ -424,11 +440,11 @@ class CommandConsumptionPostgresTest {
 		});
 		try (var executor = Executors.newFixedThreadPool(2)) {
 			var a = executor.submit(() -> transactions.runInTransaction(() -> execution.forCommand(first.commandId()).execute(
-					new com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext(UUID.randomUUID(),
-							new com.kartaguez.pocoma.domain.consumption.claim.ClaimId(UUID.randomUUID())))));
+					new ConsumptionExecutionContext(UUID.randomUUID(),
+							new ClaimId(UUID.randomUUID())))));
 			var b = executor.submit(() -> transactions.runInTransaction(() -> execution.forCommand(second.commandId()).execute(
-					new com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionExecutionContext(UUID.randomUUID(),
-							new com.kartaguez.pocoma.domain.consumption.claim.ClaimId(UUID.randomUUID())))));
+					new ConsumptionExecutionContext(UUID.randomUUID(),
+							new ClaimId(UUID.randomUUID())))));
 			assertTrue(entered.await(10, TimeUnit.SECONDS));
 			release.countDown();
 			a.get(10, TimeUnit.SECONDS);
@@ -450,7 +466,7 @@ class CommandConsumptionPostgresTest {
 						new WorkerId("current-check"), new ClaimLease(Duration.ofSeconds(30))))).claim();
 		var recovery = new BindingFenceRecoveryExecuteUseCase(input -> {
 			throw new BindingFenceLostException(command.commandId(), identity, binding);
-		}, transactions, lifecycle, bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
 		assertThrows(BindingFenceConflictException.class, () -> recovery.execute(
 				new ExecuteConsumptionInput(claim.slotId(), claim.claimId(), context -> {
 					throw new AssertionError("unused");
@@ -471,9 +487,10 @@ class CommandConsumptionPostgresTest {
 				new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(command.commandId()),
 						new WorkerId("lost-check"), new ClaimLease(Duration.ofSeconds(30))))).claim();
 		jdbc.update("update consumption_slots set current_claim_id = null where slot_id = ?", claim.slotId());
+		transactions.runInTransaction(() -> bindings.detach(identity, binding));
 		var recovery = new BindingFenceRecoveryExecuteUseCase(input -> {
 			throw new BindingFenceLostException(command.commandId(), identity, binding);
-		}, transactions, lifecycle, bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
 		assertThrows(LostClaimException.class, () -> recovery.execute(new ExecuteConsumptionInput(
 				claim.slotId(), claim.claimId(), context -> {
 						throw new AssertionError("unused");
@@ -557,7 +574,7 @@ class CommandConsumptionPostgresTest {
 		RecordedCommand second = command(TYPE, "succeed:" + samePotId, NOW.plusSeconds(60), NOW.plusMillis(1));
 		insert(first);
 		insert(second);
-		List<String> attempts = new java.util.concurrent.CopyOnWriteArrayList<>();
+		List<String> attempts = new CopyOnWriteArrayList<>();
 
 		Function<TestCommand, CommandUseCaseResult> behavior = value -> {
 			attempts.add(value.value());
@@ -615,7 +632,7 @@ class CommandConsumptionPostgresTest {
 		var execute = new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(
 						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
-				transactions, lifecycle, bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
 		var key = CommandConsumptionKeys.forCommand(command.commandId());
 		var stale = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(
 				new AcquireConsumptionInput(key, new WorkerId("worker-a"), new ClaimLease(Duration.ofSeconds(30))))).claim();
@@ -694,6 +711,36 @@ class CommandConsumptionPostgresTest {
 	}
 
 	@Test
+	void strictOutcomeUniqueErrorIsNormalizedOnlyAfterProvenOwnershipLoss() {
+		for (boolean stale : List.of(false, true)) {
+			ExternalIdentity identity = identity("unique-" + stale);
+			BindingId binding = bind(identity, user(stale ? 404 : 405));
+			RecordedCommand command = targetCommand(identity, binding, "unique", NOW.plusSeconds(120));
+			insert(command);
+			var acquired = assertInstanceOf(AcquireResult.Acquired.class,
+				new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle, clock), transactions)
+					.acquire(new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(command.commandId()), new WorkerId("unique"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+			var publication = new JdbcCommandOutcomeAdapter(jdbc);
+			transactions.runInTransaction(() -> publication.publish(new CommandOutcome.Failed(command.commandId(), CommandOutcome.PUBLIC_FAILURE_CODE, NOW)));
+			if (stale) jdbc.update("update consumption_slots set current_claim_id=null where slot_id=?", acquired.slotId());
+			var owner = new TransactionalFinalizeConsumptionUseCase(
+				new FinalizeConsumptionService(lifecycle, provenance, clock), transactions, lifecycle);
+			var input = new FinalizeConsumptionInput(acquired.slotId(), acquired.claimId(),
+				new ConsumptionFinalization.TerminalFailure(
+					new ProcessingFailure(new ProcessingFailureCode("UNIQUE"), "technical", "unique", NOW)),
+				() -> publication.publish(new CommandOutcome.Failed(command.commandId(), CommandOutcome.PUBLIC_FAILURE_CODE, NOW)));
+			if (stale) assertEquals(FencedMutationResult.LOST_CLAIM, owner.finalizeConsumption(input));
+			else {
+				RuntimeException error = assertThrows(RuntimeException.class, () -> owner.finalizeConsumption(input));
+				assertTrue(hasSqlState(error, "23505"));
+			}
+			assertEquals(ConsumptionStatus.PENDING, lifecycle.findSlot(acquired.slotId()).orElseThrow().status());
+			assertTrue(lifecycle.findClaim(acquired.claimId()).orElseThrow().isOpen());
+			assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
+		}
+	}
+
+	@Test
 	void bindingRecoveryWaitingOnStaleOutcomeDoesNotDeadlock() throws Exception {
 		characterizeOutcomeSlotWait(false, false);
 	}
@@ -704,12 +751,22 @@ class CommandConsumptionPostgresTest {
 	}
 
 	@Test
-	void terminalFailureAndStaleProvenanceFormARealPostgresDeadlock() throws Exception {
+	void terminalFailureAndStaleProvenanceUseCommonSuffixWithoutDeadlock() throws Exception {
 		characterizeOutcomeSlotWait(true, true);
 	}
 
-	/** The stale CAS avoids a cycle only if no provenance FK waits before that CAS. */
+	/** TARGET: current publication waits before any terminal slot lock; stale provenance can flush. */
 	private void characterizeOutcomeSlotWait(boolean terminalFailure, boolean withProvenance) throws Exception {
+		characterizeOutcomeSlotWait(terminalFailure, withProvenance, false);
+	}
+
+	@Test void terminalFailureWithResultsOnlyDoesNotDeadlock() throws Exception { characterizeOutcomeSlotWait(true, false, true); }
+	@Test void terminalFailureWithInputsAndResultsDoesNotDeadlock() throws Exception { characterizeOutcomeSlotWait(true, true, true); }
+	@Test void bindingRecoveryWithInputsDoesNotDeadlock() throws Exception { characterizeOutcomeSlotWait(false, true, false); }
+	@Test void bindingRecoveryWithResultsDoesNotDeadlock() throws Exception { characterizeOutcomeSlotWait(false, false, true); }
+	@Test void bindingRecoveryWithInputsAndResultsDoesNotDeadlock() throws Exception { characterizeOutcomeSlotWait(false, true, true); }
+
+	private void characterizeOutcomeSlotWait(boolean terminalFailure, boolean withProvenance, boolean withResults) throws Exception {
 		MutableClock mutableClock = new MutableClock(NOW);
 		clock = mutableClock;
 		ExternalIdentity identity = identity("outcome-slot-cycle");
@@ -737,11 +794,13 @@ class CommandConsumptionPostgresTest {
 				order by conrelid, conname
 				""");
 		assertTrue(constraints.stream().allMatch(row -> Boolean.TRUE.equals(row.get("convalidated"))));
+        var constraintNames = constraints.stream().map(row -> row.get("conname").toString()).collect(java.util.stream.Collectors.toSet());
+        assertTrue(constraintNames.containsAll(java.util.Set.of("fk_consumption_inputs_slot", "fk_consumption_results_slot", "command_outcomes_pkey")));
 		assertEquals("origin", jdbc.queryForObject("show session_replication_role", String.class));
 		System.out.println("LOCK_AUDIT constraints=" + constraints);
 		var execute = new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
 		var outcomes = new JdbcCommandOutcomeAdapter(jdbc);
-		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, lifecycle, bindings, outcomes, clock);
+		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, outcomes, clock);
 		var failure = new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(
 				lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
 		CountDownLatch businessEntered = new CountDownLatch(1);
@@ -760,10 +819,10 @@ class CommandConsumptionPostgresTest {
 		});
 		var staleExecution = new CommandConsumptionExecution(new ExecuteRecordedCommandService(commands,
 				new CommandDecoderRegistry(List.of(new TestDecoder())),
-				new CommandDispatcher(List.of(new TestUseCase(value -> withProvenance
-						? new CommandUseCaseResult.Succeeded(List.of(new com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput(
-								"POT", APPLIED_POT_ID.toString(), 6)), new CommandAppliedResult(APPLIED_POT_ID, 7), List.of())
-						: succeeded()))), events -> List.of(),
+				new CommandDispatcher(List.of(new TestUseCase(value ->
+					new CommandUseCaseResult.Succeeded(withProvenance
+						? List.of(new CommandExecutionInput("POT", APPLIED_POT_ID.toString(), 6)) : List.of(),
+						new CommandAppliedResult(APPLIED_POT_ID, 7), List.of())))), events -> List.of(),
 				bindings, new ExternalAuthorityPermissionTranslator(), clock), outcome -> {
 			outcomes.publish(outcome);
 			stalePid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
@@ -788,61 +847,72 @@ class CommandConsumptionPostgresTest {
 				if (!terminalFailure) assertEquals(BindingDetachResult.DETACHED,
 						transactions.runInTransaction(() -> bindings.detach(identity, binding)));
 				var staleFuture = executor.submit(() -> execute.execute(new ExecuteConsumptionInput(
-						stale.slotId(), stale.claimId(), staleExecution.forCommand(command.commandId()))));
+						stale.slotId(), stale.claimId(), context -> {
+							var result = staleExecution.forCommand(command.commandId()).execute(context);
+							var inputs = withProvenance
+                                ? List.of(new com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput(context.slotId(), "POT", APPLIED_POT_ID.toString(), 6))
+                                : List.<com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput>of();
+                            assertEquals(withProvenance ? 1 : 0, inputs.size());
+                            return new ConsumptionExecutionResult(result.outcome(), inputs, withResults
+								? List.of(new ConsumptionResult(context.slotId(), "PRIMARY", "POT", APPLIED_POT_ID.toString(), OptionalLong.of(7), Optional.empty(), Optional.empty(), OptionalLong.empty(), NOW))
+								: result.results());
+						})));
+
 				assertTrue(outcomeInserted.await(10, TimeUnit.SECONDS));
 				assertEquals(0, terminalResolutionCount(command.commandId()), "C1 outcome is still uncommitted");
 				finishBusiness.countDown();
 				// Recovery/failure starts a fresh transaction; the pool may choose another backend.
 				int waitingPid = awaitOutcomeWait(stalePid.get(), command.commandId());
 				assertTrue(waitingPid != stalePid.get());
-				if (withProvenance) {
+				if (withProvenance || withResults) {
 					// NOWAIT never joins the wait graph and this observer always rolls back.
 					try (var observer = jdbc.getDataSource().getConnection()) {
 						observer.setAutoCommit(false);
 						try (var probe = observer.prepareStatement("select slot_id from consumption_slots where slot_id=? for key share nowait")) {
 							probe.setObject(1, current.slotId());
-							assertEquals("55P03", assertThrows(SQLException.class, probe::executeQuery).getSQLState());
+							try (var rows = probe.executeQuery()) { assertTrue(rows.next()); }
 						} finally { observer.rollback(); }
 					}
-					System.out.println("LOCK_AUDIT slot KEY SHARE NOWAIT=55P03 while C2 waits for C1 outcome");
+					System.out.println("LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome");
 				}
 				finishStale.countDown();
 				Throwable staleError = futureError(staleFuture);
 				Throwable winnerError = futureError(winnerFuture);
-				if (withProvenance) {
-					Throwable victim = hasSqlState(staleError, "40P01") ? staleError : winnerError;
-					for (Throwable cause = victim; cause != null; cause = cause.getCause()) {
-						if (cause instanceof SQLException sql) System.out.println("LOCK_AUDIT SQLSTATE=" + sql.getSQLState() + " " + sql.getMessage());
-					}
-					assertEquals(1, (hasSqlState(staleError, "40P01") ? 1 : 0) + (hasSqlState(winnerError, "40P01") ? 1 : 0));
-					if (!hasSqlState(staleError, "40P01")) assertInstanceOf(LostClaimException.class, staleError);
-				} else {
-					assertInstanceOf(LostClaimException.class, staleError);
-					assertNull(winnerError);
-				}
+				assertFalse(hasSqlState(staleError, "40P01"));
+				assertFalse(hasSqlState(winnerError, "40P01"));
+				assertInstanceOf(LostClaimException.class, staleError);
+				assertNull(winnerError);
+				assertTrue(lifecycle.findClaim(current.claimId()).orElseThrow().endedAt().isPresent());
+
 				assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
 				assertEquals(0, jdbc.queryForObject("select count(*) from consumption_inputs", Integer.class));
 				assertEquals(0, jdbc.queryForObject("select count(*) from consumption_results", Integer.class));
 				assertEquals(2, lifecycle.findClaims(current.slotId()).size());
 				assertTrue(lifecycle.findClaim(stale.claimId()).orElseThrow().invalidatedAt().isPresent());
-				if (winnerError == null) {
-					assertEquals(ConsumptionStatus.DONE, slot(command.commandId()).status());
-					assertTrue(slot(command.commandId()).currentClaimId().isEmpty());
-					assertTerminalResolution(command.commandId(), terminalFailure ? "FAILED" : "REJECTED",
-							terminalFailure ? "COMMAND_FAILED" : "COMMAND_REJECTED");
-				} else {
-					assertEquals(ConsumptionStatus.PENDING, slot(command.commandId()).status());
-					assertEquals(current.claimId(), slot(command.commandId()).currentClaimId().orElseThrow());
-					assertEquals(0, terminalResolutionCount(command.commandId()));
-					assertTrue(lifecycle.findClaim(current.claimId()).orElseThrow().endedAt().isEmpty());
-					assertTrue(lifecycle.findClaim(current.claimId()).orElseThrow().failure().isEmpty());
-				}
+                assertEquals(ConsumptionStatus.DONE, slot(command.commandId()).status());
+                assertTrue(slot(command.commandId()).currentClaimId().isEmpty());
+                assertEquals(terminalFailure ? "COMMAND_EXECUTION_FAILURE" : "CALLER_IDENTITY_NOT_CURRENT",
+                    slot(command.commandId()).terminalReason().orElseThrow().code());
+                var closed = lifecycle.findClaim(current.claimId()).orElseThrow();
+                assertEquals(terminalFailure ? com.kartaguez.pocoma.domain.consumption.claim.ClaimEndReason.PROCESSING_FAILURE
+                    : com.kartaguez.pocoma.domain.consumption.claim.ClaimEndReason.REJECTED, closed.endReason().orElseThrow());
+                assertEquals(terminalFailure, closed.failure().isPresent());
+                if (terminalFailure) {
+                    assertEquals("COMMAND_EXECUTION_FAILURE", closed.failure().orElseThrow().code().value());
+                    assertEquals("controlled terminal failure", closed.failure().orElseThrow().message());
+                    assertEquals(clock.instant(), closed.failure().orElseThrow().occurredAt());
+                }
+                assertTerminalResolution(command.commandId(), terminalFailure ? "FAILED" : "REJECTED",
+                    terminalFailure ? "COMMAND_FAILED" : "COMMAND_REJECTED");
+                assertEquals(terminalFailure ? CommandOutcome.PUBLIC_FAILURE_CODE : "CALLER_IDENTITY_NOT_CURRENT",
+                    jdbc.queryForObject("select public_code from command_outcomes where command_id=?", String.class, command.commandId().value()));
+
 				System.out.println("LOCK_AUDIT persisted slot=" + slot(command.commandId()) + " claims=" + lifecycle.findClaims(current.slotId())
 						+ " outcomes=" + terminalResolutionCount(command.commandId()) + " effects=0 inputs=0 results=0");
 				if (withProvenance) System.out.println("LOCK_AUDIT server=" + POSTGRES.getLogs());
-				System.out.printf("LOCK_AUDIT scenario=%s provenance=%s stalePid=%d initialCurrentPid=%d waitingPid=%d deadlocks=%d victim=%s%n",
-						terminalFailure ? "terminal-failure" : "binding-recovery", withProvenance, stalePid.get(), currentPid.get(), waitingPid,
-						withProvenance ? 1 : 0, hasSqlState(staleError, "40P01") ? "stale" : hasSqlState(winnerError, "40P01") ? "current" : "none");
+				System.out.printf("LOCK_AUDIT scenario=%s inputs=%s results=%s stalePid=%d initialCurrentPid=%d waitingPid=%d deadlocks=%d victim=%s%n",
+						terminalFailure ? "terminal-failure" : "binding-recovery", withProvenance, withResults, stalePid.get(), currentPid.get(), waitingPid,
+						0, hasSqlState(staleError, "40P01") ? "stale" : hasSqlState(winnerError, "40P01") ? "current" : "none");
 			} finally {
 				finishBusiness.countDown();
 				finishStale.countDown();
@@ -873,7 +943,7 @@ class CommandConsumptionPostgresTest {
 		throw new AssertionError("No real PostgreSQL outcome wait for " + commandId);
 	}
 
-	private static Throwable futureError(java.util.concurrent.Future<?> future) throws Exception {
+	private static Throwable futureError(Future<?> future) throws Exception {
 		try { future.get(15, TimeUnit.SECONDS); return null; }
 		catch (ExecutionException failure) { return failure.getCause(); }
 	}
@@ -910,7 +980,7 @@ class CommandConsumptionPostgresTest {
 				return bindings.acquire(identity, reattachedUser);
 			}));
 			var acquired = reattach.get(10, TimeUnit.SECONDS);
-			assertEquals(com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult.Status.ACQUIRED,
+			assertEquals(BindingAcquireResult.Status.ACQUIRED,
 					acquired.status());
 			finish.countDown();
 			worker.get(10, TimeUnit.SECONDS);
@@ -929,7 +999,7 @@ class CommandConsumptionPostgresTest {
 		ensureUser(reattachedUser);
 		transactions.runInTransaction(() -> {
 			assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding));
-			assertEquals(com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult.Status.ACQUIRED,
+			assertEquals(BindingAcquireResult.Status.ACQUIRED,
 					bindings.acquire(identity, reattachedUser).status());
 		});
 		AtomicInteger businessCalls = new AtomicInteger();
@@ -1019,7 +1089,7 @@ class CommandConsumptionPostgresTest {
 		var execute = new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(
 						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
-				transactions, lifecycle, bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
 		var failure = new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(
 						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
@@ -1117,7 +1187,7 @@ class CommandConsumptionPostgresTest {
 		private MutableClock(Instant instant) { this.instant = instant; }
 		void set(Instant instant) { this.instant = instant; }
 		@Override public ZoneOffset getZone() { return ZoneOffset.UTC; }
-		@Override public Clock withZone(java.time.ZoneId zone) { return this; }
+		@Override public Clock withZone(ZoneId zone) { return this; }
 		@Override public Instant instant() { return instant; }
 	}
 

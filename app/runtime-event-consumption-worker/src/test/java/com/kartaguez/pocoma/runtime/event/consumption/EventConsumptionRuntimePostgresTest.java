@@ -40,6 +40,11 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrat
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationInput;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationResult;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker;
+import com.kartaguez.pocoma.engine.port.in.consumption.usecase.FinalizeConsumptionUseCase;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerOrchestrator;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest(properties = {
 		"pocoma.event-consumption.enabled=false",
@@ -49,6 +54,29 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWork
 		"spring.jpa.hibernate.ddl-auto=validate"
 })
 class EventConsumptionRuntimePostgresTest {
+	@Autowired
+	private ApplicationContext wp2Context;
+
+	@Test
+	void publicConsumptionEntrypointsRejectPhysicalAmbientTransaction() {
+		var manager = wp2Context.getBean(PlatformTransactionManager.class);
+		new TransactionTemplate(manager).execute(status -> {
+			var acquisitions = wp2Context.getBeansOfType(AcquireConsumptionUseCase.class);
+			Assertions.assertFalse(acquisitions.isEmpty());
+			acquisitions.values().forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.acquire(null)));
+			wp2Context.getBeansOfType(ExecuteConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.execute(null)));
+			wp2Context.getBeansOfType(FinalizeConsumptionUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.finalizeConsumption(null)));
+			wp2Context.getBeansOfType(HandleConsumptionFailureUseCase.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.handle(null)));
+			wp2Context.getBeansOfType(ConsumptionOrchestrator.class).values()
+				.forEach(owner -> Assertions.assertThrows(IllegalStateException.class, () -> owner.run(null)));
+			Assertions.assertFalse(status.isRollbackOnly());
+			return null;
+		});
+	}
+
 	private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:17-alpine")
 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
 	private static final Instant NOW = Instant.parse("2026-09-26T10:00:00Z");
@@ -78,7 +106,7 @@ class EventConsumptionRuntimePostgresTest {
 
 	@Test
 	void activeWorkerGraphUsesOnlyTheFencedProjectionMaterializerAuthority() {
-		assertInstanceOf(AcquireThenFinalizeConsumptionOrchestrator.class, orchestrator);
+		assertInstanceOf(AcquireThenFinalizeConsumptionOrchestrator.class, assertInstanceOf(ConsumptionOwnerOrchestrator.class, orchestrator).delegate());
 		assertEquals(1, context.getBeansOfType(ProjectionMaterializationConsumptionSource.class).size());
 		assertEquals(1, context.getBeansOfType(ProjectionMaterializationConsumptionService.class).size());
 
