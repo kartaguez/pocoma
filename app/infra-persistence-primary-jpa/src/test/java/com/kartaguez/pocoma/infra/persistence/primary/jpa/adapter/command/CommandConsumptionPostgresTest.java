@@ -721,8 +721,24 @@ class CommandConsumptionPostgresTest {
 		var stale = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(new AcquireConsumptionInput(
 				key, new WorkerId("stale"), new ClaimLease(Duration.ofSeconds(30))))).claim();
 		mutableClock.set(NOW.plusSeconds(30));
+		assertEquals(mutableClock.instant(), stale.leaseUntil());
 		var current = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(new AcquireConsumptionInput(
 				key, new WorkerId("current"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		// A separate read sees the committed takeover before either Execute starts.
+		assertEquals(current.claimId(), slot(command.commandId()).currentClaimId().orElseThrow());
+		assertTrue(lifecycle.findClaim(stale.claimId()).orElseThrow().invalidatedAt().isPresent());
+		System.out.printf("LOCK_AUDIT takeover=committed expiredAt=%s C1=%s C2=%s slot=%s%n",
+				stale.leaseUntil(), stale.claimId(), current.claimId(), current.slotId());
+		var constraints = jdbc.queryForList("""
+				select conrelid::regclass::text as relation, conname, contype, convalidated,
+				       pg_get_constraintdef(oid) as definition
+				from pg_constraint where conrelid in ('consumption_inputs'::regclass,
+				 'consumption_results'::regclass, 'command_outcomes'::regclass)
+				order by conrelid, conname
+				""");
+		assertTrue(constraints.stream().allMatch(row -> Boolean.TRUE.equals(row.get("convalidated"))));
+		assertEquals("origin", jdbc.queryForObject("show session_replication_role", String.class));
+		System.out.println("LOCK_AUDIT constraints=" + constraints);
 		var execute = new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
 		var outcomes = new JdbcCommandOutcomeAdapter(jdbc);
 		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, lifecycle, bindings, outcomes, clock);
@@ -774,10 +790,22 @@ class CommandConsumptionPostgresTest {
 				var staleFuture = executor.submit(() -> execute.execute(new ExecuteConsumptionInput(
 						stale.slotId(), stale.claimId(), staleExecution.forCommand(command.commandId()))));
 				assertTrue(outcomeInserted.await(10, TimeUnit.SECONDS));
+				assertEquals(0, terminalResolutionCount(command.commandId()), "C1 outcome is still uncommitted");
 				finishBusiness.countDown();
 				// Recovery/failure starts a fresh transaction; the pool may choose another backend.
 				int waitingPid = awaitOutcomeWait(stalePid.get(), command.commandId());
 				assertTrue(waitingPid != stalePid.get());
+				if (withProvenance) {
+					// NOWAIT never joins the wait graph and this observer always rolls back.
+					try (var observer = jdbc.getDataSource().getConnection()) {
+						observer.setAutoCommit(false);
+						try (var probe = observer.prepareStatement("select slot_id from consumption_slots where slot_id=? for key share nowait")) {
+							probe.setObject(1, current.slotId());
+							assertEquals("55P03", assertThrows(SQLException.class, probe::executeQuery).getSQLState());
+						} finally { observer.rollback(); }
+					}
+					System.out.println("LOCK_AUDIT slot KEY SHARE NOWAIT=55P03 while C2 waits for C1 outcome");
+				}
 				finishStale.countDown();
 				Throwable staleError = futureError(staleFuture);
 				Throwable winnerError = futureError(winnerFuture);
@@ -794,6 +822,7 @@ class CommandConsumptionPostgresTest {
 				}
 				assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
 				assertEquals(0, jdbc.queryForObject("select count(*) from consumption_inputs", Integer.class));
+				assertEquals(0, jdbc.queryForObject("select count(*) from consumption_results", Integer.class));
 				assertEquals(2, lifecycle.findClaims(current.slotId()).size());
 				assertTrue(lifecycle.findClaim(stale.claimId()).orElseThrow().invalidatedAt().isPresent());
 				if (winnerError == null) {
@@ -805,7 +834,12 @@ class CommandConsumptionPostgresTest {
 					assertEquals(ConsumptionStatus.PENDING, slot(command.commandId()).status());
 					assertEquals(current.claimId(), slot(command.commandId()).currentClaimId().orElseThrow());
 					assertEquals(0, terminalResolutionCount(command.commandId()));
+					assertTrue(lifecycle.findClaim(current.claimId()).orElseThrow().endedAt().isEmpty());
+					assertTrue(lifecycle.findClaim(current.claimId()).orElseThrow().failure().isEmpty());
 				}
+				System.out.println("LOCK_AUDIT persisted slot=" + slot(command.commandId()) + " claims=" + lifecycle.findClaims(current.slotId())
+						+ " outcomes=" + terminalResolutionCount(command.commandId()) + " effects=0 inputs=0 results=0");
+				if (withProvenance) System.out.println("LOCK_AUDIT server=" + POSTGRES.getLogs());
 				System.out.printf("LOCK_AUDIT scenario=%s provenance=%s stalePid=%d initialCurrentPid=%d waitingPid=%d deadlocks=%d victim=%s%n",
 						terminalFailure ? "terminal-failure" : "binding-recovery", withProvenance, stalePid.get(), currentPid.get(), waitingPid,
 						withProvenance ? 1 : 0, hasSqlState(staleError, "40P01") ? "stale" : hasSqlState(winnerError, "40P01") ? "current" : "none");

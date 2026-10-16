@@ -18,6 +18,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -78,7 +79,7 @@ class CommandConsumptionRuntimePostgresTest {
 	}
 
 	@Autowired RecordedCommandInsertionPort commands;
-	@Autowired TransactionRunner transactions;
+	@Autowired @Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions;
 	@Autowired JpaConsumptionLifecycleAdapter lifecycle;
 	@Autowired JdbcTemplate jdbc;
 

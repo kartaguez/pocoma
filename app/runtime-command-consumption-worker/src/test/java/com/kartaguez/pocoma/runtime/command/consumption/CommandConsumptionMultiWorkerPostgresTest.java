@@ -16,6 +16,7 @@ import java.util.function.BooleanSupplier;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -69,7 +70,7 @@ class CommandConsumptionMultiWorkerPostgresTest {
 	}
 
 	@Autowired RecordedCommandInsertionPort commands;
-	@Autowired TransactionRunner transactions;
+	@Autowired @Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions;
 	@Autowired ConsumptionOrchestrator orchestrator;
 	@Autowired JpaConsumptionLifecycleAdapter lifecycle;
 	@Autowired JdbcTemplate jdbc;

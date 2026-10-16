@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -56,7 +57,7 @@ class BindingRuntimePostgresTest {
 	@Autowired JdbcTemplate jdbc; @Autowired DataSource dataSource;
 	@Autowired ExternalIdentityBindingPort bindings; @Autowired ConsumptionOrchestrator orchestrator;
 	@Autowired CurrentBindingReadPort projection;
-	@Autowired TransactionRunner transactions; @Autowired Clock clock;
+	@Autowired @Qualifier("bindingTransactionRunner") TransactionRunner transactions; @Autowired Clock clock;
 	@Autowired BindingFactConsumptionLocator locator; @Autowired AcquireConsumptionUseCase acquire;
 	@Autowired ExecuteConsumptionUseCase execute; @Autowired HandleConsumptionFailureUseCase handleFailure;
 
