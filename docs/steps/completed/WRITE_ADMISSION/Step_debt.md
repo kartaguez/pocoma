@@ -21,6 +21,10 @@ runtime actuel, ne modifient pas le modèle canonique et ne justifient pas la r�
 
 ## DEBT-WA6-01 — Global binding lock-order guard is not semantically exhaustive
 
+> Mise à jour 2026-10-16 : **RESOLVED / PASS** dans le
+> [chantier dédié](../../../debts/BINDING_LOCK_ORDER_GUARD/Resolution_Guard_2026-10-16.md).
+> Le finding et les pistes ci-dessous conservent leur valeur historique au moment de la clôture WA.6.
+
 ### Contexte
 
 `Wa67BindingArchitectureTest` fournit aujourd'hui une garde utile contre les régressions connues :
