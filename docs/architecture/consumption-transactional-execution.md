@@ -143,3 +143,17 @@ final fence donc ensemble mutation métier, Events et provenance. Le runtime
 traitement. Les supras Command, Event, ProjectionTask, Binding, Results, Registration et LKV adaptent
 leurs consumables propres sans réintroduire de protocole parallèle. Les effets externes restent
 produits comme Task ou ligne d'outbox transactionnelle avant leur livraison indépendante.
+
+## Surface lifecycle consolidée
+
+Le port participant expose seulement `acquire`, `terminalize` et `scheduleRetry`. Le retrait WP5
+supprime `lockCurrentClaim`, `tryTerminalize`, l'ancien `handleFailure` de persistance et le
+repository `findByIdForUpdate`. Le failure use case conserve sa policy puis appelle le même
+finalizer ou la transition retry ; aucun booléen de perte n'est laissé à interpréter après effet.
+`findByKeyForUpdate` reste réservé à Acquire/Takeover. Les locks stream Binding et CAS Pot
+restent des autorités distinctes, avant le suffixe Consumption.
+
+Les constructeurs sans provenance restent utilisés par Event/Projection et les chemins failure
+sans provenance ; ils rejettent une liste non vide en l'absence d'adapter. Ils ne possèdent aucun
+CAS alternatif. Les wrappers owner et les holders participants ont des responsabilités distinctes
+et restent nécessaires aux frontières transactionnelles.

@@ -25,7 +25,7 @@ public final class FinalizeConsumptionService implements FinalizeConsumptionUseC
 		this.clock = requireNonNull(clock);
 	}
 
-	/** Compatibility for callers without provenance; nonempty provenance is never discarded. */
+	/** For families without provenance; rejects nonempty provenance without an adapter. */
 	public FinalizeConsumptionService(ConsumptionLifecyclePersistencePort lifecycle, Clock clock) {
 		this(lifecycle, new ConsumptionProvenancePersistencePort() {
 			public List<ConsumptionInput> findInputs(UUID slotId) { return List.of(); }
@@ -50,6 +50,6 @@ public final class FinalizeConsumptionService implements FinalizeConsumptionUseC
 		provenance.appendInputs(input.inputs());
 		provenance.appendResults(input.results());
 		lifecycle.terminalize(input.slotId(), input.claimId(), input.finalization(), clock.instant());
-			return FencedMutationResult.APPLIED;
-		}
-		}
+		return FencedMutationResult.APPLIED;
+	}
+}

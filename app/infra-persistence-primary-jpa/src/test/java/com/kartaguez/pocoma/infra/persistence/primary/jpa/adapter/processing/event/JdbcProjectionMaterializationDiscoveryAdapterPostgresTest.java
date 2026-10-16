@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +44,6 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
-import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.domain.event.EventType;
 import com.kartaguez.pocoma.domain.projection.ProjectionType;
@@ -179,9 +178,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 
 		acquire(busy, READ_POT);
 		Claim delayed = acquire(notReady, READ_POT);
-		inTransaction(() -> lifecycle.handleFailure(delayed.slotId(), delayed.claimId(),
-				new ProcessingFailure(new ProcessingFailureCode("TEMPORARY"), "TEMPORARY", "retry", NOW),
-				new RetryAfter(Duration.ofHours(1)), NOW));
+		inTransaction(() -> { lifecycle.scheduleRetry(delayed.slotId(), delayed.claimId(), new ProcessingFailure(new ProcessingFailureCode("TEMPORARY"), "TEMPORARY", "retry", NOW), NOW.plus(Duration.ofHours(1)), NOW); return null; });
 		done(doneOtherProjection, POT_BALANCES);
 		done(doneExact, READ_POT);
 
@@ -286,8 +283,7 @@ class JdbcProjectionMaterializationDiscoveryAdapterPostgresTest {
 
 	private void done(UUID eventId, ProjectionType projectionType) {
 		Claim claim = acquire(eventId, projectionType);
-		assertTrue(inTransaction(() -> lifecycle.tryTerminalize(
-				claim.slotId(), claim.claimId(), TerminalOutcome.SUCCESS, Optional.empty(), NOW.plusSeconds(1))));
+		inTransaction(() -> { lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), NOW.plusSeconds(1)); return null; });
 	}
 
 	private <T> T inTransaction(java.util.function.Supplier<T> action) {

@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,14 +20,9 @@ import com.kartaguez.pocoma.domain.consumption.key.ConsumableIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumerIdentity;
 import com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
-import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
-import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
-import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 
 class AcquireConsumptionPreconditionTest {
@@ -54,21 +48,11 @@ class AcquireConsumptionPreconditionTest {
 	}
 
 	private record StubPersistence(AtomicInteger calls) implements ConsumptionLifecyclePersistencePort {
-		@Override public void terminalize(UUID slotId, ClaimId claimId,
-				ConsumptionFinalization terminal, Instant now) {
-			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
-				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
-					throw new LostClaimException(slotId, claimId);
-			} else {
-				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
-				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
-						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
-					throw new LostClaimException(slotId, claimId);
-			}
+		@Override public void terminalize(UUID slotId, ClaimId claimId, ConsumptionFinalization terminal, Instant now) {
+			throw new UnsupportedOperationException();
 		}
 		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
-			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
-				throw new LostClaimException(slotId, claimId);
+			throw new UnsupportedOperationException();
 		}
 
 		@Override public AcquireResult acquire(ConsumptionKey key, ClaimId claimId, WorkerId workerId,
@@ -76,14 +60,6 @@ class AcquireConsumptionPreconditionTest {
 			calls.incrementAndGet();
 			return new AcquireResult.NotReady(now);
 		}
-		@Override public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
-			throw new UnsupportedOperationException();
-		}
-		@Override public boolean tryTerminalize(UUID slotId, ClaimId claimId, TerminalOutcome outcome,
-				Optional<TerminalReason> reason, Instant doneAt) { throw new UnsupportedOperationException(); }
-		@Override public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId,
-				ProcessingFailure failure, FailureDecision decision, Instant now) {
-			throw new UnsupportedOperationException();
-		}
+
 	}
 }

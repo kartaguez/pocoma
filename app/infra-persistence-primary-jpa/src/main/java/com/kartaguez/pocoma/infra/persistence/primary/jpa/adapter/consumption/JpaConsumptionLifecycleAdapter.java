@@ -25,14 +25,11 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Busy;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.NotReady;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionQueryPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionClaimEntity;
@@ -124,18 +121,6 @@ public class JpaConsumptionLifecycleAdapter
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
-		requireNonNull(slotId, "slotId must not be null");
-		requireNonNull(claimId, "claimId must not be null");
-		return slots.findByIdForUpdate(slotId)
-				.filter(slot -> slot.status() == ConsumptionStatus.PENDING)
-				.map(JpaConsumptionSlotEntity::currentClaimId)
-				.filter(claimId.value()::equals)
-				.isPresent();
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.MANDATORY)
 	public void terminalize(UUID slotId, ClaimId claimId,
 			ConsumptionFinalization finalization, Instant now) {
 		requireNonNull(slotId); requireNonNull(claimId); requireNonNull(finalization); requireNonNull(now);
@@ -180,30 +165,6 @@ public class JpaConsumptionLifecycleAdapter
 			throw new ConsumptionClaimClosureException("close Claim", slotId, claimId, null, failure);
 		}
 		if (updated != 1) throw new ConsumptionClaimClosureException("close Claim", slotId, claimId, updated, null);
-	}
-
-	/** Transitional APIs delegate to the same rollback-signalling suffix. */
-	@Override
-	@Transactional(propagation = Propagation.MANDATORY)
-	public boolean tryTerminalize(UUID slotId, ClaimId claimId, TerminalOutcome outcome, Optional<TerminalReason> reason, Instant now) {
-		requireNonNull(outcome); requireNonNull(reason);
-		if (outcome != TerminalOutcome.SUCCESS && outcome != TerminalOutcome.REJECTED)
-			throw new IllegalArgumentException("Only SUCCESS and REJECTED are execution terminal outcomes");
-		if (reason.isPresent() != (outcome == TerminalOutcome.REJECTED))
-			throw new IllegalArgumentException("execution terminal outcome and reason are inconsistent");
-		terminalize(slotId, claimId, outcome == TerminalOutcome.SUCCESS
-				? new ConsumptionFinalization.Success()
-				: new ConsumptionFinalization.Rejected(reason.orElseThrow().code()), now);
-		return true;
-	}
-
-	@Override
-	@Transactional(propagation = Propagation.MANDATORY)
-	public FencedMutationResult handleFailure(UUID slotId, ClaimId claimId, ProcessingFailure failure, FailureDecision decision, Instant now) {
-		requireNonNull(decision);
-		if (decision instanceof RetryAfter retry) scheduleRetry(slotId, claimId, failure, now.plus(retry.duration()), now);
-		else terminalize(slotId, claimId, new ConsumptionFinalization.TerminalFailure(failure), now);
-		return FencedMutationResult.APPLIED;
 	}
 
 	@Override

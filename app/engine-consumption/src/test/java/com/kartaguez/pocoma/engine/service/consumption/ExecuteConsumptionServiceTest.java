@@ -27,16 +27,13 @@ import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome.Rejected;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome.Success;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision;
 import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.ConsumptionExecutionResult;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionLifecyclePersistencePort;
 import com.kartaguez.pocoma.engine.port.out.consumption.ConsumptionProvenancePersistencePort;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.BusinessConsumptionOutcome;
 import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
-import java.time.Duration;
 
 class ExecuteConsumptionServiceTest {
 
@@ -152,21 +149,16 @@ class ExecuteConsumptionServiceTest {
 	}
 
 	private static final class RecordingLifecycle implements ConsumptionLifecyclePersistencePort {
-		@Override public void terminalize(UUID slotId, ClaimId claimId,
-				ConsumptionFinalization terminal, Instant now) {
-			if (terminal instanceof ConsumptionFinalization.TerminalFailure failed) {
-				if (handleFailure(slotId, claimId, failed.failure(), new FailureDecision.Fail(), now) != FencedMutationResult.APPLIED)
-					throw new LostClaimException(slotId, claimId);
-			} else {
-				boolean rejected = terminal instanceof ConsumptionFinalization.Rejected;
-				if (!tryTerminalize(slotId, claimId, rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
-						rejected ? Optional.of(new TerminalReason(((ConsumptionFinalization.Rejected) terminal).rejectionCode())) : Optional.empty(), now))
-					throw new LostClaimException(slotId, claimId);
-			}
+		@Override public void terminalize(UUID slotId, ClaimId claimId, ConsumptionFinalization terminal, Instant now) {
+			calls.add("terminalize");
+			assertEquals(SLOT_ID, slotId); assertEquals(CLAIM_ID, claimId);
+			outcome = terminal instanceof ConsumptionFinalization.Rejected ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS;
+			reason = terminal instanceof ConsumptionFinalization.Rejected rejected ? Optional.of(new TerminalReason(rejected.rejectionCode())) : Optional.empty();
+			doneAt = now;
+			if (!fencingResult) throw new LostClaimException(slotId, claimId);
 		}
 		@Override public void scheduleRetry(UUID slotId, ClaimId claimId, ProcessingFailure failure, Instant nextClaimAt, Instant now) {
-			if (handleFailure(slotId, claimId, failure, new FailureDecision.RetryAfter(Duration.between(now, nextClaimAt)), now) != FencedMutationResult.APPLIED)
-				throw new LostClaimException(slotId, claimId);
+			throw new UnsupportedOperationException();
 		}
 
 		private final List<String> calls;
@@ -181,33 +173,8 @@ class ExecuteConsumptionServiceTest {
 		}
 
 		@Override
-		public boolean lockCurrentClaim(UUID slotId, ClaimId claimId) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean tryTerminalize(
-				UUID slotId, ClaimId claimId, TerminalOutcome terminalOutcome,
-				Optional<TerminalReason> terminalReason, Instant terminalizedAt) {
-			calls.add("terminalize");
-			assertEquals(SLOT_ID, slotId);
-			assertEquals(CLAIM_ID, claimId);
-			outcome = terminalOutcome;
-			reason = terminalReason;
-			doneAt = terminalizedAt;
-			return fencingResult;
-		}
-
-		@Override
 		public AcquireResult acquire(
 				ConsumptionKey key, ClaimId claimId, WorkerId workerId, ClaimLease lease, Instant now) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public FencedMutationResult handleFailure(
-				UUID slotId, ClaimId claimId, ProcessingFailure failure,
-				FailureDecision decision, Instant now) {
 			throw new UnsupportedOperationException();
 		}
 

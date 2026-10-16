@@ -1,6 +1,6 @@
 # Plan d'implémentation — protocole transactionnel générique Consumption
 
-Date : 2026-10-16. Statut du plan : **WP4 PASS**, après WP0–WP3 validés. WP5–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+Date : 2026-10-16. Statut du plan : **WP5 PASS**, après WP0–WP4 validés. WP6 reste PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## 1. Executive summary
 
@@ -520,3 +520,7 @@ Les références de code détaillées de l'[audit générique §K](../architectu
 ## Suivi WP4 (2026-10-16)
 
 **PASS**, après WP3 `7b2c3a8b` — [matrice T01–T11, qualifications et erreurs intermédiaires](2026-10-16-consumption-generic-transactional-protocol-wp4-concurrency.md), [293 exécutions / 146 méthodes distinctes](2026-10-16-consumption-generic-transactional-protocol-wp4-verification.txt). Dix nouvelles méthodes transactionnelles, deux Command, deux Event et deux store Projection. Aucune production changée ; aucun défaut connu reporté vers WP5.
+
+## Suivi WP5 (2026-10-16)
+
+**PASS**, après WP4 `19ef83d8` — [audit des callers et retrait exact](2026-10-16-consumption-generic-transactional-protocol-wp5-consolidation.md), [ALL8 967/967](2026-10-16-consumption-generic-transactional-protocol-wp5-verification.txt). Port réduit à acquire/terminalize/scheduleRetry ; zéro référence Java aux quatre API obsolètes, locks Acquire/Takeover et autorités métier conservés. Aucun crossing ni gate global requis.

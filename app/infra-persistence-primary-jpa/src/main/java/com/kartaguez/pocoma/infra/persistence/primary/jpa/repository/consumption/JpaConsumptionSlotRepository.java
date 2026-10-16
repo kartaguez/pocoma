@@ -47,9 +47,6 @@ public interface JpaConsumptionSlotRepository extends JpaRepository<JpaConsumpti
 			@Param("consumerType") String consumerType,
 			@Param("consumerComponents") String consumerComponents);
 
-	@Query(value = "select * from consumption_slots where slot_id = :slotId for update", nativeQuery = true)
-	Optional<JpaConsumptionSlotEntity> findByIdForUpdate(@Param("slotId") UUID slotId);
-
 	@Query(value = """
 			select * from consumption_slots
 			where consumable_type = :consumableType

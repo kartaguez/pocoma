@@ -1,13 +1,13 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import com.kartaguez.pocoma.engine.port.in.consumption.contract.ConsumptionFinalization;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -56,14 +56,11 @@ import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReason;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionInput;
 import com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionResult;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.Fail;
-import com.kartaguez.pocoma.engine.port.in.consumption.failure.FailureDecision.RetryAfter;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Acquired;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.AlreadyDone;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.Busy;
 import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult.NotReady;
-import com.kartaguez.pocoma.engine.port.in.consumption.result.FencedMutationResult;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.consumption.JpaConsumptionSlotEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
 import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
@@ -170,9 +167,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		ConsumptionKey key = key("TASK", "task-1", "TASK_EXECUTOR");
 		Claim original = acquired(inTransaction(() -> acquire(key, "worker-1", NOW)));
 
-		assertTrue(inTransaction(() -> lifecycle.tryTerminalize(
-				original.slotId(), original.claimId(), TerminalOutcome.SUCCESS,
-				Optional.empty(), NOW.plusSeconds(31))));
+		inTransaction(() -> { lifecycle.terminalize(original.slotId(), original.claimId(), new ConsumptionFinalization.Success(), NOW.plusSeconds(31)); return null; });
 
 		Claim ended = lifecycle.findClaim(original.claimId()).orElseThrow();
 		assertEquals(Optional.of(ClaimEndReason.SUCCESS), ended.endReason());
@@ -190,21 +185,15 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		assertEquals(Optional.of(ClaimEndReason.TAKEN_OVER),
 				lifecycle.findClaim(first.claimId()).orElseThrow().endReason());
 		assertEquals(Optional.of(second.claimId()), lifecycle.findSlot(key).orElseThrow().currentClaimId());
-		assertThrows(LostClaimException.class, () -> inTransaction(() -> lifecycle.tryTerminalize(
-				first.slotId(), first.claimId(), TerminalOutcome.SUCCESS,
-				Optional.empty(), NOW.plusSeconds(31))));
-		assertTrue(inTransaction(() -> lifecycle.tryTerminalize(
-				second.slotId(), second.claimId(), TerminalOutcome.SUCCESS,
-				Optional.empty(), NOW.plusSeconds(31))));
+		assertThrows(LostClaimException.class, () -> inTransaction(() -> { lifecycle.terminalize(first.slotId(), first.claimId(), new ConsumptionFinalization.Success(), NOW.plusSeconds(31)); return null; }));
+		inTransaction(() -> { lifecycle.terminalize(second.slotId(), second.claimId(), new ConsumptionFinalization.Success(), NOW.plusSeconds(31)); return null; });
 	}
 
 	@Test
 	void attemptNumbersAreAllocatedUnderTheSlotLockAcrossRetriesAndTakeovers() {
 		ConsumptionKey key = key("COMMAND", "command-1", "COMMAND_PROCESSOR");
 		Claim first = acquired(inTransaction(() -> acquire(key, "worker-1", NOW)));
-		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				first.slotId(), first.claimId(), failure("temporary"),
-				new RetryAfter(Duration.ofSeconds(1)), NOW)));
+		inTransaction(() -> { lifecycle.scheduleRetry(first.slotId(), first.claimId(), failure("temporary"), NOW.plus(Duration.ofSeconds(1)), NOW); return null; });
 
 		assertInstanceOf(NotReady.class, inTransaction(() -> acquire(key, "too-early", NOW.plusMillis(999))));
 		Claim second = acquired(inTransaction(() -> acquire(key, "worker-2", NOW.plusSeconds(1))));
@@ -222,9 +211,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		ConsumptionKey retryKey = key("TASK", "retry", "TASK_EXECUTOR");
 		Claim retryClaim = acquired(inTransaction(() -> acquire(retryKey, "worker", NOW)));
 		ProcessingFailure deadlock = failure("DEADLOCK", "TRANSIENT");
-		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				retryClaim.slotId(), retryClaim.claimId(), deadlock,
-				new RetryAfter(Duration.ofSeconds(5)), NOW)));
+		inTransaction(() -> { lifecycle.scheduleRetry(retryClaim.slotId(), retryClaim.claimId(), deadlock, NOW.plus(Duration.ofSeconds(5)), NOW); return null; });
 		ConsumptionSlot pending = lifecycle.findSlot(retryKey).orElseThrow();
 		assertEquals(ConsumptionStatus.PENDING, pending.status());
 		assertTrue(pending.currentClaimId().isEmpty());
@@ -235,17 +222,14 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 				lifecycle.findClaim(retryClaim.claimId()).orElseThrow().failure().orElseThrow().code());
 
 		Claim finalDeadlockClaim = acquired(inTransaction(() -> acquire(retryKey, "worker-2", NOW.plusSeconds(5))));
-		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				finalDeadlockClaim.slotId(), finalDeadlockClaim.claimId(), deadlock, new Fail(), NOW.plusSeconds(5))));
+		inTransaction(() -> { lifecycle.terminalize(finalDeadlockClaim.slotId(), finalDeadlockClaim.claimId(), new ConsumptionFinalization.TerminalFailure(deadlock), NOW.plusSeconds(5)); return null; });
 		ConsumptionSlot deadlockFailed = lifecycle.findSlot(retryKey).orElseThrow();
 		assertEquals(Optional.of(TerminalOutcome.FAILED), deadlockFailed.terminalOutcome());
 		assertEquals(Optional.of(new TerminalReason("DEADLOCK")), deadlockFailed.terminalReason());
 
 		ConsumptionKey failedKey = key("TASK", "failed", "TASK_EXECUTOR");
 		Claim failedClaim = acquired(inTransaction(() -> acquire(failedKey, "worker", NOW)));
-		assertEquals(FencedMutationResult.APPLIED, inTransaction(() -> lifecycle.handleFailure(
-				failedClaim.slotId(), failedClaim.claimId(),
-				failure("DATABASE_UNAVAILABLE", "TRANSIENT"), new Fail(), NOW)));
+		inTransaction(() -> { lifecycle.terminalize(failedClaim.slotId(), failedClaim.claimId(), new ConsumptionFinalization.TerminalFailure(failure("DATABASE_UNAVAILABLE", "TRANSIENT")), NOW); return null; });
 		ConsumptionSlot failed = lifecycle.findSlot(failedKey).orElseThrow();
 		assertEquals(ConsumptionStatus.DONE, failed.status());
 		assertEquals(Optional.of(TerminalOutcome.FAILED), failed.terminalOutcome());
@@ -262,8 +246,7 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 		Claim stale = acquired(inTransaction(() -> acquire(key, "old", NOW)));
 		Claim winner = acquired(inTransaction(() -> acquire(key, "new", NOW.plusSeconds(30))));
 
-		assertThrows(LostClaimException.class, () -> inTransaction(() -> lifecycle.handleFailure(
-				stale.slotId(), stale.claimId(), failure("late"), new Fail(), NOW.plusSeconds(31))));
+		assertThrows(LostClaimException.class, () -> inTransaction(() -> { lifecycle.terminalize(stale.slotId(), stale.claimId(), new ConsumptionFinalization.TerminalFailure(failure("late")), NOW.plusSeconds(31)); return null; }));
 		assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(key).orElseThrow().currentClaimId());
 		assertTrue(lifecycle.findClaim(winner.claimId()).orElseThrow().isOpen());
 	}
@@ -275,13 +258,8 @@ class JpaConsumptionLifecycleAdapterPostgresTest {
 			ConsumptionKey key = key("TASK", "done-" + outcome, "TASK_EXECUTOR");
 			Claim claim = acquired(inTransaction(() -> acquire(key, "worker", NOW)));
 			switch (outcome) {
-			case SUCCESS, REJECTED -> assertTrue(inTransaction(() -> lifecycle.tryTerminalize(
-						claim.slotId(), claim.claimId(), outcome,
-						outcome == TerminalOutcome.SUCCESS ? Optional.empty() : Optional.of(REJECTION_REASON),
-						NOW.plusSeconds(1))));
-				case FAILED -> assertEquals(FencedMutationResult.APPLIED,
-						inTransaction(() -> lifecycle.handleFailure(
-								claim.slotId(), claim.claimId(), failure("permanent"), new Fail(), NOW.plusSeconds(1))));
+			case SUCCESS, REJECTED -> inTransaction(() -> { lifecycle.terminalize(claim.slotId(), claim.claimId(), outcome == TerminalOutcome.SUCCESS ? new ConsumptionFinalization.Success() : new ConsumptionFinalization.Rejected(REJECTION_REASON.code()), NOW.plusSeconds(1)); return null; });
+				case FAILED -> inTransaction(() -> { lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.TerminalFailure(failure("permanent")), NOW.plusSeconds(1)); return null; });
 			case ABANDONED -> throw new AssertionError("ABANDONED is not produced by the canonical runtime");
 			}
 			AlreadyDone result = assertInstanceOf(AlreadyDone.class,
