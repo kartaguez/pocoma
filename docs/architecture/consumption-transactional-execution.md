@@ -2,7 +2,7 @@
 
 ## Garantie
 
-Le chemin cible garantit qu'aucun effet métier d'une exécution ayant perdu son `Claim` ne peut être
+Le protocole livré garantit qu'aucun effet métier d'une exécution ayant perdu son `Claim` ne peut être
 committé. L'unique autorité de commit est le fencing relationnel suivant :
 
 ```sql
@@ -64,7 +64,7 @@ et appelle un Execute participant sans prélock S. Binding encore présent reste
 absence de l'occurrence exacte permet le rejet CALLER_IDENTITY_NOT_CURRENT, sans rejouer Pot.
 Les autorités Pot et Binding gardent leurs positions propres.
 
-Les preuves bornées et limites WP2 sont rattachées au [rapport](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+Les preuves initiales WP2 sont rattachées au [rapport WP2](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md). Les [preuves WP4](../plans/2026-10-16-consumption-generic-transactional-protocol-wp4-concurrency.md) approfondissent les files FK/unicité/takeover ; la [clôture bornée WP6](../plans/2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md) fixe les limites finales.
 
 ## SUCCESS
 
@@ -115,7 +115,7 @@ appel HTTP, un email, une écriture dans une seconde base ou tout autre effet ir
 sa transaction ; cette sortie sera livrée et consommée ultérieurement avec son propre
 `ConsumptionSlot`. Un callback `runAfterCommit` ne constitue pas une garantie de livraison.
 
-## Frontière TARGET
+## Frontière du protocole livré
 
 Le chemin `ExecuteConsumptionUseCase` ne dépend pas d'un execution guard séparé et ne cumule jamais
 deux mécanismes de fencing. Un `ConsumptionKey` est toujours formé d'une `ConsumableIdentity` et
@@ -157,3 +157,25 @@ Les constructeurs sans provenance restent utilisés par Event/Projection et les 
 sans provenance ; ils rejettent une liste non vide en l'absence d'adapter. Ils ne possèdent aucun
 CAS alternatif. Les wrappers owner et les holders participants ont des responsabilités distinctes
 et restent nécessaires aux frontières transactionnelles.
+
+## Ordre partiel des acquisitions et flush
+
+Acquire/Takeover conserve `S FOR UPDATE par clé → invalider/insérer C → installer C → commit`.
+Il ne réclame aucune publication métier sous ce verrou. Le préfixe Command conserve
+`CAS Pot → metadata/DML temporel → Events saveAllAndFlush → fence Binding exact → outcome strict → terminal Event`.
+Registration conserve `stream Binding → initializer User/fact → occurrence/actif/fact → outcome`.
+Les matérialiseurs conservent leur UPSERT ou INSERT/compare ; Projection publie root avant artifacts.
+Tous convergent ensuite vers provenance/flush/CAS S/clôture C. Il s'agit d'une relation partielle,
+aucune hiérarchie totale entre ressources indépendantes n'est imposée.
+
+Les FK de provenance peuvent prendre KEY SHARE sur S avant le CAS ; cela ne constitue pas un
+prélock d'élection. Le CAS non-clé et cette FK sont compatibles dans les entrelacements testés.
+Un takeover FOR UPDATE peut attendre les détenteurs FK ; les files avec deux détenteurs et un
+acquéreur ont été éprouvées avec résolution commit/rollback au WP4. L'unicité peut sérialiser des
+publications avant même le CAS. Aucun de ces constats ne prouve l'absence générale de deadlock.
+
+`flushAutomatically=true` du repository Slot envoie les écritures JPA en attente avant UPDATE ;
+`clearAutomatically=true` détache ensuite les entités sans commit ni libération des verrous.
+Le flush de clôture ne doit plus découvrir d'écriture métier. Les callbacks avant commit/listeners
+futurs ne peuvent ajouter du DML métier après cette barrière sans revoir et éprouver ce contrat.
+Une contrainte différée peut encore refuser le commit après CAS et clôture réussis.

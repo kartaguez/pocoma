@@ -14,3 +14,7 @@ Statuts : **OPEN** (à traiter ultérieurement), **IN_PROGRESS** (chantier expli
 ## Décisions ouvertes de modularité
 
 `TBD-COMMAND-CONTRACT`, `TBD-E2U` et `TBD-LKV` sont **RESOLVED**. Les deux premiers le sont par le [checkpoint post-WP4 vérifié](../steps/completed/ARCHITECTURE/Modularity_Post_WP4_Checkpoint_Execution_Report.md). LKV est matérialisé par WP6 comme spécialisation C2 de la famille des convergent current-state indexes, avec engine, supra et worker indépendants du pipeline ProjectionTask.
+
+## D17 et protocole Consumption (2026-10-16)
+
+Le [bilan D17](BINDING_LOCK_ORDER_GUARD/Resolution_D17_2026-10-16.md) consigne sa correction et les preuves PostgreSQL WP0–WP6. D17 Command/Consumption et DEBT-WA6-01 sont distincts : le défaut est corrigé dans les entrelacements caractérisés ; le guard structurel Binding reste **OPEN/LOW**, son critère de résolution n'étant pas satisfait. Aucun constat historique ni statut des autres dettes n'est effacé.

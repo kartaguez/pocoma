@@ -24,3 +24,7 @@ Ces pistes ne sont pas implémentées dans cette session documentaire.
 ## Provenance
 
 Cette fiche est la source vivante de suivi. Le [Step debt WRITE_ADMISSION](../../steps/completed/WRITE_ADMISSION/Step_debt.md#debt-wa6-01--global-binding-lock-order-guard-is-not-semantically-exhaustive) conserve le finding et sa classification historiques ; voir aussi l'[audit WA.6](../../steps/completed/WRITE_ADMISSION/WA6_Audit.md).
+
+## Réévaluation Consumption — 2026-10-16
+
+**OPEN/LOW conservé.** Le [bilan D17 et WP0–WP6](Resolution_D17_2026-10-16.md) distingue la correction runtime Command/Consumption du critère structurel de cette fiche. La suppression du prélock terminal Consumption ne démontre pas l'impossibilité d'une future composition Binding authority→stream ; elle ne clôture pas DEBT-WA6-01.

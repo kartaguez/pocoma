@@ -1,6 +1,6 @@
 # Plan d'implémentation — protocole transactionnel générique Consumption
 
-Date : 2026-10-16. Statut du plan : **WP5 PASS**, après WP0–WP4 validés. WP6 reste PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+Date : 2026-10-16. Statut du plan : **WP0–WP6 PASS — COMPLETE**, clôture fonctionnelle bornée ; aucun gate d’intégration main revendiqué. Voir la [synthèse finale WP6](2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md). Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## 1. Executive summary
 
@@ -240,13 +240,12 @@ flowchart LR
   W0[WP0 Baseline et caractérisations] --> W1[WP1 Contrats et frontières]
   W1 --> W2[WP2 Basculement générique atomique et D17]
   W2 --> W3[WP3 Preuves des huit familles]
-  W2 --> W4[WP4 Courses et erreurs adverses]
-  W3 --> W5[WP5 Suppression des anciens chemins]
-  W4 --> W5
+  W3 --> W4[WP4 Courses et erreurs adverses]
+  W4 --> W5[WP5 Suppression des anciens chemins]
   W5 --> W6[WP6 Validation bornée et clôture]
 ```
 
-WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1 est **PASS contractuel** ([rapport et décisions D01–D10](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)) ; WP2 est **PASS borné** (moteur/tests `72687053`, [rapport](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp2-verification.txt)) ; WP3–WP6 restent **PLANNED**. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
+La passe WP3–WP6 impose désormais la séquence WP3 → WP4 → WP5 → WP6 ; chaque étape exige PASS et commit avant la suivante. La possibilité initiale de travaux WP3/WP4 séparés n’a pas été utilisée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1 est **PASS contractuel** ([rapport et décisions D01–D10](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)) ; WP2 est **PASS borné** (moteur/tests `72687053`, [rapport](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp2-verification.txt)) ; WP3–WP6 restent **PLANNED**. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
 
 ### WP0 — Baseline reproductible et préconditions expérimentales
 
@@ -324,7 +323,7 @@ WP2 est une unité de cohérence plus large que les autres WP mais son contenu r
 |---|---|
 | Objectif | Éprouver les ordres d'attente et les points d'échec restants, au-delà du seul D17 |
 | Périmètre | Tests infra-primary Command/lifecycle/transactionnels ; Event/Projection ; Results complémentaires ; wiring LKV |
-| Préconditions | WP2 ; WP3 non nécessaire pour les scénarios indépendants ; reprendre preuves ciblées si la production change |
+| Préconditions | WP3 PASS et committé pour cette passe séquentielle ; reprendre preuves ciblées si la production change |
 | Modifications | Compléter T02/T03/T04/T05/T07/T08/T11 ; troisième backend takeover, double finalisation/même C, détenteur publication commit/rollback, contraintes/commit refusés ; preuves de flush avec et sans Events ; observation postcommit séparée |
 | Invariants | Aucun effet requis hors tx ; pas de timeout/retry utilisé pour autoriser un mauvais ordre ; pas de suppression FK/unique ; ancien et nouveau rôles vérifiés |
 | Risques | Deadlock du contrôleur de test attendant le takeover avant de libérer le CAS ; faux PASS sans attente SQL ; erreurs de normalisation masquées par 23505 |
@@ -458,24 +457,26 @@ Ces recommandations sont les choix du plan. WP1 les inscrit dans les contrats ; 
 
 La clôture exige des preuves liées au SHA final, aucune case remplacée par « compile » ou un PASS historique :
 
-- [ ] Huit familles actives sous le même contrat transactionnel, callbacks et assemblages inventoriés, aucune exemption silencieuse.
-- [ ] Un seul suffixe terminal du moteur ; Success, Rejected, Failed et recovery y convergent avec leurs métadonnées propres.
-- [ ] Retry conserve sa sémantique PENDING et sa policy, mais utilise la discipline commune de fencing/clôture.
-- [ ] Tous les effets, publications et provenance nécessaires sont provisoires avant flush/CAS ; aucune mutation d'effet après CAS hors claim.
-- [ ] Prélocks terminaux/recovery devenus inutiles retirés ; Acquire/Takeover garde sérialisation et garanties (y compris acquéreurs concurrents).
-- [ ] Fences Pot et Binding corrects et à leurs positions locales ; versionnement Pot et occurrence Binding sans ABA préservés.
-- [ ] FK de provenance, FK composites slot/claim, uniques, contraintes et immutabilité actives ; aucune migration d'affaiblissement.
-- [ ] Aucun effet stale durable ; CAS zéro et clôture refusée rollbackent effets/provenance/slot/claim dans les huit chemins applicables.
-- [ ] Lease expirée courante peut finir ; claim supplanté ne peut publier ; aucun APPLIED avant commit.
-- [ ] D17 CURRENT conservé comme preuve historique et TARGET caractérisé sans 40P01 avec vrai takeover committé, ancien worker actif, FAILED nouveau et provenance ancienne ; variantes inputs/results/recovery vérifiées.
-- [ ] T01–T11 exécutés, courses critiques PostgreSQL déterministes, témoins d'attente archivés, aucun retry masquant défaut ni skip compté PASS.
-- [ ] Garanties task/projection/root/artifacts/failure, Result/owner/provenance et watermarks conservées ; tests d'invocation remplacés selon leur intention sans effacer les tests Temporary/pureté.
-- [ ] Entrées owner et delegates participants sans capture prématurée ; même ressource transactionnelle ; ambient interdit testé ; erreurs pré-CAS et postcommit traitées selon §5.
-- [ ] Anciennes APIs et chemins obsolètes supprimés après migration de tous les callers ; aucune branche/flag legacy, pas de duplication de finalisation.
-- [ ] Canons Consumption/Projection et garanties système alignés sur les preuves bornées ; dettes réévaluées sans modification automatique de statut.
-- [ ] ALL8 et contrôles applicables au HEAD final réussis ; crossings expliqués ; gates structurels/intégration exécutés seulement s'ils sont requis et leur horizon clairement indiqué.
+- [x] Huit familles actives sous le même contrat transactionnel, callbacks et assemblages inventoriés, aucune exemption silencieuse.
+- [x] Un seul suffixe terminal du moteur ; Success, Rejected, Failed et recovery y convergent avec leurs métadonnées propres.
+- [x] Retry conserve sa sémantique PENDING et sa policy, mais utilise la discipline commune de fencing/clôture.
+- [x] Tous les effets, publications et provenance nécessaires sont provisoires avant flush/CAS ; aucune mutation d'effet après CAS hors claim.
+- [x] Prélocks terminaux/recovery devenus inutiles retirés ; Acquire/Takeover garde sérialisation et garanties (y compris acquéreurs concurrents).
+- [x] Fences Pot et Binding corrects et à leurs positions locales ; versionnement Pot et occurrence Binding sans ABA préservés.
+- [x] FK de provenance, FK composites slot/claim, uniques, contraintes et immutabilité actives ; aucune migration d'affaiblissement.
+- [x] Aucun effet stale durable ; CAS zéro et clôture refusée rollbackent effets/provenance/slot/claim dans les huit chemins applicables.
+- [x] Lease expirée courante peut finir ; claim supplanté ne peut publier ; aucun APPLIED avant commit.
+- [x] D17 CURRENT conservé comme preuve historique et TARGET caractérisé sans 40P01 avec vrai takeover committé, ancien worker actif, FAILED nouveau et provenance ancienne ; variantes inputs/results/recovery vérifiées.
+- [x] T01–T11 exécutés, courses critiques PostgreSQL déterministes, témoins d'attente archivés, aucun retry masquant défaut ni skip compté PASS.
+- [x] Garanties task/projection/root/artifacts/failure, Result/owner/provenance et watermarks conservées ; tests d'invocation remplacés selon leur intention sans effacer les tests Temporary/pureté.
+- [x] Entrées owner et delegates participants sans capture prématurée ; même ressource transactionnelle ; ambient interdit testé ; erreurs pré-CAS et postcommit traitées selon §5.
+- [x] Anciennes APIs et chemins obsolètes supprimés après migration de tous les callers ; aucune branche/flag legacy, pas de duplication de finalisation.
+- [x] Canons Consumption/Projection et garanties système alignés sur les preuves bornées ; dettes réévaluées sans modification automatique de statut.
+- [x] ALL8 et contrôles applicables au HEAD final réussis ; crossings expliqués ; gates structurels/intégration exécutés seulement s'ils sont requis et leur horizon clairement indiqué.
 
 La fin WP6 est une clôture fonctionnelle bornée du protocole sur cette branche. Une intégration dans main nécessite en plus le gate d'intégration de la politique ; aucune absence générale de deadlock, performance ou progression temporelle n'est affirmée.
+
+Preuves de clôture : [WP6, contrôles et niveaux de preuve](2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md), [T01–T11 qualifiés](2026-10-16-consumption-generic-transactional-protocol-wp4-concurrency.md). Les cases couvrent les scénarios applicables et nommés, sans transformer les simulations UNKNOWN/SQLSTATE en pannes PostgreSQL réelles.
 
 ## 12. Stratégie de migration et rollback
 
@@ -486,7 +487,7 @@ La fin WP6 est une clôture fonctionnelle bornée du protocole sur cette branche
 5. Rollback source : revert des seuls commits du chantier comme ensembles cohérents, sans reset des modifications utilisateur. Aucun rollback DDL attendu, puisque le schéma ne change pas. Rollback d'un lot ne valide pas CURRENT : il restaure aussi son risque D17 documenté.
 6. Rollback exploitation futur : arrêter/drainer tous workers susceptibles de partager le protocole, attendre la résolution de leurs transactions puis redéployer un artefact cohérent. Les effets SQL committés restent valides ; pas de suppression d'outcomes/provenance ni compensation partielle. Les claims ouverts seront repris par le mécanisme normal de lease/takeover. Le détail des commandes de déploiement est hors de cette mission documentaire.
 
-## 13. Points ouverts, preuves manquantes et verdict
+## 13. Points ouverts et verdict à la clôture WP2 (historique)
 
 **Préconditions initiales avant WP2, arrêtées par WP0/WP1** : capture CURRENT reproductible et preuve Binding runtime résolues au WP0 ; choix Java terminal/provenance, distinction owner/participant, garde Spring et contrats des huit callbacks décidés dans le [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md). Leur implémentation commune et les preuves minimales TARGET sont maintenant livrées au WP2, sans préjuger des approfondissements suivants. Les décisions de correction ne sont pas reportées : recommandations D01–D10 retenues, toute alternative exige preuve équivalente avant basculement.
 
@@ -524,3 +525,10 @@ Les références de code détaillées de l'[audit générique §K](../architectu
 ## Suivi WP5 (2026-10-16)
 
 **PASS**, après WP4 `19ef83d8` — [audit des callers et retrait exact](2026-10-16-consumption-generic-transactional-protocol-wp5-consolidation.md), [ALL8 967/967](2026-10-16-consumption-generic-transactional-protocol-wp5-verification.txt). Port réduit à acquire/terminalize/scheduleRetry ; zéro référence Java aux quatre API obsolètes, locks Acquire/Takeover et autorités métier conservés. Aucun crossing ni gate global requis.
+
+## Suivi WP6 et clôture (2026-10-16)
+
+**PASS — CONSUMPTION GENERIC TRANSACTIONAL PROTOCOL — COMPLETE**, après WP5 `5bb8fc5d`.
+[Synthèse finale architecture/garanties/Git/dettes](2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md), [preuve ALL8 967/967](2026-10-16-consumption-generic-transactional-protocol-wp6-verification.txt). WP3 `7b2c3a8b`, WP4 `19ef83d8`, WP5 `5bb8fc5d` ; SHA du commit documentaire WP6 dans la restitution finale. Les suivis antérieurs restent historiques.
+
+Les huit familles partagent le suffixe commun ; retraits WP5 compilés, preuves fonctionnelles/concurrentes requises réussies et documentées. Aucun défaut bloquant connu. Les points historiquement manquants du §13 ont leur preuve bornée dans WP3/WP4/WP6 ; les limites réseau/multiclés/charge/DDL restent explicites et ne sont pas des garanties inventées. D17 corrigé dans les huit entrelacements ; Binding lock order guard reste OPEN/LOW. Aucun gate global ni reactor complet requis/exécuté dans ce scope ; gate main distinct, aucun merge/push.

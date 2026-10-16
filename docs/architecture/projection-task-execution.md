@@ -274,7 +274,7 @@ transaction locale courte effectue ensuite, comme une seule unité atomique :
 Aucun prélock terminal n'exclut l'invocation stale du callback. CAS perdu ou clôture refusée
 annule toute la transaction, root/artifacts/failure inclus. Acquire/Takeover conserve son verrou
 par clé. Voir le [protocole Consumption](consumption-transactional-execution.md) et le
-[rapport WP2](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+[rapport WP2](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md), puis les [courses WP4](../plans/2026-10-16-consumption-generic-transactional-protocol-wp4-concurrency.md) et la [validation finale WP6](../plans/2026-10-16-consumption-generic-transactional-protocol-wp6-closure.md).
 
 Pour une `ProjectionTask` préparée avec succès, l'effet durable est :
 
@@ -315,8 +315,8 @@ B peut finaliser
 
 Inversement, si A gagne et commit sa finalisation avant que B n'installe un nouveau Claim, A peut
 terminer même avec un lease expiré. Le takeover ne peut alors acquérir une consommation déjà
-terminale. Le mécanisme relationnel exact assurant cette sérialisation reste une décision
-d'implémentation ; le comportement observable est obligatoire.
+terminale. Le mécanisme livré est le CAS `S/PENDING/C` puis la clôture conditionnelle du Claim,
+dans la transaction de publication commune ; voir le canon Consumption.
 
 La contrainte unique sur `ProjectionKey` protège en outre contre des publications concurrentes
 issues de chemins distincts. Elle applique indépendamment la règle `first published wins`.
