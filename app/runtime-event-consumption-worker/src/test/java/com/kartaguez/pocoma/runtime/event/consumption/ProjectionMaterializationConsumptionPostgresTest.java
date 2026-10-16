@@ -304,6 +304,64 @@ class ProjectionMaterializationConsumptionPostgresTest {
 		assertEquals(1, count("select count(*) from projection_tasks"));
 	}
 
+	@Test void concurrentTaskEnsureConvergesAfterHolderCommit() throws Exception { characterizeSharedTask(false); }
+	@Test void concurrentTaskEnsureConvergesAfterHolderRollback() throws Exception { characterizeSharedTask(true); }
+
+	private void characterizeSharedTask(boolean rollbackHolder) throws Exception {
+		UUID pot = uuid(500);
+		var a = new ProjectionMaterializationCandidate(uuid(501), POT_CREATED, READ_POT,
+				new TargetObjectType("POT"), new TargetObjectId(pot.toString()), 7, NOW);
+		var b = new ProjectionMaterializationCandidate(uuid(502), POT_CREATED, READ_POT,
+				new TargetObjectType("POT"), new TargetObjectId(pot.toString()), 7, NOW);
+		Claim first = acquired(acquire.acquire(input(a, "a"))), second = acquired(acquire.acquire(input(b, "b")));
+		CountDownLatch written = new CountDownLatch(1), resolve = new CountDownLatch(1);
+		AtomicInteger holderPid = new AtomicInteger(), waiterPid = new AtomicInteger();
+		var holderStore = new DelegatingStore(tasks) {
+			@Override public ProjectionTask ensure(ProjectionKey key, Instant at) {
+				holderPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				var task = super.ensure(key, at); written.countDown(); await(resolve);
+				if (rollbackHolder) throw new IllegalStateException("controlled holder rollback");
+				return task;
+			}
+		};
+		var waiterStore = new DelegatingStore(tasks) {
+			@Override public ProjectionTask ensure(ProjectionKey key, Instant at) {
+				waiterPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				return super.ensure(key, at);
+			}
+		};
+		var holderService = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(holderStore));
+		var waiterService = new ProjectionMaterializationConsumptionService(finalizeConsumption, new ProduceProjectionTaskService(waiterStore));
+		try (var pool = Executors.newFixedThreadPool(2)) {
+			var holder = pool.submit(() -> holderService.finalize(a, first));
+			try {
+				assertTrue(written.await(10, TimeUnit.SECONDS));
+				var waiter = pool.submit(() -> waiterService.finalize(b, second));
+				long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+				boolean observed = false;
+				while (System.nanoTime() < deadline) {
+					if (waiterPid.get() != 0 && Boolean.TRUE.equals(jdbc.queryForObject(
+							"select ?=any(pg_blocking_pids(?))", Boolean.class, holderPid.get(), waiterPid.get()))) {
+						System.out.println("WP4_TASK_WAIT " + jdbc.queryForList("select pid,backend_xid::text as xid,wait_event,query from pg_stat_activity where pid in (?,?)", holderPid.get(),waiterPid.get()));
+						observed = true; break;
+					}
+					Thread.onSpinWait();
+				}
+				assertTrue(observed, "second ensure really waits for unique key holder");
+				assertEquals(0, count("select count(*) from projection_tasks"));
+				resolve.countDown();
+				if (rollbackHolder) org.junit.jupiter.api.Assertions.assertThrows(java.util.concurrent.ExecutionException.class, () -> holder.get(10, TimeUnit.SECONDS));
+				else assertEquals(FencedMutationResult.APPLIED, holder.get(10, TimeUnit.SECONDS));
+				assertEquals(FencedMutationResult.APPLIED, waiter.get(10, TimeUnit.SECONDS));
+				assertEquals(1, count("select count(*) from projection_tasks"));
+				assertEquals(rollbackHolder ? 1 : 2, count("select count(*) from consumption_slots where status='DONE'"));
+				assertSuccessful(second);
+				assertEquals(rollbackHolder, lifecycle.findClaim(first.claimId()).orElseThrow().isOpen());
+				System.out.println("WP4_TASK rollbackHolder="+rollbackHolder+" tasks=1 SQLSTATE none");
+			} finally { resolve.countDown(); }
+		}
+	}
+
 	private ConsumptionOrchestrator orchestrator(
 			Map<EventType, Set<ProjectionType>> routes, ProjectionTaskStorePort store) {
 		var source = new ProjectionMaterializationConsumptionSource(routes, WorkerSegment.single(), discovery);

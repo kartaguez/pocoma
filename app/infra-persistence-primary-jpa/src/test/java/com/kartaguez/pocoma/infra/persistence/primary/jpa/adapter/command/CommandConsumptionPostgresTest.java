@@ -153,6 +153,7 @@ class CommandConsumptionPostgresTest {
 	@Autowired private PlatformTransactionManager transactionManager;
 	@Autowired private JdbcTemplate jdbc;
 	@Autowired private JpaBusinessEventOutboxRepository eventOutbox;
+	@Autowired private com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.JpaPotGlobalVersionRepository potVersions;
 
 	private Clock clock;
 	private SpringTransactionRunner transactions;
@@ -162,6 +163,7 @@ class CommandConsumptionPostgresTest {
 	void setUp() {
 		jdbc.execute("create table if not exists lot65_command_effects (effect_id uuid primary key, owner text not null)");
 		jdbc.update("delete from lot65_command_effects");
+		jdbc.update("delete from business_event_outbox");
 		jdbc.update("delete from consumption_inputs");
 		jdbc.update("delete from consumption_results");
 		jdbc.update("update consumption_slots set current_claim_id = null");
@@ -953,6 +955,59 @@ class CommandConsumptionPostgresTest {
 			if (cause instanceof SQLException sql && state.equals(sql.getSQLState())) return true;
 		}
 		return false;
+	}
+
+	@Test void samePotDistinctBindingsSerializeAtPotBeforeBindingFences() throws Exception { characterizePotBindingTopology(true); }
+	@Test void distinctPotsSameBindingPublishThroughCommonSuffix() throws Exception { characterizePotBindingTopology(false); }
+
+	private void characterizePotBindingTopology(boolean samePot) throws Exception {
+		UUID p1=UUID.randomUUID(), p2=samePot?p1:UUID.randomUUID();
+		jdbc.update("insert into pot_global_versions(pot_id,version) values (?,6)",p1);
+		if (!samePot) jdbc.update("insert into pot_global_versions(pot_id,version) values (?,6)",p2);
+		ExternalIdentity e1=identity("topology-a"), e2=samePot?identity("topology-b"):e1;
+		BindingId b1=bind(e1,user(180)), b2=samePot?bind(e2,user(181)):b1;
+		var q1=targetCommand(e1,b1,"first",NOW.plusSeconds(60));
+		var q2=targetCommand(e2,b2,"second",NOW.plusSeconds(60)); insert(q1);insert(q2);
+		var firstWritten=new CountDownLatch(1); var secondWritten=new CountDownLatch(1); var release=new CountDownLatch(1);
+		var firstPid=new AtomicInteger(); var secondPid=new AtomicInteger();
+		var business=commandExecution(value -> {
+			boolean first=value.value().equals("first"); UUID pot=first?p1:p2;
+			(first?firstPid:secondPid).set(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+			if (potVersions.updateIfActive(pot,6,7)==0)
+				return new CommandUseCaseResult.Rejected(new TerminalReason("POT_VERSION_CONFLICT"),List.of());
+			potVersions.insertVersionMetadata(pot,7);
+			(first?firstWritten:secondWritten).countDown(); await(release);
+			return new CommandUseCaseResult.Succeeded(List.of(),new CommandAppliedResult(pot,7),List.of(new PotDeletedEvent(PotId.of(pot),7)));
+		},new JpaPotCommandEventAppendAdapter(eventOutbox,new ObjectMapper().findAndRegisterModules()));
+		var acquire=new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle,clock),transactions);
+		var c1=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(q1.commandId()),new WorkerId("a"),new ClaimLease(Duration.ofSeconds(30))))).claim();
+		var c2=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(q2.commandId()),new WorkerId("b"),new ClaimLease(Duration.ofSeconds(30))))).claim();
+		var execute=new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(lifecycle,provenance,clock),transactions);
+		try (var pool=Executors.newFixedThreadPool(2)) {
+			var first=pool.submit(()->execute.execute(new ExecuteConsumptionInput(c1.slotId(),c1.claimId(),business.forCommand(q1.commandId()))));
+			try {
+				assertTrue(firstWritten.await(10,TimeUnit.SECONDS));
+				var second=pool.submit(()->execute.execute(new ExecuteConsumptionInput(c2.slotId(),c2.claimId(),business.forCommand(q2.commandId()))));
+				if (samePot) {
+					long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5); boolean waiting=false;
+					while (System.nanoTime()<deadline) {
+						if (secondPid.get()!=0 && Boolean.TRUE.equals(jdbc.queryForObject("select ?=any(pg_blocking_pids(?))",Boolean.class,firstPid.get(),secondPid.get()))) {
+							System.out.println("WP4_POT_WAIT "+jdbc.queryForList("select pid,backend_xid::text as xid,wait_event,query from pg_stat_activity where pid in (?,?)",firstPid.get(),secondPid.get())); waiting=true;break;
+						} Thread.onSpinWait();
+					}
+					assertTrue(waiting,"second Pot CAS must wait before Binding fence");
+				} else assertTrue(secondWritten.await(10,TimeUnit.SECONDS));
+				release.countDown(); first.get(10,TimeUnit.SECONDS);second.get(10,TimeUnit.SECONDS);
+			} finally { release.countDown(); }
+		}
+		assertEquals(7L,jdbc.queryForObject("select version from pot_global_versions where pot_id=?",Long.class,p1));
+		assertEquals(7L,jdbc.queryForObject("select version from pot_global_versions where pot_id=?",Long.class,p2));
+		assertTerminalResolution(q1.commandId(),"APPLIED","COMMAND_APPLIED");
+		assertTerminalResolution(q2.commandId(),samePot?"REJECTED":"APPLIED",samePot?"COMMAND_REJECTED":"COMMAND_APPLIED");
+		assertEquals(TerminalOutcome.SUCCESS,slot(q1.commandId()).terminalOutcome().orElseThrow());
+		assertEquals(samePot?TerminalOutcome.REJECTED:TerminalOutcome.SUCCESS,slot(q2.commandId()).terminalOutcome().orElseThrow());
+		assertEquals(samePot?1:2,jdbc.queryForObject("select count(*) from business_event_outbox where pot_id in (?,?)",Integer.class,p1,p2));
+		System.out.println("WP4_POT_BINDING samePot="+samePot+" outcomes=2 terminalSlots=2 SQLSTATE none");
 	}
 
 	private void assertStaleAfterReattach(PocomaUserId sameUser) {

@@ -202,6 +202,53 @@ class JdbcProjectionStoreAdapterPostgresTest {
 		assertEquals(1, count("select count(*) from pocoma_read.projection_artifact"));
 	}
 
+	@Test void rootWaiterKeepsCommittedHolderArtifacts() throws Exception { characterizeRootHolder(false); }
+	@Test void rootWaiterPublishesAfterHolderRollback() throws Exception { characterizeRootHolder(true); }
+
+	private void characterizeRootHolder(boolean rollbackHolder) throws Exception {
+		var key = key(50);
+		var ready = new CountDownLatch(1); var resolve = new CountDownLatch(1);
+		var holderPid = new java.util.concurrent.atomic.AtomicInteger();
+		var waiterPid = new java.util.concurrent.atomic.AtomicInteger();
+		var firstArtifact = artifact(HEADER, "same", "holder");
+		var secondArtifact = artifact(HEADER, "same", "waiter");
+		try (var pool = Executors.newFixedThreadPool(2)) {
+			var holder = pool.submit(() -> transactions.execute(status -> {
+				holderPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				var result = adapter.publish(validated(key, List.of(firstArtifact)));
+				ready.countDown();
+				try { if (!resolve.await(10, TimeUnit.SECONDS)) throw new AssertionError("holder timeout"); }
+				catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
+				if (rollbackHolder) status.setRollbackOnly();
+				return result;
+			}));
+			try {
+				assertTrue(ready.await(10,TimeUnit.SECONDS));
+				var waiter = pool.submit(() -> transactions.execute(status -> {
+					waiterPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+					return adapter.publish(validated(key,List.of(secondArtifact)));
+				}));
+				long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5); boolean waiting=false;
+				while (System.nanoTime()<deadline) {
+					if (waiterPid.get()!=0 && Boolean.TRUE.equals(jdbc.queryForObject("select ?=any(pg_blocking_pids(?))",Boolean.class,holderPid.get(),waiterPid.get()))) {
+						System.out.println("WP4_ROOT_WAIT "+jdbc.queryForList("select pid,backend_xid::text as xid,wait_event,query from pg_stat_activity where pid in (?,?)",holderPid.get(),waiterPid.get()));
+						waiting=true; break;
+					}
+					Thread.onSpinWait();
+				}
+				assertTrue(waiting,"root unique key wait must be observed");
+				assertEquals(0,count("select count(*) from pocoma_read.projection_root"));
+				assertEquals(0,count("select count(*) from pocoma_read.projection_artifact"));
+				resolve.countDown(); holder.get(10,TimeUnit.SECONDS);
+				assertEquals(rollbackHolder?ProjectionPublicationResult.PUBLISHED:ProjectionPublicationResult.ALREADY_EXISTS,waiter.get(10,TimeUnit.SECONDS));
+				assertEquals(List.of(rollbackHolder?secondArtifact:firstArtifact),adapter.findProjection(key).orElseThrow().artifacts());
+				assertEquals(1,count("select count(*) from pocoma_read.projection_root"));
+				assertEquals(1,count("select count(*) from pocoma_read.projection_artifact"));
+				System.out.println("WP4_ROOT rollbackHolder="+rollbackHolder+" roots=1 artifacts=1 SQLSTATE none");
+			} finally { resolve.countDown(); }
+		}
+	}
+
 	@Test
 	void rollsBackRootAndEarlierArtifactsWhenAnArtifactInsertFails() {
 		jdbc.execute("""

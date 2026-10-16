@@ -298,13 +298,15 @@ class TransactionalConsumptionExecutionPostgresTest {
 	void deferredConstraintRefusesCommitAfterWinningCasAndRollsBackEverything() {
 		jdbc.execute("create table if not exists lot3_commit_guard (id uuid primary key, parent uuid references lot3_business_effects(effect_id) deferrable initially deferred)");
 		Claim claim = acquire("commit-refused", "worker-a");
-		assertThrows(RuntimeException.class, () -> finalizeConsumption.finalizeConsumption(
+		var refused = assertThrows(RuntimeException.class, () -> finalizeConsumption.finalizeConsumption(
 			new FinalizeConsumptionInput(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), () -> {
 				writeBusiness("commit-refused");
 				jdbc.update("insert into lot3_commit_guard values (?,?)", UUID.randomUUID(), UUID.randomUUID());
 			})));
 		assertEquals(0, observedCount("lot3_business_effects"));
 		assertEquals(0, observedCount("lot3_commit_guard"));
+		assertTrue(sqlStates(refused).contains("23503"));
+		System.out.println("WP4_COMMIT_REFUSED SQLSTATE="+sqlStates(refused)+" effects=0 slot=PENDING claim=open");
 		assertEquals(ConsumptionStatus.PENDING, lifecycle.findSlot(claim.slotId()).orElseThrow().status());
 		assertEquals(Optional.of(claim.claimId()), lifecycle.findSlot(claim.slotId()).orElseThrow().currentClaimId());
 		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
@@ -478,6 +480,244 @@ class TransactionalConsumptionExecutionPostgresTest {
 		assertEquals(0, observedCount("consumption_inputs"));
 		assertTrue(lifecycle.findClaim(claim.claimId()).orElseThrow().isOpen());
 	}
+
+	@Test void twoFkHoldersAndQueuedTakeoverAllowTerminalCommit() throws Exception {
+		characterizeFkQueue(false);
+	}
+
+	@Test void twoFkHoldersAndQueuedTakeoverAllowTerminalRollback() throws Exception {
+		characterizeFkQueue(true);
+	}
+
+	private void characterizeFkQueue(boolean rollbackFirst) throws Exception {
+		Claim claim = acquire("fk-queue", "owner");
+		clock.set(NOW.plusSeconds(31));
+		CountDownLatch firstReady = new CountDownLatch(1), secondReady = new CountDownLatch(1);
+		CountDownLatch firstCas = new CountDownLatch(1), secondCas = new CountDownLatch(1);
+		AtomicReference<Integer> firstPid = new AtomicReference<>(), secondPid = new AtomicReference<>(), takeoverPid = new AtomicReference<>();
+		try (var pool = Executors.newFixedThreadPool(3)) {
+			var first = pool.submit(() -> transactions.runInTransaction(() -> {
+				firstPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				writeBusiness("first");
+				insertImmediateInput(claim, "first");
+				firstReady.countDown(); await(firstCas);
+				lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), clock.instant());
+				if (rollbackFirst) throw new QueueRollback();
+				return "committed";
+			}));
+			var second = pool.submit(() -> transactions.runInTransaction(() -> {
+				secondPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				jdbc.queryForObject("select txid_current()", Long.class);
+				writeBusiness("second");
+				insertImmediateInput(claim, "second");
+				secondReady.countDown(); await(secondCas);
+				lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Rejected("SECOND"), clock.instant());
+				return "committed";
+			}));
+			try {
+				assertTrue(firstReady.await(10, TimeUnit.SECONDS));
+				assertTrue(secondReady.await(10, TimeUnit.SECONDS));
+				assertEquals(0, observedCount("consumption_inputs"));
+				var takeover = pool.submit(() -> transactions.runInTransaction(() -> {
+					takeoverPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+					jdbc.queryForObject("select txid_current()", Long.class);
+					return lifecycle.acquire(key("fk-queue"), new ClaimId(UUID.randomUUID()), new WorkerId("takeover"), LEASE, clock.instant());
+				}));
+				awaitBlockedBy(takeoverPid, firstPid.get(), secondPid.get());
+				System.out.println("WP4_THREE_BACKENDS " + jdbc.queryForList("select pid,backend_xid::text as xid from pg_stat_activity where pid in (?,?,?)", firstPid.get(), secondPid.get(), takeoverPid.get()));
+				System.out.println("WP4_T07 two FK holders=" + firstPid + "," + secondPid + " takeover=" + takeoverPid);
+				firstCas.countDown();
+				Throwable firstError = queueError(first);
+				if (rollbackFirst) assertInstanceOf(QueueRollback.class, firstError);
+				else assertEquals(null, firstError);
+				secondCas.countDown();
+				Throwable secondError = queueError(second);
+				if (rollbackFirst) assertEquals(null, secondError);
+				else assertInstanceOf(LostClaimException.class, secondError);
+				assertInstanceOf(AcquireResult.AlreadyDone.class, takeover.get(10, TimeUnit.SECONDS));
+				assertEquals(1, observedCount("lot3_business_effects"));
+				assertEquals(1, observedCount("lot3_outbox"));
+				assertEquals(1, observedCount("consumption_inputs"));
+				assertEquals(rollbackFirst ? "second" : "first", jdbc.queryForObject("select subject_id from consumption_inputs", String.class));
+				assertEquals(rollbackFirst ? TerminalOutcome.REJECTED : TerminalOutcome.SUCCESS,
+						lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome().orElseThrow());
+				assertEquals(1, lifecycle.findClaims(claim.slotId()).size());
+				System.out.println("WP4_T07 rollbackFirst=" + rollbackFirst + " durable effects=1 inputs=1 claims=1 DONE; SQLSTATE none");
+			} finally { firstCas.countDown(); secondCas.countDown(); }
+		}
+	}
+
+	@Test void takeoverAfterWinningCasSeesDoneAfterCommit() throws Exception { characterizeAfterCas(false, true); }
+	@Test void takeoverAfterWinningCasAcquiresAfterRollback() throws Exception { characterizeAfterCas(true, true); }
+	@Test void secondTerminalizationLosesAfterFirstCommit() throws Exception { characterizeAfterCas(false, false); }
+	@Test void secondTerminalizationWinsAfterFirstRollback() throws Exception { characterizeAfterCas(true, false); }
+
+	private void characterizeAfterCas(boolean rollbackFirst, boolean isTakeover) throws Exception {
+		Claim claim = acquire("after-cas", "first");
+		clock.set(NOW.plusSeconds(31));
+		CountDownLatch casWon = new CountDownLatch(1), resolve = new CountDownLatch(1);
+		AtomicReference<Integer> firstPid = new AtomicReference<>(), secondPid = new AtomicReference<>();
+		var first = executor.submit(() -> transactions.runInTransaction(() -> {
+			firstPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+			writeBusiness("first"); insertImmediateInput(claim, "first");
+			lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.Success(), clock.instant());
+			casWon.countDown(); await(resolve);
+			if (rollbackFirst) throw new QueueRollback();
+			return "committed";
+		}));
+		try {
+			assertTrue(casWon.await(10, TimeUnit.SECONDS));
+			assertEquals("PENDING", observedSlotStatus(claim.slotId()));
+			assertEquals(0, observedCount("lot3_business_effects"));
+			try (Connection probe = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())) {
+				probe.setAutoCommit(false);
+				try (var statement = probe.prepareStatement("select slot_id from consumption_slots where slot_id=? for key share nowait")) {
+					statement.setObject(1, claim.slotId());
+					try (var rows = statement.executeQuery()) { assertTrue(rows.next()); }
+				} finally { probe.rollback(); }
+			}
+			System.out.println("WP4_CAS_MODE KEY SHARE NOWAIT granted after CAS; compatible with NO KEY UPDATE");
+			var second = executor.submit(() -> transactions.runInTransaction(() -> {
+				secondPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				jdbc.queryForObject("select txid_current()", Long.class);
+				if (isTakeover) return lifecycle.acquire(key("after-cas"), new ClaimId(UUID.randomUUID()), new WorkerId("second"), LEASE, clock.instant());
+				writeBusiness("second"); insertImmediateInput(claim, "second");
+				lifecycle.terminalize(claim.slotId(), claim.claimId(), new ConsumptionFinalization.TerminalFailure(failure("SECOND")), clock.instant());
+				return FencedMutationResult.APPLIED;
+			}));
+			awaitBlockedBy(secondPid, firstPid.get());
+			resolve.countDown();
+			Throwable firstError = queueError(first);
+			if (rollbackFirst) assertInstanceOf(QueueRollback.class, firstError); else assertEquals(null, firstError);
+			if (isTakeover) {
+				var result = second.get(10, TimeUnit.SECONDS);
+				if (rollbackFirst) {
+					var winner = assertInstanceOf(Acquired.class, result).claim();
+					assertEquals(2, winner.attemptNumber());
+					assertEquals(Optional.of(winner.claimId()), lifecycle.findSlot(claim.slotId()).orElseThrow().currentClaimId());
+					assertEquals(Optional.of(ClaimEndReason.TAKEN_OVER), lifecycle.findClaim(claim.claimId()).orElseThrow().endReason());
+				} else assertInstanceOf(AcquireResult.AlreadyDone.class, result);
+			} else {
+				Throwable error = queueError(second);
+				if (rollbackFirst) assertEquals(null, error); else assertInstanceOf(LostClaimException.class, error);
+				assertEquals(rollbackFirst ? TerminalOutcome.FAILED : TerminalOutcome.SUCCESS,
+						lifecycle.findSlot(claim.slotId()).orElseThrow().terminalOutcome().orElseThrow());
+			}
+			int effects = isTakeover && rollbackFirst ? 0 : 1;
+			assertEquals(effects, observedCount("lot3_business_effects"));
+			assertEquals(effects, observedCount("lot3_outbox"));
+			assertEquals(effects, observedCount("consumption_inputs"));
+			System.out.println("WP4_AFTER_CAS takeover="+isTakeover+" rollbackFirst="+rollbackFirst+" durable effects="+effects+" SQLSTATE none");
+		} finally { resolve.countDown(); }
+	}
+
+	@Test void retryLosingToCommittedTakeoverLeavesWinnerAndCalendarIntact() {
+		Claim stale = acquire("retry-takeover", "stale");
+		clock.set(NOW.plusSeconds(31));
+		Claim winner = acquire("retry-takeover", "winner");
+		var before = lifecycle.findSlot(winner.slotId()).orElseThrow();
+		assertEquals(FencedMutationResult.LOST_CLAIM, failureHandler(context -> new RetryAfter(Duration.ofSeconds(5)))
+				.handle(new HandleConsumptionFailureInput(stale.slotId(), stale.claimId(), failure("RETRY"),
+						() -> { throw new AssertionError("no terminal retry effect"); })));
+		assertEquals(before, lifecycle.findSlot(winner.slotId()).orElseThrow());
+		assertTrue(lifecycle.findClaim(winner.claimId()).orElseThrow().isOpen());
+		assertEquals(0, observedCount("lot3_business_effects"));
+		assertEquals(0, observedCount("consumption_inputs"));
+	}
+
+	@Test void rolledBackTakeoverDoesNotConsumeAttemptOrInvalidateOldAuthority() {
+		Claim first = acquire("takeover-rollback", "first");
+		clock.set(NOW.plusSeconds(31));
+		AtomicReference<Claim> provisional = new AtomicReference<>();
+		assertThrows(QueueRollback.class, () -> transactions.runInTransaction(() -> {
+			provisional.set(assertInstanceOf(Acquired.class, lifecycle.acquire(key("takeover-rollback"),
+					new ClaimId(UUID.randomUUID()), new WorkerId("rolled-back"), LEASE, clock.instant())).claim());
+			throw new QueueRollback();
+		}));
+		assertTrue(lifecycle.findClaim(provisional.get().claimId()).isEmpty());
+		assertTrue(lifecycle.findClaim(first.claimId()).orElseThrow().isOpen());
+		assertEquals(Optional.of(first.claimId()), lifecycle.findSlot(first.slotId()).orElseThrow().currentClaimId());
+		Claim winner = acquire("takeover-rollback", "winner");
+		assertEquals(2, winner.attemptNumber());
+		assertEquals(2, lifecycle.findClaims(first.slotId()).size());
+	}
+
+	@Test void sharedInputUniqueWaitPreservesCommittedHolder() throws Exception { characterizeUniqueInput(false); }
+	@Test void sharedInputUniqueWaitAllowsWaiterAfterRollback() throws Exception { characterizeUniqueInput(true); }
+
+	private void characterizeUniqueInput(boolean rollbackHolder) throws Exception {
+		Claim claim = acquire("shared-input", "owner");
+		CountDownLatch inserted = new CountDownLatch(1), resolve = new CountDownLatch(1);
+		AtomicReference<Integer> holderPid = new AtomicReference<>(), waiterPid = new AtomicReference<>();
+		var holder = executor.submit(() -> transactions.runInTransaction(() -> {
+			 holderPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+			 writeBusiness("holder"); insertImmediateInput(claim, "shared");
+			 inserted.countDown(); await(resolve);
+			 lifecycle.terminalize(claim.slotId(),claim.claimId(),new ConsumptionFinalization.Success(),clock.instant());
+			 if (rollbackHolder) throw new QueueRollback();
+			 return "committed";
+		}));
+		try {
+			assertTrue(inserted.await(10,TimeUnit.SECONDS));
+			var waiter = executor.submit(() -> transactions.runInTransaction(() -> {
+				waiterPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+				writeBusiness("waiter"); insertImmediateInput(claim, "shared");
+				lifecycle.terminalize(claim.slotId(),claim.claimId(),new ConsumptionFinalization.Rejected("WAITER"),clock.instant());
+				return "committed";
+			}));
+			awaitBlockedBy(waiterPid,holderPid.get());
+			assertEquals(0,observedCount("consumption_inputs"));
+			resolve.countDown();
+			Throwable holderError=queueError(holder), waiterError=queueError(waiter);
+			if (rollbackHolder) {
+				assertInstanceOf(QueueRollback.class,holderError); assertEquals(null,waiterError);
+			} else {
+				assertEquals(null,holderError); assertTrue(sqlStates(waiterError).contains("23505"));
+			}
+			assertEquals(1,observedCount("consumption_inputs"));
+			assertEquals(1,observedCount("lot3_business_effects"));
+			assertEquals(rollbackHolder?"waiter":"holder",jdbc.queryForObject("select owner from lot3_business_effects",String.class));
+			System.out.println("WP4_UNIQUE rollbackHolder="+rollbackHolder+" waiterSQLSTATE="+sqlStates(waiterError)+" inputs=1 effects=1");
+		} finally { resolve.countDown(); }
+	}
+
+	private static java.util.Set<String> sqlStates(Throwable error) {
+		var states = new java.util.HashSet<String>();
+		for (Throwable cause=error;cause!=null;cause=cause.getCause())
+			if (cause instanceof java.sql.SQLException sql) states.add(sql.getSQLState());
+		return states;
+	}
+
+	private void insertImmediateInput(Claim claim, String subject) {
+		jdbc.update("insert into consumption_inputs(input_id,slot_id,subject_type,subject_id,subject_version) values (?,?,'QUEUE',?,1)",
+				UUID.randomUUID(), claim.slotId(), subject);
+	}
+
+	private void awaitBlockedBy(AtomicReference<Integer> waiter, int... blockers) {
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+		while (System.nanoTime() < deadline) {
+			Integer pid = waiter.get();
+			for (int blocker : blockers) {
+			if (pid != null && Boolean.TRUE.equals(jdbc.queryForObject(
+					"select ?=any(pg_blocking_pids(?))", Boolean.class, blocker, pid))) {
+				System.out.println("WP4_WAIT " + jdbc.queryForList(
+						"select pid,backend_xid::text as xid,wait_event_type,wait_event,query,pg_blocking_pids(pid) as blockers from pg_stat_activity where pid in (?,?)", blocker,pid));
+				System.out.println("WP4_LOCKS " + jdbc.queryForList(
+						"select pid,locktype,mode,granted,relation::regclass::text as relation,transactionid::text from pg_locks where pid in (?,?)",blocker,pid));
+				return;
+			}
+			}
+			Thread.onSpinWait();
+		}
+		throw new AssertionError("No PostgreSQL wait for " + waiter + " on " + java.util.Arrays.toString(blockers));
+	}
+
+	private static Throwable queueError(Future<?> future) throws Exception {
+		try { future.get(10, TimeUnit.SECONDS); return null; }
+		catch (ExecutionException error) { return error.getCause(); }
+	}
+
+	private static final class QueueRollback extends RuntimeException { }
 
 	private ExecuteConsumptionUseCase transactionalExecution(
 			ConsumptionLifecyclePersistencePort lifecyclePort,

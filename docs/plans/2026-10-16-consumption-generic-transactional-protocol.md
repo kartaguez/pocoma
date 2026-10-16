@@ -1,6 +1,6 @@
 # Plan d'implémentation — protocole transactionnel générique Consumption
 
-Date : 2026-10-16. Statut du plan : **WP3 PASS**, après WP0 PASS, WP1 PASS contractuel et WP2 PASS borné. WP4–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+Date : 2026-10-16. Statut du plan : **WP4 PASS**, après WP0–WP3 validés. WP5–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## 1. Executive summary
 
@@ -516,3 +516,7 @@ Les références de code détaillées de l'[audit générique §K](../architectu
 ## Suivi WP3 (2026-10-16)
 
 **PASS** — [matrice fonctionnelle et scope](2026-10-16-consumption-generic-transactional-protocol-wp3-functional.md), [951 tests ALL8](2026-10-16-consumption-generic-transactional-protocol-wp3-verification.txt). Aucun changement de production ; séquence imposée pour cette passe : WP3 → WP4 → WP5 → WP6. Les paragraphes de suivi antérieurs sont historiques.
+
+## Suivi WP4 (2026-10-16)
+
+**PASS**, après WP3 `7b2c3a8b` — [matrice T01–T11, qualifications et erreurs intermédiaires](2026-10-16-consumption-generic-transactional-protocol-wp4-concurrency.md), [293 exécutions / 146 méthodes distinctes](2026-10-16-consumption-generic-transactional-protocol-wp4-verification.txt). Dix nouvelles méthodes transactionnelles, deux Command, deux Event et deux store Projection. Aucune production changée ; aucun défaut connu reporté vers WP5.
