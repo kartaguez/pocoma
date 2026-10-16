@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -690,6 +691,164 @@ class CommandConsumptionPostgresTest {
 				winner.slotId(), winner.claimId(), processingFailure, terminalEffect)));
 		assertEquals(TerminalOutcome.FAILED, slot(command.commandId()).terminalOutcome().orElseThrow());
 		assertTerminalResolution(command.commandId(), "FAILED", "COMMAND_FAILED");
+	}
+
+	@Test
+	void bindingRecoveryWaitingOnStaleOutcomeDoesNotDeadlock() throws Exception {
+		characterizeOutcomeSlotWait(false, false);
+	}
+
+	@Test
+	void terminalFailureWaitingOnStaleOutcomeDoesNotDeadlock() throws Exception {
+		characterizeOutcomeSlotWait(true, false);
+	}
+
+	@Test
+	void terminalFailureAndStaleProvenanceFormARealPostgresDeadlock() throws Exception {
+		characterizeOutcomeSlotWait(true, true);
+	}
+
+	/** The stale CAS avoids a cycle only if no provenance FK waits before that CAS. */
+	private void characterizeOutcomeSlotWait(boolean terminalFailure, boolean withProvenance) throws Exception {
+		MutableClock mutableClock = new MutableClock(NOW);
+		clock = mutableClock;
+		ExternalIdentity identity = identity("outcome-slot-cycle");
+		BindingId binding = bind(identity, user(301));
+		RecordedCommand command = targetCommand(identity, binding, "cycle", NOW.plusSeconds(120));
+		insert(command);
+		var acquire = new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle, clock), transactions);
+		var key = CommandConsumptionKeys.forCommand(command.commandId());
+		var stale = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(new AcquireConsumptionInput(
+				key, new WorkerId("stale"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		mutableClock.set(NOW.plusSeconds(30));
+		var current = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(new AcquireConsumptionInput(
+				key, new WorkerId("current"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		var execute = new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
+		var outcomes = new JdbcCommandOutcomeAdapter(jdbc);
+		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, lifecycle, bindings, outcomes, clock);
+		var failure = new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(
+				lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
+		CountDownLatch businessEntered = new CountDownLatch(1);
+		CountDownLatch finishBusiness = new CountDownLatch(1);
+		CountDownLatch outcomeInserted = new CountDownLatch(1);
+		CountDownLatch finishStale = new CountDownLatch(1);
+		AtomicInteger stalePid = new AtomicInteger();
+		AtomicInteger currentPid = new AtomicInteger();
+		var winnerExecution = commandExecution(value -> {
+			currentPid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+			assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
+			businessEntered.countDown();
+			await(finishBusiness);
+			if (terminalFailure) throw new NullPointerException("controlled terminal failure");
+			return succeeded();
+		});
+		var staleExecution = new CommandConsumptionExecution(new ExecuteRecordedCommandService(commands,
+				new CommandDecoderRegistry(List.of(new TestDecoder())),
+				new CommandDispatcher(List.of(new TestUseCase(value -> withProvenance
+						? new CommandUseCaseResult.Succeeded(List.of(new com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput(
+								"POT", APPLIED_POT_ID.toString(), 6)), new CommandAppliedResult(APPLIED_POT_ID, 7), List.of())
+						: succeeded()))), events -> List.of(),
+				bindings, new ExternalAuthorityPermissionTranslator(), clock), outcome -> {
+			outcomes.publish(outcome);
+			stalePid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+			assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
+			jdbc.update("insert into lot65_command_effects(effect_id, owner) values (?, ?)", UUID.randomUUID(), "stale-cycle");
+			outcomeInserted.countDown();
+			await(finishStale);
+		}, clock);
+		try (var executor = Executors.newFixedThreadPool(2)) {
+			try {
+				var winnerFuture = executor.submit(() -> {
+					try {
+						recovery.execute(new ExecuteConsumptionInput(current.slotId(), current.claimId(), winnerExecution.forCommand(command.commandId())));
+					} catch (NullPointerException expected) {
+						if (!terminalFailure) throw expected;
+						var classified = new CommandConsumptionTechnicalFailureClassifier(clock).classify(expected);
+						assertEquals(FencedMutationResult.APPLIED, failure.handle(new HandleConsumptionFailureInput(
+								current.slotId(), current.claimId(), classified, winnerExecution.terminalFailureEffect(command.commandId()))));
+					}
+				});
+				assertTrue(businessEntered.await(10, TimeUnit.SECONDS));
+				if (!terminalFailure) assertEquals(BindingDetachResult.DETACHED,
+						transactions.runInTransaction(() -> bindings.detach(identity, binding)));
+				var staleFuture = executor.submit(() -> execute.execute(new ExecuteConsumptionInput(
+						stale.slotId(), stale.claimId(), staleExecution.forCommand(command.commandId()))));
+				assertTrue(outcomeInserted.await(10, TimeUnit.SECONDS));
+				finishBusiness.countDown();
+				// Recovery/failure starts a fresh transaction; the pool may choose another backend.
+				int waitingPid = awaitOutcomeWait(stalePid.get(), command.commandId());
+				assertTrue(waitingPid != stalePid.get());
+				finishStale.countDown();
+				Throwable staleError = futureError(staleFuture);
+				Throwable winnerError = futureError(winnerFuture);
+				if (withProvenance) {
+					Throwable victim = hasSqlState(staleError, "40P01") ? staleError : winnerError;
+					for (Throwable cause = victim; cause != null; cause = cause.getCause()) {
+						if (cause instanceof SQLException sql) System.out.println("LOCK_AUDIT SQLSTATE=" + sql.getSQLState() + " " + sql.getMessage());
+					}
+					assertEquals(1, (hasSqlState(staleError, "40P01") ? 1 : 0) + (hasSqlState(winnerError, "40P01") ? 1 : 0));
+					if (!hasSqlState(staleError, "40P01")) assertInstanceOf(LostClaimException.class, staleError);
+				} else {
+					assertInstanceOf(LostClaimException.class, staleError);
+					assertNull(winnerError);
+				}
+				assertEquals(0, jdbc.queryForObject("select count(*) from lot65_command_effects", Integer.class));
+				assertEquals(0, jdbc.queryForObject("select count(*) from consumption_inputs", Integer.class));
+				assertEquals(2, lifecycle.findClaims(current.slotId()).size());
+				assertTrue(lifecycle.findClaim(stale.claimId()).orElseThrow().invalidatedAt().isPresent());
+				if (winnerError == null) {
+					assertEquals(ConsumptionStatus.DONE, slot(command.commandId()).status());
+					assertTrue(slot(command.commandId()).currentClaimId().isEmpty());
+					assertTerminalResolution(command.commandId(), terminalFailure ? "FAILED" : "REJECTED",
+							terminalFailure ? "COMMAND_FAILED" : "COMMAND_REJECTED");
+				} else {
+					assertEquals(ConsumptionStatus.PENDING, slot(command.commandId()).status());
+					assertEquals(current.claimId(), slot(command.commandId()).currentClaimId().orElseThrow());
+					assertEquals(0, terminalResolutionCount(command.commandId()));
+				}
+				System.out.printf("LOCK_AUDIT scenario=%s provenance=%s stalePid=%d initialCurrentPid=%d waitingPid=%d deadlocks=%d victim=%s%n",
+						terminalFailure ? "terminal-failure" : "binding-recovery", withProvenance, stalePid.get(), currentPid.get(), waitingPid,
+						withProvenance ? 1 : 0, hasSqlState(staleError, "40P01") ? "stale" : hasSqlState(winnerError, "40P01") ? "current" : "none");
+			} finally {
+				finishBusiness.countDown();
+				finishStale.countDown();
+			}
+		}
+	}
+
+	private int awaitOutcomeWait(int blocker, CommandId commandId) {
+		long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+		while (System.nanoTime() < deadline) {
+			var waiting = jdbc.queryForList("""
+					select pid from pg_stat_activity
+					where ? = any(pg_blocking_pids(pid)) and wait_event_type = 'Lock'
+					and lower(query) like '%insert into command_outcomes%'
+					""", Integer.class, blocker);
+			if (!waiting.isEmpty()) {
+				int pid = waiting.getFirst();
+				assertEquals(2, jdbc.queryForObject("""
+						select count(distinct backend_xid::text) from pg_stat_activity
+						where pid in (?, ?) and backend_xid is not null
+						""", Integer.class, blocker, pid));
+				System.out.println("LOCK_AUDIT concurrent=" + jdbc.queryForList(
+						"select pid, backend_xid::text as xid, wait_event_type from pg_stat_activity where pid in (?, ?)", blocker, pid));
+				return pid;
+			}
+			Thread.onSpinWait();
+		}
+		throw new AssertionError("No real PostgreSQL outcome wait for " + commandId);
+	}
+
+	private static Throwable futureError(java.util.concurrent.Future<?> future) throws Exception {
+		try { future.get(15, TimeUnit.SECONDS); return null; }
+		catch (ExecutionException failure) { return failure.getCause(); }
+	}
+
+	private static boolean hasSqlState(Throwable failure, String state) {
+		for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+			if (cause instanceof SQLException sql && state.equals(sql.getSQLState())) return true;
+		}
+		return false;
 	}
 
 	private void assertStaleAfterReattach(PocomaUserId sameUser) {
