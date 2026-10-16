@@ -246,7 +246,7 @@ flowchart LR
   W5 --> W6[WP6 Validation bornée et clôture]
 ```
 
-WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. Tous les WP sont **PLANNED**, aucun test TARGET PASS. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
+WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1–WP6 restent **PLANNED**, aucun test TARGET PASS. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
 
 ### WP0 — Baseline reproductible et préconditions expérimentales
 
@@ -263,7 +263,9 @@ WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en t
 | Rollback | Revert uniquement nouvelles fixtures/diagnostics invalides ; garder preuve historique et fichiers locaux ; pas de correction runtime opportuniste |
 | Documentation | Ajouter liens de campagne CURRENT dans ce plan ; conserver audit/diagnostics historiques intacts et statuts de dettes |
 
-**Premier WP exécutable** : lancer uniquement la caractérisation CURRENT existante et diagnostiquer la fixture Binding, après disponibilité PostgreSQL. Il ne corrige pas D17 et ne peut clôturer le chantier. Si une correction de production Binding est requise, requalifier le scope avant intervention ; la migration générique attend sa preuve runtime.
+**Suivi 2026-10-16 — WP0 clos PASS** : D17 CURRENT reproduit (`40P01`), rollback attesté, 52 tests ciblés PASS, Binding 5/5 après qualifier local, COMMAND canonique 857/857 après qualification de deux fixtures Command. Aucun changement de production ; WP1/WP2 non engagés. Voir les preuves liées ci-dessus.
+
+**Instruction initiale WP0, exécutée lors de cette campagne** : lancer uniquement la caractérisation CURRENT existante et diagnostiquer la fixture Binding, après disponibilité PostgreSQL. Il ne corrige pas D17 et ne peut clôturer le chantier. Si une correction de production Binding est requise, requalifier le scope avant intervention ; la migration générique attend sa preuve runtime.
 
 ### WP1 — Contrat commun et frontière de rollback décidés
 
@@ -488,7 +490,7 @@ La fin WP6 est une clôture fonctionnelle bornée du protocole sur cette branche
 
 **Non bloquants pour préparer l'implémentation** : schéma effectivement déployé et fréquence D17 en charge non inspectés, DDL concurrent et pannes distribuées non caractérisés, coût comparatif de contention non mesuré, callbacks futurs arbitraires non prouvés. Aucune prétention sur ces périmètres. Le contrat rejette les nouveaux effets qui sortiraient de la transaction locale.
 
-**Verdict de planification : READY WITH PRECONDITIONS.** WP0 peut démarrer à la prochaine mission d'implémentation. WP2 est conditionné à WP0/WP1, sans protocole spécial Command final ni exemption permanente d'une des huit familles. Aucune implémentation lancée ici.
+**Verdict de planification : READY WITH PRECONDITIONS.** WP0 a été clos PASS le 2026-10-16 ; WP1 attend une mission distincte. WP2 est conditionné à WP0/WP1, sans protocole spécial Command final ni exemption permanente d'une des huit familles. Aucune implémentation lancée ici.
 
 ## 14. Journal de vérification de cette mission documentaire
 
