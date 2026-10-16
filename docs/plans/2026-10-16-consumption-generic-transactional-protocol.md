@@ -1,6 +1,6 @@
 # Plan d'implémentation — protocole transactionnel générique Consumption
 
-Date : 2026-10-16. Statut du plan : **WP2 PASS borné**, après WP0 PASS et WP1 PASS contractuel. WP3–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
+Date : 2026-10-16. Statut du plan : **WP3 PASS**, après WP0 PASS, WP1 PASS contractuel et WP2 PASS borné. WP4–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## 1. Executive summary
 
@@ -512,3 +512,7 @@ Les références de code détaillées de l'[audit générique §K](../architectu
 - [Spring runner](../../app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/SpringTransactionRunner.java), [composition](../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime), [Sequential](../../app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestrator.java), [AcquireThenFinalize](../../app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/AcquireThenFinalizeConsumptionOrchestrator.java).
 - [D17 et témoins](../../app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java), [preuve transactionnelle](../../app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/consumption/TransactionalConsumptionExecutionPostgresTest.java), [tests lifecycle](../../app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/consumption/JpaConsumptionLifecycleAdapterPostgresTest.java).
 - [Event PostgreSQL](../../app/runtime-event-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/event/consumption/ProjectionMaterializationConsumptionPostgresTest.java), [Projection PostgreSQL](../../app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimePostgresTest.java), [Projection tests de préparation](../../app/engine-consume-projection-task/src/test/java/com/kartaguez/pocoma/engine/consume/projectiontask/ProjectionTaskConsumptionServiceTest.java), [Finalize tests CURRENT](../../app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/service/consumption/FinalizeConsumptionServiceTest.java).
+
+## Suivi WP3 (2026-10-16)
+
+**PASS** — [matrice fonctionnelle et scope](2026-10-16-consumption-generic-transactional-protocol-wp3-functional.md), [951 tests ALL8](2026-10-16-consumption-generic-transactional-protocol-wp3-verification.txt). Aucun changement de production ; séquence imposée pour cette passe : WP3 → WP4 → WP5 → WP6. Les paragraphes de suivi antérieurs sont historiques.

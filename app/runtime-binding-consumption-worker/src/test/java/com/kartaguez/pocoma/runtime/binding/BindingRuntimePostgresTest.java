@@ -208,7 +208,7 @@ class BindingRuntimePostgresTest {
 		BindingId b=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
 		var located=locator.openSearch().next().orElseThrow();
 		var stale=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),new WorkerId("stale"),new ClaimLease(Duration.ofMillis(1))))).claim();
-		Thread.sleep(10);
+		jdbc.update("update consumption_claims set claimed_at=now()-interval '2 minutes', lease_until=now()-interval '1 minute' where claim_id=?", stale.claimId().value());
 		var winner=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),new WorkerId("winner"),new ClaimLease(Duration.ofSeconds(30))))).claim();
 		assertThrows(RuntimeException.class,()->execute.execute(new ExecuteConsumptionInput(stale.slotId(),stale.claimId(),located.execution())));
 		assertTrue(transactions.runInTransaction(()->projection.find(e)).isEmpty());

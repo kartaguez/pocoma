@@ -4,6 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.AcquireConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.input.ExecuteConsumptionInput;
+import com.kartaguez.pocoma.engine.port.in.consumption.result.AcquireResult;
+import com.kartaguez.pocoma.engine.exception.consumption.LostClaimException;
+import com.kartaguez.pocoma.engine.read.commandresult.ImmutableCommandResult;
+import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -74,6 +80,9 @@ class CommandResultRuntimePostgresTest {
 	@Autowired JdbcTemplate jdbc;
 	@Autowired ConsumptionOrchestrator orchestrator;
 	@Autowired CommandResultStore store;
+	@Autowired CommandResultConsumptionLocator locator;
+	@Autowired AcquireConsumptionUseCase acquire;
+	@Autowired ExecuteConsumptionUseCase execute;
 
 	@BeforeEach void clean() {
 		jdbc.execute("truncate table command_results, command_terminal_events, command_outcomes, recorded_commands cascade");
@@ -113,6 +122,42 @@ class CommandResultRuntimePostgresTest {
 		assertEquals(1L, count("command_results"));
 		assertInstanceOf(GetCommandResult.Applied.class,
 				new GetCommandResultService(store).get(new CommandId(id), owner()));
+	}
+
+	@Test void staleResultAndProvenanceRollBackBeforeWinnerPublishes() {
+		UUID id = seed("APPLIED");
+		var located = locator.openSearch().next().orElseThrow();
+		var stale = ((AcquireResult.Acquired) acquire.acquire(new AcquireConsumptionInput(
+				located.consumptionKey(), new WorkerId("stale"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		jdbc.update("update consumption_claims set claimed_at=now()-interval '2 minutes', lease_until=now()-interval '1 minute' where claim_id=?", stale.claimId().value());
+		var winner = ((AcquireResult.Acquired) acquire.acquire(new AcquireConsumptionInput(
+				located.consumptionKey(), new WorkerId("winner"), new ClaimLease(Duration.ofSeconds(30))))).claim();
+		assertThrows(LostClaimException.class, () -> execute.execute(new ExecuteConsumptionInput(
+				stale.slotId(), stale.claimId(), context -> {
+					var result = located.execution().execute(context);
+					assertEquals(1L, count("command_results"), "real JDBC write before losing CAS");
+					return result;
+				})));
+		assertEquals(0L, count("command_results"));
+		assertEquals(0L, count("consumption_inputs"));
+		assertEquals(winner.claimId().value(), jdbc.queryForObject("select current_claim_id from consumption_slots", UUID.class));
+		execute.execute(new ExecuteConsumptionInput(winner.slotId(), winner.claimId(), located.execution()));
+		assertEquals(1L, count("command_results"));
+		assertEquals(1L, count("consumption_inputs"));
+		assertEquals("COMMAND_TERMINAL_EVENT", jdbc.queryForObject("select subject_type from consumption_inputs", String.class));
+		assertEquals("DONE", jdbc.queryForObject("select status from consumption_slots", String.class));
+		assertInstanceOf(GetCommandResult.Applied.class, new GetCommandResultService(store).get(new CommandId(id), owner()));
+	}
+
+	@Test void identicalReplayIsIdempotentAndDivergentOwnerCannotReplaceResult() {
+		UUID id = seed("REJECTED");
+		orchestrator.run(input("materialize"));
+		var original = store.find(new CommandId(id)).orElseThrow();
+		store.ensureResult(original);
+		assertThrows(IllegalStateException.class, () -> store.ensureResult(new ImmutableCommandResult(
+				new ExternalIdentity("issuer", "other"), original.outcome())));
+		assertEquals(original, store.find(new CommandId(id)).orElseThrow());
+		assertEquals(1L, count("command_results"));
 	}
 
 	private UUID seed(String type) {
