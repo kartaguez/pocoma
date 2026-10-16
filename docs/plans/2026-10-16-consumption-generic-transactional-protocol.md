@@ -246,7 +246,7 @@ flowchart LR
   W5 --> W6[WP6 Validation bornée et clôture]
 ```
 
-WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1–WP6 restent **PLANNED**, aucun test TARGET PASS. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
+WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1 est **PASS contractuel** ([rapport et décisions D01–D10](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)) ; WP2–WP6 restent **PLANNED**, aucun test TARGET PASS. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
 
 ### WP0 — Baseline reproductible et préconditions expérimentales
 
@@ -281,6 +281,8 @@ WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en t
 | Exit criteria | D01–D10 ci-dessous fixées, aucun choix de rollback/ownership/flush reporté ; exemples owner/participant compilables si API ajoutée ; aucun nouveau chemin terminal actif ; plan de tests avec résultats attendus complets |
 | Rollback | Revert extensions additives comme unité ; conserver contrat documentaire corrigé ; ne pas migrer un caller isolé |
 | Documentation | Canon Consumption : contrat callback et perte ; inscrire décision sur ordre physique Projection sans annoncer TARGET implémenté |
+
+**Suivi 2026-10-16 — WP1 clos PASS contractuel** : [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md), D01–D10 CLOSED, owners sans transaction ambiante et participants internes explicites, API terminale/provenance et barrière pré-CAS arrêtées. Mission exclusivement documentaire : aucun runtime/test/schéma modifié, aucun test exécuté. WP2 non commencé ; preuves TARGET restent à obtenir. Les obligations de contrat du rapport WP1 précisent les recommandations §5/§10.2.
 
 ### WP2 — Basculement cohérent du protocole et preuve D17 immédiate
 
@@ -484,13 +486,13 @@ La fin WP6 est une clôture fonctionnelle bornée du protocole sur cette branche
 
 ## 13. Points ouverts, preuves manquantes et verdict
 
-**Bloquants avant WP2** : capture CURRENT reproductible WP0 ; résolution de la preuve Binding runtime empêchée par injection ; choix Java concret du modèle terminal/provenance ; distinction owner/participant et garde Spring sans casser recovery ; adoption des contrats callbacks par tous les assemblages. Les décisions de correction ne sont pas reportées : recommandations D01–D10 retenues, toute alternative exige preuve équivalente avant basculement.
+**Préconditions initiales avant WP2, arrêtées par WP0/WP1** : capture CURRENT reproductible et preuve Binding runtime résolues au WP0 ; choix Java terminal/provenance, distinction owner/participant, garde Spring et contrats des huit callbacks décidés dans le [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md). Leur implémentation et leur preuve TARGET restent à réaliser au WP2. Les décisions de correction ne sont pas reportées : recommandations D01–D10 retenues, toute alternative exige preuve équivalente avant basculement.
 
 **Bloquants à la clôture** : preuves TARGET T01–T11, trace des barrières de flush, cardinalités/rollback réels, Event/Projection stale, réconciliation erreurs pré-CAS/postcommit, zéro ancien protocole et suites runtime complètes. Elles sont absentes aujourd'hui par définition de la mission, pas supposées PASS.
 
 **Non bloquants pour préparer l'implémentation** : schéma effectivement déployé et fréquence D17 en charge non inspectés, DDL concurrent et pannes distribuées non caractérisés, coût comparatif de contention non mesuré, callbacks futurs arbitraires non prouvés. Aucune prétention sur ces périmètres. Le contrat rejette les nouveaux effets qui sortiraient de la transaction locale.
 
-**Verdict de planification : READY WITH PRECONDITIONS.** WP0 a été clos PASS le 2026-10-16 ; WP1 attend une mission distincte. WP2 est conditionné à WP0/WP1, sans protocole spécial Command final ni exemption permanente d'une des huit familles. Aucune implémentation lancée ici.
+**Verdict de planification : READY WITH PRECONDITIONS.** WP0 a été clos PASS le 2026-10-16 ; WP1 est clos PASS contractuel ([rapport](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)). WP2 reste non commencé ; ses préconditions contractuelles WP0/WP1 sont arrêtées, sans protocole spécial Command final ni exemption permanente d'une des huit familles. Aucune implémentation lancée ici.
 
 ## 14. Journal de vérification de cette mission documentaire
 
