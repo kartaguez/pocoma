@@ -15,7 +15,10 @@ locking et de diagnostic, jamais un fencing token.
 
 ## Frontière transactionnelle gagnante
 
-`TransactionalExecuteConsumptionUseCase` ouvre la transaction englobante avec `TransactionRunner`.
+Les wrappers propriétaires Acquire/Execute/Finalize/HandleFailure utilisent un `TransactionRunner`
+gardé : aucune transaction ni synchronisation ambiante ne peut exister à leur entrée. REQUIRED
+ouvre alors la frontière physique attendue. Les services internes sont des participants.
+`TransactionalExecuteConsumptionUseCase` ouvre la transaction englobante avec ce runner.
 Le callback spécialisé et les adapters JPA appelés ensuite rejoignent cette transaction. Les
 adapters d'écriture conservent une propagation `MANDATORY` et ne peuvent donc pas créer une
 transaction autonome.
@@ -34,9 +37,34 @@ COMMIT
 ```
 
 Le CAS final est exécuté après les écritures métier et la provenance. Il doit modifier exactement
-une ligne. S'il ne modifie aucune ligne, `ExecuteConsumptionService` lève `LostClaimException` ;
+une ligne. Le suffixe commun de `FinalizeConsumptionService`, utilisé aussi par Execute, les échecs
+terminaux et les recoveries, appelle le lifecycle : CAS zéro lève `LostClaimException` ;
 l'exception traverse le wrapper et provoque le rollback de toute la transaction. Les écritures JPA
-sont flushées avant le CAS natif, mais ne deviennent durables qu'au commit commun.
+sont flushées par la barrière du repository avant le CAS natif. La clôture conditionnelle exige
+exactement une ligne ; son refus ou son erreur SQL lève `ConsumptionClaimClosureException` et
+annule aussi le CAS. Seule cette clôture suit le CAS ; aucun callback métier ensuite.
+Les effets ne deviennent durables qu'au commit commun.
+
+## Finalisation commune et callbacks
+
+SUCCESS, REJECTED et FAILED suivent : effet SQL provisoire → provenance éventuelle validée → flush
+complet → CAS S/PENDING/C → clôture conditionnelle C → commit. Aucun prélock terminal du slot.
+Les callbacks peuvent être invoqués stale ; toutes leurs écritures doivent participer à la même
+transaction et rollbacker si une autorité nécessaire est perdue. Acquire/Takeover conserve son
+ordre slot verrouillé par clé → claims, sans publication métier.
+
+Les wrappers Finalize/HandleFailure traduisent LostClaimException seulement après rollback physique.
+Execute la propage. APPLIED public exige COMMITTED confirmé. Les erreurs de résolution distinguent
+ROLLED_BACK, COMMITTED et UNKNOWN ; COMMITTED/UNKNOWN ne déclenchent pas une nouvelle failure
+métier automatique. Une erreur SQL pré-CAS n'est normalisée qu'après rollback et relecture fraîche
+prouvant la perte d'ownership ; l'erreur du claim courant reste une erreur.
+
+La recovery Binding ouvre sa frontière après rollback de l'Execute initial, relit le Binding exact
+et appelle un Execute participant sans prélock S. Binding encore présent reste un conflit technique ;
+absence de l'occurrence exacte permet le rejet CALLER_IDENTITY_NOT_CURRENT, sans rejouer Pot.
+Les autorités Pot et Binding gardent leurs positions propres.
+
+Les preuves bornées et limites WP2 sont rattachées au [rapport](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## SUCCESS
 

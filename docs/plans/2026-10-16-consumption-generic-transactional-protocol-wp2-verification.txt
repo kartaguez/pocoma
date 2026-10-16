@@ -1,0 +1,470 @@
+WP2 — Preuves et journal Maven/PostgreSQL, 2026-10-16
+Baseline: feat/runtime-monolith / c1d60a90dcfb89b2caf38a8f00a286fdb5e206b2
+Commit code/tests: 72687053d2d5ec2dd1c47f667e4f95403aa1f4d8
+Toutes les commandes Maven depuis app/. Aucun full reactor, gate global, -amd, install, migration ajoutée ou retry de tests.
+
+Les totaux historiques comptent les réexécutions. Les erreurs de compilation ne produisent aucun PASS de test. Les modules SKIPPED après arrêt ne sont pas des tests ignorés.
+
+all8-first
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-latest-known-version-consumption-worker,runtime-registration-consumption-worker,runtime-command-result-consumption-worker,runtime-registration-result-consumption-worker -am test
+SHA256 67f022b5db08ce0051c0d15153e53f03320cefea10cab166881c3ad2514c061c
+BUILD FAILURE ; classes=170 ; tests/failures/errors/skipped=[817, 0, 2, 0]
+[ERROR]   JpaConsumptionLifecycleAdapterPostgresTest.staleFailureDoesNotMutateTheWinningClaim:264->inTransaction:434->lambda$inTransaction$37:434->lambda$staleFailureDoesNotMutateTheWinningClaim$23:264 » LostClaim Claim d37e24ff-1ac9-47fa-9fcd-c5864ab56546 is no longer current for consumption slot 1b3ff85d-2274-433e-8dd3-d511339053ab
+[ERROR]   JpaConsumptionLifecycleAdapterPostgresTest.takeoverIsAtomicAndFencesThePreviousClaim:192->inTransaction:434->lambda$inTransaction$37:434->lambda$takeoverIsAtomicAndFencesThePreviousClaim$7:192 » LostClaim Claim a7c3233e-116d-459a-8bc2-fce755495905 is no longer current for consumption slot f08b6220-0c48-4b18-aadd-ecc5f9bc37ee
+
+all8-v2
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-latest-known-version-consumption-worker,runtime-registration-consumption-worker,runtime-command-result-consumption-worker,runtime-registration-result-consumption-worker -am test
+SHA256 6ea6a513efaeb8914770e4a3de559e14f1cd19b685ff2892eea86331dff4abf4
+BUILD FAILURE ; classes=188 ; tests/failures/errors/skipped=[891, 0, 4, 0]
+[ERROR]   RegistrationResultRuntimePostgresTest.divergentReplayFailsAndTechnicalWriterFailureRetries » UnsatisfiedDependency Error creating bean with name 'com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest': Unsatisfied dependency expressed through field 'tx': No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,registrationResultTransactionRunner
+[ERROR]   RegistrationResultRuntimePostgresTest.expiredClaimCannotPublishAndParallelWorkersConverge » UnsatisfiedDependency Error creating bean with name 'com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest': Unsatisfied dependency expressed through field 'tx': No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,registrationResultTransactionRunner
+[ERROR]   RegistrationResultRuntimePostgresTest.publicConsumptionEntrypointsRejectPhysicalAmbientTransaction » UnsatisfiedDependency Error creating bean with name 'com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest': Unsatisfied dependency expressed through field 'tx': No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,registrationResultTransactionRunner
+[ERROR]   RegistrationResultRuntimePostgresTest.registeredAndRejectedResultsUseExactHistoricalOwnerAndRestartIsIdempotent » UnsatisfiedDependency Error creating bean with name 'com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest': Unsatisfied dependency expressed through field 'tx': No qualifying bean of type 'com.kartaguez.pocoma.port.transaction.TransactionRunner' available: expected single matching bean but found 2: transactionRunner,registrationResultTransactionRunner
+
+all8-v3
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-latest-known-version-consumption-worker,runtime-registration-consumption-worker,runtime-command-result-consumption-worker,runtime-registration-result-consumption-worker -am test
+SHA256 1febb2bf7ef66e819a3cdabbed95580442f147254fd576bc6088439498b90039
+BUILD FAILURE ; classes=189 ; tests/failures/errors/skipped=[897, 0, 0, 0]
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/runtime-latest-known-version-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/latestknownversion/MeteredAdvanceLatestKnownVersionUseCaseTest.java:[77,26] incompatible types: try-with-resources not applicable to variable type
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project pocoma-runtime-latest-known-version-consumption-worker: Compilation failure
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/runtime-latest-known-version-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/latestknownversion/MeteredAdvanceLatestKnownVersionUseCaseTest.java:[77,26] incompatible types: try-with-resources not applicable to variable type
+
+all8-final
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-latest-known-version-consumption-worker,runtime-registration-consumption-worker,runtime-command-result-consumption-worker,runtime-registration-result-consumption-worker -am test
+SHA256 73d4a10534e14a069f8f5a953634829238b5e6874d8532c49c14b31216ff3770
+BUILD SUCCESS ; classes=203 ; tests/failures/errors/skipped=[949, 0, 0, 0]
+
+d17-first
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 bab27b327ee3061f801acf148bf2e1eeb8606f2ff8a0b5d9de870f3c465b8d60
+BUILD FAILURE ; classes=0 ; tests/failures/errors/skipped=[0, 0, 0, 0]
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project pocoma-engine-consumption: Compilation failure
+
+d17
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 4ec82ba9095115d160e2c34f4561fd531ee01f5de802e03a7e1ca8ba12e928e5
+BUILD FAILURE ; classes=0 ; tests/failures/errors/skipped=[0, 0, 0, 0]
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[813,17] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[814,17] cannot find symbol
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project pocoma-infra-persistence-primary-jpa: Compilation failure: Compilation failure:
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[813,17] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[814,17] cannot find symbol
+
+d17-v2
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 8533f2133771abfd0e300a754d365a0dea4a40b0ff6e25ba26c77b84907c2be4
+BUILD SUCCESS ; classes=1 ; tests/failures/errors/skipped=[28, 0, 0, 0]
+
+critical
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 d98663dcfbf5ae136f5e1c5c6b6e7891b290b6bcca16b779f33e5569ac4d563c
+BUILD FAILURE ; classes=3 ; tests/failures/errors/skipped=[28, 0, 3, 0]
+[ERROR]   CommandConsumptionPostgresTest » ExtensionConfiguration Container POSTGRES needs to be initialized
+[ERROR]   JpaConsumptionLifecycleAdapterPostgresTest.expiredLeaseKeepsAuthorityUntilTakeover:174  Unresolved compilation problem:
+[ERROR]   JpaConsumptionLifecycleAdapterPostgresTest.staleFailureDoesNotMutateTheWinningClaim:265  Unresolved compilation problem:
+
+critical-v3
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 65314d9026489711fd008923d51d6c26694691ad9994e3f3860321f4f9e77143
+BUILD FAILURE ; classes=0 ; tests/failures/errors/skipped=[0, 0, 0, 0]
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[805,40] cannot find symbol
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project pocoma-infra-persistence-primary-jpa: Compilation failure
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[805,40] cannot find symbol
+
+critical-v4
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 3c09350c7f8580d44b264c8153742d43112403f9514fd7f3f28562575a8f6482
+BUILD SUCCESS ; classes=3 ; tests/failures/errors/skipped=[60, 0, 0, 0]
+
+critical-v2
+./mvnw -pl runtime-command-consumption-worker -am clean -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 d282480fc76f3feb6a679ecf387d99d394f4495765a37cd6ff335ab8dc0b9435
+BUILD FAILURE ; classes=0 ; tests/failures/errors/skipped=[0, 0, 0, 0]
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[776,21] incompatible types: bad type in conditional expression
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[779,189] cannot find symbol
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project pocoma-infra-persistence-primary-jpa: Compilation failure: Compilation failure:
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[776,21] incompatible types: bad type in conditional expression
+[ERROR]     inference variable E has incompatible bounds
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[779,189] cannot find symbol
+
+runtime-critical
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker -am -Dtest=ProjectionMaterializationConsumptionPostgresTest,CanonicalProjectionTaskRuntimePostgresTest,CommandConsumptionRuntimePostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 15442d820e1968ec66378ff286548324ced6809d64a7374da2cac09e5586c872
+BUILD FAILURE ; classes=2 ; tests/failures/errors/skipped=[21, 1, 0, 0]
+[ERROR]   CanonicalProjectionTaskRuntimePostgresTest.activePollingAuthorityUsesOnlyTheCanonicalProjectionTaskGraph:144 Unexpected type, expected: <com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionOrchestrator> but was: <com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimeConfiguration$$Lambda/0x0000008000dbd2f8>
+
+critical-combined
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-latest-known-version-consumption-worker -am -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest,ProjectionMaterializationConsumptionPostgresTest,CanonicalProjectionTaskRuntimePostgresTest,CommandConsumptionRuntimePostgresTest,MeteredAdvanceLatestKnownVersionUseCaseTest -Dsurefire.failIfNoSpecifiedTests=false -Dlogging.level.org.hibernate.SQL=DEBUG test
+SHA256 d94120407e0edab222a6b7df861c57aeb764a79e9b4e4a0f427e1657318bf16f
+BUILD FAILURE ; classes=0 ; tests/failures/errors/skipped=[0, 0, 0, 0]
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[709,116] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[715,25] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[716,90] cannot find symbol
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:testCompile (default-testCompile) on project pocoma-infra-persistence-primary-jpa: Compilation failure: Compilation failure:
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[709,116] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[715,25] cannot find symbol
+[ERROR] /Users/julien.guezennec/Dev/projects/pocoma/app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java:[716,90] cannot find symbol
+
+critical-combined-v2
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-latest-known-version-consumption-worker -am -Dtest=CommandConsumptionPostgresTest,TransactionalConsumptionExecutionPostgresTest,JpaConsumptionLifecycleAdapterPostgresTest,ProjectionMaterializationConsumptionPostgresTest,CanonicalProjectionTaskRuntimePostgresTest,CommandConsumptionRuntimePostgresTest,MeteredAdvanceLatestKnownVersionUseCaseTest -Dsurefire.failIfNoSpecifiedTests=false -Dlogging.level.org.hibernate.SQL=DEBUG test
+SHA256 f4106c3a54837e163f1074475a2088915421e1bd26dff1fbfafbd5711181467a
+BUILD FAILURE ; classes=7 ; tests/failures/errors/skipped=[92, 1, 0, 0]
+[ERROR]   CommandConsumptionRuntimePostgresTest.publicOwnersRejectAmbientTransactionsBeforeTheirDelegates:201->lambda$publicOwnersRejectAmbientTransactionsBeforeTheirDelegates$8:204 Unexpected exception type thrown, expected: <java.lang.IllegalStateException> but was: <java.lang.NullPointerException>
+
+runtime-final-feedback
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-binding-consumption-worker,runtime-latest-known-version-consumption-worker,runtime-registration-consumption-worker,runtime-command-result-consumption-worker,runtime-registration-result-consumption-worker -am -Dtest=SequentialConsumptionOrchestratorTest,MeteredAdvanceLatestKnownVersionUseCaseTest,RegistrationRuntimePostgresTest,RegistrationResultRuntimePostgresTest,LatestKnownVersionRuntimePostgresTest,CanonicalProjectionTaskRuntimePostgresTest -Dsurefire.failIfNoSpecifiedTests=false test
+SHA256 f1cd72f6869bc7494627d15eff309d4dabad3383f220eb911770e9be3ef66640
+BUILD SUCCESS ; classes=6 ; tests/failures/errors/skipped=[42, 0, 0, 0]
+
+d17-final
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=CommandConsumptionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false -Dlogging.level.org.hibernate.SQL=DEBUG test
+SHA256 d62a00770c8091f083e744c8e670bcd05c96432e2206d0cf84f31e451af1d47e
+BUILD SUCCESS ; classes=1 ; tests/failures/errors/skipped=[34, 0, 0, 0]
+
+TOTAL de toutes les exécutions rapportées (répétitions incluses): [3859, 2, 9, 0]
+
+ALL8 final — résultats par classe
+com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.authorization.PermissionTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.event.EventTypeTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.entity.ShareholderTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest : tests=11 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest : tests=16 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest : tests=22 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest : tests=10 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.FractionTest : tests=10 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.AmountTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.NameTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.LabelTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.id.PotIdTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.WeightTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.value.UserIdTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.created.PotCreatedTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest : tests=9 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest : tests=9 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.RecordedEventTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.balance.BalanceTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest : tests=11 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.claim.ClaimTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.snapshot.PotHeaderSnapshotTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.context.DeletePotContextTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContextTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContextTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.security.UserContextTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersDetailsServiceTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.UpdatePotDetailsServiceTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.DeletePotServiceTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.ServiceVisibilityTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.AddPotShareholdersServiceTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.CreatePotServiceTest : tests=10 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersWeightsServiceTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundExceptionTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictExceptionTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecutionTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcherTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionDiscoveryModelTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistryTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.dispatch.PotCommandUseCaseAdapterTest : tests=13 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandPayloadDecodersTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseSharesCommandTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersWeightsCommandTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.DeletePotCommandTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.DeleteExpenseCommandTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseDetailsCommandTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommandTest : tests=9 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.CreateExpenseCommandTest : tests=9 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotDetailsCommandTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersDetailsCommandTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandServiceTest : tests=13 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.command.model.CommandModelTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestratorTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestratorTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocatorTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifierTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicyTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeysTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultServiceTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationDiscoveryModelTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationPolicyTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReadServiceTest : tests=13 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.projector.pot.ProjectorDeterminismTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectorTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectorTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectorTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineServiceTest : tests=12 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionServiceTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.pot.ProjectionDefinitionsTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.pot.ProjectionInterpretersTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.pot.PotReadApiTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.read.pot.ReadPotServiceTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest : tests=16 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolderTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandServiceTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactoryTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKeyTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocatorTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepositoryFencingQueryTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.PotPartitionerTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapterTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapperTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapterTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapterTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapterTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.ExternalIdentityBindingFactRecordMapperTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest : tests=10 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPortPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapterPostgresTest : tests=9 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest : tests=16 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest : tests=12 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.RecordedCommandRecordMapperTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapterPostgresTest : tests=13 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest : tests=34 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapterPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapterTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CommandResultBackfillMigrationPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CanonicalBusinessEventTypesMigrationPostgresTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.RecordedCommandContractionMigrationPostgresTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.infra.projection.validation.networknt.NetworkntJsonSchemaValidatorTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorkerTest : tests=7 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionSourceTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.consume.event.materialization.ProjectionMaterializationConsumptionServiceTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.http.write.AsyncCommandControllerTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.http.read.CurrentBindingControllerTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.http.read.PotQueryControllerTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.http.read.RegistrationResultControllerTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.supra.http.read.CommandResultControllerTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.ProjectionTaskSchedulingMigrationPostgresTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeConfigurationTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimeSpringBindingTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionRuntimePostgresTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.PocomaProjectionMaterializationPolicyTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.EventConsumptionWorkerLifecycleTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.event.consumption.ProjectionMaterializationConsumptionPostgresTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.result.CommandResultRuntimePostgresTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.registrationresult.RegistrationResultRuntimePostgresTest : tests=4 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest : tests=5 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.latestknownversion.MeteredAdvanceLatestKnownVersionUseCaseTest : tests=3 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.latestknownversion.LatestKnownVersionRuntimePostgresTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.binding.BindingRuntimePostgresTest : tests=6 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerProcessTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskConsumptionOrchestratorTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.task.consumption.ProjectionTaskWorkerLifecycleTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.task.consumption.CanonicalProjectionTaskRuntimePostgresTest : tests=14 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionWorkerLifecycleTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest : tests=8 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.ConsumptionOwnerTransactionRunnerTest : tests=2 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionActuatorTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeContextTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.MicrometerConsumptionPollingWorkerObservationTest : tests=1 failures=0 errors=0 skipped=0
+com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionMultiWorkerPostgresTest : tests=1 failures=0 errors=0 skipped=0
+
+Avertissement de fermeture JVM infra-primary : présent aussi dans /tmp/pocoma-wp0-command-slice-closure.log à la ligne 5181, puis BUILD SUCCESS ligne 5768. Dump WP2: SpringApplicationShutdownHook -> SchemaDropperImpl -> Hikari getConnection après arrêt de conteneur. Ce n’est pas une erreur d’assertion WP2. Aucun timeout augmenté, test ignoré ou mécanisme de retry ajouté.
+
+D17 final — témoins SQL, ownership et états persistés
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=73979ce6-75bd-443e-976e-7ab872c41958] C2=ClaimId[value=d564ef1b-f815-4838-b963-ae41b0f90c4e] slot=7376378d-7016-49ea-bb85-c6b33f2ff683
+LOCK_AUDIT constraints=[{relation=consumption_inputs, conname=ck_consumption_inputs_version, contype=c, convalidated=true, definition=CHECK ((subject_version >= 1))}, {relation=consumption_inputs, conname=consumption_inputs_pkey, contype=p, convalidated=true, definition=PRIMARY KEY (input_id)}, {relation=consumption_inputs, conname=fk_consumption_inputs_slot, contype=f, convalidated=true, definition=FOREIGN KEY (slot_id) REFERENCES consumption_slots(slot_id)}, {relation=consumption_inputs, conname=uk_consumption_inputs_identity, contype=u, convalidated=true, definition=UNIQUE (slot_id, subject_type, subject_id, subject_version)}, {relation=consumption_results, conname=ck_consumption_results_object_version, contype=c, convalidated=true, definition=CHECK (((object_version IS NULL) OR (object_version >= 1)))}, {relation=consumption_results, conname=ck_consumption_results_subject, contype=c, convalidated=true, definition=CHECK ((((subject_type IS NULL) AND (subject_id IS NULL) AND (subject_version IS NULL)) OR ((subject_type IS NOT NULL) AND (subject_id IS NOT NULL) AND (subject_version IS NOT NULL) AND (subject_version >= 1))))}, {relation=consumption_results, conname=consumption_results_pkey, contype=p, convalidated=true, definition=PRIMARY KEY (result_id)}, {relation=consumption_results, conname=fk_consumption_results_slot, contype=f, convalidated=true, definition=FOREIGN KEY (slot_id) REFERENCES consumption_slots(slot_id)}, {relation=command_outcomes, conname=ck_command_outcomes_failed_public_code, contype=c, convalidated=true, definition=CHECK ((((outcome_type)::text <> 'FAILED'::text) OR ((public_code)::text = 'COMMAND_PROCESSING_FAILED'::text)))}, {relation=command_outcomes, conname=ck_command_outcomes_shape, contype=c, convalidated=true, definition=CHECK (((((outcome_type)::text = 'APPLIED'::text) AND (pot_id IS NOT NULL) AND (resulting_version >= 1) AND (public_code IS NULL)) OR (((outcome_type)::text = ANY ((ARRAY['REJECTED'::character varying, 'FAILED'::character varying])::text[])) AND (pot_id IS NULL) AND (resulting_version IS NULL) AND (public_code IS NOT NULL) AND (length(TRIM(BOTH FROM public_code)) > 0))))}, {relation=command_outcomes, conname=ck_command_outcomes_type, contype=c, convalidated=true, definition=CHECK (((outcome_type)::text = ANY ((ARRAY['APPLIED'::character varying, 'REJECTED'::character varying, 'FAILED'::character varying])::text[])))}, {relation=command_outcomes, conname=command_outcomes_pkey, contype=p, convalidated=true, definition=PRIMARY KEY (command_id)}, {relation=command_outcomes, conname=fk_command_outcomes_recorded_command, contype=f, convalidated=true, definition=FOREIGN KEY (command_id) REFERENCES recorded_commands(command_id)}]
+LOCK_AUDIT concurrent=[{pid=61, xid=806, wait_event_type=Lock}, {pid=62, xid=805, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=7376378d-7016-49ea-bb85-c6b33f2ff683, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[0ad22827-0234-4c82-808e-1df49470572b]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[REJECTED], terminalReason=Optional[TerminalReason[code=CALLER_IDENTITY_NOT_CURRENT]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=73979ce6-75bd-443e-976e-7ab872c41958], slotId=7376378d-7016-49ea-bb85-c6b33f2ff683, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=d564ef1b-f815-4838-b963-ae41b0f90c4e], slotId=7376378d-7016-49ea-bb85-c6b33f2ff683, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional.empty, endReason=Optional[REJECTED]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=binding-recovery inputs=true results=true stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=74fe8534-eac2-495b-be17-4c80966817ce] C2=ClaimId[value=382e2ea1-fd1e-4af6-bf3a-f87e6cbf4dc8] slot=ad64aa81-ed00-4dac-bb95-8cae6a941ec8
+LOCK_AUDIT concurrent=[{pid=61, xid=825, wait_event_type=Lock}, {pid=62, xid=824, wait_event_type=Client}]
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=ad64aa81-ed00-4dac-bb95-8cae6a941ec8, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[7eedc0d9-700c-43f7-9232-bccb64c331a8]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[REJECTED], terminalReason=Optional[TerminalReason[code=CALLER_IDENTITY_NOT_CURRENT]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=74fe8534-eac2-495b-be17-4c80966817ce], slotId=ad64aa81-ed00-4dac-bb95-8cae6a941ec8, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=382e2ea1-fd1e-4af6-bf3a-f87e6cbf4dc8], slotId=ad64aa81-ed00-4dac-bb95-8cae6a941ec8, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional.empty, endReason=Optional[REJECTED]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=binding-recovery inputs=false results=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=9fad84e0-acb5-475d-b230-9b5a87795773] C2=ClaimId[value=4727afd6-63cc-4432-9088-61f9019f6dfa] slot=34de39cd-92b1-4447-bd4f-2d02aab79f9e
+LOCK_AUDIT concurrent=[{pid=61, xid=1031, wait_event_type=Lock}, {pid=62, xid=1030, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=34de39cd-92b1-4447-bd4f-2d02aab79f9e, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[09ab0322-4af5-4d02-ad12-c51fc6e45150]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[FAILED], terminalReason=Optional[TerminalReason[code=COMMAND_EXECUTION_FAILURE]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=9fad84e0-acb5-475d-b230-9b5a87795773], slotId=34de39cd-92b1-4447-bd4f-2d02aab79f9e, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=4727afd6-63cc-4432-9088-61f9019f6dfa], slotId=34de39cd-92b1-4447-bd4f-2d02aab79f9e, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional[ProcessingFailure[code=ProcessingFailureCode[value=COMMAND_EXECUTION_FAILURE], category=COMMAND_EXECUTION_FAILURE, message=controlled terminal failure, occurredAt=2026-09-05T08:00:30Z]], endReason=Optional[PROCESSING_FAILURE]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=terminal-failure inputs=false results=true stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=d8668911-d7e9-4973-ab44-e00a7b574738] C2=ClaimId[value=0d4b40cf-59ec-4dce-831c-c239d8ebcf6c] slot=1ad32e1f-e5ef-4317-9579-6eb1b0df6309
+LOCK_AUDIT concurrent=[{pid=61, xid=1076, wait_event_type=Lock}, {pid=62, xid=1075, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=1ad32e1f-e5ef-4317-9579-6eb1b0df6309, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[6c00c4b9-9e26-4d91-b6f5-3bb82d891b6c]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[REJECTED], terminalReason=Optional[TerminalReason[code=CALLER_IDENTITY_NOT_CURRENT]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=d8668911-d7e9-4973-ab44-e00a7b574738], slotId=1ad32e1f-e5ef-4317-9579-6eb1b0df6309, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=0d4b40cf-59ec-4dce-831c-c239d8ebcf6c], slotId=1ad32e1f-e5ef-4317-9579-6eb1b0df6309, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional.empty, endReason=Optional[REJECTED]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=binding-recovery inputs=true results=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=497f21f2-5e41-404f-9f65-e35d83278bf2] C2=ClaimId[value=9786c370-7a34-4f48-9b87-864f3c920ab7] slot=f1b04acf-46ed-4670-a2f6-03095162f31a
+LOCK_AUDIT concurrent=[{pid=61, xid=1190, wait_event_type=Lock}, {pid=62, xid=1189, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=f1b04acf-46ed-4670-a2f6-03095162f31a, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[f161a744-9f51-4e64-a30a-2fad3545a2ab]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[FAILED], terminalReason=Optional[TerminalReason[code=COMMAND_EXECUTION_FAILURE]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=497f21f2-5e41-404f-9f65-e35d83278bf2], slotId=f1b04acf-46ed-4670-a2f6-03095162f31a, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=9786c370-7a34-4f48-9b87-864f3c920ab7], slotId=f1b04acf-46ed-4670-a2f6-03095162f31a, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional[ProcessingFailure[code=ProcessingFailureCode[value=COMMAND_EXECUTION_FAILURE], category=COMMAND_EXECUTION_FAILURE, message=controlled terminal failure, occurredAt=2026-09-05T08:00:30Z]], endReason=Optional[PROCESSING_FAILURE]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=terminal-failure inputs=true results=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=5e3caf9a-7adc-4e6d-871a-091a97f815c7] C2=ClaimId[value=1fad24b1-d0a0-4e3d-ab8d-6a6dcc5c1fa4] slot=3efb5494-2696-45a2-b2ab-f41967de303c
+LOCK_AUDIT concurrent=[{pid=61, xid=1227, wait_event_type=Lock}, {pid=62, xid=1226, wait_event_type=Client}]
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=3efb5494-2696-45a2-b2ab-f41967de303c, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[508e5b8f-cc2f-418f-ba49-e6d4fffb79c8]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[FAILED], terminalReason=Optional[TerminalReason[code=COMMAND_EXECUTION_FAILURE]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=5e3caf9a-7adc-4e6d-871a-091a97f815c7], slotId=3efb5494-2696-45a2-b2ab-f41967de303c, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=1fad24b1-d0a0-4e3d-ab8d-6a6dcc5c1fa4], slotId=3efb5494-2696-45a2-b2ab-f41967de303c, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional[ProcessingFailure[code=ProcessingFailureCode[value=COMMAND_EXECUTION_FAILURE], category=COMMAND_EXECUTION_FAILURE, message=controlled terminal failure, occurredAt=2026-09-05T08:00:30Z]], endReason=Optional[PROCESSING_FAILURE]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=terminal-failure inputs=false results=false stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=74f8ec99-62e3-45c7-ad09-63cc4295c5c6] C2=ClaimId[value=b8e1239a-b0b5-450b-8708-e3f32f1c666c] slot=d3811384-b972-4440-b468-6aaccb8cd24b
+LOCK_AUDIT concurrent=[{pid=61, xid=1261, wait_event_type=Lock}, {pid=62, xid=1260, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=d3811384-b972-4440-b468-6aaccb8cd24b, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[0943cdf9-6b84-46ef-a7ea-91be45c8f7b1]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[REJECTED], terminalReason=Optional[TerminalReason[code=CALLER_IDENTITY_NOT_CURRENT]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=74f8ec99-62e3-45c7-ad09-63cc4295c5c6], slotId=d3811384-b972-4440-b468-6aaccb8cd24b, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=b8e1239a-b0b5-450b-8708-e3f32f1c666c], slotId=d3811384-b972-4440-b468-6aaccb8cd24b, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional.empty, endReason=Optional[REJECTED]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=binding-recovery inputs=false results=true stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+LOCK_AUDIT takeover=committed expiredAt=2026-09-05T08:00:30Z C1=ClaimId[value=55bb8180-214c-474c-bd18-87574a16321f] C2=ClaimId[value=20641d3b-4142-44c7-bc2b-fa906b20c625] slot=6d0639b6-38a3-43ec-a8dd-db8b0bdf0864
+LOCK_AUDIT concurrent=[{pid=61, xid=1313, wait_event_type=Lock}, {pid=62, xid=1312, wait_event_type=Client}]
+LOCK_AUDIT slot KEY SHARE NOWAIT=granted while C2 waits for C1 outcome
+LOCK_AUDIT persisted slot=ConsumptionSlot[slotId=6d0639b6-38a3-43ec-a8dd-db8b0bdf0864, consumptionKey=ConsumptionKey[consumable=ConsumableIdentity[type=COMMAND, components=[325b32bf-dbac-4293-a97e-1a0fc302d9a3]], consumer=ConsumerIdentity[type=COMMAND_PROCESSOR, components=[]]], revision=3, status=DONE, terminalOutcome=Optional[FAILED], terminalReason=Optional[TerminalReason[code=COMMAND_EXECUTION_FAILURE]], currentClaimId=Optional.empty, nextClaimAt=2026-09-05T08:00:00Z, createdAt=2026-09-05T08:00:00Z, doneAt=Optional[2026-09-05T08:00:30Z]] claims=[Claim[claimId=ClaimId[value=55bb8180-214c-474c-bd18-87574a16321f], slotId=6d0639b6-38a3-43ec-a8dd-db8b0bdf0864, claimedBy=WorkerId[value=stale], attemptNumber=1, claimedAt=2026-09-05T08:00:00Z, leaseUntil=2026-09-05T08:00:30Z, invalidatedAt=Optional[2026-09-05T08:00:30Z], endedAt=Optional.empty, failure=Optional.empty, endReason=Optional[TAKEN_OVER]], Claim[claimId=ClaimId[value=20641d3b-4142-44c7-bc2b-fa906b20c625], slotId=6d0639b6-38a3-43ec-a8dd-db8b0bdf0864, claimedBy=WorkerId[value=current], attemptNumber=2, claimedAt=2026-09-05T08:00:30Z, leaseUntil=2026-09-05T08:01:00Z, invalidatedAt=Optional.empty, endedAt=Optional[2026-09-05T08:00:30Z], failure=Optional[ProcessingFailure[code=ProcessingFailureCode[value=COMMAND_EXECUTION_FAILURE], category=COMMAND_EXECUTION_FAILURE, message=controlled terminal failure, occurredAt=2026-09-05T08:00:30Z]], endReason=Optional[PROCESSING_FAILURE]]] outcomes=1 effects=0 inputs=0 results=0
+LOCK_AUDIT scenario=terminal-failure inputs=true results=true stalePid=62 initialCurrentPid=61 waitingPid=61 deadlocks=0 victim=none
+
+Trace SQL finale D17 (Hibernate avant CAS et clôture, JDBC outcome attesté par la vraie attente ci-dessus)
+2026-10-16T16:32:27.624+02:00 DEBUG 20183 --- [pool-3-thread-2] org.hibernate.SQL                        : insert into consumption_inputs (slot_id,subject_id,subject_type,subject_version,input_id) values (?,?,?,?,?)
+2026-10-16T16:32:27.625+02:00 DEBUG 20183 --- [pool-3-thread-2] org.hibernate.SQL                        : insert into consumption_results (created_at,object_id,object_type,object_version,slot_id,space,subject_id,subject_type,subject_version,result_id) values (?,?,?,?,?,?,?,?,?,?)
+2026-10-16T16:32:27.627+02:00 DEBUG 20183 --- [pool-3-thread-2] org.hibernate.SQL                        : update consumption_slots
+set status = 'DONE', terminal_outcome = ?, terminal_reason = ?,
+    current_claim_id = null,
+    done_at = ?, revision = revision + 1
+where slot_id = ? and status = 'PENDING' and current_claim_id = ?
+
+2026-10-16T16:32:27.629+02:00 DEBUG 20183 --- [pool-3-thread-1] org.hibernate.SQL                        : update consumption_slots
+set status = 'DONE', terminal_outcome = ?, terminal_reason = ?,
+    current_claim_id = null,
+    done_at = ?, revision = revision + 1
+where slot_id = ? and status = 'PENDING' and current_claim_id = ?
+
+2026-10-16T16:32:27.630+02:00 DEBUG 20183 --- [pool-3-thread-1] org.hibernate.SQL                        : update consumption_claims
+set ended_at = ?, end_reason = ?
+where claim_id = ? and slot_id = ?
+  and ended_at is null and invalidated_at is null
+
+2026-10-16T16:32:27.631+02:00 DEBUG 20183 --- [           main] org.hibernate.SQL                        : select jcce1_0.claim_id,jcce1_0.attempt_number,jcce1_0.claimed_at,jcce1_0.claimed_by,jcce1_0.end_reason,jcce1_0.ended_at,jcce1_0.failure_category,jcce1_0.failure_code,jcce1_0.failure_message,jcce1_0.failure_occurred_at,jcce1_0.invalidated_at,jcce1_0.lease_until,jcce1_0.slot_id from consumption_claims jcce1_0 where jcce1_0.claim_id=?
+2026-10-16T16:32:27.659+02:00 DEBUG 20183 --- [           main] org.hibernate.SQL                        : select jcce1_0.claim_id,jcce1_0.attempt_number,jcce1_0.claimed_at,jcce1_0.claimed_by,jcce1_0.end_reason,jcce1_0.ended_at,jcce1_0.failure_category,jcce1_0.failure_code,jcce1_0.failure_message,jcce1_0.failure_occurred_at,jcce1_0.invalidated_at,jcce1_0.lease_until,jcce1_0.slot_id from consumption_claims jcce1_0 where jcce1_0.slot_id=? order by jcce1_0.attempt_number
+2026-10-16T16:32:27.661+02:00 DEBUG 20183 --- [           main] org.hibernate.SQL                        : select jcce1_0.claim_id,jcce1_0.attempt_number,jcce1_0.claimed_at,jcce1_0.claimed_by,jcce1_0.end_reason,jcce1_0.ended_at,jcce1_0.failure_category,jcce1_0.failure_code,jcce1_0.failure_message,jcce1_0.failure_occurred_at,jcce1_0.invalidated_at,jcce1_0.lease_until,jcce1_0.slot_id from consumption_claims jcce1_0 where jcce1_0.claim_id=?
+
+Trace effets/provenance complète (campagne critical-combined-v2, classes infra 61/61 PASS ; campagne arrêtée ultérieurement sur une assertion de garde input nul corrigée)
+2026-10-16T16:21:39.022+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : insert into consumption_inputs (slot_id,subject_id,subject_type,subject_version,input_id) values (?,?,?,?,?)
+2026-10-16T16:21:39.023+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : insert into consumption_results (created_at,object_id,object_type,object_version,slot_id,space,subject_id,subject_type,subject_version,result_id) values (?,?,?,?,?,?,?,?,?,?)
+2026-10-16T16:21:39.023+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : update consumption_slots
+set status = 'DONE', terminal_outcome = ?, terminal_reason = ?,
+    current_claim_id = null,
+    done_at = ?, revision = revision + 1
+where slot_id = ? and status = 'PENDING' and current_claim_id = ?
+
+2026-10-16T16:21:39.024+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : update consumption_claims
+set ended_at = ?, end_reason = ?
+where claim_id = ? and slot_id = ?
+  and ended_at is null and invalidated_at is null
+
+2026-10-16T16:21:39.025+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : select jcse1_0.slot_id,jcse1_0.consumable_components,jcse1_0.consumable_type,jcse1_0.consumer_components,jcse1_0.consumer_type,jcse1_0.created_at,jcse1_0.current_claim_id,jcse1_0.done_at,jcse1_0.last_attempt_number,jcse1_0.next_claim_at,jcse1_0.revision,jcse1_0.status,jcse1_0.terminal_outcome,jcse1_0.terminal_reason from consumption_slots jcse1_0 where jcse1_0.slot_id=?
+2026-10-16T16:21:39.033+02:00 DEBUG 11951 --- [           main] org.hibernate.SQL                        : insert into consumption_slots (
+	slot_id, consumable_type, consumable_components, consumer_type, consumer_components,
+	revision, last_attempt_number, status, next_claim_at, created_at
+) values (
+	?, ?, cast(? as jsonb),
+	?, cast(? as jsonb), 0, 0, 'PENDING', ?, ?
+)
+on conflict (consumable_type, consumable_components, consumer_type, consumer_components)
+do nothing
+
+Fichiers WP2 code/tests exacts :
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/binding/BindingRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/consumption/CommandConsumptionRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/ConsumptionOwnerOrchestrator.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/ConsumptionOwnerTransactionRunner.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/ConsumptionTerminalParticipant.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/event/consumption/EventConsumptionRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/registration/RegistrationRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/registrationresult/RegistrationResultRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/result/CommandResultRuntimeConfiguration.java
+app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimeConfiguration.java
+app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/consumption/BindingFenceRecoveryExecuteUseCase.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/exception/consumption/ConsumptionClaimClosureException.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/exception/consumption/ConsumptionTransactionResolutionException.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/in/consumption/contract/ConsumptionExecution.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/in/consumption/contract/ConsumptionFinalization.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/in/consumption/contract/FencedDurableEffect.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/in/consumption/input/FinalizeConsumptionInput.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/port/out/consumption/ConsumptionLifecyclePersistencePort.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/ConsumptionOwnership.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/ExecuteConsumptionService.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/FinalizeConsumptionService.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/HandleConsumptionFailureService.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/transaction/consumption/TransactionalFinalizeConsumptionUseCase.java
+app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/transaction/consumption/TransactionalHandleConsumptionFailureUseCase.java
+app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/service/consumption/AcquireConsumptionPreconditionTest.java
+app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/service/consumption/ExecuteConsumptionServiceTest.java
+app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/service/consumption/FinalizeConsumptionServiceTest.java
+app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/consumption/JpaConsumptionLifecycleAdapter.java
+app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/CommandConsumptionPostgresTest.java
+app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/consumption/JpaConsumptionLifecycleAdapterPostgresTest.java
+app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/consumption/TransactionalConsumptionExecutionPostgresTest.java
+app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestrator.java
+app/orchestrator-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestratorTest.java
+app/runtime-binding-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/binding/BindingRuntimePostgresTest.java
+app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/CommandConsumptionRuntimePostgresTest.java
+app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/ConsumptionOwnerTransactionRunnerTest.java
+app/runtime-command-result-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/result/CommandResultRuntimePostgresTest.java
+app/runtime-event-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/event/consumption/EventConsumptionRuntimePostgresTest.java
+app/runtime-event-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/event/consumption/ProjectionMaterializationConsumptionPostgresTest.java
+app/runtime-latest-known-version-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/latestknownversion/LatestKnownVersionOwnerTransactionRunner.java
+app/runtime-latest-known-version-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/latestknownversion/LatestKnownVersionRuntimeConfiguration.java
+app/runtime-latest-known-version-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/latestknownversion/MeteredAdvanceLatestKnownVersionUseCase.java
+app/runtime-latest-known-version-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/latestknownversion/LatestKnownVersionRuntimePostgresTest.java
+app/runtime-latest-known-version-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/latestknownversion/MeteredAdvanceLatestKnownVersionUseCaseTest.java
+app/runtime-registration-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/registration/RegistrationRuntimePostgresTest.java
+app/runtime-registration-result-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/registrationresult/RegistrationResultRuntimePostgresTest.java
+app/runtime-task-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/task/consumption/CanonicalProjectionTaskRuntimePostgresTest.java

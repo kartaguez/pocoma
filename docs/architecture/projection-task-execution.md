@@ -265,11 +265,16 @@ même atomicité et le même fencing que toute finalisation autoritaire.
 Le chargement, le calcul et la validation sont terminés avant d'ouvrir la transaction finale. Une
 transaction locale courte effectue ensuite, comme une seule unité atomique :
 
-1. la vérification fenced du droit de finaliser ;
-2. l'effet durable propre au consommateur ;
-3. la clôture du Claim ;
-4. la terminalisation du `ConsumptionSlot` ;
-5. le commit.
+1. l'effet SQL provisoire propre au consommateur (publication ou failure) ;
+2. la provenance éventuelle puis le flush complet des écritures nécessaires ;
+3. la terminalisation conditionnelle du `ConsumptionSlot` par CAS `S/PENDING/C` ;
+4. la clôture conditionnelle du Claim, exactement une ligne ;
+5. le commit confirmé avant résultat public.
+
+Aucun prélock terminal n'exclut l'invocation stale du callback. CAS perdu ou clôture refusée
+annule toute la transaction, root/artifacts/failure inclus. Acquire/Takeover conserve son verrou
+par clé. Voir le [protocole Consumption](consumption-transactional-execution.md) et le
+[rapport WP2](../plans/2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 Pour une `ProjectionTask` préparée avec succès, l'effet durable est :
 
@@ -288,8 +293,8 @@ transaction. La finalisation et le takeover doivent se sérialiser sur l'autorit
 fencing final échoue, la transaction complète, publication incluse, rollbacke.
 
 `engine-consumption` fournit la capacité générique de finalisation transactionnelle fenced. Le
-traitement de projection y associe son propre effet durable. Une API de callback transactionnel est
-une possibilité de composition, pas une décision canonique de ce lot.
+traitement de projection y associe son callback SQL participant ; aucune finalisation spécifique
+Projection ne remplace le suffixe commun.
 
 ## 11. Concurrence obligatoire
 
@@ -350,16 +355,16 @@ ProjectionTask(ProjectionKey)
 
    TRANSACTION COURTE
 
-   fenced finalization
-          ↓
    publish projection
    PUBLISHED
       ou
    ALREADY_EXISTS
           ↓
-    finish Claim
+    flush
           ↓
-    finish Slot
+    CAS Slot S/PENDING/C
+          ↓
+    finish Claim (exactly one)
           ↓
         COMMIT
 ```

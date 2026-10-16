@@ -1,6 +1,6 @@
 # Plan d'implémentation — protocole transactionnel générique Consumption
 
-Date : 2026-10-16. Statut du plan : **READY WITH PRECONDITIONS**. Aucune implémentation engagée.
+Date : 2026-10-16. Statut du plan : **WP2 PASS borné**, après WP0 PASS et WP1 PASS contractuel. WP3–WP6 restent PLANNED ; aucune clôture globale. Voir le [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md).
 
 ## 1. Executive summary
 
@@ -8,9 +8,9 @@ La cible est un seul protocole transactionnel pour les huit familles Consumption
 
 Le succès et le rejet via Execute suivent déjà cet ordre. Les inversions sont dans Finalize partagé et la recovery Binding. Le chantier comprend **sept WP (WP0–WP6)**. WP2 bascule ensemble le moteur, les wrappers, la recovery et les assemblages qui doivent évoluer ; D17 y est vérifié dès que le chemin réel est exécutable. WP3 et WP4 approfondissent les preuves, sans attendre leur clôture pour migrer une famille. Ce regroupement évite un état intermédiaire où l'on retire un verrou tout en conservant un retour normal qui committe des effets stale.
 
-Le CONDITIONAL GO de l'audit reste conditionnel : aucun résultat PostgreSQL TARGET n'existe aujourd'hui. Les recommandations de contrat ci-dessous sont suffisamment précises pour guider l'implémentation ; les préconditions WP0/WP1 doivent être satisfaites avant WP2. Ni ce plan ni un test D17 vert ne prouvent l'absence universelle de deadlock ou une progression bornée.
+Le CONDITIONAL GO initial de l'audit a maintenant une première preuve PostgreSQL TARGET bornée au WP2 ; les approfondissements WP3/WP4 restent requis. Les recommandations de contrat ci-dessous sont suffisamment précises pour guider l'implémentation ; les préconditions WP0/WP1 doivent être satisfaites avant WP2. Ni ce plan ni un test D17 vert ne prouvent l'absence universelle de deadlock ou une progression bornée.
 
-## 2. Baseline, références et écarts au HEAD
+## 2. Baseline initiale du plan, références et écarts au HEAD initial
 
 ### 2.1 État Git avant travail
 
@@ -246,7 +246,7 @@ flowchart LR
   W5 --> W6[WP6 Validation bornée et clôture]
 ```
 
-WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1 est **PASS contractuel** ([rapport et décisions D01–D10](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)) ; WP2–WP6 restent **PLANNED**, aucun test TARGET PASS. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
+WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en travail séparé ; cela n'autorise aucune concurrence d'édition incontrôlée. WP0 est **PASS** (campagne CURRENT du 2026-10-16, commit tests `2a9d8f3f1a1d0830e01c4f42a9f338b4361bc0c8` ; [rapport](2026-10-16-consumption-generic-transactional-protocol-wp0-baseline.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp0-verification.txt)). WP1 est **PASS contractuel** ([rapport et décisions D01–D10](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)) ; WP2 est **PASS borné** (moteur/tests `72687053`, [rapport](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md), [preuves](2026-10-16-consumption-generic-transactional-protocol-wp2-verification.txt)) ; WP3–WP6 restent **PLANNED**. Le suivi vit dans les tableaux de ce plan : ajouter SHA et lien vers preuves lors de l'exécution, sans tracker redondant.
 
 ### WP0 — Baseline reproductible et préconditions expérimentales
 
@@ -263,7 +263,7 @@ WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en t
 | Rollback | Revert uniquement nouvelles fixtures/diagnostics invalides ; garder preuve historique et fichiers locaux ; pas de correction runtime opportuniste |
 | Documentation | Ajouter liens de campagne CURRENT dans ce plan ; conserver audit/diagnostics historiques intacts et statuts de dettes |
 
-**Suivi 2026-10-16 — WP0 clos PASS** : D17 CURRENT reproduit (`40P01`), rollback attesté, 52 tests ciblés PASS, Binding 5/5 après qualifier local, COMMAND canonique 857/857 après qualification de deux fixtures Command. Aucun changement de production ; WP1/WP2 non engagés. Voir les preuves liées ci-dessus.
+**Suivi historique à la clôture WP0, 2026-10-16 — PASS** : D17 CURRENT reproduit (`40P01`), rollback attesté, 52 tests ciblés PASS, Binding 5/5 après qualifier local, COMMAND canonique 857/857 après qualification de deux fixtures Command. Aucun changement de production ; WP1/WP2 non engagés. Voir les preuves liées ci-dessus.
 
 **Instruction initiale WP0, exécutée lors de cette campagne** : lancer uniquement la caractérisation CURRENT existante et diagnostiquer la fixture Binding, après disponibilité PostgreSQL. Il ne corrige pas D17 et ne peut clôturer le chantier. Si une correction de production Binding est requise, requalifier le scope avant intervention ; la migration générique attend sa preuve runtime.
 
@@ -282,7 +282,7 @@ WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en t
 | Rollback | Revert extensions additives comme unité ; conserver contrat documentaire corrigé ; ne pas migrer un caller isolé |
 | Documentation | Canon Consumption : contrat callback et perte ; inscrire décision sur ordre physique Projection sans annoncer TARGET implémenté |
 
-**Suivi 2026-10-16 — WP1 clos PASS contractuel** : [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md), D01–D10 CLOSED, owners sans transaction ambiante et participants internes explicites, API terminale/provenance et barrière pré-CAS arrêtées. Mission exclusivement documentaire : aucun runtime/test/schéma modifié, aucun test exécuté. WP2 non commencé ; preuves TARGET restent à obtenir. Les obligations de contrat du rapport WP1 précisent les recommandations §5/§10.2.
+**Suivi historique à la clôture WP1, 2026-10-16 — PASS contractuel** : [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md), D01–D10 CLOSED, owners sans transaction ambiante et participants internes explicites, API terminale/provenance et barrière pré-CAS arrêtées. Mission exclusivement documentaire : aucun runtime/test/schéma modifié, aucun test exécuté. WP2 non commencé ; preuves TARGET restent à obtenir. Les obligations de contrat du rapport WP1 précisent les recommandations §5/§10.2.
 
 ### WP2 — Basculement cohérent du protocole et preuve D17 immédiate
 
@@ -298,6 +298,8 @@ WP3 et WP4 sont indépendants après WP2, exécutables séquentiellement ou en t
 | Exit criteria | D17 TARGET sans 40P01, C1 intégralement rollbacké, unique FAILED C2 et claim clos ; tous chemins actifs utilisent suffixe commun ; Event/Projection stale SQL annulés ; CAS perdu et clôture zéro rollbackés ; ALL8 sans scénario bloqué/skip ; aucune famille reste pessimiste |
 | Rollback | Revert ensemble moteur/wrappers/recovery/assemblages/tests TARGET ; suspendre les workers concernés et drainer avant tout retour à CURRENT. Ne jamais restaurer seulement le prélock d'une famille |
 | Documentation | Canon Consumption et séquences ProjectionTask alignés sur protocole réellement livré ; liens des premières preuves T01/T04/T06/T10, risque D17 CURRENT conservé historique |
+
+**Suivi 2026-10-16 — WP2 clos PASS borné** : moteur/tests `72687053d2d5ec2dd1c47f667e4f95403aa1f4d8`, [rapport WP2](2026-10-16-consumption-generic-transactional-protocol-wp2-implementation.md), [journal](2026-10-16-consumption-generic-transactional-protocol-wp2-verification.txt). ALL8 949/949, zéro failure/error/skip ; dernière reprise D17 34/34 après renforcement des assertions, huit entrelacements sans 40P01, C1 rollbacké et C2 terminal cohérent. Protocole partagé, owners gardés et recovery participante ; aucun schéma/policy/fence métier changé. Précision d'emplacement : garde locale LKV dans son module de composition existant, sans nouvelle dépendance. Preuves approfondies WP3/WP4 toujours différées, aucune ouverture de ces WP.
 
 WP2 est une unité de cohérence plus large que les autres WP mais son contenu reste mécanique : les effets métier ne sont pas réécrits. Les sous-commits de développement peuvent ajouter types puis migrer appels pour compiler, **sans livraison/exécution d'un état mélangeant protocoles**. Aucune coexistence runtime n'est autorisée au terme de WP2 ; aucun flag legacy. Les anciennes APIs peuvent encore exister comme délégations vers le suffixe unique jusqu'à WP5.
 
@@ -486,15 +488,15 @@ La fin WP6 est une clôture fonctionnelle bornée du protocole sur cette branche
 
 ## 13. Points ouverts, preuves manquantes et verdict
 
-**Préconditions initiales avant WP2, arrêtées par WP0/WP1** : capture CURRENT reproductible et preuve Binding runtime résolues au WP0 ; choix Java terminal/provenance, distinction owner/participant, garde Spring et contrats des huit callbacks décidés dans le [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md). Leur implémentation et leur preuve TARGET restent à réaliser au WP2. Les décisions de correction ne sont pas reportées : recommandations D01–D10 retenues, toute alternative exige preuve équivalente avant basculement.
+**Préconditions initiales avant WP2, arrêtées par WP0/WP1** : capture CURRENT reproductible et preuve Binding runtime résolues au WP0 ; choix Java terminal/provenance, distinction owner/participant, garde Spring et contrats des huit callbacks décidés dans le [rapport WP1](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md). Leur implémentation commune et les preuves minimales TARGET sont maintenant livrées au WP2, sans préjuger des approfondissements suivants. Les décisions de correction ne sont pas reportées : recommandations D01–D10 retenues, toute alternative exige preuve équivalente avant basculement.
 
-**Bloquants à la clôture** : preuves TARGET T01–T11, trace des barrières de flush, cardinalités/rollback réels, Event/Projection stale, réconciliation erreurs pré-CAS/postcommit, zéro ancien protocole et suites runtime complètes. Elles sont absentes aujourd'hui par définition de la mission, pas supposées PASS.
+**Bloquants à la clôture globale WP6** : preuves TARGET T01–T11, trace des barrières de flush, cardinalités/rollback réels, Event/Projection stale, réconciliation erreurs pré-CAS/postcommit, zéro ancien protocole et suites runtime complètes. Les preuves minimales WP2 sont maintenant liées au suivi ; les approfondissements et retraits WP3–WP6 ne sont pas supposés PASS.
 
 **Non bloquants pour préparer l'implémentation** : schéma effectivement déployé et fréquence D17 en charge non inspectés, DDL concurrent et pannes distribuées non caractérisés, coût comparatif de contention non mesuré, callbacks futurs arbitraires non prouvés. Aucune prétention sur ces périmètres. Le contrat rejette les nouveaux effets qui sortiraient de la transaction locale.
 
-**Verdict de planification : READY WITH PRECONDITIONS.** WP0 a été clos PASS le 2026-10-16 ; WP1 est clos PASS contractuel ([rapport](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)). WP2 reste non commencé ; ses préconditions contractuelles WP0/WP1 sont arrêtées, sans protocole spécial Command final ni exemption permanente d'une des huit familles. Aucune implémentation lancée ici.
+**Suivi courant : WP2 PASS borné ; chantier global non clos.** WP0 a été clos PASS le 2026-10-16 ; WP1 est clos PASS contractuel ([rapport](2026-10-16-consumption-generic-transactional-protocol-wp1-contracts.md)). WP2 est clos PASS borné avec le rapport et les preuves liés ci-dessus ; aucun protocole spécial Command ni exemption de famille. La DoD globale reste ouverte aux approfondissements WP3/WP4, au nettoyage WP5 et au gate WP6.
 
-## 14. Journal de vérification de cette mission documentaire
+## 14. Journal historique de la mission documentaire initiale (avant WP0–WP2)
 
 Commandes effectivement utilisées : `git status --short --branch`, `git branch --show-current`, `git rev-parse HEAD`, upstream et `git rev-list --left-right --count`, `git log --oneline -5`, `git diff --stat 306963fc..HEAD -- app docs/testing docs/architecture/consumption-transactional-execution.md`, `git remote -v`, `git ls-remote` (échec DNS sandbox puis succès avec réseau autorisé) ; `rg`/`rg --files`, `cat`/`sed`, `wc` et lectures de POM ; script Python standard XML pour vérifier anchors/dépendances ; écriture de ce Markdown. Contrôles de livraison : validation locale des liens et références, parité des fences Markdown, couverture des sept tableaux WP et des onze tests, `git diff --check -- <ce plan>`, revue du diff stagé et `git diff --cached --check`, commit de ce seul livrable puis push normal si état distant compatible. SHA de livraison et résultat Git final donnés dans la restitution, sans autoréférence du document à son propre commit.
 
