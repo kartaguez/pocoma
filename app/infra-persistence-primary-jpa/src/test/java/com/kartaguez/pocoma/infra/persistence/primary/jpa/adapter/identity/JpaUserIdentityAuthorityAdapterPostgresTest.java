@@ -259,6 +259,55 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
         } finally { executor.shutdownNow(); }
     }
 
+    @Test void detachWaitsForStreamBeforeTakingAuthorityLock() throws Exception {
+        PocomaUserId user = createUser(11);
+        ExternalIdentity identity = identity("order-proof");
+        BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        CompletableFuture<Integer> workerPid = new CompletableFuture<>();
+        java.util.concurrent.atomic.AtomicReference<Future<BindingDetachResult>> worker =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        try {
+            inTransaction(() -> {
+                int holder = jdbc.queryForObject("select pg_backend_pid()", Integer.class);
+                jdbc.queryForList("select * from external_identity_binding_streams "
+                        + "where issuer=? and subject=? for update", identity.issuer(), identity.subject());
+                worker.set(executor.submit(() -> inTransaction(() -> {
+                    workerPid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
+                    return bindings.detach(identity, binding);
+                })));
+                int waiter;
+                try { waiter = workerPid.get(5, TimeUnit.SECONDS); }
+                catch (Exception e) { throw new AssertionError(e); }
+                assertNotEquals(holder, waiter);
+                // Observe an actual lock wait; no scheduling delay creates the interleaving.
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                boolean blocked = false;
+                while (System.nanoTime() < deadline) {
+                    // Fresh connection avoids a transaction-scoped monitoring snapshot.
+                    try (var connection = jdbc.getDataSource().getConnection();
+                            var statement = connection.prepareStatement(
+                                    "select ? = any(pg_blocking_pids(?))")) {
+                        statement.setInt(1, holder); statement.setInt(2, waiter);
+                        try (var rows = statement.executeQuery()) { rows.next(); blocked = rows.getBoolean(1); }
+                    } catch (java.sql.SQLException e) { throw new AssertionError(e); }
+                    if (blocked) break;
+                    Thread.onSpinWait();
+                }
+                assertTrue(blocked, "Detach must wait on the held stream");
+                // An authority-first Detach would make NOWAIT fail here.
+                assertEquals(1, jdbc.queryForList("select * from external_identities "
+                        + "where issuer=? and subject=? for update nowait", identity.issuer(), identity.subject()).size());
+                assertEquals(1L, revision(identity));
+                assertEquals(1, occurrences(identity));
+                return null;
+            });
+            assertEquals(BindingDetachResult.DETACHED, worker.get().get(10, TimeUnit.SECONDS));
+            assertEquals(2L, revision(identity));
+            assertEquals(List.of(1L, 2L), revisions(identity));
+        } finally { executor.shutdownNow(); }
+    }
+
     private boolean reserveConcurrently(UUID binding, String subject, PocomaUserId user,
             CountDownLatch ready, CountDownLatch start) {
         ready.countDown(); await(start);
