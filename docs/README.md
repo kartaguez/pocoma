@@ -22,3 +22,10 @@ La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves 
 - [Politique de vérification](testing/Reactor_Verification_Policy.md) et [CI](development/ci.md).
 - [Exploitation](operations/cmd-start-runtimes.md) et SQL associé dans `operations/sql/`.
 - Détails : [transactions Consumption](architecture/consumption-transactional-execution.md), [exécution ProjectionTask](architecture/projection-task-execution.md), [reconstruction historique Pot](architecture/pot-historical-reconstruction.md).
+
+## Audits transactionnels et études du prochain protocole
+
+- [Index des audits, études et preuves R03](architecture/transactional-protocol-studies.md) : autorités, ordre des verrous et fencing Binding / Consumption.
+- **R03 corrigé et clôturé** : [intégration validée](testing/evidence/Expense_Context_Integration_Report_2026-10-18.md), avec conservation de la preuve rouge historique.
+- **Référence de revue la plus récente — TARGET non implémenté** : [protocole consolidé](architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md). L'obsolescence des commandes par BusinessEvents est en conception ; EventPublication reste une proposition non implémentée.
+- [Registre de consolidation Git](testing/evidence/Git_Consumption_Consolidation_2026-10-18.md), pour la provenance et les limites historiques des rapports.
