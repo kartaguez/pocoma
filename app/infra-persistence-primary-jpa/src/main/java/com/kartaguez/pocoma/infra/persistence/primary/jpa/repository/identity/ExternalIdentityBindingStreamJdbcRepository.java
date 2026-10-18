@@ -30,15 +30,13 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 			join external_identities a on a.issuer = s.issuer and a.subject = s.subject
 			where s.issuer = ? and s.subject = ? and a.binding_id = ?
 			""";
+	private static final String SHARE = FIND + " for share";
 	private static final String FENCE_EXACT = """
-			update external_identity_binding_streams as s
-			set current_revision = s.current_revision
+			select count(*)
+			from external_identity_binding_streams s
+			join external_identities a on a.issuer = s.issuer and a.subject = s.subject
 			where s.issuer = ? and s.subject = ? and s.current_revision = ?
-			  and exists (
-			    select 1 from external_identities as a
-			    where a.issuer = s.issuer and a.subject = s.subject
-			      and a.user_id = ? and a.binding_id = ?
-			  )
+			  and a.user_id = ? and a.binding_id = ?
 			""";
 
 	private final JdbcTemplate jdbc;
@@ -73,7 +71,12 @@ public class ExternalIdentityBindingStreamJdbcRepository {
 	}
 
 	public boolean fenceExact(String issuer, String subject, UUID userId, UUID bindingId, long revision) {
-		return jdbc.update(FENCE_EXACT, issuer, subject, revision, userId, bindingId) == 1;
+		// Lock only the permanent authority row. Lifecycle writers take FOR UPDATE.
+		// A separate statement is essential: READ COMMITTED must take a fresh snapshot
+		// after any wait, including detach/reattach to the same user.
+		if (query(SHARE, issuer, subject).isEmpty()) return false;
+		return jdbc.queryForObject(FENCE_EXACT, Long.class,
+				issuer, subject, revision, userId, bindingId) == 1L;
 	}
 
 	public record ObservedBindingRow(UUID userId, long revision) {}

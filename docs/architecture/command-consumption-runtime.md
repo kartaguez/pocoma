@@ -29,7 +29,11 @@ ensuite l'AuthZ et les invariants métier.
 
 La résolution `(E,B) -> U` et la mutation Pot appartiennent à la même frontière transactionnelle
 fenced. L'occurrence B doit rester courante jusqu'au commit métier ; Attach ou Detach concurrent ne
-peut pas l'invalider entre contrôle et commit. La primitive PostgreSQL exacte relève du plan.
+peut pas l'invalider entre contrôle et commit. Le fence tardif prend `FOR SHARE` sur le stream permanent `(issuer,subject)`, puis valide
+`R/U/BindingId` dans un statement distinct et frais sous `READ COMMITTED`. Le verrou participe à TE
+(`MANDATORY`) et dure jusqu'à sa résolution physique. Deux commandes partagent cette protection ;
+Acquire/Detach conservent `FOR UPDATE` et attendent toutes les TE protégées.
+Voir l'[intégration 2C](Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md).
 
 La composition distribuée sépare explicitement les processus `runtime-web-api`,
 `runtime-command-consumption-worker`, `runtime-event-consumption-worker` et

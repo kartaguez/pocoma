@@ -163,6 +163,11 @@ et restent nécessaires aux frontières transactionnelles.
 Acquire/Takeover conserve `S FOR UPDATE par clé → invalider/insérer C → installer C → commit`.
 Il ne réclame aucune publication métier sous ce verrou. Le préfixe Command conserve
 `CAS Pot → metadata/DML temporel → Events saveAllAndFlush → fence Binding exact → outcome strict → terminal Event`.
+Le fence Binding de Command est `SELECT stream FOR SHARE`, suivi d'un SELECT distinct validant
+révision, utilisateur et occurrence exacte après l'éventuelle attente. Il rejoint la même TE via
+`MANDATORY` et garde le verrou au commit/rollback ; `clearAutomatically` ne le libère pas.
+Acquire/Detach gardent le stream exclusif `FOR UPDATE`.
+Voir la [preuve d'intégration 2C](Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md).
 Registration conserve `stream Binding → initializer User/fact → occurrence/actif/fact → outcome`.
 Les matérialiseurs conservent leur UPSERT ou INSERT/compare ; Projection publie root avant artifacts.
 Tous convergent ensuite vers provenance/flush/CAS S/clôture C. Il s'agit d'une relation partielle,

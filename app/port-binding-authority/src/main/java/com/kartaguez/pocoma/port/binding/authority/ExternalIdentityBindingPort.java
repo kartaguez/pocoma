@@ -21,7 +21,9 @@ public interface ExternalIdentityBindingPort {
 	/** A single non-locking snapshot of the current WRITE authority and its stream revision. */
 	Optional<ObservedBinding> observeCurrentBinding(ExternalIdentity identity, BindingId bindingId);
 
-	/** Final PostgreSQL CAS, in the caller's business transaction. */
+	/** Final shared PostgreSQL fence in the caller's business transaction.
+	 * Acquires the stream lock and freshly validates revision, user and exact
+	 * occurrence under READ COMMITTED; retains the lock until physical resolution. */
 	boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
 			BindingId bindingId, BindingRevision revision);
 

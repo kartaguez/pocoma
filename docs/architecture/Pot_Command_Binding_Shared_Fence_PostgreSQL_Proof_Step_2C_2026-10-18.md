@@ -1,5 +1,7 @@
 # Étape 2C — Preuve PostgreSQL du fence Binding partagé
 
+Suite : [intégration dans TE](Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md). Ce rapport conserve la preuve expérimentale et sa baseline historique.
+
 Date : 2026-10-18. Verdict expérimental : **PASS** pour le protocole candidat et les interleavings décrits ci-dessous. **L'équivalence de bout en bout dans TE n'est pas établie** : aucun fence de production n'est remplacé.
 
 ## Baseline Git et périmètre

@@ -101,7 +101,8 @@ class Wa67BindingArchitectureTest {
 		assertTrue(!authority.contains("for update"));
 		assertTrue(!authority.contains("external_identity_binding_streams"));
 		assertTrue(stream.contains("join external_identities"));
-		assertTrue(stream.contains("set current_revision = s.current_revision"));
+		assertTrue(stream.contains("for share"));
+		assertTrue(!stream.contains("set current_revision = s.current_revision"));
 		assertTrue(stream.contains("and a.user_id = ? and a.binding_id = ?"));
 
 		String writer = Files.readString(appRoot().resolve(
@@ -123,7 +124,10 @@ class Wa67BindingArchitectureTest {
 		assertTrue(service.contains("bindings.fenceObservedBinding("));
 		assertTrue(!service.contains("lockCurrentBinding("));
 		assertTrue(!recorded.contains("BindingRevision"));
-		assertTrue(stream.contains("set current_revision = s.current_revision"));
+		assertTrue(stream.contains("private static final String SHARE = FIND + \" for share\""));
+		assertOrdered(stream, "public boolean fenceExact", "query(SHARE, issuer, subject)",
+				"jdbc.queryForObject(FENCE_EXACT");
+		assertTrue(!stream.contains("set current_revision = s.current_revision"));
 		assertTrue(stream.contains("s.current_revision = ?"));
 		assertTrue(stream.contains("a.user_id = ? and a.binding_id = ?"));
 		assertTrue(!consumption.contains("fenceObservedBinding("));

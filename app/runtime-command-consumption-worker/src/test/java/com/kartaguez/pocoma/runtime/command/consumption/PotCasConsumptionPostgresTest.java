@@ -43,7 +43,7 @@ import com.kartaguez.pocoma.orchestrator.consumption.model.*;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.supra.consume.command.*;
 
-/** Real COMMAND owners and Spring persistence proxies, coordinated before the real Pot CAS. */
+/** Real COMMAND owners and persistence proxies, coordinated before P and around shared B. */
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
     "pocoma.command-consumption.enabled=false", "spring.jpa.hibernate.ddl-auto=validate", "spring.flyway.enabled=true"
 })
@@ -68,6 +68,8 @@ class PotCasConsumptionPostgresTest {
     @Autowired JpaConsumptionLifecycleAdapter lifecycle;
     @Autowired JdbcTemplate jdbc;
     @Autowired Gate gate;
+    @Autowired BindingGate bindingGate;
+    @Autowired com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingAdapter bindings;
     @Autowired org.springframework.transaction.PlatformTransactionManager manager;
     @Autowired JpaPotGlobalVersionAdapter realVersions;
     @MockitoBean(name = "commandConsumptionClock") Clock clock;
@@ -78,7 +80,7 @@ class PotCasConsumptionPostgresTest {
     @BeforeEach void setup() {
         now.set(Instant.now().plusSeconds(1));
         when(clock.instant()).thenAnswer(invocation -> now.get());
-        gate.reset(); escaped.clear();
+        gate.reset(); bindingGate.reset(); escaped.clear();
         // Observe the real public owner return boundary without substituting its behavior.
         orchestrator = new SequentialConsumptionOrchestrator(locator, acquire, input -> {
             try { return execute.execute(input); }
@@ -317,6 +319,195 @@ class PotCasConsumptionPostgresTest {
         assertEquals(2L,version(pot));
     }
 
+    @Test void productionFenceValidatesAllExactFieldsAndRequiresExistingTransaction() {
+        UUID user = UUID.randomUUID();
+        var identity = new ExternalIdentity("shared-exact",UUID.randomUUID().toString());
+        jdbc.update("insert into users(user_id) values (?)",user);
+        BindingId binding=transactions.runInTransaction(() -> bindings.acquire(identity,new PocomaUserId(user)).bindingId());
+        assertThrows(org.springframework.transaction.IllegalTransactionStateException.class, () ->
+            bindings.fenceObservedBinding(identity,new PocomaUserId(user),binding,new BindingRevision(1)));
+        transactions.runInTransaction(() -> {
+            assertTrue(bindings.fenceObservedBinding(identity,new PocomaUserId(user),binding,new BindingRevision(1)));
+            assertFalse(bindings.fenceObservedBinding(identity,new PocomaUserId(user),binding,new BindingRevision(0)));
+            assertFalse(bindings.fenceObservedBinding(identity,new PocomaUserId(UUID.randomUUID()),binding,new BindingRevision(1)));
+            assertFalse(bindings.fenceObservedBinding(identity,new PocomaUserId(user),new BindingId(UUID.randomUUID()),new BindingRevision(1)));
+            assertFalse(bindings.fenceObservedBinding(new ExternalIdentity("missing",UUID.randomUUID().toString()),new PocomaUserId(user),binding,new BindingRevision(1)));
+        });
+    }
+
+    /** Both commands have flushed the real temporal writes and outbox before reaching B. */
+    @RepeatedTest(5) void sharedBindingCommandsCommitIndependentlyAndDetachWaitsForBoth() throws Exception {
+        UUID user = UUID.randomUUID(), p1 = createPot(user), p2 = createPot(user);
+        var a = details(p1,user,"shared-a");
+        var original = details(p2,user,"shared-b");
+        var b = new RecordedCommand(original.commandId(),original.commandType(),original.serializedPayload(),
+            original.submittedAt(),a.envelope());
+        insert(a); insert(b);
+        var ca = claim(a); var cb = claim(b);
+        var ga = bindingGate.watch(a.envelope().externalIdentity(), false);
+        var gb = bindingGate.watch(a.envelope().externalIdentity(), false);
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+        try {
+            var fa = pool.submit(() -> executeWatched(a,ca,ga)); awaitLatch(ga.reached);
+            var fb = pool.submit(() -> executeWatched(b,cb,gb)); awaitLatch(gb.reached);
+            assertNotEquals(ga.pid,gb.pid); assertNotEquals(ga.xid,gb.xid);
+            assertEquals(1L,version(p1)); assertEquals(1L,version(p2));
+            CompletableFuture<Integer> detachPid = new CompletableFuture<>();
+            var detach = pool.submit(() -> transactions.runInTransaction(() -> {
+                detachPid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+                return bindings.detach(a.envelope().externalIdentity(),a.envelope().bindingId());
+            }));
+            awaitBlocked(detachPid.get(10,TimeUnit.SECONDS),ga.pid);
+            ga.release.countDown(); fa.get(10,TimeUnit.SECONDS);
+            assertDurable(a,p1); assertEquals(1L,version(p2));
+            awaitBlocked(detachPid.get(10,TimeUnit.SECONDS),gb.pid); assertFalse(detach.isDone());
+            gb.release.countDown(); fb.get(10,TimeUnit.SECONDS);
+            assertEquals(BindingDetachResult.DETACHED,detach.get(10,TimeUnit.SECONDS));
+            assertDurable(b,p2);
+            assertEquals(List.of(TransactionSynchronization.STATUS_COMMITTED),ga.completions);
+            assertEquals(List.of(TransactionSynchronization.STATUS_COMMITTED),gb.completions);
+            System.out.printf("Real TE shared B: pid=%d xid=%d / pid=%d xid=%d; detach=%d waited for both%n",
+                ga.pid,ga.xid,gb.pid,gb.xid,detachPid.get());
+        } finally { ga.release.countDown(); gb.release.countDown(); pool.shutdownNow(); assertTrue(pool.awaitTermination(15,TimeUnit.SECONDS)); }
+    }
+
+    @RepeatedTest(5) void bindingWaitAfterFlushRejectsDetachedAndSameUserReattachedOccurrence() throws Exception { bindingLoss(true); }
+    @Test void lifecycleCommittedBeforeBRejectsDetachedAndSameUserReattachedOccurrence() throws Exception { bindingLoss(false); }
+
+    private void bindingLoss(boolean waits) throws Exception {
+        for (boolean reattach : List.of(false,true)) {
+            UUID user = UUID.randomUUID(), pot = createPot(user);
+            var command = details(pot,user,"stale-binding"); insert(command); var claim = claim(command);
+            var g = bindingGate.watch(command.envelope().externalIdentity(),true);
+            ExecutorService pool = Executors.newFixedThreadPool(2);
+            CountDownLatch changed = new CountDownLatch(1), resolve = new CountDownLatch(1);
+            CompletableFuture<Integer> writerPid = new CompletableFuture<>();
+            try {
+                var pending = pool.submit(() -> executeWatched(command,claim,g)); awaitLatch(g.reached);
+                var writer = pool.submit(() -> transactions.runInTransaction(() -> {
+                    writerPid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+                    assertEquals(BindingDetachResult.DETACHED,bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId()));
+                    if (reattach) assertNotEquals(command.envelope().bindingId(),bindings.acquire(command.envelope().externalIdentity(),new PocomaUserId(user)).bindingId());
+                    changed.countDown(); awaitLatch(resolve);
+                }));
+                awaitLatch(changed);
+                if (waits) {
+                    g.release.countDown(); awaitBlocked(g.pid,writerPid.get(10,TimeUnit.SECONDS));
+                    resolve.countDown(); writer.get(10,TimeUnit.SECONDS);
+                } else {
+                    resolve.countDown(); writer.get(10,TimeUnit.SECONDS); g.release.countDown();
+                }
+                pending.get(10,TimeUnit.SECONDS);
+                assertEquals(List.of(TransactionSynchronization.STATUS_ROLLED_BACK),g.completions);
+                assertEquals(TerminalOutcome.REJECTED,slot(command).terminalOutcome().orElseThrow());
+                assertEquals(new TerminalReason("CALLER_IDENTITY_NOT_CURRENT"),slot(command).terminalReason().orElseThrow());
+                assertEquals(1L,version(pot));
+                for (String table : List.of("pot_headers","pot_version_metadata","business_event_outbox")) assertEquals(1,count(table,"pot_id",pot));
+                assertEquals(1,count("command_outcomes","command_id",command.commandId().value()));
+                assertEquals(1,count("command_terminal_events","command_id",command.commandId().value()));
+                assertEquals(0,count("consumption_inputs","slot_id",claim.slotId()));
+                assertEquals(0,count("consumption_results","slot_id",claim.slotId()));
+                assertNotEquals(g.xid,jdbc.queryForObject("select xmin::text::bigint from command_outcomes where command_id=?",Long.class,command.commandId().value()));
+            } finally { g.release.countDown(); resolve.countDown(); pool.shutdownNow(); assertTrue(pool.awaitTermination(15,TimeUnit.SECONDS)); }
+        }
+    }
+
+    @RepeatedTest(5) void takeoverAfterRealSharedFenceRollsBackAllFlushedBusinessEffects() throws Exception {
+        UUID user = UUID.randomUUID(), pot = createPot(user);
+        var command = details(pot,user,"shared-takeover"); insert(command); var old = claim(command);
+        var g = bindingGate.watch(command.envelope().externalIdentity(),false);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            var pending = pool.submit(() -> assertThrows(com.kartaguez.pocoma.engine.exception.consumption.LostClaimException.class,
+                () -> executeWatched(command,old,g)));
+            awaitLatch(g.reached);
+            var winner = assertInstanceOf(AcquireResult.Acquired.class,transactions.runInTransaction(() ->
+                lifecycle.acquire(CommandConsumptionKeys.forCommand(command.commandId()),ClaimId.generate(),new WorkerId("shared-takeover"),
+                    new ClaimLease(Duration.ofSeconds(30)),old.leaseUntil()))).claim();
+            CompletableFuture<Integer> pid = new CompletableFuture<>();
+            var detach = pool.submit(() -> transactions.runInTransaction(() -> {
+                pid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+                return bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId());
+            }));
+            awaitBlocked(pid.get(10,TimeUnit.SECONDS),g.pid);
+            g.release.countDown(); pending.get(10,TimeUnit.SECONDS);
+            assertEquals(BindingDetachResult.DETACHED,detach.get(10,TimeUnit.SECONDS));
+            assertEquals(List.of(TransactionSynchronization.STATUS_ROLLED_BACK),g.completions);
+            assertNoTerminal(command); assertEquals(1L,version(pot));
+            for (String table : List.of("pot_headers","pot_version_metadata","business_event_outbox")) assertEquals(1,count(table,"pot_id",pot));
+            assertEquals(0,count("consumption_inputs","slot_id",old.slotId()));
+            assertEquals(0,count("consumption_results","slot_id",old.slotId()));
+            assertEquals(winner.claimId(),slot(command).currentClaimId().orElseThrow());
+            now.set(old.leaseUntil());
+            execute.execute(new ExecuteConsumptionInput(winner.slotId(),winner.claimId(),execution.forCommand(command.commandId())));
+            assertEquals(TerminalOutcome.REJECTED,slot(command).terminalOutcome().orElseThrow());
+        } finally { g.release.countDown(); pool.shutdownNow(); assertTrue(pool.awaitTermination(15,TimeUnit.SECONDS)); }
+    }
+
+    private Claim claim(RecordedCommand command) {
+        return assertInstanceOf(AcquireResult.Acquired.class,transactions.runInTransaction(() ->
+            lifecycle.acquire(CommandConsumptionKeys.forCommand(command.commandId()),ClaimId.generate(),new WorkerId("shared"),
+                new ClaimLease(Duration.ofSeconds(30)),now.get()))).claim();
+    }
+    private void executeWatched(RecordedCommand command, Claim claim, BindingGate.Wait g) {
+        bindingGate.current.set(g);
+        try { execute.execute(new ExecuteConsumptionInput(claim.slotId(),claim.claimId(),execution.forCommand(command.commandId()))); }
+        finally { bindingGate.current.remove(); }
+    }
+    private void assertDurable(RecordedCommand command, UUID pot) {
+        assertEquals(TerminalOutcome.SUCCESS,slot(command).terminalOutcome().orElseThrow());
+        assertEquals(2L,version(pot));
+        for (String table : List.of("pot_headers","pot_version_metadata","business_event_outbox")) assertEquals(2,count(table,"pot_id",pot));
+        assertEquals(1,count("command_outcomes","command_id",command.commandId().value()));
+        assertEquals(1,count("command_terminal_events","command_id",command.commandId().value()));
+        assertEquals(1,count("consumption_inputs","slot_id",slot(command).slotId()));
+        assertEquals(1,count("consumption_results","slot_id",slot(command).slotId()));
+        assertTrue(lifecycle.findClaims(slot(command).slotId()).getFirst().endedAt().isPresent());
+    }
+    private static void awaitLatch(CountDownLatch latch) {
+        try { assertTrue(latch.await(10,TimeUnit.SECONDS)); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
+    }
+    private void awaitBlocked(int waiter, int blocker) {
+        long deadline = System.nanoTime()+Duration.ofSeconds(10).toNanos();
+        while (System.nanoTime()<deadline) {
+            if (Boolean.TRUE.equals(jdbc.queryForObject("select ? = any(pg_blocking_pids(?))",Boolean.class,blocker,waiter))) {
+                System.out.printf("Real TE PostgreSQL wait: pid=%d blocked by pid=%d%n",waiter,blocker); return;
+            }
+        }
+        fail("Missing PostgreSQL wait: "+waiter+" behind "+blocker);
+    }
+
+    static class BindingGate {
+        final ThreadLocal<Wait> current = new ThreadLocal<>();
+        void reset() { current.remove(); }
+        Wait watch(ExternalIdentity identity, boolean before) { return new Wait(identity,before); }
+        static class Wait {
+            final ExternalIdentity identity; final boolean before;
+            final CountDownLatch reached = new CountDownLatch(1), release = new CountDownLatch(1);
+            final List<Integer> completions = new CopyOnWriteArrayList<>();
+            int pid; long xid;
+            Wait(ExternalIdentity identity, boolean before) { this.identity=identity; this.before=before; }
+        }
+        void pause(boolean before, ExternalIdentity identity, JdbcTemplate jdbc) {
+            Wait g = current.get(); if (g==null || g.before!=before || !g.identity.equals(identity)) return;
+            assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
+            jdbc.execute("set local statement_timeout='12s'");
+            assertEquals("read committed",jdbc.queryForObject("show transaction_isolation",String.class));
+            g.pid=jdbc.queryForObject("select pg_backend_pid()",Integer.class);
+            g.xid=jdbc.queryForObject("select txid_current()",Long.class);
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCompletion(int status) { g.completions.add(status); }
+            });
+            // Real factory writes and saveAllAndFlush happened before the fence seam.
+            for (String table : List.of("pot_headers","pot_version_metadata","business_event_outbox"))
+                assertEquals(table.equals("pot_headers") ? 2 : 1,jdbc.queryForObject("select count(*) from "+table+" where xmin::text::bigint=?",Integer.class,g.xid));
+            g.reached.countDown(); awaitLatch(g.release);
+            assertEquals(g.pid,jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+            assertEquals(g.xid,jdbc.queryForObject("select txid_current()",Long.class));
+        }
+    }
+
     private void trackedRun(RecordedCommand command) { gate.track.set(true); gate.command.set(command.commandId().value()); try { runOne(); } finally { gate.track.remove(); gate.command.remove(); } }
     private void runOne() {
         var result = orchestrator.run(new ConsumptionOrchestrationInput(new WorkerId("step2b"),
@@ -398,6 +589,27 @@ class PotCasConsumptionPostgresTest {
     }
     @TestConfiguration(proxyBeanMethods = false) static class Configuration {
         @Bean Gate gate() { return new Gate(); }
+        @Bean BindingGate bindingGate() { return new BindingGate(); }
+        @Bean @Primary com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort coordinatedBinding(
+                com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingAdapter delegate,
+                BindingGate gate, JdbcTemplate jdbc) {
+            return new com.kartaguez.pocoma.port.binding.authority.ExternalIdentityBindingPort() {
+                public Optional<PocomaUserId> findUserId(ExternalIdentity i, BindingId b) { return delegate.findUserId(i,b); }
+                public Optional<ObservedBinding> observeCurrentBinding(ExternalIdentity i, BindingId b) { return delegate.observeCurrentBinding(i,b); }
+                public boolean fenceObservedBinding(ExternalIdentity i, PocomaUserId u, BindingId b, BindingRevision r) {
+                    gate.pause(true,i,jdbc);
+                    long xid=jdbc.queryForObject("select txid_current()",Long.class);
+                    int pid=jdbc.queryForObject("select pg_backend_pid()",Integer.class);
+                    boolean valid=delegate.fenceObservedBinding(i,u,b,r);
+                    assertEquals(xid,jdbc.queryForObject("select txid_current()",Long.class));
+                    assertEquals(pid,jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+                    gate.pause(false,i,jdbc); return valid;
+                }
+                public BindingAcquireResult acquire(ExternalIdentity i,PocomaUserId u) { return delegate.acquire(i,u); }
+                public BindingAcquireResult acquireWithInitializer(ExternalIdentity i,PocomaUserId u,Runnable init) { return delegate.acquireWithInitializer(i,u,init); }
+                public BindingDetachResult detach(ExternalIdentity i,BindingId b) { return delegate.detach(i,b); }
+            };
+        }
         @Bean @Primary PotGlobalVersionPort coordinatedVersions(JpaPotGlobalVersionAdapter delegate, Gate gate, JdbcTemplate jdbc) {
             return new PotGlobalVersionPort() {
                 @Override public void save(PotGlobalVersion value) { delegate.save(value); }

@@ -1013,28 +1013,24 @@ préparation du résultat, **avant** publication d'outcome, provenance et finali
 exécuter le fence SQL suivant sur la même connexion/transaction :
 
 ```sql
-UPDATE external_identity_binding_streams AS s
-SET current_revision = s.current_revision
-WHERE s.issuer = :issuer AND s.subject = :subject
-  AND s.current_revision = :observed_r
-  AND EXISTS (
-    SELECT 1 FROM external_identities AS a
-    WHERE a.issuer = s.issuer AND a.subject = s.subject
-      AND a.user_id = :observed_u AND a.binding_id = :command_b
-  );
+SELECT issuer, subject, current_revision
+FROM external_identity_binding_streams
+WHERE issuer = :issuer AND subject = :subject FOR SHARE;
+-- Statement distinct, après acquisition du verrou : snapshot frais READ COMMITTED.
+SELECT count(*)
+FROM external_identity_binding_streams s
+JOIN external_identities a ON a.issuer=s.issuer AND a.subject=s.subject
+WHERE s.issuer=:issuer AND s.subject=:subject AND s.current_revision=:observed_r
+  AND a.user_id=:observed_u AND a.binding_id=:command_b;
 ```
 
-Une row affectée = fence acquis ; zéro = fence perdu. Le no-op UPDATE crée un tuple PostgreSQL
-mais n'avance pas R et n'émet aucun fact. Son row lock de stream dure jusqu'au commit de cette
-transaction, **uniquement après** le travail métier. Les writers prennent le même stream lock avant
-toute mutation. Si Detach committe d'abord, PostgreSQL `READ COMMITTED` réévalue la condition après
-attente et voit R différent ; le CAS échoue. Si le CAS gagne, Detach attend le commit de la Command.
-Il n'existe donc aucune fenêtre validation réussie → detach committé → commit Command. Le
-`SELECT ... FOR UPDATE` long est interdit dans la cible ; le verrou interne bref du CAS jusqu'au
-commit est admis. Deux Commands sous B inchangé peuvent toutes deux réussir séquentiellement au
-fence final ; leur concurrence Pot/target reste réglée par les mécanismes métier existants, sans
-verrou binding durant leur phase métier. Le no-op UPDATE, son coût et l'ordre des locks avec Pot et
-claim doivent être contrôlés par les tests PostgreSQL ; les writers n'acquièrent aucun lock Pot.
+Actualisation [étape 2C](../../../architecture/Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md) :
+le no-op UPDATE initial est remplacé par le fence partagé ci-dessus. Stream absent ou count différent
+de 1 = fence perdu. Le verrou SHARE est conservé dans TE jusqu'à résolution physique. La validation
+utilise impérativement un second statement après toute attente. Les writers Acquire/Detach gardent
+FOR UPDATE sur ce stream avant leurs mutations. Deux commandes sur Pots distincts et même Binding
+peuvent franchir B avant tout commit ; le lifecycle attend toutes les protections. L'ordre Pot →
+Binding → Consumption est conservé ; aucun verrou exclusif actif n'est ajouté.
 
 **Changements.** Port WRITE `observeCurrentBinding(E,B)` retournant U+R localement (R ne sort pas
 dans `RecordedCommand`), puis `fenceObservedBinding(E,U,B,R)` ; intégration dans
