@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -64,6 +63,24 @@ class UpdatePotDetailsServiceTest {
 	}
 
 	@Test
+	void preservesObservationWhileLoadingAndMutatingAtTheWorkingVersion() {
+		var fixture = new UpdatePotDetailsFixture();
+		var context = new UpdatePotDetailsContext(new PotGlobalVersion(fixture.potId, 3), false, fixture.creatorId, 1);
+		var load = new FakePotHeaderPort(fixture.potHeader(false));
+		var versions = new FakePotGlobalVersionPort();
+		var writer = new FakeRecordingPotHeaderPort();
+		var events = new FakeEventPublisherPort();
+		var command = new UpdatePotDetailsInput(fixture.potId.value(), "Compatible old observation", 2);
+		var service = new UpdatePotDetailsService(new FakePotContextPort(context), load, versions, writer, events, new PotAuthorizationGuard());
+		var result = service.updatePotDetails(new UserContext(fixture.creatorId, fixture.userPermissions), command);
+		assertEquals(2, command.observedVersion());
+		assertEquals(3, load.loadedAtVersion);
+		assertEquals(3, versions.expectedActiveVersion.version());
+		assertEquals(4, result.version());
+		assertEquals(new PotDetailsUpdatedEvent(fixture.potId, 4), events.published);
+	}
+
+	@Test
 	void rejectsAlreadyDeletedPotWithoutLoadingFullPotHeader() {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
 		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
@@ -80,18 +97,18 @@ class UpdatePotDetailsServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullPotHeader() {
+	void rejectsObsoleteCommandWithoutLoadingFullPotHeader() {
 		UpdatePotDetailsFixture fixture = new UpdatePotDetailsFixture();
 		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		UpdatePotDetailsService updatePotDetailsService = fixture.service(fixture.context(false), loadPotHeaderPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> updatePotDetailsService.updatePotDetails(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new UpdatePotDetailsInput(fixture.potId.value(), "New trip", 2)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadPotHeaderPort.loaded);
 	}
 
@@ -148,10 +165,7 @@ class UpdatePotDetailsServiceTest {
 		private final Set<Permission> userPermissions = Set.of(new Permission("POT", "UPDATE"));
 
 		private UpdatePotDetailsContext context(boolean deleted) {
-			return new UpdatePotDetailsContext(
-					new PotGlobalVersion(potId, 3),
-					deleted,
-					creatorId);
+			return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 3), deleted, creatorId, 3L);
 		}
 
 		private PotHeader potHeader(boolean deleted) {

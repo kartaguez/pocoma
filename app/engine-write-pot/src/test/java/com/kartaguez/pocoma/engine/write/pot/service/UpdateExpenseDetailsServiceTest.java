@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -97,8 +96,11 @@ class UpdateExpenseDetailsServiceTest {
 		UpdateExpenseDetailsContext unrelatedContext = new UpdateExpenseDetailsContext(
 				new PotGlobalVersion(unrelatedPotId, 3),
 				false,
+				false,
 				fixture.creatorId,
-				Set.of(fixture.payerId, fixture.nextPayerId));
+				Set.of(fixture.payerId, fixture.nextPayerId),
+				java.util.Map.of(),
+				3L);
 		FakeExpenseHeaderPort expenseHeaders = new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		FakePotGlobalVersionPort versions = new FakePotGlobalVersionPort();
 		FakeRecordingExpenseHeaderPort writes = new FakeRecordingExpenseHeaderPort();
@@ -142,19 +144,19 @@ class UpdateExpenseDetailsServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictBeforeApplyingTheRequestedDateChange() {
+	void rejectsObsoleteCommandBeforeApplyingTheRequestedDateChange() {
 		UpdateExpenseDetailsFixture fixture = new UpdateExpenseDetailsFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
 				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		UpdateExpenseDetailsService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.updateExpenseDetails(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(2, fixture.nextPayerId)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadExpenseHeaderPort.loaded);
 	}
 
@@ -215,7 +217,8 @@ class UpdateExpenseDetailsServiceTest {
 					false,
 					creatorId,
 					Set.of(payerId, nextPayerId),
-					shareholderUsers);
+					shareholderUsers,
+					3L);
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {
@@ -223,7 +226,7 @@ class UpdateExpenseDetailsServiceTest {
 					java.time.LocalDate.parse("2026-01-01"), deleted);
 		}
 
-		private UpdateExpenseDetailsInput command(long expectedVersion, ShareholderId payerId) {
+		private UpdateExpenseDetailsInput command(long observedVersion, ShareholderId payerId) {
 			return new UpdateExpenseDetailsInput(
 					expenseId.value(),
 					payerId.value(),
@@ -231,7 +234,7 @@ class UpdateExpenseDetailsServiceTest {
 					1,
 					"Updated dinner",
 					java.time.LocalDate.parse("2026-02-02"),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private UpdateExpenseDetailsService service(

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
@@ -104,19 +103,19 @@ class CreateExpenseServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutSavingExpense() {
+	void rejectsFutureObservedVersionWithoutSavingExpense() {
 		CreateExpenseFixture fixture = new CreateExpenseFixture();
 		FakeExpenseHeaderPort saveExpenseHeaderPort = new FakeExpenseHeaderPort();
 		FakeExpenseSharesPort saveExpenseSharesPort = new FakeExpenseSharesPort();
 		CreateExpenseService service = fixture.service(fixture.context(false), saveExpenseHeaderPort, saveExpenseSharesPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.createExpense(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
-						fixture.command(2, fixture.payerId, fixture.shareholderId)));
+						fixture.command(4, fixture.payerId, fixture.shareholderId)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("INVALID_OBSERVED_VERSION", exception.ruleCode());
 		assertNull(saveExpenseHeaderPort.saved);
 		assertNull(saveExpenseSharesPort.saved);
 	}
@@ -173,7 +172,7 @@ class CreateExpenseServiceTest {
 		}
 
 		private CreateExpenseInput command(
-				long expectedVersion,
+				long observedVersion,
 				ShareholderId payerId,
 				ShareholderId shareholderId) {
 			return new CreateExpenseInput(
@@ -184,7 +183,7 @@ class CreateExpenseServiceTest {
 					"Dinner",
 					java.time.LocalDate.parse("2026-01-01"),
 					Set.of(new CreateExpenseInput.ExpenseShareInput(shareholderId.value(), 1, 1)),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private CreateExpenseService service(

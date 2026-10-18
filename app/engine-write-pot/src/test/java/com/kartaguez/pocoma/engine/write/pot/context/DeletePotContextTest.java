@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
@@ -67,18 +66,18 @@ class DeletePotContextTest {
 	}
 
 	@Test
-	void rejectsDeletePreconditionsWhenVersionDoesNotMatch() {
+	void rejectsObsoleteDelete() {
 		PotId potId = PotId.of(UUID.randomUUID());
 		DeletePotContext context = new DeletePotContext(
 				new PotGlobalVersion(potId, 3),
 				false,
 				UserId.of(UUID.randomUUID()));
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> context.assertDeletePreconditions(2));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 	}
 
 }

@@ -64,7 +64,7 @@ class JpaExpenseHeaderAdapterTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		ShareholderId payerId = ShareholderId.of(UUID.randomUUID());
 		repository.save(JpaExpenseHeaderEntity.from(expenseHeader(expenseId, potId, payerId, "Initial", false), 2, 4L));
-		adapter.saveNew(expenseHeader(expenseId, potId, payerId, "Renamed", true), 4);
+		repository.save(JpaExpenseHeaderEntity.from(expenseHeader(expenseId, potId, payerId, "Renamed", true), 4, null));
 
 		ExpenseHeader loaded = adapter.loadActiveAtVersion(expenseId, 5);
 

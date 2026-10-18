@@ -17,7 +17,7 @@ public record CreateExpenseInput(
 		String label,
 		LocalDate date,
 		Set<ExpenseShareInput> shares,
-		long expectedVersion) {
+		long observedVersion) {
 
 	public CreateExpenseInput {
 		Objects.requireNonNull(potId, "potId must not be null");
@@ -30,8 +30,8 @@ public record CreateExpenseInput(
 		if (shares.isEmpty()) {
 			throw new IllegalArgumentException("shares must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

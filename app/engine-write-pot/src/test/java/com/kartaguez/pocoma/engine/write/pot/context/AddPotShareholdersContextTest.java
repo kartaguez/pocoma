@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
@@ -53,17 +52,17 @@ class AddPotShareholdersContextTest {
 	}
 
 	@Test
-	void rejectsVersionConflict() {
+	void rejectsFutureObservedVersion() {
 		AddPotShareholdersContext context = new AddPotShareholdersContext(
 				new PotGlobalVersion(PotId.of(UUID.randomUUID()), 3),
 				false,
 				UserId.of(UUID.randomUUID()));
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
-				() -> context.assertAddPreconditions(2));
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
+				() -> context.assertAddPreconditions(4));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("INVALID_OBSERVED_VERSION", exception.ruleCode());
 	}
 
 	@Test

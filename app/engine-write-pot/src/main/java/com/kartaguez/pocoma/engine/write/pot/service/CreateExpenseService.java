@@ -85,7 +85,7 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
 		// 3. Check pot state, optimistic version, payer and shares membership.
-		context.assertCreatePreconditions(command.expectedVersion(), payerId, expenseShareholderIds);
+		context.assertCreatePreconditions(command.observedVersion(), payerId, expenseShareholderIds);
 
 		// 4. Check that the current user is allowed to create an expense in this pot.
 		authorizationGuard.assertAuthorized(

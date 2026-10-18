@@ -56,6 +56,10 @@ public class JpaPotShareholdersAdapter implements PotShareholdersPort {
 			throw new IllegalArgumentException("nextVersion must be greater than currentVersion");
 		}
 
+		var newIds = potShareholders.addedShareholderIds().stream().map(id -> id.value()).toList();
+		if (!newIds.isEmpty() && repository.existsByShareholderIdIn(newIds)) {
+			throw new IllegalStateException("New shareholder identity already has temporal history");
+		}
 		saveAll(potShareholders, currentVersion, nextVersion);
 		saveAllNew(potShareholders, nextVersion.version());
 	}

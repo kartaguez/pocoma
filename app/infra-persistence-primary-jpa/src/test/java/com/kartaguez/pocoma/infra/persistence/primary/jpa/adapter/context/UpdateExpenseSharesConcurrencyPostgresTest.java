@@ -232,12 +232,12 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
                 case DETAILS -> {
                     var c = contexts.loadUpdateExpenseDetailsContext(id);
                     yield new com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext(
-                            c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), c.shareholderIds(), c.shareholderUsers());
+                            c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), c.shareholderIds(), c.shareholderUsers(), java.util.List.of());
                 }
                 case DELETE -> {
                     var c = contexts.loadDeleteExpenseContext(id);
                     yield new com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext(
-                            c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), Set.of(), c.shareholderUsers());
+                            c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), Set.of(), c.shareholderUsers(), java.util.List.of());
                 }
             };
             assertEquals(pot, sharesContext.potGlobalVersion().potId().value());

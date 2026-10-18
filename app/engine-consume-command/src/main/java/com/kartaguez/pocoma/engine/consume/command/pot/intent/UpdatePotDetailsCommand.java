@@ -5,14 +5,14 @@ import java.util.UUID;
 
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
 
-public record UpdatePotDetailsCommand(UUID potId, String label, long expectedVersion) implements Command {
+public record UpdatePotDetailsCommand(UUID potId, String label, long observedVersion) implements Command {
 
 	public UpdatePotDetailsCommand {
 		Objects.requireNonNull(potId, "potId must not be null");
 		Objects.requireNonNull(label, "label must not be null");
 
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 }

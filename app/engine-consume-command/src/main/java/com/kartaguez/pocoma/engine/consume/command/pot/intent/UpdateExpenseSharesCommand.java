@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.engine.consume.command.model.Command;
 
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
-public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> shares, long expectedVersion)
+public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> shares, long observedVersion)
 		implements Command {
 
 	public UpdateExpenseSharesCommand {
@@ -18,8 +18,8 @@ public record UpdateExpenseSharesCommand(UUID expenseId, Set<ExpenseShareInput> 
 		if (shares.isEmpty()) {
 			throw new IllegalArgumentException("shares must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

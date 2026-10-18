@@ -10,9 +10,30 @@ import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 class TerminalPotDeleteExpenseContextsTest {
 	private final PotId pot=PotId.of(UUID.randomUUID());private final UserId creator=UserId.of(UUID.randomUUID());private final ShareholderId shareholder=ShareholderId.of(UUID.randomUUID());
 	@Test void allExpenseMutationsRejectWhenPotDeleted(){
-		assertPotDeleted(()->new DeleteExpenseContext(new PotGlobalVersion(pot,7),false,true,creator).assertDeletePreconditions(7));
-		assertPotDeleted(()->new UpdateExpenseDetailsContext(new PotGlobalVersion(pot,7),false,true,creator,Set.of(shareholder)).assertUpdatePreconditions(7,shareholder));
-		assertPotDeleted(()->new UpdateExpenseSharesContext(new PotGlobalVersion(pot,7),false,true,creator,Set.of(shareholder)).assertUpdatePreconditions(7,Set.of(shareholder)));
+		assertPotDeleted(()->new DeleteExpenseContext(
+				new PotGlobalVersion(pot,7),
+				false,
+				true,
+				creator,
+				java.util.Map.of(),
+				7L,
+				java.util.List.of(7L)).assertDeletePreconditions(7));
+		assertPotDeleted(()->new UpdateExpenseDetailsContext(
+				new PotGlobalVersion(pot,7),
+				false,
+				true,
+				creator,
+				Set.of(shareholder),
+				java.util.Map.of(),
+				7L).assertUpdatePreconditions(7,shareholder));
+		assertPotDeleted(()->new UpdateExpenseSharesContext(
+				new PotGlobalVersion(pot,7),
+				false,
+				true,
+				creator,
+				Set.of(shareholder),
+				java.util.Map.of(),
+				java.util.List.of(7L)).assertUpdatePreconditions(7,Set.of(shareholder)));
 	}
 	private static void assertPotDeleted(Runnable action){assertEquals("POT_ALREADY_DELETED",assertThrows(BusinessRuleViolationException.class,action::run).ruleCode());}
 }

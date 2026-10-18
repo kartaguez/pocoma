@@ -20,7 +20,7 @@ class AddPotShareholdersCommandTest {
 
 		assertEquals(potId, command.potId());
 		assertEquals(Set.of(shareholder), command.shareholders());
-		assertEquals(1, command.expectedVersion());
+		assertEquals(1, command.observedVersion());
 	}
 
 	@Test

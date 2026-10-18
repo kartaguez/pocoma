@@ -16,7 +16,7 @@ class DeleteExpenseCommandTest {
 		DeleteExpenseCommand command = new DeleteExpenseCommand(expenseId, 1);
 
 		assertEquals(expenseId, command.expenseId());
-		assertEquals(1, command.expectedVersion());
+		assertEquals(1, command.observedVersion());
 	}
 
 	@Test

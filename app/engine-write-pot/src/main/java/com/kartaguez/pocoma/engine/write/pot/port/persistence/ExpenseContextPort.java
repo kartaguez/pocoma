@@ -16,7 +16,7 @@ import com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext;
  * Expense lifecycle, Pot lifecycle, creator, shareholders and user associations must all
  * be valid at V. An initial lookup used to discover the owning Pot must not supply
  * lifecycle facts unless read again at V. Historical facts must remain stable when
- * concurrent writers advance the Pot. The caller validates the expected command version
+ * concurrent writers advance the Pot. The caller validates the observed command version
  * and preconditions, then arbitrates V to V+1 through the Pot version CAS.</p>
  */
 public interface ExpenseContextPort {

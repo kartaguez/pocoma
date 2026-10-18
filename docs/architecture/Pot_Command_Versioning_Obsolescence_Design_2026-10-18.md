@@ -892,6 +892,12 @@ Slices déclarées/exécutées **NONE**, impact production **NONE**, franchissem
 
 ## AG. Décision courante — obsolescence par versions temporelles (18 octobre 2026)
 
+**Implémentation du 18 octobre 2026 :** voir le [compte rendu livré](Pot_Command_Obsolescence_Implementation_2026-10-18.md).
+Le contrat courant est `observedVersion`, sans compatibilité des anciens payloads `expectedVersion`, conformément à la mission d’implémentation.
+Les mentions historiques de conservation V1 dans cet audit sont remplacées par cette décision. Les identifiants de types `*_V1` existants restent utilisés ; leur suffixe ne désigne pas un mode de compatibilité.
+L’obsolescence métier est implémentée dans les contextes ; l’étape transactionnelle suivante et l’activation globale restent bloquées par le traitement existant des pertes CAS.
+
+
 **Cette section et les sections AH à AO remplacent toutes les solutions cibles A à AF.** Ces dernières restent uniquement l’historique de la décision abandonnée, y compris leurs verdicts, matrices d’indépendance, certifications, étapes COMMAND-1 à COMMAND-6 et recommandations de démarrage. Elles ne constituent plus un plan à exécuter. Aucun chantier d’implémentation n’est commencé par cet audit.
 
 ### AG.1 Décision et référence auditée
@@ -906,7 +912,7 @@ Périmètre déclaré : production **NONE** ; slices primaire/secondaires exécu
 
 ### AG.2 Contrat unique O / V / N
 
-- **O = observedVersion** : valeur durable de l’intention, immuable entre tentatives. Les neuf commandes de mutation existantes portent actuellement `expectedVersion` et exigent O=V : leur compatibilité durable doit être préservée lors d’une future introduction de la sémantique assouplie. Ne jamais remplacer O par V dans le mapper pour contourner cette précondition.
+- **O = observedVersion** : valeur durable de l’intention, immuable entre tentatives. Les neuf commandes de mutation portent désormais `observedVersion`. Aucun alias `expectedVersion` ni ancien mode strict n’est conservé ; DeletePot et les jeux de shares vides gardent leurs restrictions explicites. Ne jamais remplacer O par V dans le mapper pour contourner cette précondition.
 - **V = workingVersion** : version globale primaire fixée une fois par tentative. Tous les headers, relations, agrégats et témoins temporels de la décision sont lus **à V**, avec `started_at_version <= V AND (ended_at_version IS NULL OR V < ended_at_version)`. `ended_at_version IS NULL` seul ne convient pas aux lectures métier après fixation de V.
 - **N = V+1** après succès ; `CreatePot` est l’exception initiale V1, sans version antérieure. Un seul incrément global, un seul BusinessEvent Pot pour toute la commande, même en lot. Vérifier le dépassement arithmétique avant DML.
 - Pour chaque cible d’écriture existante concernée : **`startedAtVersion <= O`**. Dans un lot, toutes les cibles doivent satisfaire la condition ; une seule cible plus récente fait refuser le lot entier. Ne jamais utiliser le minimum des versions d’un lot. Une remise à la même valeur reste une nouvelle version physique et peut donc être conflictuelle.

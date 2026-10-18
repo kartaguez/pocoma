@@ -24,6 +24,9 @@ public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
 	@Transactional
 	public void save(PotGlobalVersion potGlobalVersion) {
 		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
+		if (repository.existsById(potGlobalVersion.potId().value())) {
+			throw new IllegalStateException("New pot identity already exists");
+		}
 		repository.saveAndFlush(JpaPotGlobalVersionEntity.from(potGlobalVersion));
 		insertMetadata(potGlobalVersion);
 	}

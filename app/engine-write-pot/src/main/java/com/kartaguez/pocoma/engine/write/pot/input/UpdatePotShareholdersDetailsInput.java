@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public record UpdatePotShareholdersDetailsInput(UUID potId, Set<ShareholderDetailsInput> shareholders, long expectedVersion) {
+public record UpdatePotShareholdersDetailsInput(UUID potId, Set<ShareholderDetailsInput> shareholders, long observedVersion) {
 
 	public UpdatePotShareholdersDetailsInput {
 		Objects.requireNonNull(potId, "potId must not be null");
@@ -14,8 +14,8 @@ public record UpdatePotShareholdersDetailsInput(UUID potId, Set<ShareholderDetai
 		if (shareholders.isEmpty()) {
 			throw new IllegalArgumentException("shareholders must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

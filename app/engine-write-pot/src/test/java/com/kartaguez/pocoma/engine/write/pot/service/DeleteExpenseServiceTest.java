@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Amount;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
@@ -114,7 +113,13 @@ class DeleteExpenseServiceTest {
 		FakeEventPublisherPort events = new FakeEventPublisherPort();
 		DeleteExpenseService service = new DeleteExpenseService(
 				new FakeExpenseContextPort(new DeleteExpenseContext(
-						new PotGlobalVersion(fixture.potId, 3), false, true, fixture.creatorId)),
+						new PotGlobalVersion(fixture.potId, 3),
+						false,
+						true,
+						fixture.creatorId,
+						java.util.Map.of(),
+						3L,
+						java.util.List.of(3L))),
 				headers, versions, writes, events, new PotAuthorizationGuard());
 
 		BusinessRuleViolationException exception = assertThrows(BusinessRuleViolationException.class,
@@ -129,19 +134,19 @@ class DeleteExpenseServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullExpenseHeader() {
+	void rejectsObsoleteCommandWithoutLoadingFullExpenseHeader() {
 		DeleteExpenseFixture fixture = new DeleteExpenseFixture();
 		FakeExpenseHeaderPort loadExpenseHeaderPort =
 				new FakeExpenseHeaderPort(fixture.expenseHeader(false));
 		DeleteExpenseService service = fixture.service(fixture.context(false), loadExpenseHeaderPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.deleteExpense(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeleteExpenseInput(fixture.expenseId.value(), 2)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadExpenseHeaderPort.loaded);
 	}
 
@@ -179,7 +184,13 @@ class DeleteExpenseServiceTest {
 				boolean deleted,
 				Map<ShareholderId, UserId> shareholderUsers) {
 			return new DeleteExpenseContext(
-					new PotGlobalVersion(potId, 3), deleted, false, creatorId, shareholderUsers);
+					new PotGlobalVersion(potId, 3),
+					deleted,
+					false,
+					creatorId,
+					shareholderUsers,
+					3L,
+					java.util.List.of(3L));
 		}
 
 		private ExpenseHeader expenseHeader(boolean deleted) {

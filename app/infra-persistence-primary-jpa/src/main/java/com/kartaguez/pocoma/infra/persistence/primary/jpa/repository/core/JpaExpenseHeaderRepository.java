@@ -13,6 +13,8 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpense
 
 public interface JpaExpenseHeaderRepository extends JpaRepository<JpaExpenseHeaderEntity, UUID> {
 
+	boolean existsByExpenseId(UUID expenseId);
+
 	@Query("""
 			select expenseHeader
 			from JpaExpenseHeaderEntity expenseHeader

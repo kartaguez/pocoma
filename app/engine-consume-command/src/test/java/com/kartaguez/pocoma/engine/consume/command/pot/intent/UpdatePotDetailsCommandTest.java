@@ -17,7 +17,7 @@ class UpdatePotDetailsCommandTest {
 
 		assertEquals(potId, command.potId());
 		assertEquals("Trip", command.label());
-		assertEquals(1, command.expectedVersion());
+		assertEquals(1, command.observedVersion());
 	}
 
 	@Test

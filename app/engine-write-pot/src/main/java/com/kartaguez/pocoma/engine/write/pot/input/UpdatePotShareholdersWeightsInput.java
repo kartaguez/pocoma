@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
-public record UpdatePotShareholdersWeightsInput(UUID potId, Set<ShareholderWeightInput> shareholders, long expectedVersion) {
+public record UpdatePotShareholdersWeightsInput(UUID potId, Set<ShareholderWeightInput> shareholders, long observedVersion) {
 
 	public UpdatePotShareholdersWeightsInput {
 		Objects.requireNonNull(potId, "potId must not be null");
@@ -16,8 +16,8 @@ public record UpdatePotShareholdersWeightsInput(UUID potId, Set<ShareholderWeigh
 		if (shareholders.isEmpty()) {
 			throw new IllegalArgumentException("shareholders must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

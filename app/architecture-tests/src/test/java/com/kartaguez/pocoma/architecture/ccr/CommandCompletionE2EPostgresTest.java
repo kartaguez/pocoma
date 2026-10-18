@@ -292,7 +292,7 @@ class CommandCompletionE2EPostgresTest {
 
 			UUID updateCommandId = submit(http, baseUrl, mapper, bindingId,
 					PotCommandTypes.POT_DETAILS_UPDATE_V1.value(),
-					Map.of("potId", potId.toString(), "label", updatedLabel, "expectedVersion", 1));
+					Map.of("potId", potId.toString(), "label", updatedLabel, "observedVersion", 1));
 			runPotPipeline();
 			assertOutcome(jdbc, new CommandId(updateCommandId), "APPLIED", "COMMAND_APPLIED",
 					TerminalOutcome.SUCCESS);

@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
@@ -39,15 +38,15 @@ class UpdateExpenseSharesContextTest {
 	}
 
 	@Test
-	void rejectsVersionConflict() {
+	void rejectsObsoleteCommand() {
 		ShareholderId shareholderId = ShareholderId.of(UUID.randomUUID());
 		UpdateExpenseSharesContext context = context(false, Set.of(shareholderId));
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> context.assertUpdatePreconditions(2, Set.of(shareholderId)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 	}
 
 	@Test
@@ -65,7 +64,10 @@ class UpdateExpenseSharesContextTest {
 		return new UpdateExpenseSharesContext(
 				new PotGlobalVersion(PotId.of(UUID.randomUUID()), 3),
 				deleted,
+				false,
 				UserId.of(UUID.randomUUID()),
-				shareholderIds);
+				shareholderIds,
+				java.util.Map.of(),
+				java.util.List.of(3L));
 	}
 }

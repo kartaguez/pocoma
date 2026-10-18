@@ -65,7 +65,7 @@ final class UpdatePotDetailsService implements UpdatePotDetailsUseCase {
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
 		// 3. Check state and optimistic version preconditions.
-		context.assertUpdatePreconditions(command.expectedVersion());
+		context.assertUpdatePreconditions(command.observedVersion());
 
 		// 4. Check that the current user is allowed to update this pot.
 		authorizationGuard.assertAuthorized(userContext.userId(), userContext.permissions(),

@@ -1,6 +1,8 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context;
 
 import java.util.Objects;
+import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,7 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseHeaderEntity;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaExpenseShareRepository;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
@@ -29,6 +32,7 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaSha
 public class JpaExpenseContextAdapter implements ExpenseContextPort {
 
 	private final JpaExpenseHeaderRepository expenseHeaderRepository;
+	private final JpaExpenseShareRepository expenseShareRepository;
 	private final JpaPotGlobalVersionRepository potGlobalVersionRepository;
 	private final JpaPotHeaderRepository potHeaderRepository;
 	private final JpaShareholderRepository shareholderRepository;
@@ -37,7 +41,8 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 			JpaExpenseHeaderRepository expenseHeaderRepository,
 			JpaPotGlobalVersionRepository potGlobalVersionRepository,
 			JpaPotHeaderRepository potHeaderRepository,
-			JpaShareholderRepository shareholderRepository) {
+			JpaShareholderRepository shareholderRepository, JpaExpenseShareRepository expenseShareRepository) {
+		this.expenseShareRepository = Objects.requireNonNull(expenseShareRepository);
 		this.expenseHeaderRepository = Objects.requireNonNull(
 				expenseHeaderRepository,
 				"expenseHeaderRepository must not be null");
@@ -55,13 +60,14 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 	public DeleteExpenseContext loadDeleteExpenseContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
-				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
+				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
 		return new DeleteExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				shareholderRelations.shareholderUsers());
+				shareholderRelations.shareholderUsers(),
+				contextData.expenseHeader().startedAtVersion(), loadShareVersions(expenseId, contextData.potGlobalVersion()));
 	}
 
 	@Override
@@ -69,14 +75,15 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 	public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
-				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
+				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
 		return new UpdateExpenseDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
-				shareholderRelations.shareholderUsers());
+				shareholderRelations.shareholderUsers(),
+				contextData.expenseHeader().startedAtVersion());
 	}
 
 	@Override
@@ -84,14 +91,26 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 	public UpdateExpenseSharesContext loadUpdateExpenseSharesContext(ExpenseId expenseId) {
 		ExpenseContextData contextData = loadExpenseContextData(expenseId);
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
-				contextData.expenseHeader().potId(), contextData.potGlobalVersion().version());
+				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
 		return new UpdateExpenseSharesContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
-				shareholderRelations.shareholderUsers());
+				shareholderRelations.shareholderUsers(),
+				loadShareVersions(expenseId, contextData.potGlobalVersion()));
+	}
+
+	private List<Long> loadShareVersions(ExpenseId expenseId, PotGlobalVersion version) {
+		var shares = expenseShareRepository.findActiveAtVersion(expenseId.value(), version.version());
+		var ids = new HashSet<java.util.UUID>();
+		for (var share : shares) {
+			if (!version.potId().value().equals(share.potId()) || !ids.add(share.shareholderId())) {
+				throw new IllegalStateException("Inconsistent current expense shares ownership or duplicate shareholder");
+			}
+		}
+		return shares.stream().map(share -> share.startedAtVersion()).toList();
 	}
 
 	private ExpenseContextData loadExpenseContextData(ExpenseId expenseId) {
@@ -109,17 +128,16 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 						"Pot global version was not found"));
 		// All business facts must describe the same logical version, even under READ COMMITTED.
 		// Later writers only close intervals at versions > V and append new rows, preserving V.
-		ExpenseHeader expenseHeader = expenseHeaderRepository
+		JpaExpenseHeaderEntity expenseHeader = expenseHeaderRepository
 				.findActiveAtVersion(expenseId.value(), potGlobalVersion.version())
-				.map(entity -> entity.toDomain())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"EXPENSE_HEADER",
 						"Expense header active at current pot version was not found"));
-		if (!potId.equals(expenseHeader.potId())) {
+		if (!potId.value().equals(expenseHeader.potId())) {
 			throw new IllegalStateException("Expense ownership must be stable across versions");
 		}
 		JpaPotHeaderEntity potHeader = potHeaderRepository
-				.findActiveAtVersion(expenseHeader.potId().value(), potGlobalVersion.version())
+				.findActiveAtVersion(expenseHeader.potId(), potGlobalVersion.version())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"POT_HEADER",
 						"Pot header active at current version was not found"));
@@ -141,7 +159,7 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 
 	private record ExpenseContextData(
 			PotGlobalVersion potGlobalVersion,
-			ExpenseHeader expenseHeader,
+			JpaExpenseHeaderEntity expenseHeader,
 			JpaPotHeaderEntity potHeader) {
 	}
 

@@ -16,7 +16,7 @@ class DeletePotCommandTest {
 		DeletePotCommand command = new DeletePotCommand(potId, 1);
 
 		assertEquals(potId, command.potId());
-		assertEquals(1, command.expectedVersion());
+		assertEquals(1, command.observedVersion());
 	}
 
 	@Test

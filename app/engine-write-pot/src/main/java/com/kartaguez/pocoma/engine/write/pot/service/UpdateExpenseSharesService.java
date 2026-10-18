@@ -79,7 +79,7 @@ final class UpdateExpenseSharesService implements UpdateExpenseSharesUseCase {
 		PotId potId = currentVersion.potId();
 
 		// 3. Check expense state, optimistic version and shares membership.
-		context.assertUpdatePreconditions(command.expectedVersion(), expenseShareholderIds);
+		context.assertUpdatePreconditions(command.observedVersion(), expenseShareholderIds);
 
 		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
 		ExpenseShares currentExpenseShares = Objects.requireNonNull(

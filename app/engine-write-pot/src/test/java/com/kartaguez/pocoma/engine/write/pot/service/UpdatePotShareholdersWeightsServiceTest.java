@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -107,19 +106,19 @@ class UpdatePotShareholdersWeightsServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullPotShareholders() {
+	void rejectsObsoleteCommandWithoutLoadingFullPotShareholders() {
 		UpdatePotShareholdersWeightsFixture fixture = new UpdatePotShareholdersWeightsFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
 				new FakePotShareholdersPort(fixture.potShareholders());
 		UpdatePotShareholdersWeightsService service = fixture.service(fixture.context(false), loadPotShareholdersPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersWeights(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(fixture.shareholderId, 2)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadPotShareholdersPort.loaded);
 	}
 
@@ -158,21 +157,22 @@ class UpdatePotShareholdersWeightsServiceTest {
 					new PotGlobalVersion(potId, 3),
 					deleted,
 					creatorId,
-					Set.of(shareholderId));
+					Set.of(shareholderId),
+					java.util.Map.of(shareholderId, 3L));
 		}
 
 		private PotShareholders potShareholders() {
 			return PotShareholders.reconstitute(potId, Set.of(shareholder));
 		}
 
-		private UpdatePotShareholdersWeightsInput command(ShareholderId shareholderId, long expectedVersion) {
+		private UpdatePotShareholdersWeightsInput command(ShareholderId shareholderId, long observedVersion) {
 			return new UpdatePotShareholdersWeightsInput(
 					potId.value(),
 					Set.of(new UpdatePotShareholdersWeightsInput.ShareholderWeightInput(
 							shareholderId.value(),
 							3,
 							4)),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private UpdatePotShareholdersWeightsService service(UpdatePotShareholdersWeightsContext context) {

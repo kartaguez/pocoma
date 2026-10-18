@@ -36,15 +36,22 @@ public final class PotShareholders {
 	}
 
 	public Shareholder addShareholder(Name name, Weight weight, UserId userId) {
+		return addShareholder(name, weight, userId, () -> ShareholderId.of(UUID.randomUUID()));
+	}
+
+	Shareholder addShareholder(Name name, Weight weight, UserId userId,
+			java.util.function.Supplier<ShareholderId> identities) {
 		Shareholder shareholder = new Shareholder(
-				ShareholderId.of(UUID.randomUUID()),
+				Objects.requireNonNull(identities.get(), "shareholder id must not be null"),
 				potId,
 				Objects.requireNonNull(name, "name must not be null"),
 				Objects.requireNonNull(weight, "weight must not be null"),
 				userId,
 				false);
 
-		shareholders.put(shareholder.id(), shareholder);
+		if (shareholders.putIfAbsent(shareholder.id(), shareholder) != null) {
+			throw new IllegalStateException("Generated shareholder identity already exists");
+		}
 		addedShareholderIds.add(shareholder.id());
 		return shareholder;
 	}

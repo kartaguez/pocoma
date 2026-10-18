@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -79,18 +78,18 @@ class DeletePotServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullPotHeader() {
+	void rejectsObsoleteCommandWithoutLoadingFullPotHeader() {
 		DeletePotFixture fixture = new DeletePotFixture();
 		FakePotHeaderPort loadPotHeaderPort = new FakePotHeaderPort(fixture.potHeader(false));
 		DeletePotService deletePotService = fixture.service(fixture.context(false), loadPotHeaderPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> deletePotService.deletePot(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						new DeletePotInput(fixture.potId.value(), 2)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadPotHeaderPort.loaded);
 	}
 

@@ -29,7 +29,7 @@ class UpdateExpenseDetailsCommandTest {
 		assertEquals(payerId, command.payerId());
 		assertEquals("Dinner", command.label());
 		assertEquals(date, command.date());
-		assertEquals(3, command.expectedVersion());
+		assertEquals(3, command.observedVersion());
 	}
 
 	@Test

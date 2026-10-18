@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
@@ -104,19 +103,19 @@ class UpdateExpenseSharesServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullExpenseShares() {
+	void rejectsObsoleteCommandWithoutLoadingFullExpenseShares() {
 		UpdateExpenseSharesFixture fixture = new UpdateExpenseSharesFixture();
 		FakeExpenseSharesPort loadExpenseSharesPort =
 				new FakeExpenseSharesPort(fixture.expenseShares());
 		UpdateExpenseSharesService service = fixture.service(fixture.context(false), loadExpenseSharesPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.updateExpenseShares(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(2, fixture.bobId)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadExpenseSharesPort.loaded);
 	}
 
@@ -175,18 +174,19 @@ class UpdateExpenseSharesServiceTest {
 					false,
 					creatorId,
 					Set.of(aliceId, bobId),
-					shareholderUsers);
+					shareholderUsers,
+					java.util.List.of(3L));
 		}
 
 		private ExpenseShares expenseShares() {
 			return ExpenseShares.reconstitute(potId, Set.of(expenseShare(aliceId, Weight.of(Fraction.of(1, 1)))));
 		}
 
-		private UpdateExpenseSharesInput command(long expectedVersion, ShareholderId shareholderId) {
+		private UpdateExpenseSharesInput command(long observedVersion, ShareholderId shareholderId) {
 			return new UpdateExpenseSharesInput(
 					expenseId.value(),
 					Set.of(new UpdateExpenseSharesInput.ExpenseShareInput(shareholderId.value(), 1, 1)),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private ExpenseShare expenseShare(ShareholderId shareholderId, Weight weight) {

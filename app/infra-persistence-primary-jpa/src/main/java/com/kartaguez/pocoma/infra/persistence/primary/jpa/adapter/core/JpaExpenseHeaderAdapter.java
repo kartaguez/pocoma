@@ -38,6 +38,9 @@ public class JpaExpenseHeaderAdapter implements ExpenseHeaderPort {
 	@Transactional
 	public void saveNew(ExpenseHeader expenseHeader, long version) {
 		Objects.requireNonNull(expenseHeader, "expenseHeader must not be null");
+		if (repository.existsByExpenseId(expenseHeader.id().value())) {
+			throw new IllegalStateException("New expense identity already has temporal history");
+		}
 		repository.save(JpaExpenseHeaderEntity.from(expenseHeader, version, null));
 	}
 

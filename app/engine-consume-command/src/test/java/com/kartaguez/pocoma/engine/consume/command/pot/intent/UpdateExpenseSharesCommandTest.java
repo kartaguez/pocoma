@@ -21,7 +21,7 @@ class UpdateExpenseSharesCommandTest {
 
 		assertEquals(expenseId, command.expenseId());
 		assertEquals(Set.of(share), command.shares());
-		assertEquals(3, command.expectedVersion());
+		assertEquals(3, command.observedVersion());
 	}
 
 	@Test

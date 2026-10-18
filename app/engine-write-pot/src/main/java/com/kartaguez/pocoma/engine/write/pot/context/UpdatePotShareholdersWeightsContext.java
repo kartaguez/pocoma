@@ -2,9 +2,9 @@ package com.kartaguez.pocoma.engine.write.pot.context;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.Map;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
@@ -13,15 +13,26 @@ public record UpdatePotShareholdersWeightsContext(
 		PotGlobalVersion potGlobalVersion,
 		boolean deleted,
 		UserId creatorId,
-		Set<ShareholderId> shareholderIds) {
+		Set<ShareholderId> shareholderIds,
+		Map<ShareholderId, Long> shareholderStartedAtVersions) {
 
 	public UpdatePotShareholdersWeightsContext {
 		Objects.requireNonNull(potGlobalVersion, "potGlobalVersion must not be null");
 		Objects.requireNonNull(creatorId, "creatorId must not be null");
 		shareholderIds = Set.copyOf(Objects.requireNonNull(shareholderIds, "shareholderIds must not be null"));
+		shareholderStartedAtVersions = Map.copyOf(Objects.requireNonNull(shareholderStartedAtVersions));
+		if (!shareholderStartedAtVersions.keySet().equals(shareholderIds)) {
+			throw new IllegalArgumentException("Every current shareholder must have a temporal witness");
+		}
+		for (long started : shareholderStartedAtVersions.values()) {
+			if (started < 1 || started > potGlobalVersion.version()) throw new IllegalArgumentException("Invalid shareholder temporal witness");
+		}
 	}
 
-	public void assertUpdatePreconditions(long expectedVersion, Set<ShareholderId> updatedShareholderIds) {
+	public void assertUpdatePreconditions(long observedVersion, Set<ShareholderId> updatedShareholderIds) {
+		if (observedVersion < 1 || observedVersion > potGlobalVersion.version()) {
+			throw new BusinessRuleViolationException("INVALID_OBSERVED_VERSION", "Observed version must be between 1 and the working version");
+		}
 		Set<ShareholderId> checkedUpdatedShareholderIds = Set.copyOf(Objects.requireNonNull(
 				updatedShareholderIds,
 				"updatedShareholderIds must not be null"));
@@ -32,15 +43,16 @@ public record UpdatePotShareholdersWeightsContext(
 					"Shareholders weights cannot be updated because the pot is already deleted");
 		}
 
-		if (expectedVersion != potGlobalVersion.version()) {
-			throw new VersionConflictException("Shareholders weights cannot be updated because the expected version is not active");
-		}
-
 		for (ShareholderId shareholderId : checkedUpdatedShareholderIds) {
 			if (!shareholderIds.contains(shareholderId)) {
 				throw new BusinessRuleViolationException(
 						"SHAREHOLDER_NOT_PRESENT",
 						"Shareholder weight cannot be updated because the shareholder does not belong to this pot");
+			}
+		}
+		for (ShareholderId shareholderId : checkedUpdatedShareholderIds) {
+			if (shareholderStartedAtVersions.get(shareholderId) > observedVersion) {
+				throw new BusinessRuleViolationException("OBSOLETE_COMMAND", "A targeted shareholder changed since the observed version");
 			}
 		}
 	}

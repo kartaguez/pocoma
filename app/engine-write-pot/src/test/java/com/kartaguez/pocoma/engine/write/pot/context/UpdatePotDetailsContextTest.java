@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
@@ -22,7 +21,7 @@ class UpdatePotDetailsContextTest {
 		PotGlobalVersion potGlobalVersion = new PotGlobalVersion(potId, 2);
 		UserId creatorId = UserId.of(UUID.randomUUID());
 
-		UpdatePotDetailsContext context = new UpdatePotDetailsContext(potGlobalVersion, false, creatorId);
+		UpdatePotDetailsContext context = new UpdatePotDetailsContext(potGlobalVersion, false, creatorId, (potGlobalVersion).version());
 
 		assertEquals(potGlobalVersion, context.potGlobalVersion());
 		assertEquals(creatorId, context.creatorId());
@@ -30,24 +29,18 @@ class UpdatePotDetailsContextTest {
 
 	@Test
 	void rejectsNullPotGlobalVersion() {
-		assertThrows(NullPointerException.class, () -> new UpdatePotDetailsContext(null, false, UserId.of(UUID.randomUUID())));
+		assertThrows(NullPointerException.class, () -> new UpdatePotDetailsContext(null, false, UserId.of(UUID.randomUUID()), 1L));
 	}
 
 	@Test
 	void rejectsNullCreatorId() {
-		assertThrows(NullPointerException.class, () -> new UpdatePotDetailsContext(
-				new PotGlobalVersion(PotId.of(UUID.randomUUID()), 1),
-				false,
-				null));
+		assertThrows(NullPointerException.class, () -> new UpdatePotDetailsContext(new PotGlobalVersion(PotId.of(UUID.randomUUID()), 1), false, null, 1L));
 	}
 
 	@Test
 	void acceptsValidPreconditions() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		UpdatePotDetailsContext context = new UpdatePotDetailsContext(
-				new PotGlobalVersion(potId, 3),
-				false,
-				UserId.of(UUID.randomUUID()));
+		UpdatePotDetailsContext context = new UpdatePotDetailsContext(new PotGlobalVersion(potId, 3), false, UserId.of(UUID.randomUUID()), 3L);
 
 		assertDoesNotThrow(() -> context.assertUpdatePreconditions(3));
 	}
@@ -55,10 +48,7 @@ class UpdatePotDetailsContextTest {
 	@Test
 	void rejectsAlreadyDeletedPot() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		UpdatePotDetailsContext context = new UpdatePotDetailsContext(
-				new PotGlobalVersion(potId, 3),
-				true,
-				UserId.of(UUID.randomUUID()));
+		UpdatePotDetailsContext context = new UpdatePotDetailsContext(new PotGlobalVersion(potId, 3), true, UserId.of(UUID.randomUUID()), 3L);
 
 		BusinessRuleViolationException exception = assertThrows(
 				BusinessRuleViolationException.class,
@@ -68,17 +58,14 @@ class UpdatePotDetailsContextTest {
 	}
 
 	@Test
-	void rejectsVersionConflict() {
+	void rejectsObsoleteCommand() {
 		PotId potId = PotId.of(UUID.randomUUID());
-		UpdatePotDetailsContext context = new UpdatePotDetailsContext(
-				new PotGlobalVersion(potId, 3),
-				false,
-				UserId.of(UUID.randomUUID()));
+		UpdatePotDetailsContext context = new UpdatePotDetailsContext(new PotGlobalVersion(potId, 3), false, UserId.of(UUID.randomUUID()), 3L);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> context.assertUpdatePreconditions(2));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 	}
 }

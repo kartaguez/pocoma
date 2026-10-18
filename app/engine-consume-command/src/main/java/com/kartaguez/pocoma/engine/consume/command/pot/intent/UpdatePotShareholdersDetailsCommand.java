@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
 
-public record UpdatePotShareholdersDetailsCommand(UUID potId, Set<ShareholderDetailsInput> shareholders, long expectedVersion)
+public record UpdatePotShareholdersDetailsCommand(UUID potId, Set<ShareholderDetailsInput> shareholders, long observedVersion)
 		implements Command {
 
 	public UpdatePotShareholdersDetailsCommand {
@@ -16,8 +16,8 @@ public record UpdatePotShareholdersDetailsCommand(UUID potId, Set<ShareholderDet
 		if (shareholders.isEmpty()) {
 			throw new IllegalArgumentException("shareholders must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

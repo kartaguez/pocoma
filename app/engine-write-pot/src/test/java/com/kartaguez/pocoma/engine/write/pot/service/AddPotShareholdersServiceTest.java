@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -91,19 +90,19 @@ class AddPotShareholdersServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullPotShareholders() {
+	void rejectsFutureObservedVersionWithoutLoadingFullPotShareholders() {
 		AddPotShareholdersFixture fixture = new AddPotShareholdersFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
 				new FakePotShareholdersPort(fixture.potShareholders());
 		AddPotShareholdersService addPotShareholdersService = fixture.service(fixture.context(false), loadPotShareholdersPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> addPotShareholdersService.addPotShareholders(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
-						fixture.command(2)));
+						fixture.command(4)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("INVALID_OBSERVED_VERSION", exception.ruleCode());
 		assertFalse(loadPotShareholdersPort.loaded);
 	}
 
@@ -194,11 +193,11 @@ class AddPotShareholdersServiceTest {
 			return PotShareholders.reconstitute(potId, Set.of(existingShareholder));
 		}
 
-		private AddPotShareholdersInput command(long expectedVersion) {
+		private AddPotShareholdersInput command(long observedVersion) {
 			return new AddPotShareholdersInput(
 					potId.value(),
 					Set.of(new AddPotShareholdersInput.ShareholderInput("Alice", 1, 2)),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private AddPotShareholdersService service(AddPotShareholdersContext context) {

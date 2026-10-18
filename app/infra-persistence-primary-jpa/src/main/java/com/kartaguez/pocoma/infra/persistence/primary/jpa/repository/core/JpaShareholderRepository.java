@@ -13,6 +13,8 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaShareho
 
 public interface JpaShareholderRepository extends JpaRepository<JpaShareholderEntity, UUID> {
 
+	boolean existsByShareholderIdIn(java.util.Collection<UUID> shareholderIds);
+
 	@Query("""
 			select shareholder
 			from JpaShareholderEntity shareholder

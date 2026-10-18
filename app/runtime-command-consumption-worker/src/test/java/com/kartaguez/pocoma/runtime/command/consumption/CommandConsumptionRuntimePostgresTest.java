@@ -162,6 +162,35 @@ class CommandConsumptionRuntimePostgresTest {
 	}
 
 	@Test
+	void oldObservationSurvivesIndependentMutationAndObsoleteCommandIsRejectedOnce() {
+		UUID user = UUID.randomUUID();
+		String label = "obsolescence-" + UUID.randomUUID();
+		awaitSuccessful(command(PotCommandTypes.POT_CREATE_V1,
+				"{\"label\":\"%s\",\"creatorId\":\"%s\"}".formatted(label, user),
+				user, Set.of(PocomaPermissions.POT_CREATE), Instant.now().plusSeconds(60)));
+		UUID pot = jdbc.queryForObject("select pot_id from pot_headers where label=?", UUID.class, label);
+		awaitSuccessful(command(PotCommandTypes.POT_SHAREHOLDERS_ADD_V1,
+				"{\"potId\":\"%s\",\"shareholders\":[{\"name\":\"Member\",\"weightNumerator\":1,\"weightDenominator\":1}],\"observedVersion\":1}".formatted(pot),
+				user, Set.of(PocomaPermissions.SHAREHOLDER_CREATE), Instant.now().plusSeconds(60)));
+		String payload = "{\"potId\":\"%s\",\"label\":\"Changed\",\"observedVersion\":1}".formatted(pot);
+		var compatible = command(PotCommandTypes.POT_DETAILS_UPDATE_V1, payload,
+				user, Set.of(PocomaPermissions.POT_UPDATE), Instant.now().plusSeconds(60));
+		awaitSuccessful(compatible); // O=1, V=2, header still starts at 1.
+		assertEquals(payload, jdbc.queryForObject("select payload_json from recorded_commands where command_id=?", String.class, compatible.commandId().value()));
+		var obsolete = command(PotCommandTypes.POT_DETAILS_UPDATE_V1, payload,
+				user, Set.of(PocomaPermissions.POT_UPDATE), Instant.now().plusSeconds(60));
+		transactions.runInTransaction(() -> commands.insert(obsolete));
+		var slot = awaitTerminal(obsolete.commandId());
+		assertEquals(TerminalOutcome.REJECTED, slot.terminalOutcome().orElseThrow());
+		assertEquals(new TerminalReason("OBSOLETE_COMMAND"), slot.terminalReason().orElseThrow());
+		assertEquals(1, lifecycle.findClaims(slot.slotId()).size());
+		assertTrue(slot.currentClaimId().isEmpty());
+		assertEquals(3L, jdbc.queryForObject("select version from pot_global_versions where pot_id=?", Long.class, pot));
+		assertEquals(3, jdbc.queryForObject("select count(*) from business_event_outbox where pot_id=?", Integer.class, pot));
+		assertEquals(1, jdbc.queryForObject("select count(*) from business_event_outbox where pot_id=? and version=3", Integer.class, pot));
+	}
+
+	@Test
 	void terminalizesInvalidPayloadAsFailed() {
 		RecordedCommand command = command(PotCommandTypes.POT_CREATE_V1, "not-json", UUID.randomUUID(),
 				Set.of(PocomaPermissions.POT_CREATE), Instant.now().plusSeconds(60));
@@ -185,7 +214,7 @@ class CommandConsumptionRuntimePostgresTest {
 
 		awaitSuccessful(command(PotCommandTypes.POT_SHAREHOLDERS_ADD_V1,
 				("{\"potId\":\"%s\",\"shareholders\":[{\"name\":\"Payer\",\"weightNumerator\":1,"
-						+ "\"weightDenominator\":1}],\"expectedVersion\":1}").formatted(potId),
+						+ "\"weightDenominator\":1}],\"observedVersion\":1}").formatted(potId),
 				userId, Set.of(PocomaPermissions.SHAREHOLDER_CREATE), Instant.now().plusSeconds(60)));
 		UUID shareholderId = jdbc.queryForObject(
 				"select shareholder_id from shareholders where pot_id = ? and started_at_version = 2",
@@ -196,7 +225,7 @@ class CommandConsumptionRuntimePostgresTest {
 				("{\"potId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":10,"
 						+ "\"amountDenominator\":1,\"label\":\"Dinner\",\"date\":\"%s\","
 						+ "\"shares\":[{\"shareholderId\":\"%s\",\"weightNumerator\":1,"
-						+ "\"weightDenominator\":1}],\"expectedVersion\":2}")
+						+ "\"weightDenominator\":1}],\"observedVersion\":2}")
 						.formatted(potId, shareholderId, firstDate, shareholderId),
 				userId, Set.of(PocomaPermissions.EXPENSE_CREATE), Instant.now().plusSeconds(60)));
 		UUID expenseId = jdbc.queryForObject(
@@ -207,7 +236,7 @@ class CommandConsumptionRuntimePostgresTest {
 		awaitSuccessful(command(PotCommandTypes.EXPENSE_DETAILS_UPDATE_V1,
 				("{\"expenseId\":\"%s\",\"payerId\":\"%s\",\"amountNumerator\":20,"
 						+ "\"amountDenominator\":1,\"label\":\"Updated dinner\",\"date\":\"%s\","
-						+ "\"expectedVersion\":3}").formatted(expenseId, shareholderId, secondDate),
+						+ "\"observedVersion\":3}").formatted(expenseId, shareholderId, secondDate),
 				userId, Set.of(PocomaPermissions.EXPENSE_UPDATE), Instant.now().plusSeconds(60)));
 
 		assertEquals(firstDate, expenseDate(expenseId, 3));

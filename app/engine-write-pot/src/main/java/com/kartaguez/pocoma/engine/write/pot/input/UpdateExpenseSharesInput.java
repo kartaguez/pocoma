@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
-public record UpdateExpenseSharesInput(UUID expenseId, Set<ExpenseShareInput> shares, long expectedVersion) {
+public record UpdateExpenseSharesInput(UUID expenseId, Set<ExpenseShareInput> shares, long observedVersion) {
 
 	public UpdateExpenseSharesInput {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
@@ -16,8 +16,8 @@ public record UpdateExpenseSharesInput(UUID expenseId, Set<ExpenseShareInput> sh
 		if (shares.isEmpty()) {
 			throw new IllegalArgumentException("shares must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

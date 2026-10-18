@@ -15,7 +15,7 @@ public record UpdateExpenseDetailsInput(
 		long amountDenominator,
 		String label,
 		LocalDate date,
-		long expectedVersion) {
+		long observedVersion) {
 
 	public UpdateExpenseDetailsInput {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
@@ -24,8 +24,8 @@ public record UpdateExpenseDetailsInput(
 		Objects.requireNonNull(date, "date must not be null");
 		Amount.of(Fraction.of(amountNumerator, amountDenominator));
 
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 }

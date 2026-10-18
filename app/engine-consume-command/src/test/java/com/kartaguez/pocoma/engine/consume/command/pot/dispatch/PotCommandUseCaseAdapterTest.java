@@ -121,7 +121,7 @@ class PotCommandUseCaseAdapterTest {
 		TestAdapter adapter = new TestAdapter((invocation, ignored) -> {
 			PotContextPort contextPort = invocation.recording(new PotContextPort() {
 				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 7), false, UserId.of(USER_ID));
+					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 7), false, UserId.of(USER_ID), 7L);
 				}
 			});
 			contextPort.loadUpdatePotDetailsContext(POT_ID);
@@ -141,6 +141,8 @@ class PotCommandUseCaseAdapterTest {
 	@Test
 	void convertsOnlyExpectedBusinessExceptionsToRejections() {
 		assertRejected("RULE", new BusinessRuleViolationException("RULE", "rejected"));
+		assertRejected("OBSOLETE_COMMAND", new BusinessRuleViolationException("OBSOLETE_COMMAND", "obsolete"));
+		assertRejected("INVALID_OBSERVED_VERSION", new BusinessRuleViolationException("INVALID_OBSERVED_VERSION", "invalid"));
 		assertRejected("POT_VERSION_CONFLICT", new VersionConflictException("conflict"));
 		assertRejected("POT_HEADER", new BusinessEntityNotFoundException("POT_HEADER", "missing"));
 
@@ -155,7 +157,7 @@ class PotCommandUseCaseAdapterTest {
 		TestAdapter adapter = new TestAdapter((invocation, ignored) -> {
 			PotContextPort contextPort = invocation.recording(new PotContextPort() {
 				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 11), false, UserId.of(USER_ID));
+					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 11), false, UserId.of(USER_ID), 11L);
 				}
 			});
 			contextPort.loadUpdatePotDetailsContext(POT_ID);
@@ -318,8 +320,7 @@ class PotCommandUseCaseAdapterTest {
 			PotId invocationPotId = PotId.of(userContext.userId().value());
 			PotContextPort contextPort = invocation.recording(new PotContextPort() {
 				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 4), false,
-							userContext.userId());
+					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 4), false, userContext.userId(), 4L);
 				}
 			});
 			contextPort.loadUpdatePotDetailsContext(invocationPotId);

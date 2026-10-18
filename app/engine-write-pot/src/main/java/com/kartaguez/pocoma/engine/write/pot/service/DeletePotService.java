@@ -64,7 +64,7 @@ final class DeletePotService implements DeletePotUseCase {
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
 		// 3. Check state and optimistic version preconditions.
-		context.assertDeletePreconditions(command.expectedVersion());
+		context.assertDeletePreconditions(command.observedVersion());
 
 		// 4. Check that the current user is allowed to delete this pot.
 		authorizationGuard.assertAuthorized(userContext.userId(), userContext.permissions(),

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.entity.Shareholder;
 import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.domain.authorization.Permission;
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 import com.kartaguez.pocoma.domain.pot.value.Name;
@@ -110,19 +109,19 @@ class UpdatePotShareholdersDetailsServiceTest {
 	}
 
 	@Test
-	void rejectsVersionConflictWithoutLoadingFullPotShareholders() {
+	void rejectsObsoleteCommandWithoutLoadingFullPotShareholders() {
 		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
 		FakePotShareholdersPort loadPotShareholdersPort =
 				new FakePotShareholdersPort(fixture.potShareholders());
 		UpdatePotShareholdersDetailsService service = fixture.service(fixture.context(false), loadPotShareholdersPort);
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		BusinessRuleViolationException exception = assertThrows(
+				BusinessRuleViolationException.class,
 				() -> service.updatePotShareholdersDetails(
 						new UserContext(fixture.creatorId, fixture.userPermissions),
 						fixture.command(fixture.shareholderId, 2)));
 
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
+		assertEquals("OBSOLETE_COMMAND", exception.ruleCode());
 		assertFalse(loadPotShareholdersPort.loaded);
 	}
 
@@ -148,8 +147,12 @@ class UpdatePotShareholdersDetailsServiceTest {
 		UpdatePotShareholdersDetailsFixture fixture = new UpdatePotShareholdersDetailsFixture();
 		UserId linkedUser = UserId.of(UUID.randomUUID());
 		UpdatePotShareholdersDetailsContext context = new UpdatePotShareholdersDetailsContext(
-				new PotGlobalVersion(fixture.potId, 3), false, fixture.creatorId,
-				Set.of(fixture.shareholderId), Map.of(fixture.shareholderId, linkedUser));
+				new PotGlobalVersion(fixture.potId, 3),
+				false,
+				fixture.creatorId,
+				Set.of(fixture.shareholderId),
+				Map.of(fixture.shareholderId, linkedUser),
+				java.util.Map.of(fixture.shareholderId, 3L));
 		UpdatePotShareholdersDetailsService service = fixture.service(context);
 
 		PotShareholdersSnapshot snapshot = service.updatePotShareholdersDetails(
@@ -177,21 +180,23 @@ class UpdatePotShareholdersDetailsServiceTest {
 					new PotGlobalVersion(potId, 3),
 					deleted,
 					creatorId,
-					Set.of(shareholderId));
+					Set.of(shareholderId),
+					Map.of(),
+					java.util.Map.of(shareholderId, 3L));
 		}
 
 		private PotShareholders potShareholders() {
 			return PotShareholders.reconstitute(potId, Set.of(shareholder));
 		}
 
-		private UpdatePotShareholdersDetailsInput command(ShareholderId shareholderId, long expectedVersion) {
+		private UpdatePotShareholdersDetailsInput command(ShareholderId shareholderId, long observedVersion) {
 			return new UpdatePotShareholdersDetailsInput(
 					potId.value(),
 					Set.of(new UpdatePotShareholdersDetailsInput.ShareholderDetailsInput(
 							shareholderId.value(),
 							"Alice Updated",
 							null)),
-					expectedVersion);
+					observedVersion);
 		}
 
 		private UpdatePotShareholdersDetailsService service(UpdatePotShareholdersDetailsContext context) {

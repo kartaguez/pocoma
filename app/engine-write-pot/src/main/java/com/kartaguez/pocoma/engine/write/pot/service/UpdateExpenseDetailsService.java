@@ -75,7 +75,7 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		PotId potId = currentVersion.potId();
 
 		// 3. Check expense state, optimistic version and payer membership.
-		context.assertUpdatePreconditions(command.expectedVersion(), payerId);
+		context.assertUpdatePreconditions(command.observedVersion(), payerId);
 
 		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

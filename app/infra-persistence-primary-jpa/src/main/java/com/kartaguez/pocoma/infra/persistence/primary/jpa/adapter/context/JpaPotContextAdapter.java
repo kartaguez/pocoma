@@ -86,7 +86,8 @@ public class JpaPotContextAdapter implements PotContextPort {
 		return new UpdatePotDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()));
+				UserId.of(contextData.potHeader().creatorId()),
+				contextData.potHeader().startedAtVersion());
 	}
 
 	@Override
@@ -100,18 +101,17 @@ public class JpaPotContextAdapter implements PotContextPort {
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
-				shareholderRelations.shareholderUsers());
+				shareholderRelations.shareholderUsers(),
+				shareholderRelations.startedAtVersions());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public UpdatePotShareholdersWeightsContext loadUpdatePotShareholdersWeightsContext(PotId potId) {
 		PotContextData contextData = loadPotContextData(potId);
-		return new UpdatePotShareholdersWeightsContext(
-				contextData.potGlobalVersion(),
-				contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()),
-				loadShareholderIds(potId, contextData.potGlobalVersion().version()));
+		ShareholderRelations relations = loadShareholderRelations(potId, contextData.potGlobalVersion().version());
+		return new UpdatePotShareholdersWeightsContext(contextData.potGlobalVersion(), contextData.potHeader().deleted(),
+				UserId.of(contextData.potHeader().creatorId()), relations.shareholderIds(), relations.startedAtVersions());
 	}
 
 	private PotContextData loadPotContextData(PotId potId) {
@@ -129,12 +129,6 @@ public class JpaPotContextAdapter implements PotContextPort {
 		return new PotContextData(potGlobalVersion, potHeader);
 	}
 
-	private Set<ShareholderId> loadShareholderIds(PotId potId, long version) {
-		return shareholderRepository.findActiveNotDeletedAtVersion(potId.value(), version).stream()
-				.map(shareholder -> ShareholderId.of(shareholder.shareholderId()))
-				.collect(Collectors.toUnmodifiableSet());
-	}
-
 	private ShareholderRelations loadShareholderRelations(PotId potId, long version) {
 		var shareholders = shareholderRepository.findActiveNotDeletedAtVersion(potId.value(), version);
 		Set<ShareholderId> shareholderIds = shareholders.stream()
@@ -145,7 +139,9 @@ public class JpaPotContextAdapter implements PotContextPort {
 				.collect(Collectors.toUnmodifiableMap(
 						shareholder -> ShareholderId.of(shareholder.shareholderId()),
 						shareholder -> UserId.of(shareholder.userId())));
-		return new ShareholderRelations(shareholderIds, shareholderUsers);
+		Map<ShareholderId, Long> starts = shareholders.stream().collect(Collectors.toUnmodifiableMap(
+				shareholder -> ShareholderId.of(shareholder.shareholderId()), shareholder -> shareholder.startedAtVersion()));
+		return new ShareholderRelations(shareholderIds, shareholderUsers, starts);
 	}
 
 	private record PotContextData(PotGlobalVersion potGlobalVersion, JpaPotHeaderEntity potHeader) {
@@ -153,6 +149,6 @@ public class JpaPotContextAdapter implements PotContextPort {
 
 	private record ShareholderRelations(
 			Set<ShareholderId> shareholderIds,
-			Map<ShareholderId, UserId> shareholderUsers) {
+			Map<ShareholderId, UserId> shareholderUsers, Map<ShareholderId, Long> startedAtVersions) {
 	}
 }

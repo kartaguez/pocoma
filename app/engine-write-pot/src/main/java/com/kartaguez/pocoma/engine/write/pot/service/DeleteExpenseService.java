@@ -69,7 +69,7 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		PotId potId = currentVersion.potId();
 
 		// 3. Check state and optimistic version preconditions.
-		context.assertDeletePreconditions(command.expectedVersion());
+		context.assertDeletePreconditions(command.observedVersion());
 
 		// 4. Load the target and prove that it belongs to the Pot supplying authorization facts.
 		ExpenseHeader currentExpenseHeader = Objects.requireNonNull(

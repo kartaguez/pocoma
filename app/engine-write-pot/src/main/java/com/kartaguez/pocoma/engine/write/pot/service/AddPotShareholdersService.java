@@ -72,7 +72,7 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
 		// 3. Check state and optimistic version preconditions.
-		context.assertAddPreconditions(command.expectedVersion());
+		context.assertAddPreconditions(command.observedVersion());
 
 		// 4. Check that the current user is allowed to add shareholders to this pot.
 		authorizationGuard.assertAuthorized(

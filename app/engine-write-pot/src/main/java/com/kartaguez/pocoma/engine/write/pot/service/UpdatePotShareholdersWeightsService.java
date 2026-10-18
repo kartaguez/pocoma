@@ -78,7 +78,7 @@ final class UpdatePotShareholdersWeightsService implements UpdatePotShareholders
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
 		// 3. Check state and optimistic version preconditions.
-		context.assertUpdatePreconditions(command.expectedVersion(), updatedShareholderIds);
+		context.assertUpdatePreconditions(command.observedVersion(), updatedShareholderIds);
 
 		// 4. Check that the current user is allowed to update shareholders weights.
 		PotAuthorizationRelations authorizationRelations = new PotAuthorizationRelations(

@@ -8,7 +8,7 @@ import com.kartaguez.pocoma.engine.consume.command.model.Command;
 
 import com.kartaguez.pocoma.domain.pot.value.Fraction;
 
-public record AddPotShareholdersCommand(UUID potId, Set<ShareholderInput> shareholders, long expectedVersion)
+public record AddPotShareholdersCommand(UUID potId, Set<ShareholderInput> shareholders, long observedVersion)
 		implements Command {
 
 	public AddPotShareholdersCommand {
@@ -18,8 +18,8 @@ public record AddPotShareholdersCommand(UUID potId, Set<ShareholderInput> shareh
 		if (shareholders.isEmpty()) {
 			throw new IllegalArgumentException("shareholders must not be empty");
 		}
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 

@@ -4,13 +4,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 
-public record DeleteExpenseInput(UUID expenseId, long expectedVersion) {
+public record DeleteExpenseInput(UUID expenseId, long observedVersion) {
 
 	public DeleteExpenseInput {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
 
-		if (expectedVersion < 1) {
-			throw new IllegalArgumentException("expectedVersion must be greater than or equal to 1");
+		if (observedVersion < 1) {
+			throw new IllegalArgumentException("observedVersion must be greater than or equal to 1");
 		}
 	}
 }

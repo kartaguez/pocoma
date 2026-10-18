@@ -13,47 +13,47 @@ final class PotCommandInputMapper {
         return new CreatePotInput(c.label(), c.creatorId());
     }
     static DeletePotInput toInput(DeletePotCommand c) {
-        return new DeletePotInput(c.potId(), c.expectedVersion());
+        return new DeletePotInput(c.potId(), c.observedVersion());
     }
     static DeleteExpenseInput toInput(DeleteExpenseCommand c) {
-        return new DeleteExpenseInput(c.expenseId(), c.expectedVersion());
+        return new DeleteExpenseInput(c.expenseId(), c.observedVersion());
     }
     static UpdatePotDetailsInput toInput(UpdatePotDetailsCommand c) {
-        return new UpdatePotDetailsInput(c.potId(), c.label(), c.expectedVersion());
+        return new UpdatePotDetailsInput(c.potId(), c.label(), c.observedVersion());
     }
     static UpdateExpenseDetailsInput toInput(UpdateExpenseDetailsCommand c) {
         return new UpdateExpenseDetailsInput(c.expenseId(), c.payerId(), c.amountNumerator(),
-                c.amountDenominator(), c.label(), c.date(), c.expectedVersion());
+                c.amountDenominator(), c.label(), c.date(), c.observedVersion());
     }
     static CreateExpenseInput toInput(CreateExpenseCommand c) {
         return new CreateExpenseInput(c.potId(), c.payerId(), c.amountNumerator(), c.amountDenominator(),
                 c.label(), c.date(), c.shares().stream()
                     .map(s -> new CreateExpenseInput.ExpenseShareInput(s.shareholderId(),
                             s.weightNumerator(), s.weightDenominator()))
-                    .collect(Collectors.toUnmodifiableSet()), c.expectedVersion());
+                    .collect(Collectors.toUnmodifiableSet()), c.observedVersion());
     }
     static AddPotShareholdersInput toInput(AddPotShareholdersCommand c) {
         return new AddPotShareholdersInput(c.potId(), c.shareholders().stream()
                 .map(s -> new AddPotShareholdersInput.ShareholderInput(s.name(),
                         s.weightNumerator(), s.weightDenominator()))
-                .collect(Collectors.toUnmodifiableSet()), c.expectedVersion());
+                .collect(Collectors.toUnmodifiableSet()), c.observedVersion());
     }
     static UpdateExpenseSharesInput toInput(UpdateExpenseSharesCommand c) {
         return new UpdateExpenseSharesInput(c.expenseId(), c.shares().stream()
                 .map(s -> new UpdateExpenseSharesInput.ExpenseShareInput(s.shareholderId(),
                         s.weightNumerator(), s.weightDenominator()))
-                .collect(Collectors.toUnmodifiableSet()), c.expectedVersion());
+                .collect(Collectors.toUnmodifiableSet()), c.observedVersion());
     }
     static UpdatePotShareholdersDetailsInput toInput(UpdatePotShareholdersDetailsCommand c) {
         return new UpdatePotShareholdersDetailsInput(c.potId(), c.shareholders().stream()
                 .map(s -> new UpdatePotShareholdersDetailsInput.ShareholderDetailsInput(
                         s.shareholderId(), s.name(), s.userId()))
-                .collect(Collectors.toUnmodifiableSet()), c.expectedVersion());
+                .collect(Collectors.toUnmodifiableSet()), c.observedVersion());
     }
     static UpdatePotShareholdersWeightsInput toInput(UpdatePotShareholdersWeightsCommand c) {
         return new UpdatePotShareholdersWeightsInput(c.potId(), c.shareholders().stream()
                 .map(s -> new UpdatePotShareholdersWeightsInput.ShareholderWeightInput(
                         s.shareholderId(), s.weightNumerator(), s.weightDenominator()))
-                .collect(Collectors.toUnmodifiableSet()), c.expectedVersion());
+                .collect(Collectors.toUnmodifiableSet()), c.observedVersion());
     }
 }
