@@ -96,16 +96,28 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 
 	private ExpenseContextData loadExpenseContextData(ExpenseId expenseId) {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
-		ExpenseHeader expenseHeader = expenseHeaderRepository.findCurrentActive(expenseId.value())
-				.map(entity -> entity.toDomain())
+		// This first read identifies ownership only; its lifecycle may precede the version read.
+		PotId potId = expenseHeaderRepository.findCurrentActive(expenseId.value())
+				.map(entity -> PotId.of(entity.potId()))
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"EXPENSE_HEADER",
 						"Current active expense header was not found"));
-		PotGlobalVersion potGlobalVersion = potGlobalVersionRepository.findById(expenseHeader.potId().value())
+		PotGlobalVersion potGlobalVersion = potGlobalVersionRepository.findById(potId.value())
 				.map(entity -> entity.toDomain())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"POT_GLOBAL_VERSION",
 						"Pot global version was not found"));
+		// All business facts must describe the same logical version, even under READ COMMITTED.
+		// Later writers only close intervals at versions > V and append new rows, preserving V.
+		ExpenseHeader expenseHeader = expenseHeaderRepository
+				.findActiveAtVersion(expenseId.value(), potGlobalVersion.version())
+				.map(entity -> entity.toDomain())
+				.orElseThrow(() -> new BusinessEntityNotFoundException(
+						"EXPENSE_HEADER",
+						"Expense header active at current pot version was not found"));
+		if (!potId.equals(expenseHeader.potId())) {
+			throw new IllegalStateException("Expense ownership must be stable across versions");
+		}
 		JpaPotHeaderEntity potHeader = potHeaderRepository
 				.findActiveAtVersion(expenseHeader.potId().value(), potGlobalVersion.version())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(

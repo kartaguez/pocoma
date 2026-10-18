@@ -1,0 +1,52 @@
+Expense context coherence fix — bounded verification, 2026-10-18
+
+Source: targeted
+12:10:13.273 [main] ERROR org.testcontainers.dockerclient.DockerClientProviderStrategy -- Could not find a valid Docker environment. Please check configuration. Attempted configurations were:
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.302 s <<< FAILURE! -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+java.lang.IllegalStateException: Could not find a valid Docker environment. Please see logs and check configuration
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 23.48 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest
+[ERROR]   UpdateExpenseSharesConcurrencyPostgresTest » IllegalState Could not find a valid Docker environment. Please see logs and check configuration
+[ERROR] Tests run: 4, Failures: 0, Errors: 1, Skipped: 0
+[INFO] BUILD FAILURE
+[INFO] Total time:  28.849 s
+
+Source: targeted-authorized
+2026-10-18T12:10:35.031+02:00  INFO 61810 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:49806/r03?loggerLevel=OFF (PostgreSQL 17.11)
+R03 R03 rejected, no A effects pot=a5eba1b7-972f-4797-8fac-356c005124e1 version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 CAS lost, no A effects pot=8b5bb0b3-6821-4e87-bc12-18eca3f2c92c version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 rollback after Event flush, no durable effects pot=a0dc771c-aed5-4331-8e87-9e8952451c35 version=5 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}] headers=[{started_at_version=5, ended_at_version=null, deleted=false}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[]
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.221 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.451 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  12.369 s
+
+Source: neighbors
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.037 s -- in com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.005 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest
+[INFO] Tests run: 32, Failures: 0, Errors: 0, Skipped: 0
+2026-10-18T12:11:23.132+02:00  INFO 62719 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:49830/r03?loggerLevel=OFF (PostgreSQL 17.11)
+R03 R03 rejected, no A effects pot=35c96267-7b6c-47fe-9e97-df2495aeec87 version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 CAS lost, no A effects pot=6177f435-d3e0-4385-b46f-d95f2002a3a6 version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 rollback after Event flush, no durable effects pot=4fb9036e-604b-438f-a029-89b702729e8c version=5 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}] headers=[{started_at_version=5, ended_at_version=null, deleted=false}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[]
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.977 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.370 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.217 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.181 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.194 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest
+[INFO] Tests run: 35, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  10.586 s
+
+Source: runtime
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.031 s -- in com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+2026-10-18T12:11:51.829+02:00  INFO 63630 --- [pocoma-command-consumption-worker] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:49852/pocoma?loggerLevel=OFF (PostgreSQL 17.11)
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.602 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  11.115 s
