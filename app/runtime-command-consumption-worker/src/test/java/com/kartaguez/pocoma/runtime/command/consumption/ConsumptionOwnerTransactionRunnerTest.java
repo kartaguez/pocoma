@@ -40,6 +40,29 @@ class ConsumptionOwnerTransactionRunnerTest {
         assertEquals(ConsumptionTransactionResolutionException.Phase.COMMIT, failure.phase());
     }
 
+    @Test
+    void replacedRollbackErrorRetainsCasCauseAfterConfirmedPhysicalRollback() {
+        var cas = new com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException("lost CAS");
+        var boundary = new IllegalStateException("rollback observer failed");
+        var owner = new ConsumptionOwnerTransactionRunner(new TransactionRunner() {
+            @Override public <T> T runInTransaction(Supplier<T> action) {
+                TransactionSynchronizationManager.initSynchronization();
+                try { return action.get(); }
+                catch (RuntimeException original) {
+                    TransactionSynchronizationManager.getSynchronizations().forEach(sync ->
+                        sync.afterCompletion(org.springframework.transaction.support.TransactionSynchronization.STATUS_ROLLED_BACK));
+                    throw boundary;
+                } finally { TransactionSynchronizationManager.clearSynchronization(); }
+            }
+            @Override public void runAfterCommit(Runnable action) { throw new UnsupportedOperationException(); }
+        }, true);
+        var resolution = assertThrows(ConsumptionTransactionResolutionException.class,
+            () -> owner.runInTransaction(() -> { throw cas; }));
+        assertEquals(ConsumptionTransactionResolutionException.Outcome.ROLLED_BACK, resolution.outcome());
+        assertSame(boundary,resolution.getCause());
+        assertSame(cas,boundary.getSuppressed()[0]);
+    }
+
     private record UnconfirmedRunner(RuntimeException rollbackFailure) implements TransactionRunner {
         @Override public <T> T runInTransaction(Supplier<T> action) {
             TransactionSynchronizationManager.initSynchronization();

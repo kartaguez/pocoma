@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.command.pot.dispatch;
 
+import java.util.Optional;
 import com.kartaguez.pocoma.engine.write.pot.service.PotAuthorizationGuard;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +49,7 @@ import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContext;
 import com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContext;
 import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommand;
 import com.kartaguez.pocoma.engine.consume.command.pot.intent.CreatePotCommand;
@@ -120,8 +121,8 @@ class PotCommandUseCaseAdapterTest {
 		PotDetailsUpdatedEvent event = new PotDetailsUpdatedEvent(POT_ID, 8);
 		TestAdapter adapter = new TestAdapter((invocation, ignored) -> {
 			PotContextPort contextPort = invocation.recording(new PotContextPort() {
-				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 7), false, UserId.of(USER_ID), 7L);
+				@Override public Optional<UpdatePotDetailsContext> loadUpdatePotDetailsContext(PotId potId) {
+					return Optional.of(new UpdatePotDetailsContext(new PotGlobalVersion(potId, 7), false, UserId.of(USER_ID), 7L));
 				}
 			});
 			contextPort.loadUpdatePotDetailsContext(POT_ID);
@@ -143,8 +144,13 @@ class PotCommandUseCaseAdapterTest {
 		assertRejected("RULE", new BusinessRuleViolationException("RULE", "rejected"));
 		assertRejected("OBSOLETE_COMMAND", new BusinessRuleViolationException("OBSOLETE_COMMAND", "obsolete"));
 		assertRejected("INVALID_OBSERVED_VERSION", new BusinessRuleViolationException("INVALID_OBSERVED_VERSION", "invalid"));
-		assertRejected("POT_VERSION_CONFLICT", new VersionConflictException("conflict"));
-		assertRejected("POT_HEADER", new BusinessEntityNotFoundException("POT_HEADER", "missing"));
+
+		for (RuntimeException failure : List.of(new PotVersionCasConflictException("conflict"),
+                new BusinessEntityNotFoundException("POT_HEADER", "missing"),
+                new com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException("cardinality"))) {
+            TestAdapter failing = new TestAdapter((invocation, ignored) -> { throw failure; });
+            assertSame(failure, assertThrows(failure.getClass(), () -> failing.execute(authorization(Set.of()), command())));
+        }
 
 		TechnicalException technical = new TechnicalException();
 		TestAdapter adapter = new TestAdapter((invocation, ignored) -> { throw technical; });
@@ -152,25 +158,6 @@ class PotCommandUseCaseAdapterTest {
 				() -> adapter.execute(authorization(Set.of()), command())));
 	}
 
-	@Test
-	void preservesTheObservedPotVersionWhenAConflictIsRejected() {
-		TestAdapter adapter = new TestAdapter((invocation, ignored) -> {
-			PotContextPort contextPort = invocation.recording(new PotContextPort() {
-				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 11), false, UserId.of(USER_ID), 11L);
-				}
-			});
-			contextPort.loadUpdatePotDetailsContext(POT_ID);
-			throw new VersionConflictException("conflict");
-		});
-
-		CommandUseCaseResult.Rejected result = assertInstanceOf(CommandUseCaseResult.Rejected.class,
-				adapter.execute(authorization(Set.of()), command()));
-
-		assertEquals("POT_VERSION_CONFLICT", result.reason().code());
-		assertEquals(List.of(new com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionInput(
-				"POT", POT_ID.value().toString(), 11)), result.inputs());
-	}
 
 	@Test
 	void refusesToTurnAnExceptionAfterEventProductionIntoARejection() {
@@ -247,8 +234,8 @@ class PotCommandUseCaseAdapterTest {
 		};
 		AddPotShareholdersCommandUseCaseAdapter adapter = new AddPotShareholdersCommandUseCaseAdapter(
 				new PotContextPort() {
-					@Override public AddPotShareholdersContext loadAddPotShareholdersContext(PotId potId) {
-						return new AddPotShareholdersContext(new PotGlobalVersion(potId, 3), false, creator);
+					@Override public Optional<AddPotShareholdersContext> loadAddPotShareholdersContext(PotId potId) {
+						return Optional.of(new AddPotShareholdersContext(new PotGlobalVersion(potId, 3), false, creator));
 					}
 				}, shareholders, new PotGlobalVersionPort() {
 					@Override public void updateIfActive(PotGlobalVersion current, PotGlobalVersion next) { }
@@ -319,8 +306,8 @@ class PotCommandUseCaseAdapterTest {
 			}
 			PotId invocationPotId = PotId.of(userContext.userId().value());
 			PotContextPort contextPort = invocation.recording(new PotContextPort() {
-				@Override public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-					return new UpdatePotDetailsContext(new PotGlobalVersion(potId, 4), false, userContext.userId(), 4L);
+				@Override public Optional<UpdatePotDetailsContext> loadUpdatePotDetailsContext(PotId potId) {
+					return Optional.of(new UpdatePotDetailsContext(new PotGlobalVersion(potId, 4), false, userContext.userId(), 4L));
 				}
 			});
 			contextPort.loadUpdatePotDetailsContext(invocationPotId);

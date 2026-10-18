@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.write.pot.service;
 import java.util.Objects;
 import java.util.Set;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
@@ -69,7 +70,9 @@ final class UpdateExpenseDetailsService implements UpdateExpenseDetailsUseCase {
 		ExpenseId expenseId = ExpenseId.of(command.expenseId());
 		ShareholderId payerId = ShareholderId.of(command.payerId());
 		UpdateExpenseDetailsContext context = Objects.requireNonNull(
-				loadUpdateExpenseDetailsContextPort.loadUpdateExpenseDetailsContext(expenseId),
+				loadUpdateExpenseDetailsContextPort.loadUpdateExpenseDetailsContext(expenseId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"EXPENSE_HEADER", "Business reference was not found")),
 				"updateExpenseDetailsContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 		PotId potId = currentVersion.potId();

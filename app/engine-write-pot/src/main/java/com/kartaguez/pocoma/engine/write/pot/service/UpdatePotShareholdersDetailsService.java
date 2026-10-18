@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
@@ -72,7 +73,9 @@ final class UpdatePotShareholdersDetailsService implements UpdatePotShareholders
 				.map(shareholder -> ShareholderId.of(shareholder.shareholderId()))
 				.collect(Collectors.toSet());
 		UpdatePotShareholdersDetailsContext context = Objects.requireNonNull(
-				loadUpdatePotShareholdersDetailsContextPort.loadUpdatePotShareholdersDetailsContext(potId),
+				loadUpdatePotShareholdersDetailsContextPort.loadUpdatePotShareholdersDetailsContext(potId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"POT_GLOBAL_VERSION", "Business reference was not found")),
 				"updatePotShareholdersDetailsContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 

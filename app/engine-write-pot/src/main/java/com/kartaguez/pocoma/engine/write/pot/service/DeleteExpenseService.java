@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.engine.write.pot.service;
 
 import java.util.Objects;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
@@ -63,7 +64,9 @@ final class DeleteExpenseService implements DeleteExpenseUseCase {
 		// 2. Load the precondition context needed by this modification use case.
 		ExpenseId expenseId = ExpenseId.of(command.expenseId());
 		DeleteExpenseContext context = Objects.requireNonNull(
-				loadDeleteExpenseContextPort.loadDeleteExpenseContext(expenseId),
+				loadDeleteExpenseContextPort.loadDeleteExpenseContext(expenseId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"EXPENSE_HEADER", "Business reference was not found")),
 				"deleteExpenseContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 		PotId potId = currentVersion.potId();

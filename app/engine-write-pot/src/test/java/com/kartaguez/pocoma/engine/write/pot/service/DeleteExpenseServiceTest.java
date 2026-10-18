@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.write.pot.service;
 
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -222,9 +223,9 @@ class DeleteExpenseServiceTest {
 		}
 
 		@Override
-		public DeleteExpenseContext loadDeleteExpenseContext(ExpenseId expenseId) {
+		public Optional<DeleteExpenseContext> loadDeleteExpenseContext(ExpenseId expenseId) {
 			loadedExpenseId = expenseId;
-			return context;
+			return Optional.of(context);
 		}
 	}
 

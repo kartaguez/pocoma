@@ -26,7 +26,6 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.write.pot.context.CreateExpenseContext;
 import com.kartaguez.pocoma.engine.write.pot.context.DeletePotContext;
-import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.JpaPotGlobalVersionEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaPotHeaderEntity;
@@ -72,7 +71,7 @@ class JpaPotContextAdapterTest {
 		shareholderRepository.save(JpaShareholderEntity.from(inactiveShareholder, 1, 3L));
 		shareholderRepository.save(JpaShareholderEntity.from(deletedShareholder, 1, null));
 
-		CreateExpenseContext context = adapter.loadCreateExpenseContext(potId);
+		CreateExpenseContext context = adapter.loadCreateExpenseContext(potId).orElseThrow();
 
 		assertEquals(new PotGlobalVersion(potId, 3), context.potGlobalVersion());
 		assertEquals(false, context.deleted());
@@ -91,7 +90,7 @@ class JpaPotContextAdapterTest {
 				4,
 				null));
 
-		DeletePotContext context = adapter.loadDeletePotContext(potId);
+		DeletePotContext context = adapter.loadDeletePotContext(potId).orElseThrow();
 
 		assertEquals(new PotGlobalVersion(potId, 4), context.potGlobalVersion());
 		assertEquals(true, context.deleted());
@@ -100,9 +99,7 @@ class JpaPotContextAdapterTest {
 
 	@Test
 	void rejectsUnknownPotContext() {
-		assertThrows(
-				BusinessEntityNotFoundException.class,
-				() -> adapter.loadUpdatePotDetailsContext(PotId.of(UUID.randomUUID())));
+		org.junit.jupiter.api.Assertions.assertTrue(adapter.loadUpdatePotDetailsContext(PotId.of(UUID.randomUUID())).isEmpty());
 	}
 
 	private static Shareholder shareholder(PotId potId) {

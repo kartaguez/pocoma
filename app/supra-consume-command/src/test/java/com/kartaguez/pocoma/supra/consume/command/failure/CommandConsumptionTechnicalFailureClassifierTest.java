@@ -64,6 +64,28 @@ class CommandConsumptionTechnicalFailureClassifierTest {
 				new LostClaimException(UUID.randomUUID(), ClaimId.generate())));
 	}
 
+    @Test
+    void recognizesCasThroughCauseOrReplacedRollbackErrorButNeverAsTransitionConsistency() {
+        var cas = new com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException("lost CAS");
+        assertFailure(cas,"POT_VERSION_CAS_CONFLICT","TRANSIENT");
+        var boundary = new IllegalStateException("boundary"); boundary.addSuppressed(cas);
+        var resolution = new com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException(
+            com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Outcome.ROLLED_BACK,
+            com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Phase.ROLLBACK,boundary);
+        assertFailure(resolution,"POT_VERSION_CAS_CONFLICT","TRANSIENT");
+        assertFailure(boundary,"POT_VERSION_CAS_CONFLICT","TRANSIENT"); // orchestrator unwraps after ownership check
+        assertFailure(new RuntimeException(cas),"POT_VERSION_CAS_CONFLICT","TRANSIENT");
+        assertFailure(new com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException("cardinality"),
+            "AGGREGATE_TRANSITION_INCONSISTENT","COMMAND_TECHNICAL_INVARIANT");
+        for (var outcome : new com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Outcome[] {
+                com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Outcome.COMMITTED,
+                com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Outcome.UNKNOWN }) {
+            assertThrows(IllegalArgumentException.class, () -> classifier.classify(
+                new com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException(outcome,
+                    com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException.Phase.ROLLBACK,cas)));
+        }
+    }
+
 	private void assertFailure(RuntimeException exception, String code, String category) {
 		var failure = classifier.classify(exception);
 		assertEquals(code, failure.code().value());

@@ -28,7 +28,6 @@ import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.value.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
-import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaExpenseShareRepository;
 
@@ -65,20 +64,20 @@ class CommandObsolescencePostgresTest {
     }
 
     @Test void targetedShareholdersAndConservativeDetailsWeightsUseTheirOwnStarts() {
-        var details = pots.loadUpdatePotShareholdersDetailsContext(potId());
-        var weights = pots.loadUpdatePotShareholdersWeightsContext(potId());
+        var details = pots.loadUpdatePotShareholdersDetailsContext(potId()).orElseThrow();
+        var weights = pots.loadUpdatePotShareholdersWeightsContext(potId()).orElseThrow();
         assertEquals(Map.of(id(a), 1L, id(b), 7L), details.shareholderStartedAtVersions());
         details.assertUpdatePreconditions(2, Set.of(id(a)));
         weights.assertUpdatePreconditions(2, Set.of(id(a)));
         stale(() -> details.assertUpdatePreconditions(2, Set.of(id(a), id(b))));
         stale(() -> weights.assertUpdatePreconditions(2, Set.of(id(b))));
-        pots.loadUpdatePotDetailsContext(potId()).assertUpdatePreconditions(2);
-        stale(() -> pots.loadDeletePotContext(potId()).assertDeletePreconditions(7));
+        pots.loadUpdatePotDetailsContext(potId()).orElseThrow().assertUpdatePreconditions(2);
+        stale(() -> pots.loadDeletePotContext(potId()).orElseThrow().assertDeletePreconditions(7));
     }
 
     @Test void creationsValidateReferencesAndAuthorizationAtV() {
-        pots.loadAddPotShareholdersContext(potId()).assertAddPreconditions(1);
-        var context = pots.loadCreateExpenseContext(potId());
+        pots.loadAddPotShareholdersContext(potId()).orElseThrow().assertAddPreconditions(1);
+        var context = pots.loadCreateExpenseContext(potId()).orElseThrow();
         context.assertCreatePreconditions(1, id(b), Set.of(id(b))); // b created after O, valid at V.
         assertEquals(Map.of(id(a), UserId.of(member)), context.shareholderUsers());
         assertEquals(8, context.potGlobalVersion().version());
@@ -87,12 +86,12 @@ class CommandObsolescencePostgresTest {
 
     @Test void fullReplacementRecreatesSurvivorAndDetectsRemovedBeneficiary() {
         replace(Set.of(id(b)));
-        var context = expenses.loadUpdateExpenseSharesContext(expenseId());
+        var context = expenses.loadUpdateExpenseSharesContext(expenseId()).orElseThrow();
         assertEquals(List.of(9L), context.shareStartedAtVersions());
         stale(() -> context.assertUpdatePreconditions(8, Set.of(id(b))));
-        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).assertDeletePreconditions(8));
-        expenses.loadUpdateExpenseDetailsContext(expenseId()).assertUpdatePreconditions(2, id(a));
-        assertEquals(2, expenses.loadUpdateExpenseDetailsContext(expenseId()).headerStartedAtVersion());
+        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).orElseThrow().assertDeletePreconditions(8));
+        expenses.loadUpdateExpenseDetailsContext(expenseId()).orElseThrow().assertUpdatePreconditions(2, id(a));
+        assertEquals(2, expenses.loadUpdateExpenseDetailsContext(expenseId()).orElseThrow().headerStartedAtVersion());
         assertEquals(2, shareRows.findActiveAtVersion(expense, 8).size());
         assertEquals(Set.of(b), shareRows.findActiveAtVersion(expense, 9).stream().map(row -> row.shareholderId()).collect(java.util.stream.Collectors.toSet()));
         assertEquals(2, jdbc.queryForObject("select count(*) from expense_shares where expense_id=? and ended_at_version=9", Integer.class, expense));
@@ -102,19 +101,19 @@ class CommandObsolescencePostgresTest {
         jdbc.update("update expense_headers set ended_at_version=9 where expense_id=?", expense);
         header(9, false);
         jdbc.update("update pot_global_versions set version=9 where pot_id=?", pot);
-        expenses.loadUpdateExpenseSharesContext(expenseId()).assertUpdatePreconditions(2, Set.of(id(a)));
-        stale(() -> expenses.loadUpdateExpenseDetailsContext(expenseId()).assertUpdatePreconditions(8, id(a)));
-        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).assertDeletePreconditions(8));
+        expenses.loadUpdateExpenseSharesContext(expenseId()).orElseThrow().assertUpdatePreconditions(2, Set.of(id(a)));
+        stale(() -> expenses.loadUpdateExpenseDetailsContext(expenseId()).orElseThrow().assertUpdatePreconditions(8, id(a)));
+        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).orElseThrow().assertDeletePreconditions(8));
     }
 
     @Test void emptySetRequiresExactObservationRatherThanTheOldHeader() {
         replace(Set.of());
-        var context = expenses.loadUpdateExpenseSharesContext(expenseId());
+        var context = expenses.loadUpdateExpenseSharesContext(expenseId()).orElseThrow();
         assertTrue(context.shareStartedAtVersions().isEmpty());
         stale(() -> context.assertUpdatePreconditions(8, Set.of(id(a))));
-        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).assertDeletePreconditions(8));
+        stale(() -> expenses.loadDeleteExpenseContext(expenseId()).orElseThrow().assertDeletePreconditions(8));
         context.assertUpdatePreconditions(9, Set.of(id(a)));
-        expenses.loadDeleteExpenseContext(expenseId()).assertDeletePreconditions(9);
+        expenses.loadDeleteExpenseContext(expenseId()).orElseThrow().assertDeletePreconditions(9);
     }
 
     @Test void contextsReadClosedRowsAtVInsteadOfOpenRows() {
@@ -127,15 +126,15 @@ class CommandObsolescencePostgresTest {
         jdbc.update("update expense_shares set ended_at_version=9 where expense_id=?", expense);
         share(b, 9, pot);
         // Deliberately retain V=8 to prove the interval predicate of each repository.
-        var context = expenses.loadUpdateExpenseSharesContext(expenseId());
+        var context = expenses.loadUpdateExpenseSharesContext(expenseId()).orElseThrow();
         assertEquals(8, context.potGlobalVersion().version());
         assertFalse(context.deleted()); assertFalse(context.potDeleted());
         assertEquals(UserId.of(creator), context.creatorId());
         assertEquals(Map.of(id(a), UserId.of(member)), context.shareholderUsers());
         assertEquals(List.of(2L, 2L), context.shareStartedAtVersions());
-        assertEquals(2, expenses.loadUpdateExpenseDetailsContext(expenseId()).headerStartedAtVersion());
-        assertEquals(1, pots.loadUpdatePotDetailsContext(potId()).headerStartedAtVersion());
-        assertEquals(1L, pots.loadUpdatePotShareholdersWeightsContext(potId()).shareholderStartedAtVersions().get(id(a)));
+        assertEquals(2, expenses.loadUpdateExpenseDetailsContext(expenseId()).orElseThrow().headerStartedAtVersion());
+        assertEquals(1, pots.loadUpdatePotDetailsContext(potId()).orElseThrow().headerStartedAtVersion());
+        assertEquals(1L, pots.loadUpdatePotShareholdersWeightsContext(potId()).orElseThrow().shareholderStartedAtVersions().get(id(a)));
         context.assertUpdatePreconditions(2, Set.of(id(a)));
     }
 
@@ -143,18 +142,18 @@ class CommandObsolescencePostgresTest {
         jdbc.update("update expense_headers set ended_at_version=9 where expense_id=?", expense);
         header(9, true);
         jdbc.update("update pot_global_versions set version=9 where pot_id=?", pot);
-        rule("EXPENSE_ALREADY_DELETED", () -> expenses.loadDeleteExpenseContext(expenseId()).assertDeletePreconditions(1));
-        assertThrows(BusinessEntityNotFoundException.class, () -> expenses.loadDeleteExpenseContext(ExpenseId.of(UUID.randomUUID())));
+        rule("EXPENSE_ALREADY_DELETED", () -> expenses.loadDeleteExpenseContext(expenseId()).orElseThrow().assertDeletePreconditions(1));
+        assertTrue(expenses.loadDeleteExpenseContext(ExpenseId.of(UUID.randomUUID())).isEmpty());
         jdbc.update("update shareholders set deleted=true where shareholder_id=?", b);
-        rule("SHAREHOLDER_NOT_PRESENT", () -> pots.loadUpdatePotShareholdersWeightsContext(potId()).assertUpdatePreconditions(9, Set.of(id(b))));
+        rule("SHAREHOLDER_NOT_PRESENT", () -> pots.loadUpdatePotShareholdersWeightsContext(potId()).orElseThrow().assertUpdatePreconditions(9, Set.of(id(b))));
     }
 
     @Test void corruptShareOwnershipOrDuplicateIdentityIsNeverCompatible() {
         share(UUID.randomUUID(), 2, UUID.randomUUID());
-        assertThrows(IllegalStateException.class, () -> expenses.loadUpdateExpenseSharesContext(expenseId()));
+        assertThrows(IllegalStateException.class, () -> expenses.loadUpdateExpenseSharesContext(expenseId()).orElseThrow());
         jdbc.update("delete from expense_shares where expense_id=? and pot_id<>?", expense, pot);
         share(a, 2, pot);
-        assertThrows(IllegalStateException.class, () -> expenses.loadDeleteExpenseContext(expenseId()));
+        assertThrows(IllegalStateException.class, () -> expenses.loadDeleteExpenseContext(expenseId()).orElseThrow());
     }
 
     @Test void creationsCannotReuseAnExistingOrHistoricalIdentity() {

@@ -24,7 +24,7 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.Weight;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaShareholderEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaShareholderRepository;
@@ -142,7 +142,7 @@ class JpaPotShareholdersAdapterTest {
 		next.updateShareholderDetails(alice.id(), Name.of("Alicia"), null);
 
 		assertThrows(
-				VersionConflictException.class,
+				AggregateTransitionConsistencyException.class,
 				() -> adapter.save(
 						next,
 						new PotGlobalVersion(potId, 2),

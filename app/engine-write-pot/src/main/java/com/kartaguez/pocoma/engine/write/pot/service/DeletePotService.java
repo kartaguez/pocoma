@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.engine.write.pot.service;
 import java.util.Objects;
 import java.util.Map;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotHeader;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
@@ -59,7 +60,9 @@ final class DeletePotService implements DeletePotUseCase {
 		// 2. Load the precondition context needed by this modification use case.
 		PotId potId = PotId.of(command.potId());
 		DeletePotContext context = Objects.requireNonNull(
-				loadDeletePotContextPort.loadDeletePotContext(potId),
+				loadDeletePotContextPort.loadDeletePotContext(potId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"POT_GLOBAL_VERSION", "Business reference was not found")),
 				"deletePotContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 

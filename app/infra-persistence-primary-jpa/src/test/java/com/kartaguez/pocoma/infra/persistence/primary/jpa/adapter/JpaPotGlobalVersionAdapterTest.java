@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.jdbc.Sql;
 
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.JpaPotGlobalVersionRepository;
@@ -59,11 +59,9 @@ class JpaPotGlobalVersionAdapterTest {
 		PotId potId = PotId.of(UUID.randomUUID());
 		adapter.save(new PotGlobalVersion(potId, 4));
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		PotVersionCasConflictException exception = assertThrows(
+				PotVersionCasConflictException.class,
 				() -> adapter.updateIfActive(new PotGlobalVersion(potId, 3), new PotGlobalVersion(potId, 4)));
-
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
 		assertEquals(4, repository.findById(potId.value()).orElseThrow().version());
 	}
 

@@ -11,8 +11,6 @@ import com.kartaguez.pocoma.engine.consume.command.execution.CommandExecutionInv
 import com.kartaguez.pocoma.engine.consume.command.model.CommandAppliedResult;
 import com.kartaguez.pocoma.engine.consume.command.model.CommandExecutionAuthorization;
 import com.kartaguez.pocoma.engine.consume.command.model.Command;
-import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
 import com.kartaguez.pocoma.engine.write.pot.security.UserContext;
 import com.kartaguez.pocoma.engine.write.pot.snapshot.ExpenseHeaderSnapshot;
 import com.kartaguez.pocoma.engine.write.pot.snapshot.ExpenseSharesSnapshot;
@@ -40,12 +38,6 @@ abstract class AbstractPotCommandUseCaseAdapter<C extends Command> implements Co
 		}
 		catch (BusinessRuleViolationException exception) {
 			return rejected(invocation, exception.ruleCode(), exception);
-		}
-		catch (VersionConflictException exception) {
-			return rejected(invocation, exception.conflictCode(), exception);
-		}
-		catch (BusinessEntityNotFoundException exception) {
-			return rejected(invocation, exception.entityCode(), exception);
 		}
 	}
 

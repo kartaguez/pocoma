@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
@@ -80,7 +81,9 @@ final class CreateExpenseService implements CreateExpenseUseCase {
 				.map(ExpenseShareDraft::shareholderId)
 				.collect(Collectors.toSet());
 		CreateExpenseContext context = Objects.requireNonNull(
-				loadCreateExpenseContextPort.loadCreateExpenseContext(potId),
+				loadCreateExpenseContextPort.loadCreateExpenseContext(potId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"POT_GLOBAL_VERSION", "Business reference was not found")),
 				"createExpenseContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 

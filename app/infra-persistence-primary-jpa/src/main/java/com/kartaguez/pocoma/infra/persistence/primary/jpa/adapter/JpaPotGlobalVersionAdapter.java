@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.PotGlobalVersionPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.JpaPotGlobalVersionEntity;
@@ -47,7 +47,7 @@ public class JpaPotGlobalVersionAdapter implements PotGlobalVersionPort {
 				nextVersion.version());
 
 		if (updatedRows != 1) {
-			throw new VersionConflictException("Pot global version has been modified by another operation");
+			throw new PotVersionCasConflictException("Pot global version has been modified by another operation");
 		}
 
 		insertMetadata(nextVersion);

@@ -44,7 +44,7 @@ import com.kartaguez.pocoma.domain.event.BusinessEvent;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseDeletedEvent;
 import com.kartaguez.pocoma.domain.pot.event.ExpenseSharesUpdatedEvent;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException;
 import com.kartaguez.pocoma.engine.write.pot.input.DeleteExpenseInput;
 import com.kartaguez.pocoma.engine.write.pot.input.UpdateExpenseSharesInput;
 import com.kartaguez.pocoma.engine.write.pot.port.event.EventPublisherPort;
@@ -228,14 +228,14 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
             assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
             var id = ExpenseId.of(expense);
             var sharesContext = switch (mutation) {
-                case SHARES -> contexts.loadUpdateExpenseSharesContext(id);
+                case SHARES -> contexts.loadUpdateExpenseSharesContext(id).orElseThrow();
                 case DETAILS -> {
-                    var c = contexts.loadUpdateExpenseDetailsContext(id);
+                    var c = contexts.loadUpdateExpenseDetailsContext(id).orElseThrow();
                     yield new com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext(
                             c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), c.shareholderIds(), c.shareholderUsers(), java.util.List.of());
                 }
                 case DELETE -> {
-                    var c = contexts.loadDeleteExpenseContext(id);
+                    var c = contexts.loadDeleteExpenseContext(id).orElseThrow();
                     yield new com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext(
                             c.potGlobalVersion(), c.deleted(), c.potDeleted(), c.creatorId(), Set.of(), c.shareholderUsers(), java.util.List.of());
                 }
@@ -278,7 +278,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
                 assertState(6, true, 1, 1, 1);
             } finally { gate.resume(); }
             var failure = assertThrows(ExecutionException.class, () -> a.get(30, TimeUnit.SECONDS));
-            assertInstanceOf(VersionConflictException.class, failure.getCause());
+            assertInstanceOf(PotVersionCasConflictException.class, failure.getCause());
         }
         assertState(6, true, 1, 1, 1);
         assertEquals(0L, number("select count(*) from pot_version_metadata where pot_id=? and version=7"));

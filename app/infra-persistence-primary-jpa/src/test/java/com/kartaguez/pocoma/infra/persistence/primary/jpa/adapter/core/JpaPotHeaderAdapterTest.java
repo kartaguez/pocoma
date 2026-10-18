@@ -21,7 +21,7 @@ import com.kartaguez.pocoma.domain.pot.value.Label;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaPotHeaderEntity;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.core.JpaPotHeaderRepository;
@@ -120,14 +120,12 @@ class JpaPotHeaderAdapterTest {
 		UserId creatorId = UserId.of(UUID.randomUUID());
 		repository.save(JpaPotHeaderEntity.from(PotHeader.reconstitute(potId, Label.of("Initial"), creatorId, false), 1, 2L));
 
-		VersionConflictException exception = assertThrows(
-				VersionConflictException.class,
+		AggregateTransitionConsistencyException exception = assertThrows(
+				AggregateTransitionConsistencyException.class,
 				() -> adapter.save(
 						PotHeader.reconstitute(potId, Label.of("Renamed"), creatorId, false),
 						new PotGlobalVersion(potId, 2),
 						new PotGlobalVersion(potId, 3)));
-
-		assertEquals("POT_VERSION_CONFLICT", exception.conflictCode());
 		assertEquals(1, repository.findActiveAtVersion(potId.value(), 1).orElseThrow().startedAtVersion());
 	}
 

@@ -64,7 +64,7 @@ public class CommandConsumptionRuntimeConfiguration {
 
 	@Bean
 	TransactionRunner commandConsumptionTransactionRunner(PlatformTransactionManager manager) {
-		return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));
+		return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)), true);
 	}
 
 	@Bean

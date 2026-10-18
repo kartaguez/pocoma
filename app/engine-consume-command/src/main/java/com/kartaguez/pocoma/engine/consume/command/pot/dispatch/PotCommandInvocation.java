@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.consume.command.pot.dispatch;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,39 +49,39 @@ final class PotCommandInvocation implements EventPublisherPort {
 	PotContextPort recording(PotContextPort delegate) {
 		return new PotContextPort() {
 			@Override
-			public AddPotShareholdersContext loadAddPotShareholdersContext(
+			public Optional<AddPotShareholdersContext> loadAddPotShareholdersContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadAddPotShareholdersContext(potId));
+				return delegate.loadAddPotShareholdersContext(potId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public CreateExpenseContext loadCreateExpenseContext(
+			public Optional<CreateExpenseContext> loadCreateExpenseContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadCreateExpenseContext(potId));
+				return delegate.loadCreateExpenseContext(potId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public DeletePotContext loadDeletePotContext(
+			public Optional<DeletePotContext> loadDeletePotContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadDeletePotContext(potId));
+				return delegate.loadDeletePotContext(potId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public UpdatePotDetailsContext loadUpdatePotDetailsContext(
+			public Optional<UpdatePotDetailsContext> loadUpdatePotDetailsContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadUpdatePotDetailsContext(potId));
+				return delegate.loadUpdatePotDetailsContext(potId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public UpdatePotShareholdersDetailsContext loadUpdatePotShareholdersDetailsContext(
+			public Optional<UpdatePotShareholdersDetailsContext> loadUpdatePotShareholdersDetailsContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadUpdatePotShareholdersDetailsContext(potId));
+				return delegate.loadUpdatePotShareholdersDetailsContext(potId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public UpdatePotShareholdersWeightsContext loadUpdatePotShareholdersWeightsContext(
+			public Optional<UpdatePotShareholdersWeightsContext> loadUpdatePotShareholdersWeightsContext(
 					com.kartaguez.pocoma.domain.pot.value.id.PotId potId) {
-				return capture(delegate.loadUpdatePotShareholdersWeightsContext(potId));
+				return delegate.loadUpdatePotShareholdersWeightsContext(potId).map(PotCommandInvocation.this::capture);
 			}
 		};
 	}
@@ -88,21 +89,21 @@ final class PotCommandInvocation implements EventPublisherPort {
 	ExpenseContextPort recording(ExpenseContextPort delegate) {
 		return new ExpenseContextPort() {
 			@Override
-			public DeleteExpenseContext loadDeleteExpenseContext(
+			public Optional<DeleteExpenseContext> loadDeleteExpenseContext(
 					com.kartaguez.pocoma.domain.pot.value.id.ExpenseId expenseId) {
-				return capture(delegate.loadDeleteExpenseContext(expenseId));
+				return delegate.loadDeleteExpenseContext(expenseId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(
+			public Optional<UpdateExpenseDetailsContext> loadUpdateExpenseDetailsContext(
 					com.kartaguez.pocoma.domain.pot.value.id.ExpenseId expenseId) {
-				return capture(delegate.loadUpdateExpenseDetailsContext(expenseId));
+				return delegate.loadUpdateExpenseDetailsContext(expenseId).map(PotCommandInvocation.this::capture);
 			}
 
 			@Override
-			public UpdateExpenseSharesContext loadUpdateExpenseSharesContext(
+			public Optional<UpdateExpenseSharesContext> loadUpdateExpenseSharesContext(
 					com.kartaguez.pocoma.domain.pot.value.id.ExpenseId expenseId) {
-				return capture(delegate.loadUpdateExpenseSharesContext(expenseId));
+				return delegate.loadUpdateExpenseSharesContext(expenseId).map(PotCommandInvocation.this::capture);
 			}
 		};
 	}

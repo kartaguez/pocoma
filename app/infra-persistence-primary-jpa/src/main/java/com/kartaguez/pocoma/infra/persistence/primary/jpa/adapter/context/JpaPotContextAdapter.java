@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context;
 
+import java.util.Optional;
 import java.util.Objects;
 import java.util.Map;
 import java.util.Set;
@@ -47,86 +48,96 @@ public class JpaPotContextAdapter implements PotContextPort {
 
 	@Override
 	@Transactional(readOnly = true)
-	public AddPotShareholdersContext loadAddPotShareholdersContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
-		return new AddPotShareholdersContext(
+	public Optional<AddPotShareholdersContext> loadAddPotShareholdersContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
+		return Optional.of(new AddPotShareholdersContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()));
+				UserId.of(contextData.potHeader().creatorId())));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public CreateExpenseContext loadCreateExpenseContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
+	public Optional<CreateExpenseContext> loadCreateExpenseContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
 				potId, contextData.potGlobalVersion().version());
-		return new CreateExpenseContext(
+		return Optional.of(new CreateExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
-				shareholderRelations.shareholderUsers());
+				shareholderRelations.shareholderUsers()));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public DeletePotContext loadDeletePotContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
-		return new DeletePotContext(
+	public Optional<DeletePotContext> loadDeletePotContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
+		return Optional.of(new DeletePotContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()));
+				UserId.of(contextData.potHeader().creatorId())));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UpdatePotDetailsContext loadUpdatePotDetailsContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
-		return new UpdatePotDetailsContext(
+	public Optional<UpdatePotDetailsContext> loadUpdatePotDetailsContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
+		return Optional.of(new UpdatePotDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
-				contextData.potHeader().startedAtVersion());
+				contextData.potHeader().startedAtVersion()));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UpdatePotShareholdersDetailsContext loadUpdatePotShareholdersDetailsContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
+	public Optional<UpdatePotShareholdersDetailsContext> loadUpdatePotShareholdersDetailsContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
 				potId, contextData.potGlobalVersion().version());
-		return new UpdatePotShareholdersDetailsContext(
+		return Optional.of(new UpdatePotShareholdersDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
 				shareholderRelations.shareholderUsers(),
-				shareholderRelations.startedAtVersions());
+				shareholderRelations.startedAtVersions()));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UpdatePotShareholdersWeightsContext loadUpdatePotShareholdersWeightsContext(PotId potId) {
-		PotContextData contextData = loadPotContextData(potId);
+	public Optional<UpdatePotShareholdersWeightsContext> loadUpdatePotShareholdersWeightsContext(PotId potId) {
+		var found = loadPotContextData(potId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations relations = loadShareholderRelations(potId, contextData.potGlobalVersion().version());
-		return new UpdatePotShareholdersWeightsContext(contextData.potGlobalVersion(), contextData.potHeader().deleted(),
-				UserId.of(contextData.potHeader().creatorId()), relations.shareholderIds(), relations.startedAtVersions());
+		return Optional.of(new UpdatePotShareholdersWeightsContext(contextData.potGlobalVersion(), contextData.potHeader().deleted(),
+				UserId.of(contextData.potHeader().creatorId()), relations.shareholderIds(), relations.startedAtVersions()));
 	}
 
-	private PotContextData loadPotContextData(PotId potId) {
+	private Optional<PotContextData> loadPotContextData(PotId potId) {
 		Objects.requireNonNull(potId, "potId must not be null");
-		PotGlobalVersion potGlobalVersion = potGlobalVersionRepository.findById(potId.value())
-				.map(entity -> entity.toDomain())
-				.orElseThrow(() -> new BusinessEntityNotFoundException(
-						"POT_GLOBAL_VERSION",
-						"Pot global version was not found"));
+		var version = potGlobalVersionRepository.findById(potId.value());
+		if (version.isEmpty()) return Optional.empty();
+		PotGlobalVersion potGlobalVersion = version.orElseThrow().toDomain();
 		JpaPotHeaderEntity potHeader = potHeaderRepository
 				.findActiveAtVersion(potId.value(), potGlobalVersion.version())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"POT_HEADER",
 						"Pot header active at current version was not found"));
-		return new PotContextData(potGlobalVersion, potHeader);
+		return Optional.of(new PotContextData(potGlobalVersion, potHeader));
 	}
 
 	private ShareholderRelations loadShareholderRelations(PotId potId, long version) {

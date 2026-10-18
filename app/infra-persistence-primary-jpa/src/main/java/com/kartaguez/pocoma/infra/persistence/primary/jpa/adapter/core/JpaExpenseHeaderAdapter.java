@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeader;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseHeaderPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseHeaderEntity;
@@ -67,7 +67,7 @@ public class JpaExpenseHeaderAdapter implements ExpenseHeaderPort {
 				nextVersion.version());
 
 		if (updatedRows != 1) {
-			throw new VersionConflictException("Expense header has been modified by another operation");
+			throw new AggregateTransitionConsistencyException("Expense header has been modified by another operation");
 		}
 
 		repository.save(JpaExpenseHeaderEntity.from(expenseHeader, nextVersion.version(), null));

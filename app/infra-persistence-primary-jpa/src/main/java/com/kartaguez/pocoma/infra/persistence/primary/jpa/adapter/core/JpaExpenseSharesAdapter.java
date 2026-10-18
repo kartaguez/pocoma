@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundException;
-import com.kartaguez.pocoma.engine.write.pot.exception.VersionConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException;
 import com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.ExpenseSharesPort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.core.JpaExpenseHeaderEntity;
@@ -92,7 +92,7 @@ public class JpaExpenseSharesAdapter implements ExpenseSharesPort {
 				currentVersion.version(),
 				nextVersion.version());
 		if (updatedRows != activeEntities.size()) {
-			throw new VersionConflictException("Expense shares have been modified by another operation");
+			throw new AggregateTransitionConsistencyException("Expense shares have been modified by another operation");
 		}
 
 		saveEntities(expenseId, expenseShares, nextVersion.version());

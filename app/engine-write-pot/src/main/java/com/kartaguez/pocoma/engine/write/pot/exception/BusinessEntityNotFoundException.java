@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.engine.write.pot.exception;
 
 import java.util.Objects;
 
+/** Unexpected missing persisted fact after business reference resolution. Never a business rejection. */
 public final class BusinessEntityNotFoundException extends RuntimeException {
 
 	private final String entityCode;

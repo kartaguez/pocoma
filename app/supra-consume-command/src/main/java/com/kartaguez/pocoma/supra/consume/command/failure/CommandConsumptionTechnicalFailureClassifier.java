@@ -8,6 +8,12 @@ import java.sql.SQLTimeoutException;
 import java.sql.SQLTransientConnectionException;
 import java.sql.SQLTransientException;
 import java.time.Clock;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
+import com.kartaguez.pocoma.engine.write.pot.exception.PotVersionCasConflictException;
+import com.kartaguez.pocoma.engine.write.pot.exception.AggregateTransitionConsistencyException;
+import com.kartaguez.pocoma.engine.exception.consumption.ConsumptionTransactionResolutionException;
 
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailure;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCode;
@@ -46,6 +52,12 @@ public final class CommandConsumptionTechnicalFailureClassifier implements Consu
 	}
 
 	private static Classification classificationFor(RuntimeException failure) {
+		if (failure instanceof ConsumptionTransactionResolutionException resolution
+				&& resolution.outcome() != ConsumptionTransactionResolutionException.Outcome.ROLLED_BACK)
+			throw new IllegalArgumentException("Only confirmed rollback may be classified", failure);
+		if (contains(failure, AggregateTransitionConsistencyException.class))
+			return terminal("AGGREGATE_TRANSITION_INCONSISTENT", CommandConsumptionFailureCategory.COMMAND_TECHNICAL_INVARIANT);
+		if (contains(failure, PotVersionCasConflictException.class)) return transientFailure("POT_VERSION_CAS_CONFLICT");
 		if (failure instanceof BindingFenceConflictException) return transientFailure("BINDING_FENCE_CONFLICT");
 		if (failure instanceof RecordedCommandNotFoundException) {
 			return terminal("COMMAND_NOT_FOUND", CommandConsumptionFailureCategory.COMMAND_INPUT_NOT_FOUND);
@@ -81,6 +93,19 @@ public final class CommandConsumptionTechnicalFailureClassifier implements Consu
 		}
 		if (failure instanceof SQLTransientException) return transientFailure("TRANSIENT_INFRASTRUCTURE_ERROR");
 		return terminal("COMMAND_EXECUTION_FAILURE", CommandConsumptionFailureCategory.COMMAND_EXECUTION_FAILURE);
+	}
+
+	private static boolean contains(Throwable failure, Class<? extends Throwable> type) {
+		return contains(failure, type, Collections.newSetFromMap(new IdentityHashMap<>()));
+	}
+
+	private static boolean contains(Throwable failure, Class<? extends Throwable> type, Set<Throwable> visited) {
+		if (failure == null || !visited.add(failure)) return false;
+		if (type.isInstance(failure) || contains(failure.getCause(), type, visited)) return true;
+		for (Throwable suppressed : failure.getSuppressed()) {
+			if (contains(suppressed, type, visited)) return true;
+		}
+		return false;
 	}
 
 	private static SQLException sqlCause(Throwable failure) {

@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.write.pot.service;
 
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -261,9 +262,9 @@ class UpdateExpenseDetailsServiceTest {
 		}
 
 		@Override
-		public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
+		public Optional<UpdateExpenseDetailsContext> loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
 			loadedExpenseId = expenseId;
-			return context;
+			return Optional.of(context);
 		}
 	}
 

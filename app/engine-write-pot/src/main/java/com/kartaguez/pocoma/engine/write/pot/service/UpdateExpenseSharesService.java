@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.ExpenseShares;
 import com.kartaguez.pocoma.domain.pot.association.ExpenseShare;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
@@ -73,7 +74,9 @@ final class UpdateExpenseSharesService implements UpdateExpenseSharesUseCase {
 				.map(ExpenseShare::shareholderId)
 				.collect(Collectors.toSet());
 		UpdateExpenseSharesContext context = Objects.requireNonNull(
-				loadUpdateExpenseSharesContextPort.loadUpdateExpenseSharesContext(expenseId),
+				loadUpdateExpenseSharesContextPort.loadUpdateExpenseSharesContext(expenseId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"EXPENSE_HEADER", "Business reference was not found")),
 				"updateExpenseSharesContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 		PotId potId = currentVersion.potId();

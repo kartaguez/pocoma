@@ -12,7 +12,13 @@ import java.util.Objects;
 /** Local owner guard; stores and internal participants keep their REQUIRED runner. */
 public final class ConsumptionOwnerTransactionRunner implements TransactionRunner {
 	private final TransactionRunner delegate;
-	public ConsumptionOwnerTransactionRunner(TransactionRunner delegate) { this.delegate = Objects.requireNonNull(delegate); }
+	private final boolean preserveActionFailure;
+	public ConsumptionOwnerTransactionRunner(TransactionRunner delegate) { this(delegate, false); }
+	/** COMMAND opts in to keeping its technical cause when transaction resolution replaces it. */
+	public ConsumptionOwnerTransactionRunner(TransactionRunner delegate, boolean preserveActionFailure) {
+		this.delegate = Objects.requireNonNull(delegate);
+		this.preserveActionFailure = preserveActionFailure;
+	}
 	public static void requireNoAmbientTransaction() {
 		if (TransactionSynchronizationManager.isActualTransactionActive()
 				|| TransactionSynchronizationManager.isSynchronizationActive())
@@ -35,6 +41,11 @@ public final class ConsumptionOwnerTransactionRunner implements TransactionRunne
 			});
 		} catch (RuntimeException failure) {
 			if (completion[0] == TransactionSynchronization.STATUS_ROLLED_BACK && actionFailure[0] == failure) throw failure;
+			// A transaction manager can replace the application error during resolution.
+			// Preserve it on the cause classified only after confirmed rollback.
+			if (preserveActionFailure && actionFailure[0] != null && actionFailure[0] != failure
+					&& java.util.Arrays.stream(failure.getSuppressed()).noneMatch(value -> value == actionFailure[0]))
+				failure.addSuppressed(actionFailure[0]);
 			var outcome = completion[0] == TransactionSynchronization.STATUS_COMMITTED ? COMMITTED
 					: completion[0] == TransactionSynchronization.STATUS_ROLLED_BACK ? ROLLED_BACK : UNKNOWN;
 			throw new ConsumptionTransactionResolutionException(outcome, returned[0] ? COMMIT : ROLLBACK, failure);

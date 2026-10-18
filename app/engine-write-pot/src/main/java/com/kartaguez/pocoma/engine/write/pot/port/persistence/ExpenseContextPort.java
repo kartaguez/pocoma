@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.engine.write.pot.port.persistence;
 
+import java.util.Optional;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.engine.write.pot.context.DeleteExpenseContext;
 import com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseDetailsContext;
@@ -18,18 +19,21 @@ import com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContext;
  * lifecycle facts unless read again at V. Historical facts must remain stable when
  * concurrent writers advance the Pot. The caller validates the observed command version
  * and preconditions, then arbitrates V to V+1 through the Pot version CAS.</p>
+ *
+ * Empty means an unknown business reference at the initial lookup. Once ownership/version is
+ * known, missing persisted facts are technical errors and must escape the Execute transaction.
  */
 public interface ExpenseContextPort {
 
-	default DeleteExpenseContext loadDeleteExpenseContext(ExpenseId expenseId) {
+	default Optional<DeleteExpenseContext> loadDeleteExpenseContext(ExpenseId expenseId) {
 		throw new UnsupportedOperationException("DeleteExpenseContext loading is not implemented");
 	}
 
-	default UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
+	default Optional<UpdateExpenseDetailsContext> loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
 		throw new UnsupportedOperationException("UpdateExpenseDetailsContext loading is not implemented");
 	}
 
-	default UpdateExpenseSharesContext loadUpdateExpenseSharesContext(ExpenseId expenseId) {
+	default Optional<UpdateExpenseSharesContext> loadUpdateExpenseSharesContext(ExpenseId expenseId) {
 		throw new UnsupportedOperationException("UpdateExpenseSharesContext loading is not implemented");
 	}
 }

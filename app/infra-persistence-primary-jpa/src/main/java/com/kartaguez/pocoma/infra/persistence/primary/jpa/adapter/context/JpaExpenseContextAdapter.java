@@ -1,5 +1,6 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context;
 
+import java.util.Optional;
 import java.util.Objects;
 import java.util.List;
 import java.util.HashSet;
@@ -57,49 +58,55 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 
 	@Override
 	@Transactional(readOnly = true)
-	public DeleteExpenseContext loadDeleteExpenseContext(ExpenseId expenseId) {
-		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+	public Optional<DeleteExpenseContext> loadDeleteExpenseContext(ExpenseId expenseId) {
+		var found = loadExpenseContextData(expenseId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
 				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
-		return new DeleteExpenseContext(
+		return Optional.of(new DeleteExpenseContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderUsers(),
-				contextData.expenseHeader().startedAtVersion(), loadShareVersions(expenseId, contextData.potGlobalVersion()));
+				contextData.expenseHeader().startedAtVersion(), loadShareVersions(expenseId, contextData.potGlobalVersion())));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UpdateExpenseDetailsContext loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
-		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+	public Optional<UpdateExpenseDetailsContext> loadUpdateExpenseDetailsContext(ExpenseId expenseId) {
+		var found = loadExpenseContextData(expenseId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
 				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
-		return new UpdateExpenseDetailsContext(
+		return Optional.of(new UpdateExpenseDetailsContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
 				shareholderRelations.shareholderUsers(),
-				contextData.expenseHeader().startedAtVersion());
+				contextData.expenseHeader().startedAtVersion()));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UpdateExpenseSharesContext loadUpdateExpenseSharesContext(ExpenseId expenseId) {
-		ExpenseContextData contextData = loadExpenseContextData(expenseId);
+	public Optional<UpdateExpenseSharesContext> loadUpdateExpenseSharesContext(ExpenseId expenseId) {
+		var found = loadExpenseContextData(expenseId);
+		if (found.isEmpty()) return Optional.empty();
+		var contextData = found.orElseThrow();
 		ShareholderRelations shareholderRelations = loadShareholderRelations(
 				contextData.potGlobalVersion().potId(), contextData.potGlobalVersion().version());
-		return new UpdateExpenseSharesContext(
+		return Optional.of(new UpdateExpenseSharesContext(
 				contextData.potGlobalVersion(),
 				contextData.expenseHeader().deleted(),
 				contextData.potHeader().deleted(),
 				UserId.of(contextData.potHeader().creatorId()),
 				shareholderRelations.shareholderIds(),
 				shareholderRelations.shareholderUsers(),
-				loadShareVersions(expenseId, contextData.potGlobalVersion()));
+				loadShareVersions(expenseId, contextData.potGlobalVersion())));
 	}
 
 	private List<Long> loadShareVersions(ExpenseId expenseId, PotGlobalVersion version) {
@@ -113,14 +120,12 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 		return shares.stream().map(share -> share.startedAtVersion()).toList();
 	}
 
-	private ExpenseContextData loadExpenseContextData(ExpenseId expenseId) {
+	private Optional<ExpenseContextData> loadExpenseContextData(ExpenseId expenseId) {
 		Objects.requireNonNull(expenseId, "expenseId must not be null");
 		// This first read identifies ownership only; its lifecycle may precede the version read.
-		PotId potId = expenseHeaderRepository.findCurrentActive(expenseId.value())
-				.map(entity -> PotId.of(entity.potId()))
-				.orElseThrow(() -> new BusinessEntityNotFoundException(
-						"EXPENSE_HEADER",
-						"Current active expense header was not found"));
+		var owner = expenseHeaderRepository.findCurrentActive(expenseId.value());
+		if (owner.isEmpty()) return Optional.empty();
+		PotId potId = PotId.of(owner.orElseThrow().potId());
 		PotGlobalVersion potGlobalVersion = potGlobalVersionRepository.findById(potId.value())
 				.map(entity -> entity.toDomain())
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
@@ -141,7 +146,7 @@ public class JpaExpenseContextAdapter implements ExpenseContextPort {
 				.orElseThrow(() -> new BusinessEntityNotFoundException(
 						"POT_HEADER",
 						"Pot header active at current version was not found"));
-		return new ExpenseContextData(potGlobalVersion, expenseHeader, potHeader);
+		return Optional.of(new ExpenseContextData(potGlobalVersion, expenseHeader, potHeader));
 	}
 
 	private ShareholderRelations loadShareholderRelations(PotId potId, long version) {

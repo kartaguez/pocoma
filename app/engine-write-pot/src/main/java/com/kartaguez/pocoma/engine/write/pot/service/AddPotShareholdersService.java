@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationException;
 import com.kartaguez.pocoma.domain.pot.aggregate.PotShareholders;
 import com.kartaguez.pocoma.domain.pot.authorization.AuthorizationTarget;
 import com.kartaguez.pocoma.domain.pot.authorization.PotAction;
@@ -67,7 +68,9 @@ final class AddPotShareholdersService implements AddPotShareholdersUseCase {
 		// 2. Load the precondition context needed by this modification use case.
 		PotId potId = PotId.of(command.potId());
 		AddPotShareholdersContext context = Objects.requireNonNull(
-				loadAddPotShareholdersContextPort.loadAddPotShareholdersContext(potId),
+				loadAddPotShareholdersContextPort.loadAddPotShareholdersContext(potId)
+						.orElseThrow(() -> new BusinessRuleViolationException(
+								"POT_GLOBAL_VERSION", "Business reference was not found")),
 				"addPotShareholdersContext must not be null");
 		PotGlobalVersion currentVersion = context.potGlobalVersion();
 
