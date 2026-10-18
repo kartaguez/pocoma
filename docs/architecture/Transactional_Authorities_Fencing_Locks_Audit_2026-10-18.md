@@ -2,7 +2,7 @@
 
 Date : 2026-10-18. **Audit statique du checkout local**, sans changement runtime et sans décision TARGET. Référentiel : `90926a5ec37d1ca841e3de017bec0d1f705d8839`, branche `feat/runtime-monolith`.
 
-> **Résolution R03 : PASS, voir section J.** La section I conserve la preuve rouge initiale `DEFECT_CONFIRMED`. Voir section I pour les trois tests PostgreSQL (un rouge métier conservé) et les limites de la preuve. Le corps A–H conserve les conclusions de l’audit statique initial.
+> **R03 clôturé et intégré localement : PASS, sections J et K.** La section I conserve la preuve rouge initiale `DEFECT_CONFIRMED`. Le corps A–H conserve les conclusions de l’audit statique initial. La reprise de l'étude de numérotation tardive est liée en K.
 
 ## A. Executive summary
 
@@ -715,3 +715,21 @@ Extraits conservés dans [preuve de résolution](../testing/evidence/Expense_Con
 - Test non committé, audit transversal et preuve rouge transférés par **copie explicite** ; égalité byte à byte vérifiée avant toute modification. SHA-256 initiaux : test `13ccfca8dbdfe2a51a7469c6d9ed3b7670c25e0073d189cdbb1ef8b4c9f96069`, audit `9946491d247f55a255d6b319974ab5e3efaeecc4daef4d7ce6c253c8254409ec`, preuve rouge `81ce198fa5c655f8bc0bae3809796c0c0dcdc0123afc2c9a7c844565b937d839`.
 - Tous les chemins modifiés/non suivis du checkout initial ont été inventoriés et comparés par SHA-256 (absence du chemin supprimé incluse) avant livraison ; aucun changement préexistant perdu ou modifié. Keycloak, Bruno et docs/README restent exclusivement dans le checkout initial.
 - Diff de livraison limité à deux fichiers production (adapter et Javadoc du port), test repris/complété, audit, preuve rouge originale et preuve de résolution. Aucun changement hors périmètre. `git diff --check` du correctif sans erreur. Commit local sur la branche dédiée ; son identifiant est fourni dans le compte rendu de livraison. Aucune fusion main, aucun push.
+
+
+## K. Clôture R03 après intégration contrôlée (2026-10-18)
+
+Le merge local `322042de` conserve `675533e7` et incorpore les deux commits
+origin `4158de69` et `2eef3ab9`, sans conflit ni nouveau changement de
+production. **91 tests ciblés PASS**, dont 34 PostgreSQL et 4 gardes
+structurels Binding. Les 76 tests du correctif initial sont inclus.
+
+Voir le [rapport d'intégration et les commandes](../testing/evidence/Expense_Context_Integration_Report_2026-10-18.md).
+R03 est clôturé pour les writers applicatifs examinés ; la limite sur les
+réécritures rétroactives documentée en J reste applicable. Les états de dettes
+A–H sont historiques ; la résolution Binding apportée par les commits distants
+figure dans [Resolution_Guard](../debts/BINDING_LOCK_ORDER_GUARD/Resolution_Guard_2026-10-16.md).
+
+L'invariant de préparation à V est conservé dans la
+[reprise de l'étude de numérotation tardive](Event_Late_Numbering_Study_2026-10-18.md).
+Cette étude n'introduit aucune optimisation runtime.

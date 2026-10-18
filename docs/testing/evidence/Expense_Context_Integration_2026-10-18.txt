@@ -1,0 +1,30 @@
+Source: /private/tmp/pocoma-integration-slices.log
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s -- in com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest
+[INFO] Tests run: 33, Failures: 0, Errors: 0, Skipped: 0
+R03 R03 rejected, no A effects pot=40984b2e-0015-4c02-aff2-0a26cd9fdda3 version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 CAS lost, no A effects pot=721d3faa-d707-4c64-b5bd-69b4c9dfb64f version=6 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}, {version=6}] headers=[{started_at_version=5, ended_at_version=6, deleted=false}, {started_at_version=6, ended_at_version=null, deleted=true}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[{event_type=EXPENSE_DELETED, version=6}]
+R03 rollback after Event flush, no durable effects pot=a3b5b6fc-4091-4a0d-9108-4b7b619d1153 version=5 metadata=[{version=1}, {version=2}, {version=3}, {version=4}, {version=5}] headers=[{started_at_version=5, ended_at_version=null, deleted=false}] shares=[{started_at_version=5, ended_at_version=null, weight_numerator=1, weight_denominator=1}] events=[]
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.278 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.381 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.216 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.174 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.308 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.193 s -- in com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest
+[INFO] Tests run: 46, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.615 s -- in com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimePostgresTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  19.499 s
+
+Source: /private/tmp/pocoma-integration-guard.log
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.278 s -- in com.kartaguez.pocoma.architecture.BindingLockOwnershipTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  7.601 s
+
