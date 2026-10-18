@@ -11,6 +11,7 @@ Cet index distingue les preuves du runtime et les propositions TARGET. Les SHA e
 | Variantes A/B de numérotation Event | [Comparaison](Event_Late_Transactional_Numbering_Study_2026-10-18.md) | Étude historique avant report de R03 sur le checkout analysé |
 | Verrouillage tardif | [Viabilité](Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md) | Viabilité conditionnelle, aucune nouvelle preuve PostgreSQL |
 | Protocole transactionnel consolidé | [Mutation, autorités et publication ordonnée](Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md) | **RÉFÉRENCE ARCHITECTURALE DE REVUE LA PLUS RÉCENTE — TARGET NON IMPLÉMENTÉ**, analyse de `116f4e4a` |
+| Chantier A : versionnement et obsolescence des commandes Pot | [Contrat, inventaire et matrice](Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md) | **A.2 — READY_WITH_DECISIONS**, analyse de `62a57c78` ; conflits par composantes écrites, matrice 49 C / 18 O / 14 X / 9 U / 10 N/A ; verdict historique A conservé, aucune implémentation |
 
 Dans la dernière étude, `observedVersion` / `workingVersion`, l'obsolescence par BusinessEvents et l'ordre proposé des autorités sont une **conception en cours**. **EventPublication est une proposition architecturale non implémentée**. Aucun choix de cette étude n'est promu en décision livrée par cette consolidation.
 
