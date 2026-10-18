@@ -11,9 +11,9 @@ Cet index distingue les preuves du runtime et les propositions TARGET. Les SHA e
 | Variantes A/B de numérotation Event | [Comparaison](Event_Late_Transactional_Numbering_Study_2026-10-18.md) | Étude historique avant report de R03 sur le checkout analysé |
 | Verrouillage tardif | [Viabilité](Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md) | Viabilité conditionnelle, aucune nouvelle preuve PostgreSQL |
 | Protocole transactionnel consolidé | [Mutation, autorités et publication ordonnée](Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md) | **RÉFÉRENCE ARCHITECTURALE DE REVUE LA PLUS RÉCENTE — TARGET NON IMPLÉMENTÉ**, analyse de `116f4e4a` |
-| Chantier A : versionnement et obsolescence des commandes Pot | [Contrat, inventaire et matrice](Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md) | **A.2 — READY_WITH_DECISIONS**, analyse de `62a57c78` ; conflits par composantes écrites, matrice 49 C / 18 O / 14 X / 9 U / 10 N/A ; verdict historique A conservé, aucune implémentation |
+| Chantier A : versionnement et obsolescence des commandes Pot | [Contrat, inventaire et matrice](Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md) | **A.3 — READY_FOR_IMPLEMENTATION**, analyse de `0062e5e4` ; F1–F11 ACCEPTED, certification prospective bornée, décodage strict, types durables V2 observedVersion et traitement technique Undetermined ; matrice A.2 conservée ; A/A.2 historiques, aucune implémentation |
 
-Dans la dernière étude, `observedVersion` / `workingVersion`, l'obsolescence par BusinessEvents et l'ordre proposé des autorités sont une **conception en cours**. **EventPublication est une proposition architecturale non implémentée**. Aucun choix de cette étude n'est promu en décision livrée par cette consolidation.
+La clôture documentaire A.3 fixe les décisions fonctionnelles F1–F11 et les contrats cibles `observedVersion` / `workingVersion`, de certification historique et de traitement `Undetermined`. **Le runtime cible n’est pas implémenté et les historiques déployés ne sont pas certifiés par cette étude. EventPublication reste une proposition architecturale non implémentée**, hors périmètre A.3. Les conclusions des études précédentes conservent leur référence historique.
 
 ## Preuves R03 conservées
 

@@ -2,7 +2,7 @@
 
 Étude canonique de conception, 18 octobre 2026. **TARGET NON IMPLÉMENTÉ**. Audit statique, sans tests, Maven, SQL exécuté, benchmark ou modification runtime. Ce rapport complète l’[index transactionnel](transactional-protocol-studies.md) et ne remplace aucun rapport historique.
 
-> **Révision courante : [Chantier A.2, sections L à V](#l-chantier-a2--révision-par-conflits-décriture-18-octobre-2026), verdict READY_WITH_DECISIONS.** Les sections A à K ci-dessous sont conservées comme historique ; la matrice A.2 remplace leur politique de protection des lectures.
+> **Révision courante : [Chantier A.3, sections W à AF](#w-chantier-a3--clôture-du-contrat-dobsolescence-18-octobre-2026), verdict READY_FOR_IMPLEMENTATION.** F1–F11 ACCEPTED ; certification, décodage strict, observedVersion durable et Undetermined définis. Les sections A à K et L à V sont conservées comme historique ; la matrice A.2 reste la politique de conflits d’écriture, clôturée par A.3.
 
 ## A. Executive summary et référence
 
@@ -591,3 +591,301 @@ Slices déclarées/exécutées : **NONE** ; franchissement inattendu : **NONE** 
 ### Livraison documentaire ultérieure autorisée
 
 Après clôture de la revue A.2, l’utilisateur a explicitement demandé de pousser le rapport, levant pour cette livraison l’interdiction initiale de push. Le commit documentaire réunit le rapport A historique non committé, sa révision A.2 et leur seule entrée d’index. Les constats Git de A et A.2 ci-dessus décrivent leur état avant cette livraison. Aucun runtime, test, migration ou autre travail préexistant n’est inclus ; les limites de vérification restent inchangées.
+
+---
+
+## W. Chantier A.3 — Clôture du contrat d’obsolescence (18 octobre 2026)
+
+**Verdict A.3 : READY_FOR_IMPLEMENTATION. TARGET NON IMPLÉMENTÉ.** F1–F11 sont ACCEPTED. La politique de conflits d’écriture de M–S est retenue avec les précisions ci-dessous. Les lacunes de certification, décodage, livraison durable et classification sont des tâches bornées d’implémentation ; elles n’autorisent pas encore l’acceptation de commandes anciennes. Aucune nouvelle étude générale ni enrichissement des payloads métier valides n’est requis. Les conclusions A/A.2 restent historiques, intégralement conservées.
+
+### W.1 Base et périmètre de preuve
+
+Analyse exclusive de `/private/tmp/pocoma-consumption-transaction-protocol`, branche `feat/consumption-transaction-protocol`, HEAD initial `0062e5e406bdd775c73cc97b844ef7ef30c0a1fa`. Worktree propre à l’entrée ; `git fetch origin` effectué ; divergence initiale `HEAD...origin/feat/consumption-transaction-protocol` : **0/0** ; aucune évolution depuis le dernier SHA connu. R03 confirmé par ascendance de `675533e7`, relecture du loader et des adapters Expense, et présence du test intégré. Les résultats PostgreSQL du [rapport R03](../testing/evidence/Expense_Context_Integration_Report_2026-10-18.md) restent historiques, non réexécutés.
+
+Politique normative lue, copie du worktree identique au checkout initial. **Slices déclarées : NONE ; impact production attendu/observé : NONE ; lecture statique COMMAND et contrats connexes ; éditions limitées au présent rapport et à son index. Gate global NOT REQUIRED ; full reactor NOT REQUIRED/non exécuté ; vérification DB NONE.** Maven, tests, migrations, SQL, benchmark et implémentation interdits dans A.3. Aucun franchissement inattendu. Aucun merge, rebase, reset ou clean. Les autres worktrees et leurs travaux sont préservés.
+
+Les références transactionnelles de A/L et l’[étude consolidée](Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md), notamment ses sections B/E/G/H, restent applicables. La présente clôture ne rouvre pas EventPublication. Les références de code A.3 sont regroupées en AF et identifiées par leur nom dans les constats.
+
+Statuts A.3 : **PROVEN_BY_CODE** = propriété constatée dans les chemins de code nommés ; **PROVEN_BY_DATABASE** = contrainte définie par les migrations du dépôt, sans attestation du schéma déployé ; **ASSUMED** = dépendance opérationnelle non vérifiée ; **GAP** = garantie absente ou preuve insuffisante. Un contrat **TARGET** ci-dessous est une prescription à implémenter, jamais une preuve du runtime actuel.
+
+## X. Registre fonctionnel définitif
+
+| ID | Statut | Contrat définitif |
+|---|---|---|
+| F1 | ACCEPTED | Deux écritures ExpenseDetails du même E sont incompatibles, même sur des champs effectivement différents ou avec valeurs égales. |
+| F2 | ACCEPTED | ExpenseDetails et ExpenseShares sont indépendantes. |
+| F3 | ACCEPTED | ShareholderDetails et ShareholderWeights sont indépendantes. |
+| F4 | ACCEPTED | DeleteExpense(E) devient obsolète après toute modification de E depuis O. |
+| F5 | ACCEPTED | DeletePot(P) devient obsolète après toute mutation de P ou de ses enfants depuis O. |
+| F6 | ACCEPTED | Deux ajouts de Shareholders de même nom sont autorisés avec des IDs distincts. |
+| F7 | ACCEPTED | Deux créations d’Expenses de même contenu sont autorisées avec des IDs distincts. |
+| F8 | ACCEPTED | UpdateExpenseShares reste compatible avec un changement intermédiaire du montant ; ses shares s’appliquent au montant courant à V. |
+| F9 | ACCEPTED | Poids par défaut : S distincts indépendants, même S incompatible. Ce contrat concerne UpdatePotShareholdersWeights. |
+| F10 | ACCEPTED | Une commande peut référencer un S créé après O ; présence, appartenance et droits sont validés à V. |
+| F11 | ACCEPTED | Une suppression répétée n’est pas automatiquement un succès idempotent. |
+
+**Règle ACCEPTED : protéger les objets/composantes écrits, réévaluer lectures, préconditions et autorisations à V, sans élargissement implicite des écritures.** F9 ne concerne pas les shares d’une Expense : UpdateExpenseShares remplace toute la répartition de E ; deux remplacements du même E sont incompatibles même avec bénéficiaires disjoints. F6/F7 concernent des commandes distinctes ; ils n’exigent pas de préserver deux éléments égaux qu’un `Set` d’input déduplique déjà. Ils ne permettent pas d’écraser un ID existant.
+
+F4/F5 clôturent la confirmation destructive encore ouverte en M/V. Les 100 cases A.2 (49 C / 18 O / 14 X / 9 U / 10 N/A) ne changent pas : les neuf PC anormaux restent U. L’existence d’un conflit ne dispense pas de signaler une corruption de l’intervalle ; aucun historique partiellement décodé n’est certifié. CreatePot reste hors comparaison O/V.
+
+## Y. Writers, fidélité et complétude historiques
+
+### Y.1 Les dix chemins métier
+
+Chaque ligne renvoie aux services et liens C.4, relus pour A.3. Sur succès, un appel `publish` exactement, hors boucle ; les lots Shareholders et les deux agrégats CreateExpense ne multiplient pas les BusinessEvents. Une écriture de valeur identique reste une écriture de sa composante.
+
+| Writer | Version et persistance | Empreinte du BusinessEvent unique | Preuve bornée |
+|---|---|---|---|
+| CreatePotService | `save` V1 + metadata + nouveau header | POT_CREATED : P, lifecycle/details et creator initial | PROVEN_BY_CODE |
+| UpdatePotDetailsService | CAS V→V+1, fermeture/insertion header | POT_DETAILS_UPDATED : PotDetails(P) | PROVEN_BY_CODE |
+| DeletePotService | CAS, header tombstone ; pas de cascade physique | POT_DELETED : destruction PotTree(P) | PROVEN_BY_CODE |
+| AddPotShareholdersService | CAS, insertion des seuls IDs ajoutés | POT_SHAREHOLDERS_ADDED : ensemble exact des nouveaux S, création de leurs composantes | PROVEN_BY_CODE |
+| UpdatePotShareholdersDetailsService | CAS, fermeture/insertion des seuls S modifiés | POT_SHAREHOLDERS_DETAILS_UPDATED : Details(S) pour `updatedShareholderIds` | PROVEN_BY_CODE |
+| UpdatePotShareholdersWeightsService | CAS, mêmes opérations sur S ciblés, détails conservés | POT_SHAREHOLDERS_WEIGHTS_UPDATED : Weights(S) pour `updatedShareholderIds` | PROVEN_BY_CODE |
+| CreateExpenseService | Un CAS, nouveau header et toutes les shares | EXPENSE_CREATED : création de l’objet E complet | PROVEN_BY_CODE |
+| UpdateExpenseDetailsService | CAS, header remplacé, shares conservées | EXPENSE_DETAILS_UPDATED : Details(E) | PROVEN_BY_CODE |
+| UpdateExpenseSharesService | CAS, jeu complet des shares remplacé, header conservé | EXPENSE_SHARES_UPDATED : Shares(E) | PROVEN_BY_CODE |
+| DeleteExpenseService | CAS, header tombstone, shares historiques conservées | EXPENSE_DELETED : destruction ExpenseObject(E) | PROVEN_BY_CODE |
+
+`PotShareholders` marque chaque S mis à jour, conserve la composante complémentaire, et expose les mêmes ensembles à l’adapter et à l’Event. `JpaPotShareholdersAdapter` ne ferme que ces S et insère les IDs ajoutés séparément. Les autres adapters core ferment/insèrent à N ; leur cardinalité est contrôlée (1 header ou le nombre de shares/lignes attendu). La fidélité utile à la policy porte sur l’objet et la composante, pas les valeurs avant/après. Les dix Events suffisent donc à F1–F11 sur données valides.
+
+### Y.2 Chemin composé et contournements
+
+| Autorité / writer effectif | Garantie constatée | Limite et statut |
+|---|---|---|
+| PotCommandBindingConfiguration → dix UseCaseAdapters → factory/services | Catalogue runtime des dix commandes ; `PotCommandInvocation` capture Events et version d’input | PROVEN_BY_CODE ; la factory publique seule n’est pas un propriétaire transactionnel |
+| ExecuteRecordedCommandService → JpaPotCommandEventAppendAdapter | Append après succès, vérification du nombre d’artifacts ; append SQL `MANDATORY`, `saveAllAndFlush` | PROVEN_BY_CODE ; l’exécuteur générique accepte aussi succès sans Event et listes multiples, aucune assertion « un Event par version » spécifique Pot |
+| TransactionalExecuteConsumptionUseCase / ConsumptionOwnerTransactionRunner | Owner sans transaction ambiante ; les participants REQUIRED rejoignent la transaction ; commit confirmé obligatoire | PROVEN_BY_CODE dans ce wiring ; ne pas extrapoler à un appel direct de service |
+| JpaPotGlobalVersionAdapter / repository | Seul writer production repéré de version globale ; `save` puis metadata, ou UPDATE conditionnel puis metadata | PROVEN_BY_CODE ; méthodes `@Transactional` REQUIRED utilisables seules, `saveAndFlush` peut merger un ID existant ; ni repository ni adapter n’impose N=V+1 |
+| Adapters core PotHeader, PotShareholders, ExpenseHeader, ExpenseShares | Writers temporels production repérés ; contrôles P et versions/cardinalités suivant la méthode | PROVEN_BY_CODE ; `saveNew`/`save` peuvent être appelés sans CAS ni Event, transactions locales possibles |
+| JpaBusinessEventOutboxAdapter (autre port d’append) | Ajoute un Event dans sa transaction REQUIRED | PROVEN_BY_CODE ; aucune liaison automatique avec mutation/version ; pas le port d’append du chemin Command composé |
+| Repositories JpaRepository / EntityManager / JDBC | Capacités save, update, delete héritées ou directes accessibles dans l’infrastructure | GAP : pas d’ownership universel interdisant une mutation hors protocole |
+| Migrations V1/V2/V11/V15 et suivantes | DDL et réécriture historique des types par V15 ; pas de writer métier concurrent supplémentaire repéré | PROVEN_BY_CODE ; migration administrative hors garantie runtime et à isoler de l’activation |
+| Projection, LKV, Binding, résultats/registration | Writers de leurs tables, aucun incrément Pot identifié dans leurs chemins production | PROVEN_BY_CODE pour les sources cherchées ; leurs Events/facts ne sont pas des BusinessEvents Pot |
+| Scripts SQL, opérateur, rôles déployés | Aucun mécanisme production de purge des BusinessEvents trouvé dans `app`, `scripts`, `docker` | ASSUMED : absence de purge externe, de tâche d’exploitation ou de SQL privilégié non démontrée |
+
+Recherche croisée : usages `PotGlobalVersionPort`, `JpaPotGlobalVersionRepository`, factory, publishers, appenders ; DML des cinq familles métier et outbox, repositories core, migrations, recherches purge/rétention/grants. Aucun onzième writer métier câblé trouvé. L’absence de résultat de recherche ne prouve pas l’absence d’un accès administratif déployé.
+
+### Y.3 Atomicité, rejet, rollback et SQL
+
+Dans le chemin Command composé, mutation/version/metadata, append BusinessEvents, Outcome et terminal Event, provenance puis CAS Slot et clôture Claim appartiennent à la même transaction physique. Un rejet de précondition avant DML ne crée ni nouvelle version ni BusinessEvent Pot ; il peut créer Outcome Rejected et terminal Event, qui sont d’une autre famille. Un append/fence/flush/provenance/finalisation qui échoue et traverse l’owner annule tout. `LostClaimException` n’est pas un refus métier. L’expiration de lease sans takeover ne retire pas l’autorité du Claim.
+
+**GAP de classification à corriger avant activation :** `AbstractPotCommandUseCaseAdapter` attrape aujourd’hui `VersionConflictException` comme rejet `POT_VERSION_CONFLICT`, aussi bien pour l’égalité préalable que pour CAS ou fermeture temporelle perdus. Son guard n’interdit le rejet qu’après capture d’un Event. Une erreur de fermeture peut survenir après CAS ; les adapters Spring peuvent marquer rollback-only, mais cela ne constitue pas un contrat métier sûr ni une raison de convertir le conflit technique en rejet durable. Séparer les exceptions, laisser les erreurs post-DML traverser l’owner et tester le rollback. Aucun commit partiel n’est affirmé observé par A.3.
+
+| Garantie SQL actuelle | Statut | Ce qu’elle ne prouve pas |
+|---|---|---|
+| PK `pot_global_versions(pot_id)` et UPDATE avec version attendue | PROVEN_BY_DATABASE + PROVEN_BY_CODE pour le CAS | Pas de règle SQL N=V+1, pas d’Event exigé |
+| PK metadata(P,version), version≥1, FK vers Pot, trigger rejet UPDATE/DELETE (V11) | PROVEN_BY_DATABASE | Pas de FK Event→metadata, pas d’Event obligatoire, pas de continuité de toutes les versions ; TRUNCATE/owner restent à traiter |
+| PK UUID Event, colonnes NOT NULL, CHECK dix types (V2/V15), index non unique(P,version) | PROVEN_BY_DATABASE | Ni unicité(P,version), ni JSON strict, ni fidélité/composantes, ni version≥1 dans cette table |
+| `updatable=false` sur contenu JPA Event | PROVEN_BY_CODE pour ce mapping | Pas une interdiction SQL UPDATE/DELETE/TRUNCATE ; statut/attempt restent modifiables |
+| Payload TEXT et réécriture V15 | PROVEN_BY_DATABASE pour la représentation/migration | Pas d’immutabilité SQL de contenu aujourd’hui ; V15 n’a pas validé les listes de S |
+
+**Verdict de complétude CURRENT :** un BusinessEvent par succès/version est établi statiquement pour les dix commandes conformes du chemin composé, avec atomicité de leur transaction. L’invariant universel et la fidélité de tout historique déjà déployé sont **GAP**. Aucun producteur Pot multi-Event par version n’a été trouvé ; l’API générique l’autorise cependant. Une liste avec un Event à chaque version ne prouve pas qu’aucun writer n’a fait une modification silencieuse supplémentaire. Une attestation de writers/rétention est indispensable.
+
+## Z. Certification minimale de (O,V]
+
+### Z.1 Décision technique cible bornée
+
+Retenir **exactement un BusinessEvent par version pour le catalogue Pot actuel**, y compris les lots ; ce choix correspond aux dix chemins constatés, sans contraindre les autres familles ni le moteur générique. Ajouter une assertion Pot de cardinalité/type/P/N et de cohérence avec les effets préparés, avant finalisation ; refuser un succès mutateur sans Event. Tout futur writer multi-Event doit réviser le contrat de certification avant activation (par exemple cardinalité attendue durable par version). Ne jamais compter seulement « au moins un » ou dédupliquer des Events pour rendre l’intervalle acceptable. Aucun manifeste multi-Event ni nouveau moteur de publication nécessaire ici.
+
+Le minimum est un **lecteur strict + un domaine de confiance explicite** : owner unique pour tous writers Pot autorisés, guards transactionnels empêchant les transactions autonomes des mutations, contrôle de fidélité/cardinalité, tests de rollback, rétention et protection des contenus. Un UNIQUE(P,version) peut renforcer l’unicité mais ne prouve pas l’existence ; un FK metadata ne prouve pas la fidélité. Ils ne remplacent pas ce minimum. Pour éviter une migration inutile sur des données anciennes inconnues, l’unicité est contrôlée par le lecteur et le producteur dans ce premier incrément ; aucun UNIQUE global sur l’ancien outbox n’est requis par A.3.
+
+**Activation durable choisie :** ajouter à `pot_global_versions` une borne nullable `history_certified_from_version=B`. NULL = aucune attestation. Après exclusion des anciens writers, durcissement et validation du wiring, initialiser les Pots existants à leur version courante B dans une opération contrôlée, writers arrêtés ; les nouvelles créations initialisent B=1 dans leur transaction. L’attestation couvre les mutations strictement après B ; elle n’invente aucune preuve pour 1…B. Le rôle runtime ne peut modifier cette borne après initialisation ; CHECK 1≤B≤version, et garde d’initialisation des créations à 1. B ne diminue pas automatiquement. Absence d’attestation ou O<B avec O<V ⇒ Undetermined(HISTORY_NOT_CERTIFIED). Aucun backfill d’Events synthétiques depuis l’état courant. Certifier plus ancien demanderait des preuves de provenance et de rétention externes, pas simplement un comptage SQL ; cela n’est pas une condition d’implémentation de la voie sûre.
+
+Cette petite extension de schéma est une **migration future nécessaire** au choix d’activation ; aucune migration n’est écrite/exécutée dans A.3. Elle évite un marqueur de déploiement volatil. Le rôle runtime doit être distinct du propriétaire DDL ; interdire UPDATE du contenu et DELETE/TRUNCATE de l’outbox et des attestations, conserver seulement les updates techniques réellement nécessaires par colonnes. Vérifier les grants hérités et l’absence de maintenance concurrente. Même séparation pour `recorded_commands` afin de protéger type/payload. Aucune prétention à protéger contre le propriétaire ou le superuser ; une réparation administrative suspend la certification et suit une procédure contrôlée. Pas de trigger complexe.
+
+### Z.2 Contrat du lecteur et certificat
+
+Entrées P/O/V, catalogue Pot reconnu et attestation B ; V choisi une seule fois dans le primaire, pas une version de projection/LKV. Le lecteur participe à la même tentative, sans prendre Binding/Pot en écriture pour ses lectures.
+
+1. Vérifier 1≤O≤V, l’existence de metadata(P,O) et metadata(P,V), P et la propriété E→P si commande Expense. O hors bornes relève d’une référence invalide, pas d’un conflit démontré. Une metadata manquante pour une version dans les bornes reste un défaut d’attestation : Undetermined, sans accuser le client d’une référence inexistante. Le nombre O n’est pas une preuve cryptographique que le client a effectivement lu cet état ; son honnêteté est ASSUMED, les autorisations restent obligatoires.
+2. O=V : aucun intervalle à certifier, donc pas d’exigence B pour l’historique vide ; règles courantes et validation des bornes restent nécessaires. CreatePot : NotApplicable. Pour O<V, exiger attestation présente et O≥B, et writers/rétention protégés sur tout cet intervalle.
+3. Lire sur le primaire tous les Events de P avec O<version≤V, sans filtre sur `status`, consumer, publication, date ou succès d’un worker. Utiliser ordre `(version,id)` et pagination keyset jusqu’à exhaustion réelle ; pas de limite silencieuse. Un budget dépassé donne un diagnostic technique, jamais une certification partielle.
+4. Pour chaque entier O+1…V, exiger exactement une ligne et metadata correspondante ; pas seulement `count=V-O`, MIN/MAX ou `DISTINCT version`. Détecter trous, doublons, mauvais P/versions, PC à version autre que 1, terminalité Pot incohérente et décodage AA. Vérifier sans overflow ; zéro ligne avec O<V n’est pas compatible.
+5. Produire un certificat interne immuable `(P,O,V,B,catalogue,events décodés,identités couvertes)` seulement à fin de lecture et validation complète. Pas de booléen « trusted » fourni par le caller. La policy reçoit exclusivement ce certificat. Toute anomalie donne Undetermined avant un verdict ordinaire.
+
+Sous READ COMMITTED, si le protocole certifié conserve le passé, les Events ≤V sont déjà committés avec V et ne changent plus ; les commits à V+1 ne perturbent pas la pagination bornée. Le CAS V→N détecte tout avancement pendant l’essai. Sans ces prémisses, une pagination réussie ne constitue pas une preuve de snapshot. Les bornes et les refus rendent donc le déploiement existant utilisable sans annoncer une certification rétroactive non démontrée.
+
+## AA. Audit du décodage des dix BusinessEvents
+
+Le writer `BusinessEventRecordMapper.toEnvelope` sérialise `eventType`, `potId`, **`aggregateId`**, `version` ; les trois types Shareholders ajoutent un tableau trié de S. Il n’écrit **pas de champ `expenseId`**. Le lecteur commun, utilisé notamment par `JpaEventPort` (LKV), construit les quatre Events Expense depuis `envelope.aggregateId`. Les lecteurs Discovery de métadonnées n’attestent pas le payload. Aucun lecteur complet d’intervalle destiné à la policy n’existe actuellement.
+
+| Types | Champs nécessaires à l’empreinte | CURRENT et contrat strict TARGET |
+|---|---|---|
+| POT_CREATED, POT_DELETED, POT_DETAILS_UPDATED | P/type/version ; aggregateId=P | CURRENT reconstruit depuis enveloppe ; TARGET exige aggregateId=P ; Created uniquement V1, aucun Created dans (O,V] avec O≥1 |
+| POT_SHAREHOLDERS_ADDED, POT_SHAREHOLDERS_DETAILS_UPDATED, POT_SHAREHOLDERS_WEIGHTS_UPDATED | Même enveloppe + ensemble non vide de S | CURRENT absence/non-array⇒Set vide, [] accepté par records ; TARGET tableau présent, non vide, uniquement UUID textuels canoniques sans doublons |
+| EXPENSE_CREATED, EXPENSE_DELETED, EXPENSE_DETAILS_UPDATED, EXPENSE_SHARES_UPDATED | P/type/version, E=aggregateId | CURRENT E vient de l’enveloppe ; TARGET valide E ; absence de `expenseId` JSON normale, aucune identité inventée |
+
+Cas détaillés, communs au catalogue :
+
+| Donnée | Comportement courant constaté | Décodage policy cible |
+|---|---|---|
+| shareholderIds absent/null/scalar/objet | `!isArray()` ⇒ ensemble vide | MALFORMED_EVENT pour les trois types S |
+| shareholderIds=[] | Set vide accepté par records ; services actuels ont inputs non vides et ensembles marqués | MALFORMED_EVENT ; aucune émission vide valide repérée pour ces trois types |
+| UUID S invalide ou élément non textuel | `asText` puis UUID.fromString ; erreur pour UUID invalide, coercition possible au lieu d’un contrôle de type | Contrôle textuel + format UUID canonique complet avant parsing ; refus, aucune valeur par défaut |
+| Doublons S | LinkedHashSet déduplique silencieusement | Refus avant conversion en Set, même pour doublons égaux |
+| expenseId absent | Non consulté, E=aggregateId | Valide si aggregateId valide ; ne pas exiger un champ absent du writer |
+| expenseId présent invalide/différent | Champ supplémentaire ignoré par ce mapper | Si présent pour Event Expense, doit être UUID textuel identique à aggregateId ; sinon refus ; absence reste valide |
+| aggregateId absent/invalide dans enveloppe | UUID/non-null imposés par représentation SQL/Java | Refus, aucune substitution depuis autre champ ; pour types Pot, égalité avec P requise |
+| potId/type/aggregateId/version redondants JSON absents | `verify*IfPresent` accepte l’absence | Absence admissible pour représentation historique reconnue : identité autoritative dans colonnes typées ; ce n’est pas une valeur par défaut |
+| Champs redondants présents incohérents | Refus actuel ; version utilise `longValue`, sans garde explicite de plage BigInteger | Refus strict ; entier convertible exactement en long positif, égal à colonne et borne ; pas de troncature |
+| PotId enveloppe différent du P demandé | Pas de P de requête connu par le mapper | Refus dans le lecteur ; cohérence JSON/enveloppe également requise |
+| Type inconnu | Switch Java refuse ; CHECK SQL limite dix types actuels | UNKNOWN_EVENT_TYPE, incompatibilité de catalogue ; aucun fallback |
+| JSON invalide/null/non-objet, clés répétées, tokens après objet | readTree et vérifications conditionnelles ne constituent pas un contrat strict global | Parse strict objet unique, rejet des clés répétées et tokens restants ; tout échec traduit en défaut d’intégrité |
+
+Implémenter un décodeur de **history policy dédié**, sans modifier les consommateurs LKV/Discovery par effet de bord. Les champs supplémentaires sans influence sur l’empreinte peuvent être ignorés pour un type connu ; les champs d’identité reconnus, s’ils existent, sont toujours contrôlés. Des données historiques malformées sont possibles selon les contraintes actuelles ; leur existence réelle n’est ni prouvée ni exclue sans audit des données. Pas d’enrichissement Event requis pour les dix types valides, pas de réécriture automatique ni remplacement d’une liste manquante par vide.
+
+## AB. Contrat durable observedVersion
+
+### AB.1 Chemin CURRENT et usages expectedVersion
+
+| Étape | Réalité au HEAD audité |
+|---|---|
+| API | AsyncCommandController POST `/api/v1/commands`, `SubmitCommandRequest(commandType,bindingId,Object payload)` ; validation enveloppe, sérialisation JSON, HTTP 202 avec commandId. Pas de précondition Pot évaluée ici. |
+| Admission | SubmitRecordedCommandService construit RecordedCommand avec type/payload et TargetCommandEnvelope/auth evidence, insertion transactionnelle. Aucun choix/recalcul de version Pot. |
+| Persistance | RecordedCommand immuable en Java ; `recorded_commands.payload_json` TEXT contient expectedVersion ; pas de colonne Pot version. Repository insert-only côté application, ON CONFLICT ID n’actualise pas le payload. Pas de trigger SQL d’immutabilité repéré pour cette table. |
+| Consumption / decode | Relecture durable par commandId après acquisition ; registry décode les dix types V1 ; neuf records portent expectedVersion≥1, CreatePot n’en porte pas. Jackson refuse les propriétés inconnues. |
+| Mapping / métier | PotCommandInputMapper transfère expectedVersion aux neuf inputs ; les neuf contextes comparent égalité à la version chargée ; les services transmettent ce champ aux assertions. |
+| CAS | Le paramètre repository nommé expectedVersion représente **V du contexte**, pas directement le champ client ; ne pas renommer aveuglément cet usage en observedVersion. |
+| Résultat | Invocation enregistre V comme ConsumptionInput POT ; artifacts BusinessEvent portent N comme subject ; Applied expose resultingVersion=N, sans O ; Rejected/Failed n’exposent pas de version résultante. |
+
+Inventaire des usages production `expectedVersion` : neuf records `pot/intent`, neuf inputs `engine-write-pot/input`, leurs neuf contextes/services, neuf mappings `PotCommandInputMapper`, paramètre CAS `JpaPotGlobalVersionRepository`. Les décodeurs Jackson transportent ces champs par les records. Les scripts Bruno/k6 et exemples documentaires comportent aussi ce nom ; certains scripts k6 décrivent d’anciennes routes et ne prouvent pas une API runtime supplémentaire. La chaîne type/payload est durable dès admission, avant toute exécution.
+
+### AB.2 Choix de compatibilité TARGET
+
+**Conserver les neuf types `*_V1` et leur égalité stricte expectedVersion=V. Ajouter les neuf types correspondants `*_V2` avec `observedVersion` obligatoire ; CreatePot V1 reste inchangé.** Aucun alias JSON ambigu, aucun remplissage O depuis la version actuelle. Les anciens clients et commandes déjà enregistrées gardent leur précondition stricte, même si elles sont en attente lors du déploiement. Une ancienne commande n’est pas réinterprétée silencieusement. Les neuf suffixes V2 sont des contrats proposés, pas du code déjà disponible ; leur registry et leur documentation font partie du plan.
+
+O est la version primaire logique du Pot connue par l’émetteur lors de l’émission (généralement lue dans une réponse/projection avec son PotId). Une projection retardée donne O ancien, pas V ; la version d’une Expense est celle du Pot propriétaire. O reste identique dans le payload durable pour tous claims/retries/takeovers. Admission ne la remplace pas, Consumption ne réécrit pas RecordedCommand. V est fixé par tentative sur le primaire ; N=V+1, addition contrôlée ; CAS exclusivement sur V. Pour V1, la valeur numérique peut être vue comme O mais le mode est STRICT ; pour V2 le mode est WRITE_CONFLICTS. Le mode découle du type durable, pas d’un flag mutable global.
+
+Valider syntaxe/version positive dans le contrat typé ; valider P/O/existence/O≤V en exécution. Une référence hors bornes (O<1 ou O>V) est une entrée invalide (`INVALID_OBSERVED_VERSION`, nouveau code proposé pour V2), sans attente jusqu’à cette version ; la validation syntaxique peut conserver le chemin INVALID_COMMAND_PAYLOAD existant. Une metadata absente pour O dans les bornes donne Undetermined(HISTORY_NOT_CERTIFIED), car l’absence ne distingue pas une référence inexistante d’un historique endommagé. Un échec de lecture n’est pas une référence invalide. Pas d’exigence que les S seulement référencés existaient à O (F10). Pas de confiance dans O pour autoriser une action.
+
+Transmission : JSON V2 → payload TEXT inchangé → decoder V2 → intention `(P/E,O,mode)` → lecteur/certificat → policy → contexte/candidat à V → résultat N. Séparer cette intention de la version attendue du CAS et de la validation courante des inputs métier ; ne pas simplement injecter V à la place de O dans le record durable. Conserver O dans les diagnostics internes ; provenance consommée reste V, version produite reste N. Le résultat public existant suffit, aucune nouvelle colonne Outcome ni exposition de V requise.
+
+**Migration :** aucune migration/backfill nécessaire pour stocker observedVersion : payload TEXT + command_type le permettent déjà. Ne pas modifier les lignes V1. Protéger type/payload par grants séparés ; la migration d’attestation B de Z a une autre finalité. Les contrats publics changent par extension du catalogue de commandes, même avec la même route HTTP générique ; annoncer champs, modes, refus et resultingVersion. Déployer les lecteurs V2 avant les producteurs/clients V2 et éviter qu’un ancien worker acquière un type inconnu. L’activation de commandes V2 anciennes exige les garanties Z et la disponibilité de tous les workers compatibles.
+
+## AC. Politique explicite Undetermined et résultats
+
+CURRENT : `CommandOutcome` autorise Applied, Rejected et Failed ; Failed impose déjà le code public **COMMAND_PROCESSING_FAILED**. `RecordedCommandExecutionResult` ne porte que succès/rejet ; le chemin exception puis failure handling est disponible. Le classifier Command distingue TRANSIENT et catégories terminales ; les SQLSTATE deadlock/serialization/timeout/connexion sont transitoires. `CommandConsumptionFailurePolicy` ne retry que TRANSIENT, selon la politique existante (1 s, 5 s, 30 s, puis terminal). Aucun code public Undetermined n’existe.
+
+**TARGET :** `Undetermined(reason,versions,eventIds)` est une sortie interne de la policy, convertie en exception technique typée avant DML Pot. Ne pas l’envoyer vers `Rejected` pour cacher une anomalie historique. Étendre le classifier spécialisé, conserver le moteur générique, ses fences et le contrat public Failed existant.
+
+| Situation | Sortie interne / code diagnostic proposé | Durable et Consumption | Retry / client |
+|---|---|---|---|
+| Event malformé, identité/version incohérente | Undetermined / HISTORY_INTEGRITY_FAILURE | Rollback tentative ; catégorie technique terminale, failure handling fenced écrit Failed + terminal Event, Slot DONE/FAILED | Aucun retry automatique ; client FAILED / COMMAND_PROCESSING_FAILED |
+| Trou, doublon, groupe incomplet, attestation absente, O<B | Undetermined / HISTORY_NOT_CERTIFIED | Même échec technique terminal ; absence de garantie distincte du défaut de payload | Réparation/activation requise ; aucune boucle censée recréer l’histoire ; client même Failed |
+| Type inconnu / catalogue incompatible | Undetermined / HISTORY_CATALOG_UNSUPPORTED | Terminal technique de configuration | Mettre le worker à niveau avant nouvelle soumission ; client même Failed |
+| Lecture temporairement indisponible / timeout | Incident technique, pas verdict sur le contenu ; si représenté en Undetermined, reason=HISTORY_READ_UNAVAILABLE | Rollback puis TRANSIENT ; slot replanifié, aucun Outcome terminal avant épuisement | Retry borné existant ; client en attente puis Failed si épuisé |
+| Conflit d’écriture démontré sur historique certifié | Obsolete(rule,evidence) | Rejected, nouveau code métier V2 proposé OBSOLETE_COMMAND ; pas de version/BusinessEvent Pot | Aucun retry même intention/O ; client REJECTED, doit relire/réémettre s’il le souhaite |
+| CAS V perdu ou fermeture temporelle post-CAS refusée | Conflit technique distinct, pas Undetermined métier / POT_WRITE_CONFLICT | Exception traverse owner ; rollback intégral ; classifier TRANSIENT | Nouvelle tentative avec O inchangé, nouveau V et nouvelle analyse ; échec terminal technique si épuisé |
+
+Les codes HISTORY_*, POT_WRITE_CONFLICT, OBSOLETE_COMMAND et INVALID_OBSERVED_VERSION ci-dessus sont des **ajouts ciblés proposés**, pas des codes existants constatés. Pour les défauts terminaux, réutiliser les catégories techniques invariant/configuration existantes et garder le détail dans ProcessingFailure ; aucune nouvelle valeur publique Failed ni migration de son enum n’est nécessaire. V1 conserve le code de refus préalable POT_VERSION_CONFLICT. Une incohérence de fermeture malgré CAS gagnant reste diagnostiquée précisément, même si la première réponse est une nouvelle tentative bornée.
+
+Après rollback physique confirmé seulement, HandleFailure peut replanifier ou finaliser sous le Claim encore courant. S’il est perdu, aucun Outcome de l’ancien claimant. Si transaction COMMITTED/UNKNOWN, ne jamais relancer ou écrire Failed automatiquement : appliquer la résolution/recovery existante ; un état de commit inconnu ne devient ni Undetermined historique ni permission de rejouer. Failed est immuable : une réparation ultérieure ne ressuscite pas la même commande terminale ; nouvelle soumission explicite, avec nouvelle auth et ID. La donnée perdue ne doit pas être « réparée » par resoumission seule.
+
+Observabilité requise : journal structuré commandId/claimId/attempt, P, O/V/B, catalogue, raison et EventIds/versions concernés ; pas de payload personnel complet. Compteurs par raison (malformed, gap, uncertified, unknown type), obsolescences par règle, CAS/fences perdus et retries/épuisements ; latence et taille de lecture, pages/budgets, nombre de versions certifiées. IDs dans logs/traces, pas labels métriques à cardinalité élevée. Alerter sur intégrité/absence de garantie, distinguer l’indisponibilité passagère. Le client voit les contrats existants de résultat asynchrone ; HTTP 202 prouve l’admission seulement.
+
+## AD. Cohérence transactionnelle et plan d’implémentation borné
+
+### AD.1 Séquence cible conservée
+
+Identifier P (Expense : lookup propriétaire seul) → fixer V une fois → certifier `(O,V]` et évaluer les écritures → charger contexte/agrégats **à ce V** → préconditions et autorisations à V → préparer candidat/Events à N sans DML → **fence Binding exact** → CAS Pot V→N → effets/metadata et BusinessEvents/Outcome/terminal Event → provenance et flush → CAS Slot/currentClaim → clôture Claim → commit confirmé. Le suffixe de publication ordonnée déjà étudié, lorsqu’il sera implémenté dans son propre chantier, reste après les autorités prévues ; aucune position de publication ne certifie à elle seule les composantes métier.
+
+Le fence Binding est actuellement après append : conserver la distinction CURRENT/TARGET. L’ordre TARGET Binding→Pot de l’étude consolidée reste retenu, aucun nouvel ordre introduit par A.3. Son activation doit être homogène pour les writers concernés : ne pas faire coexister ancien Pot→Binding et nouveau Binding→Pot sur les mêmes autorités. Aucune lecture historique sous fence nécessaire. Rejet sans mutation/recovery n’exige pas de CAS Pot ; leurs fences et l’owner existants restent applicables.
+
+R03 est conservé : un loader peut exposer explicitement V ou réutiliser un contexte certifié au V fixé, mais jamais choisir V′ après le lecteur d’histoire. Tombstone Expense/Pot, shareholderUsers et agrégats sont tous à V, propriété E→P stable. Après CAS perdu, repartir après rollback avec nouveau V, relire tout `(O,Vnouveau]`, refaire droits/préconditions/candidat ; O reste durablement identique. Ni autorisation ni résultat Compatible ne sont mis en cache entre essais.
+
+### AD.2 Écarts et étapes (à implémenter ultérieurement)
+
+Chaque étape devra redéclarer son périmètre selon son diff. Les commandes ci-dessous sont un **plan non exécuté**. Ancre COMMAND : depuis `app/`, `./mvnw -pl runtime-command-consumption-worker -am test`. Impact interdit par défaut : autres runtimes, EventPublication, Discovery, modèle Binding, moteur générique Consumption, restructuration Maven. Aucun gate global/full reactor exigé pour ces étapes bornées ; réévaluer seulement en cas de changement réel de dépendances/frontières.
+
+| Étape | Écart à fermer / fichiers concernés | Preuve et périmètre prévu |
+|---|---|---|
+| COMMAND-1 : contrat pur | Intention/mode O, empreintes F1–F11 et policy typée ; nouveau décodeur strict historique dédié | COMMAND ; matrice et données malformées ; aucune activation runtime ni modification du mapper LKV |
+| COMMAND-2 : historique durable | Nouveau port/adapter lecteur par P/O/V ; certification complète, B ; migration additive borne et grants, pas backfill des Events ni UNIQUE rétroactif obligatoire | COMMAND + DB CURRENT ; tests avec vrai rôle restreint, restart et trous/doublons ; revue des anciens writers avant activation |
+| COMMAND-3 : préparation à V | Faire évoluer PotContextPort/ExpenseContextPort et adapters ; dissocier préconditions courantes de l’égalité V1 ; candidat à V, versions et empreintes attendues, garde collisions | COMMAND ; conserver R03 et tester montants/shares complémentaires ; pas de deuxième choix de V |
+| COMMAND-4 : application sûre | Séparer obsolescence/égalité préalable des pertes CAS/fermeture ; guards MANDATORY sur primitives de mutation appelées par owner et validation N=V+1 sans overflow ; assertion Pot un Event/P/N/empreinte ; déplacer le fence au point préparé→application selon l’ordre déjà décidé | COMMAND ; rollback et fencing bout en bout ; activation homogène ancien/nouvel ordre, pas de modification du contrat Binding |
+| COMMAND-5 : durable et résultats | Ajouter neuf types/décodeurs V2 et mapping O/mode, V1 strict inchangé ; classifier et diagnostics AC ; Outcome/provenance V/N corrects | COMMAND ; replay durable/restart, retry borné, échecs techniques distincts ; aucun nouveau schéma Outcome |
+| COMMAND-6 : exposition/activation | Étendre documentation catalogue public et exemples V2, contrôles HTTP réellement nécessaires ; bootstrap B sous arrêt writers après fermeture des étapes précédentes | COMMAND + **WEB secondaire explicitement prévu** si route/validation/contrat exposé change ; preuve composée `./mvnw -pl runtime-command-consumption-worker,runtime-web-api -am test` ; sinon COMMAND et contrôle documentaire |
+
+Collisions à corriger dans COMMAND-3/4 : `PotShareholders.addShareholder` fait actuellement un `Map.put` avec UUID généré, sans rejet d’une collision ; `PotGlobalVersion.save` passe par saveAndFlush/merge ; les tables temporelles ont PK de ligne et ne prouvent pas à elles seules l’unicité de l’identité métier nouvelle. Utiliser génération injectable/testable et insertion/contrôle d’existence qui échoue sur ID déjà attribué, sous les autorités concernées ; aucune unicité sur nom ou contenu. Les collisions purement aléatoires improbables ne justifient pas une garantie PROVEN d’absence d’écrasement.
+
+Base : CURRENT pour les étapes de persistance. Le document normatif indique trusted baseline NONE ; utiliser le bootstrap autorisé au moment de l’implémentation, sans supprimer/rejouer l’histoire par principe. Une certification de baseline ou une compatibilité historique de migration dédiée constituerait un chantier distinct. Prochain gate global : intégration significative à main/Wave selon la politique ; aucun dans A.3. BINDING/EVENT/LKV ne deviennent secondaires que si leur propre comportement est modifié ; le décodeur dédié évite cette expansion.
+
+## AE. Plan de tests ciblés et verdict de clôture
+
+Aucun test ajouté, modifié ou exécuté par A.3. Tests futurs nécessaires :
+
+| Groupe | Preuves à fournir |
+|---|---|
+| Policy métier | Les 100 cases de N, Xs même/disjoint/intersection partielle, Xe même/autre E, F1–F11 ; refus sur une cible conflictuelle dans un lot ; même E/shares disjointes incompatible ; Details↔Shares et Details S↔Weights S compatibles ; droits refusés à V malgré compatibilité |
+| Créations/suppressions | Même nom/contenu avec IDs distincts ; S référencé ajouté après O ; collision d’ID injectée sans écrasement ; DeleteExpense après changement de E, DeletePot après toute mutation enfant, delete répété non idempotent |
+| Décodage | Dix types round-trip writer→lecteur policy ; S absent/null/non-array/vide, UUID invalide/non textuel/non canonique, doublons ; JSON non-objet, clés doublées, trailing tokens ; `expenseId` absent valide et présent incohérent refusé ; wrong P/type/aggregate/version et entier hors long |
+| Lecture PostgreSQL | O5/V8 couvre exactement 6/7/8 ; trou compensé par doublon toujours refusé ; dernière page conflictuelle, budget et fin réelle ; tous statuts inclus ; B NULL/O<B/refus, O=B accepté sous couverture ; O=V vide ; future O/overflow ; PC anormal |
+| Attestation/protection | Migration depuis schéma courant et fixtures anciennes malformées sans réparation silencieuse ; rôle runtime ne peut UPDATE contenu/borne, DELETE ni TRUNCATE, droits hérités inclus ; insert nouveau Pot B1 atomique ; activation Pots existants B=V sous exclusion writers, restart conserve B |
+| Mutation/Event atomiques | Pour chacune des dix commandes sur PostgreSQL : un Event unique à N, ensemble S exact/objet E correct, metadata et effets visibles au même commit ; injections avant/après append, Outcome, provenance, CAS Slot et clôture Claim : aucune partie durable après rollback |
+| Fidélité des composantes | Comparer les changements temporels aux empreintes Event sur chaque writer, y compris lots et valeurs égales ; empêcher succès Pot sans Event, Event multiple, mauvais P/N/type, mutation primitive sans owner ; aucun multi-Event perdu par déduplication |
+| R03 et concurrence | Réutiliser la régression UpdateExpenseSharesConcurrencyPostgresTest ; concurrence entre ownership→V, V→histoire, histoire→contextes, contextes→CAS ; headers/shares/lifecycle/relations à V, aucun fait current V′ ; CAS perdu annule tous effets puis nouvelle analyse avec O conservé |
+| Binding/Claim | Detach avant fence entraîne rollback ; après fence attend ; claim takeover avant finalisation annule effets/Outcome ; lease seule n’interdit pas commit ; fermeture claim refusée rollback ; aucune nouvelle failure ni retry automatique sur COMMITTED/UNKNOWN |
+| Durable/public | Neuf V1 sérialisées avant déploiement conservent égalité stricte ; neuf V2 après restart gardent O/mode ; aucun défaut O remplacé par V ; N=V+1 dans résultat, provenance V ; nouveaux codes V2 et FAILED public existant ; polling pendant retries puis résultat terminal, admission 202 inchangée |
+| Undetermined | Défaut d’intégrité/garantie/catalogue terminal technique distinct d’obsolescence ; indisponibilité retry 1/5/30 puis Failed ; CAS retry conserve O ; LostClaim exclu du classifier et du terminal failure effect stale |
+
+**READY_FOR_IMPLEMENTATION** : décisions fonctionnelles closes ; les dix empreintes disponibles suffisent ; contrats durables et traitement technique arrêtés dans cette proposition ; modifications localisées et critères de preuve définis. Ce verdict n’est ni un résultat de tests ni une certification de la base déployée. Les gaps Y restent réels jusqu’aux étapes correspondantes. Ils ne demandent pas de changement architectural significatif : lecteur strict, contrôles producteurs, borne durable/protection et liaison à V suffisent pour une activation prospective sûre. Les historiques antérieurs non attestés sont refusés explicitement ; aucune promesse d’acceptation universelle des commandes anciennes.
+
+Prochaine étape recommandée : COMMAND-1, suivie des étapes bornées ci-dessus ; ne pas rouvrir l’étude générale. **Arrêt A.3 après livraison documentaire committée et poussée ; aucune implémentation commencée.**
+
+## AF. Sources et vérifications A.3
+
+### AF.1 Références de preuve statique
+
+Les noms du tableau Y.1 renvoient aux dix liens de services C.4. Les sources suivantes complètent ces références ; elles sont lues au HEAD W.1, pas une preuve de la configuration réellement déployée.
+
+- [PotCommandBindingConfiguration](../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/consumption/PotCommandBindingConfiguration.java).
+- [PotCommandInvocation](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/pot/dispatch/PotCommandInvocation.java).
+- [AbstractPotCommandUseCaseAdapter](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/pot/dispatch/AbstractPotCommandUseCaseAdapter.java).
+- [ExecuteRecordedCommandService](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/execution/ExecuteRecordedCommandService.java).
+- [JpaPotCommandEventAppendAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaPotCommandEventAppendAdapter.java).
+- [JpaBusinessEventOutboxAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java).
+- [JpaBusinessEventOutboxRepository](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/outbox/JpaBusinessEventOutboxRepository.java).
+- [JpaBusinessEventOutboxEntity](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/entity/outbox/JpaBusinessEventOutboxEntity.java).
+- [BusinessEventRecordMapper](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/BusinessEventRecordMapper.java).
+- [BusinessEventEnvelope](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/BusinessEventEnvelope.java).
+- [JpaEventPort](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JpaEventPort.java).
+- [JpaPotGlobalVersionAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/JpaPotGlobalVersionAdapter.java).
+- [JpaPotGlobalVersionRepository](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/JpaPotGlobalVersionRepository.java).
+- [JpaPotHeaderAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/core/JpaPotHeaderAdapter.java).
+- [JpaPotShareholdersAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/core/JpaPotShareholdersAdapter.java).
+- [JpaExpenseHeaderAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/core/JpaExpenseHeaderAdapter.java).
+- [JpaExpenseSharesAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/core/JpaExpenseSharesAdapter.java).
+- [JpaExpenseContextAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/JpaExpenseContextAdapter.java).
+- [JpaPotContextAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/JpaPotContextAdapter.java).
+- [PotShareholders](../../app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/aggregate/PotShareholders.java).
+- [AsyncCommandController](../../app/supra-http-write/src/main/java/com/kartaguez/pocoma/supra/http/write/AsyncCommandController.java).
+- [SubmitRecordedCommandService](../../app/engine-admit-command/src/main/java/com/kartaguez/pocoma/engine/admit/command/SubmitRecordedCommandService.java).
+- [RecordedCommand](../../app/contracts-command/src/main/java/com/kartaguez/pocoma/contracts/command/RecordedCommand.java).
+- [JpaRecordedCommandAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JpaRecordedCommandAdapter.java).
+- [JpaRecordedCommandRepository](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/command/JpaRecordedCommandRepository.java).
+- [AbstractJacksonCommandPayloadDecoder](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/pot/decode/AbstractJacksonCommandPayloadDecoder.java).
+- [PotCommandInputMapper](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/pot/dispatch/PotCommandInputMapper.java).
+- [CommandConsumptionExecution](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/consumption/CommandConsumptionExecution.java).
+- [CommandOutcome](../../app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/model/CommandOutcome.java).
+- [JdbcCommandOutcomeAdapter](../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JdbcCommandOutcomeAdapter.java).
+- [CommandConsumptionTechnicalFailureClassifier](../../app/supra-consume-command/src/main/java/com/kartaguez/pocoma/supra/consume/command/failure/CommandConsumptionTechnicalFailureClassifier.java).
+- [CommandConsumptionFailurePolicy](../../app/supra-consume-command/src/main/java/com/kartaguez/pocoma/supra/consume/command/failure/CommandConsumptionFailurePolicy.java).
+- [DefaultConsumptionFailurePolicy](../../app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/consumption/DefaultConsumptionFailurePolicy.java).
+- [ConsumptionOwnerTransactionRunner](../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/ConsumptionOwnerTransactionRunner.java).
+- [TransactionalExecuteConsumptionUseCase](../../app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/service/transaction/consumption/TransactionalExecuteConsumptionUseCase.java).
+- [SequentialConsumptionOrchestrator](../../app/orchestrator-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/consumption/SequentialConsumptionOrchestrator.java).
+- [V1__init_schema.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V1__init_schema.sql).
+- [V2__projection_outbox_tasks.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V2__projection_outbox_tasks.sql).
+- [V8__recorded_commands.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V8__recorded_commands.sql).
+- [V11__pot_version_metadata.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V11__pot_version_metadata.sql).
+- [V15__canonical_business_event_types.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V15__canonical_business_event_types.sql).
+- [V24__contract_recorded_commands.sql](../../app/infra-persistence-primary-jpa/src/main/resources/db/migration/V24__contract_recorded_commands.sql).
+
+### AF.2 Contrôles documentaires et livraison
+
+Commandes réellement exécutées pour A.3 : `cat`, `sed`, `rg` / `rg --files`, `cmp` (politique normative), scripts Python de préservation/rédaction et contrôle des liens ; `git status --short`, `git branch --show-current`, `git rev-parse HEAD`, `git worktree list`, `git fetch origin`, `git rev-list --left-right --count HEAD...origin/feat/consumption-transaction-protocol`, `git merge-base --is-ancestor 675533e7 HEAD`, `git log -5 --oneline`, `git ls-files --modified --others --exclude-standard -z`, puis `git diff --check`, `git diff --stat`, `git diff --name-only`, `git diff -- <rapport> <index>`. Les recherches de chemins absents ont été corrigées par inventaire ; aucune donnée supprimée. Première tentative fetch limitée par le sandbox sur FETCH_HEAD, fetch autorisé ensuite réussi.
+
+Contrôles de clôture : conservation exacte du corps A/A.2, liens locaux résolus, seuls rapport/index modifiés, empreintes des travaux préexistants du checkout initial conservées. Commit prévu `docs: finalize Pot command obsolescence contract A3`, push explicite sur `origin/feat/consumption-transaction-protocol`, puis comparaison HEAD local/distant et divergence 0/0, worktree cible propre. Le SHA de livraison et le résultat effectif du push sont donnés dans le compte rendu final (ne pas confondre cette procédure avec une preuve anticipée de push).
+
+Slices déclarées/exécutées **NONE**, impact production **NONE**, franchissement inattendu **NONE** ; global gate **NOT REQUIRED/non exécuté** ; full reactor **non exécuté**, chantier documentaire ; Maven/tests/SQL/migrations exécutés **aucun**. Aucun runtime, test, migration ou fichier d’un autre worktree inclus dans le commit.
