@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.PrimaryWriteParticipation;
+
 @Repository
 public class ExternalIdentityBindingFactJdbcRepository {
 	private static final String APPEND = """
@@ -28,6 +30,7 @@ public class ExternalIdentityBindingFactJdbcRepository {
 	}
 
 	public void append(ExternalIdentityBindingFactRow row) {
+		PrimaryWriteParticipation.require(jdbc);
 		jdbc.update(APPEND,
 				row.eventId(), row.issuer(), row.subject(), row.bindingRevision(), row.factType(),
 				row.userId(), row.bindingId(), Timestamp.from(row.recordedAt()), row.issuer(), row.subject());

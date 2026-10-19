@@ -1,6 +1,6 @@
 # Étape 4 — Plan d’implémentation du séquencement transactionnel E
 
-Date : 2026-10-19. Statut : **TARGET — PLAN UNIQUEMENT, NON IMPLÉMENTÉ**.
+Date : 2026-10-19. Statut : **TARGET — PLAN**. Exécution bornée : [contrats et gardes 4A](Event_Publication_Contracts_Step_4A_2026-10-19.md) (clôture 4A non validée : gate global en échec) ; 4B–4E non implémentés.
 Baseline de cet audit de la grammaire de publication : `973cc792e19704054a229bb829a7076bd7bfa361`, branche `feat/consumption-transaction-protocol`.
 
 ## 1. Synthèse exécutive

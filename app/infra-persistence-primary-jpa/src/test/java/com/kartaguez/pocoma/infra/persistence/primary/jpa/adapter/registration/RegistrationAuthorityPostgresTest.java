@@ -185,6 +185,55 @@ class RegistrationAuthorityPostgresTest {
         assertEquals(1, count("registration_requests"));
     }
 
+    @Test void directAndNewDurableWritersRejectMissingReadOnlyAndUnrelatedTransactions() {
+        UUID request = request(identity);
+        var user = new PocomaUserId(UUID.randomUUID());
+        var directFact = new JdbcUserCreatedFactAdapter(jdbc);
+        var directOutcome = new JdbcRegistrationOutcomeStore(jdbc);
+        var directBinding = new ExternalIdentityBindingFactJdbcRepository(jdbc);
+        var row = new ExternalIdentityBindingFactRow(UUID.randomUUID(), "issuer", "subject", 1,
+                "ATTACHED", user.value(), UUID.randomUUID(), Instant.now());
+        List<Runnable> writes = List.of(() -> directFact.append(request, user),
+                () -> directOutcome.insert(new RegistrationOutcome.Rejected(request)),
+                () -> directBinding.append(row));
+        for (Runnable write : writes) {
+            assertThrows(org.springframework.transaction.IllegalTransactionStateException.class, write::run);
+            var readOnly = new TransactionTemplate(manager);
+            readOnly.setReadOnly(true);
+            assertThrows(org.springframework.transaction.IllegalTransactionStateException.class,
+                    () -> readOnly.execute(status -> { write.run(); return null; }));
+        }
+        var other = new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+        var unrelated = new TransactionTemplate(new org.springframework.jdbc.datasource.DataSourceTransactionManager(other));
+        for (Runnable write : writes) {
+            assertThrows(org.springframework.transaction.IllegalTransactionStateException.class,
+                    () -> unrelated.execute(status -> { write.run(); return null; }));
+        }
+        assertEquals(0, count("user_created_facts"));
+        assertEquals(0, count("external_identity_binding_facts"));
+        assertEquals(0, count("registration_outcomes"));
+    }
+
+    @Test void realRegistrationAndDirectNewWritersJoinOnePhysicalRollback() {
+        UUID request = request(identity);
+        assertThrows(IllegalStateException.class, () -> tx(() -> {
+            var registered = assertInstanceOf(RegistrationOutcome.Registered.class, service.execute(request));
+            // Lifecycle uses a repository constructed by new; a direct auxiliary writer joins too.
+            var extraId = UUID.randomUUID();
+            new ExternalIdentityBindingFactJdbcRepository(jdbc).append(new ExternalIdentityBindingFactRow(
+                    extraId, identity.issuer(), identity.subject(), 2, "DETACHED", registered.userId().value(),
+                    registered.bindingId().value(), Instant.now()));
+            assertTrue(new ExternalIdentityBindingFactJdbcRepository(jdbc).findByEventId(extraId).isPresent());
+            assertEquals(1, count("user_created_facts"));
+            assertEquals(2, count("external_identity_binding_facts"));
+            assertEquals(1, count("registration_outcomes"));
+            throw new IllegalStateException("rollback after all writers");
+        }));
+        for (String table : List.of("users", "external_identities", "external_identity_binding_facts",
+                "user_created_facts", "registration_outcomes")) assertEquals(0, count(table), table);
+    }
+
     private UUID request(ExternalIdentity externalIdentity) {
         UUID id = UUID.randomUUID();
         tx(() -> { requests.insert(new RegistrationRequest(id, externalIdentity, "{}", Instant.now())); return id; });

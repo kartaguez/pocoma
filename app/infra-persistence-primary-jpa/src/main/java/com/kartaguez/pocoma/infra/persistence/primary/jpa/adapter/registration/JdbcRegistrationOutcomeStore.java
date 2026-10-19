@@ -11,6 +11,8 @@ import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcomeRepository;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.PrimaryWriteParticipation;
+
 @Component
 public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeRepository {
     private final JdbcTemplate jdbc;
@@ -28,6 +30,7 @@ public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeRe
         return found.stream().findFirst();
     }
     @Override public void insert(RegistrationOutcome outcome) {
+        PrimaryWriteParticipation.require(jdbc);
         if (outcome instanceof RegistrationOutcome.Registered registered) {
             jdbc.update("insert into registration_outcomes(request_id,outcome_type,user_id,binding_id,decided_at) values (?,'REGISTERED',?,?,now())",
                     registered.requestId(), registered.userId().value(), registered.bindingId().value());

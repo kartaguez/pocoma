@@ -904,6 +904,13 @@ class HexagonalArchitectureTest {
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".pot"))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".consumption"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+				// 4A: only the TARGET acceptance envelope may use these two application values.
+				// Do not grant the whole generic kernel access to transaction ownership.
+				.filter(dependency -> !(dependency.getOriginClass().getName().equals(
+						commandPackage + ".model.BusinessEventsAccepted")
+						&& Set.of(ROOT_PACKAGE + ".port.transaction.EventRef",
+								ROOT_PACKAGE + ".port.transaction.EventFamily")
+								.contains(dependency.getTargetClass().getName())))
 				.map(dependency -> dependency.getTargetClass())
 				.filter(target -> !target.getPackageName().startsWith("java."))
 				.filter(target -> allowedPackages.stream().noneMatch(allowed ->
