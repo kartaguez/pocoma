@@ -100,6 +100,14 @@ class BindingRuntimePostgresTest {
 		jdbc.execute("truncate table pocoma_read.current_external_identity_binding");
 	}
 
+	@Test void preparedSchemaNeverActivatesSequencingAtBindingRuntimeStartup() {
+        assertTrue(wp2Context.getBeansOfType(com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer.class).isEmpty());
+        assertTrue(wp2Context.getBeansOfType(com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner.class).isEmpty());
+        assertEquals("PREPARED",jdbc.queryForObject("select mode from event_sequencing_protocol",String.class));
+        assertEquals(0L,jdbc.queryForObject("select sum(last_position) from event_sequence_authorities",Long.class));
+        assertEquals(0L,count("event_position"));
+    }
+
 	@Test void attachDetachReattachTraversesAuthorityFactConsumptionAndCurrentBinding() {
 		PocomaUserId user=user(1); insertUser(user); ExternalIdentity e=id("e2e");
 		BindingId b1=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();

@@ -53,6 +53,14 @@ class PrimaryEventProtocolStructureTest {
         }
         assertTrue(java.lang.reflect.Modifier.isFinal(ClosedPublishedEvents.class.getModifiers()));
     }
+    @Test void realSequencerHasNoBusinessCallbackOrIndependentResolution() throws Exception {
+        assertEquals(List.of(), violations(JdbcEventTransactionSequencer.class, true));
+        for (Field field : JdbcEventTransactionSequencer.class.getDeclaredFields()) {
+            assertFalse(Runnable.class.isAssignableFrom(field.getType()));
+            assertFalse(java.util.function.Supplier.class.isAssignableFrom(field.getType()));
+            assertFalse(java.util.function.Consumer.class.isAssignableFrom(field.getType()));
+        }
+    }
     @Test void writerBeforeCompletionAndRogueLateMutationAreRejectedStructurallyBeforeInvocation() throws Exception {
         assertFalse(violations(ForbiddenWriterCallback.class, false).isEmpty());
         assertFalse(violations(ForbiddenLateMutation.class, true).isEmpty());
@@ -64,7 +72,7 @@ class PrimaryEventProtocolStructureTest {
         assertEquals(0, ForbiddenExternalAcceptance.sends, "reject composition before any send");
     }
     @Test void dormantTechnicalTypesHaveNoStereotypeConfigurationOrAutoconfigurationEntry() {
-        for (Class<?> type : List.of(PrimaryEventTransactionRunner.class, PrimaryEventInsert.class, ClosedPublishedEvents.class)) {
+        for (Class<?> type : List.of(PrimaryEventTransactionRunner.class, PrimaryEventInsert.class, ClosedPublishedEvents.class, JdbcEventTransactionSequencer.class)) {
             assertEquals(0, type.getDeclaredAnnotations().length, type.getName());
         }
         assertNotNull(PrimaryEventProtocolTestConfiguration.class.getAnnotation(org.springframework.boot.test.context.TestConfiguration.class));

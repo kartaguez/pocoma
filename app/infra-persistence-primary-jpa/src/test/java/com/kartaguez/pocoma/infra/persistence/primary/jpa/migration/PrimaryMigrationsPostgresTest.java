@@ -45,7 +45,7 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV29() throws Exception {
+	void runtimeClasspathAppliesAndValidatesMigrationsV1ThroughV30() throws Exception {
 		Flyway flyway = Flyway.configure()
 				.dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
 				.locations("classpath:db/migration")
@@ -55,7 +55,7 @@ class PrimaryMigrationsPostgresTest {
 
 		MigrateResult result = flyway.migrate();
 
-		assertEquals(29, result.migrationsExecuted);
+		assertEquals(30, result.migrationsExecuted);
 		assertTrue(flyway.validateWithResult().validationSuccessful);
 
 		try (Connection connection = DriverManager.getConnection(
@@ -71,7 +71,10 @@ class PrimaryMigrationsPostgresTest {
 				tableNames.add(resultSet.getString(1));
 			}
 			assertTrue(tableNames.containsAll(Set.of(
-					"registration_requests",
+					"event_sequence_authorities", "event_sequencing_protocol",
+                    "business_event_positions", "command_terminal_event_positions",
+                    "binding_fact_positions", "user_created_fact_positions", "event_position",
+                    "registration_requests",
 					"registration_outcomes", "user_created_facts",
 					"users",
 					"consumption_slots",
@@ -112,10 +115,10 @@ class PrimaryMigrationsPostgresTest {
 	}
 
 	@Test
-	void existingV1ThroughV29DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
+	void existingV1ThroughV30DatabaseValidatesWithoutRepairOrReexecution() throws Exception {
 		Flyway initialOwner = flyway(true);
 		initialOwner.clean();
-		assertEquals(29, initialOwner.migrate().migrationsExecuted);
+		assertEquals(30, initialOwner.migrate().migrationsExecuted);
 		Map<String, Integer> historyBefore = migrationHistory();
 
 		Flyway relocatedOwner = flyway(false);
@@ -344,7 +347,7 @@ class PrimaryMigrationsPostgresTest {
 				history.put(resultSet.getString("version"), resultSet.getInt("checksum"));
 			}
 		}
-		assertEquals(29, history.size());
+		assertEquals(30, history.size());
 		return history;
 	}
 

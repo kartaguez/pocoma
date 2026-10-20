@@ -28,7 +28,12 @@ class PrimaryEventProtocolDormancyPostgresTest {
         r.add("spring.datasource.password", PG::getPassword);
     }
     @Autowired ApplicationContext context;
+    @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @Test void productionScanDoesNotWireProtocolOrTestConfiguration() {
+        assertTrue(context.getBeansOfType(JdbcEventTransactionSequencer.class).isEmpty());
+        assertEquals("PREPARED",jdbc.queryForObject("select mode from event_sequencing_protocol",String.class));
+        assertEquals(0,jdbc.queryForObject("select sum(last_position) from event_sequence_authorities",Long.class));
+        assertEquals(0,jdbc.queryForObject("select count(*) from event_position",Integer.class));
         assertTrue(context.getBeansOfType(PrimaryEventTransactionRunner.class).isEmpty());
         assertTrue(context.getBeansOfType(PrimaryEventTransactionSuffix.class).isEmpty());
         assertTrue(context.getBeansOfType(PublishedEvents.class).isEmpty());

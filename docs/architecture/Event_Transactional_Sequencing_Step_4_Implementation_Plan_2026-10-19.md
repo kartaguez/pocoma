@@ -1,7 +1,7 @@
 # Étape 4 — Plan d’implémentation du séquencement transactionnel E
 
-Date de conception : 2026-10-19. Statut actualisé le 2026-10-20 : **spécification détaillée TARGET ; 4A CLOSED, 4B CLOSED / PASS hors production, 4C NEXT, 4D–4E non implémentés**.
-Le [Step Plan courant](../steps/current/DISCOVERY/Step_Plan.md) porte l'avancement et les preuves de clôture au SHA de livraison 4B `5640220b94f6208aa4c156e248d95e2eced1522f` ; le [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) porte les décisions et leurs statuts. Les critères détaillés §§3–9 restent applicables. Les déclarations de périmètre, états Git et résultats de la rédaction initiale ci-dessous sont historiques ; leurs anciennes mentions « aucun lot commencé » ne décrivent plus l'avancement. Les expériences 3A–3D restent historiques. Aucun séquenceur de production livré. Le [rapport 4B et ses preuves](Event_Transaction_Protocol_Step_4B_2026-10-20.md) clôturent V-B (COMMAND), avec runner/collecteur dormants et suffixe synthétique exclusivement testé. L'audit indépendant statique confirme ce PASS sans réexécution Maven ou PostgreSQL par l'auditeur ; ses deux réserves non bloquantes pour 4B précisent les critères de certification 4D (conditions A et B ci-dessous), sans dette technique 4B ni changement du lot 4C. Les critères ci-dessous restent normatifs ; les mentions futures dans les lots clos conservent leur sens de spécification.
+Date de conception : 2026-10-19. Statut actualisé le 2026-10-20 : **spécification détaillée TARGET ; 4A CLOSED, 4B CLOSED / PASS hors production, 4C CLOSED / PASS dormant, 4D–4E non implémentés**.
+Le [Step Plan courant](../steps/current/DISCOVERY/Step_Plan.md) porte l'avancement et les preuves de clôture au SHA de livraison 4B `5640220b94f6208aa4c156e248d95e2eced1522f` ; le [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) porte les décisions et leurs statuts. Les critères détaillés §§3–9 restent applicables. Les déclarations de périmètre, états Git et résultats de la rédaction initiale ci-dessous sont historiques ; leurs anciennes mentions « aucun lot commencé » ne décrivent plus l'avancement. Les expériences 3A–3D restent historiques. Un [séquenceur 4C certifié dormant et le DDL PREPARED](Event_Transactional_Sequencer_Step_4C_2026-10-20.md) sont désormais livrés ; aucun séquenceur raccordé en production. Le [rapport 4B et ses preuves](Event_Transaction_Protocol_Step_4B_2026-10-20.md) clôturent V-B (COMMAND), avec runner/collecteur dormants et suffixe synthétique exclusivement testé. L'audit indépendant statique confirme ce PASS sans réexécution Maven ou PostgreSQL par l'auditeur ; ses deux réserves non bloquantes pour 4B précisent les critères de certification 4D (conditions A et B ci-dessous), sans dette technique 4B ni changement du lot 4C. Les critères ci-dessous restent normatifs ; les mentions futures dans les lots clos conservent leur sens de spécification.
 Baseline de cet audit de la grammaire de publication : `973cc792e19704054a229bb829a7076bd7bfa361`, branche `feat/consumption-transaction-protocol`.
 
 ## 1. Synthèse exécutive
@@ -351,6 +351,11 @@ Dépendances conservées : **4A → 4B → 4C → 4D → 4E**. Aucun lot n’est
 - **Risques** : FK mal orientée, overflow, DDL ou trigger coûteux, bootstrap historique inutile. Suivre §8 pour DB CURRENT ; ne pas inventer une baseline trusted.
 - **Runtime livré** : schéma PREPARED additif, E à zéro et associations vides, code séquenceur non appelé. Retour au binaire précédent possible en gardant le schéma PREPARED ; aucune migration inverse automatique.
 
+**Livraison 4C — CLOSED / PASS, 2026-10-20.** [Rapport V-C et limites](Event_Transactional_Sequencer_Step_4C_2026-10-20.md) :
+V30 PREPARED et séquenceur JDBC dormant ; 36 cas PostgreSQL V-C, gate COMMAND/BINDING 1 091 tests,
+zéro failure/error, seul skip 3B préexistant ; upgrade et deux retours au runtime initial prouvés.
+Aucun critère ci-dessus modifié, aucun producteur raccordé ni activation faite.
+
 ### 4D — Raccordement complet, production PREPARED
 
 - **Objectif / garanties** : raccordement atomique des quatre familles et de tous leurs owners autorisés, sans activation E en production. Même grammaire finale dans PREPARED et ACTIVE.
@@ -407,7 +412,7 @@ Reprise avant activation : après rollback de maintenance confirmé, EventPositi
 
 ## 8. Stratégie de vérification normative
 
-Toutes les commandes ci-dessous sont **futures**, lancées depuis `app/` uniquement après autorisation du lot. Elles ne doivent pas être exécutées pour ce plan. Lire la politique au HEAD de chaque lot et déclarer le scope avant modification.
+Les commandes ci-dessous définissent les gates des lots, depuis `app/` après autorisation propre. 4A–4C sont exécutés selon leurs rapports ; 4D–4E restent **futurs**. Ces prescriptions ne déclenchent aucun gate supplémentaire hors lot autorisé. Lire la politique au HEAD de chaque lot et déclarer le scope avant modification.
 
 ### 8.1 Commandes et frontières
 

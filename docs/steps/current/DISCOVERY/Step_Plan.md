@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C NEXT ; 4D et 4E non implémentés.**
+`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C CLOSED / PASS dormant ; 4D et 4E non implémentés.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
@@ -68,9 +68,9 @@ campagne de livraison 4B. Runner et collecteur restent dormants, non raccordés 
 Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
 (conditions A et B du §4D ci-dessous), sans dette technique 4B. Les limites des preuves et le
 [compte rendu de clôture documentaire](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
-ne valent pas certification des writers/owners réels. **4C NEXT ; 4D et 4E non implémentés.**
+ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; 4D et 4E non implémentés.**
 
-## 4C — NEXT : schéma additif et séquenceur transactionnel inactifs
+## 4C — CLOSED / PASS : schéma additif et séquenceur transactionnel inactifs
 
 Quatre autorités E, quatre associations typées et vue ; migration additive après version courante
 (V29 à la référence), mode durable unique PREPARED, droits et contraintes de complétude ACTIVE.
@@ -83,6 +83,18 @@ collisions/FK/overflow, droits UPDATE/DELETE, lot vide sans E. PREPARED accepte 
 position ; ACTIVE isolé refuse une ligne couverte sans position. Coût indexé des contraintes et
 absence d'arête P/B/S après E prouvés ; sinon STOP. Upgrade courant et retour au binaire précédent
 avec schéma PREPARED répétés ; aucune infrastructure E activée en production.
+
+**Livré et prouvé le 2026-10-20 — PASS.** Départ 4C :
+`1771514a51c74452e019a2a259b40d0303cf2cde`. [Rapport/matrice V-C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
+et [preuves JSON](../../../testing/evidence/Event_Transactional_Sequencer_Step_4C_2026-10-20.json).
+V30 installe PREPARED, quatre E à zéro, associations/FK/vue, complétude différée ACTIVE et droits ;
+suffixe JDBC dormant, aucun vrai writer/owner raccordé. 36 nouveaux cas PostgreSQL V-C verts ;
+47 tests ciblés finaux sans failure/error/skip ; ancien runtime compilé au SHA de départ démarré
+et exercé deux fois sur V30 PREPARED. COMMAND + BINDING canonique : **1 091 tests déclarés,
+0 failure/error, 1 skip 3B exploratoire préexistant**. Aucun franchissement inattendu ; global/full
+non requis, non exécutés. DDL et fonctions éprouvés sur vraies sources ; ACTIVE uniquement en bases
+isolées. Comptes de l'environnement déployé, vrais producteurs et compositions restent 4D ;
+activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; 4D NEXT.**
 
 ## 4D — Producteurs et orchestrations réels, PREPARED complet
 
@@ -142,7 +154,7 @@ quatre familles selon §7. Une variante par lots requiert décision et preuve de
 ## Vérification des futurs lots
 
 Depuis `app/`, après déclaration du lot et lecture de la [politique normative](../../../testing/Reactor_Verification_Policy.md).
-4B a exécuté sa commande canonique ; les commandes 4C–4E restent futures. Le détail §8 du plan fait autorité.
+4B et 4C ont exécuté leurs commandes canoniques ; les commandes 4D–4E restent futures. Le détail §8 du plan fait autorité.
 
 | Lot | Slices / commande de clôture | Gates supplémentaires |
 |---|---|---|
@@ -182,4 +194,6 @@ Promouvoir le prochain chantier après consolidation de l'acquis et archivage tr
 La [revue documentaire](Consolidation_Report_2026-10-20.md) conserve inventaire, résolutions et contrôle.
 La consolidation initiale était documentaire. La livraison 4B est bornée à COMMAND/NONE, DB CURRENT
 et prototypes isolés ; son [rapport](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
-porte commandes, résultats et limites. Aucun gate global/full requis ; crossing NONE. Prochaine action : **4C**, sur autorisation propre.
+porte commandes, résultats et limites. Le [rapport 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
+clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full requis ; crossing NONE.
+Prochaine action : **4D**, sur autorisation propre.

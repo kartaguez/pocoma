@@ -2,7 +2,7 @@
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
 `5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4C**, après **4B CLOSED / PASS** hors production ; **4D et 4E non implémentés**.
+Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4D**, après **4B et 4C CLOSED / PASS** hors production ; **4D et 4E non implémentés**.
 
 ## Autorité et lecture
 
@@ -78,12 +78,12 @@ RegistrationOutcome n'est pas une cinquième famille ni un RegistrationTerminalE
 La [matrice des producteurs et owners](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#5-carte-des-producteurs-et-portée-des-changements-futurs)
 fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
-## Séquencement E : 4B dormant livré, réalisation 4C–4E restante
+## Séquencement E : 4B/4C dormants livrés, raccordement 4D et activation 4E restants
 
 **CURRENT borné, hors production — 4B CLOSED / PASS confirmé par audit indépendant statique.** Le [runner/collecteur PRIMARY et ses preuves](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
 sont livrés, sans scan/configuration productive. Propriétaire/participants, flush terminal,
 snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans COMMAND avec le
-manager JPA standard. Le suffixe est synthétique et limité aux tests ; aucune E active, aucun
+manager JPA standard. Le suffixe 4B est synthétique et limité aux tests ; aucune E active, aucun
 producteur/owner réel recâblé. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
 
 L'audit favorable porte sur le SHA de livraison ci-dessus et les preuves 4B déjà réalisées ;
@@ -95,12 +95,21 @@ Leurs critères sont enregistrés une seule fois dans la [spécification, §6/4D
 suivis par le [plan, §4D](Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet).
 Aucune dette technique 4B n'est ouverte ; le périmètre et la clôture 4C restent inchangés.
 
+**CURRENT borné — 4C CLOSED / PASS.** [V30 et suffixe JDBC dormant](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
+sont livrés : autorités/associations typées/FK/vue, PREPARED/version unique, droits et contrôles
+ACTIVE différés ; blocs denses et ordre déclaré prouvés sur les quatre vraies sources en bases
+isolées. COMMAND + BINDING : 1 091 tests, aucune failure/error, seul skip 3B préexistant ; upgrade
+V29→V30 et deux retours au runtime initial verts. Aucun vrai owner/writer raccordé, aucun compteur
+ou position officielle attribué en production. Le schéma additif reste compatible CURRENT en
+PREPARED ; contrôle complet des comptes/compositions déployés en 4D, activation/historique en 4E.
+Les sondes de plans indexés ne sont pas des seuils de performance. Global/full non requis en 4C.
+
 **Pourquoi.** Un timestamp/UUID ou une séquence PostgreSQL non transactionnelle ne prouve pas
 l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense committée par famille
 permet de prouver une plage entièrement visible. Elle ne prouve pas que les conséquences sont
 enrôlées, ni que leur consommation est terminée.
 
-**TARGET retenue.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
+**CURRENT 4C dormant / TARGET production 4D–4E.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
 allocation par blocs dans la même transaction que l'acceptation durable et les effets protégés.
 Après finalisation S/Claim : flush complet, fermeture du lot, puis suffixe E dans le callback du
 `TransactionTemplate`, avant commit physique par le gestionnaire JPA standard. Aucun DML métier,
