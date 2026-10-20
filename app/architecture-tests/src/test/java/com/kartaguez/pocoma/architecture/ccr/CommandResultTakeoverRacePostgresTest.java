@@ -21,25 +21,29 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.hibernate.Session;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.convention.TestBean;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.kartaguez.pocoma.contracts.command.CommandId;
@@ -67,9 +71,11 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCo
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreAccessAutoConfiguration;
 import com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStoreMigrationAutoConfiguration;
 import com.kartaguez.pocoma.runtime.result.CommandResultRuntimeConfiguration;
+import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunner;
+import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 import com.kartaguez.pocoma.supra.consume.commandresult.CommandResultConsumptionLocator;
 
-/** Real services join caller-owned transactions; gates never replace a CAS or a lock. */
+/** Real public owners resolve their transactions; test gates observe their actions before resolution. */
 @SpringBootTest(classes = CommandResultTakeoverRacePostgresTest.TestApplication.class, properties = {
 		"pocoma.command-result-consumption.enabled=false", "spring.jpa.hibernate.ddl-auto=validate" })
 class CommandResultTakeoverRacePostgresTest {
@@ -87,7 +93,7 @@ class CommandResultTakeoverRacePostgresTest {
 	}
 
 	@Autowired JdbcTemplate jdbc;
-	@Autowired PlatformTransactionManager transactionManager;
+	@Autowired EntityManagerFactory entityManagerFactory;
 	@Autowired AcquireConsumptionUseCase acquire;
 	@Autowired ExecuteConsumptionUseCase execute;
 	@Autowired ConsumptionQueryPort consumption;
@@ -110,16 +116,16 @@ class CommandResultTakeoverRacePostgresTest {
 		TxProbe first = new TxProbe("C1-execute"), acquisition = new TxProbe("C2-acquire");
 		TxProbe second = new TxProbe("C2-execute");
 		try (var pool = Executors.newFixedThreadPool(2); var inserted = new Gate("C1-insert-before-CAS")) {
-			Future<?> losing = pool.submit(() -> inTransaction(first, () -> execute.execute(
+			Future<?> losing = pool.submit(() -> observeOwner(first, () -> execute.execute(
 					execution(stale, seed, first, inserted::pause, true))));
 			inserted.awaitReached();
 			assertNoPublication();
 			expire(stale);
-			Claim winner = acquired(inTransaction(acquisition, () -> acquire(seed, "C2", acquisition)));
+			Claim winner = acquired(observeOwner(acquisition, () -> acquire(seed, "C2", acquisition)));
 			assertDistinct(first, acquisition);
 			assertCommitted(acquisition);
 			assertTakeover(stale, winner);
-			Future<?> winning = pool.submit(() -> inTransaction(second, () -> execute.execute(
+			Future<?> winning = pool.submit(() -> observeOwner(second, () -> execute.execute(
 					execution(winner, seed, second, () -> {}, false))));
 			second.awaitStarted();
 			awaitBlocked(second, first, "publication");
@@ -152,21 +158,20 @@ class CommandResultTakeoverRacePostgresTest {
 		expire(original);
 		TxProbe first = new TxProbe("C1-after-CAS"), second = new TxProbe("C2-acquire");
 		try (var pool = Executors.newFixedThreadPool(2); var beforeCommit = new Gate("C1-CAS-before-resolution")) {
-			Future<?> finalization = pool.submit(() -> inTransaction(first, () -> {
-				execute.execute(execution(original, seed, first, () -> {}, false));
-				// This is after the real CAS and claim closure, but before the outer transaction resolves.
+			Future<?> finalization = pool.submit(() -> observeOwner(first,
+					() -> execute.execute(execution(original, seed, first, () -> {}, false)), result -> {
+				// After the real CAS and claim closure, inside the owner's action before resolution.
 				assertEquals(ConsumptionStatus.DONE, consumption.findSlot(original.slotId()).orElseThrow().status());
 				assertEquals(original.succeedAt(T1), consumption.findClaim(original.claimId()).orElseThrow());
 				assertEquals(1L, count("consumption_inputs"));
 				beforeCommit.pause();
 				if (rollback) throw new RollbackMarker();
-				return null;
 			}));
 			beforeCommit.awaitReached();
 			assertPending(original, 1);
 			assertEquals(List.of(original), consumption.findClaims(original.slotId()));
 			assertNoPublication();
-			Future<AcquireResult> takeover = pool.submit(() -> inTransaction(second,
+			Future<AcquireResult> takeover = pool.submit(() -> observeOwner(second,
 					() -> acquire(seed, "C2", second)));
 			second.awaitStarted();
 			awaitBlocked(second, first, "slot");
@@ -228,15 +233,13 @@ class CommandResultTakeoverRacePostgresTest {
 
 	private AcquireResult contend(Seed seed, String worker, TxProbe probe, CyclicBarrier start,
 			AtomicReference<Contender> owner, Gate acquired) {
-		return inTransaction(probe, () -> {
-			await(start);
-			AcquireResult result = acquire(seed, worker, probe);
+		// Both owners are active before either contender attempts the slot lock.
+		return observeOwner(probe, () -> acquire(seed, worker, probe), () -> await(start), result -> {
 			if (result instanceof AcquireResult.Acquired won) {
 				assertTrue(owner.compareAndSet(null, new Contender(probe, won.claim())));
 				assertPending(won.claim(), 2); // own uncommitted installation
 				acquired.pause();
 			}
-			return result;
 		});
 	}
 
@@ -247,8 +250,9 @@ class CommandResultTakeoverRacePostgresTest {
 		TxProbe second = new TxProbe("C2-rollback-acquire"), third = new TxProbe("C3-acquire");
 		AtomicReference<Claim> abandoned = new AtomicReference<>();
 		try (var pool = Executors.newFixedThreadPool(2); var installed = new Gate("C2-install-before-rollback")) {
-			Future<?> rollback = pool.submit(() -> inTransaction(second, () -> {
-				Claim claim = acquired(acquire(seed, "C2", second));
+			Future<?> rollback = pool.submit(() -> observeOwner(second,
+					() -> acquire(seed, "C2", second), result -> {
+				Claim claim = acquired(result);
 				abandoned.set(claim);
 				assertPending(claim, 2);
 				assertEquals(stale.invalidateForTakeoverAt(T1), consumption.findClaim(stale.claimId()).orElseThrow());
@@ -256,7 +260,7 @@ class CommandResultTakeoverRacePostgresTest {
 				throw new RollbackMarker();
 			}));
 			installed.awaitReached();
-			Future<AcquireResult> takeover = pool.submit(() -> inTransaction(third,
+			Future<AcquireResult> takeover = pool.submit(() -> observeOwner(third,
 					() -> acquire(seed, "C3", third)));
 			third.awaitStarted();
 			awaitBlocked(third, second, "slot");
@@ -277,30 +281,81 @@ class CommandResultTakeoverRacePostgresTest {
 		}
 	}
 
-	private <T> T inTransaction(TxProbe probe, Supplier<T> action) {
-		return new TransactionTemplate(transactionManager).execute(status -> {
-			assertTrue(status.isNewTransaction());
-			TxInfo info = currentTransaction();
-			assertEquals("read committed", info.isolation());
-			probe.info.set(info);
-			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-				@Override public void afterCompletion(int status) {
-					probe.completion.set(status);
-					System.out.printf("RESOLVED name=%s pid=%d xid=%d status=%d%n", probe.name, info.pid(), info.xid(), status);
-				}
-			});
-			System.out.printf("TX name=%s pid=%d xid=%d isolation=%s%n", probe.name, info.pid(), info.xid(), info.isolation());
-			probe.started.countDown();
-			return action.get();
+	// Plans belong to one public operation on one thread, never to a pool worker's next task.
+	private static final ThreadLocal<OwnerObservation> OBSERVATION = new ThreadLocal<>();
+
+	private <T> T observeOwner(TxProbe probe, Supplier<T> operation) {
+		return observeOwner(probe, operation, result -> {});
+	}
+
+	private <T> T observeOwner(TxProbe probe, Supplier<T> operation, Consumer<T> afterOperation) {
+		return observeOwner(probe, operation, () -> {}, afterOperation);
+	}
+
+	private <T> T observeOwner(TxProbe probe, Supplier<T> operation, Runnable beforeOperation,
+			Consumer<T> afterOperation) {
+		assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+		assertFalse(TransactionSynchronizationManager.isSynchronizationActive());
+		assertNull(OBSERVATION.get());
+		OBSERVATION.set(new OwnerObservation() {
+			@Override public <R> R observe(Supplier<R> action) {
+				startProbe(probe);
+				beforeOperation.run();
+				R result = action.get();
+				assertEquals(probe.info.get(), currentTransaction());
+				// The wrapper forwards the service result unchanged to its caller.
+				@SuppressWarnings("unchecked") T value = (T) result;
+				afterOperation.accept(value);
+				return result;
+			}
 		});
+		try {
+			return operation.get();
+		} finally {
+			OBSERVATION.remove();
+			assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+			assertFalse(TransactionSynchronizationManager.isSynchronizationActive());
+		}
+	}
+
+	private void startProbe(TxProbe probe) {
+		TxInfo info = currentTransaction();
+		assertEquals("read committed", info.isolation());
+		assertTrue(probe.info.compareAndSet(null, info), "Exactly one owner transaction per operation");
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override public void afterCompletion(int status) {
+				probe.completion.set(status);
+				System.out.printf("RESOLVED name=%s pid=%d xid=%d status=%d%n", probe.name, info.pid(), info.xid(), status);
+			}
+		});
+		System.out.printf("TX name=%s pid=%d xid=%d isolation=%s%n", probe.name, info.pid(), info.xid(), info.isolation());
+		probe.started.countDown();
+	}
+
+	private interface OwnerObservation {
+		<T> T observe(Supplier<T> action);
 	}
 
 	private TxInfo currentTransaction() {
 		assertTrue(TransactionSynchronizationManager.isActualTransactionActive());
-		return jdbc.queryForObject("""
+		assertTrue(TransactionSynchronizationManager.isSynchronizationActive());
+		assertTrue(TransactionSynchronizationManager.hasResource(entityManagerFactory));
+		TxInfo info = jdbc.queryForObject("""
 			select pg_backend_pid() as pid, txid_current() as xid,
 			       current_setting('transaction_isolation') as isolation
 			""", (rs, row) -> new TxInfo(rs.getInt("pid"), rs.getLong("xid"), rs.getString("isolation")));
+		var entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory);
+		assertNotNull(entityManager);
+		// Read through JPA's actual connection without triggering an ORM flush or adding a lock.
+		TxInfo jpaInfo = entityManager.unwrap(Session.class).doReturningWork(connection -> {
+			try (var statement = connection.createStatement(); var result = statement.executeQuery(
+					"select pg_backend_pid(), txid_current(), current_setting('transaction_isolation')")) {
+				assertTrue(result.next());
+				return new TxInfo(result.getInt(1), result.getLong(2), result.getString(3));
+			}
+		});
+		assertEquals(info, jpaInfo, "JDBC publication and JPA participants share the owner's physical transaction");
+		return info;
 	}
 
 	private AcquireResult acquire(Seed seed, String worker, TxProbe probe) {
@@ -373,7 +428,7 @@ class CommandResultTakeoverRacePostgresTest {
 
 	private Claim initialClaim(Seed seed) {
 		TxProbe initial = new TxProbe("C1-acquire");
-		Claim claim = acquired(inTransaction(initial, () -> acquire(seed, "C1", initial)));
+		Claim claim = acquired(observeOwner(initial, () -> acquire(seed, "C1", initial)));
 		assertCommitted(initial);
 		assertEquals(T0, claim.claimedAt());
 		assertEquals(T0.plus(LEASE.duration()), claim.leaseUntil());
@@ -426,7 +481,7 @@ class CommandResultTakeoverRacePostgresTest {
 		var slot = consumption.findSlot(stale.slotId()).orElseThrow();
 		var claims = consumption.findClaims(stale.slotId());
 		TxProbe loser = new TxProbe("stale-execute");
-		LostClaimException lost = assertThrows(LostClaimException.class, () -> inTransaction(loser,
+		LostClaimException lost = assertThrows(LostClaimException.class, () -> observeOwner(loser,
 				() -> execute.execute(execution(stale, seed, loser, () -> {}, true))));
 		assertEquals(stale.claimId(), lost.claimId());
 		assertEquals(stale.slotId(), lost.slotId());
@@ -438,7 +493,7 @@ class CommandResultTakeoverRacePostgresTest {
 
 	private void finish(Seed seed, Claim stale, Claim winner) {
 		TxProbe finishing = new TxProbe("winner-execute");
-		inTransaction(finishing, () -> execute.execute(execution(winner, seed, finishing, () -> {}, false)));
+		observeOwner(finishing, () -> execute.execute(execution(winner, seed, finishing, () -> {}, false)));
 		assertCommitted(finishing);
 		assertFinished(seed, winner, List.of(stale.invalidateForTakeoverAt(T1), winner.succeedAt(T1)));
 	}
@@ -538,5 +593,22 @@ class CommandResultTakeoverRacePostgresTest {
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
 	@Import({CommandResultRuntimeConfiguration.class, JdbcCommandResultSource.class, JdbcCommandResultStore.class})
-	static class TestApplication {}
+	static class TestApplication {
+		@Bean static BeanPostProcessor observeCommandResultOwner() {
+			return new BeanPostProcessor() {
+				@Override public Object postProcessAfterInitialization(Object bean, String name) {
+					if (!name.equals("commandResultTransactionRunner")) return bean;
+					TransactionRunner owner = assertInstanceOf(ConsumptionOwnerTransactionRunner.class, bean);
+					return new TransactionRunner() {
+						@Override public <T> T runInTransaction(Supplier<T> action) {
+							OwnerObservation observation = OBSERVATION.get();
+							// The original guard runs before observation; only its action is instrumented.
+							return owner.runInTransaction(observation == null ? action : () -> observation.observe(action));
+						}
+						@Override public void runAfterCommit(Runnable action) { owner.runAfterCommit(action); }
+					};
+				}
+			};
+		}
+	}
 }
