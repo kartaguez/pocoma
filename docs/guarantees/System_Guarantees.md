@@ -7,7 +7,7 @@ Mise à jour bornée du 2026-10-16 : [clôture WP0–WP6 Consumption](../plans/2
 Consolidation bornée 2026-10-20 : correction documentaire E→U déjà livré selon Architecture CURRENT
 et son service ; aucune nouvelle garantie globale. [Canon du chantier](../steps/current/DISCOVERY/Step_Canon.md)
 et [plan courant](../steps/current/DISCOVERY/Step_Plan.md) distinguent les contrats 4A livrés des garanties
-E/Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ.
+E/Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ. Le [lot 4B](../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md) apporte ensuite des preuves transactionnelles bornées (owner/participants, collecte/fermeture, rollback/résolution/cleanup) avec code dormant et writer/suffixe synthétiques de test ; aucune garantie de séquencement ACTIVE ou de raccordement des producteurs réels.
 
 | Propriété / périmètre | Mécanisme et preuve existante | Hypothèses, limites et panne/retry | Statut de preuve |
 |---|---|---|---|

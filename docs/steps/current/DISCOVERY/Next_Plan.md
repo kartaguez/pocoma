@@ -2,11 +2,11 @@
 
 Date : 2026-10-20. **next_plan — TARGET de travail, non implémentée par cette consolidation.**
 Référence : `b7aacef54457583eccd405ef03acc21e05bb156c`.
-[Canon/statuts](Step_Canon.md) ; [chantier courant 4B–4E](Step_Plan.md).
+[Canon/statuts](Step_Canon.md) ; [chantier courant 4C–4E](Step_Plan.md).
 
 ## Dépendances et points de décision
 
-Ordre de livraison : **4B → 4C → 4D PREPARED → 4E ACTIVE → A Discovery → B contrats READ → C matérialisation/consommation READ**.
+Ordre de livraison : **4B CLOSED hors production → 4C → 4D PREPARED → 4E ACTIVE → A Discovery → B contrats READ → C matérialisation/consommation READ**.
 L'inventaire et les arbitrages B peuvent commencer pendant A ; C dépend de contrats B stabilisés
 et d'un chemin de découverte/reprise prouvé pour les consumers concernés. Aucun calendrier arbitraire.
 D contient des évolutions fonctionnelles optionnelles, à découpler des prérequis A/B/C.

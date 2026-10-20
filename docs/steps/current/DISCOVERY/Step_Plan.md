@@ -1,9 +1,9 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`b7aacef54457583eccd405ef03acc21e05bb156c`. **4A CLOSED ; 4B NEXT ; 4C–4E à réaliser.**
+`b7aacef54457583eccd405ef03acc21e05bb156c`. **4A CLOSED ; 4B CLOSED hors production ; 4C NEXT ; 4D–4E à réaliser.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
-Il n'implémente ni n'active 4B. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
+4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
 ## Autorité, critères et état 4A
 
@@ -28,7 +28,7 @@ corrections. Le rapport non suivi d'audit du skip est préservé hors livraison 
 indispensable : la condition JUnit et les preuves 3B/du bootstrap sont déjà versionnées.
 Aucun test n'est relancé pour cette décision documentaire. Aucun séquenceur PostgreSQL actif.
 
-## 4B — NEXT : owner PRIMARY et collecteur, hors production
+## 4B — CLOSED : owner PRIMARY et collecteur, hors production
 
 Construire le runner propriétaire/participant PRIMARY et la réalisation de `PublishedEvents` pour
 le graphe durable couvert. Configuration importée uniquement par tests, sans scan/autoconfiguration
@@ -54,7 +54,15 @@ rollback confirmé. Rejet structurel des callbacks écrivains, sans promettre un
 inventaire complet des owners autonomes à migrer ; anomalie de composition réelle bloque 4C/4D.
 Code dormant retirable sans opération DB. Les deux compositions de publication restent distinctes.
 
-## 4C — Schéma additif et séquenceur transactionnel inactifs
+**Livré et prouvé le 2026-10-20 — PASS.** [Rapport 4B](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
+et [preuves JSON](../../../testing/evidence/Event_Transaction_Protocol_Step_4B_2026-10-20.json) :
+29 nouveaux tests 4B verts ; ciblés 37/0/0/0, puis COMMAND canonique 1 047 déclarés,
+0 failure/error, 1 skip exploratoire 3B préexistant. Transaction physique JPA/JDBC, vrai finalizer
+S/Claim, rollback, ordre/fermeture, poisoning, trois résolutions et cleanup prouvés. Inventaire des
+owners autonomes achevé. Configuration et writer synthétiques dans les tests uniquement ; aucun
+producteur réel migré. Global architecture/full non requis, non exécutés ; crossing NONE.
+
+## 4C — NEXT : schéma additif et séquenceur transactionnel inactifs
 
 Quatre autorités E, quatre associations typées et vue ; migration additive après version courante
 (V29 à la référence), mode durable unique PREPARED, droits et contraintes de complétude ACTIVE.
@@ -115,7 +123,7 @@ quatre familles selon §7. Une variante par lots requiert décision et preuve de
 ## Vérification des futurs lots
 
 Depuis `app/`, après déclaration du lot et lecture de la [politique normative](../../../testing/Reactor_Verification_Policy.md).
-Commandes futures uniquement ; le détail §8 du plan fait autorité.
+4B a exécuté sa commande canonique ; les commandes 4C–4E restent futures. Le détail §8 du plan fait autorité.
 
 | Lot | Slices / commande de clôture | Gates supplémentaires |
 |---|---|---|
@@ -148,10 +156,11 @@ plusieurs routes, nouveaux consumers et repartitionnement ; comparaison PostgreS
 Questions ouvertes : checkpoint/segmentation, équité reprise/nouveaux travaux, taille des lots,
 parallélisme intra-worker, seuils de gain et coût des index. Aucune promesse chiffrée actuelle.
 
-## Maintenance et contrôle de cette consolidation
+## Maintenance et contrôle
 
 Ce plan suit l'avancement ; le canon suit les décisions ; Next Plan suit les dépendances futures.
 Promouvoir le prochain chantier après consolidation de l'acquis et archivage traçable du précédent.
 La [revue documentaire](Consolidation_Report_2026-10-20.md) conserve inventaire, résolutions et contrôle.
-Périmètre de cette livraison : documentation/liens uniquement ; aucune slice Maven ni DB, aucun gate
-global requis, aucun reactor exécuté ; franchissement inattendu NONE. La prochaine action est **4B**.
+La consolidation initiale était documentaire. La livraison 4B est bornée à COMMAND/NONE, DB CURRENT
+et prototypes isolés ; son [rapport](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
+porte commandes, résultats et limites. Aucun gate global/full requis ; crossing NONE. Prochaine action : **4C**, sur autorisation propre.

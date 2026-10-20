@@ -2,7 +2,7 @@
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
 `b7aacef54457583eccd405ef03acc21e05bb156c`. **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4B**.
+Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4C**, après 4B CLOSED hors production.
 
 ## Autorité et lecture
 
@@ -59,8 +59,8 @@ ni EventId technique de publication ni position. Le métier produit via `EventPu
 captureur d'invocation peut rester mémoire. L'orchestration demande ensuite la publication au port
 spécialisé compatible. Pour la cible ordonnée, le contrat prescrit après acceptation éligible la déclaration explicite via
 `PublishedEvents.recordPublishedEvent(EventRef)` ; `EventRef = (EventFamily, eventId UUID)`.
-Ces types/contrats sont livrés ; **leur réalisation transactionnelle et les déclarants de production
-ne le sont pas**. Acceptation ≠ INSERT particulier ≠ commit ≠ visibilité externe.
+Ces types/contrats sont livrés ; **leur réalisation transactionnelle 4B est livrée dormante ; les déclarants de production
+restent à migrer en 4D**. Acceptation ≠ INSERT particulier ≠ commit ≠ visibilité externe.
 
 Le [rapport 4A](../../../architecture/Event_Publication_Contracts_Step_4A_2026-10-19.md) définit les
 enveloppes spécialisées, refus/no-op sans référence et tests de contrat. Gardes physiques locales
@@ -78,7 +78,13 @@ RegistrationOutcome n'est pas une cinquième famille ni un RegistrationTerminalE
 La [matrice des producteurs et owners](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#5-carte-des-producteurs-et-portée-des-changements-futurs)
 fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
-## Séquencement E : cible retenue, réalisation 4B–4E restante
+## Séquencement E : 4B dormant livré, réalisation 4C–4E restante
+
+**CURRENT borné, hors production — 4B CLOSED.** Le [runner/collecteur PRIMARY et ses preuves](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
+sont livrés, sans scan/configuration productive. Propriétaire/participants, flush terminal,
+snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans COMMAND avec le
+manager JPA standard. Le suffixe est synthétique et limité aux tests ; aucune E active, aucun
+producteur/owner réel recâblé. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
 
 **Pourquoi.** Un timestamp/UUID ou une séquence PostgreSQL non transactionnelle ne prouve pas
 l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense committée par famille

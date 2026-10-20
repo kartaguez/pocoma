@@ -44,8 +44,8 @@ the same worker, HTTP, datasource and lifecycle definitions.
 
 [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) distinguishes delivered P → B → S and 4A
 publication contracts from the retained E sequencing target. [Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
-records 4A CLOSED at `b7aacef54457583eccd405ef03acc21e05bb156c`, 4B NEXT and remaining 4C–4E gates.
-No production E sequencer or efficient Discovery checkpoint is delivered by this documentation.
+records 4A CLOSED at `b7aacef54457583eccd405ef03acc21e05bb156c`, 4B CLOSED outside production and remaining 4C–4E gates. The [4B proof](Event_Transaction_Protocol_Step_4B_2026-10-20.md) delivers a dormant PRIMARY owner/participant runner and collector, explicitly composed only by tests with the standard JPA manager.
+No production E sequencer or efficient Discovery checkpoint is delivered.
 [Next Plan](../steps/current/DISCOVERY/Next_Plan.md) covers Discovery and the future READ model.
 
 ## Documentation status
