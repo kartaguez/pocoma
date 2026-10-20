@@ -1,0 +1,17 @@
+object,operation,runtime,maintenance,proof_or_condition
+protocol,SELECT,ALLOW,ALLOW,V30 grants
+protocol,UPDATE INSERT DELETE TRUNCATE,DENY,ALLOW,V31 effective role audit and negative SQL tests
+authorities,reserve_event_positions EXECUTE,ALLOW,ALLOW,real suffix and R1 counterexample
+authorities,direct mutation,DENY,ALLOW,V31 effective role audit and negative SQL tests
+positions,SELECT INSERT,ALLOW,ALLOW,V30 grants real producer tests
+positions,UPDATE DELETE,DENY,DENY,immutable trigger even for owner
+positions,TRUNCATE TRIGGER MAINTAIN,DENY,maintenance only,transitive effective role audit
+sources,INSERT,application grants required,ALLOW,actual producer role qualification plus environment preflight
+sources,TRUNCATE TRIGGER MAINTAIN,DENY,maintenance only,V31 effective role audit
+cutover journal,mutation,DENY,ALLOW,owner-only privileges
+administrative functions,EXECUTE,DENY,owner or explicit maintenance grant,invoker functions PUBLIC revoked
+trusted schema,CREATE,DENY,owner,NOINHERIT transitive negative test
+objects,ownership,DENY,owner,separate runtime and migration identities
+membership,administrative or maintenance,DENY,operator policy,all reachable roles audited including SET ROLE
+parameter,session_replication_role SET,DENY,maintenance only,effective parameter privilege audit
+R1,reserve without associations,TECHNICALLY POSSIBLE,TECHNICALLY POSSIBLE,assumption remains explicit and detector tested

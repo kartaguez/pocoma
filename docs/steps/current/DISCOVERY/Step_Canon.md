@@ -2,7 +2,7 @@
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
 `84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; **4D CLOSED / PASS — 4E NEXT, NOT STARTED**. Runtime livré **PREPARED**, sans activation ni backfill.
+Le responsable du dépôt porte les arbitrages ; **4D CLOSED / PASS — 4E INCOMPLETE**. Runtime livré **PREPARED**, sans activation ni backfill.
 
 ## Autorité et lecture
 
@@ -77,7 +77,20 @@ RegistrationOutcome n'est pas une cinquième famille ni un RegistrationTerminalE
 La [matrice des producteurs et owners](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#5-carte-des-producteurs-et-portée-des-changements-futurs)
 fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
-## Séquencement E : 4D PREPARED livré, activation 4E restante
+## Séquencement E : 4D PREPARED livré, qualification 4E en cours
+
+Publication documentaire du 2026-10-20 : les résultats ci-dessous portent sur le candidat local
+non committé. Le code, V31, les tests et les outils 4E ne sont pas livrés par ce commit documentaire.
+
+**4E INCOMPLETE, qualification locale réalisée, non clos.** [Rapport 4E](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md)
+et [runbook](../../../operations/event-sequencing-runbook.md) : DDL V31 administratif sans activation
+au démarrage, cutover/backfill atomique sous gel et qualification PostgreSQL isolée.
+La vraie perte d'accusé COMMIT a démontré une notification ROLLED_BACK de Spring/Hibernate avec
+commit durable ; le runner PRIMARY signale maintenant cette résolution réseau incertaine au
+wrapper Consumption, qui conserve UNKNOWN. Ce défaut est documenté avec sa preuve et la révision
+d'impact préalable ; les invariants, le manager standard et les retries restent conservés.
+Seuils métier, copie/version déployées et autorisation restent à qualifier ; aucun ACTIVE déployé.
+V-E, architecture globale et full reactor passent ; les seuils et la qualification déployée restent ouverts, sans clôture 4E.
 
 **Audit de préparation 4D au HEAD `4defd5a6` :** [inventaire, écarts et matrice A/B/C](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md).
 L'arbitrage du 2026-10-20 a approuvé le retour UUID du port Business auxiliaire, puis la construction

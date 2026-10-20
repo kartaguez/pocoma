@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E NEXT, NOT STARTED.**
+`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E INCOMPLETE.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
@@ -68,7 +68,7 @@ campagne de livraison 4B. À cette clôture historique, runner et collecteur ét
 Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
 (conditions A et B du §4D ci-dessous), sans dette technique 4B. Les limites des preuves et le
 [compte rendu de clôture documentaire](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
-ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; raccordement 4D certifié ci-dessous ; 4E NOT STARTED.**
+ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; raccordement 4D certifié ci-dessous ; 4E INCOMPLETE.**
 
 ## 4C — CLOSED / PASS : schéma additif et séquenceur transactionnel inactifs
 
@@ -99,7 +99,7 @@ activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; raccordement ultér
 **Audit indépendant 4C — PASS statique, sans défaut bloquant démontré dans le périmètre 4C.**
 Le [verdict et R1/R2/R3](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
 sont enregistrés sans réexécution Maven/PostgreSQL, réouverture, extension de certification ni
-dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E NOT STARTED**.
+dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E INCOMPLETE**.
 
 ## 4D — Producteurs et orchestrations réels, PREPARED complet
 
@@ -108,7 +108,7 @@ réalisé, inventaire et scope V-D déclarés avant modification productive. L'a
 approuve UUID sur le port auxiliaire puis EventRef déclaré par la façade applicative sous le même
 owner PRIMARY. Amendement 4A daté ; aucune dépendance Maven nouvelle.
 
-**Livraison — 4D CLOSED / PASS, PREPARED ; 4E NEXT, NOT STARTED.** Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
+**Livraison — 4D CLOSED / PASS, PREPARED ; 4E INCOMPLETE.** Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
 porte les intégrations, matrices A/B/C, commandes réellement exécutées et preuves PostgreSQL.
 
 | Gate V-D réellement exécuté | Résultat |
@@ -154,6 +154,25 @@ est répété sous drainage avant activation ; échec bloque le déploiement. Co
 
 ## 4E — Historique, cutover et activation
 
+Publication documentaire du 2026-10-20 : les résultats ci-dessous portent sur le candidat local
+non committé. Le code, V31, les tests et les outils 4E ne sont pas livrés par ce commit documentaire.
+
+**INCOMPLETE**, autorisé par la mission 4E du 2026-10-20.
+[Rapport et vérification déclarée](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md),
+[runbook](../../../operations/event-sequencing-runbook.md),
+[matrice de privilèges](../../../testing/evidence/Event_Sequencing_Step_4E_Privileges.csv).
+Les fonctions V31 sont exclusivement administratives ; aucune activation runtime/déployée.
+La campagne TCP a démontré puis corrigé une classification ROLLED_BACK erronée après COMMIT
+réel dont l'accusé était perdu. Scope révisé avant correction : marqueur `port-transaction`,
+runner PRIMARY et wrapper de résolution ; mêmes slices V-E, architecture globale/full requis.
+Qualification locale finale : **V-E 1 230 ; architecture globale 1 388 ; full reactor 1 388**,
+0 failure/error, seul skip historique 3B ; **35 cas 4E sans skip**. Deux retours PREPARED 4E→4D,
+quatre démarrages/publications avec drainage, passent. Backfill/cutover/recovery et trois campagnes
+PREPARED/ACTIVE sont archivés dans le rapport. Aucun ACTIVE déployé, aucun commit/push de clôture.
+Les seuils du responsable, la version/copie/volumes/comptes/sauvegarde de l'environnement cible
+restent non qualifiés : **4E INCOMPLETE ; PRODUCTION ACTIVATION READINESS UNDETERMINED**.
+Ne pas déclarer CLOSED avant tous les critères ci-dessous, notamment les seuils du responsable.
+
 Inventorier la base réellement déployée ; reprendre **toutes** les lignes conservées des quatre
 sources, y compris consommées et baseline V22. Si nécessaire, backfill déterministe UUID texte
 collation C, frontières N consignées, sans prétendre retrouver les commits historiques. Gel exclusif,
@@ -180,7 +199,7 @@ quatre familles selon §7. Une variante par lots requiert décision et preuve de
 ## Vérification des futurs lots
 
 Depuis `app/`, après déclaration du lot et lecture de la [politique normative](../../../testing/Reactor_Verification_Policy.md).
-4B, 4C et 4D ont exécuté leurs commandes canoniques ; les commandes 4E restent futures. Le détail §8 du plan fait autorité.
+4B, 4C et 4D ont exécuté leurs commandes canoniques ; les commandes 4E sont suivies dans le rapport courant. Le détail §8 du plan fait autorité.
 
 | Lot | Slices / commande de clôture | Gates supplémentaires |
 |---|---|---|
@@ -223,4 +242,4 @@ et prototypes isolés ; son [rapport](../../../architecture/Event_Transaction_Pr
 porte commandes, résultats et limites. Le [rapport 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
 clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full requis ; crossing NONE.
 Le rapport 4D clôt désormais V-D, avec architecture globale requise exécutée et full non requis.
-Prochaine action : **4E**, sur autorisation propre ; aucune activation déployée autorisée par 4D.
+Action courante : **qualification 4E** ; aucune activation déployée autorisée par la mission d’implémentation.

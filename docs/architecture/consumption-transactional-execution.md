@@ -24,6 +24,15 @@ irréversiblement l’owner sur erreur même interceptée. Le propriétaire rés
 TA/TE/TR/TH, P → B → S, fences/CAS et politiques de retry restent ceux décrits ci-dessous.
 Les preuves ACTIVE restent isolées ; activation/historique relèvent de 4E.
 
+La qualification du candidat local 4E, dont le code reste non committé lors de cette publication
+documentaire ([rapport](Event_Sequencing_Step_4E_2026-10-20.md)), a démontré une perte réelle
+d'accusé TCP COMMIT : Spring/Hibernate notifiait ROLLED_BACK alors que l'Event et sa position
+étaient durables. Dans ce candidat, le runner PRIMARY émet un marqueur de COMMIT inconnu si son callback
+entier a terminé et que la résolution non COMMITTED porte une erreur de transport SQLSTATE
+classe 08 ou 40003. Le wrapper conserve alors UNKNOWN malgré la notification framework.
+Les erreurs d'action/flush/suffixe et les refus de contraintes gardent leurs résolutions existantes ;
+aucun retry ou FAILED automatique n'est ajouté. Le manager JPA standard reste en place.
+
 ## Frontière transactionnelle gagnante
 
 Les wrappers propriétaires Acquire/Execute/Finalize/HandleFailure utilisent un `TransactionRunner`
