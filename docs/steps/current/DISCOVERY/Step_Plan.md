@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`4defd5a63af267656f2feee92aed8daafef2175f` au départ du lot 4D. **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E NEXT, NOT STARTED.**
+`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E NEXT, NOT STARTED.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 

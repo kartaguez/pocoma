@@ -5104,5 +5104,17 @@
     "sha256": "e34013dbb00ea3f3ff5150a8ba9e850d49fb116b4d7f6703edb4db9a19af3092",
     "excluded_from_delivery": true
   },
-  "git_note": "Delivery commit carries this evidence. No force, merge, tag, reset, stash or rebase. Final publication state recorded in report and final response; logs prove pre-commit working-tree sources using source_sha256."
+  "git_note": "Delivery commit carries this evidence. No force, merge, tag, reset, stash or rebase. Final publication state recorded in report and final response; logs prove pre-commit working-tree sources using source_sha256.",
+  "git_publication": {
+    "implementation_commit": "84b67392b5b2db5e685f09a513770307475efc68",
+    "branch": "feat/consumption-transaction-protocol",
+    "push": "origin/feat/consumption-transaction-protocol, normal push succeeded",
+    "divergence_after_implementation_push": [
+      0,
+      0
+    ],
+    "tracked_working_tree_at_confirmation": "clean",
+    "preexisting_untracked_preserved": true,
+    "documentation_consolidation": "This evidence publication record is a documentation-only successor to implementation_commit; source_sha256 unchanged. Final documentation commit id appears in closing response and git history."
+  }
 }

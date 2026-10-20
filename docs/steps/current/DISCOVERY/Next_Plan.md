@@ -1,7 +1,7 @@
 # DISCOVERY — Next Plan : trajectoire jusqu'au READ
 
 Date : 2026-10-20. **next_plan — TARGET de travail, non implémentée par cette consolidation.**
-Référence de départ 4D : `4defd5a63af267656f2feee92aed8daafef2175f` ; livraison et preuves liées au plan courant.
+Référence applicative 4D : `84b67392b5b2db5e685f09a513770307475efc68` ; livraison et preuves liées au plan courant.
 [Canon/statuts](Step_Canon.md) ; [chantier courant 4D–4E](Step_Plan.md).
 
 ## Dépendances et points de décision

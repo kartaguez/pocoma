@@ -184,4 +184,18 @@ Runtime livré : **PREPARED**. Aucun ACTIVE déployé, aucun backfill, aucun mer
 Le checkout initial feat/runtime-monolith et tous ses changements restent intacts. Dans le worktree
 cible, le fichier non suivi préexistant `Architecture_Last_Skip_Audit_2026-10-20.md` est conservé
 et exclu de la livraison, empreinte initiale inchangée. Commit/push uniquement après certification.
-État Git à certification : HEAD de départ inchangé, sources/proofs ci-dessus validés, fetch de la branche cible à divergence 0/0 ; commit/push de livraison en cours après certification. Le bilan de publication sera complété après le premier push.
+État Git confirmé après livraison applicative :
+
+| Point | État observé |
+|---|---|
+| Start HEAD | `4defd5a63af267656f2feee92aed8daafef2175f` |
+| Commit applicatif certifié | `84b67392b5b2db5e685f09a513770307475efc68` |
+| Branche et push | `feat/consumption-transaction-protocol` → `origin/feat/consumption-transaction-protocol`, push normal réussi |
+| Divergence après publication | `0 / 0` |
+| Working tree à confirmation | Aucun changement suivi ; seul non-suivi initial `Architecture_Last_Skip_Audit_2026-10-20.md`, conservé/exclu |
+| Commit de consolidation | Le commit documentaire portant ce bilan succède au commit applicatif ci-dessus ; aucun code ni preuve de test exécuté n'est modifié |
+
+Le canon/plan pointent la référence applicative certifiée. La consolidation documentaire ne nécessite
+pas de nouveau gate Maven ; liens, empreintes et diff documentaire sont vérifiés. L'identifiant du
+dernier commit documentaire publié est fourni dans la réponse de clôture et dans l'historique Git.
+Aucun merge main, tag ou push forcé ; les autres worktrees sont préservés. **4D CLOSED / PASS — 4E NEXT.**

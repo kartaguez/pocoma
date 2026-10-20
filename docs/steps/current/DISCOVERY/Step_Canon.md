@@ -1,7 +1,7 @@
 # DISCOVERY — Step Canon
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
-`4defd5a63af267656f2feee92aed8daafef2175f` au départ de la livraison 4D. **current_canon** du chantier séquencement → Discovery.
+`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **current_canon** du chantier séquencement → Discovery.
 Le responsable du dépôt porte les arbitrages ; **4D CLOSED / PASS — 4E NEXT, NOT STARTED**. Runtime livré **PREPARED**, sans activation ni backfill.
 
 ## Autorité et lecture
