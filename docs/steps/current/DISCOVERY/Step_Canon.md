@@ -1,8 +1,8 @@
 # DISCOVERY — Step Canon
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
-`b7aacef54457583eccd405ef03acc21e05bb156c`. **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4C**, après 4B CLOSED hors production.
+`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **current_canon** du chantier séquencement → Discovery.
+Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4C**, après **4B CLOSED / PASS** hors production ; **4D et 4E non implémentés**.
 
 ## Autorité et lecture
 
@@ -80,11 +80,20 @@ fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
 ## Séquencement E : 4B dormant livré, réalisation 4C–4E restante
 
-**CURRENT borné, hors production — 4B CLOSED.** Le [runner/collecteur PRIMARY et ses preuves](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
+**CURRENT borné, hors production — 4B CLOSED / PASS confirmé par audit indépendant statique.** Le [runner/collecteur PRIMARY et ses preuves](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
 sont livrés, sans scan/configuration productive. Propriétaire/participants, flush terminal,
 snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans COMMAND avec le
 manager JPA standard. Le suffixe est synthétique et limité aux tests ; aucune E active, aucun
 producteur/owner réel recâblé. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
+
+L'audit favorable porte sur le SHA de livraison ci-dessus et les preuves 4B déjà réalisées ;
+l'auditeur n'a réexécuté ni Maven ni PostgreSQL. Il ne prouve pas une interception universelle
+des erreurs SQL des writers réels par le runner 4B. Ses deux réserves non bloquantes pour 4B
+relèvent de la certification **TARGET 4D** : poisoning irréversible de chaque writer durable réel,
+y compris JDBC, et identité physique JPA/JDBC sous le même manager PRIMARY pour tous les owners.
+Leurs critères sont enregistrés une seule fois dans la [spécification, §6/4D, conditions A et B](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared),
+suivis par le [plan, §4D](Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet).
+Aucune dette technique 4B n'est ouverte ; le périmètre et la clôture 4C restent inchangés.
 
 **Pourquoi.** Un timestamp/UUID ou une séquence PostgreSQL non transactionnelle ne prouve pas
 l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense committée par famille

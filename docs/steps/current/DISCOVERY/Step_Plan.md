@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`b7aacef54457583eccd405ef03acc21e05bb156c`. **4A CLOSED ; 4B CLOSED hors production ; 4C NEXT ; 4D–4E à réaliser.**
+`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C NEXT ; 4D et 4E non implémentés.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
@@ -62,6 +62,14 @@ S/Claim, rollback, ordre/fermeture, poisoning, trois résolutions et cleanup pro
 owners autonomes achevé. Configuration et writer synthétiques dans les tests uniquement ; aucun
 producteur réel migré. Global architecture/full non requis, non exécutés ; crossing NONE.
 
+**Audit indépendant — PASS confirmé sur le SHA de livraison ci-dessus.** Revue statique favorable,
+sans réexécution Maven ou PostgreSQL par l'auditeur ; les résultats ci-dessus restent ceux de la
+campagne de livraison 4B. Runner et collecteur restent dormants, non raccordés en production.
+Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
+(conditions A et B du §4D ci-dessous), sans dette technique 4B. Les limites des preuves et le
+[compte rendu de clôture documentaire](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
+ne valent pas certification des writers/owners réels. **4C NEXT ; 4D et 4E non implémentés.**
+
 ## 4C — NEXT : schéma additif et séquenceur transactionnel inactifs
 
 Quatre autorités E, quatre associations typées et vue ; migration additive après version courante
@@ -90,6 +98,17 @@ positions sur ACTIVE **isolé**, avec ordre de famille exact. Omissions/fictives
 atomiquement en ACTIVE ; PREPARED les détecte par tests sans revendiquer sa contrainte inactive.
 Même sémantique exceptions/versions/fences/retries ; tests ports hors owner/fermés ; aucun DML métier
 après E sur compositions certifiées. Publication indépendante sans E toujours démontrée.
+
+**Conditions de certification 4D issues de l'audit 4B — à prouver en V-D :**
+
+- **A — Poisoning des writers réels** : chaque writer durable couvert, chemins JDBC compris ;
+  erreur interceptée et impossibilité de commit partiel.
+- **B — Identité de transaction physique** : owners Command, Registration et auxiliaires ;
+  même manager PRIMARY et même transaction physique JPA/JDBC dans toutes les compositions réelles.
+
+Définition normative unique et règles de refus : [§6/4D, conditions A et B](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared).
+Ces conditions précisent la validation existante de 4D ; elles ne rouvrent pas 4B, n'ouvrent aucune
+dette technique 4B et ne changent ni le périmètre, ni les invariants, ni les critères de clôture 4C.
 
 Tous les owners/writers certifiés ensemble ; pas de canary par famille. En production PREPARED,
 owner/collecte/flush/fermeture/gardes actifs, E/positions encore inactifs. Le retour au runtime précédent

@@ -1,6 +1,6 @@
 # Lot 4B — Propriétaire PRIMARY et collecte transactionnelle dormante
 
-Date : 2026-10-20. **PASS, 4B CLOSED hors production ; 4C NEXT.**
+Date : 2026-10-20. **4B CLOSED / PASS confirmé après audit indépendant ; hors production ; 4C NEXT ; 4D et 4E non implémentés.**
 Référence normative : [plan détaillé §§3–6/4B et §8/V-B](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md).
 Suivi : [current_plan](../steps/current/DISCOVERY/Step_Plan.md), [current_canon](../steps/current/DISCOVERY/Step_Canon.md).
 Preuves exécutées : [résultats JSON](../testing/evidence/Event_Transaction_Protocol_Step_4B_2026-10-20.json),
@@ -15,9 +15,9 @@ Aucune modification suivie initiale. Seul non-suivi préexistant :
 `docs/architecture/Architecture_Last_Skip_Audit_2026-10-20.md`, SHA-256
 `e34013dbb00ea3f3ff5150a8ba9e850d49fb116b4d7f6703edb4db9a19af3092` ; conservé et exclu du commit.
 Fetch ciblé effectué ; divergence initiale après fetch **0/0**. Checkout principal et autres worktrees
-non modifiés. Aucun reset/stash/rebase/force push. Le commit final est celui qui porte ce rapport
-(`git log -1 --format=%H -- docs/architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md`) ;
-son SHA, le push et la divergence finale sont confirmés dans la livraison, sans référence circulaire.
+non modifiés. Aucun reset/stash/rebase/force push. Le commit de livraison 4B, objet de l'audit, est
+`5640220b94f6208aa4c156e248d95e2eced1522f` ; ses preuves et commandes ci-dessous restent celles de
+cette livraison. La clôture documentaire ultérieure est distinguée dans la dernière section.
 
 ## Verification scope déclaré avant implémentation
 
@@ -199,3 +199,43 @@ explicitement câblée, sans collecte implicite ni modification des règles glob
 owner/OPEN des vrais writers, PREPARED et les preuves des compositions distribuées/monolithe.
 4E garde activation, gel, historique/backfill, restauration et gates globaux. Discovery et READ
 restent hors scope. Aucun de ces sujets n'est anticipé. Le code 4B dormant se retire sans opération DB.
+
+## Clôture documentaire après audit indépendant
+
+Verdict indépendant communiqué par le responsable du dépôt, consigné le 2026-10-20 : **PASS confirmé**
+pour la livraison `5640220b94f6208aa4c156e248d95e2eced1522f`, avec deux réserves non bloquantes
+relevant de la certification 4D. **4B CLOSED / PASS conformément à son périmètre.** La revue est
+statique et favorable ; l'auditeur n'a réexécuté ni Maven ni PostgreSQL. Les preuves transactionnelles
+PostgreSQL et les tests V-B de la livraison, détaillés plus haut, avaient déjà été réalisés.
+Les fichiers de preuves JSON/TXT restent inchangés ; aucune exécution supplémentaire n'est attribuée
+à l'audit.
+
+Les garanties prouvées sur le runner/collecteur dormant et le writer synthétique restent bornées
+à la matrice V-B. Le poisoning des erreurs de garde interceptées et des erreurs participantes
+propagées ne prouve pas que le runner 4B intercepte toutes les erreurs SQL des writers réels.
+L'identité physique prouvée dans la composition de test COMMAND ne certifie pas les compositions
+Command, Registration et auxiliaires futures. Runner et collecteur sont **dormants, non raccordés
+en production** ; aucun producteur réel migré ni séquencement E actif.
+
+Les deux réserves sont rattachées aux critères existants **4D/V-D** de la
+[spécification, §6/4D, conditions A et B](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared) :
+**A — poisoning des writers réels, JDBC compris**, et **B — identité de transaction physique sous
+le même manager PRIMARY**. Le [Step Plan, §4D](../steps/current/DISCOVERY/Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet)
+en porte le suivi, le [canon](../steps/current/DISCOVERY/Step_Canon.md) les limites CURRENT/TARGET.
+Elles ne créent aucune dette technique 4B. **4C NEXT**, sans lancement d'implémentation ni changement
+de périmètre, invariants ou critères de clôture ; **4D et 4E non implémentés**.
+
+Vérification de cette seule clôture documentaire :
+
+- Start HEAD : SHA de livraison 4B ci-dessus ; même branche et même worktree. Divergence initiale
+  après fetch ciblé : **0/0** ; fichier non suivi préexistant conservé avec le même SHA-256.
+- Impact attendu/observé : quatre documents uniquement (canon, plan, spécification Étape 4, présent
+  rapport). Slices déclarées : **NONE**, aucune slice applicative ; franchissement inattendu : **NONE**.
+- Contrôles : état Git/branche/worktree, fetch ciblé, `git rev-list --left-right --count`,
+  `git diff --check`, revue du diff ; `python3 /private/tmp/pocoma-4b-doc-closure-verify.py`
+  pour la validation des références/liens/ancres,
+  des sections 4C inchangées, des preuves JSON/TXT inchangées et du non-suivi préservé.
+- Aucun Maven ni PostgreSQL relancé. Gate architecture global : **NOT REQUIRED, non exécuté**.
+  Full reactor : **NOT REQUIRED, non exécuté** ; DB : **NONE**, aucune migration ou changement de schéma.
+- Commit et push documentaire non forcé : SHA final, résultat du push et divergence finale fournis
+  dans la livraison de cette clôture, distincts du SHA audité.
