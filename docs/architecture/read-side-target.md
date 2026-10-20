@@ -1,5 +1,13 @@
 # Architecture canonique du Read side et des projections
 
+Statut de lecture actualisé le 2026-10-20 : **contrat spécialisé des projections exactes existantes**,
+avec chronologie de lots et propositions historiques conservées ci-dessous. Il ne constitue pas un
+second plan d'exécution actif. L'[Architecture CURRENT](Architecture.md) décrit les chaînes livrées ;
+le [Next Plan, chantier B](../steps/current/DISCOVERY/Next_Plan.md#chantier-b--refonte-du-modèle-read)
+cadre la nouvelle cible CurrentPotHeader/références d'expenses, à arbitrer et migrer. Aucun remplacement
+implicite de AUTH/READ_POT/POT_BALANCES ni de leurs clés exactes. Les formulations « futur » du noyau
+se lisent dans leur lot d'origine, sans déduire que le store et les workers actuels sont absents.
+
 ## 1. Statut, autorité et portée
 
 Ce document est la référence normative pour la refonte du Read side à partir de la branche

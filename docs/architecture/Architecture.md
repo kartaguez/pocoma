@@ -40,6 +40,14 @@ The monolith's exact deployment composition and verification contract are record
 `composition-runtime-spring` module so distributed runtimes and the functional-test process use
 the same worker, HTTP, datasource and lifecycle definitions.
 
+## Active sequencing and Discovery work
+
+[Step Canon](../steps/current/DISCOVERY/Step_Canon.md) distinguishes delivered P → B → S and 4A
+publication contracts from the retained E sequencing target. [Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
+records 4A CLOSED at `b7aacef54457583eccd405ef03acc21e05bb156c`, 4B NEXT and remaining 4C–4E gates.
+No production E sequencer or efficient Discovery checkpoint is delivered by this documentation.
+[Next Plan](../steps/current/DISCOVERY/Next_Plan.md) covers Discovery and the future READ model.
+
 ## Documentation status
 
 The modularity migration plan and WP1–WP6 reports are historical execution evidence. `Three_Engine_Families_Revision.md`, old CURRENT audits and earlier module counts are historical design/migration material. This page and the WP6 final topology describe CURRENT.

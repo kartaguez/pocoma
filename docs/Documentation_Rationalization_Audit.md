@@ -251,6 +251,14 @@ Les 49 erreurs actuelles ne doivent pas être attribuées aux futurs déplacemen
 4. Vérifier les liens entrants et sortants, l'index, le README racine et les références de code. Aucun Step clos ni plan historique n'est normatif après clôture ; les trois global docs priment.
 5. Une proposition non livrée demeure sous un Step actif clairement marqué **TARGET** ; les changements de règle transversale exigent la mise à jour des global docs au moment de la livraison.
 
+Complément opérationnel du 2026-10-20 : le Step actif [DISCOVERY](steps/current/DISCOVERY/Step_Canon.md)
+emploie `Step_Canon.md` (**current_canon** : décisions prises/révisées), `Step_Plan.md`
+(**current_plan** : avancement) et `Next_Plan.md` (**next_plan** : dépendances/priorités futures).
+À chaque changement de chantier, consolider l'acquis dans le canon et F/A/G, conserver les preuves
+et le Step clos sous `completed/`, puis promouvoir le prochain plan. Les documents spécialisés
+portent le détail et leur statut ; ils ne créent pas de plan courant concurrent. Une décision TARGET
+reste identifiée comme non livrée, même dans le canon actif.
+
 Cette règle est compatible avec les Steps EPT, CCR, PCL et WA déjà dans `completed/`. Elle impose un rattrapage : EPT/CCR/WA y conservent aujourd'hui des canons détaillés que l'on cite encore comme autorité. Les synthèses globales doivent absorber ces règles avant de retirer cette autorité. REGISTRATION et POT_E2E peuvent alors quitter `current` ; le dossier ARCHITECTURE doit d'abord être scindé/rebaseliné pour ne pas enterrer son chantier restant.
 
 ## 16. Plan de migration proposé

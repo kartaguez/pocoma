@@ -1,4 +1,10 @@
-# Read side — état courant
+# Read side — snapshot historique post-PCL
+
+**HISTORICAL-COMPLETED.** Le texte suivant décrit la livraison PCL.8, avant les Results,
+Registration et la modularité finales ; ses noms de modules et exclusions d'endpoints ne sont pas
+une description du HEAD actuel. [Architecture CURRENT](Architecture.md) fait autorité pour l'existant ;
+[Next Plan, chantier B](../steps/current/DISCOVERY/Next_Plan.md#chantier-b--refonte-du-modèle-read)
+porte la cible future à arbitrer. Snapshot conservé sur place pour les liens et la traçabilité.
 
 Ce document décrit l'état exécutable après PCL.8. Les documents de décision et de cible restent les
 références pour les lots futurs ; cette page ne crée pas une nouvelle architecture Query.

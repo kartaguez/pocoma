@@ -8,6 +8,18 @@ Sources **CURRENT** de l’état livré :
 
 La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves et leurs limites.
 
+## Chantier courant : séquencement → Discovery → READ
+
+- [Step Canon — current_canon](steps/current/DISCOVERY/Step_Canon.md) : décisions, état livré, cibles et limites.
+- [Step Plan — current_plan](steps/current/DISCOVERY/Step_Plan.md) : **4A CLOSED, 4B NEXT**, critères 4B–4E et preuves 4A.
+- [Next Plan — next_plan](steps/current/DISCOVERY/Next_Plan.md) : dépendances Discovery, modèle READ, matérialisation et évolutions fonctionnelles.
+- [Inventaire et contrôle de consolidation](steps/current/DISCOVERY/Consolidation_Report_2026-10-20.md).
+
+Conventions : `steps/current/<STEP>/Step_Canon.md`, `Step_Plan.md`, `Next_Plan.md`.
+Canon : décisions prises/révisées ; plan courant : avancement ; plan suivant : dépendances/priorités.
+À la relève, consolider l'acquis dans le canon et les synthèses CURRENT, archiver le Step achevé,
+promouvoir le prochain plan. [Gouvernance](Documentation_Rationalization_Audit.md#15-gouvernance-documentaire).
+
 ## Architecture finale, dettes et historique
 
 - **CURRENT = TARGET ACHIEVED** : l'[Architecture](architecture/Architecture.md) reste la source normative ; la [topologie finale](steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), la [traçabilité](steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et le [re-audit final PASS](steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) en conservent la preuve historique.
@@ -27,5 +39,5 @@ La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves 
 
 - [Index des audits, études et preuves R03](architecture/transactional-protocol-studies.md) : autorités, ordre des verrous et fencing Binding / Consumption.
 - **R03 corrigé et clôturé** : [intégration validée](testing/evidence/Expense_Context_Integration_Report_2026-10-18.md), avec conservation de la preuve rouge historique.
-- **Référence de revue la plus récente — TARGET non implémenté** : [protocole consolidé](architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md). L’obsolescence par BusinessEvents est abandonnée : [cible temporelle courante et restrictions](architecture/Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md#ag-décision-courante--obsolescence-par-versions-temporelles-18-octobre-2026), **READY_WITH_CONSERVATIVE_RESTRICTIONS** pour l’audit initial. L’[implémentation métier et ses preuves](architecture/Pot_Command_Obsolescence_Implementation_2026-10-18.md) sont désormais livrées ; la [reprise CAS par Consumption (étape 2B)](architecture/Pot_Command_Cas_Consumption_Step_2B_2026-10-18.md) est désormais vérifié dans COMMAND, avec le budget existant de quatre essais. EventPublication reste une proposition non implémentée.
+- **Étude de conception historique, subordonnée au Step courant** : [protocole consolidé](architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md). L’obsolescence par BusinessEvents est abandonnée : [cible temporelle courante et restrictions](architecture/Pot_Command_Versioning_Obsolescence_Design_2026-10-18.md#ag-décision-courante--obsolescence-par-versions-temporelles-18-octobre-2026), **READY_WITH_CONSERVATIVE_RESTRICTIONS** pour l’audit initial. L’[implémentation métier et ses preuves](architecture/Pot_Command_Obsolescence_Implementation_2026-10-18.md) sont désormais livrées ; la [reprise CAS par Consumption (étape 2B)](architecture/Pot_Command_Cas_Consumption_Step_2B_2026-10-18.md) est désormais vérifié dans COMMAND, avec le budget existant de quatre essais. Le séquencement E reste TARGET : contrats 4A livrés et clôturés ; réalisation transactionnelle 4B–4E restante selon le [plan courant](steps/current/DISCOVERY/Step_Plan.md).
 - [Registre de consolidation Git](testing/evidence/Git_Consumption_Consolidation_2026-10-18.md), pour la provenance et les limites historiques des rapports.

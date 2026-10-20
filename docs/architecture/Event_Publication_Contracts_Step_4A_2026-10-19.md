@@ -2,7 +2,8 @@
 
 Travail commencé le 2026-10-19, livraison le 2026-10-20. Baseline : `a53999cb4dc7dac5973478b5ad50243710acba87`.
 Branche : `feat/consumption-transaction-protocol`.
-**Statut : implémentation 4A livrée ; clôture non validée, gate global en échec sur un défaut de bootstrap préexistant. Aucun passage à 4B.**
+**Statut actualisé le 2026-10-20 : 4A CLOSED au SHA `b7aacef54457583eccd405ef03acc21e05bb156c` ; 4B NEXT, non commencé.**
+Le [plan courant et ses preuves](../steps/current/DISCOVERY/Step_Plan.md#autorité-critères-et-état-4a) consolident les corrections Consumption puis bootstrap : gate global PASS, 1 257 tests déclarés, 0 failure/error, 1 skip exploratoire intentionnel (`-Dstep3b.measure=true`). Les résultats rouges et restrictions de passage relatés ci-dessous restent le journal historique de la livraison initiale, pas le statut courant. Contrats livrés ; propriétaire/collecteur transactionnel et raccordement restent à réaliser en 4B/4D.
 Autorité : [plan Étape 4](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md), §§2.1, 3.6–3.7, 6 et 10 ; [politique de vérification](../testing/Reactor_Verification_Policy.md).
 
 ## Livré et limites

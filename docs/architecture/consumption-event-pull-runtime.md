@@ -41,9 +41,12 @@ between the two segmentation functions exists.
 
 ## Transactions and failures
 
-Acquisition creates the slot and Claim through the generic Consumption lifecycle. Finalization locks
-and fences the current Claim before calling `ProjectionTaskStore.ensure`. Task creation, Claim
-`SUCCESS` and Slot `DONE/SUCCESS` share one local transaction.
+Acquisition creates the slot and Claim through the generic Consumption lifecycle. Finalization calls
+the rollbackable `ProjectionTaskStore.ensure` effect, then performs the common
+final CAS S and conditional Claim closure; there is no initial terminal slot prelock. Task creation,
+provenance when present, Claim `SUCCESS` and Slot `DONE/SUCCESS` share one local transaction, as defined
+by the [CURRENT Consumption protocol](consumption-transactional-execution.md). Losing the final fence
+rolls back the Task effect.
 
 The runtime reuses the semantics delivered by EPT.4: technical failures rollback or surface as a
 runtime failure and do not create an Event-specific terminal failure policy. Takeover, stale-Claim

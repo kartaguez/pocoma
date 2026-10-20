@@ -1,6 +1,7 @@
 # Étape 4 — Plan d’implémentation du séquencement transactionnel E
 
-Date : 2026-10-19. Statut : **TARGET — PLAN**. Exécution bornée : [contrats et gardes 4A](Event_Publication_Contracts_Step_4A_2026-10-19.md) (clôture 4A non validée : gate global en échec) ; 4B–4E non implémentés.
+Date de conception : 2026-10-19. Statut actualisé le 2026-10-20 : **spécification détaillée TARGET ; 4A CLOSED, 4B NEXT, 4C–4E non implémentés**.
+Le [Step Plan courant](../steps/current/DISCOVERY/Step_Plan.md) porte l'avancement et les preuves de clôture au SHA `b7aacef54457583eccd405ef03acc21e05bb156c` ; le [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) porte les décisions et leurs statuts. Les critères détaillés §§3–9 restent applicables. Les déclarations de périmètre, états Git et résultats de la rédaction initiale ci-dessous sont historiques ; leurs anciennes mentions « aucun lot commencé » ne décrivent plus l'avancement. Les expériences 3A–3D restent historiques. Aucun séquenceur de production livré.
 Baseline de cet audit de la grammaire de publication : `973cc792e19704054a229bb829a7076bd7bfa361`, branche `feat/consumption-transaction-protocol`.
 
 ## 1. Synthèse exécutive
