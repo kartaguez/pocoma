@@ -12,12 +12,18 @@ public final class PrimaryEventProtocol {
     private final PrimaryEventTransactionRunner runner;
 
     public PrimaryEventProtocol(PlatformTransactionManager manager, EntityManagerFactory emf, JdbcTemplate jdbc) {
+        this(manager, emf, jdbc, null);
+    }
+
+    public PrimaryEventProtocol(PlatformTransactionManager manager, EntityManagerFactory emf, JdbcTemplate jdbc,
+            io.micrometer.core.instrument.MeterRegistry registry) {
         if (!(manager instanceof JpaTransactionManager primary)
                 || primary.getEntityManagerFactory() != emf || primary.getDataSource() != jdbc.getDataSource())
             throw new IllegalArgumentException("Publication requires the same PRIMARY JPA manager, EMF and JDBC datasource");
         var sequencer = new JdbcEventTransactionSequencer(primary);
         sequencer.verifyCompatibleMode(); // Read-only startup compatibility check; never activates E.
-        runner = new PrimaryEventTransactionRunner(primary, sequencer);
+        runner = new PrimaryEventTransactionRunner(primary, registry == null ? sequencer
+                : new MeteredEventTransactionSuffix(sequencer, registry));
     }
 
     public PrimaryEventTransactionRunner runner() { return runner; }

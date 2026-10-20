@@ -63,6 +63,10 @@ from pathlib import Path
 import sys
 root=Path(sys.argv[1]);source=(root/'RuntimeReturnPostgresTest.java').read_text()
 for version,write in [('current','context.getBean(com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService.class).append(new PotCreatedEvent(PotId.of(UUID.randomUUID()),1));'),('previous','context.getBean(com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter.class).append(new PotCreatedEvent(PotId.of(UUID.randomUUID()),1));')]:
+    # From 4D onward the durable auxiliary writer is MANDATORY: its real owner is the facade.
+    # Keep the pre-4D default route unchanged, while allowing an explicit 4D reference for 4E.
+    if version=='previous' and (root/version/'app/engine-consume-command/src/main/java/com/kartaguez/pocoma/engine/consume/command/pot/publication/AppendBusinessEventService.java').exists():
+        write='context.getBean(com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService.class).append(new PotCreatedEvent(PotId.of(UUID.randomUUID()),1));'
     target=root/version/'app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/eventprotocol/RuntimeReturnPostgresTest.java'
     target.write_text(source.replace('WRITE_EVENT',write))
 PY

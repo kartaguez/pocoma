@@ -13,8 +13,8 @@ import com.kartaguez.pocoma.engine.write.pot.port.event.BusinessEventAppendPort;
 public class PrimaryEventPublicationConfiguration {
     @Bean
     PrimaryEventProtocol primaryEventProtocol(PlatformTransactionManager manager, EntityManagerFactory emf,
-            JdbcTemplate jdbc) {
-        return new PrimaryEventProtocol(manager, emf, jdbc);
+            JdbcTemplate jdbc, org.springframework.beans.factory.ObjectProvider<io.micrometer.core.instrument.MeterRegistry> registries) {
+        return new PrimaryEventProtocol(manager, emf, jdbc, registries.getIfAvailable());
     }
 
     @Bean

@@ -46,7 +46,8 @@ public final class ConsumptionOwnerTransactionRunner implements TransactionRunne
 			if (preserveActionFailure && actionFailure[0] != null && actionFailure[0] != failure
 					&& java.util.Arrays.stream(failure.getSuppressed()).noneMatch(value -> value == actionFailure[0]))
 				failure.addSuppressed(actionFailure[0]);
-			var outcome = completion[0] == TransactionSynchronization.STATUS_COMMITTED ? COMMITTED
+			var outcome = failure instanceof com.kartaguez.pocoma.port.transaction.TransactionCommitUnknownException ? UNKNOWN
+                    : completion[0] == TransactionSynchronization.STATUS_COMMITTED ? COMMITTED
 					: completion[0] == TransactionSynchronization.STATUS_ROLLED_BACK ? ROLLED_BACK : UNKNOWN;
 			throw new ConsumptionTransactionResolutionException(outcome, returned[0] ? COMMIT : ROLLBACK, failure);
 		}

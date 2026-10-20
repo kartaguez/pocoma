@@ -46,8 +46,8 @@ class EventSequencingUpgradePostgresTest {
         for(var f:EventFamily.values())EventSequencingSchemaFixture.insert(jdbc,f,UUID.randomUUID());
         var before=jdbc.queryForList("select event_id from (select id event_id from business_event_outbox union all select event_id from command_terminal_events union all select event_id from external_identity_binding_facts union all select event_id from user_created_facts) e order by event_id");
         var upgrade=Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load();
-        assertEquals(1,upgrade.migrate().migrationsExecuted);
-        assertEquals("30",upgrade.info().current().getVersion().getVersion());
+        assertEquals(2,upgrade.migrate().migrationsExecuted);
+        assertEquals("31",upgrade.info().current().getVersion().getVersion());
         var after=jdbc.queryForList("select event_id from (select id event_id from business_event_outbox union all select event_id from command_terminal_events union all select event_id from external_identity_binding_facts union all select event_id from user_created_facts) e order by event_id");
         assertEquals(before,after);
         for(int pass=0;pass<2;pass++) {

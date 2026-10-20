@@ -56,6 +56,7 @@ public final class PrimaryEventTransactionRunner implements TransactionRunner {
 
         Batch[] installed = new Batch[1];
         int[] completion = { TransactionSynchronization.STATUS_UNKNOWN };
+        boolean[] callbackCompleted = { false };
         try {
             T result = template.execute(status -> {
                 if (!status.isNewTransaction()) throw violation("Owner requires a new physical transaction");
@@ -78,15 +79,40 @@ public final class PrimaryEventTransactionRunner implements TransactionRunner {
                 batch.requireCommittable();
                 if (!closed.isEmpty()) suffix.execute(closed);
                 batch.requireCommittable(); // A caught guard failure inside a suffix still poisons.
+                callbackCompleted[0] = true; // No action/flush/suffix failure after this point.
                 return value;
             });
             if (completion[0] != TransactionSynchronization.STATUS_COMMITTED)
                 throw new IllegalStateException("PRIMARY commit unconfirmed");
             return result;
+        } catch (RuntimeException failure) {
+            // Hibernate may report ROLLED_BACK after a JDBC COMMIT IOException, even
+            // when PostgreSQL already committed. Never infer durable rollback from it.
+            if (callbackCompleted[0] && completion[0] != TransactionSynchronization.STATUS_COMMITTED
+                    && hasTransportFailure(failure))
+                throw new com.kartaguez.pocoma.port.transaction.TransactionCommitUnknownException(failure);
+            throw failure;
         } finally {
             // Fallback for installation/resolution failures; never changes completion evidence.
             if (installed[0] != null) installed[0].clean();
         }
+    }
+
+    private static boolean hasTransportFailure(Throwable failure) {
+        var seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable, Boolean>());
+        var pending = new java.util.ArrayDeque<Throwable>();
+        pending.add(failure);
+        while (!pending.isEmpty()) {
+            Throwable current = pending.removeFirst();
+            if (!seen.add(current)) continue;
+            if (current instanceof java.sql.SQLException sql) {
+                String state = sql.getSQLState();
+                if (state != null && (state.startsWith("08") || state.equals("40003"))) return true;
+                if (sql.getNextException() != null) pending.add(sql.getNextException());
+            }
+            if (current.getCause() != null) pending.add(current.getCause());
+        }
+        return false;
     }
 
     /** Writer guard, before accepting a durable publication. Does not collect anything. */

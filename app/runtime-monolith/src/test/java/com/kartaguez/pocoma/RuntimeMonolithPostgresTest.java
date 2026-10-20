@@ -200,7 +200,7 @@ class RuntimeMonolithPostgresTest {
     }
 
     private static void assertMigrations(JdbcTemplate jdbc) {
-        assertEquals(30, jdbc.queryForObject(
+        assertEquals(31, jdbc.queryForObject(
                 "select max(version::int) from flyway_schema_history where success", Integer.class));
         assertEquals(14, jdbc.queryForObject(
                 "select max(version::int) from pocoma_read.flyway_schema_history where success", Integer.class));
