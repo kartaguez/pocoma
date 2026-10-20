@@ -216,3 +216,37 @@ Fichiers productifs ajoutés : `JdbcEventTransactionSequencer.java` et
 Documents actualisés : Architecture, canon, plan, Next Plan, statut de la spécification Étape 4 ;
 présent rapport et preuves JSON/TXT ajoutés. L'inventaire exact est versionné dans le JSON.
 Les preuves/livraisons 4B et l'audit non suivi initial restent inchangés.
+
+## Clôture documentaire après audit indépendant
+
+Audit indépendant statique du SHA livré `de5e4c373d21c1409f6e75a4faac327926e01f92`,
+sur la migration V30, le séquenceur JDBC, les tests PostgreSQL et la documentation.
+**Verdict : PASS statique, sans défaut bloquant démontré dans le périmètre 4C.**
+L'auditeur n'a réexécuté ni Maven ni PostgreSQL. Les résultats expérimentaux ci-dessus sont ceux
+de la livraison 4C depuis `1771514a51c74452e019a2a259b40d0303cf2cde`, pas de la relecture indépendante.
+
+Observations conservées pour la vérification **4D/V-D** :
+
+- **R1 — Densité et frontière de confiance.** Les contraintes SQL ne garantissent pas isolément
+  qu'une réservation E est intégralement associée à des Events. La densité dépend aussi du respect
+  du protocole par le séquenceur et les compositions autorisées. En 4D, vérifier l'absence de
+  contournement par les producteurs réels, les droits effectifs et la correspondance exacte entre
+  associations et publications acceptées.
+- **R2 — Identité de transaction physique.** Les gardes du séquenceur vérifient une transaction
+  PRIMARY présente, sans certifier à elles seules tous les participants réels. Rattachement à la
+  **condition B existante** : même manager PRIMARY et même transaction physique JPA/JDBC pour
+  Command, Registration, auxiliaires, chemins `new` et compositions monolithiques/distribuées.
+- **R3 — Poisoning irréversible.** Les preuves transactionnelles 4C ne certifient pas tous les
+  writers réels face à une exception interceptée. Rattachement à la **condition A existante** :
+  toute erreur durable couverte doit empêcher le commit partiel, même sans remontée au runner.
+
+La [spécification, §6/4D](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared)
+conserve la définition unique des conditions A/B et précise la frontière R1 ; le
+[plan courant, §4D](../steps/current/DISCOVERY/Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet)
+en assure le suivi. Ces observations ne rouvrent pas 4C, n'élargissent pas sa certification et ne
+constituent pas une dette nouvelle propre à 4C.
+
+**4C CLOSED / PASS — 4D NEXT — 4E NOT STARTED.** Schéma PREPARED et séquenceur restent dormants,
+sans activation ni raccordement des producteurs réels. Cette clôture est documentaire uniquement :
+impact production/test/DB **NONE**, slices primaire/secondaires **NONE**, franchissement inattendu
+**NONE** ; aucun Maven/PostgreSQL, gate global ou full reactor exécuté ou requis.

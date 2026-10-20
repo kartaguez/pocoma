@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C CLOSED / PASS dormant ; 4D et 4E non implémentés.**
+`de5e4c373d21c1409f6e75a4faac327926e01f92` (livraison 4C auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C CLOSED / PASS dormant ; 4D NEXT ; 4E NOT STARTED.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
@@ -62,7 +62,7 @@ S/Claim, rollback, ordre/fermeture, poisoning, trois résolutions et cleanup pro
 owners autonomes achevé. Configuration et writer synthétiques dans les tests uniquement ; aucun
 producteur réel migré. Global architecture/full non requis, non exécutés ; crossing NONE.
 
-**Audit indépendant — PASS confirmé sur le SHA de livraison ci-dessus.** Revue statique favorable,
+**Audit indépendant 4B — PASS confirmé sur `5640220b94f6208aa4c156e248d95e2eced1522f`.** Revue statique favorable,
 sans réexécution Maven ou PostgreSQL par l'auditeur ; les résultats ci-dessus restent ceux de la
 campagne de livraison 4B. Runner et collecteur restent dormants, non raccordés en production.
 Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
@@ -96,6 +96,11 @@ non requis, non exécutés. DDL et fonctions éprouvés sur vraies sources ; ACT
 isolées. Comptes de l'environnement déployé, vrais producteurs et compositions restent 4D ;
 activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; 4D NEXT.**
 
+**Audit indépendant 4C — PASS statique, sans défaut bloquant démontré dans le périmètre 4C.**
+Le [verdict et R1/R2/R3](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
+sont enregistrés sans réexécution Maven/PostgreSQL, réouverture, extension de certification ni
+dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E NOT STARTED**.
+
 ## 4D — Producteurs et orchestrations réels, PREPARED complet
 
 Raccorder ensemble BusinessEvents, CommandTerminalEvents, BindingFacts et UserCreatedFacts,
@@ -111,7 +116,7 @@ atomiquement en ACTIVE ; PREPARED les détecte par tests sans revendiquer sa con
 Même sémantique exceptions/versions/fences/retries ; tests ports hors owner/fermés ; aucun DML métier
 après E sur compositions certifiées. Publication indépendante sans E toujours démontrée.
 
-**Conditions de certification 4D issues de l'audit 4B — à prouver en V-D :**
+**Conditions de certification 4D issues de l'audit 4B, confirmées par l'audit 4C — à prouver en V-D :**
 
 - **A — Poisoning des writers réels** : chaque writer durable couvert, chemins JDBC compris ;
   erreur interceptée et impossibilité de commit partiel.
@@ -119,6 +124,8 @@ après E sur compositions certifiées. Publication indépendante sans E toujours
   même manager PRIMARY et même transaction physique JPA/JDBC dans toutes les compositions réelles.
 
 Définition normative unique et règles de refus : [§6/4D, conditions A et B](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared).
+Traçabilité 4C : **R2 → B ; R3 → A**. **R1** précise dans ce même §6/4D la vérification de densité,
+de l'absence de contournement, des droits effectifs et de l'égalité exacte associations/publications acceptées.
 Ces conditions précisent la validation existante de 4D ; elles ne rouvrent pas 4B, n'ouvrent aucune
 dette technique 4B et ne changent ni le périmètre, ni les invariants, ni les critères de clôture 4C.
 

@@ -1,8 +1,8 @@
 # DISCOVERY — Step Canon
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
-`5640220b94f6208aa4c156e248d95e2eced1522f` (livraison 4B auditée). **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; la prochaine unité exécutable est **4D**, après **4B et 4C CLOSED / PASS** hors production ; **4D et 4E non implémentés**.
+`de5e4c373d21c1409f6e75a4faac327926e01f92` (livraison 4C auditée). **current_canon** du chantier séquencement → Discovery.
+Le responsable du dépôt porte les arbitrages ; **4D NEXT**, après **4B et 4C CLOSED / PASS** hors production ; **4E NOT STARTED**, 4D et 4E non implémentés.
 
 ## Autorité et lecture
 
@@ -86,7 +86,7 @@ snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans
 manager JPA standard. Le suffixe 4B est synthétique et limité aux tests ; aucune E active, aucun
 producteur/owner réel recâblé. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
 
-L'audit favorable porte sur le SHA de livraison ci-dessus et les preuves 4B déjà réalisées ;
+L'audit favorable 4B porte sur `5640220b94f6208aa4c156e248d95e2eced1522f` et les preuves 4B déjà réalisées ;
 l'auditeur n'a réexécuté ni Maven ni PostgreSQL. Il ne prouve pas une interception universelle
 des erreurs SQL des writers réels par le runner 4B. Ses deux réserves non bloquantes pour 4B
 relèvent de la certification **TARGET 4D** : poisoning irréversible de chaque writer durable réel,
@@ -103,6 +103,12 @@ V29→V30 et deux retours au runtime initial verts. Aucun vrai owner/writer racc
 ou position officielle attribué en production. Le schéma additif reste compatible CURRENT en
 PREPARED ; contrôle complet des comptes/compositions déployés en 4D, activation/historique en 4E.
 Les sondes de plans indexés ne sont pas des seuils de performance. Global/full non requis en 4C.
+
+L'[audit indépendant 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
+confirme un **PASS statique**, sans réexécution Maven/PostgreSQL ni extension de certification.
+R1 précise la frontière de confiance de la densité ; R2 et R3 renvoient respectivement aux conditions
+B et A existantes de 4D. Leur suivi reste au §4D du plan et de la spécification, sans réouverture
+ni dette nouvelle propre à 4C. Schéma PREPARED et séquenceur dormants, producteurs réels non raccordés.
 
 **Pourquoi.** Un timestamp/UUID ou une séquence PostgreSQL non transactionnelle ne prouve pas
 l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense committée par famille
