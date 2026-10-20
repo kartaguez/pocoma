@@ -60,22 +60,22 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void writerGeneratesPermanentGlobalBindingIdsAndExactDetachedFacts() {
         PocomaUserId user = createUser(1);
         ExternalIdentity first = identity("first"), second = identity("second");
-        BindingAcquireResult acquired = inTransaction(() -> bindings.acquire(first, user));
+        BindingAcquireResult acquired = inTransaction(() -> bindings.acquire(first, user).result());
         assertEquals(BindingAcquireResult.Status.ACQUIRED, acquired.status());
         BindingId b1 = acquired.bindingId();
         assertNotNull(b1);
         assertEquals(user, inTransaction(() -> bindings.findUserId(first, b1)).orElseThrow());
-        assertEquals(BindingDetachResult.DETACHED, inTransaction(() -> bindings.detach(first, b1)));
-        assertEquals(BindingDetachResult.NOT_CURRENT, inTransaction(() -> bindings.detach(first, b1)));
+        assertEquals(BindingDetachResult.DETACHED, inTransaction(() -> bindings.detach(first, b1).result()));
+        assertEquals(BindingDetachResult.NOT_CURRENT, inTransaction(() -> bindings.detach(first, b1).result()));
         assertEquals(2L, revision(first));
         assertEquals(user.value(), jdbc.queryForObject("select user_id from external_identity_binding_facts "
                 + "where issuer=? and subject=? and binding_revision=2", UUID.class, first.issuer(), first.subject()));
         assertEquals("DETACHED", jdbc.queryForObject("select fact_type from external_identity_binding_facts "
                 + "where issuer=? and subject=? and binding_revision=2", String.class, first.issuer(), first.subject()));
-        BindingId b2 = inTransaction(() -> bindings.acquire(first, user)).bindingId();
+        BindingId b2 = inTransaction(() -> bindings.acquire(first, user).result()).bindingId();
         assertNotEquals(b1, b2);
         assertEquals(List.of(1L, 2L, 3L), revisions(first));
-        BindingId b3 = inTransaction(() -> bindings.acquire(second, user)).bindingId();
+        BindingId b3 = inTransaction(() -> bindings.acquire(second, user).result()).bindingId();
         assertNotEquals(b1, b3);
         jdbc.update("insert into external_identity_binding_streams values ('issuer','third',0)");
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update(
@@ -89,13 +89,13 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void conflictRollbackAndFactFailureConsumeNoRevisionOrReservation() {
         PocomaUserId user = createUser(2);
         ExternalIdentity identity = identity("rollback");
-        BindingId first = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId first = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         assertEquals(BindingAcquireResult.Status.CONFLICT,
-                inTransaction(() -> bindings.acquire(identity, user)).status());
+                inTransaction(() -> bindings.acquire(identity, user).result()).status());
         assertEquals(1L, revision(identity));
         assertThrows(IllegalStateException.class, () -> inTransaction(() -> {
-            bindings.detach(identity, first);
-            bindings.acquire(identity, user);
+            bindings.detach(identity, first).result();
+            bindings.acquire(identity, user).result();
             throw new IllegalStateException("rollback");
         }));
         assertEquals(1L, revision(identity));
@@ -107,7 +107,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
                 + "begin raise exception 'forced'; end $$");
         jdbc.execute("create trigger reject_binding_fact before insert on external_identity_binding_facts "
                 + "for each row execute function reject_binding_fact()");
-        assertThrows(RuntimeException.class, () -> inTransaction(() -> bindings.acquire(failure, user)));
+        assertThrows(RuntimeException.class, () -> inTransaction(() -> bindings.acquire(failure, user).result()));
         assertEquals(0, occurrences(failure));
         assertEquals(0, jdbc.queryForObject("select count(*) from external_identity_binding_streams "
                 + "where issuer=? and subject=?", Integer.class, failure.issuer(), failure.subject()));
@@ -123,7 +123,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
                 ready.countDown();
                 try { if (!start.await(5, TimeUnit.SECONDS)) throw new AssertionError("timeout"); }
                 catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
-                return bindings.acquire(identity, user);
+                return bindings.acquire(identity, user).result();
             });
             Future<BindingAcquireResult> one = executor.submit(task), two = executor.submit(task);
             assertTrue(ready.await(5, TimeUnit.SECONDS));
@@ -139,7 +139,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void exactCommandLockAndAuthorityLookupRemainAvailable() {
         PocomaUserId user = createUser(4);
         ExternalIdentity identity = identity("command-lock");
-        BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId binding = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         assertEquals(user, inTransaction(() -> identities.findUserId(identity.issuer(), identity.subject()).map(PocomaUserId::new)).orElseThrow());
         assertEquals(user, inTransaction(() -> bindings.observeCurrentBinding(identity, binding)).orElseThrow().userId());
     }
@@ -147,7 +147,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void concurrentDetachesAdvanceOnlyOnceAndRetryKeepsTheSameHistory() throws Exception {
         PocomaUserId user = createUser(5);
         ExternalIdentity identity = identity("detach-race");
-        BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId binding = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch ready = new CountDownLatch(2), start = new CountDownLatch(1);
         try {
@@ -155,7 +155,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
                 ready.countDown();
                 try { if (!start.await(5, TimeUnit.SECONDS)) throw new AssertionError("timeout"); }
                 catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new AssertionError(e); }
-                return bindings.detach(identity, binding);
+                return bindings.detach(identity, binding).result();
             });
             Future<BindingDetachResult> one = executor.submit(task), two = executor.submit(task);
             assertTrue(ready.await(5, TimeUnit.SECONDS));
@@ -166,7 +166,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
             assertEquals(List.of(1L, 2L), revisions(identity));
             assertEquals(2L, revision(identity));
             assertEquals(1, occurrences(identity));
-            assertEquals(BindingDetachResult.NOT_CURRENT, inTransaction(() -> bindings.detach(identity, binding)));
+            assertEquals(BindingDetachResult.NOT_CURRENT, inTransaction(() -> bindings.detach(identity, binding).result()));
             assertEquals(2L, revision(identity));
         } finally { executor.shutdownNow(); }
     }
@@ -174,12 +174,12 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void failedDetachedFactRestoresActiveOccurrenceAndRevision() {
         PocomaUserId user = createUser(6);
         ExternalIdentity identity = identity("detach-failure");
-        BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId binding = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         jdbc.execute("create function reject_binding_fact() returns trigger language plpgsql as $$ "
                 + "begin raise exception 'forced'; end $$");
         jdbc.execute("create trigger reject_binding_fact before insert on external_identity_binding_facts "
                 + "for each row execute function reject_binding_fact()");
-        assertThrows(RuntimeException.class, () -> inTransaction(() -> bindings.detach(identity, binding)));
+        assertThrows(RuntimeException.class, () -> inTransaction(() -> bindings.detach(identity, binding).result()));
         assertEquals(1L, revision(identity));
         assertEquals(List.of(1L), revisions(identity));
         assertEquals(user, inTransaction(() -> bindings.findUserId(identity, binding)).orElseThrow());
@@ -189,15 +189,15 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void simultaneousAttachAndDetachRemainSerializedOnTheStream() throws Exception {
         PocomaUserId user = createUser(7);
         ExternalIdentity identity = identity("attach-detach-race");
-        BindingId first = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId first = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch start = new CountDownLatch(1);
         try {
             Future<BindingDetachResult> detach = executor.submit(() -> inTransaction(() -> {
-                await(start); return bindings.detach(identity, first);
+                await(start); return bindings.detach(identity, first).result();
             }));
             Future<BindingAcquireResult> attach = executor.submit(() -> inTransaction(() -> {
-                await(start); return bindings.acquire(identity, user);
+                await(start); return bindings.acquire(identity, user).result();
             }));
             start.countDown();
             assertEquals(BindingDetachResult.DETACHED, detach.get(10, TimeUnit.SECONDS));
@@ -212,11 +212,11 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void newWriterInstanceContinuesRevisionAfterDetach() {
         PocomaUserId user = createUser(8);
         ExternalIdentity identity = identity("restart");
-        BindingId old = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
-        inTransaction(() -> bindings.detach(identity, old));
+        BindingId old = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
+        inTransaction(() -> bindings.detach(identity, old).result());
         JpaExternalIdentityBindingAdapter restarted = new JpaExternalIdentityBindingAdapter(
                 new ExternalIdentityJdbcRepository(jdbc), jdbc);
-        BindingId fresh = inTransaction(() -> restarted.acquire(identity, user)).bindingId();
+        BindingId fresh = inTransaction(() -> restarted.acquire(identity, user).result()).bindingId();
         assertNotEquals(old, fresh);
         assertEquals(3L, revision(identity));
         assertEquals(2, occurrences(identity));
@@ -225,14 +225,14 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void uuidCollisionRetriesWithANewCandidateWithoutReusingTheHistoricalOne() {
         PocomaUserId user = createUser(9);
         ExternalIdentity identity = identity("uuid-collision");
-        BindingId old = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
-        inTransaction(() -> bindings.detach(identity, old));
+        BindingId old = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
+        inTransaction(() -> bindings.detach(identity, old).result());
         UUID fresh = UUID.randomUUID();
         AtomicInteger calls = new AtomicInteger();
         JpaExternalIdentityBindingAdapter writer = new JpaExternalIdentityBindingAdapter(
                 new ExternalIdentityJdbcRepository(jdbc), jdbc,
                 () -> calls.getAndIncrement() == 0 ? old.value() : fresh);
-        BindingId next = inTransaction(() -> writer.acquire(identity, user)).bindingId();
+        BindingId next = inTransaction(() -> writer.acquire(identity, user).result()).bindingId();
         assertEquals(new BindingId(fresh), next);
         assertEquals(2, calls.get());
         assertEquals(List.of(1L, 2L, 3L), revisions(identity));
@@ -262,7 +262,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
     @Test void detachWaitsForStreamBeforeTakingAuthorityLock() throws Exception {
         PocomaUserId user = createUser(11);
         ExternalIdentity identity = identity("order-proof");
-        BindingId binding = inTransaction(() -> bindings.acquire(identity, user)).bindingId();
+        BindingId binding = inTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         CompletableFuture<Integer> workerPid = new CompletableFuture<>();
         java.util.concurrent.atomic.AtomicReference<Future<BindingDetachResult>> worker =
@@ -274,7 +274,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
                         + "where issuer=? and subject=? for update", identity.issuer(), identity.subject());
                 worker.set(executor.submit(() -> inTransaction(() -> {
                     workerPid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
-                    return bindings.detach(identity, binding);
+                    return bindings.detach(identity, binding).result();
                 })));
                 int waiter;
                 try { waiter = workerPid.get(5, TimeUnit.SECONDS); }
@@ -336,7 +336,7 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
             "select binding_revision from external_identity_binding_facts where issuer=? and subject=? order by binding_revision",
             Long.class, e.issuer(), e.subject()); }
     private <T> T inTransaction(Supplier<T> action) {
-        return new TransactionTemplate(transactionManager).execute(status -> action.get());
+        return owner().runInTransaction(action);
     }
 
     private static void await(CountDownLatch latch) {
@@ -349,4 +349,10 @@ class JpaUserIdentityAuthorityAdapterPostgresTest {
             UserJdbcRepository.class,
             ExternalIdentityJdbcRepository.class})
     static class TestApplication {}
+
+    private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner owner() {
+        var primary = (org.springframework.orm.jpa.JpaTransactionManager) transactionManager;
+        return new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(primary,
+                new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer(primary));
+    }
 }

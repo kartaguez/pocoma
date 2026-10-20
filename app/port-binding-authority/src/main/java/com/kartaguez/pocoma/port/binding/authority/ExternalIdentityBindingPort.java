@@ -1,7 +1,5 @@
 package com.kartaguez.pocoma.port.binding.authority;
 
-import com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult;
-import com.kartaguez.pocoma.domain.useridentity.BindingDetachResult;
 import com.kartaguez.pocoma.domain.useridentity.BindingId;
 import com.kartaguez.pocoma.domain.useridentity.BindingRevision;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
@@ -27,11 +25,11 @@ public interface ExternalIdentityBindingPort {
 	boolean fenceObservedBinding(ExternalIdentity identity, PocomaUserId userId,
 			BindingId bindingId, BindingRevision revision);
 
-	BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId);
+	BindingAcquisitionAccepted acquire(ExternalIdentity identity, PocomaUserId userId);
 
 	/** Acquire under the same stream lock, invoking the initializer only after availability is proven.
 	 * The initializer and the acquisition participate in the caller's single transaction. */
-	BindingAcquireResult acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId, Runnable initializer);
+	BindingAcquisitionAccepted acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId, Runnable initializer);
 
-	BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId);
+	BindingDetachmentAccepted detach(ExternalIdentity identity, BindingId bindingId);
 }

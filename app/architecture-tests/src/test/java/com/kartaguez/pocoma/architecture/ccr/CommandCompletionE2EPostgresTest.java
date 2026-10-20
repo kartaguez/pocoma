@@ -394,9 +394,9 @@ class CommandCompletionE2EPostgresTest {
 			assertEquals(bindingsBefore, count(jdbc, "select count(*) from external_identity_binding_occurrences"));
 			assertEquals(attachedBefore, count(jdbc, "select count(*) from external_identity_binding_facts where fact_type='ATTACHED'"));
 			try (ConfigurableApplicationContext context = registrationContext()) {
-				var tx = context.getBean(TransactionRunner.class);
+				var tx = context.getBean(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class).runner();
 				var bindings = context.getBean(JpaExternalIdentityBindingAdapter.class);
-				tx.runInTransaction(() -> { bindings.detach(new ExternalIdentity(ISSUER, SUBJECT), bindingId); return null; });
+				tx.runInTransaction(() -> { bindings.detach(new ExternalIdentity(ISSUER, SUBJECT), bindingId).fact().ifPresent(tx::recordPublishedEvent); return null; });
 			}
 			assertEquals(200, get(http, baseUrl, "/api/v1/registrations/" + requestId + "/result").statusCode());
             assertEquals(200, get(http, baseUrl, "/api/v1/command-results/" + commandId).statusCode());
@@ -718,7 +718,7 @@ class CommandCompletionE2EPostgresTest {
 			ReadStoreMigrationAutoConfiguration.class})
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
-	@Import({CommandConsumptionRuntimeConfiguration.class, JpaRecordedCommandAdapter.class,
+	@Import({CommandConsumptionRuntimeConfiguration.class, com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter.class, JpaRecordedCommandAdapter.class,
 			JpaCommandConsumptionDiscoveryAdapter.class, JdbcCommandOutcomeAdapter.class,
 			JpaRecordedCommandRepository.class, JpaCommandConsumptionDiscoveryRepository.class,
 			ExternalIdentityJdbcRepository.class,
@@ -773,7 +773,7 @@ class CommandCompletionE2EPostgresTest {
 			ReadStoreMigrationAutoConfiguration.class})
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
-	@Import({RegistrationRuntimeConfiguration.class, JdbcRegistrationRequestStore.class,
+	@Import({RegistrationRuntimeConfiguration.class, com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter.class, JdbcRegistrationRequestStore.class,
 			JdbcRegistrationOutcomeStore.class, JdbcRegistrationDiscovery.class,
 			JdbcUserCreatedFactAdapter.class, JpaUserAuthorityAdapter.class,
 			JpaExternalIdentityBindingAdapter.class, ExternalIdentityJdbcRepository.class,

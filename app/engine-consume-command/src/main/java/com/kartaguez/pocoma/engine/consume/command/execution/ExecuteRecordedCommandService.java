@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.consume.command.execution;
 
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
@@ -29,7 +31,8 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 	private static final TerminalReason CALLER_IDENTITY_NOT_CURRENT =
 			new TerminalReason("CALLER_IDENTITY_NOT_CURRENT");
 
-	private final RecordedCommandPort recordedCommands;
+	private final PublishedEvents publishedEvents;
+    private final RecordedCommandPort recordedCommands;
 	private final CommandDecoder decoder;
 	private final CommandDispatcher dispatcher;
 	private final EventAppendPort events;
@@ -44,7 +47,8 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 			EventAppendPort events,
 			ExternalIdentityBindingPort bindings,
 			ExternalAuthorityPermissionTranslator permissions,
-			Clock clock) {
+			Clock clock, PublishedEvents publishedEvents) {
+        this.publishedEvents = java.util.Objects.requireNonNull(publishedEvents);
 		this.recordedCommands = requireNonNull(recordedCommands, "recordedCommands must not be null");
 		this.decoder = requireNonNull(decoder, "decoder must not be null");
 		this.dispatcher = requireNonNull(dispatcher, "dispatcher must not be null");
@@ -87,7 +91,10 @@ public final class ExecuteRecordedCommandService implements ExecuteRecordedComma
 			return new RecordedCommandExecutionResult.Succeeded(
 					succeeded.inputs(), succeeded.appliedResult(), List.of());
 		}
-		List<CommandExecutionArtifact> appended = events.appendAll(succeeded.events());
+		var accepted = events.appendAll(succeeded.events());
+        if (accepted == null) throw new CommandExecutionInvariantViolationException("Missing append acceptance");
+        accepted.events().forEach(publishedEvents::recordPublishedEvent);
+        List<CommandExecutionArtifact> appended = accepted.artifacts();
 		if (appended == null) {
 			throw new CommandExecutionInvariantViolationException("events.appendAll must not return null");
 		}

@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.runtime.web.authentication.WebApiSecurityConfigurati
 
 /** HTTP composition shared by the distributed Web runtime and runtime-monolith. */
 @Import({
+        PrimaryEventPublicationConfiguration.class,
         PocomaObjectMapperConfiguration.class,
         CommandAdmissionConfiguration.class,
         CommandResultReadConfiguration.class,

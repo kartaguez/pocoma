@@ -5,5 +5,5 @@ import java.util.UUID;
 import com.kartaguez.pocoma.domain.useridentity.PocomaUserId;
 
 public interface UserCreatedFactPort {
-    void append(UUID requestId, PocomaUserId userId);
+    com.kartaguez.pocoma.port.transaction.EventRef append(UUID requestId, PocomaUserId userId);
 }

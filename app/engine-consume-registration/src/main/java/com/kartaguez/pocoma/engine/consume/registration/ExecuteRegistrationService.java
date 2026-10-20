@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.consume.registration;
 
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import com.kartaguez.pocoma.contracts.registration.RegistrationRequest;
 import com.kartaguez.pocoma.engine.consume.registration.RegistrationOutcome;
 
@@ -14,6 +16,7 @@ import com.kartaguez.pocoma.port.binding.authority.UserAuthorityPort;
 
 /** Runs inside the fenced Consumption Execute transaction. */
 public final class ExecuteRegistrationService {
+    private final PublishedEvents publishedEvents;
     private final RegistrationRequestReader requests;
     private final RegistrationOutcomeRepository outcomes;
     private final UserAuthorityPort users;
@@ -21,7 +24,8 @@ public final class ExecuteRegistrationService {
     private final UserCreatedFactPort userFacts;
 
     public ExecuteRegistrationService(RegistrationRequestReader requests, RegistrationOutcomeRepository outcomes,
-            UserAuthorityPort users, ExternalIdentityBindingPort bindings, UserCreatedFactPort userFacts) {
+            UserAuthorityPort users, ExternalIdentityBindingPort bindings, UserCreatedFactPort userFacts, PublishedEvents publishedEvents) {
+        this.publishedEvents = java.util.Objects.requireNonNull(publishedEvents);
         this.requests = Objects.requireNonNull(requests);
         this.outcomes = Objects.requireNonNull(outcomes);
         this.users = Objects.requireNonNull(users);
@@ -37,10 +41,12 @@ public final class ExecuteRegistrationService {
         PocomaUserId userId = new PocomaUserId(UUID.randomUUID());
         var acquired = bindings.acquireWithInitializer(request.requesterExternalIdentity(), userId, () -> {
             users.create(new User(userId));
-            userFacts.append(requestId, userId);
+            publishedEvents.recordPublishedEvent(userFacts.append(requestId, userId));
         });
-        RegistrationOutcome outcome = acquired.status() == BindingAcquireResult.Status.ACQUIRED
-                ? new RegistrationOutcome.Registered(requestId, userId, acquired.bindingId())
+        acquired.fact().ifPresent(publishedEvents::recordPublishedEvent);
+        var result = acquired.result();
+        RegistrationOutcome outcome = result.status() == BindingAcquireResult.Status.ACQUIRED
+                ? new RegistrationOutcome.Registered(requestId, userId, result.bindingId())
                 : new RegistrationOutcome.Rejected(requestId);
         outcomes.insert(outcome);
         return outcome;

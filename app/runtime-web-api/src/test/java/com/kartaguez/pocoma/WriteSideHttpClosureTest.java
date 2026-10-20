@@ -20,11 +20,11 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(properties = {
-		"spring.jpa.hibernate.ddl-auto=create-drop",
+		"spring.jpa.hibernate.ddl-auto=validate",
 		"spring.security.oauth2.resourceserver.jwt.issuer-uri=https://issuer.test",
 		"spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://issuer.test/jwks"
 })
-class WriteSideHttpClosureTest {
+class WriteSideHttpClosureTest extends PreparedWebPostgresTest {
 
 	private static final Set<String> LEGACY_MUTATION_PATHS = Set.of(
 			"/api/pots",

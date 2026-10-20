@@ -199,7 +199,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
             Future<?> a = executor.submit(() -> assertContext(mutation, 5, false, false, creator, oldMember));
             try {
                 gate.awaitRead();
-                new TransactionTemplate(manager).executeWithoutResult(status -> {
+                inOwner(() -> {
                     versions.updateIfActive(new com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion(
                             com.kartaguez.pocoma.domain.pot.value.id.PotId.of(pot), 5),
                             new com.kartaguez.pocoma.domain.pot.version.PotGlobalVersion(
@@ -224,7 +224,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
 
     private void assertContext(Mutation mutation, long version, boolean deleted, boolean potDeleted,
                                UUID expectedCreator, UUID expectedMember) {
-        new TransactionTemplate(manager).executeWithoutResult(status -> {
+        inOwner(() -> {
             assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
             var id = ExpenseId.of(expense);
             var sharesContext = switch (mutation) {
@@ -252,7 +252,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
 
     private void mutate(Mutation mutation, long expected) {
         if (mutation == Mutation.SHARES) { update(expected, false); return; }
-        new TransactionTemplate(manager).executeWithoutResult(status -> {
+        inOwner(() -> {
             var events = new CapturedEvents();
             if (mutation == Mutation.DELETE) {
                 PotBusinessUseCaseFactory.deleteExpense(contexts, headers, versions, events, new PotAuthorizationGuard())
@@ -262,7 +262,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
                         .updateExpenseDetails(user(), new UpdateExpenseDetailsInput(expense, shareholder, 20, 1,
                                 "changed", java.time.LocalDate.parse("2026-10-18"), expected));
             }
-            append.appendAll(events.values);
+            append.appendAll(events.values).events().forEach(owner()::recordPublishedEvent);
         });
     }
 
@@ -294,13 +294,13 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
     }
 
     private void update(long expected, boolean rollback) {
-        new TransactionTemplate(manager).executeWithoutResult(status -> {
+        inOwner(() -> {
             assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
             var events = new CapturedEvents();
             PotBusinessUseCaseFactory.updateExpenseShares(contexts, shares, versions, events, new PotAuthorizationGuard())
                     .updateExpenseShares(user(), new UpdateExpenseSharesInput(expense,
                             Set.of(new UpdateExpenseSharesInput.ExpenseShareInput(shareholder, 2, 1)), expected));
-            append.appendAll(events.values);
+            append.appendAll(events.values).events().forEach(owner()::recordPublishedEvent);
             if (rollback) {
                 assertState(6, false, 2, 2, 1); // SQL visible inside A, after actual outbox flush.
                 throw new DeliberateRollback();
@@ -311,7 +311,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
     private void delete() { delete(false); }
 
     private void delete(boolean changeRelations) {
-        new TransactionTemplate(manager).executeWithoutResult(status -> {
+        inOwner(() -> {
             var events = new CapturedEvents();
             PotBusinessUseCaseFactory.deleteExpense(contexts, headers, versions, events, new PotAuthorizationGuard())
                     .deleteExpense(user(), new DeleteExpenseInput(expense, 5));
@@ -322,7 +322,7 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
                 jdbc.update("update shareholders set ended_at_version=6 where pot_id=? and ended_at_version is null", pot);
                 jdbc.update("insert into shareholders(id,shareholder_id,pot_id,started_at_version,name,weight_numerator,weight_denominator,deleted) values (?,?,?,6,'deleted',1,1,true)", UUID.randomUUID(), shareholder, pot);
             }
-            append.appendAll(events.values);
+            append.appendAll(events.values).events().forEach(owner()::recordPublishedEvent);
         });
     }
 
@@ -379,4 +379,11 @@ class UpdateExpenseSharesConcurrencyPostgresTest {
     static class Application {
         @Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
     }
+
+    private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner owner() {
+        var primary=(org.springframework.orm.jpa.JpaTransactionManager)manager;
+        return new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(primary,
+                new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer(primary));
+    }
+    private void inOwner(Runnable action) {owner().runInTransaction(()->{action.run();return null;});}
 }

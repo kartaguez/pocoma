@@ -202,8 +202,8 @@ class ExecuteRecordedCommandServiceTest {
 		TestBusinessEvent second = new TestBusinessEvent("audit-recorded");
 		List<BusinessEvent> produced = List.of(first, second);
 		List<CommandExecutionArtifact> artifacts = List.of(
-				artifact("event-1", "PotUpdated", Optional.of(subject)),
-				artifact("event-2", "AuditRecorded", Optional.empty()));
+				artifact("00000000-0000-0000-0000-000000000001", "PotUpdated", Optional.of(subject)),
+				artifact("00000000-0000-0000-0000-000000000002", "AuditRecorded", Optional.empty()));
 		Fixture fixture = new Fixture(Optional.of(recorded(NOW.plusSeconds(60))),
 				success(List.of(subject), produced), artifacts);
 
@@ -314,8 +314,14 @@ class ExecuteRecordedCommandServiceTest {
 		}));
 	}
 
+    private static com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted accepted(List<CommandExecutionArtifact> artifacts) {
+        return new com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted(artifacts,
+                artifacts.stream().map(a -> new com.kartaguez.pocoma.port.transaction.EventRef(
+                        com.kartaguez.pocoma.port.transaction.EventFamily.BUSINESS_EVENT, UUID.fromString(a.id()))).toList());
+    }
+
 	private static EventAppendPort events(List<CommandExecutionArtifact> artifacts) {
-		return ignored -> artifacts;
+		return ignored -> accepted(artifacts);
 	}
 
 	private static EventAppendPort eventsThrowing(RuntimeException failure) {
@@ -329,7 +335,7 @@ class ExecuteRecordedCommandServiceTest {
 			EventAppendPort events) {
 		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
 				decoder, dispatcher, events, new RecordingBindings(Optional.of(RESOLVED_USER)),
-				new ExternalAuthorityPermissionTranslator(), CLOCK);
+				new ExternalAuthorityPermissionTranslator(), CLOCK, ref -> {});
 	}
 
 	private static ExecuteRecordedCommandService service(
@@ -339,7 +345,7 @@ class ExecuteRecordedCommandServiceTest {
 			EventAppendPort events,
 			ExternalIdentityBindingPort bindings) {
 		return new ExecuteRecordedCommandService(recordedCommands(Optional.of(recorded)),
-				decoder, dispatcher, events, bindings, new ExternalAuthorityPermissionTranslator(), CLOCK);
+				decoder, dispatcher, events, bindings, new ExternalAuthorityPermissionTranslator(), CLOCK, ref -> {});
 	}
 
 	private static CommandExecutionArtifact artifact(
@@ -413,11 +419,11 @@ class ExecuteRecordedCommandServiceTest {
 			EventAppendPort events = produced -> {
 				appendCalls.incrementAndGet();
 				appendedEvents = List.copyOf(produced);
-				return artifacts;
+				return accepted(artifacts);
 			};
 			this.service = new ExecuteRecordedCommandService(recordedCommands(recorded), decoder,
 					new CommandDispatcher(List.of(useCase)), events, bindings,
-					new ExternalAuthorityPermissionTranslator(), CLOCK);
+					new ExternalAuthorityPermissionTranslator(), CLOCK, ref -> {});
 		}
 	}
 
@@ -455,16 +461,16 @@ class ExecuteRecordedCommandServiceTest {
 			return fenceSucceeds;
 		}
 
-		@Override public BindingAcquireResult acquire(
+		@Override public com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted acquire(
 				ExternalIdentity identity, PocomaUserId userId) {
 			throw new UnsupportedOperationException("not used by Command execution");
 		}
-		@Override public BindingAcquireResult acquireWithInitializer(
+		@Override public com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted acquireWithInitializer(
 				ExternalIdentity identity, PocomaUserId userId, Runnable initializer) {
 			throw new UnsupportedOperationException("not used by Command execution");
 		}
 
-		@Override public BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId) {
+		@Override public com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted detach(ExternalIdentity identity, BindingId bindingId) {
 			throw new UnsupportedOperationException("not used by Command execution");
 		}
 	}

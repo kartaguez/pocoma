@@ -1,0 +1,264 @@
+
+=== vd-certified ===
+COMMAND ./mvnw -pl runtime-command-consumption-worker,runtime-binding-consumption-worker,runtime-web-api -am test
+LOG /tmp/pocoma-4d-vd-certified.log
+SHA256 bcdc765d930b25a6e08385a311f8c3de5bf116d0670b5583442d68b079e9b639
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 196, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 31, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest
+[INFO] Tests run: 117, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest
+[INFO] Tests run: 111, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 227, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.720 s -- in com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest
+STEP4D PHYSICAL [{ord=39, phase=users:INSERT, pid=61, xid=993}, {ord=40, phase=external_identity_binding_streams:INSERT, pid=61, xid=993}, {ord=41, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=993}, {ord=42, phase=external_identities:INSERT, pid=61, xid=993}, {ord=43, phase=external_identity_binding_streams:UPDATE, pid=61, xid=993}, {ord=44, phase=external_identity_binding_facts:INSERT, pid=61, xid=993}, {ord=45, phase=external_identity_binding_streams:UPDATE, pid=61, xid=993}, {ord=46, phase=external_identity_binding_facts:INSERT, pid=61, xid=993}, {ord=47, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=993}, {ord=48, phase=external_identities:INSERT, pid=61, xid=993}, {ord=49, phase=external_identity_binding_streams:UPDATE, pid=61, xid=993}, {ord=50, phase=external_identity_binding_facts:INSERT, pid=61, xid=993}]
+STEP4D PHYSICAL [{ord=55, phase=users:INSERT, pid=61, xid=1035}, {ord=56, phase=external_identity_binding_streams:INSERT, pid=61, xid=1035}, {ord=57, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1035}, {ord=58, phase=external_identities:INSERT, pid=61, xid=1035}, {ord=59, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1035}, {ord=60, phase=external_identity_binding_facts:INSERT, pid=61, xid=1035}, {ord=61, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1035}, {ord=62, phase=external_identity_binding_facts:INSERT, pid=61, xid=1035}, {ord=63, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1035}, {ord=64, phase=external_identities:INSERT, pid=61, xid=1035}, {ord=65, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1035}, {ord=66, phase=external_identity_binding_facts:INSERT, pid=61, xid=1035}, {ord=67, phase=event_sequence_authorities:UPDATE, pid=61, xid=1035}, {ord=68, phase=binding_fact_positions:INSERT, pid=61, xid=1035}, {ord=69, phase=binding_fact_positions:INSERT, pid=61, xid=1035}, {ord=70, phase=binding_fact_positions:INSERT, pid=61, xid=1035}]
+STEP4D PHYSICAL [{ord=91, phase=business_event_outbox:INSERT, pid=61, xid=1124}, {ord=92, phase=command_outcomes:INSERT, pid=61, xid=1124}, {ord=93, phase=command_terminal_events:INSERT, pid=61, xid=1124}, {ord=94, phase=consumption_slots:UPDATE, pid=61, xid=1124}, {ord=95, phase=consumption_claims:UPDATE, pid=61, xid=1124}]
+STEP4D PHYSICAL [{ord=112, phase=business_event_outbox:INSERT, pid=61, xid=1172}, {ord=113, phase=command_outcomes:INSERT, pid=61, xid=1172}, {ord=114, phase=command_terminal_events:INSERT, pid=61, xid=1172}, {ord=115, phase=consumption_slots:UPDATE, pid=61, xid=1172}, {ord=116, phase=consumption_claims:UPDATE, pid=61, xid=1172}, {ord=117, phase=event_sequence_authorities:UPDATE, pid=61, xid=1172}, {ord=118, phase=business_event_positions:INSERT, pid=61, xid=1172}, {ord=119, phase=event_sequence_authorities:UPDATE, pid=61, xid=1172}, {ord=120, phase=command_terminal_event_positions:INSERT, pid=61, xid=1172}]
+STEP4D PHYSICAL [{ord=153, phase=business_event_outbox:INSERT, pid=61, xid=1259}, {ord=154, phase=business_event_outbox:INSERT, pid=61, xid=1259}, {ord=155, phase=business_event_outbox:INSERT, pid=61, xid=1259}]
+STEP4D PHYSICAL [{ord=161, phase=business_event_outbox:INSERT, pid=61, xid=1302}, {ord=162, phase=business_event_outbox:INSERT, pid=61, xid=1302}, {ord=163, phase=business_event_outbox:INSERT, pid=61, xid=1302}, {ord=164, phase=event_sequence_authorities:UPDATE, pid=61, xid=1302}, {ord=165, phase=business_event_positions:INSERT, pid=61, xid=1302}, {ord=166, phase=business_event_positions:INSERT, pid=61, xid=1302}, {ord=167, phase=business_event_positions:INSERT, pid=61, xid=1302}]
+STEP4D PHYSICAL [{ord=175, phase=external_identity_binding_streams:INSERT, pid=61, xid=1346}, {ord=176, phase=users:INSERT, pid=61, xid=1346}, {ord=177, phase=user_created_facts:INSERT, pid=61, xid=1346}, {ord=178, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1346}, {ord=179, phase=external_identities:INSERT, pid=61, xid=1346}, {ord=180, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1346}, {ord=181, phase=external_identity_binding_facts:INSERT, pid=61, xid=1346}, {ord=182, phase=registration_outcomes:INSERT, pid=61, xid=1346}]
+STEP4D PHYSICAL [{ord=188, phase=external_identity_binding_streams:INSERT, pid=61, xid=1391}, {ord=189, phase=users:INSERT, pid=61, xid=1391}, {ord=190, phase=user_created_facts:INSERT, pid=61, xid=1391}, {ord=191, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1391}, {ord=192, phase=external_identities:INSERT, pid=61, xid=1391}, {ord=193, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1391}, {ord=194, phase=external_identity_binding_facts:INSERT, pid=61, xid=1391}, {ord=195, phase=registration_outcomes:INSERT, pid=61, xid=1391}, {ord=196, phase=event_sequence_authorities:UPDATE, pid=61, xid=1391}, {ord=197, phase=binding_fact_positions:INSERT, pid=61, xid=1391}, {ord=198, phase=event_sequence_authorities:UPDATE, pid=61, xid=1391}, {ord=199, phase=user_created_fact_positions:INSERT, pid=61, xid=1391}]
+STEP4D POISON TERMINAL provisional INSERT visible, xid=1680
+STEP4D POISON USER_CREATED provisional INSERT visible, xid=1722
+STEP4D POISON BINDING_FACT provisional INSERT visible, xid=1765
+STEP4D POISON REGISTRATION_OUTCOME provisional INSERT visible, xid=1807
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.819 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.839 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventTransactionPostgresTest
+[INFO] Tests run: 188, Failures: 0, Errors: 0, Skipped: 1
+[INFO] BUILD SUCCESS
+[INFO] Total time:  02:54 min
+[INFO] Finished at: 2026-10-20T14:23:47+02:00
+
+=== compositions-certified ===
+COMMAND ./mvnw -pl runtime-registration-consumption-worker,runtime-monolith -am test
+LOG /tmp/pocoma-4d-compositions-certified.log
+SHA256 a269f2d2cf881d66c80aa5a87d22b7c75a6ad03b50dd6da1193229c9e067d055
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 196, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 31, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest
+[INFO] Tests run: 117, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest
+[INFO] Tests run: 111, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 227, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+STEP4D MONOLITH [{ord=1, phase=consumption_slots:INSERT, pid=71, xid=844}, {ord=2, phase=consumption_claims:INSERT, pid=71, xid=844}, {ord=3, phase=consumption_slots:UPDATE, pid=71, xid=844}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=71, xid=845}, {ord=5, phase=users:INSERT, pid=71, xid=845}, {ord=6, phase=user_created_facts:INSERT, pid=71, xid=845}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=71, xid=845}, {ord=8, phase=external_identities:INSERT, pid=71, xid=845}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=71, xid=845}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=71, xid=845}, {ord=11, phase=registration_outcomes:INSERT, pid=71, xid=845}, {ord=12, phase=consumption_slots:UPDATE, pid=71, xid=845}, {ord=13, phase=consumption_claims:UPDATE, pid=71, xid=845}]
+STEP4D MONOLITH [{ord=14, phase=consumption_slots:INSERT, pid=71, xid=848}, {ord=15, phase=consumption_claims:INSERT, pid=71, xid=848}, {ord=16, phase=consumption_slots:UPDATE, pid=71, xid=848}, {ord=17, phase=business_event_outbox:INSERT, pid=71, xid=849}, {ord=18, phase=command_outcomes:INSERT, pid=71, xid=849}, {ord=19, phase=command_terminal_events:INSERT, pid=71, xid=849}, {ord=20, phase=consumption_slots:UPDATE, pid=71, xid=849}, {ord=21, phase=consumption_claims:UPDATE, pid=71, xid=849}]
+STEP4D MONOLITH [{ord=26, phase=consumption_slots:INSERT, pid=81, xid=892}, {ord=27, phase=consumption_claims:INSERT, pid=81, xid=892}, {ord=28, phase=consumption_slots:UPDATE, pid=81, xid=892}, {ord=29, phase=external_identity_binding_streams:INSERT, pid=81, xid=893}, {ord=30, phase=users:INSERT, pid=81, xid=893}, {ord=31, phase=user_created_facts:INSERT, pid=81, xid=893}, {ord=32, phase=external_identity_binding_occurrences:INSERT, pid=81, xid=893}, {ord=33, phase=external_identities:INSERT, pid=81, xid=893}, {ord=34, phase=external_identity_binding_streams:UPDATE, pid=81, xid=893}, {ord=35, phase=external_identity_binding_facts:INSERT, pid=81, xid=893}, {ord=36, phase=registration_outcomes:INSERT, pid=81, xid=893}, {ord=37, phase=consumption_slots:UPDATE, pid=81, xid=893}, {ord=38, phase=consumption_claims:UPDATE, pid=81, xid=893}, {ord=39, phase=event_sequence_authorities:UPDATE, pid=81, xid=893}, {ord=40, phase=binding_fact_positions:INSERT, pid=81, xid=893}, {ord=41, phase=event_sequence_authorities:UPDATE, pid=81, xid=893}, {ord=42, phase=user_created_fact_positions:INSERT, pid=81, xid=893}]
+STEP4D MONOLITH [{ord=43, phase=consumption_slots:INSERT, pid=81, xid=896}, {ord=44, phase=consumption_claims:INSERT, pid=81, xid=896}, {ord=45, phase=consumption_slots:UPDATE, pid=81, xid=896}, {ord=46, phase=business_event_outbox:INSERT, pid=81, xid=897}, {ord=47, phase=command_outcomes:INSERT, pid=81, xid=897}, {ord=48, phase=command_terminal_events:INSERT, pid=81, xid=897}, {ord=49, phase=consumption_slots:UPDATE, pid=81, xid=897}, {ord=50, phase=consumption_claims:UPDATE, pid=81, xid=897}, {ord=51, phase=event_sequence_authorities:UPDATE, pid=81, xid=897}, {ord=52, phase=business_event_positions:INSERT, pid=81, xid=897}, {ord=53, phase=event_sequence_authorities:UPDATE, pid=81, xid=897}, {ord=54, phase=command_terminal_event_positions:INSERT, pid=81, xid=897}]
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.571 s -- in com.kartaguez.pocoma.RuntimeMonolithPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+STEP4D REGISTRATION [{ord=1, phase=consumption_slots:INSERT, pid=62, xid=855}, {ord=2, phase=consumption_claims:INSERT, pid=62, xid=855}, {ord=3, phase=consumption_slots:UPDATE, pid=62, xid=855}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=62, xid=856}, {ord=5, phase=users:INSERT, pid=62, xid=856}, {ord=6, phase=user_created_facts:INSERT, pid=62, xid=856}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=856}, {ord=8, phase=external_identities:INSERT, pid=62, xid=856}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=62, xid=856}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=62, xid=856}, {ord=11, phase=registration_outcomes:INSERT, pid=62, xid=856}, {ord=12, phase=consumption_slots:UPDATE, pid=62, xid=856}, {ord=13, phase=consumption_claims:UPDATE, pid=62, xid=856}]
+STEP4D REGISTRATION [{ord=18, phase=consumption_slots:INSERT, pid=62, xid=890}, {ord=19, phase=consumption_claims:INSERT, pid=62, xid=890}, {ord=20, phase=consumption_slots:UPDATE, pid=62, xid=890}, {ord=21, phase=external_identity_binding_streams:INSERT, pid=62, xid=891}, {ord=22, phase=users:INSERT, pid=62, xid=891}, {ord=23, phase=user_created_facts:INSERT, pid=62, xid=891}, {ord=24, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=891}, {ord=25, phase=external_identities:INSERT, pid=62, xid=891}, {ord=26, phase=external_identity_binding_streams:UPDATE, pid=62, xid=891}, {ord=27, phase=external_identity_binding_facts:INSERT, pid=62, xid=891}, {ord=28, phase=registration_outcomes:INSERT, pid=62, xid=891}, {ord=29, phase=consumption_slots:UPDATE, pid=62, xid=891}, {ord=30, phase=consumption_claims:UPDATE, pid=62, xid=891}, {ord=31, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=32, phase=binding_fact_positions:INSERT, pid=62, xid=891}, {ord=33, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=34, phase=user_created_fact_positions:INSERT, pid=62, xid=891}]
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.062 s -- in com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  01:51 min
+[INFO] Finished at: 2026-10-20T14:25:40+02:00
+
+=== architecture-closed ===
+COMMAND ./mvnw -pl architecture-tests -am test
+LOG /tmp/pocoma-4d-architecture-closed.log
+SHA256 9202f96a7f87f2729601988abaa6e37bf7612d3e6aead160e9039547e3a1627d
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 196, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 31, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest
+[INFO] Tests run: 117, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest
+[INFO] Tests run: 111, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 227, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+STEP4D MONOLITH [{ord=1, phase=consumption_slots:INSERT, pid=71, xid=847}, {ord=2, phase=consumption_claims:INSERT, pid=71, xid=847}, {ord=3, phase=consumption_slots:UPDATE, pid=71, xid=847}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=71, xid=848}, {ord=5, phase=users:INSERT, pid=71, xid=848}, {ord=6, phase=user_created_facts:INSERT, pid=71, xid=848}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=71, xid=848}, {ord=8, phase=external_identities:INSERT, pid=71, xid=848}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=71, xid=848}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=71, xid=848}, {ord=11, phase=registration_outcomes:INSERT, pid=71, xid=848}, {ord=12, phase=consumption_slots:UPDATE, pid=71, xid=848}, {ord=13, phase=consumption_claims:UPDATE, pid=71, xid=848}]
+STEP4D MONOLITH [{ord=14, phase=consumption_slots:INSERT, pid=71, xid=851}, {ord=15, phase=consumption_claims:INSERT, pid=71, xid=851}, {ord=16, phase=consumption_slots:UPDATE, pid=71, xid=851}, {ord=17, phase=pot_global_versions:INSERT, pid=71, xid=852}, {ord=18, phase=pot_version_metadata:INSERT, pid=71, xid=852}, {ord=19, phase=pot_headers:INSERT, pid=71, xid=852}, {ord=20, phase=business_event_outbox:INSERT, pid=71, xid=852}, {ord=21, phase=command_outcomes:INSERT, pid=71, xid=852}, {ord=22, phase=command_terminal_events:INSERT, pid=71, xid=852}, {ord=23, phase=consumption_slots:UPDATE, pid=71, xid=852}, {ord=24, phase=consumption_claims:UPDATE, pid=71, xid=852}]
+STEP4D MONOLITH [{ord=29, phase=consumption_slots:INSERT, pid=81, xid=901}, {ord=30, phase=consumption_claims:INSERT, pid=81, xid=901}, {ord=31, phase=consumption_slots:UPDATE, pid=81, xid=901}, {ord=32, phase=external_identity_binding_streams:INSERT, pid=81, xid=902}, {ord=33, phase=users:INSERT, pid=81, xid=902}, {ord=34, phase=user_created_facts:INSERT, pid=81, xid=902}, {ord=35, phase=external_identity_binding_occurrences:INSERT, pid=81, xid=902}, {ord=36, phase=external_identities:INSERT, pid=81, xid=902}, {ord=37, phase=external_identity_binding_streams:UPDATE, pid=81, xid=902}, {ord=38, phase=external_identity_binding_facts:INSERT, pid=81, xid=902}, {ord=39, phase=registration_outcomes:INSERT, pid=81, xid=902}, {ord=40, phase=consumption_slots:UPDATE, pid=81, xid=902}, {ord=41, phase=consumption_claims:UPDATE, pid=81, xid=902}, {ord=42, phase=event_sequence_authorities:UPDATE, pid=81, xid=902}, {ord=43, phase=binding_fact_positions:INSERT, pid=81, xid=902}, {ord=44, phase=event_sequence_authorities:UPDATE, pid=81, xid=902}, {ord=45, phase=user_created_fact_positions:INSERT, pid=81, xid=902}]
+STEP4D MONOLITH [{ord=46, phase=consumption_slots:INSERT, pid=81, xid=905}, {ord=47, phase=consumption_claims:INSERT, pid=81, xid=905}, {ord=48, phase=consumption_slots:UPDATE, pid=81, xid=905}, {ord=49, phase=pot_global_versions:INSERT, pid=81, xid=906}, {ord=50, phase=pot_version_metadata:INSERT, pid=81, xid=906}, {ord=51, phase=pot_headers:INSERT, pid=81, xid=906}, {ord=52, phase=business_event_outbox:INSERT, pid=81, xid=906}, {ord=53, phase=command_outcomes:INSERT, pid=81, xid=906}, {ord=54, phase=command_terminal_events:INSERT, pid=81, xid=906}, {ord=55, phase=consumption_slots:UPDATE, pid=81, xid=906}, {ord=56, phase=consumption_claims:UPDATE, pid=81, xid=906}, {ord=57, phase=event_sequence_authorities:UPDATE, pid=81, xid=906}, {ord=58, phase=business_event_positions:INSERT, pid=81, xid=906}, {ord=59, phase=event_sequence_authorities:UPDATE, pid=81, xid=906}, {ord=60, phase=command_terminal_event_positions:INSERT, pid=81, xid=906}]
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.574 s -- in com.kartaguez.pocoma.RuntimeMonolithPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 30, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+STEP4D REGISTRATION [{ord=1, phase=consumption_slots:INSERT, pid=62, xid=855}, {ord=2, phase=consumption_claims:INSERT, pid=62, xid=855}, {ord=3, phase=consumption_slots:UPDATE, pid=62, xid=855}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=62, xid=856}, {ord=5, phase=users:INSERT, pid=62, xid=856}, {ord=6, phase=user_created_facts:INSERT, pid=62, xid=856}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=856}, {ord=8, phase=external_identities:INSERT, pid=62, xid=856}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=62, xid=856}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=62, xid=856}, {ord=11, phase=registration_outcomes:INSERT, pid=62, xid=856}, {ord=12, phase=consumption_slots:UPDATE, pid=62, xid=856}, {ord=13, phase=consumption_claims:UPDATE, pid=62, xid=856}]
+STEP4D REGISTRATION [{ord=18, phase=consumption_slots:INSERT, pid=62, xid=890}, {ord=19, phase=consumption_claims:INSERT, pid=62, xid=890}, {ord=20, phase=consumption_slots:UPDATE, pid=62, xid=890}, {ord=21, phase=external_identity_binding_streams:INSERT, pid=62, xid=891}, {ord=22, phase=users:INSERT, pid=62, xid=891}, {ord=23, phase=user_created_facts:INSERT, pid=62, xid=891}, {ord=24, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=891}, {ord=25, phase=external_identities:INSERT, pid=62, xid=891}, {ord=26, phase=external_identity_binding_streams:UPDATE, pid=62, xid=891}, {ord=27, phase=external_identity_binding_facts:INSERT, pid=62, xid=891}, {ord=28, phase=registration_outcomes:INSERT, pid=62, xid=891}, {ord=29, phase=consumption_slots:UPDATE, pid=62, xid=891}, {ord=30, phase=consumption_claims:UPDATE, pid=62, xid=891}, {ord=31, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=32, phase=binding_fact_positions:INSERT, pid=62, xid=891}, {ord=33, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=34, phase=user_created_fact_positions:INSERT, pid=62, xid=891}]
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.158 s -- in com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.362 s -- in com.kartaguez.pocoma.runtime.command.consumption.BindingSharedFencePostgresTest
+STEP4D PHYSICAL [{ord=39, phase=users:INSERT, pid=62, xid=1020}, {ord=40, phase=external_identity_binding_streams:INSERT, pid=62, xid=1020}, {ord=41, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1020}, {ord=42, phase=external_identities:INSERT, pid=62, xid=1020}, {ord=43, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1020}, {ord=44, phase=external_identity_binding_facts:INSERT, pid=62, xid=1020}, {ord=45, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1020}, {ord=46, phase=external_identity_binding_facts:INSERT, pid=62, xid=1020}, {ord=47, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1020}, {ord=48, phase=external_identities:INSERT, pid=62, xid=1020}, {ord=49, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1020}, {ord=50, phase=external_identity_binding_facts:INSERT, pid=62, xid=1020}]
+STEP4D PHYSICAL [{ord=55, phase=users:INSERT, pid=62, xid=1068}, {ord=56, phase=external_identity_binding_streams:INSERT, pid=62, xid=1068}, {ord=57, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1068}, {ord=58, phase=external_identities:INSERT, pid=62, xid=1068}, {ord=59, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1068}, {ord=60, phase=external_identity_binding_facts:INSERT, pid=62, xid=1068}, {ord=61, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1068}, {ord=62, phase=external_identity_binding_facts:INSERT, pid=62, xid=1068}, {ord=63, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1068}, {ord=64, phase=external_identities:INSERT, pid=62, xid=1068}, {ord=65, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1068}, {ord=66, phase=external_identity_binding_facts:INSERT, pid=62, xid=1068}, {ord=67, phase=event_sequence_authorities:UPDATE, pid=62, xid=1068}, {ord=68, phase=binding_fact_positions:INSERT, pid=62, xid=1068}, {ord=69, phase=binding_fact_positions:INSERT, pid=62, xid=1068}, {ord=70, phase=binding_fact_positions:INSERT, pid=62, xid=1068}]
+STEP4D PHYSICAL [{ord=91, phase=pot_global_versions:INSERT, pid=62, xid=1169}, {ord=92, phase=pot_version_metadata:INSERT, pid=62, xid=1169}, {ord=93, phase=pot_headers:INSERT, pid=62, xid=1169}, {ord=94, phase=business_event_outbox:INSERT, pid=62, xid=1169}, {ord=95, phase=command_outcomes:INSERT, pid=62, xid=1169}, {ord=96, phase=command_terminal_events:INSERT, pid=62, xid=1169}, {ord=97, phase=consumption_slots:UPDATE, pid=62, xid=1169}, {ord=98, phase=consumption_claims:UPDATE, pid=62, xid=1169}]
+STEP4D PHYSICAL [{ord=115, phase=pot_global_versions:INSERT, pid=62, xid=1223}, {ord=116, phase=pot_version_metadata:INSERT, pid=62, xid=1223}, {ord=117, phase=pot_headers:INSERT, pid=62, xid=1223}, {ord=118, phase=business_event_outbox:INSERT, pid=62, xid=1223}, {ord=119, phase=command_outcomes:INSERT, pid=62, xid=1223}, {ord=120, phase=command_terminal_events:INSERT, pid=62, xid=1223}, {ord=121, phase=consumption_slots:UPDATE, pid=62, xid=1223}, {ord=122, phase=consumption_claims:UPDATE, pid=62, xid=1223}, {ord=123, phase=event_sequence_authorities:UPDATE, pid=62, xid=1223}, {ord=124, phase=business_event_positions:INSERT, pid=62, xid=1223}, {ord=125, phase=event_sequence_authorities:UPDATE, pid=62, xid=1223}, {ord=126, phase=command_terminal_event_positions:INSERT, pid=62, xid=1223}]
+STEP4D PHYSICAL [{ord=162, phase=business_event_outbox:INSERT, pid=62, xid=1322}, {ord=163, phase=business_event_outbox:INSERT, pid=62, xid=1322}, {ord=164, phase=business_event_outbox:INSERT, pid=62, xid=1322}]
+STEP4D PHYSICAL [{ord=170, phase=business_event_outbox:INSERT, pid=62, xid=1371}, {ord=171, phase=business_event_outbox:INSERT, pid=62, xid=1371}, {ord=172, phase=business_event_outbox:INSERT, pid=62, xid=1371}, {ord=173, phase=event_sequence_authorities:UPDATE, pid=62, xid=1371}, {ord=174, phase=business_event_positions:INSERT, pid=62, xid=1371}, {ord=175, phase=business_event_positions:INSERT, pid=62, xid=1371}, {ord=176, phase=business_event_positions:INSERT, pid=62, xid=1371}]
+STEP4D PHYSICAL [{ord=184, phase=external_identity_binding_streams:INSERT, pid=62, xid=1421}, {ord=185, phase=users:INSERT, pid=62, xid=1421}, {ord=186, phase=user_created_facts:INSERT, pid=62, xid=1421}, {ord=187, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1421}, {ord=188, phase=external_identities:INSERT, pid=62, xid=1421}, {ord=189, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1421}, {ord=190, phase=external_identity_binding_facts:INSERT, pid=62, xid=1421}, {ord=191, phase=registration_outcomes:INSERT, pid=62, xid=1421}]
+STEP4D PHYSICAL [{ord=197, phase=external_identity_binding_streams:INSERT, pid=62, xid=1472}, {ord=198, phase=users:INSERT, pid=62, xid=1472}, {ord=199, phase=user_created_facts:INSERT, pid=62, xid=1472}, {ord=200, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=1472}, {ord=201, phase=external_identities:INSERT, pid=62, xid=1472}, {ord=202, phase=external_identity_binding_streams:UPDATE, pid=62, xid=1472}, {ord=203, phase=external_identity_binding_facts:INSERT, pid=62, xid=1472}, {ord=204, phase=registration_outcomes:INSERT, pid=62, xid=1472}, {ord=205, phase=event_sequence_authorities:UPDATE, pid=62, xid=1472}, {ord=206, phase=binding_fact_positions:INSERT, pid=62, xid=1472}, {ord=207, phase=event_sequence_authorities:UPDATE, pid=62, xid=1472}, {ord=208, phase=user_created_fact_positions:INSERT, pid=62, xid=1472}]
+STEP4D POISON TERMINAL provisional INSERT visible, xid=1797
+STEP4D POISON USER_CREATED provisional INSERT visible, xid=1845
+STEP4D POISON BINDING_FACT provisional INSERT visible, xid=1894
+STEP4D POISON REGISTRATION_OUTCOME provisional INSERT visible, xid=1942
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.635 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.755 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.PrimaryEventTransactionPostgresTest
+[INFO] Tests run: 188, Failures: 0, Errors: 0, Skipped: 1
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.501 s -- in com.kartaguez.pocoma.architecture.HexagonalArchitectureTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.446 s -- in com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest
+[INFO] Tests run: 139, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  04:05 min
+[INFO] Finished at: 2026-10-20T14:45:01+02:00
+
+=== physical-certified ===
+COMMAND ./mvnw -pl runtime-command-consumption-worker,runtime-registration-consumption-worker,runtime-monolith,runtime-registration-result-consumption-worker -am test -Dtest=RealProducerEventProtocolPostgresTest,RegistrationRuntimePostgresTest,RuntimeMonolithPostgresTest,RegistrationResultRuntimePostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+LOG /tmp/pocoma-4d-physical-certified.log
+SHA256 9db872ecf37f5325b57a16c091a6e016f44d3a31535b1f6becf3e71f6fc3b9b6
+STEP4D MONOLITH [{ord=1, phase=consumption_slots:INSERT, pid=71, xid=847}, {ord=2, phase=consumption_claims:INSERT, pid=71, xid=847}, {ord=3, phase=consumption_slots:UPDATE, pid=71, xid=847}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=71, xid=848}, {ord=5, phase=users:INSERT, pid=71, xid=848}, {ord=6, phase=user_created_facts:INSERT, pid=71, xid=848}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=71, xid=848}, {ord=8, phase=external_identities:INSERT, pid=71, xid=848}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=71, xid=848}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=71, xid=848}, {ord=11, phase=registration_outcomes:INSERT, pid=71, xid=848}, {ord=12, phase=consumption_slots:UPDATE, pid=71, xid=848}, {ord=13, phase=consumption_claims:UPDATE, pid=71, xid=848}]
+STEP4D MONOLITH [{ord=14, phase=consumption_slots:INSERT, pid=71, xid=851}, {ord=15, phase=consumption_claims:INSERT, pid=71, xid=851}, {ord=16, phase=consumption_slots:UPDATE, pid=71, xid=851}, {ord=17, phase=pot_global_versions:INSERT, pid=71, xid=852}, {ord=18, phase=pot_version_metadata:INSERT, pid=71, xid=852}, {ord=19, phase=pot_headers:INSERT, pid=71, xid=852}, {ord=20, phase=business_event_outbox:INSERT, pid=71, xid=852}, {ord=21, phase=command_outcomes:INSERT, pid=71, xid=852}, {ord=22, phase=command_terminal_events:INSERT, pid=71, xid=852}, {ord=23, phase=consumption_slots:UPDATE, pid=71, xid=852}, {ord=24, phase=consumption_claims:UPDATE, pid=71, xid=852}]
+STEP4D MONOLITH [{ord=29, phase=consumption_slots:INSERT, pid=81, xid=901}, {ord=30, phase=consumption_claims:INSERT, pid=81, xid=901}, {ord=31, phase=consumption_slots:UPDATE, pid=81, xid=901}, {ord=32, phase=external_identity_binding_streams:INSERT, pid=81, xid=902}, {ord=33, phase=users:INSERT, pid=81, xid=902}, {ord=34, phase=user_created_facts:INSERT, pid=81, xid=902}, {ord=35, phase=external_identity_binding_occurrences:INSERT, pid=81, xid=902}, {ord=36, phase=external_identities:INSERT, pid=81, xid=902}, {ord=37, phase=external_identity_binding_streams:UPDATE, pid=81, xid=902}, {ord=38, phase=external_identity_binding_facts:INSERT, pid=81, xid=902}, {ord=39, phase=registration_outcomes:INSERT, pid=81, xid=902}, {ord=40, phase=consumption_slots:UPDATE, pid=81, xid=902}, {ord=41, phase=consumption_claims:UPDATE, pid=81, xid=902}, {ord=42, phase=event_sequence_authorities:UPDATE, pid=81, xid=902}, {ord=43, phase=binding_fact_positions:INSERT, pid=81, xid=902}, {ord=44, phase=event_sequence_authorities:UPDATE, pid=81, xid=902}, {ord=45, phase=user_created_fact_positions:INSERT, pid=81, xid=902}]
+STEP4D MONOLITH [{ord=46, phase=consumption_slots:INSERT, pid=81, xid=905}, {ord=47, phase=consumption_claims:INSERT, pid=81, xid=905}, {ord=48, phase=consumption_slots:UPDATE, pid=81, xid=905}, {ord=49, phase=pot_global_versions:INSERT, pid=81, xid=906}, {ord=50, phase=pot_version_metadata:INSERT, pid=81, xid=906}, {ord=51, phase=pot_headers:INSERT, pid=81, xid=906}, {ord=52, phase=business_event_outbox:INSERT, pid=81, xid=906}, {ord=53, phase=command_outcomes:INSERT, pid=81, xid=906}, {ord=54, phase=command_terminal_events:INSERT, pid=81, xid=906}, {ord=55, phase=consumption_slots:UPDATE, pid=81, xid=906}, {ord=56, phase=consumption_claims:UPDATE, pid=81, xid=906}, {ord=57, phase=event_sequence_authorities:UPDATE, pid=81, xid=906}, {ord=58, phase=business_event_positions:INSERT, pid=81, xid=906}, {ord=59, phase=event_sequence_authorities:UPDATE, pid=81, xid=906}, {ord=60, phase=command_terminal_event_positions:INSERT, pid=81, xid=906}]
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.685 s -- in com.kartaguez.pocoma.RuntimeMonolithPostgresTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+STEP4D REGISTRATION [{ord=1, phase=consumption_slots:INSERT, pid=62, xid=855}, {ord=2, phase=consumption_claims:INSERT, pid=62, xid=855}, {ord=3, phase=consumption_slots:UPDATE, pid=62, xid=855}, {ord=4, phase=external_identity_binding_streams:INSERT, pid=62, xid=856}, {ord=5, phase=users:INSERT, pid=62, xid=856}, {ord=6, phase=user_created_facts:INSERT, pid=62, xid=856}, {ord=7, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=856}, {ord=8, phase=external_identities:INSERT, pid=62, xid=856}, {ord=9, phase=external_identity_binding_streams:UPDATE, pid=62, xid=856}, {ord=10, phase=external_identity_binding_facts:INSERT, pid=62, xid=856}, {ord=11, phase=registration_outcomes:INSERT, pid=62, xid=856}, {ord=12, phase=consumption_slots:UPDATE, pid=62, xid=856}, {ord=13, phase=consumption_claims:UPDATE, pid=62, xid=856}]
+STEP4D REGISTRATION [{ord=18, phase=consumption_slots:INSERT, pid=62, xid=890}, {ord=19, phase=consumption_claims:INSERT, pid=62, xid=890}, {ord=20, phase=consumption_slots:UPDATE, pid=62, xid=890}, {ord=21, phase=external_identity_binding_streams:INSERT, pid=62, xid=891}, {ord=22, phase=users:INSERT, pid=62, xid=891}, {ord=23, phase=user_created_facts:INSERT, pid=62, xid=891}, {ord=24, phase=external_identity_binding_occurrences:INSERT, pid=62, xid=891}, {ord=25, phase=external_identities:INSERT, pid=62, xid=891}, {ord=26, phase=external_identity_binding_streams:UPDATE, pid=62, xid=891}, {ord=27, phase=external_identity_binding_facts:INSERT, pid=62, xid=891}, {ord=28, phase=registration_outcomes:INSERT, pid=62, xid=891}, {ord=29, phase=consumption_slots:UPDATE, pid=62, xid=891}, {ord=30, phase=consumption_claims:UPDATE, pid=62, xid=891}, {ord=31, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=32, phase=binding_fact_positions:INSERT, pid=62, xid=891}, {ord=33, phase=event_sequence_authorities:UPDATE, pid=62, xid=891}, {ord=34, phase=user_created_fact_positions:INSERT, pid=62, xid=891}]
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.114 s -- in com.kartaguez.pocoma.runtime.registration.RegistrationRuntimePostgresTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0
+STEP4D PHYSICAL [{ord=39, phase=users:INSERT, pid=61, xid=1020}, {ord=40, phase=external_identity_binding_streams:INSERT, pid=61, xid=1020}, {ord=41, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1020}, {ord=42, phase=external_identities:INSERT, pid=61, xid=1020}, {ord=43, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1020}, {ord=44, phase=external_identity_binding_facts:INSERT, pid=61, xid=1020}, {ord=45, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1020}, {ord=46, phase=external_identity_binding_facts:INSERT, pid=61, xid=1020}, {ord=47, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1020}, {ord=48, phase=external_identities:INSERT, pid=61, xid=1020}, {ord=49, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1020}, {ord=50, phase=external_identity_binding_facts:INSERT, pid=61, xid=1020}]
+STEP4D PHYSICAL [{ord=55, phase=users:INSERT, pid=61, xid=1068}, {ord=56, phase=external_identity_binding_streams:INSERT, pid=61, xid=1068}, {ord=57, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1068}, {ord=58, phase=external_identities:INSERT, pid=61, xid=1068}, {ord=59, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1068}, {ord=60, phase=external_identity_binding_facts:INSERT, pid=61, xid=1068}, {ord=61, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1068}, {ord=62, phase=external_identity_binding_facts:INSERT, pid=61, xid=1068}, {ord=63, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1068}, {ord=64, phase=external_identities:INSERT, pid=61, xid=1068}, {ord=65, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1068}, {ord=66, phase=external_identity_binding_facts:INSERT, pid=61, xid=1068}, {ord=67, phase=event_sequence_authorities:UPDATE, pid=61, xid=1068}, {ord=68, phase=binding_fact_positions:INSERT, pid=61, xid=1068}, {ord=69, phase=binding_fact_positions:INSERT, pid=61, xid=1068}, {ord=70, phase=binding_fact_positions:INSERT, pid=61, xid=1068}]
+STEP4D PHYSICAL [{ord=91, phase=pot_global_versions:INSERT, pid=61, xid=1169}, {ord=92, phase=pot_version_metadata:INSERT, pid=61, xid=1169}, {ord=93, phase=pot_headers:INSERT, pid=61, xid=1169}, {ord=94, phase=business_event_outbox:INSERT, pid=61, xid=1169}, {ord=95, phase=command_outcomes:INSERT, pid=61, xid=1169}, {ord=96, phase=command_terminal_events:INSERT, pid=61, xid=1169}, {ord=97, phase=consumption_slots:UPDATE, pid=61, xid=1169}, {ord=98, phase=consumption_claims:UPDATE, pid=61, xid=1169}]
+STEP4D PHYSICAL [{ord=115, phase=pot_global_versions:INSERT, pid=61, xid=1223}, {ord=116, phase=pot_version_metadata:INSERT, pid=61, xid=1223}, {ord=117, phase=pot_headers:INSERT, pid=61, xid=1223}, {ord=118, phase=business_event_outbox:INSERT, pid=61, xid=1223}, {ord=119, phase=command_outcomes:INSERT, pid=61, xid=1223}, {ord=120, phase=command_terminal_events:INSERT, pid=61, xid=1223}, {ord=121, phase=consumption_slots:UPDATE, pid=61, xid=1223}, {ord=122, phase=consumption_claims:UPDATE, pid=61, xid=1223}, {ord=123, phase=event_sequence_authorities:UPDATE, pid=61, xid=1223}, {ord=124, phase=business_event_positions:INSERT, pid=61, xid=1223}, {ord=125, phase=event_sequence_authorities:UPDATE, pid=61, xid=1223}, {ord=126, phase=command_terminal_event_positions:INSERT, pid=61, xid=1223}]
+STEP4D PHYSICAL [{ord=162, phase=business_event_outbox:INSERT, pid=61, xid=1322}, {ord=163, phase=business_event_outbox:INSERT, pid=61, xid=1322}, {ord=164, phase=business_event_outbox:INSERT, pid=61, xid=1322}]
+STEP4D PHYSICAL [{ord=170, phase=business_event_outbox:INSERT, pid=61, xid=1371}, {ord=171, phase=business_event_outbox:INSERT, pid=61, xid=1371}, {ord=172, phase=business_event_outbox:INSERT, pid=61, xid=1371}, {ord=173, phase=event_sequence_authorities:UPDATE, pid=61, xid=1371}, {ord=174, phase=business_event_positions:INSERT, pid=61, xid=1371}, {ord=175, phase=business_event_positions:INSERT, pid=61, xid=1371}, {ord=176, phase=business_event_positions:INSERT, pid=61, xid=1371}]
+STEP4D PHYSICAL [{ord=184, phase=external_identity_binding_streams:INSERT, pid=61, xid=1421}, {ord=185, phase=users:INSERT, pid=61, xid=1421}, {ord=186, phase=user_created_facts:INSERT, pid=61, xid=1421}, {ord=187, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1421}, {ord=188, phase=external_identities:INSERT, pid=61, xid=1421}, {ord=189, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1421}, {ord=190, phase=external_identity_binding_facts:INSERT, pid=61, xid=1421}, {ord=191, phase=registration_outcomes:INSERT, pid=61, xid=1421}]
+STEP4D PHYSICAL [{ord=197, phase=external_identity_binding_streams:INSERT, pid=61, xid=1472}, {ord=198, phase=users:INSERT, pid=61, xid=1472}, {ord=199, phase=user_created_facts:INSERT, pid=61, xid=1472}, {ord=200, phase=external_identity_binding_occurrences:INSERT, pid=61, xid=1472}, {ord=201, phase=external_identities:INSERT, pid=61, xid=1472}, {ord=202, phase=external_identity_binding_streams:UPDATE, pid=61, xid=1472}, {ord=203, phase=external_identity_binding_facts:INSERT, pid=61, xid=1472}, {ord=204, phase=registration_outcomes:INSERT, pid=61, xid=1472}, {ord=205, phase=event_sequence_authorities:UPDATE, pid=61, xid=1472}, {ord=206, phase=binding_fact_positions:INSERT, pid=61, xid=1472}, {ord=207, phase=event_sequence_authorities:UPDATE, pid=61, xid=1472}, {ord=208, phase=user_created_fact_positions:INSERT, pid=61, xid=1472}]
+STEP4D POISON TERMINAL provisional INSERT visible, xid=1797
+STEP4D POISON USER_CREATED provisional INSERT visible, xid=1845
+STEP4D POISON BINDING_FACT provisional INSERT visible, xid=1894
+STEP4D POISON REGISTRATION_OUTCOME provisional INSERT visible, xid=1942
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.206 s -- in com.kartaguez.pocoma.runtime.command.consumption.eventprotocol.RealProducerEventProtocolPostgresTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  31.867 s
+[INFO] Finished at: 2026-10-20T14:29:07+02:00
+
+=== runtime-return-certified ===
+COMMAND ./scripts/testing/verify-4d-previous-runtime.sh
+LOG /tmp/pocoma-4d-runtime-return-certified.log
+SHA256 d4a5df1232402bb9bfbc7487b7765c00e2beeee898b8c45b309c0a896bc38945
+STEP4D runtime return source 4defd5a63af267656f2feee92aed8daafef2175f; exports /private/tmp/pocoma-4d-runtime-return.RUdrAB
+STEP4D RETURN committed=1 PREPARED drained; binary=current
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  12.923 s
+[INFO] Finished at: 2026-10-20T14:23:02+02:00
+STEP4D RETURN committed=2 PREPARED drained; binary=previous
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  13.979 s
+[INFO] Finished at: 2026-10-20T14:23:17+02:00
+STEP4D RETURN committed=3 PREPARED drained; binary=current
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  11.221 s
+[INFO] Finished at: 2026-10-20T14:23:29+02:00
+STEP4D RETURN committed=4 PREPARED drained; binary=previous
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  10.996 s
+[INFO] Finished at: 2026-10-20T14:23:41+02:00
+
+=== architecture-targeted-closure ===
+COMMAND ./mvnw -pl architecture-tests -am test -Dtest=LatestKnownVersionRuntimePostgresTest,CommandCompletionE2EPostgresTest,EventPublicationContractArchitectureTest,HexagonalArchitectureTest,Wa67BindingArchitectureTest,DurableEventToProjectionPostgresTest,HistoricalEventRouteEvolutionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+LOG /tmp/pocoma-4d-architecture-targeted-closure.log
+SHA256 1751784232e56be31ea446b71e2f249ecdee51abe77aba4ee7dc2b4b919921f8
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.189 s -- in com.kartaguez.pocoma.architecture.HexagonalArchitectureTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.555 s -- in com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest
+[INFO] Tests run: 72, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  36.304 s
+[INFO] Finished at: 2026-10-20T14:40:55+02:00

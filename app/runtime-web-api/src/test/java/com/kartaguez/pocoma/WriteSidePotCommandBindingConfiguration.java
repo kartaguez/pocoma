@@ -85,8 +85,8 @@ public class WriteSidePotCommandBindingConfiguration {
 			CommandDispatcher dispatcher,
 			EventAppendPort events,
 			ExternalIdentityBindingPort bindings,
-			Clock clock) {
+			Clock clock, com.kartaguez.pocoma.port.transaction.PublishedEvents declarations) {
 		return new ExecuteRecordedCommandService(commands, decoder, dispatcher, events,
-				bindings, new ExternalAuthorityPermissionTranslator(), clock);
+				bindings, new ExternalAuthorityPermissionTranslator(), clock, declarations);
 	}
 }

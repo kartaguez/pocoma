@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.identity;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner;
+
 import java.sql.Timestamp;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,12 +31,22 @@ public class ExternalIdentityBindingFactJdbcRepository {
 		this.jdbc = jdbc;
 	}
 
-	public void append(ExternalIdentityBindingFactRow row) {
+	public <T> T accept(java.util.function.Supplier<T> action) {
+        return PrimaryEventTransactionRunner.guardedWrite(jdbc.getDataSource(), action);
+    }
+
+    public void append(ExternalIdentityBindingFactRow row) {
+        PrimaryEventTransactionRunner.guardedWrite(jdbc.getDataSource(), () -> {
 		PrimaryWriteParticipation.require(jdbc);
-		jdbc.update(APPEND,
+		int rows = jdbc.update(APPEND,
 				row.eventId(), row.issuer(), row.subject(), row.bindingRevision(), row.factType(),
 				row.userId(), row.bindingId(), Timestamp.from(row.recordedAt()), row.issuer(), row.subject());
-	}
+        if (rows != 1) throw new IllegalStateException("Binding fact must insert exactly one row");
+
+        return null;
+
+        });
+    }
 
 	public Optional<ExternalIdentityBindingFactRow> findByEventId(UUID eventId) {
 		return jdbc.query(FIND, (rs, row) -> new ExternalIdentityBindingFactRow(

@@ -1,7 +1,7 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`de5e4c373d21c1409f6e75a4faac327926e01f92` (livraison 4C auditée). **4A CLOSED ; 4B CLOSED / PASS hors production ; 4C CLOSED / PASS dormant ; 4D NEXT ; 4E NOT STARTED.**
+`4defd5a63af267656f2feee92aed8daafef2175f` au départ du lot 4D. **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E NEXT, NOT STARTED.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
 4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
@@ -64,11 +64,11 @@ producteur réel migré. Global architecture/full non requis, non exécutés ; c
 
 **Audit indépendant 4B — PASS confirmé sur `5640220b94f6208aa4c156e248d95e2eced1522f`.** Revue statique favorable,
 sans réexécution Maven ou PostgreSQL par l'auditeur ; les résultats ci-dessus restent ceux de la
-campagne de livraison 4B. Runner et collecteur restent dormants, non raccordés en production.
+campagne de livraison 4B. À cette clôture historique, runner et collecteur étaient dormants, non raccordés en production ; leur raccordement ultérieur est certifié en 4D ci-dessous.
 Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
 (conditions A et B du §4D ci-dessous), sans dette technique 4B. Les limites des preuves et le
 [compte rendu de clôture documentaire](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
-ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; 4D et 4E non implémentés.**
+ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; raccordement 4D certifié ci-dessous ; 4E NOT STARTED.**
 
 ## 4C — CLOSED / PASS : schéma additif et séquenceur transactionnel inactifs
 
@@ -94,7 +94,7 @@ et exercé deux fois sur V30 PREPARED. COMMAND + BINDING canonique : **1 091 tes
 0 failure/error, 1 skip 3B exploratoire préexistant**. Aucun franchissement inattendu ; global/full
 non requis, non exécutés. DDL et fonctions éprouvés sur vraies sources ; ACTIVE uniquement en bases
 isolées. Comptes de l'environnement déployé, vrais producteurs et compositions restent 4D ;
-activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; 4D NEXT.**
+activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; raccordement ultérieur 4D décrit ci-dessous.**
 
 **Audit indépendant 4C — PASS statique, sans défaut bloquant démontré dans le périmètre 4C.**
 Le [verdict et R1/R2/R3](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
@@ -102,6 +102,25 @@ sont enregistrés sans réexécution Maven/PostgreSQL, réouverture, extension d
 dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E NOT STARTED**.
 
 ## 4D — Producteurs et orchestrations réels, PREPARED complet
+
+**Préparation au HEAD `4defd5a6`, 2026-10-20 :** [audit de raccordement](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md)
+réalisé, inventaire et scope V-D déclarés avant modification productive. L'arbitrage du 2026-10-20
+approuve UUID sur le port auxiliaire puis EventRef déclaré par la façade applicative sous le même
+owner PRIMARY. Amendement 4A daté ; aucune dépendance Maven nouvelle.
+
+**Livraison — 4D CLOSED / PASS, PREPARED ; 4E NEXT, NOT STARTED.** Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
+porte les intégrations, matrices A/B/C, commandes réellement exécutées et preuves PostgreSQL.
+
+| Gate V-D réellement exécuté | Résultat |
+|---|---|
+| COMMAND + BINDING + WEB canonique | 1 136 tests déclarés, 0 failure/error, 1 skip historique 3B ; sortie 0 |
+| Complément Registration + monolithe canonique | 930 tests déclarés, 0 failure/error/skip ; sortie 0 |
+| Architecture global canonique | 1 353 tests déclarés, 0 failure/error, 1 skip historique 3B ; module architecture : 139 sans skip ; sortie 0 |
+| Assertions physiques renforcées + fixture Registration Result | 38 tests, 0 failure/error/skip ; sortie 0 |
+| Nouveau → ancien répété deux fois avec drainage | 4 démarrages/publications, 4 PASS ; PREPARED, E=0, positions=0 |
+
+Ces totaux de gates se recouvrent ; ils ne désignent pas autant de tests uniques. Full reactor
+non requis/non lancé. Aucun crossing productif inattendu, aucune migration ni POM modifié.
 
 Raccorder ensemble BusinessEvents, CommandTerminalEvents, BindingFacts et UserCreatedFacts,
 auxiliaires et recoveries compris ; interfaces d'acceptation puis déclarations applicatives,
@@ -116,7 +135,7 @@ atomiquement en ACTIVE ; PREPARED les détecte par tests sans revendiquer sa con
 Même sémantique exceptions/versions/fences/retries ; tests ports hors owner/fermés ; aucun DML métier
 après E sur compositions certifiées. Publication indépendante sans E toujours démontrée.
 
-**Conditions de certification 4D issues de l'audit 4B, confirmées par l'audit 4C — à prouver en V-D :**
+**Conditions de certification 4D issues des audits 4B/4C — prouvées en V-D dans le rapport :**
 
 - **A — Poisoning des writers réels** : chaque writer durable couvert, chemins JDBC compris ;
   erreur interceptée et impossibilité de commit partiel.
@@ -161,7 +180,7 @@ quatre familles selon §7. Une variante par lots requiert décision et preuve de
 ## Vérification des futurs lots
 
 Depuis `app/`, après déclaration du lot et lecture de la [politique normative](../../../testing/Reactor_Verification_Policy.md).
-4B et 4C ont exécuté leurs commandes canoniques ; les commandes 4D–4E restent futures. Le détail §8 du plan fait autorité.
+4B, 4C et 4D ont exécuté leurs commandes canoniques ; les commandes 4E restent futures. Le détail §8 du plan fait autorité.
 
 | Lot | Slices / commande de clôture | Gates supplémentaires |
 |---|---|---|
@@ -203,4 +222,5 @@ La consolidation initiale était documentaire. La livraison 4B est bornée à CO
 et prototypes isolés ; son [rapport](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
 porte commandes, résultats et limites. Le [rapport 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
 clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full requis ; crossing NONE.
-Prochaine action : **4D**, sur autorisation propre.
+Le rapport 4D clôt désormais V-D, avec architecture globale requise exécutée et full non requis.
+Prochaine action : **4E**, sur autorisation propre ; aucune activation déployée autorisée par 4D.

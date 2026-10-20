@@ -82,7 +82,7 @@ class DurableEventToProjectionPostgresTest {
 
 		try (ConfigurableApplicationContext eventContext = eventContext()) {
 			cleanAndSeed(jdbc, potId, payerId, shareholderId, expenseId);
-			eventContext.getBean(JpaBusinessEventOutboxAdapter.class).append(
+			eventContext.getBean(com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService.class).append(
 					new ExpenseCreatedEvent(ExpenseId.of(expenseId), PotId.of(potId), 2));
 			event = loadEvent(jdbc, potId, 2);
 
@@ -314,7 +314,7 @@ class DurableEventToProjectionPostgresTest {
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class, ReadStoreMigrationAutoConfiguration.class})
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
-	@Import({EventConsumptionRuntimeConfiguration.class, JpaBusinessEventOutboxAdapter.class})
+	@Import({EventConsumptionRuntimeConfiguration.class, JpaBusinessEventOutboxAdapter.class, com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class})
 	static class EventTestApplication {}
 
 	@SpringBootConfiguration

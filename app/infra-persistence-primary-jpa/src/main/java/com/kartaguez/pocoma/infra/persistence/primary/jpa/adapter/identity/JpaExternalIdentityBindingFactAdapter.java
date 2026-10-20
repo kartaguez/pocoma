@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity;
 
+import com.kartaguez.pocoma.port.transaction.EventRef;
+import com.kartaguez.pocoma.port.transaction.EventFamily;
+
 import static java.util.Objects.requireNonNull;
 
 import org.springframework.stereotype.Component;
@@ -23,8 +26,11 @@ public class JpaExternalIdentityBindingFactAdapter implements ExternalIdentityBi
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public void append(ExternalIdentityBindingFact fact) {
-		repository.append(mapper.toRow(fact));
+	public EventRef append(ExternalIdentityBindingFact fact) {
+        return repository.accept(() -> {
+            repository.append(mapper.toRow(fact));
+            return new EventRef(EventFamily.BINDING_FACT, fact.eventId());
+        });
 	}
 
 	@Override

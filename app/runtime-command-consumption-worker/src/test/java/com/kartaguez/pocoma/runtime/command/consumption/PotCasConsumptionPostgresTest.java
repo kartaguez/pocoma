@@ -323,7 +323,7 @@ class PotCasConsumptionPostgresTest {
         UUID user = UUID.randomUUID();
         var identity = new ExternalIdentity("shared-exact",UUID.randomUUID().toString());
         jdbc.update("insert into users(user_id) values (?)",user);
-        BindingId binding=transactions.runInTransaction(() -> bindings.acquire(identity,new PocomaUserId(user)).bindingId());
+        BindingId binding=transactions.runInTransaction(() -> bindings.acquire(identity,new PocomaUserId(user)).result().bindingId());
         assertThrows(org.springframework.transaction.IllegalTransactionStateException.class, () ->
             bindings.fenceObservedBinding(identity,new PocomaUserId(user),binding,new BindingRevision(1)));
         transactions.runInTransaction(() -> {
@@ -355,7 +355,7 @@ class PotCasConsumptionPostgresTest {
             CompletableFuture<Integer> detachPid = new CompletableFuture<>();
             var detach = pool.submit(() -> transactions.runInTransaction(() -> {
                 detachPid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
-                return bindings.detach(a.envelope().externalIdentity(),a.envelope().bindingId());
+                return bindings.detach(a.envelope().externalIdentity(),a.envelope().bindingId()).result();
             }));
             awaitBlocked(detachPid.get(10,TimeUnit.SECONDS),ga.pid);
             ga.release.countDown(); fa.get(10,TimeUnit.SECONDS);
@@ -386,8 +386,8 @@ class PotCasConsumptionPostgresTest {
                 var pending = pool.submit(() -> executeWatched(command,claim,g)); awaitLatch(g.reached);
                 var writer = pool.submit(() -> transactions.runInTransaction(() -> {
                     writerPid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
-                    assertEquals(BindingDetachResult.DETACHED,bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId()));
-                    if (reattach) assertNotEquals(command.envelope().bindingId(),bindings.acquire(command.envelope().externalIdentity(),new PocomaUserId(user)).bindingId());
+                    assertEquals(BindingDetachResult.DETACHED,bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId()).result());
+                    if (reattach) assertNotEquals(command.envelope().bindingId(),bindings.acquire(command.envelope().externalIdentity(),new PocomaUserId(user)).result().bindingId());
                     changed.countDown(); awaitLatch(resolve);
                 }));
                 awaitLatch(changed);
@@ -427,7 +427,7 @@ class PotCasConsumptionPostgresTest {
             CompletableFuture<Integer> pid = new CompletableFuture<>();
             var detach = pool.submit(() -> transactions.runInTransaction(() -> {
                 pid.complete(jdbc.queryForObject("select pg_backend_pid()",Integer.class));
-                return bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId());
+                return bindings.detach(command.envelope().externalIdentity(),command.envelope().bindingId()).result();
             }));
             awaitBlocked(pid.get(10,TimeUnit.SECONDS),g.pid);
             g.release.countDown(); pending.get(10,TimeUnit.SECONDS);
@@ -605,9 +605,9 @@ class PotCasConsumptionPostgresTest {
                     assertEquals(pid,jdbc.queryForObject("select pg_backend_pid()",Integer.class));
                     gate.pause(false,i,jdbc); return valid;
                 }
-                public BindingAcquireResult acquire(ExternalIdentity i,PocomaUserId u) { return delegate.acquire(i,u); }
-                public BindingAcquireResult acquireWithInitializer(ExternalIdentity i,PocomaUserId u,Runnable init) { return delegate.acquireWithInitializer(i,u,init); }
-                public BindingDetachResult detach(ExternalIdentity i,BindingId b) { return delegate.detach(i,b); }
+                public com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted acquire(ExternalIdentity i,PocomaUserId u) { return delegate.acquire(i,u); }
+                public com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted acquireWithInitializer(ExternalIdentity i,PocomaUserId u,Runnable init) { return delegate.acquireWithInitializer(i,u,init); }
+                public com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted detach(ExternalIdentity i,BindingId b) { return delegate.detach(i,b); }
             };
         }
         @Bean @Primary PotGlobalVersionPort coordinatedVersions(JpaPotGlobalVersionAdapter delegate, Gate gate, JdbcTemplate jdbc) {

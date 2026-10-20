@@ -1,5 +1,13 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner;
+
+import com.kartaguez.pocoma.port.transaction.EventRef;
+import com.kartaguez.pocoma.port.transaction.EventFamily;
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted;
+
 import static java.util.Objects.requireNonNull;
 import static org.springframework.transaction.annotation.Propagation.MANDATORY;
 
@@ -25,36 +33,36 @@ import com.kartaguez.pocoma.domain.pot.event.EventTraceMetadata;
 import com.kartaguez.pocoma.domain.pot.event.RecordedEvent;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventEnvelope;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.JpaBusinessEventOutboxEntity;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolder;
 
 /** Appends typed Pot Events inside the winning Command consumption transaction. */
 @Component
 public class JpaPotCommandEventAppendAdapter implements EventAppendPort {
 
-	private final JpaBusinessEventOutboxRepository repository;
+	private final EntityManagerFactory emf;
 	private final BusinessEventRecordMapper mapper;
 	private final Clock clock;
 
 	@Autowired
 	public JpaPotCommandEventAppendAdapter(
-			JpaBusinessEventOutboxRepository repository,
+			EntityManagerFactory emf,
 			ObjectMapper objectMapper) {
-		this(repository, new BusinessEventRecordMapper(objectMapper), Clock.systemUTC());
+		this(emf, new BusinessEventRecordMapper(objectMapper), Clock.systemUTC());
 	}
 
 	JpaPotCommandEventAppendAdapter(
-			JpaBusinessEventOutboxRepository repository,
+			EntityManagerFactory emf,
 			BusinessEventRecordMapper mapper,
 			Clock clock) {
-		this.repository = requireNonNull(repository, "repository must not be null");
+		this.emf = requireNonNull(emf, "emf must not be null");
 		this.mapper = requireNonNull(mapper, "mapper must not be null");
 		this.clock = requireNonNull(clock, "clock must not be null");
 	}
 
 	@Override
 	@Transactional(propagation = MANDATORY)
-	public List<CommandExecutionArtifact> appendAll(List<BusinessEvent> events) {
+	public BusinessEventsAccepted appendAll(List<BusinessEvent> events) {
+        return PrimaryEventTransactionRunner.guardedWrite(emf, () -> {
 		requireNonNull(events, "events must not be null");
 		TraceMetadata trace = TraceMetadata.current();
 		Instant recordedAt = clock.instant();
@@ -75,9 +83,14 @@ public class JpaPotCommandEventAppendAdapter implements EventAppendPort {
 			}
 		}
 
-		repository.saveAllAndFlush(envelopes.stream().map(JpaBusinessEventOutboxEntity::new).toList());
-		return envelopes.stream().map(JpaPotCommandEventAppendAdapter::artifact).toList();
-	}
+		var em = java.util.Objects.requireNonNull(EntityManagerFactoryUtils.getTransactionalEntityManager(emf));
+        envelopes.forEach(envelope -> com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventInsert.persistNew(emf, new JpaBusinessEventOutboxEntity(envelope)));
+        em.flush(); // CURRENT barrier before B is preserved.
+        return new BusinessEventsAccepted(envelopes.stream().map(JpaPotCommandEventAppendAdapter::artifact).toList(),
+                envelopes.stream().map(e -> new EventRef(EventFamily.BUSINESS_EVENT, e.id())).toList());
+
+        });
+    }
 
 	private static CommandExecutionArtifact artifact(BusinessEventEnvelope envelope) {
 		return new CommandExecutionArtifact(

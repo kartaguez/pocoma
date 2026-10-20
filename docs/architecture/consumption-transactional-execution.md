@@ -13,6 +13,17 @@ status = 'PENDING' AND current_claim_id = :claimId
 retire pas à elle seule l'autorité du Claim courant. `revision` reste une information d'optimistic
 locking et de diagnostic, jamais un fencing token.
 
+## Raccordement des publications en PREPARED (4D)
+
+Le [rapport 4D](Event_Producer_Wiring_Step_4D_2026-10-20.md) précise la composition CURRENT des
+owners Command et Registration : runner PRIMARY partagé avec la façade de déclaration, même
+manager JPA/EMF/datasource et transaction physique JPA/JDBC. Après l’action/finalisation S/Claim,
+flush terminal puis fermeture du registre ordonné ; PREPARED termine sans réservation E/positions.
+Chaque writer durable couvert exige OPEN dans son corps, y compris par `new`, et empoisonne
+irréversiblement l’owner sur erreur même interceptée. Le propriétaire résout toujours la transaction ;
+TA/TE/TR/TH, P → B → S, fences/CAS et politiques de retry restent ceux décrits ci-dessous.
+Les preuves ACTIVE restent isolées ; activation/historique relèvent de 4E.
+
 ## Frontière transactionnelle gagnante
 
 Les wrappers propriétaires Acquire/Execute/Finalize/HandleFailure utilisent un `TransactionRunner`

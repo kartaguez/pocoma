@@ -47,7 +47,7 @@ import com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestK
 import com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionPersistencePort;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionProvenanceAdapter;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter;
+import com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.outbox.JpaBusinessEventOutboxRepository;
 import com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocator;
 import com.kartaguez.pocoma.orchestrator.consumption.ConsumptionOrchestrator;
@@ -101,7 +101,9 @@ class LatestKnownVersionRuntimePostgresTest {
 		registry.add("spring.datasource.password", POSTGRES::getPassword);
 	}
 
-	@Autowired private JpaBusinessEventOutboxAdapter outbox;
+	@Autowired private com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaBusinessEventOutboxAdapter writer;
+    @Autowired private PlatformTransactionManager primaryManager;
+    private AppendBusinessEventService outbox;
 	@Autowired private JpaBusinessEventOutboxRepository events;
 	@Autowired private JpaConsumptionLifecycleAdapter lifecycle;
 	@Autowired private JpaConsumptionProvenanceAdapter provenance;
@@ -116,6 +118,11 @@ class LatestKnownVersionRuntimePostgresTest {
 
 	@BeforeEach
 	void cleanDatabase() {
+        // Producer fixture only: LKV itself keeps its independent consumer transaction runner.
+        var manager=(org.springframework.orm.jpa.JpaTransactionManager)primaryManager;
+        var owner=new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(manager,
+                new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer(manager));
+        outbox=new AppendBusinessEventService(writer,owner,owner::recordPublishedEvent);
 		jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, "
 				+ "consumption_claims, business_event_outbox cascade");
 		jdbc.execute("truncate table pocoma_read.source_version_watermarks");

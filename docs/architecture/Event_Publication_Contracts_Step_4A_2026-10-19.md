@@ -20,6 +20,15 @@ Ces gardes ne certifient pas encore un owner E ni une phase OPEN : les contextes
 
 ## Formes TARGET figées, migration réservée à 4D
 
+**Amendement ciblé approuvé au raccordement 4D, 2026-10-20.** Le tableau ci-dessous conserve
+la cible historique 4A. Pour le seul port auxiliaire `BusinessEventAppendPort` dans
+`engine-write-pot`, la cible désormais approuvée est `UUID append(BusinessEvent)` : le writer
+retourne l'identité exacte de l'Event durable créé. La façade applicative construit ensuite
+`EventRef(BUSINESS_EVENT, acceptedId)` et le déclare dans la même transaction physique PRIMARY.
+Cette adaptation préserve l'interdiction de dépendre de `port-transaction` dans le métier,
+sans nouvelle dépendance Maven, sans collecte cachée ni affaiblissement des critères A/B/C 4D.
+L'ancienne forme EventRef de la ligne auxiliaire est historique, remplacée uniquement par cet amendement.
+
 Les signatures ci-dessous décrivent les futurs ports spécialisés ; elles ne modifient pas leurs signatures CURRENT. Aucun super-port, bus générique ou flag de capacité par Event n'est introduit.
 
 | Port / grammaire | Résultat TARGET | Déclaration par l'orchestration |

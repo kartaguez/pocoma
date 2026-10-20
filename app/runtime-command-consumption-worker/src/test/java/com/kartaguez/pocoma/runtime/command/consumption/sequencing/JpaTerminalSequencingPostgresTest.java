@@ -54,6 +54,18 @@ class JpaTerminalSequencingPostgresTest {
   r.add("spring.datasource.url",PG::getJdbcUrl); r.add("spring.datasource.username",PG::getUsername); r.add("spring.datasource.password",PG::getPassword);
  }
  @TestConfiguration(proxyBeanMethods=false) static class Experiment {
+  // Historical experiment: deliberately retains its pre-4D writer and manager semantics.
+  // It is not a certified production composition and does not bypass any production guard.
+  @Bean @Primary BusinessEventAppendPort historicalExperimentWriter(EntityManagerFactory emf, com.fasterxml.jackson.databind.ObjectMapper mapper) {
+   return event -> {
+    UUID id=UUID.randomUUID();
+    var envelope=new com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapper(mapper)
+      .toEnvelope(new com.kartaguez.pocoma.domain.pot.event.RecordedEvent<>(id,event,java.time.Instant.now(),
+        com.kartaguez.pocoma.domain.pot.event.EventTraceMetadata.of(null,null)));
+    EntityManagerFactoryUtils.getTransactionalEntityManager(emf).persist(new JpaBusinessEventOutboxEntity(envelope));return id;
+   };
+  }
+
   @Bean @Primary TerminalManager transactionManager(EntityManagerFactory emf,DataSource ds){return new TerminalManager(emf,ds);}
  }
  static final Object KEY=new Object();

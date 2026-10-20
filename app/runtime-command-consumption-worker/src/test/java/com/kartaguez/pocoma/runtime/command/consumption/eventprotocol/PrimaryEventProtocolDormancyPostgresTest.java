@@ -29,14 +29,15 @@ class PrimaryEventProtocolDormancyPostgresTest {
     }
     @Autowired ApplicationContext context;
     @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
-    @Test void productionScanDoesNotWireProtocolOrTestConfiguration() {
+    @Test void productionScanWiresPreparedProtocolWithoutTestConfiguration() {
         assertTrue(context.getBeansOfType(JdbcEventTransactionSequencer.class).isEmpty());
         assertEquals("PREPARED",jdbc.queryForObject("select mode from event_sequencing_protocol",String.class));
         assertEquals(0,jdbc.queryForObject("select sum(last_position) from event_sequence_authorities",Long.class));
         assertEquals(0,jdbc.queryForObject("select count(*) from event_position",Integer.class));
         assertTrue(context.getBeansOfType(PrimaryEventTransactionRunner.class).isEmpty());
         assertTrue(context.getBeansOfType(PrimaryEventTransactionSuffix.class).isEmpty());
-        assertTrue(context.getBeansOfType(PublishedEvents.class).isEmpty());
+        assertEquals(1, context.getBeansOfType(PublishedEvents.class).size());
+        assertEquals(1, context.getBeansOfType(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class).size());
         assertTrue(context.getBeansOfType(PrimaryEventProtocolTestConfiguration.class).isEmpty());
         var managers = context.getBeansOfType(PlatformTransactionManager.class);
         assertEquals(1, managers.size());

@@ -50,7 +50,7 @@ class PotBindingConvergencePostgresTest {
     }
     @Autowired DataSource dataSource;
     @Autowired ExternalIdentityBindingPort authority;
-    @Autowired TransactionRunner transactions;
+    @Autowired com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol protocol;
     @Autowired GetCurrentBindingUseCase projectedBindings;
 
     @Test void attachStaleDetachConvergedDetachAndRebindUseTheProjectedUser() {
@@ -70,28 +70,35 @@ class PotBindingConvergencePostgresTest {
 
         read.read(e, authorities, pot, 1);
         assertNull(seen.get()); // absent
-        var b1 = transactions.runInTransaction(() -> authority.acquire(e, u1)).bindingId();
+        var b1 = protocol.runner().runInTransaction(() -> accepted(authority.acquire(e, u1))).bindingId();
         var first = new CurrentBinding(e, new BindingRevision(1), CurrentBindingStatus.ATTACHED,
                 u1, b1, UUID.randomUUID(), Instant.now());
-        transactions.runInTransaction(() -> projection.apply(first));
+        protocol.runner().runInTransaction(() -> projection.apply(first));
         read.read(e, authorities, pot, 1);
         assertEquals(new UserId(u1.value()), seen.get());
 
-        assertEquals(BindingDetachResult.DETACHED, transactions.runInTransaction(() -> authority.detach(e, b1)));
+        assertEquals(BindingDetachResult.DETACHED, protocol.runner().runInTransaction(() -> accepted(authority.detach(e, b1))));
         seen.set(null);
         read.read(e, authorities, pot, 1);
         assertEquals(new UserId(u1.value()), seen.get()); // committed detach, stale projected ATTACHED
 
-        transactions.runInTransaction(() -> projection.apply(new CurrentBinding(e, new BindingRevision(2),
+        protocol.runner().runInTransaction(() -> projection.apply(new CurrentBinding(e, new BindingRevision(2),
                 CurrentBindingStatus.DETACHED, null, null, UUID.randomUUID(), Instant.now())));
         seen.set(null);
         read.read(e, authorities, pot, 1);
         assertNull(seen.get());
 
-        var b2 = transactions.runInTransaction(() -> authority.acquire(e, u2)).bindingId();
-        transactions.runInTransaction(() -> projection.apply(new CurrentBinding(e, new BindingRevision(3),
+        var b2 = protocol.runner().runInTransaction(() -> accepted(authority.acquire(e, u2))).bindingId();
+        protocol.runner().runInTransaction(() -> projection.apply(new CurrentBinding(e, new BindingRevision(3),
                 CurrentBindingStatus.ATTACHED, u2, b2, UUID.randomUUID(), Instant.now())));
         read.read(e, authorities, pot, 1);
         assertEquals(new UserId(u2.value()), seen.get());
+    }
+
+    private com.kartaguez.pocoma.domain.useridentity.BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted value) {
+        value.fact().ifPresent(protocol.runner()::recordPublishedEvent);return value.result();
+    }
+    private com.kartaguez.pocoma.domain.useridentity.BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted value) {
+        value.fact().ifPresent(protocol.runner()::recordPublishedEvent);return value.result();
     }
 }

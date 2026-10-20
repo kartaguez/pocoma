@@ -17,10 +17,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import com.kartaguez.pocoma.port.transaction.EventRef;
 import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 
-/** Dormant PRIMARY protocol. Intentionally has no component/configuration annotation.
- * The owner resolves the template; nested invocations are participants only. Existing
- * production owners are unchanged. A test-only composition exposes recordPublishedEvent
- * as the narrow PublishedEvents facade; writers must never call that facade themselves.
+/** PRIMARY publication protocol. The owner resolves the template; nested invocations
+ * are participants only. Composition exposes the narrow application declaration facade;
+ * writers guard their writes but never declare publications themselves.
  */
 public final class PrimaryEventTransactionRunner implements TransactionRunner {
     private record ResourceKey(JpaTransactionManager manager, EntityManagerFactory emf) {}
@@ -98,6 +97,36 @@ public final class PrimaryEventTransactionRunner implements TransactionRunner {
         batch.requireCommittable();
     }
 
+    /** Infrastructure-only body guard, also effective for writers constructed by new.
+     * The resource is the writer's actual datasource or EMF, never a fallback connection.
+     * Any failure irreversibly dooms the physical owner even when caught by its caller.
+     */
+    public static <T> T guardedWrite(Object persistenceResource, Supplier<T> action) {
+        var batches = TransactionSynchronizationManager.getResourceMap().values().stream()
+                .filter(Batch.class::isInstance).map(Batch.class::cast).distinct().toList();
+        var matches = batches.stream().filter(batch -> batch.owns(persistenceResource)).toList();
+        if (matches.size() != 1) {
+            batches.forEach(Batch::poison);
+            TransactionSynchronizationManager.getResourceMap().values().forEach(resource -> {
+                if (resource instanceof ConnectionHolder holder) holder.setRollbackOnly();
+                if (resource instanceof EntityManagerHolder holder
+                        && holder.getEntityManager().getTransaction().isActive())
+                    holder.getEntityManager().getTransaction().setRollbackOnly();
+            });
+            throw new IllegalTransactionStateException("Durable writer requires its OPEN PRIMARY owner");
+        }
+        Batch batch = matches.getFirst();
+        try {
+            batch.requireWritable();
+            T value = action.get();
+            batch.requireWritable();
+            return value;
+        } catch (RuntimeException | Error failure) {
+            batch.poison();
+            throw failure;
+        }
+    }
+
     /** Called by orchestration through its injected narrow facade, only after acceptance. */
     public void recordPublishedEvent(EventRef event) {
         requireOpen();
@@ -152,6 +181,8 @@ public final class PrimaryEventTransactionRunner implements TransactionRunner {
             entityManager = holder;
             connection = TransactionSynchronizationManager.getResource(manager.getDataSource());
         }
+        boolean owns(Object resource) { return resource != null && (resource == emf || resource == manager.getDataSource()); }
+        void requireWritable() { PrimaryEventTransactionRunner.this.requireOpen(); }
         boolean samePhysicalTransaction() {
             return TransactionSynchronizationManager.isActualTransactionActive()
                     && TransactionSynchronizationManager.isSynchronizationActive()

@@ -156,7 +156,7 @@ class CommandConsumptionPostgresTest {
 	@Autowired private com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.JpaPotGlobalVersionRepository potVersions;
 
 	private Clock clock;
-	private SpringTransactionRunner transactions;
+	private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner transactions;
 	private BindingId defaultBinding;
 
 	@BeforeEach
@@ -178,7 +178,7 @@ class CommandConsumptionPostgresTest {
 		jdbc.update("delete from external_identity_binding_streams");
 		jdbc.update("delete from users");
 		clock = Clock.fixed(NOW, ZoneOffset.UTC);
-		transactions = new SpringTransactionRunner(new TransactionTemplate(transactionManager));
+		transactions = new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner((org.springframework.orm.jpa.JpaTransactionManager) transactionManager, new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer((org.springframework.orm.jpa.JpaTransactionManager) transactionManager));
 		defaultBinding = null;
 	}
 
@@ -299,10 +299,10 @@ class CommandConsumptionPostgresTest {
 				return new CommandUseCaseResult.Succeeded(List.of(),
 						new CommandAppliedResult(APPLIED_POT_ID, 7),
 						List.of(new PotDeletedEvent(PotId.of(APPLIED_POT_ID), 7)));
-			}, new JpaPotCommandEventAppendAdapter(eventOutbox, new ObjectMapper().findAndRegisterModules())));
+			}, new JpaPotCommandEventAppendAdapter(((org.springframework.orm.jpa.JpaTransactionManager) transactionManager).getEntityManagerFactory(), new ObjectMapper().findAndRegisterModules())));
 			assertTrue(mutationWritten.await(10, TimeUnit.SECONDS));
 			var detach = executor.submit(() -> transactions.runInTransaction(
-					() -> bindings.detach(identity, binding)));
+					() -> bindings.detach(identity, binding).result()));
 
 			assertEquals(BindingDetachResult.DETACHED, detach.get(10, TimeUnit.SECONDS));
 			allowFence.countDown();
@@ -325,7 +325,7 @@ class CommandConsumptionPostgresTest {
 		BindingId binding = bind(identity, user);
 		RecordedCommand command = targetCommand(identity, binding, "detached", NOW.plusSeconds(60));
 		insert(command);
-		transactions.runInTransaction(() -> bindings.detach(identity, binding));
+		transactions.runInTransaction(() -> bindings.detach(identity, binding).result());
 		AtomicInteger businessCalls = new AtomicInteger();
 
 		run(value -> {
@@ -415,7 +415,7 @@ class CommandConsumptionPostgresTest {
 			CountDownLatch detachStarted = new CountDownLatch(1);
 			var detach = executor.submit(() -> transactions.runInTransaction(() -> {
 				detachStarted.countDown();
-				return bindings.detach(identity, binding);
+				return bindings.detach(identity, binding).result();
 			}));
 			assertTrue(detachStarted.await(10, TimeUnit.SECONDS));
 			assertThrows(TimeoutException.class, () -> detach.get(300, TimeUnit.MILLISECONDS));
@@ -468,7 +468,7 @@ class CommandConsumptionPostgresTest {
 						new WorkerId("current-check"), new ClaimLease(Duration.ofSeconds(30))))).claim();
 		var recovery = new BindingFenceRecoveryExecuteUseCase(input -> {
 			throw new BindingFenceLostException(command.commandId(), identity, binding);
-		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock, transactions::recordPublishedEvent);
 		assertThrows(BindingFenceConflictException.class, () -> recovery.execute(
 				new ExecuteConsumptionInput(claim.slotId(), claim.claimId(), context -> {
 					throw new AssertionError("unused");
@@ -489,10 +489,10 @@ class CommandConsumptionPostgresTest {
 				new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(command.commandId()),
 						new WorkerId("lost-check"), new ClaimLease(Duration.ofSeconds(30))))).claim();
 		jdbc.update("update consumption_slots set current_claim_id = null where slot_id = ?", claim.slotId());
-		transactions.runInTransaction(() -> bindings.detach(identity, binding));
+		transactions.runInTransaction(() -> bindings.detach(identity, binding).result());
 		var recovery = new BindingFenceRecoveryExecuteUseCase(input -> {
 			throw new BindingFenceLostException(command.commandId(), identity, binding);
-		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+		}, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock, transactions::recordPublishedEvent);
 		assertThrows(LostClaimException.class, () -> recovery.execute(new ExecuteConsumptionInput(
 				claim.slotId(), claim.claimId(), context -> {
 						throw new AssertionError("unused");
@@ -520,7 +520,7 @@ class CommandConsumptionPostgresTest {
 			}));
 			assertTrue(mutationWritten.await(10, TimeUnit.SECONDS));
 			var detach = executor.submit(() -> transactions.runInTransaction(
-					() -> bindings.detach(identity, binding)));
+					() -> bindings.detach(identity, binding).result()));
 
 			assertEquals(BindingDetachResult.DETACHED, detach.get(10, TimeUnit.SECONDS));
 			failExecution.countDown();
@@ -634,7 +634,7 @@ class CommandConsumptionPostgresTest {
 		var execute = new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(
 						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
-				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock, transactions::recordPublishedEvent);
 		var key = CommandConsumptionKeys.forCommand(command.commandId());
 		var stale = assertInstanceOf(AcquireResult.Acquired.class, acquire.acquire(
 				new AcquireConsumptionInput(key, new WorkerId("worker-a"), new ClaimLease(Duration.ofSeconds(30))))).claim();
@@ -802,7 +802,7 @@ class CommandConsumptionPostgresTest {
 		System.out.println("LOCK_AUDIT constraints=" + constraints);
 		var execute = new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(lifecycle, provenance, clock), transactions);
 		var outcomes = new JdbcCommandOutcomeAdapter(jdbc);
-		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, outcomes, clock);
+		var recovery = new BindingFenceRecoveryExecuteUseCase(execute, transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, outcomes, clock, transactions::recordPublishedEvent);
 		var failure = new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(
 				lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
 		CountDownLatch businessEntered = new CountDownLatch(1);
@@ -824,15 +824,16 @@ class CommandConsumptionPostgresTest {
 				new CommandDispatcher(List.of(new TestUseCase(value ->
 					new CommandUseCaseResult.Succeeded(withProvenance
 						? List.of(new CommandExecutionInput("POT", APPLIED_POT_ID.toString(), 6)) : List.of(),
-						new CommandAppliedResult(APPLIED_POT_ID, 7), List.of())))), events -> List.of(),
-				bindings, new ExternalAuthorityPermissionTranslator(), clock), outcome -> {
-			outcomes.publish(outcome);
+						new CommandAppliedResult(APPLIED_POT_ID, 7), List.of())))), events -> new com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted(List.of(),List.of()),
+				bindings, new ExternalAuthorityPermissionTranslator(), clock, transactions::recordPublishedEvent), outcome -> {
+			var accepted = outcomes.publish(outcome);
 			stalePid.set(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
 			assertEquals("read committed", jdbc.queryForObject("show transaction_isolation", String.class));
 			jdbc.update("insert into lot65_command_effects(effect_id, owner) values (?, ?)", UUID.randomUUID(), "stale-cycle");
 			outcomeInserted.countDown();
 			await(finishStale);
-		}, clock);
+            return accepted;
+		}, clock, transactions::recordPublishedEvent);
 		try (var executor = Executors.newFixedThreadPool(2)) {
 			try {
 				var winnerFuture = executor.submit(() -> {
@@ -847,7 +848,7 @@ class CommandConsumptionPostgresTest {
 				});
 				assertTrue(businessEntered.await(10, TimeUnit.SECONDS));
 				if (!terminalFailure) assertEquals(BindingDetachResult.DETACHED,
-						transactions.runInTransaction(() -> bindings.detach(identity, binding)));
+						transactions.runInTransaction(() -> bindings.detach(identity, binding).result()));
 				var staleFuture = executor.submit(() -> execute.execute(new ExecuteConsumptionInput(
 						stale.slotId(), stale.claimId(), context -> {
 							var result = staleExecution.forCommand(command.commandId()).execute(context);
@@ -978,7 +979,7 @@ class CommandConsumptionPostgresTest {
 			potVersions.insertVersionMetadata(pot,7);
 			(first?firstWritten:secondWritten).countDown(); await(release);
 			return new CommandUseCaseResult.Succeeded(List.of(),new CommandAppliedResult(pot,7),List.of(new PotDeletedEvent(PotId.of(pot),7)));
-		},new JpaPotCommandEventAppendAdapter(eventOutbox,new ObjectMapper().findAndRegisterModules()));
+		},new JpaPotCommandEventAppendAdapter(((org.springframework.orm.jpa.JpaTransactionManager) transactionManager).getEntityManagerFactory(),new ObjectMapper().findAndRegisterModules()));
 		var acquire=new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(lifecycle,clock),transactions);
 		var c1=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(q1.commandId()),new WorkerId("a"),new ClaimLease(Duration.ofSeconds(30))))).claim();
 		var c2=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(CommandConsumptionKeys.forCommand(q2.commandId()),new WorkerId("b"),new ClaimLease(Duration.ofSeconds(30))))).claim();
@@ -1031,8 +1032,8 @@ class CommandConsumptionPostgresTest {
 			}));
 			assertTrue(working.await(10, TimeUnit.SECONDS));
 			var reattach = executor.submit(() -> transactions.runInTransaction(() -> {
-				assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding));
-				return bindings.acquire(identity, reattachedUser);
+				assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding).result());
+				return bindings.acquire(identity, reattachedUser).result();
 			}));
 			var acquired = reattach.get(10, TimeUnit.SECONDS);
 			assertEquals(BindingAcquireResult.Status.ACQUIRED,
@@ -1053,9 +1054,9 @@ class CommandConsumptionPostgresTest {
 		insert(command);
 		ensureUser(reattachedUser);
 		transactions.runInTransaction(() -> {
-			assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding));
+			assertEquals(BindingDetachResult.DETACHED, bindings.detach(identity, firstBinding).result());
 			assertEquals(BindingAcquireResult.Status.ACQUIRED,
-					bindings.acquire(identity, reattachedUser).status());
+					bindings.acquire(identity, reattachedUser).result().status());
 		});
 		AtomicInteger businessCalls = new AtomicInteger();
 
@@ -1088,7 +1089,7 @@ class CommandConsumptionPostgresTest {
 
 	private BindingId bind(ExternalIdentity identity, PocomaUserId user) {
 		ensureUser(user);
-		return transactions.runInTransaction(() -> bindings.acquire(identity, user)).bindingId();
+		return transactions.runInTransaction(() -> bindings.acquire(identity, user).result()).bindingId();
 	}
 
 	private void ensureUser(PocomaUserId user) {
@@ -1129,7 +1130,7 @@ class CommandConsumptionPostgresTest {
 	}
 
 	private void run(Function<TestCommand, CommandUseCaseResult> behavior) {
-		run(behavior, events -> List.of());
+		run(behavior, events -> new com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted(List.of(),List.of()));
 	}
 
 	private void run(Function<TestCommand, CommandUseCaseResult> behavior, EventAppendPort eventAppend) {
@@ -1144,7 +1145,7 @@ class CommandConsumptionPostgresTest {
 		var execute = new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(
 						new ExecuteConsumptionService(lifecycle, provenance, clock), transactions),
-				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock);
+				transactions, new ExecuteConsumptionService(lifecycle, provenance, clock), bindings, new JdbcCommandOutcomeAdapter(jdbc), clock, transactions::recordPublishedEvent);
 		var failure = new TransactionalHandleConsumptionFailureUseCase(
 				new HandleConsumptionFailureService(
 						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
@@ -1156,7 +1157,7 @@ class CommandConsumptionPostgresTest {
 	}
 
 	private CommandConsumptionExecution commandExecution(Function<TestCommand, CommandUseCaseResult> behavior) {
-		return commandExecution(behavior, events -> List.of());
+		return commandExecution(behavior, events -> new com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted(List.of(),List.of()));
 	}
 
 	private CommandConsumptionExecution commandExecution(
@@ -1165,8 +1166,8 @@ class CommandConsumptionPostgresTest {
 		var dispatcher = new CommandDispatcher(List.of(new TestUseCase(behavior)));
 		return new CommandConsumptionExecution(new ExecuteRecordedCommandService(
 				commands, decoder, dispatcher, eventAppend, bindings,
-				new ExternalAuthorityPermissionTranslator(), clock),
-				new JdbcCommandOutcomeAdapter(jdbc), clock);
+				new ExternalAuthorityPermissionTranslator(), clock, transactions::recordPublishedEvent),
+				new JdbcCommandOutcomeAdapter(jdbc), clock, transactions::recordPublishedEvent);
 	}
 
 	private static CommandUseCaseResult.Succeeded succeeded() {

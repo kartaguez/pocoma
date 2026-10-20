@@ -23,10 +23,10 @@ import com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWork
 
 @SpringBootTest(classes = PocomaCommandConsumptionWorkerApplication.class, properties = {
 		"pocoma.command-consumption.enabled=false",
-		"spring.flyway.enabled=false",
-		"spring.jpa.hibernate.ddl-auto=none"
+		"spring.flyway.enabled=true",
+		"spring.jpa.hibernate.ddl-auto=validate"
 })
-class CommandConsumptionRuntimeContextTest {
+class CommandConsumptionRuntimeContextTest extends PreparedCommandPostgresTest {
 	@Autowired CommandConsumptionProperties properties;
 	@Autowired CommandConsumptionLocator locator;
 	@Autowired ConsumptionOrchestrator orchestrator;

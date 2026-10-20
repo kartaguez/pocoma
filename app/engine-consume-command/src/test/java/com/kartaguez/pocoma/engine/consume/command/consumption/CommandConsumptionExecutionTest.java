@@ -92,6 +92,6 @@ class CommandConsumptionExecutionTest {
 	private static CommandConsumptionExecution execution(
 			com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandUseCase useCase,
 			AtomicReference<CommandOutcome> outcome) {
-		return new CommandConsumptionExecution(useCase, outcome::set, Clock.fixed(NOW, ZoneOffset.UTC));
+		return new CommandConsumptionExecution(useCase, value -> { outcome.set(value); return new com.kartaguez.pocoma.port.transaction.EventRef(com.kartaguez.pocoma.port.transaction.EventFamily.COMMAND_TERMINAL_EVENT, UUID.randomUUID()); }, Clock.fixed(NOW, ZoneOffset.UTC), ref -> {});
 	}
 }

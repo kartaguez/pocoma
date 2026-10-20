@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeRe
         return found.stream().findFirst();
     }
     @Override public void insert(RegistrationOutcome outcome) {
+        PrimaryEventTransactionRunner.guardedWrite(jdbc.getDataSource(), () -> {
         PrimaryWriteParticipation.require(jdbc);
         if (outcome instanceof RegistrationOutcome.Registered registered) {
             jdbc.update("insert into registration_outcomes(request_id,outcome_type,user_id,binding_id,decided_at) values (?,'REGISTERED',?,?,now())",
@@ -38,5 +41,9 @@ public final class JdbcRegistrationOutcomeStore implements RegistrationOutcomeRe
             jdbc.update("insert into registration_outcomes(request_id,outcome_type,rejection_code,decided_at) values (?,'REJECTED',?,now())",
                     outcome.requestId(), RegistrationOutcome.Rejected.CODE);
         }
+
+        return null;
+
+        });
     }
 }

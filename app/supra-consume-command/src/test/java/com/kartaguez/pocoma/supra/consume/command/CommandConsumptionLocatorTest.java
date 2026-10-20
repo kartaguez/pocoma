@@ -43,7 +43,7 @@ class CommandConsumptionLocatorTest {
 					executions.incrementAndGet();
 					return new com.kartaguez.pocoma.engine.consume.command.execution.RecordedCommandExecutionResult.Succeeded(
 							List.of(), new CommandAppliedResult(UUID.randomUUID(), 1), List.of());
-				}, outcome -> {}, Clock.fixed(now, ZoneOffset.UTC)),
+				}, outcome -> new com.kartaguez.pocoma.port.transaction.EventRef(com.kartaguez.pocoma.port.transaction.EventFamily.COMMAND_TERMINAL_EVENT, java.util.UUID.randomUUID()), Clock.fixed(now, ZoneOffset.UTC), ref -> {}),
 				failure -> { throw failure; },
 				Clock.fixed(now, ZoneOffset.UTC));
 

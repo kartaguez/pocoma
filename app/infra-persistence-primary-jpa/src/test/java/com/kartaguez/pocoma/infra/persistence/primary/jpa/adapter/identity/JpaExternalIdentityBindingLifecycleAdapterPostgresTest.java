@@ -126,7 +126,7 @@ class JpaExternalIdentityBindingLifecycleAdapterPostgresTest {
 	}
 
 	private <T> T inTransaction(Supplier<T> action) {
-		return new TransactionTemplate(transactionManager).execute(status -> action.get());
+		return owner().runInTransaction(action);
 	}
 
 	@SpringBootConfiguration
@@ -139,4 +139,10 @@ class JpaExternalIdentityBindingLifecycleAdapterPostgresTest {
 	})
 	static class TestConfiguration {
 	}
+
+    private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner owner() {
+        var primary = (org.springframework.orm.jpa.JpaTransactionManager) transactionManager;
+        return new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(primary,
+                new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer(primary));
+    }
 }

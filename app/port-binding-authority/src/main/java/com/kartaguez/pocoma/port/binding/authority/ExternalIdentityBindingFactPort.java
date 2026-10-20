@@ -5,7 +5,7 @@ import com.kartaguez.pocoma.domain.useridentity.ExternalIdentityBindingFact;
 /** Append-only persistence boundary for binding lifecycle facts. */
 public interface ExternalIdentityBindingFactPort {
 
-	void append(ExternalIdentityBindingFact fact);
+	com.kartaguez.pocoma.port.transaction.EventRef append(ExternalIdentityBindingFact fact);
 
 	java.util.Optional<ExternalIdentityBindingFact> findByEventId(java.util.UUID eventId);
 }

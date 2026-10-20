@@ -1,10 +1,11 @@
 package com.kartaguez.pocoma.runtime.command.consumption;
 
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import java.time.Clock;
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,8 +86,8 @@ public class PotCommandBindingConfiguration {
 			CommandDispatcher dispatcher,
 			EventAppendPort events,
 			ExternalIdentityBindingPort bindings,
-			@Qualifier("commandConsumptionClock") Clock clock) {
+			@Qualifier("commandConsumptionClock") Clock clock, PublishedEvents publishedEvents) {
 		return new ExecuteRecordedCommandService(commands, decoder, dispatcher, events,
-				bindings, new ExternalAuthorityPermissionTranslator(), clock);
+				bindings, new ExternalAuthorityPermissionTranslator(), clock, publishedEvents);
 	}
 }

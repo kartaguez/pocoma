@@ -904,13 +904,13 @@ class HexagonalArchitectureTest {
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".pot"))
 				.filter(javaClass -> !javaClass.getPackageName().startsWith(commandPackage + ".consumption"))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
-				// 4A: only the TARGET acceptance envelope may use these two application values.
-				// Do not grant the whole generic kernel access to transaction ownership.
-				.filter(dependency -> !(dependency.getOriginClass().getName().equals(
-						commandPackage + ".model.BusinessEventsAccepted")
-						&& Set.of(ROOT_PACKAGE + ".port.transaction.EventRef",
-								ROOT_PACKAGE + ".port.transaction.EventFamily")
-								.contains(dependency.getTargetClass().getName())))
+				// 4D: exact application acceptance/declaration access, no generic ownership access.
+				.filter(dependency -> !java.util.Map.of(
+						commandPackage + ".model.BusinessEventsAccepted", Set.of("EventRef", "EventFamily"),
+						commandPackage + ".port.out.CommandOutcomePublicationPort", Set.of("EventRef"),
+						commandPackage + ".execution.ExecuteRecordedCommandService", Set.of("PublishedEvents", "EventRef"))
+						.getOrDefault(dependency.getOriginClass().getName(), Set.of()).stream()
+						.anyMatch(name -> dependency.getTargetClass().getName().equals(ROOT_PACKAGE + ".port.transaction." + name)))
 				.map(dependency -> dependency.getTargetClass())
 				.filter(target -> !target.getPackageName().startsWith("java."))
 				.filter(target -> allowedPackages.stream().noneMatch(allowed ->
@@ -1042,16 +1042,27 @@ class HexagonalArchitectureTest {
 		String persistencePackage = ROOT_PACKAGE + ".infra.persistence.primary.jpa";
 		String commandPersistencePackage = persistencePackage + ".adapter.command";
 		String commandRepositoryPackage = persistencePackage + ".repository.command";
-		Set<String> dependencies = dependenciesOutside(
-				persistencePackage + ".adapter.command",
-				Set.of(commandPersistencePackage, commandRepositoryPackage,
-						ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".engine.admit.command.port.out",
-						ROOT_PACKAGE + ".contracts.command", ROOT_PACKAGE + ".domain.authorization",
-						ROOT_PACKAGE + ".engine.read.commandresult",
-                        ROOT_PACKAGE + ".engine.materialize.commandresult",
-						ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
-						ROOT_PACKAGE + ".contracts.observability.trace",
-						"org.springframework", "com.fasterxml.jackson"));
+        Set<String> allowedPackages=Set.of(commandPersistencePackage, commandRepositoryPackage,
+                ROOT_PACKAGE + ".engine.consume.command", ROOT_PACKAGE + ".engine.admit.command.port.out",
+                ROOT_PACKAGE + ".contracts.command", ROOT_PACKAGE + ".domain.authorization",
+                ROOT_PACKAGE + ".engine.read.commandresult", ROOT_PACKAGE + ".engine.materialize.commandresult",
+                ROOT_PACKAGE + ".domain.event", USER_IDENTITY_DOMAIN_PACKAGE,
+                ROOT_PACKAGE + ".contracts.observability.trace", "org.springframework", "com.fasterxml.jackson");
+        // 4D only: the terminal writer returns its typed acceptance and guards its actual body.
+        // Do not grant the whole persistence package access to the transaction owner/contracts.
+        Set<String> terminalAcceptance=Set.of(ROOT_PACKAGE + ".port.transaction.EventRef",
+                ROOT_PACKAGE + ".port.transaction.EventFamily",
+                persistencePackage + ".transaction.event.PrimaryEventTransactionRunner");
+        Set<String> dependencies=CLASSES.stream()
+                .filter(type->type.getPackageName().startsWith(commandPersistencePackage))
+                .flatMap(type->type.getDirectDependenciesFromSelf().stream())
+                .filter(dependency->!(dependency.getOriginClass().getName().equals(commandPersistencePackage + ".JdbcCommandOutcomeAdapter")
+                        && terminalAcceptance.contains(dependency.getTargetClass().getName())))
+                .map(dependency->dependency.getTargetClass())
+                .filter(target->!target.getPackageName().startsWith("java."))
+                .filter(target->allowedPackages.stream().noneMatch(allowed->target.getPackageName().equals(allowed)
+                        || target.getPackageName().startsWith(allowed + ".")))
+                .map(target->target.getName()).collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependencies,
 				"Command persistence may depend only on generic Command contracts and infrastructure libraries");
 

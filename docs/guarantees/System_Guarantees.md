@@ -7,7 +7,15 @@ Mise à jour bornée du 2026-10-16 : [clôture WP0–WP6 Consumption](../plans/2
 Consolidation bornée 2026-10-20 : correction documentaire E→U déjà livré selon Architecture CURRENT
 et son service ; aucune nouvelle garantie globale. [Canon du chantier](../steps/current/DISCOVERY/Step_Canon.md)
 et [plan courant](../steps/current/DISCOVERY/Step_Plan.md) distinguent les contrats 4A livrés des garanties
-E/Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ. Le [lot 4B](../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md) apporte ensuite des preuves transactionnelles bornées (owner/participants, collecte/fermeture, rollback/résolution/cleanup) avec code dormant et writer/suffixe synthétiques de test ; aucune garantie de séquencement ACTIVE ou de raccordement des producteurs réels.
+E/Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ. Le [lot 4B](../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md) apporte ensuite des preuves transactionnelles bornées (owner/participants, collecte/fermeture, rollback/résolution/cleanup) avec code dormant et writer/suffixe synthétiques de test ; aucune garantie de séquencement ACTIVE ou de raccordement des producteurs réels à sa clôture historique.
+
+Le [lot 4D](../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md) raccorde désormais les quatre
+familles réelles et leurs auxiliaires en **PREPARED** : déclarations applicatives après acceptation,
+owner PRIMARY/OPEN commun, poisoning irréversible, flush/fermeture/cleanup. **PROVEN BY TESTS** pour
+les chemins et compositions distribuées/monolithiques de sa matrice A/B/C, avec PID/XID PostgreSQL
+et rollback des erreurs interceptées. En PREPARED aucune réservation E ni association ; la contrainte
+SQL de complétude ACTIVE reste inactive. Les tests ACTIVE sur bases jetables ne certifient aucun
+cutover ou compte déployé. Densité dépend du séquenceur et des compositions autorisées, pas du SQL seul.
 
 | Propriété / périmètre | Mécanisme et preuve existante | Hypothèses, limites et panne/retry | Statut de preuve |
 |---|---|---|---|

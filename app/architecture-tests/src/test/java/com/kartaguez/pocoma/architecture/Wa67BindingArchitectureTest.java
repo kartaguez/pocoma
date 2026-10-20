@@ -107,8 +107,8 @@ class Wa67BindingArchitectureTest {
 
 		String writer = Files.readString(appRoot().resolve(
 				"infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/identity/JpaExternalIdentityBindingAdapter.java"));
-		assertOrdered(writer, "public BindingAcquireResult acquire", "streams.lock(", "repository.acquire(");
-		assertOrdered(writer, "public BindingDetachResult detach", "streams.lock(", "repository.detach(");
+		assertOrdered(writer, "public BindingAcquisitionAccepted acquireWithInitializer", "streams.lock(", "repository.acquire(");
+		assertOrdered(writer, "public BindingDetachmentAccepted detach", "streams.lock(", "repository.detach(");
 	}
 
 	@Test

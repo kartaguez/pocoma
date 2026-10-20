@@ -52,6 +52,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+@org.springframework.context.annotation.Import(com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class)
 @SpringBootTest(classes=PocomaBindingConsumptionWorkerApplication.class, properties={
 		"pocoma.binding-consumption.enabled=false",
 		"spring.jpa.hibernate.ddl-auto=validate"})
@@ -110,12 +111,12 @@ class BindingRuntimePostgresTest {
 
 	@Test void attachDetachReattachTraversesAuthorityFactConsumptionAndCurrentBinding() {
 		PocomaUserId user=user(1); insertUser(user); ExternalIdentity e=id("e2e");
-		BindingId b1=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
+		BindingId b1=producer().runInTransaction(()->accepted(bindings.acquire(e,user))).bindingId();
 		assertEquals(1L,count("external_identity_binding_facts")); orchestrator.run(input("a"));
 		assertCurrent(e,1,CurrentBindingStatus.ATTACHED,b1,user);
-		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(e,b1)));
+		assertEquals(BindingDetachResult.DETACHED,producer().runInTransaction(()->accepted(bindings.detach(e,b1))));
 		orchestrator.run(input("b")); assertCurrent(e,2,CurrentBindingStatus.DETACHED,null,null);
-		BindingId b2=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
+		BindingId b2=producer().runInTransaction(()->accepted(bindings.acquire(e,user))).bindingId();
 		orchestrator.run(input("c")); assertCurrent(e,3,CurrentBindingStatus.ATTACHED,b2,user);
 		assertEquals(3L,count("external_identity_binding_facts"));
 	}
@@ -148,11 +149,11 @@ class BindingRuntimePostgresTest {
 			jdbc.update("insert into external_identities values (?,?,?,?)",e.issuer(),e.subject(),firstUser.value(),b.value());
 		}
 		assertEquals(4L,count("external_identity_binding_facts"));
-		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(detached,binding(Math.abs(detached.subject().hashCode())+100))));
-		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(sameUser,binding(Math.abs(sameUser.subject().hashCode())+100))));
-		assertEquals(BindingDetachResult.DETACHED,transactions.runInTransaction(()->bindings.detach(otherUser,binding(Math.abs(otherUser.subject().hashCode())+100))));
-		BindingId sameB=transactions.runInTransaction(()->bindings.acquire(sameUser,firstUser)).bindingId();
-		BindingId otherB=transactions.runInTransaction(()->bindings.acquire(otherUser,secondUser)).bindingId();
+		assertEquals(BindingDetachResult.DETACHED,producer().runInTransaction(()->accepted(bindings.detach(detached,binding(Math.abs(detached.subject().hashCode())+100)))));
+		assertEquals(BindingDetachResult.DETACHED,producer().runInTransaction(()->accepted(bindings.detach(sameUser,binding(Math.abs(sameUser.subject().hashCode())+100)))));
+		assertEquals(BindingDetachResult.DETACHED,producer().runInTransaction(()->accepted(bindings.detach(otherUser,binding(Math.abs(otherUser.subject().hashCode())+100)))));
+		BindingId sameB=producer().runInTransaction(()->accepted(bindings.acquire(sameUser,firstUser))).bindingId();
+		BindingId otherB=producer().runInTransaction(()->accepted(bindings.acquire(otherUser,secondUser))).bindingId();
 		assertEquals(0L,count("pocoma_read.current_external_identity_binding"));
 		var rebuild = orchestrator.run(input("facts-only-rebuild"));
 		assertEquals(count("external_identity_binding_facts"), count("consumption_slots"),
@@ -197,7 +198,7 @@ class BindingRuntimePostgresTest {
 
 	@Test void technicalFailureRetriesAfterAReconstructedScanAndThenFinalizesIdempotently() {
 		PocomaUserId user=user(30);insertUser(user);ExternalIdentity e=id("retry");
-		BindingId b=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
+		BindingId b=producer().runInTransaction(()->accepted(bindings.acquire(e,user))).bindingId();
 		jdbc.execute("create function pocoma_read.reject_current_binding() returns trigger language plpgsql as $$ begin raise exception 'temporary'; end $$");
 		jdbc.execute("create trigger reject_current_binding before insert on pocoma_read.current_external_identity_binding for each row execute function pocoma_read.reject_current_binding()");
 		orchestrator.run(input("retry-first"));
@@ -213,7 +214,7 @@ class BindingRuntimePostgresTest {
 
 	@Test void lostClaimRollsBackProjectionBeforeWinnerAndMultipleWorkersConverge() throws Exception {
 		PocomaUserId user=user(40);insertUser(user);ExternalIdentity e=id("lost-claim");
-		BindingId b=transactions.runInTransaction(()->bindings.acquire(e,user)).bindingId();
+		BindingId b=producer().runInTransaction(()->accepted(bindings.acquire(e,user))).bindingId();
 		var located=locator.openSearch().next().orElseThrow();
 		var stale=((AcquireResult.Acquired)acquire.acquire(new AcquireConsumptionInput(located.consumptionKey(),new WorkerId("stale"),new ClaimLease(Duration.ofMillis(1))))).claim();
 		jdbc.update("update consumption_claims set claimed_at=now()-interval '2 minutes', lease_until=now()-interval '1 minute' where claim_id=?", stale.claimId().value());
@@ -223,7 +224,7 @@ class BindingRuntimePostgresTest {
 		execute.execute(new ExecuteConsumptionInput(winner.slotId(),winner.claimId(),located.execution()));
 		assertCurrent(e,1,CurrentBindingStatus.ATTACHED,b,user);
 
-		for(int i=41;i<51;i++){int n=i;PocomaUserId u=user(n);insertUser(u);transactions.runInTransaction(()->bindings.acquire(id("multi-"+n),u));}
+		for(int i=41;i<51;i++){int n=i;PocomaUserId u=user(n);insertUser(u);producer().runInTransaction(()->accepted(bindings.acquire(id("multi-"+n),u)));}
 		try(var pool=Executors.newFixedThreadPool(2)){
 			var a=pool.submit(()->orchestrator.run(input("worker-a")));var c=pool.submit(()->orchestrator.run(input("worker-b")));
 			a.get(10,TimeUnit.SECONDS);c.get(10,TimeUnit.SECONDS);
@@ -247,4 +248,14 @@ class BindingRuntimePostgresTest {
 	private static PocomaUserId user(int n){return new PocomaUserId(new UUID(0,n));}
 	private static BindingId binding(int n){return new BindingId(new UUID(1,n));}
 	private static ConsumptionOrchestrationInput input(String worker){return new ConsumptionOrchestrationInput(new WorkerId(worker),new ClaimLease(Duration.ofSeconds(30)),new ConsumptionOrchestrationBudget(100,100));}
+
+    private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner producer() {
+        return wp2Context.getBean(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class).runner();
+    }
+    private BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted value) {
+        value.fact().ifPresent(producer()::recordPublishedEvent);return value.result();
+    }
+    private BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted value) {
+        value.fact().ifPresent(producer()::recordPublishedEvent);return value.result();
+    }
 }

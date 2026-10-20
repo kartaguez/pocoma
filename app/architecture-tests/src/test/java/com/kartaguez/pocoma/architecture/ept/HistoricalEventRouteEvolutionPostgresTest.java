@@ -70,7 +70,7 @@ class HistoricalEventRouteEvolutionPostgresTest {
 			assertCurrentPolicy(initial, Set.of(READ_POT));
 			assertWorkerScope(initial);
 
-			initial.getBean(JpaBusinessEventOutboxAdapter.class)
+			initial.getBean(com.kartaguez.pocoma.engine.consume.command.pot.publication.AppendBusinessEventService.class)
 					.append(new PotCreatedEvent(PotId.of(potId), 1));
 			historicalEvent = loadEvent(jdbc, potId);
 			assertEquals("POT_CREATED", historicalEvent.eventType());
@@ -298,6 +298,6 @@ class HistoricalEventRouteEvolutionPostgresTest {
 	@EnableAutoConfiguration(exclude = {ReadStoreAccessAutoConfiguration.class, ReadStoreMigrationAutoConfiguration.class})
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
-	@Import({EventConsumptionRuntimeConfiguration.class, JpaBusinessEventOutboxAdapter.class})
+	@Import({EventConsumptionRuntimeConfiguration.class, JpaBusinessEventOutboxAdapter.class, com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class})
 	static class EventTestApplication {}
 }

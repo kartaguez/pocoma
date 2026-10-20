@@ -1,10 +1,15 @@
 # Étape 4 — Plan d’implémentation du séquencement transactionnel E
 
-Date de conception : 2026-10-19. Statut actualisé le 2026-10-20 : **spécification détaillée TARGET ; 4A CLOSED, 4B CLOSED / PASS hors production, 4C CLOSED / PASS dormant, 4D NEXT, 4E NOT STARTED**.
-Le [Step Plan courant](../steps/current/DISCOVERY/Step_Plan.md) porte l'avancement et les preuves des lots clos ; le [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) porte les décisions et leurs statuts. Les critères détaillés §§3–9 restent applicables. Les déclarations de périmètre, états Git et résultats de la rédaction initiale ci-dessous sont historiques ; leurs anciennes mentions « aucun lot commencé » ne décrivent plus l'avancement. Les expériences 3A–3D restent historiques. Un [séquenceur 4C certifié dormant et le DDL PREPARED](Event_Transactional_Sequencer_Step_4C_2026-10-20.md) sont désormais livrés ; aucun séquenceur raccordé en production. Le [rapport 4B et ses preuves](Event_Transaction_Protocol_Step_4B_2026-10-20.md) clôturent V-B (COMMAND), avec runner/collecteur dormants et suffixe synthétique exclusivement testé. L'audit indépendant statique confirme ce PASS sans réexécution Maven ou PostgreSQL par l'auditeur ; ses deux réserves non bloquantes pour 4B précisent les critères de certification 4D (conditions A et B ci-dessous), sans dette technique 4B ni changement du lot 4C. Les critères ci-dessous restent normatifs ; les mentions futures dans les lots clos conservent leur sens de spécification.
+Date de conception : 2026-10-19. Statut actualisé le 2026-10-20 : **spécification détaillée TARGET ; 4A CLOSED, 4B CLOSED / PASS hors production, 4C CLOSED / PASS dormant, 4D CLOSED / PASS PREPARED, 4E NEXT / NOT STARTED**.
+Le [Step Plan courant](../steps/current/DISCOVERY/Step_Plan.md) porte l'avancement et les preuves des lots clos ; le [Step Canon](../steps/current/DISCOVERY/Step_Canon.md) porte les décisions et leurs statuts. Les critères détaillés §§3–9 restent applicables. Les déclarations de périmètre, états Git et résultats de la rédaction initiale ci-dessous sont historiques ; leurs anciennes mentions « aucun lot commencé » ne décrivent plus l'avancement. Les expériences 3A–3D restent historiques. Un [séquenceur 4C certifié dormant et le DDL PREPARED](Event_Transactional_Sequencer_Step_4C_2026-10-20.md) sont désormais livrés ; le raccordement des producteurs réels est désormais certifié en PREPARED par le [rapport 4D](Event_Producer_Wiring_Step_4D_2026-10-20.md), sans activation E. Les tableaux d’inventaire CURRENT §§2.1/5 conservent l’état initial utilisé pour concevoir les lots ; la matrice livrée est dans ce rapport. Le [rapport 4B et ses preuves](Event_Transaction_Protocol_Step_4B_2026-10-20.md) clôturent V-B (COMMAND), avec runner/collecteur dormants et suffixe synthétique exclusivement testé. L'audit indépendant statique confirme ce PASS sans réexécution Maven ou PostgreSQL par l'auditeur ; ses deux réserves non bloquantes pour 4B précisent les critères de certification 4D (conditions A et B ci-dessous), sans dette technique 4B ni changement du lot 4C. Les critères ci-dessous restent normatifs ; les mentions futures dans les lots clos conservent leur sens de spécification.
 Baseline de cet audit de la grammaire de publication : `973cc792e19704054a229bb829a7076bd7bfa361`, branche `feat/consumption-transaction-protocol`.
 
 Référence de suivi après livraison 4C : `de5e4c373d21c1409f6e75a4faac327926e01f92`.
+Amendement ciblé approuvé en 4D le 2026-10-20 : le port auxiliaire Business situé dans
+`engine-write-pot` retourne l'UUID durable accepté, puis la façade applicative construit et
+déclare l'EventRef typé sous le même owner physique PRIMARY. Cela remplace sa seule signature
+TARGET EventRef historique 4A, sans dépendance Maven ni modification du métier ou des critères 4D.
+Les autres retours d'acceptation et toutes les garanties de ce plan restent applicables.
 L'[audit indépendant 4C](Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
 confirme un PASS statique, sans réexécution Maven/PostgreSQL ; R1/R2/R3 sont suivis en §6/4D,
 sans réouverture, extension de certification ni dette nouvelle propre à 4C. Schéma PREPARED et
@@ -419,7 +424,7 @@ Reprise avant activation : après rollback de maintenance confirmé, EventPositi
 
 ## 8. Stratégie de vérification normative
 
-Les commandes ci-dessous définissent les gates des lots, depuis `app/` après autorisation propre. 4A–4C sont exécutés selon leurs rapports ; 4D–4E restent **futurs**. Ces prescriptions ne déclenchent aucun gate supplémentaire hors lot autorisé. Lire la politique au HEAD de chaque lot et déclarer le scope avant modification.
+Les commandes ci-dessous définissent les gates des lots, depuis `app/` après autorisation propre. 4A–4C sont exécutés selon leurs rapports ; 4D a exécuté V-D et le gate architecture selon son rapport ; 4E reste **futur**. Ces prescriptions ne déclenchent aucun gate supplémentaire hors lot autorisé. Lire la politique au HEAD de chaque lot et déclarer le scope avant modification.
 
 ### 8.1 Commandes et frontières
 

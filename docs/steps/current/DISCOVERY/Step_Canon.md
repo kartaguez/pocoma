@@ -1,8 +1,8 @@
 # DISCOVERY — Step Canon
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
-`de5e4c373d21c1409f6e75a4faac327926e01f92` (livraison 4C auditée). **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; **4D NEXT**, après **4B et 4C CLOSED / PASS** hors production ; **4E NOT STARTED**, 4D et 4E non implémentés.
+`4defd5a63af267656f2feee92aed8daafef2175f` au départ de la livraison 4D. **current_canon** du chantier séquencement → Discovery.
+Le responsable du dépôt porte les arbitrages ; **4D CLOSED / PASS — 4E NEXT, NOT STARTED**. Runtime livré **PREPARED**, sans activation ni backfill.
 
 ## Autorité et lecture
 
@@ -59,13 +59,12 @@ ni EventId technique de publication ni position. Le métier produit via `EventPu
 captureur d'invocation peut rester mémoire. L'orchestration demande ensuite la publication au port
 spécialisé compatible. Pour la cible ordonnée, le contrat prescrit après acceptation éligible la déclaration explicite via
 `PublishedEvents.recordPublishedEvent(EventRef)` ; `EventRef = (EventFamily, eventId UUID)`.
-Ces types/contrats sont livrés ; **leur réalisation transactionnelle 4B est livrée dormante ; les déclarants de production
-restent à migrer en 4D**. Acceptation ≠ INSERT particulier ≠ commit ≠ visibilité externe.
+Ces types/contrats et **leur réalisation transactionnelle sont raccordés en 4D aux déclarants réels, en PREPARED**. Acceptation ≠ INSERT particulier ≠ commit ≠ visibilité externe.
 
 Le [rapport 4A](../../../architecture/Event_Publication_Contracts_Step_4A_2026-10-19.md) définit les
 enveloppes spécialisées, refus/no-op sans référence et tests de contrat. Gardes physiques locales
 UserCreated, repository Binding y compris `new`, et outcome Registration sont livrées ; elles ne
-certifient pas encore un owner E ou une phase OPEN.
+certifiaient pas encore un owner E ou une phase OPEN en 4A ; les gardes OPEN et le poisoning des writers réels sont désormais certifiés par 4D.
 
 | Famille durable obligatoire | Source PRIMARY | Portée |
 |---|---|---|
@@ -78,18 +77,26 @@ RegistrationOutcome n'est pas une cinquième famille ni un RegistrationTerminalE
 La [matrice des producteurs et owners](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#5-carte-des-producteurs-et-portée-des-changements-futurs)
 fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
-## Séquencement E : 4B/4C dormants livrés, raccordement 4D et activation 4E restants
+## Séquencement E : 4D PREPARED livré, activation 4E restante
+
+**Audit de préparation 4D au HEAD `4defd5a6` :** [inventaire, écarts et matrice A/B/C](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md).
+L'arbitrage du 2026-10-20 a approuvé le retour UUID du port Business auxiliaire, puis la construction
+et déclaration EventRef par sa façade applicative, sans dépendance Maven nouvelle. La cible 4A
+conserve son historique et porte cet amendement daté. Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
+et ses preuves clôturent V-D : writers réels gardés/poisonnés, même transaction PRIMARY, acceptations
+exactement déclarées, deux compositions, trois gates et retours ancien runtime répétés.
+**PREPARED** laisse E/positions inactifs ; ACTIVE a été testé exclusivement sur bases jetables.
 
 **CURRENT borné, hors production — 4B CLOSED / PASS confirmé par audit indépendant statique.** Le [runner/collecteur PRIMARY et ses preuves](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md)
-sont livrés, sans scan/configuration productive. Propriétaire/participants, flush terminal,
+étaient livrés en 4B sans scan/configuration productive ; leur composition explicite est désormais raccordée en 4D. Propriétaire/participants, flush terminal,
 snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans COMMAND avec le
 manager JPA standard. Le suffixe 4B est synthétique et limité aux tests ; aucune E active, aucun
-producteur/owner réel recâblé. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
+producteur/owner réel n’était recâblé à la clôture 4B. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
 
 L'audit favorable 4B porte sur `5640220b94f6208aa4c156e248d95e2eced1522f` et les preuves 4B déjà réalisées ;
 l'auditeur n'a réexécuté ni Maven ni PostgreSQL. Il ne prouve pas une interception universelle
 des erreurs SQL des writers réels par le runner 4B. Ses deux réserves non bloquantes pour 4B
-relèvent de la certification **TARGET 4D** : poisoning irréversible de chaque writer durable réel,
+sont couvertes par la certification **4D/V-D** : poisoning irréversible de chaque writer durable réel,
 y compris JDBC, et identité physique JPA/JDBC sous le même manager PRIMARY pour tous les owners.
 Leurs critères sont enregistrés une seule fois dans la [spécification, §6/4D, conditions A et B](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#4d--raccordement-complet-production-prepared),
 suivis par le [plan, §4D](Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet).
@@ -99,23 +106,23 @@ Aucune dette technique 4B n'est ouverte ; le périmètre et la clôture 4C reste
 sont livrés : autorités/associations typées/FK/vue, PREPARED/version unique, droits et contrôles
 ACTIVE différés ; blocs denses et ordre déclaré prouvés sur les quatre vraies sources en bases
 isolées. COMMAND + BINDING : 1 091 tests, aucune failure/error, seul skip 3B préexistant ; upgrade
-V29→V30 et deux retours au runtime initial verts. Aucun vrai owner/writer raccordé, aucun compteur
+V29→V30 et deux retours au runtime initial verts. À la clôture 4C, aucun vrai owner/writer n’était raccordé, aucun compteur
 ou position officielle attribué en production. Le schéma additif reste compatible CURRENT en
-PREPARED ; contrôle complet des comptes/compositions déployés en 4D, activation/historique en 4E.
+PREPARED ; compositions du dépôt certifiées en 4D, contrôle des comptes déployés avant cutover et activation/historique en 4E.
 Les sondes de plans indexés ne sont pas des seuils de performance. Global/full non requis en 4C.
 
 L'[audit indépendant 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
 confirme un **PASS statique**, sans réexécution Maven/PostgreSQL ni extension de certification.
 R1 précise la frontière de confiance de la densité ; R2 et R3 renvoient respectivement aux conditions
 B et A existantes de 4D. Leur suivi reste au §4D du plan et de la spécification, sans réouverture
-ni dette nouvelle propre à 4C. Schéma PREPARED et séquenceur dormants, producteurs réels non raccordés.
+ni dette nouvelle propre à 4C. Le raccordement ultérieur des producteurs réels est certifié en 4D, sans activation.
 
 **Pourquoi.** Un timestamp/UUID ou une séquence PostgreSQL non transactionnelle ne prouve pas
 l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense committée par famille
 permet de prouver une plage entièrement visible. Elle ne prouve pas que les conséquences sont
 enrôlées, ni que leur consommation est terminée.
 
-**CURRENT 4C dormant / TARGET production 4D–4E.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
+**CURRENT 4D : owner/registre/flush/fermeture PREPARED ; TARGET 4E : allocation E et positions en environnement déployé.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
 allocation par blocs dans la même transaction que l'acceptation durable et les effets protégés.
 Après finalisation S/Claim : flush complet, fermeture du lot, puis suffixe E dans le callback du
 `TransactionTemplate`, avant commit physique par le gestionnaire JPA standard. Aucun DML métier,

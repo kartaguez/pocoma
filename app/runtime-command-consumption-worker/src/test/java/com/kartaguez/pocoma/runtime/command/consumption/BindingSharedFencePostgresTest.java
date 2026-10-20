@@ -42,6 +42,7 @@ import com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTech
 })
 @Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@org.springframework.context.annotation.Import(BindingSharedFencePostgresTest.Observation.class)
 class BindingSharedFencePostgresTest {
     @Container static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
         .withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma");
@@ -63,9 +64,16 @@ class BindingSharedFencePostgresTest {
     @Autowired @Qualifier("commandConsumptionExecute") ExecuteConsumptionUseCase execute;
     @Autowired @Qualifier("commandConsumptionLifecycle") JpaConsumptionLifecycleAdapter lifecycle;
     @Autowired CommandOutcomePublicationPort outcomes;
+    @Autowired RecordingPublications publications;
     @Autowired RecordedCommandInsertionPort commands;
     ExecutorService pool;
-    @BeforeEach void start() { pool = Executors.newFixedThreadPool(3); }
+    @BeforeEach void start() {
+        jdbc.update("update event_sequencing_protocol set mode='PREPARED'");
+        jdbc.execute("truncate users,external_identity_binding_streams,recorded_commands,consumption_slots,business_event_outbox,command_terminal_events,user_created_facts cascade");
+        jdbc.update("update event_sequence_authorities set last_position=0");
+        publications.refs.clear();
+        pool = Executors.newFixedThreadPool(3);
+    }
     @AfterEach void stop() throws Exception { pool.shutdownNow(); assertTrue(pool.awaitTermination(15, TimeUnit.SECONDS)); }
 
     @RepeatedTest(5) void aTwoDistinctPotsHoldSharedFencesBeforeEitherCommits() throws Exception {
@@ -123,7 +131,7 @@ class BindingSharedFencePostgresTest {
             assertTrue(exact(command.j, f, 1, f.user, f.binding));
             Future<?> detach = pool.submit(() -> tx.runInTransaction(() -> {
                 lifecyclePid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
-                assertEquals(BindingDetachResult.DETACHED, bindings.detach(f.identity, f.binding));
+                assertEquals(BindingDetachResult.DETACHED, accepted(bindings.detach(f.identity, f.binding)));
                 changed.countDown(); await(release);
             }));
             try {
@@ -142,7 +150,7 @@ class BindingSharedFencePostgresTest {
 
     @Test void eReattachSameUserRequiresBothNewOccurrenceAndNewRevision() throws Exception {
         Fixture f = fixture(); detach(f);
-        BindingId next = tx.runInTransaction(() -> bindings.acquire(f.identity, f.user).bindingId());
+        BindingId next = tx.runInTransaction(() -> accepted(bindings.acquire(f.identity, f.user)).bindingId());
         assertNotEquals(f.binding, next);
         try (Session a = new Session()) {
             assertEquals(3L, share(a.j, f));
@@ -171,7 +179,9 @@ class BindingSharedFencePostgresTest {
         assertEquals(1L, version(p)); assertCurrent(f, 2, false);
     }
 
-    @Test void fRecoveryKeepsBusinessRejectionAndTechnicalConflictDistinctAfterRollback() {
+    @org.junit.jupiter.params.ParameterizedTest @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void fRecoveryKeepsBusinessRejectionAndTechnicalConflictDistinctAfterRollback(boolean active) {
+        jdbc.update("update event_sequencing_protocol set mode=?",active?"ACTIVE":"PREPARED");
         for (boolean detached : List.of(false, true)) {
             Fixture f = fixture(); UUID p = pot(); CommandId id = recorded(f);
             Claim claim = claim(id, Instant.now()); if (detached) detach(f);
@@ -191,6 +201,11 @@ class BindingSharedFencePostgresTest {
                 assertEquals(1, count("command_outcomes", id)); assertEquals(1, count("command_terminal_events", id));
                 assertNotEquals(failedXid.get(), jdbc.queryForObject("select xmin::text::bigint from command_outcomes where command_id=?", Long.class, id.value()));
                 assertEquals("CALLER_IDENTITY_NOT_CURRENT", jdbc.queryForObject("select public_code from command_outcomes where command_id=?", String.class, id.value()));
+                UUID eventId=jdbc.queryForObject("select event_id from command_terminal_events where command_id=?",UUID.class,id.value());
+                assertEquals(1L,publications.refs.stream().filter(ref->ref.equals(new com.kartaguez.pocoma.port.transaction.EventRef(
+                        com.kartaguez.pocoma.port.transaction.EventFamily.COMMAND_TERMINAL_EVENT,eventId))).count());
+                assertEquals(active?1:0,jdbc.queryForObject("select count(*) from command_terminal_event_positions where event_id=?",Integer.class,eventId));
+
             } else {
                 var conflict = assertThrows(BindingFenceConflictException.class, () -> execute.execute(input));
                 var failure = new CommandConsumptionTechnicalFailureClassifier(Clock.systemUTC()).classify(conflict);
@@ -217,7 +232,7 @@ class BindingSharedFencePostgresTest {
             commandPid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class));
             jdbc.update("update pot_global_versions set version=2 where pot_id=?", p);
             assertTrue(fence(jdbc, f, 1, f.user, f.binding));
-            outcomes.publish(new CommandOutcome.Applied(id, p, 2, Instant.now()));
+            publications.recordPublishedEvent(outcomes.publish(new CommandOutcome.Applied(id, p, 2, Instant.now())));
             protectedB.countDown(); await(proceed);
             return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Success(), List.of(), List.of());
         })));
@@ -245,7 +260,7 @@ class BindingSharedFencePostgresTest {
     private Fixture fixture() {
         ExternalIdentity identity = new ExternalIdentity("step2c", UUID.randomUUID().toString());
         PocomaUserId user = new PocomaUserId(UUID.randomUUID()); jdbc.update("insert into users(user_id) values (?)", user.value());
-        var acquired = tx.runInTransaction(() -> bindings.acquire(identity, user));
+        var acquired = tx.runInTransaction(() -> accepted(bindings.acquire(identity, user)));
         assertEquals(BindingAcquireResult.Status.ACQUIRED, acquired.status()); return new Fixture(identity, user, acquired.bindingId());
     }
     private long share(JdbcTemplate j, Fixture f) {
@@ -257,10 +272,10 @@ class BindingSharedFencePostgresTest {
     private boolean fence(JdbcTemplate j, Fixture f, long revision, PocomaUserId user, BindingId binding) {
         share(j, f); return exact(j, f, revision, user, binding);
     }
-    private void detach(Fixture f) { assertEquals(BindingDetachResult.DETACHED, tx.runInTransaction(() -> bindings.detach(f.identity, f.binding))); }
+    private void detach(Fixture f) { assertEquals(BindingDetachResult.DETACHED, tx.runInTransaction(() -> accepted(bindings.detach(f.identity, f.binding)))); }
     private Future<BindingDetachResult> detachAsync(Fixture f, CompletableFuture<Integer> pid) {
         return pool.submit(() -> tx.runInTransaction(() -> {
-            pid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class)); return bindings.detach(f.identity, f.binding);
+            pid.complete(jdbc.queryForObject("select pg_backend_pid()", Integer.class)); return accepted(bindings.detach(f.identity, f.binding));
         }));
     }
     private CommandId recorded(Fixture f) {
@@ -315,5 +330,25 @@ class BindingSharedFencePostgresTest {
             pid = j.queryForObject("select pg_backend_pid()", Integer.class); xid = j.queryForObject("select txid_current()", Long.class);
         }
         @Override public void close() throws Exception { try { c.rollback(); } finally { c.close(); } }
+    }
+
+    private BindingAcquireResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted value) {
+        value.fact().ifPresent(publications::recordPublishedEvent);return value.result();
+    }
+    private BindingDetachResult accepted(com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted value) {
+        value.fact().ifPresent(publications::recordPublishedEvent);return value.result();
+    }
+
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods=false) static class Observation {
+        @org.springframework.context.annotation.Bean @org.springframework.context.annotation.Primary
+        RecordingPublications recordingPublications(@Qualifier("publishedEvents") com.kartaguez.pocoma.port.transaction.PublishedEvents delegate) {
+            return new RecordingPublications(delegate);
+        }
+    }
+    static final class RecordingPublications implements com.kartaguez.pocoma.port.transaction.PublishedEvents {
+        final com.kartaguez.pocoma.port.transaction.PublishedEvents delegate;
+        final java.util.List<com.kartaguez.pocoma.port.transaction.EventRef> refs=new CopyOnWriteArrayList<>();
+        RecordingPublications(com.kartaguez.pocoma.port.transaction.PublishedEvents delegate){this.delegate=delegate;}
+        @Override public void recordPublishedEvent(com.kartaguez.pocoma.port.transaction.EventRef ref){delegate.recordPublishedEvent(ref);refs.add(ref);}
     }
 }

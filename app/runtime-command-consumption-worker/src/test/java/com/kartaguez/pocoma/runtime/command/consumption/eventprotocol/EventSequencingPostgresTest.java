@@ -479,13 +479,13 @@ class EventSequencingPostgresTest {
         jdbc.execute("insert into event_sequence_authorities values ('BUSINESS_EVENT',0)");
     }
 
-    @Test void preparedSupportsUnmodifiedCurrentWriterRepeatedlyAndStartupCannotActivate() {
+    @Test void preparedSupportsGuardedCurrentWriterRepeatedlyAndStartupCannotActivate() {
         jdbc.execute("update event_sequencing_protocol set mode='PREPARED'");
         for(int pass=0;pass<2;pass++) {
             UUID id=UUID.randomUUID();
-            new TransactionTemplate(manager).execute(status->{
+            runner.runInTransaction(()->{
                 userParents(jdbc,id);
-                new JdbcUserCreatedFactAdapter(jdbc).append(id,new PocomaUserId(id));return null;
+                runner.recordPublishedEvent(new JdbcUserCreatedFactAdapter(jdbc).append(id,new PocomaUserId(id)));return null;
             });
             assertEquals("PREPARED",new JdbcEventTransactionSequencer(manager).verifyCompatibleMode());
             assertTrue(context.getBeansOfType(JdbcEventTransactionSequencer.class).isEmpty());

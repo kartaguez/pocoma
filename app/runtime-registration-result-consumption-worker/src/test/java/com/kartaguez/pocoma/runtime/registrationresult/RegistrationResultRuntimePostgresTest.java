@@ -46,6 +46,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+@org.springframework.context.annotation.Import(com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class)
 @SpringBootTest(classes = PocomaRegistrationResultConsumptionWorkerApplication.class, properties = {
         "pocoma.registration-result-consumption.enabled=false", "spring.jpa.hibernate.ddl-auto=validate"})
 class RegistrationResultRuntimePostgresTest {
@@ -117,11 +118,12 @@ class RegistrationResultRuntimePostgresTest {
         assertEquals(0, jdbc.queryForObject("select count(*) from projection_tasks where projection_type='REGISTRATION_RESULT'", Integer.class));
         assertInstanceOf(PublishedRegistrationResult.Registered.class, get(registered, "one"));
         var original = (PublishedRegistrationResult.Registered) get(registered, "one");
-        tx.runInTransaction(() -> {
-            bindings.detach(new ExternalIdentity("issuer", "one"), original.bindingId());
+        var producer=wp2Context.getBean(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class).runner();
+        producer.runInTransaction(() -> {
+            bindings.detach(new ExternalIdentity("issuer", "one"), original.bindingId()).fact().ifPresent(producer::recordPublishedEvent);
             PocomaUserId replacement = new PocomaUserId(UUID.randomUUID());
             users.create(new User(replacement));
-            bindings.acquire(new ExternalIdentity("issuer", "one"), replacement);
+            bindings.acquire(new ExternalIdentity("issuer", "one"), replacement).fact().ifPresent(producer::recordPublishedEvent);
             return null;
         });
         assertEquals(original, get(registered, "one"));
@@ -170,9 +172,9 @@ class RegistrationResultRuntimePostgresTest {
 
     private UUID register(String subject) {
         UUID id = UUID.randomUUID();
-        tx.runInTransaction(() -> {
+        wp2Context.getBean(com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol.class).runner().runInTransaction(() -> {
             requests.insert(new RegistrationRequest(id, new ExternalIdentity("issuer", subject), "{}", Instant.now()));
-            new ExecuteRegistrationService(requests, outcomes, users, bindings, userFacts).execute(id);
+            new ExecuteRegistrationService(requests, outcomes, users, bindings, userFacts, wp2Context.getBean(com.kartaguez.pocoma.port.transaction.PublishedEvents.class)).execute(id);
             return null;
         });
         return id;

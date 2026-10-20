@@ -11,7 +11,7 @@ import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.kartaguez.pocoma.port.transaction.EventFamily;
 
-/** Dormant terminal suffix. Explicit composition only, no component/configuration.
+/** Terminal suffix; E stays dormant in PREPARED. Explicit composition only, no component/configuration.
  * Uses the JDBC holder exposed by the same PRIMARY JPA manager, never opens a
  * connection/transaction for sequencing. Mode is durable and read without a lock;
  * changing it requires the offline maintenance protocol, never a runtime switch.
@@ -33,7 +33,7 @@ public final class JdbcEventTransactionSequencer implements PrimaryEventTransact
         this.jdbc = new JdbcTemplate(dataSource);
     }
 
-    /** Future startup composition must explicitly call this; never changes mode. */
+    /** Startup composition calls this explicitly; never changes mode. */
     public String verifyCompatibleMode() {
         var rows = jdbc.queryForList("select protocol_version,mode from event_sequencing_protocol where singleton");
         if (rows.size() != 1 || !Integer.valueOf(1).equals(rows.getFirst().get("protocol_version")))

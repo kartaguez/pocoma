@@ -101,7 +101,9 @@ class WriteSideClosurePostgresTest {
 	@Autowired CommandRequestSizeFilter commandRequestSizeFilter;
 	@Autowired ObjectMapper mapper;
 	@Autowired JdbcTemplate jdbc;
-	@Autowired TransactionRunner transactions;
+	@Autowired com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol protocol;
+    @Autowired com.kartaguez.pocoma.port.transaction.PublishedEvents declarations;
+    TransactionRunner transactions;
 	@Autowired ExecuteRecordedCommandUseCase commands;
 	@Autowired JpaCommandConsumptionDiscoveryAdapter discovery;
 	@Autowired JpaConsumptionSlotRepository slots;
@@ -114,6 +116,7 @@ class WriteSideClosurePostgresTest {
 
 	@BeforeEach
 	void cleanAndAssembleRuntimeRoles() {
+        transactions = protocol.runner();
 		http = MockMvcBuilders.webAppContextSetup(context).addFilters(commandRequestSizeFilter)
 				.apply(springSecurity()).build();
 		jdbc.execute("truncate table external_identity_binding_facts, external_identity_binding_occurrences, external_identity_binding_streams, external_identities, users, recorded_commands, consumption_inputs, "
@@ -220,7 +223,7 @@ class WriteSideClosurePostgresTest {
 						lifecycle, lifecycle, new CommandConsumptionFailurePolicy(), clock), transactions);
 		var locator = new CommandConsumptionLocator(
 				discovery, new CommandConsumptionExecution(
-						commands, new JdbcCommandOutcomeAdapter(jdbc), clock),
+						commands, new JdbcCommandOutcomeAdapter(jdbc), clock, declarations),
 				new CommandConsumptionTechnicalFailureClassifier(clock), clock);
 		var orchestrator = new SequentialConsumptionOrchestrator(locator, acquire, execute, failure);
 		var settings = new ConsumptionWorkerSettings(true, new WorkerId("write-side-closure-test"),

@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-20",
+  "kind": "static_readiness_audit",
+  "verdict": "ARBITRATION_REQUIRED; 4D NOT CERTIFIED; 4E NOT STARTED",
+  "head": "4defd5a63af267656f2feee92aed8daafef2175f",
+  "branch": "feat/consumption-transaction-protocol",
+  "worktree": "/private/tmp/pocoma-consumption-transaction-protocol",
+  "commits_since_expected": [
+    "4defd5a63af267656f2feee92aed8daafef2175f docs: close independent 4C audit and trace 4D observations"
+  ],
+  "divergence_after_successful_fetch": "0\t0",
+  "production_changes": [],
+  "tests_executed": [],
+  "postgresql_proofs_executed": [],
+  "activation": false,
+  "backfill": false,
+  "database_contacted": false,
+  "prepared_claim": "V30 repository default only; deployed state not observed",
+  "actual_scope": {
+    "primary_slice": null,
+    "secondary_slices": [],
+    "kind": "documentation only",
+    "unexpected_slice_crossings": [],
+    "global_architecture_gate": "NOT RUN for this audit; REQUIRED before 4D certification",
+    "full_reactor": "NOT REQUIRED; NOT RUN"
+  },
+  "future_declared_scope": {
+    "primary_slice": "COMMAND",
+    "secondary_slices": [
+      "BINDING",
+      "WEB"
+    ],
+    "additional_anchors": [
+      "runtime-registration-consumption-worker",
+      "runtime-monolith"
+    ],
+    "global_architecture_gate": "REQUIRED",
+    "full_reactor": "NOT REQUIRED for bounded 4D",
+    "database": "CURRENT V30 + ACTIVE isolated disposable test databases; trusted baseline NONE"
+  },
+  "future_commands_not_executed": [
+    "./mvnw -pl runtime-command-consumption-worker,runtime-binding-consumption-worker,runtime-web-api -am test",
+    "./mvnw -pl runtime-registration-consumption-worker,runtime-monolith -am test",
+    "./mvnw -pl architecture-tests -am test"
+  ],
+  "blocker": {
+    "target": "BusinessEventAppendPort.append returns EventRef in 4A target table",
+    "current_boundary": "engine.write.pot.. may not depend on port.transaction..; port path protected by PCL7",
+    "proposal_not_applied": "UUID accepted return from durable port; EventRef constructed and declared by application facade",
+    "question": "Asked responsible user; no answer received at evidence generation"
+  },
+  "checks": {
+    "audit_local_links": 25,
+    "git_diff_check": "PASS",
+    "app_tracked_unchanged": "PASS",
+    "head_unchanged": "PASS",
+    "preserved_untracked": "PASS"
+  },
+  "new_or_modified_documents": [
+    "docs/architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md",
+    "docs/steps/current/DISCOVERY/Next_Plan.md",
+    "docs/steps/current/DISCOVERY/Step_Canon.md",
+    "docs/steps/current/DISCOVERY/Step_Plan.md",
+    "docs/testing/evidence/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.json"
+  ],
+  "audit_sha256": "98ed3ee365fe53e9d1ddf56ef8bb4c1b5084997a1b6f86e5ca3fc8f2b620a554",
+  "source_sha256": {
+    "app/engine-write-pot/pom.xml": "02d4d53d6460171ac4e15e5c903c55a244246fa7176f0d54c83ec4cceff88508",
+    "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/event/BusinessEventAppendPort.java": "b31198c3c56b7ffa7e524a2e8ea8258612c9a31a5d24751c1795c2269173cfd8",
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/EventPublicationContractArchitectureTest.java": "8c00e3cc26eedf950771ef8d0edbcf01e49b2bc503bb300cfb1acfeac4bc773d",
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/Pcl7ModuleDependencyCollapseTest.java": "900983e65353c191cadb066182922669621085e74a89fad34ac4b12b01dabf96",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V30__prepared_event_transactional_sequencing.sql": "01a64bc55727089b62f3ac9234a01a311ad7ae6de961ac280255750f02d48679",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/transaction/event/PrimaryEventTransactionRunner.java": "25de077b94ac608c195a9ad5b7a9c5aa439fbddc9a79ecfb15dade22729e0b23",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/transaction/event/JdbcEventTransactionSequencer.java": "93b50ac6ecff15107b2f021d8e8abb96a90113fa63cc77f91fd90a2e4598a470",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaBusinessEventOutboxAdapter.java": "9ce50bb633d25e9e033c9842c669c8a389afeee33ddea0737b6fab8ead452ad0",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/outbox/JpaPotCommandEventAppendAdapter.java": "2f53a63d3260ce281d158c392562403b004a9704690c3e2bf3bb0be0524ed19b",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/command/JdbcCommandOutcomeAdapter.java": "b1799b6008627ad54c95b840713d18b0b1fb0a8c3ff5527d340a899e445e7e45",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/identity/JpaExternalIdentityBindingAdapter.java": "1a758372ac240806d27cd7096da45a7596edd5cc2250a9c7180cdf32bb57f59b",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/identity/JpaExternalIdentityBindingFactAdapter.java": "8483e5e8dcf7fea34de55366b4b79a0639b3c648a18700d35436e779fda3a894",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/registration/JdbcUserCreatedFactAdapter.java": "5b0af13f77dbba299c8c619a6786406651bccf7dfd40482e0e571ccc2a89f2b0",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/repository/identity/ExternalIdentityBindingFactJdbcRepository.java": "54d26c9a3401dd36f9e19c09da490e53d3701c55c8bab1ec5e9bf99002ab78eb",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/registration/JdbcRegistrationOutcomeStore.java": "bb58023562d038cea8c73dfc245d695987a7fcc636d13261ccd64acce09bd9e5"
+  },
+  "prior_evidence": {
+    "4B": {
+      "sha256": "b11e0c5ebb0073564aa1e728882e5e3efa3e9dbfe75261a9413b42b7952c581f",
+      "recorded_verdict": "PASS",
+      "scope": "Historical evidence read only; no test rerun"
+    },
+    "4C": {
+      "sha256": "fe094e77cf0f2f2c7768c3a463a9b07a7b6abe27d09c95789e0277e32d1b172e",
+      "recorded_verdict": "PASS",
+      "scope": "Historical evidence read only; no test rerun"
+    }
+  },
+  "preserved_untracked": {
+    "docs/architecture/Architecture_Last_Skip_Audit_2026-10-20.md": "e34013dbb00ea3f3ff5150a8ba9e850d49fb116b4d7f6703edb4db9a19af3092"
+  },
+  "commit": "NOT CREATED; certification condition not satisfied",
+  "push": "NOT PERFORMED",
+  "validation_iterations": [
+    "First link check stopped before evidence creation because its referenced JSON did not exist yet; no application tests ran.",
+    "Second check validates the pending evidence target and writes it, then validates all targets."
+  ]
+}

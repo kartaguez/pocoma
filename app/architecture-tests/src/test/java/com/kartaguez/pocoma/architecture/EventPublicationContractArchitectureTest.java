@@ -87,16 +87,17 @@ class EventPublicationContractArchitectureTest {
             assertEquals(1, matches.size(), name + "." + method);
             assertEquals(Propagation.MANDATORY, matches.getFirst().getAnnotationOfType(Transactional.class).propagation());
         }));
-        // The one CURRENT autonomous auxiliary stays REQUIRED until its coordinated 4D migration.
+        // The auxiliary writer now participates; the application facade owns its autonomy.
         var auxiliary = PRODUCTION.get(INFRA + "adapter.outbox.JpaBusinessEventOutboxAdapter").getMethods().stream()
                 .filter(m -> m.getName().equals("append")).findFirst().orElseThrow();
-        assertEquals(Propagation.REQUIRED, auxiliary.getAnnotationOfType(Transactional.class).propagation());
+        assertEquals(Propagation.MANDATORY, auxiliary.getAnnotationOfType(Transactional.class).propagation());
         Map<String, String> guarded = Map.of(
                 INFRA + "repository.identity.ExternalIdentityBindingFactJdbcRepository", "append",
                 INFRA + "adapter.registration.JdbcUserCreatedFactAdapter", "append",
                 INFRA + "adapter.registration.JdbcRegistrationOutcomeStore", "insert");
         guarded.forEach((name, method) -> assertTrue(PRODUCTION.get(name).getMethodCallsFromSelf().stream()
-                .anyMatch(call -> call.getOrigin().getName().equals(method)
+                .anyMatch(call -> (call.getOrigin().getName().equals(method)
+                                || call.getOrigin().getName().startsWith("lambda$" + method + "$"))
                         && call.getTargetOwner().getName().equals(INFRA + "transaction.PrimaryWriteParticipation")
                         && call.getName().equals("require")), name));
     }
@@ -164,6 +165,37 @@ class EventPublicationContractArchitectureTest {
     }
     @Test void knownParticipantsHaveNoIndependentResolutionOrExternalEffects() { participants().check(PRODUCTION); }
 
+    @Test void realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly() {
+        for (String writer : WRITERS) for (var call : PRODUCTION.get(writer).getMethodCallsFromSelf()) {
+            if (call.getTargetOwner().getName().equals(INFRA + "transaction.event.PrimaryEventTransactionRunner"))
+                assertEquals("guardedWrite",call.getName(),"writers may guard, never own or declare: "+call.getDescription());
+        }
+        for (String writer : Set.of(
+                INFRA + "adapter.outbox.JpaPotCommandEventAppendAdapter",
+                INFRA + "adapter.outbox.JpaBusinessEventOutboxAdapter",
+                INFRA + "adapter.command.JdbcCommandOutcomeAdapter",
+                INFRA + "adapter.identity.JpaExternalIdentityBindingAdapter",
+                INFRA + "adapter.registration.JdbcUserCreatedFactAdapter",
+                INFRA + "repository.identity.ExternalIdentityBindingFactJdbcRepository",
+                INFRA + "adapter.registration.JdbcRegistrationOutcomeStore")) {
+            assertTrue(PRODUCTION.get(writer).getMethodCallsFromSelf().stream().anyMatch(call ->
+                    call.getTargetOwner().getName().equals(INFRA + "transaction.event.PrimaryEventTransactionRunner")
+                            && call.getName().equals("guardedWrite")
+                            && Set.of("appendAll", "append", "publish", "acquireWithInitializer", "detach", "insert")
+                                    .contains(call.getOrigin().getName())), writer);
+        }
+        for (var type : PRODUCTION) if (producer(type)) {
+            for (var call : type.getMethodCallsFromSelf()) {
+                assertFalse(call.getTargetOwner().getName().equals(INFRA + "transaction.event.JdbcEventTransactionSequencer"),
+                        call.getDescription());
+                assertFalse(call.getTargetOwner().getName().equals(INFRA + "transaction.event.PrimaryEventTransactionSuffix"),
+                        call.getDescription());
+            }
+        }
+        // The durable auxiliary keeps the pure module's UUID-only signature.
+        assertEquals(java.util.UUID.class, BusinessEventAppendPort.class.getDeclaredMethods()[0].getReturnType());
+    }
+
     @Test void negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks() {
         var fixtures = new ClassFileImporter().importClasses(ForbiddenProducerNew.class, ForbiddenProducerNested.class,
                 ForbiddenProducerSuspended.class, ForbiddenProducerSavepoint.class, ForbiddenProducerCommit.class,
@@ -201,6 +233,6 @@ class EventPublicationContractArchitectureTest {
     static class ForbiddenProducerExternal implements EventAppendPort {
         int sends;
         java.net.http.HttpClient transport;
-        @Override public List<CommandExecutionArtifact> appendAll(List<BusinessEvent> events) { sends++; return List.of(); }
+        @Override public com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted appendAll(List<BusinessEvent> events) { sends++; return new com.kartaguez.pocoma.engine.consume.command.model.BusinessEventsAccepted(List.of(), List.of()); }
     }
 }

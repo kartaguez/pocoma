@@ -20,10 +20,10 @@ import com.kartaguez.pocoma.PocomaCommandConsumptionWorkerApplication;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {
 			"pocoma.command-consumption.enabled=true",
-			"spring.flyway.enabled=false",
-			"spring.jpa.hibernate.ddl-auto=none"
+			"spring.flyway.enabled=true",
+			"spring.jpa.hibernate.ddl-auto=validate"
 		})
-class CommandConsumptionActuatorTest {
+class CommandConsumptionActuatorTest extends PreparedCommandPostgresTest {
 	@LocalServerPort int port;
 
 	@Test

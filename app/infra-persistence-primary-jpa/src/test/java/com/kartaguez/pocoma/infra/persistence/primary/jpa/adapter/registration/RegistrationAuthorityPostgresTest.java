@@ -59,7 +59,7 @@ class RegistrationAuthorityPostgresTest {
         jdbc.execute("truncate table registration_outcomes, user_created_facts, registration_requests, "
                 + "external_identity_binding_facts, external_identity_binding_occurrences, "
                 + "external_identity_binding_streams, external_identities, users cascade");
-        service = new ExecuteRegistrationService(requests, outcomes, users, bindings, userFacts);
+        service = new ExecuteRegistrationService(requests, outcomes, users, bindings, userFacts, owner()::recordPublishedEvent);
     }
 
     @Test void successIsAtomicAndRetryDoesNotReplayEffects() {
@@ -101,13 +101,13 @@ class RegistrationAuthorityPostgresTest {
 
     @Test void existingAttachRejectsWithoutCreatingUserAndDetachAllowsFreshOccurrence() {
         PocomaUserId existing = new PocomaUserId(UUID.randomUUID());
-        BindingId original = tx(() -> { users.create(new User(existing)); return bindings.acquire(identity, existing).bindingId(); });
+        BindingId original = tx(() -> { users.create(new User(existing)); return bindings.acquire(identity, existing).result().bindingId(); });
         UUID losing = request(identity);
         assertInstanceOf(RegistrationOutcome.Rejected.class, tx(() -> service.execute(losing)));
         assertEquals(1, count("users"));
         assertEquals(0, count("user_created_facts"));
         assertEquals(1, count("external_identity_binding_facts"));
-        tx(() -> bindings.detach(identity, original));
+        tx(() -> bindings.detach(identity, original).result());
         UUID next = request(identity);
         var registered = assertInstanceOf(RegistrationOutcome.Registered.class, tx(() -> service.execute(next)));
         assertNotEquals(original, registered.bindingId());
@@ -126,7 +126,7 @@ class RegistrationAuthorityPostgresTest {
                 start.await(); return tx(() -> service.execute(request));
             });
             Future<BindingAcquireResult> attach = pool.submit(() -> {
-                start.await(); return tx(() -> bindings.acquire(identity, existing));
+                start.await(); return tx(() -> bindings.acquire(identity, existing).result());
             });
             start.countDown();
             boolean registrationWon = registration.get(10, TimeUnit.SECONDS) instanceof RegistrationOutcome.Registered;
@@ -142,7 +142,7 @@ class RegistrationAuthorityPostgresTest {
 
     @Test void registrationAndDetachAreOrderedByTheAuthoritativeStream() throws Exception {
         PocomaUserId existing = new PocomaUserId(UUID.randomUUID());
-        BindingId old = tx(() -> { users.create(new User(existing)); return bindings.acquire(identity, existing).bindingId(); });
+        BindingId old = tx(() -> { users.create(new User(existing)); return bindings.acquire(identity, existing).result().bindingId(); });
         UUID request = request(identity);
         ExecutorService pool = Executors.newFixedThreadPool(2);
         CountDownLatch start = new CountDownLatch(1);
@@ -151,7 +151,7 @@ class RegistrationAuthorityPostgresTest {
                 start.await(); return tx(() -> service.execute(request));
             });
             Future<BindingDetachResult> detach = pool.submit(() -> {
-                start.await(); return tx(() -> bindings.detach(identity, old));
+                start.await(); return tx(() -> bindings.detach(identity, old).result());
             });
             start.countDown();
             RegistrationOutcome decision = registration.get(10, TimeUnit.SECONDS);
@@ -176,7 +176,7 @@ class RegistrationAuthorityPostgresTest {
     @Test void technicalFailureRollsBackUserBindingFactAndOutcome() {
         UUID request = request(identity);
         ExecuteRegistrationService broken = new ExecuteRegistrationService(requests, outcomes, users, bindings,
-                (id, user) -> { throw new IllegalStateException("forced failure"); });
+                (id, user) -> { throw new IllegalStateException("forced failure"); }, owner()::recordPublishedEvent);
         assertThrows(IllegalStateException.class, () -> tx(() -> broken.execute(request)));
         for (String table : new String[] {"users", "external_identities", "external_identity_binding_facts",
                 "user_created_facts", "registration_outcomes", "external_identity_binding_streams"}) {
@@ -241,7 +241,7 @@ class RegistrationAuthorityPostgresTest {
     }
     private int count(String table) { return jdbc.queryForObject("select count(*) from " + table, Integer.class); }
     private <T> T tx(java.util.function.Supplier<T> action) {
-        return new TransactionTemplate(manager).execute(status -> action.get());
+        return owner().runInTransaction(action);
     }
 
     @SpringBootConfiguration @EnableAutoConfiguration
@@ -250,4 +250,10 @@ class RegistrationAuthorityPostgresTest {
             JpaExternalIdentityBindingAdapter.class, UserJdbcRepository.class,
             ExternalIdentityJdbcRepository.class})
     static class TestApplication {}
+
+    private com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner owner() {
+        var primary = (org.springframework.orm.jpa.JpaTransactionManager) manager;
+        return new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(primary,
+                new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.JdbcEventTransactionSequencer(primary));
+    }
 }

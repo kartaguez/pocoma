@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.runtime.command.consumption;
 
+import com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol;
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import java.time.Clock;
 import java.util.UUID;
 
@@ -8,8 +11,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.PocomaObjectMapperConfiguration;
@@ -36,7 +37,6 @@ import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionInputRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionResultRepository;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepository;
-import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecution;
 import com.kartaguez.pocoma.engine.consume.command.consumption.BindingFenceRecoveryExecuteUseCase;
 import com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocator;
@@ -56,15 +56,15 @@ import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunne
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;
 
 @EnableConfigurationProperties(CommandConsumptionProperties.class)
-@Import({PocomaObjectMapperConfiguration.class, PotCommandBindingConfiguration.class})
+@Import({PocomaObjectMapperConfiguration.class, PotCommandBindingConfiguration.class, com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class})
 public class CommandConsumptionRuntimeConfiguration {
 
 	@Bean
 	Clock commandConsumptionClock() { return Clock.systemUTC(); }
 
 	@Bean
-	TransactionRunner commandConsumptionTransactionRunner(PlatformTransactionManager manager) {
-		return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)), true);
+	TransactionRunner commandConsumptionTransactionRunner(PrimaryEventProtocol protocol) {
+		return new ConsumptionOwnerTransactionRunner(protocol.runner(), true);
 	}
 
 	@Bean
@@ -98,11 +98,11 @@ public class CommandConsumptionRuntimeConfiguration {
 			ExternalIdentityBindingPort bindings,
 			JdbcCommandOutcomeAdapter outcomes,
 			@Qualifier("commandConsumptionTransactionRunner") TransactionRunner transactions,
-			@Qualifier("commandConsumptionClock") Clock clock, @Qualifier("commandConsumptionTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant) {
+			@Qualifier("commandConsumptionClock") Clock clock, @Qualifier("commandConsumptionTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant, PublishedEvents publishedEvents) {
 		var participant = new ExecuteConsumptionService(terminalParticipant.finalizer());
 		return new BindingFenceRecoveryExecuteUseCase(
 				new TransactionalExecuteConsumptionUseCase(participant, transactions),
-				transactions, participant, bindings, outcomes, clock);
+				transactions, participant, bindings, outcomes, clock, publishedEvents);
 	}
 
 	@Bean
@@ -117,8 +117,8 @@ public class CommandConsumptionRuntimeConfiguration {
 
 	@Bean
 	CommandConsumptionExecution commandConsumptionExecution(ExecuteRecordedCommandUseCase commands,
-			JdbcCommandOutcomeAdapter outcomes, @Qualifier("commandConsumptionClock") Clock clock) {
-		return new CommandConsumptionExecution(commands, outcomes, clock);
+			JdbcCommandOutcomeAdapter outcomes, @Qualifier("commandConsumptionClock") Clock clock, PublishedEvents publishedEvents) {
+		return new CommandConsumptionExecution(commands, outcomes, clock, publishedEvents);
 	}
 
 	@Bean

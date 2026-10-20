@@ -24,7 +24,7 @@ class PrimaryEventProtocolTestConfiguration {
     @Bean PrimaryEventTransactionRunner step4bRunner(PlatformTransactionManager manager, SyntheticSuffix suffix) {
         return new PrimaryEventTransactionRunner((JpaTransactionManager) manager, suffix);
     }
-    @Bean PublishedEvents step4bDeclarations(PrimaryEventTransactionRunner runner) {
+    @Bean @org.springframework.context.annotation.Primary PublishedEvents step4bDeclarations(PrimaryEventTransactionRunner runner) {
         return runner::recordPublishedEvent;
     }
     @Bean SyntheticWriter step4bWriter(PrimaryEventTransactionRunner runner, JdbcTemplate jdbc) {

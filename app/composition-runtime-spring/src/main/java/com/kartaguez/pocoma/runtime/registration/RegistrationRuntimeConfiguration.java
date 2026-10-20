@@ -1,5 +1,8 @@
 package com.kartaguez.pocoma.runtime.registration;
 
+import com.kartaguez.pocoma.runtime.publication.PrimaryEventProtocol;
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import java.time.Clock;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,8 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kartaguez.pocoma.PocomaObjectMapperConfiguration;
@@ -24,7 +25,6 @@ import com.kartaguez.pocoma.engine.service.consumption.*;
 import com.kartaguez.pocoma.engine.service.transaction.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.*;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.*;
-import com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunner;
 import com.kartaguez.pocoma.orchestrator.consumption.*;
 import com.kartaguez.pocoma.orchestrator.consumption.model.ConsumptionOrchestrationBudget;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.*;
@@ -34,16 +34,16 @@ import com.kartaguez.pocoma.runtime.consumption.ConsumptionOwnerTransactionRunne
 import com.kartaguez.pocoma.runtime.consumption.ConsumptionTerminalParticipant;
 
 @EnableConfigurationProperties(RegistrationConsumptionProperties.class)
-@Import(PocomaObjectMapperConfiguration.class)
+@Import({PocomaObjectMapperConfiguration.class, com.kartaguez.pocoma.PrimaryEventPublicationConfiguration.class})
 public class RegistrationRuntimeConfiguration {
     @Bean Clock registrationClock(){return Clock.systemUTC();}
-	@Bean TransactionRunner registrationTransactionRunner(PlatformTransactionManager manager){return new ConsumptionOwnerTransactionRunner(new SpringTransactionRunner(new TransactionTemplate(manager)));}
+	@Bean TransactionRunner registrationTransactionRunner(PrimaryEventProtocol protocol){return new ConsumptionOwnerTransactionRunner(protocol.runner());}
     @Bean JpaConsumptionLifecycleAdapter registrationLifecycle(JpaConsumptionSlotRepository s,JpaConsumptionClaimRepository c,@Qualifier("webApiObjectMapper") ObjectMapper m){return new JpaConsumptionLifecycleAdapter(s,c,m);}
     @Bean JpaConsumptionProvenanceAdapter registrationProvenance(JpaConsumptionInputRepository i,JpaConsumptionResultRepository r){return new JpaConsumptionProvenanceAdapter(i,r);}
     @Bean AcquireConsumptionUseCase registrationAcquire(@Qualifier("registrationLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("registrationTransactionRunner") TransactionRunner t,@Qualifier("registrationClock") Clock c){return new TransactionalAcquireConsumptionUseCase(new AcquireConsumptionService(l,c),t);}
 	@Bean ExecuteConsumptionUseCase registrationExecute(@Qualifier("registrationLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("registrationProvenance") JpaConsumptionProvenanceAdapter p,@Qualifier("registrationTransactionRunner") TransactionRunner t,@Qualifier("registrationClock") Clock c, @Qualifier("registrationTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant){return new TransactionalExecuteConsumptionUseCase(new ExecuteConsumptionService(terminalParticipant.finalizer()),t);}
 	@Bean HandleConsumptionFailureUseCase registrationFailure(@Qualifier("registrationLifecycle") JpaConsumptionLifecycleAdapter l,@Qualifier("registrationTransactionRunner") TransactionRunner t,@Qualifier("registrationClock") Clock c, @Qualifier("registrationTerminalParticipant") ConsumptionTerminalParticipant terminalParticipant){return new TransactionalHandleConsumptionFailureUseCase(new HandleConsumptionFailureService(l,l,RegistrationConsumptionLocator.failurePolicy(),c, terminalParticipant.finalizer()),t);}
-    @Bean ExecuteRegistrationService registrationService(RegistrationRequestReader r,RegistrationOutcomeRepository o,UserAuthorityPort u,ExternalIdentityBindingPort b,UserCreatedFactPort f){return new ExecuteRegistrationService(r,o,u,b,f);}
+    @Bean ExecuteRegistrationService registrationService(RegistrationRequestReader r,RegistrationOutcomeRepository o,UserAuthorityPort u,ExternalIdentityBindingPort b,UserCreatedFactPort f, PublishedEvents publishedEvents){return new ExecuteRegistrationService(r,o,u,b,f,publishedEvents);}
     @Bean RegistrationConsumptionLocator registrationLocator(RegistrationConsumptionProperties p,RegistrationDiscoveryPort d,ExecuteRegistrationService r,@Qualifier("registrationClock") Clock c){return new RegistrationConsumptionLocator(p.getSegmentIndex(),p.getSegmentCount(),d,r,c);}
 	@Bean ConsumptionOrchestrator registrationOrchestrator(RegistrationConsumptionLocator l,@Qualifier("registrationAcquire") AcquireConsumptionUseCase a,@Qualifier("registrationExecute") ExecuteConsumptionUseCase e,@Qualifier("registrationFailure") HandleConsumptionFailureUseCase f, @Qualifier("registrationLifecycle") JpaConsumptionLifecycleAdapter ownership){return guarded(new SequentialConsumptionOrchestrator(l,a,e,f, ownership));}
     @Bean ConsumptionPollingWorker registrationWorker(@Qualifier("registrationOrchestrator") ConsumptionOrchestrator o,RegistrationConsumptionProperties p,@Qualifier("registrationClock") Clock c){return new ConsumptionPollingWorker(o,new ConsumptionWorkerSettings(p.isEnabled(),new WorkerId(p.getWorkerId()),new ClaimLease(p.getClaimLease()),new ConsumptionOrchestrationBudget(p.getMaxCandidatesInspected(),p.getMaxConsumptionsExecuted()),p.getPollInterval(),p.getRuntimeFailureBackoff()),c,new ConditionConsumptionWaiter());}

@@ -1,5 +1,13 @@
 package com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity;
 
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner;
+
+
+import com.kartaguez.pocoma.port.transaction.EventRef;
+import com.kartaguez.pocoma.port.transaction.EventFamily;
+import com.kartaguez.pocoma.port.binding.authority.BindingAcquisitionAccepted;
+import com.kartaguez.pocoma.port.binding.authority.BindingDetachmentAccepted;
+
 import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
@@ -35,6 +43,7 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 	private final ExternalIdentityBindingFactJdbcRepository facts;
 	private final ExternalIdentityBindingOccurrenceJdbcRepository occurrences;
 	private final Supplier<UUID> bindingIds;
+    private final JdbcTemplate jdbc;
 	private final ExternalIdentityBindingFactRecordMapper factMapper = new ExternalIdentityBindingFactRecordMapper();
 
 	@Autowired
@@ -45,7 +54,8 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 	// Test seam for a forced UUID collision; runtime only receives the default generator.
 	JpaExternalIdentityBindingAdapter(ExternalIdentityJdbcRepository repository, JdbcTemplate jdbc,
 			Supplier<UUID> bindingIds) {
-		this.repository = requireNonNull(repository, "repository must not be null");
+		this.jdbc = requireNonNull(jdbc);
+        this.repository = requireNonNull(repository, "repository must not be null");
 		this.bindingIds = requireNonNull(bindingIds, "bindingIds must not be null");
 		this.streams = new ExternalIdentityBindingStreamJdbcRepository(requireNonNull(jdbc, "jdbc must not be null"));
 		this.facts = new ExternalIdentityBindingFactJdbcRepository(jdbc);
@@ -83,21 +93,22 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public BindingAcquireResult acquire(ExternalIdentity identity, PocomaUserId userId) {
+	public BindingAcquisitionAccepted acquire(ExternalIdentity identity, PocomaUserId userId) {
 		return acquireWithInitializer(identity, userId, () -> {});
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public BindingAcquireResult acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId,
+	public BindingAcquisitionAccepted acquireWithInitializer(ExternalIdentity identity, PocomaUserId userId,
 			Runnable initializer) {
+        return PrimaryEventTransactionRunner.guardedWrite(jdbc.getDataSource(), () -> {
 		requireNonNull(identity, "identity must not be null");
 		requireNonNull(userId, "userId must not be null");
 		requireNonNull(initializer, "initializer must not be null");
 		streams.createIfAbsent(identity.issuer(), identity.subject());
 		long current = streams.lock(identity.issuer(), identity.subject()).currentRevision();
 		if (repository.hasActiveBinding(identity.issuer(), identity.subject())) {
-			return BindingAcquireResult.conflict();
+			return new BindingAcquisitionAccepted(BindingAcquireResult.conflict(), Optional.empty());
 		}
 		initializer.run();
 		long next = Math.addExact(current, 1L);
@@ -114,30 +125,39 @@ public class JpaExternalIdentityBindingAdapter implements ExternalIdentityBindin
 			throw new IllegalStateException("Binding authority changed under the stream lock");
 		}
 		streams.advance(identity.issuer(), identity.subject(), current, next);
-		facts.append(factMapper.toRow(new ExternalIdentityAttached(UUID.randomUUID(), identity, userId,
+		UUID eventId = UUID.randomUUID();
+        facts.append(factMapper.toRow(new ExternalIdentityAttached(eventId, identity, userId,
 				bindingId, new BindingRevision(next), Instant.now())));
-		return BindingAcquireResult.acquired(bindingId);
-	}
+		return new BindingAcquisitionAccepted(BindingAcquireResult.acquired(bindingId),
+                Optional.of(new EventRef(EventFamily.BINDING_FACT, eventId)));
+
+        });
+    }
 
 	@Override
 	@Transactional(propagation = Propagation.MANDATORY)
-	public BindingDetachResult detach(ExternalIdentity identity, BindingId bindingId) {
+	public BindingDetachmentAccepted detach(ExternalIdentity identity, BindingId bindingId) {
+        return PrimaryEventTransactionRunner.guardedWrite(jdbc.getDataSource(), () -> {
 		requireNonNull(identity, "identity must not be null");
 		requireNonNull(bindingId, "bindingId must not be null");
 		if (streams.find(identity.issuer(), identity.subject()).isEmpty()) {
-			return BindingDetachResult.NOT_CURRENT;
+			return new BindingDetachmentAccepted(BindingDetachResult.NOT_CURRENT, Optional.empty());
 		}
 		long current = streams.lock(identity.issuer(), identity.subject()).currentRevision();
 		var currentUserId = repository.findUserId(identity.issuer(), identity.subject(), bindingId.value());
-		if (currentUserId.isEmpty()) return BindingDetachResult.NOT_CURRENT;
+		if (currentUserId.isEmpty()) return new BindingDetachmentAccepted(BindingDetachResult.NOT_CURRENT, Optional.empty());
 		if (!repository.detach(identity.issuer(), identity.subject(), bindingId.value())) {
 			throw new IllegalStateException("Exact Binding disappeared under the stream lock");
 		}
 		long next = Math.addExact(current, 1L);
 		streams.advance(identity.issuer(), identity.subject(), current, next);
-		facts.append(factMapper.toRow(new ExternalIdentityDetached(UUID.randomUUID(), identity,
+		UUID eventId = UUID.randomUUID();
+        facts.append(factMapper.toRow(new ExternalIdentityDetached(eventId, identity,
 				new PocomaUserId(currentUserId.orElseThrow()),
 				bindingId, new BindingRevision(next), Instant.now())));
-		return BindingDetachResult.DETACHED;
-	}
+		return new BindingDetachmentAccepted(BindingDetachResult.DETACHED,
+                Optional.of(new EventRef(EventFamily.BINDING_FACT, eventId)));
+
+        });
+    }
 }

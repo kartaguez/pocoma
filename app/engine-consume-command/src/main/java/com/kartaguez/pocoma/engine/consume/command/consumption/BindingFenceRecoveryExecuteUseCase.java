@@ -1,5 +1,7 @@
 package com.kartaguez.pocoma.engine.consume.command.consumption;
 
+import com.kartaguez.pocoma.port.transaction.PublishedEvents;
+
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
@@ -19,7 +21,8 @@ import com.kartaguez.pocoma.port.transaction.TransactionRunner;
 /** Rechecks exact WRITE authority only after the failed business transaction has rolled back. */
 public final class BindingFenceRecoveryExecuteUseCase implements ExecuteConsumptionUseCase {
 	private static final String NOT_CURRENT = "CALLER_IDENTITY_NOT_CURRENT";
-	private final ExecuteConsumptionUseCase transactionalExecute;
+	private final PublishedEvents publishedEvents;
+    private final ExecuteConsumptionUseCase transactionalExecute;
 	private final TransactionRunner transactions;
 	private final ExecuteConsumptionUseCase participant;
 	private final ExternalIdentityBindingPort bindings;
@@ -28,7 +31,8 @@ public final class BindingFenceRecoveryExecuteUseCase implements ExecuteConsumpt
 
 	public BindingFenceRecoveryExecuteUseCase(ExecuteConsumptionUseCase transactionalExecute,
 			TransactionRunner transactions, ExecuteConsumptionUseCase participant,
-			ExternalIdentityBindingPort bindings, CommandOutcomePublicationPort outcomes, Clock clock) {
+			ExternalIdentityBindingPort bindings, CommandOutcomePublicationPort outcomes, Clock clock, PublishedEvents publishedEvents) {
+        this.publishedEvents = java.util.Objects.requireNonNull(publishedEvents);
 		this.transactionalExecute = requireNonNull(transactionalExecute);
 		this.transactions = requireNonNull(transactions);
 		this.participant = requireNonNull(participant);
@@ -47,7 +51,7 @@ public final class BindingFenceRecoveryExecuteUseCase implements ExecuteConsumpt
 					throw new BindingFenceConflictException(lost);
 				}
 				return participant.execute(new ExecuteConsumptionInput(input.slotId(), input.claimId(), context -> {
-					outcomes.publish(new CommandOutcome.Rejected(lost.commandId(), NOT_CURRENT, clock.instant()));
+					publishedEvents.recordPublishedEvent(outcomes.publish(new CommandOutcome.Rejected(lost.commandId(), NOT_CURRENT, clock.instant())));
 					return new ConsumptionExecutionResult(new BusinessConsumptionOutcome.Rejected(NOT_CURRENT),
 							List.of(), List.of());
 				}));

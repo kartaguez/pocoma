@@ -73,7 +73,14 @@ class JpaEventPortPostgresTest {
 
 	@Test
 	void authoritativeReadRequiresATransactionAndDeserializesOnce() {
-		outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 5));
+		var primary = (org.springframework.orm.jpa.JpaTransactionManager) transactionManager;
+        var owner = new com.kartaguez.pocoma.infra.persistence.primary.jpa.transaction.event.PrimaryEventTransactionRunner(primary,
+                batch -> {}); // Reader fixture targets its minimal historical schema; this is not a V-D sequencing proof.
+        owner.runInTransaction(() -> {
+            var id = outbox.append(new PotCreatedEvent(PotId.of(java.util.UUID.randomUUID()), 5));
+            owner.recordPublishedEvent(new com.kartaguez.pocoma.port.transaction.EventRef(
+                    com.kartaguez.pocoma.port.transaction.EventFamily.BUSINESS_EVENT, id)); return null;
+        });
 		var stored = repository.findAll().getFirst();
 		var envelope = stored.toEnvelope();
 		assertEquals(1, objectMapper.writes.get());

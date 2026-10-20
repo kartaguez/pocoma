@@ -89,11 +89,13 @@ class RegistrationRuntimePostgresTest {
     @Autowired Clock clock;
 
     @BeforeEach void clean() {
+        jdbc.update("update event_sequencing_protocol set mode='PREPARED'");
         jdbc.execute("drop trigger if exists reject_user_fact on user_created_facts");
         jdbc.execute("drop function if exists reject_user_fact()");
         jdbc.execute("truncate table consumption_inputs, consumption_results, consumption_slots, consumption_claims, "
                 + "registration_outcomes, user_created_facts, registration_requests, external_identity_binding_facts, "
                 + "external_identity_binding_occurrences, external_identity_binding_streams, external_identities, users cascade");
+        jdbc.update("update event_sequence_authorities set last_position=0");
     }
 
     @Test void workerDrainsTwoRequestsAndRestartCannotReplayTheWinner() {
@@ -183,6 +185,40 @@ class RegistrationRuntimePostgresTest {
         assertEquals(1, count("users"));
         assertEquals(1, count("external_identity_binding_facts"));
         assertEquals(1, count("user_created_facts"));
+    }
+
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void actualDistributedRegistrationRootUsesOnePrimaryTransaction(boolean active) {
+        jdbc.update("update event_sequencing_protocol set mode=?",active?"ACTIVE":"PREPARED");
+        jdbc.execute("create table if not exists step4d_registration(ord bigserial,phase text,pid int,xid bigint)");
+        jdbc.execute("truncate step4d_registration");
+        jdbc.execute("create or replace function step4d_registration_trace() returns trigger language plpgsql as $$ begin "
+                +"insert into step4d_registration(phase,pid,xid) values(TG_TABLE_NAME||':'||TG_OP,pg_backend_pid(),txid_current());return new;end $$");
+        for(String table:java.util.List.of("users","user_created_facts","external_identity_binding_streams","external_identity_binding_occurrences",
+                "external_identities","external_identity_binding_facts","registration_outcomes","consumption_slots","consumption_claims",
+                "event_sequence_authorities","binding_fact_positions","user_created_fact_positions")) {
+            jdbc.execute("drop trigger if exists step4d_registration on "+table);
+            jdbc.execute("create trigger step4d_registration after insert or update on "+table+" for each row execute function step4d_registration_trace()");
+        }
+        request("step4d-root");orchestrator.run(input("step4d-root"));
+        assertEquals(1,count("registration_outcomes"));assertEquals(1,count("users"));
+        assertEquals(1,jdbc.queryForObject("select count(distinct (pid,xid)) from step4d_registration where ord >= "
+                +"(select min(ord) from step4d_registration where phase='external_identity_binding_streams:INSERT')",Integer.class));
+        assertEquals(active?2:0,count("event_position"));
+        var managers=wp2Context.getBeansOfType(PlatformTransactionManager.class);assertEquals(1,managers.size());
+        var manager=(org.springframework.orm.jpa.JpaTransactionManager)managers.values().iterator().next();
+        assertSame(wp2Context.getBean(jakarta.persistence.EntityManagerFactory.class),manager.getEntityManagerFactory());
+        assertSame(jdbc.getDataSource(),manager.getDataSource());
+        transactions.runInTransaction(()->{
+            Object[] jpa=(Object[])org.springframework.orm.jpa.EntityManagerFactoryUtils.getTransactionalEntityManager(manager.getEntityManagerFactory())
+                    .createNativeQuery("select pg_backend_pid(),txid_current()").getSingleResult();
+            assertEquals(((Number)jpa[0]).intValue(),jdbc.queryForObject("select pg_backend_pid()",Integer.class));
+            assertEquals(((Number)jpa[1]).longValue(),jdbc.queryForObject("select txid_current()",Long.class));return null;
+        });
+        System.out.println("STEP4D REGISTRATION "+jdbc.queryForList("select * from step4d_registration order by ord"));
+        jdbc.update("update event_sequencing_protocol set mode='PREPARED'");
     }
 
     private UUID request(String subject) {

@@ -1,23 +1,28 @@
 # DISCOVERY — Next Plan : trajectoire jusqu'au READ
 
 Date : 2026-10-20. **next_plan — TARGET de travail, non implémentée par cette consolidation.**
-Référence de suivi : `de5e4c373d21c1409f6e75a4faac327926e01f92` (livraison 4C auditée).
+Référence de départ 4D : `4defd5a63af267656f2feee92aed8daafef2175f` ; livraison et preuves liées au plan courant.
 [Canon/statuts](Step_Canon.md) ; [chantier courant 4D–4E](Step_Plan.md).
 
 ## Dépendances et points de décision
 
 Ordre de livraison : **4B/4C CLOSED hors production → 4D PREPARED → 4E ACTIVE → A Discovery → B contrats READ → C matérialisation/consommation READ**.
 
-**4C CLOSED / PASS — 4D NEXT — 4E NOT STARTED.** Schéma PREPARED et séquenceur dormants,
-sans activation ni raccordement des producteurs réels. L'[audit statique 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
+L'[audit de préparation 4D](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md)
+au HEAD `4defd5a6` a déclaré V-D avant code. L’arbitrage UUID auxiliaire est approuvé et consigné
+dans l’amendement daté 4A. Le [rapport de livraison 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
+certifie désormais les producteurs réels et les deux compositions en PREPARED.
+
+**4D CLOSED / PASS — 4E NEXT, NOT STARTED.** Producteurs/owners raccordés en PREPARED ;
+aucune activation ni backfill réalisés. Discovery et READ conservent leurs dépendances. L'[audit statique 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
 renvoie R1/R2/R3 à la vérification 4D du [plan courant](Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet),
 sans nouvelle dette 4C ni changement des dépendances ci-dessous.
 
 L'inventaire et les arbitrages B peuvent commencer pendant A ; C dépend de contrats B stabilisés
 et d'un chemin de découverte/reprise prouvé pour les consumers concernés. Aucun calendrier arbitraire.
 D contient des évolutions fonctionnelles optionnelles, à découpler des prérequis A/B/C.
-Chaque chantier sera découpé en lots vérifiables avant implémentation ; aucun gate Maven n'est
-lancé pour ce plan et aucune cible n'est déclarée livrée par sa présence dans le canon.
+Chaque chantier sera découpé en lots vérifiables avant implémentation ; les gates V-D sont liés
+au rapport 4D. Aucune cible Discovery/READ n’est déclarée livrée par sa présence dans ce plan.
 
 ## Chantier A — Discovery efficiente
 
