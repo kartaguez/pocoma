@@ -42,14 +42,25 @@ the same worker, HTTP, datasource and lifecycle definitions.
 
 ## Active sequencing and Discovery work
 
-[Step Canon](../steps/current/DISCOVERY/Step_Canon.md) distinguishes delivered P → B → S and 4A
-publication contracts from the retained E sequencing target. [Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
-records 4A CLOSED at `b7aacef54457583eccd405ef03acc21e05bb156c`, 4B/4C CLOSED outside production, [4D CLOSED / PASS PREPARED](Event_Producer_Wiring_Step_4D_2026-10-20.md) and 4E NEXT (not started). The [4B proof](Event_Transaction_Protocol_Step_4B_2026-10-20.md) delivers a dormant PRIMARY owner/participant runner and collector, explicitly composed only by tests with the standard JPA manager.
-The [4C proof](Event_Transactional_Sequencer_Step_4C_2026-10-20.md) adds V30 PREPARED, typed
-associations, integrity/privilege controls and a dormant JDBC sequencer. PostgreSQL tests prove
-transactional dense blocks. Step 4D connects all real producers and explicit PRIMARY owners, with ordered application declarations, guarded insert-only/JDBC writers, irreversible poisoning and terminal flush/closure. Distributed and monolith compositions share the standard JPA manager and physical JPA/JDBC transaction. Sequencing remains PREPARED; ACTIVE only ran in disposable tests, with no deployed activation or backfill.
-No efficient Discovery checkpoint is delivered.
-[Next Plan](../steps/current/DISCOVERY/Next_Plan.md) covers Discovery and the future READ model.
+[Step Canon](../steps/current/DISCOVERY/Step_Canon.md) and
+[Step Plan](../steps/current/DISCOVERY/Step_Plan.md) record **4A–4E functional implementation
+CLOSED / PASS outside production**, with the exact 4E candidate `8e09b433` integrated into
+`feat/consumption-transaction-protocol`. Its [report](Event_Sequencing_Step_4E_2026-10-20.md)
+records the final V-E, architecture and full-reactor closure gates and their limits.
+
+Explicit PRIMARY owners, application declarations, irreversible poisoning, terminal flush and
+closure precede the transactional E suffix. Four families use typed associations and independent
+dense authorities in the same JPA/JDBC transaction. V31 adds administrative inspection, role audit
+and atomic historical backfill/cutover; startup does not activate or backfill the protocol.
+PREPARED remains the initial mode. ACTIVE was exercised explicitly on disposable databases.
+
+**Production activation readiness: NOT CERTIFIED. Production activation: NOT AUTHORIZED.**
+[Reserves R1–R6](../steps/current/DISCOVERY/Step_Plan.md#réserves-de-production-r1r6) retain business
+idempotence after UNKNOWN, non-public schema support if selected, representative E2E performance,
+deployed privileges, representative cutover rehearsal and documentation maintenance.
+They do not block efficient Discovery development. No efficient Discovery checkpoint is delivered;
+**Discovery is NEXT**. [Next Plan](../steps/current/DISCOVERY/Next_Plan.md) schedules functional
+Discovery, READ work and a separate representative performance gate after E2E wiring.
 
 ## Documentation status
 

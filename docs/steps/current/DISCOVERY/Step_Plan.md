@@ -1,9 +1,9 @@
 # DISCOVERY — Step Plan
 
 Date : 2026-10-20. **current_plan**. Branche `feat/consumption-transaction-protocol` ; référence
-`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E INCOMPLETE.**
+`8e09b433a949d8ecb06f048bdc0711edd1885e0d` (candidat 4E intégré à l’identique). **4A CLOSED ; 4B/4C CLOSED / PASS ; 4D CLOSED / PASS PREPARED ; 4E CLOSED / PASS fonctionnel hors production.**
 Ce document suit la finalisation du séquencement et prépare son exploitation par la Discovery.
-4B est livré dormant et vérifié ; aucun séquencement E n'est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
+4B a livré un mécanisme dormant, raccordé depuis 4D ; aucun séquencement E n’est actif en production. [Canon et limites](Step_Canon.md) ; [trajectoire suivante](Next_Plan.md).
 
 ## Autorité, critères et état 4A
 
@@ -68,7 +68,7 @@ campagne de livraison 4B. À cette clôture historique, runner et collecteur ét
 Deux réserves non bloquantes pour cette clôture sont rattachées aux critères existants de **4D/V-D**
 (conditions A et B du §4D ci-dessous), sans dette technique 4B. Les limites des preuves et le
 [compte rendu de clôture documentaire](../../../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
-ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; raccordement 4D certifié ci-dessous ; 4E INCOMPLETE.**
+ne valent pas certification des writers/owners réels. **4C CLOSED / PASS dormant ; raccordement 4D certifié ci-dessous ; 4E CLOSED / PASS fonctionnel hors production.**
 
 ## 4C — CLOSED / PASS : schéma additif et séquenceur transactionnel inactifs
 
@@ -99,7 +99,7 @@ activation/cutover/backfill restent 4E. **4C CLOSED / PASS ; raccordement ultér
 **Audit indépendant 4C — PASS statique, sans défaut bloquant démontré dans le périmètre 4C.**
 Le [verdict et R1/R2/R3](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
 sont enregistrés sans réexécution Maven/PostgreSQL, réouverture, extension de certification ni
-dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E INCOMPLETE**.
+dette nouvelle propre à 4C. Les observations sont suivies en 4D/V-D ci-dessous ; **4E CLOSED / PASS fonctionnel hors production**.
 
 ## 4D — Producteurs et orchestrations réels, PREPARED complet
 
@@ -108,7 +108,7 @@ réalisé, inventaire et scope V-D déclarés avant modification productive. L'a
 approuve UUID sur le port auxiliaire puis EventRef déclaré par la façade applicative sous le même
 owner PRIMARY. Amendement 4A daté ; aucune dépendance Maven nouvelle.
 
-**Livraison — 4D CLOSED / PASS, PREPARED ; 4E INCOMPLETE.** Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
+**Livraison — 4D CLOSED / PASS, PREPARED ; 4E CLOSED / PASS fonctionnel hors production.** Le [rapport 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
 porte les intégrations, matrices A/B/C, commandes réellement exécutées et preuves PostgreSQL.
 
 | Gate V-D réellement exécuté | Résultat |
@@ -152,49 +152,62 @@ Tous les owners/writers certifiés ensemble ; pas de canary par famille. En prod
 owner/collecte/flush/fermeture/gardes actifs, E/positions encore inactifs. Le retour au runtime précédent
 est répété sous drainage avant activation ; échec bloque le déploiement. Contrat exact : §6.1 du plan détaillé.
 
-## 4E — Historique, cutover et activation
+## 4E — Clôture de l'implémentation fonctionnelle
 
-Publication documentaire du 2026-10-20 : les résultats ci-dessous portent sur le candidat local
-non committé. Le code, V31, les tests et les outils 4E ne sont pas livrés par ce commit documentaire.
+**4E FUNCTIONAL IMPLEMENTATION : CLOSED / PASS.**
+**PRODUCTION ACTIVATION READINESS : NOT CERTIFIED. Activation production : NON AUTORISÉE.**
+**Discovery efficiente : NEXT.**
 
-**INCOMPLETE**, autorisé par la mission 4E du 2026-10-20.
-[Rapport et vérification déclarée](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md),
-[runbook](../../../operations/event-sequencing-runbook.md),
-[matrice de privilèges](../../../testing/evidence/Event_Sequencing_Step_4E_Privileges.csv).
-Les fonctions V31 sont exclusivement administratives ; aucune activation runtime/déployée.
-La campagne TCP a démontré puis corrigé une classification ROLLED_BACK erronée après COMMIT
-réel dont l'accusé était perdu. Scope révisé avant correction : marqueur `port-transaction`,
-runner PRIMARY et wrapper de résolution ; mêmes slices V-E, architecture globale/full requis.
-Qualification locale finale : **V-E 1 230 ; architecture globale 1 388 ; full reactor 1 388**,
-0 failure/error, seul skip historique 3B ; **35 cas 4E sans skip**. Deux retours PREPARED 4E→4D,
-quatre démarrages/publications avec drainage, passent. Backfill/cutover/recovery et trois campagnes
-PREPARED/ACTIVE sont archivés dans le rapport. Aucun ACTIVE déployé, aucun commit/push de clôture.
-Les seuils du responsable, la version/copie/volumes/comptes/sauvegarde de l'environnement cible
-restent non qualifiés : **4E INCOMPLETE ; PRODUCTION ACTIVATION READINESS UNDETERMINED**.
-Ne pas déclarer CLOSED avant tous les critères ci-dessous, notamment les seuils du responsable.
+Arbitrage approuvé le 2026-10-20 : « 4A–4E : implémentation fonctionnelle terminée,
+sous réserve de validation finale des gates de clôture. » Cette réserve est levée par
+les nouveaux gates PASS ci-dessous. Les objectifs de performance ne sont pas inventés ;
+leur qualification est reportée après raccordement E2E et reste un gate de production.
 
-Inventorier la base réellement déployée ; reprendre **toutes** les lignes conservées des quatre
-sources, y compris consommées et baseline V22. Si nécessaire, backfill déterministe UUID texte
-collation C, frontières N consignées, sans prétendre retrouver les commits historiques. Gel exclusif,
-drainage, sauvegarde restaurable, contrôles droits/version/contraintes puis activation unique des
-quatre familles selon §7. Une variante par lots requiert décision et preuve de reprise sous gel.
+Références : documentation initiale `864fdec8`, candidat publié `8e09b433` sur la branche
+d'audit et intégré par avance rapide à la branche source ; 23 fichiers identiques, aucune
+modification fonctionnelle ou de tests supplémentaire. [Rapport](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md),
+[preuve fraîche](../../../testing/evidence/Event_Sequencing_Step_4E_Functional_Closure_2026-10-20.json),
+[preuves initiales historiques](../../../testing/evidence/Event_Sequencing_Step_4E_2026-10-20.json),
+[runbook](../../../operations/event-sequencing-runbook.md).
 
-**Clôture explicite, cumulative :**
+| Gate de clôture relancé | Tests | Échecs / erreurs | Skips |
+|---|---:|---:|---:|
+| V-E — COMMAND, WEB, BINDING, EVENT, PROJECTION, LKV | 1230 | 0 / 0 | 1 historique 3B |
+| Architecture globale | 1388 | 0 / 0 | 1 historique 3B |
+| Full reactor | 1388 | 0 / 0 | 1 historique 3B |
 
-- V-E, gates globaux de clôture et upgrade de la version déployée supportée ; répétition du cutover,
-  restauration, reprise après rollback/UNKNOWN et refus d'un ancien writer incompatible.
-- Pour chaque famille : `count(Event)=count(Position)=E`, anti-jointures dans les deux sens à zéro,
-  couples UUID exacts, positions distinctes positives, `min=1/max=E` si non vide, `E=0` sinon.
-- Premiers blocs après N dans l'ordre applicatif, toutes sources/owners couverts sans opt-out ;
-  invariants P/B/S, provenance, CAS/Claim, versions, reprises et deux compositions non régressés.
-- Seuils débit/p95/backlog/arrêt définis par le responsable puis tenus ; fenêtre et coût E mesurés.
-  Aucune valeur arbitraire ajoutée ici. Aucune ancienne instance/import concurrent ; mode unique.
-- Autorisation explicite de l'environnement avant activation déployée, distincte de ce plan.
-  UNKNOWN non réconcilié, historique incomplet ou gel insuffisant ⇒ maintenir gel et STOP.
-- Après premier commit ACTIVE : positions immuables, correction en avant ; aucun retour automatique
-  à l'ancien binaire ni restauration perdant des commits. Mettre à jour CURRENT et preuves.
+35 cas nouveaux 4E passent sans skip à chaque gate. Gate global et full requis pour cette
+clôture majeure ; aucun nouveau franchissement de slice. DB CURRENT V31 et upgrade via les
+tests existants sur PostgreSQL jetable, baseline trusted NONE ; aucune campagne SQL déployée.
+Les deux retours PREPARED vers 4D et quatre démarrages/publications sont des preuves antérieures,
+non réexécutées pendant cette clôture. Aucun test non exécuté n'est renommé PASS.
 
-**4E ferme le séquencement ; il ne livre pas la Discovery efficiente.**
+La clôture fonctionnelle conserve les contrôles de complétude quatre familles, associations
+exactes/denses, ordre, frontières P/B/S/E, owner physique commun, rollback et UNKNOWN.
+Elle ne certifie ni la capacité, ni un schéma non-public, ni les rôles ou données déployés.
+
+## Réserves de production R1–R6
+
+Ces réserves ne bloquent pas le développement de la Discovery efficiente. Elles bloquent,
+selon leur applicabilité, la certification de l'activation en production. Elles restent
+ouvertes jusqu'à leurs preuves propres ; R6 est actualisée ici et maintenue pour la suite.
+
+| Réserve | Preuve ou action restant à fournir |
+|---|---|
+| **R1 — COMMIT UNKNOWN** | Compléter la vérification de l'idempotence métier après perte d'accusé COMMIT, avec corrélation stable et réconciliation durable. Conserver UNKNOWN sans replay aveugle ; les tests de transport existants ne prouvent pas tous les appels métier autonomes. |
+| **R2 — PORTABILITÉ V31** | Vérifier les fonctions administratives dans un schéma PostgreSQL non-public si cette configuration est retenue ; aucune certification multi-schémas actuelle. |
+| **R3 — PERFORMANCE** | Après raccordement E2E, qualifier la contention E et le backlog sur charges représentatives, avec échantillons suffisants et seuils fixés avant mesure. Sans données de production, utiliser des jeux synthétiques reproductibles à volumes/concurrences définis ; aucune capacité de production déduite. |
+| **R4 — PRIVILÈGES** | Auditer les rôles réellement déployés, appartenances transitives, privilèges effectifs, propriétaires, paramètres et voies SQL. Conserver la frontière de confiance SQL appelée R1 dans l'audit 4A–4D ; cette ancienne R1 correspond ici à R4, pas à R1 COMMIT UNKNOWN. |
+| **R5 — CUTOVER** | Répéter activation, backfill, sauvegarde/restauration et reprise sur une copie représentative des données de production avant activation, selon applicabilité. Aucune donnée de production disponible actuellement ; les bases synthétiques locales ne constituent pas cette preuve. |
+| **R6 — DOCUMENTATION** | Runbook, rapport, canon, plans et références Git actualisés par cette clôture. La maintenance documentaire reste ouverte : joindre les futures preuves R1–R5 et mettre à jour les versions, commandes et conditions avant certification de production. |
+
+L'activation reste administrative, explicite et propre à un environnement autorisé.
+Avant tout flip : drainage/gel, inventaire/version et rôles, sauvegarde restaurable,
+historique complet des quatre sources, frontières N consignées et contrôles exhaustifs.
+UNKNOWN non réconcilié, écart de densité ou gel insuffisant ⇒ STOP. Après premier commit
+ACTIVE : positions immuables et correction en avant, sans downgrade ni réparation automatique.
+
+**4E clôt l'implémentation du séquencement ; la Discovery efficiente reste NEXT.**
 
 ## Vérification des futurs lots
 
@@ -242,4 +255,4 @@ et prototypes isolés ; son [rapport](../../../architecture/Event_Transaction_Pr
 porte commandes, résultats et limites. Le [rapport 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md)
 clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full requis ; crossing NONE.
 Le rapport 4D clôt désormais V-D, avec architecture globale requise exécutée et full non requis.
-Action courante : **qualification 4E** ; aucune activation déployée autorisée par la mission d’implémentation.
+Action suivante : **Discovery efficiente**, premier lot à cadrer selon le Next Plan ; activation production NON AUTORISÉE. La campagne de performance représentative interviendra après raccordement E2E, avant toute certification de production.

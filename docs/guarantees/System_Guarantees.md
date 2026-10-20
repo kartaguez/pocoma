@@ -7,7 +7,7 @@ Mise à jour bornée du 2026-10-16 : [clôture WP0–WP6 Consumption](../plans/2
 Consolidation bornée 2026-10-20 : correction documentaire E→U déjà livré selon Architecture CURRENT
 et son service ; aucune nouvelle garantie globale. [Canon du chantier](../steps/current/DISCOVERY/Step_Canon.md)
 et [plan courant](../steps/current/DISCOVERY/Step_Plan.md) distinguent les contrats 4A livrés des garanties
-E/Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ. Le [lot 4B](../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md) apporte ensuite des preuves transactionnelles bornées (owner/participants, collecte/fermeture, rollback/résolution/cleanup) avec code dormant et writer/suffixe synthétiques de test ; aucune garantie de séquencement ACTIVE ou de raccordement des producteurs réels à sa clôture historique.
+E désormais prouvées dans le périmètre hors production 4E, et Discovery encore TARGET. Le gate historique 4A PASS ne certifie pas 4B–4E ni la performance READ. Le [lot 4B](../architecture/Event_Transaction_Protocol_Step_4B_2026-10-20.md) apporte ensuite des preuves transactionnelles bornées (owner/participants, collecte/fermeture, rollback/résolution/cleanup) avec code dormant et writer/suffixe synthétiques de test ; aucune garantie de séquencement ACTIVE ou de raccordement des producteurs réels à sa clôture historique.
 
 Le [lot 4D](../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md) raccorde désormais les quatre
 familles réelles et leurs auxiliaires en **PREPARED** : déclarations applicatives après acceptation,
@@ -16,6 +16,16 @@ les chemins et compositions distribuées/monolithiques de sa matrice A/B/C, avec
 et rollback des erreurs interceptées. En PREPARED aucune réservation E ni association ; la contrainte
 SQL de complétude ACTIVE reste inactive. Les tests ACTIVE sur bases jetables ne certifient aucun
 cutover ou compte déployé. Densité dépend du séquenceur et des compositions autorisées, pas du SQL seul.
+
+Clôture fonctionnelle 4E du 2026-10-20 : candidat `8e09b433` intégré à l'identique, gates finaux
+V-E/global/full PASS selon le [rapport](../architecture/Event_Sequencing_Step_4E_2026-10-20.md).
+**PROVEN BY TESTS** couvre les scénarios quatre familles, backfill/cutover et incidents sur bases
+isolées. **PRODUCTION ACTIVATION READINESS : NOT CERTIFIED ; activation NON AUTORISÉE.**
+R1 idempotence métier après UNKNOWN, R2 V31 non-public conditionnel, R3 performance E2E,
+R4 privilèges déployés, R5 cutover représentatif et R6 documentation restent au
+[registre de réserves](../steps/current/DISCOVERY/Step_Plan.md#réserves-de-production-r1r6).
+Aucun nouveau SLO, aucune idempotence universelle, aucune qualification de données/comptes
+réellement déployés. Ces réserves ne bloquent pas la Discovery, qui reste NEXT.
 
 | Propriété / périmètre | Mécanisme et preuve existante | Hypothèses, limites et panne/retry | Statut de preuve |
 |---|---|---|---|

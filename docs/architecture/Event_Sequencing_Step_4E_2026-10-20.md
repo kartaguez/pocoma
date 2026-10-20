@@ -3,7 +3,15 @@
 Date : 2026-10-20. Branche `feat/consumption-transaction-protocol`.
 Start HEAD : `465f7a784423da356b7b56f5fb66b489412480a1`.
 Travail dans `/private/tmp/pocoma-consumption-transaction-protocol` exclusivement.
-**4E IMPLEMENTATION : INCOMPLETE — qualification locale exécutée, aucune activation déployée.**
+**État courant : 4E FUNCTIONAL IMPLEMENTATION : CLOSED / PASS.**
+**PRODUCTION ACTIVATION READINESS : NOT CERTIFIED. Activation production : NON AUTORISÉE.**
+**Discovery efficiente : NEXT.**
+La [clôture fonctionnelle et ses nouveaux gates](#clôture-fonctionnelle-après-intégration--2026-10-20)
+actualisent la décision. Les sections initiales ci-dessous, leurs anciennes mentions INCOMPLETE,
+les SHA et preuves antérieures conservent leur contexte historique ; elles ne sont pas réécrites
+en nouveaux tests. La séparation des gates fonctionnels et de production est un arbitrage explicite.
+
+**État initial : 4E IMPLEMENTATION : INCOMPLETE — qualification locale exécutée, aucune activation déployée.**
 
 ## Référentiel et écart de clôture identifié avant code
 
@@ -444,6 +452,142 @@ publication. Les gates applicatifs exécutés précédemment restent consignés 
 
 Le fichier non suivi préexistant d’audit est exclu de cet inventaire. Les artefacts de build `target/` ne sont pas des sources livrées.
 
+### Décision initiale de qualification — historique
+
+Cette décision est remplacée par la clôture fonctionnelle ci-dessous ; les preuves initiales restent inchangées.
+
 4E IMPLEMENTATION : INCOMPLETE
 
 PRODUCTION ACTIVATION READINESS : UNDETERMINED
+
+
+## Clôture fonctionnelle après intégration — 2026-10-20
+
+### Décision et références
+
+Le responsable a demandé la clôture de l'implémentation fonctionnelle, distincte de la certification
+de production. Décision : « 4A–4E : implémentation fonctionnelle terminée, sous réserve de validation
+finale des gates de clôture. » La réserve est levée par les trois nouvelles exécutions PASS.
+Les seuils de performance sont reportés à la campagne représentative après raccordement E2E.
+
+Start HEAD de cette clôture : **`864fdec8cc00f156f34ff4da99337deea069fd90`**.
+Candidat : **`8e09b433a949d8ecb06f048bdc0711edd1885e0d`**, branche `audit/step-4e-candidate` ; intégré par avance rapide
+dans `feat/consumption-transaction-protocol`. Le commit documentaire de clôture est celui qui
+introduit cette section (historique Git du fichier) ; il ne modifie aucune source candidate.
+Exactement 23 fichiers de code/migration/tests/scripts sont identiques, octets et modes :
+20 empreintes `source_sha256` du rapport et 23 fichiers de l'archive vérifiés. Les trois scripts
+SQL sans empreinte individuelle initiale sont vérifiés contre l'archive et identifiés dans la
+[nouvelle preuve structurée](../testing/evidence/Event_Sequencing_Step_4E_Functional_Closure_2026-10-20.json).
+Aucun comportement, test, POM ou migration supplémentaire ; branche d'audit inchangée, aucun merge
+main, aucun push forcé. L'index source est aligné sur le candidat ; les fichiers n'ont pas changé.
+
+### Vérification déclarée et réellement exécutée
+
+Impact attendu/observé : intégration exacte de l'implémentation qualifiée ; documentation au-delà
+du candidat. Primaire COMMAND ; secondaires WEB, BINDING, EVENT, PROJECTION, LKV.
+Aucun nouveau franchissement de slice ; le défaut de classification COMMIT historique reste
+celui déjà corrigé dans le candidat. Gate global et full **REQUIRED/RUN** pour clôture majeure 4E,
+pas une vérification locale par défaut. DB CURRENT V31/upgrade via tests existants PostgreSQL
+jetables ; baseline trusted NONE. Aucune migration/commande SQL exécutée sur un environnement déployé.
+
+Depuis la racine, commande réellement exécutée :
+
+```bash
+POCOMA_4E_EVIDENCE_DIR=/private/tmp/pocoma-4e-functional-closure-e36k04dg/gates scripts/testing/verify-4e.sh closure
+```
+
+Le script a exécuté séquentiellement, depuis `app/` :
+
+```bash
+./mvnw -pl runtime-command-consumption-worker,runtime-web-api,runtime-binding-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker,runtime-latest-known-version-consumption-worker -am test
+./mvnw -pl architecture-tests -am test
+./mvnw test
+```
+
+| Gate relancé | Tests | Failures | Errors | Skips | Sortie |
+|---|---:|---:|---:|---:|---:|
+| V-E | 1230 | 0 | 0 | 1 | 0 |
+| Architecture globale | 1388 | 0 | 0 | 1 | 0 |
+| Full reactor | 1388 | 0 | 0 | 1 | 0 |
+
+Les 35 cas 4E passent sans skip à chacun des trois gates. Seul skip :
+`TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness`, propriété
+`step3b.measure` absente, identique à la campagne initiale. Aucun test neutralisé ou modifié.
+Les logs, XML frais et SHA-256 sont conservés dans la nouvelle preuve.
+Contrôle des anciens artefacts : 21/22 empreintes des logs concordent, ainsi que les quatre
+compléments de l'audit historique 4A–4D. Le seul écart est le stdout du générateur de preuves
+`pocoma-4e-evidence-generation.log`, enregistré vide (SHA-256 `e3b0c442…`) avant la fin de
+son écriture. Son contenu achevé, SHA-256 `0f2d1ed327a47bd40c5d1f88bca38926101a13ef5afbb68c2ad30094ac29ab74`,
+est identique à celui de l'archive de livraison vérifiée. Aucun log de gate/test/recovery n'est
+concerné ; anomalie de collecte documentaire non bloquante, conservée sans réécrire le manifeste.
+Les trois campagnes locales contenues dans ces tests ne lèvent pas R3 : échantillons et charges de qualification
+E2E restent à définir. Les preuves antérieures de retour au runtime 4D sont vérifiées, pas relancées.
+
+Autres contrôles : SHA-256 et modes des 23 fichiers contre candidat/archive, 20 empreintes du
+rapport, empreintes des anciens logs ; revue statique V31/configuration, `git diff --check`,
+contrôles JSON/liens et préservation des autres worktrees. La première demande d'intégration
+par script Git a expiré dans le contrôle automatique d'autorisation sans exécution ; la reprise
+par `git read-tree` puis `git update-ref` avec ancien SHA attendu a réussi. Le premier accès Docker
+sandboxé a été refusé ; les gates autorisés ont utilisé Docker/Testcontainers normalement.
+
+Les **330 liens locaux** des documents de clôture sont valides. Les 23 sources/modes restent
+identiques ; les cinq autres worktrees (HEAD, branche, statut, fichiers modifiés et index),
+main et la branche d'audit sont préservés. Les anciens artefacts versionnés restent intacts.
+Archive des nouvelles preuves brutes : `/private/tmp/pocoma-4e-functional-closure-e36k04dg/functional-closure-evidence.tar.gz`, SHA-256
+`983040f08c63d3849cac4e6587cd30550deb05f8e2dceaf1989d4cfa2ff8b26b` ; elle contient les logs et XML frais, sans annoncer de nouveau test supplémentaire.
+
+### Réserves R1–R6 conservées
+
+- **R1 — COMMIT UNKNOWN :** Compléter la vérification de l'idempotence métier après perte d'accusé COMMIT, avec corrélation stable et réconciliation durable. Conserver UNKNOWN sans replay aveugle ; les tests de transport existants ne prouvent pas tous les appels métier autonomes.
+- **R2 — PORTABILITÉ V31 :** Vérifier les fonctions administratives dans un schéma PostgreSQL non-public si cette configuration est retenue ; aucune certification multi-schémas actuelle.
+- **R3 — PERFORMANCE :** Après raccordement E2E, qualifier la contention E et le backlog sur charges représentatives, avec échantillons suffisants et seuils fixés avant mesure. Sans données de production, utiliser des jeux synthétiques reproductibles à volumes/concurrences définis ; aucune capacité de production déduite.
+- **R4 — PRIVILÈGES :** Auditer les rôles réellement déployés, appartenances transitives, privilèges effectifs, propriétaires, paramètres et voies SQL. Conserver la frontière de confiance SQL appelée R1 dans l'audit 4A–4D ; cette ancienne R1 correspond ici à R4, pas à R1 COMMIT UNKNOWN.
+- **R5 — CUTOVER :** Répéter activation, backfill, sauvegarde/restauration et reprise sur une copie représentative des données de production avant activation, selon applicabilité. Aucune donnée de production disponible actuellement ; les bases synthétiques locales ne constituent pas cette preuve.
+- **R6 — DOCUMENTATION :** Runbook, rapport, canon, plans et références Git actualisés par cette clôture. La maintenance documentaire reste ouverte : joindre les futures preuves R1–R5 et mettre à jour les versions, commandes et conditions avant certification de production.
+
+Ces réserves ne bloquent pas le développement de la Discovery efficiente ; elles bloquent,
+selon applicabilité, la certification de l'activation en production. Le défaut local COMMIT
+inconnu corrigé ne constitue pas à lui seul une preuve universelle d'idempotence métier après UNKNOWN.
+Les réserves SQL R1 de l'audit 4A–4D et R1 COMMIT UNKNOWN de cette clôture sont des identifiants
+différents ; la frontière de confiance SQL est suivie ici sous R4.
+
+### Relève documentaire et exploitation
+
+Canon, Step Plan, Next Plan, spécification, runbook, protocole Consumption, Architecture,
+System Guarantees et index actualisés. Le fonctionnel produit n'est pas modifié.
+Les anciens JSON/TXT/CSV de qualification restent intacts et historiques. Le prochain chat doit
+partir du canon/plan courant et du code intégré ; les critères initiaux mélangeant clôture
+fonctionnelle et qualification de production sont remplacés explicitement par cet arbitrage.
+
+Aucun appel de l'outil d'activation en environnement déployé. V31 installe des fonctions
+administratives, sans les invoquer ; le démarrage vérifie le mode et ne fait aucun backfill/flip.
+Les activations des tests restent explicites sur leurs bases jetables. Un futur développement
+Discovery emploiera une base de développement explicitement préparée/activée.
+La branche source sera poussée normalement après contrôles finaux ; SHA documentaire final et
+synchronisation sont rapportés dans la livraison Git. Les autres worktrees et le rapport d'audit
+non suivi préexistant restent préservés.
+
+### Inventaire de la livraison de clôture
+
+23 fichiers candidats, identiques à `8e09b433`, sont détaillés avec SHA-256 et modes dans la preuve structurée. Les 12 fichiers de documentation et de preuve de cette clôture sont :
+
+- [docs/README.md](../README.md)
+- [docs/architecture/Architecture.md](Architecture.md)
+- [docs/architecture/Event_Sequencing_Step_4E_2026-10-20.md](Event_Sequencing_Step_4E_2026-10-20.md)
+- [docs/architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md)
+- [docs/architecture/consumption-transactional-execution.md](consumption-transactional-execution.md)
+- [docs/architecture/transactional-protocol-studies.md](transactional-protocol-studies.md)
+- [docs/guarantees/System_Guarantees.md](../guarantees/System_Guarantees.md)
+- [docs/operations/event-sequencing-runbook.md](../operations/event-sequencing-runbook.md)
+- [docs/steps/current/DISCOVERY/Next_Plan.md](../steps/current/DISCOVERY/Next_Plan.md)
+- [docs/steps/current/DISCOVERY/Step_Canon.md](../steps/current/DISCOVERY/Step_Canon.md)
+- [docs/steps/current/DISCOVERY/Step_Plan.md](../steps/current/DISCOVERY/Step_Plan.md)
+- [docs/testing/evidence/Event_Sequencing_Step_4E_Functional_Closure_2026-10-20.json](../testing/evidence/Event_Sequencing_Step_4E_Functional_Closure_2026-10-20.json)
+
+4E FUNCTIONAL IMPLEMENTATION : CLOSED / PASS
+
+PRODUCTION ACTIVATION READINESS : NOT CERTIFIED
+
+Discovery efficiente : NEXT.
+
+Activation production : NON AUTORISÉE.

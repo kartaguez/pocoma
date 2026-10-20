@@ -1,8 +1,11 @@
 # DISCOVERY — Step Canon
 
 Date de consolidation : 2026-10-20. Référence vérifiée : `feat/consumption-transaction-protocol`,
-`84b67392b5b2db5e685f09a513770307475efc68` (livraison applicative 4D certifiée). **current_canon** du chantier séquencement → Discovery.
-Le responsable du dépôt porte les arbitrages ; **4D CLOSED / PASS — 4E INCOMPLETE**. Runtime livré **PREPARED**, sans activation ni backfill.
+`8e09b433a949d8ecb06f048bdc0711edd1885e0d` (candidat 4E intégré à l'identique). **current_canon** du chantier séquencement → Discovery.
+Le responsable du dépôt porte les arbitrages ; **4A–4E : implémentation fonctionnelle terminée**.
+**4E FUNCTIONAL IMPLEMENTATION : CLOSED / PASS. Discovery efficiente : NEXT.**
+**PRODUCTION ACTIVATION READINESS : NOT CERTIFIED. Activation production : NON AUTORISÉE.**
+Le démarrage conserve PREPARED ; une base de développement ACTIVE exige une opération administrative explicite.
 
 ## Autorité et lecture
 
@@ -22,7 +25,7 @@ Le nom « current_canon » n'accorde pas le statut CURRENT aux cibles qu'il rece
   WRITE et son occurrence exacte, S le slot Consumption. Pour Command, ordre utile **P → B → S**,
   puis clôture du Claim et commit. C'est un ordre partiel : Registration commence par B ; les
   matérialiseurs n'acquièrent pas arbitrairement P/B. Le terme E ci-dessous désigne exclusivement
-  la future autorité de séquencement, et non ExternalIdentity ni Expense.
+  l’autorité de séquencement, et non ExternalIdentity ni Expense.
 - **CURRENT — frontières physiques.** TA acquiert/commit le Claim ; TE exécute et finalise les effets ;
   TR est la recovery Binding après rollback TE ; TH traite l'échec après rollback confirmé.
   Le propriétaire ouvre/résout la transaction ; REQUIRED/MANDATORY participants partagent sa connexion.
@@ -77,20 +80,34 @@ RegistrationOutcome n'est pas une cinquième famille ni un RegistrationTerminalE
 La [matrice des producteurs et owners](../../../architecture/Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md#5-carte-des-producteurs-et-portée-des-changements-futurs)
 fait autorité pour la couverture détaillée (voir aussi §2.1 du même plan).
 
-## Séquencement E : 4D PREPARED livré, qualification 4E en cours
+## Séquencement E : implémentation fonctionnelle 4A–4E terminée
 
-Publication documentaire du 2026-10-20 : les résultats ci-dessous portent sur le candidat local
-non committé. Le code, V31, les tests et les outils 4E ne sont pas livrés par ce commit documentaire.
+Arbitrage explicite du responsable, 2026-10-20 : dissocier la clôture fonctionnelle de 4E,
+la qualification des performances après raccordement E2E et la certification d'activation.
+La réserve « sous réserve de validation finale des gates de clôture » est levée par les trois
+nouveaux gates PASS, consignés dans la [preuve de clôture](../../../testing/evidence/Event_Sequencing_Step_4E_Functional_Closure_2026-10-20.json).
+Aucun invariant transactionnel ni test n'a été assoupli.
 
-**4E INCOMPLETE, qualification locale réalisée, non clos.** [Rapport 4E](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md)
-et [runbook](../../../operations/event-sequencing-runbook.md) : DDL V31 administratif sans activation
-au démarrage, cutover/backfill atomique sous gel et qualification PostgreSQL isolée.
-La vraie perte d'accusé COMMIT a démontré une notification ROLLED_BACK de Spring/Hibernate avec
-commit durable ; le runner PRIMARY signale maintenant cette résolution réseau incertaine au
-wrapper Consumption, qui conserve UNKNOWN. Ce défaut est documenté avec sa preuve et la révision
-d'impact préalable ; les invariants, le manager standard et les retries restent conservés.
-Seuils métier, copie/version déployées et autorisation restent à qualifier ; aucun ACTIVE déployé.
-V-E, architecture globale et full reactor passent ; les seuils et la qualification déployée restent ouverts, sans clôture 4E.
+Le candidat `8e09b433` de `audit/step-4e-candidate`, parent documentaire `864fdec8`, est intégré
+par avance rapide dans `feat/consumption-transaction-protocol` : exactement 23 fichiers,
+20 empreintes du rapport et les 23 contenus/modes de l'archive concordants, aucun changement
+fonctionnel supplémentaire. [Rapport 4E](../../../architecture/Event_Sequencing_Step_4E_2026-10-20.md)
+et [runbook](../../../operations/event-sequencing-runbook.md) portent V31 administratif,
+cutover/backfill atomique et reprise, quatre familles, observabilité et qualification locale.
+Le correctif de résolution COMMIT incertaine conserve UNKNOWN après perte réelle d'accusé,
+avec manager JPA et policies conservés ; l'idempotence métier exhaustive reste en réserve.
+
+Clôture relancée : **V-E 1230, architecture 1388, full reactor 1388**, 0 failure/error,
+un seul skip historique 3B par gate ; **35 cas 4E sans skip dans chaque gate**.
+Les preuves initiales et leurs anciens statuts restent des instantanés historiques.
+Les réserves de clôture **R1 COMMIT UNKNOWN, R2 portabilité V31 non-public, R3 performance,
+R4 privilèges déployés, R5 cutover représentatif, R6 documentation** restent au
+[plan courant](Step_Plan.md#réserves-de-production-r1r6).
+Elles ne bloquent pas la Discovery ; elles conditionnent selon applicabilité la certification
+de production. La frontière SQL R1 de l'ancien audit est suivie ici sous R4.
+Aucune production activée ; aucune donnée de production disponible. Les futurs tests de
+performance E2E utiliseront des jeux synthétiques dimensionnés ; la répétition propre à un
+environnement déployé reste distincte.
 
 **Audit de préparation 4D au HEAD `4defd5a6` :** [inventaire, écarts et matrice A/B/C](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md).
 L'arbitrage du 2026-10-20 a approuvé le retour UUID du port Business auxiliaire, puis la construction
@@ -104,7 +121,7 @@ exactement déclarées, deux compositions, trois gates et retours ancien runtime
 étaient livrés en 4B sans scan/configuration productive ; leur composition explicite est désormais raccordée en 4D. Propriétaire/participants, flush terminal,
 snapshot fermé, poisoning, cleanup et résolutions CURRENT sont vérifiés dans COMMAND avec le
 manager JPA standard. Le suffixe 4B est synthétique et limité aux tests ; aucune E active, aucun
-producteur/owner réel n’était recâblé à la clôture 4B. Les garanties ACTIVE et l'optimisation Discovery restent TARGET.
+producteur/owner réel n’était recâblé à la clôture 4B. À cette clôture historique 4B, les garanties ACTIVE restaient TARGET ; leurs preuves fonctionnelles hors production sont désormais apportées par 4E. La Discovery reste NEXT.
 
 L'audit favorable 4B porte sur `5640220b94f6208aa4c156e248d95e2eced1522f` et les preuves 4B déjà réalisées ;
 l'auditeur n'a réexécuté ni Maven ni PostgreSQL. Il ne prouve pas une interception universelle
@@ -135,7 +152,7 @@ l'absence d'un commit tardif sous un curseur déjà avancé. Une position dense 
 permet de prouver une plage entièrement visible. Elle ne prouve pas que les conséquences sont
 enrôlées, ni que leur consommation est terminée.
 
-**CURRENT 4D : owner/registre/flush/fermeture PREPARED ; TARGET 4E : allocation E et positions en environnement déployé.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
+**CURRENT hors production 4A–4E : owner/registre/flush/fermeture, allocation E et positions qualifiés sur bases isolées ; activation déployée NOT CERTIFIED.** Quatre compteurs transactionnels E, un par famille, associations typées EventId/position,
 allocation par blocs dans la même transaction que l'acceptation durable et les effets protégés.
 Après finalisation S/Claim : flush complet, fermeture du lot, puis suffixe E dans le callback du
 `TransactionTemplate`, avant commit physique par le gestionnaire JPA standard. Aucun DML métier,

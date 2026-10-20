@@ -1,22 +1,24 @@
 # DISCOVERY — Next Plan : trajectoire jusqu'au READ
 
 Date : 2026-10-20. **next_plan — TARGET de travail, non implémentée par cette consolidation.**
-Référence applicative 4D : `84b67392b5b2db5e685f09a513770307475efc68` ; livraison et preuves liées au plan courant.
-[Canon/statuts](Step_Canon.md) ; [chantier courant 4D–4E](Step_Plan.md).
+Référence applicative 4E : `8e09b433a949d8ecb06f048bdc0711edd1885e0d`, intégrée à la branche source ; [canon/statuts](Step_Canon.md) et [clôture fonctionnelle 4A–4E](Step_Plan.md).
 
 ## Dépendances et points de décision
 
-Ordre de livraison : **4B/4C CLOSED hors production → 4D PREPARED → 4E ACTIVE → A Discovery → B contrats READ → C matérialisation/consommation READ**.
+Ordre de livraison : **4A–4E CLOSED / PASS fonctionnel hors production → A Discovery (NEXT) → B contrats READ → C matérialisation/consommation READ**. La certification de production est un gate distinct, toujours NOT CERTIFIED ; aucune activation production autorisée.
 
 L'[audit de préparation 4D](../../../architecture/Event_Producer_Wiring_Step_4D_Readiness_2026-10-20.md)
 au HEAD `4defd5a6` a déclaré V-D avant code. L’arbitrage UUID auxiliaire est approuvé et consigné
 dans l’amendement daté 4A. Le [rapport de livraison 4D](../../../architecture/Event_Producer_Wiring_Step_4D_2026-10-20.md)
 certifie désormais les producteurs réels et les deux compositions en PREPARED.
 
-**4D CLOSED / PASS — 4E NEXT, NOT STARTED.** Producteurs/owners raccordés en PREPARED ;
-aucune activation ni backfill réalisés. Discovery et READ conservent leurs dépendances. L'[audit statique 4C](../../../architecture/Event_Transactional_Sequencer_Step_4C_2026-10-20.md#clôture-documentaire-après-audit-indépendant)
-renvoie R1/R2/R3 à la vérification 4D du [plan courant](Step_Plan.md#4d--producteurs-et-orchestrations-réels-prepared-complet),
-sans nouvelle dette 4C ni changement des dépendances ci-dessous.
+**4A–4E : implémentation fonctionnelle terminée, gates finaux PASS. Discovery efficiente : NEXT.**
+La preuve 4E couvre les quatre familles sur bases isolées. Pour développer la Discovery,
+utiliser une base de développement compatible, explicitement activée par l'outil administratif,
+avec frontières historiques connues et writers homogènes. Aucun flip au démarrage.
+Les réserves R1–R6 du [plan courant](Step_Plan.md#réserves-de-production-r1r6) restent ouvertes
+selon applicabilité ; elles n'empêchent pas ce développement. Les mesures locales 4E sont
+historiques et ne constituent pas une qualification de performance E2E ou de production.
 
 L'inventaire et les arbitrages B peuvent commencer pendant A ; C dépend de contrats B stabilisés
 et d'un chemin de découverte/reprise prouvé pour les consumers concernés. Aucun calendrier arbitraire.
@@ -26,7 +28,7 @@ au rapport 4D. Aucune cible Discovery/READ n’est déclarée livrée par sa pr�
 
 ## Chantier A — Discovery efficiente
 
-**Entrée :** 4E prouvé sur les quatre sources, frontières historiques connues, positions immuables
+**Entrée fonctionnelle hors production :** 4E intégré et prouvé sur les quatre sources, frontières historiques connues, positions immuables
 indexées et writers homogènes. La lecture des seuls nouveaux Events ne remplace pas les reprises.
 Les invariants du [canon](Step_Canon.md#discovery-efficiente--intention-et-hypothèses-bornées) s'appliquent.
 
@@ -67,8 +69,7 @@ routes, concurrence et matériel : `EXPLAIN (ANALYZE, BUFFERS)`, rows/loops, buf
 débit, attentes, backlog, taille/WAL. Seuils d'acceptation à fixer avant mesure ; pas de p95 inventé.
 
 **Sortie A :** protocole et reprise durables certifiés, migration/checkpoint bootstrap et stratégie de
-retour documentés, preuves de concurrence/crash et benchmark reproductible, coût du backlog borné
-par les travaux restants plutôt que toute l'histoire. Comparer à la
+retour documentés, preuves de concurrence/crash. Préparer un benchmark reproductible et les plans de requêtes pour démontrer un parcours incrémental ; la campagne de performance représentative et les seuils sont qualifiés au gate E2E ci-dessous. Le coût du backlog doit dépendre des travaux restants plutôt que de toute l’histoire. Comparer à la
 [Discovery actuelle](../../../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java)
 et à son [test PostgreSQL](../../../../app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapterPostgresTest.java).
 RegistrationResult provient d'un outcome, pas d'une des quatre nouvelles familles : son optimisation
@@ -77,6 +78,19 @@ RegistrationResult provient d'un outcome, pas d'une des quatre nouvelles famille
 **Ouvert :** schéma exact et durabilité de la liste de réexamen, découpage checkpoint/route,
 preuve de progression par partition filtrée, équité, tailles de lot, concurrence interne, stratégie
 index/métadonnées et seuils. Les slots existants sont la première option, pas une nouvelle file obligatoire.
+
+## Gate de qualification performance après raccordement E2E
+
+Le gate suit le raccordement complet du parcours E2E retenu, y compris le premier cas de Discovery ; il peut être exécuté avant la refonte READ B/C si ce parcours utilise les contrats READ actuels. Il ne crée pas une dépendance obligatoire à cette refonte.
+
+R3 reste ouvert : définir avec le responsable les seuils débit, p95/p99, backlog, attentes E,
+arrêt et fenêtre avant la campagne ; documenter matériel, PostgreSQL, pool, routes et workers.
+Aucune donnée de production disponible : jeux synthétiques reproductibles, volumes historiques
+croissants, faible/nominal/pic définis, warmup et échantillons suffisants, répétitions et saturation.
+Mesurer E2E et par étape, équité nouveau/reprise, plans/buffers/WAL et contention E ; conserver
+la référence 4E pour attribuer le coût du séquencement et de la Discovery. Aucun gain acquis.
+Cette campagne ne conditionne pas le démarrage de la Discovery ; elle conditionne la qualification
+de capacité et, avec R1/R2/R4/R5/R6 selon applicabilité, la certification avant production.
 
 ## Chantier B — Refonte du modèle READ
 

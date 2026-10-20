@@ -1,7 +1,7 @@
 # Études transactionnelles : index de revue
 
 Entrée canonique du chantier actif : [Step Canon](../steps/current/DISCOVERY/Step_Canon.md),
-[Step Plan — 4A/4B CLOSED / 4C NEXT](../steps/current/DISCOVERY/Step_Plan.md),
+[Step Plan — 4A–4E fonctionnel CLOSED / PASS ; Discovery NEXT](../steps/current/DISCOVERY/Step_Plan.md),
 [Next Plan — Discovery → READ](../steps/current/DISCOVERY/Next_Plan.md).
 Le plan Étape 4 reste la spécification détaillée ; les études ci-dessous conservent leurs baselines historiques.
 
@@ -23,12 +23,13 @@ Cet index distingue les preuves du runtime et les propositions TARGET. Les SHA e
 | Séquencement — spécification 4A–4E | [Plan détaillé](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md) | Critères conservés ; avancement dans Step Plan |
 | Publication — 4A | [Livraison](Event_Publication_Contracts_Step_4A_2026-10-19.md) | Contrats livrés ; CLOSED après corrections et gate PASS au SHA b7aacef5 |
 | Protocole transactionnel — 4B | [Livraison et preuves](Event_Transaction_Protocol_Step_4B_2026-10-20.md) | **PASS hors production** : runner/collecteur dormants, 29 tests 4B, COMMAND 1 047 déclarés sans failure/error, 1 skip exploratoire existant ; 4C NEXT |
+| Séquencement — 4E | [Clôture fonctionnelle](Event_Sequencing_Step_4E_2026-10-20.md) | **CLOSED / PASS fonctionnel hors production**, candidat `8e09b433` intégré, gates finaux PASS ; production NOT CERTIFIED, réserves R1–R6 |
 | Validation Consumption/4A | [Correction des cinq courses](Consumption_Ambient_Transaction_Five_Tests_Fix_2026-10-20.md) | Historique : cinq ERROR→PASS, gate encore à six erreurs à ce stade |
 | Validation finale 4A | [Bootstrap PostgreSQL corrigé](Architecture_Postgres_Bootstrap_Six_Errors_Fix_2026-10-20.md) | Historique PASS : 1 257 déclarés, 0 failure/error, 1 skip exploratoire intentionnel |
 | Commandes Pot — étape 2C | [Fence Binding partagé intégré](Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md) | Intégration COMMAND ; protocole P → B → S conservé ; détails des preuves et limites dans le rapport |
 | Commandes Pot — étape 2B | [Exceptions, rollback et retry CAS Consumption](Pot_Command_Cas_Consumption_Step_2B_2026-10-18.md) | **IMPLÉMENTÉ ET VÉRIFIÉ**, COMMAND, PostgreSQL ; budget 4 essais ; ordre P → B → S inchangé |
 
-La décision courante abandonne toute lecture historique des BusinessEvents pour l’obsolescence, ainsi que la certification et son ancien plan. Les sections AG–AO du rapport définissent la seule cible : versions temporelles des sous-objets, avec restrictions conservatrices. Le transport et l’obsolescence métier ont été livrés à l’étape 1 ; la classification CAS et la reprise Consumption sont livrées à l’étape 2B ci-dessus. **Aucun runtime cible n’est implémenté par cet audit. Le séquencement E a désormais ses contrats 4A livrés/clôturés ; 4B est livré dormant et prouvé ; 4C–4E et Discovery restent non implémentés.** Les anciennes conclusions A/A.2/A.3 sont uniquement historiques.
+La décision courante abandonne toute lecture historique des BusinessEvents pour l’obsolescence, ainsi que la certification et son ancien plan. Les sections AG–AO du rapport définissent la seule cible : versions temporelles des sous-objets, avec restrictions conservatrices. Le transport et l’obsolescence métier ont été livrés à l’étape 1 ; la classification CAS et la reprise Consumption sont livrées à l’étape 2B ci-dessus. **Aucun runtime cible n’est implémenté par cet audit. Le séquencement E a désormais ses contrats 4A livrés/clôturés ; 4B est livré dormant et prouvé ; 4C–4E sont désormais intégrés et clôturés fonctionnellement hors production selon le plan courant ; Discovery reste NEXT. La certification de production reste NOT CERTIFIED.** Les anciennes conclusions A/A.2/A.3 sont uniquement historiques.
 
 ## Preuves R03 conservées
 

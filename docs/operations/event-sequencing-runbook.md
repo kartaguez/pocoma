@@ -1,10 +1,23 @@
 # Séquencement transactionnel — runbook 4E
 
-État : procédure du candidat local pour répétitions isolées ; **aucune autorisation de production**.
-Publication documentaire seule : le code, V31 et les outils exécutables cités restent locaux,
-non committés. Ce runbook ne peut être exécuté depuis la seule révision documentaire.
+État : **4E FUNCTIONAL IMPLEMENTATION : CLOSED / PASS** ; **PRODUCTION ACTIVATION READINESS : NOT CERTIFIED**.
+Code, V31 et outils intégrés à `feat/consumption-transaction-protocol` au commit `8e09b433`,
+identiques au candidat de `audit/step-4e-candidate` ; documentation initiale `864fdec8`.
+**Activation production : NON AUTORISÉE.** Le démarrage n'active ni ne backfill le protocole.
+La Discovery peut être développée sur une base isolée, explicitement activée pour ce travail.
+Les exemples ci-dessous sont une procédure administrative ; leur présence n'autorise aucun flip.
 Quatre familles seulement, quatre autorités E indépendantes, aucun ordre inter-familles.
 [Rapport et limites](../architecture/Event_Sequencing_Step_4E_2026-10-20.md).
+
+## Réserves de certification
+
+Le [registre R1–R6](../steps/current/DISCOVERY/Step_Plan.md#réserves-de-production-r1r6) reste ouvert :
+R1 idempotence métier après COMMIT UNKNOWN ; R2 V31 non-public si retenu ; R3 contention/performance
+après raccordement E2E ; R4 privilèges réellement déployés et frontière SQL de confiance ;
+R5 répétition sur copie représentative ; R6 maintenance des preuves et références.
+Sans données de production, les jeux synthétiques préparent la campagne E2E et les répétitions
+locales ; ils ne certifient pas une copie déployée inexistante. R2 doit être levée avant de retenir
+un schéma non-public. La qualification des rôles réellement déployés ne découle pas des rôles de test.
 
 ## Conditions d'entrée
 
