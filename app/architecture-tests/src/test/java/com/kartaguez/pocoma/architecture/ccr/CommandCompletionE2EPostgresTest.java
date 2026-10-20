@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.WebApplicationType;
@@ -51,6 +52,7 @@ import com.kartaguez.pocoma.supra.http.read.RegistrationResultController;
 import com.kartaguez.pocoma.RegistrationResultReadConfiguration;
 import com.kartaguez.pocoma.PotReadConfiguration;
 import com.kartaguez.pocoma.ProjectionReadConfiguration;
+import com.kartaguez.pocoma.PocomaObjectMapperConfiguration;
 import com.kartaguez.pocoma.WebAuthorizationConfiguration;
 import com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalOutcome;
 import com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslator;
@@ -137,6 +139,13 @@ class CommandCompletionE2EPostgresTest {
 	static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
 			.withDatabaseName("pocoma").withUsername("pocoma").withPassword("pocoma")
 			.withCommand("postgres", "-c", "log_statement=all");
+
+	@BeforeEach
+	void initializeReadSchema() {
+		// Isolated methods must not rely on another scenario having bootstrapped READ.
+		try (ConfigurableApplicationContext ignored = readContext()) {
+		}
+	}
 
 	@Test
 	void admissionThroughCommandTerminalEventAndResultProducesAllTerminalResultsDurably() throws Exception {
@@ -582,7 +591,10 @@ class CommandCompletionE2EPostgresTest {
 
 	private ConfigurableApplicationContext webContext() {
 		return new SpringApplicationBuilder(WebTestApplication.class, JwtTestConfiguration.class)
-				.web(WebApplicationType.SERVLET).properties(Map.ofEntries(
+				.web(WebApplicationType.SERVLET)
+				// Keep runtime application.properties from overriding this fixture's defaults.
+				.properties("spring.config.name=pocoma-architecture-test")
+				.properties(Map.ofEntries(
 						Map.entry("server.port", "0"),
 						Map.entry("spring.datasource.url", POSTGRES.getJdbcUrl()),
 						Map.entry("spring.datasource.username", POSTGRES.getUsername()),
@@ -604,7 +616,10 @@ class CommandCompletionE2EPostgresTest {
 	}
 
 	private SpringApplicationBuilder application(Class<?>... sources) {
-		return new SpringApplicationBuilder(sources).web(WebApplicationType.NONE).properties(Map.of(
+		return new SpringApplicationBuilder(sources).web(WebApplicationType.NONE)
+				// Keep runtime application.properties from overriding this fixture's defaults.
+				.properties("spring.config.name=pocoma-architecture-test")
+				.properties(Map.of(
 				"spring.datasource.url", POSTGRES.getJdbcUrl(),
 				"spring.datasource.username", POSTGRES.getUsername(),
 				"spring.datasource.password", POSTGRES.getPassword(),
@@ -798,17 +813,17 @@ class CommandCompletionE2EPostgresTest {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@Import({ProjectionReadConfiguration.class, CommandResultReadConfiguration.class,
+	@Import({PocomaObjectMapperConfiguration.class, ProjectionReadConfiguration.class,
+			CommandResultReadConfiguration.class,
 			JdbcCommandResultStore.class})
-	static class ReadTestApplication {
-		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
-	}
+	static class ReadTestApplication {}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EntityScan(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity")
 	@EnableJpaRepositories(basePackages = "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository")
-	@Import({CommandAdmissionConfiguration.class, CommandResultReadConfiguration.class,
+	@Import({PocomaObjectMapperConfiguration.class, CommandAdmissionConfiguration.class,
+			CommandResultReadConfiguration.class,
 			RegistrationAdmissionConfiguration.class, RegistrationResultReadConfiguration.class,
 			ProjectionReadConfiguration.class, PotReadConfiguration.class, WebAuthorizationConfiguration.class,
 			SpringTransactionRunnerConfiguration.class, JpaRecordedCommandAdapter.class,
@@ -820,9 +835,7 @@ class CommandCompletionE2EPostgresTest {
 			RegistrationController.class, RegistrationResultController.class,
 			PotQueryController.class,
 			WebApiSecurityConfiguration.class})
-	static class WebTestApplication {
-		@Bean ObjectMapper objectMapper() { return new ObjectMapper().findAndRegisterModules(); }
-	}
+	static class WebTestApplication {}
 
 	@org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
 	static class JwtTestConfiguration {

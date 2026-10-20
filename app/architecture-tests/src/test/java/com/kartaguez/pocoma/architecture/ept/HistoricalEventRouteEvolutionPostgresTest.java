@@ -134,6 +134,8 @@ class HistoricalEventRouteEvolutionPostgresTest {
 	private ConfigurableApplicationContext eventContext(Class<?> policyConfiguration, String workerId) {
 		return new SpringApplicationBuilder(EventTestApplication.class, policyConfiguration)
 				.web(WebApplicationType.NONE)
+				// Keep runtime application.properties from overriding this fixture's defaults.
+				.properties("spring.config.name=pocoma-architecture-test")
 				.properties(Map.ofEntries(
 						Map.entry("spring.datasource.url", POSTGRES.getJdbcUrl()),
 						Map.entry("spring.datasource.username", POSTGRES.getUsername()),

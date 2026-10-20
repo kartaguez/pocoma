@@ -2,6 +2,10 @@
 
 Date : 2026-10-20 (Europe/Paris). Diagnostic uniquement ; aucune correction, modification de code/test/configuration, clôture automatique de 4A ou ouverture de 4B.
 
+## Addendum — Réparation du bootstrap PostgreSQL le 2026-10-20
+
+Le diagnostic ci-dessous conserve les résultats historiques de ses deux SHA. La [correction ultérieure des six erreurs datasource/Flyway](Architecture_Postgres_Bootstrap_Six_Errors_Fix_2026-10-20.md) démontre le conflit de priorité avec la configuration monolithe, isole les trois fixtures et répare leurs défauts latents de bootstrap mapper/READ. Sur la branche après la correction des cinq courses Consumption : **gate architecture global PASS, 1257 tests, 0 failures, 0 errors, 1 skip préexistant**, exactement six changements ERROR → PASS et aucun autre changement de statut. Les six méthodes passent aussi individuellement, les trois classes passent ensemble et 40 voisins PostgreSQL passent. Aucun runtime, contrat 4A, transaction ou migration de production modifié ; assertions conservées. Les commandes, traces, historiques Flyway et comparaison sont liés dans ce nouveau rapport. Ce résultat ne prononce ni la clôture de 4A ni l'autorisation de 4B.
+
 ## Autorité, sécurité et périmètre
 
 Références lues : [AGENTS](../../AGENTS.md), [politique normative](../testing/Reactor_Verification_Policy.md), [plan Étape 4](Event_Transactional_Sequencing_Step_4_Implementation_Plan_2026-10-19.md), [livraison 4A](Event_Publication_Contracts_Step_4A_2026-10-19.md). Historique consulté : [diagnostic différentiel 2C](Pot_Command_Binding_Shared_Fence_Integration_Step_2C_2026-10-18.md#diagnostic-différentiel-et-dette-du-gate-global), [preuve Spring/JPA 3C](Event_Terminal_Sequencing_Step_3C_Transactional_Integration_2026-10-19.md), journaux 4A et rapports Surefire disponibles. L'historique corrobore les observations ; les classifications ci-dessous reposent sur les deux nouvelles exécutions intégrales du gate demandé.

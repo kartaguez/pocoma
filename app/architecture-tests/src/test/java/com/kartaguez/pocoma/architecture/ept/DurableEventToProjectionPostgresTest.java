@@ -153,7 +153,10 @@ class DurableEventToProjectionPostgresTest {
 	}
 
 	private SpringApplicationBuilder application(Class<?> source) {
-		return new SpringApplicationBuilder(source).web(WebApplicationType.NONE).properties(Map.of(
+		return new SpringApplicationBuilder(source).web(WebApplicationType.NONE)
+				// Keep runtime application.properties from overriding this fixture's defaults.
+				.properties("spring.config.name=pocoma-architecture-test")
+				.properties(Map.of(
 				"spring.datasource.url", POSTGRES.getJdbcUrl(),
 				"spring.datasource.username", POSTGRES.getUsername(),
 				"spring.datasource.password", POSTGRES.getPassword(),
