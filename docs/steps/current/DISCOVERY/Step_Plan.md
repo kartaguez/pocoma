@@ -272,3 +272,7 @@ porte commandes, résultats et limites. Le [rapport 4C](../../../architecture/Ev
 clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full requis ; crossing NONE.
 Le rapport 4D clôt désormais V-D, avec architecture globale requise exécutée et full non requis.
 Action suivante : **Discovery efficiente**, premier lot à cadrer selon le Next Plan ; activation production NON AUTORISÉE. La campagne de performance représentative interviendra après raccordement E2E, avant toute certification de production.
+
+### Décision A2.0 — retirer la provenance générique
+
+**Approuvée le 2026-10-21, cible uniquement.** Suppression de l'obligation générique `ConsumptionInput`/`ConsumptionResult` et de leur écriture/lecture dans le suffixe commun ; les références causales utiles appartiendront à chaque Consumer. Conserver effet + CAS terminal atomiques, claims/leases/retry et outcomes techniques. **NEXT A2 :** recenser tous producteurs/lecteurs, préparer migration et suppression contrôlée des tables/ports/adapters, y compris compatibilité des consommateurs non-E et archives ; aucun effacement historique ou changement runtime avant preuve.
