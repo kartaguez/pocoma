@@ -273,6 +273,14 @@ clôt V-C COMMAND/BINDING et l’upgrade CURRENT V30. Aucun gate global/full req
 Le rapport 4D clôt désormais V-D, avec architecture globale requise exécutée et full non requis.
 Action suivante : **Discovery efficiente**, premier lot à cadrer selon le Next Plan ; activation production NON AUTORISÉE. La campagne de performance représentative interviendra après raccordement E2E, avant toute certification de production.
 
+### Ordre d'exécution — parenthèse simplification refermée (2026-10-21)
+
+**Chantier principal : Discovery efficiente, A2 NEXT.** A1 est conçu et documenté ; A2 implémente l'enrôlement durable, le checkpoint CAS et l'interface minimale avec les slots, suivi de A3 (reprise), A4 (orchestration), A5 (performance).
+
+**A2.0 est une parenthèse de conception close, non un deuxième chantier d'implémentation en parallèle.** Ses décisions restent acquises : cible `consumptionId`, retrait futur de la provenance générique, conservation des outcomes et des garanties de fencing/CAS. La **refonte générale du moteur Consumption** (suppression des ports, adaptateurs, tables de provenance, nettoyage global des identités/contrats non-E) est **différée après Discovery**. A2 peut faire uniquement l'adaptation minimale du modèle de slots nécessaire à l'identité `consumptionId`, sans effacer les données historiques ni casser les consommateurs existants. Ne pas ouvrir cette refonte lors des lots A2–A5 sauf blocage démontré, documenté et arbitré.
+
+**Règle de suivi :** les documents canoniques distinguent explicitement décisions de conception, livraisons et travaux différés. Aucun test runtime/migration n'est réputé effectué par la présente clarification documentaire.
+
 ### Décision A2.0 — retirer la provenance générique
 
 **Approuvée le 2026-10-21, cible uniquement.** Suppression de l'obligation générique `ConsumptionInput`/`ConsumptionResult` et de leur écriture/lecture dans le suffixe commun ; les références causales utiles appartiendront à chaque Consumer. Conserver effet + CAS terminal atomiques, claims/leases/retry et outcomes techniques. **NEXT A2 :** recenser tous producteurs/lecteurs, préparer migration et suppression contrôlée des tables/ports/adapters, y compris compatibilité des consommateurs non-E et archives ; aucun effacement historique ou changement runtime avant preuve.
