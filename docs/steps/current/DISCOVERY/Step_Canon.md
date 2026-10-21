@@ -221,3 +221,7 @@ Le [plan courant](Step_Plan.md) évolue avec l'avancement ; le [plan suivant](Ne
 priorités/dépendances. Au changement de chantier, consolider l'acquis dans le canon et F/A/G, archiver
 le Step clos avec sa traçabilité et promouvoir le prochain plan courant. Voir la
 [gouvernance](../../../Documentation_Rationalization_Audit.md#15-gouvernance-documentaire).
+
+### Décision A2.0 — provenance hors moteur générique (2026-10-21)
+
+**RETENU, NON IMPLÉMENTÉ.** Le protocole générique Consumption ne persiste ni ne restitue systématiquement des `ConsumptionInput`/`ConsumptionResult`. Le Consumer est seul responsable des références causales et des effets métier qui lui sont réellement nécessaires. Le moteur conserve les slots, claims, CAS/fencing, retry et la finalisation atomique avec les effets ; les issues terminales SUCCESS/REJECTED/FAILED/ABANDONED et leurs raisons restent distinctes des Results métier. Les tables historiques `consumption_inputs` et `consumption_results` ne sont **pas supprimées** par cette décision : A2 doit inventorier leurs dépendances, décider de la rétention/migration et prouver la non-régression avant DDL ou suppression d'API.
