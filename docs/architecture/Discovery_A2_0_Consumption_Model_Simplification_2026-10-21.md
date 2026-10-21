@@ -55,3 +55,9 @@ Cette représentation **ne constitue pas** la recommandation de créer une deuxi
 5. Protéger la transaction effets → provenance retenue si applicable → terminal CAS, le rollback, les claims/leases, les anciens consumers et la cohérence des lectures READ. Fixer les preuves PostgreSQL, E2E, test de migration et performances.
 
 **Arbitrage recommandé pour discussion :** remplacer l'identité dynamique du consumer par `consumptionId` pour E ; conserver le modèle d'outcome terminal ; traiter la provenance comme **option de traçabilité à justifier**, sans la supprimer tant que ses lecteurs et ses usages de réparation ne sont pas prouvés. Aucune décision de migration définitive prise par ce diagnostic.
+
+## Arbitrage validé — option 2 (2026-10-21)
+
+**DÉCISION : retirer entièrement la provenance du protocole générique Consumption.** Aucun `ConsumptionInput` ou `ConsumptionResult` systématique à émettre, conserver ou lire dans le moteur. Chaque Consumer persiste, dans ses propres autorités métier si nécessaire, les références aux Events, slots ou autres causes utiles. Cela ne supprime pas les résultats métier publics, les liens de cause exigés par un invariant précis, ni l'observabilité du moteur. Le suffixe commun devient : effets du Consumer → terminalisation fenced/CAS dans la même transaction. Les issues terminales et raisons restent disponibles.
+
+**Migration NON réalisée.** `consumption_inputs` et `consumption_results` existent actuellement ; A2 doit vérifier tous les producteurs/lecteurs (dont tests, SQL, exploitation et consumers non-E), définir la rétention ou l'archivage éventuel, retirer de façon cohérente ports/adapters/entités et tables lorsque cela est justifié, puis prouver rollback, fencing et idempotence. Interdit : suppression immédiate de tables historiques ou abandon de la garantie transactionnelle.
