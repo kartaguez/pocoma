@@ -185,34 +185,34 @@ des quatre sources durables restent couvertes en ACTIVE : aucun opt-out déguis�
 [Source JDBC](../../../../app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/processing/event/JdbcProjectionMaterializationDiscoveryAdapter.java).
 Il n'existe pas de checkpoint durable par famille/consumer. Candidat découvert ≠ Claim acquis.
 
-**TARGET de travail, conditionnelle.** Réduire les lignes PostgreSQL lues et les jointures JSONB
-sur l'histoire en séparant (1) parcours incrémental des nouvelles positions, (2) enrôlement durable,
-(3) acquisition effective, (4) exécution/finalisation indépendante. Les
-[études Discovery, F.1–F.3](../../../architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md#f1-code-actuel)
-et la [numérotation, §10](../../../architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md#10-conséquences-pour-discovery-sans-changement-actuel)
-sont des analyses conditionnelles ; le [chantier A](Next_Plan.md#chantier-a--discovery-efficiente) en organise la preuve.
+**TARGET A1 — CONTRAT DE CONCEPTION RETENU LE 2026-10-21, NON IMPLÉMENTÉ.**
+[Spécification détaillée A1](../../../architecture/Discovery_A1_Contract_2026-10-21.md).
+Discovery et worker Consumption sont alignés **1:1**, mono-famille, par
+`(eventFamily, consumptionId UUID, partitionId)`. `consumptionId` désigne un flux et une génération
+immuable de règles opaques pour Discovery ; plusieurs générations peuvent être actives simultanément.
+Un seul worker par partition ; exécution des slots initialement séquentielle. Discovery enrôle
+**chaque Event** de sa famille appartenant à sa partition, sans routage métier. Les consumers
+sont responsables de l'interprétation, des no-op, de l'idempotence et de la commutativité ;
+Consumption seule gère Claim, retry et finalisation, sans attente de DONE par Discovery.
 
-Invariants exigés de toute future solution :
+Le partitionnement s'appuie sur le **hash métier figé à l'écriture de chaque Event** : Pot pour
+BusinessEvent, Command pour CommandTerminalEvent, identité externe pour BindingFact, UserId pour
+UserCreatedFact (hash durable à ajouter pour ce dernier). Modulo/configuration fixés par flux,
+changements via administration explicite, jamais reconfiguration silencieuse. Le filtre intervient
+**après** lecture de la plage contiguë des positions E ; positions non locales incluses dans la
+preuve de progression globale de famille.
 
-1. Curseur par famille/identité de consommateur, route et génération de partitionnement si nécessaires.
-   Les positions strictement consécutives prouvent la continuité **globale de famille** ; un filtre de
-   partition peut créer des écarts locaux et exige une preuve de balayage, pas `max(position)` des candidats.
-2. N'avancer que jusqu'à une plage entièrement examinée et durablement prise en charge : tous les slots
-   requis ou un non-routage définitif prouvé pour la configuration considérée. Enrôlement et curseur
-   atomiques ; éligibilité temporaire conservée dans l'ensemble de reprise, jamais abandonnée.
-3. Liste complémentaire durable de travaux à reprendre/réexaminer, prioritairement les slots PENDING,
-   `nextClaimAt` et leases existants ; nouvelle table seulement si un besoin non représentable est prouvé.
-   Les acquis en cours restent suivis sous le curseur : Busy n'est ni DONE ni motif de suppression.
-4. Ne pas attendre la terminaison d'un travail pour découvrir les suivants indépendants. Un Event peut
-   alimenter plusieurs routes/consumers ; aucun état consumed partagé. Acquisition et CAS/fencing restent
-   les autorités, même si deux Discoverers rendent le même candidat.
+Checkpoint durable par triplet, `last_examined_position`, représentant toutes les positions E
+examinées et les slots locaux garantis. En une transaction PRIMARY : lecture de C, lot contigu,
+création idempotente de slots, **CAS `C → N` conditionné par la valeur lue** ; CAS perdu ou erreur
+= rollback intégral, puis relecture/reprise. Pas de `SELECT FOR UPDATE` anticipé, mais les
+verrous internes PostgreSQL restent possibles. COMMIT UNKNOWN exige réconciliation durable.
+Les slots PENDING/claims/leases servent de reprise ; aucune liste de trous ni dépendance à DONE.
 
-**HYPOTHÈSE de dimensionnement : un worker par partition.** Un worker peut découvrir et traiter
-plusieurs travaux indépendants ; taille de lot et exécution séquentielle/parallèle restent ouvertes.
-Cette hypothèse ne remplace pas verrou/CAS du checkpoint pour chevauchement de redémarrage, ni les
-claims. Crash, rollback, commit UNKNOWN, ajout de route et changement de partitions doivent être prouvés.
-La requête exacte, le schéma du checkpoint, les index, l'équité nouveau/backlog et les seuils de gain
-restent **OUVERTS**. 4E ne livre aucune de ces optimisations.
+**Limites vérifiables A2** : unicité existante des slots sur quatre colonnes dont deux JSONB,
+absence actuelle de `consumption_id`/`partition_id` relationnels dans `consumption_slots`,
+stabilité des hash et sélections de reprise à prouver. L'algorithme et les optimisations ne sont
+pas livrés par le seul contrat A1. Activation production toujours NON AUTORISÉE.
 
 ## Maintenance
 
