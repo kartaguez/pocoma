@@ -235,6 +235,8 @@ mono-famille sur `(eventFamily, consumptionId, partitionId)`, partition par hash
 avec l'Event, scan de positions E contiguës, enrôlement de tous les Events locaux, checkpoint
 et slots atomiques par **CAS sans verrou anticipé**. Flux et générations indépendants.
 
+**A2.0 — Audit de simplification engagé (2026-10-21), documentaire seulement.** [Diagnostic](../../../architecture/Discovery_A2_0_Consumption_Model_Simplification_2026-10-21.md) : cible d'identité `consumptionId` pour les flux E ; examen de la suppression des identités polymorphes et de la provenance systématique ; outcomes terminaux et protections claim/CAS/fencing maintenus. Audit exhaustif des lecteurs et migrations multi-sources **encore requis** avant toute suppression DDL. Aucune migration ni test exécuté.
+
 **A2 NEXT :** auditer la stabilité des quatre hash, ajouter/faire migrer le hash de
 `USER_CREATED_FACT`, fixer l'encodage canonique `consumptionId` dans l'unicité actuelle des slots,
 leur sélection par partition et le schéma/configuration active persistée ; puis implémenter et
