@@ -26,6 +26,16 @@ D contient des évolutions fonctionnelles optionnelles, à découpler des prére
 Chaque chantier sera découpé en lots vérifiables avant implémentation ; les gates V-D sont liés
 au rapport 4D. Aucune cible Discovery/READ n’est déclarée livrée par sa présence dans ce plan.
 
+**Mise à jour A1 (2026-10-21) :** [contrat de conception retenu](../../../architecture/Discovery_A1_Contract_2026-10-21.md),
+non implémenté : Discovery et worker mono-famille alignés par
+`(eventFamily, consumptionId, partitionId)`; partition par hash métier persisté à l'écriture,
+scan de positions E globalement contigu, un slot par Event local et flux, checkpoint durable
+atomique avec slots via CAS/rollback intégral. Aucune liste supplémentaire de réexamen nécessaire
+au-delà des slots/claims existants. **Ces décisions prévalent sur les alternatives encore formulées
+au conditionnel dans l'historique du chantier A ci-dessous.** A2 doit résoudre l'absence de
+`consumption_id`/`partition_id` relationnels dans les slots, l'encodage canonique de leur clé,
+le hash durable USER_CREATED et les fonctions de hash, puis fournir les preuves PostgreSQL.
+
 ## Chantier A — Discovery efficiente
 
 **Entrée fonctionnelle hors production :** 4E intégré et prouvé sur les quatre sources, frontières historiques connues, positions immuables
