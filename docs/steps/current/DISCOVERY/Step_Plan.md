@@ -227,6 +227,29 @@ DB : 4B CURRENT/prototypes isolés ; 4C CURRENT + nouveau DDL ; 4D CURRENT/ACTIV
 4E CURRENT + historique/cutover représentatif. `Trusted baseline: NONE` au HEAD : ne pas inventer
 une baseline V29 certifiée ; utiliser une baseline trusted si certifiée ultérieurement.
 
+## A2-1 — Contrat Consumption et identité des slots (plan proposé)
+
+**2026-10-22 — PROPOSÉ, EN ATTENTE DE VALIDATION ARCHITECTURALE. Aucune implémentation commencée.**
+[Plan détaillé A2-1](../../../plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md),
+CURRENT audité sur `feat/consumption-transaction-protocol` au SHA `ac1a895af02190886814318ae49d63105297af00`.
+Le [modèle A2 minimal amendé](../../../plans/2026-10-22-a2-minimal-consumption-discovery.md), importé à
+l'identique depuis `90a3e9bc`, est la référence conceptuelle approuvée ; A2-P reste un inventaire technique.
+
+Première livraison proposée : définition Java `ConsumptionId`/`Consumption`, références contextualisées,
+liaison Discovery/Locator/Engine, identité minimale dans les slots existants et refus C1/C2 même famille.
+Pilote BUSINESS_EVENT → ProjectionTasks dormant, acquisition d'un slot déjà enrôlé et preuves de fencing/rollback ;
+anciens Consumers préservés et API legacy gardées contre l'accès aux nouveaux slots. Aucun registre/manifeste/digest.
+La Discovery E/checkpoints/JDBC, la sélection des reprises et la bascule des workers, les autres familles et le
+retrait de provenance restent aux lots suivants du modèle minimal. Cet ordre précise les anciennes mentions
+« A2 NEXT » ci-dessous ; celles-ci n'autorisent pas à anticiper ces travaux dans A2-1.
+
+Vérification prospective : EVENT primaire ; COMMAND/PROJECTION/BINDING/LKV secondaires pour les services partagés ;
+compléments WEB, Registration, Results et monolithe explicités au §7 du plan. Gate architecture requis pour
+la fermeture de l'API d'exécution ; full non requis pour ce lot borné ; DB CURRENT, sans DDL.
+Arbitrages proposés : namespace/encodage canonique, gardes legacy avant callback, borne d'acquisition explicite.
+**Livraison présente uniquement documentaire : slices NONE, aucun Maven/DB, gate global/full non requis,
+aucun franchissement de slice. La revue du plan précède toute implémentation.**
+
 ## A1 — Cadrage de la Discovery efficiente
 
 **A2-P — Plan proposé le 2026-10-21, EN ATTENTE DE VALIDATION.**
