@@ -229,6 +229,10 @@ une baseline V29 certifiée ; utiliser une baseline trusted si certifiée ultér
 
 ## A1 — Cadrage de la Discovery efficiente
 
+**A2-P — Plan proposé le 2026-10-21, EN ATTENTE DE VALIDATION.**
+[Plan d'implémentation auditable](../../../architecture/Discovery_A2_Implementation_Plan_2026-10-21.md) :
+audit CURRENT, alternatives, protocole et preuves attendues ; aucune implémentation A2 commencée.
+
 **CONCEPTION RETENUE le 2026-10-21 ; implémentation et certification non commencées.**
 [Contrat A1](../../../architecture/Discovery_A1_Contract_2026-10-21.md) : Discovery et Consumption
 mono-famille sur `(eventFamily, consumptionId, partitionId)`, partition par hash métier écrit
