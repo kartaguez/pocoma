@@ -227,6 +227,20 @@ DB : 4B CURRENT/prototypes isolés ; 4C CURRENT + nouveau DDL ; 4D CURRENT/ACTIV
 4E CURRENT + historique/cutover représentatif. `Trusted baseline: NONE` au HEAD : ne pas inventer
 une baseline V29 certifiée ; utiliser une baseline trusted si certifiée ultérieurement.
 
+## A1 — Cadrage de la Discovery efficiente
+
+**CONCEPTION RETENUE le 2026-10-21 ; implémentation et certification non commencées.**
+[Contrat A1](../../../architecture/Discovery_A1_Contract_2026-10-21.md) : Discovery et Consumption
+mono-famille sur `(eventFamily, consumptionId, partitionId)`, partition par hash métier écrit
+avec l'Event, scan de positions E contiguës, enrôlement de tous les Events locaux, checkpoint
+et slots atomiques par **CAS sans verrou anticipé**. Flux et générations indépendants.
+
+**A2 NEXT :** auditer la stabilité des quatre hash, ajouter/faire migrer le hash de
+`USER_CREATED_FACT`, fixer l'encodage canonique `consumptionId` dans l'unicité actuelle des slots,
+leur sélection par partition et le schéma/configuration active persistée ; puis implémenter et
+prouver le parcours JDBC sur PostgreSQL. A3 reprend les slots, A4 orchestre, A5 qualifie les coûts.
+Aucun script SQL, migration, runtime, gate ou activation n'a été livré par cette décision documentaire.
+
 ## Transition 4E → Discovery
 
 4E rend disponible un parcours dense `position > c ORDER BY position LIMIT k`, complet après
