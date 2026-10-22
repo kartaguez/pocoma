@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut : cadrage V3 en cours — V3-1 et V3-2 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
+**Statut : cadrage V3 en cours — V3-1, V3-2 et V3-3 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
@@ -42,7 +42,7 @@ Le **cadrage cohérent de toutes les étapes précède toute implémentation** :
 | **V3-0** | Canon, objectifs, questions, jalon de cadrage | Acquis et difficultés V2 | **EN CONCEPTION** |
 | **V3-1** | Domaine, sous-objets et versions | V3-0 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-2** | Événements, demandes et consommables | Modèle V3-1 | **CONCEPTION VALIDÉE (non implémentée)** |
-| **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | À CADRER |
+| **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-4** | Consumption, Discovery, Locator, Engine | Sources V3-2 et sorties V3-3 | À CADRER |
 | **V3-5** | Intégration, simplification, performance et clôture | V3-1 à V3-4 | À CADRER |
 
@@ -94,7 +94,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 - Définir les transformations et leurs sorties sans les coupler à l'orchestration Consumption ; mécanismes de reconstruction/rattrapage et coût de lecture.
 - Réduire duplications, cardinalités, index et jointures JSONB inutiles ; choisir selon besoins, non selon le pipeline actuel.
 
-**Livrables :** inventaire exhaustif minimal des projections V3, schémas logiques, contrats READ, mapping sources→transformations→sorties, exemples de lecture/version.
+**Livrables :** inventaire exhaustif minimal des projections V3, schémas logiques, contrats READ, mapping sources→transformations→sorties, exemples de lecture/version. **Livré (conception) :** [V3-3_Read_and_Projections.md](V3-3_Read_and_Projections.md) — sept projections logiques, lecture Pot courant complète ou indisponible, versions de sous-objets immuables, balance complète immuable par V, liste utilisateur monotone avec entrées retirées, unique CurrentBinding, résultats terminaux, minVersion pour READ asynchrone. Deux Consumptions Pot : matérialisation directe CurrentPot/sous-objets et préparation de deux tâches Balance/Visibilité ; Identity et résultats directement matérialisés. Consultation historique et READ_REQUEST hors périmètre présent. Risques/contrats d'exécution renvoyés à V3-4.
 
 ### V3-4 — Consumption applicative et exécution
 
@@ -125,7 +125,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 Le jalon **V3-CADRE** est atteint uniquement quand :
 - [x] V3-1 : domaines **Pot et Identity**, identités, versions autonomes/globales lorsque nécessaires et reconstruction historique arbitrés **au niveau conceptuel**, sous réserve de la revue de cohérence globale et des interfaces de sécurité Link.
 - [x] V3-2 : familles/types d'événements, demandes et consommables définis conceptuellement ; dépendances V3-3/4 et revue globale restent ouvertes.
-- [ ] V3-3 : inventaire des projections et contrats READ est stabilisé.
+- [x] V3-3 : projections et contrats READ stabilisés conceptuellement ; garanties d'exécution/transfert à prouver en V3-4/5.
 - [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
 - [ ] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
 - [ ] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
@@ -140,7 +140,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | V3-0 | EN CONCEPTION | Règle de simplicité, ordre domaine→événements→READ→Consumption→intégration, rupture V2 acceptée | Ce document | Revue et validation du cadrage directeur | Lancer l'étude V3-1 |
 | V3-1 | **CONCEPTION VALIDÉE** | **Pot :** huit sous-objets, versions locales/globales, suppressions, concurrence et histoire à V. **Identity :** User autonome, EUI versionnée, binding relationnel, token non devinable, Registration/Link/Unlink, concurrence et reconstruction. Entitlements externes. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Sécuriser preuve de contrôle EUI cible au Link ; interfaces V3-2/3/4/5 et revue globale ; aucune preuve runtime V3 | Cadrer V3-2 avec les deux domaines |
 | V3-2 | **CONCEPTION VALIDÉE** | Six familles : COMMAND, IDENTITY_REQUEST burnables PENDING→TERMINAL ; POT_EVENT, IDENTITY_EVENT et deux événements de complétion non-burnables. Quatre séquences denses, UUID eventId, mutations liées obligatoirement à requestId, atomicité résultats/événements, deux domaines strictement séparés. Revue des cas Pot/Identity réalisée. | [Contrat V3-2](V3-2_Events_Requests_and_Consumables.md) ; commit `886ff35fc2b9db55c97313d7fdeffc3e3d212475` | Détails résultats, matérialisations READ, protocole Consumption, contrôle de EUI cible et preuves techniques ; aucun code V3 | **Cadrer V3-3 READ/projections** |
-| V3-3 | À CADRER | Pot@V recompose données/poids à V. Identity : lecture du rattachement courant/témoin sous authentification et de l'historique EUI local. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Projections et contrats READ, matérialisation efficace et protection des tokens | Attendre contrat V3-2 |
+| V3-3 | **CONCEPTION VALIDÉE** | Sept projections logiques ; Pot courant complet ou indisponible, sous-objets immuables, balances immuables pour chaque V, liste de visibilité monotone avec historique d'appartenance, CurrentBinding unique, résultats terminaux seuls ; minVersion READ asynchrone. Deux Consumptions sur POT_EVENT : direct CurrentPot/sous-objets et deux tâches Balance/Visibilité. Direct pour Identity et complétions. | [READ V3-3](V3-3_Read_and_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` | Reprise transactionnelle et concurrence, suivi des tâches, accès sécurisés, coût SQL/reconstruction, qualification ; READ_REQUEST et historique hors périmètre | **Cadrer V3-4 Consumption/Discovery** |
 | V3-4 | À CADRER | Pot : observation initiale et collision CAS distinctes. Identity : admission déclarative, contrôle courant atomique E1/E2, retries sûrs et ordre anti-deadlock. | Plan A2 minimal, [Pot](V3-1_Domain_and_Versioning.md), [Identity](V3-1_Identity_Domain_and_Versioning.md) | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
 | V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
 
@@ -152,6 +152,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 |---|---|---|---|
 | 2026-10-22 | V3-0 | Création du document directeur ; cadrage initial, aucune implémentation | Commit de création de ce fichier |
 | 2026-10-22 | V3-1 Pot | Conception conceptuelle validée : 8 sous-objets, règles de versions, suppressions, concurrence, finances et reconstruction ; aucune implémentation ni gate V3 ; jalon global toujours ouvert | [Pot](V3-1_Domain_and_Versioning.md), `c3749981c47712a3f07b0b42b9557f2697f5911c` |
+| 2026-10-22 | V3-3 | Sept projections logiques, parcours WRITE→READ avec matérialisations directes et deux tâches Pot ; cohérence par version, monotonie, minVersion, sécurité/fraîcheur ; conception sans tests V3. | [V3-3](V3-3_Read_and_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` |
 | 2026-10-22 | V3-2 | Six familles de consommables, quatre séquences transactionnelles, résultats + événements de complétion, causalité requestId et matrice de cohérence V3-1 ; conception seulement, aucune preuve runtime V3. | [V3-2](V3-2_Events_Requests_and_Consumables.md), `886ff35fc2b9db55c97313d7fdeffc3e3d212475` |
 | 2026-10-22 | V3-1 Identity | Conception conceptuelle validée : User, EUI versionnée, binding relationnel, témoin non devinable, Registration/Link/Unlink, concurrence/histoire ; entitlements externes. Protocole de contrôle de E2 et conception V3-2/3/4 ouverts ; aucun code ni gate V3. | [Identity](V3-1_Identity_Domain_and_Versioning.md), `6371ce9521e9a7b849e18bbdecc907cea586e100` |
 
@@ -165,4 +166,4 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
-**Prochaine action :** cadrer **V3-3 READ/projections** à partir des contrats V3-1 et [V3-2](V3-2_Events_Requests_and_Consumables.md), puis V3-4/5 et la revue globale V3-CADRE ; régler explicitement la preuve de contrôle EUI cible avant implémentation.
+**Prochaine action :** cadrer **V3-4 Consumption/Discovery** depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), puis V3-5 et revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
