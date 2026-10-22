@@ -1,0 +1,163 @@
+# Pocoma V3 — Canon et feuille de route
+
+**Statut : V3-0 EN CONCEPTION — document directeur vivant.**  
+**Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
+**Date d'ouverture :** 2026-10-22.  
+**Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
+
+## 1. Objectif et règle d'or
+
+**Construire une V3 plus simple dans ses structures, ses concepts et ses algorithmes.**
+
+Partir du domaine et des usages, non des mécanismes historiques. Toute couche, abstraction, donnée persistée, conversion, état, mécanisme de synchronisation ou algorithme supplémentaire doit être justifié par un invariant concret ou un besoin fonctionnel démontré. Préférer un petit nombre de concepts expressifs à une généricité préventive. Pouvoir expliquer les principaux flux de bout en bout sans ouvrir du SQL.
+
+La simplicité ne dispense pas de correction : préserver, ou remplacer par une garantie explicite équivalente, l'atomicité, les invariants métier, le fencing, la cohérence du séquencement, l'absence de perte et les reprises après incident. Les preuves qui ne correspondent plus au modèle sont remplacées, non simplement abandonnées.
+
+### Résultat attendu
+
+1. Un **domaine** cohérent : objets, sous-objets, identités, frontières d'agrégats et versions définis.
+2. Des **événements et consommables** qui représentent proprement les changements du domaine et la complétion des demandes externes, dans les deux royaumes.
+3. Un **modèle READ** répondant aux besoins sans projections ou jointures inutiles.
+4. Un **moteur Consumption** qui exécute les transformations nécessaires avec une grammaire applicative explicite, une Discovery efficiente et des garanties transactionnelles.
+5. Un parcours V3 bout en bout testé et documenté, sans chemins historiques redondants.
+
+## 2. Règles de conduite et compatibilité
+
+- **Aucun système V1/V2 à maintenir en production.** Les contrats Java, API non déployées, schémas, migrations de développement, modules et données de test peuvent être rompus ou reconstruits. Il n'existe aucune obligation d'exécuter simultanément V2 et V3.
+- **Pas de compatibilité fictive.** Ne pas ajouter de codecs, adaptateurs, flags, migration à chaud, double écriture ou protection d'API obsolète au seul motif que le code historique existe. Préserver les données réellement nécessaires uniquement si leur nécessité est démontrée.
+- **Tests existants :** inventorier la propriété que chacun prouve ; maintenir le test si son contrat survit, le remplacer si le contrat change, le supprimer explicitement si la propriété n'existe plus. Ne jamais masquer une régression d'invariant sous une rupture volontaire. Pendant les branches de refonte, les anciens tests peuvent temporairement échouer, avec liste des ruptures intentionnelles et des garanties non encore rétablies. À l'intégration V3, les suites applicables doivent passer.
+- **Documentation existante :** demeure historique, pas normative pour V3. Marquer les plans A2/A2-1 précédents comme **supplantés pour leur stratégie de migration** ; préserver les décisions conceptuelles encore valides. Ne pas réécrire les rapports PASS anciens ni présenter leurs preuves comme des tests V3.
+- **Acquis techniques :** traiter 4A–4E, CAS/claims/transactions/rollback comme preuves et savoir-faire réutilisables, non comme formes obligatoires de tables et ports. Toute modification de ces mécanismes exige des preuves au moins équivalentes.
+- **Pas de mise en production implicite :** aucun résultat documentaire ni gate local ne certifie l'activation.
+- **Après chaque étape :** revenir à CE document, mettre à jour statut, décisions prises, livrables, preuves, écarts, questions résiduelles, dépendances et prochaine action ; lier les SHAs. Ce document reste l'unique autorité pour la progression V3.
+
+## 3. Ordre de travail et dépendances
+
+**Ordre de conception : V3-0 → V3-1 → V3-2 → V3-3 → V3-4 → V3-5.**
+
+Le **cadrage cohérent de toutes les étapes précède toute implémentation** : ne pas commencer les modifications runtime/DDL tant que les frontières, contrats structurants, invariants et dépendances des étapes V3-1 à V3-5 n'ont pas fait l'objet d'une revue globale. Les détails strictement locaux (classe précise, index, taille de batch) peuvent être tranchés lors de l'implémentation, si cela ne remet pas en cause le modèle partagé.
+
+| Étape | Objet | Dépend de | Statut initial |
+|---|---|---|---|
+| **V3-0** | Canon, objectifs, questions, jalon de cadrage | Acquis et difficultés V2 | **EN CONCEPTION** |
+| **V3-1** | Domaine, sous-objets et versions | V3-0 | À CADRER |
+| **V3-2** | Événements, demandes et consommables | Modèle V3-1 | À CADRER |
+| **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | À CADRER |
+| **V3-4** | Consumption, Discovery, Locator, Engine | Sources V3-2 et sorties V3-3 | À CADRER |
+| **V3-5** | Intégration, simplification, performance et clôture | V3-1 à V3-4 | À CADRER |
+
+Les étapes sont successives **pour trancher les contrats conceptuels** ; leur implémentation peut ensuite se découper en lots/branches coordonnés. Ne pas introduire de dépendances circulaires : les besoins des étapes suivantes peuvent rétroagir sur le cadrage précédent **avant le jalon de validation globale**.
+
+## 4. Questions et livrables par étape
+
+### V3-0 — Cadrage transverse
+
+**Questions :** frontières des royaumes et des responsabilités ; vocabulaire partagé ; invariants non négociables ; niveau de preuve ; politique de rupture, de données et de documentation ; dépendances et critères de cohérence globale.
+
+**Livrables :** ce canon/roadmap ; inventaire raisonné des garanties existantes ; critères du jalon global ; décisions et risques transversaux.
+
+**Sortie :** ordre et périmètres de toutes les étapes compris ; la cible reste à concevoir en V3-1 à V3-4.
+
+### V3-1 — Domaine et sous-objets versionnés
+
+**Questions à résoudre :**
+- Délimiter les agrégats et sous-objets (Pot, Expense, Shareholder, ShareholderWeight, etc.) ; distinguer identités propres, valeurs intégrées et références.
+- Définir les versions autonomes nécessaires, notamment pour Expense et éventuellement ShareholderWeight ; quel changement incrémente quelle version ?
+- Quel rôle exact pour la version globale du Pot : cohérence historique, révision d'agrégat, ordre des mutations, lien aux versions des sous-objets ?
+- Comment reconstruire un Pot cohérent à une version globale donnée à partir de sous-objets versionnés ? Quelles références ou révisions doivent être conservées ?
+- Clarifier `expectedVersion` / `observedVersion`, conflits métier vs techniques, concurrence et CAS.
+- Définir les invariants des relations et de la modification/suppression des sous-objets.
+
+**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées.
+
+### V3-2 — Événements, demandes et objets consommables
+
+**Questions à résoudre :**
+- Définir les deux royaumes (métier et identité) et deux natures : **modification du domaine** et **complétion d'une demande externe**. Quelles sont les vraies frontières et familles techniques nécessaires ?
+- Clarifier `BUSINESS_EVENT`, complétion de commande, `IDENTITY_EVENT` (UserCreated, attach/detach…) et complétion de demande d'identité ; distinguer types de faits, demandes, décisions et résultats.
+- Pour chaque type, établir identité, sujet, version/révision éventuelle, payload minimal, causalité et règles de publication.
+- Identifier les objets consommables et leur cycle de vie : **burnable** (disponibilité portée par la source) ou **non-burnable** (pas d'état de consommation sur la source) ; ne pas confondre burnability et exclusivité.
+- Définir séquences E / familles, densité, préfixes stables, frontières de transaction, ordre de publication, complétude, reprise et partitionnement, en réutilisant ou remplaçant explicitement les acquis 4A–4E.
+- Déterminer si les deux journaux d'identité actuels sont fusionnés et comment représenter les demandes/complétions d'identité sans familles artificielles.
+
+**Livrables :** catalogue conceptuel minimal de familles et types, contrats des événements et demandes, table des consommables/cycles de vie, invariants transactionnels et stratégie de remplacement des journaux de développement.
+
+### V3-3 — Projections et READ cible
+
+**Questions à résoudre :**
+- Identifier d'abord les besoins réels des API et écrans : consultation courante, historique, liste et cohérence par version.
+- Définir `CurrentPotHeader` (métadonnées, shareholders, références d'Expenses et de leurs versions), `ExpenseVersion`, balances, current binding, résultats de Command et Registration, liste des Pots et éventuelles autres vues justifiées.
+- Déterminer quelles projections sont mutables, immuables ou historisées, avec leur clé exacte et leur source autoritative.
+- Quelles garanties de cohérence entre header, expenses et balances ? Quels liens avec version globale Pot et versions des sous-objets ?
+- Définir les transformations et leurs sorties sans les coupler à l'orchestration Consumption ; mécanismes de reconstruction/rattrapage et coût de lecture.
+- Réduire duplications, cardinalités, index et jointures JSONB inutiles ; choisir selon besoins, non selon le pipeline actuel.
+
+**Livrables :** inventaire exhaustif minimal des projections V3, schémas logiques, contrats READ, mapping sources→transformations→sorties, exemples de lecture/version.
+
+### V3-4 — Consumption applicative et exécution
+
+**Questions à résoudre :**
+- Consacrer **Consumption = identité UUID stable + famille de consommables + transformation**, exprimée en Java et référençable par son seul ID.
+- Définir les contrats explicites, peu nombreux, de **Discovery**, **Locator** et **Engine**, tous liés à une Consumption. Pas d'exécution croisée.
+- Discovery des burnables par disponibilité source ; non-burnables par enrôlement/checkpoint quand un journal le justifie. Checkpoint `(consumptionId, partitionId)` ; slot logique `(consumptionId, consumableId)`, partition hors identité.
+- Définir la concurrence, le routage, le parcours E, les slots, claims, fencing, retry, terminalisation, atomicité des effets et résolution de COMMIT UNKNOWN.
+- Composer plusieurs Consumptions dans des Workers intégrés ou séparés, sans validateur global, manifeste, digest ni framework administratif.
+- Supprimer l'identité polymorphe et la provenance générique obligatoire si elles ne répondent à aucun invariant cible ; laisser chaque Consumer porter ses liens causaux utiles.
+- Vérifier coût PostgreSQL : nombre de lignes lues, jointures, index, backlogs et reprise ; préférer les algorithmes les plus simples qui satisfont les invariants.
+
+**Livrables :** grammaire applicative et ports, modèle durable minimal, protocoles transactionnels, cas complets (Event→ProjectionTasks, identité, burnable), stratégies de déploiement et preuve de correction.
+
+### V3-5 — Intégration, nettoyage et clôture
+
+**Questions à résoudre :**
+- Mettre en correspondance décisions de V3-1 à V3-4, interfaces, producteurs et consommateurs ; supprimer les anciens chemins plutôt que maintenir deux modèles.
+- Définir l'ordre des lots de réalisation, stratégie de reconstruction des environnements, tests et données de développement.
+- Tester les parcours bout en bout, cas concurrents, crash/retry/UNKNOWN, cohérence READ et replay ; confirmer invariants portés par les nouveaux tests.
+- Mesurer le coût de Discovery, Consumption et READ (requêtes, buffers, WAL, latences, débit, backlog) sur des volumes synthétiques réalistes.
+- Déterminer les gates et conditions d'activation/déploiement ; documenter ce qui est certifié et ce qui ne l'est pas.
+
+**Livrables :** intégration V3 propre, preuve E2E et concurrence, rapport de performance, nettoyage des anciens contrats, canon final et statut de certification.
+
+## 5. Jalon obligatoire — cadrage V3 cohérent avant code
+
+Le jalon **V3-CADRE** est atteint uniquement quand :
+- [ ] V3-1 : identités, versions autonomes/globales et reconstruction historique sont arbitrées.
+- [ ] V3-2 : familles/types d'événements, demandes et consommables sont définis.
+- [ ] V3-3 : inventaire des projections et contrats READ est stabilisé.
+- [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
+- [ ] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
+- [ ] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
+- [ ] Une revue globale conclut explicitement **CADRAGE VALIDÉ** avec références documentaires.
+
+**Tant que ce jalon est ouvert : documentation, prototypes jetables ou expériences isolées uniquement ; pas de chantier d'implémentation structurelle V3.** Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes.
+
+## 6. Registre de suivi vivant
+
+| Étape | Statut | Décisions et résultats acquis | Preuves / référence | Questions ou risques restants | Prochaine action |
+|---|---|---|---|---|---|
+| V3-0 | EN CONCEPTION | Règle de simplicité, ordre domaine→événements→READ→Consumption→intégration, rupture V2 acceptée | Ce document | Revue et validation du cadrage directeur | Lancer l'étude V3-1 |
+| V3-1 | À CADRER | — | — | Agrégats, sous-objets, versions, reconstruction | Cartographier le domaine courant |
+| V3-2 | À CADRER | — | — | Familles, demandes, E, burnable/non-burnable | Attendre modèle V3-1 |
+| V3-3 | À CADRER | — | — | Projections et contrats READ | Attendre modèles V3-1/2 |
+| V3-4 | À CADRER | Principes Consumption minimaux discutés, non implémentés V3 | Plan A2 minimal, historique | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
+| V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
+
+**Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
+
+### Journal des mises à jour
+
+| Date | Étape | Changement / décision | Référence |
+|---|---|---|---|
+| 2026-10-22 | V3-0 | Création du document directeur ; cadrage initial, aucune implémentation | Commit de création de ce fichier |
+
+À **chaque clôture d'étape**, ajouter une entrée datée avec SHA du livrable, résultats mesurables, invariants prouvés, exclusions, nouveaux arbitrages et statut. Réviser les étapes aval si une décision amont change leur hypothèse. Ne jamais revendiquer une preuve non exécutée.
+
+## 7. Héritage documentaire et sources
+
+- Branche technique source : `feat/consumption-transaction-protocol`, travaux de séquencement 4A–4E (PREPARED/ACTIVE et garanties transactionnelles), sans activation V3.
+- `docs/steps/current/DISCOVERY/Step_Canon.md` et `Step_Plan.md` : références historiques du chantier Discovery, **pas le plan d'implémentation V3**.
+- `docs/plans/2026-10-22-a2-minimal-consumption-discovery.md` : source de principes conceptuels Composition/Discovery/Engine utiles à V3, à revalider après domaines/événements/READ.
+- `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
+- Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
+
+**Prochaine action :** revue de ce cadre puis V3-1, audit conceptuel du domaine et des sous-objets versionnés, sans implémentation.
