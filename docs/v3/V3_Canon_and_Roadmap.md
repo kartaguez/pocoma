@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut : V3-0 EN CONCEPTION — document directeur vivant.**  
+**Statut : cadrage V3 en cours — V3-1 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
@@ -40,7 +40,7 @@ Le **cadrage cohérent de toutes les étapes précède toute implémentation** :
 | Étape | Objet | Dépend de | Statut initial |
 |---|---|---|---|
 | **V3-0** | Canon, objectifs, questions, jalon de cadrage | Acquis et difficultés V2 | **EN CONCEPTION** |
-| **V3-1** | Domaine, sous-objets et versions | V3-0 | À CADRER |
+| **V3-1** | Domaine, sous-objets et versions | V3-0 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-2** | Événements, demandes et consommables | Modèle V3-1 | À CADRER |
 | **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | À CADRER |
 | **V3-4** | Consumption, Discovery, Locator, Engine | Sources V3-2 et sorties V3-3 | À CADRER |
@@ -68,7 +68,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 - Clarifier `expectedVersion` / `observedVersion`, conflits métier vs techniques, concurrence et CAS.
 - Définir les invariants des relations et de la modification/suppression des sous-objets.
 
-**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées.
+**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées. **Livré (cadrage) :** [V3-1_Domain_and_Versioning.md](V3-1_Domain_and_Versioning.md) — huit sous-objets (Headers/Details et Weight/Financials), versions locales indépendantes, version globale Pot, intervalles historiques, suppression portée par Header, références métier stables, conditions d'obsolescence, commandes sans effet ou multi-cibles, poids par défaut dynamiques et reconstruction à V. Aucune implémentation ni preuve test V3.
 
 ### V3-2 — Événements, demandes et objets consommables
 
@@ -121,7 +121,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 ## 5. Jalon obligatoire — cadrage V3 cohérent avant code
 
 Le jalon **V3-CADRE** est atteint uniquement quand :
-- [ ] V3-1 : identités, versions autonomes/globales et reconstruction historique sont arbitrées.
+- [x] V3-1 : identités, versions autonomes/globales et reconstruction historique sont arbitrées **au niveau conceptuel**, sous réserve de la revue de cohérence globale.
 - [ ] V3-2 : familles/types d'événements, demandes et consommables sont définis.
 - [ ] V3-3 : inventaire des projections et contrats READ est stabilisé.
 - [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
@@ -136,10 +136,10 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | Étape | Statut | Décisions et résultats acquis | Preuves / référence | Questions ou risques restants | Prochaine action |
 |---|---|---|---|---|---|
 | V3-0 | EN CONCEPTION | Règle de simplicité, ordre domaine→événements→READ→Consumption→intégration, rupture V2 acceptée | Ce document | Revue et validation du cadrage directeur | Lancer l'étude V3-1 |
-| V3-1 | À CADRER | — | — | Agrégats, sous-objets, versions, reconstruction | Cartographier le domaine courant |
-| V3-2 | À CADRER | — | — | Familles, demandes, E, burnable/non-burnable | Attendre modèle V3-1 |
-| V3-3 | À CADRER | — | — | Projections et contrats READ | Attendre modèles V3-1/2 |
-| V3-4 | À CADRER | Principes Consumption minimaux discutés, non implémentés V3 | Plan A2 minimal, historique | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
+| V3-1 | **CONCEPTION VALIDÉE** | Huit sous-objets, versions locales/globales et intervalles, suppressions sur Headers, obsolescence ciblée, no-op et multi-cibles atomiques, finance dynamique, reconstruction à V | [Spécification V3-1](V3-1_Domain_and_Versioning.md), commit documentaire associé | Vérification de compatibilité avec contrats V3-2/3/4/5 lors du jalon global ; aucune preuve runtime V3 | Cadrer V3-2 |
+| V3-2 | À CADRER | Contrainte amont : distinguer mutation effective / complétion ; une commande sans effet ne crée pas de V globale ; mutations multi-cibles sous une seule V | [V3-1](V3-1_Domain_and_Versioning.md) | Familles, demandes, E, burnable/non-burnable, payloads | **Démarrer cadrage V3-2** |
+| V3-3 | À CADRER | Reconstruction à V des références métier et poids applicables ; mutation de Weight peut changer balances sans changer Financials | [V3-1](V3-1_Domain_and_Versioning.md) | Projections et contrats READ, matérialisation efficace | Attendre contrat V3-2 |
+| V3-4 | À CADRER | Principes Consumption minimaux discutés ; préserver observation initiale et distinguer obsolescence métier/CAS technique | Plan A2 minimal, [V3-1](V3-1_Domain_and_Versioning.md) | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
 | V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
 
 **Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
@@ -149,6 +149,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | Date | Étape | Changement / décision | Référence |
 |---|---|---|---|
 | 2026-10-22 | V3-0 | Création du document directeur ; cadrage initial, aucune implémentation | Commit de création de ce fichier |
+| 2026-10-22 | V3-1 | Conception conceptuelle validée : 8 sous-objets, règles de versions, suppressions, concurrence, finances et reconstruction ; aucune implémentation ni gate V3 ; jalon global toujours ouvert | [Spécification V3-1](V3-1_Domain_and_Versioning.md), `c3749981c47712a3f07b0b42b9557f2697f5911c` |
 
 À **chaque clôture d'étape**, ajouter une entrée datée avec SHA du livrable, résultats mesurables, invariants prouvés, exclusions, nouveaux arbitrages et statut. Réviser les étapes aval si une décision amont change leur hypothèse. Ne jamais revendiquer une preuve non exécutée.
 
@@ -160,4 +161,4 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
-**Prochaine action :** revue de ce cadre puis V3-1, audit conceptuel du domaine et des sous-objets versionnés, sans implémentation.
+**Prochaine action :** cadrage V3-2 — événements, demandes et consommables, à partir de la spécification V3-1 ; poursuivre V3-3/4 puis revue de cohérence globale V3-CADRE avant toute implémentation.
