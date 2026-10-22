@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut : cadrage V3 en cours — V3-1 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
+**Statut : cadrage V3 en cours — domaines Pot et Identity V3-1 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
@@ -33,7 +33,7 @@ La simplicité ne dispense pas de correction : préserver, ou remplacer par une 
 
 ## 3. Ordre de travail et dépendances
 
-**Ordre de conception : V3-0 → V3-1 → V3-2 → V3-3 → V3-4 → V3-5.**
+**Ordre de conception : V3-0 → V3-1 (Pot + Identity) → V3-2 → V3-3 → V3-4 → V3-5.**
 
 Le **cadrage cohérent de toutes les étapes précède toute implémentation** : ne pas commencer les modifications runtime/DDL tant que les frontières, contrats structurants, invariants et dépendances des étapes V3-1 à V3-5 n'ont pas fait l'objet d'une revue globale. Les détails strictement locaux (classe précise, index, taille de batch) peuvent être tranchés lors de l'implémentation, si cela ne remet pas en cause le modèle partagé.
 
@@ -68,13 +68,15 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 - Clarifier `expectedVersion` / `observedVersion`, conflits métier vs techniques, concurrence et CAS.
 - Définir les invariants des relations et de la modification/suppression des sous-objets.
 
-**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées. **Livré (cadrage) :** [V3-1_Domain_and_Versioning.md](V3-1_Domain_and_Versioning.md) — huit sous-objets (Headers/Details et Weight/Financials), versions locales indépendantes, version globale Pot, intervalles historiques, suppression portée par Header, références métier stables, conditions d'obsolescence, commandes sans effet ou multi-cibles, poids par défaut dynamiques et reconstruction à V. Aucune implémentation ni preuve test V3.
+**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées. **Livré (cadrage Pot) :** [V3-1_Domain_and_Versioning.md](V3-1_Domain_and_Versioning.md) — huit sous-objets (Headers/Details et Weight/Financials), versions locales indépendantes, version globale Pot, intervalles historiques, suppression portée par Header, références métier stables, conditions d'obsolescence, commandes sans effet ou multi-cibles, poids par défaut dynamiques et reconstruction à V. Aucune implémentation ni preuve test V3.
+
+**Livré (cadrage Identity) :** [V3-1_Identity_Domain_and_Versioning.md](V3-1_Identity_Domain_and_Versioning.md) — PocomaUser autonome, ExternalUserIdentity versionnée, binding comme relation non autonome, bindingToken non devinable, Registration/Link/Unlink, admission déclarative, contrôle atomique des rattachements, concurrence et reconstruction locale. **Entitlements fournis par une autorité extérieure, sans domaine Entitlements Pocoma.** Reste à définir le protocole de preuve de contrôle de l'identité cible lors d'un Link, les contrats des événements/complétions, les READ et le protocole d'exécution. Aucune implémentation ni preuve test V3.
 
 ### V3-2 — Événements, demandes et objets consommables
 
 **Questions à résoudre :**
 - Définir les deux royaumes (métier et identité) et deux natures : **modification du domaine** et **complétion d'une demande externe**. Quelles sont les vraies frontières et familles techniques nécessaires ?
-- Clarifier `BUSINESS_EVENT`, complétion de commande, `IDENTITY_EVENT` (UserCreated, attach/detach…) et complétion de demande d'identité ; distinguer types de faits, demandes, décisions et résultats.
+- Clarifier `BUSINESS_EVENT`, complétion de commande, `IDENTITY_EVENT` (PocomaUserCreated, ExternalUserIdentityLinked/Unlinked…) et complétion des demandes Registration/Link/Unlink ; distinguer types de faits, demandes, décisions et résultats.
 - Pour chaque type, établir identité, sujet, version/révision éventuelle, payload minimal, causalité et règles de publication.
 - Identifier les objets consommables et leur cycle de vie : **burnable** (disponibilité portée par la source) ou **non-burnable** (pas d'état de consommation sur la source) ; ne pas confondre burnability et exclusivité.
 - Définir séquences E / familles, densité, préfixes stables, frontières de transaction, ordre de publication, complétude, reprise et partitionnement, en réutilisant ou remplaçant explicitement les acquis 4A–4E.
@@ -121,7 +123,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 ## 5. Jalon obligatoire — cadrage V3 cohérent avant code
 
 Le jalon **V3-CADRE** est atteint uniquement quand :
-- [x] V3-1 : identités, versions autonomes/globales et reconstruction historique sont arbitrées **au niveau conceptuel**, sous réserve de la revue de cohérence globale.
+- [x] V3-1 : domaines **Pot et Identity**, identités, versions autonomes/globales lorsque nécessaires et reconstruction historique arbitrés **au niveau conceptuel**, sous réserve de la revue de cohérence globale et des interfaces de sécurité Link.
 - [ ] V3-2 : familles/types d'événements, demandes et consommables sont définis.
 - [ ] V3-3 : inventaire des projections et contrats READ est stabilisé.
 - [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
@@ -136,10 +138,10 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | Étape | Statut | Décisions et résultats acquis | Preuves / référence | Questions ou risques restants | Prochaine action |
 |---|---|---|---|---|---|
 | V3-0 | EN CONCEPTION | Règle de simplicité, ordre domaine→événements→READ→Consumption→intégration, rupture V2 acceptée | Ce document | Revue et validation du cadrage directeur | Lancer l'étude V3-1 |
-| V3-1 | **CONCEPTION VALIDÉE** | Huit sous-objets, versions locales/globales et intervalles, suppressions sur Headers, obsolescence ciblée, no-op et multi-cibles atomiques, finance dynamique, reconstruction à V | [Spécification V3-1](V3-1_Domain_and_Versioning.md), commit documentaire associé | Vérification de compatibilité avec contrats V3-2/3/4/5 lors du jalon global ; aucune preuve runtime V3 | Cadrer V3-2 |
-| V3-2 | À CADRER | Contrainte amont : distinguer mutation effective / complétion ; une commande sans effet ne crée pas de V globale ; mutations multi-cibles sous une seule V | [V3-1](V3-1_Domain_and_Versioning.md) | Familles, demandes, E, burnable/non-burnable, payloads | **Démarrer cadrage V3-2** |
-| V3-3 | À CADRER | Reconstruction à V des références métier et poids applicables ; mutation de Weight peut changer balances sans changer Financials | [V3-1](V3-1_Domain_and_Versioning.md) | Projections et contrats READ, matérialisation efficace | Attendre contrat V3-2 |
-| V3-4 | À CADRER | Principes Consumption minimaux discutés ; préserver observation initiale et distinguer obsolescence métier/CAS technique | Plan A2 minimal, [V3-1](V3-1_Domain_and_Versioning.md) | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
+| V3-1 | **CONCEPTION VALIDÉE** | **Pot :** huit sous-objets, versions locales/globales, suppressions, concurrence et histoire à V. **Identity :** User autonome, EUI versionnée, binding relationnel, token non devinable, Registration/Link/Unlink, concurrence et reconstruction. Entitlements externes. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Sécuriser preuve de contrôle EUI cible au Link ; interfaces V3-2/3/4/5 et revue globale ; aucune preuve runtime V3 | Cadrer V3-2 avec les deux domaines |
+| V3-2 | À CADRER | Pot : mutation effective distincte de complétion, no-op sans nouvelle V, multi-cibles sous une V. Identity : User/EUI facts, Registration/Link/Unlink, EUI versionnée sans Binding autonome, complétions distinctes. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Familles, demandes, séquences E, burnable/non-burnable, payloads et preuve de contrôle E2 | **Démarrer cadrage V3-2** |
+| V3-3 | À CADRER | Pot@V recompose données/poids à V. Identity : lecture du rattachement courant/témoin sous authentification et de l'historique EUI local. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Projections et contrats READ, matérialisation efficace et protection des tokens | Attendre contrat V3-2 |
+| V3-4 | À CADRER | Pot : observation initiale et collision CAS distinctes. Identity : admission déclarative, contrôle courant atomique E1/E2, retries sûrs et ordre anti-deadlock. | Plan A2 minimal, [Pot](V3-1_Domain_and_Versioning.md), [Identity](V3-1_Identity_Domain_and_Versioning.md) | Contrats finaux dépendant des sources/sorties V3 | Attendre V3-2/3 |
 | V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
 
 **Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
@@ -149,7 +151,8 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | Date | Étape | Changement / décision | Référence |
 |---|---|---|---|
 | 2026-10-22 | V3-0 | Création du document directeur ; cadrage initial, aucune implémentation | Commit de création de ce fichier |
-| 2026-10-22 | V3-1 | Conception conceptuelle validée : 8 sous-objets, règles de versions, suppressions, concurrence, finances et reconstruction ; aucune implémentation ni gate V3 ; jalon global toujours ouvert | [Spécification V3-1](V3-1_Domain_and_Versioning.md), `c3749981c47712a3f07b0b42b9557f2697f5911c` |
+| 2026-10-22 | V3-1 Pot | Conception conceptuelle validée : 8 sous-objets, règles de versions, suppressions, concurrence, finances et reconstruction ; aucune implémentation ni gate V3 ; jalon global toujours ouvert | [Pot](V3-1_Domain_and_Versioning.md), `c3749981c47712a3f07b0b42b9557f2697f5911c` |
+| 2026-10-22 | V3-1 Identity | Conception conceptuelle validée : User, EUI versionnée, binding relationnel, témoin non devinable, Registration/Link/Unlink, concurrence/histoire ; entitlements externes. Protocole de contrôle de E2 et conception V3-2/3/4 ouverts ; aucun code ni gate V3. | [Identity](V3-1_Identity_Domain_and_Versioning.md), `6371ce9521e9a7b849e18bbdecc907cea586e100` |
 
 À **chaque clôture d'étape**, ajouter une entrée datée avec SHA du livrable, résultats mesurables, invariants prouvés, exclusions, nouveaux arbitrages et statut. Réviser les étapes aval si une décision amont change leur hypothèse. Ne jamais revendiquer une preuve non exécutée.
 
@@ -161,4 +164,4 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
-**Prochaine action :** cadrage V3-2 — événements, demandes et consommables, à partir de la spécification V3-1 ; poursuivre V3-3/4 puis revue de cohérence globale V3-CADRE avant toute implémentation.
+**Prochaine action :** cadrage V3-2 — événements, demandes et consommables à partir des **deux spécifications V3-1 (Pot et Identity)** ; traiter explicitement la preuve de contrôle E2 avant implémentation, puis V3-3/4 et revue globale V3-CADRE.
