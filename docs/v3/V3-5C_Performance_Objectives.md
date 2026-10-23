@@ -33,3 +33,13 @@ Scénarios : **nominal**, **pointe**, **rattrapage**. Mesurer l'attente Discover
 ## 4. Prochain arbitrage
 
 Fixer des niveaux de débit de charge et la contention sur un même Pot, puis les volumes globaux et l'environnement de référence. Ne pas confondre objectifs SLO, taux offerts et résultats mesurés.
+
+## 5. Arbitrages de charge et budget Balance — 2026-10-23
+
+**Charges offertes validées :** nominal 1 commande/s, soutenu 10 commandes/s, pointe 50 commandes/s ; distinguer dispersion entre Pots et contention sur le même Pot. **Volumes globaux validés :** 100 Pots / 10 000 événements ; 10 000 Pots / 1 million d'événements ; 100 000 Pots / 10 millions d'événements.
+
+**Configuration A (moteur) :** PostgreSQL sur machine/VM dédiée 4 vCPU / 8 Go RAM ; API et tous les runtimes Pocoma sur seconde machine/VM 4 vCPU / 8 Go RAM. Générateur k6 et monitoring sur ressources isolées si possible. Authentification externe simulée, sans contourner l'AuthZ Pocoma. **Configuration B (intégrée) :** même base avec Keycloak réel sur ressources isolées, campagnes ciblées sur AuthN, Identity et accès réels ; ne pas multiplier automatiquement toutes les campagnes.
+
+**SLO nominal accepté comme premier objectif :** pour un Pot moyen (20 shareholders, 200 expenses), à 1 commande/s sur configuration A, **p95 ≤ 500 ms depuis l'admission de la commande jusqu'à PotBalance(P,V) disponible**. Ce temps inclut commande, Discovery et Engine, création des deux tâches, acquisition et matérialisation Balance. Ce SLO est **un objectif non mesuré**, non une preuve. Budget technique **candidat**, pas encore validé : p95 ≤ 50 ms pour calcul et écriture des balances, hors attente et propagation. Les percentiles des étapes ne s'additionnent pas pour déduire le percentile E2E. Définir clairement les campagnes (mutations appliquées, échantillon et sondage READ).
+
+**Prochain arbitrage :** budgets E2E Pot complet et Identity binding utilisable ; puis objectifs par phase et charges plus fortes. Ne pas étendre automatiquement le SLO de 500 ms aux Pots grands ou aux autres profils.
