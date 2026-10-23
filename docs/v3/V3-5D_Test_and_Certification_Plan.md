@@ -1039,3 +1039,46 @@ Recoupements obligatoires avec DOM-01 (intervalles), DOM-03 (soldes), EVT-02 (re
 Tests unitaires du calcul pur avec **oracle indépendant** fondé sur des entiers/fractions exactes, puis JUnit/PostgreSQL réel pour les versions de poids, la reconstruction `Pot@V`, la publication et les balances immuables. Cas tabulaires déterministes complétés par cas génératifs à seed fixe ; conserver données, parts attendues et calcul des sommes. Comparer les valeurs **pour chaque Shareholder** à chaque V. Croiser DOM-01 (reconstruction), DOM-02 (mutations/versions), PRJ-02 (matérialisation immuable) et EVT-02 (rollback). Les objectifs de 500 ms/2 s restent évalués uniquement dans PERF-01.
 
 **PASS DOM-03** exige D03-A à D03-O, conservation rationnelle exacte, poids par défaut appliqués à V, validations négatives et absence de modification des résultats historiques. Aucun test V3 n'a été implémenté ni exécuté.
+
+## 28. Protocole détaillé ID-01 — transitions Identity, unicité EUI, tokens et atomicité
+
+**Statut : protocole proposé, non exécuté.** Contrats V3-1 Identity et V3-5A : `PocomaUser` existe indépendamment des EUI ; une EUI unique par couple opaque `(issuer,subject)`, avec identifiant interne stable et histoire locale `version` commençant à 1, incrémentée de 1 **uniquement** lors d'une transition effective. Le rattachement `pocomaUserId?` et `bindingToken?` sont simultanément présents ou absents. `bindingToken` est neuf à chaque rattachement et nul après Unlink ; aucune entité Binding autonome n'est créée.
+
+### Oracles métier et transactionnels
+
+- **Registration :** demande initiée par une EUI authentifiée non liée, inconnue ou existante libre. Une réussite crée **exactement un nouveau PocomaUser**, puis crée EUI directement liée v1 ou incrémente sa version si elle existe libre. Aucune EUI liée à un User existant n'est réenregistrée.
+- **Link :** E1 authentifiée et encore liée à U, E2 libre ou inconnue et consentante (les preuves d'admission de E2 sont spécifiées en ID-02). Le User cible est **déduit de E1**, jamais fourni librement ; E2 devient liée à ce User avec **un nouveau token**. Si E2 est déjà liée, même à ce User, la demande est rejetée.
+- **Unlink :** E1 encore liée à U, E2 encore liée au **même U**, et le token déclaré de E2 correspond exactement au token courant. Il peut s'agir de E1 elle-même, de la dernière EUI liée à U, ou d'une autre EUI de U. Unlink rend User et token de E2 nuls, en nouvelle version ; PocomaUser persiste.
+- **Unicité/historique :** le couple `(issuer,subject)` ne peut pas être dupliqué même après Unlink ; une EUI liée U1 peut passer à U2 **uniquement via Unlink puis Link** ; ses versions sont reconstructibles directement. Des `subject` égaux avec `issuer` distincts sont deux EUI distinctes.
+- **Atomicité :** mutation du User/EUI, versions historiques, événements Identity correspondants, résultat, complétion et slot de la demande partagent la transaction WRITE (EVT-02/CON-06). Aucun User orphelin créé par une Registration perdante ; ni état `pocomaUserId` non nul avec token nul, ni l'inverse.
+- **Concurrence :** les vérifications de l'autorité initiatrice E1 et de l'état de E2 restent valides **jusqu'au commit** ; verrouillage des EUI concernées et ordre anti-deadlock seront prouvés. Un conflit technique de concurrence se résout selon CON-05, tandis qu'un rejet métier constaté est terminal.
+
+### Scénarios JUnit/PostgreSQL et Bruno
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| I01-A | Registration d'une EUI inconnue | Un seul nouveau User, EUI créée directement liée en v1, token neuf, événements User v1 et EUI v1, complétion unique |
+| I01-B | Registration d'une EUI existante libre à vN | Nouveau User, EUI liée à vN+1, identité interne et EUI opaque inchangées |
+| I01-C | Registration d'une EUI déjà liée | Rejet sans nouvelle version, événement de mutation ni nouveau User ; complétion de rejet |
+| I01-D | Deux Registrations concurrentes sur une EUI inconnue, puis sur une EUI libre | Un seul gagnant dans chaque cas ; aucun User orphelin ; unicité SQL vérifiée sous course |
+| I01-E | Link E1→E2 inconnue, puis E2 libre existante | E2 liée au User déduit de E1, directement v1 ou vN+1 ; token neuf ; aucun User créé |
+| I01-F | Deux Links concurrents visant la même E2, et Registration/Link concurrentes | Une transition gagnante, autres rejets sans mutation ; aucun User orphelin ni double liaison |
+| I01-G | Link sur une E2 déjà liée, y compris au même User | Rejet strict ; aucune nouvelle version et aucun token renouvelé |
+| I01-H | Unlink de E2 par E1 du même User, puis Unlink de E1 elle-même / dernière EUI | E2 devient libre avec token nul à version suivante ; PocomaUser persiste même sans EUI |
+| I01-I | Unlink avec token E2 obsolète, E2 déjà libre, ou E2 liée à autre User | Rejet, zéro mutation EUI, aucun nouveau token |
+| I01-J | Deux Unlinks croisés E1→E2 et E2→E1 avec barrières concurrentes | Au plus un succès : la seconde perd sa qualité d'initiatrice valide ; absence de deadlock persistant |
+| I01-K | Link concurrent d'Unlink de E1 initiatrice | Link ne peut valider sur E1 déjà détachée ; vérification initiatrice et écriture E2 sérialisées jusqu'au commit |
+| I01-L | Historique E2 : liée U1/token B → libre → liée U2/token C → libre → liée U1/token D | Versions contiguës, UserId/tokens exacts à chaque version ; B, C, D distincts et anciens tokens non acceptés |
+| I01-M | Deux identités ayant même `subject` mais `issuer` distinct, et tentative de duplication du couple exact | Distinction par couple complet, unicité globale du couple et stabilité de externalUserIdentityId |
+| I01-N | Exception après création du User, après modification EUI ou après un premier événement Identity, avant commit | Rollback intégral des mutations, de l'historique, des événements, du résultat et du slot ; aucun User orphelin |
+| I01-O | Commit réussi mais réponse perdue, puis même requestId réexécuté | Résultat initial retrouvé, aucune seconde transition, aucun nouveau token ni User |
+| I01-P | Rejeu de la même intention sous un **nouveau requestId** après succès | Application des préconditions actuelles : Link/Registration strictement refusés si EUI liée ; ne pas confondre avec retry idempotent |
+| I01-Q | Contrôle d'accès au token courant après Link/Unlink via READ en retard puis rattrapé | Token exposé uniquement à l'EUI authentifiée autorisée ; propagation conforme à CurrentBinding et SEC-01/02 |
+
+### Preuves, périmètre et PASS
+
+JUnit sur **PostgreSQL réel** avec contraintes d'unicité, connexions et barrières transactionnelles pour les conflits, fault injection avant commit, comparaison des versions exactes et des cardinalités User/EUI/événements ; Bruno pour les issues API et témoins externes. Les tokens de test sont comparés dans des assertions privées sans être inscrits dans logs, exports de métriques ni rapports publics. Les valeurs de tokens sont imprévisibles et uniques par transition ; une simple différence sur quelques fixtures ne constitue pas, seule, une preuve de qualité de génération aléatoire : inspection du générateur et tests de son contrat sont également requis.
+
+**Séparation des responsabilités :** ID-01 couvre les effets et préconditions d'Identity ; ID-02 démontre l'authentification et le consentement E2 à l'admission, ainsi que la portée temporelle des entitlements. EVT-02 et CON-06 couvrent le commit physique, tandis que SEC-01/02 couvrent l'accès READ et sa propagation.
+
+**PASS ID-01** : I01-A à I01-Q satisfaits, aucune double EUI, aucun User orphelin, tokens renouvelés, transitions strictes/histoire exacte et atomicité sous concurrence. Aucun test V3 implémenté ni exécuté.
