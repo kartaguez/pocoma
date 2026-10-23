@@ -529,3 +529,42 @@ Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction ma
 JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrières de concurrence, injections de rollback). Capturer les snapshots WRITE de `Pot@V`, `changedComponents`, les références exactes de `CurrentPot`, les versions immuables persistées, le slot et l'issue des commits. Comparer à un oracle déterministe indépendant des projections READ, y compris pour les suppressions. Vérifier le contenu immuable, pas seulement le nombre de lignes.
 
 **PASS PRJ-01** : P01-A à P01-L satisfaits, pointeur courant monotone et atomique, références homogènes, anciennes versions conservées sous arrivée hors ordre, aucun effet partiel ou historique fabriqué. Les consultations complètes restent à certifier en READ-01 et les soldes en PRJ-02. Aucun test V3 n'a encore été implémenté ou exécuté.
+
+## 16. Protocole détaillé PRJ-02 — balances complètes, exactes et immuables par version
+
+**Statut : protocole proposé, non exécuté.** Source V3-1/V3-3 : pour **chaque** mutation effective du Pot portant sa version globale à V, calculer intégralement les soldes rationnels de `Pot@V` (y compris pour une mutation non financière) et matérialiser `PotBalance(potId,V)` en READ, **sans dépendre de `PotBalance(V−1)`**. `PotBalance` est immuable ; il n'existe ni projection CurrentBalance, ni chaîne d'indirections entre versions. La tâche `POT_BALANCE_TASK` contient le résultat préparé pour V ; son traitement matérialise ce résultat et terminalise la tâche avec suppression de son slot dans la même transaction READ.
+
+### Oracle métier indépendant
+
+- Construire, pour chaque `Pot@V` de test, un **oracle de référence distinct de l'implémentation métier testée** : dépenses, contributeurs, bénéficiaires/quotes-parts, poids effectifs à V, associations et autres règles du domaine V3-1 ; utiliser des fractions exactes (entiers arbitraires pour numérateurs/dénominateurs ou une représentation équivalente prouvant l'exactitude), sans arrondi flottant.
+- Vérifier **l'ensemble complet des utilisateurs/parts concernés**, les montants nets individuels et les invariants de conservation applicables ; comparer les valeurs rationnelles normalisées plutôt que les seuls formats textuels ou des égalités approchées. Les conventions de signe et les règles de répartition sont celles du contrat métier V3-1 ; ne pas en inventer d'autres dans les tests.
+- Le résultat matérialisé porte **exactement (potId,V)**. Une balance V+1 ne peut remplacer ni modifier V et ne permet pas de conclure que V a été matérialisée ; une balance V existe indépendamment du pointeur mutable `CurrentPot`.
+- Les calculs de V ne lisent pas `PotBalance(V−1)` comme condition nécessaire : injecter l'absence ou le retard de la version précédente et vérifier une production V correcte.
+- L'identité et le contenu de la tâche proviennent de la reconstruction autoritative à **V exacte** ; pas d'échantillonnage de l'état courant WRITE au moment tardif de la matérialisation. Une mutation V+1 après préparation de V ne modifie pas les données de V.
+- La validation finale de la tâche, les écritures de `PotBalance(P,V)`, la transition de tâche `PENDING → TERMINAL` et la suppression du slot sont atomiques (PRJ-04, CON-04/06). Une duplication/reprise ne peut altérer une balance déjà durable.
+
+### Scénarios déterministes
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| P02-A | Pot V1 simple avec montants entiers et plusieurs bénéficiaires | Calcul complet des soldes attendus, rationalité exacte et équilibre global selon les règles du domaine |
+| P02-B | Dépenses fractionnaires, nombres premiers dans les poids et montants, réductions de fractions | Aucun arrondi ou dérive numérique ; égalité exacte à l'oracle indépendant |
+| P02-C | Changement de poids par défaut ou de poids explicites entre V et V+1 | Balance V conforme aux poids à V et Balance V+1 conforme aux poids à V+1 ; aucun emprunt des valeurs courantes |
+| P02-D | Mutation non financière (libellé, métadonnée compatible) produisant une nouvelle V globale | Nouvelle `PotBalance(P,V)` **complète** et indépendante, même si les montants sont identiques à V−1 |
+| P02-E | Création, modification, suppression d'Expense et changement de rattachement affectant la répartition | Chaque version conserve le calcul attendu ; suppressions et liens historiques respectés |
+| P02-F | Traiter la tâche Balance V+2 **avant** celles de V et V+1 | Les trois balances restent distinctes, correctes, immuables et accessibles en stockage ; aucune exigence de traitement FIFO |
+| P02-G | Supprimer/retarder volontairement la balance V−1 puis traiter V | V est calculée et matérialisée correctement sans accès à V−1 |
+| P02-H | Préparer la tâche V, faire avancer WRITE jusqu'à V+1 puis matérialiser V | Le contenu enregistré reste celui de V exactement, non celui de l'état WRITE courant |
+| P02-I | Deux Workers tentent de matérialiser la même tâche / même (P,V), avec commit incertain et retry | Une seule valeur durable canonique ; identité/contenu inchangés ; slot et tâche finalisés une seule fois |
+| P02-J | Erreur après insertion Balance mais avant terminalisation de tâche ou suppression du slot | Rollback total ; pas de balance durable orpheline, ni tâche terminale sans son résultat |
+| P02-K | `CurrentPot` pointe V+1 tandis que seule la balance V existe, puis balance V+1 arrive | Consultation complète à V+1 indisponible jusqu'à présence de sa balance exacte ; aucune substitution de V (READ-01) |
+| P02-L | Deux Pots indépendants et plusieurs versions chacun, tâches entrelacées | Calculs et clés isolés par (P,V) ; aucune contamination entre Pots |
+| P02-M | Profils petit (5/20), moyen (20/200), grand (100/2 000) et historiques de volumes V3-5C | Mesurer séparément reconstruction/préparation, attente et transaction de matérialisation ; p95 E2E des scénarios nominaux évalué contre les objectifs V3-5C, sans les présumer atteints |
+
+### Robustesse de l'oracle et méthodes
+
+JUnit et **PostgreSQL réel**, avec oracle rationnel indépendant, jeux de mutations connus, snapshots `Pot@V` attendus, captures de tâches, barrières de concurrence et injections de panne. Les tests de valeurs métier purs peuvent être unitaires ; l'immuabilité, les races et l'atomicité exigent PostgreSQL. Vérifier les clés et les **contenus** des anciennes balances après les traitements ultérieurs, non leur seule présence. Conserver les données génératrices (seed), les références et toutes les fractions de référence.
+
+Pour les performances, ne pas confondre le **temps de calcul pur**, la préparation en WRITE/READ, la création de tâche, son attente et la disponibilité par API. La mesure E2E doit inclure la chaîne complète et respecter l'incertitude du sondage. Le budget p95 de 50 ms sur calcul/écriture des balances demeure **candidat**, tandis que les SLO globaux (500 ms Pot moyen nominal, 2 s grand Pot nominal) sont les objectifs validés.
+
+**PASS PRJ-02** exige P02-A à P02-M, exactitude rationnelle, balance complète par version globale, immutabilité/idempotence et absence de dépendance à V−1. Les budgets sont qualifiés séparément en PERF-01 ; un succès fonctionnel ne certifie pas une performance. Aucun test V3 exécuté.
