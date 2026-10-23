@@ -1391,3 +1391,17 @@ H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet méti
 **Impact REC-01 :** considérer §38 et cette décision comme le contrat de test RCV01-A à N ; les cas de writer tardif, tâche dérivée encore PENDING, publication au-delà de B et échec de reconstruction sont des tests bloquants pour la remise en service.
 
 **Statut : C-02 RÉSOLU AU NIVEAU CONCEPTUEL, À PROUVER en V3-6/7.** V3-CADRE demeure ouvert : C-03 et la revue documentaire finale restent à traiter.
+
+## 40. C-03 — décision validée : performance observée par lecture READ, correction historique séparée (2026-10-23)
+
+**DÉCISION VALIDÉE.** Abandon de l'exigence de prouver, pour les SLO de réactivité utilisateur, que chaque version historique V a été **simultanément** exposable comme Pot complet. À partir d'une commande appliquée retournant `resultingPotVersion=V`, mesurer la **première réponse authentifiée, autorisée et complète de l'API Pot READ pour `minVersion=V`**, servant une version courante `W ≥ V` et tous les composants et balances requis **à W**. Le client ne réclame ni ne reçoit artificiellement `Pot@V` si CurrentPot a avancé. L'horloge E2E démarre à l'admission durable ; conserver les règles de sondage et de traitement des non-succès de PERF-01.
+
+**Séparation des preuves :**
+- **Disponibilité utilisateur (READ-01 / PERF-01) :** première lecture réelle avec W≥V, complète et autorisée ; aucun besoin de `PotVisibilityState(P).materializedVersion ≥ V` dans ce jalon **si l'endpoint Pot ne dépend pas de la visibilité**.
+- **Correction et progression historique (DOM-01/03, PRJ-01/02/04, CON-02) :** chaque balance immutable `PotBalance(P,V)` doit exister et être correcte, toutes les tâches attendues doivent terminer et la visibilité progresser ; vérifier par oracles internes/états READ, sans prétendre exposer une API Pot historique.
+- **SLO technique de balance nominale :** conserver séparément le p95 ≤ 500 ms admission→`PotBalance(P,V)` exacte ; contrairement au SLO utilisateur, cette mesure peut reposer sur un oracle technique READ indépendant et précis.
+- **Backlog et reconstruction (REC-01 / PERF-01 F01-G) :** garder l'exigence de terminaison des travaux dérivés (deux tasks) pour chaque événement ciblé ; une lecture courante W≥V ne suffit pas à prouver que les tâches historiques sont finies.
+
+**Amendements aux campagnes §24 :** dans F01-A, rapporter deux SLO distincts : première lecture Pot W≥V et Balance(P,V) ; dans F01-B/C/D, le délai Pot désigne uniquement la première lecture READ complète W≥V. Le §24.4 point 4, lorsqu'il suggère la complétude simultanée des projections de V ou une exigence `PotVisibilityState≥V` pour la lecture courante, est **supplanté** par le présent contrat. Aucun nouveau jalon par version historique pour les campagnes de réactivité.
+
+**Effet sur la revue §30 :** **C-03 RÉSOLU AU NIVEAU CONCEPTUEL** par simplification du contrat de mesure. C-01 (consentement IdP) et C-02 (maintenance READ) disposent également de décisions de principe ; il reste la revue documentaire finale, la consolidation du doublon CON-06 et la soumission explicite de V3-CADRE. Aucun code/DDL ni test V3 exécuté.
