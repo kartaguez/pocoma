@@ -113,3 +113,13 @@ Les noms sont descriptifs, pas des classes ou des identifiants UUID imposés. Le
 - **Compatibilité documentaire :** les formulations contraires des §§1–7 et les anciennes preuves PRJ-01/READ-01/SEC-01 sont supplantées par le présent amendement et doivent être réécrites dans les suites de réalisation. Aucune nouvelle Consumption ni séquence événementielle ajoutée.
 
 **Coût reconnu :** O(nombre de références × nombre de versions) en stockage de manifests, avant compressions ; aucune factorisation, worker de compactage ni archivage automatique au premier socle. Tester taille, WAL, CPU et nombre de requêtes. **Architecture décidée conceptuellement, non implémentée.**
+
+## 10. Alignement des contrats Supra V3-5E clôturés (2026-10-23)
+
+**Complément normatif à §9 :**
+- `CurrentUserPotList` se consulte par pages **keyset ordonnées `potId` croissant**, avec curseur opaque et aucun snapshot inter-pages. Chaque page est résolue pour l'utilisateur actuellement authentifié ; l'apparition/disparition d'un Pot peut changer les pages futures. Cette liste ne confère jamais d'autorisation de lecture du Pot.
+- La lecture principale de `PotVersion(P,V)` donne en une seule réponse **tous les Shareholders et balances exactes à V**, plus le **manifeste complet ordonné des références versionnées d'Expenses** ; aucun découpage de ce manifeste en V3, aucune troncature silencieuse. Les détails d'Expenses sont récupérés via des lots de références de taille bornée, autorisés un par un à V.
+- L'accès à la version historique reste fondé sur la présence à V d'un Shareholder rattaché au `pocomaUserId` résolu par un `CurrentBinding` **actif aujourd'hui**. La perte ultérieure de qualité de Shareholder ne retire pas rétroactivement l'accès à cette version ; la disparition du binding actif le retire. Cette règle SEC-01 est explicite et différente de l'usage de la liste de navigation.
+- L'idempotence des admissions (Command/IdentityRequest) relève des Supras et de leur persistance atomique en WRITE, **sans nouvelle projection READ**.
+
+Pour éviter toute ambiguïté, ces règles et §9 prévalent sur les formulations antérieures des §§1–8 qui décrivent un autre `CurrentPot` ou l'absence de manifeste historique. Voir V3-5E §§18–20 ; tests V3-5D §§47–49.
