@@ -43,7 +43,7 @@ Le **cadrage cohérent de toutes les étapes précède toute implémentation** :
 | **V3-1** | Domaine, sous-objets et versions | V3-0 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-2** | Événements, demandes et consommables | Modèle V3-1 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | **CONCEPTION VALIDÉE (non implémentée)** |
-| **V3-4** | Consumption, Discovery, Locator, Engine | Sources V3-2 et sorties V3-3 | À CADRER |
+| **V3-4** | Consumption, Discovery et Engine (sans Locator autonome) | Sources V3-2 et sorties V3-3 | À CADRER |
 | **V3-5** | Intégration, simplification, performance et clôture | V3-1 à V3-4 | À CADRER |
 
 Les étapes sont successives **pour trancher les contrats conceptuels** ; leur implémentation peut ensuite se découper en lots/branches coordonnés. Ne pas introduire de dépendances circulaires : les besoins des étapes suivantes peuvent rétroagir sur le cadrage précédent **avant le jalon de validation globale**.
@@ -100,7 +100,7 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 
 **Questions à résoudre :**
 - Consacrer **Consumption = identité UUID stable + famille de consommables + transformation**, exprimée en Java et référençable par son seul ID.
-- Définir les contrats explicites, peu nombreux, de **Discovery**, **Locator** et **Engine**, tous liés à une Consumption. Pas d'exécution croisée.
+- Définir les contrats explicites, peu nombreux, de **Discovery** et **Engine**, tous liés à une Consumption. Pas d'exécution croisée.
 - Discovery des burnables par disponibilité source ; non-burnables par enrôlement/checkpoint quand un journal le justifie. Checkpoint `(consumptionId, partitionId)` ; slot logique `(consumptionId, consumableId)`, partition hors identité.
 - Définir la concurrence, le routage, le parcours E, les slots, claims, fencing, retry, terminalisation, atomicité des effets et résolution de COMMIT UNKNOWN.
 - Composer plusieurs Consumptions dans des Workers intégrés ou séparés, sans validateur global, manifeste, digest ni framework administratif.
@@ -141,12 +141,14 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | V3-1 | **CONCEPTION VALIDÉE** | **Pot :** huit sous-objets, versions locales/globales, suppressions, concurrence et histoire à V. **Identity :** User autonome, EUI versionnée, binding relationnel, token non devinable, Registration/Link/Unlink, concurrence et reconstruction. Entitlements externes. | [Pot](V3-1_Domain_and_Versioning.md) ; [Identity](V3-1_Identity_Domain_and_Versioning.md) | Sécuriser preuve de contrôle EUI cible au Link ; interfaces V3-2/3/4/5 et revue globale ; aucune preuve runtime V3 | Cadrer V3-2 avec les deux domaines |
 | V3-2 | **CONCEPTION VALIDÉE** | Six familles : COMMAND, IDENTITY_REQUEST burnables PENDING→TERMINAL ; POT_EVENT, IDENTITY_EVENT et deux événements de complétion non-burnables. Quatre séquences denses, UUID eventId, mutations liées obligatoirement à requestId, atomicité résultats/événements, deux domaines strictement séparés. Revue des cas Pot/Identity réalisée. | [Contrat V3-2](V3-2_Events_Requests_and_Consumables.md) ; commit `886ff35fc2b9db55c97313d7fdeffc3e3d212475` | Détails résultats, matérialisations READ, protocole Consumption, contrôle de EUI cible et preuves techniques ; aucun code V3 | **Cadrer V3-3 READ/projections** |
 | V3-3 | **CONCEPTION VALIDÉE** | Sept projections logiques ; Pot courant complet ou indisponible, sous-objets immuables, balances immuables pour chaque V, liste de visibilité monotone avec historique d'appartenance, CurrentBinding unique, résultats terminaux seuls ; minVersion READ asynchrone. Deux Consumptions sur POT_EVENT : direct CurrentPot/sous-objets et deux tâches Balance/Visibilité. Direct pour Identity et complétions. | [READ V3-3](V3-3_Read_and_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` | Reprise transactionnelle et concurrence, suivi des tâches, accès sécurisés, coût SQL/reconstruction, qualification ; READ_REQUEST et historique hors périmètre | **Cadrer V3-4 Consumption/Discovery** |
-| V3-4 | **EN CONCEPTION** | Discovery enrôle durablement les slots ; Engine acquiert/exécute ; checkpoint de découverte par Consumption/partition pour les événements ; burnables PENDING sans slot ; double fencing, partitionnement statique, Worker mixte et replay par nouvel ID. | [Cadrage V3-4](V3-4_Consumption_and_Discovery.md), commit `0e93bf33d4a24bb70ac7093373c9b25c61b6f165` | **Revue de simplicité et preuves R1–R8** : absence de slot, tâches internes, double fencing PostgreSQL, mixité WRITE/READ, équité et coût SQL ; aucune preuve runtime V3 | Revue contradictoire de V3-4 puis cohérence V3-2/3 |
+| V3-4 | **CONCEPTION CONSOLIDÉE — REVUE TRANSVERSE EN COURS** | Slots durables, Discovery/checkpoints, fencing individuel et ownership partition, reprise unique par `retryAfter`, tâches internes READ, visibilité contrôlée par `PotVisibilityState`, READ asynchrone sécurisé par CurrentBinding, reconstruction READ à blanc. | [Cadrage V3-4](V3-4_Consumption_and_Discovery.md) ; harmonisation [V3-2](V3-2_Events_Requests_and_Consumables.md) et [V3-3](V3-3_Read_and_Projections.md), commit `d73dded7` | Preuve du protocole PostgreSQL, sécurité/consentement du Link, vérification exhaustive des flux et coûts en V3-5 ; aucune preuve runtime V3 | Cadrer V3-5 et mener revue V3-CADRE |
 | V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
 
 **Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
 
 ### Journal des mises à jour
+
+| 2026-10-23 | V3-4 transversal | Revue croisée V3-1 à V3-4 : ajout explicite des deux tâches internes en V3-2, visibilité par `PotVisibilityState`, autorisation READ via `CurrentBinding` et bindingToken authentifié, protocole unique de retry, reconstruction READ à blanc. V3-4 consolidée conceptuellement ; **V3-CADRE toujours ouvert**, aucune implémentation/test V3. | [V3-4](V3-4_Consumption_and_Discovery.md), commits `a904afc1`, `16496b9f`, `d73dded7` |
 
 | 2026-10-23 | V3-4 | Consolidation des arbitrages Consumption/Discovery, slots, checkpoint de découverte, partition ownership, reprise, Worker mixte ; revue critique R1–R8 ouverte. Cadrage non validé, aucune implémentation ni preuve runtime V3. | [V3-4](V3-4_Consumption_and_Discovery.md), `0e93bf33d4a24bb70ac7093373c9b25c61b6f165` |
 | Date | Étape | Changement / décision | Référence |
@@ -167,4 +169,4 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
-**Prochaine action :** auditer la simplicité et les invariants du [cadrage V3-4](V3-4_Consumption_and_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), puis V3-5 et revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
+**Prochaine action :** cadrer V3-5, vérifier les preuves et les derniers invariants du [cadrage V3-4](V3-4_Consumption_and_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), dans V3-5 et la revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
