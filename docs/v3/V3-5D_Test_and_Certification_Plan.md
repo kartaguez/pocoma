@@ -233,3 +233,46 @@ JUnit avec **PostgreSQL réel**, plusieurs connexions, barrières contrôlant le
 Conserver traces des fenêtres globales examinées, séquences, partitions, positions, checkpoints avant/après, slots et issues transactionnelles, ainsi que mesures de lectures/SQL. **PASS CON-01** requiert C01-A à C01-L, exhaustivité, non-réenrôlement et distinction prouvée entre les deux types de sources. Aucun résultat d'exécution n'est revendiqué.
 
 **Point de vigilance de conception :** le contrat ne prescrit pas encore la construction SQL de la borne sûre H ni la stratégie de réservation de capacité sous concurrence. Leur réalisabilité sans trou, sans famine et sans scans coûteux doit être justifiée dans le plan d'implémentation V3-6 et vérifiée en V3-7 ; toute incompatibilité avec le contrat doit revenir devant V3-CADRE plutôt qu'être cachée par un test permissif.
+
+## 10. Protocole détaillé CON-02 — atomicité checkpoint / slots et preuve de complétion
+
+**Statut : protocole proposé, non exécuté.** Le checkpoint non-burnable `(consumptionId,partitionId,position)` désigne le dernier événement **examiné**, non le dernier traité. Sa progression et l'enrôlement de **tous les slots requis dans la fenêtre** sont dans une seule transaction physique de la base des effets. L'exécution d'un slot le supprime uniquement dans la même transaction que les effets et leurs validations. Aucun checkpoint de complétion ni état DONE n'est ajouté.
+
+### Invariants et oracle
+
+Pour chaque événement E non-burnable de position p, destiné à Consumption C et partition P, après franchissement durable de p par `K(C,P)` :
+
+- Tant que les effets de E ne sont pas durablement appliqués, il existe **exactement un slot** `(C,E)` (libre, réclamé, expiré ou en retry).
+- Après suppression définitive de ce slot, les effets de E sont durablement appliqués et ne peuvent plus être annulés isolément.
+- La proposition `K ≥ p ET slot absent ⇒ effets déjà committés` n'est correcte **que sous les hypothèses de conservation et d'absence d'autres chemins de suppression**. Avant franchissement du checkpoint, l'absence de slot ne prouve rien.
+- Le scan d'une fenêtre, la protection de K/propriété de partition, l'insertion des slots nécessaires et l'avance de K se résolvent ensemble par commit ou rollback ; un lot interrompu n'est jamais à moitié découvert.
+- Les redémarrages ne recréent pas des slots d'événements déjà couverts, ni ne sautent les événements jamais enrôlés.
+
+### Cas déterministes
+
+| ID | Injection / entrelacement | Assertions depuis une autre connexion PostgreSQL |
+|---|---|---|
+| C02-A | Échec avant l'insertion du premier slot d'une fenêtre | K inchangé ; aucun slot de cette fenêtre ; reprise crée tous les slots attendus |
+| C02-B | Échec après insertion du premier slot mais avant les suivants | Rollback intégral, K inchangé et aucun slot partiel |
+| C02-C | Échec après insertion de tous les slots mais avant l'avance de K | Aucun slot durable et K inchangé après rollback |
+| C02-D | Échec après avance de K mais **avant commit** | Ni K avancé ni slots créés après rollback |
+| C02-E | Commit complet de la fenêtre puis réponse de commit perdue | K avancé et ensemble exact des slots présent ; retry de Discovery ne crée ni doublon ni perte |
+| C02-F | Fenêtre sans événement de cette partition, mais avec positions globales couvertes | K peut avancer atomiquement sans nouveaux slots ; les autres partitions demeurent inchangées |
+| C02-G | Deux Discoveries concurrentes ont lu K initial, l'une commit, l'autre tente de finaliser un snapshot périmé | Une seule avance cohérente, l'autre recharge ou abandonne ; slots exacts, K monotone |
+| C02-H | Transfert de propriété de partition entre préparation de la fenêtre et transaction finale | Ancien propriétaire ne commite ni K ni slots ; nouveau propriétaire reprend sur état durable |
+| C02-I | Un slot traité avec effet durable et suppression, mais panne **avant commit** | Rollback de l'effet et de la suppression : slot reste présent |
+| C02-J | Même effet/suppression avec commit réussi et accusé de réception perdu | Slot absent, effets durables, aucune seconde exécution à effet |
+| C02-K | Après traitement de certains slots d'une fenêtre, redémarrer Discovery puis Engine | K reste à la position examinée ; seuls les slots inachevés restent ; aucun slot terminé ne réapparaît |
+| C02-L | Simuler un reset partiel (slots seuls, checkpoints seuls, projections seules) ou un changement de Consumption avec réutilisation fautive de son ID | Opération administrative non autorisée/refusée ou détection explicite de violation ; seul le reset READ coordonné (REC-01) ou le nouvel ID de Consumption est admis |
+
+### Protocole d'injection et de constat
+
+- PostgreSQL réel, connexions et transactions indépendantes. Des barrières arrêtent le flux aux frontières **pré-commit** ; injecter exceptions, rollback explicite, déconnexion, interruption du Worker et perte simulée de la réponse de commit. Ne pas assimiler une déconnexion à la preuve d'un rollback : inspecter ensuite l'état durable.
+- Capturer `K`, liste des sources éligibles de la fenêtre, clés `(consumptionId,consumableId)` attendues, slots effectivement persistés, effets métier/projection, statuts des tâches si pertinents, et issues transactionnelles.
+- La lecture préparatoire de Discovery ne crée aucun état de complétion. Une éventuelle lecture cross-base des sources ne rend **pas** la transaction finale distribuée : checkpoint et slots doivent appartenir à l'autorité transactionnelle des effets de cette Consumption.
+- Vérifier les contraintes d'unicité et les seuls chemins autorisés de suppression ; un `DELETE` administratif direct hors transaction de reset briserait l'oracle, et ne doit pas être présenté comme un comportement sûr.
+- Couvrir une publication concurrente et la borne de préfixe sûr avec CON-01 ; l'ordre des verrous et la propriété de partition sont approfondis avec CON-03/06.
+
+### Critère PASS
+
+**PASS CON-02** requiert C02-A à C02-L, absence de demi-enrôlement et de demi-finalisation, monotonie de K, exactitude des slots et récupération sans travail perdu ni double effet. Exiger une preuve que la discipline de suppression/reset est respectée par **tous** les writers, pas seulement par le chemin nominal. Aucun test V3 n'a encore été implémenté ou exécuté.
