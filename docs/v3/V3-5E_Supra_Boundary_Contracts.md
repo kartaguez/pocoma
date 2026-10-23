@@ -228,3 +228,13 @@ Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées oc
 Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. Toute limite susceptible de refuser une requête fonctionnellement légitime doit être confrontée aux contrats métier. Configurer séparément les ressources de sécurité (octets, éléments, concurrence) sans exposer au client le moyen de les augmenter. Limiter la complexité : privilégier des garde-fous d'infrastructure et des validateurs de payload simples, sans pipeline générique de règles.
 
 **Questions restantes :** stratégie pour les corps compressés (interdire à l'admission V3 ou borner octets comprimés et décomprimés), choix uniforme 403/404, taille maximale de l'objet financier individuel et compatibilité du plafond de 100 cibles avec les commandes métier.
+
+## 14. Arbitrage — masquage des ressources métier (2026-10-23)
+
+**Principe validé : 404 par défaut pour toute ressource métier dont l'existence ne doit pas être divulguée.** Une ressource absente et une ressource existante mais non autorisée répondent de manière indiscernable pour le client non autorisé, sans exposer la raison interne. Inclut Pot, Expense et références de sous-objets non autorisées ; la possession d'une référence versionnée ne vaut jamais droit d'accès.
+
+**403 reste possible uniquement pour une interdiction indépendante de l'existence d'une ressource particulière**, par exemple un privilège fonctionnel global connu du client authentifié. Aucun cas 403 concret n'est imposé en V3 tant qu'il n'est pas identifié. **401** demeure réservé à l'absence/invalidité d'authentification. Une Command formellement valide peut être admise sans lecture métier WRITE puis rejetée par le Worker : ne pas convertir cette décision ultérieure en 403 d'admission.
+
+**Preuves SUPRA-READ-01/SEC-01 à ajouter :** ressource absente vs interdite sans distinction observable pertinente (statut, corps, détails et comportement contrôlable), refus de références étrangères sans fuite, réponses sensibles non mises en cache partagé, et cas 403 éventuels prouvant l'indépendance de la ressource. Le cache et les timings sont à qualifier de façon réaliste, sans exiger une constante cryptographique de temps pour chaque lecture SQL.
+
+**Statut : politique validée ; inventaire d'éventuels 403 et conventions exactes d'erreur à finir dans V3-5E.**
