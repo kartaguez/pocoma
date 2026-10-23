@@ -64,3 +64,20 @@ Un Supra protège les frontières à partir **des paramètres présentés, de l'
 **Cas de certification :** Pot@V renvoie simultanément Shareholders@V et Balance(P,V), jamais un mix V/V+1 ; absence de Balance(P,V) interdit la lecture complète ; pagination de 2 000 Expenses sans réponse monolithique ; mutation V→V+1 entre pages, qui doivent rester liées à V ou échouer explicitement sans mix ; authorization contrôlée sans assimiler liste de navigation et droit de lecture.
 
 **Statut : structure de réponse VALIDÉE ; pagination versionnée, plafonds et sécurité des pages à préciser.** Aucun endpoint, SQL ou DTO imposé à cette étape.
+
+## 7. Composition des Expenses à V — privilégier la reconstruction depuis les versions déjà historisées (2026-10-23)
+
+**Arbitrage d'étude :** la consultation affichée par le client reste à la version globale `V` ouverte jusqu'à une action explicite de rafraîchissement. Les pages d'Expenses demandent explicitement ou implicitement **le même V**. L'évolution de `CurrentPot` vers V+1 ne change jamais la composition des pages à V.
+
+**Comparaison :**
+- **Manifeste complet immuable par Pot@V** : déterministe mais duplique à chaque mutation de longues listes de références pour des Pots de 2 000 Expenses ; complexité de stockage et amplification d'écritures.
+- **Cache de composition au moment de l'ouverture** : optimisation facultative, mais non autorité de cohérence (éviction, déploiement distribué, redémarrage).
+- **Reconstruction directe depuis les sous-versions READ** : **préférence actuelle**, car le domaine définit déjà l'appartenance au Pot, les Headers d'Expenses, les versions locales et la validité à une version globale `activeFrom/activeTo`. Retrouver le Header applicable à V par Expense, exclure `deleted`, paginer suivant un ordre stable, puis résoudre Details/Financials applicables à V. Aucun manifeste supplémentaire tant que l'indexation rend ce parcours acceptable.
+
+**Nuance technique fondamentale :** V3-3 qualifie les `SubobjectVersion` de **strictement immuables**. En conséquence, ne pas présumer qu'un `activeTo` historique est modifié sur READ lors de l'arrivée d'une version ultérieure, notamment en présence de matérialisation hors ordre. Étudier une résolution fondée sur les `activeFrom` immuables des versions successives, ou une représentation équivalente permettant de prouver sans mise à jour d'une ancienne version l'unicité de l'état applicable à V. Les intervalles WRITE ne doivent pas être transposés naïvement aux rows READ.
+
+**Accès sécurisé :** à chaque page, authentifier l'EUI, vérifier `CurrentBinding`/bindingToken, puis l'autorisation réelle via Shareholder lié à l'utilisateur **à V** (contrat SEC-01), jamais via le seul curseur ou `CurrentUserPotList`. L'accès historique à V peut survivre à la disparition d'un Shareholder à V+1 conformément au contrat READ actuel, tant que le binding est actif ; la propagation de révocation READ reste asynchrone.
+
+**Critère de décision définitive :** éprouver la correction sur création/suppression/évolution d'Expense et hors ordre des matérialisations, puis le coût d'une page à V ancien pour 2 000 Expenses et historique long : SQL borné/indexé, pas de N+1 ni scan incontrôlé. Si cela échoue, reconsidérer une matérialisation minimale du manifeste historique plutôt qu'introduire une nouvelle Consumption.
+
+**Statut : consultation fixée à V VALIDÉE ; mécanisme de reconstruction historique PRÉFÉRÉ mais pas encore définitivement validé.** Aucune nouvelle projection ou cache obligatoire décidé.
