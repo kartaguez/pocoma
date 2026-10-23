@@ -394,3 +394,48 @@ JUnit sur PostgreSQL réel avec connexions distinctes et barrières/fault inject
 Tester séparément les retards de disponibilité introduits par `retryAfter` et l'attente résultant d'un claim encore détenu. Un chrono applicatif n'est pas une horloge DB : toute comparaison d'échéance doit être validée avec la sémantique SQL réellement choisie. Le protocole n'impose pas un algorithme de backoff sophistiqué ni un nouveau compteur durable.
 
 **PASS CON-05** : C05-A à C05-M satisfaits ; rollback avant toute reprise, une seule exécution par acquisition, libération conditionnelle non destructive, respect de retryAfter, rechargement complet et distinction démontrée entre conflit technique et rejet métier. Recoupements CON-03/04, DOM-02 et observabilité V3-5B. Aucun test V3 n'est encore exécuté.
+
+## 14. Protocole détaillé CON-06 — autorité transactionnelle physique et compositions mixtes
+
+**Statut : protocole proposé, non exécuté.** Toute Consumption possède une **unique autorité transactionnelle finale**, celle de ses effets : WRITE pour la terminalisation Command/Identity et leurs mutations ; READ pour les matérialisations, tâches de projection, checkpoints et slots READ. Les écritures de la Consumption, la validation de son claim, la terminalisation éventuelle de sa source et la suppression de son slot partagent **une seule transaction physique**. Un Worker peut héberger plusieurs Consumptions de royaumes différents ; cela n'autorise ni transaction distribuée ni commit atomique fictif entre WRITE et READ.
+
+### Invariants à démontrer
+
+- Les slots, checkpoints, leases de partition et effets finaux d'une même Consumption sont persistés dans **l'autorité transactionnelle correspondant à ses effets**. Pour un événement source situé dans l'autre base, les références/valeurs peuvent être lues pendant la préparation ; cette lecture ne constitue pas une écriture transactionnelle sur la base source.
+- Pour chaque transaction finale, les opérations JDBC et JPA participantes doivent utiliser le **même gestionnaire primaire effectif**, la **même connexion PostgreSQL transactionnelle** ou un enrôlement démontrablement équivalent dans la **même transaction physique**. Des noms de datasources semblables, des annotations `@Transactional`, ou une réussite nominale ne suffisent pas.
+- Aucun writer auxiliaire ne peut committer séparément des effets, de la terminalisation et de la suppression du slot. Une exception SQL rattrapée doit condamner l'unité de travail concernée si la poursuite permettrait un commit partiel.
+- Une composition qui marie accidentellement deux transaction managers ou deux autorités physiques pour **une seule Consumption** doit être rejetée au câblage ou avant toute écriture ; ne pas introduire un mécanisme 2PC pour la rendre licite.
+- Le séquencement d'événements et les opérations de claim/fencing respectent l'ordre transactionnel approuvé ; aucun contournement caché par JDBC, batch, listener, callback ou `REQUIRES_NEW`.
+
+### Cas vérifiables
+
+| ID | Construction / panne / entrelacement | Assertion décisive |
+|---|---|---|
+| C06-A | `COMMAND` en WRITE, mutations Pot + événement + complétion + statut source + slot final | Même commit physique, rollback total en cas de panne après n'importe quelle écriture |
+| C06-B | `IDENTITY_REQUEST` en WRITE, Registration avec deux événements Identity et complétion | Un seul commit physique pour User, EUI, événements, résultat, terminalisation et slot |
+| C06-C | Consumption READ de `POT_EVENT` : source WRITE lue en préparation, CurrentPot et slot en READ | Aucun commit WRITE induit par la matérialisation ; effets et suppression du slot atomiques en READ |
+| C06-D | Préparation des deux tâches Balance/Visibility en READ, puis matérialisations séparées | Préparation des deux tâches + suppression de son slot atomiques ; chacune des tâches a sa **propre** transaction READ de finalisation |
+| C06-E | Consumption de complétion Command/Identity : événements WRITE lus, résultats READ écrits | Écriture résultat projeté et suppression du slot dans une seule transaction READ ; aucune transaction distribuée |
+| C06-F | Mélanger JPA et JDBC dans la même Consumption, injecter échec après écriture JPA puis JDBC, et inversement | Toutes les écritures sont annulées ; preuve de connexion/transaction physique commune, pas seulement deux rollbacks coordonnés |
+| C06-G | Catch d'une exception SQL/JPA par un writer auxiliaire puis poursuite du flux jusqu'à tentative de commit | Commit intégralement empêché si transaction condamnée ; aucun `success` trompeur ni effet partiel |
+| C06-H | Introduire en test une composition invalide avec un manager/datasource secondaire indépendant ou `REQUIRES_NEW` | Composition refusée/isolée avant effet ; aucun split commit n'est possible dans un chemin certifié |
+| C06-I | Un Worker héberge des Consumptions WRITE et READ ; les fait progresser intercalées | Chaque exécution choisit la bonne autorité ; aucune transaction physique unique prétendue entre les deux royaumes |
+| C06-J | Crashes à la frontière de commit des Consumers WRITE et READ, réponse de commit perdue | Reprise selon source/slot durable de l'autorité correcte ; aucune compensation ou 2PC ajoutée |
+| C06-K | Deux Consumers indépendants traitent la même publication vers des projections distinctes | Commits READ autonomes ; aucun couplage temporel ou transactionnel fictif, résultats convergents |
+| C06-L | Revue structurale de **tous** les chemins d'écriture : repositories, JDBC direct, callbacks, batch, aides de test | Inventaire complet des gestionnaires/connections et protections ; pas de bypass de la discipline transactionnelle |
+
+### Dispositif de preuve
+
+1. **Tests d'architecture** (ArchUnit ou équivalent) : graphes de dépendances, injection du manager primaire correspondant à chaque autorité, interdiction des chemins d'écriture secondaires et de `REQUIRES_NEW` non autorisés ; revue des limites de détection statique.
+2. **Tests JUnit/PostgreSQL réels** : vérifier le comportement physique et les rollbacks à chaque frontière d'écriture, en particulier la combinaison JPA + JDBC ; une simple transaction logique annotée ne suffit pas.
+3. **Tests de composition négatifs** : injecter intentionnellement manager/datasource indépendant et confirmer le refus, y compris dans les assemblages monolithique et distribué pertinents.
+4. **Tests de reprise** : lecture durable depuis une connexion indépendante après commit, rollback et commit inconnu ; liens avec EVT-02, PRJ-04, CON-02/04.
+5. **Traces à conserver** : autorité choisie, gestionnaire effectivement employé, preuves de transaction/connexion, inventaire des writers, états SQL avant/après, fault injection et rapports PASS/FAIL — sans exposer secrets ou tokens.
+
+### Critère PASS et vigilance
+
+**PASS CON-06** seulement si C06-A à C06-L passent et si aucune voie d'écriture certifiée ne peut dissocier transaction physique, effets, source et slot. Une erreur interceptée ne doit pas permettre un commit partiel. Le Workers mixte ne partage que son **processus/ordonnancement**, pas la transaction WRITE/READ.
+
+Les Consumptions READ pouvant préparer des données issues de WRITE, l'absence de transaction distribuée ne garantit pas un snapshot inter-bases : la transformation doit revalider les préconditions qui en ont besoin dans son autorité finale et conserver ses règles de version/idempotence. L'atomicité exigée est **par Consumption**, non entre l'ensemble des projections indépendantes.
+
+**Aucun test V3 n'est encore exécuté ; V3-CADRE reste ouvert.**
