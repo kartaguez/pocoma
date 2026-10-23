@@ -1299,3 +1299,15 @@ Au moment où un récapitulatif est préparé, choisir une borne temporelle `T0 
 6. Récapitulatif validé, puis mutation Pot/Identity postérieure : Link reste admissible sans nouvelle comparaison des compteurs.
 
 **Statut :** seuil de cinq minutes **VALIDÉ**, preuve par borne sûre **OPTION TECHNIQUE À QUALIFIER**, et définition « participation » versus « accès » **à arbitrer**. Pas de nouvelle Consumption ou projection autorisée par cette note ; C-01 et V3-CADRE restent ouverts.
+
+## 36. C-01 — simplification du contexte informatif, sans garantie de fraîcheur (2026-10-23)
+
+**NOUVEL ARBITRAGE VALIDÉ, remplaçant la borne de cinq minutes du §34 et la piste de preuve par préfixe du §35 :** le consentement transactionnel E2 vise **l'identité du compte E1 et l'action de Link**, pas un état financier ou un nombre de Pots/EUI. Les compteurs affichés par le fournisseur sont **indicatifs**, issus des projections READ disponibles. Aucune garantie de fraîcheur de cinq minutes, aucun checkpoint de complétion supplémentaire et aucune lecture synchrone de WRITE pour cette présentation. Les valeurs peuvent être anciennes ou changer avant l'exécution, sans invalider l'autorisation.
+
+**Récapitulatif proposé :** Pocoma, identité E1 affichable sans exposer PocomaUserId, **nombre de Pots accessibles** (`CurrentUserPotList` visible=true, comprenant créateur ou Shareholder) et **nombre d'EUI liées** dans `CurrentBinding`, ainsi qu'une **date/heure de consultation des projections par Pocoma**. La mention doit être « informations consultées le… », **jamais** « état certifié à cette date ». Elle n'atteste pas de la fraîcheur des données sous-jacentes. L'abandon de « participe via Shareholder » au profit de « accessibles » reste la formulation recommandée pour coller à la navigation READ ; à confirmer explicitement si besoin.
+
+**Sécurité :** les compteurs, leur timestamp de consultation et leur exactitude à l'instant présent ne sont **pas** des conditions du Link et ne doivent jamais être utilisés pour désigner le compte cible. C'est l'identité E1 et la référence non substituable de la demande qui identifient l'opération. La preuve délivrée par l'autorité externe doit toujours attester le **consentement explicite** de E2 au rattachement demandé, et non une simple authentification OIDC.
+
+**Cas de test :** compte sans nouvelle activité pendant plus de cinq minutes, valeurs historiques toujours présentables avec libellé honnête ; READ en retard, chiffres indicatifs seulement ; compteurs modifiés entre confirmation et exécution sans rejet supplémentaire ; substitution de E1 ou de la destination refusée ; impossibilité de transformer l'heure de consultation en garantie de matérialisation.
+
+**Effet sur le statut :** le blocage de fraîcheur C-01 est **LEVÉ** par simplification du contrat. Reste à fermer le protocole de preuve de consentement fourni par l'IdP (identité, audience, intention, anti-rejeu), sans imposer de mécanisme de suivi de fraîcheur.
