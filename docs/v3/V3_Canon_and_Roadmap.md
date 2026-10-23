@@ -197,3 +197,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
 **Prochaine action :** lancer V3-5C (hypothèses de charge et budgets chiffrés), puis V3-5D, vérifier les preuves et les derniers invariants du [cadrage V3-4](V3-4_Consumption_and_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), dans V3-5 et la revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
+
+## Journal V3 — revue V3-5C, 2026-10-23
+
+- **V3-5C : CADRAGE CONCEPTUEL CLÔTURÉ (non mesuré, non certifié).** Document normatif d'objectifs : [V3-5C_Performance_Objectives.md](V3-5C_Performance_Objectives.md). Trois tailles de Pot et volumes historiques ; charges offertes 1/10/50 commandes/s ; deux machines dédiées PostgreSQL et runtimes (4 vCPU, 8 Go chacune), deuxième configuration avec Keycloak réel isolé ; sondes de test isolées.
+- SLO Pot moyen indépendant : p95 ≤ 500 ms nominal, ≤ 1 s soutenu, ≤ 3 s pointe ; grand Pot nominal p95 ≤ 2 s ; nouveau binding utilisable en READ p95 ≤ 500 ms nominal ; lot de 10 000 commandes avec travaux READ à rattraper en ≤ 5 minutes sous 1 nouvelle commande/s. Contention sur même Pot : correction, progression, résorption, sans SLO de latence arbitraire.
+- **Preuves :** tous ces seuils sont des objectifs, pas des résultats observés. Les mesures et tests sont à définir en V3-5D, puis à construire/exécuter en V3-6/V3-7.
+- **Prochaine action : V3-5D — plan de preuves détaillé et traçabilité V3-5A/B/C.** Jalon **V3-CADRE toujours OUVERT** ; aucune implémentation V3/DDL autorisée.
+- Commit documentaire de clôture V3-5C : `78705de755fbbc0a06d476318da2c7435d41df79`.
