@@ -276,3 +276,43 @@ Pour chaque événement E non-burnable de position p, destiné à Consumption C 
 ### Critère PASS
 
 **PASS CON-02** requiert C02-A à C02-L, absence de demi-enrôlement et de demi-finalisation, monotonie de K, exactitude des slots et récupération sans travail perdu ni double effet. Exiger une preuve que la discipline de suppression/reset est respectée par **tous** les writers, pas seulement par le chemin nominal. Aucun test V3 n'a encore été implémenté ou exécuté.
+
+## 11. Protocole détaillé CON-03 — propriété de partition distincte du claim de slot
+
+**Statut : protocole proposé, non exécuté.** Le lease de partition (propriétaire, `ownerToken`, échéance) autorise uniquement **Discovery et acquisition de nouveaux slots**. Le claim de slot (`claimToken`, `claimedUntil`) autorise renouvellement et finalisation de **ce slot**, même si le Worker a entre-temps perdu la propriété de partition. Le `partitionOwnerToken` n'est pas recopié dans le slot et aucun verrou de partition n'est exigé dans la transaction de finalisation. L'expiration du claim ne permet sa reprise qu'après vérification transactionnelle sous verrou du slot.
+
+### Oracles de correction
+
+- À un instant donné, au plus un propriétaire de partition possède le droit effectif d'enrôler ou d'acquérir. Un ancien `ownerToken` n'autorise aucune nouvelle Discovery ni acquisition après takeover.
+- La perte de partition **n'invalide pas** un claim déjà acquis : l'ancien Worker peut le renouveler et finaliser sous son `claimToken` valide. La possession actuelle de la partition n'est **pas** une précondition de finalisation.
+- Un nouveau propriétaire peut acquérir les slots libres ; il ne peut prendre un claim encore valide appartenant à l'ancien Worker. Un claim expiré peut être remplacé par un nouveau token, avec condition et sérialisation SQL.
+- La validité du claim est contrôlée à **l'acquisition du verrou exclusif final sur le slot**, à une date DB fraîche après toute attente de verrou. Une fois la protection obtenue et le verrou détenu jusqu'au commit/rollback physique, l'expiration murale ultérieure ne suffit pas à invalider ce commit.
+- Renouvellement, takeover et finalisation sur **le même slot** sont sérialisés. Un `claimToken` remplacé ne peut ni renouveler, ni libérer, ni finaliser le nouveau claim.
+- L'expiration de partition n'entraîne **aucune reprise anticipée des claims individuels**. Les bornes de temps de partition et de claim sont indépendantes.
+
+### Cas PostgreSQL déterministes
+
+| ID | Entrelaçement contrôlé | Oracle |
+|---|---|---|
+| C03-A | Worker A propriétaire acquiert slot S ; transfert de partition à B pendant que le claim de A est encore valide | B peut découvrir/acquérir d'autres slots mais **pas S** ; A peut terminer S ; aucune consultation de propriété de partition à la finalisation |
+| C03-B | Après transfert, A tente une nouvelle Discovery et une nouvelle acquisition avec son ancien ownerToken | Les deux sont refusées sans création de slot ni changement de claim |
+| C03-C | Après transfert, A renouvelle son claim S encore valide, alors que B renouvelle son lease de partition | Renouvellement de S possible sans droit de partition ; les deux opérations indépendantes ne se bloquent pas par un verrou de partition final |
+| C03-D | Lease de partition A expiré, claim S non expiré ; B devient propriétaire | B ne reprend pas S avant expiration propre de `claimedUntil` |
+| C03-E | Claim S expiré ; B tente takeover pendant que A tente le renouvellement tardif | Un seul gagnant selon verrou/conditions ; claim expiré **non ressuscité** ; ancien token incapable de finaliser |
+| C03-F | A acquiert verrou final de S avec claim valide ; `claimedUntil` passe pendant le commit encore en cours ; B tente takeover | Le commit A peut réussir sous verrou ; B attend puis constate slot absent ou issue durable et ne produit pas de double effet |
+| C03-G | A attend le verrou de S et son claim expire **pendant l'attente** ; B est en position de reprendre | A doit constater l'expiration à l'acquisition effective du verrou et ne peut finaliser grâce à une lecture antérieure de l'horloge DB |
+| C03-H | B remplace le claim expiré de S avant que A prenne le verrou final ; A revient avec ancien token | A ne finalise ni ne libère S ; seul token B peut gouverner le traitement |
+| C03-I | B perd lui-même sa partition après takeover de S mais garde un claim S valide | Même invariant récursivement : claim B demeure indépendant et peut terminer |
+| C03-J | Expiration, takeover et crash/commit incertain pendant la finalisation | Observer slot et effets depuis connexion indépendante ; un seul traitement durable, aucune réouverture ou reprise anticipée |
+| C03-K | Plusieurs partitions fixes et deux Workers partagent la même déclaration de Consumption ; alternance des propriétaires | Acquisitions exclusivement autorisées par propriétaire effectif de chaque partition ; claims anciens valides et routage stable |
+| C03-L | Métriques et traces d'une campagne répétée avec changements de propriétaire et claims de durées différentes | Aucun double commit ; taux de takeover, attente de verrou, reprises et expirations correctement observables |
+
+### Méthode et pièges à exclure
+
+JUnit multi-connexions contre **PostgreSQL réel**, barrières contrôlant prise du verrou, tentative de renouvellement, takeover, commit et rollback. Utiliser une horloge DB maîtrisable / délais d'expiration explicites et relecture DB *après verrou* ; ne pas fabriquer la preuve avec des `sleep` probabilistes. Contrôler à la fois le contenu durable des slots, les tokens (dans les assertions internes uniquement), les ownerTokens et les effets finaux. Ne jamais exposer ces tokens en métriques cardinales ou logs sensibles.
+
+Une stratégie fondée sur `now()` PostgreSQL pris au **début d'une longue transaction** ne suffit pas à C03-G ; la validation doit employer une horloge dont la fraîcheur après attente est prouvée. Le contrat ne prescrit ni DDL ni SQL exact : l'implémentation devra démontrer cette propriété.
+
+C03-F ne permet **pas** à un claim déjà expiré avant protection finale d'être accepté : la distinction porte sur l'instant d'obtention du verrou final. Le transfert de partition ne constitue pas un motif de rollback d'une transaction déjà protégée.
+
+**PASS CON-03** : C03-A à C03-L réussis, absence de reprise anticipée et de double effet, validation temporelle au verrou final, absence de dépendance de finalisation à l'ownerToken de partition. Recoupements obligatoires avec CON-04 (commit unique) et CON-06 (transaction physique). Aucun test V3 n'est exécuté à ce stade.
