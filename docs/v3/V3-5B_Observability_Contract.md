@@ -76,3 +76,18 @@ Dimensions admises par défaut : famille/Consumption logique connue, type d'opé
 ## 7. Statut et passage V3-5C
 
 **V3-5B : cadrage initial documenté, NON ENCORE VALIDÉ.** Décider d'abord O-01 (niveau de détail durable nécessaire) ; les autres points se poursuivent vers V3-5C/D. Ni performances chiffrées, ni code, ni exécution k6 ne sont revendiqués.
+
+
+## 8. Précision des parcours et jalons validée dans les échanges (2026-10-23)
+
+**Objectif B retenu :** diagnostics détaillés de chaque traitement, y compris attente et reprise après redémarrage, en préférant les timestamps/corrélations existants à de nouveaux champs durables. **Qualité du branchement des métriques** : démontrer en V3-5D/V3-7 que chaque instrument observe effectivement la bonne frontière et la bonne transaction (succès, rollback, retries et changements de Workers) ; ne pas confondre présence de série Prometheus et mesure valide.
+
+**Commande Pot :** distinguer séparément temps d'admission, attente source→slot Discovery, attente slot disponible→claim Engine, chargement/préparation, validation finale et commit. Après événement durable : mesurer chacune des branches indépendantes, avec **attente + exécution** pour `COMMAND_COMPLETION_EVENT→CommandResult`, `POT_EVENT→CurrentPot/SubobjectVersion`, `POT_EVENT→PreparePotProjectionTasks` (création atomique des deux tâches), puis **pour chaque tâche** attente Discovery, attente Engine, exécution et matérialisation de `PotBalance(P,V)` ou `PotVisibilityState(P,V)`. Les branches parallèles ne s'additionnent pas artificiellement.
+
+**Jalons E2E Command :** soumission→commande terminale ; soumission→CommandResult consultable ; soumission→CurrentPot à version au moins V et références nécessaires résolues ; soumission→balance exacte (P,V) ; soumission→visibilité matérialisée à V ou au-delà ; **soumission→ensemble des projections attendues de V effectivement disponibles**. Distinguer progression monotone des vues courantes et disponibilité exacte de versions historiques immuables : observer V+1 ne signifie pas que l'API sert encore la vue courante V.
+
+**Identity :** admission→IdentityRequest terminale ; admission→IdentityRequestResult consultable ; admission→CurrentBinding de l'EUI cible à `targetVersion` ou au-delà ; **admission→nouveau binding effectivement utilisable** pour une lecture authentifiée et autorisée sur une projection Pot disponible. Une projection Identity rattrapée ne garantit pas à elle seule une projection Pot prête. Les délais d'accès doivent distinguer attente Identity et éventuelle attente de contenu Pot.
+
+**Règle de mesure :** la fin métier des Consumptions correspond à un commit durable, tandis qu'une mesure côté client observe la première réponse qui prouve la disponibilité. Une sonde/poll fournit une borne d'observation, non une date de commit exacte. Les consommations ayant subi plusieurs tentatives doivent exposer temps d'attente et travail total avec retries, sans ajouter de mode REPLAY ni de nouveaux états durables.
+
+**Arbitrages restant en V3-5B/C :** définir la granularité effectivement mesurable pour chaque frontière avec l'instrumentation existante et la précision assumée ; qualifier explicitement les SLIs de disponibilité d'une version courante remplacée ; fixer les objectifs chiffrés en V3-5C.
