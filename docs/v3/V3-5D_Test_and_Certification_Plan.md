@@ -1234,3 +1234,20 @@ Les catégories ci-dessus sont une **organisation du runner et des fixtures**, n
 **Toujours à spécifier avant clôture C-01 :** format canonique des données montrées et attestées (notamment compte Pocoma désigné et E1), audience et intégrité de la preuve d'octroi, corrélation `requestId`, politique de fraîcheur, consommation unique en concurrence et méthode de qualification du fournisseur. **Ne pas assimiler un `state`/`nonce` OIDC ou un jeton d'identité classique à une attestation de consentement métier.**
 
 **Statut :** exigence de fournisseur et modèle d'autorité **VALIDÉS** ; détails du contrat de preuve **À FERMER**, V3-CADRE toujours ouvert, sans implémentation.
+
+## 33. C-01 — contenu approuvé du consentement E2 (2026-10-23)
+
+**ARBITRAGE VALIDÉ — contenu de l'écran externe :** le fournisseur d'identité présente explicitement **Pocoma** (application bénéficiaire), **E1** (identité authentifiée initiatrice identifiant le compte cible), **le nombre de Pots distincts actifs auxquels ce PocomaUser participe** et **le nombre d'EUI actuellement liées à ce même PocomaUser**. Il indique sans ambiguïté que E2 autorise **le rattachement de sa propre identité à ce compte Pocoma existant**, lui permettant d'y accéder selon les droits associés. Il propose une confirmation explicite **Autoriser / Refuser**. **Aucun solde financier, aucune liste détaillée de Pots et aucun PocomaUserId technique public.**
+
+**Définitions :**
+- « Nombre de Pots » = nombre de `PotId` métier **distincts, actifs**, avec au moins un Shareholder lié au PocomaUser cible dans la version courante prise comme référence ; deux Shareholders du même User dans le même Pot comptent une fois.
+- « Nombre d'identités liées » = nombre d'EUI **actuellement rattachées** à ce PocomaUser dans l'autorité Identity au moment du récapitulatif ; E2 n'est pas encore comptée si libre.
+- Les deux nombres sont des **photographies informatives** datées ; ils peuvent changer entre présentation et exécution. Aucun invariant métier d'égalité des compteurs n'est ajouté au Link.
+
+**Contrat de preuve :** l'attestation vérifiable retournée par le fournisseur porte sur le consentement explicite de **E2** à une intention Link précise, son `requestId`, l'identité E1 et un **récapitulatif canonique** contenant les deux compteurs, leur date de référence et la destination Pocoma. La preuve de consentement ne se réduit pas à une authentification ordinaire. Un changement de destinataire ou du récapitulatif **après** consentement invalide la preuve ; une évolution ultérieure naturelle du nombre de Pots/EUI ne l'invalide pas. Pas de nouvelle entité Consent ni de demande Link persistée avant validation de la preuve E2.
+
+**Exigence de cohérence à détailler :** les deux chiffres proviennent de domaines/projections indépendants (Pot, Identity), sans snapshot global commun garanti. Il faut indiquer **leur instant ou watermark de référence et la fraîcheur connue** ; éviter de présenter une estimation READ en retard comme « état exact instantané ». Une lecture du compteur de Pots depuis une liste READ éventuellement périmée ne suffit pas à revendiquer un décompte autoritatif. Le protocole de collecte/qualification des deux compteurs et la gestion d'une valeur indisponible doivent être choisis avant le verdict définitif C-01, sans introduire de lecture WRITE synchrone non prévue à l'admission ni barrière inter-Pots.
+
+**Tests additionnels ID-02 :** vérifier le dédoublonnage des Shareholders par Pot ; exclusion des Pots supprimés ; comptage des EUI liées ; attestation intègre du récapitulatif réellement affiché ; rejet de substitution E1/compteurs avant admission ; modification légitime des compteurs après consentement sans faux rejet ; impossibilité de présenter des compteurs retardés comme parfaitement actuels.
+
+**Statut :** contenu métier du consentement **VALIDÉ** ; modalités techniques du fournisseur et preuve/fraîcheur des compteurs **À SPÉCIFIER** ; V3-CADRE reste ouvert.
