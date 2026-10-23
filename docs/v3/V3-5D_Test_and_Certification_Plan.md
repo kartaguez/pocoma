@@ -395,51 +395,6 @@ Tester séparément les retards de disponibilité introduits par `retryAfter` et
 
 **PASS CON-05** : C05-A à C05-M satisfaits ; rollback avant toute reprise, une seule exécution par acquisition, libération conditionnelle non destructive, respect de retryAfter, rechargement complet et distinction démontrée entre conflit technique et rejet métier. Recoupements CON-03/04, DOM-02 et observabilité V3-5B. Aucun test V3 n'est encore exécuté.
 
-## 14. Protocole détaillé CON-06 — autorité transactionnelle physique et compositions mixtes
-
-**Statut : protocole proposé, non exécuté.** Toute Consumption possède une **unique autorité transactionnelle finale**, celle de ses effets : WRITE pour la terminalisation Command/Identity et leurs mutations ; READ pour les matérialisations, tâches de projection, checkpoints et slots READ. Les écritures de la Consumption, la validation de son claim, la terminalisation éventuelle de sa source et la suppression de son slot partagent **une seule transaction physique**. Un Worker peut héberger plusieurs Consumptions de royaumes différents ; cela n'autorise ni transaction distribuée ni commit atomique fictif entre WRITE et READ.
-
-### Invariants à démontrer
-
-- Les slots, checkpoints, leases de partition et effets finaux d'une même Consumption sont persistés dans **l'autorité transactionnelle correspondant à ses effets**. Pour un événement source situé dans l'autre base, les références/valeurs peuvent être lues pendant la préparation ; cette lecture ne constitue pas une écriture transactionnelle sur la base source.
-- Pour chaque transaction finale, les opérations JDBC et JPA participantes doivent utiliser le **même gestionnaire primaire effectif**, la **même connexion PostgreSQL transactionnelle** ou un enrôlement démontrablement équivalent dans la **même transaction physique**. Des noms de datasources semblables, des annotations `@Transactional`, ou une réussite nominale ne suffisent pas.
-- Aucun writer auxiliaire ne peut committer séparément des effets, de la terminalisation et de la suppression du slot. Une exception SQL rattrapée doit condamner l'unité de travail concernée si la poursuite permettrait un commit partiel.
-- Une composition qui marie accidentellement deux transaction managers ou deux autorités physiques pour **une seule Consumption** doit être rejetée au câblage ou avant toute écriture ; ne pas introduire un mécanisme 2PC pour la rendre licite.
-- Le séquencement d'événements et les opérations de claim/fencing respectent l'ordre transactionnel approuvé ; aucun contournement caché par JDBC, batch, listener, callback ou `REQUIRES_NEW`.
-
-### Cas vérifiables
-
-| ID | Construction / panne / entrelacement | Assertion décisive |
-|---|---|---|
-| C06-A | `COMMAND` en WRITE, mutations Pot + événement + complétion + statut source + slot final | Même commit physique, rollback total en cas de panne après n'importe quelle écriture |
-| C06-B | `IDENTITY_REQUEST` en WRITE, Registration avec deux événements Identity et complétion | Un seul commit physique pour User, EUI, événements, résultat, terminalisation et slot |
-| C06-C | Consumption READ de `POT_EVENT` : source WRITE lue en préparation, CurrentPot et slot en READ | Aucun commit WRITE induit par la matérialisation ; effets et suppression du slot atomiques en READ |
-| C06-D | Préparation des deux tâches Balance/Visibility en READ, puis matérialisations séparées | Préparation des deux tâches + suppression de son slot atomiques ; chacune des tâches a sa **propre** transaction READ de finalisation |
-| C06-E | Consumption de complétion Command/Identity : événements WRITE lus, résultats READ écrits | Écriture résultat projeté et suppression du slot dans une seule transaction READ ; aucune transaction distribuée |
-| C06-F | Mélanger JPA et JDBC dans la même Consumption, injecter échec après écriture JPA puis JDBC, et inversement | Toutes les écritures sont annulées ; preuve de connexion/transaction physique commune, pas seulement deux rollbacks coordonnés |
-| C06-G | Catch d'une exception SQL/JPA par un writer auxiliaire puis poursuite du flux jusqu'à tentative de commit | Commit intégralement empêché si transaction condamnée ; aucun `success` trompeur ni effet partiel |
-| C06-H | Introduire en test une composition invalide avec un manager/datasource secondaire indépendant ou `REQUIRES_NEW` | Composition refusée/isolée avant effet ; aucun split commit n'est possible dans un chemin certifié |
-| C06-I | Un Worker héberge des Consumptions WRITE et READ ; les fait progresser intercalées | Chaque exécution choisit la bonne autorité ; aucune transaction physique unique prétendue entre les deux royaumes |
-| C06-J | Crashes à la frontière de commit des Consumers WRITE et READ, réponse de commit perdue | Reprise selon source/slot durable de l'autorité correcte ; aucune compensation ou 2PC ajoutée |
-| C06-K | Deux Consumers indépendants traitent la même publication vers des projections distinctes | Commits READ autonomes ; aucun couplage temporel ou transactionnel fictif, résultats convergents |
-| C06-L | Revue structurale de **tous** les chemins d'écriture : repositories, JDBC direct, callbacks, batch, aides de test | Inventaire complet des gestionnaires/connections et protections ; pas de bypass de la discipline transactionnelle |
-
-### Dispositif de preuve
-
-1. **Tests d'architecture** (ArchUnit ou équivalent) : graphes de dépendances, injection du manager primaire correspondant à chaque autorité, interdiction des chemins d'écriture secondaires et de `REQUIRES_NEW` non autorisés ; revue des limites de détection statique.
-2. **Tests JUnit/PostgreSQL réels** : vérifier le comportement physique et les rollbacks à chaque frontière d'écriture, en particulier la combinaison JPA + JDBC ; une simple transaction logique annotée ne suffit pas.
-3. **Tests de composition négatifs** : injecter intentionnellement manager/datasource indépendant et confirmer le refus, y compris dans les assemblages monolithique et distribué pertinents.
-4. **Tests de reprise** : lecture durable depuis une connexion indépendante après commit, rollback et commit inconnu ; liens avec EVT-02, PRJ-04, CON-02/04.
-5. **Traces à conserver** : autorité choisie, gestionnaire effectivement employé, preuves de transaction/connexion, inventaire des writers, états SQL avant/après, fault injection et rapports PASS/FAIL — sans exposer secrets ou tokens.
-
-### Critère PASS et vigilance
-
-**PASS CON-06** seulement si C06-A à C06-L passent et si aucune voie d'écriture certifiée ne peut dissocier transaction physique, effets, source et slot. Une erreur interceptée ne doit pas permettre un commit partiel. Le Workers mixte ne partage que son **processus/ordonnancement**, pas la transaction WRITE/READ.
-
-Les Consumptions READ pouvant préparer des données issues de WRITE, l'absence de transaction distribuée ne garantit pas un snapshot inter-bases : la transformation doit revalider les préconditions qui en ont besoin dans son autorité finale et conserver ses règles de version/idempotence. L'atomicité exigée est **par Consumption**, non entre l'ensemble des projections indépendantes.
-
-**Aucun test V3 n'est encore exécuté ; V3-CADRE reste ouvert.**
-
 ## 14. Protocole détaillé CON-06 — une seule transaction physique par Consumption
 
 **Statut : protocole proposé, non exécuté.** Toute finalisation d'une Consumption doit coordonner sa protection du claim, les validations, les effets persistants, la mise à jour éventuelle de la source burnable et la suppression du slot **dans la même transaction physique, sur une seule autorité de persistance**. Les opérations préparatoires peuvent lire une autre base, mais les effets atomiques et les métadonnées du traitement résident ensemble. Un Worker mixte héberge des Consumptions WRITE et READ sans jamais partager une transaction physique entre ces royaumes.
@@ -485,13 +440,40 @@ La Discovery, son checkpoint et ses slots s'enregistrent dans l'autorité **des 
 | C06-L | Commit incertain, claim expirant durant verrou final, transfert de partition | Fencing du slot durable jusqu'à commit ; récupération par lecture durable ; aucune protection de partition finale requise |
 | C06-M | Vérifier tous les points d'entrée et compositions des writers, y compris tests et mono-runtime | Inventaire des transactions physiques et garde-fous ; aucun chemin de finalisation non couvert |
 
+### Couverture fusionnée et correspondance avec l'ancienne fiche CON-06
+
+La présente fiche est **l'unique protocole canonique CON-06**. Elle conserve les assertions de l'ancienne fiche « autorité transactionnelle physique et compositions mixtes » sans exiger deux campagnes distinctes :
+
+| Ancien cas | Cas canonique et preuve conservée |
+|---|---|
+| ancien C06-A (Command WRITE) | C06-A |
+| ancien C06-B (Registration WRITE) | C06-B |
+| ancien C06-C (CurrentPot READ) | **C06-N** ci-dessous |
+| ancien C06-D (préparation et tâches distinctes) | C06-C + C06-D |
+| ancien C06-E (projections Result) | **C06-O** ci-dessous |
+| ancien C06-F (JPA/JDBC dans les deux ordres) | C06-E + C06-F + C06-G |
+| ancien C06-G (exception interceptée) | C06-E + C06-G |
+| ancien C06-H (manager invalide / REQUIRES_NEW) | C06-H + C06-I |
+| ancien C06-I (Worker mixte) | C06-J |
+| ancien C06-J (commit inconnu) | C06-L et CON-04 |
+| ancien C06-K (Consumers indépendants) | **C06-P** ci-dessous |
+| ancien C06-L (inventaire des writers) | C06-M |
+
+| Cas complémentaire conservé | Assertion décisive |
+|---|---|
+| **C06-N** | Matérialisation `POT_EVENT → CurrentPot/SubobjectVersion` : version courante, sous-objets immuables et suppression du slot forment **une transaction READ** ; la lecture préparatoire de l'événement WRITE ne produit aucune écriture WRITE. |
+| **C06-O** | Projection des événements de complétion vers `CommandResult` / `IdentityRequestResult` : résultat et suppression du slot READ dans une transaction physique unique, même en cas de panne/rollback. |
+| **C06-P** | Deux Consumptions indépendantes sur la même publication écrivent deux projections READ distinctes : commits autonomes, pas de barrière ni de transaction inter-Consumptions ; convergence même lorsque leurs finalisations sont décalées. |
+
+**PASS CON-06 consolidé** : C06-A à C06-P couverts, avec preuves des frontières WRITE/READ, poisoning de chaque writer, absence de transaction distribuée, composition monolithique/distribuée et absence de voie secondaire. La fusion est éditoriale ; aucun test n'est exécuté.
+
 ### Dispositif et artefacts de preuve
 
 Combiner tests d'architecture (composition, managers, annotations interdites, chemins d'accès), tests d'intégration Spring sur les compositions réelles et **PostgreSQL réel** avec injections de fautes. Relever l'identité effective de transaction et de connexion au moment des writers concernés, vérifier les états durables depuis une connexion extérieure après commit/rollback, et tester des erreurs **interceptées**, pas seulement propagées. Couvrir les configurations runtimes séparés **et** monolithiques.
 
 Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction manager garantit une transaction physique commune : ce sont des hypothèses à prouver. Les verrous, contraintes et timings exacts seront démontrés dans CON-03/04 et EVT-01. Le protocole ne prescrit pas de framework transactionnel supplémentaire ; une composition non conforme doit être corrigée ou refusée.
 
-**PASS CON-06** : C06-A à C06-M vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, PRJ-04 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
+**PASS CON-06** : C06-A à C06-P vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, PRJ-04 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
 
 ## 15. Protocole détaillé PRJ-01 — CurrentPot et versions immuables de sous-objets
 
@@ -1405,3 +1387,28 @@ H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet méti
 **Amendements aux campagnes §24 :** dans F01-A, rapporter deux SLO distincts : première lecture Pot W≥V et Balance(P,V) ; dans F01-B/C/D, le délai Pot désigne uniquement la première lecture READ complète W≥V. Le §24.4 point 4, lorsqu'il suggère la complétude simultanée des projections de V ou une exigence `PotVisibilityState≥V` pour la lecture courante, est **supplanté** par le présent contrat. Aucun nouveau jalon par version historique pour les campagnes de réactivité.
 
 **Effet sur la revue §30 :** **C-03 RÉSOLU AU NIVEAU CONCEPTUEL** par simplification du contrat de mesure. C-01 (consentement IdP) et C-02 (maintenance READ) disposent également de décisions de principe ; il reste la revue documentaire finale, la consolidation du doublon CON-06 et la soumission explicite de V3-CADRE. Aucun code/DDL ni test V3 exécuté.
+
+## 41. Consolidation éditoriale et pré-gate V3-CADRE (2026-10-23)
+
+**Action réalisée :** fusion des deux fiches §14 CON-06 en **un seul protocole**, conservant la matrice d'autorités et les preuves transactionnelles les plus précises, avec correspondance des douze anciens cas, et trois cas complémentaires C06-N/O/P pour éviter toute perte (CurrentPot READ, résultats READ, consommateurs indépendants). Les 24 IDs de V3-5A conservent leur section dédiée. Les références historiques du §30 mentionnant encore le doublon décrivent l'anomalie **avant correction** ; elles ne constituent pas une anomalie active.
+
+### Lecture transversale de cohérence
+
+- **Domain/Identity :** Pot@V historisé en WRITE, bindings et tokens EUI historisés, `observedVersion` constant ; aucune entité Binding/Consent ou droit Entitlements propre à Pocoma n'est réintroduit. Link reste une demande unique admise **après consentement attesté par un IdP qualifié** ; les compteurs présentés sont indicatifs avec une **heure de consultation READ**, sans garantie de fraîcheur.
+- **Event/Consumption :** six familles événementielles métier et deux tâches burnables internes READ ; quatre séquences événementielles globales denses, pas de nouvelle séquence pour les tâches ; transactions locales à l'autorité des effets, pas de XA. Discovery checkpoint n'est pas un accusé de fin de traitement ; claim individuel peut survivre à un changement de propriétaire de partition.
+- **READ / reconstruction :** vues courantes et sous-versions/balances historiques immuables ; lecture Pot complète de W≥minVersion ou indisponibilité ; authorization indépendante de `CurrentUserPotList`. Reconstruction totale de READ **en maintenance exclusive**, avec arrêt réel des writers et READY par préfixes entièrement traités.
+- **Performance :** C-03 supplante les anciens jalons E2E « version historique V simultanément exposable ». Le jalon utilisateur est la première lecture complète Pot de W≥V ; la balance historique `PotBalance(P,V)` reste une preuve et un SLO technique distincts, ainsi que le drainage des deux tâches.
+
+### Réserves non bloquantes de principe, à traiter avant V3-6/7
+
+1. **Historique des amendements :** les anciennes sections §24/§30 et §34/35 contiennent des formulations désormais supplantées par §§36/40. Lors de la génération du plan d'exécution, n'utiliser que le **dernier amendement explicite** et harmoniser les passages antérieurs avant de coder les suites.
+2. **Qualification fournisseur IdP :** le contrat de preuve d'octroi transactionnel de §37 est défini ; la disponibilité de cette fonctionnalité chez Keycloak ou un autre fournisseur n'est **pas** prouvée. Un serveur OIDC générique ne satisfait pas automatiquement C-01.
+3. **Disponibilité opérationnelle de maintenance READ :** la procédure §38/39 impose l'exclusivité et le drainage physique des transactions, à démontrer dans les compositions déployées. L'arrêt d'un lease ne suffit pas.
+4. **Mesures :** les durées/volumes et sondages k6 de §24 restent des propositions à figer avant exécution ; le contrat de lecture courante amendé §40 prévaut. Pas de métrique ou latence V3 effectivement certifiée.
+5. **Définition du compteur informatif de Pots :** « Pots accessibles » via la liste de visibilité est la formulation techniquement alignée à V3-3, mais le consentement n'en dépend pas et sa fraîcheur n'est pas garantie ; adopter ce libellé cohérent dans les futurs contrats d'interface.
+
+### Conditions d'une décision explicite V3-CADRE
+
+Avant d'autoriser V3-6 : (a) confirmer que le contrat abstrait IdP de §37 et son test de qualification sont suffisants sans imposer un fournisseur déjà opérationnel ; (b) confirmer le mode maintenance exclusive READ ; (c) confirmer C-03 et les deux plans de mesure séparés ; (d) adopter la fiche CON-06 consolidée ; (e) vérifier que les amendements actifs prévalent partout dans le plan des tests.
+
+**Verdict actuel : PRÉ-GATE DOCUMENTAIRE CONSOLIDÉ, NON CERTIFIÉ.** Aucun test/runtime/DDL V3 exécuté ou modifié ; **V3-CADRE reste OUVERT** jusqu'à sa décision explicite.
