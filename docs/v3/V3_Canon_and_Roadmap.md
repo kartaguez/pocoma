@@ -269,3 +269,9 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Trois arbitrages de contrat encore structurants :** S-01 pagination/ordre et cohérence de `CurrentUserPotList` ; S-02 taille et découpage éventuel du manifeste de références renvoyé avec `PotVersion` ; S-03 idempotence observable d'une admission après commit/réponse incertaine et réemploi de clé avec payload différent. Les paramètres de limites et de quotas peuvent être calibrés plus tard, sans changer le contrat.
 
 **V3-CADRE demeure OUVERT** jusqu'à résolution de ces choix et revue cohérente des preuves. Aucun runtime, DDL ou test V3 réalisé dans ce chantier.
+
+## Journal V3 — S-03 arbitré, décisions finales Supras (2026-10-23)
+
+**S-01, S-02, S-03 sont conceptuellement arbitrés** dans [V3-5E](V3-5E_Supra_Boundary_Contracts.md) : pagination `CurrentUserPotList` keyset par potId sans snapshot ; manifeste complet des références Expense dans la lecture principale PotVersion ; admission idempotente par clé client liée à une portée et à une intention canonique, 409 sur réemploi divergent, inscription atomique avec la demande. Les scénarios de certification complémentaires figurent dans V3-5D §§47–49.
+
+**Prochaine action :** revue de clôture V3-5E, cohérence finale des contrats et réserves (notamment rétention d'idempotence, tailles de transport), puis nouvelle décision explicite du gate V3-CADRE. **Gate toujours OUVERT**, aucun runtime/DDL ni test V3 exécuté.
