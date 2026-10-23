@@ -1379,3 +1379,15 @@ H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet méti
 ### Point à trancher pour validation C-02
 
 **Accepte-t-on une indisponibilité totale de READ durant la reconstruction**, avec arrêt effectif de tous les writers READ sous contrôle d'exploitation, plutôt que d'introduire une stratégie « reconstruction sans interruption » et ses générations/fences permanents ? Si oui, ce protocole peut fermer C-02 **au niveau conceptuel** ; les procédures de déploiement et commandes SQL restent à établir en V3-6 puis à prouver dans REC-01. V3-CADRE demeure ouvert.
+
+## 39. C-02 — arbitrage validé : reconstruction READ en maintenance exclusive (2026-10-23)
+
+**DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure de §38 est retenue conceptuellement : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, tâches, slots, claims/propriétés et checkpoints, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les événements WRITE immuables.
+
+**Condition de réouverture :** capturer quatre préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des Consumptions READ jusqu'aux préfixes et achèvement de **tous les effets dérivés nécessaires**, notamment les deux Projection Tasks par événement Pot, les CurrentBinding et les résultats terminaux. Le checkpoint de découverte seul ne vaut pas achèvement. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
+
+**Garde-fous :** ne jamais confondre perte de propriété de partition avec arrêt des claims déjà acquis : les anciens writers doivent être physiquement arrêtés ou neutralisés avant le reset. Si l'exclusivité de maintenance est perdue ou si le reset est interrompu, ne pas ouvrir READ ; reprendre une reconstruction totale cohérente. Aucun fencing/generation permanent de reconstruction et aucun arrêt prolongé de WRITE ne sont requis **sous condition que cette exclusivité soit effectivement prouvée**.
+
+**Impact REC-01 :** considérer §38 et cette décision comme le contrat de test RCV01-A à N ; les cas de writer tardif, tâche dérivée encore PENDING, publication au-delà de B et échec de reconstruction sont des tests bloquants pour la remise en service.
+
+**Statut : C-02 RÉSOLU AU NIVEAU CONCEPTUEL, À PROUVER en V3-6/7.** V3-CADRE demeure ouvert : C-03 et la revue documentaire finale restent à traiter.
