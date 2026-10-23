@@ -26,7 +26,6 @@ Discovery sélectionne **des références**, jamais les données métier complè
 
 Clé logique `(consumptionId, consumableId)`. Champs proposés :
 - `partitionHash` stable ;
-- `sequencePosition?` pour les non-burnables ;
 - `claimToken?`, `claimedUntil?` : tous deux NULL quand libre, tous deux renseignés quand claim présent ou expiré ;
 - `retryAfter?` : délai de nouvelle tentative après échec transitoire.
 
@@ -71,7 +70,7 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 
 **R6 — Mixité WRITE/READ.** Vérifier que toute Consumption et son slot/checkpoint/propriété de partition sont dans une transaction physique cohérente et qu'un Worker mixte peut effectivement router les opérations vers ces autorités sans transaction distribuée. La même notion de partition ne doit pas impliquer implicitement une même ligne physique de propriété dans plusieurs bases.
 
-**R7 — Critère de simplicité du slot.** `partitionOwnerToken` supprimé : reprise à expiration du claim, y compris après changement de propriétaire. Réexaminer l'utilité de `sequencePosition` (sélection/diagnostic) et du plafond COUNT ; ne conserver ces optimisations que si leur utilité est mesurable. La suppression des états de complétion redondants est acquise conceptuellement, mais nécessite preuve.
+**R7 — Critère de simplicité du slot.** `partitionOwnerToken` et `sequencePosition` supprimés : reprise à expiration du claim, routage sans lecture de la source et position conservée uniquement dans l'événement. Réexaminer l'utilité du plafond COUNT ; ne conserver ces optimisations que si leur utilité est mesurable. La suppression des états de complétion redondants est acquise conceptuellement, mais nécessite preuve.
 
 **R8 — Sémantique des burnables.** Une famille burnable destinée à une seule Consumption exclut un rejeu du même consommable terminal ; c'est un contrat distinct de celui des événements. Le statut des tâches internes et leur multiplicité doivent être explicités.
 
@@ -83,6 +82,6 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 4. Définir les preuves V3-5 : interleavings PostgreSQL, crash/UNKNOWN, ressources, backlog, latence, WAL et contention.
 5. Revoir V3-2/V3-3 pour les deux sources internes, puis actualiser le canon.
 
-**Amendements validés le 2026-10-23 :** l'ownerToken est un droit d'enrôler/acquérir ; le claimToken est le droit de terminer. Le double fencing strict à la validation est supprimé. Le `partitionOwnerToken` disparaît du slot et les claims d'un ancien propriétaire restent valides jusqu'à leur expiration ou leur complétion, sans reprise anticipée. Preuve de concurrence et idempotence toujours ouverte.
+**Amendements validés le 2026-10-23 :** `sequencePosition` est également supprimé du slot : Discovery et l'événement portent déjà cette information.  l'ownerToken est un droit d'enrôler/acquérir ; le claimToken est le droit de terminer. Le double fencing strict à la validation est supprimé. Le `partitionOwnerToken` disparaît du slot et les claims d'un ancien propriétaire restent valides jusqu'à leur expiration ou leur complétion, sans reprise anticipée. Preuve de concurrence et idempotence toujours ouverte.
 
 **Aucune implémentation V3 avant V3-CADRE. Le présent document est un cadrage consolidé, pas une certification.**
