@@ -1467,3 +1467,11 @@ Avant d'autoriser V3-6 : (a) confirmer que le contrat abstrait IdP de §37 et so
 **Tests bloquants avant qualification** : limites 0/1/N et plafond−1/plafond/plafond+1, doublons, références étrangères à V/Pot, versions de sous-objets substituées, Unlink et Shareholder lié à V, CurrentPot V+1 pendant lecture V, dépendance absente, grosse Expense conduisant au plafond de réponse, ordre et complétude du lot, latence et nombre de requêtes SQL pour 50 Expenses/2 000 références.
 
 **Réserves :** seuil numérique de lot, budget d'octets et codes d'erreur restent ouverts en V3-5E ; ce protocole décrit une preuve à construire, pas un test réalisé. V3-CADRE reste ouvert.
+
+## 45. ADM-01 — contrôle des entrées et extensibilité de l'admission (proposition V3-5E, 2026-10-23)
+
+Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
+
+**Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
+
+**Réserves à arbitrer avant V3-CADRE :** politique d'erreurs et de plafonds configurables, bornes numériques concrètes, application des contrôles communs et spécifiques selon la nature des opérations. Aucune campagne exécutée.
