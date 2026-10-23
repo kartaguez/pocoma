@@ -1263,3 +1263,39 @@ Les catégories ci-dessus sont une **organisation du runner et des fixtures**, n
 **Tests ID-02 / READ / OPS à décliner :** compteur alimenté avec retard connu inférieur à cinq minutes ; retard supérieur à cinq minutes ; timestamp de lecture récent mais projection ancienne ; absence d'indice de fraîcheur ; divergence légitime des dates de référence Pot et Identity ; évolution post-consentement ; frontière stricte de cinq minutes. Mesurer le délai sur des horloges maîtrisées et conserver la preuve de progression jusqu'aux projections nécessaires.
 
 **Point technique restant :** choisir l'indicateur minimal de fraîcheur de chacun des deux compteurs et vérifier qu'il ne requiert pas d'ajouter un modèle de snapshot ou une nouvelle Consumption. Le seuil de cinq minutes est **validé**, sa preuve technique reste **à cadrer**. V3-CADRE demeure ouvert.
+
+## 35. C-01 — preuve de fraîcheur à cinq minutes : faisabilité et limites des projections (2026-10-23)
+
+**Revue technique, PAS une décision de nouveau mécanisme.** L'objectif « compteurs âgés de moins de cinq minutes à la présentation » ne peut **pas** être démontré par la seule date d'une requête READ, la version d'une ligne ou la position d'un checkpoint Discovery. Le checkpoint de la Consumption non-burnable prouve que la source a été **examinée/enrôlée**, pas nécessairement **traitée** ; les tâches de visibilité peuvent subsister, et `CurrentBinding` progresse indépendamment.
+
+### Option de preuve minimale — borne temporelle sûre + drainage
+
+Au moment où un récapitulatif est préparé, choisir une borne temporelle `T0 = maintenant − 5 minutes` avec horloges cohérentes. Pour chaque source concernée, obtenir un **préfixe sûr des publications durablement committées avant T0** (un numéro lu à un instant de référence prouvé, sans inférer la date de commit du timestamp créé *dans* une transaction non encore committée). Prouver ensuite que **tous les événements pertinents de ce préfixe** ont terminé leurs Consumptions menant au compteur. Cette borne peut être capturée/persistée par supervision légère périodique ; **ne pas ajouter de lecture métier WRITE synchrone au parcours d'admission Link**. Les partitions et retards hors ordre doivent être couverts ; il ne suffit pas d'un watermark de la dernière ligne vue.
+
+- **Pots :** les mutations Pot incluses dans la borne sûre doivent avoir été entièrement appliquées à la visibilité via `PotVisibilityState` / tâches de visibilité, avec absence de slots non finalisés pour ce préfixe ; le compteur doit provenir d'une représentation correspondant exactement à sa définition métier.
+- **Identity :** les événements EUI du préfixe sûr doivent être appliqués à `CurrentBinding`, malgré consommation indépendante, avant de compter les EUI effectivement liées. Pas de « dernière mise à jour récente » comme preuve si la file peut être bloquée.
+- **Atomicité de lecture :** lire les compteurs et leurs indicateurs de fraîcheur sur un état cohérent côté READ, puis indiquer une **date de référence / fraîcheur démontrée**. Un nouveau changement après T0 n'oblige pas à rafraîchir en moins d'une seconde ; l'égalité exacte à l'instant de présentation n'est pas promise.
+- **Défaut de preuve :** afficher « information indisponible » ou retarder la présentation selon le choix UX à ratifier, sans transformer un chiffre ancien en affirmation actuelle.
+
+**Attention :** l'option ci-dessus constitue une **preuve par préfixe traité**, pas une recommandation de stocker un checkpoint de complétion supplémentaire. Sa faisabilité avec les seuls états actuels `checkpoint + slots` et `PENDING/TERMINAL` doit être démontrée ; tout stockage durable supplémentaire serait une décision V3-CADRE explicitement justifiée, pas une optimisation implicite.
+
+### Incompatibilité sémantique identifiée pour le nombre de Pots
+
+`CurrentUserPotList` contient les Pots visibles en tant que **créateur OU Shareholder lié** (V3-3), alors que la définition adoptée §33 compte les Pots auxquels le User **participe par Shareholder**. Les deux décomptes peuvent diverger pour un créateur non participant. En outre, la ligne `(userId,potId,visible)` n'enregistre pas la **raison** de visibilité : on ne peut donc pas en extraire le compte exact des participations sans examen supplémentaire des Pots concernés.
+
+**Choix recommandé pour simplicité (à valider) :** afficher **« Nombre de Pots auxquels ce compte a accès »**, calculable à partir des entrées distinctes `visible=true` de la navigation, en précisant le retard borné et en conservant l'autorisation métier séparée. Ce choix **change le libellé et la définition** approuvés en §33 ; il n'est **pas** validé automatiquement. Si « participe comme Shareholder » est indispensable, définir une lecture qui recontrôle les Shareholders sur les Pots concernés, avec coût mesuré, sans nouveau champ ou projection a priori.
+
+### Autre détail : nombre d'identités liées
+
+`CurrentBinding` représente chaque EUI, pas une liste indexée par User. Un `COUNT` d'EUI liées à `pocomaUserId` est possible à partir de cette projection si accès/index appropriés, **mais** sa fraîcheur globale dépend de la progression de **toutes** les EUI pertinentes, y compris celles devenues détachées : la version de la seule EUI initiatrice ne prouve pas la fraîcheur du nombre.
+
+### Tests de réfutation indispensables
+
+1. Checkpoint Discovery avancé tandis qu'une tâche visibilité antérieure à T0 est encore PENDING : **fraîcheur refusée**.
+2. Aucune ligne `CurrentBinding` modifiée depuis plus de cinq minutes, mais aucune nouvelle mutation Identity : **ne pas confondre ancienneté de valeur et retard de source** ; si le préfixe a été prouvé drainé, la valeur reste admissible.
+3. Événement EUI antérieur à T0 bloqué alors que d'autres avancent : **fraîcheur refusée**, même si une autre EUI a changé récemment.
+4. Créateur d'un Pot sans Shareholder lié : valeur de `CurrentUserPotList` **différente** du compte de participations strictes.
+5. Source avec transaction démarrée avant T0 mais commit après la capture : **ne pas utiliser son timestamp pré-commit comme preuve d'inclusion dans le préfixe**.
+6. Récapitulatif validé, puis mutation Pot/Identity postérieure : Link reste admissible sans nouvelle comparaison des compteurs.
+
+**Statut :** seuil de cinq minutes **VALIDÉ**, preuve par borne sûre **OPTION TECHNIQUE À QUALIFIER**, et définition « participation » versus « accès » **à arbitrer**. Pas de nouvelle Consumption ou projection autorisée par cette note ; C-01 et V3-CADRE restent ouverts.
