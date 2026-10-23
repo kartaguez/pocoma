@@ -261,3 +261,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Deux arbitrages structurants subsistent :** (S-01) pagination de la liste mutable `CurrentUserPotList` sans snapshot et comportement sous concurrence ; (S-02) autorisation d'une version historique après retrait du Shareholder dans une version plus récente (SEC-01 actuel) ou révocation rétroactive par les droits courants. Les plafonds numériques restent à mesurer et ne doivent pas induire de bornes métier arbitraires.
 
 **V3-CADRE demeure OUVERT ; aucun code ni test V3 exécuté.**
+
+## Journal V3 — revue de clôture V3-5E (2026-10-23)
+
+**REVUE EFFECTUÉE, V3-5E NON CLÔTURÉE.** Matrice de couverture et réserves dans [V3-5E §17](V3-5E_Supra_Boundary_Contracts.md). Les admissions Command/Identity, lectures Pot versionnées, chargements groupés d'Expenses, contrôle de sécurité et surcharge ont un cadrage conceptuel. Pas de plafonds numériques arbitraires retenus comme règles métier.
+
+**Trois arbitrages de contrat encore structurants :** S-01 pagination/ordre et cohérence de `CurrentUserPotList` ; S-02 taille et découpage éventuel du manifeste de références renvoyé avec `PotVersion` ; S-03 idempotence observable d'une admission après commit/réponse incertaine et réemploi de clé avec payload différent. Les paramètres de limites et de quotas peuvent être calibrés plus tard, sans changer le contrat.
+
+**V3-CADRE demeure OUVERT** jusqu'à résolution de ces choix et revue cohérente des preuves. Aucun runtime, DDL ou test V3 réalisé dans ce chantier.
