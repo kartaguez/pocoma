@@ -1443,3 +1443,19 @@ Avant d'autoriser V3-6 : (a) confirmer que le contrat abstrait IdP de §37 et so
 - **GO pour la suffisance du cadrage conceptuel**, car les mécanismes structurants et les critères de vérifiabilité sont identifiés ; ne pas demander des preuves d'exécution à une étape documentaire.
 - **NO-GO pour toute prétention « V3 certifiée », « fournisseur Link compatible » ou « reconstruction sûre déjà testée »**.
 - **Gate V3-CADRE : EN ATTENTE DE VALIDATION EXPLICITE.** Tant qu'elle n'est pas inscrite dans le canon, ne pas lancer le chantier V3-6 ni le DDL V3.
+
+## 43. Amendement aux preuves PRJ-01 / READ-01 / SEC-01 — PotVersion (2026-10-23)
+
+**Décision de V3-5E intégrée au protocole de preuve** : `CurrentPot` devient un pointeur monotone vers `PotVersion(P,V)` immuable complet en références, avec liste interne d'autorisation à V et références ordonnées de toutes les Expenses. Les descriptions antérieures de pointeur portant lui-même toutes les références sont **supplantées**. Les tâches Balance et Visibility demeurent indépendantes ; aucune nouvelle Consumption.
+
+**PRJ-01 — preuves complémentaires :** chaque événement `POT_EVENT(P,V)` matérialise `PotVersion(P,V)` et les sous-versions exactes, puis avance le pointeur seulement si V est supérieur, **atomiquement en READ** avec complétion du slot ; une arrivée hors ordre doit matérialiser PotVersion ancienne sans régresser CurrentPot ; aucun changement de PotVersion existante ; cohérence des références locales et de la liste des utilisateurs autorisés à V ; pas de duplication des valeurs complètes.
+
+**READ-01 — preuves complémentaires :** la lecture principale courante utilise pointeur→PotVersion→Shareholders/Balance de la même V, retourne en plus la liste complète des références des Expenses, sans leurs détails ; `minVersion` conserve sa signification ; la lecture complémentaire par groupes bornés de références versionnées à V respecte le manifeste de V même si CurrentPot avance, refuse toute référence absente/altérée, et n'assemble jamais plusieurs versions. Tester les courses V→V+1 entre pages, les dépendances momentanément manquantes et l'absence de fuite via les erreurs.
+
+**SEC-01 — preuves complémentaires :** à chaque lecture, `CurrentBinding` actif et EUI réellement authentifiée, correspondance de `pocomaUserId` dans la liste **interne** des Shareholders autorisés à V issue de `PotVersion(P,V)`. `CurrentUserPotList` n'est pas un oracle d'autorisation ; les références n'accordent aucun droit. Tester créateur non-Shareholder, Shareholder retiré après V, Unlink propagé, substitution d'Expense hors manifeste/pot et absence d'exposition de la liste des utilisateurs autorisés.
+
+**PERF/OPS — preuves complémentaires :** taille de `PotVersion` et manifeste transmis sur 20/200 et 100/2 000, pression stockage/WAL sur 100, 1 000 et 10 000 versions, traitement V hors ordre, nombre de requêtes borné pour pages de 50 Expenses, impact sur latence E2E `minVersion` ; mesurer avant tout choix d'archivage/factorisation.
+
+**Supras :** bornes d'admission, taille maximale des collections/chargements et contrats d'erreur restent à définir en V3-5E. Ne pas revendiquer 24/24 preuves exécutées : seuls leurs protocoles existent.
+
+**V3-CADRE demeure OUVERT**, qualification V3-6/V3-7 non exécutée.
