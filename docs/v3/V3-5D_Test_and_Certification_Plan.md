@@ -78,3 +78,40 @@
 - **Environnements :** A (PG 4 vCPU/8 Go + runtimes 4 vCPU/8 Go), B (+ Keycloak réel isolé), injection/observabilité sur ressources distinctes si possible. Établir durées, tailles statistiques, choix des partitions et protocoles répétables avant certification.
 - **Observabilité :** chaque histogramme/timer/counter doit faire preuve de sa vraie frontière, notamment commit incertain, échec/retry, deux tâches READ, sondage E2E, forte cardinalité et export Prometheus. La seule existence d'une métrique ne vaut pas preuve.
 - **Gate V3-CADRE :** la présente matrice est un premier inventaire traçable, **pas encore le plan exécutable complet** : aucun passage avant revue des variantes, paramètres reproductibles et oracles vérifiables. V3-6 fabrique et V3-7 exécute les preuves.
+
+## 6. Protocole détaillé EVT-01 — séquences globales denses (spécification)
+
+**Statut : protocole proposé, non exécuté.** Quatre séquences indépendantes : `POT`, `IDENTITY`, `COMMAND_COMPLETION`, `IDENTITY_COMPLETION`. Ces positions ne sont ni des versions métier ni un ordre total entre familles.
+
+### Préconditions et oracle
+
+- PostgreSQL réel ; transactions indépendantes, au moins deux connexions et deux threads distincts, barrières explicites aux frontières d'attribution, de commit et de rollback ; **aucun sleep ne sert de preuve d'entrelacement**.
+- Initialiser chaque famille à un préfixe durable `1…N`; capturer le journal des événements committés et l'issue physique des transactions. Ne pas tirer l'ordre des commits d'horodatages applicatifs.
+- Pour chaque famille, **sur le jeu de données dédié au test**, les positions committées, ordonnées, sont exactement `1…M`, sans trou ni doublon ; chaque événement conserve son eventId, son sujet et sa position. Répéter le test sur bases préfixées permet de vérifier la continuation, pas seulement le départ à 1.
+- Quand T1 a obtenu une position inférieure à celle demandée par T2 sur **la même famille** et que T1 est physiquement non résolue, T2 ne peut committer sa position supérieure avant la résolution de T1. Tester cela par barrières et observation des états transactionnels, sans confondre ordre de démarrage et ordre de commit.
+- **Aucune exigence d'ordre entre familles** : les compteurs et validations sont indépendants ; une transaction peut publier dans la famille de mutation puis dans la famille de complétion, dans une seule transaction physique.
+
+### Cas déterministes
+
+| ID | Entrelacement contrôlé | Assertion décisive |
+|---|---|---|
+| E01-A | Une transaction publie un événement et commit, puis une autre publie | Positions successives, uniques, stables et retrouvables |
+| E01-B | T1 obtient position `n+1` et reste ouverte ; T2 tente de publier sur la même famille | T2 n'obtient pas une position supérieure **committable** pendant que T1 est indécise ; après commit T1, T2 peut committer `n+2` |
+| E01-C | Même scénario, mais T1 rollback ; T2 continue | T2 obtient `n+1`, pas `n+2` ; aucune position consommée par l'abandon |
+| E01-D | T1 réserve un lot de deux événements Identity dans sa transaction ; T2 publie en concurrence | Les deux positions du lot sont consécutives et l'ordre interne déclaré est conservé ; pas d'intercalation |
+| E01-E | Command sans effet/rejet et demande Identity rejetée | Seule la famille de complétion avance ; aucune position de mutation consommée |
+| E01-F | Publication de mutation et complétion, puis rollback forcé avant commit | Aucun événement des deux familles durable, et aucun compteur avancé ; terminalisation/résultat absents (recoupement EVT-02) |
+| E01-G | Multiples transactions mixtes commit/rollback sur les quatre familles, ordre d'ouverture intercalé | Chacune des quatre suites demeure dense indépendamment ; les résultats reflètent uniquement les commits |
+| E01-H | Charge concurrente répétée, transactions lentes, aborts, redémarrage de connexions | Même invariant de densité ; aucune perte, doublon, inversion dans une même famille, ni attente bloquée inexpliquée |
+
+### Garde-fous sur l'interprétation
+
+- Ne jamais accepter un test qui construit les positions avec `nextval()` PostgreSQL non transactionnel : les rollbacks y laissent des trous. Un test vérifie le **comportement public/durable**, pas une implémentation de compteur prescrite prématurément.
+- L'affirmation « ordre des commits » est **intra-famille** et sur les publications participant au séquencement transactionnel ; il n'existe pas d'ordre inter-familles à certifier.
+- Ne pas inférer un ordre physique de commit depuis `recordedAt`, un compteur local du test, un `sleep`, ou l'instant où un thread reçoit sa réponse. Les barrières doivent rendre la dépendance visible, et les assertions SQL vérifier l'état **après** résolution.
+- Cas de deadlock/protocole : établir qu'après prise des verrous de séquence le chemin n'acquiert plus de nouveaux verrous métier ; couvrir les deux paires d'ordres prévues `POT → COMMAND_COMPLETION` et `IDENTITY → IDENTITY_COMPLETION` par des scénarios de contention et analyse du graphe d'acquisition (liens avec CON-06).
+- Isoler l'éventuelle attente de verrou des budgets de performance de V3-5C et la mesurer ; aucun blocage infini toléré.
+
+### Preuves à conserver et critère PASS
+
+Données de départ et SQL de vérification de densité par famille, journal de l'ordonnanceur de test/barrières et des issues transactionnelles, assertions du nombre et de l'identité des événements, résultats de répétitions, trace des éventuels rollbacks et blocages. **PASS EVT-01** seulement si A–H passent sur PostgreSQL réel et si la protection d'ordre de verrous est vérifiée ; aucune implémentation ou test n'est réalisé à ce stade.
