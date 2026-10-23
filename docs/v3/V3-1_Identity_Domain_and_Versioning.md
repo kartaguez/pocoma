@@ -79,3 +79,14 @@ Une transition effective EUI et son nouvel état historique sont validés **dans
 Cette spécification consigne **les arbitrages conceptuels validés**, pas une implémentation. Les preuves de contrôle de E2 lors d'un Link, l'acquisition sûre de son attestation à l'admission, les détails des contrats de complétion et événements, les vues READ et les protocoles techniques sont **à cadrer explicitement avant V3-CADRE**. Les entitlements externes et leurs éventuelles contraintes d'évolution pendant l'attente d'une demande nécessitent une décision de contrat d'exécution, sans domaine Entitlements dans Pocoma.
 
 **Prochaine action :** V3-2, inventaire minimal des faits de mutation et des complétions de demandes dans les royaumes Pot et Identity, puis V3-3/4 et revue globale avant code.
+
+
+## Amendement transversal V3-5A — sécurité de Link et des bindings (2026-10-23)
+
+**Link :** admission immédiate avec authentification de E1 et E2, consentement explicite de E2 lié à la demande durable particulière ; aucune invitation ou consentement différé. Les preuves sont vérifiées à l'admission ; le retry réutilise le dossier de demande admis. À l'exécution, l'autorité WRITE Identity vérifie les préconditions courantes et rattache E2 au User déduit de E1.
+
+**Entitlements :** attestations et droits externes contrôlés à l'admission seulement ; une révocation ultérieure du fournisseur ne retire pas rétroactivement l'admission. Les préconditions et tokens de rattachement Pocoma sont contrôlés à l'exécution.
+
+**BindingToken :** `(issuer,subject)` authentifié de la requête doit correspondre à l'EUI qui porte le bindingToken. READ contrôle CurrentBinding, WRITE contrôle l'autorité Identity pour les mutations. Jamais un droit fondé sur la connaissance du token seule, ni sur un pocomaUserId déclaré.
+
+Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans prétendre spécifier ici les formats des preuves, les tests ni l'implémentation.
