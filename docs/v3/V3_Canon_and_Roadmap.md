@@ -229,3 +229,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Réserves d'exécution — non bloquantes pour la suffisance conceptuelle, impératives pour leur qualification :** attestation de consentement transactionnel réellement délivrée par un fournisseur d'identité compatible ; démonstration de la barrière physique et du READY de reconstruction READ ; fiabilité des mesures E2E et des tests de charge ; harmonisation des paragraphes V3-5D supplantés avant réalisation ; passage effectif des suites PostgreSQL, Bruno et k6. Ne pas assimiler ces réserves à des garanties déjà prouvées.
 
 **Statut inchangé à cette revue : V3-CADRE OUVERT**, pas de démarrage V3-6/DDL avant validation explicite du gate. **Prochaine action : décider GO/NO-GO du jalon**, puis seulement si GO dresser le plan d'implémentation V3-6 dans l'ordre des dépendances et des preuves.
+
+## Journal V3 — ouverture V3-5E : cadrage des Supras (2026-10-23)
+
+**Décision validée :** un Supra exerce les contrôles de frontière (structure, format, taille, identité/attestation, pagination, bornage des réponses) à partir de la requête et de ses contrats, **sans lire l'état métier WRITE pour anticiper les décisions du Worker**. Le domaine conserve l'autorité transactionnelle et ses propres invariants. Les sorties peuvent lire les projections READ, sous contrat d'autorisation et de cohérence. Admission refusée ≠ demande durable rejetée à l'exécution.
+
+**Nouvelle étape V3-5E OUVERTE** : [Contrats Supras et bornage](V3-5E_Supra_Boundary_Contracts.md) (commit `ac449d12`). Inventorier les opérations, fixer une politique minimale de validation d'entrée, décider pagination/cohérence et limites de sortie, ajouter les tests puis revoir V3-CADRE.
+
+**Conséquence :** malgré le verdict favorable de la revue V3-5D §42, **V3-CADRE reste OUVERT** jusqu'à la clôture cohérente de V3-5E et à une validation explicite ; aucune réalisation/DDL V3 n'est autorisée.
