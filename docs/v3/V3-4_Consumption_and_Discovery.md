@@ -27,7 +27,7 @@ Discovery sélectionne **des références**, jamais les données métier complè
 Clé logique `(consumptionId, consumableId)`. Champs proposés :
 - `partitionHash` stable ;
 - `sequencePosition?` pour les non-burnables ;
-- `partitionOwnerToken?`, `claimToken?`, `claimedUntil?` : tous NULL quand libre, tous renseignés quand claim présent ou expiré ;
+- `claimToken?`, `claimedUntil?` : tous deux NULL quand libre, tous deux renseignés quand claim présent ou expiré ;
 - `retryAfter?` : délai de nouvelle tentative après échec transitoire.
 
 Discovery crée le slot initial libre. Engine seul acquiert, renouvelle, libère ou supprime après complétion. Le token UUID change à chaque nouvelle acquisition, pas au renouvellement. Le statut de la source est la preuve de terminalisation des burnables. Pour les non-burnables, **checkpoint de découverte au moins égal à la position + absence du slot** est la preuve dérivée de complétion, sous réserve des invariants suivants :
@@ -45,7 +45,7 @@ Slots dans la **même autorité transactionnelle que les effets** de la Consumpt
 
 **Partition :** un `ownerToken` UUID et une échéance durable, claim renouvelable. Ce token autorise **Discovery et l'acquisition de nouveaux slots**, pas la validation finale d'un claim préexistant. Acquisition/reprise conditionnelle et renouvellement sont protégés transactionnellement ; pas de `FOR KEY SHARE` de partition à chaque complétion. Un ancien propriétaire ne peut plus découvrir ni acquérir, mais peut finir un traitement dont il possède encore le claim individuel. Les détails CAS/verrous de takeover restent à prouver sous PostgreSQL.
 
-**Slot :** acquisition conditionnelle, renouvellement conditionnel, protection exclusive finale. Prendre des lots bornés par capacité disponible, `SKIP LOCKED` + CAS, succès partiel, sans ordre FIFO, sans charger la source métier ni cache. `claimedUntil` et `retryAfter` restent distincts. `partitionOwnerToken` enregistré permet de reprendre immédiatement un claim d'ancien propriétaire, avec contrôle transactionnel du propriétaire courant, en conservant `retryAfter`. Les sélections peuvent comparer au token connu du Worker, sans jointure systématique à la table des partitions.
+**Slot :** acquisition conditionnelle, renouvellement conditionnel, protection exclusive finale. Prendre des lots bornés par capacité disponible, `SKIP LOCKED` + CAS, succès partiel, sans ordre FIFO, sans charger la source métier ni cache. `claimedUntil` et `retryAfter` restent distincts. Aucun `partitionOwnerToken` dans le slot : un nouveau propriétaire n'acquiert un ancien claim qu'après son expiration normale. Le renouvellement et la validation d'un claim déjà acquis sont indépendants de la propriété actuelle de partition. Un claim expiré ne peut pas être ressuscité par renouvellement.
 
 Le claim doit être valide **à l'acquisition du verrou final**, lequel reste retenu jusqu'au commit ou rollback physique ; une expiration ultérieure n'annule pas ce commit. Perte de partition : arrêt des nouvelles Discovery et acquisitions et du renouvellement de la **propriété de partition** ; **les claims individuels encore détenus peuvent continuer à être renouvelés** et leurs calculs ne sont pas annulés. L'ancien Worker peut valider si son claim individuel est encore valide et n'a pas été repris. Le nouveau propriétaire peut reprendre immédiatement un ancien claim : la reprise et la validation finale du même slot sont sérialisées par sa protection exclusive. Aucune protection finale de partition n'est exigée.
 
@@ -71,7 +71,7 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 
 **R6 — Mixité WRITE/READ.** Vérifier que toute Consumption et son slot/checkpoint/propriété de partition sont dans une transaction physique cohérente et qu'un Worker mixte peut effectivement router les opérations vers ces autorités sans transaction distribuée. La même notion de partition ne doit pas impliquer implicitement une même ligne physique de propriété dans plusieurs bases.
 
-**R7 — Critère de simplicité du slot.** Confirmer l'utilité de `partitionOwnerToken` (reprise immédiate), `sequencePosition` (sélection/diagnostic) et du plafond COUNT ; ne conserver ces optimisations que si leur utilité est mesurable. La suppression des états de complétion redondants est acquise conceptuellement, mais nécessite preuve.
+**R7 — Critère de simplicité du slot.** `partitionOwnerToken` supprimé : reprise à expiration du claim, y compris après changement de propriétaire. Réexaminer l'utilité de `sequencePosition` (sélection/diagnostic) et du plafond COUNT ; ne conserver ces optimisations que si leur utilité est mesurable. La suppression des états de complétion redondants est acquise conceptuellement, mais nécessite preuve.
 
 **R8 — Sémantique des burnables.** Une famille burnable destinée à une seule Consumption exclut un rejeu du même consommable terminal ; c'est un contrat distinct de celui des événements. Le statut des tâches internes et leur multiplicité doivent être explicités.
 
@@ -83,6 +83,6 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 4. Définir les preuves V3-5 : interleavings PostgreSQL, crash/UNKNOWN, ressources, backlog, latence, WAL et contention.
 5. Revoir V3-2/V3-3 pour les deux sources internes, puis actualiser le canon.
 
-**Amendement validé le 2026-10-23 :** l'ownerToken est un droit d'enrôler/acquérir ; le claimToken est le droit de terminer. Le double fencing strict à la validation est supprimé. Preuve de concurrence et idempotence toujours ouverte.
+**Amendements validés le 2026-10-23 :** l'ownerToken est un droit d'enrôler/acquérir ; le claimToken est le droit de terminer. Le double fencing strict à la validation est supprimé. Le `partitionOwnerToken` disparaît du slot et les claims d'un ancien propriétaire restent valides jusqu'à leur expiration ou leur complétion, sans reprise anticipée. Preuve de concurrence et idempotence toujours ouverte.
 
 **Aucune implémentation V3 avant V3-CADRE. Le présent document est un cadrage consolidé, pas une certification.**
