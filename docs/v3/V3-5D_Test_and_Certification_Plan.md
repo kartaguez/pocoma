@@ -1475,3 +1475,11 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 **Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
 
 **Réserves à arbitrer avant V3-CADRE :** politique d'erreurs et de plafonds configurables, bornes numériques concrètes, application des contrôles communs et spécifiques selon la nature des opérations. Aucune campagne exécutée.
+
+## 46. V3-5E — preuves de protection contre surcharge et payloads coûteux (2026-10-23)
+
+**Propositions non exécutées :** §15 de V3-5E. Vérifier avec Bruno et JUnit réels les refus déterministes avant admission (`400/413/422`), le masquage `404`, l'absence de demande persistée si refus, la limitation des lots READ, l'indisponibilité temporaire `503`, les retries idempotents après commit inconnu et le cas de client sur quota `429`.
+
+**Campagne de charge ciblée :** nombreux clients produisant des requêtes HTTP simultanées ; mesurer les in-flight, mémoire, CPU, sessions et temps d'attente ; contrôler le refus rapide sans perte des Commands admises ni famine des Consumptions. Une admission commitée dont la réponse est perdue doit rester récupérable par sa clé d'idempotence.
+
+**Séparation des gates :** les valeurs 256 Kio/4 Kio/50 références/1 Mio du §13 restent **candidates à valider**, 100 cibles multi-Command non arbitré. 100 Shareholders / 2 000 Expenses sont un **profil de charge**, pas une borne métier. Aucune mesure V3 exécutée ni PASS revendiqué.
