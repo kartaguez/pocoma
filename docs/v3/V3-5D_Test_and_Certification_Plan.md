@@ -155,3 +155,38 @@ Avant chaque scénario, relever un état cohérent du domaine, la demande `PENDI
 ### Preuves attendues et PASS
 
 Conserver les identifiants de demandes, snapshots SQL avant/après, journaux d'entrelacement/fault injection, transactions et issues observées, comptages/positions par famille, assertions d'unicité et contraintes, ainsi que les résultats de répétitions. **PASS EVT-02** exige E02-A à E02-J sur PostgreSQL réel, un résultat terminal unique par demande durablement terminale, l'absence d'effet partiel à toutes les frontières injectées et la récupération correcte des commits incertains. Aucun test ni résultat n'est revendiqué ici.
+
+## 8. Protocole détaillé EVT-03 — huit familles et identités déterministes des tâches READ
+
+**Statut : protocole proposé, non exécuté.** Références V3-2, V3-3, V3-4 ; recoupement avec PRJ-04 et CON-01/02. Le catalogue compte **huit familles logiques** : deux demandes burnables métier (`COMMAND`, `IDENTITY_REQUEST`), quatre familles événementielles non-burnables (`POT_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETION_EVENT`, `IDENTITY_COMPLETION_EVENT`), et deux familles internes READ burnables (`POT_BALANCE_TASK`, `POT_VISIBILITY_TASK`). Les tâches READ ne créent **aucune cinquième séquence événementielle** et chacune possède sa Consumption destinataire unique.
+
+### Préconditions et oracles
+
+- Un `POT_EVENT` durable identifié par `eventId` ; une définition de Consumption de préparation identifiée par `preparationConsumptionId`.
+- Pour chaque événement Pot et chaque préparation, exactement **deux identités de tâches** sont calculées à partir du triplet `(preparationConsumptionId, potEventId, taskType)`, une pour `BALANCE` et une pour `VISIBILITY`. Le même triplet redonne la même identité ; deux triplets distincts ne doivent pas désigner la même tâche.
+- L'opération READ de préparation est **atomique** : création des deux tâches et suppression du slot de préparation dans le même commit. Un rollback ne laisse ni tâche nouvelle, ni slot supprimé.
+- Une tâche est burnable `PENDING → TERMINAL` ; sa matérialisation, sa terminalisation et la suppression de **son propre slot** forment une transaction atomique, **indépendante** de la tâche sœur. La projection Balance ne conditionne pas le commit de visibilité et inversement.
+- Une nouvelle Consumption de préparation (nouvel ID) lors d'un replay indépendant engendre de nouvelles identités de tâches ; reconstruire READ à blanc de façon cohérente permet de réutiliser les IDs de l'ancienne Consumption, car le reset a supprimé tâches, slots, projections et checkpoints (REC-01).
+
+### Cas déterministes
+
+| ID | Stimulus / situation | Preuve décisive |
+|---|---|---|
+| E03-A | Inventaire runtime des sources, de leur nature et des Consumptions destinataires | Exactement huit familles logiques, les quatre événements séquencés, quatre burnables sans séquence ; aucun mécanisme de séquence introduit pour les tâches |
+| E03-B | Préparer un seul `POT_EVENT` | Deux tâches distinctes, de types attendus, référant exactement au même événement et à la même Consumption de préparation |
+| E03-C | Réexécuter la même préparation à partir du même triplet (duplication/retry et tentative de réenrôlement) | IDs identiques et cardinalité toujours deux, aucune tâche supplémentaire, aucune création en double |
+| E03-D | Deux préparations concurrentes du même événement pour la même Consumption | Un seul ensemble de deux tâches durable, un seul slot de préparation finalisé ; perdant rollback ou traitement idempotent sans effet supplémentaire |
+| E03-E | Injection d'échec après création de Balance et avant Visibilité, puis après les deux et avant suppression du slot | Rollback intégral : aucune tâche durable et slot intact, puis nouvelle tentative crée exactement deux tâches |
+| E03-F | Injection d'échec après suppression du slot, avant commit, puis commit réussi avec réponse perdue | Après rollback, slot et zéro tâche ; après commit réussi, slot absent et exactement deux tâches ; pas de republication aveugle |
+| E03-G | Deux Workers finalisent indépendamment Balance et Visibilité, avec panne d'un seul | Succès durable de l'une possible sans l'autre ; chacune lie atomiquement projection, statut TERMINAL et suppression de son slot ; aucun effet double |
+| E03-H | Replay indépendant avec un nouveau `preparationConsumptionId` | Nouveaux taskIds malgré même `potEventId` et `taskType`, sans collision ; périmètre de la nouvelle Consumption clairement distinct |
+| E03-I | Reset READ cohérent et reconstruction avec les mêmes consumptionIds | Les tâches sont recréées avec leurs anciens IDs dans une base READ nettoyée ; aucun résidu de slot, checkpoint ou projection de l'ancien run |
+| E03-J | Traitement hors ordre de plusieurs `POT_EVENT` d'un même Pot | Les tâches restent uniques par événement ; préparation hors ordre n'impose ni calcul de Balance incrémental ni recul de PotVisibilityState ; assertions de résultats renvoyées à PRJ-02/03 |
+
+### Méthode et limites de preuve
+
+Utiliser **PostgreSQL réel**, barrières déterministes pour injections de panne et concurrence, assertions SQL des transactions/contraintes d'unicité et vérifications des projections READ. Réaliser au moins une vérification depuis une connexion indépendante après chaque commit ou rollback. Inclure les chemins de redémarrage et reprise.
+
+Ne pas transformer une Consumption logique en table obligatoire, et ne pas déduire la cardinalité des familles du nombre de tables. L'unicité doit être protégée durablement, pas seulement par un test `exists` avant insertion. Ne pas déduire le caractère burnable d'une tâche de sa disparition physique : la tâche durable reste TERMINAL selon le contrat et c'est **son slot de travail** qui disparaît.
+
+**PASS EVT-03** : cas E03-A à E03-J satisfaits et invariants d'atomicité/identité démontrés, sans doublons, pertes ni nouvelle séquence événementielle. Aucun test n'est exécuté à cette étape du cadrage.
