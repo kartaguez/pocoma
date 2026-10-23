@@ -1222,3 +1222,15 @@ Les catégories ci-dessus sont une **organisation du runner et des fixtures**, n
 - Une seconde authentification réussie est compatible avec E1 toujours connecté ; elle ne remplace pas automatiquement la session principale.
 
 **Statut de C-01 : OPTION PRIVILÉGIÉE, À RATIFIER**, et non résolue : la vérifiabilité du consentement E2 dépend du choix explicite de la frontière de confiance de l'interface. Aucun code ni test V3 exécuté.
+
+## 32. C-01 — décision de principe : fournisseurs attestant un consentement transactionnel (2026-10-23)
+
+**DÉCISION DE PRINCIPE VALIDÉE :** Pocoma n'exige pas la compatibilité universelle des fournisseurs OIDC. Pour **Link**, seules sont admises des autorités capables de (a) vérifier l'identité de E2, (b) lui présenter l'opération spécifique de rattachement, (c) recueillir sa **confirmation explicite**, et (d) retourner à Pocoma une preuve authentique et vérifiable liée à l'intention exacte, au compte destinataire, à E2 et à l'identifiant de demande, avec fraîcheur, anti-substitution et anti-rejeu. Une authentification OIDC ordinaire sans consentement transactionnel **ne suffit pas**. La collecte du consentement et son écran appartiennent à l'autorité externe ; aucune page Pocoma de substitution n'est exigée.
+
+**Référence technique privilégiée :** OAuth 2.0 Rich Authorization Requests (RFC 9396, `authorization_details`) pour exprimer l'autorisation métier, éventuellement avec PAR pour protéger sa soumission ; le support du standard ne prouve **pas à lui seul** l'affichage, le consentement réel ni la preuve de l'octroi. Chaque fournisseur doit être qualifié sur la chaîne complète. Un mécanisme différent est recevable s'il satisfait les mêmes garanties vérifiables.
+
+**Frontière temporelle :** E1 prépare une intention corrélable mais aucune `IdentityRequest` durable n'est admise avant authentification, consentement et vérification de la preuve E2. Le retour validé entraîne **une seule admission durable** puis l'exécution métier asynchrone habituelle ; les contrôles des liens/tokens courants se font dans WRITE. Aucun Consent métier, nouveau Worker ou workflow de demande en attente n'est introduit.
+
+**Toujours à spécifier avant clôture C-01 :** format canonique des données montrées et attestées (notamment compte Pocoma désigné et E1), audience et intégrité de la preuve d'octroi, corrélation `requestId`, politique de fraîcheur, consommation unique en concurrence et méthode de qualification du fournisseur. **Ne pas assimiler un `state`/`nonce` OIDC ou un jeton d'identité classique à une attestation de consentement métier.**
+
+**Statut :** exigence de fournisseur et modèle d'autorité **VALIDÉS** ; détails du contrat de preuve **À FERMER**, V3-CADRE toujours ouvert, sans implémentation.
