@@ -1,6 +1,6 @@
 # Pocoma V3-5C — Hypothèses et objectifs de performance
 
-**Statut : EN CONCEPTION — tailles de Pot validées ; débits, concurrence et budgets à arbitrer.**
+**Statut : CADRAGE CONCEPTUEL CLÔTURÉ — objectifs à démontrer en V3-7, campagnes à détailler en V3-5D.**
 **Date :** 2026-10-23. **Références :** [Canon](V3_Canon_and_Roadmap.md), [Exigences V3-5A](V3-5A_Global_Review_and_Requirements.md), [Observabilité V3-5B](V3-5B_Observability_Contract.md).
 
 ## 1. Tailles de Pots de référence — VALIDÉES
@@ -26,13 +26,13 @@ La capacité d'admission HTTP ne prouve pas la stabilité : il faut vérifier d�
 
 ## 3. Scénarios et SLIs
 
-Scénarios : **nominal**, **pointe**, **rattrapage**. Mesurer l'attente Discovery/Engine, la préparation, la validation transactionnelle, la matérialisation indépendante des résultats, CurrentPot, tâches, balances et visibilité, les parcours Identity, et les disponibilités bout en bout. Rapporter p50/p95/p99, backlog et âge, temps de résorption, ressources PostgreSQL/CPU/mémoire/WAL ; séparer succès, rejets, erreurs et reprises. Les hypothèses matérielles et tailles d'échantillon seront fixées avant les seuils.
+Scénarios : **nominal**, **pointe**, **rattrapage**. Mesurer l'attente Discovery/Engine, la préparation, la validation transactionnelle, la matérialisation indépendante des résultats, CurrentPot, tâches, balances et visibilité, les parcours Identity, et les disponibilités bout en bout. Rapporter p50/p95/p99, backlog et âge, temps de résorption, ressources PostgreSQL/CPU/mémoire/WAL ; séparer succès, rejets, erreurs et reprises. La configuration matérielle est fixée ci-dessous ; durées, populations et tailles d'échantillon des campagnes restent à spécifier en V3-5D.
 
-**Aucun budget de latence ni débit n'est encore validé.** Les chiffres proposés pendant le cadrage sont des hypothèses de test, non des mesures V3.
+**Les objectifs chiffrés validés figurent en section 5.** Ils ne constituent aucune mesure V3.
 
-## 4. Prochain arbitrage
+## 4. Statut de la revue
 
-Fixer des niveaux de débit de charge et la contention sur un même Pot, puis les volumes globaux et l'environnement de référence. Ne pas confondre objectifs SLO, taux offerts et résultats mesurés.
+Les niveaux de débit, le scénario de contention, les volumes globaux et les configurations A/B sont définis en section 5. Les charges sont offertes (non des capacités démontrées) ; les SLO sont des objectifs (non des résultats mesurés).
 
 ## 5. Arbitrages de charge et budget Balance — 2026-10-23
 
@@ -42,7 +42,7 @@ Fixer des niveaux de débit de charge et la contention sur un même Pot, puis le
 
 **SLO nominal accepté comme premier objectif :** pour un Pot moyen (20 shareholders, 200 expenses), à 1 commande/s sur configuration A, **p95 ≤ 500 ms depuis l'admission de la commande jusqu'à PotBalance(P,V) disponible**. Ce temps inclut commande, Discovery et Engine, création des deux tâches, acquisition et matérialisation Balance. Ce SLO est **un objectif non mesuré**, non une preuve. Budget technique **candidat**, pas encore validé : p95 ≤ 50 ms pour calcul et écriture des balances, hors attente et propagation. Les percentiles des étapes ne s'additionnent pas pour déduire le percentile E2E. Définir clairement les campagnes (mutations appliquées, échantillon et sondage READ).
 
-**Prochain arbitrage :** budgets E2E Pot complet et Identity binding utilisable ; puis objectifs par phase et charges plus fortes. Ne pas étendre automatiquement le SLO de 500 ms aux Pots grands ou aux autres profils.
+**Arbitrages suivants résolus ci-dessous :** budgets E2E Pot complet, Identity binding utilisable, charges supérieures et grand Pot. Ne pas étendre le 500 ms nominal à d'autres profils.
 
 **SLO nominal complémentaire VALIDÉ :** p95 ≤ 500 ms depuis l'admission de la commande appliquée jusqu'à la matérialisation de l'ensemble des projections de la version cible du Pot moyen : CurrentPot et sous-objets nécessaires, PotBalance(P,V) exacte, PotVisibilityState(P) ayant atteint au moins V. Les branches sont indépendantes, aucune somme de p95 par étape. Si CurrentPot a déjà avancé au-delà de V, la preuve de progression ne prétend pas offrir une API historique V via la projection courante. Même charge et configuration A que le SLO Balance. Pas d'extension implicite aux grands Pots.
 
@@ -55,3 +55,9 @@ Fixer des niveaux de débit de charge et la contention sur un même Pot, puis le
 **SLO grand Pot nominal VALIDÉ (non mesuré) :** sur configuration A, à 1 commande/s, pour un Pot de 100 shareholders et 2 000 expenses, p95 ≤ **2 secondes** de l'admission d'une commande appliquée jusqu'à la matérialisation complète de la version cible (`CurrentPot`, sous-objets nécessaires, `PotBalance(P,V)` et `PotVisibilityState(P)`). Ne pas extrapoler ce budget aux charges soutenues/pointe ni confondre progression de `CurrentPot` avec consultation historique exacte. Qualifier particulièrement le coût du recalcul intégral des balances.
 
 **Contention sur un même Pot — principe VALIDÉ :** campagne distincte des scénarios de Pots indépendants. Produire des commandes concurrentes sur le même Pot et observer collisions CAS, reprises complètes, rejets métier légitimes, latences et files par Consumption. **Critères :** aucun effet double ou perdu ; aucune validation partielle ; décisions conformes à l'état métier courant ; chaque demande finit par un état terminal ou un échec technique explicitement diagnostiqué ; sous charge redevenue nominale, le backlog doit se résorber. Pas de SLO de latence chiffré adopté pour ce cas, ni d'extrapolation des SLO de Pots indépendants. La concurrence, la durée et les scénarios précis sont à décrire dans V3-5D ; distinguer contention réelle et limitations d'ordonnancement par partition.
+
+## 6. Revue de clôture V3-5C — 2026-10-23
+
+**Verdict : CADRAGE CONCEPTUEL CLÔTURÉ, NON CERTIFIÉ.** Les trois tailles de Pot, les volumes historiques, les offres de charge, les configurations d'essai (avec/sans Keycloak), les budgets E2E nominatifs, soutenus et de pointe, le rattrapage et les critères de contention sont arbitrés. Aucune mesure V3 ni exécution de charge n'est revendiquée ; aucun code/DDL V3 n'est autorisé avant validation globale V3-CADRE.
+
+**À préciser dans V3-5D, sans rouvrir ces objectifs :** taille et durée des échantillons p95, définition d'un `Pot complet` observable sans fausse preuve de version courante historique, sélection des commandes réellement appliquées, sondage/polling et biais temporels, fenêtres de charge et de pointe, jeu de mutations et distribution Pot/versions, préparation reproductible du backlog de 10 000 commandes, éventuels effets de partitionnement, méthode d'observation du backlog par Consumption, scénarios de contention, branchement/validité de chaque métrique, placement de Keycloak et des injecteurs. Vérifier formellement que les objectifs E2E correspondent à des consultations réellement démontrables via les API prévues, ou documenter un oracle de preuve sans modifier l'architecture juste pour instrumenter les tests.
