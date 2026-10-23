@@ -1001,3 +1001,41 @@ JUnit avec **PostgreSQL réel**, barrières déterministes pour la préparation,
 Recoupements obligatoires avec DOM-01 (intervalles), DOM-03 (soldes), EVT-02 (rejet/complétion atomique), CON-04/05 (fencing/retry) et SEC-01 (identité/autorisation). Ne pas inférer l'obsolescence d'une simple inégalité `observedVersion != currentVersion`, sauf pour la suppression totale du Pot où cette égalité est explicitement exigée.
 
 **PASS DOM-02** : D02-A à D02-P démontrés ; validité fondée sur les dépendances métier, unchanged observedVersion, nouvelle tentative entière après perte CAS, absence de commit partiel et de faux rejet. Aucun test V3 n'a été implémenté ni exécuté.
+
+## 27. Protocole détaillé DOM-03 — exactitude financière rationnelle et poids à la version V
+
+**Statut : protocole proposé, non exécuté.** Règle métier V3-1 : pour toute Expense **active** à la version globale V, le payeur reçoit un crédit du montant ; chaque participant reçoit un débit proportionnel à son poids effectif à V, défini par `specificWeight` de l'Expense s'il existe, sinon `ShareholderWeight.defaultWeight` applicable à V. Le payeur n'est pas nécessairement participant. Les montants sont non négatifs ; poids spécifiques et par défaut strictement positifs ; la liste de participants est non vide. Les fractions sont représentées/calculées exactement, avec normalisation, sans flottants d'approximation. La somme des soldes est exactement nulle.
+
+### Oracle indépendant et règles
+
+- Pour chaque Expense active e à V, calculer indépendamment `w_i(V)`, `W(V)=Σ_i w_i(V)`, `part_i(e,V)=amount(e,V) × w_i(V)/W(V)` ; contribuer `+amount` au payeur et `−part_i` à chacun des participants. Le solde de chaque Shareholder est la somme des contributions rationnelles de toutes les Expenses actives de V. `Σ soldes = 0` **exactement**, y compris si payeur et participant sont identiques.
+- Les `ShareholderId` des payeurs/participants doivent appartenir au Pot et être valides selon son état à V. Un `specificWeight` explicite ne dépend pas des révisions de `defaultWeight` ; une participation sans poids explicite suit le poids par défaut à **la version globale concernée**, sans modifier `ExpenseFinancials`.
+- La révision d'un poids par défaut produit une nouvelle version globale du Pot et recalcule **toutes** les balances de cette version ; elle ne change pas les poids spécifiques, les participants, les Expenses financières ou les balances historiques précédentes.
+- Une Expense supprimée contribue jusqu'à la dernière version précédant sa suppression, puis ne contribue plus ; ses composants historiques sont conservés. Une suppression de Pot conserve les balances historiques et les valeurs nécessaires à leur reconstruction, même si la consultation fonctionnelle courante du Pot supprimé est régie par son état.
+- Le jeu de résultats doit inclure **chaque Shareholder attendu**, y compris ceux de solde nul conformément au contrat de balance complète ; comparer les clés et fractions normalisées, pas seulement la somme globale.
+
+### Cas déterministes
+
+| ID | Stimulus / fixture | Oracle de réussite |
+|---|---|---|
+| D03-A | Expense de 100, payeur A, participants A/B de poids 1 et 3 | Crédit A +100 ; débits A −25 et B −75 ; soldes nets A +75, B −75, total exactement zéro |
+| D03-B | Payeur A non participant, bénéficiaires B/C à poids 1/2 | A reçoit tout le crédit ; B/C portent les fractions exactes du débit ; somme zéro |
+| D03-C | Montants et poids conduisant à des tiers/septièmes, avec multiples Expenses | Fractions exactes réduites ; aucune dérive flottante ni arrondi cumulatif |
+| D03-D | Participant à specificWeight et autre au defaultWeight, puis changer seulement le defaultWeight | Seules les parts dépendant du défaut évoluent ; ExpenseFinancials inchangé ; balances historiques intactes |
+| D03-E | Tous les participants ont specificWeight ; réviser leur defaultWeight | Répartition de cette Expense inchangée, mais **nouvelle balance complète** à la nouvelle V globale |
+| D03-F | Modifier amount et payerId d'une Expense, avec références valides | Solde recalculé sur les Financials exacts de la nouvelle V ; ancien résultat conservé |
+| D03-G | Modifier le libellé ou la date sans modifier Financials | Même valeur numérique attendue à la nouvelle V, stockée comme balance indépendante |
+| D03-H | Supprimer une Expense après plusieurs révisions, puis reconstruire ses V précédentes | Contribution supprimée uniquement à partir de la V de suppression ; histoire correcte |
+| D03-I | Plusieurs Shareholders d'un Pot dont certains ne paient ni ne participent | Aucun Shareholder attendu oublié ; zéros explicitement traités conformément à la représentation canonique |
+| D03-J | Montant zéro avec participants et poids valides | Tous les soldes exactement nuls, sans division illégale ni version artificielle |
+| D03-K | Montant négatif, poids nul/négatif, participants vides, payeur hors Pot, références invalides | Entrée rejetée selon les invariants métier ; aucune mutation partielle ni balance incomplète |
+| D03-L | Mutation multi-cibles mêlant poids et Financials | Une seule nouvelle V globale ; calcul sur l'état composé après mutation, non mélange avant/après |
+| D03-M | Recalculer V ancienne après changement de poids et suppression à V+N | Résultat strictement identique à celui calculé initialement pour V |
+| D03-N | Traitement Balance V+1 avant V, retry et duplication | Balances exactes, immuables et indépendantes ; aucune dépendance à une balance précédente (PRJ-02) |
+| D03-O | Petits, moyens et grands Pots ; montants/poids rationnels de tailles diverses | Vérifier la conservation et l'exactitude sur cas générés reproductibles ; documenter coûts sans inférer un PASS de performance |
+
+### Méthode et PASS
+
+Tests unitaires du calcul pur avec **oracle indépendant** fondé sur des entiers/fractions exactes, puis JUnit/PostgreSQL réel pour les versions de poids, la reconstruction `Pot@V`, la publication et les balances immuables. Cas tabulaires déterministes complétés par cas génératifs à seed fixe ; conserver données, parts attendues et calcul des sommes. Comparer les valeurs **pour chaque Shareholder** à chaque V. Croiser DOM-01 (reconstruction), DOM-02 (mutations/versions), PRJ-02 (matérialisation immuable) et EVT-02 (rollback). Les objectifs de 500 ms/2 s restent évalués uniquement dans PERF-01.
+
+**PASS DOM-03** exige D03-A à D03-O, conservation rationnelle exacte, poids par défaut appliqués à V, validations négatives et absence de modification des résultats historiques. Aucun test V3 n'a été implémenté ni exécuté.
