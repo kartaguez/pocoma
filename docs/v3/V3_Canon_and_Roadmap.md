@@ -33,7 +33,7 @@ La simplicité ne dispense pas de correction : préserver, ou remplacer par une 
 
 ## 3. Ordre de travail et dépendances
 
-**Ordre de conception : V3-0 → V3-1 (Pot + Identity) → V3-2 → V3-3 → V3-4 → V3-5.**
+**Ordre directeur : V3-0 → V3-1 (Pot + Identity) → V3-2 → V3-3 → V3-4 → V3-5 (cadrage final) → V3-CADRE → V3-6 (réalisation) → V3-7 (qualification).**
 
 Le **cadrage cohérent de toutes les étapes précède toute implémentation** : ne pas commencer les modifications runtime/DDL tant que les frontières, contrats structurants, invariants et dépendances des étapes V3-1 à V3-5 n'ont pas fait l'objet d'une revue globale. Les détails strictement locaux (classe précise, index, taille de batch) peuvent être tranchés lors de l'implémentation, si cela ne remet pas en cause le modèle partagé.
 
@@ -44,7 +44,10 @@ Le **cadrage cohérent de toutes les étapes précède toute implémentation** :
 | **V3-2** | Événements, demandes et consommables | Modèle V3-1 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-4** | Consumption, Discovery et Engine (sans Locator autonome) | Sources V3-2 et sorties V3-3 | À CADRER |
-| **V3-5** | Intégration, simplification, performance et clôture | V3-1 à V3-4 | À CADRER |
+| **V3-5** | Cadrage final : exigences, observabilité, objectifs de performance et plan de preuves | V3-1 à V3-4 | À CADRER |
+| **V3-CADRE** | Jalon obligatoire de validation du cadrage global avant code | V3-1 à V3-5 | OUVERT |
+| **V3-6** | Implémentation V3 et construction des tests/instruments | V3-CADRE validé | NON DÉMARRÉ |
+| **V3-7** | Exécution des preuves, qualification performance et certification | V3-6 | NON DÉMARRÉ |
 
 Les étapes sont successives **pour trancher les contrats conceptuels** ; leur implémentation peut ensuite se découper en lots/branches coordonnés. Ne pas introduire de dépendances circulaires : les besoins des étapes suivantes peuvent rétroagir sur le cadrage précédent **avant le jalon de validation globale**.
 
@@ -109,16 +112,27 @@ Les étapes sont successives **pour trancher les contrats conceptuels** ; leur i
 
 **Livrables :** grammaire applicative et ports, modèle durable minimal, protocoles transactionnels, cas complets (Event→ProjectionTasks, identité, burnable), stratégies de déploiement et preuve de correction.
 
-### V3-5 — Intégration, nettoyage et clôture
+### V3-5 — Cadrage final et vérifiabilité (sans implémentation)
 
-**Questions à résoudre :**
-- Mettre en correspondance décisions de V3-1 à V3-4, interfaces, producteurs et consommateurs ; supprimer les anciens chemins plutôt que maintenir deux modèles.
-- Définir l'ordre des lots de réalisation, stratégie de reconstruction des environnements, tests et données de développement.
-- Tester les parcours bout en bout, cas concurrents, crash/retry/UNKNOWN, cohérence READ et replay ; confirmer invariants portés par les nouveaux tests.
-- Mesurer le coût de Discovery, Consumption et READ (requêtes, buffers, WAL, latences, débit, backlog) sur des volumes synthétiques réalistes.
-- Déterminer les gates et conditions d'activation/déploiement ; documenter ce qui est certifié et ce qui ne l'est pas.
+**V3-5A — Revue globale et exigences :** matrice unique des parcours, invariants, arbitrages résiduels, dépendances et contrats vérifiables V3-1→V3-4. Sortie : aucune contradiction structurante non arbitrée.
 
-**Livrables :** intégration V3 propre, preuve E2E et concurrence, rapport de performance, nettoyage des anciens contrats, canon final et statut de certification.
+**V3-5B — Observabilité :** inventorier l'existant ; définir les phases temporelles (admission, attente Discovery, attente acquisition, exécution, validation, propagation READ et disponibilité bout en bout), traces, métriques, corrélations et instrumentation minimale. Sortie : chaque délai cible est mesurable ou ses limites explicitées.
+
+**V3-5C — Objectifs de performance :** hypothèses reproductibles de charge, volume et ressources ; budgets d'attente/travail/propagation ; objectifs p50/p95/p99, débit, backlog, temps de rattrapage et seuils d'acceptation. Sortie : objectifs chiffrés et vérifiables, sans revendiquer de mesures V3 non exécutées.
+
+**V3-5D — Plan de preuves et clôture :** lier chaque exigence structurante à une vérification adaptée : Bruno (API et parcours), k6 (charge et bout en bout), JUnit/PostgreSQL (atomicité, CAS/fencing, séquences, reprises et crash). Définir les jeux de données, les scénarios, les critères de réussite et l'ordre des lots de réalisation. Sortie : dossier V3-CADRE prêt pour revue.
+
+**Livrables V3-5 :** matrice d'exigences unique, contrat d'observabilité, budgets/performance, spécifications des scénarios Bruno/k6/JUnit, stratégie de réalisation, décision explicite au jalon V3-CADRE. Les fichiers de test exécutables peuvent être conçus ici mais **leur réalisation et exécution ne sont pas exigées** et ne constituent pas le livrable principal.
+
+**Exclusions :** aucun runtime, DDL, stack monitoring, optimisation prématurée, benchmark V3 prétendument mesuré ou certification.
+
+### V3-6 — Réalisation après V3-CADRE
+
+Implémenter domaine, consumables, Consumptions, Discovery/Engine, READ, API et observabilité minimale ; construire les collections Bruno, scénarios k6 et tests JUnit/PostgreSQL ; découper en lots avec preuves de non-régression et suppression des chemins obsolètes. Les changements de contrats structurants rouvrent le cadrage concerné.
+
+### V3-7 — Vérification, performance et clôture
+
+Exécuter les preuves fonctionnelles, transactionnelles, concurrentes, crash/UNKNOWN, Bruno et k6 ; mesurer ressources et performance (PostgreSQL, WAL, requêtes, latence, débit, backlog, rattrapage) dans des conditions reproductibles ; corriger les écarts, documenter limites et prendre une décision explicite de certification/activation. Une conception validée n'est pas une certification runtime.
 
 ## 5. Jalon obligatoire — cadrage V3 cohérent avant code
 
@@ -127,6 +141,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - [x] V3-2 : familles/types d'événements, demandes et consommables définis conceptuellement ; dépendances V3-3/4 et revue globale restent ouvertes.
 - [x] V3-3 : projections et contrats READ stabilisés conceptuellement ; garanties d'exécution/transfert à prouver en V3-4/5.
 - [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
+- [ ] V3-5 : revue globale, matrice d'exigences et plan de preuves, contrat d'observabilité et objectifs mesurables de performance terminés.
 - [ ] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
 - [ ] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
 - [ ] Une revue globale conclut explicitement **CADRAGE VALIDÉ** avec références documentaires.
@@ -142,11 +157,15 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 | V3-2 | **CONCEPTION VALIDÉE** | Six familles : COMMAND, IDENTITY_REQUEST burnables PENDING→TERMINAL ; POT_EVENT, IDENTITY_EVENT et deux événements de complétion non-burnables. Quatre séquences denses, UUID eventId, mutations liées obligatoirement à requestId, atomicité résultats/événements, deux domaines strictement séparés. Revue des cas Pot/Identity réalisée. | [Contrat V3-2](V3-2_Events_Requests_and_Consumables.md) ; commit `886ff35fc2b9db55c97313d7fdeffc3e3d212475` | Détails résultats, matérialisations READ, protocole Consumption, contrôle de EUI cible et preuves techniques ; aucun code V3 | **Cadrer V3-3 READ/projections** |
 | V3-3 | **CONCEPTION VALIDÉE** | Sept projections logiques ; Pot courant complet ou indisponible, sous-objets immuables, balances immuables pour chaque V, liste de visibilité monotone avec historique d'appartenance, CurrentBinding unique, résultats terminaux seuls ; minVersion READ asynchrone. Deux Consumptions sur POT_EVENT : direct CurrentPot/sous-objets et deux tâches Balance/Visibilité. Direct pour Identity et complétions. | [READ V3-3](V3-3_Read_and_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` | Reprise transactionnelle et concurrence, suivi des tâches, accès sécurisés, coût SQL/reconstruction, qualification ; READ_REQUEST et historique hors périmètre | **Cadrer V3-4 Consumption/Discovery** |
 | V3-4 | **CONCEPTION CONSOLIDÉE — REVUE TRANSVERSE EN COURS** | Slots durables, Discovery/checkpoints, fencing individuel et ownership partition, reprise unique par `retryAfter`, tâches internes READ, visibilité contrôlée par `PotVisibilityState`, READ asynchrone sécurisé par CurrentBinding, reconstruction READ à blanc. | [Cadrage V3-4](V3-4_Consumption_and_Discovery.md) ; harmonisation [V3-2](V3-2_Events_Requests_and_Consumables.md) et [V3-3](V3-3_Read_and_Projections.md), commit `d73dded7` | Preuve du protocole PostgreSQL, sécurité/consentement du Link, vérification exhaustive des flux et coûts en V3-5 ; aucune preuve runtime V3 | Cadrer V3-5 et mener revue V3-CADRE |
-| V3-5 | À CADRER | — | — | Preuves, intégration, performance | Attendre cadrage global |
+| V3-5 | **À LANCER — cadrage seulement** | Quatre lots V3-5A exigences/revue, 5B observabilité, 5C objectifs de performance, 5D plan de preuves et clôture V3-CADRE | Ce canon | Inventaire de l'existant, scénarios testables, budgets chiffrés, arbitrages transverses | Lancer V3-5A |
+| V3-6 | NON DÉMARRÉ | Réalisation et construction de la suite de tests | Après V3-CADRE | Implémentation et intégration | Attendre V3-CADRE |
+| V3-7 | NON DÉMARRÉ | Validation et qualification, mesures réelles | Après V3-6 | Certification et critères d'activation | Attendre réalisation |
 
 **Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
 
 ### Journal des mises à jour
+
+| 2026-10-23 | Feuille de route | Redécoupage confirmé : V3-5A à 5D = cadrage final (exigences, observabilité, performance, preuves) ; V3-CADRE avant code ; V3-6 = réalisation ; V3-7 = vérification et qualification. | Ce canon |
 
 | 2026-10-23 | V3-4 transversal | Revue croisée V3-1 à V3-4 : ajout explicite des deux tâches internes en V3-2, visibilité par `PotVisibilityState`, autorisation READ via `CurrentBinding` et bindingToken authentifié, protocole unique de retry, reconstruction READ à blanc. V3-4 consolidée conceptuellement ; **V3-CADRE toujours ouvert**, aucune implémentation/test V3. | [V3-4](V3-4_Consumption_and_Discovery.md), commits `a904afc1`, `16496b9f`, `d73dded7` |
 
@@ -169,4 +188,4 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
 - Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
 
-**Prochaine action :** cadrer V3-5, vérifier les preuves et les derniers invariants du [cadrage V3-4](V3-4_Consumption_and_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), dans V3-5 et la revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
+**Prochaine action :** lancer V3-5A (revue globale et matrice des exigences), puis V3-5B/C/D, vérifier les preuves et les derniers invariants du [cadrage V3-4](V3-4_Consumption_and_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](V3-3_Read_and_Projections.md), dans V3-5 et la revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
