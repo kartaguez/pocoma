@@ -728,3 +728,39 @@ JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des mat
 Combiner **Bruno** (API, erreurs, contrôle de non-divulgation), **JUnit avec PostgreSQL réel** (versions, rattachements, état CurrentBinding, races et absence de navigation autoritative) et **Keycloak réel** pour les parcours OIDC dans la configuration B. Utiliser plusieurs identités EUI et Pots aux historiques divergents. Vérifier pour chaque refus l'absence de contenu protégé dans réponse et logs d'application observables ; ne pas journaliser les tokens. Les tests qui forcent d'anciennes versions de Pot ne doivent pas prétendre qu'une API historique arbitraire existe déjà : utiliser un CurrentPot contrôlé à la version V puis le faire progresser.
 
 **PASS SEC-01** : S01-A à S01-O, absence de confusion EUI/token, authentification indispensable, contrôle Shareholder à V, aucun privilège issu de CurrentUserPotList et aucune fuite de contenu lors des refus. SEC-02 teste séparément la fenêtre acceptée de propagation d'Unlink. Aucun test V3 n'a été implémenté ni exécuté.
+
+## 21. Protocole détaillé SEC-02 — révocation Identity asynchrone et portée de CurrentBinding
+
+**Statut : protocole proposé, non exécuté.** V3-3/V3-4 acceptent explicitement la fenêtre pendant laquelle une opération `Unlink` est committée dans WRITE, mais sa projection `CurrentBinding` n'est pas encore mise à jour dans READ. L'accès READ demeure gouverné par **l'EUI authentifiée et son bindingToken effectivement actif dans CurrentBinding READ**, puis les droits Shareholder dans la version Pot servie. Cette tolérance de propagation **ne s'étend pas à WRITE** : ses commandes et demandes Identity relisent les autorisations de l'état WRITE actuel à l'exécution.
+
+### Oracles contractuels
+
+- Un `Unlink` gagnant termine atomiquement en WRITE avec événement `IDENTITY_EVENT(EUI,targetVersion)`, résultat et complétion ; il n'impose pas un commit synchrone de `CurrentBinding` dans READ.
+- Tant que READ porte encore l'ancienne version active, l'ancien couple **EUI authentifiée + bindingToken** peut rester utilisable pour une lecture qui satisfait aussi les droits Pot@V. C'est une **fenêtre acceptée**, non une garantie qu'une lecture réussisse pendant ce délai.
+- Dès que `CurrentBinding(EUI).identityVersion ≥ targetVersion` matérialise l'Unlink, le token précédent ne donne plus accès à READ. Un événement Identity antérieur arrivant ensuite ne doit pas restaurer le lien ni le token.
+- Une requête WRITE exécutée après l'Unlink ne doit pas s'autoriser à partir d'un `CurrentBinding` périmé ; elle contrôle son état autoritatif WRITE au moment de l'exécution. Les demandes déjà admises suivent le contrat d'attestation à admission et de validations Pocoma au moment de l'exécution (ID-02).
+- `IdentityRequestResult` et `CurrentBinding` progressent indépendamment ; voir le résultat d'Unlink ne démontre pas que READ a révoqué le token.
+- Une Registration ou un Link ultérieur vers la même EUI ne réactive pas implicitement l'ancien token ; l'autorisation exige le nouveau binding exact après projection. Un `minVersion` atteint peut désigner une version Identity ultérieure, sans garantir que le rattachement supprimé existe encore.
+- Les scénarios documentent explicitement le **risque de propagation différée accepté** ; aucune prétention de révocation immédiate ou de durée maximale non validée n'est introduite.
+
+### Cas déterministes
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| S02-A | EUI liée, token actif et lecture Pot autorisée avant Unlink | Baseline : accès possible avec identité authentifiée correspondante et Shareholder à la version lue |
+| S02-B | Unlink committé en WRITE ; bloquer la Consumption Identity→CurrentBinding | WRITE EUI détachée ; READ garde ancien binding ; ancienne lecture peut encore passer, sans être revendiquée comme toujours possible |
+| S02-C | Après Unlink WRITE, tenter une mutation qui exige le binding encore actif avec l'ancien token | Contrôle WRITE courant rejette ou applique la décision conforme au domaine ; aucun droit indu par CurrentBinding en retard |
+| S02-D | IdentityRequestResult(Unlink) visible avant la matérialisation de CurrentBinding | Le résultat indique succès/targetVersion mais ne suffit pas à prouver révocation READ ; les branches restent indépendantes |
+| S02-E | Matérialiser `IDENTITY_EVENT` cible et observer CurrentBinding à targetVersion | Ancien token inopérant immédiatement après cette matérialisation pour toute nouvelle lecture READ |
+| S02-F | Traiter l'événement EUI de version antérieure après celui d'Unlink | CurrentBinding reste monotone et révoqué ; pas de restauration par livraison tardive |
+| S02-G | Relinker ultérieurement EUI avec nouveau token, projeter la nouvelle version | Ancien token toujours refusé ; nouveau token utilisable seulement avec EUI authentifiée correspondante et droits Pot |
+| S02-H | EUI liée à plusieurs situations d'accès Pot, puis Unlink | Après propagation, toutes les lectures dépendant de ce binding refusées, indépendamment d'une ancienne entrée CurrentUserPotList |
+| S02-I | Deux EUI distinctes liées à un même PocomaUser ; unlink d'une EUI seulement | Ancienne EUI révoquée en READ après propagation ; autre EUI et son token restent utilisables selon leurs droits |
+| S02-J | Accès en concurrence avec transaction de matérialisation CurrentBinding, y compris rollback injecté | Aucune ligne partiellement mise à jour ; lecture évaluée sur état READ committé ; rollback ne provoque pas de fausse révocation durable |
+| S02-K | Mesure bout en bout Unlink admission→WRITE terminal→IdentityResult visible→CurrentBinding révoqué→lecture refusée | Chronologie des jalons observable sans confondre résultats, commits et sondages ; ne pas ajouter de SLO de révocation inexistant |
+
+### Méthode, précautions et PASS
+
+JUnit avec **PostgreSQL réel** pour contrôler commits, ordres d'événements, projections et rollbacks ; **Bruno + Keycloak réel** pour l'identité authentifiée et les lectures avant/après matérialisation. Maintenir un Pot test avec Shareholder lié et projections déjà complètes, afin de ne pas confondre révocation Identity et retard Pot. Vérifier CurrentBinding, IdentityRequestResult, versions, token ancien/nouveau, résultats des lectures et refus WRITE. Les tokens ne doivent pas être inscrits dans les logs/rapports exposés : utiliser des identifiants anonymisés et des assertions privées.
+
+**PASS SEC-02** : S02-A à S02-K satisfaits ; fenêtre de propagation acceptée explicitement, refus garanti après matérialisation effective d'Unlink, monotonie malgré événements hors ordre, indépendance WRITE/READ et absence d'autorité de la liste de navigation. Le p95 ≤ 500 ms validé en V3-5C concerne **Registration/Link jusqu'au binding utilisable**, pas Unlink jusqu'à révocation ; aucun SLO de révocation n'a été fixé. Aucun test V3 exécuté.
