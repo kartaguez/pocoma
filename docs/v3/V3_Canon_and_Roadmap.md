@@ -245,3 +245,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Archivage :** étudier une politique future d'archivage des versions devenues obsolètes depuis n heures, **sans purge implicite de l'historique**. Aucun mécanisme automatique retenu pour le socle initial. Contrat de consultation/expiration, ordre de matérialisation et stratégie de reconstruction sont à préciser avant activation.
 
 **V3-CADRE toujours OUVERT :** harmoniser V3-3 et les protocoles READ/SEC/PRJ de V3-5D avec cette décision, puis terminer les autres contrats Supra et leur certification. Aucun runtime/DDL V3 implémenté.
+
+## Journal V3 — harmonisation READ / preuves de PotVersion (2026-10-23)
+
+**V3-3 amendée :** `PotVersion(P,V)` immuable de composition et d'autorisations historiques ; `CurrentPot` réduit à un pointeur. Huit projections logiques désormais, et non sept. `MaterializeCurrentPot` écrit PotVersion, sous-versions et pointeur en une transaction READ ; tâches Balance et Visibility inchangées. Voir [V3-3 §9](V3-3_Read_and_Projections.md), commit `1d9384b8`.
+
+**V3-5D amendée :** preuves PRJ-01, READ-01 et SEC-01 adaptées au manifeste et aux lectures groupées à V ; tests de coût de stockage et de transfert ajoutés. Voir [V3-5D §43](V3-5D_Test_and_Certification_Plan.md), commit `2f8a7c26`.
+
+**Suite V3-5E :** arbitrer limites d'admission, bornes de chargements groupés et erreurs de frontière. **Gate V3-CADRE toujours ouvert**, aucun runtime/DDL/test V3 exécuté.
