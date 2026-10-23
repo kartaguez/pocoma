@@ -373,3 +373,21 @@ La projection `PotVersion` immuable, CurrentPot pointeur, la version de consulta
 **Cohérence :** toutes les références appartiennent à V ; les détails demandés ultérieurement utilisent exactement ces versions immuables, même si `CurrentPot` a avancé. L'UI contrôle le rafraîchissement de la version affichée.
 
 **Statut : S-02 RÉSOLU conceptuellement ; taille réelle et paramètres de protection à qualifier.** S-03 (idempotence d'admission) reste ouvert.
+
+## 20. S-03 validé — idempotence des admissions (2026-10-23)
+
+**DÉCISION :** une Command ou IdentityRequest soumise par un client possède une **clé d'idempotence fournie par le client**, liée à une portée d'identité authentifiée et à une **intention canonique** de la demande. L'admission réserve durablement cette association **atomiquement avec la création de la demande**, sans consultation de l'état métier courant WRITE.
+
+- **Première soumission** : contrôler le contrat d'admission et les preuves exigées (notamment consentement transactionnel pour Link), puis créer une unique demande durable et son association d'idempotence dans la même transaction physique.
+- **Répétition, même clé et même intention dans la même portée** : retrouver la **même demande durable et son identifiant**, sans recréer de demande ni réévaluer rétroactivement de nouvelles limites structurelles. La relecture peut indiquer son statut actuel sans inventer de nouvel événement métier.
+- **Même clé, intention différente dans la même portée** : **409 Conflict**, sans nouvelle admission ni fuite du contenu de l'intention antérieure.
+- **Même clé dans une portée distincte** : ne pas permettre l'accès à la demande de l'autre identité ; définir la portée via l'identité authentifiée, l'opération et le client appelant, sans s'appuyer sur un simple bindingToken non authentifiant. Une clé seule n'est ni une capacité d'accès ni un identifiant métier global.
+- **Concurrence** : deux requêtes simultanées ne peuvent créer deux demandes pour la même paire portée/clé. Contrainte durable d'unicité et transaction atomique, avec issue déterministe après commit connu, rollback ou réponse perdue.
+- **Link** : une clé d'idempotence ne remplace **jamais** l'attestation externe de consentement de E2. Un retour de demande déjà admise n'autorise pas une nouvelle intention Link ; l'association doit rester liée à la preuve et à sa cible non substituable.
+- **Canonicalisation** : comparer les intentions métier (type d'opération, cible, payload pertinent, contexte d'identité) de façon déterministe, sans dépendre d'ordre arbitraire JSON ni de champs purement techniques. Le format/digest précis reste un détail à spécifier avant implémentation.
+- **Durée de rétention** : conserver l'association au moins pendant toute la durée où une répétition est supportée. **Ne pas annoncer une idempotence illimitée** sans politique de rétention ; durée contractuelle et purge éventuelle restent à fixer avant activation. Tant qu'une association est conservée, aucune nouvelle demande n'est créée avec cette paire portée/clé.
+- **Admission invalide** : une requête refusée avant admission ne crée ni Command/IdentityRequest, ni association durable d'idempotence ; ne pas transformer une erreur HTTP préalable en résultat métier terminal.
+
+**Tests S-03 :** première admission et réponse ; répétition avant et après terminalisation ; même clé/payload différent 409 ; JSON équivalent ; appelant/identité différente ; deux admissions concurrentes ; rollback de la première ; commit réussi mais réponse perdue ; règles de validation ajoutées entre deux appels ; Link avec attestation non substituable et anti-rejeu.
+
+**Statut : S-03 RÉSOLU conceptuellement.** Le détail du format des clés, de leur durée contractuelle et des réponses HTTP nominales est à figer pendant la préparation des tests et de la réalisation. S-01/S-02/S-03 sont désormais arbitrés ; la revue de clôture de V3-5E peut reprendre.
