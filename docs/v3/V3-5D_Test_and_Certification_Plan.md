@@ -764,3 +764,43 @@ Combiner **Bruno** (API, erreurs, contrôle de non-divulgation), **JUnit avec Po
 JUnit avec **PostgreSQL réel** pour contrôler commits, ordres d'événements, projections et rollbacks ; **Bruno + Keycloak réel** pour l'identité authentifiée et les lectures avant/après matérialisation. Maintenir un Pot test avec Shareholder lié et projections déjà complètes, afin de ne pas confondre révocation Identity et retard Pot. Vérifier CurrentBinding, IdentityRequestResult, versions, token ancien/nouveau, résultats des lectures et refus WRITE. Les tokens ne doivent pas être inscrits dans les logs/rapports exposés : utiliser des identifiants anonymisés et des assertions privées.
 
 **PASS SEC-02** : S02-A à S02-K satisfaits ; fenêtre de propagation acceptée explicitement, refus garanti après matérialisation effective d'Unlink, monotonie malgré événements hors ordre, indépendance WRITE/READ et absence d'autorité de la liste de navigation. Le p95 ≤ 500 ms validé en V3-5C concerne **Registration/Link jusqu'au binding utilisable**, pas Unlink jusqu'à révocation ; aucun SLO de révocation n'a été fixé. Aucun test V3 exécuté.
+
+## 22. Protocole détaillé REC-01 — reconstruction READ totale et rejeu indépendant
+
+**Statut : protocole proposé, non exécuté.** V3-4 retient deux opérations différentes : **reconstruction totale de READ à blanc**, avec arrêt des writers READ, reset cohérent et réutilisation possible des mêmes `consumptionId` ; **rejeu indépendant**, défini comme une nouvelle Consumption portant un nouvel ID et des effets dont la destination/coexistence est explicitement maîtrisée. Aucune remise à zéro isolée des checkpoints ou slots n'est sûre. Les événements immuables WRITE restent disponibles sans purge dans le périmètre V3.
+
+### Invariants de reconstruction
+
+- **Barrière opérationnelle :** avant le reset, empêcher toute nouvelle acquisition Discovery/Engine READ et attendre/neutraliser les écritures READ en cours ; une transaction READ ancienne ne peut pas committer après le reset en réinjectant des effets périmés. Pendant la reconstruction, les APIs ne doivent pas présenter READ partiellement reconstruit comme complet et prêt. La remise en service exige un critère explicite de disponibilité.
+- **Ensemble cohérent :** projections READ, tâches internes (`POT_BALANCE_TASK`, `POT_VISIBILITY_TASK`), slots, claims/leases de partition READ et checkpoints sont réinitialisés de manière coordonnée. Les définitions et IDs des Consumptions réutilisées restent stables. Les événements immuables de WRITE et les demandes autoritatives ne sont pas effacés.
+- **Reconstruction à mêmes IDs :** les checkpoints non-burnables repartent de zéro ; les tâches sont recréées avec leurs IDs déterministes d'origine, mais dans un espace READ entièrement réinitialisé. Les sources terminales WRITE ne sont **pas** rouvertes : READ redécouvre les événements immuables, pas les COMMAND/IDENTITY_REQUEST déjà terminales.
+- **Consommations indépendantes :** leur finalisation n'exige pas d'ordre global ; un jalon de remise en service doit néanmoins attester les projections nécessaires aux parcours annoncés. Le rattrapage de CurrentPot ne suffit pas à lui seul à établir que les balances, visibilité, binding et résultats sont prêts.
+- **Rejeu indépendant :** un nouveau `consumptionId` produit des slots/checkpoints propres et, pour une nouvelle Consumption de préparation, de nouveaux taskIds. Les projections existantes ne doivent pas être modifiées de façon incohérente par une deuxième génération d'écrivains ; leur destination, idempotence ou isolation doit être documentée avant la campagne.
+- **Récupération d'interruption :** une panne pendant reset/rebuild doit laisser READ hors service ou en état de reprise cohérente ; aucune stratégie de restauration séparée d'un ancien checkpoint avec de nouveaux slots/effets n'est acceptable.
+
+### Cas déterministes
+
+| ID | Stimulus / incident | Oracle de réussite |
+|---|---|---|
+| RCV01-A | READ peuplé de CurrentPot, sous-versions, balances, listes, bindings, résultats, tâches et slots ; déclencher reset total | Aucune projection, tâche, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
+| RCV01-B | Un Worker READ possède un claim et exécute une transaction au moment de la demande de reset | Barrière empêche un commit tardif après reset ; rollback/achèvement de l'ancien traitement avant réinitialisation, avec absence de réapparition d'effets |
+| RCV01-C | Arrêt après reset mais avant relance des Consumers | READ reste explicitement indisponible ; ne sert pas un résultat vide comme une reconstruction achevée |
+| RCV01-D | Reconstruire sans nouveaux consumptionIds depuis les quatre séquences événementielles conservées | Checkpoints repartent de zéro puis progressent ; mêmes IDs de Consumption ; projections attendues équivalentes aux valeurs autoritatives |
+| RCV01-E | Repréparer un même `POT_EVENT` avec le même ID de Consumption de préparation après reset | Même paire de taskIds déterministes recréée, sans collision ni tâche historique résiduelle |
+| RCV01-F | Reconstruction avec événements Pot et Identity entrelacés, tâches Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot, Balance, visibilité, CurrentBinding et résultats ; aucune condition d'ordre artificielle |
+| RCV01-G | Panne au milieu de la reconstruction, avec quelques checkpoints et slots déjà créés | Reprise sûre à partir des données durables ou nouveau reset total coordonné ; aucune perte par avance incohérente de checkpoint |
+| RCV01-H | Simuler restauration partielle : ancien checkpoint + slots effacés, ou projection effacée sans son slot | Procédure refusée/non autorisée ; ne pas déclarer READY un READ dont la preuve de complétion est cassée |
+| RCV01-I | Réinitialiser alors que des tâches PENDING et TERMINAL coexistent | Toutes les tâches du cycle précédent éliminées ; aucune tâche terminale ne bloque leur recréation avec mêmes IDs après reset |
+| RCV01-J | Démarrer une Consumption de replay indépendante avec nouvel ID sur événements historiques | Slots/checkpoints nouveaux, taskIds propres si préparation ; aucun réemploi d'ID de Consumption ou collision silencieuse |
+| RCV01-K | Rejeu indépendant vers projection déjà alimentée par la Consumption initiale | Coexistence interdite si non démontrée sûre, ou preuve d'idempotence/isolation explicite ; pas de double écriture incohérente |
+| RCV01-L | Demandes WRITE encore en arrivée pendant rebuild READ, puis arrêt et drainage mesurés | La borne de reconstruction/READY est définie (préfixes observables et projections requises), et les nouvelles publications sont ensuite consommées sans perte |
+| RCV01-M | Requêtes API READ authentifiées pendant et après reset | Indisponibilité pendant reconstruction ; après READY, lectures complètes et autorisations via CurrentBinding, jamais bypass de sécurité |
+| RCV01-N | Comparer état reconstruit avec oracle de l'état logique attendu, y compris versions historiques de sous-objets et PotBalance | Concordance des valeurs, versions et invariants ; aucun doublon, trou ou dérive de version |
+
+### Méthode, preuves et décision opérationnelle restant à détailler
+
+JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes, crash/restart contrôlé et vérification de chaque famille de projection. Bruno vérifie indisponibilité READ, remise en service et autorisations. Capturer états avant/après, statut de barrière, ensembles d'IDs, checkpoints, tâches, slots, contenu projeté et bornes de publication WRITE. Ne pas présumer que l'arrêt d'un processus tue instantanément ses transactions : la preuve inclut leur résolution physique.
+
+**Point de cadrage pour V3-CADRE :** choisir et décrire la **barrière effective d'arrêt/reprise** et l'oracle de `READY` (notamment en présence de WRITE continu) ; le présent protocole définit ce qui doit être prouvé mais ne prétend pas avoir tranché ces mécanismes opérationnels. L'implémentation ne peut pas décider silencieusement d'une barrière plus faible.
+
+**PASS REC-01** : RCV01-A à RCV01-N, reset sans survivants, impossibilité de commit ancien après reset, rejeu fidèle avec mêmes IDs, replay indépendant isolé et API protégée tant que READ n'est pas déclaré prêt. Aucun test V3 n'est encore exécuté.
