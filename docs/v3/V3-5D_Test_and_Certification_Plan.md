@@ -804,3 +804,44 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 **Point de cadrage pour V3-CADRE :** choisir et décrire la **barrière effective d'arrêt/reprise** et l'oracle de `READY` (notamment en présence de WRITE continu) ; le présent protocole définit ce qui doit être prouvé mais ne prétend pas avoir tranché ces mécanismes opérationnels. L'implémentation ne peut pas décider silencieusement d'une barrière plus faible.
 
 **PASS REC-01** : RCV01-A à RCV01-N, reset sans survivants, impossibilité de commit ancien après reset, rejeu fidèle avec mêmes IDs, replay indépendant isolé et API protégée tant que READ n'est pas déclaré prêt. Aucun test V3 n'est encore exécuté.
+
+## 23. Protocole détaillé OPS-01 — équité, reprise et coût du polling
+
+**Statut : protocole proposé, non exécuté.** Référence V3-4/V3-5B/C : Discovery et Engine possèdent **deux boucles adaptatives indépendantes**, sans notification obligatoire, avec round-robin entre Consumptions, capacités configurables par Worker et Consumption, lots bornés et sélection de slots sans famine durable. La stabilité ne se déduit ni d'un débit HTTP élevé ni de la seule disparition des slots Command : elle exige progression des événements, tasks et projections READ.
+
+### Oracles et indicateurs
+
+- **Équité sous concurrence :** lorsqu'une Consumption dispose de travaux éligibles et d'une capacité non nulle, une autre Consumption continuellement alimentée ne doit pas la priver indéfiniment de Discovery ou d'acquisition Engine. Les slots différés par `retryAfter` ou claims actifs ne sont pas éligibles avant échéance.
+- **Pas de famine interne :** dans une même Consumption, les travaux éligibles plus anciens doivent finalement être sélectionnés malgré le renouvellement permanent de nouveaux slots. Un `LIMIT` sans politique de progression n'est pas, à lui seul, une preuve.
+- **Reprise :** un claim expiré peut être repris normalement lorsque la partition est effectivement possédée ; l'ancien détenteur ne peut pas finaliser après remplacement. Les erreurs persistantes restent diagnostiquables sans boucle chaude et sans faux résultat terminal.
+- **Polling à vide :** mesurer appels SQL, cycles, réveils, CPU, mémoire, connexions et WAL quand il n'y a aucun travail ; le moteur doit éviter la sursollicitation PostgreSQL. Aucun nombre arbitraire de requêtes/s ou CPU % n'est fixé à ce stade : collecter une base mesurée et détecter les comportements manifestement non bornés.
+- **Polling sous charge :** mesurer séparément la latence source→slot (Discovery), slot éligible→acquisition (Engine), temps de travail, taux de retries, collisions et âge du backlog par Consumption. Éviter les scans répétés proportionnels à tout l'historique ou à toutes les tombstones.
+- **Capacités :** les plafonds souples de slots ralentissent l'enrôlement mais ne sautent pas de travail ; les limites Worker/Consumption doivent être respectées sans famine. L'autoadaptation reste compatible avec les SLO de V3-5C ; toute optimisation supplémentaire doit être justifiée par mesure.
+- **Durabilité du rattrapage :** 10 commandes/s soutenues sur Pots moyens indépendants ne doivent pas produire de backlog à croissance continue ; en pointe 50/s, backlog temporaire accepté sous réserve de résorption ; scénario de 10 000 commandes et leurs matérialisations sous 1 nouvelle commande/s doit se terminer en ≤ 5 minutes, à démontrer en PERF-01.
+
+### Scénarios de preuve
+
+| ID | Mise en situation | Oracle / observation requise |
+|---|---|---|
+| O01-A | Plusieurs Consumptions constamment alimentées, une Consumption à faible volume | La petite Consumption progresse malgré la grosse ; compter les opportunités Discovery/Engine et latences d'attente |
+| O01-B | Une même Consumption reçoit continuellement de nouveaux slots pendant qu'un lot ancien reste éligible | Les slots anciens finissent par être acquis ; aucune famine causée par la sélection |
+| O01-C | Mélange de slots libres, claims valides, claims expirés et `retryAfter` futurs | Seuls les slots réellement éligibles sont acquis ; retryAfter respecté ; claims expirés repris sans duplication |
+| O01-D | Une partition change de propriétaire sous charge | Le nouveau propriétaire reprend Discovery/acquisition ; claims valides des anciens restent finalisables ; pas de pause durable |
+| O01-E | Plafond souple de slots atteint pour une Consumption/partition | Discovery suspend l'enrôlement sans perdre la suite ; reprend à capacité libérée et checkpoints corrects |
+| O01-F | Workers saturés et capacités limitées par Consumption | Respect des limites ; les autres Consumptions avec capacité disponible progressent ; aucune saturation permanente du pool de connexions |
+| O01-G | Longue période à vide, puis arrivée isolée d'une commande | Coût de polling (SQL/CPU/réveils) mesuré ; latence de réveil et chaîne E2E mesurées, sans hypothèse de notification |
+| O01-H | Charge nominale, soutenue et pointe 1/10/50 commandes/s, Pots moyens indépendants | Débit offert/admis/terminal distingué ; backlog et quantiles par étape ; comparaison aux SLO validés, détaillée en PERF-01 |
+| O01-I | Erreurs techniques persistantes, puis réparation de la cause | Reprises temporisées sans boucle chaude ni terminalisation fictive ; reprise de progression après réparation |
+| O01-J | Nombreux événements hors partition, historique global 10k/1M/10M événements | Mesurer sélectivité, plans SQL, positions inspectées, nombre de lignes lues, progression de checkpoints ; pas de requête démesurée ignorée |
+| O01-K | Volume important de slots déjà réclamés/différés et quelques slots disponibles | Les slots éligibles restent trouvables sans lecture déraisonnable des claims inéligibles ; absence de famine |
+| O01-L | Déconnexion/crash d'un Worker puis redémarrage et renouvellement de claims | Observabilité des expirations, reprises, slots persistants et absence de double finalisation |
+| O01-M | Pause des Workers READ et constitution d'un backlog de tasks, tandis que les commandes continuent | Les deux boucles reprennent indépendamment ; progression visible par famille, pas seulement disparition des commandes |
+| O01-N | Instrumentation volontairement décalée/omise sur Discovery ou Engine dans un banc de vérification | La validation des métriques signale une frontière erronée ou absente ; simple présence d'une série ne suffit pas |
+
+### Conditions de reproductibilité et interprétation
+
+Combiner **JUnit/PostgreSQL** avec barrières pour les invariants de claims et de progression, **k6** pour les charges offertes, et **Prometheus/mesures PostgreSQL** pour CPU, WAL, sessions, plans, nombre d'exécutions et latences. Isoler autant que possible les injecteurs et la supervision des deux machines de référence. Fixer en V3-5D les nombres de partitions, Workers, tailles de lots, limites de capacité, populations, fenêtres de mesure et stratégie de collecte ; conserver la configuration exacte de chaque campagne.
+
+Les propriétés « aucune famine » et « pas de surcharge catastrophique » exigent des **oracles opératoires** : fenêtre et volume d'essai, borne de progression et seuil de coût par scénario devront être pré-enregistrés après étalonnage, sans transformer une mesure défavorable en PASS rétrospectif. La stabilité exige l'observation simultanée des débits terminalisés et du backlog (nombre et âge) ; une admission à 10/s ne démontre pas que le système les traite à 10/s.
+
+**PASS OPS-01** : O01-A à O01-N, équité et reprise démontrées, sélection utile sous backlog, coût de polling quantifié, métriques fiables et absence de saturation structurelle ; confirmation des SLO chiffrés renvoyée à PERF-01. Aucun test V3 exécuté.
