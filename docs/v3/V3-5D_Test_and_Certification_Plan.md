@@ -316,3 +316,42 @@ Une stratégie fondée sur `now()` PostgreSQL pris au **début d'une longue tran
 C03-F ne permet **pas** à un claim déjà expiré avant protection finale d'être accepté : la distinction porte sur l'instant d'obtention du verrou final. Le transfert de partition ne constitue pas un motif de rollback d'une transaction déjà protégée.
 
 **PASS CON-03** : C03-A à C03-L réussis, absence de reprise anticipée et de double effet, validation temporelle au verrou final, absence de dépendance de finalisation à l'ownerToken de partition. Recoupements obligatoires avec CON-04 (commit unique) et CON-06 (transaction physique). Aucun test V3 n'est exécuté à ce stade.
+
+## 12. Protocole détaillé CON-04 — finalisation unique et commit incertain
+
+**Statut : protocole proposé, non exécuté.** Un slot de clé `(consumptionId,consumableId)` ne peut finaliser qu'une fois. La transaction physique finale protège le `claimToken` encore valide au **moment d'acquisition effective du verrou final**, les invariants de domaine, les effets de la Consumption et la suppression du slot. La suppression n'est jamais une étape indépendante. Une réponse de commit perdue n'autorise pas une réexécution aveugle.
+
+### Oracles
+
+- **Au plus un effet durable** pour une clé de travail, même si plusieurs Workers ont préparé le même calcul ou si une tentative a reçu un résultat de commit inconnu.
+- La finalisation doit constater le **claim courant** sous protection exclusive ; un ancien token, un claim expiré avant protection ou un slot absent interdit le commit des effets de ce traitement.
+- La suppression du slot et les effets se produisent **ensemble** ou pas du tout ; si la source est burnable, sa transition `PENDING → TERMINAL` et son résultat éventuel partagent la transaction finale ; si elle est non-burnable, `checkpoint ≥ position` et slot absent ne deviennent preuve de complétion qu'avec les invariants CON-02.
+- Une fois la protection finale acquise correctement, un takeover concurrent ne peut pas intervenir avant la résolution physique du commit/rollback. Le dépassement de `claimedUntil` **après** la prise du verrou n'annule pas rétroactivement le droit acquis.
+- L'Engine ne recrée jamais de slot pour résoudre un commit inconnu. Il vérifie l'état durable : slot absent implique une finalisation constatée sous les invariants ; slot présent implique une éventuelle nouvelle acquisition complète selon son claim et `retryAfter`. Un état inconnu local n'est pas un nouveau statut durable.
+
+### Cas PostgreSQL déterministes
+
+| ID | Entrelacement ou faute injectée | Assertion décisive |
+|---|---|---|
+| C04-A | Deux Workers préparent le même slot et tentent la validation avec le même token | Une seule transaction applique l'effet ; le second ne peut pas appliquer une seconde fois après disparition du slot |
+| C04-B | Claim de A expiré ; B reprend avec nouveau token avant finalisation de A | A ne peut ni supprimer le slot ni écrire ses effets ; seul B peut finaliser |
+| C04-C | A verrouille le slot valide puis B tente un takeover après franchissement de l'échéance | B est sérialisé derrière A ; après commit, B voit slot absent et n'applique aucun effet |
+| C04-D | A obtient le verrou mais déclenche une exception après écriture d'une partie des effets | Rollback des effets, source terminale éventuelle et suppression ; slot encore présent pour reprise |
+| C04-E | A commite complètement, mais l'accusé de commit est perdu ; Worker redémarre | Lecture durable détecte slot absent et effets complets ; aucun effet ni événement supplémentaire |
+| C04-F | A rollback, mais sa connexion est coupée et le résultat est inconnu côté application | Lecture durable retrouve slot présent et effets absents ; reprise conditionnelle, nouvelle acquisition et nouvelle tentative |
+| C04-G | Un claim ancien tente de renouveler ou libérer un slot désormais repris par B | Aucune modification de l'état de B ; le token courant n'est pas écrasé |
+| C04-H | Propriété de partition transférée alors que A détient encore un claim valide | A reste autorisé à finaliser ; la propriété courante de partition n'est pas consultée comme fence final |
+| C04-I | Deux exécutions de la même demande burnable se disputent le slot avec fault injection sur `TERMINAL` et résultat | Une seule terminalisation et un seul résultat ; jamais `TERMINAL` sans résultat correspondant |
+| C04-J | Deux tâches READ concurrentes visent des versions différentes ou la même version | Chaque slot se termine une fois ; idempotence des projections et ordre/version assurés par PRJ-02/03, sans imposer l'ordre des slots |
+| C04-K | Concurrence répétée, takeover, rollbacks et interruptions de Workers | Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu |
+| C04-L | Revue des voies SQL d'écriture/suppression du slot et cas d'administration | Aucune voie ne supprime ou ne finalise hors transaction protégée ; reset coordonné READ seul cas d'effacement administratif permis (REC-01) |
+
+### Organisation des preuves
+
+JUnit/PostgreSQL réel avec **connexions indépendantes**, barrières de synchronisation sur acquisition du claim, tentative de verrou final, vérification temporelle post-verrou, mutation partielle et commit. Les délais d'expiration sont contrôlés ; les `sleep` ne constituent pas une preuve d'ordre. Enregistrer snapshots SQL avant/après, tokens uniquement dans les assertions privées, nombres d'effets et positions événementielles, issue réelle de commit et observations côté Worker.
+
+Distinguer explicitement : (a) réponse d'échec avant commit, (b) rollback physiquement certain, (c) commit réussi/réponse perdue, (d) issue momentanément inconnue. **Une erreur réseau n'est pas une preuve d'échec du commit.** Si une observation immédiate ne tranche pas, la récupération attend la résolution de la transaction/expiration du claim et relit l'état durable, sans créer `UNKNOWN` persistant.
+
+### Critère PASS
+
+**PASS CON-04** exige C04-A à C04-L, une seule finalisation durable par slot, effets et suppression indivisibles, absence de double effet après takeover ou commit incertain, et sécurité des sources burnables/non-burnables. Preuves conjointes CON-02, CON-03, EVT-02 et CON-06 obligatoires. Aucun test V3 ni résultat de certification n'est revendiqué.
