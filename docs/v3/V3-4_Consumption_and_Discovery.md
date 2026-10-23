@@ -41,13 +41,13 @@ Pas de checkpoint de traitements terminés, ni de liste de positions terminées 
 
 ## 4. Acquisition, protection et transactions
 
-Slots dans la **même autorité transactionnelle que les effets** de la Consumption. Chaque tentative possède **une seule transaction physique finale**, couvrant protections de partition et slot, validations métier, effets, preuve de complétion et suppression du slot. Pas de transaction distribuée. La transformation peut préparer ses calculs en dehors de cette transaction ; certaines lectures/décisions métier doivent néanmoins être réalisées dans la transaction finale, selon les invariants de V3-1.
+Slots dans la **même autorité transactionnelle que les effets** de la Consumption. Chaque tentative possède **une seule transaction physique finale**, couvrant la protection du slot, les validations métier, effets, preuve de complétion et suppression du slot. Pas de transaction distribuée. La transformation peut préparer ses calculs en dehors de cette transaction ; certaines lectures/décisions métier doivent néanmoins être réalisées dans la transaction finale, selon les invariants de V3-1.
 
-**Partition :** un `ownerToken` UUID et une échéance durable, claim renouvelable. Protocole applicatif explicite : takeover sous CAS et `FOR UPDATE` ; renouvellement CAS de colonnes non-clés ; validation protégée par `FOR KEY SHARE` jusqu'à résolution physique. **À prouver** : compatibilité réelle des verrous sous la configuration et les contraintes SQL retenues ; un UPDATE ordinaire non-clé ne verrouille pas nécessairement comme un takeover. Ordre imposé des protections : partition puis slot.
+**Partition :** un `ownerToken` UUID et une échéance durable, claim renouvelable. Ce token autorise **Discovery et l'acquisition de nouveaux slots**, pas la validation finale d'un claim préexistant. Acquisition/reprise conditionnelle et renouvellement sont protégés transactionnellement ; pas de `FOR KEY SHARE` de partition à chaque complétion. Un ancien propriétaire ne peut plus découvrir ni acquérir, mais peut finir un traitement dont il possède encore le claim individuel. Les détails CAS/verrous de takeover restent à prouver sous PostgreSQL.
 
 **Slot :** acquisition conditionnelle, renouvellement conditionnel, protection exclusive finale. Prendre des lots bornés par capacité disponible, `SKIP LOCKED` + CAS, succès partiel, sans ordre FIFO, sans charger la source métier ni cache. `claimedUntil` et `retryAfter` restent distincts. `partitionOwnerToken` enregistré permet de reprendre immédiatement un claim d'ancien propriétaire, avec contrôle transactionnel du propriétaire courant, en conservant `retryAfter`. Les sélections peuvent comparer au token connu du Worker, sans jointure systématique à la table des partitions.
 
-Le claim doit être valide **à l'acquisition du verrou final**, lequel reste retenu jusqu'au commit ou rollback physique ; une expiration ultérieure n'annule pas ce commit. Perte de partition : arrêt des nouvelles Discovery, acquisitions et renouvellements ; **aucune obligation d'annuler** les calculs en cours ; le double fencing refuse les validations illégitimes. Une transaction déjà protégée peut committer avant que le takeover n'aboutisse.
+Le claim doit être valide **à l'acquisition du verrou final**, lequel reste retenu jusqu'au commit ou rollback physique ; une expiration ultérieure n'annule pas ce commit. Perte de partition : arrêt des nouvelles Discovery et acquisitions et du renouvellement de la **propriété de partition** ; **les claims individuels encore détenus peuvent continuer à être renouvelés** et leurs calculs ne sont pas annulés. L'ancien Worker peut valider si son claim individuel est encore valide et n'a pas été repris. Le nouveau propriétaire peut reprendre immédiatement un ancien claim : la reprise et la validation finale du même slot sont sérialisées par sa protection exclusive. Aucune protection finale de partition n'est exigée.
 
 Les CAS, modes de protection, ordre, et garanties de rollback doivent apparaître explicitement dans les ports et dans l'Engine applicatif, pas être cachés dans SQL ; ne pas créer un framework universel de locking.
 
@@ -63,7 +63,7 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 
 **R2 — Invariant d'absence de slot.** Vérifier qu'une restauration, un changement de définition de Consumption, une collision entre anciennes et nouvelles exécutions ou une suppression administrative ne peut fabriquer `checkpoint >= position` sans effets. Vérifier le cas non-burnable de création simultanée d'une nouvelle Consumption.
 
-**R3 — Coût réel du double fencing.** Le renouvellement de propriété sur la même ligne, les validations `FOR KEY SHARE`, les takeovers `FOR UPDATE`, les acquisitions de slots et la discipline de verrous doivent être éprouvés en PostgreSQL. Envisager de simplifier seulement si la preuve de correction reste équivalente.
+**R3 — Simplification du fencing validée conceptuellement.** Le fencing final est **individuel par slot** ; le token de partition ne contrôle que Discovery et acquisition. Tester le chevauchement ancien/nouveau propriétaire, la course validation/reprise du même slot, les expirations et la correction des effets concurrents. Vérifier l'absence de verrou de partition lors de la complétion et la nécessité réelle des mécanismes de reprise immédiate.
 
 **R4 — Disponibilité temporelle.** Utiliser une sémantique d'horloge DB correctement choisie : les transactions courtes, `now()` figé au début d'une transaction et les attentes de verrous peuvent produire une vérification d'expiration périmée. À préciser avant code.
 
@@ -82,5 +82,7 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 3. Tracer les scénarios E2E WRITE → événements → READ et WRITE → tâches → READ, avec frontières transactionnelles.
 4. Définir les preuves V3-5 : interleavings PostgreSQL, crash/UNKNOWN, ressources, backlog, latence, WAL et contention.
 5. Revoir V3-2/V3-3 pour les deux sources internes, puis actualiser le canon.
+
+**Amendement validé le 2026-10-23 :** l'ownerToken est un droit d'enrôler/acquérir ; le claimToken est le droit de terminer. Le double fencing strict à la validation est supprimé. Preuve de concurrence et idempotence toujours ouverte.
 
 **Aucune implémentation V3 avant V3-CADRE. Le présent document est un cadrage consolidé, pas une certification.**
