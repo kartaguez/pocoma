@@ -689,3 +689,42 @@ Séparer les preuves : **EVT-03** valide aussi le catalogue des familles et l'id
 JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des matérialisations et les transactions concurrentes, complété par Bruno sur l'API authentifiée. Comparer l'état retourné à un oracle de reconstruction autoritative Pot@V et aux versions locales référencées ; vérifier chaque composant et balance, pas uniquement le `potVersion`. Vérifier explicitement les réponses d'indisponibilité (sans imposer encore leur forme HTTP), puis la convergence lorsque les éléments arrivent. Conserver les versions/IDs, états de tâches, snapshots SQL et captures des réponses API.
 
 **PASS READ-01** : R01-A à R01-N satisfaits ; aucun Pot partiel, aucune version mélangée, interprétation correcte de `minVersion`, indépendance des projections et des Pots ; pas de lecture WRITE synchrone. L'authentification et l'autorisation sont qualifiées avec SEC-01/02. Aucun test V3 exécuté.
+
+## 20. Protocole détaillé SEC-01 — identité authentifiée, bindingToken et autorisation Pot@V
+
+**Statut : protocole proposé, non exécuté.** L'identité externe authentifiée `(issuer,subject)` doit être associée **à cette même EUI** dans `CurrentBinding` avec le `bindingToken` présenté, un rattachement actif et un `pocomaUserId` résolu. Le token n'est **pas une preuve d'authentification autonome**. Le droit de lire un Pot à la version effectivement servie V est vérifié par le rattachement de ce User à un Shareholder **dans Pot@V**, indépendamment de `CurrentUserPotList`. Les conséquences d'un Unlink encore non propagé à READ relèvent du contrat accepté SEC-02.
+
+### Oracles de sécurité
+
+- Authentifier la requête côté API ; extraire l'EUI uniquement d'une identité vérifiée. Refuser tout `bindingToken` absent, non actif ou appartenant à une EUI distincte, même si son détenteur le connaît.
+- Résoudre le `pocomaUserId` à partir de `CurrentBinding` ; aucun paramètre fourni par le client ne peut choisir ou substituer librement ce User.
+- Pour la version V **réellement servie**, vérifier qu'au moins un Shareholder de `Pot@V` est lié au User résolu. Un rattachement à V ne confère pas automatiquement un droit à V+1 ; une suppression à V+1 ne révoque pas rétroactivement le droit à une version historique V si elle était servable (l'API historique arbitraire reste hors périmètre).
+- Une entrée visible dans `CurrentUserPotList` ne dispense jamais du contrôle métier ; une entrée absente ou en retard ne détermine pas non plus à elle seule l'autorisation.
+- Une requête refusée ne doit divulguer ni contenu du Pot, ni identifiant interne sensible, ni bindingToken ; le choix entre réponses « refus » et « introuvable » reste une décision du contrat HTTP V3, à fixer sans fuite de données.
+- Les tests doivent isoler **Authentification**, **résolution du binding** et **autorisation Pot** pour localiser précisément un refus ; aucune consultation synchrone de WRITE pour décider une lecture READ.
+
+### Cas déterministes
+
+| ID | Stimulus | Oracle de réussite |
+|---|---|---|
+| S01-A | EUI authentifiée E1 + bindingToken actif de E1 + Shareholder de Pot@V lié au User de E1 | Lecture autorisée, complète sous READ-01 |
+| S01-B | Aucun JWT/identité authentifiée, mais bindingToken valide connu | Accès refusé : token seul insuffisant |
+| S01-C | EUI E2 authentifiée présente le bindingToken de E1 | Refus, y compris si E2 connaît le Pot et son identifiant |
+| S01-D | EUI E1 authentifiée présente token inventé, expiré/remplacé ou appartenant à EUI liée à un autre User | Refus ; aucune résolution approximative par userId ou token seul |
+| S01-E | EUI authentifiée correcte, CurrentBinding absent, inactif ou sans pocomaUserId | Refus / absence de liaison, sans accès au Pot |
+| S01-F | EUI et bindingToken corrects, mais aucun Shareholder lié au User dans Pot@V | Refus malgré Pot connu ou liste de navigation trompeuse |
+| S01-G | Rattachement Shareholder présent à V puis retiré à V+1, avec lectures à versions réellement servies distinctes | Droit évalué sur la version servie ; accès admis à V si cette consultation est disponible, refus à V+1 si aucun lien restant |
+| S01-H | User lié à deux Shareholders, puis détaché de l'un | Droit maintenu tant qu'au moins un Shareholder de la version servie reste lié |
+| S01-I | CurrentUserPotList contient visible=true erroné ou périmé pour un User sans droit à Pot@V | Aucune autorisation par la liste ; ouverture du Pot refusée |
+| S01-J | CurrentUserPotList ne contient pas le Pot alors que Shareholder lié et CurrentBinding valide | Accès direct au Pot autorisé si READ-01 satisfait ; navigation non autoritative |
+| S01-K | Appel fournit un pocomaUserId arbitraire, ou tente de le modifier dans le payload/paramètre | Identité ignorée comme autorité ou entrée refusée ; User dérivé seulement du binding authentifié |
+| S01-L | Command/IdentityResult en READ disponible avant matérialisation de CurrentBinding ou Pot | Pas de contournement des vérifications pour ouvrir le Pot ; latence de projection traitée indépendamment |
+| S01-M | Test d'isolation entre deux tenants/émetteurs : même `subject` chez deux `issuer` | Deux EUI distinctes ; pas de confusion d'autorité malgré `subject` identique |
+| S01-N | Requêtes concurrentes pendant changement de CurrentPot V→V+1 ou CurrentBinding version supérieure | Autorisation cohérente avec binding et version effectivement observés, sans mélange non maîtrisé ; jamais de droit obtenu par état partiel |
+| S01-O | Parcours Keycloak réel : jeton signé et validé, EUI extraite puis bindingToken vérifié | Identité authentifiée effectivement reliée au bon binding ; refus des jetons falsifiés, mauvais issuer/audience, expirés selon politique OIDC applicable |
+
+### Méthode et critères PASS
+
+Combiner **Bruno** (API, erreurs, contrôle de non-divulgation), **JUnit avec PostgreSQL réel** (versions, rattachements, état CurrentBinding, races et absence de navigation autoritative) et **Keycloak réel** pour les parcours OIDC dans la configuration B. Utiliser plusieurs identités EUI et Pots aux historiques divergents. Vérifier pour chaque refus l'absence de contenu protégé dans réponse et logs d'application observables ; ne pas journaliser les tokens. Les tests qui forcent d'anciennes versions de Pot ne doivent pas prétendre qu'une API historique arbitraire existe déjà : utiliser un CurrentPot contrôlé à la version V puis le faire progresser.
+
+**PASS SEC-01** : S01-A à S01-O, absence de confusion EUI/token, authentification indispensable, contrôle Shareholder à V, aucun privilège issu de CurrentUserPotList et aucune fuite de contenu lors des refus. SEC-02 teste séparément la fenêtre acceptée de propagation d'Unlink. Aucun test V3 n'a été implémenté ni exécuté.
