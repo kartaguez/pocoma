@@ -67,7 +67,7 @@ Un Supra protège les frontières à partir **des paramètres présentés, de l'
 
 ## 7. Composition des Expenses à V — privilégier la reconstruction depuis les versions déjà historisées (2026-10-23)
 
-**Arbitrage d'étude :** la consultation affichée par le client reste à la version globale `V` ouverte jusqu'à une action explicite de rafraîchissement. Les pages d'Expenses demandent explicitement ou implicitement **le même V**. L'évolution de `CurrentPot` vers V+1 ne change jamais la composition des pages à V.
+**Hypothèse initiale désormais non retenue comme préférence (voir §8) :** la consultation affichée par le client reste à la version globale `V` ouverte jusqu'à une action explicite de rafraîchissement. Les pages d'Expenses demandent explicitement ou implicitement **le même V**. L'évolution de `CurrentPot` vers V+1 ne change jamais la composition des pages à V.
 
 **Comparaison :**
 - **Manifeste complet immuable par Pot@V** : déterministe mais duplique à chaque mutation de longues listes de références pour des Pots de 2 000 Expenses ; complexité de stockage et amplification d'écritures.
@@ -81,3 +81,16 @@ Un Supra protège les frontières à partir **des paramètres présentés, de l'
 **Critère de décision définitive :** éprouver la correction sur création/suppression/évolution d'Expense et hors ordre des matérialisations, puis le coût d'une page à V ancien pour 2 000 Expenses et historique long : SQL borné/indexé, pas de N+1 ni scan incontrôlé. Si cela échoue, reconsidérer une matérialisation minimale du manifeste historique plutôt qu'introduire une nouvelle Consumption.
 
 **Statut : consultation fixée à V VALIDÉE ; mécanisme de reconstruction historique PRÉFÉRÉ mais pas encore définitivement validé.** Aucune nouvelle projection ou cache obligatoire décidé.
+
+## 8. Réouverture de la pagination — manifeste courant au client (2026-10-23)
+
+**Rectification de §7 :** la préférence antérieure pour une **requête serveur reconstruisant la composition historique des Expenses** a été documentée **prématurément**. Elle n'est **pas arbitrée**. Deux solutions plus simples sont à comparer :
+
+- **A. Pagination sur CurrentPot courant :** si la version change, le serveur l'indique explicitement et le client recommence depuis la nouvelle version, sans prétendre servir un instantané historique. Simplicité serveur, mais instabilité UX lorsque les mutations sont fréquentes.
+- **B. Références chargées en bloc, détails à la demande (nouvelle proposition privilégiée à examiner) :** la lecture principale `CurrentPot(P,V)` fournit, outre en-tête, Shareholders et `PotBalance(P,V)`, **la liste complète et ordonnée des références nécessaires** à l'assemblage des Expenses à V ; le front découpe cette liste en pages et demande les valeurs immuables correspondantes par **lecture groupée, bornée en nombre de références**. Une Expense contient plusieurs sous-objets versionnés (`Header/Details/Financials`) ; conserver les références locales exactes de chacun. Le client ne réinterroge pas `CurrentPot` pour composer chaque page.
+
+**Intérêt de B :** `CurrentPot` porte déjà la composition courante ; aucune nouvelle projection du manifeste historique, aucune reconstruction historique des listes côté serveur, aucun cache/snapshot serveur requis pour des références déjà récupérées. Il faut mesurer la taille du manifeste initial pour les Pots de 2 000 Expenses et valider la forme de la sélection groupée.
+
+**Point de sécurité à résoudre** : un identifiant de sous-objet versionné ne constitue pas une autorisation. À chaque appel de détail, authentifier l'EUI, vérifier le binding actif et appliquer une autorisation **sur le Pot et sur la version V du manifeste initial**, en empêchant d'accéder à des composantes arbitraires d'autres Pots ou d'autres versions. Vérifier que cette autorisation et le contrôle des références demandées sont réalisables avec les projections READ existantes, sans réintroduire de manifeste historique serveur. Définir le comportement lorsque le User perd son accès après V et celui du décalage de révocation READ, conformément à SEC-01.
+
+**Arbitrage non clos :** retenir ou non B, définir si les références reçues du client sont vérifiables efficacement, contrôler que toutes les sous-versions demandées sont matérialisées avant réponse et choisir les limites de taille. Les paragraphes de §7 qui privilégient une reconstruction historique sont **supplantés par cette réouverture**. Aucun mécanisme, endpoint ni coût n'est validé avant discussion.
