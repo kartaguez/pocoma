@@ -316,3 +316,36 @@ Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. T
 4. Tester les seuils candidats sur profils V3-5C avant de figer le dimensionnement ; aucun PASS V3 revendiqué.
 
 **Gate V3-CADRE reste OUVERT. Aucune implémentation V3 ni test exécuté.**
+
+## 17. Revue de clôture V3-5E — couverture et derniers arbitrages (2026-10-23)
+
+**Verdict : CONCEPTION AVANCÉE, CLÔTURE DIFFÉRÉE.** Les frontières majeures sont décrites ; **trois décisions fonctionnelles de Supra restent à trancher avant un V3-CADRE sans ambiguïté**. Ne pas confondre des plafonds chiffrés calibrables en V3-6/7 et des choix de sémantique qui déterminent les API.
+
+### Matrice de couverture
+
+| Opérations / frontière | Couvert par | Statut |
+|---|---|---|
+| Admission `COMMAND` | §§1–2,12–16 | Principe défini ; idempotence/erreur après commit incertain à éprouver |
+| Admission `IDENTITY_REQUEST` (Registration, Link, Unlink) | §§1,12–16 et V3-5D §37 | Principe défini ; adaptation du contrat de preuve de Link au fournisseur concret ultérieure |
+| Résultat individuel Command/Identity | V3-3 et V3-5D | Lecture individuelle sans pagination ; erreurs et attente asynchrones à harmoniser |
+| Pot courant (en-tête, Shareholders, soldes, manifeste) | §§6,9–10 et V3-3 §9 | Structure décidée ; taille/complétude de la réponse initiale à traiter |
+| Expenses par groupe de références de V | §§10–11 | Contrat proposé, plafond numérique non arbitré |
+| Liste de Pots visible pour User | §3 et V3-3 | **OUVERT : ordre, pagination, cohérence entre pages, visibilité vs autorisation** |
+| READ retardé, maintenance et surcharge | §§13–16, V3-5D §§38–40 | Politique proposée, tests d'erreurs à compléter |
+| AuthN/AuthZ/masquage 404 | §§1,11,14 | Politique de principe validée ; 403 exceptionnel |
+| Archivage d'anciennes PotVersion | §10 | Hors socle V3 ; ne pas imposer d'archivage automatique |
+| Limites numériques, quotas et timeouts | §§13,15–16 | **Calibrage reportable** si les contraintes fonctionnelles sont préservées |
+
+### Trois arbitrages à clôturer
+
+**S-01 — Pagination de `CurrentUserPotList`.** Choisir ordre de tri stable et mécanisme de reprise ; déterminer le contrat lorsque des entrées deviennent invisibles/visibles pendant la navigation. La liste sert à naviguer, **pas** à donner l'autorisation. Une réponse potentiellement grande ne peut rester sans borne.
+
+**S-02 — Complétude et budget du manifeste `PotVersion`.** La lecture principale promet en-tête + tous Shareholders/soldes + liste complète des références d'Expenses. C'est un engagement fonctionnel : le Supra ne peut couper silencieusement la liste si la réponse dépasse son plafond. Décider explicitement si l'on maintient le manifeste complet initial (puis limite maximale publiée et testée) ou si les références elles-mêmes doivent être récupérables par lots **sans refaire apparaître les problèmes de version**. Le stockage immuable de `PotVersion` permet les deux ; ne pas décider à partir des seuls 2 000 Expenses de charge.
+
+**S-03 — Identité d'une admission répétée et codes d'erreur.** Fixer un principe d'idempotence observable après réponse HTTP perdue, distinguer `409` éventuel de conflit de clé d'idempotence avec payload différent, `400/413/422` et refus avant persistence, sans confondre avec un conflit de version métier traité par le Worker. Le contrat d'idempotence peut rester simple, sans imposer de format UUID ou de stockage supplémentaire à cette étape.
+
+### Choix déjà acquis et recommandations
+
+La projection `PotVersion` immuable, CurrentPot pointeur, la version de consultation stable côté UI, les Shareholders/soldes complets, la sécurité sur les sous-références et le masquage 404 **ne sont pas remis en cause**. Pour S-01, pagination keyset ordonnée par identifiant de Pot serait une candidate simple, mais **pas une photographie stable de toute la liste**. Pour S-02, mesurer taille de manifeste et envisager références récupérées par lots seulement si nécessaire. Pour S-03, préserver l'identité durable d'une demande déjà admise avant toute nouvelle validation et refuser le réemploi d'une clé avec une intention différente.
+
+**Statut : S-01/S-02/S-03 OUVERTS ; pas de nouveaux mécanismes runtime ou DDL décidés ici. V3-CADRE reste OUVERT.**
