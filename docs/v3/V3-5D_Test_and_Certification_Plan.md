@@ -1192,3 +1192,33 @@ Les catégories ci-dessus sont une **organisation du runner et des fixtures**, n
 6. **Soumettre explicitement le jalon V3-CADRE** ; jusque-là aucune implémentation runtime/DDL V3 ni exécution revendiquée.
 
 **Conclusion :** 24/24 exigences ont une spécification de preuve. Il subsiste **trois décisions de contrat/architecture** à fermer ; les modalités de tuning et d'outillage peuvent être différées sans affaiblir les invariants. **V3-CADRE demeure OUVERT.**
+
+## 31. C-01 — proposition de contrat minimal pour l'authentification et le consentement E2 (2026-10-23)
+
+**Décision proposée, NON ENCORE RATIFIÉE :** conserver **une unique admission Link**, deux authentifications OIDC E1 et E2, et **aucune nouvelle entité métier ni demande intermédiaire persistée**. Éviter toutefois l'affirmation fausse « deux jetons quelconques = consentement ». L'authentification E2 doit être initiée depuis **un écran de confirmation de Link explicitement présenté à E2**, et reliée à l'intention exacte par un état d'authentification vérifiable côté Pocoma.
+
+### Parcours minimal recommandé
+
+1. E1 est authentifiée et choisit « rattacher une seconde identité ». Le client prépare l'intention canonique `Link(E1,E2?,requestId)` avec un `requestId` unique ; le User destinataire n'est jamais un choix arbitraire de l'appelant.
+2. Pocoma fournit une **preuve de contexte temporaire signée/protégée**, stateless si possible, liant `purpose=link`, E1, `requestId`, expiration courte, aléa et empreinte des champs de demande connus. Aucun slot, Consent ou IdentityRequest durable n'existe encore. Si E2 n'est pas connue avant authentification, son identité sera extraite du second jeton ; le contexte doit interdire la substitution de cette E2 après capture.
+3. L'interface de confiance affiche à E2 « Autoriser le rattachement de cette identité à E1 ? » avec choix explicite. **Après confirmation**, le client réalise l'authentification OIDC de E2 avec Authorization Code + PKCE, `state` anti-CSRF et un `nonce` propre au contexte Link, dont le lien avec la preuve signée est vérifiable. Un `max_age` approprié peut imposer une preuve de fraîcheur selon le fournisseur ; `prompt=select_account` peut aider à éviter la réutilisation silencieuse du compte E1, sans constituer une preuve de consentement.
+4. Le client soumet **une unique requête d'admission Link** avec l'identité vérifiée E1, la preuve d'authentification E2, le contexte signé et la confirmation liée à ce contexte. Le serveur valide les deux authentifications, l'émetteur, l'audience de **chaque type de jeton**, expiration, `nonce` du jeton d'identité E2, contexte/intention, fraîcheur, absence de substitution et anti-rejeu. **Ne jamais accepter un ID Token dont l'audience est uniquement le client comme un Access Token API générique** : l'API doit disposer d'un contrat explicite et sûr pour vérifier la preuve OIDC issue du flow qu'elle a initié.
+5. **L'admission durable** associe intention, `requestId` et résumé/intégrité des preuves validées atomiquement ; le même contexte ne peut créer deux IdentityRequests distinctes. Le Worker ne redemande pas le consentement, ne recontacte pas l'IdP pour les entitlements, mais contrôle l'état Pocoma WRITE de E1/E2. Après usage, les jetons E2 temporaires sont abandonnés ; les secrets/token bruts ne sont pas journalisés.
+
+### Limites de sécurité à ne pas dissimuler
+
+- Le `nonce` OIDC prouve l'association **d'une réponse d'authentification avec une requête OIDC donnée** ; **il ne prouve pas que E2 a lu ni approuvé une description métier**. Ce dernier point exige une interface de confiance réellement opérée sous la responsabilité de Pocoma, ou une confirmation signée explicitement transactionnelle par un composant de confiance. Un simple booléen `consent=true` transmis par un client librement modifiable ne satisfait pas ID-02.
+- Dans une SPA non fiable, un initiateur malveillant ou un navigateur compromis peut omettre l'écran de consentement ; une signature côté serveur du contexte ne corrige pas, à elle seule, ce défaut. **Le modèle de menace doit décider** si le client Pocoma contrôlé et son interaction explicite suffisent, ou si une page de confirmation sous origine serveur Pocoma/BFF est requise. En cas de séparation physique des personnes/appareils, le parcours à deux jetons sur un seul appareil n'est pas toujours acceptable ; cela demanderait un autre contrat, hors périmètre de cette simplification.
+- L'authentification E2 peut réutiliser une session SSO existante ; sélectionner explicitement E2 et contrôler `auth_time` si fraîcheur exigée. `prompt=login` ou `select_account` dépendent des capacités réelles de chaque IdP ; ne pas supposer que tous les providers les garantissent à l'identique.
+- Avant de considérer C-01 fermé : **valider explicitement le modèle de confiance de la confirmation E2**, la validation serveur du jeton E2 et sa portée d'audience, le format du contexte lié à `requestId`, le traitement de `nonce/state`, l'anti-rejeu en cas de compétition et la confidentialité du flux. Ne pas déplacer ces décisions vers la seule implémentation.
+
+### Tests de discrimination à ajouter à ID-02
+
+- Un ancien jeton E2 non lié au contexte, même valide et récent, est refusé.
+- Une preuve E2 liée à `requestId=A` ne peut pas autoriser B ni un changement de E1/E2.
+- Une authentification SSO silencieuse sans **confirmation de confiance** ne vaut pas consentement.
+- Deux admissions concurrentes réutilisant le même contexte produisent au plus une demande durable autorisée.
+- Une altération d'audience, de nonce, de contexte signé ou du jeton E2 entraîne refus pré-admission.
+- Une seconde authentification réussie est compatible avec E1 toujours connecté ; elle ne remplace pas automatiquement la session principale.
+
+**Statut de C-01 : OPTION PRIVILÉGIÉE, À RATIFIER**, et non résolue : la vérifiabilité du consentement E2 dépend du choix explicite de la frontière de confiance de l'interface. Aucun code ni test V3 exécuté.
