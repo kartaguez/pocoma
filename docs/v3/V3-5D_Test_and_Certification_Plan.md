@@ -1459,3 +1459,11 @@ Avant d'autoriser V3-6 : (a) confirmer que le contrat abstrait IdP de §37 et so
 **Supras :** bornes d'admission, taille maximale des collections/chargements et contrats d'erreur restent à définir en V3-5E. Ne pas revendiquer 24/24 preuves exécutées : seuls leurs protocoles existent.
 
 **V3-CADRE demeure OUVERT**, qualification V3-6/V3-7 non exécutée.
+
+## 44. V3-5E — preuves proposées pour chargements groupés d'Expenses (2026-10-23)
+
+**SUPRA-READ-01, contrat candidat de V3-5E §11** : le front découpe le manifeste `PotVersion(P,V)` en groupes ; le Supra READ impose une limite de références par lot, vérifie EUI/binding actif, autorisation à V et appartenance au manifeste, résout les `SubobjectVersion` nécessaires et répond **tout ou erreur**, sans troncature ni recours à WRITE. Aucun deuxième système de pagination serveur imposé.
+
+**Tests bloquants avant qualification** : limites 0/1/N et plafond−1/plafond/plafond+1, doublons, références étrangères à V/Pot, versions de sous-objets substituées, Unlink et Shareholder lié à V, CurrentPot V+1 pendant lecture V, dépendance absente, grosse Expense conduisant au plafond de réponse, ordre et complétude du lot, latence et nombre de requêtes SQL pour 50 Expenses/2 000 références.
+
+**Réserves :** seuil numérique de lot, budget d'octets et codes d'erreur restent ouverts en V3-5E ; ce protocole décrit une preuve à construire, pas un test réalisé. V3-CADRE reste ouvert.
