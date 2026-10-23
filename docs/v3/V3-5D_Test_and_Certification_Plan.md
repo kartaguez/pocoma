@@ -1412,3 +1412,34 @@ H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet méti
 Avant d'autoriser V3-6 : (a) confirmer que le contrat abstrait IdP de §37 et son test de qualification sont suffisants sans imposer un fournisseur déjà opérationnel ; (b) confirmer le mode maintenance exclusive READ ; (c) confirmer C-03 et les deux plans de mesure séparés ; (d) adopter la fiche CON-06 consolidée ; (e) vérifier que les amendements actifs prévalent partout dans le plan des tests.
 
 **Verdict actuel : PRÉ-GATE DOCUMENTAIRE CONSOLIDÉ, NON CERTIFIÉ.** Aucun test/runtime/DDL V3 exécuté ou modifié ; **V3-CADRE reste OUVERT** jusqu'à sa décision explicite.
+
+## 42. Revue formelle de recevabilité V3-CADRE — 2026-10-23
+
+**Verdict de revue : FAVORABLE À LA VALIDATION DU CADRAGE CONCEPTUEL (GO RECOMMANDÉ), sous réserves d'implémentation et de qualification.** Cette revue **ne déclenche pas à elle seule V3-6** : le statut du gate dans le canon reste ouvert jusqu'à décision explicite de validation. La revue est documentaire ; aucun test V3, benchmark, SQL de preuve ni runtime V3 n'est exécuté.
+
+| Critère du canon §5 | Verdict | Raisonnement / preuve |
+|---|---|---|
+| V3-1 domaine Pot + Identity | **CONFORME — conception** | Histoire Pot@V et EUI@version, invariants financiers, observedVersion, transitions Registration/Link/Unlink ; DOM-01..03 et ID-01/02 (§§25–29) |
+| V3-2 événements et demandes | **CONFORME — conception** | Six familles métier/événementielles, deux tâches READ burnables internes, quatre séquences denses, complétion distincte des mutations ; EVT-01..03 (§§6–8) |
+| V3-3 READ et projections | **CONFORME — conception** | CurrentPot monotone, sous-versions et balances immuables, visibilité collective, CurrentBinding, lecture actuelle `minVersion` ; PRJ-01..04, READ-01 (§§15–19) |
+| V3-4 Consumption/Discovery | **CONFORME — conception, non éprouvée** | Frontières transactionnelles, checkpoint+slots, claim/fencing, retry différé, 8 familles, reconstruction exclusive ; CON-01..06, REC-01 (§§9–14,22,38–39) |
+| V3-5 revue, exigences, observabilité, performances et preuves | **CONFORME — dossier de cadrage** | 24/24 IDs dotés d'oracles, V3-5B, V3-5C amendé C-03, protocoles de tests V3-5D ; qualification future OPS/PERF |
+| Cohérence des interfaces et invariants | **FAVORABLE** | C-01 consentement fournisseur vérifiable (§37), C-02 maintenance READ (§39), C-03 lecture réelle W≥V (§40) ; une seule fiche CON-06 (§14) |
+| Ruptures V2, remplacement de tests et intégration | **CONFORME EN STRATÉGIE** | V2 non déployée ; tests remplacés par propriété, pas de compatibilité fictive ; suites mutualisées (§30), scénarios détaillés |
+| Revue concluant CADRAGE VALIDÉ | **À DÉCIDER EXPLICITEMENT** | Présente revue propose GO ; l'autorisation de V3-6 doit être consignée distinctement dans le canon |
+
+### Réserves classées, sans créer de nouveaux concepts
+
+| Ref | Classification | Condition de levée | Conséquence si non levée |
+|---|---|---|---|
+| R-G1 | **Réserve bloquante pour le parcours Link opérationnel, pas pour le cadrage de son contrat** | Disposer d'au moins un fournisseur qualifié attestant le consentement transactionnel à l'intention exacte (RAR ou équivalent) ; prouver le format et l'anti-rejeu | Impossible de déclarer Link V3 opérationnel/sécurisé |
+| R-G2 | **Réserve bloquante pour reconstruire/réouvrir READ, pas pour le cadrage** | Prouver arrêt physique des writers et transactions, reset coordonné et READY fondé sur préfixes avec tâches terminées | Impossible de déclarer une reconstruction READ sûre |
+| R-G3 | **Réserve bloquante pour certification PERF, pas pour le cadrage** | Fixer paramètres de campagne avant essai ; instrumenter première lecture complète W≥V, balance V historique séparément, charge/backlog et métriques fiables | Aucun PASS performance revendicable |
+| R-G4 | **Dette documentaire avant exécution des suites** | Supprimer/harmoniser les anciennes formulations supplantées (§§24,30,34–35) et pointer vers clauses §36/40 ; éviter des scénarios contradictoires | Plan d'implémentation ambigu, tests incorrects |
+| R-G5 | **Dette de réalisation et de preuve** | Faire passer les tests PostgreSQL concurrency/rollback et les parcours Bruno/Keycloak, k6 ; inventaire des tests V2 remplacés | Aucune certification V3 |
+
+### Décision proposée
+
+- **GO pour la suffisance du cadrage conceptuel**, car les mécanismes structurants et les critères de vérifiabilité sont identifiés ; ne pas demander des preuves d'exécution à une étape documentaire.
+- **NO-GO pour toute prétention « V3 certifiée », « fournisseur Link compatible » ou « reconstruction sûre déjà testée »**.
+- **Gate V3-CADRE : EN ATTENTE DE VALIDATION EXPLICITE.** Tant qu'elle n'est pas inscrite dans le canon, ne pas lancer le chantier V3-6 ni le DDL V3.
