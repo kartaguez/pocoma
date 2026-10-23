@@ -221,3 +221,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Réserves :** qualifier réellement l'attestation du fournisseur (notamment Keycloak), prouver l'exclusivité du reset sur les connexions/transactions, harmoniser les anciens paragraphes supplantés lors de la constitution du plan d'implémentation, fixer les paramètres de campagnes avant leur exécution.
 
 **Statut du jalon : V3-CADRE OUVERT.** Une décision explicite de validation reste nécessaire après revue des réserves. Aucune modification de runtime ou de DDL V3 ; aucune campagne de test V3 exécutée.
+
+## Journal V3 — revue formelle du gate V3-CADRE (2026-10-23)
+
+**VERDICT DE REVUE : GO RECOMMANDÉ POUR LE CADRAGE CONCEPTUEL, GATE EN ATTENTE DE DÉCISION EXPLICITE.** Voir [V3-5D, §42](V3-5D_Test_and_Certification_Plan.md). Les huit critères du §5 ont été passés en revue : V3-1/2/3/4 conçus, V3-5 traçable à 24/24 exigences et plans de preuve ; ruptures V2 et suites de remplacement cadrées ; compatibilité des invariants revue, doublon CON-06 résolu.
+
+**Réserves d'exécution — non bloquantes pour la suffisance conceptuelle, impératives pour leur qualification :** attestation de consentement transactionnel réellement délivrée par un fournisseur d'identité compatible ; démonstration de la barrière physique et du READY de reconstruction READ ; fiabilité des mesures E2E et des tests de charge ; harmonisation des paragraphes V3-5D supplantés avant réalisation ; passage effectif des suites PostgreSQL, Bruno et k6. Ne pas assimiler ces réserves à des garanties déjà prouvées.
+
+**Statut inchangé à cette revue : V3-CADRE OUVERT**, pas de démarrage V3-6/DDL avant validation explicite du gate. **Prochaine action : décider GO/NO-GO du jalon**, puis seulement si GO dresser le plan d'implémentation V3-6 dans l'ordre des dépendances et des preuves.
