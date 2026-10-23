@@ -391,3 +391,13 @@ La projection `PotVersion` immuable, CurrentPot pointeur, la version de consulta
 **Tests S-03 :** première admission et réponse ; répétition avant et après terminalisation ; même clé/payload différent 409 ; JSON équivalent ; appelant/identité différente ; deux admissions concurrentes ; rollback de la première ; commit réussi mais réponse perdue ; règles de validation ajoutées entre deux appels ; Link avec attestation non substituable et anti-rejeu.
 
 **Statut : S-03 RÉSOLU conceptuellement.** Le détail du format des clés, de leur durée contractuelle et des réponses HTTP nominales est à figer pendant la préparation des tests et de la réalisation. S-01/S-02/S-03 sont désormais arbitrés ; la revue de clôture de V3-5E peut reprendre.
+
+## 21. Revue finale de clôture documentaire V3-5E (2026-10-23)
+
+**Verdict : V3-5E CLOSED — cadrage conceptuel et contrats de frontière stabilisés ; aucune certification d'exécution.** Les trois décisions identifiées dans la revue §17 sont résolues par §18 (S-01 pagination de la liste utilisateur), §19 (S-02 manifeste PotVersion complet), §20 (S-03 idempotence atomique des admissions). La politique 404/403 (§14) et la séparation protection technique/invariant métier (§16) sont retenues. La projection READ V3-3 §10 et les preuves V3-5D §§43–49 sont alignées.
+
+**Réconciliation de l'ambiguïté documentaire :** un ancien journal du canon appelle également « S-02 » la question de la révocation rétroactive des droits. Ce sujet est **distinct** du S-02 des §§17–19 et **déjà arbitré** dans V3-3 §9 et SEC-01 : l'autorisation à la version historique V dépend des Shareholders de V, sous réserve d'un `CurrentBinding` actif à la lecture. Le retrait ultérieur d'un Shareholder ne révoque pas rétroactivement les anciennes versions. Des tests dédiés doivent le prouver.
+
+**Réserves transférées à la préparation de réalisation/certification (non décisions de domaine) :** seuils numériques réels et essais de charge, format exact du curseur, tailles et formats des clés/digests d'idempotence, durée publiée de rétention d'une clé et stratégie de purge, sémantique détaillée des erreurs et succès HTTP, tests de fournisseur de consentement Link et normalisation de la documentation historique. Ces points **doivent être fixés avant de prétendre les API prêtes à être activées** ; ils ne créent pas d'invariant métier supplémentaire. En particulier, sans durée explicite de conservation d'une clé, ne pas promettre la répétition indéfinie d'une admission.
+
+**V3-CADRE demeure OUVERT tant que sa propre revue/gate n'est pas explicitement prononcé.** Aucun runtime/DDL/test V3 construit ni exécuté au titre de cette clôture documentaire.
