@@ -91,3 +91,16 @@ Dimensions admises par défaut : famille/Consumption logique connue, type d'opé
 **Règle de mesure :** la fin métier des Consumptions correspond à un commit durable, tandis qu'une mesure côté client observe la première réponse qui prouve la disponibilité. Une sonde/poll fournit une borne d'observation, non une date de commit exacte. Les consommations ayant subi plusieurs tentatives doivent exposer temps d'attente et travail total avec retries, sans ajouter de mode REPLAY ni de nouveaux états durables.
 
 **Arbitrages restant en V3-5B/C :** définir la granularité effectivement mesurable pour chaque frontière avec l'instrumentation existante et la précision assumée ; qualifier explicitement les SLIs de disponibilité d'une version courante remplacée ; fixer les objectifs chiffrés en V3-5C.
+
+
+## 9. Arbitrage O-01 — niveau de précision retenu (2026-10-23)
+
+**Option B VALIDÉE.** Les SLIs de performance par étape doivent être fiables, comparables et mesurables sous les charges retenues ; les délais bout en bout observés par les clients/testeurs sont obligatoires. La reconstitution d'un traitement particulier après incident est un outil de diagnostic **dans la limite des observations conservées**, et non un audit temporel exact et durable de chaque transition.
+
+- Durées d'opérations mesurées par timers monotones dans les processus ; métriques agrégées et histogrammes adaptés.
+- Attentes mesurées à partir des observations/horodatages déjà disponibles ou de métriques instrumentées ; toute approximation, éventuel décalage d'horloge et limite de rétention sont documentés. Ne pas qualifier de « commit exact » une date enregistrée avant commit.
+- Mesure E2E externe indispensable pour admission→résultat, admission→chaque projection requise, Pot complètement consultable et nouveau binding effectivement utilisable. Les sondages donnent une borne d'observation.
+- **Aucun nouveau timestamp durable imposé aux slots V3 à ce stade**, ni journal des claims ajouté pour la mesure seule. Une extension future devra être motivée par une lacune avérée dans les objectifs V3-5C ou les preuves V3-5D.
+- **Qualité du branchement des métriques :** validation de la frontière instrumentée, du traitement des rollbacks/retries et des exports jusqu'à Prometheus prévue en V3-5D, vérification effective en V3-7.
+
+**V3-5B : CONTRAT CONCEPTUEL VALIDÉ, non implémenté ;** granularité des SLIs spécifiée, budgets chiffrés et hypothèses de charge à définir en V3-5C. Les questions O-02/O-03/O-04 sont transférées à V3-5C/D en tant que précisions de mesures et de preuves, sans rouvrir O-01.
