@@ -238,3 +238,28 @@ Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. T
 **Preuves SUPRA-READ-01/SEC-01 à ajouter :** ressource absente vs interdite sans distinction observable pertinente (statut, corps, détails et comportement contrôlable), refus de références étrangères sans fuite, réponses sensibles non mises en cache partagé, et cas 403 éventuels prouvant l'indépendance de la ressource. Le cache et les timings sont à qualifier de façon réaliste, sans exiger une constante cryptographique de temps pour chaque lecture SQL.
 
 **Statut : politique validée ; inventaire d'éventuels 403 et conventions exactes d'erreur à finir dans V3-5E.**
+
+## 15. Synthèse des bornes et surcharge — propositions à arbitrer (2026-10-23)
+
+**Statut : proposition de simplification, aucun seuil numérique ratifié par le seul présent ajout.** L'objectif est de maintenir deux familles de protections : (a) contrôles déterministes avant admission ou lecture (formats, tailles, nombre d'éléments, autorisation) ; (b) limitation d'utilisation des ressources sous charge (débit, concurrence et délais), sans introduire un ordonnanceur ni un moteur générique de validation.
+
+### Options recommandées pour le socle initial
+
+1. **Corps d'admission compressés non acceptés** initialement ; une seule borne en octets sur les données reçues avant le parsing. Éviter de devoir maintenir deux limites et de se prémunir contre les bombes de décompression. Si compression ajoutée ultérieurement, exiger plafond sur données encodées ET décodées.
+2. **Limites en octets et en cardinalité** : adopter en première intention les valeurs d'essai §13 (256 Kio HTTP, 4 Kio de texte, 50 références READ, 1 Mio de réponse groupée) seulement après tests de conformité aux usages ; le plafond de **100 cibles multi-Command** reste à évaluer séparément, car les Command multi-cibles légitimes ne doivent pas être refusées silencieusement.
+3. **Aucun plafond artificiel à 100 Shareholders** : 100 désigne seulement le profil de grand Pot testé en V3-5C. Si besoin, définir plus tard une limite métier explicite et compatible avec la structure sans pagination retenue.
+4. **Limiter la concurrence avant d'accumuler une file HTTP** : budgets configurables de requêtes en vol par type d'opération ; dépassement rapide et explicite (`429` pour quota client, `503` pour saturation du service), avec `Retry-After` seulement lorsqu'il est honnête. Les Consumptions admises continuent d'être traitées durablement selon leurs propres garanties.
+5. **Timeouts explicites** et réponse bornée : un timeout READ ne transforme pas un état incomplet en `404` ; retourner une indisponibilité temporaire. Si l'admission a pu être commitée mais sa réponse HTTP perdue, le retry retrouve **la demande d'origine** par la clé d'idempotence ; ne pas créer de deuxième Command.
+6. **Pas de traitement « partiel réussi » des lots READ** : si la réponse estimée dépasse le plafond ou manque un sous-objet, refuser le lot entier. Proposer un lot plus petit sans fuite d'information sensible.
+7. **Politique d'erreur** : la décision validée §14 prévaut sur l'ancienne cellule `403/404` §13 ; `404` pour ressource métier absente/non autorisée, `403` seulement pour interdiction globale explicite.
+
+### Cas à intégrer dans la certification ADM-01 / SUPRA-READ-01 / PERF-01
+
+- Corps de taille juste en deçà / égale / au-dessus du plafond, contenu JSON malformé et champ surdimensionné, compression interdite ; aucune création durable pour rejet préalable.
+- Multiplication de requêtes courtes/concurrentes : consommation bornée de CPU/mémoire/connections, rejet ou ralentissement explicite, pas d'effondrement du Worker et pas de pertes de demandes déjà admises.
+- Admission commitée puis timeout/perte de réponse : retry idempotent, identité de la demande préservée.
+- Lot READ de 50 Expenses à données habituelles ou extrêmes ; rejet explicite sans résultat tronqué, coût des lectures borné.
+- Pot de 100 Shareholders / 2 000 Expenses : lecture principale complète (Shareholders + balances + manifeste de références), mesurer la taille réelle de réponse et le nombre de requêtes ; ne pas en inférer un plafond de domaine.
+- READ en maintenance/reconstruction ou retard de sous-version : `503` ou code temporaire stable, jamais `404` trompeur.
+
+**Arbitrages encore ouverts :** seuils en octets réels, maximum de cibles multi-Command, politiques détaillées de quotas et timeout, enveloppe d'erreur finale. Les paramètres de déploiement sont ajustables mais **ne peuvent affaiblir les plafonds contractuels publiés** sans évolution du contrat. V3-CADRE demeure ouvert.
