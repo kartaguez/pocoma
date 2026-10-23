@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut : cadrage V3 en cours — V3-1, V3-2 et V3-3 CONCEPTION VALIDÉE ; jalon V3-CADRE OUVERT.**  
+**Statut actuel : V3-CADRE VALIDÉ — GO de cadrage conceptuel (2026-10-23) ; V3-6 AUTORISÉE pour la réalisation, sans certification ni activation.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
@@ -45,8 +45,8 @@ Le **cadrage cohérent de toutes les étapes précède toute implémentation** :
 | **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | **CONCEPTION VALIDÉE (non implémentée)** |
 | **V3-4** | Consumption, Discovery et Engine (sans Locator autonome) | Sources V3-2 et sorties V3-3 | À CADRER |
 | **V3-5** | Cadrage final : exigences, observabilité, objectifs de performance et plan de preuves | V3-1 à V3-4 | À CADRER |
-| **V3-CADRE** | Jalon obligatoire de validation du cadrage global avant code | V3-1 à V3-5 | OUVERT |
-| **V3-6** | Implémentation V3 et construction des tests/instruments | V3-CADRE validé | NON DÉMARRÉ |
+| **V3-CADRE** | Jalon obligatoire de validation du cadrage global avant code | V3-1 à V3-5E | **VALIDÉ — GO documentaire** |
+| **V3-6** | Implémentation V3 et construction des tests/instruments | V3-CADRE validé | **AUTORISÉ — NON DÉMARRÉ** |
 | **V3-7** | Exécution des preuves, qualification performance et certification | V3-6 | NON DÉMARRÉ |
 
 Les étapes sont successives **pour trancher les contrats conceptuels** ; leur implémentation peut ensuite se découper en lots/branches coordonnés. Ne pas introduire de dépendances circulaires : les besoins des étapes suivantes peuvent rétroagir sur le cadrage précédent **avant le jalon de validation globale**.
@@ -140,13 +140,13 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - [x] V3-1 : domaines **Pot et Identity**, identités, versions autonomes/globales lorsque nécessaires et reconstruction historique arbitrés **au niveau conceptuel**, sous réserve de la revue de cohérence globale et des interfaces de sécurité Link.
 - [x] V3-2 : familles/types d'événements, demandes et consommables définis conceptuellement ; dépendances V3-3/4 et revue globale restent ouvertes.
 - [x] V3-3 : projections et contrats READ stabilisés conceptuellement ; garanties d'exécution/transfert à prouver en V3-4/5.
-- [ ] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
-- [ ] V3-5 : revue globale, matrice d'exigences et plan de preuves, contrat d'observabilité et objectifs mesurables de performance terminés.
-- [ ] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
-- [ ] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
-- [ ] Une revue globale conclut explicitement **CADRAGE VALIDÉ** avec références documentaires.
+- [x] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
+- [x] V3-5 : revue globale, matrice d'exigences et plan de preuves, contrat d'observabilité et objectifs mesurables de performance terminés.
+- [x] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
+- [x] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
+- [x] Une revue globale conclut explicitement **CADRAGE VALIDÉ** avec références documentaires.
 
-**Tant que ce jalon est ouvert : documentation, prototypes jetables ou expériences isolées uniquement ; pas de chantier d'implémentation structurelle V3.** Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes.
+**Jalon validé conceptuellement le 2026-10-23.** La réalisation structurelle V3-6 devient autorisée, mais ne saurait être déclarée vérifiée ou activable avant les gates V3-7 et les preuves effectives. Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes. Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes.
 
 ## 6. Registre de suivi vivant
 
@@ -283,3 +283,26 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Précision sur la collision de libellé :** le « S-02 » d'un **ancien journal** du canon évoquait les droits historiques après retrait d'un Shareholder, mais ce point n'est **pas** le « S-02 » de la revue finale des Supras. Pour les droits historiques, **SEC-01 prévaut** : attache Shareholder à V + CurrentBinding actif au moment de lire ; pas de révocation rétroactive automatique par suppression à V+1. L'ancien journal est conservé pour traçabilité, pas pour en faire une question ouverte.
 
 **Réserves d'exécution non levées :** calibration de plafonds et taux, contrat de rétention/d'expiration des clés d'idempotence, encodages et détails HTTP, qualification réelle de l'attestation externe Link, harmonisation des anciens paragraphes. Ne pas prétendre qu'ils sont testés ou qu'un fournisseur est qualifié. Prochaine étape : **revue formelle autonome V3-CADRE**. **V3-CADRE toujours OUVERT**, V3-6 non autorisée ; aucun code/DDL/test V3 livré.
+
+## Décision finale du gate V3-CADRE — 2026-10-23
+
+**VERDICT FORMEL : GO / CADRAGE VALIDÉ (conceptuel et documentaire seulement).** Cette décision **supplante les mentions antérieures « OUVERT »** conservées dans les journaux datés et les sections historiques ; elle ne prétend pas transformer ces anciens comptes rendus en résultats de tests.
+
+**Fondement de la décision :**
+1. **V3-1 à V3-4** : domaines Pot/Identity, versions globales/locales, six familles de sources, contrats de séquencement et de Consumption, projection READ historique PotVersion/CurrentPot, deux tâches internes et reconstruction READ en maintenance exclusive sont définis et reliés.
+2. **V3-5A/B/C/D** : traçabilité des 24 exigences de base, observabilité, profils et budgets de performance, protocole de preuves détaillé ; les ajouts de tests V3-5E §§43–49 complètent cette base sans prétendre avoir exécuté les essais.
+3. **V3-5E CLOSED conceptuellement (§21)** : S-01 keyset `potId` sans snapshot ; S-02 manifeste complet et détails Expense par lots ; S-03 idempotence d'admission atomique et `409` si intention divergente. Admission structurale sans lecture de l'état métier WRITE, 404 anti-divulgation et séparation plafonds techniques/invariants métier.
+4. **C-01/02/03** : consentement E2 transactionnel vérifié à l'admission, READ reconstruit sous exclusivité avec condition READY, critère de performance Command→lecture complète W≥V sont tous décidés **conceptuellement**.
+5. **Compatibilité et remplacement** : pas de dette artificielle de commandes V1 en production ; anciens textes incompatibles sont explicitement supplantés par les amendements normatifs les plus récents, sans suppression des preuves historiques.
+
+**Réserves qui n'empêchent pas le GO conceptuel, mais bloquent les revendications d'exécution/activation concernées :**
+- **R-01 Identity/Link** : qualifier un fournisseur réellement capable d'attester le consentement explicite, exact et anti-rejeu de E2. Aucun Link sécurisé certifié sur une promesse de compatibilité Keycloak.
+- **R-02 Reconstruction READ** : prouver la barrière physique des writers et transactions, le reset complet et le READY fondé sur les préfixes sûrs et tâches dérivées terminées.
+- **R-03 API/Supras** : figer avant activation durée de rétention et fenêtre de retry des clés d'idempotence, payload canonique, codes de succès/erreur, plafonds admissibles et comportements en surcharge ; mesurer le manifeste complet et le lot Expense. Ne pas changer silencieusement le contrat métier retenu.
+- **R-04 PostgreSQL/Consumption** : réaliser les preuves d'atomicité et d'absence de perte, CAS/fencing, ordre, retries, crash, concurrence et reconstruction avec PostgreSQL réel.
+- **R-05 Performance** : instrumenter et mesurer les SLO sur jeux V3-5C avec campagnes k6, charge/backlog et coût PostgreSQL, sans annoncer un PASS avant les observations.
+- **R-06 Cohérence documentaire** : consolider les passages historiques de V3-3, V3-5D et V3-5E qui précèdent les amendements ; supprimer les ambiguïtés dans les contrats utilisés pour implémenter. En particulier, une ancienne section de V3-5E réemploie « S-02 » pour les droits historiques : SEC-01 et V3-3 §§9–10 prévalent ; ce n'est pas S-02 manifeste.
+
+**Effet autorisé :** préparer puis lancer les lots d'implémentation V3-6 dans une séquence cohérente de petites étapes avec tests ; maintenir la compatibilité des invariants, interdiction de certification/activation prématurée, et conservation des preuves. **V3-6 AUTORISÉE mais NON DÉMARRÉE dans cette décision.** Les paramètres restant à fixer sont des gates d'implémentation/qualification, pas des permissions de les omettre.
+
+**Aucun runtime V3, DDL ni test V3 réalisé à l'occasion de ce gate documentaire.**
