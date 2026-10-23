@@ -211,3 +211,13 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **C-03 — VALIDÉ CONCEPTUELLEMENT :** la performance utilisateur Command→Pot est mesurée jusqu'à la première lecture READ réellement complète, authentifiée et autorisée, satisfaisant `minVersion=V` avec une version servie W≥V. Les budgets p95 de V3-5C sont conservés. La matérialisation exacte des balances historiques V, de la visibilité et des tâches est une **exigence distincte de correction/progression**, non une condition artificielle de lecture d'un Pot historique. Le SLO technique nominal de Balance(P,V) est maintenu à part.
 
 **État du cadrage :** C-01 a un contrat conceptuel de consentement explicite attesté par l'IdP (qualification fournisseur à effectuer) ; C-02 adopte une reconstruction READ avec indisponibilité totale et maintenance exclusive ; C-03 est simplifié et arbitré. **V3-CADRE reste OUVERT** : fusion documentaire du doublon CON-06, traçabilité des preuves et revue finale avant décision explicite. Aucune implémentation/DDL ni exécution de test V3.
+
+## Journal V3 — consolidation de V3-5D avant le gate V3-CADRE (2026-10-23)
+
+**V3-5D CONSOLIDÉ DOCUMENTAIREMENT, NON CERTIFIÉ.** Les 24 exigences V3-5A disposent de protocoles détaillés. Deux versions de la fiche CON-06 ont été fusionnées en un protocole unique §14, avec correspondance complète des cas et conservation des assertions spécifiques, dans [V3-5D](V3-5D_Test_and_Certification_Plan.md) (commit `87fb2cf7`). La revue pré-gate est consignée au §41.
+
+**Décisions structurantes :** C-01 = consentement métier attesté par un fournisseur d'identité qualifié, aucune IdentityRequest persistée avant preuve ; indicateurs de Pots accessibles/EUI liées purement informatifs sans contrainte de fraîcheur. C-02 = reconstruction READ à blanc en maintenance exclusive et READY fondé sur préfixes sûrs et effets dérivés terminés. C-03 = SLO utilisateur jusqu'à première lecture Pot READ complète pour W≥resultingPotVersion ; preuve des balances de chaque version historique et SLO technique Balance(P,V) distincts.
+
+**Réserves :** qualifier réellement l'attestation du fournisseur (notamment Keycloak), prouver l'exclusivité du reset sur les connexions/transactions, harmoniser les anciens paragraphes supplantés lors de la constitution du plan d'implémentation, fixer les paramètres de campagnes avant leur exécution.
+
+**Statut du jalon : V3-CADRE OUVERT.** Une décision explicite de validation reste nécessaire après revue des réserves. Aucune modification de runtime ou de DDL V3 ; aucune campagne de test V3 exécutée.
