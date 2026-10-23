@@ -650,3 +650,42 @@ JUnit avec **PostgreSQL réel**, connexions distinctes, contrôles de points de 
 Séparer les preuves : **EVT-03** valide aussi le catalogue des familles et l'identité des tâches ; **CON-02/04/06** valident les frontières de slot/commit ; **PRJ-02/03** valident la justesse des valeurs. PRJ-04 démontre spécifiquement les **deux** atomicités locales et leur indépendance, sans créer une transaction distribuée entre WRITE et READ.
 
 **PASS PRJ-04** exige P04-A à P04-O, absence de demi-préparation et de demi-finalisation, aucune obligation d'ordre entre les tâches, et reprises sûres. Aucun test V3 n'a été implémenté ni exécuté.
+
+## 19. Protocole détaillé READ-01 — réponse complète et cohérente, ou indisponibilité explicite
+
+**Statut : protocole proposé, non exécuté.** READ fournit les consultations courantes sans appel synchrone à WRITE. Les projections évoluent indépendamment ; aucun snapshot global entre Pots n'est promis. Pour une demande avec `minVersion=m`, la consultation sélectionne une fois une version courante V de `CurrentPot` avec `V ≥ m` et doit résoudre **toutes** les références de sous-objets et `PotBalance(P,V)` nécessaires au contenu demandé. Une réponse ne doit jamais mélanger les données de deux versions globales. La visibilité de liste, les résultats et les bindings ne constituent pas une barrière globale de disponibilité.
+
+### Oracles contractuels
+
+- Si `CurrentPot` est absent ou à `V < minVersion`, rendre une **indisponibilité temporaire explicite**, sans prétendre à une absence définitive de Pot. Les codes/réponses API exacts seront fixés par le contrat API V3-6 avant construction des tests Bruno ; ne pas inventer maintenant un code HTTP.
+- Si `CurrentPot(P,V)` existe, capturer **une seule fois V et ses références**. Une consultation nécessitant la balance ne peut réussir que si `PotBalance(P,V)` existe, est complète et appartient exactement à V ; même règle pour chaque `SubobjectVersion` référencée. Si un élément nécessaire manque, rendre temporairement indisponible plutôt qu'une réponse partielle ou un substitut V−1/V+1.
+- Une consultation qui ne requiert pas une projection donnée ne doit pas attendre artificiellement sa matérialisation (par exemple un résultat terminal consultable peut précéder CurrentPot ; une lecture d'en-tête ne doit pas nécessairement attendre les balances si son contrat n'en a pas besoin).
+- Un déplacement concurrent de CurrentPot de V à V+1 après capture ne peut pas transformer la réponse en assemblage hybride. Les valeurs immuables de V restent lisibles pendant la requête ; assurer snapshot SQL adapté ou lecture cohérente par références figées, à démontrer.
+- `minVersion` est un **plancher de fraîcheur**, pas l'exigence de servir exactement m. Si V > m et tous les composants de V sont prêts, la réponse peut servir V ; elle ne prétend pas exposer un historique arbitraire à m.
+- La condition `PotVisibilityState(P).materializedVersion ≥ V` constitue un jalon de progression **quand la visibilité est explicitement requise par la consultation / le test E2E complet**, mais n'est pas une autorité de sécurité ni une condition systématique à toute lecture Pot. L'autorisation est vérifiée séparément avec binding authentifié et rattachement au Shareholder de la version servie (SEC-01).
+- Pour plusieurs Pots, les versions servies peuvent différer, même dans une liste d'utilisateur ; aucune photographie globale transactionnelle n'est promise.
+
+### Cas déterministes
+
+| ID | Stimulus | Oracle de réussite |
+|---|---|---|
+| R01-A | Pot absent dans READ, puis projection initiale apparue | Indisponibilité temporaire avant matérialisation, puis succès complet si accès autorisé ; ne pas déclarer une absence définitive à tort |
+| R01-B | CurrentPot à V4 et requête `minVersion=5` | Indisponibilité temporaire ; aucune réponse V4 présentée comme satisfaisant V5 |
+| R01-C | CurrentPot à V6 et `minVersion=5` | V6 peut être servie si complète et autorisée ; pas d'exigence artificielle de servir V5 |
+| R01-D | CurrentPot V6 référence plusieurs sous-versions dont l'une est absente | Lecture complète indisponible jusqu'à présence de toutes les références ; aucune suppression de champ silencieuse |
+| R01-E | CurrentPot V6 et Balance(P,V5) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais réutiliser le solde V5 |
+| R01-F | CurrentPot V6 et Balance(P,V7) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais emprunter un solde futur |
+| R01-G | CurrentPot passe V6→V7 pendant une lecture ayant capturé V6 | Réponse cohérente V6 ou indisponibilité ; jamais assemblage V6/V7 |
+| R01-H | CommandResult de la commande cible présent, mais CurrentPot cible pas encore à V | CommandResult consultable indépendamment ; lecture Pot avec `minVersion=V` encore indisponible |
+| R01-I | CurrentPot et composants prêts, mais tâche Balance ou Visibility en retard | Seules les lectures dont les composants requis manquent sont indisponibles ; test E2E « toutes projections » attend séparément les jalons Balance et Visibility |
+| R01-J | Deux Pots avec projections et versions décalées dans CurrentUserPotList | Navigation sans faux snapshot inter-Pots ; toute ouverture de Pot réévalue son autorisation et sa complétude propre |
+| R01-K | Changement de rattachement Shareholder entre deux versions ; demande authentifiée | Autorisation appréciée selon le Shareholder de la **version réellement servie**, jamais sur liste de navigation ou snapshot WRITE courant |
+| R01-L | Projection CurrentPot plus récente que la cible d'une commande déjà achevée | `minVersion` est satisfait par V supérieure, si consultation V supérieure complète ; ne pas prétendre que Pot courant restitue automatiquement l'ancienne V cible |
+| R01-M | Concurrent readers pendant commit/rollback de matérialisation partielle de sous-objets / CurrentPot | Lecteurs ne voient que données committées et complètes, ou indisponibilité explicite ; aucun état transitoire partiellement écrit |
+| R01-N | Vérifier instrumentation client de sondage READ avec retards artificiellement contrôlés | Mesure E2E fondée sur première réponse réussie prouvant les composants requis ; retard de polling quantifié ; ne pas qualifier cette borne de timestamp exact du commit |
+
+### Méthode et PASS
+
+JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des matérialisations et les transactions concurrentes, complété par Bruno sur l'API authentifiée. Comparer l'état retourné à un oracle de reconstruction autoritative Pot@V et aux versions locales référencées ; vérifier chaque composant et balance, pas uniquement le `potVersion`. Vérifier explicitement les réponses d'indisponibilité (sans imposer encore leur forme HTTP), puis la convergence lorsque les éléments arrivent. Conserver les versions/IDs, états de tâches, snapshots SQL et captures des réponses API.
+
+**PASS READ-01** : R01-A à R01-N satisfaits ; aucun Pot partiel, aucune version mélangée, interprétation correcte de `minVersion`, indépendance des projections et des Pots ; pas de lecture WRITE synchrone. L'authentification et l'autorisation sont qualifiées avec SEC-01/02. Aucun test V3 exécuté.
