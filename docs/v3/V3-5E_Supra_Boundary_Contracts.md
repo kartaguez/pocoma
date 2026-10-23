@@ -153,3 +153,20 @@ Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées oc
 5. Mesurer le coût réel de stockage chaud, de compression éventuelle et de restitution avant d'introduire un Worker/Consumption d'archivage supplémentaire. Première V3 **sans archivage automatique**, avec métriques pour décider plus tard.
 
 **Statut : PotVersion immuable complet VALIDÉ CONCEPTUELLEMENT ; archivage des versions obsolètes = piste ultérieure, non mécanisme introduit en V3.** V3-CADRE demeure ouvert.
+
+## 11. Lectures groupées d'Expenses — proposition de contrat Supra (2026-10-23)
+
+**À VALIDER :** une lecture groupée demande `potId`, `potVersion=V` et une **liste ordonnée et bornée de références d'Expenses** issues du manifeste `PotVersion(P,V)`. Chaque référence indique l'identité métier Expense et les versions locales nécessaires (`Header/Details/Financials`), ou un identifiant opaque équivalent résolu strictement dans le manifeste. Les détails sont servis exclusivement depuis `SubobjectVersion` ; le Supra ne contacte pas WRITE.
+
+**Bornage symétrique :**
+- Refuser avant requête coûteuse une liste vide, des doublons si non normalisés, des références malformées, des volumes excessifs et des combinaisons `potId/V` incohérentes. **Plafond serveur configurable**, avec maximum contractuel publié, indépendant du nombre de références du manifeste principal. Un plafond ne se négocie pas à la hausse par le client.
+- Borne également de taille totale de réponse et de temps de traitement ; si un ensemble de références autorisé dépasse le budget, répondre par **erreur explicite**, jamais par troncature silencieuse d'Expenses ou sous-objets. Tester l'interaction avec un Expense à contenu volumineux.
+- **Ordre du résultat** : restituer les items dans l'ordre demandé (ou documenter un autre ordre canonique), avec identité/version et signal explicite pour chaque élément non résolu. Aucune réussite partielle trompeuse : soit le lot complet est servi, soit une erreur cohérente est fournie.
+
+**Sécurité et cohérence :** EUI authentifiée, binding actif contrôlé dans `CurrentBinding`, utilisateur autorisé à `PotVersion(P,V)` ; chaque référence fournie doit appartenir au **manifeste de cette version exacte**. Une liste de références n'est jamais une preuve d'autorisation ; ne jamais accepter une référence d'un autre Pot ou d'une autre version même si sa valeur existe. Toute sous-version nécessaire à une Expense doit être présente ; sinon indisponibilité explicite, et aucune reconstruction à partir de `CurrentPot` plus récent.
+
+**Contrat UX :** la lecture principale sert le manifeste complet des références d'Expenses, le front en découpe les groupes à la demande ; il peut continuer à V alors que le courant atteint V+1. Un nouvel état courant est signalable séparément ; aucun basculement implicite en cours de lot.
+
+**Scénarios SUPRA-READ-01 proposés :** 0/1/N références ; juste sous/à/au-dessus du plafond ; référence dupliquée ; référence étrangère au Pot ou à V ; EUI non autorisée ; Unlink matérialisé dans CurrentBinding ; V ancien et CurrentPot avancé ; sous-version non encore matérialisée ; Expense avec payload extrême ; 50 Expenses chargées sans N+1 ; réponse non partielle et ordre reproductible.
+
+**Point non arbitré :** taille effective du plafond, borne en octets, ordre du manifeste et représentation des références ; confronter aux profils V3-5C. Éviter d'introduire une pagination serveur *en plus* du découpage client sans besoin démontré.
