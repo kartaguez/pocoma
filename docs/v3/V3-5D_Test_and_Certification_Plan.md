@@ -355,3 +355,42 @@ Distinguer explicitement : (a) réponse d'échec avant commit, (b) rollback phys
 ### Critère PASS
 
 **PASS CON-04** exige C04-A à C04-L, une seule finalisation durable par slot, effets et suppression indivisibles, absence de double effet après takeover ou commit incertain, et sécurité des sources burnables/non-burnables. Preuves conjointes CON-02, CON-03, EVT-02 et CON-06 obligatoires. Aucun test V3 ni résultat de certification n'est revendiqué.
+
+## 13. Protocole détaillé CON-05 — une acquisition, une tentative complète, puis reprise différée
+
+**Statut : protocole proposé, non exécuté.** Référence V3-4 : chaque acquisition de slot ouvre **une seule tentative complète**, avec rechargement du consommable, des faits autoritatifs et du contexte de version. Après échec technique : rollback intégral de la transaction finale, cession **conditionnelle** du claim et fixation de `retryAfter`, puis une **nouvelle acquisition** et une nouvelle exécution. Pas de retry immédiat sous le même claim, pas d'état durable `FAILED` ou `UNKNOWN`, pas de transformation d'un problème technique en rejet métier.
+
+### Oracles
+
+- Toute tentative possédant un `claimToken` précis effectue au plus une exécution/finalisation de la transformation ; un échec ne relance pas l'exécution sous ce même token.
+- Les effets de la tentative échouée ne sont pas durablement visibles. Le slot reste disponible pour une reprise ultérieure, sous réserve de `retryAfter` et d'un nouveau claim.
+- La cession du claim ne réussit que si le slot existe encore et porte **exactement le token de la tentative**. Le retryAfter ne doit jamais être écrit sur un claim repris par un autre Worker.
+- `retryAfter` interdit l'acquisition anticipée, y compris lorsqu'un claim est libre ou expiré. Le temps doit être testé avec une horloge DB adéquate, sans faire reposer la correction sur un `sleep` probabiliste.
+- La nouvelle acquisition crée un nouveau `claimToken` et relit source, version effective et préconditions ; l'intention immuable et les attestations de l'admission restent inchangées. Une collision CAS technique mène à une nouvelle tentative, tandis qu'une obsolescence métier effectivement établie peut produire un rejet terminal.
+- Si la cession ou le commit a une issue incertaine, ne jamais recréer de slot : constater l'état durable et laisser agir les règles normales de claim, expiration et reprise. Une erreur technique persistante ne génère pas un faux résultat terminal.
+
+### Cas déterministes
+
+| ID | Stimulus / faute | Assertion décisive |
+|---|---|---|
+| C05-A | Exception de chargement ou préparation avant transaction finale | Aucune mutation ; tentative abandonnée ; cession conditionnelle et retryAfter ; pas de seconde exécution sous le claim |
+| C05-B | Exception technique pendant validation/écriture de la transaction finale | Rollback complet, y compris effets et slot ; cession du claim dans transaction séparée et courte ; retryAfter durable |
+| C05-C | Conflit CAS sur la version de travail d'un Pot après préparation | Aucune terminalisation/rejet automatique ; après retryAfter et réacquisition, nouvelle version de travail lue et intention réévaluée |
+| C05-D | Demande effectivement obsolète selon faits à la version rechargée | Résultat **métier** rejeté et complétion atomique ; aucun retry technique infini |
+| C05-E | Source/payload/version modifiés entre deux acquisitions selon les contrats autorisés | Nouvelle tentative recharge les faits autoritatifs ; payload d'intention de la demande reste inchangé |
+| C05-F | Tentative d'acquisition avant retryAfter alors que le slot est libre | Acquisition refusée ; acquisition possible à partir de l'échéance si les autres conditions sont satisfaites |
+| C05-G | A échoue ; son claim expire et B le reprend avant que A tente de le libérer | La libération tardive de A n'altère ni le claim B ni son retryAfter ; ancien token non réutilisable |
+| C05-H | Cession conditionnelle commit, mais réponse perdue ; puis variante rollback de la cession | Relire le slot et ses échéances ; pas de double cession, ni de nouvelle ligne, ni de reprise immédiate illicite |
+| C05-I | Plusieurs échecs techniques consécutifs avant succès | Chaque tentative a un token différent et une exécution complète ; temporisation respectée ; aucun état FAILED/UNKNOWN ajouté |
+| C05-J | Erreur technique persistante (base indisponible, violation structurelle, bug reproductible) | Slot reste récupérable, aucune terminalisation mensongère ; diagnostic explicite, cadence bornée par retryAfter |
+| C05-K | Crash du Worker après rollback et avant cession du claim | Aucun effet partiel ; claim expirera normalement et pourra être repris, sans reconstruction de slot |
+| C05-L | Worker perd la partition entre échec et cession, mais garde son claim individuel | Cession conditionnelle reste possible avec claim courant ; l'ancien Worker ne peut pas acquérir de nouveau slot après perte de propriété |
+| C05-M | Vérification instrumentée sur erreurs, reprises et refus métier | Compteurs/timers distinguent tentative, retry, issue technique, rejet métier et succès ; pas de double comptage E2E |
+
+### Protocole d'essai et preuves attendues
+
+JUnit sur PostgreSQL réel avec connexions distinctes et barrières/fault injection aux points de chargement, préparation, CAS, écriture, rollback, cession et réacquisition. Observer depuis une autre connexion l'état durable du slot, `claimToken`, `claimedUntil`, `retryAfter`, la source PENDING/TERMINAL, les versions, résultats et événements. Les tokens sont réservés aux assertions internes, jamais aux métriques ou logs exposés.
+
+Tester séparément les retards de disponibilité introduits par `retryAfter` et l'attente résultant d'un claim encore détenu. Un chrono applicatif n'est pas une horloge DB : toute comparaison d'échéance doit être validée avec la sémantique SQL réellement choisie. Le protocole n'impose pas un algorithme de backoff sophistiqué ni un nouveau compteur durable.
+
+**PASS CON-05** : C05-A à C05-M satisfaits ; rollback avant toute reprise, une seule exécution par acquisition, libération conditionnelle non destructive, respect de retryAfter, rechargement complet et distinction démontrée entre conflit technique et rejet métier. Recoupements CON-03/04, DOM-02 et observabilité V3-5B. Aucun test V3 n'est encore exécuté.
