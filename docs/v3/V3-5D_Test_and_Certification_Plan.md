@@ -1345,3 +1345,37 @@ H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet méti
 **Limite explicite :** ce contrat **ne prescrit pas** aujourd'hui que Keycloak standard livre ces capacités. Une extension ou un serveur d'autorisation compatible sera nécessaire s'il ne sait pas les fournir ; sa faisabilité réelle et sa preuve de conformité devront être vérifiées avant qualification d'un fournisseur. La représentation concrète des assertions/retours reste une décision de V3-6, à condition de conserver ces vérifications.
 
 **Statut recommandé C-01 : contrat de sécurité conceptuellement défini, à VALIDER au jalon V3-CADRE ; qualification d'un fournisseur concret et implémentation NON EFFECTUÉES.** Prochaine décision structurante : C-02, barrière de reconstruction et READY.
+
+## 38. C-02 — proposition de reconstruction READ avec arrêt effectif et bornes WRITE (2026-10-23)
+
+**PROPOSITION À VALIDER, non implémentée.** C-02 peut être traité comme une **procédure de maintenance exceptionnelle**, sans ajouter de fencing permanent, de nouvelle Consumption ni de checkpoint de complétion au moteur. WRITE continue à accepter des demandes ; READ ne peut servir de consultations pendant le reset/rattrapage contrôlé.
+
+### Protocole
+
+1. **Maintenance de READ** : fermer les accès de consultation au périmètre READ concerné ; empêcher toute nouvelle acquisition/Discovery et tout redémarrage automatique de writers READ pendant l'arrêt. Les APIs doivent retourner une indisponibilité explicite, sans transformer une projection absente en « compte/Pot inexistant ».
+2. **Arrêt effectif des writers** : arrêter **tous les processus/compositions pouvant écrire en READ**, y compris les moteurs mixtes WRITE/READ selon une procédure isolant leur composante READ ; attendre que leurs transactions PostgreSQL READ aient committé ou rollbacké et que leurs connexions soient réellement closes/neutralisées. **La perte d'un lease de partition ne suffit pas**, car un ancien claim de slot peut encore finaliser dans V3-4. Ne jamais supprimer les lignes tant que de tels commits sont possibles. Une terminaison forcée des connexions applicatives READ et constat côté PostgreSQL constituent une barrière opérationnelle envisageable ; la méthode précise dépend du déploiement.
+3. **Reset total cohérent** : réinitialiser ensemble projections, tâches internes, slots, claims, états de partition et checkpoints appartenant aux Consumptions READ ; conserver les identifiants stables des Consumptions, les événements immuables WRITE et toutes les demandes WRITE terminales. Réinitialiser les données sous exclusivité de maintenance ; en cas de reset partiel/panne, refaire un reset total avant remise en service plutôt que mélanger anciennes et nouvelles générations.
+4. **Capture de la borne** : enregistrer, pour **chacune des quatre séquences non-burnables** de WRITE, un préfixe **sûr de publications committées** `B = (b1,b2,b3,b4)`, choisi après le reset et avant la validation READY. Les séquences denses et leur sérialisation transactionnelle permettent de définir le préfixe sans arrêt global de WRITE ; la preuve que la lecture de B exclut des commits tardifs à position inférieure ou égale doit être incluse dans EVT-01. Les nouvelles publications peuvent continuer après B.
+5. **Rattrapage** : relancer les mêmes Consumptions. Vérifier par famille et partition que Discovery a couvert les préfixes jusqu'à B, et que **tous les slots non-burnables concernant ces préfixes ont été finalisés** (checkpoint seul insuffisant). Les tâches `POT_BALANCE_TASK` / `POT_VISIBILITY_TASK` créées par la préparation des événements Pot jusqu'à B doivent être `TERMINAL` et matérialisées, pas seulement enrôlées. Pour les complétions COMMAND/IDENTITY_REQUEST jusqu'à B, vérifier également les projections Result ; pour les mutations Identity, `CurrentBinding`. Aucune attente de terminalisation des demandes **WRITE non encore terminales** à la capture : leurs événements futurs seront consommés normalement.
+6. **READY** : la borne B doit être intégralement couverte pour **toutes** les Consumptions et toutes leurs dépendances READ. Contrôler la complétude et l'autorisation des parcours de lecture représentatifs avant de lever le mode maintenance. Les événements publiés après B peuvent être en cours de traitement : les consultations utilisent toujours READ-01 (`minVersion`, « complet ou indisponible ») et ne promettent pas de snapshot global instantané.
+
+### Pourquoi ce modèle est plus simple
+
+- Aucun nouvel état persistant de « génération de reconstruction » nécessaire **si** l'exclusivité de maintenance, l'arrêt de toutes les transactions et le contrôle de redémarrage peuvent réellement être garantis par l'exploitation. C'est une **condition explicite**, pas une propriété supposée des leases.
+- Aucun arrêt prolongé de WRITE ni transaction distribuée WRITE/READ. Les quatre bornes représentent des préfixes **indépendants**, pas un instant global commun.
+- Les preuves de complétion déjà définies pour les non-burnables et les burnables sont réutilisées ; aucune nouvelle notion de `completedCheckpoint`.
+- Les événements après B sont permis ; s'ils font avancer un CurrentPot avant que Balance/Visibility correspondants soient prêts, READ-01 continue à rendre une réponse complète ou temporairement indisponible selon les composants requis. READY signifie **reconstruction initiale terminée jusqu'à B**, non disparition de tout lag futur.
+
+### Scénarios discriminants REC-01
+
+- Writer READ tenant un claim valide mais ayant perdu sa partition : **aucun commit après reset** ; l'arrêt doit être prouvé sur ses connexions/transactions physiques.
+- Événement placé dans un checkpoint mais dont le slot reste en attente : **READY interdit**.
+- Événement Pot préparé jusqu'à B avec l'une des deux tâches encore PENDING : **READY interdit**.
+- Complétion Command/Identity avant B mais projection de résultat en retard : **READY interdit**.
+- WRITE continue à publier après B : **READY possible** une fois le préfixe B et ses dépendances terminés ; les nouvelles requêtes minVersion suivent READ-01.
+- Panne au cours du reset ou du rattrapage : **maintenance maintenue** ; recommencer la reconstruction totale ou reprendre seulement depuis un état cohérent prouvé.
+- Préfixe global lu pendant un commit concurrent : démontrer qu'aucun événement `position ≤ B` ne committera tardivement hors de la photographie de B.
+
+### Point à trancher pour validation C-02
+
+**Accepte-t-on une indisponibilité totale de READ durant la reconstruction**, avec arrêt effectif de tous les writers READ sous contrôle d'exploitation, plutôt que d'introduire une stratégie « reconstruction sans interruption » et ses générations/fences permanents ? Si oui, ce protocole peut fermer C-02 **au niveau conceptuel** ; les procédures de déploiement et commandes SQL restent à établir en V3-6 puis à prouver dans REC-01. V3-CADRE demeure ouvert.
