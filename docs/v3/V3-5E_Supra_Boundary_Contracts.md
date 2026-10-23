@@ -361,3 +361,15 @@ La projection `PotVersion` immuable, CurrentPot pointeur, la version de consulta
 **Preuves S-01 :** pages successives sans duplication à liste fixe ; Pot ajouté avant/après curseur ; Pot devenant invisible ; cursor altéré/non valide ; demande au-delà du plafond ; changement de binding ; profil utilisateur avec beaucoup de Pots et index compatible. Vérifier l'absence de fuite inter-utilisateurs et l'absence de scan de toutes les entrées.
 
 **Statut : S-01 RÉSOLU conceptuellement.** Reste S-02 (taille du manifeste principal) puis S-03 (idempotence d'admission). 
+
+## 19. S-02 validé — manifeste complet dans la lecture principale (2026-10-23)
+
+**DÉCISION :** la réponse principale d'un Pot à V contient l'en-tête, la totalité des Shareholders et de leurs soldes exacts à V, **et la liste complète ordonnée des références versionnées de toutes les Expenses appartenant à `PotVersion(P,V)`**. Aucun second mécanisme de pagination des références en V3. Le front établit ses pages d'affichage à partir de cette liste et charge les détails par lots bornés via le Supra (§11).
+
+**Complétude et sécurité :** une réponse principale ne peut être tronquée silencieusement ; si le contrat de sécurité empêche réellement une réponse complète, erreur explicite, pas de `200` partiel. `PotVersion` n'expose **pas** ses `pocomaUserId` internes d'autorisation : seul le manifeste des références d'Expenses destiné au client est transmis, après AuthN et vérification de l'accès à V. Les références ne sont jamais des capacités d'accès.
+
+**Bornage :** mesurer le volume encodé de la réponse pour le Pot grand profil (100 Shareholders, 2 000 Expenses), avec identifiants et versions locales réels, puis fixer un plafond **compatible avec les tailles fonctionnelles supportées**. Le candidat 1 Mio de §13 concerne les réponses de **détails groupés**, pas une limite adoptée sur le manifeste principal. Si des Pots légitimes dépassent le plafond, reconsidérer explicitement la forme de l'API ; ne pas déclarer ces Pots interdits par effet secondaire.
+
+**Cohérence :** toutes les références appartiennent à V ; les détails demandés ultérieurement utilisent exactement ces versions immuables, même si `CurrentPot` a avancé. L'UI contrôle le rafraîchissement de la version affichée.
+
+**Statut : S-02 RÉSOLU conceptuellement ; taille réelle et paramètres de protection à qualifier.** S-03 (idempotence d'admission) reste ouvert.
