@@ -115,3 +115,43 @@
 ### Preuves à conserver et critère PASS
 
 Données de départ et SQL de vérification de densité par famille, journal de l'ordonnanceur de test/barrières et des issues transactionnelles, assertions du nombre et de l'identité des événements, résultats de répétitions, trace des éventuels rollbacks et blocages. **PASS EVT-01** seulement si A–H passent sur PostgreSQL réel et si la protection d'ordre de verrous est vérifiée ; aucune implémentation ou test n'est réalisé à ce stade.
+
+## 7. Protocole détaillé EVT-02 — atomicité de la demande (spécification)
+
+**Statut : protocole proposé, non exécuté.** Périmètre : transaction terminale d'une `COMMAND` ou `IDENTITY_REQUEST`. Une demande ne devient `TERMINAL` qu'avec exactement un résultat durable et un événement de complétion ; ses mutations et événements éventuels sont dans **la même transaction physique**. Un rejet ou succès sans effet ne publie aucun événement de mutation. Une erreur technique avant commit ne doit pas être transformée en rejet terminal.
+
+### Oracle commun et photographie de référence
+
+Avant chaque scénario, relever un état cohérent du domaine, la demande `PENDING`, l'absence de résultat terminal et les positions/événements des familles concernées. Après résolution de la transaction, interroger PostgreSQL depuis **une connexion indépendante** pour comparer : état métier et versions, statut de demande, résultat terminal, événement(s) de mutation, événement de complétion, positions des séquences et slot de Consumption.
+
+- **Commit d'une mutation :** toutes les modifications métier attendues, leurs événements portant le `requestId` exact, un résultat unique, la demande `TERMINAL`, l'événement de complétion unique et la suppression du slot de traitement apparaissent ensemble ; aucun événement supplémentaire.
+- **Commit sans mutation (no-op ou rejet) :** état métier et versions inchangés, aucun événement de mutation ; demande `TERMINAL`, résultat approprié et une complétion durable. Un rejet ne masque jamais un échec technique.
+- **Rollback :** état métier, versions, événements, positions de séquence, résultat, statut `PENDING` et slot durable restent dans l'état antérieur à la tentative ; le claim peut ensuite être relâché/expirer conformément à CON-05, **sans** finalisation durable.
+- **Commit incertain côté Worker :** décider par lecture durable de l'état, jamais par répétition aveugle. Si `TERMINAL` et slot absent : constater l'unique effet ; si `PENDING` et slot présent : reprise comme nouvelle acquisition. Une réponse perdue ne suffit pas à conclure au rollback.
+
+### Cas déterministes
+
+| ID | Stimulus et frontière de panne | Assertions attendues |
+|---|---|---|
+| E02-A | `COMMAND` créant/modifiant un Pot (y compris multi-cibles) ; commit | Une seule nouvelle version globale et un `POT_EVENT` correspondant ; résultat, `COMMAND_COMPLETION_EVENT`, terminalisation et slot cohérents dans le même commit |
+| E02-B | `COMMAND` réussie sans effet | Aucune nouvelle version/événement Pot ; résultat succès et complétion uniques, atomiques |
+| E02-C | `COMMAND` rejetée par obsolescence métier | Aucune mutation/événement Pot ; résultat rejet métier et complétion uniques ; tentative technique non assimilée à rejet |
+| E02-D | `Registration` gagnante | Création `PocomaUser` et rattachement EUI, **deux `IDENTITY_EVENT`** (User v1, EUI à la version atteinte), résultat et `IDENTITY_COMPLETION_EVENT` tous atomiques |
+| E02-E | `Link` / `Unlink` gagnants et demande Identity rejetée | Respectivement événement EUI et complétion ; ou aucune mutation/événement Identity et seule complétion ; aucune mutation partielle |
+| E02-F | Injection d'échec **avant la première écriture métier**, après mutation métier, après événement(s) de mutation, après résultat/terminalisation, après publication de complétion et avant commit | Dans chaque cas, rollback total ; aucune version, événement, résultat ni position orpheline |
+| E02-G | Commit réussi mais réponse Worker perdue / erreur réseau simulée après résolution physique | Une seule terminalisation et un seul effet après récupération, aucune republication ; slot absent ; comparer aux cas rollback + réponse perdue |
+| E02-H | Deux Workers tentent de finaliser la même demande après expiration/reprise de claim | Une seule transaction gagne ; aucun doublon d'effet, résultat ou complétion ; perdant rollback conformément à CON-04 |
+| E02-I | Tentative d'écrire un événement de mutation sans `requestId`, ou avec `requestId` incorrect/inexistant | Opération refusée sans commit partiel ; contraintes métier et de persistance effectivement démontrées |
+| E02-J | Crash/redémarrage après admission `PENDING` mais avant finalisation | Le traitement est retrouvable et termine une fois ; aucune complétion fantôme ; relation demande/résultat/événements conservée |
+
+### Variantes de transactions et couplage des tests
+
+- Les familles de publication sont distinctes : `POT → COMMAND_COMPLETION` ou `IDENTITY → IDENTITY_COMPLETION` dans le même commit, mais **aucun ordre global entre les quatre séquences**.
+- Pour `Registration`, forcer un échec après le premier événement Identity et vérifier qu'aucun des deux ne persiste. Contrôler leurs `subjectVersion` et leur `requestId` commun.
+- Vérifier les contraintes à la frontière **SQL réelle**, y compris lorsqu'un writer JDBC/JPA lève une erreur rattrapée par un appelant : l'unité physique doit être condamnée et ne pas committer d'effets partiels. La certification précise du manager commun et de l'empoisonnement des writers est conjointe avec CON-06.
+- Pour distinguer crash avant commit et réponse perdue après commit, orchestrer les points de coupure à l'aide de barrières/fault injection déterministes, sans en inférer le résultat uniquement de l'exception remontée au Worker.
+- Ne pas supposer qu'un `CommandResult` ou `IdentityRequestResult` READ est immédiatement visible après le commit WRITE : leur matérialisation indépendante relève de PRJ/READ ; EVT-02 prouve l'atomicité **WRITE**.
+
+### Preuves attendues et PASS
+
+Conserver les identifiants de demandes, snapshots SQL avant/après, journaux d'entrelacement/fault injection, transactions et issues observées, comptages/positions par famille, assertions d'unicité et contraintes, ainsi que les résultats de répétitions. **PASS EVT-02** exige E02-A à E02-J sur PostgreSQL réel, un résultat terminal unique par demande durablement terminale, l'absence d'effet partiel à toutes les frontières injectées et la récupération correcte des commits incertains. Aucun test ni résultat n'est revendiqué ici.
