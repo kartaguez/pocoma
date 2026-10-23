@@ -1082,3 +1082,46 @@ JUnit sur **PostgreSQL réel** avec contraintes d'unicité, connexions et barri�
 **Séparation des responsabilités :** ID-01 couvre les effets et préconditions d'Identity ; ID-02 démontre l'authentification et le consentement E2 à l'admission, ainsi que la portée temporelle des entitlements. EVT-02 et CON-06 couvrent le commit physique, tandis que SEC-01/02 couvrent l'accès READ et sa propagation.
 
 **PASS ID-01** : I01-A à I01-Q satisfaits, aucune double EUI, aucun User orphelin, tokens renouvelés, transitions strictes/histoire exacte et atomicité sous concurrence. Aucun test V3 implémenté ni exécuté.
+
+## 29. Protocole détaillé ID-02 — consentement exact de E2 et attestation externe à l'admission
+
+**Statut : protocole proposé, non exécuté.** Arbitrages V3-5A : un Link exige que **E1 et E2 soient toutes deux authentifiées** et que **E2 consente explicitement à la demande de Link particulière**, avant son admission durable. La vérification des attestations/entitlements du fournisseur externe est effectuée **à l'admission seulement**, sans redemande à l'exécution ou au retry. L'exécution vérifie en revanche les **préconditions courantes de Pocoma WRITE** (E1 toujours liée avec son token courant à U, E2 libre ou inconnue, unicité, correspondance des EUI, autorité et invariants). Pas de mécanisme de consentement différé, d'objet Consent autonome, ni de domaine Entitlements chez Pocoma.
+
+### Contrat probatoire et frontières de confiance
+
+- **Admission :** établir deux identités authentifiées distinctement par `(issuer,subject)` (elles peuvent provenir du même fournisseur ou de fournisseurs différents), puis lier cryptographiquement ou via une session serveur fiable le consentement E2 à l'**intention exacte** qui deviendra la demande durable : identité E1, identité E2, nature de l'opération, cible liée/portée pertinente, identifiant ou empreinte canonique non substituable de la demande, et fraîcheur/anti-rejeu nécessaires. Les champs exacts et le mode de signature/session sont à arrêter dans le contrat d'admission V3 avant V3-CADRE : aucune simple déclaration client de `subject` ne suffit.
+- **Consentement :** E2 ne choisit pas librement `pocomaUserId` ; la cible U est résolue de E1 à l'exécution. Le consentement est à l'opération précise, non une délégation ouverte « E1 peut rattacher n'importe quelle identité ». Un consentement usurpé, modifié, réutilisé pour une autre demande, expiré à l'admission ou retiré avant admission selon le protocole retenu ne doit pas créer de demande durable.
+- **Admission durable :** persister l'intention immuable et les preuves/attestations nécessaires avec le `requestId` avant d'accuser réception. Une requête ne doit pas apparaître comme admise si la preuve E2 ou les entitlements externes exigibles sont absents/invalides.
+- **Exécution :** ne pas réinterroger le fournisseur pour les entitlements externes ni redemander l'accord de E2 ; la preuve d'admission déjà validée reste attachée à la demande. En revanche les tokens, liens et préconditions Identity **courants en WRITE** peuvent rendre la demande obsolète/rejetée. La révocation externe post-admission n'annule pas rétrospectivement une demande admise.
+- **Séparation sécurité :** authentification des EUI, preuve de consentement et `bindingToken` sont trois éléments différents. Un bindingToken connu ne prouve ni l'identité de E2 ni son consentement. Aucun `PocomaUserId` fourni arbitrairement par le client ne constitue une autorité.
+- **Audit protégé :** prouver la validité/traçabilité de l'admission sans divulguer tokens, secrets de session ni attestations complètes dans logs ou métriques. Le protocole ne prescrit pas de nouveau stockage métier autonome : les données utiles restent dans la demande Identity admise.
+
+### Scénarios de preuve
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| I02-A | E1 et E2 authentifiées, consentement E2 valide et lié exactement à Link E1→E2 | Une seule IdentityRequest durable admise avec ses attestations ; exécution possible selon l'état WRITE |
+| I02-B | E1 authentifiée, mais aucune authentification prouvée de E2 | Admission refusée, aucune IdentityRequest durable |
+| I02-C | E2 authentifiée, mais consentement explicite absent ou refusé | Admission refusée ; aucun Link effectué ultérieurement |
+| I02-D | Client substitue `issuer`, `subject`, E1, E2 ou la portée après consentement | Preuve invalidée ; impossible de faire porter l'accord sur une autre demande |
+| I02-E | Preuve de consentement capturée pour demande A réutilisée pour demande B | Rejeu refusé ; aucun contournement par nouvel `requestId` ou payload équivalent non autorisé |
+| I02-F | Consentement expiré, signature falsifiée, session détournée ou preuve émise par mauvais émetteur | Admission refusée ; aucun succès fondé sur la simple connaissance d'identifiants |
+| I02-G | Entitlement externe exigé manquant, invalide ou non attesté à l'admission | Refus d'admission avant persistance, preuve d'absence de demande durable |
+| I02-H | Entitlements valides à l'admission, puis révoqués côté fournisseur avant l'exécution | La demande admise conserve sa validité externe ; aucune nouvelle vérification fournisseur au Worker ; décision sur autorité Pocoma courante |
+| I02-I | E1 est Unlink après admission de Link mais avant exécution | Link rejeté à l'exécution si E1 n'a plus son rattachement/token autoritatif ; aucun rattachement E2 ni effet partiel |
+| I02-J | E2 est Registration/Link par une autre demande après admission, avant exécution | Première transition validée gagne ; Link tardif rejeté sans modifier E2 et sans redemander le consentement |
+| I02-K | Exception technique, perte CAS/claim, expiration puis réacquisition de la même demande durable | Intention et consentement initiaux conservés ; aucune nouvelle sollicitation de E2 ni relecture des entitlements externes ; réévaluation complète des faits Pocoma |
+| I02-L | Réponse d'admission perdue puis retransmission avec même clé/idempotence de demande | Au plus une demande durable correspondant à l'intention autorisée ; aucun consentement transformé en autorisation d'une nouvelle demande |
+| I02-M | E1 fournit un `pocomaUserId` arbitraire ou un `bindingToken` de E2 en prétendant disposer de son accord | Admission/exécution n'utilise pas ces déclarations pour établir le contrôle E2 ; User cible déduit de E1 WRITE |
+| I02-N | Deux Link concurrents avec preuves d'admission distinctes visant la même E2 | Les deux demandes peuvent être valablement admises, mais une seule mutation EUI gagne à l'exécution ; l'autre rejetée sans effet |
+| I02-O | Parcours Bruno avec Keycloak réel : deux sessions/jetons E1 et E2, consentement lié à la demande exacte | Authentifications vérifiées, mauvais issuer/audience/expiration refusés ; aucune dépendance à des jetons non vérifiés |
+| I02-P | Comparer erreurs pré-admission aux rejets métier terminaux post-admission | Admission refusée ⇒ aucune demande ; demande admise devenue invalide WRITE ⇒ résultat terminal de rejet et completion, sans mutation |
+| I02-Q | Revue de l'intégrité des preuves persistées, contrôles d'accès et journaux | Impossible de substituer consentement/attestation au Worker ; aucun secret ou token sensible exposé en logs, traces ou rapports |
+
+### Méthode, inconnues à trancher et PASS
+
+Utiliser **Bruno/Keycloak** pour les authentifications indépendantes et attaques de substitution/rejeu ; **JUnit/PostgreSQL réel** pour l'admission atomique, la persistance des preuves, les conflits et la réévaluation à l'exécution ; injections déterministes pour les races et retries. Les tests doivent comprendre une implémentation de preuve négative réellement falsifiée, et pas seulement des mocks acceptant/refusant à volonté. Contrôler la base depuis une connexion indépendante pour distinguer refus pré-admission (absence d'IdentityRequest) et rejet terminal après admission.
+
+**Décision préalable à V3-CADRE encore nécessaire :** fixer la forme du consentement E2 (deux authentifications dans un échange serveur fiable, attestation signée à l'intention exacte ou autre contrat vérifiable), ses bornes de fraîcheur, anti-rejeu et sa liaison à l'IdentityRequest sans adopter un nouveau workflow durable. Ce choix technique doit permettre les assertions ci-dessus, mais **aucune solution n'est déclarée implicitement validée**.
+
+**PASS ID-02** : I02-A à I02-Q réussis, absence de Link sans contrôle/consentement E2 valide, vérification externe exclusivement à l'admission et autorité Pocoma recontrôlée à l'exécution, reprise sans nouveau consentement. Aucun test V3 n'a été écrit ni exécuté.
