@@ -349,3 +349,15 @@ Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. T
 La projection `PotVersion` immuable, CurrentPot pointeur, la version de consultation stable côté UI, les Shareholders/soldes complets, la sécurité sur les sous-références et le masquage 404 **ne sont pas remis en cause**. Pour S-01, pagination keyset ordonnée par identifiant de Pot serait une candidate simple, mais **pas une photographie stable de toute la liste**. Pour S-02, mesurer taille de manifeste et envisager références récupérées par lots seulement si nécessaire. Pour S-03, préserver l'identité durable d'une demande déjà admise avant toute nouvelle validation et refuser le réemploi d'une clé avec une intention différente.
 
 **Statut : S-01/S-02/S-03 OUVERTS ; pas de nouveaux mécanismes runtime ou DDL décidés ici. V3-CADRE reste OUVERT.**
+
+## 18. S-01 validé — pagination vivante de CurrentUserPotList (2026-10-23)
+
+**DÉCISION :** ordre total stable par `potId` croissant, pagination keyset avec curseur opaque représentant au minimum le dernier `potId` servi ; aucune session, aucun snapshot inter-pages, aucun offset. À chaque requête, résoudre l'utilisateur authentifié via `CurrentBinding` puis consulter les entrées `CurrentUserPotList` actuellement visibles de cet utilisateur, avec `potId > lastPotId`, `ORDER BY potId` et limite serveur. Revalider l'identité à chaque page ; la liste est une navigation, **non une autorité d'AuthZ Pot**.
+
+**Sémantique des évolutions :** un Pot nouvellement visible avec un ID inférieur ou égal au curseur ne sera pas vu dans ce parcours ; un nouvel ID supérieur peut apparaître ; un Pot devenu invisible disparaît des pages suivantes. Aucun doublon causé par le déplacement d'un Pot, puisque `potId` ne change pas. Pour retrouver l'état de navigation récent, le client recommence depuis le début. Ne pas promettre un inventaire complet à un instant donné.
+
+**Curseur :** opaque et non assimilable à une capacité de lecture. Sa forme concrète (encodage, signature éventuelle, paramètres de filtre/page et erreur si altéré) relève du contrat Supra de réalisation ; son interprétation ne doit jamais permettre d'élargir l'identité autorisée ou la limite côté serveur. Le serveur peut récupérer `limit+1` entrées pour déterminer `nextCursor` sans COUNT global.
+
+**Preuves S-01 :** pages successives sans duplication à liste fixe ; Pot ajouté avant/après curseur ; Pot devenant invisible ; cursor altéré/non valide ; demande au-delà du plafond ; changement de binding ; profil utilisateur avec beaucoup de Pots et index compatible. Vérifier l'absence de fuite inter-utilisateurs et l'absence de scan de toutes les entrées.
+
+**Statut : S-01 RÉSOLU conceptuellement.** Reste S-02 (taille du manifeste principal) puis S-03 (idempotence d'admission). 
