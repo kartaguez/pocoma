@@ -1493,3 +1493,9 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 **Contrat décidé V3-5E §19 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
 
 **Preuves :** complétude du manifeste pour 0/200/2 000 Expenses et au-delà selon jeux pertinents ; aucune fuite des `pocomaUserId` internes ; aucun mélange V/V+1 ; liste de références et soldes cohérents à V ; taille JSON/latence/CPU/mémoire pour grand Pot ; réponse complète ou erreur explicite, sans troncature ; absence d'interprétation du plafond 1 Mio des lots de détails comme seuil du manifeste principal. Aucun test V3 exécuté.
+
+## 49. S-03 — preuve d'idempotence des admissions (2026-10-23)
+
+**Contrat validé V3-5E §20 :** clé client liée à identité/portée et intention canonique ; première admission durable atomique avec l'association ; réitération identique retrouve la même demande ; intention différente sous même clé donne 409, sans nouvelle admission. La clé ne constitue pas une autorisation, et ne remplace pas la preuve de consentement Link.
+
+**Preuves JUnit/PostgreSQL et Bruno :** course de deux admissions, contrainte unique et atomicité ; rollback, commit à issue inconnue puis retry, avant/après résultat terminal ; comparaison des intentions et JSON équivalents ; changement de limites entre admission et retry ; portées d'identité distinctes ; Link preuve d'octroi et cible non substituable. Exiger zéro doublon Command/IdentityRequest, aucun événement de mutation supplémentaire du seul fait du retry et aucune divulgation de l'intention d'autrui. Durée de rétention et codes nominaux à fixer avant exécution ; aucun test V3 lancé.
