@@ -94,3 +94,41 @@ Un Supra protège les frontières à partir **des paramètres présentés, de l'
 **Point de sécurité à résoudre** : un identifiant de sous-objet versionné ne constitue pas une autorisation. À chaque appel de détail, authentifier l'EUI, vérifier le binding actif et appliquer une autorisation **sur le Pot et sur la version V du manifeste initial**, en empêchant d'accéder à des composantes arbitraires d'autres Pots ou d'autres versions. Vérifier que cette autorisation et le contrôle des références demandées sont réalisables avec les projections READ existantes, sans réintroduire de manifeste historique serveur. Définir le comportement lorsque le User perd son accès après V et celui du décalage de révocation READ, conformément à SEC-01.
 
 **Arbitrage non clos :** retenir ou non B, définir si les références reçues du client sont vérifiables efficacement, contrôler que toutes les sous-versions demandées sont matérialisées avant réponse et choisir les limites de taille. Les paragraphes de §7 qui privilégient une reconstruction historique sont **supplantés par cette réouverture**. Aucun mécanisme, endpoint ni coût n'est validé avant discussion.
+
+## 9. Étude d'impact — PotVersion(P,V) immuable complet (2026-10-23)
+
+**Étude comparative, pas une décision définitive.** Au lieu de reconstruire les appartenances à V lors de chaque page (ancienne piste §7) ou de se reposer sur un manifeste exclusivement détenu par le client (§8), envisager une projection **`PotVersion(potId,V)` immuable** portant uniquement la **composition versionnée**, et non les données complètes.
+
+### Modèle candidat
+
+- `CurrentPot(potId,currentVersion)` : simple pointeur mutable monotone, sans recopier le manifeste.
+- `PotVersion(potId,V)` : manifeste exact des références versionnées nécessaires à l'assemblage des Headers/Details/Weight/Financials du Pot, de ses Shareholders et Expenses, y compris les inclusions et suppressions à V ; liste distincte des `pocomaUserId` ayant accès via Shareholder à V, **distincte de la liste de navigation** (qui inclut aussi le créateur).
+- `SubobjectVersion` : valeurs immuables ; `PotBalance(potId,V)` : balances complètes et immuables, calculées indépendamment ; `CurrentBinding` actif et identité authentifiée toujours requis pour chaque lecture.
+- La même `MaterializeCurrentPot` reconstruit l'état autoritatif Pot@V depuis WRITE et insère **dans la même transaction READ** `PotVersion(P,V)`, les nouvelles `SubobjectVersion` et, si V est supérieure, avance conditionnellement le pointeur `CurrentPot`. Aucun nouveau Worker, tâche ou événement. Hors ordre : `PotVersion(P,V)` et les sous-versions anciennes sont conservées même si le pointeur courant ne bouge pas. Le pointeur ne garantit pas que `PotBalance(P,V)` est prête : la lecture complète vérifie les dépendances.
+- Le manifeste `PotVersion(P,V)` est autoritatif pour l'appartenance des références à V ; le client charge des pages de références puis leurs sous-versions, en requêtes bornées. Le Supra vérifie à chaque lecture le binding courant et l'autorisation à V, puis que les références demandées sont incluses au manifeste de V. Ne pas exposer directement les listes de `PocomaUserId` au client : ce sont des données d'autorisation internes.
+- Vérifier explicitement que l'utilisateur ayant eu accès à V mais retiré en V+1 conserve l'accès à V tant que son binding actif persiste, conformément à SEC-01 ; si la politique voulue est une révocation immédiate des anciennes versions, c'est **un changement distinct de contrat de sécurité à arbitrer**, et non un comportement implicite.
+
+### Coût approximatif du stockage (non mesuré)
+
+Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées occupe **100 à 200 octets** dans une représentation illustrative, le manifeste des Expenses représente ~**200 à 400 Ko par version**, soit **200 à 400 Mo pour 1 000 versions**, avant références de Shareholders, listes d'autorisation, overhead et index PostgreSQL. Exemple central : 2 000 × 1 000 × 150 o = **300 Mo**. Le vrai coût dépend fortement de la représentation relationnelle/JSONB, des UUID, de TOAST/compression, des index et du nombre de changements ; ces chiffres ne sont **ni un dimensionnement ni un benchmark**. Les octets complets sont réécrits à chaque version si aucune factorisation n'est faite, même sur une mutation d'en-tête.
+
+### Variantes à comparer et simplification
+
+| Variante | Lecture | Écriture | Mémoire/stockage et complexité |
+|---|---|---|---|
+| Aucun historique de manifeste, reconstruction à V depuis SubobjectVersion | SQL historique à chaque consultation/page | Peu de duplication | CPU/SQL/indices/autorisation complexes ; faisabilité à prouver |
+| Manifeste immuable complet par V (candidat) | Accès direct et borné ; lecture stable | O(nombre de références) par version | Stockage O(versions × références), aucune récurrence ni nouveau Worker |
+| Manifeste complet en cache côté client, sans PotVersion | Lectures par références à valider | Pas de nouveau manifeste READ | Difficulté de prouver appartenance/autorisation à V côté serveur ; pas de garantie après perte du manifeste client |
+| Factorisation des compositions identiques | Indirection contrôlée si référence directe vers composition canonique | Comparaison/partage à l'écriture | Optimisation **éventuelle** si volume mesuré problématique, pas d'indirection récursive V→V-1→... |
+
+**Prudence sur la factorisation :** un simple `V17→V16→V15` induit une profondeur croissante ; si le partage devient nécessaire, préférer pointer directement vers la composition effective et éviter le Worker supplémentaire de compactage, sa synchronisation et la mutation a posteriori de projections immuables. Il n'est **pas adopté** à ce stade.
+
+### Preuves avant arbitrage définitif
+
+1. Exactitude : composition à V et droits via Shareholder à V, y compris révisions locales indépendantes, suppressions et matérialisations Pot V+1 avant V.
+2. Sécurité : EUI AuthN/bindingToken actif ; aucune fuite de la liste interne des UserIds, aucune lecture de sous-version d'autre Pot ou non incluse à V ; retrait Shareholder, Unlink et fenêtres READ.
+3. Performance : prix de **création de PotVersion(P,V)** sur Pots moyens et grands, amplification WRITE→READ, WAL, TOAST, stockage réel sur 100/1 000/10 000 versions, lecture paginée de références et de 50 détails sans N+1.
+4. UX/SLO : lecture principale = en-tête + Shareholders + Balance(P,V) + manifeste d'Expenses (éventuellement complet en références) ; mesurer taille du transfert au client, sans confondre avec les données détaillées des Expenses.
+5. Cohérence avec V3-3 : amendement formel à l'inventaire de projections (nouvelle projection logique `PotVersion`, `CurrentPot` simplifié), à PRJ-01/READ-01/SEC-01 et aux épreuves V3-5D **si cette option est adoptée**. Ne pas présenter ce changement comme déjà validé.
+
+**Statut : option prometteuse à comparer ; aucun nouveau Worker, projection ni DDL V3 approuvé/implémenté. V3-CADRE reste ouvert.**
