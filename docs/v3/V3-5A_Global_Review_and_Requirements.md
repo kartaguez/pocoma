@@ -18,7 +18,7 @@ Définition de statut : **ACQUIS** = arbitrage conceptuel documenté, non prouv�
 | DOM-02 | Commandes sans effet, multi-cibles, suppressions et dépendances observedVersion respectent obsolescence métier | V3-1 Pot | Bruno ; JUnit/PostgreSQL | ACQUIS / À PROUVER |
 | DOM-03 | Calcul de soldes rationnels exacts, poids par défaut à V ; balance complète par Pot/V | V3-1, V3-3 | JUnit ; Bruno | ACQUIS / À PROUVER |
 | ID-01 | Registration/Link/Unlink conservent unicité EUI, identité de la cible, tokens renouvelés, et aucune mutation partielle | V3-1 Identity | Bruno ; JUnit/PostgreSQL | ACQUIS / À PROUVER |
-| ID-02 | Link exige une preuve fiable de contrôle/consentement de l'EUI cible ; entitlements externes vérifiés selon contrat explicite | V3-1 Identity | Tests sécurité/Bruno ; JUnit | **OUVERT** |
+| ID-02 | Link exige une preuve fiable de contrôle/consentement de l'EUI cible ; entitlements externes vérifiés selon contrat explicite | V3-1 Identity | Tests sécurité/Bruno ; JUnit | **ACQUIS / À PROUVER** |
 | EVT-01 | Quatre séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | EVT-03 | Six familles sources externes/événementielles + deux familles burnables techniques READ ; tâches déterministes et uniques | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
@@ -37,7 +37,7 @@ Définition de statut : **ACQUIS** = arbitrage conceptuel documenté, non prouv�
 | SEC-02 | Retard de révocation CurrentBinding accepté explicitement ; aucune promesse de révocation WRITE immédiatement effective dans READ | V3-3, V3-4 | Bruno propagation | ACQUIS / À PROUVER |
 | REC-01 | READ totalement réinitialisé de façon cohérente : mêmes consumptionIds possibles ; replay indépendant = nouvelle Consumption | V3-4 | JUnit/PostgreSQL E2E | ACQUIS / À PROUVER |
 | OPS-01 | Absence de famine durable admissible, backlog et reprise des claims ; sans surcharge catastrophique au polling | V3-4 | k6 ; métriques serveur ; PostgreSQL | **À PROUVER**, budgets V3-5B/C |
-| PERF-01 | Délais d'attente Discovery/Engine, exécution et propagation, bout en bout, débit et résorption mesurables | V3-5B/C à définir | k6 + instrumentation + SQL | **OUVERT** |
+| PERF-01 | Délais d'attente Discovery/Engine, exécution et propagation, bout en bout, débit et résorption mesurables | V3-5B/C à définir | k6 + instrumentation + SQL | **OUVERT (V3-5B/C)** |
 
 ## 3. Parcours représentatifs
 
@@ -63,4 +63,13 @@ Définition de statut : **ACQUIS** = arbitrage conceptuel documenté, non prouv�
 
 La matrice ci-dessus est le **référentiel initial** des exigences V3 ; elle sera raffinée avec les budgets V3-5B/C et les cas vérifiables V3-5D. V3-5A ne requiert pas la création immédiate des tests exécutables, mais requiert la résolution explicite des décisions BLOC-01/02/03 ou leur qualification comme blocages empêchant le jalon V3-CADRE. Les détails de preuve TECH peuvent être reportés à V3-6/7 si leur contrat et leur vérifiabilité sont fermes.
 
-**Verdict initial : V3-5A DOCUMENTÉE / REVUE OUVERTE ; pas de V3-CADRE, pas de code.**
+**Verdict : V3-5A REVUE CONCEPTUELLE CLÔTURÉE pour les arbitrages BLOC-01/02/03 ; exigences encore À PROUVER, pas de V3-CADRE, pas de code.**
+
+
+## 6. Arbitrages de sécurité validés — 2026-10-23
+
+- **BLOC-01 RÉSOLU — Link :** parcours d'admission immédiat réunissant authentification de E1 et de E2, et consentement explicite de E2 lié à la demande précise. Une seule IdentityRequest durable est admise après vérification des preuves. Aucun workflow de consentement différé, aucune entité Consent. Un retry conserve la preuve initiale ; l'exécution contrôle l'autorité courante Identity, sans nouvel accord E2.
+- **BLOC-02 RÉSOLU — Entitlements :** vérification des droits/attestations externes à l'admission, non répétée à l'exécution. Révocation externe postérieure non rétroactive pour la demande admise ; les rattachements Pocoma restent vérifiés sur WRITE à l'exécution.
+- **BLOC-03 RÉSOLU — bindingToken :** chaque requête possède une identité externe authentifiée `(issuer,subject)` ; le bindingToken présenté doit correspondre **à cette même EUI**. Les lectures résolvent le token dans CurrentBinding (retard de révocation accepté), les mutations vérifient WRITE à l'exécution. Le token n'est jamais une authentification et le pocomaUserId est dérivé du rattachement, jamais choisi arbitrairement.
+
+**Les questions d'implémentation des preuves et de vérification cryptographique restent à spécifier pour les tests ; leur choix technique ne doit pas contredire ces contrats.**
