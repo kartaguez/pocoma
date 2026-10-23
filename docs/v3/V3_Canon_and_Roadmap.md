@@ -275,3 +275,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **S-01, S-02, S-03 sont conceptuellement arbitrés** dans [V3-5E](V3-5E_Supra_Boundary_Contracts.md) : pagination `CurrentUserPotList` keyset par potId sans snapshot ; manifeste complet des références Expense dans la lecture principale PotVersion ; admission idempotente par clé client liée à une portée et à une intention canonique, 409 sur réemploi divergent, inscription atomique avec la demande. Les scénarios de certification complémentaires figurent dans V3-5D §§47–49.
 
 **Prochaine action :** revue de clôture V3-5E, cohérence finale des contrats et réserves (notamment rétention d'idempotence, tailles de transport), puis nouvelle décision explicite du gate V3-CADRE. **Gate toujours OUVERT**, aucun runtime/DDL ni test V3 exécuté.
+
+## Journal V3 — clôture documentaire V3-5E et clarification des S-02 (2026-10-23)
+
+**V3-5E CLOSED au niveau du cadrage conceptuel**, cf. [V3-5E §21](V3-5E_Supra_Boundary_Contracts.md). S-01 keyset `potId` sans snapshot (§18), S-02 manifeste complet d'Expenses à V (§19), S-03 admission idempotente atomique (§20) sont décidés et alignés avec [V3-3 §10](V3-3_Read_and_Projections.md) et V3-5D §§43–49.
+
+**Précision sur la collision de libellé :** le « S-02 » d'un **ancien journal** du canon évoquait les droits historiques après retrait d'un Shareholder, mais ce point n'est **pas** le « S-02 » de la revue finale des Supras. Pour les droits historiques, **SEC-01 prévaut** : attache Shareholder à V + CurrentBinding actif au moment de lire ; pas de révocation rétroactive automatique par suppression à V+1. L'ancien journal est conservé pour traçabilité, pas pour en faire une question ouverte.
+
+**Réserves d'exécution non levées :** calibration de plafonds et taux, contrat de rétention/d'expiration des clés d'idempotence, encodages et détails HTTP, qualification réelle de l'attestation externe Link, harmonisation des anciens paragraphes. Ne pas prétendre qu'ils sont testés ou qu'un fournisseur est qualifié. Prochaine étape : **revue formelle autonome V3-CADRE**. **V3-CADRE toujours OUVERT**, V3-6 non autorisée ; aucun code/DDL/test V3 livré.
