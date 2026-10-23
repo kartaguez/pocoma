@@ -1311,3 +1311,37 @@ Au moment où un récapitulatif est préparé, choisir une borne temporelle `T0 
 **Cas de test :** compte sans nouvelle activité pendant plus de cinq minutes, valeurs historiques toujours présentables avec libellé honnête ; READ en retard, chiffres indicatifs seulement ; compteurs modifiés entre confirmation et exécution sans rejet supplémentaire ; substitution de E1 ou de la destination refusée ; impossibilité de transformer l'heure de consultation en garantie de matérialisation.
 
 **Effet sur le statut :** le blocage de fraîcheur C-01 est **LEVÉ** par simplification du contrat. Reste à fermer le protocole de preuve de consentement fourni par l'IdP (identité, audience, intention, anti-rejeu), sans imposer de mécanisme de suivi de fraîcheur.
+
+## 37. C-01 — contrat minimal d'attestation externe du consentement Link (2026-10-23)
+
+**PROPOSITION DE CLÔTURE CONCEPTUELLE — à soumettre à validation, aucune implémentation.** Le fournisseur de E2 est une autorité de confiance pour **authentifier E2, présenter le contexte de Link et attester son accord explicite**. Pocoma accepte uniquement les fournisseurs qualifiés sur ces capacités ; **OIDC standard seul n'est pas suffisant**. OAuth RAR (RFC 9396) constitue une manière privilégiée de décrire l'autorisation, **mais n'impose pas universellement un rendu métier précis ni un format unique de preuve de consentement** : Pocoma qualifie aussi ces deux aspects.
+
+### Contrat abstrait de bout en bout
+
+1. **Préparation sans IdentityRequest durable** : E1 authentifiée initie le Link. Pocoma construit une intention non substituable comprenant un identifiant unique de corrélation, l'identité E1 et un identifiant opaque de destination, la nature `LINK_IDENTITY`, le destinataire Pocoma, une échéance et un aléa anti-rejeu. Les deux compteurs et l'heure de consultation READ sont seulement un **contexte informatif** ; aucune fraîcheur maximale n'est promise.
+2. **Autorisation chez le fournisseur de E2** : Pocoma soumet de façon intègre le contexte d'autorisation destiné à E2 (RAR, éventuellement PAR, ou mécanisme équivalent). Le fournisseur **authentifie E2**, présente « rattacher cette identité au compte Pocoma de E1 », les compteurs indicatifs et leur heure de consultation, puis recueille un **oui explicite** ou un refus. Le fournisseur ne transforme pas une authentification ou un consentement OAuth générique au client en accord métier.
+3. **Retour vérifiable** : le serveur d'autorisation retourne, directement ou via échange serveur sûr, une attestation d'**autorisation accordée** contenant ou liant cryptographiquement : émetteur autorisé, E2 `(issuer,subject)`, audience Pocoma/partie destinataire, opération `LINK_IDENTITY`, identité E1 et destination, identifiant d'intention unique, statut `approved`, instant et limite de validité, empreinte/intégrité du récapitulatif présenté. Un simple `state` renvoyé ou un ID Token authentifiant E2 **n'atteste pas** à lui seul le consentement.
+4. **Admission atomique unique** : Pocoma vérifie la provenance et la portée de l'attestation, l'intégrité de l'intention, le refus explicite éventuel, l'expiration et l'anti-rejeu. Le droit à admission est consommé **une seule fois**, atomiquement avec l'enregistrement de l'unique `IdentityRequest`. Deux callbacks simultanés ou retries HTTP ne créent pas deux demandes autorisées. Aucun objet Consent autonome ; les preuves pertinentes ou leur digest sont attachées au dossier admis.
+5. **Exécution** : le Worker ne recontacte ni fournisseur ni E2 et ne renouvelle pas le consentement ; il résout le User depuis E1, vérifie E1/E2 et les bindingTokens **dans WRITE au moment d'exécuter**, et applique ou rejette la transition. Si E1 a perdu son autorité ou E2 est devenue liée, rejet métier terminal sans mutation, même si le consentement était valide.
+
+### Qualification du fournisseur
+
+- Capacité effective d'affichage des informations métier Pocoma, du bouton de refus et de l'accord explicite **propre à cette intention**, même en présence de SSO E2 préexistant.
+- Attestation indépendante du seul ID Token, ou jeton/response explicitement conçu et vérifié pour **l'octroi transactionnel** ; signature/introspection fiable, audience contrôlée, expiration et protection contre la substitution.
+- Support d'un contexte d'autorisation intègre, d'une corrélation unique et d'une protection de rejeu, y compris callbacks en concurrence.
+- Le refus ou l'expiration ne crée **aucune IdentityRequest durable**. Les secrets/jetons non nécessaires ne sont ni conservés ni journalisés.
+
+### Scénarios décisifs pour ID-02
+
+A. Fournisseur atteste `approved` sur intention L1 pour E2 : **une** admission L1 ; le Worker revalide Pocoma WRITE.
+B. Simple authentification OIDC de E2 sans octroi métier : **aucune** admission Link.
+C. SSO silencieux sans présentation/accord transactionnel : **aucune** admission Link.
+D. Attestation L1 réutilisée pour L2, E1 différente, cible différente ou contexte altéré : **refus**.
+E. Deux callbacks concurrents de L1 : **une** admission, résultat de retry/idempotence cohérent.
+F. Refus, timeout, signature invalide, audience invalide ou fournisseur non qualifié : **aucune** admission.
+G. Compteurs READ différents au moment de l'exécution : **aucun rejet supplémentaire** ; la preuve concerne l'identité cible et l'action Link.
+H. Consentement accordé puis E1 Unlink ou E2 liée par ailleurs : **rejet métier après admission**, aucun nouvel accord E2 demandé.
+
+**Limite explicite :** ce contrat **ne prescrit pas** aujourd'hui que Keycloak standard livre ces capacités. Une extension ou un serveur d'autorisation compatible sera nécessaire s'il ne sait pas les fournir ; sa faisabilité réelle et sa preuve de conformité devront être vérifiées avant qualification d'un fournisseur. La représentation concrète des assertions/retours reste une décision de V3-6, à condition de conserver ces vérifications.
+
+**Statut recommandé C-01 : contrat de sécurité conceptuellement défini, à VALIDER au jalon V3-CADRE ; qualification d'un fournisseur concret et implémentation NON EFFECTUÉES.** Prochaine décision structurante : C-02, barrière de reconstruction et READY.
