@@ -193,3 +193,38 @@ Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées oc
 **Cas ADM-01 à certifier :** (A) malformed/oversized → refus immédiat zéro durable ; (B) cas à la limite accepté et limite+1 refusé ; (C) payload formellement admissible mais objet absent ou conflit de version → demande admise puis rejet terminal ; (D) tentative d'usurper un bindingToken sans identité correspondante → refus de sécurité sans fuite ; (E) même requête concurrente/idempotence → une admission effective ; (F) règle ajoutée après l'admission sans modification du destin de cette demande ; (G) injection de payload coûteux et mesures CPU/mémoire/latence ; (H) Link sans attestation de consentement métier vérifiable → aucune admission.
 
 **À décider ensuite :** limites numériques par type, conventions d'erreurs, politique pour champs inconnus, syntaxe des identifiants publics, corps compressés et traitement HTTP précis des répétitions. **Le principe et le périmètre sont définis ; la matrice de seuils n'est pas validée.**
+
+## 13. Politique commune d'erreurs et plafonds candidats (2026-10-23)
+
+**PROPOSITION À VALIDER**, complément de §11 et §12. La politique distingue le refus à la frontière, la demande admise mais rejetée par le Worker, et le défaut temporaire de READ. Pas d'état durable Command/IdentityRequest ni d'événement de complétion pour un refus avant admission ; les retries idempotents d'une demande déjà admise doivent toujours retrouver leur demande plutôt que subir rétroactivement une nouvelle limite.
+
+| Situation | Comportement HTTP candidat | Sémantique |
+|---|---|---|
+| Payload malformé / paramètre invalide | `400 Bad Request` | Rejet sans admission, code d'erreur stable et champ concerné si sûr |
+| Structure valable mais violation de contrat intrinsèque (longueur, poids, cardinalité) | `422 Unprocessable Content` | Rejet sans admission, jamais un rejet métier terminal |
+| Corps supérieur au plafond en octets | `413 Content Too Large` | Stopper avant désérialisation coûteuse |
+| Liste groupée dépassant la limite permise | `422` | Aucun sous-objet retourné, pas de troncature silencieuse |
+| Non authentifié | `401 Unauthorized` | Aucun état métier divulgué |
+| Authentifié mais non autorisé | `403 Forbidden` ou `404` uniforme anti-énumération à arbitrer | Ne pas révéler l'existence d'un Pot/Expense protégé |
+| Quota/débit excédé | `429 Too Many Requests` | `Retry-After` si pertinent, sans promettre un délai précis |
+| Version insuffisamment matérialisée / READ en reconstruction | `503 Service Unavailable` avec erreur stable | Le client peut réessayer ; ne jamais répondre avec des données partielles trompeuses |
+| Demande durable exécutée et rejetée | Admission réussie ; `CommandResult` / `IdentityRequestResult` terminal `REJECTED` | Rejet métier durable, distinct du HTTP initial |
+| Erreur serveur imprévue | `500` | Diagnostic interne corrélé ; aucun détail sensible exposé |
+
+**Enveloppe d'erreur** : `code` stable, `message` générique, `correlationId`, éventuellement `field` et `retryable` lorsque leur sémantique est assurée. Aucune exception SQL, identité non autorisée, preuve IdP brute ou token dans les détails d'erreur. Pour une répétition idempotente, préserver l'identité et l'issue durable de la demande initiale.
+
+### Paramètres de départ candidats — à mesurer
+
+| Limite | Candidat initial | Justification et réserve |
+|---|---:|---|
+| Corps HTTP Command / IdentityRequest non compressé | **256 KiB** | Borne globale simple, à vérifier sur plus grosse Command multi-cibles ; éviter les requêtes démesurées |
+| Taille de texte individuel | **4 KiB** | Aucun champ libre ne doit pouvoir produire une amplification disproportionnée ; seuil dépend du champ métier |
+| Nombre de cibles d'une Command multi-cibles | **100** | Candidat de protection, **ne déduit pas** la limite fonctionnelle du nombre de Shareholders/Expenses |
+| Références dans un lot READ Expenses | **50** | Favorise découpage UI et vérification bornée de manifeste ; mesurer nombre d'appels et coût |
+| Taille d'une réponse READ groupée | **1 MiB** | Échec explicite si le lot est trop lourd ; éviter la troncature |
+| Shareholders servis sans pagination | **100 pour le profil grand Pot**, **pas une limite fonctionnelle** | Tester ce profil et déterminer séparément la borne contractuelle maximale |
+| Taille de manifeste `PotVersion` transmis | **Pas de seuil adopté** | Vérifier la taille réelle du Pot 2 000 Expenses et borner la ressource avant d'imposer un plafond |
+
+Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. Toute limite susceptible de refuser une requête fonctionnellement légitime doit être confrontée aux contrats métier. Configurer séparément les ressources de sécurité (octets, éléments, concurrence) sans exposer au client le moyen de les augmenter. Limiter la complexité : privilégier des garde-fous d'infrastructure et des validateurs de payload simples, sans pipeline générique de règles.
+
+**Questions restantes :** stratégie pour les corps compressés (interdire à l'admission V3 ou borner octets comprimés et décomprimés), choix uniforme 403/404, taille maximale de l'objet financier individuel et compatibilité du plafond de 100 cibles avec les commandes métier.
