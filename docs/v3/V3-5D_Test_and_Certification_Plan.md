@@ -439,3 +439,56 @@ Tester séparément les retards de disponibilité introduits par `retryAfter` et
 Les Consumptions READ pouvant préparer des données issues de WRITE, l'absence de transaction distribuée ne garantit pas un snapshot inter-bases : la transformation doit revalider les préconditions qui en ont besoin dans son autorité finale et conserver ses règles de version/idempotence. L'atomicité exigée est **par Consumption**, non entre l'ensemble des projections indépendantes.
 
 **Aucun test V3 n'est encore exécuté ; V3-CADRE reste ouvert.**
+
+## 14. Protocole détaillé CON-06 — une seule transaction physique par Consumption
+
+**Statut : protocole proposé, non exécuté.** Toute finalisation d'une Consumption doit coordonner sa protection du claim, les validations, les effets persistants, la mise à jour éventuelle de la source burnable et la suppression du slot **dans la même transaction physique, sur une seule autorité de persistance**. Les opérations préparatoires peuvent lire une autre base, mais les effets atomiques et les métadonnées du traitement résident ensemble. Un Worker mixte héberge des Consumptions WRITE et READ sans jamais partager une transaction physique entre ces royaumes.
+
+### Matrice des autorités à prouver
+
+| Consumption / nature | Autorité finale attendue | Écritures indivisibles |
+|---|---|---|
+| Exécution `COMMAND` | WRITE | Domaine Pot, version/CAS, événements et séquences, résultat terminal, statut source, slot |
+| Exécution `IDENTITY_REQUEST` | WRITE | Domaine Identity, événements et séquences, résultat terminal, statut source, slot |
+| Matérialisation `POT_EVENT → CurrentPot/SubobjectVersion` | READ | Projections, validation de version, slot |
+| Préparation `POT_EVENT → POT_BALANCE_TASK + POT_VISIBILITY_TASK` | READ | Deux tâches, slot de préparation |
+| Matérialisation `POT_BALANCE_TASK` | READ | Balance, tâche TERMINAL, slot |
+| Matérialisation `POT_VISIBILITY_TASK` | READ | PotVisibilityState, entrées visibles/tombstones, tâche TERMINAL, slot |
+| Matérialisation événements de complétion et Identity vers READ | READ | CommandResult / IdentityRequestResult / CurrentBinding selon Consumption, slot |
+
+La Discovery, son checkpoint et ses slots s'enregistrent dans l'autorité **des effets** de la Consumption ; le lease de partition correspondant appartient à cette même autorité. Cela ne signifie pas que les événements source et les projections se trouvent dans une seule base : la lecture de la source peut précéder la transaction READ finale, suivie d'une vérification de claim et de version appropriée.
+
+### Oracles structurants
+
+1. **Transaction unique :** les écritures JPA et JDBC affectées à la même Consumption utilisent le même transaction manager PRIMARY et la même transaction **physique** (connexion/identité transactionnelle PostgreSQL effectivement partagée), pas seulement des annotations `@Transactional` portant le même nom.
+2. **Rollback empoisonné :** toute erreur durable d'un writer, y compris interceptée localement, empêche le commit partiel de l'unité d'effets. Une erreur SQL PostgreSQL qui invalide une transaction ne doit pas être masquée ; les exceptions applicatives interceptées doivent également marquer explicitement la transaction rollback-only si l'invariant le requiert.
+3. **Aucun commit intermédiaire :** interdiction des effets `REQUIRES_NEW` ou autres transactions indépendantes laissant persister métier/projections, séquences, tasks, slots ou résultats séparément.
+4. **WRITE et READ :** une Consumption n'écrit ses effets transactionnels que dans son autorité. Composer les deux types dans un Worker ne crée **ni XA/2PC ni commit multi-base**.
+5. **Fencing et séquencement :** protection finale du claim et publication dense sont dans cette même transaction ; le verrou final est conservé jusqu'au commit/rollback physique. Les chemins JDBC et JPA ne contournent pas le fencing ni le verrouillage ordonné.
+6. **Fail-fast architectural :** une composition possédant des managers différents pour writers qui prétendent partager une unité atomique est refusée à la configuration ou détectée par un test de contrat avant certification.
+
+### Cas de preuve déterministes
+
+| ID | Stimulus / configuration | Assertion décisive |
+|---|---|---|
+| C06-A | Mutation Pot, émission d'événements, terminalisation Command et suppression slot avec writers JPA et JDBC | Une seule transaction/connexion physique ; tous les effets visibles ensemble après commit |
+| C06-B | Registration avec deux Identity events + complétion et slot | Même unité WRITE malgré plusieurs repositories/writers, aucune demi-registration |
+| C06-C | Préparation des deux Projection Tasks et suppression du slot sous READ | Même transaction READ ; panne intermédiaire ne conserve aucune des deux tâches |
+| C06-D | Matérialisation de Balance ou Visibility, terminalisation de la task et suppression du slot | Même transaction READ ; rollback ne conserve ni projection ni source terminale |
+| C06-E | Writer JDBC échoue, exception interceptée par un niveau appelant, tentative de commit | Le commit est refusé/rollback intégral ; ni slot supprimé ni effet durable |
+| C06-F | Writer JPA échoue après un writer JDBC réussi, puis exception interceptée | Rollback de toutes les écritures y compris JDBC ; pas de transaction partielle |
+| C06-G | Writer JPA réussit, writer JDBC échoue et l'appelant poursuit | Rollback total ; protection contre toute récupération trompeuse de l'exception |
+| C06-H | Composition erronée JPA manager A / JDBC manager B ou datasource secondaire indépendante pour la même Consumption | Démarrage/composition refusé, ou test d'architecture/contrat explicitement FAIL avant qualification |
+| C06-I | Injection d'un `REQUIRES_NEW` dans un writer d'effets ou une suppression de slot | Violation détectée par garde/test ; aucun PASS si un effet peut survivre au rollback externe |
+| C06-J | Worker mixte exécute successivement des Consumptions WRITE et READ | Deux transactions indépendantes, chacune cohérente dans son royaume ; aucune transaction distribuée |
+| C06-K | Discovery READ lit `POT_EVENT` en WRITE, puis enrôle slots et checkpoint en READ | Source lue sans mutation WRITE ; seuls checkpoint et slots READ committés atomiquement ; reprise sûre après échec |
+| C06-L | Commit incertain, claim expirant durant verrou final, transfert de partition | Fencing du slot durable jusqu'à commit ; récupération par lecture durable ; aucune protection de partition finale requise |
+| C06-M | Vérifier tous les points d'entrée et compositions des writers, y compris tests et mono-runtime | Inventaire des transactions physiques et garde-fous ; aucun chemin de finalisation non couvert |
+
+### Dispositif et artefacts de preuve
+
+Combiner tests d'architecture (composition, managers, annotations interdites, chemins d'accès), tests d'intégration Spring sur les compositions réelles et **PostgreSQL réel** avec injections de fautes. Relever l'identité effective de transaction et de connexion au moment des writers concernés, vérifier les états durables depuis une connexion extérieure après commit/rollback, et tester des erreurs **interceptées**, pas seulement propagées. Couvrir les configurations runtimes séparés **et** monolithiques.
+
+Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction manager garantit une transaction physique commune : ce sont des hypothèses à prouver. Les verrous, contraintes et timings exacts seront démontrés dans CON-03/04 et EVT-01. Le protocole ne prescrit pas de framework transactionnel supplémentaire ; une composition non conforme doit être corrigée ou refusée.
+
+**PASS CON-06** : C06-A à C06-M vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, PRJ-04 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
