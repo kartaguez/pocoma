@@ -190,3 +190,46 @@ Utiliser **PostgreSQL réel**, barrières déterministes pour injections de pann
 Ne pas transformer une Consumption logique en table obligatoire, et ne pas déduire la cardinalité des familles du nombre de tables. L'unicité doit être protégée durablement, pas seulement par un test `exists` avant insertion. Ne pas déduire le caractère burnable d'une tâche de sa disparition physique : la tâche durable reste TERMINAL selon le contrat et c'est **son slot de travail** qui disparaît.
 
 **PASS EVT-03** : cas E03-A à E03-J satisfaits et invariants d'atomicité/identité démontrés, sans doublons, pertes ni nouvelle séquence événementielle. Aucun test n'est exécuté à cette étape du cadrage.
+
+## 9. Protocole détaillé CON-01 — découverte exhaustive par partition
+
+**Statut : protocole proposé, non exécuté.** Contrat V3-4 : la Discovery crée des slots durables à partir des références de sources ; l'Engine seul charge ensuite les données métier. Les quatre familles événementielles sont **non-burnables**, avec chacune sa séquence **globale** dense et un checkpoint de **positions examinées**, propre à `(consumptionId, partitionId)`. Les quatre familles burnables (`COMMAND`, `IDENTITY_REQUEST`, `POT_BALANCE_TASK`, `POT_VISIBILITY_TASK`) sont découvertes par état `PENDING` et absence de slot, **sans checkpoint**. Les partitions sont fixes, le routage par `partitionHash` stable, et une seule propriété effective autorise l'enrôlement.
+
+### Oracles non-burnables
+
+- Pour une Consumption C et sa partition P, le checkpoint `K(C,P)` (initialement zéro) signifie : **toutes les positions globales ≤ K ont été examinées** selon le prédicat de partition de C, et toutes celles éligibles qui devaient être enrôlées ont leur slot ou ont été correctement terminées. Il **ne** signifie pas que les événements de ces positions ont été exécutés.
+- Dans une fenêtre globale bornée `(K,H]`, la Discovery filtre le routage vers P, crée les slots de **tous** les événements correspondants et avance le checkpoint à la **dernière position effectivement couverte**, y compris lorsque aucun événement de la fenêtre n'appartient à P. Une fenêtre vide n'autorise pas l'avancement au-delà d'une borne prouvée sûre.
+- La borne H doit être un **préfixe durable visible sans trou de publication encore possible** ; l'existence d'une position élevée, un maximum observé ou une séquence réservée non committée ne suffit pas à justifier un saut par-dessus une position qui pourrait apparaître ensuite. La garantie de densité EVT-01 est une précondition ; les tests doivent vérifier la cohérence de la borne utilisée, sans prescrire d'index ni un algorithme SQL particulier.
+- La création des slots requis et l'avance de K sont dans **une même transaction de la base des effets**, protégées par le contrôle du checkpoint et de la propriété de partition. Une lecture préparatoire extérieure à cette transaction doit être revalidée avant commit si son snapshot ou sa propriété est devenu obsolète.
+- Si le plafond souple de slots présents bloque un lot, **ne pas sauter les événements éligibles non enrôlés** ; ne progresser que sur un préfixe effectivement couvert. Un événement déjà en dessous de K ne doit jamais être réenrôlé par la Discovery ordinaire.
+
+### Oracles burnables
+
+- Pour chaque source `PENDING` routée vers P, créer au plus un slot durable de clé `(consumptionId,consumableId)`. Une source `TERMINAL` n'est jamais nouvellement enrôlée.
+- `PENDING` avec slot libre/claimé/expiré signifie **déjà enrôlé** et ne doit pas générer de doublon. `PENDING` sans slot est éligible. Le plafond soft peut retarder l'enrôlement, sans le faire perdre.
+- Il n'y a **ni checkpoint burnable ni besoin de parcourir l'histoire des états TERMINAL**. Une tâche READ porte sa seule Consumption destinataire, une demande métier sa Consumption configurée.
+
+### Cas déterministes
+
+| ID | Stimulus / entrelacement | Preuve décisive |
+|---|---|---|
+| C01-A | Initialiser `K=0`, publier des événements sur plusieurs partitions entremêlées d'une même séquence | Chaque partition découvre exactement ses références éligibles ; son checkpoint peut franchir des positions d'autres partitions sans y créer de slot |
+| C01-B | Fenêtre `(K,H]` ne contenant que des événements d'autres partitions | Avance légitime à H malgré zéro slot pour P ; aucun blocage par absence d'événement local |
+| C01-C | Limiter la fenêtre globale à N positions ; injecter plusieurs centaines d'événements entremêlés | Progression par fenêtres bornées, aucune position éligible omise aux frontières de lots |
+| C01-D | Transaction de publication T1 en suspens sur la position suivante, T2 concurrente, puis rollback ou commit T1 | Aucun checkpoint ne passe une position susceptible d'apparaître ensuite ; reprise découvre l'événement durable réel ; articulation avec EVT-01 |
+| C01-E | Deux Discoveries de la même Consumption/partition lisent le même K puis tentent d'enrôler | Une seule avance cohérente, slots uniques, aucune perte ; tentative obsolète rechargée/abandonnée |
+| C01-F | Propriété de partition transférée après lecture préparatoire, avant transaction d'enrôlement | Ancien propriétaire ne commite ni slots ni checkpoint ; nouveau propriétaire reprend à K durable |
+| C01-G | Plafond souple atteint au milieu d'un lot comportant des événements éligibles | Pas de saut au-delà d'un événement non enrôlé ; progression reprend après libération de capacité |
+| C01-H | Slot non-burnable finalisé et supprimé, puis nouveau cycle de Discovery | Aucun réenrôlement si sa position est ≤ checkpoint ; absence du slot seule ne vaut pas preuve de fin |
+| C01-I | Pour chacune des quatre familles burnables : sources PENDING avec et sans slot, sources TERMINAL, lots répétés | Seules les PENDING sans slot sont enrôlées ; unicité même avec Discoveries concurrentes ; aucun checkpoint |
+| C01-J | PENDING avec claim expiré ou retryAfter futur, et plafond atteint | Slot existant respecté ; aucune seconde ligne, aucun contournement de retryAfter par Discovery |
+| C01-K | Nouvelle Consumption sur un historique conservé, avec checkpoints absents | Checkpoints à zéro pour cette Consumption ; scan indépendant et enrôlement selon la nouvelle identité sans perturber l'ancienne |
+| C01-L | Campagne avec beaucoup d'événements hors partition, slots actifs, sélections répétées | Mesurer références lues, parcours de fenêtres, écritures, SQL, temps de cycle et mémoire ; pas de charge métier complète dans Discovery |
+
+### Méthode, preuves et conditions PASS
+
+JUnit avec **PostgreSQL réel**, plusieurs connexions, barrières contrôlant lecture préparatoire, acquisition de propriété, commit et rollback. Vérifier depuis une connexion indépendante `K`, la liste complète des sources éligibles, les clés de slots, leur unicité et l'absence de slots d'autres partitions. Injecter les publications et les modifications de statut aux frontières pertinentes. Les scénarios de crash et l'atomicité complète de checkpoint/slots sont approfondis dans **CON-02**.
+
+Conserver traces des fenêtres globales examinées, séquences, partitions, positions, checkpoints avant/après, slots et issues transactionnelles, ainsi que mesures de lectures/SQL. **PASS CON-01** requiert C01-A à C01-L, exhaustivité, non-réenrôlement et distinction prouvée entre les deux types de sources. Aucun résultat d'exécution n'est revendiqué.
+
+**Point de vigilance de conception :** le contrat ne prescrit pas encore la construction SQL de la borne sûre H ni la stratégie de réservation de capacité sous concurrence. Leur réalisabilité sans trou, sans famine et sans scans coûteux doit être justifiée dans le plan d'implémentation V3-6 et vérifiée en V3-7 ; toute incompatibilité avec le contrat doit revenir devant V3-CADRE plutôt qu'être cachée par un test permissif.
