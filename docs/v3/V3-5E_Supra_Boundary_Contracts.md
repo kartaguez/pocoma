@@ -263,3 +263,22 @@ Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. T
 - READ en maintenance/reconstruction ou retard de sous-version : `503` ou code temporaire stable, jamais `404` trompeur.
 
 **Arbitrages encore ouverts :** seuils en octets réels, maximum de cibles multi-Command, politiques détaillées de quotas et timeout, enveloppe d'erreur finale. Les paramètres de déploiement sont ajustables mais **ne peuvent affaiblir les plafonds contractuels publiés** sans évolution du contrat. V3-CADRE demeure ouvert.
+
+## 16. Arbitrage de principe — limites de sécurité versus limites fonctionnelles (2026-10-23)
+
+**Décision de cadrage :** distinguer explicitement deux catégories de bornes, sans imposer une limite métier simplement parce qu'une charge d'essai comporte 100 Shareholders ou 2 000 Expenses.
+
+| Catégorie | Où et pourquoi | Exemples | Politique d'évolution |
+|---|---|---|---|
+| **Sécurité et protection de ressources** | Supra / infrastructure : limiter coût de parsing, taille d'entrée/sortie, cardinalité d'un lot, concurrence et durée d'une requête | Corps HTTP, tailles de texte transportées, 50 références groupées comme valeur **candidate**, budget de réponse, limite d'in-flight | Configurable côté serveur, documentée et testée ; ne doit jamais tronquer silencieusement ni invalider une demande déjà admise |
+| **Fonctionnelle / invariant de domaine** | Domaine : déterminer ce qu'une commande métier peut signifier et quelles transformations sont admissibles | Montant non négatif, poids strictement positif, règles de cibles et cohérence de mutation | Identique au niveau du Worker, éventuellement prévalidée à l'admission quand autonome et indépendante de WRITE |
+
+**Commands multi-cibles :** ne pas instituer de maximum **métier** de cibles à 100 sans besoin démontré. Une limite technique de cardinalité ou d'octets peut être nécessaire pour une admission bornée, mais doit être déterminée à partir de la taille réellement sérialisée et du coût de traitement des opérations admises, compatible avec le grand Pot. La valeur « 100 cibles » de §13 est **une hypothèse de test, non une borne validée**. En cas de dépassement d'un plafond de transport, le client doit pouvoir soumettre une opération métier adaptée si celle-ci est effectivement sécable **sans changer sa sémantique atomique** ; ne jamais promettre une division automatique d'une Command atomique multi-cibles.
+
+**READ :** le fait de servir intégralement les Shareholders et soldes, et de transmettre la liste des références des Expenses dans la lecture principale, représente un **contrat fonctionnel de complétude**. Les limites de transport ne peuvent produire un Pot partiel présenté comme complet. Les chargements détaillés sont bornés par lots ; si une réponse principale devient trop grosse, le problème doit être traité comme un **arbitrage de contrat** (format ou découpage) et non masqué par une troncature.
+
+**Refus et résultats :** dépassement de limite de transport/cardinalité = refus à l'admission sans demande durable ; invariant métier incohérent à l'exécution = rejet terminal durable. Les validations intrinsèques du domaine (montants/poids) peuvent être prévalidées sans affaiblir leur enforcement au Worker.
+
+**Tests discriminants :** grande Command légitime au-dessus de 100 cibles (ne pas la déclarer métier invalide par défaut) ; Command atomique non sécable sous plafond ; corps volumineux invalidé avant parsing ; Pot 100/2 000 complet malgré limites de lot ; limites configurées à la baisse pour une nouvelle admission sans effet sur les demandes déjà persistées ; absence de requête WRITE métier à l'admission.
+
+**Statut : séparation conceptuelle VALIDÉE ; les seuils chiffrés des protections demeurent à calibrer avant qualification, sans ajout de règle métier arbitraire.** V3-CADRE reste ouvert.
