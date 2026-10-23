@@ -237,3 +237,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Nouvelle étape V3-5E OUVERTE** : [Contrats Supras et bornage](V3-5E_Supra_Boundary_Contracts.md) (commit `ac449d12`). Inventorier les opérations, fixer une politique minimale de validation d'entrée, décider pagination/cohérence et limites de sortie, ajouter les tests puis revoir V3-CADRE.
 
 **Conséquence :** malgré le verdict favorable de la revue V3-5D §42, **V3-CADRE reste OUVERT** jusqu'à la clôture cohérente de V3-5E et à une validation explicite ; aucune réalisation/DDL V3 n'est autorisée.
+
+## Journal V3 — décision PotVersion historique et archivage optionnel (2026-10-23)
+
+**V3-5E, décision validée :** une projection immuable complète `PotVersion(P,V)` porte le manifeste versionné, les références Shareholders/Expenses et les droits historiques dérivés des Shareholders. Le coût de duplication est accepté à ce stade pour simplifier pagination, autorisation et lectures stables. `CurrentPot` devient un simple pointeur mutable ; `MaterializeCurrentPot` produit la version historique et avance ce pointeur atomiquement sans nouveau Worker, tandis que Balance et Visibility restent indépendantes. Cf. [V3-5E §10](V3-5E_Supra_Boundary_Contracts.md).
+
+**Archivage :** étudier une politique future d'archivage des versions devenues obsolètes depuis n heures, **sans purge implicite de l'historique**. Aucun mécanisme automatique retenu pour le socle initial. Contrat de consultation/expiration, ordre de matérialisation et stratégie de reconstruction sont à préciser avant activation.
+
+**V3-CADRE toujours OUVERT :** harmoniser V3-3 et les protocoles READ/SEC/PRJ de V3-5D avec cette décision, puis terminer les autres contrats Supra et leur certification. Aucun runtime/DDL V3 implémenté.
