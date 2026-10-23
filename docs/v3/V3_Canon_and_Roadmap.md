@@ -205,3 +205,9 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 - **Preuves :** tous ces seuils sont des objectifs, pas des résultats observés. Les mesures et tests sont à définir en V3-5D, puis à construire/exécuter en V3-6/V3-7.
 - **Prochaine action : V3-5D — plan de preuves détaillé et traçabilité V3-5A/B/C.** Jalon **V3-CADRE toujours OUVERT** ; aucune implémentation V3/DDL autorisée.
 - Commit documentaire de clôture V3-5C : `78705de755fbbc0a06d476318da2c7435d41df79`.
+
+## Journal V3 — arbitrage C-03 et préparation de la revue V3-CADRE (2026-10-23)
+
+**C-03 — VALIDÉ CONCEPTUELLEMENT :** la performance utilisateur Command→Pot est mesurée jusqu'à la première lecture READ réellement complète, authentifiée et autorisée, satisfaisant `minVersion=V` avec une version servie W≥V. Les budgets p95 de V3-5C sont conservés. La matérialisation exacte des balances historiques V, de la visibilité et des tâches est une **exigence distincte de correction/progression**, non une condition artificielle de lecture d'un Pot historique. Le SLO technique nominal de Balance(P,V) est maintenu à part.
+
+**État du cadrage :** C-01 a un contrat conceptuel de consentement explicite attesté par l'IdP (qualification fournisseur à effectuer) ; C-02 adopte une reconstruction READ avec indisponibilité totale et maintenance exclusive ; C-03 est simplifié et arbitré. **V3-CADRE reste OUVERT** : fusion documentaire du doublon CON-06, traçabilité des preuves et revue finale avant décision explicite. Aucune implémentation/DDL ni exécution de test V3.
