@@ -1125,3 +1125,70 @@ Utiliser **Bruno/Keycloak** pour les authentifications indépendantes et attaque
 **Décision préalable à V3-CADRE encore nécessaire :** fixer la forme du consentement E2 (deux authentifications dans un échange serveur fiable, attestation signée à l'intention exacte ou autre contrat vérifiable), ses bornes de fraîcheur, anti-rejeu et sa liaison à l'IdentityRequest sans adopter un nouveau workflow durable. Ce choix technique doit permettre les assertions ci-dessus, mais **aucune solution n'est déclarée implicitement validée**.
 
 **PASS ID-02** : I02-A à I02-Q réussis, absence de Link sans contrôle/consentement E2 valide, vérification externe exclusivement à l'admission et autorité Pocoma recontrôlée à l'exécution, reprise sans nouveau consentement. Aucun test V3 n'a été écrit ni exécuté.
+
+## 30. Revue transversale V3-5D — couverture, mutualisation et décisions (2026-10-23)
+
+**Verdict documentaire : COUVERTURE INITIALE COMPLÈTE, CADRAGE ENCORE OUVERT.** Les 24 IDs V3-5A possèdent un protocole dédié dans les §§6–29 ; cela n'est ni la preuve de leurs assertions ni l'autorisation de V3-6. La revue compare les arbitrages V3-1/2/3/4, la matrice V3-5A, les jalons d'observabilité V3-5B et les SLO V3-5C. Les éléments ci-dessous sont des **constats et recommandations**, non des arbitrages présumés validés.
+
+### 30.1 Audit de traçabilité
+
+| Domaine | IDs de la matrice | Protocoles détaillés | État |
+|---|---|---|---|
+| Domaine Pot | DOM-01/02/03 | §§25–27 | Couvert, non exécuté |
+| Identity | ID-01/02 | §§28–29 | Couvert, non exécuté |
+| Événements | EVT-01/02/03 | §§6–8 | Couvert, non exécuté |
+| Consumption | CON-01/02/03/04/05/06 | §§9–14 | Couvert, **duplication éditoriale CON-06** |
+| Projections | PRJ-01/02/03/04 | §§15–18 | Couvert, non exécuté |
+| Lectures | READ-01 | §19 | Couvert, non exécuté |
+| Sécurité | SEC-01/02 | §§20–21 | Couvert, non exécuté |
+| Reconstruction | REC-01 | §22 | Couvert, décision de reprise ouverte |
+| Exploitation | OPS-01 | §23 | Couvert, fenêtres/bornes à finaliser |
+| Performance | PERF-01 | §24 | Couvert, campagne proposée à ratifier |
+
+**Anomalie documentaire A-01 :** deux blocs portent exactement le titre de niveau 2 « §14 CON-06 » ; ils décrivent tous deux l'unicité de la transaction physique et des managers. **Ne pas exécuter deux suites distinctes au seul motif de ces deux blocs.** Fusionner leurs oracles dans une unique fiche CON-06, garder la meilleure matrice de preuves, fournir une table de correspondance des IDs de cas conservés et vérifier les liens ; ne pas supprimer des assertions sans équivalent. Les autres protocoles restent uniques par ID de la matrice.
+
+### 30.2 Réduction de redondance — un scénario physique, plusieurs preuves
+
+Construire **une suite canonique par mécanisme**, avec des assertions complémentaires et des vues de rapport par exigence ; aucun doublon d'exécution n'est exigé quand la même transaction/fixture prouve plusieurs IDs :
+
+| Suite canonique proposée | Exigences couvertes | Ce qui ne doit pas être perdu |
+|---|---|---|
+| **PotVersionHistory** | DOM-01, DOM-02, PRJ-01 | Versions locales, CAS, invariants historiques, atomicité, CurrentPot et sous-versions ; distinguer oracle WRITE historique de READ courant |
+| **BalanceExact** | DOM-03, PRJ-02, READ-01 | Fractions rationnelles, chaque V, décalages de matérialisation et interdiction de mélanger les versions |
+| **IdentityTransition** | ID-01, ID-02, SEC-01, SEC-02 | Deux EUI authentifiées pour Link, consentement ciblé, tokens, Unlink et retard READ |
+| **WriteAtomicity** | EVT-01/02, CON-04/05/06 | Séquences denses, même transaction physique, writer poisoning, commit incertain, unicité de finalisation et retry après rollback |
+| **DiscoveryTasks** | EVT-03, CON-01/02/03, PRJ-04 | Huit familles logiques, quatre séquences source, checkpoint/slot atomicité, claim vs ownership, création et finalisation des deux tasks |
+| **ReadProjection** | PRJ-01/03/04, READ-01, SEC-01 | Versions indépendantes, visibilité collective, autorisation au Shareholder effectif et complétude par endpoint |
+| **RecoveryOperations** | REC-01, OPS-01, CON-01/03 | Stop/reset/rebuild, reprises, absence de famine, polling SQL, stabilité du backlog |
+| **PerformanceQualification** | OPS-01, PERF-01, V3-5B | Débits réellement terminalisés, SLO E2E, coût SQL et exactitude du branchement des instruments |
+
+Les catégories ci-dessus sont une **organisation du runner et des fixtures**, non de nouveaux objets du domaine ni de nouvelles Consumptions. Préserver des tests unitaires purs quand suffisants ; réserver PostgreSQL/Keycloak/k6 aux garanties qu'ils sont seuls à pouvoir établir.
+
+### 30.3 Décisions d'architecture et de contrat bloquant le passage V3-CADRE
+
+| Réf. | Décision à obtenir | Pourquoi elle est structurante | Sortie minimale attendue |
+|---|---|---|---|
+| **C-01** | **Contrat de preuve de consentement E2 pour Link** : identité E1/E2, liaison immuable à la demande, fraîcheur et anti-rejeu | Sans preuve vérifiable de E2, ID-02 peut être « testé » sans véritable sécurité ; les règles V3-5A ne décrivent pas encore comment l'échange est garanti | Séquence d'admission courte, modèle de menace, éléments liés à requestId/intention, anti-rejeu et contrôles d'admission/exécution ; **sans workflow différé** |
+| **C-02** | **Barrière de reconstruction READ et oracle READY** : empêcher commit de l'ancien monde, reconstruire coordonnées slots/checkpoints/projections et fournir une borne de progression malgré WRITE continu | Un reset seulement logique peut perdre des événements ou réintroduire les effets d'un ancien Worker ; sans READY, READ peut exposer un état incomplet | Protocole d'arrêt/fence et de reprise, condition testable de remise en service, traitement des publications après la borne, choix du mode indisponible |
+| **C-03** | **Oracle d'E2E « Pot complet à V »** en cas de V courante ayant avancé au-delà de la commande | V3-5C exige un p95 par commande appliquée, alors que l'API ne sert pas un Pot historique arbitraire. Tester seulement `CurrentPot>=V` ne prouve pas que les composants et balances **de V** ont été matérialisés | Décider si le jalon se prouve par versions immuables et états de tâches/visibilité (oracle test hors API) avec corrélation de la commande V, sans ajouter d'API historique ni déclarer disponible un V non servi |
+
+**Ces trois décisions sont préalables au verdict V3-CADRE.** Elles ne demandent pas de choisir prématurément tables SQL, classes Java, méthodes de locking exactes ou noms de endpoints. Si C-03 est insoluble sans changer un contrat, remonter la contradiction à V3-3/5C plutôt que fabriquer un succès à partir d'un simple watermark.
+
+### 30.4 Paramétrage de tests reportable à V3-6/V3-7 sans rouvrir V3-CADRE
+
+- **T-01 :** codes HTTP précis, schémas d'erreur « indisponible / refusé / inexistant », fixtures Bruno ; il faut maintenir dès V3-CADRE la **distinction sémantique**, mais les numéros HTTP relèvent du contrat API V3-6.
+- **T-02 :** durées k6, taille des échantillons, cadence de sondage 25 ms, répétitions, seuils de contamination par la sonde, mix exact des mutations et limites des générateurs. Ce sont **des propositions §24**, à figer *avant exécution* et non nécessairement avant la validation de principe V3-CADRE, si C-03 est résolu.
+- **T-03 :** nombre de Workers/partitions, tailles de lots, fenêtres d'équité, seuils et coût de polling OPS-01 ; en V3-CADRE la propriété de non-famine et la capacité de preuve doivent être acquises, les bornes calibrées et figées avant campagne.
+- **T-04 :** noms des histogrammes et des métriques, seuils d'alertes, structure des dashboards, scripts de recueil ; V3-5B impose déjà les **frontières** observées et la validation du branchement.
+- **T-05 :** implantation SQL/Java de la barrière et du traitement de consents, fixtures de crash, orchestration k6/Keycloak, CI et rapports de tests ; ces choix doivent respecter C-01/C-02 et les protocoles mais relèvent de V3-6.
+
+### 30.5 Ordre de décision et plan de consolidation
+
+1. **Trancher C-01** (séquence Link la plus simple vérifiable) puis reporter la décision aux docs V3-1 Identity, V3-5A et ID-02 si nécessaire.
+2. **Trancher C-02** (rebuild à blanc, barrière et READY) puis reporter à V3-4, V3-3 et REC-01.
+3. **Trancher C-03** (preuve E2E exacte d'une version V sans endpoint historique) puis aligner V3-5B/5C, PRJ-02/04, READ-01 et PERF-01.
+4. **Consolider CON-06** en un bloc unique sans perte de cas, puis adopter suites et jeux de données mutualisés par mécanisme. Produire matrice exigence→scénario canonique→assertion→instrument→preuve.
+5. Mettre à jour **canon et feuille de route** après décisions ; procéder à la revue finale des contradictions interdocuments, des cas tests réellement vérifiables et de la simplicité conceptuelle.
+6. **Soumettre explicitement le jalon V3-CADRE** ; jusque-là aucune implémentation runtime/DDL V3 ni exécution revendiquée.
+
+**Conclusion :** 24/24 exigences ont une spécification de preuve. Il subsiste **trois décisions de contrat/architecture** à fermer ; les modalités de tuning et d'outillage peuvent être différées sans affaiblir les invariants. **V3-CADRE demeure OUVERT.**
