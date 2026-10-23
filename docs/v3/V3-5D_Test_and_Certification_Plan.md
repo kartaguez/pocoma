@@ -916,3 +916,39 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 **Livrables de preuve attendus :** scripts k6 paramétrés, fixtures et seeds SQL/domaine, inventaire de versions/configuration matérielle, export brut des observations, rapports p50/p95/p99, séries backlog et âge par Consumption, traces des commits/erreurs/retries, métrologie PostgreSQL/Prometheus, profils CPU et verdict par scénario. Les scripts historiques k6 de V2 restent une référence d'organisation, jamais une preuve de conformité V3.
 
 **PASS PERF-01** nécessite F01-A à F01-J, tous les SLO chiffrés V3-5C correspondants, stabilité à 10/s, rattrapage en ≤ 5 minutes et qualification distincte de contention, avec métrologie fiable. Aucun benchmark V3 n'est réalisé à ce stade.
+
+## 25. Protocole détaillé DOM-01 — reconstruction historique exacte de Pot@V
+
+**Statut : protocole proposé, non exécuté.** V3-1 définit huit types de composants versionnés (PotHeader/Details, ShareholderHeader/Details/Weight, ExpenseHeader/Details/Financials). Chaque instance locale versionnée s'applique sur l'intervalle semi-ouvert `[activeFrom,activeTo)` exprimé en versions globales du Pot ; `activeTo=null` désigne une borne ouverte. `Pot@V` se reconstruit **directement à V** sans lire `Pot@(V−1)`. Toute relation vers un Shareholder (payer, participant, userId) doit être résolue dans **la même V**.
+
+### Oracle de reconstruction
+
+- Après une mutation effective, la version globale du Pot avance de **exactement un** ; une commande valide sans effet ne l'avance pas. Une mutation multi-cibles n'incrémente V qu'une fois. Les versions locales avancent uniquement pour les composants effectivement modifiés, sans copie des autres.
+- Pour chaque composant d'un objet existant à V, il existe **exactement une** instance satisfaisant `activeFrom ≤ V && (activeTo=null || V < activeTo)`. Avant création, aucune instance n'est applicable ; un composant obligatoire absent après création est une anomalie technique.
+- Lors d'une modification à V, fermer l'ancienne instance du composant modifié à `activeTo=V` et ouvrir la nouvelle à `activeFrom=V`, version locale précédente +1. Les composants inchangés conservent instance, version et bornes.
+- La suppression d'Expense révise uniquement `ExpenseHeader.deleted`, celle du Pot uniquement `PotHeader.deleted` ; Details, Financials, Weight et autres objets survivent historiquement, éventuellement avec `activeTo=null`. Shareholder ne dispose pas de suppression métier.
+- Toute référence inter-objets utilise l'identifiant métier stable (`ShareholderId`, `ExpenseId`) et est résolue au V demandé ; jamais la ligne technique d'une révision, la valeur courante WRITE ou une version locale numériquement égale à V.
+- Un état historique composé d'intervalles contradictoires (chevauchement, trou après création, référence absente/mauvais Pot) est **signalé**, jamais réparé par un fallback vers le présent ou V−1.
+
+### Cas JUnit / PostgreSQL
+
+| ID | Stimulus | Assertion décisive |
+|---|---|---|
+| D01-A | Créer Pot V1 | PotHeader et PotDetails en versions locales 1, `activeFrom=1`, `activeTo=null` ; `creatorId` obligatoire |
+| D01-B | Créer deux Shareholders en V2, puis une Expense en V3 | Chaque composant des enfants naît à version locale 1 et activeFrom correspondant ; objets absents aux V antérieures |
+| D01-C | Changer `ExpenseDetails` en V4 puis `ExpenseFinancials` en V5 | Seul le composant modifié prend une révision ; anciennes bornes fermées exactement à V4/V5 ; autres composantes inchangées |
+| D01-D | Changer `ShareholderWeight.defaultWeight` en V6 | Weight révisé seul ; Financials inchangé ; résolution des poids à V5 et V6 distincte ; balance V5 conservée (DOM-03) |
+| D01-E | Modifier deux `ShareholderDetails` dans une seule commande V7 | Une seule augmentation globale V ; deux versions locales nouvelles ; aucune autre composante modifiée |
+| D01-F | Supprimer Expense V8 puis Pot V9 | ExpenseHeader puis PotHeader seulement révisés en deleted ; enfants et historique encore reconstructibles |
+| D01-G | Interroger chacune des versions V1…V9 dans un ordre aléatoire, sans précharger V−1 | États strictement égaux aux snapshots d'un oracle indépendant ; aucune dépendance à la reconstruction précédente |
+| D01-H | Résoudre payeur, participants, poids et `ShareholderDetails.userId` après plusieurs révisions | Références et droits pris exclusivement à V demandé, sans fuite des valeurs courantes |
+| D01-I | Vérifier limites d'intervalles `V=activeFrom`, `V=activeTo−1`, `V=activeTo` | Sémantique semi-ouverte exacte ; ni double version ni trou |
+| D01-J | Injecter trou, chevauchement d'intervalles, composant obligatoire absent ou référence vers un autre Pot dans fixture isolée | Anomalie détectée explicitement ; reconstruction refusée plutôt que complétée artificiellement |
+| D01-K | Commande valide sans effet puis mutation multi-cibles puis rollback forcé | Aucune version pour no-op ou rollback ; exactement une V globale et seules sous-versions changées pour multi-cibles |
+| D01-L | Comparer reconstru­ction directe d'une V ancienne après de nombreuses mutations et suppressions | Digest canonique du Pot@V inchangé, indépendamment de l'ordre d'accès et des révisions ultérieures |
+
+### Méthode et PASS
+
+Construire les snapshots attendus en mémoire **indépendamment** des sélecteurs SQL/algorithmes de reconstruction testés. Exécuter JUnit contre PostgreSQL réel pour les intervalles, FK, frontières transactionnelles et relations ; compléter avec tests unitaires pour la composition pure. Capturer pour chaque V : snapshot attendu, lignes et intervalles en base, versions locales, identifiants métier et digest canonique. La consultation historique ici est un **oracle de domaine interne**, pas une exigence d'API READ historique arbitraire. Les règles de dépendance métier `observedVersion` seront éprouvées en DOM-02, les fractions et balances en DOM-03.
+
+**PASS DOM-01** : D01-A à D01-L satisfaits, reconstruction sans chaînage à V−1, versions locales indépendantes, intervalles non ambigus, suppressions historisées et absence de repli silencieux en présence d'incohérence. Aucun code/test V3 exécuté.
