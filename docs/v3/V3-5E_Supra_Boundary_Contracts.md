@@ -170,3 +170,26 @@ Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées oc
 **Scénarios SUPRA-READ-01 proposés :** 0/1/N références ; juste sous/à/au-dessus du plafond ; référence dupliquée ; référence étrangère au Pot ou à V ; EUI non autorisée ; Unlink matérialisé dans CurrentBinding ; V ancien et CurrentPot avancé ; sous-version non encore matérialisée ; Expense avec payload extrême ; 50 Expenses chargées sans N+1 ; réponse non partielle et ordre reproductible.
 
 **Point non arbitré :** taille effective du plafond, borne en octets, ordre du manifeste et représentation des références ; confronter aux profils V3-5C. Éviter d'introduire une pagination serveur *en plus* du découpage client sans besoin démontré.
+
+## 12. Admission Command / IdentityRequest — contrat minimal proposé (2026-10-23)
+
+**PROPOSITION À DISCUTER, pas encore un choix de seuils.** Les Supras d'admission rejettent avant persistance les demandes qui ne respectent pas le **contrat autonome d'entrée**, sans chercher l'état métier courant dans WRITE. La persistance de l'admission et la gestion de l'idempotence utilisent leur propre autorité transactionnelle ; l'interdiction concerne la lecture du **domaine métier** WRITE pour décider de l'acceptation.
+
+| Couche de validation | Contrôles admissibles immédiatement | Ce qui reste au Worker |
+|---|---|---|
+| Transport / désérialisation | taille maximale des octets reçus et décompressés, profondeur JSON, champs/types requis, nombres finis, format des identifiants, champs inconnus selon contrat | existence de Pot, Expense, Shareholder ou EUI en état courant |
+| Forme de l'opération | type de commande reconnu, nombre maximum de cibles et de participants, longueur de textes, bornes numériques intrinsèques, cohérence interne entre champs d'un même payload | droits sur Pot, référence de version observée, compatibilité avec les versions actuelles et transitions métier |
+| Identité / protocole | authentification réelle, audience, identité EUI, présence et forme du bindingToken, pour Link preuve externe d'accord transactionnel valide et non rejouée | lien EUI/bindingToken **courant**, permission effective et effets de Registration/Link/Unlink à l'exécution |
+| Admission durable | anti-rejeu, corrélation, idempotence et création **unique** de la demande lorsqu'elle est valide | succès/rejet métier terminal et événements de complétion |
+
+**Précisions :**
+- Le domaine vérifie toujours ses invariants au Worker ; les contrôles anticipés sont un filtre UX/coût, **pas une nouvelle autorité métier**. Exemple : montant non négatif / poids positif peuvent être rejetés dès l'entrée mais doivent également être validés au domaine.
+- Ne pas introduire de contrôle de « Pot connu » ou de « Shareholder autorisé actuellement » à l'admission sur base d'une projection READ potentiellement retardée.
+- Un **refus préalable** ne crée ni demande, ni résultat terminal, ni slot, ni événement. Un rejet métier d'une demande admise reste un **résultat terminal durable** avec complétion.
+- Éviter d'imposer la même limite de taille à tous les types de mutations : une Command multi-cibles et un Link n'ont pas les mêmes risques. Fixer un plafond global de requête **et**, si nécessaire, des limites propres à des collections/champs. Respecter les profils moyens et grands V3-5C sans imposer d'emblée des nombres injustifiés.
+- Protéger contre l'amplification : limite de taille du corps **avant** parsing, limite décompressée si compression acceptée, nombre d'éléments et octets textuels, temps d'admission et nombre de requêtes en vol. Réponses d'erreur bornées sans divulguer l'existence d'un objet métier.
+- Règles d'évolution : changer une limite ou ajouter un contrôle ne requalifie jamais une demande **déjà admise** ; la nouvelle règle s'applique aux nouvelles admissions, sans toucher Consumption ni les transitions WRITE.
+
+**Cas ADM-01 à certifier :** (A) malformed/oversized → refus immédiat zéro durable ; (B) cas à la limite accepté et limite+1 refusé ; (C) payload formellement admissible mais objet absent ou conflit de version → demande admise puis rejet terminal ; (D) tentative d'usurper un bindingToken sans identité correspondante → refus de sécurité sans fuite ; (E) même requête concurrente/idempotence → une admission effective ; (F) règle ajoutée après l'admission sans modification du destin de cette demande ; (G) injection de payload coûteux et mesures CPU/mémoire/latence ; (H) Link sans attestation de consentement métier vérifiable → aucune admission.
+
+**À décider ensuite :** limites numériques par type, conventions d'erreurs, politique pour champs inconnus, syntaxe des identifiants publics, corps compressés et traitement HTTP précis des répétitions. **Le principe et le périmètre sont définis ; la matrice de seuils n'est pas validée.**
