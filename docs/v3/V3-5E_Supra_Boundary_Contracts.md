@@ -282,3 +282,37 @@ Les chiffres sont des **hypothèses d'essai**, non des contraintes normatives. T
 **Tests discriminants :** grande Command légitime au-dessus de 100 cibles (ne pas la déclarer métier invalide par défaut) ; Command atomique non sécable sous plafond ; corps volumineux invalidé avant parsing ; Pot 100/2 000 complet malgré limites de lot ; limites configurées à la baisse pour une nouvelle admission sans effet sur les demandes déjà persistées ; absence de requête WRITE métier à l'admission.
 
 **Statut : séparation conceptuelle VALIDÉE ; les seuils chiffrés des protections demeurent à calibrer avant qualification, sans ajout de règle métier arbitraire.** V3-CADRE reste ouvert.
+
+## 17. Revue finale de couverture V3-5E — 2026-10-23
+
+**Verdict : cadrage avancé, MAIS CLÔTURE V3-5E NON ENCORE PRONONÇABLE.** L'approche est cohérente (Supras sans consultation de l'état métier WRITE, PotVersion immuable, lecture courante Shareholders + soldes + références Expenses, lecture détaillée en lots, refus 404 anti-énumération, protections de ressources sans limites métier arbitraires). Les seuils d'octets et de concurrence restent des candidats à tester, non des blocages conceptuels.
+
+### Couverture par opération
+
+| Opération / Supra | Établi | À préciser avant clôture |
+|---|---|---|
+| Admission Command | séparation structure/sécurité/métier ; zéro demande durable en refus préalable ; idempotence | format minimal précis par type de commande et réponse de retry |
+| Admission Registration | principe de validation structurelle et authentification | erreurs, correspondance EUI et admission idempotente |
+| Admission Link | preuve explicite du fournisseur liée à l'intention, anti-rejeu | format et réalisation chez fournisseur qualifié (preuve V3-6/7) |
+| Admission Unlink | séparation admission/exécution, identité AuthN | périmètre de contrôle au Supra, refus vs rejet métier |
+| Consultation CommandResult / IdentityRequestResult | résultat unitaire terminal et immuable | contrat HTTP quand résultat pas encore matérialisé, sans fuite d'existence |
+| Lecture du Pot | CurrentPot pointe PotVersion(P,V), Shareholders et balances exacts à V, manifeste de références | taille/transfert du manifeste et politique si une dépendance V n'est pas prête |
+| Chargement groupé Expenses | références appartenant à PotVersion(P,V), lots tout-ou-erreur, autorisation à V | plafond et enveloppe d'erreur ; surtout correction en présence de références venant d'autres versions |
+| Liste des Pots de l'utilisateur | CurrentUserPotList navigation seulement | **choix de pagination et stabilité sous évolution concurrente à finaliser** |
+| Consultation CurrentBinding après Identity | minVersion et identité vérifiée | réponse publique minimale, présence et exposition du bindingToken à qualifier |
+| Sécurité et surcharge | 401/404, 403 uniquement si privilège global, 429/503, contrôle du coût | protections des réponses, cache, mesures, paramétrage infra |
+
+### Deux questions réellement structurantes encore ouvertes
+
+**S-01 — Liste des Pots paginée.** Le front ne reçoit pas ici un manifeste figé comparable à PotVersion. CurrentUserPotList est mutable et peut évoluer entre deux pages. Définir une sémantique explicite : pages sur **liste vivante** avec risque annoncé de décalage, ou snapshot stable nécessitant un support supplémentaire. La règle de simplicité suggère un ordre déterministe et une pagination par clé stable, sans promesse d'instantané, mais la politique anti-doublons/manquants reste à arbitrer.
+
+**S-02 — Revocations entre deux lectures historiques.** Le modèle SEC-01 actuellement documenté autorise un utilisateur ayant accès à Pot@V à continuer à consulter V après retrait de son Shareholder à V+1, tant que son CurrentBinding demeure actif. Cette propriété peut surprendre en sécurité/UX. Confirmer expressément s'il faut préserver cet accès historique ou appliquer l'autorisation à la version courante également ; ce choix a des implications de confidentialité et ne peut pas être caché dans la mécanique de pagination.
+
+### Actions documentaires et preuves
+
+1. Arbitrer S-01 et S-02, puis réécrire les sections historiques §7–§9 supplantées pour qu'elles ne laissent pas de préférence technique concurrente.
+2. Ajouter la couverture ADM-01 et SUPRA-READ-01 à la matrice d'exigences et aux preuves V3-5D ; étendre la matrice 24/24 en précisant la distinction « exigences transverses supplémentaires ».
+3. Harmoniser les représentations PotVersion et CurrentPot dans la documentation normative et la table de suivi ; préciser l'enveloppe d'erreur HTTP sans exposer le domaine.
+4. Tester les seuils candidats sur profils V3-5C avant de figer le dimensionnement ; aucun PASS V3 revendiqué.
+
+**Gate V3-CADRE reste OUVERT. Aucune implémentation V3 ni test exécuté.**
