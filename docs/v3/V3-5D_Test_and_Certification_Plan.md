@@ -568,3 +568,44 @@ JUnit et **PostgreSQL réel**, avec oracle rationnel indépendant, jeux de mutat
 Pour les performances, ne pas confondre le **temps de calcul pur**, la préparation en WRITE/READ, la création de tâche, son attente et la disponibilité par API. La mesure E2E doit inclure la chaîne complète et respecter l'incertitude du sondage. Le budget p95 de 50 ms sur calcul/écriture des balances demeure **candidat**, tandis que les SLO globaux (500 ms Pot moyen nominal, 2 s grand Pot nominal) sont les objectifs validés.
 
 **PASS PRJ-02** exige P02-A à P02-M, exactitude rationnelle, balance complète par version globale, immutabilité/idempotence et absence de dépendance à V−1. Les budgets sont qualifiés séparément en PERF-01 ; un succès fonctionnel ne certifie pas une performance. Aucun test V3 exécuté.
+
+## 17. Protocole détaillé PRJ-03 — visibilité collective, monotone et hors ordre
+
+**Statut : protocole proposé, non exécuté.** Références V3-3/V3-4 : chaque `POT_VISIBILITY_TASK(P,V,visibleUserIds[])` fournit la **liste complète** des utilisateurs visibles à la version exacte V. L'autorité de matérialisation est `PotVisibilityState(potId,materializedVersion)` : son verrou exclusif protège **l'ensemble** des entrées `CurrentUserPotList` de ce Pot et non un simple CAS individuel. Le calcul compare uniquement les entrées **actuellement visibles** (`visible=true`) à la liste entrante ; les tombstones `visible=false` sont conservées mais ne sont pas scannées pour établir la différence.
+
+### Oracles de référence
+
+- Pour chaque Pot et V, calculer un oracle indépendant `Visible(P,V)` : Pot actif et utilisateur créateur **ou** utilisateur rattaché à au moins un Shareholder ; Pot supprimé = ensemble vide. Plusieurs Shareholders liés à un même utilisateur ne produisent qu'une seule visibilité ; détacher un lien ne supprime pas l'accès si un autre subsiste.
+- Une tâche de version `V > materializedVersion` remplace l'ensemble visible courant par `Visible(P,V)` **atomiquement**, puis avance `PotVisibilityState.materializedVersion = V`. Les entrées nouvellement visibles sont créées/réactivées, celles devenues invisibles reçoivent une tombstone `visible=false`. Les entrées invisibles historiques déjà inchangées peuvent conserver leur `potVersion` antérieure : cette valeur est la dernière version de changement/évaluation enregistrée **pour l'entrée**, pas un indicateur global de fraîcheur.
+- Une tâche `V ≤ materializedVersion` est obsolète : **aucun changement** des entrées ni recul de l'état ; elle est néanmoins terminalisée et son slot supprimé de façon atomique.
+- Toute mutation de la liste de visibilité d'un Pot participe au **même verrou collectif** PotVisibilityState, y compris le cas de création initiale ; deux initialisations concurrentes ne peuvent créer deux autorités ni produire d'insertion fantôme.
+- La projection sert à la **navigation** ; elle n'est jamais l'autorité d'accès à un Pot. Les tests de sécurité correspondants sont couverts par SEC-01.
+- La transaction READ protège ensemble la lecture des `visible=true`, le différentiel, les écritures/tombstones, la progression de PotVisibilityState, la terminalisation de la tâche et la suppression de son slot. La liste ne doit pas exposer d'état partiellement mis à jour après commit.
+
+### Scénarios PostgreSQL déterministes
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| P03-A | Première tâche V1 pour un Pot sans ligne de contrôle préexistante | Initialisation sûre de PotVisibilityState ; ensemble visible exactement égal à `Visible(P,V1)`, aucune entrée double |
+| P03-B | Deux Workers tentent simultanément la première initialisation du même Pot, avec listes/version différentes | Une seule autorité de verrou, évolution sérialisée ; état final à la plus haute version committée ; aucun utilisateur fantôme |
+| P03-C | Un utilisateur devient visible, disparaît, puis réapparaît (V1→V2→V3) | Même entrée `(user,pot)` conservée avec `true→false→true` et versions adéquates ; pas de suppression physique à V2 |
+| P03-D | Un utilisateur a deux Shareholders ; l'un est détaché, puis le dernier | Visible après premier détachement, invisible seulement après le dernier ; déduplication par user |
+| P03-E | Créateur sans Shareholder lié, puis Pot supprimé | Créateur visible tant que Pot actif, puis toutes les entrées visibles deviennent `false` après suppression |
+| P03-F | Matérialiser la tâche V3 avant V1 et V2 | Version du contrôle reste V3 et ensemble exactement `Visible(P,V3)` ; les tâches V1/V2 se terminent sans régression ni écriture de tombstones tardives |
+| P03-G | Deux tâches de versions V et V+1 se concurrencent, avec barrières avant verrou collectif | Verrou unique sérialise lecture, diff et mise à jour ; résultat final conforme à la version maximale, aucune insertion fantôme |
+| P03-H | Nouvelle liste vide après liste non vide, puis nouvelle liste non vide | Toutes les visibles passent à `false` ; seules les anciennes visibles sont relues ; réactivation ultérieure correcte |
+| P03-I | Historique volumineux de tombstones, avec peu d'utilisateurs actuellement visibles | Le calcul de diff ne parcourt pas toutes les entrées `false` ; plan SQL/mesures le démontrent sans compromettre l'exactitude |
+| P03-J | Panne après écriture de certaines lignes, après avancée du contrôle ou après terminalisation de tâche, avant commit | Rollback de l'ensemble : entrées, contrôle, tâche et slot restent cohérents ; aucune demi-projection |
+| P03-K | Commit validé mais réponse perdue, suivi d'une réacquisition/duplication de tentative | Résultat idempotent, slot finalisé une fois ; aucune régression ni écriture supplémentaire |
+| P03-L | Deux Pots distincts avec tâches parallèles | Sérialisation **par Pot**, pas de verrou global de visibilité ; ensembles isolés |
+| P03-M | Entrée de liste incorrectement visible, mais Shareholder absent à Pot@V | La navigation ne confère aucun accès : READ refuse selon SEC-01 ; le test ne confond pas liste et autorisation |
+| P03-N | Lectures concurrentes pendant matérialisation d'une liste changeant pour plusieurs utilisateurs | Un lecteur observe l'ancien ou le nouvel ensemble committé, jamais un mélange partiellement committé |
+| P03-O | Grand Pot et historique important, forte alternance des membres | Mesurer lignes `visible=true` lues, coût du verrou, mutations, requêtes/latences ; pas de scan complet de l'historique des utilisateurs |
+
+### Méthode et preuves attendues
+
+JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment des projections, connexions concurrentes, barrières de prise du verrou, fault injection et comparaison complète des entrées de navigation et de la version de contrôle. Examiner les requêtes/plans PostgreSQL pour confirmer que l'algorithme parcourt les seules entrées actuellement visibles lors du différentiel, sans balayage de toutes les tombstones. Vérifier les résultats depuis une connexion indépendante après chaque commit/rollback.
+
+**Attention à la précision :** l'avancement du contrôle de V1 à V3 peut sauter V2 ; il signifie que la visibilité a été recalculée **entièrement à V3**, pas que chaque tâche intermédiaire a été exécutée. Cela reste correct parce que la liste d'utilisateurs visibles est fournie **intégralement** par chaque tâche. Le `potVersion` d'une ligne inchangée peut rester inférieur à `materializedVersion` sans incohérence.
+
+**PASS PRJ-03** : P03-A à P03-O, résultat visible exact et monotone, protections collectives sur toutes les écritures, concurrence/rollback sûrs, performances du différentiel observées et aucune confusion avec les droits d'accès. Aucun test V3 n'a été exécuté.
