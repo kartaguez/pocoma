@@ -609,3 +609,44 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 **Attention à la précision :** l'avancement du contrôle de V1 à V3 peut sauter V2 ; il signifie que la visibilité a été recalculée **entièrement à V3**, pas que chaque tâche intermédiaire a été exécutée. Cela reste correct parce que la liste d'utilisateurs visibles est fournie **intégralement** par chaque tâche. Le `potVersion` d'une ligne inchangée peut rester inférieur à `materializedVersion` sans incohérence.
 
 **PASS PRJ-03** : P03-A à P03-O, résultat visible exact et monotone, protections collectives sur toutes les écritures, concurrence/rollback sûrs, performances du différentiel observées et aucune confusion avec les droits d'accès. Aucun test V3 n'a été exécuté.
+
+## 18. Protocole détaillé PRJ-04 — préparation atomique et finalisation indépendante des deux Projection Tasks
+
+**Statut : protocole proposé, non exécuté.** Pour chaque `POT_EVENT(P,V)`, la Consumption `PreparePotProjectionTasks` fabrique en READ une `POT_BALANCE_TASK` et une `POT_VISIBILITY_TASK`, avec identités stables `(preparationConsumptionId,potEventId,taskType)`. Les deux tâches et la suppression du slot de préparation sont committées **dans une seule transaction READ**. Ensuite chacune est acquise/finalisée **séparément** par sa Consumption ; projection correspondante, source tâche `PENDING → TERMINAL` et suppression de son propre slot sont atomiques. Les tâches n'ajoutent aucune séquence événementielle et ne requièrent pas la présence de la projection sœur.
+
+### Oracles transactionnels
+
+- **Préparation :** état initial = slot de préparation présent et aucune tâche créée pour l'événement. État final committé = slot absent **et les deux tâches durables** ; en cas de rollback, état initial intact. Aucun état « une seule tâche committée » n'est autorisé.
+- **Enrôlement :** les deux tâches sont burnables ; leur Discovery crée des slots uniques lorsque chacune est `PENDING`, indépendamment de la Discovery sœur. Ne pas confondre création durable d'une tâche avec création de son slot.
+- **Matérialisation Balance :** `PotBalance(P,V)` immuable + Balance Task `TERMINAL` + suppression du slot Balance, dans une transaction READ. Aucun effet ni terminalisation de la tâche Visibility exigés.
+- **Matérialisation Visibility :** entrées `CurrentUserPotList`, `PotVisibilityState(P)`, Visibility Task `TERMINAL` + suppression du slot Visibility, dans une transaction READ ; verrou collectif et monotonie PRJ-03. Aucun effet ni terminalisation de la tâche Balance exigés.
+- **Reprise :** un commit incertain se tranche par lecture durable ; ni tâche ni slot ne sont recréés arbitrairement. Les reprises utilisent les mêmes identités déterministes dans une Consumption inchangée ; un replay indépendant exige un nouvel ID de préparation.
+- **Cohérence en retard :** CurrentPot, Balance et Visibility ne forment pas une transaction commune. READ refuse une lecture « Pot complet » si la version courante visée ne dispose pas encore des composants/balances nécessaires (READ-01), sans bloquer les matérialisations indépendantes.
+
+### Cas PostgreSQL déterministes
+
+| ID | Stimulus / panne contrôlée | Assertion décisive |
+|---|---|---|
+| P04-A | Préparer un `POT_EVENT` sans panne | Deux tâches de types distincts, référencées au même (P,V), et slot de préparation absent après commit |
+| P04-B | Panne après insertion Balance mais avant insertion Visibility | Rollback : aucune tâche persistée, slot de préparation présent |
+| P04-C | Panne après insertion des deux tâches mais avant suppression du slot de préparation | Rollback de l'ensemble ; aucune tâche persistée |
+| P04-D | Panne après suppression du slot de préparation mais avant commit | Rollback : aucune tâche persistée et slot toujours présent |
+| P04-E | Commit de préparation réussi mais réponse perdue | Deux tâches présentes, slot absent ; récupération par observation, aucun doublon |
+| P04-F | Deux Workers préparent concurremment le même événement | Un seul couple de tâches durable, une seule finalisation de préparation ; identifiants déterministes et unicité en base |
+| P04-G | Discovery Balance et Discovery Visibility progressent à des rythmes différents | Chaque tâche `PENDING` obtient son propre slot ; ni dépendance de découverte ni attente obligatoire de la sœur |
+| P04-H | Finaliser Balance tandis que Visibility reste PENDING/non enrôlée | Balance exacte et immuable ; Balance Task TERMINAL, son slot absent ; Visibility inchangée |
+| P04-I | Finaliser Visibility tandis que Balance reste PENDING/non enrôlée | Visibilité et état de contrôle corrects ; Visibility Task TERMINAL, son slot absent ; Balance inchangée |
+| P04-J | Panne pendant écriture de Balance après insertion projection, avant terminalisation de la tâche ou suppression de slot | Aucun résultat partiel durable ; tâche PENDING et slot conservé après rollback |
+| P04-K | Panne pendant écriture du différentiel Visibility après une partie des entrées puis après avancée du contrôle | Rollback de toutes les entrées, du contrôle, de la tâche et du slot |
+| P04-L | Deux matérialisateurs opèrent en parallèle et l'un échoue | L'autre peut committer normalement ; le perdant se reprend indépendamment sans double effet |
+| P04-M | Deux tâches de versions V+1 et V arrivent avant V, sur un même Pot | Balance reste immuable par V ; Visibility progresse selon version maximale sans régression ; toutes tâches se terminent |
+| P04-N | Crash/restart après création des tâches mais avant enrôlement, puis après terminalisation d'une seule tâche | Chaque tâche PENDING est retrouvée ; seule la tâche inachevée reprend ; aucune nouvelle préparation/effet double |
+| P04-O | Reset complet READ puis replay avec mêmes IDs, et replay indépendant avec nouvelle Consumption | Reset cohérent permet réutilisation des IDs ; nouveau `preparationConsumptionId` produit de nouvelles identités, sans collision |
+
+### Méthode et preuves conservées
+
+JUnit avec **PostgreSQL réel**, connexions distinctes, contrôles de points de panne avant commit, entrelacements par barrières, assertions sur taskIds, types, payloads (balances préparées exactes et liste visible à V), statuts `PENDING/TERMINAL`, slots et projections. Vérifier les effets depuis une connexion indépendante et comparer les snapshots avant/après. Les tests de concurrence comprennent les exceptions de contraintes d'unicité, rollback et perte simulée de réponse de commit ; ils n'utilisent pas le temps de sommeil comme oracle.
+
+Séparer les preuves : **EVT-03** valide aussi le catalogue des familles et l'identité des tâches ; **CON-02/04/06** valident les frontières de slot/commit ; **PRJ-02/03** valident la justesse des valeurs. PRJ-04 démontre spécifiquement les **deux** atomicités locales et leur indépendance, sans créer une transaction distribuée entre WRITE et READ.
+
+**PASS PRJ-04** exige P04-A à P04-O, absence de demi-préparation et de demi-finalisation, aucune obligation d'ordre entre les tâches, et reprises sûres. Aucun test V3 n'a été implémenté ni exécuté.
