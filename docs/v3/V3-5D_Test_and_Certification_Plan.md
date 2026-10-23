@@ -952,3 +952,52 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 Construire les snapshots attendus en mémoire **indépendamment** des sélecteurs SQL/algorithmes de reconstruction testés. Exécuter JUnit contre PostgreSQL réel pour les intervalles, FK, frontières transactionnelles et relations ; compléter avec tests unitaires pour la composition pure. Capturer pour chaque V : snapshot attendu, lignes et intervalles en base, versions locales, identifiants métier et digest canonique. La consultation historique ici est un **oracle de domaine interne**, pas une exigence d'API READ historique arbitraire. Les règles de dépendance métier `observedVersion` seront éprouvées en DOM-02, les fractions et balances en DOM-03.
 
 **PASS DOM-01** : D01-A à D01-L satisfaits, reconstruction sans chaînage à V−1, versions locales indépendantes, intervalles non ambigus, suppressions historisées et absence de repli silencieux en présence d'incohérence. Aucun code/test V3 exécuté.
+
+## 26. Protocole détaillé DOM-02 — observedVersion, dépendances métier et collisions CAS
+
+**Statut : protocole proposé, non exécuté.** `observedVersion` est la version globale initialement vue par l'auteur : elle reste **immuable à travers toutes les tentatives**. Chaque tentative repart de la version globale courante, recharge les données autoritatives et contrôle les sous-composants métier dont la commande dépend. Une perte du CAS global est un **conflit technique transitoire** et ne constitue jamais, à elle seule, une obsolescence métier. Une obsolescence établie sur les dépendances à la version courante donne lieu à un **rejet métier durable** sans mutation. Une commande valide sans changement réussit sans nouvelle version métier, mais avec complétion.
+
+### Oracle des dépendances
+
+| Commande | Dépendances dont le changement depuis observedVersion rend obsolète | Mutation attendue si effet |
+|---|---|---|
+| Modifier PotDetails | PotDetails | PotDetails |
+| Ajouter Shareholder | Pas de sous-composante antérieure cible ; vérifier Pot actif et références utiles | Header, Details, Weight nouveaux à v1 |
+| Modifier ShareholderDetails | ShareholderDetails | ShareholderDetails |
+| Modifier ShareholderWeight | ShareholderWeight | ShareholderWeight |
+| Créer Expense | Pas de sous-composante antérieure cible ; vérifier Pot actif et validité des Shareholders | Header, Details, Financials nouveaux à v1 |
+| Modifier ExpenseDetails | ExpenseDetails | ExpenseDetails |
+| Modifier ExpenseFinancials | ExpenseFinancials | ExpenseFinancials |
+| Supprimer Expense | ExpenseHeader, ExpenseDetails, ExpenseFinancials | ExpenseHeader.deleted |
+| Supprimer Pot | **Toute version globale intermédiaire** : `observedVersion == currentPotVersion` obligatoire | PotHeader.deleted |
+
+Une composante existant au moment de l'observation reste compatible si son instance actuelle possède `activeFrom ≤ observedVersion` ; ce contrôle ne dispense jamais de vérifier existence, appartenance au Pot, statut actif des Headers, références et autorisations **au moment de l'exécution**. Les révisions indépendantes n'annulent pas automatiquement une commande compatible. Le moteur ne réécrit jamais `observedVersion` lors d'un retry.
+
+### Cas déterministes
+
+| ID | Stimulus / entrelacement | Oracle de réussite |
+|---|---|---|
+| D02-A | Changement PotDetails entre observation et exécution d'une modification PotDetails | Rejet métier terminal ; aucune nouvelle V ni sous-version ; complétion de rejet |
+| D02-B | Changement ShareholderWeight après observation d'une commande visant ShareholderDetails (et cas inverse) | Les deux mutations peuvent aboutir avec des versions globales successives ; seule la composante cible est reversionnée |
+| D02-C | Changement ExpenseDetails ou Financials avant suppression d'Expense observée antérieurement | Suppression rejetée ; aucune nouvelle mutation de Header ; un changement de Weight seul ne la rend pas obsolète |
+| D02-D | Modification d'ExpenseFinancials concurrente d'un changement de ShareholderWeight | Si références et dépendances sont encore valides, les deux opérations réussissent ; balance issue des poids et Financials applicables à V |
+| D02-E | Supprimer Pot à observedVersion ancienne après **n'importe quelle** mutation effective intermédiaire | Rejet ; à version globale égale et Pot actif, suppression admise ; aucune réécriture des enfants |
+| D02-F | Ajout Shareholder ou Expense préparé depuis ancienne V alors que des composants sans lien ont évolué | Autoriser si Pot et références métier courantes restent valides ; aucune exigence artificielle d'égalité globale |
+| D02-G | Commande multi-cibles dont une cible est devenue obsolète | Rejet global atomique, aucune autre cible modifiée, aucune nouvelle V |
+| D02-H | Commande multi-cibles valide touchant plusieurs composantes | Une seule V globale supplémentaire, versions locales incrémentées uniquement sur les composantes effectivement changées |
+| D02-I | Commande valide qui demande la valeur déjà présente et ne dépend d'aucune composante obsolète | Succès sans effet, aucune nouvelle V/événement de mutation ; résultat/complétion uniques |
+| D02-J | Commande observée obsolète mais demandant une valeur égale à la valeur actuelle | **Rejet métier**, même si la nouvelle valeur paraît identique ; l'égalité de valeur ne supprime pas l'obsolescence |
+| D02-K | Deux commandes préparent sur même version de travail, l'une gagne le CAS global et l'autre perd | Perdante rollback technique, **pas** rejet métier automatique ; claim cédé avec retryAfter selon CON-05 |
+| D02-L | Après perte du CAS, la tentative suivante recharge V courante ; les dépendances initiales restent compatibles | Nouvelle tentative avec **même observedVersion**, puis succès et V suivante ; aucun double effet |
+| D02-M | Après perte du CAS, la tentative suivante découvre qu'une dépendance métier a réellement changé | Rejet métier terminal décidé après rechargement ; pas d'écriture partielle ni retry indéfini |
+| D02-N | Expense/Shareholder supprimé ou Pot supprimé entre observation et exécution | Vérification des Headers actifs et des références courantes ; refus conforme même si la composante directement visée n'a pas changé |
+| D02-O | Fault injection entre vérification des dépendances et commit final, avec autre mutation concurrente | CAS/contrôles transactionnels empêchent toute validation sur version de travail obsolète ; retry complet ou rejet métier explicite, jamais état incohérent |
+| D02-P | Deux requêtes équivalentes avec requestIds différents, puis retry technique d'un seul requestId | Chaque demande reçoit son propre résultat ; retry n'applique jamais deux fois **la même demande** ; ne pas confondre idempotence de demande et égalité des intentions |
+
+### Preuves et critères PASS
+
+JUnit avec **PostgreSQL réel**, barrières déterministes pour la préparation, la perte CAS, la réacquisition et la finalisation ; Bruno pour l'issue externe et `resultingPotVersion`. Capturer la version observée **avant** la première tentative, la version de travail de **chaque** tentative, les révisions locales, les événements et résultats/complétions durables, ainsi que les slots/claims de retry. Les états attendus doivent être calculés par un oracle indépendant des conditions SQL testées.
+
+Recoupements obligatoires avec DOM-01 (intervalles), DOM-03 (soldes), EVT-02 (rejet/complétion atomique), CON-04/05 (fencing/retry) et SEC-01 (identité/autorisation). Ne pas inférer l'obsolescence d'une simple inégalité `observedVersion != currentVersion`, sauf pour la suppression totale du Pot où cette égalité est explicitement exigée.
+
+**PASS DOM-02** : D02-A à D02-P démontrés ; validité fondée sur les dépendances métier, unchanged observedVersion, nouvelle tentative entière après perte CAS, absence de commit partiel et de faux rejet. Aucun test V3 n'a été implémenté ni exécuté.
