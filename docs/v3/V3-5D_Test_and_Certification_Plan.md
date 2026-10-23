@@ -1487,3 +1487,9 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 ## 47. S-01 — preuve de pagination de la liste de Pots (2026-10-23)
 
 **Décision adoptée V3-5E §18 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
+
+## 48. S-02 — preuve du manifeste complet PotVersion dans la réponse principale (2026-10-23)
+
+**Contrat décidé V3-5E §19 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
+
+**Preuves :** complétude du manifeste pour 0/200/2 000 Expenses et au-delà selon jeux pertinents ; aucune fuite des `pocomaUserId` internes ; aucun mélange V/V+1 ; liste de références et soldes cohérents à V ; taille JSON/latence/CPU/mémoire pour grand Pot ; réponse complète ou erreur explicite, sans troncature ; absence d'interprétation du plafond 1 Mio des lots de détails comme seuil du manifeste principal. Aucun test V3 exécuté.
