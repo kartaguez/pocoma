@@ -492,3 +492,40 @@ Combiner tests d'architecture (composition, managers, annotations interdites, ch
 Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction manager garantit une transaction physique commune : ce sont des hypothèses à prouver. Les verrous, contraintes et timings exacts seront démontrés dans CON-03/04 et EVT-01. Le protocole ne prescrit pas de framework transactionnel supplémentaire ; une composition non conforme doit être corrigée ou refusée.
 
 **PASS CON-06** : C06-A à C06-M vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, PRJ-04 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
+
+## 15. Protocole détaillé PRJ-01 — CurrentPot et versions immuables de sous-objets
+
+**Statut : protocole proposé, non exécuté.** Référence V3-3 : `MaterializeCurrentPot` consomme directement `POT_EVENT(P,V)`, reconstruit `Pot@V` depuis WRITE **sans dépendre de la projection V−1**, conserve les `SubobjectVersion` immuables et avance `CurrentPot` de manière monotone. Une transaction READ unique écrit les sous-objets nouveaux, le remplacement conditionnel du pointeur courant et la suppression du slot. Les branches Balance et Visibility sont indépendantes.
+
+### Oracles et limites contractuelles
+
+- Pour chaque `POT_EVENT(P,V)`, reconstruire directement les valeurs et références de `Pot@V`, avec les versions locales attendues. L'événement contient `changedComponents`, pas une copie de tout le Pot ; il ne faut donc pas supposer que son payload suffise seul.
+- `SubobjectVersion(componentId,localVersion)` est immuable et idempotente : elle n'est ni modifiée, ni effacée lors d'une livraison tardive, d'une répétition ou de l'avancement du pointeur. Les versions nécessaires à l'historique restent stockées.
+- `CurrentPot(P)` ne recule jamais : mise à jour uniquement si `incomingVersion > storedVersion`, sous protection transactionnelle résistant à deux writers concurrents. Les références que porte le pointeur sont toutes celles de **la même version globale V**, sans mélange de V et V+1.
+- Si V+1 est matérialisée avant V, la livraison tardive de V doit **préserver ses sous-versions historiques**, même si la mise à jour CurrentPot(V) est ignorée.
+- Le commit de l'écriture READ et de la suppression du slot est indivisible ; rollback et réponse de commit perdue suivent CON-04/06.
+- **La disponibilité READ complète est séparée de PRJ-01** : CurrentPot peut pointer V tandis que certaines versions immuables référencées, venues d'autres événements, ne sont pas encore présentes, ou que `PotBalance(P,V)` n'est pas prête. Le lecteur ne doit pas présenter ce Pot comme complet ; oracle end-to-end de présence dans READ-01.
+- La conservation des `SubobjectVersion` **ne signifie pas** qu'une API de consultation historique arbitraire `Pot@V` est incluse en V3. Tester la persistance et la cohérence des données historiques, pas inventer une API historique.
+
+### Scénarios PostgreSQL déterministes
+
+| ID | Stimulus / ordre | Oracle de réussite |
+|---|---|---|
+| P01-A | Créer Pot V1 avec sous-objets version 1 puis matérialiser | CurrentPot(V1) avec références exactes ; chaque SubobjectVersion nécessaire présente et identique à Pot@V1 |
+| P01-B | Modifier un seul sous-objet : V2 globale, révision locale uniquement du composant concerné | CurrentPot(V2) lie les révisions locales correctes ; objets inchangés conservent leurs références/versions ; aucune révision locale artificielle |
+| P01-C | Mutation multi-cibles puis suppression logique d'Expense et suppression Pot | Un seul pointeur global par Pot ; états/suppressions et références exacts à chaque V ; versions immuables antérieures conservées |
+| P01-D | Matérialiser `POT_EVENT(V3)` avant `V1` et `V2` | CurrentPot ne descend pas sous V3 ; les arrivées tardives alimentent toutes les versions immuables attendues, sans écraser les données anciennes |
+| P01-E | Deux Workers matérialisent V et V+1 concurremment avec barrières au moment du remplacement | CurrentPot finit à max(V,V+1), avec références homogènes ; les deux ensembles de versions immuables conservés |
+| P01-F | Répéter une livraison déjà matérialisée ou une reprise après réponse de commit perdue | Aucun doublon ni mutation de version immuable ; slot/effets satisfaits une fois ; pointe courante inchangée ou avancée seulement |
+| P01-G | Injection d'échec après insertion de sous-objets mais avant écriture CurrentPot, puis après son écriture avant commit | Rollback intégral et slot intact ; aucune projection partielle durable |
+| P01-H | Injecter l'absence temporaire d'une SubobjectVersion référencée lors d'une arrivée hors ordre | CurrentPot peut avancer mais lecture complète refusée/temporairement indisponible jusqu'à présence de toutes les références nécessaires (READ-01) |
+| P01-I | Faire avancer CurrentPot V→V+1 pendant une lecture qui a capturé V | Réponse cohérente à la version V capturée ou indisponibilité explicite, jamais mélange de références de versions ; pas d'obligation d'API historique |
+| P01-J | Événement ancien réémis ou traitement concurrent pendant que CurrentPot pointe V+2 | Conservation immuable des anciennes versions ; aucune régression, aucune réécriture du pointeur courant |
+| P01-K | Deux Pots indépendants, événements/transactions entremêlés | Monotonie et références garanties **par Pot**, sans imposer de synchronisation globale entre Pots |
+| P01-L | Mesurer les reconstructions Pot@V et la résolution des composants, grand Pot et historique long | Mesures des requêtes, absence de N+1 pathologique, latence et allocations collectées ; comparaison aux budgets V3-5C, sans supposer une performance déjà atteinte |
+
+### Méthode et preuves
+
+JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrières de concurrence, injections de rollback). Capturer les snapshots WRITE de `Pot@V`, `changedComponents`, les références exactes de `CurrentPot`, les versions immuables persistées, le slot et l'issue des commits. Comparer à un oracle déterministe indépendant des projections READ, y compris pour les suppressions. Vérifier le contenu immuable, pas seulement le nombre de lignes.
+
+**PASS PRJ-01** : P01-A à P01-L satisfaits, pointeur courant monotone et atomique, références homogènes, anciennes versions conservées sous arrivée hors ordre, aucun effet partiel ou historique fabriqué. Les consultations complètes restent à certifier en READ-01 et les soldes en PRJ-02. Aucun test V3 n'a encore été implémenté ou exécuté.
