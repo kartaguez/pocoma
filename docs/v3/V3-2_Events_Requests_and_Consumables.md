@@ -87,3 +87,8 @@ Lors d'une Registration, les deux événements Identity et la complétion sont p
 **V3-5** : preuves de densité et ordre de visibilité sous concurrence/rollback ; deux familles avec mutation + complétion ; Registration multi-événements ; commandes sans effet/rejetées ; atomie en cas de crash/UNKNOWN ; absence de perte et reprise ; mesures SQL/charge réalistes ; pas de certification production héritée de V2.
 
 Les contrats précis des résultats terminalisés (payload par opération), les index/tables, la portée des IDs à l'échelle des familles et les mécanismes des workers restent à détailler sans ajouter d'abstraction inutile. **Aucune implémentation V3 n'est autorisée avant le jalon transverse V3-CADRE.**
+
+
+## Amendement V3-4 — sources internes READ (2026-10-23)
+
+Le catalogue initial des **six familles** concerne les demandes métier et les événements. Deux familles techniques supplémentaires, **internes à READ et burnables**, sont retenues : `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK`, chacune à statut `PENDING → TERMINAL` et avec une seule Consumption destinataire. Aucune nouvelle séquence globale d'événements n'est introduite. Pour chaque `POT_EVENT`, la Consumption de préparation produit atomiquement les deux tâches avec la suppression de son slot, dans READ. Chaque tâche est identifiée de façon stable par `(preparationConsumptionId,potEventId,taskType)` ; un rejeu indépendant crée une nouvelle Consumption de préparation et donc de nouvelles tâches, alors qu'une reconstruction de READ à blanc peut réutiliser les mêmes IDs après reset cohérent. Matérialisation, terminalisation et suppression du slot d'une tâche s'effectuent en une transaction READ. Ces contrats devront être prouvés en V3-5.
