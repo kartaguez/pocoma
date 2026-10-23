@@ -1483,3 +1483,7 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 **Campagne de charge ciblée :** nombreux clients produisant des requêtes HTTP simultanées ; mesurer les in-flight, mémoire, CPU, sessions et temps d'attente ; contrôler le refus rapide sans perte des Commands admises ni famine des Consumptions. Une admission commitée dont la réponse est perdue doit rester récupérable par sa clé d'idempotence.
 
 **Séparation des gates :** les valeurs 256 Kio/4 Kio/50 références/1 Mio du §13 restent **candidates à valider**, 100 cibles multi-Command non arbitré. 100 Shareholders / 2 000 Expenses sont un **profil de charge**, pas une borne métier. Aucune mesure V3 exécutée ni PASS revendiqué.
+
+## 47. S-01 — preuve de pagination de la liste de Pots (2026-10-23)
+
+**Décision adoptée V3-5E §18 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
