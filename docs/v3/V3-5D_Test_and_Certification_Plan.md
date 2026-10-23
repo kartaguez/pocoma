@@ -845,3 +845,74 @@ Combiner **JUnit/PostgreSQL** avec barrières pour les invariants de claims et d
 Les propriétés « aucune famine » et « pas de surcharge catastrophique » exigent des **oracles opératoires** : fenêtre et volume d'essai, borne de progression et seuil de coût par scénario devront être pré-enregistrés après étalonnage, sans transformer une mesure défavorable en PASS rétrospectif. La stabilité exige l'observation simultanée des débits terminalisés et du backlog (nombre et âge) ; une admission à 10/s ne démontre pas que le système les traite à 10/s.
 
 **PASS OPS-01** : O01-A à O01-N, équité et reprise démontrées, sélection utile sous backlog, coût de polling quantifié, métriques fiables et absence de saturation structurelle ; confirmation des SLO chiffrés renvoyée à PERF-01. Aucun test V3 exécuté.
+
+## 24. Protocole détaillé PERF-01 — campagnes de performance reproductibles
+
+**Statut : protocole de qualification proposé, non exécuté.** Les nombres de V3-5C sont des **SLO à prouver**, et non des résultats déjà observés. La campagne doit démontrer à la fois une réponse correcte/complète, une latence E2E mesurée et une capacité soutenable. Le seul débit des admissions HTTP ou la seule disparition des slots Command est insuffisant.
+
+### 24.1 Environnements, données et calendrier des campagnes
+
+- **Configuration A — moteur :** PostgreSQL dédié 4 vCPU/8 Go RAM ; runtimes/API/Workers sur machine dédiée 4 vCPU/8 Go RAM ; liaison locale. Générateurs k6 et supervision idéalement isolés. Authentification externe contrôlée, **contrôles d'autorisation Pocoma inchangés**. Fixer versions logicielles, PostgreSQL, mémoire, pools, schéma, nombre de partitions et Workers, quotas, paramètres Discovery/Engine, indices, WAL et journal de configuration avant toute campagne.
+- **Configuration B — intégrée :** même base, Keycloak réel sur ressources isolées. Campagnes ciblées OIDC/Registration/Link/Unlink, validation JWT et binding utilisable ; séparer acquisition d'un token OIDC et appels ordinaires avec token valide. Ne pas faire de renouvellement/login à chaque commande, sauf scénario explicite distinct.
+- **Pots :** petit 5 shareholders/20 expenses ; moyen 20/200 ; grand 100/2 000. **Volumes historiques distincts :** 100 Pots/10k événements ; 10k Pots/1M événements ; 100k Pots/10M événements. Les chiffres sont des profils de données, sans limite fonctionnelle implicite. Conserver jeu initial/seed, proportions d'opérations et versions. Mesurer historique long sur la base réellement peuplée, sans extrapoler à partir d'une table vide.
+- **Charge offerte en boucle ouverte** (`constant-arrival-rate` k6 ou équivalent, capacité suffisante de VUs) : 1/s nominal, 10/s soutenu, 50/s pointe. Enregistrer **itérations prévues, réellement déclenchées, admissions committées, commandes métier appliquées, rejets, erreurs et projections complètes**. Les `dropped_iterations` sont un échec de validité/capacité, pas une façon de réduire artificiellement le dénominateur.
+- **Profil mutations :** jeu reproductible couvrant création/modification/suppression, multi-cibles et révisions non financières ; pour chaque SLO de « nouvelle version du Pot », mesurer séparément les **commandes appliquées qui créent V**, sans les diluer avec no-op/rejets. Publier parallèlement les taux et latences de toutes les demandes. Ne pas favoriser artificiellement les commandes sans effet.
+
+### 24.2 SLO et scénarios maîtres
+
+| ID | Campagne | Offre / profil | Objectif contractuel |
+|---|---|---|---|
+| F01-A | Pot moyen nominal, indépendants | 1 commande/s, Pot 20/200, conf. A | **p95 ≤ 500 ms** admission durable → balances exactes disponibles et **p95 ≤ 500 ms** admission → Pot complet |
+| F01-B | Pot moyen soutenu, indépendants | 10 commandes/s, Pot 20/200, conf. A | **p95 ≤ 1 s** admission → Pot complet, **sans croissance continue** du backlog |
+| F01-C | Pointe répartie | 50 commandes/s, Pot 20/200, conf. A, fenêtre bornée puis retour nominal | **p95 ≤ 3 s** admission → Pot complet durant la pointe ; backlog temporaire accepté, résorption observée |
+| F01-D | Grand Pot nominal | 1 commande/s, Pot 100/2 000, conf. A, Pots indépendants | **p95 ≤ 2 s** admission → Pot complet |
+| F01-E | Identity nominale | Registration et Link, chacun avec échantillon distinct, conf. A | **p95 ≤ 500 ms** admission durable → première lecture réellement autorisée grâce au nouveau bindingToken |
+| F01-F | Keycloak intégré | Parcours API/OIDC/Identity ciblés, conf. B | Vérifier les contrats sécurité, quantifier l'écart A/B et les coûts OIDC séparément ; **pas de nouveau SLO chiffré B inventé** |
+| F01-G | Backlog de rattrapage | 10 000 commandes admises, travail dérivé à compléter ; redémarrer Workers à 1 nouvelle commande/s, conf. A | **≤ 5 min** jusqu'aux 10 000 commandes initiales terminales **et** toutes leurs projections requises prêtes |
+| F01-H | Contention même Pot | Commandes concurrentes sur un Pot, conf. A, avec périodes de contention et retour normal | Absence de double/perte/commit partiel, convergence, retries/rejets corrects, backlog résorbé ; **pas de SLO de latence chiffré** |
+| F01-I | Profils historiques et coût SQL | trois volumes historiques et plusieurs tailles de Pots | Mesurer amplification des requêtes, lignes lues, CPU/WAL/IO, latences et index/plans ; ne pas présenter de seuil implicite |
+| F01-J | Polling inactif puis première commande | moteur au repos puis travail isolé | Coût SQL/CPU/réveils à vide, réactivité Discovery/Engine et E2E ; diagnostiquer les attentes, sans nouvelle mécanique imposée |
+
+### 24.3 Durées et échantillons de qualification proposés
+
+Ces durées sont un **protocole initial à ratifier avant exécution**, non des objectifs métier nouveaux :
+
+| Campagne | Échauffement hors statistiques | Fenêtre évaluée | Volume offert indicatif |
+|---|---|---|---|
+| A nominal moyen et D grand | 3 min | **20 min chacune** | ~1 200 commandes/campagne |
+| B soutenu | 5 min | **15 min** | ~9 000 commandes |
+| C pointe | 5 min de base soutenue | **3 min à 50/s**, puis ≥ 10 min retour nominal | ~9 000 commandes offertes durant la pointe |
+| E Identity | 3 min | **20 min Registration et 20 min Link séparément** | ~1 200 de chaque opération |
+| F intégrée | 3 min | ≥ 10 min pour chaque parcours ciblé | nombre et débit documentés |
+| G rattrapage | Base préchargée, Workers stoppés | temps depuis redémarrage jusqu'au dernier jalon | 10 000 commandes historiques + 1/s nouvelles |
+| H contention | 3 min | ≥ 10 min de contention, puis drainage | répartition et parallélisme consignés |
+
+Répéter les campagnes comparables **au moins trois fois** avec données et environnement remis dans un état défini, rapporter chaque exécution séparément, et ne pas cacher un FAIL en moyennant plusieurs runs. Les tailles utiles concernent les **commandes effectivement appliquées et observables** : si moins de 300 mesures valides dans une population SLO, la campagne est **inconclusive**, non PASS, même si le p95 affiché paraît favorable. Documenter p50/p95/p99, nombre d'observations, bornes/variabilité et données brutes ; les campagnes de stabilité prolongée peuvent être ajoutées si 15 min ne suffisent pas à distinguer une dérive de backlog.
+
+### 24.4 Définition des mesures et oracle E2E
+
+1. **Départ temporel :** réponse d'admission HTTP confirmant la persistance durable, horodatée par un chrono monotone **côté client** ; enregistrer aussi la durée HTTP séparément. Le point de départ contractuel « admission » ne doit pas être confondu avec le début de l'envoi de la requête. Une commande refusée à l'admission n'appartient pas aux commandes appliquées.
+2. **Jalon Command :** retenir `requestId`, résultat terminal, `potId` et `resultingPotVersion=V`. Prouver que la commande a créé une nouvelle V, pas seulement reçu un résultat de succès sans effet.
+3. **Balance :** vérifier la disponibilité **exacte** de `PotBalance(P,V)` et son contenu conforme à l'oracle ; une Balance(P,V+1) ne prouve pas que V existe. S'il n'existe pas d'API exposant exactement cette disponibilité, employer un **oracle de test indépendant sur READ** (lecture SQL/sonde de qualification), documenté et non considéré comme une nouvelle API utilisateur.
+4. **Pot complet :** observer `CurrentPot(P)` ayant atteint au moins V, ses références nécessaires résolues, sa balance à la **version courante capturée** et `PotVisibilityState(P).materializedVersion ≥ V`. Si la version courante a avancé au-delà de V, vérifier distinctement la progression pour la commande V et **la complétude de la version courante observée** ; ne jamais affirmer qu'une API Pot@V historique est disponible.
+5. **Identity :** après résultat cible `targetVersion`, contrôler CurrentBinding à la version cible ou supérieure, puis **réaliser effectivement une lecture autorisée** avec EUI authentifiée et nouveau token. Utiliser un Pot de référence pré-matérialisé, sans mélanger délai Identity et attente d'un nouveau Pot. Si une version supérieure a immédiatement délié/relié l'EUI, cela ne prouve pas l'utilisation du token cible : isoler les EUI durant ce scénario.
+6. **Sondage :** cadence initiale proposée **25 ms** pour les sondes de qualification rapides, avec tolérance et coût mesurés. Le premier succès constitue une **borne supérieure observée**, pas la date exacte du commit. Limiter le nombre de sondes simultanées, isoler leur trafic et publier l'effet sur CPU/SQL ; si le sondage perturbe le système ou est insuffisamment précis face au SLO, campagne inconclusive et protocole à ajuster **avant** certification.
+7. **Timeouts/erreurs :** une commande admise dont le jalon n'est pas observé avant la fenêtre de suivi **ne disparaît jamais de l'échantillon**. La classer censurée/timeout et la compter contre le critère de disponibilité ; indiquer clairement que les percentiles des seuls succès ne suffisent pas à certifier le SLO. Rejeter les campagnes dont les pertes de mesures, l'horloge ou les dropped_iterations biaisent le calcul.
+
+### 24.5 Backlog, stabilité, instrumentation et capacité
+
+- **Préparation F01-G :** couper les Workers de traitement/Discovery pertinents tout en maintenant l'admission durable WRITE, puis créer et vérifier exactement 10 000 commandes historiques `PENDING` sur Pots indépendants. Après redémarrage, chacune engendrera les événements, deux tâches de projection et effets associés ; on ne suppose **pas** que ces travaux dérivés existent déjà au moment du redémarrage. Photographier le stock avant redémarrage.
+- **Fin F01-G :** les 10 000 requêtes initiales sont `TERMINAL`, chacune a son résultat terminal et ses projections attendues satisfaites, sans slots/Projection Tasks résiduels les concernant. L'arrivée de 1 nouvelle commande/s se poursuit durant la récupération et son impact est mesuré séparément. Une simple vidange des demandes ou slots ne suffit pas.
+- **Stabilité B :** séries temporelles de backlog **par Consumption**, âges de la plus ancienne source/slot, débit de complétion et projection E2E ; vérifier qu'aucune pente positive durable ne se cache derrière une moyenne finale. Décrire la régression et la fenêtre choisies avant exécution.
+- **Pointe C :** mesurer les latences **pendant** la fenêtre 50/s sans exclure les travaux achevés après son terme ; poursuivre les sondes jusqu'à complétion/timeout et vérifier le drainage après le retour nominal.
+- **Instrumentation :** valider avec des injections déterministes que chaque timer/counter mesure la bonne frontière : source→slot, slot éligible→acquisition, préparation, verrou final, commit, événements et branches CurrentPot/Result/Tasks/Balance/Visibility/CurrentBinding, rollback, retry et expiration. Histogrammes Prometheus exploitables ; aucune étiquette à forte cardinalité ni token dans les logs. Comparer distributions côté client et agrégats internes, **sans additionner les p95 de phases parallèles**.
+- **Ressources :** CPU, mémoire, pauses GC, latences SQL, nombre de lignes scannées, plans SQL, connexions/pools, attente/verrous, IO et WAL sur les deux machines ; conserver métriques et plans des phases coûteuses. Distinguer saturation PostgreSQL, moteur, injecteurs et Keycloak.
+- **Critères de verdict :** **PASS** seulement si tous les invariants métier/sécurité sont conservés, volume offert réellement tenu, populations et sondes valides, et SLO contractuels satisfaits **sur chaque campagne requise**. **FAIL** si seuil dépassé ou invariant violé ; **INCONCLUSIVE** si échantillons, visibilité des jalons, trafic de sondage ou environnement empêchent d'établir le verdict. Documenter toute limitation de mesure, sans déplacer rétrospectivement les seuils.
+
+### 24.6 Points à ratifier avant V3-CADRE et preuves à produire en V3-7
+
+Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répétitions et les modalités exactes de mesure de la visibilité complète sont des **propositions techniques à valider** ; le présent document ne les fait pas passer pour des arbitrages déjà acceptés par le porteur du projet. Fixer aussi la répartition des types de mutation, les paramètres de partition/Workers, les fenêtres de timeout et le contrôle d'identité des sondes.
+
+**Livrables de preuve attendus :** scripts k6 paramétrés, fixtures et seeds SQL/domaine, inventaire de versions/configuration matérielle, export brut des observations, rapports p50/p95/p99, séries backlog et âge par Consumption, traces des commits/erreurs/retries, métrologie PostgreSQL/Prometheus, profils CPU et verdict par scénario. Les scripts historiques k6 de V2 restent une référence d'organisation, jamais une preuve de conformité V3.
+
+**PASS PERF-01** nécessite F01-A à F01-J, tous les SLO chiffrés V3-5C correspondants, stabilité à 10/s, rattrapage en ≤ 5 minutes et qualification distincte de contention, avec métrologie fiable. Aucun benchmark V3 n'est réalisé à ce stade.
