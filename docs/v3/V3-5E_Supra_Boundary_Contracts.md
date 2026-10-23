@@ -51,3 +51,16 @@ Un Supra protège les frontières à partir **des paramètres présentés, de l'
 - Les seuils sont confrontés aux profils V3-5C (Pot moyen et grand Pot), aux coûts SQL et aux risques d'amplification.
 
 **Aucun code, DDL ni test V3 exécuté pour cette étape.**
+
+## 6. Arbitrage validé — lecture principale du Pot et collection Expenses (2026-10-23)
+
+**Décision conceptuelle :** la réponse principale d'un Pot contient **l'en-tête, la liste complète des Shareholders et leurs soldes exacts**, tous cohérents à la **même version globale V**. La liste détaillée des **Expenses est consultée séparément et paginée** ; le client n'a pas à charger toutes les Expenses pour afficher la situation financière du Pot.
+
+- **Lecture principale `Pot@V`** : métadonnées et version V, Shareholders dans leur état à V et soldes provenant exclusivement de `PotBalance(P,V)`. Aucune pagination des Shareholders/soldes en V3, **sous réserve de définir et tester une limite de taille compatible** avec les profils moyens/grands.
+- **Expenses** : collection paginée avec ordre stable, limites de page côté serveur et possibilité de demander les pages rattachées à **la même version V** que celle de la lecture principale. Ne pas composer silencieusement des pages provenant de versions différentes ; les références de versions locales nécessaires sont déjà historisées côté READ, mais la faisabilité complète (versions des affiliations/éligibilités et suppressions, contrôle d'accès à V) reste à éprouver.
+- **Accès et fraîcheur** : la lecture principale reste `minVersion` avec version courante complète ou indisponibilité explicite. La consultation paginée à V est **un contrat de collection versionnée**, pas une API générale de reconstruction historique `Pot@V` ; sa portée, son autorisation et sa durée de disponibilité doivent être précisées avant V3-CADRE.
+- **Bornage symétrique** : encadrer les tailles maximales de liste Shareholders, de page Expenses et le coût des scans, en restant compatible avec l'objectif de grand Pot (100 Shareholders, 2 000 Expenses). Aucun seuil chiffré n'est fixé par cet arbitrage.
+
+**Cas de certification :** Pot@V renvoie simultanément Shareholders@V et Balance(P,V), jamais un mix V/V+1 ; absence de Balance(P,V) interdit la lecture complète ; pagination de 2 000 Expenses sans réponse monolithique ; mutation V→V+1 entre pages, qui doivent rester liées à V ou échouer explicitement sans mix ; authorization contrôlée sans assimiler liste de navigation et droit de lecture.
+
+**Statut : structure de réponse VALIDÉE ; pagination versionnée, plafonds et sécurité des pages à préciser.** Aucun endpoint, SQL ou DTO imposé à cette étape.
