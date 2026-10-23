@@ -132,3 +132,24 @@ Pour un Pot à 2 000 Expenses, si chaque entrée de références versionnées oc
 5. Cohérence avec V3-3 : amendement formel à l'inventaire de projections (nouvelle projection logique `PotVersion`, `CurrentPot` simplifié), à PRJ-01/READ-01/SEC-01 et aux épreuves V3-5D **si cette option est adoptée**. Ne pas présenter ce changement comme déjà validé.
 
 **Statut : option prometteuse à comparer ; aucun nouveau Worker, projection ni DDL V3 approuvé/implémenté. V3-CADRE reste ouvert.**
+
+## 10. Décision — PotVersion immuable complet, stockage assumé ; archivage différé à étudier (2026-10-23)
+
+**ARBITRAGE VALIDÉ :** accepter explicitement le coût de stockage linéaire d'une projection **`PotVersion(P,V)` complète et immuable** à chaque version globale V du Pot. `CurrentPot(P)` devient un **pointeur mutable monotone** vers la version maximale matérialisée. Le manifeste de `PotVersion` contient les références versionnées de tous les composants, les listes de Shareholders et Expenses et les identités internes autorisées à lire cette version (dérivées des Shareholders), sans dupliquer les valeurs des sous-objets ni les balances. Le consentement/binding actif et l'AuthN sont toujours revérifiés à chaque requête, même si l'utilisateur figure dans le manifeste historique.
+
+**Même Consumption** `MaterializeCurrentPot`, avec insertion atomique de `PotVersion(P,V)` et des nouvelles sous-versions, avancée conditionnelle du pointeur et finalisation de son slot dans READ. Les tâches Balance et Visibility restent séparées et produisent tous leurs résultats. Les événements hors ordre n'entraînent ni écrasement de versions immuables ni recul de CurrentPot. Aucun mécanisme d'indirection ni Worker de factorisation n'est requis pour V3.
+
+**Effets sur les autres contrats :** la lecture principale du Pot assemble en-tête + Shareholders + Balance(P,V) et retourne la liste des références d'Expenses à V ; le client découpe cette liste et charge les sous-objets par lots bornés. Un `PotVersion` matérialisé n'implique pas que sa balance soit déjà disponible : lecture complète ou indisponibilité explicite. Le Supra vérifie l'appartenance des références fournies au manifeste à V et l'accès à V. V3-3, PRJ-01/READ-01/SEC-01 et les objectifs de tests sont à harmoniser avant clôture V3-5E.
+
+### Archivage des anciennes versions — opportunité, non décision d'implémentation
+
+**Piste approuvée à étudier :** après une durée configurable de **n heures**, déplacer du stockage READ chaud les `PotVersion` qui ne sont plus courantes. Ne jamais assimiler « archivé » à « supprimé » : les historiques utiles à la correction/reconstruction, les sous-versions et balances immuables ne peuvent être effacés sans politique séparée.
+
+**Questions à trancher avant toute activation :**
+1. Que garantit la consultation ouverte à V après passage à V+1 ? Un **contrat de durée minimale** (V consultable pendant n heures après remplacement) exige une heure de remplacement durable et une méthode de consultation de l'archive ; sinon le Supra doit retourner un état explicite « version archivée/non disponible », que l'UI traite par rafraîchissement.
+2. Comment éviter qu'une version soit archivée tandis qu'un chargement groupé de ses références est en cours ? Définir une barrière transactionnelle ou assurer la lecture de l'archive, sans sessions ni leases nouveaux si possible.
+3. Comment gérer l'ordre hors séquence ? Une vieille `PotVersion(P,V)` peut être matérialisée tardivement après que `CurrentPot` pointe V+k. L'âge pertinent de rétention ne peut être déduit naïvement de l'heure de l'événement ; ne pas archiver immédiatement une version tout juste matérialisée nécessaire à une consultation.
+4. Une reconstruction complète de READ (§38/39 V3-5D) doit conserver une source de vérité suffisante et une politique de reconstitution des archives ; ne pas confondre archivage de projections READ et purge des événements WRITE.
+5. Mesurer le coût réel de stockage chaud, de compression éventuelle et de restitution avant d'introduire un Worker/Consumption d'archivage supplémentaire. Première V3 **sans archivage automatique**, avec métriques pour décider plus tard.
+
+**Statut : PotVersion immuable complet VALIDÉ CONCEPTUELLEMENT ; archivage des versions obsolètes = piste ultérieure, non mécanisme introduit en V3.** V3-CADRE demeure ouvert.
