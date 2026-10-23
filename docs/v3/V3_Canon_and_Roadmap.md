@@ -253,3 +253,11 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **V3-5D amendée :** preuves PRJ-01, READ-01 et SEC-01 adaptées au manifeste et aux lectures groupées à V ; tests de coût de stockage et de transfert ajoutés. Voir [V3-5D §43](V3-5D_Test_and_Certification_Plan.md), commit `2f8a7c26`.
 
 **Suite V3-5E :** arbitrer limites d'admission, bornes de chargements groupés et erreurs de frontière. **Gate V3-CADRE toujours ouvert**, aucun runtime/DDL/test V3 exécuté.
+
+## Journal V3 — revue de couverture V3-5E (2026-10-23)
+
+**Revue menée, clôture NON PRONONCÉE.** L'inventaire de couverture Admission Command/Identity, résultats individuels, CurrentBinding, PotVersion, chargements groupés, liste des Pots, erreurs et surcharge est consigné en [V3-5E §17](V3-5E_Supra_Boundary_Contracts.md), commit `a352b68d`.
+
+**Deux arbitrages structurants subsistent :** (S-01) pagination de la liste mutable `CurrentUserPotList` sans snapshot et comportement sous concurrence ; (S-02) autorisation d'une version historique après retrait du Shareholder dans une version plus récente (SEC-01 actuel) ou révocation rétroactive par les droits courants. Les plafonds numériques restent à mesurer et ne doivent pas induire de bornes métier arbitraires.
+
+**V3-CADRE demeure OUVERT ; aucun code ni test V3 exécuté.**
