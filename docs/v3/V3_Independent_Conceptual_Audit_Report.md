@@ -512,6 +512,10 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 
 ---
 
+> **Suivi AUD-V3-013 (2026-10-24) — CLOS DOCUMENTAIREMENT, non certifié :** après AUD-V3-005 et AUD-V3-012, les constats de double reconstruction financière obligatoire et de tâches de projection sont obsolètes. Restent actifs les coûts structurels des compositions `PotVersion(P,V)` complètes, du recalcul des balances et du manifeste HTTP. Quatre arbitrages validés : (1) composition complète depuis WRITE@V avec chargement par lots des seules `SubobjectVersion` manquantes en READ, sans dépendance à V−1 et avec insertion idempotente/cohérente ; (2) `PotVersion` autonome et complète à chaque V, sans delta ni mutualisation structurelle ; (3) `PotBalance(P,V)` calculée intégralement pour chaque V active par lectures groupées sans N+1, sans cache durable ni calcul différentiel, et absente à D ; (4) manifeste HTTP complet, ordonné et versionné, détails par lots, optimisation transparente du transport possible sans troncature. Le Grand Pot nominal est soumis au budget **p95 ≤ 2 s**, à 1 commande/s sur configuration A, et **non** à 500 ms. Le SLO technique distinct du Pot moyen reste celui de SPEC-09. Aucun benchmark, code, DDL ni test V3 réalisé ; PERF-01, C-03 et la soutenabilité du stockage restent à prouver. Autorités normatives mises à jour : SPEC-04/05/06/09/10 et canon. Les recommandations initiales du présent rapport restent historiques lorsqu'elles divergent de ces arbitrages.
+
+---
+
 ## IV. Analyse de simplification
 
 Conformément à la règle d’or de la mission (*« refuser la complexité qui ne procure pas de garantie ou de valeur identifiable »*), voici trois simplifications architecturales concrètes qui réduisent drastiquement le nombre de concepts, de tables durables, de cycles de polling et de transactions SQL, tout en **conservant intégralement** les invariants métier, d’isolation et de concurrence de Pocoma V3.
