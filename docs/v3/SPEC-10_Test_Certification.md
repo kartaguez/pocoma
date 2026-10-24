@@ -1165,7 +1165,7 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 
 Certifier toutes les lignes de la matrice avec résultats vérifiables, conserver les protocoles distincts C-01 (consentement externe Link), C-02 (reconstruction READ exclusive), C-03 (jalons de latence), et les familles RCV01-A à N, F01-A à J, A10-A à K, A11-A à N. Aucun scénario fondé uniquement sur une ancienne Projection Task, un retry illimité ou l'absence de quarantaine n'est exigible. Les mesures V3 et tests restent à exécuter en V3-6/V3-7. Aucune implémentation réalisée par le présent changement.
 
-## INV-01 — Certification du parcours d'invitation (non exécutée)
+## 14. INV-01 — Certification du parcours d'invitation (non exécutée)
 
 - INV-A : création autorisée au seul créateur ; mutation WRITE + INVITATION_EVENT + complétion atomiques ; zéro POT_EVENT et version Pot inchangée.
 - INV-B : rejet sans événement métier ; CommandResult sans lien ; indépendance de matérialisation de CommandResult et CurrentInvitation.
