@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut actuel : V3-CADRE VALIDÉ — GO de cadrage conceptuel (2026-10-23) ; V3-6 AUTORISÉE pour la réalisation, sans certification ni activation.**  
+**Statut actuel : V3-CADRE conceptuellement arbitré ; GO historique du 2026-10-23, sans autorisation actuelle de réalisation. V3-6 reste SUSPENDUE jusqu'à décision explicite après la revue contradictoire ; aucune certification ni activation.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage et consolidation documentaire, sans certification ni activation.
