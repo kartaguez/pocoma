@@ -172,3 +172,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **Expiration de claim :** une expiration de bail, même suivie d'une réacquisition, n'est **pas** à elle seule un échec enregistré et ne modifie pas `attemptCount`. Une tentative sans issue durable connue ne peut consommer le budget par simple supposition. L'enregistrement de l'échec technique, son comptage et la transition conditionnelle vers `retryAfter` ou `QUARANTINED` doivent être protégés contre les écritures tardives d'un ancien `claimToken` et les doubles comptages. Le succès supprime le slot selon le protocole existant.
 
 **Restent à spécifier :** valeur/configuration de N, contrat d'erreurs et de cession durable en cas d'échec, cohérence exacte entre compteur et claim lors de races, comportement des dépendances causales et règles de purge. Aucun changement implémenté.
+
+## Complément AUD-V3-007-Q — indépendance des slots (2026-10-24)
+
+**Arbitrage validé : aucune dépendance d'exécution entre slots.** Une quarantaine ne bloque **aucun autre slot**, y compris pour le même Pot/EUI et pour une version ultérieure. Les Consumptions reconstituent les faits autoritatifs correspondant à leur version ; les projections immuables sont produites par version, les projections mutables appliquent des gardes monotones (notamment `PotVisibilityState` et `CurrentBinding`). Aucun ordonnancement causal ni graphe de dépendances n'est introduit dans Engine ou Discovery. Les mentions antérieures d'un blocage des « successeurs causalement dépendants » sont **supplantées**.
+
+**Distinction :** la possibilité de lire un Pot complet à V suppose que ses différentes projections nécessaires à V soient matérialisées, mais n'établit aucune dépendance d'exécution entre leurs slots. La quarantaine conserve son slot et l'absence de sa projection ; elle ne doit jamais être interprétée comme une complétion.
+
+**Point de certification :** vérifier, dans chaque Consumption y compris Command et IdentityRequest, l'absence effective de précondition « slot précédent terminé » et la correction des effets hors ordre. Cet arbitrage n'autorise pas à négliger les contrôles de cohérence/versions au moment de l'exécution.
