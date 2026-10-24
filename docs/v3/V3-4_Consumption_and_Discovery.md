@@ -139,10 +139,10 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 
 **Compromis assumé :** une étape et une latence de prise en charge supplémentaires contre un chemin d'admission minimal, découplé des aléas de Discovery et des contraintes des slots. Mesurer le délai admission→claim et le coût de sélection PENDING avant toute réouverture de cette décision.
 
-## Amendement post-audit AUD-V3-007 — softCap et quarantaine (2026-10-24)
+## Rectification AUD-V3-007 — aucune quarantaine en V3 (2026-10-24)
 
-**Arbitrage : défaut de progression confirmé et correction retenue.** Le plafond souple d'enrôlement par `(consumptionId,partitionId)` compte seulement les slots occupant une capacité de travail **hors quarantaine**, notamment prêts, réclamés et différés en retry. Les slots `QUARANTINED`, même conservés physiquement pour diagnostic, **sont exclus** du `COUNT` de `softCap` ; ne jamais utiliser `COUNT(*)` de tous les slots pour décider l'arrêt d'enrôlement.
+**RECTIFICATION NORMATIVE :** le précédent amendement AUD-V3-007 qui prétendait exclure `QUARANTINED` du softCap est **retiré** : ce statut n'existe pas dans le contrat V3. La règle de reprise établie plus haut prévaut : échecs techniques sans limite de tentatives, une exécution par acquisition, cession conditionnelle, `retryAfter` et nouvelle acquisition complète ; erreurs persistantes diagnostiquées sans terminalisation ni état supplémentaire. Le rapport indépendant a analysé un mécanisme de quarantaine étranger au modèle retenu.
 
-Une quarantaine peut bloquer les travaux **causalement dépendants du même Pot/EUI**, mais ne bloque pas la découverte ou l'exécution des autres agrégats de la partition. Le filtrage du softCap ne lève pas les protections de causalité ni les contraintes du checkpoint. Ce plafond est un mécanisme de régulation et non un oracle de correction.
+**softCap :** il borne le nombre de slots présents dans la partition, y compris ceux différés par `retryAfter`. Ne pas inventer un filtrage de statuts. Le risque d'une accumulation durable de slots avec erreurs persistantes reste une **question distincte de capacité et de progression** à éprouver sous charge, et ne justifie pas à lui seul une quarantaine.
 
-**Preuves :** remplir le softCap avec des slots quarantainés, vérifier que le checkpoint/discovery continue d'enrôler les agrégats indépendants ; mélanger READY/CLAIMED/retry différé/QUARANTINED ; vérifier que les dépendants du même agrégat ne contournent pas leur prédécesseur ; contrôler coûts et index du comptage. Aucun nouveau compteur durable ni nouveau type de slot.
+**AUD-V3-007 : constat fondé sur `QUARANTINED` NON APPLICABLE ; tests réels de non-famine et de capacité restent requis.**
