@@ -340,3 +340,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Arbitrage validé : Option B, trois Consumptions autonomes non-burnables sur `POT_EVENT(P,V)`.** `MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility` disposent chacune de Discovery + Engine, checkpoint, slots et retries ; elles peuvent tourner dans le même Worker physique. Aucun service de Discovery commun, aucune préparation qui charge WRITE et aucun objet `POT_BALANCE_TASK/POT_VISIBILITY_TASK` : six familles de sources V3 restent. Chaque projecteur lit seulement les données nécessaires à WRITE@V. La visibilité conserve `PotVisibilityState` comme garde de monotonie. Voir V3-2, V3-3 §13, V3-4 et V3-5D §52.
 
 **AUD-V3-005 : résolu conceptuellement, garanties d'exécution à prouver. AUD-V3-006 distinct, non tranché.** La réalisation V3-6 reste suspendue pendant l'audit contradictoire ; aucune implémentation ni test réalisé.
+
+## Journal post-audit — AUD-V3-006 rejeté (2026-10-24)
+
+**Arbitrage :** ne pas créer de slot dans la transaction HTTP d'admission d'une Command ou IdentityRequest. Admission = validation intrinsèque + idempotence + demande durable PENDING ; Discovery asynchrone enrôle ensuite les demandes PENDING sans slot. Objectif : limiter les écritures et la contention de l'admission. L'optimisation proposée par l'auditeur est rejetée ; la latence de prise en charge et le coût de Discovery sont à mesurer. Aucun code V3 exécuté.
