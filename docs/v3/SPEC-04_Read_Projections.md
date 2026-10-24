@@ -1,4 +1,4 @@
-# Pocoma SPEC-04 — READ et projections (nom de fichier V3-3 conservé jusqu'au renommage coordonné)
+# Pocoma SPEC-04 — READ et projections
 
 **Statut : contrat conceptuel consolidé AUD-V3-001/005/008/009/010/011 ; non implémenté, non certifié en V3.**  
 **Consolidation :** 2026-10-24. [Canon](V3_Canon_and_Roadmap.md).
@@ -45,7 +45,7 @@ Règle de visibilité métier pour un Pot actif : créateur immuable **ou** util
 
 
 
-`MaterializePotVisibility` calcule directement depuis WRITE@V la liste complète des utilisateurs visibles (créateur et rattachements Shareholders pour un Pot actif ; ensemble vide pour D). Sous verrou collectif `PotVisibilityState(P)`, elle compare uniquement les entrées actuellement visibles, écrit les entrées nouvelles et devenues invisibles et avance la version de visibilité seulement si V est supérieure à celle déjà matérialisée. Effets et suppression de slot sont atomiques ; aucun `PotVisibilityTask`. Voir [SPEC-05 provisoire](V3-4_Consumption_and_Discovery.md).
+`MaterializePotVisibility` calcule directement depuis WRITE@V la liste complète des utilisateurs visibles (créateur et rattachements Shareholders pour un Pot actif ; ensemble vide pour D). Sous verrou collectif `PotVisibilityState(P)`, elle compare uniquement les entrées actuellement visibles, écrit les entrées nouvelles et devenues invisibles et avance la version de visibilité seulement si V est supérieure à celle déjà matérialisée. Effets et suppression de slot sont atomiques ; aucun `PotVisibilityTask`. Voir [SPEC-05 provisoire](SPEC-05_Consumption_Discovery.md).
 
 ## 6. CurrentBinding et Identity
 
@@ -83,7 +83,7 @@ Les résultats peuvent être visibles avant la projection métier. Une Command r
 
 La lecture principale fige une version V, résout PotVersion(P,V), les Shareholders complets et PotBalance(P,V), puis fournit le manifeste **complet et ordonné** des références versionnées d'Expenses sans charger leurs détails. Ceux-ci sont obtenus par appels groupés bornés à V et autorisés individuellement sur la base du manifeste. La cohérence n'exige pas `PotVisibilityState.materializedVersion>=V`, qui ne conditionne pas la lecture du Pot.
 
-Pour une lecture courante, `minVersion` demande une réponse de version W≥V, sans garantir la persistance de l'effet d'une commande ultérieurement contredite ; un retard de projection autorisée ou de dépendances provoque l'indisponibilité temporaire. La lecture historique explicite à V<D reste permise selon SEC-01. L'autorisation et le choix des réponses HTTP relèvent exclusivement de [SPEC-06 provisoire](V3-5E_Supra_Boundary_Contracts.md). `CurrentUserPotList` est paginée par keyset potId croissant, sans snapshot inter-pages.
+Pour une lecture courante, `minVersion` demande une réponse de version W≥V, sans garantir la persistance de l'effet d'une commande ultérieurement contredite ; un retard de projection autorisée ou de dépendances provoque l'indisponibilité temporaire. La lecture historique explicite à V<D reste permise selon SEC-01. L'autorisation et le choix des réponses HTTP relèvent exclusivement de [SPEC-06 provisoire](SPEC-06_Supra_Contracts.md). `CurrentUserPotList` est paginée par keyset potId croissant, sans snapshot inter-pages.
 
 ## 10. DeletePot et version terminale
 
@@ -97,4 +97,4 @@ Cet amendement complète SEC-01 et supplante les passages historiques de §§1�
 
 ## 11. Reconstruction, coûts et preuves
 
-Les historiques PotVersion, SubobjectVersion et PotBalance sont conservés sans archivage ni purge automatique V3. Le coût d'un manifeste complet par V est assumé et doit être mesuré, notamment pour les grands Pots (AUD-V3-013), sans modifier la règle au titre du présent audit. Reconstruction READ : arrêt des writers, reset cohérent des projections, slots et checkpoints et rejeu conforme à C-02 en [SPEC-05 provisoire](V3-4_Consumption_and_Discovery.md). Preuves PRJ-01/02/03, READ-01, SEC-01, A10 et A11 en [SPEC-10 provisoire](V3-5D_Test_and_Certification_Plan.md).
+Les historiques PotVersion, SubobjectVersion et PotBalance sont conservés sans archivage ni purge automatique V3. Le coût d'un manifeste complet par V est assumé et doit être mesuré, notamment pour les grands Pots (AUD-V3-013), sans modifier la règle au titre du présent audit. Reconstruction READ : arrêt des writers, reset cohérent des projections, slots et checkpoints et rejeu conforme à C-02 en [SPEC-05 provisoire](SPEC-05_Consumption_Discovery.md). Preuves PRJ-01/02/03, READ-01, SEC-01, A10 et A11 en [SPEC-10 provisoire](SPEC-10_Test_Certification.md).

@@ -1,7 +1,7 @@
 # Pocoma SPEC-08 — Observabilité
 
 **Statut : contrat conceptuel O-01 validé, non implémenté ni mesuré en V3.**
-**Date :** 2026-10-23. **Canon :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md). **Exigences :** [V3-5A](V3-5A_Global_Review_and_Requirements.md).
+**Date :** 2026-10-23. **Canon :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md). **Exigences :** [V3-5A](SPEC-07_Transverse_Requirements.md).
 
 ## 1. Inventaire de l'existant — réemploi, sans preuve de disponibilité V3
 

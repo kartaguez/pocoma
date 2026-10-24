@@ -1,7 +1,7 @@
-# Pocoma V3-4 — Consumption, Discovery et Engine
+# Pocoma SPEC-05 — Consumption et Discovery
 
 **Statut : EN CONCEPTION — consolidation des arbitrages conversationnels, revue critique ouverte ; non implémenté et non certifié.**
-**Référence :** [Canon et feuille de route](V3_Canon_and_Roadmap.md), [V3-2](V3-2_Events_Requests_and_Consumables.md), [V3-3](V3-3_Read_and_Projections.md).
+**Référence :** [Canon et feuille de route](V3_Canon_and_Roadmap.md), [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md).
 **Règle d'or :** chaque mécanisme supplémentaire exige un invariant concret.
 
 ## 1. Identité et composition
@@ -76,10 +76,10 @@ Seule une action administrative explicite et atomique sur le même slot QUARANTI
 
 Chacun des `POT_EVENT(P,V)` déclenche trois Consumptions non-burnables distinctes, chacune avec Discovery, checkpoint, slots, Engine, fencing et transaction READ propres : `MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility`. Aucun `PreparePotProjectionTasks`, aucune tâche intermédiaire ou orchestration centrale. Le même Worker physique peut héberger ces traitements, sans les coupler.
 
-Chaque Consumption lit les faits autoritatifs correspondant à V depuis WRITE et calcule ses propres effets ; `MaterializePotVisibility` utilise la garde collective transactionnelle `PotVisibilityState(P)` pour appliquer les différences monotones, sans reculer sur des événements arrivant hors ordre ; `MaterializePotBalance` calcule les soldes complets de chaque version active et considère D terminale comme un succès sans insertion Balance(D) ; `MaterializePotVersion` conserve les versions immuables et avance conditionnellement le pointeur. Les contrats détaillés des projections relèvent de [V3-3](V3-3_Read_and_Projections.md).
+Chaque Consumption lit les faits autoritatifs correspondant à V depuis WRITE et calcule ses propres effets ; `MaterializePotVisibility` utilise la garde collective transactionnelle `PotVisibilityState(P)` pour appliquer les différences monotones, sans reculer sur des événements arrivant hors ordre ; `MaterializePotBalance` calcule les soldes complets de chaque version active et considère D terminale comme un succès sans insertion Balance(D) ; `MaterializePotVersion` conserve les versions immuables et avance conditionnellement le pointeur. Les contrats détaillés des projections relèvent de [V3-3](SPEC-04_Read_Projections.md).
 
 ## 9. Reconstruction et vérification
 
 La reconstruction READ totale implique indisponibilité contrôlée, arrêt effectif des writers READ, reset coordonné des projections, slots et checkpoints, puis reprise des mêmes IDs de Consumption et rejeu avant disponibilité READY selon C-02. Un rejeu indépendant utilise un nouvel ID. Ne jamais restaurer un checkpoint sans les effets et slots qui le justifient.
 
-Restent à certifier (et non à arbitrer une seconde fois) : horloge PostgreSQL au verrou final, takeover concurrent, absence de deadlock, conflit de borne sûre, transaction physique, rattrapage sans famine, coût SQL, crashs et quarantaine. Voir [V3-5D](V3-5D_Test_and_Certification_Plan.md), CON-01 à CON-06, REC-01 et OPS-01. Aucun code, DDL ou test V3 exécuté.
+Restent à certifier (et non à arbitrer une seconde fois) : horloge PostgreSQL au verrou final, takeover concurrent, absence de deadlock, conflit de borne sûre, transaction physique, rattrapage sans famine, coût SQL, crashs et quarantaine. Voir [V3-5D](SPEC-10_Test_Certification.md), CON-01 à CON-06, REC-01 et OPS-01. Aucun code, DDL ou test V3 exécuté.

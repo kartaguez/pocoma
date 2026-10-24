@@ -1,4 +1,4 @@
-# Pocoma SPEC-06 — Contrats des Supras (nom V3-5E conservé avant renommage coordonné)
+# Pocoma SPEC-06 — Contrats des Supras
 
 **Statut : contrats conceptuels consolidés, non implémentés ni certifiés en V3.**  
 **Consolidation :** 2026-10-24. [Canon](V3_Canon_and_Roadmap.md).
@@ -161,4 +161,4 @@ Contrôles transport/configuration : octets bruts et décompressés, profondeur 
 
 ## 12. Garanties, paramètres et qualification
 
-Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10 provisoire](V3-5D_Test_and_Certification_Plan.md).
+Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10 provisoire](SPEC-10_Test_Certification.md).

@@ -1,4 +1,4 @@
-# Pocoma SPEC-07 — Exigences transversales (nom physique V3-5A conservé provisoirement)
+# Pocoma SPEC-07 — Exigences transversales
 
 **Statut : consolidation conceptuelle AUD-V3-012, non certifiée.**
 

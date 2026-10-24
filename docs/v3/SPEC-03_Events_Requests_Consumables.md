@@ -1,8 +1,8 @@
-# Pocoma V3-2 — Événements, demandes et consommables
+# Pocoma SPEC-03 — Événements, demandes et consommables
 
 **Statut : contrat conceptuel consolidé (AUD-V3-005/010) ; réalisation et certification V3 non exécutées.**  
 **Date :** 2026-10-22. **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).  
-**Fondations :** [Pot V3-1](V3-1_Domain_and_Versioning.md) et [Identity V3-1](V3-1_Identity_Domain_and_Versioning.md).
+**Fondations :** [Pot V3-1](SPEC-01_Pot_Domain.md) et [Identity V3-1](SPEC-02_Identity_Domain.md).
 
 ## 1. Frontières et principes
 
@@ -82,10 +82,10 @@ Lors d'une Registration, les deux événements Identity et la complétion sont p
 
 Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions directes : `MaterializePotVersion` (composition historique, sous-objets et pointeur courant), `MaterializePotBalance` (balance exacte et immuable à V pour une version active ; traitement terminal sans Balance(D) pour DeletePot) et `MaterializePotVisibility` (état de visibilité et navigation). Chaque Consumption dispose de son propre Discovery, de ses slots et checkpoints ; aucune tâche préparatoire, dépendance de slot ou séquence supplémentaire.
 
-`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; un événement de création de PocomaUser n'impose aucune projection Identity inverse. Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](V3-3_Read_and_Projections.md) pour les projections et [V3-4](V3-4_Consumption_and_Discovery.md) pour l'exécution, l'atomicité et la reprise.
+`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; un événement de création de PocomaUser n'impose aucune projection Identity inverse. Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](SPEC-04_Read_Projections.md) pour les projections et [V3-4](SPEC-05_Consumption_Discovery.md) pour l'exécution, l'atomicité et la reprise.
 
 ## 8. Garanties et qualification restantes
 
 Les six familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
 
-La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](V3-5D_Test_and_Certification_Plan.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.
+La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](SPEC-10_Test_Certification.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.

@@ -1,4 +1,4 @@
-# Pocoma SPEC-10 — Tests et certification (ancien V3-5D jusqu'au renommage coordonné)
+# Pocoma SPEC-10 — Tests et certification
 
 **Statut : protocoles normatifs définis, AUCUN test V3 exécuté ni PASS revendiqué.**  
 **Consolidation :** 2026-10-24. Les décisions finales AUD-V3-001 à AUD-V3-011 prévalent ; une exigence abandonnée n'est pas réintroduite par un scénario historique.
@@ -1113,7 +1113,7 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 
 ### ADM-01 — Contrôle d'entrée
 
-Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
+Contrat candidat : [V3-5E §12](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
 
 **Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
 

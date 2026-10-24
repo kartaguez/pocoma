@@ -6,16 +6,16 @@
 * **SHA exact du `HEAD` audité** : `7438b94de49fe368c417466b77abf87659f9f7d2`
 * **Corpus normatif audité (`docs/v3/`)** :
   * [V3_Canon_and_Roadmap.md](./V3_Canon_and_Roadmap.md)
-  * [V3-1_Domain_and_Versioning.md](./V3-1_Domain_and_Versioning.md)
-  * [V3-1_Identity_Domain_and_Versioning.md](./V3-1_Identity_Domain_and_Versioning.md)
-  * [V3-2_Events_Requests_and_Consumables.md](./V3-2_Events_Requests_and_Consumables.md)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md)
-  * [V3-4_Consumption_and_Discovery.md](./V3-4_Consumption_and_Discovery.md)
-  * [V3-5A_Global_Review_and_Requirements.md](./V3-5A_Global_Review_and_Requirements.md)
-  * [V3-5B_Observability_Contract.md](./V3-5B_Observability_Contract.md)
-  * [V3-5C_Performance_Objectives.md](./V3-5C_Performance_Objectives.md)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md)
+  * [SPEC-01_Pot_Domain.md](./SPEC-01_Pot_Domain.md)
+  * [SPEC-02_Identity_Domain.md](./SPEC-02_Identity_Domain.md)
+  * [SPEC-03_Events_Requests_Consumables.md](./SPEC-03_Events_Requests_Consumables.md)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md)
+  * [SPEC-05_Consumption_Discovery.md](./SPEC-05_Consumption_Discovery.md)
+  * [SPEC-07_Transverse_Requirements.md](./SPEC-07_Transverse_Requirements.md)
+  * [SPEC-08_Observability.md](./SPEC-08_Observability.md)
+  * [SPEC-09_Performance.md](./SPEC-09_Performance.md)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md)
 
 ---
 
@@ -111,10 +111,10 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Bloquant**
 * **Nature** : Contradiction documentaire / Trou fonctionnel et de sécurité (WRITE & READ)
 * **Localisation** :
-  * [V3-1_Domain_and_Versioning.md](./V3-1_Domain_and_Versioning.md) (§1 l.14, l.22 ; §5 l.67 ; §6 l.80-81)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§4 l.43 ; §9 l.107, l.110 ; §10 l.120-122)
-  * [V3-5C_Performance_Objectives.md](./V3-5C_Performance_Objectives.md) (§7 `C-03` l.67-71)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§20 l.683, l.697 ; §43 l.1455)
+  * [SPEC-01_Pot_Domain.md](./SPEC-01_Pot_Domain.md) (§1 l.14, l.22 ; §5 l.67 ; §6 l.80-81)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§4 l.43 ; §9 l.107, l.110 ; §10 l.120-122)
+  * [SPEC-09_Performance.md](./SPEC-09_Performance.md) (§7 `C-03` l.67-71)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§20 l.683, l.697 ; §43 l.1455)
 * **Constat** :
   1. En WRITE, `V3-1` (§1 l.22) stipule que *« `PotDetails.creatorId` peut différer de tout Shareholder »* et montre dans son scénario canonique (§6 l.80-81) qu’à `V1` (création du Pot), seuls `PotHeader h1` et `PotDetails d1` sont créés, sans aucun `Shareholder` (les `Shareholders` `S1, S2` sont ajoutés à `V2`).
   2. En READ, `V3-3` (§4 l.43) stipule que dans `CurrentUserPotList`, un Pot actif est visible pour le *« créateur immuable **ou** utilisateur associé à au moins un Shareholder »*.
@@ -145,11 +145,11 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Défaut fonctionnel / Règle métier WRITE placée dans READ et créant un blocage d’usage
 * **Localisation** :
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§4 l.47)
-  * [V3-1_Domain_and_Versioning.md](./V3-1_Domain_and_Versioning.md) (§1 l.16 ; §5 l.58-59)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§25 `DOM-01`, §26 `DOM-02`)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§4 l.47)
+  * [SPEC-01_Pot_Domain.md](./SPEC-01_Pot_Domain.md) (§1 l.16 ; §5 l.58-59)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§25 `DOM-01`, §26 `DOM-02`)
 * **Constat** :
-  Dans [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§4 l.47), au milieu de la description de `CurrentUserPotList`, figure une règle critique du domaine WRITE qui est totalement absente de `V3-1` et de `V3-5D` :
+  Dans [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§4 l.47), au milieu de la description de `CurrentUserPotList`, figure une règle critique du domaine WRITE qui est totalement absente de `V3-1` et de `V3-5D` :
   > *« Consentement : seul l'utilisateur lui-même peut rattacher son `PocomaUser` à un Shareholder ; lui-même ou une autorité Pot adéquate peut le détacher. Le domaine Pot porte `ShareholderDetails.userId` mais l'API de commande ne permet pas de fournir arbitrairement un autre `PocomaUserId`. Identité de l'auteur résolue à l'exécution depuis EUI + bindingToken vérifié. »*
 * **Scénario ou contre-exemple** :
   Supposons qu’Alice crée un Pot `P` (elle se rattache à `S1`) et crée un second participant `S2` ("Bob", `userId = null`) à `V2`. Comment Bob (`U_Bob`) peut-il rattacher son `PocomaUser` à `S2` ?
@@ -174,8 +174,8 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Défaut de concurrence / Invariant métier incomplet
 * **Localisation** :
-  * [V3-1_Domain_and_Versioning.md](./V3-1_Domain_and_Versioning.md) (§3 l.36-39 ; §4 l.51 ; §5 l.55-71)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§26 l.944-970 : table et cas `D02-B` à `D02-F`)
+  * [SPEC-01_Pot_Domain.md](./SPEC-01_Pot_Domain.md) (§3 l.36-39 ; §4 l.51 ; §5 l.55-71)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§26 l.944-970 : table et cas `D02-B` à `D02-F`)
 * **Constat** :
   La table des préconditions de concurrence de `V3-1` (§5 l.55-66) et `V3-5D` (§26 l.944-955) présente trois lacunes :
   1. **Changement concurrent de `ShareholderDetails` lors d’une création ou modification financière d’`Expense`** :
@@ -208,9 +208,9 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Ambiguïté algorithmique / Preuve de progression et de non-perte incomplète
 * **Localisation** :
-  * [V3-2_Events_Requests_and_Consumables.md](./V3-2_Events_Requests_and_Consumables.md) (§5 l.54-60)
-  * [V3-4_Consumption_and_Discovery.md](./V3-4_Consumption_and_Discovery.md) (§2 l.19, l.23)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§6 `EVT-01` l.94-115 ; §9 `CON-01` l.202, l.235)
+  * [SPEC-03_Events_Requests_Consumables.md](./SPEC-03_Events_Requests_Consumables.md) (§5 l.54-60)
+  * [SPEC-05_Consumption_Discovery.md](./SPEC-05_Consumption_Discovery.md) (§2 l.19, l.23)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§6 `EVT-01` l.94-115 ; §9 `CON-01` l.202, l.235)
 * **Constat** :
   `V3-2` (§5 l.56-59) et `V3-5D` (§6 `E01-B` l.99) prescrivent que `sequencePosition` est allouée via des **compteurs transactionnels dont le verrou est retenu jusqu’à la résolution physique (commit/rollback) de la transaction** : *« Tant que T1 n'est pas résolue, T2 attend et n'obtient pas `N+1` avant la résolution de T1 »*.
   Pourtant, `V3-4` (§2 l.19) et `V3-5D` (§9 l.202, l.235) parlent d’une « borne sûre `H` » dont *« le contrat ne prescrit pas encore la construction SQL »* pour éviter qu’une position plus haute `N+1` soit visible avant `N`.
@@ -240,10 +240,10 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Complexité évitable / Redondance d’états durables et pénalité de latence/stockage
 * **Localisation** :
-  * [V3-2_Events_Requests_and_Consumables.md](./V3-2_Events_Requests_and_Consumables.md) (§Amendement V3-4 l.92-94)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§7 l.65-82 ; §9 l.109-112)
-  * [V3-4_Consumption_and_Discovery.md](./V3-4_Consumption_and_Discovery.md) (§2 l.21 ; §6 R1 l.61, R8 l.75 ; §8 l.94)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§16 l.517)
+  * [SPEC-03_Events_Requests_Consumables.md](./SPEC-03_Events_Requests_Consumables.md) (§Amendement V3-4 l.92-94)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§7 l.65-82 ; §9 l.109-112)
+  * [SPEC-05_Consumption_Discovery.md](./SPEC-05_Consumption_Discovery.md) (§2 l.21 ; §6 R1 l.61, R8 l.75 ; §8 l.94)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§16 l.517)
 * **Constat** :
   Au nom de la règle R8 de `V3-4` (*« chaque Consumption produit un seul effet conceptuel »*), le traitement READ d’un `POT_EVENT(P,V)` a été découpé en **4 Consumptions, 3 familles de consommables et 2 étages de Discovery** :
   1. `MaterializeCurrentPot` consomme `POT_EVENT(P,V)`, reconstruit `Pot@V` depuis WRITE, et écrit `SubobjectVersion`, `PotVersion(P,V)` et `CurrentPot(P)`.
@@ -275,9 +275,9 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Complexité évitable / Latence et coût SQL PostgreSQL inutiles
 * **Localisation** :
-  * [V3-2_Events_Requests_and_Consumables.md](./V3-2_Events_Requests_and_Consumables.md) (§2 l.19-21 ; §3 l.31-37)
-  * [V3-4_Consumption_and_Discovery.md](./V3-4_Consumption_and_Discovery.md) (§2 l.21 ; §3 l.32-39 ; §4 l.42)
-  * [V3-5B_Observability_Contract.md](./V3-5B_Observability_Contract.md) (§2 l.29-31 : jalons `T1` et `T2`)
+  * [SPEC-03_Events_Requests_Consumables.md](./SPEC-03_Events_Requests_Consumables.md) (§2 l.19-21 ; §3 l.31-37)
+  * [SPEC-05_Consumption_Discovery.md](./SPEC-05_Consumption_Discovery.md) (§2 l.21 ; §3 l.32-39 ; §4 l.42)
+  * [SPEC-08_Observability.md](./SPEC-08_Observability.md) (§2 l.29-31 : jalons `T1` et `T2`)
 * **Constat** :
   Pour les demandes burnables (`COMMAND`, `IDENTITY_REQUEST`), la demande durable (`status = 'PENDING'`) et son `Slot` résident **dans la même base de données WRITE**, et chaque demande a **une seule et unique `Consumption` cible connue dès l’admission**.
   Or, `V3-4` (§2 l.21) impose qu’après l’insertion transactionnelle de la demande `PENDING` à l’admission (`T1`), un composant `Discovery` séparé scrute périodiquement la table des demandes (`WHERE status = 'PENDING' AND NOT EXISTS (SELECT 1 FROM slots ...)` et filtré par `partitionId`) pour créer le slot à `T2`, avant qu’un worker `Engine` puisse enfin l’acquérir à `T3`.
@@ -300,8 +300,8 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Cas limite algorithmique / Risque de famine ou d’arrêt de progression par partition
 * **Localisation** :
-  * [V3-4_Consumption_and_Discovery.md](./V3-4_Consumption_and_Discovery.md) (§2 l.23)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§9 l.204, `C01-G` l.222 ; §12 l.327, `C04-F` l.342)
+  * [SPEC-05_Consumption_Discovery.md](./SPEC-05_Consumption_Discovery.md) (§2 l.23)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§9 l.204, `C01-G` l.222 ; §12 l.327, `C04-F` l.342)
 * **Constat** :
   `V3-4` (§2 l.23) définit un *« plafond souple de slots présents par `(consumptionId, partitionId)`, mesuré par simple `COUNT` »*.
   En parallèle, `V3-5D` (§12 l.327) stipule que les slots `QUARANTINED` **restent présents dans la table des slots** (pour conserver l’historique d’échec et bloquer uniquement les travaux dépendant causalement de ce même Pot/EUI, sans bloquer les autres Pots/EUI partageant la même partition `hash(potId)`).
@@ -326,9 +326,9 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Faisabilité technique / Contradiction entre documents (`V3-3` vs `V3-5D`)
 * **Localisation** :
-  * [V3-1_Identity_Domain_and_Versioning.md](./V3-1_Identity_Domain_and_Versioning.md) (§4 l.38-45 ; §Amendement l.85)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§1 l.14 ; §5 l.50)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§§32-37 l.1200-1329)
+  * [SPEC-02_Identity_Domain.md](./SPEC-02_Identity_Domain.md) (§4 l.38-45 ; §Amendement l.85)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§1 l.14 ; §5 l.50)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§§32-37 l.1200-1329)
   * [V3_Canon_and_Roadmap.md](./V3_Canon_and_Roadmap.md) (§12 Risque `R-01` l.299)
 * **Constat** :
   Les amendements §§36–37 de `V3-5D` (`C-01` final) imposent que pour `Link(E1 -> E2)` :
@@ -358,10 +358,10 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Trou fonctionnel et de sécurité sur le contrat de lecture de `CurrentBinding`
 * **Localisation** :
-  * [V3-1_Identity_Domain_and_Versioning.md](./V3-1_Identity_Domain_and_Versioning.md) (§2 l.16 ; §5 l.51 ; §Amendement l.90)
-  * [V3-2_Events_Requests_and_Consumables.md](./V3-2_Events_Requests_and_Consumables.md) (§4 l.43)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§2 l.23, l.25 ; §5 l.50-53 ; §6 l.59)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md) (§17 l.302)
+  * [SPEC-02_Identity_Domain.md](./SPEC-02_Identity_Domain.md) (§2 l.16 ; §5 l.51 ; §Amendement l.90)
+  * [SPEC-03_Events_Requests_Consumables.md](./SPEC-03_Events_Requests_Consumables.md) (§4 l.43)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§2 l.23, l.25 ; §5 l.50-53 ; §6 l.59)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md) (§17 l.302)
 * **Constat** :
   1. Le nouveau `bindingToken` créé lors d’un `Registration` ou d’un `Link` ne figure ni dans `IDENTITY_EVENT` (`V3-2` §4 l.43 : *« pas de `bindingToken` dans l’événement partagé »*), ni dans `IdentityRequestResult` (`V3-3` §2 l.25 : ne contient que `(requestId, issue, targetEuiId, targetEuiVersion)`).
   2. Question 1 : **Comment `CurrentBinding` en READ connaît-il le `bindingToken` si `IDENTITY_EVENT` ne le contient pas ?**
@@ -394,8 +394,8 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Faille de sécurité potentielle (IDOR / fuite d’existence) et contrat HTTP incomplet
 * **Localisation** :
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§2 l.24-25 ; §5 l.53 ; §6 l.56-62)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md) (§13 l.210 ; §14 l.234 ; §17 l.298)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§2 l.24-25 ; §5 l.53 ; §6 l.56-62)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md) (§13 l.210 ; §14 l.234 ; §17 l.298)
 * **Constat** :
   1. Dans `V3-3` (§2 l.24-25), `CommandResult` contient uniquement `(requestId, issue, potId, resultingPotVersion)` et `IdentityRequestResult` contient uniquement `(requestId, issue, targetEuiId, targetEuiVersion)`. Aucun des deux ne stocke l’identité du demandeur (`requesterPocomaUserId` ou `requesterEuiId`) !
   2. Dans `V3-5E` (§17 l.298), la table de revue signale explicitement que le contrat de lecture de `CommandResult` et `IdentityRequestResult` (*« contrat HTTP quand résultat pas encore matérialisé, sans fuite d'existence »*) est *« À préciser avant clôture »*, mais les §§18–21 ont clôturé `V3-5E` sans jamais le trancher !
@@ -420,10 +420,10 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Majeur**
 * **Nature** : Ambiguïté fonctionnelle et risque de fuite d’existence (`503` avant `404`)
 * **Localisation** :
-  * [V3-1_Domain_and_Versioning.md](./V3-1_Domain_and_Versioning.md) (§3 l.37, l.39 ; §6 l.88-90)
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§3 l.33 ; §4 l.43 ; §9 l.107-111)
-  * [V3-5C_Performance_Objectives.md](./V3-5C_Performance_Objectives.md) (§7 `C-03` l.67-71)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md) (§13 l.208-211 ; §14 l.234-239 ; §17 `S-02` l.309)
+  * [SPEC-01_Pot_Domain.md](./SPEC-01_Pot_Domain.md) (§3 l.37, l.39 ; §6 l.88-90)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§3 l.33 ; §4 l.43 ; §9 l.107-111)
+  * [SPEC-09_Performance.md](./SPEC-09_Performance.md) (§7 `C-03` l.67-71)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md) (§13 l.208-211 ; §14 l.234-239 ; §17 `S-02` l.309)
 * **Constat** :
   1. **Comportement de lecture d’un Pot supprimé (`PotHeader.deleted = true`)** :
      * `V3-3` (§3 l.33) indique que le Pot courant porte l’« indicateur supprimé », et `V3-3` (§4 l.43) indique : *« Pot supprimé : invisible pour tous »* dans `CurrentUserPotList`.
@@ -455,9 +455,9 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Mineur** (mais **Majeur pour la lisibilité d’implémentation**)
 * **Nature** : Contradictions internes par empilement d’amendements sans nettoyage des sections remplacées
 * **Localisation** :
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§§1–3 l.14-35 vs §§9–10 l.96-125)
-  * [V3-5D_Test_and_Certification_Plan.md](./V3-5D_Test_and_Certification_Plan.md) (§5 l.46, §15 l.478, §19 l.636, §20 l.675, §24.2 l.847, §24.4 l.879, §30 l.1117, §§31–35 l.1178-1283 vs §§36–49 l.1285-1501)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md) (§§6–8 l.55-97 ; double `## 17.` à l.286 et l.320 ; collision d’identifiant `S-02` à l.309 et l.343)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§§1–3 l.14-35 vs §§9–10 l.96-125)
+  * [SPEC-10_Test_Certification.md](./SPEC-10_Test_Certification.md) (§5 l.46, §15 l.478, §19 l.636, §20 l.675, §24.2 l.847, §24.4 l.879, §30 l.1117, §§31–35 l.1178-1283 vs §§36–49 l.1285-1501)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md) (§§6–8 l.55-97 ; double `## 17.` à l.286 et l.320 ; collision d’identifiant `S-02` à l.309 et l.343)
 * **Constat** :
   Les documents ont été amendés par ajout de sections en fin de fichier sans mise à jour des sections initiales, ce qui laisse des instructions contradictoires dans un même fichier :
   1. **Dans `V3-3`** :
@@ -488,9 +488,9 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 * **Sévérité** : **Mineur**
 * **Nature** : Risque de performance et de dimensionnement (`PERF-01` / `PERF-02`)
 * **Localisation** :
-  * [V3-3_Read_and_Projections.md](./V3-3_Read_and_Projections.md) (§9 l.99-115)
-  * [V3-5C_Performance_Objectives.md](./V3-5C_Performance_Objectives.md) (§5 l.43, l.55)
-  * [V3-5E_Supra_Boundary_Contracts.md](./V3-5E_Supra_Boundary_Contracts.md) (§9 l.113 ; §17 `S-02` l.343 ; §19 l.370)
+  * [SPEC-04_Read_Projections.md](./SPEC-04_Read_Projections.md) (§9 l.99-115)
+  * [SPEC-09_Performance.md](./SPEC-09_Performance.md) (§5 l.43, l.55)
+  * [SPEC-06_Supra_Contracts.md](./SPEC-06_Supra_Contracts.md) (§9 l.113 ; §17 `S-02` l.343 ; §19 l.370)
 * **Constat** :
   Sur un « Grand Pot » au sens de `V3-5C` (§5 l.43 : 100 Shareholders, 2 000 Expenses, jusqu’à 100 parts par Expense, soit jusqu’à 200 000 lignes de parts actives) :
   1. **À chaque mutation du Pot (même un simple renommage du Pot ou d’un libellé d’Expense)** :

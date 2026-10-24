@@ -1,4 +1,4 @@
-# Pocoma SPEC-09 — Performance (nom physique V3-5C conservé provisoirement)
+# Pocoma SPEC-09 — Performance
 
 **Statut : objectifs conceptuellement validés, non mesurés en V3.**  
 **Consolidation :** 2026-10-24. [Canon](V3_Canon_and_Roadmap.md).

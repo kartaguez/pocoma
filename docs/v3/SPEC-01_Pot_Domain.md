@@ -1,4 +1,4 @@
-# Pocoma V3-1 — Domaine composé et versionnement historique
+# Pocoma SPEC-01 — Domaine Pot
 
 **Statut : CONCEPTION VALIDÉE (conceptuelle), non implémentée.**  
 **Consolidation normative :** 2026-10-24. **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).  
@@ -149,4 +149,4 @@ La politique de révocation anticipée du lien reste à préciser. La vue limit�
 
 ## 9. Statut et références
 
-Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](V3-2_Events_Requests_and_Consumables.md), [V3-3](V3-3_Read_and_Projections.md), [V3-4](V3-4_Consumption_and_Discovery.md), [V3-5E](V3-5E_Supra_Boundary_Contracts.md) ; preuves dans [V3-5D](V3-5D_Test_and_Certification_Plan.md).
+Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md), [V3-4](SPEC-05_Consumption_Discovery.md), [V3-5E](SPEC-06_Supra_Contracts.md) ; preuves dans [V3-5D](SPEC-10_Test_Certification.md).

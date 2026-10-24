@@ -1,4 +1,4 @@
-# Pocoma V3-1 — Identity : domaine et versionnement
+# Pocoma SPEC-02 — Domaine Identity
 
 **Statut : conception conceptuelle validée dans les échanges ; non implémentée, non testée en V3.**  
 **Consolidation normative :** 2026-10-24. **Document directeur :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).
@@ -108,4 +108,4 @@ Une transition effective EUI et son nouvel état historique sont validés **dans
 
 ## 9. Références et statut
 
-La sécurité des Supras, l'attestation Link et les réponses HTTP relèvent de [V3-5E](V3-5E_Supra_Boundary_Contracts.md) ; événements et provenance de [V3-2](V3-2_Events_Requests_and_Consumables.md) ; projections de [V3-3](V3-3_Read_and_Projections.md) ; exécution transactionnelle de [V3-4](V3-4_Consumption_and_Discovery.md). Les preuves ID-01/02 et AUD-V3-008/009 restent à implémenter et certifier dans [V3-5D](V3-5D_Test_and_Certification_Plan.md). Aucun code ou test V3 exécuté.
+La sécurité des Supras, l'attestation Link et les réponses HTTP relèvent de [V3-5E](SPEC-06_Supra_Contracts.md) ; événements et provenance de [V3-2](SPEC-03_Events_Requests_Consumables.md) ; projections de [V3-3](SPEC-04_Read_Projections.md) ; exécution transactionnelle de [V3-4](SPEC-05_Consumption_Discovery.md). Les preuves ID-01/02 et AUD-V3-008/009 restent à implémenter et certifier dans [V3-5D](SPEC-10_Test_Certification.md). Aucun code ou test V3 exécuté.
