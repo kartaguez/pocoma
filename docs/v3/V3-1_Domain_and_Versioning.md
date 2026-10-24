@@ -101,3 +101,25 @@ Chaque V reconstruit exactement son état ; V6 n'altère pas les soldes de V5, V
 **V3-1 : conception validée dans les échanges, non implémentée et non prouvée par tests V3.** Aucun DDL, code runtime, test ou gate n'est revendiqué. Les détails des contrats événementiels, du modèle READ et des mécanismes Consumption restent ouverts respectivement en V3-2, V3-3 et V3-4. Leur revue peut revenir sur une hypothèse V3-1 **avant** le jalon global V3-CADRE, avec changement explicite du présent document et du canon.
 
 **Prochaine action :** cadrer V3-2 sur le fondement de ces invariants, puis revue transversale V3-1→V3-5 avant toute implémentation.
+
+## 9. Amendement post-audit AUD-V3-001/003 — autorisations Pot (2026-10-24)
+
+**Décision fonctionnelle validée :** `PotDetails.creatorId` désigne le créateur immuable et lui confère des droits de gestion indépendamment de tout rattachement à un Shareholder. Un `PocomaUser` actuellement rattaché à un Shareholder actif a les mêmes droits de consultation et de mutation **sauf les suppressions du Pot et d'un Shareholder**, réservées au créateur.
+
+| Action | Créateur | Utilisateur rattaché à un Shareholder actif | Autre |
+|---|---|---|---|
+| Lire le Pot | Oui | Oui | Non |
+| Modifier les données du Pot | Oui | Oui | Non |
+| Ajouter un Shareholder | Oui | Oui | Non |
+| Modifier un Shareholder | Oui | Oui | Non |
+| Supprimer un Shareholder | **Oui, si aucune Expense ne le référence** | Non | Non |
+| Ajouter/modifier/supprimer une Expense | Oui | Oui | Non |
+| Supprimer le Pot | **Oui** | Non | Non |
+
+La condition « aucune Expense liée » est un invariant métier vérifié **au moment de l'exécution WRITE** de `DeleteShareholder`, sur l'état courant : refuser la suppression si le Shareholder apparaît comme payeur ou participant dans une Expense **active**. Les Expenses supprimées ne constituent pas une référence active bloquante ; leurs versions historiques restent conservées. La suppression du Pot est distincte de celle d'un Shareholder.
+
+**Frontière temporelle :** à l'exécution de toute Command autre que `CreatePot`, vérifier dans WRITE le `bindingToken` et l'identité authentifiée, puis les droits correspondant à la version métier courante avant mutation. Le rôle de créateur ne dépend pas de sa présence comme Shareholder. `observedVersion` et les règles de concurrence restent des contrôles complémentaires, non un droit d'accès.
+
+**Effet READ à harmoniser :** à V, `PotVersion(P,V).authorizedUserIds` doit inclure le `creatorId` et les utilisateurs liés à des Shareholders de V ; le seul fait de figurer dans une liste de navigation n'est pas en soi une permission. La visibilité du créateur sans Shareholder est ici intentionnellement une conséquence de son rôle de gestion. Pour les versions historiques, les droits de Shareholder sont évalués à V sous réserve de `CurrentBinding` actif, et ceux du créateur découlent de son rôle immuable.
+
+**Statut : AUD-V3-001, volet droits créateur/Shareholder et matrice WRITE, arbitré ; AUD-V3-003, condition de suppression d'un Shareholder, arbitré partiellement.** Les autres conditions sur références croisées/obsolescence restent à examiner.
