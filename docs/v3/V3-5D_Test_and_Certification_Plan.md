@@ -1551,3 +1551,23 @@ Tests à construire : mettre Pot P version V en quarantaine, prouver la progress
 **Rôles :** fournisseur d'identité authentifiant E2 ; serveur d'autorisation présentant le Link exact à E2 et recueillant un accord explicite, avec attestation vérifiable destinée à Pocoma. Produit commun ou distinct permis, Pocoma headless. RFC 9396 RAR privilégié mais non imposé. Keycloak candidat, non qualifié par hypothèse ; adaptation, autre fournisseur ou composant dédié possibles. La réalisation et la qualification du fournisseur demeurent des preuves V3-6/V3-7, pas une autorisation de réduire C-01.
 
 **Scénarios à certifier :** E1 authentifiée et Binding de E1 actif ; compteur de Pots incluant le créateur visible et dédoublonnant les entrées Pot ; READ en retard et variation du compteur entre présentation et exécution sans rejet injustifié ; aucune requête `CurrentBinding` par User ni divulgation du `PocomaUserId` ; présentation effective de l'identité initiatrice et de l'action Link ; E2 authentifiée puis accord explicite, refus/SSO silencieux/ID Token seul non recevables ; altération E1, E2, intention, destinataire, audience, résumé présenté, signature ou échéance refusée ; deux retours simultanés ou rejeu d'attestation donnant au plus une admission ; revalidation de WRITE à l'exécution et rejet si E1 ou E2 ne satisfait plus ses préconditions. Tester avec un serveur d'autorisation réellement qualifié, qu'il soit Keycloak ou non. Aucun test V3 exécuté.
+
+## 60. AUD-V3-010 — certification de l'autorisation READ et du polling des résultats (protocole, non exécuté)
+
+**Portée :** `CommandResult`, `IdentityRequestResult`, admission, complétions, READ asynchrone et Supra ; aucun runtime, DDL ni test V3 réalisé pendant l'audit. Vérifier sur PostgreSQL réel et via HTTP authentifié, avec EUI distinctes (même PocomaUser ou Users différents), que la provenance est immuable depuis l'admission et que READ n'interroge pas WRITE en consultation.
+
+| ID | Scénario | Oracle |
+|---|---|---|
+| A10-A | Command admise par E1 puis succès | Demande WRITE stocke E1, Consumption lit demande + terminal WRITE, résultat READ stocke E1 ; E1 obtient `200` |
+| A10-B | Command admise par E1 puis rejet `bindingToken` invalide | E1 demeure propriétaire, aucun PocomaUser nécessaire pour autoriser le résultat, E1 obtient `200` et `REJECTED` |
+| A10-C | Registration E1 réussie ou rejetée sans Binding initial | E1 obtient son résultat par EUI authentifiée, sans token ni User requis |
+| A10-D | Link initié par E1 vers E2 (avec consentement séparé de E2), puis Unlink E1 ou E2 initié par E1 | Les résultats appartiennent à E1, non à E2, y compris pour succès ou rejet ; E2 reçoit le même `404` qu'un requestId inconnu |
+| A10-E | E1 et E3 liées au même PocomaUser | E3 ne consulte jamais les résultats de E1, malgré le User commun |
+| A10-F | E1 Unlink puis re-Link vers autre PocomaUser | E1 authentifiée retrouve ses anciens résultats ; ni ancien ni nouveau Binding n'est requis à la lecture |
+| A10-G | EUI tierce connaît un requestId valide, et UUID inexistant | Codes et enveloppes publiques `404` indiscernables, aucun potId, motif de rejet ou EUI divulgués |
+| A10-H | Demande admise `202`, encore PENDING WRITE ; terminale WRITE mais résultat READ retardé ; puis matérialisée | `404`, `404`, puis `200` pour l'EUI initiatrice ; client continue polling borné sans interpréter `404` comme échec métier |
+| A10-I | Service READ réellement indisponible ; appel non authentifié | `503` en véritable indisponibilité, `401` sans AuthN ; absence normale de ligne ne déclenche jamais `503` |
+| A10-J | Compétition/retry de Consumption et événements de complétion minimaux | Résultat READ unique/atomique et `requesterEui` correct ; événement sans EUI dupliquée ; aucun appel WRITE synchrone de la Supra READ |
+| A10-K | Relecture ultérieure d'un résultat sans expiration fonctionnelle | Même résultat immuable, aucun statut `EXPIRED`, aucun effacement automatique dans le modèle V3 actuel |
+
+**Preuves attendues :** états WRITE de demande/résultat et READ de résultat, traces de Consumption, assertions HTTP sur deux EUI, contrôles d'absence de requête WRITE de la Supra READ, ordre forcé entre complétion et projection, et scénarios négatifs anti-énumération. Les questions opérationnelles de conservation/idempotence restent distinctes. **PASS uniquement après exécution réelle**, non revendiqué ici.
