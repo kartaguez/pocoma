@@ -78,6 +78,8 @@ Chacun des `POT_EVENT(P,V)` déclenche trois Consumptions non-burnables distinct
 
 Chaque Consumption lit les faits autoritatifs correspondant à V depuis WRITE et calcule ses propres effets ; `MaterializePotVisibility` utilise la garde collective transactionnelle `PotVisibilityState(P)` pour appliquer les différences monotones, sans reculer sur des événements arrivant hors ordre ; `MaterializePotBalance` calcule les soldes complets de chaque version active et considère D terminale comme un succès sans insertion Balance(D) ; `MaterializePotVersion` conserve les versions immuables et avance conditionnellement le pointeur. Les contrats détaillés des projections relèvent de [V3-3](SPEC-04_Read_Projections.md).
 
+Les accès à WRITE de `MaterializePotVersion` et de `MaterializePotBalance` sont indépendants : le premier résout toute la composition à V et ne charge que les contenus de sous-versions absents de READ ; le second lit par lots **l'ensemble** des faits financiers applicables à V et recalcule intégralement. Les lectures groupées ne mutualisent ni slot, ni transaction, ni état de progression entre Consumptions. Le contrôle d'existence d'une `SubobjectVersion` déjà immuable n'instaure aucune attente d'une version antérieure ; une absence déclenche le chargement direct depuis WRITE@V. Voir SPEC-04 (AUD-V3-013).
+
 ## 9. Reconstruction et vérification
 
 La reconstruction READ totale implique indisponibilité contrôlée, arrêt effectif des writers READ, reset coordonné des projections, slots et checkpoints, puis reprise des mêmes IDs de Consumption et rejeu avant disponibilité READY selon C-02. Un rejeu indépendant utilise un nouvel ID. Ne jamais restaurer un checkpoint sans les effets et slots qui le justifient.
