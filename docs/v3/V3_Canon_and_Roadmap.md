@@ -75,3 +75,10 @@ AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD
 ## 7. Réserves et clôture
 
 La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
+
+## Arbitrage Invitation CQRS — 2026-10-24
+
+`CreateInvitation` produit en cas de succès une mutation WRITE d'invitation et `INVITATION_EVENT` indépendamment de `COMMAND_COMPLETED_EVENT`. `MaterializeInvitation` matérialise `CurrentInvitation` en READ ; seul le créateur authentifié retrouve le lien via `creationRequestId`. `CommandResult` ne transporte pas le lien. L'invité peut consulter depuis READ uniquement les Shareholders libres, avant de demander l'auto-rattachement en WRITE, dont la réussite produit un `POT_EVENT`. L'ensemble reste éventuellement cohérent sans synchronisation READ→WRITE.
+
+Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques et une Consumption supplémentaire. Les dénombrements antérieurs du canon sont historiques et supplantés. Contrat explicité dans SPEC-01/03/04/05/06 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
+
