@@ -1531,3 +1531,7 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 ## 55. AUD-V3-007-Q — reprise administrative explicite (2026-10-24)
 
 À prouver sur PostgreSQL : slot QUARANTINED ignoré par acquisition et Discovery malgré redémarrage/déploiement/écoulement du temps ; reprise administrative sur identifiant exact et état attendu ; course de deux administrateurs (une seule transition effective) ; reprise d'un slot non quarantainé refusée ou idempotence définie ; aucune mutation de source ou projection lors de la réactivation ; nouvelle acquisition réexécute entièrement le traitement ; reprise redevient soumise aux limites ordinaires de capacité ; absence de ré-enrôlement du même travail. Action d'administration et gestion du budget au nouveau cycle à détailler avant implémentation. Aucun test exécuté.
+
+## 56. AUD-V3-007-Q — budget des échecs et reprise (2026-10-24)
+
+Scénarios PostgreSQL exigés : (1) expiration de claim sans erreur enregistrée, puis réacquisition : `attemptCount` inchangé ; (2) un échec explicitement persisté incrémente une seule fois ; (3) `N-1` échecs puis succès ; (4) Nᵉ échec -> `QUARANTINED` ; (5) tentative tardive avec ancien `claimToken` après réacquisition : aucune incrémentation ni transition ; (6) réactivation administrative atomique de `QUARANTINED` -> éligible avec `attemptCount=0` et même identité ; (7) crash avant persistance de l'échec : aucun budget consommé. N reste configurable, sans chiffre arbitraire imposé. Aucun test V3 exécuté.
