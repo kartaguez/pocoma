@@ -1164,3 +1164,17 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 ## 13. Critères de clôture
 
 Certifier toutes les lignes de la matrice avec résultats vérifiables, conserver les protocoles distincts C-01 (consentement externe Link), C-02 (reconstruction READ exclusive), C-03 (jalons de latence), et les familles RCV01-A à N, F01-A à J, A10-A à K, A11-A à N. Aucun scénario fondé uniquement sur une ancienne Projection Task, un retry illimité ou l'absence de quarantaine n'est exigible. Les mesures V3 et tests restent à exécuter en V3-6/V3-7. Aucune implémentation réalisée par le présent changement.
+
+## INV-01 — Certification du parcours d'invitation (non exécutée)
+
+- INV-A : création autorisée au seul créateur ; mutation WRITE + INVITATION_EVENT + complétion atomiques ; zéro POT_EVENT et version Pot inchangée.
+- INV-B : rejet sans événement métier ; CommandResult sans lien ; indépendance de matérialisation de CommandResult et CurrentInvitation.
+- INV-C : créateur retrouve son lien par creationRequestId dans READ ; EUI tierce et identifiant inconnu indiscernables (404).
+- INV-D : invité authentifié avec token valide reçoit seulement les Shareholders actifs libres ; accès au Pot complet, à Expense, aux soldes et aux identifiants internes refusé.
+- INV-E : expiration, token falsifié, Pot supprimé, aucun Shareholder libre ou utilisateur déjà rattaché : aucun rattachement proposé.
+- INV-F : deux utilisateurs revendiquent le même Shareholder ou un utilisateur deux Shareholders simultanément : au plus un succès transactionnel.
+- INV-G : READ retardé affiche une place déjà prise ; WRITE rejette sans mutation partielle.
+- INV-H : événements invitation hors ordre, rejeu et reconstruction READ à blanc : état monotone et identique.
+- INV-I : aucun secret dans INVITATION_EVENT, logs ou cache partagé ; lien récupérable mais accessible exclusivement à creatorEui.
+- INV-J : multi-rattachement général possible, mais invitation refusée dès qu'un premier Shareholder est rattaché ; créateur non-Shareholder distinct.
+
