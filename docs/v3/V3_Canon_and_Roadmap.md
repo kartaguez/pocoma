@@ -368,3 +368,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-007-Q, aucun blocage causal (2026-10-24)
 
 **Décision :** les slots sont indépendants ; `QUARANTINED` n'empêche jamais la Discovery ni l'exécution d'un autre slot, y compris sur le même Pot/EUI ou pour une version supérieure. Projections immuables reconstituées depuis WRITE@V et projections mutables avec garde monotone ; seule une **lecture** nécessitant une projection absente reste indisponible. Les clauses antérieures sur « successeurs bloqués par la quarantaine » sont supersédées. Preuves hors ordre prévues V3-5D §57.
+
+## Journal post-audit — clôture conceptuelle AUD-V3-007 (2026-10-24)
+
+**Dernier arbitrage validé :** aucune purge directe d'un slot `QUARANTINED`. Il reste durablement présent jusqu'à sa réactivation administrative explicite puis la réussite du traitement ; seules les règles ordinaires de finalisation suppriment le slot **atomiquement avec les effets**. Aucune perte, aucune complétion fictive, aucun ré-enrôlement burnable. Quarantaines exclues du softCap et sans blocage des autres slots, même agrégat. Avec les arbitrages N configurable, `attemptCount` sur échec durable seulement et reset lors de reprise, le **cycle de vie AUD-V3-007 est clos conceptuellement** ; vérification SQL/concurrence et tests V3-5D §§54–58 à réaliser avant certification. V3-6 reste suspendue pendant l'audit global.
