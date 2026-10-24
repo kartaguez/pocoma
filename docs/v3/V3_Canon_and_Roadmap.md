@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut actuel : V3-CADRE conceptuellement arbitré ; GO historique du 2026-10-23, sans autorisation actuelle de réalisation. V3-6 reste SUSPENDUE jusqu'à décision explicite après la revue contradictoire ; aucune certification ni activation.**  
+**Statut actuel : V3-CADRE validé ; GO conceptuel explicite pour le démarrage de V3-6, décidé le 2026-10-24 après deux contre-audits concordants et consolidation au SHA `ddca2827dac7cf13f8b07f620f0cd3b3cb392196`. V3-6 autorisée à démarrer ; aucune certification technique V3, aucun PASS ni activation revendiqués.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage et consolidation documentaire, sans certification ni activation.
@@ -53,8 +53,8 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 | Jalon | Finalité | Statut |
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
-| V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO historique du 2026-10-23 ; ne constitue pas certification et ne lève pas la suspension d'audit |
-| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **Suspendu** jusqu'à clôture de l'audit et décision de reprise |
+| V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
+| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **GO — démarrage autorisé** le 2026-10-24 ; réalisation et preuves encore à produire |
 | V3-7 | Exécuter les preuves PostgreSQL, Bruno et k6 ; mesurer les budgets ; certifier ou refuser l'activation | Non commencé |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
@@ -80,5 +80,11 @@ La valeur opérationnelle N, les budgets physiques de protection, les plans SQL,
 
 `CreateInvitation` produit en cas de succès une mutation WRITE d'invitation et `INVITATION_EVENT` indépendamment de `COMMAND_COMPLETION_EVENT`. `MaterializeInvitation` matérialise `CurrentInvitation` en READ ; seul le créateur authentifié retrouve le lien via `creationRequestId`. `CommandResult` ne transporte pas le lien. L'invité peut consulter depuis READ uniquement les Shareholders libres, avant de demander l'auto-rattachement en WRITE, dont la réussite produit un `POT_EVENT`. L'ensemble reste éventuellement cohérent sans synchronisation READ→WRITE.
 
-Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques, neuf Consumptions de référence (deux WRITE et sept READ) et 28 exigences actives (incluant `INV-01`). Les inventaires normatifs de ce canon et des SPEC (notamment `SPEC-07` et `SPEC-10`) reflètent intégralement les nouveaux dénombrements après la passe de cohérence finale (`CAUD-V3-001`). Contrat explicité dans SPEC-01/03/04/05/06/07 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
+Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques, neuf Consumptions de référence (deux WRITE et sept READ) et 28 exigences actives (incluant `INV-01`). Les inventaires normatifs de ce canon et des SPEC (notamment `SPEC-07` et `SPEC-10`) reflètent intégralement les nouveaux dénombrements après la passe de cohérence finale (`CAUD-V3-001`). Contrat explicité dans SPEC-01/03/04/05/06/07 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. La suspension de V3-6 est levée par décision explicite du 2026-10-24 ; démarrage autorisé sans certification ni activation.
 
+
+## 9. Décision de reprise V3-6 — 2026-10-24
+
+**Décision : GO V3-6 sans réserve conceptuelle.** La revue contradictoire ChatGPT a clos ses trois réserves (invitation/restitution READ, cardinalité du rattachement et couverture de tests). Le contre-audit Gemini au SHA `a937199d9a0b88410ce94d832086da7e09dbe5c8` a conclu au GO conceptuel et sa correction documentaire `CAUD-V3-001` a été poussée au SHA `ddca2827dac7cf13f8b07f620f0cd3b3cb392196` ; ce SHA est la **baseline documentaire du GO**.
+
+La reprise est autorisée pour l'**implémentation de V3-6** sous les SPEC-01 à SPEC-10 consolidées. Elle ne vaut **ni approbation de code, ni preuve PostgreSQL, ni réussite de tests V3, ni certification, ni déploiement ou activation**. Toute divergence de conception importante découverte pendant la réalisation doit être arbitrée et documentée avant de modifier la norme. Les oracles INV-01, les exigences transversales et les gates prévus restent à exécuter selon le plan.
