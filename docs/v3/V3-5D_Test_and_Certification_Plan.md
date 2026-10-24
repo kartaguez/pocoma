@@ -1521,3 +1521,9 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 ## 53. AUD-V3-007 — rectification et preuve de progression sans quarantaine (2026-10-24)
 
 **Rectification :** aucun statut `QUARANTINED` ni limite de tentatives en V3. Le protocole CON-05 des retries temporisés illimités est normatif. Les anciens scénarios imaginant des quarantaines sont supprimés de cette proposition de tests. Tester plutôt un ensemble de slots conservés et reportés par `retryAfter`, la récupération après résolution de l'erreur et les propriétés de non-famine des travaux indépendants lorsque le softCap est atteint. Ce dernier risque de capacité est à mesurer et analyser séparément, sans introduire de nouvel état ou filtre arbitraire. Aucun test exécuté.
+
+## 54. AUD-V3-007 — preuves de quarantaine après N tentatives (2026-10-24)
+
+**Décision révisée :** budget N de tentatives techniques, `retryAfter` tant que budget disponible, puis `QUARANTINED` ; exclusion du softCap et de l'acquisition automatique. Le slot reste durablement traçable et non terminal tant que le protocole de purge/résolution n'est pas prouvé.
+
+**Tests à préparer :** N-1 échecs puis succès ; N échecs vers quarantaine ; softCap occupé par quarantaines, autre Pot indépendant progresse ; même Pot avec dépendance non satisfaite ne produit pas d'effet incorrect ; burnable PENDING ne se réenrôle pas après quarantaine ; non-burnable checkpoint ne fait pas passer slot absent pour complété ; reprise administrative puis succès ; crash/expiration ne doivent pas consommer arbitrairement des tentatives sans contrat explicite. Aucun test réalisé.
