@@ -146,3 +146,13 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **softCap :** il borne le nombre de slots présents dans la partition, y compris ceux différés par `retryAfter`. Ne pas inventer un filtrage de statuts. Le risque d'une accumulation durable de slots avec erreurs persistantes reste une **question distincte de capacité et de progression** à éprouver sous charge, et ne justifie pas à lui seul une quarantaine.
 
 **AUD-V3-007 : constat fondé sur `QUARANTINED` NON APPLICABLE ; tests réels de non-famine et de capacité restent requis.**
+
+## Nouvel arbitrage AUD-V3-007 — retries bornés et quarantaine (2026-10-24)
+
+**DÉCISION DE PRINCIPE RÉVISÉE :** remplacer le retry technique illimité par un budget configurable de **N tentatives complètes d'exécution**. Une tentative = une acquisition et une exécution ; chaque échec technique entraîne rollback puis, tant que le budget n'est pas épuisé, cession conditionnelle avec `retryAfter`. À épuisement, le slot devient `QUARANTINED`, n'est plus automatiquement acquis, et **ne compte plus dans le `softCap`**. Cette décision supplante les anciens amendements « retries illimités, pas de quarantaine » ; le motif est l'isolation de la capacité d'enrôlement entre Pots indépendants.
+
+**Garantie non négociable :** la quarantaine n'est pas une complétion et ne doit jamais faire croire que l'effet est produit. Pour les non-burnables, checkpoint déjà avancé + slot absent ne doit jamais être fabriqué par une purge prématurée ; pour les burnables, la demande PENDING doit demeurer rattachée à sa preuve de quarantaine afin que Discovery ne la réenrôle pas comme neuve. Les slots en quarantaine persistent tant qu'aucun protocole sûr de résolution/purge n'a été décidé.
+
+**À arbitrer avant implémentation :** valeur de N et comptabilisation des crashs/expirations versus échecs techniques connus ; stratégie de relance manuelle ou de réparation ; purge après résolution prouvée sans perte ni ré-enrôlement ; maintien de la progression des travaux causalement dépendants (ne pas laisser un successeur utiliser un état incorrect, tout en laissant avancer les Pots indépendants). Pas de terminalisation métier fictive ni de suppression automatique d'un travail non exécuté.
+
+**Statut : quarantaine et exclusion softCap validées conceptuellement ; purge automatique et critères de résolution NON validés.**
