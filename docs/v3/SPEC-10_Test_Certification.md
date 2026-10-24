@@ -23,6 +23,7 @@ Le tableau relie les exigences actives au protocole détaillé portant le même 
 | EVT-01 | Cinq séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | EVT-03 | Sept familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT, et MaterializeInvitation indépendante | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
+| INV-01 | Création, projection, restitution et rattachement via invitation ; sécurité du lien, cohérence éventuelle et concurrence | SPEC-01/03/04/05/06 | JUnit/PostgreSQL ; Bruno | À PROUVER |
 | CON-01 | Discovery enrôle les non-burnables avec checkpoint global inspecté par partition, et les burnables PENDING sans checkpoint | V3-4 | JUnit/PostgreSQL crash/fenêtres | ACQUIS / À PROUVER |
 | CON-02 | Checkpoint avancé atomiquement avec tous ses slots ; absence de slot ne vaut complétion que sous ses conditions de preuve | V3-4 | JUnit/PostgreSQL crash/restart | ACQUIS / À PROUVER |
 | CON-03 | Propriété de partition autorise Discovery/acquisition ; claim individuel protège le commit, même après transfert de partition | V3-4 | JUnit/PostgreSQL interleavings | ACQUIS / À PROUVER |
