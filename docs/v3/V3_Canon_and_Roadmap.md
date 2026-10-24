@@ -352,3 +352,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — correction d'AUD-V3-007 (2026-10-24)
 
 **RECTIFICATION du journal précédent :** le cadrage V3-4 impose déjà des retries techniques illimités par `retryAfter`, sans état de quarantaine, sans `maxAttempts` terminal et sans fausse terminalisation. L'audit AUD-V3-007 et la correction « exclure QUARANTINED du softCap » ont repris une hypothèse non normative : **AUD-V3-007 NON APPLICABLE dans cette formulation**. Les versions précédentes du journal sont historiques et supersédées. Un possible encombrement du softCap par des slots durablement différés reste un sujet de progression à éprouver, distinct du constat de quarantaine.
+
+## Journal post-audit — révision AUD-V3-007 : quarantaine retenue (2026-10-24)
+
+**Nouvel arbitrage de principe :** le risque de saturation du softCap par retries indéfinis conduit à retenir **N tentatives maximales**, puis un slot `QUARANTINED` non acquis automatiquement et non compté dans le softCap. Cette décision **supplante** le choix antérieur de retries illimités et la rectification post-audit refusant la quarantaine. La quarantaine ne vaut pas complétion ; pas de purge automatique du dernier témoin d'une Consumption non terminée. Reste à préciser N, résolution/reprise, causalité et purge sûre avant V3-6. Aucun runtime/DDL/test V3 exécuté.
