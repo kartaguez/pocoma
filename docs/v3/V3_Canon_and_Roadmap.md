@@ -348,3 +348,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-007 résolu conceptuellement (2026-10-24)
 
 **Correction adoptée :** le `softCap` de Discovery ne compte pas les slots `QUARANTINED` ; seuls les slots occupant encore une capacité de traitement sont comptés. Une quarantaine bloque ses dépendances causales propres, jamais les autres Pots/EUI de la même partition. V3-4 et V3-5D §53 amendés ; comportement à prouver sous PostgreSQL. V3-6 demeure suspendue pendant l'audit contradictoire.
+
+## Journal post-audit — correction d'AUD-V3-007 (2026-10-24)
+
+**RECTIFICATION du journal précédent :** le cadrage V3-4 impose déjà des retries techniques illimités par `retryAfter`, sans état de quarantaine, sans `maxAttempts` terminal et sans fausse terminalisation. L'audit AUD-V3-007 et la correction « exclure QUARANTINED du softCap » ont repris une hypothèse non normative : **AUD-V3-007 NON APPLICABLE dans cette formulation**. Les versions précédentes du journal sont historiques et supersédées. Un possible encombrement du softCap par des slots durablement différés reste un sujet de progression à éprouver, distinct du constat de quarantaine.
