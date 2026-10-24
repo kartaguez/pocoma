@@ -134,30 +134,10 @@ Chaque V reconstruit exactement son état ; V6 n'altère pas les soldes de V5, V
 
 ## 8. Invitations et auto-rattachement
 
-**Décision de principe exprimée :** le créateur peut générer un lien d'invitation temporaire pour son Pot. Toute personne authentifiée munie du lien peut choisir **n'importe quel Shareholder actif et libre** de ce Pot et réclamer son rattachement, **à condition de ne pas être déjà liée à un Shareholder actif de ce Pot**. Le lien transporte un secret opaque qui référence une invitation persistée avec `potId` et `expiresAt`. Ce n'est ni une authentification ni un droit permanent sur le Pot.
-
-**Modèle minimal candidat :** enregistrement WRITE `PotInvitation(tokenHash, potId, expiresAt)`, secret aléatoire fort côté client, seule empreinte conservée. Plusieurs utilisations possibles pendant la validité, puisque l'invitation concerne le Pot, pas une personne ni un Shareholder. La possibilité pour le créateur de révoquer l'invitation avant expiration est **recommandée, à confirmer** ; aucun compteur d'usages nécessaire par défaut.
-
-**Règle d'exécution :** authentifier EUI et résoudre son PocomaUserId/Binding actif dans WRITE, puis, dans une transaction atomique, vérifier l'invitation non expirée, Pot actif, Shareholder cible actif/libre, absence de tout autre Shareholder actif déjà rattaché à ce même PocomaUserId dans le Pot, et procéder à la mutation versionnée de ShareholderDetails. Garantir l'exclusion des deux courses : plusieurs personnes visant le même Shareholder et une même personne visant simultanément plusieurs Shareholders. Une invitation ne délègue pas au porteur le droit d'attribuer un autre utilisateur : **auto-rattachement uniquement**. Une admission structurale n'anticipe pas ces décisions WRITE du Worker.
-
-**Décision validée :** lorsqu'un invité ouvre le lien de son Pot, il s'authentifie ; s'il ne possède pas encore de `PocomaUser` / Binding actif, il effectue **Registration (ou Link vers son `PocomaUser` existant) d'abord**, via le protocole Identity existant, attend que son Binding soit utilisable, puis sélectionne un Shareholder libre et demande son auto-rattachement avec le token d'invitation. Il n'existe pas de transaction trans-domaines « Registration + mutation du Pot » ni de nouveau type de lien identitaire. L'invitation n'accorde des droits qu'après rattachement réussi.
-
-**Revalidation à l'exécution WRITE du rattachement :** invitation toujours valable, Pot actif, Shareholder toujours libre (`userId == null`), User pas déjà lié à un autre Shareholder actif de ce Pot (sans exiger `observedVersion`, l'invité n'ayant pas accès au Pot complet avant rattachement). Le passage préalable par Registration ou Link ne réserve ni Shareholder ni validité du lien ; si l'invitation expire entre l'ouverture de la page et l'exécution, la mutation est rejetée sans effet. Un retry de la même demande déjà admise conserve sa sémantique idempotente, mais ne garantit pas la réussite métier.
-
-**Choix des Shareholders libres avant rattachement (respect strict de l'isolation READ / WRITE) :** un utilisateur authentifié disposant d'une invitation encore valide peut obtenir depuis READ une vue minimale de choix comprenant **identifiants et noms des Shareholders libres uniquement**, sans accès au Pot complet, Expenses ni balances, et **sans aucune lecture synchrone de WRITE**. À cette fin, `PotVersion(P,V)` en READ expose sur chaque référence de Shareholder actif le seul indicateur booléen public `isFree` (`userId == null`, sans jamais exposer `userId`), et la validité du jeton d'invitation est vérifiée par READ (jeton d'invitation signé `(potId, expiresAt)` ou empreinte active projetée dans `PotVersion`). La possession du lien seule, sans authentification, est insuffisante. La liberté et les droits sont revérifiés en WRITE à l'exécution de la Command d'auto-rattachement ; la liste affichée ne réserve aucune place.
-
-La politique de révocation anticipée du lien reste à préciser. La vue limitée d'invitation ne transforme pas le porteur du lien en utilisateur autorisé à consulter le Pot complet.
-
-
-**Ouvert :** révocation anticipée de l'invitation. Le schéma `PotInvitation(tokenHash, potId, expiresAt)` est candidat, non une obligation physique ; l'invitation ne donne pas accès au Pot complet.
-
-## 9. Statut et références
-
-Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md), [V3-4](SPEC-05_Consumption_Discovery.md), [V3-5E](SPEC-06_Supra_Contracts.md) ; preuves dans [V3-5D](SPEC-10_Test_Certification.md).
-
-## Amendement Invitation CQRS — 2026-10-24
-
 Le créateur émet une `COMMAND CreateInvitation` asynchrone. WRITE vérifie son autorisation, crée l'invitation identifiée par `invitationId`, `creationRequestId`, `creatorEui`, `potId`, `expiresAt`, `tokenHash` et un lien **restituable et confidentiel**. Un hash seul ne permet pas de récupérer le lien ; la forme récupérable est protégée en WRITE et READ. Le token clair ne figure jamais dans l'événement. Une création effective émet atomiquement `INVITATION_EVENT` et `COMMAND_COMPLETED_EVENT`, sans nouvelle version globale du Pot ni `POT_EVENT`. La création d'invitation n'est pas la création du rattachement.
 
 `CurrentInvitation` READ restitue le lien uniquement à l'EUI créatrice authentifiée via `creationRequestId`. `CommandResult` donne seulement le statut de la demande, **jamais le lien**. L'invité authentifié présente le token à READ, qui vérifie son empreinte et expiration et ne présente que les Shareholders actifs libres du Pot actif s'il n'est pas lui-même déjà rattaché. La liste peut être retardée. WRITE vérifie atomiquement toutes ces préconditions avant auto-rattachement et émet alors le `POT_EVENT` du changement réel de ShareholderDetails. La règle « pas déjà rattaché » concerne exclusivement l'invitation et n'interdit pas le multi-rattachement général du domaine. Révocation anticipée hors périmètre jusqu'à arbitrage. Cet amendement remplace les variantes de jeton signé, d'empreinte dans PotVersion et de génération nécessairement côté client du §8.
 
+## 9. Statut et références
+
+Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md), [V3-4](SPEC-05_Consumption_Discovery.md), [V3-5E](SPEC-06_Supra_Contracts.md) ; preuves dans [V3-5D](SPEC-10_Test_Certification.md).
