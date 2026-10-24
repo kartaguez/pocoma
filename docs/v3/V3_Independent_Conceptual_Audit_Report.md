@@ -449,6 +449,8 @@ Afin de valider la compréhension de bout en bout sans présupposer la cohérenc
 
 ---
 
+> **Suivi AUD-V3-012 (2026-10-24) :** consolidation documentaire réalisée sur SPEC-01 à SPEC-10 ; renommage coordonné ARB-08 ; canon actualisé. Les exigences actives et les scénarios sont spécifiés dans SPEC-10, sans exécution des tests V3. La revue de conformité documentaire finale est distincte d'une certification d'implémentation. AUD-V3-013 est le point d'audit suivant.
+
 ### `AUD-V3-012` — Contradictions documentaires internes et numérotations conflictuelles dans `V3-3`, `V3-5D` et `V3-5E`
 
 * **Identifiant** : `AUD-V3-012`
