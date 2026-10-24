@@ -156,3 +156,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **À arbitrer avant implémentation :** valeur de N et comptabilisation des crashs/expirations versus échecs techniques connus ; stratégie de relance manuelle ou de réparation ; purge après résolution prouvée sans perte ni ré-enrôlement ; maintien de la progression des travaux causalement dépendants (ne pas laisser un successeur utiliser un état incorrect, tout en laissant avancer les Pots indépendants). Pas de terminalisation métier fictive ni de suppression automatique d'un travail non exécuté.
 
 **Statut : quarantaine et exclusion softCap validées conceptuellement ; purge automatique et critères de résolution NON validés.**
+
+## Complément AUD-V3-007-Q — reprise de quarantaine exclusivement explicite (2026-10-24)
+
+**Décision :** un slot `QUARANTINED` ne redevient **jamais** éligible du seul fait d'un redéploiement, d'un redémarrage, d'une expiration temporelle ou d'une nouvelle Discovery. La reprise nécessite une **action administrative explicite**, distincte de l'exécution ordinaire.
+
+**Contrat minimal :** l'action cible sans ambiguïté le slot, vérifie durablement son état `QUARANTINED`, et change atomiquement son état pour le rendre à nouveau éligible, sous protection concurrente appropriée (CAS/transaction). Elle ne prétend pas que le traitement a réussi, n'altère ni la source ni les événements, n'ajoute pas d'effet READ/WRITE et n'exécute pas la projection elle-même. La prochaine acquisition ordinaire relit la source et reconstruit le contexte, comme tout retry. Le budget de tentatives du nouveau cycle et les éventuels détails de traçabilité seront définis au cadrage final ; aucune relance automatique en masse.
+
+**Maintien des invariants :** le slot reste présent en quarantaine et exclu du softCap, il ne peut être découvert à nouveau comme un nouveau travail ; une fois réactivé, il redevient soumis au softCap et au protocole normal. Toute purge devra être justifiée séparément par une preuve de complétion ou un protocole sûr, sans assimiler quarantaine et terminalité.
