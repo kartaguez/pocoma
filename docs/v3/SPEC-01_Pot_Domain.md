@@ -154,3 +154,10 @@ La politique de révocation anticipée du lien reste à préciser. La vue limit�
 ## 9. Statut et références
 
 Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md), [V3-4](SPEC-05_Consumption_Discovery.md), [V3-5E](SPEC-06_Supra_Contracts.md) ; preuves dans [V3-5D](SPEC-10_Test_Certification.md).
+
+## Amendement Invitation CQRS — 2026-10-24
+
+Le créateur émet une `COMMAND CreateInvitation` asynchrone. WRITE vérifie son autorisation, crée l'invitation identifiée par `invitationId`, `creationRequestId`, `creatorEui`, `potId`, `expiresAt`, `tokenHash` et un lien **restituable et confidentiel**. Un hash seul ne permet pas de récupérer le lien ; la forme récupérable est protégée en WRITE et READ. Le token clair ne figure jamais dans l'événement. Une création effective émet atomiquement `INVITATION_EVENT` et `COMMAND_COMPLETED_EVENT`, sans nouvelle version globale du Pot ni `POT_EVENT`. La création d'invitation n'est pas la création du rattachement.
+
+`CurrentInvitation` READ restitue le lien uniquement à l'EUI créatrice authentifiée via `creationRequestId`. `CommandResult` donne seulement le statut de la demande, **jamais le lien**. L'invité authentifié présente le token à READ, qui vérifie son empreinte et expiration et ne présente que les Shareholders actifs libres du Pot actif s'il n'est pas lui-même déjà rattaché. La liste peut être retardée. WRITE vérifie atomiquement toutes ces préconditions avant auto-rattachement et émet alors le `POT_EVENT` du changement réel de ShareholderDetails. La règle « pas déjà rattaché » concerne exclusivement l'invitation et n'interdit pas le multi-rattachement général du domaine. Révocation anticipée hors périmètre jusqu'à arbitrage. Cet amendement remplace les variantes de jeton signé, d'empreinte dans PotVersion et de génération nécessairement côté client du §8.
+
