@@ -908,6 +908,75 @@ JUnit avec **PostgreSQL réel** pour contrôler commits, ordres d'événements, 
 
 **Preuves à réaliser :** (A) Registration E1 puis `me/binding?minVersion=V`, restitue uniquement token E1 ; (B) Link initié E1 vers E2 puis succès visible E1 sans exposition de token E2 ; (C) session E2 consulte son token E2 uniquement ; (D) usurpation via EUI/target choisie interdite ; (E) token périmé, Unlink et retard READ avec `minVersion` ; (F) replay hors ordre d'IDENTITY_EVENT et Binding reconstruit à la bonne version ; (G) absence de token dans événement partagé, logs, cache partagé et corps d'erreur. Prévoir Bruno + JUnit/PostgreSQL ; aucun essai V3 exécuté.
 
+## 9. Supras et admission
+
+### ADM-01 — Contrôle d'entrée
+
+Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
+
+**Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
+
+**Réserves à arbitrer avant V3-CADRE :** politique d'erreurs et de plafonds configurables, bornes numériques concrètes, application des contrôles communs et spécifiques selon la nature des opérations. Aucune campagne exécutée.
+
+### S-01 — Pagination CurrentUserPotList
+
+**Décision adoptée SPEC-06 — §6 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
+
+### S-02 — Manifeste complet
+
+**Contrat décidé SPEC-06 — §5 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
+
+**Preuves :** complétude du manifeste pour 0/200/2 000 Expenses et au-delà selon jeux pertinents ; aucune fuite des `pocomaUserId` internes ; aucun mélange V/V+1 ; liste de références et soldes cohérents à V ; taille JSON/latence/CPU/mémoire pour grand Pot ; réponse complète ou erreur explicite, sans troncature ; absence d'interprétation du plafond 1 Mio des lots de détails comme seuil du manifeste principal. Aucun test V3 exécuté.
+
+### S-03 — Idempotence des admissions
+
+**Contrat validé SPEC-06 — §2 :** clé client liée à identité/portée et intention canonique ; première admission durable atomique avec l'association ; réitération identique retrouve la même demande ; intention différente sous même clé donne 409, sans nouvelle admission. La clé ne constitue pas une autorisation, et ne remplace pas la preuve de consentement Link.
+
+**Preuves JUnit/PostgreSQL et Bruno :** course de deux admissions, contrainte unique et atomicité ; rollback, commit à issue inconnue puis retry, avant/après résultat terminal ; comparaison des intentions et JSON équivalents ; changement de limites entre admission et retry ; portées d'identité distinctes ; Link preuve d'octroi et cible non substituable. Exiger zéro doublon Command/IdentityRequest, aucun événement de mutation supplémentaire du seul fait du retry et aucune divulgation de l'intention d'autrui. Durée de rétention et codes nominaux à fixer avant exécution ; aucun test V3 lancé.
+
+### AUD-V3-010 — Résultats et polling (A10-A à A10-K)
+
+**Portée :** `CommandResult`, `IdentityRequestResult`, admission, complétions, READ asynchrone et Supra ; aucun runtime, DDL ni test V3 réalisé pendant l'audit. Vérifier sur PostgreSQL réel et via HTTP authentifié, avec EUI distinctes (même PocomaUser ou Users différents), que la provenance est immuable depuis l'admission et que READ n'interroge pas WRITE en consultation.
+
+| ID | Scénario | Oracle |
+|---|---|---|
+| A10-A | Command admise par E1 puis succès | Demande WRITE stocke E1, Consumption lit demande + terminal WRITE, résultat READ stocke E1 ; E1 obtient `200` |
+| A10-B | Command admise par E1 puis rejet `bindingToken` invalide | E1 demeure propriétaire, aucun PocomaUser nécessaire pour autoriser le résultat, E1 obtient `200` et `REJECTED` |
+| A10-C | Registration E1 réussie ou rejetée sans Binding initial | E1 obtient son résultat par EUI authentifiée, sans token ni User requis |
+| A10-D | Link initié par E1 vers E2 (avec consentement séparé de E2), puis Unlink E1 ou E2 initié par E1 | Les résultats appartiennent à E1, non à E2, y compris pour succès ou rejet ; E2 reçoit le même `404` qu'un requestId inconnu |
+| A10-E | E1 et E3 liées au même PocomaUser | E3 ne consulte jamais les résultats de E1, malgré le User commun |
+| A10-F | E1 Unlink puis re-Link vers autre PocomaUser | E1 authentifiée retrouve ses anciens résultats ; ni ancien ni nouveau Binding n'est requis à la lecture |
+| A10-G | EUI tierce connaît un requestId valide, et UUID inexistant | Codes et enveloppes publiques `404` indiscernables, aucun potId, motif de rejet ou EUI divulgués |
+| A10-H | Demande admise `202`, encore PENDING WRITE ; terminale WRITE mais résultat READ retardé ; puis matérialisée | `404`, `404`, puis `200` pour l'EUI initiatrice ; client continue polling borné sans interpréter `404` comme échec métier |
+| A10-I | Service READ réellement indisponible ; appel non authentifié | `503` en véritable indisponibilité, `401` sans AuthN ; absence normale de ligne ne déclenche jamais `503` |
+| A10-J | Compétition/retry de Consumption et événements de complétion minimaux | Résultat READ unique/atomique et `requesterEui` correct ; événement sans EUI dupliquée ; aucun appel WRITE synchrone de la Supra READ |
+| A10-K | Relecture ultérieure d'un résultat sans expiration fonctionnelle | Même résultat immuable, aucun statut `EXPIRED`, aucun effacement automatique dans le modèle V3 actuel |
+
+**Preuves attendues :** états WRITE de demande/résultat et READ de résultat, traces de Consumption, assertions HTTP sur deux EUI, contrôles d'absence de requête WRITE de la Supra READ, ordre forcé entre complétion et projection, et scénarios négatifs anti-énumération. Les questions opérationnelles de conservation/idempotence restent distinctes. **PASS uniquement après exécution réelle**, non revendiqué ici.
+
+### AUD-V3-011 — DeletePot et HTTP (A11-A à A11-N)
+
+**Protocole conceptuel ; scénarios définis, non exécutés.** Construire un Pot P avec créateur C, Shareholders associés à A/B, état actif à V8 et suppression par C à D=V9. Vérifier séparément WRITE, chacune des trois Consumptions READ et les réponses HTTP. Ne pas ajouter de projection ni d'endpoint de test.
+
+| Cas | Stimulus | Oracle |
+|---|---|---|
+| A11-A | `DeletePot` appliqué après V8 | Seul PotHeader devient `deleted=true` à D ; commande terminale, aucune mutation métier post-D ; historique V1..V8 inchangé. |
+| A11-B | `MaterializePotVersion(P,D)` | `PotVersion(P,D)` durable, `CurrentPot(P) >= D` monotone ; version D non consultable via API métier. |
+| A11-C | `MaterializePotBalance(P,D)` | Consumption et slot terminent normalement **sans** `PotBalance(P,D)` ; absence intentionnelle non assimilée à erreur/retard. |
+| A11-D | Exécuter l'événement Balance V8 **après** D | `PotBalance(P,V8)` exacte et durable ; aucun skip des anciennes versions du fait de l'état supprimé courant. |
+| A11-E | `MaterializePotVisibility(P,D)` lente ou hors ordre | Le Pot devient invisible pour tous après progression de la visibilité ; aucune dépendance artificielle de CurrentPot/Balance à Visibility. |
+| A11-F | Créateur ou Shareholder autorisé à V7/V8 après suppression D | Lecture historique V<D `200` et références Expense autorisées à V ; pas d'exigence de droits sur D ni de présence dans la liste. |
+| A11-G | Lecture courante de P et lecture historique exacte D après matérialisation | `404` uniforme, même pour le créateur ; aucun `503` pour Balance(D) manquante volontairement. |
+| A11-H | Tiers non autorisé, Pot inexistant, Pot supprimé, `minVersion=999999` | Absence et refus indiscernables (`404`), sans `503` précoce, ni information de version par recherche dichotomique. |
+| A11-I | Version active autorisée mais `minVersion` au-delà de CurrentPot ou dépendances Balance/Subobject manquantes | `503` seulement **après** autorisation READ prouvée ; pas de réponse partielle ni de lecture WRITE synchronique. |
+| A11-J | Pot créé dans WRITE mais encore absent de READ | `404` jusqu'à preuve READ des droits, puis lecture normale / `503` de fraîcheur si autorisé et non complet ; aucun indice d'existence WRITE. |
+| A11-K | Droits Shareholder perdus après V8 ; Binding actif ou Unlink propagé | Droit historique à V8 conservé si Binding actif ; refus après révocation de Binding matérialisée ; fenêtre asynchrone conforme SEC-01/02. |
+| A11-L | Command `DeletePot` avec `resultingPotVersion=D` | Latence depuis admission jusqu'à observation interne READ `CurrentPot -> PotVersion(P,D).deleted=true`, mêmes budgets C-03 ; `404` HTTP seul n'est pas un succès de propagation. |
+| A11-M | Charges nominale/soutenue/pointe et Grand Pot, suppression | Budgets C-03 du jalon alternatif ; Balance(D) non attendue, balances actives antérieures et progression Visibility vérifiées distinctement. |
+| A11-N | Lecture des sous-objets et Expense batch à V antérieure depuis références légitimes ou falsifiées | Autorisation à V, appartenance au manifeste, refus 404 uniforme pour références étrangères ou hors V ; aucun accès via simple connaissance d'ID. |
+
+**Critère de certification :** démontrer exactement la suppression terminale, l'accessibilité historique autorisée, l'absence légitime de Balance(D), l'indépendance/hors ordre des Consumptions et l'ordre anti-énumération 401/404/503. Les tests PRJ-01, PRJ-02, READ-01, SEC-01, SEC-02, PERF-01 et SUPRA-READ-01 sont amendés en conséquence. Les anciens critères exigeant Balance à **chaque** version ou lecture HTTP `200` après `DeletePot` sont supplantés. Aucun test V3 lancé.
+
 ## 10. Reconstruction
 
 ### REC-01 — Protocole et oracles
@@ -1087,75 +1156,6 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 **Amendements aux campagnes §24 :** dans F01-A, rapporter deux SLO distincts : première lecture Pot W≥V et Balance(P,V) ; dans F01-B/C/D, le délai Pot désigne uniquement la première lecture READ complète W≥V. Le §24.4 point 4, lorsqu'il suggère la complétude simultanée des projections de V ou une exigence `PotVisibilityState≥V` pour la lecture courante, est **supplanté** par le présent contrat. Aucun nouveau jalon par version historique pour les campagnes de réactivité.
 
 **Effet sur la revue §30 :** **C-03 RÉSOLU AU NIVEAU CONCEPTUEL** par simplification du contrat de mesure. C-01 (consentement IdP) et C-02 (maintenance READ) disposent également de décisions de principe ; il reste la revue documentaire finale, la consolidation du doublon CON-06 et la soumission explicite de V3-CADRE. Aucun code/DDL ni test V3 exécuté.
-
-**Protocole conceptuel ; scénarios définis, non exécutés.** Construire un Pot P avec créateur C, Shareholders associés à A/B, état actif à V8 et suppression par C à D=V9. Vérifier séparément WRITE, chacune des trois Consumptions READ et les réponses HTTP. Ne pas ajouter de projection ni d'endpoint de test.
-
-| Cas | Stimulus | Oracle |
-|---|---|---|
-| A11-A | `DeletePot` appliqué après V8 | Seul PotHeader devient `deleted=true` à D ; commande terminale, aucune mutation métier post-D ; historique V1..V8 inchangé. |
-| A11-B | `MaterializePotVersion(P,D)` | `PotVersion(P,D)` durable, `CurrentPot(P) >= D` monotone ; version D non consultable via API métier. |
-| A11-C | `MaterializePotBalance(P,D)` | Consumption et slot terminent normalement **sans** `PotBalance(P,D)` ; absence intentionnelle non assimilée à erreur/retard. |
-| A11-D | Exécuter l'événement Balance V8 **après** D | `PotBalance(P,V8)` exacte et durable ; aucun skip des anciennes versions du fait de l'état supprimé courant. |
-| A11-E | `MaterializePotVisibility(P,D)` lente ou hors ordre | Le Pot devient invisible pour tous après progression de la visibilité ; aucune dépendance artificielle de CurrentPot/Balance à Visibility. |
-| A11-F | Créateur ou Shareholder autorisé à V7/V8 après suppression D | Lecture historique V<D `200` et références Expense autorisées à V ; pas d'exigence de droits sur D ni de présence dans la liste. |
-| A11-G | Lecture courante de P et lecture historique exacte D après matérialisation | `404` uniforme, même pour le créateur ; aucun `503` pour Balance(D) manquante volontairement. |
-| A11-H | Tiers non autorisé, Pot inexistant, Pot supprimé, `minVersion=999999` | Absence et refus indiscernables (`404`), sans `503` précoce, ni information de version par recherche dichotomique. |
-| A11-I | Version active autorisée mais `minVersion` au-delà de CurrentPot ou dépendances Balance/Subobject manquantes | `503` seulement **après** autorisation READ prouvée ; pas de réponse partielle ni de lecture WRITE synchronique. |
-| A11-J | Pot créé dans WRITE mais encore absent de READ | `404` jusqu'à preuve READ des droits, puis lecture normale / `503` de fraîcheur si autorisé et non complet ; aucun indice d'existence WRITE. |
-| A11-K | Droits Shareholder perdus après V8 ; Binding actif ou Unlink propagé | Droit historique à V8 conservé si Binding actif ; refus après révocation de Binding matérialisée ; fenêtre asynchrone conforme SEC-01/02. |
-| A11-L | Command `DeletePot` avec `resultingPotVersion=D` | Latence depuis admission jusqu'à observation interne READ `CurrentPot -> PotVersion(P,D).deleted=true`, mêmes budgets C-03 ; `404` HTTP seul n'est pas un succès de propagation. |
-| A11-M | Charges nominale/soutenue/pointe et Grand Pot, suppression | Budgets C-03 du jalon alternatif ; Balance(D) non attendue, balances actives antérieures et progression Visibility vérifiées distinctement. |
-| A11-N | Lecture des sous-objets et Expense batch à V antérieure depuis références légitimes ou falsifiées | Autorisation à V, appartenance au manifeste, refus 404 uniforme pour références étrangères ou hors V ; aucun accès via simple connaissance d'ID. |
-
-**Critère de certification :** démontrer exactement la suppression terminale, l'accessibilité historique autorisée, l'absence légitime de Balance(D), l'indépendance/hors ordre des Consumptions et l'ordre anti-énumération 401/404/503. Les tests PRJ-01, PRJ-02, READ-01, SEC-01, SEC-02, PERF-01 et SUPRA-READ-01 sont amendés en conséquence. Les anciens critères exigeant Balance à **chaque** version ou lecture HTTP `200` après `DeletePot` sont supplantés. Aucun test V3 lancé.
-
-## 9. Supras et admission
-
-### ADM-01 — Contrôle d'entrée
-
-Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
-
-**Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
-
-**Réserves à arbitrer avant V3-CADRE :** politique d'erreurs et de plafonds configurables, bornes numériques concrètes, application des contrôles communs et spécifiques selon la nature des opérations. Aucune campagne exécutée.
-
-### S-01 — Pagination CurrentUserPotList
-
-**Décision adoptée SPEC-06 — §6 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
-
-### S-02 — Manifeste complet
-
-**Contrat décidé SPEC-06 — §5 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
-
-**Preuves :** complétude du manifeste pour 0/200/2 000 Expenses et au-delà selon jeux pertinents ; aucune fuite des `pocomaUserId` internes ; aucun mélange V/V+1 ; liste de références et soldes cohérents à V ; taille JSON/latence/CPU/mémoire pour grand Pot ; réponse complète ou erreur explicite, sans troncature ; absence d'interprétation du plafond 1 Mio des lots de détails comme seuil du manifeste principal. Aucun test V3 exécuté.
-
-### S-03 — Idempotence des admissions
-
-**Contrat validé SPEC-06 — §2 :** clé client liée à identité/portée et intention canonique ; première admission durable atomique avec l'association ; réitération identique retrouve la même demande ; intention différente sous même clé donne 409, sans nouvelle admission. La clé ne constitue pas une autorisation, et ne remplace pas la preuve de consentement Link.
-
-**Preuves JUnit/PostgreSQL et Bruno :** course de deux admissions, contrainte unique et atomicité ; rollback, commit à issue inconnue puis retry, avant/après résultat terminal ; comparaison des intentions et JSON équivalents ; changement de limites entre admission et retry ; portées d'identité distinctes ; Link preuve d'octroi et cible non substituable. Exiger zéro doublon Command/IdentityRequest, aucun événement de mutation supplémentaire du seul fait du retry et aucune divulgation de l'intention d'autrui. Durée de rétention et codes nominaux à fixer avant exécution ; aucun test V3 lancé.
-
-### AUD-V3-010 — Résultats et polling (A10-A à A10-K)
-
-**Portée :** `CommandResult`, `IdentityRequestResult`, admission, complétions, READ asynchrone et Supra ; aucun runtime, DDL ni test V3 réalisé pendant l'audit. Vérifier sur PostgreSQL réel et via HTTP authentifié, avec EUI distinctes (même PocomaUser ou Users différents), que la provenance est immuable depuis l'admission et que READ n'interroge pas WRITE en consultation.
-
-| ID | Scénario | Oracle |
-|---|---|---|
-| A10-A | Command admise par E1 puis succès | Demande WRITE stocke E1, Consumption lit demande + terminal WRITE, résultat READ stocke E1 ; E1 obtient `200` |
-| A10-B | Command admise par E1 puis rejet `bindingToken` invalide | E1 demeure propriétaire, aucun PocomaUser nécessaire pour autoriser le résultat, E1 obtient `200` et `REJECTED` |
-| A10-C | Registration E1 réussie ou rejetée sans Binding initial | E1 obtient son résultat par EUI authentifiée, sans token ni User requis |
-| A10-D | Link initié par E1 vers E2 (avec consentement séparé de E2), puis Unlink E1 ou E2 initié par E1 | Les résultats appartiennent à E1, non à E2, y compris pour succès ou rejet ; E2 reçoit le même `404` qu'un requestId inconnu |
-| A10-E | E1 et E3 liées au même PocomaUser | E3 ne consulte jamais les résultats de E1, malgré le User commun |
-| A10-F | E1 Unlink puis re-Link vers autre PocomaUser | E1 authentifiée retrouve ses anciens résultats ; ni ancien ni nouveau Binding n'est requis à la lecture |
-| A10-G | EUI tierce connaît un requestId valide, et UUID inexistant | Codes et enveloppes publiques `404` indiscernables, aucun potId, motif de rejet ou EUI divulgués |
-| A10-H | Demande admise `202`, encore PENDING WRITE ; terminale WRITE mais résultat READ retardé ; puis matérialisée | `404`, `404`, puis `200` pour l'EUI initiatrice ; client continue polling borné sans interpréter `404` comme échec métier |
-| A10-I | Service READ réellement indisponible ; appel non authentifié | `503` en véritable indisponibilité, `401` sans AuthN ; absence normale de ligne ne déclenche jamais `503` |
-| A10-J | Compétition/retry de Consumption et événements de complétion minimaux | Résultat READ unique/atomique et `requesterEui` correct ; événement sans EUI dupliquée ; aucun appel WRITE synchrone de la Supra READ |
-| A10-K | Relecture ultérieure d'un résultat sans expiration fonctionnelle | Même résultat immuable, aucun statut `EXPIRED`, aucun effacement automatique dans le modèle V3 actuel |
-
-**Preuves attendues :** états WRITE de demande/résultat et READ de résultat, traces de Consumption, assertions HTTP sur deux EUI, contrôles d'absence de requête WRITE de la Supra READ, ordre forcé entre complétion et projection, et scénarios négatifs anti-énumération. Les questions opérationnelles de conservation/idempotence restent distinctes. **PASS uniquement après exécution réelle**, non revendiqué ici.
-
-### AUD-V3-011 — DeletePot et HTTP (A11-A à A11-N)
 
 **Protocole conceptuel ; scénarios définis, non exécutés.** Construire un Pot P avec créateur C, Shareholders associés à A/B, état actif à V8 et suppression par C à D=V9. Vérifier séparément WRITE, chacune des trois Consumptions READ et les réponses HTTP. Ne pas ajouter de projection ni d'endpoint de test.
 
