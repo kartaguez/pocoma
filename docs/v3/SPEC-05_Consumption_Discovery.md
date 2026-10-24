@@ -16,7 +16,7 @@ Deux boucles de polling adaptatif indépendantes (Discovery et Engine), coordonn
 
 Discovery sélectionne **des références**, jamais les données métier complètes. Engine charge le consommable après acquisition. Pas de Locator autonome. Discovery **ne consulte pas les claims pour choisir les sources à découvrir** ; elle enregistre durablement l'enrôlement en créant les slots.
 
-**Non-burnables :** quatre séquences globales transactionnelles denses conservées ; aucune séquence propre à la partition. Checkpoint de **découverte** par `(consumptionId, partitionId)`, absent = zéro. Il représente la dernière position globale examinée, même si certains événements ne concernent pas cette partition. À partir d'une borne sûre de publication, Discovery sélectionne seulement les événements de la partition dans une fenêtre bornée, puis crée les slots et avance atomiquement le checkpoint dans la base des effets. La lecture des références est préparatoire ; le contrôle du checkpoint, de la propriété et l'enrôlement sont transactionnels. Les journaux restent conservés, sans purge V3.
+**Non-burnables :** cinq séquences globales transactionnelles denses conservées ; aucune séquence propre à la partition. Checkpoint de **découverte** par `(consumptionId, partitionId)`, absent = zéro. Il représente la dernière position globale examinée, même si certains événements ne concernent pas cette partition. À partir d'une borne sûre de publication, Discovery sélectionne seulement les événements de la partition dans une fenêtre bornée, puis crée les slots et avance atomiquement le checkpoint dans la base des effets. La lecture des références est préparatoire ; le contrôle du checkpoint, de la propriété et l'enrôlement sont transactionnels. Les journaux restent conservés, sans purge V3.
 
 **Burnables :** uniquement `COMMAND` et `IDENTITY_REQUEST`, admises durablement PENDING sans slot ; Discovery ultérieure sélectionne les PENDING sans slot et crée les slots idempotents par lots bornés, sans checkpoint. Aucune tâche READ burnable ni création synchrone de slot à l'admission (AUD-V3-005/006).
 
@@ -62,7 +62,7 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 
 ## 6. Fenêtre sûre et admission (AUD-V3-004/006)
 
-Sur chacune des quatre séquences d'événements transactionnellement denses, la Discovery non-burnable lit le checkpoint K puis détermine une fenêtre contiguë bornée (K,H] d'événements définitivement committés, selon une photographie PostgreSQL cohérente. H est couvert par cette lecture, sans MAX issu d'une autre photographie. La Discovery retient uniquement les événements de la partition mais considère les autres positions de la fenêtre comme examinées. Dans la base des effets, elle valide atomiquement ownership/fencing et checkpoint attendu, crée idempotemment tous les slots requis puis avance K à H dans le même commit ; tout conflit ou échec annule l'ensemble. La lecture source WRITE préalable peut être hors de cette transaction READ : aucune transaction distribuée n'est requise.
+Sur chacune des cinq séquences d'événements transactionnellement denses, la Discovery non-burnable lit le checkpoint K puis détermine une fenêtre contiguë bornée (K,H] d'événements définitivement committés, selon une photographie PostgreSQL cohérente. H est couvert par cette lecture, sans MAX issu d'une autre photographie. La Discovery retient uniquement les événements de la partition mais considère les autres positions de la fenêtre comme examinées. Dans la base des effets, elle valide atomiquement ownership/fencing et checkpoint attendu, crée idempotemment tous les slots requis puis avance K à H dans le même commit ; tout conflit ou échec annule l'ensemble. La lecture source WRITE préalable peut être hors de cette transaction READ : aucune transaction distribuée n'est requise.
 
 Les demandes burnables sont admises PENDING en WRITE sans création de slot par la Supra ; Discovery les enrôle ultérieurement et de façon indépendante. Les sources non-burnables ne sont pas purgées en V3.
 
@@ -86,7 +86,7 @@ La reconstruction READ totale implique indisponibilité contrôlée, arrêt effe
 
 Restent à certifier (et non à arbitrer une seconde fois) : horloge PostgreSQL au verrou final, takeover concurrent, absence de deadlock, conflit de borne sûre, transaction physique, rattrapage sans famine, coût SQL, crashs et quarantaine. Voir [V3-5D](SPEC-10_Test_Certification.md), CON-01 à CON-06, REC-01 et OPS-01. Aucun code, DDL ou test V3 exécuté.
 
-## Amendement MaterializeInvitation
+## 10. MaterializeInvitation
 
 `MaterializeInvitation` est une Consumption READ indépendante alimentée par la cinquième séquence événementielle `INVITATION_EVENT`. Elle utilise les mêmes Discovery, slots, checkpoint, claim, fencing, retry et quarantaine que les autres Consumptions. Pour chaque `(invitationId, invitationVersion)`, elle relit l'état WRITE exact puis matérialise `CurrentInvitation` et termine son slot atomiquement en READ. Aucun prérequis de `CommandResult`, `PotVersion` ou `MaterializePotVisibility`. Une version ancienne ne fait jamais régresser la projection ; la reconstruction READ rejoue également cette famille.
 
