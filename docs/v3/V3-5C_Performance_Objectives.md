@@ -1,9 +1,9 @@
-# Pocoma V3-5C — Hypothèses et objectifs de performance
+# Pocoma SPEC-09 — Performance (nom physique V3-5C conservé provisoirement)
 
-**Statut : CADRAGE CONCEPTUEL CLÔTURÉ — objectifs à démontrer en V3-7, campagnes à détailler en V3-5D.**
-**Date :** 2026-10-23. **Références :** [Canon](V3_Canon_and_Roadmap.md), [Exigences V3-5A](V3-5A_Global_Review_and_Requirements.md), [Observabilité V3-5B](V3-5B_Observability_Contract.md).
+**Statut : objectifs conceptuellement validés, non mesurés en V3.**  
+**Consolidation :** 2026-10-24. [Canon](V3_Canon_and_Roadmap.md).
 
-## 1. Tailles de Pots de référence — VALIDÉES
+## 1. Profils de référence
 
 | Profil | Shareholders | Expenses |
 |---|---:|---:|
@@ -13,7 +13,7 @@
 
 Ces profils sont des dimensions de jeux de données, ni des limites fonctionnelles ni des objectifs de temps.
 
-## 2. Axes de charge distincts
+## 2. Axes de charge et soutenabilité
 
 - **Taille locale :** trois profils de Pot.
 - **Volume global :** nombre de Pots, utilisateurs, ancienneté des événements et versions.
@@ -24,17 +24,11 @@ Ces profils sont des dimensions de jeux de données, ni des limites fonctionnell
 
 La capacité d'admission HTTP ne prouve pas la stabilité : il faut vérifier débit terminal et progression READ.
 
-## 3. Scénarios et SLIs
+## 3. Scénarios et budgets
 
 Scénarios : **nominal**, **pointe**, **rattrapage**. Mesurer l'attente Discovery/Engine, la préparation, la validation transactionnelle, la matérialisation indépendante des résultats, CurrentPot, tâches, balances et visibilité, les parcours Identity, et les disponibilités bout en bout. Rapporter p50/p95/p99, backlog et âge, temps de résorption, ressources PostgreSQL/CPU/mémoire/WAL ; séparer succès, rejets, erreurs et reprises. La configuration matérielle est fixée ci-dessous ; durées, populations et tailles d'échantillon des campagnes restent à spécifier en V3-5D.
 
 **Les objectifs chiffrés validés figurent en section 5.** Ils ne constituent aucune mesure V3.
-
-## 4. Statut de la revue
-
-Les niveaux de débit, le scénario de contention, les volumes globaux et les configurations A/B sont définis en section 5. Les charges sont offertes (non des capacités démontrées) ; les SLO sont des objectifs (non des résultats mesurés).
-
-## 5. Arbitrages de charge et budget Balance — 2026-10-23
 
 **Charges offertes validées :** nominal 1 commande/s, soutenu 10 commandes/s, pointe 50 commandes/s ; distinguer dispersion entre Pots et contention sur le même Pot. **Volumes globaux validés :** 100 Pots / 10 000 événements ; 10 000 Pots / 1 million d'événements ; 100 000 Pots / 10 millions d'événements.
 
@@ -56,28 +50,26 @@ Les niveaux de débit, le scénario de contention, les volumes globaux et les co
 
 **Contention sur un même Pot — principe VALIDÉ :** campagne distincte des scénarios de Pots indépendants. Produire des commandes concurrentes sur le même Pot et observer collisions CAS, reprises complètes, rejets métier légitimes, latences et files par Consumption. **Critères :** aucun effet double ou perdu ; aucune validation partielle ; décisions conformes à l'état métier courant ; chaque demande finit par un état terminal ou un échec technique explicitement diagnostiqué ; sous charge redevenue nominale, le backlog doit se résorber. Pas de SLO de latence chiffré adopté pour ce cas, ni d'extrapolation des SLO de Pots indépendants. La concurrence, la durée et les scénarios précis sont à décrire dans V3-5D ; distinguer contention réelle et limitations d'ordonnancement par partition.
 
-## 6. Revue de clôture V3-5C — 2026-10-23
+## 4. C-03 — Oracle de disponibilité utilisateur et soldes
 
-**Verdict : CADRAGE CONCEPTUEL CLÔTURÉ, NON CERTIFIÉ.** Les trois tailles de Pot, les volumes historiques, les offres de charge, les configurations d'essai (avec/sans Keycloak), les budgets E2E nominatifs, soutenus et de pointe, le rattrapage et les critères de contention sont arbitrés. Aucune mesure V3 ni exécution de charge n'est revendiquée ; aucun code/DDL V3 n'est autorisé avant validation globale V3-CADRE.
-
-**À préciser dans V3-5D, sans rouvrir ces objectifs :** taille et durée des échantillons p95, définition d'un `Pot complet` observable sans fausse preuve de version courante historique, sélection des commandes réellement appliquées, sondage/polling et biais temporels, fenêtres de charge et de pointe, jeu de mutations et distribution Pot/versions, préparation reproductible du backlog de 10 000 commandes, éventuels effets de partitionnement, méthode d'observation du backlog par Consumption, scénarios de contention, branchement/validité de chaque métrique, placement de Keycloak et des injecteurs. Vérifier formellement que les objectifs E2E correspondent à des consultations réellement démontrables via les API prévues, ou documenter un oracle de preuve sans modifier l'architecture juste pour instrumenter les tests.
-
-## 7. Amendement C-03 — mesure de disponibilité réelle du Pot (2026-10-23)
-
-**ARBITRAGE VALIDÉ, remplaçant les formulations « version cible entièrement matérialisée » comme critère E2E utilisateur des §§5–6.** Pour toute commande appliquée produisant `resultingPotVersion=V`, le jalon E2E **Pot accessible** est la **première lecture API READ réussie** du Pot, authentifiée et autorisée, avec `minVersion=V`, retournant un Pot complet de version courante `W ≥ V`, dont tous les composants nécessaires et la balance **de W** sont cohérents. La version W peut avoir dépassé V : **aucune API historique à V n'est créée et aucune preuve d'un état temporairement consultable à V n'est requise**.
+**ARBITRAGE VALIDÉ, remplaçant les formulations « version cible entièrement matérialisée » comme critère E2E utilisateur des §§5–6.** Pour toute commande appliquée produisant `resultingPotVersion=V`, le jalon E2E **Pot accessible** est la **première lecture API READ réussie** du Pot, authentifiée et autorisée, avec `minVersion=V`, retournant un Pot complet de version courante `W ≥ V`, dont tous les composants nécessaires et la balance **de W** sont cohérents. La version W peut avoir dépassé V : **la consultation historique existe mais ne sert pas d'oracle de première disponibilité courante**.
 
 **Budgets inchangés :** Pot moyen nominal p95 ≤ 500 ms à 1 commande/s ; soutenu p95 ≤ 1 s à 10/s ; pointe p95 ≤ 3 s à 50/s ; grand Pot nominal p95 ≤ 2 s à 1/s. La première réponse READ valide est mesurée depuis l'admission durable ; les timeouts et lectures refusées/incomplètes ne sont pas comptés comme succès. Le résultat Command permet de connaître V, mais sa disponibilité seule ne satisfait pas le jalon.
 
-**Correction distincte et non affaiblie :** chaque `PotBalance(P,V)` attendue doit être produite **exactement et durablement**, même si CurrentPot est déjà passé à W>V ; les sous-objets historiques restent exacts et les tasks par événement doivent terminer. Le budget nominal spécifique **p95 ≤ 500 ms jusqu'à disponibilité de PotBalance(P,V)** est **conservé comme SLO technique distinct** de la latence utilisateur ; son oracle peut être interne READ et ne nécessite pas d'API historique. Les critères de rattrapage de 10 000 commandes et de complétion de leurs projections restent inchangés.
+**Correction distincte et non affaiblie :** chaque `PotBalance(P,V)` attendue doit être produite **exactement et durablement**, même si CurrentPot est déjà passé à W>V ; les sous-objets historiques restent exacts et les Consumptions directes par événement doivent terminer. Le budget nominal spécifique **p95 ≤ 500 ms jusqu'à disponibilité de PotBalance(P,V)** est **conservé comme SLO technique distinct** de la latence utilisateur ; son oracle peut être interne READ et ne nécessite pas d'API historique. Les critères de rattrapage de 10 000 commandes et de complétion de leurs projections restent inchangés.
 
 **Visibilité :** `PotVisibilityState` reste une projection métier à produire et à qualifier séparément ; la lecture directe d'un Pot ne doit pas attendre cette projection si son contrat de lecture ne l'exige pas. En conséquence, le SLO de lecture n'introduit **pas** une barrière artificielle de visibilité sur l'endpoint Pot. L'état complet de toutes les projections et la progression des tâches sont suivis dans les preuves de correction/backlog, hors jalon de première lecture du Pot.
 
 Aucun benchmark V3 exécuté. Les sections antérieures contradictoires sont **supplantées pour la définition du jalon E2E utilisateur** par le présent amendement.
 
-## 8. AUD-V3-011 — oracle C-03 pour DeletePot (2026-10-24)
+## 5. C-03 — Exception DeletePot
 
 **Amendement normatif à §7 :** l'oracle de première lecture API READ complète `minVersion=V` demeure pour les commandes appliquées dont le Pot reste actif. Pour une commande `DeletePot` appliquée à la version terminale D, ce jalon HTTP `200` n'est pas exigible : le Pot courant et la version historique D sont `404` par contrat.
 
 Le jalon alternatif E2E de `DeletePot` est la **première observation interne dans READ** de `CurrentPot(P)` pointant une `PotVersion(P,D)` terminale `deleted=true`. Mesure depuis l'admission durable de la commande, avec les **mêmes budgets C-03** applicables au profil de charge ; un simple `404` HTTP ne prouve jamais que D est matérialisée. Aucune API, projection ni synchronisation supplémentaire n'est introduite pour l'oracle.
 
 `PotBalance(P,D)` est intentionnellement absente et n'entre ni dans ce jalon ni dans le SLO technique de calcul des balances. Le SLO technique et l'exactitude durable restent obligatoires pour **toutes les versions actives V<D**, y compris celles matérialisées tardivement. La mise à jour de `CurrentUserPotList` / `PotVisibilityState` reste un jalon indépendant ; l'absence de balance terminale n'est ni un échec ni un backlog incomplet. Les mesures distinctes de complétion des trois Consumptions et les garanties de reprise restent obligatoires.
+
+## 6. Qualification et certification
+
+Le p95 se mesure depuis l'admission durable jusqu'au premier jalon réellement observable selon les profils et budgets contractuels ; les lectures 404/503, sondages manqués, délais de polling et biais de mesure sont documentés. La visibilité possède ses propres preuves indépendantes, et une version active antérieure V<D reste due même lorsque D a été matérialisée. Les scénarios F01-A à F01-J, A11-L/M et la reconstruction C-02 relèvent de SPEC-10. La problématique de coût du Grand Pot relève de AUD-V3-013, sans en anticiper l'arbitrage. Aucun benchmark V3 exécuté.
