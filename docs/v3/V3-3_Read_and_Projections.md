@@ -129,3 +129,11 @@ Pour éviter toute ambiguïté, ces règles et §9 prévalent sur les formulatio
 **Décision :** l'ensemble interne `authorizedUserIds` de `PotVersion(P,V)` inclut `PotDetails.creatorId` **ainsi que** les `PocomaUserId` associés aux Shareholders présents à V. Ainsi `CreatePot` à V1 est lisible par son créateur sans Shareholder. L'autorisation demeure distincte de `CurrentUserPotList`, qui n'est jamais une source d'autorité ; les droits historiques et le contrôle du `CurrentBinding` actif restent requis. Les formulations antérieures excluant explicitement le créateur non-Shareholder sont **supplantées**.
 
 La suppression d'un Shareholder est une action WRITE réservée au créateur et interdite tant qu'une Expense active le référence. La matrice d'autorisation WRITE est dans V3-1 §9. Adapter SEC-01, PRJ-01 et la preuve V1 créateur ; les réponses 404 restent indistinguables pour un tiers.
+
+## 12. AUD-V3-009 — contrat Supra de lecture CurrentBinding (2026-10-24)
+
+La lecture `GET /identity/me/binding` (nom d'endpoint indicatif) résout exclusivement l'EUI authentifiée. **Aucun bindingToken entrant requis.** Elle restitue seulement `(euiVersion, active, bindingToken si actif)` de cette EUI, sans `pocomaUserId` ni aucun Binding tiers. Le token est une donnée confidentielle, non mise en cache partagé et non journalisée.
+
+`MaterializeCurrentBinding` consomme `IDENTITY_EVENT(EUI,V)` et récupère le Binding autoritatif **à V** en WRITE, puisque le token ne circule pas dans l'événement. Mise à jour monotone de la projection. Après Registration l'EUI enregistrée lit son propre Binding ; après Link le résultat est accessible selon ses droits à E1, mais **E2 doit s'authentifier sous sa propre EUI** pour lire le nouveau Binding E2. Le paramètre `minVersion` doit être évalué à l'encontre de la version de cette même EUI, non celle de l'initiateur.
+
+Cet appel de lecture est une exception **au besoin de posséder préalablement un bindingToken**, et non à l'authentification. Les Commands et IdentityRequests autres que Registration exigent toujours le Binding explicite. Cette section supplante toute ambiguïté antérieure sur la délivrance du token.
