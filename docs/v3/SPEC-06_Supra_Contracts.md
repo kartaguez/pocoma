@@ -92,6 +92,8 @@ L'absence normale de `PotBalance(P,D)` pour la version terminale n'est jamais un
 
 **Point non arbitré :** taille effective du plafond, borne en octets, ordre du manifeste et représentation des références ; confronter aux profils V3-5C. Éviter d'introduire une pagination serveur *en plus* du découpage client sans besoin démontré.
 
+**Transport et coût — AUD-V3-013 :** le manifeste des références d'Expenses reste complet, ordonné et versionné dans la réponse principale, sans pagination serveur de ces références. Les détails restent chargés par lots bornés. Une représentation compacte des références, une sérialisation efficace et la compression HTTP sont permises si elles préservent exactement les identités et versions locales, l'ordre, l'autorisation et la complétude. Aucun raccourci vers le seul `expenseId` ne peut perdre la résolution historique. Mesurer octets JSON non compressés et octets réellement transférés, coûts de sérialisation/lecture et fréquence des consultations du Grand Pot. Un plafond de ressources compatible avec les Pots légitimes doit être qualifié ; jamais de troncature ni de `200` partiel. L'optimisation du transport ne change pas le contrat S-02.
+
 ## 6. Navigation CurrentUserPotList
 
 **DÉCISION :** ordre total stable par `potId` croissant, pagination keyset avec curseur opaque représentant au minimum le dernier `potId` servi ; aucune session, aucun snapshot inter-pages, aucun offset. À chaque requête, résoudre l'utilisateur authentifié via `CurrentBinding` puis consulter les entrées `CurrentUserPotList` actuellement visibles de cet utilisateur, avec `potId > lastPotId`, `ORDER BY potId` et limite serveur. Revalider l'identité à chaque page ; la liste est une navigation, **non une autorité d'AuthZ Pot**.
