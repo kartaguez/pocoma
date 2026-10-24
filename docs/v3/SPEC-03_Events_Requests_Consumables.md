@@ -89,3 +89,8 @@ Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions dir
 Les six familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
 
 La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](SPEC-10_Test_Certification.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.
+
+## Amendement Invitation — événement de domaine
+
+Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, `IDENTITY_REQUEST`) et cinq non-burnables (`POT_EVENT`, `INVITATION_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETED_EVENT`, `IDENTITY_REQUEST_COMPLETED_EVENT`), donc **cinq séquences événementielles denses**. Toute mutation effective d'invitation émet `INVITATION_EVENT(invitationId, invitationVersion, requestId)` et conserve l'état d'invitation historisé correspondant en WRITE. Aucun token ni lien en clair dans l'événement. Cet événement métier est atomique avec l'écriture WRITE et la complétion distincte de la commande ; un rejet n'émet que la complétion. `INVITATION_EVENT` ne se substitue pas à `POT_EVENT`, et `COMMAND_COMPLETED_EVENT` ne sert jamais à projeter l'invitation. Les dénombrements anciens sont supplantés.
+
