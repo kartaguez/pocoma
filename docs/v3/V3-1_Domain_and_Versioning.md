@@ -161,3 +161,11 @@ La politique de révocation anticipée du lien reste à préciser. La vue limit�
 **Suppression :** `DeleteShareholder` reste réservée au créateur et refusée s'il apparaît dans toute Expense active. Ce refus d'invariant n'exige pas de requalifier comme obsolètes les commandes portant sur son rattachement.
 
 **Statut : arbitrage AUD-V3-003 sur les références identitaires validé ; compléter les preuves d'existence historique, d'activité courante et de courses avec création/suppression.**
+
+## 13. AUD-V3-011 — suppression terminale et historique (2026-10-24)
+
+**Décision normative :** `DeletePot` est une suppression logique terminale, non un effacement de l'historique et non une révocation rétroactive des droits historiques. À la version globale D de suppression, seul le Header du Pot devient `deleted=true` ; les composantes enfants ne sont pas modifiées. Toute mutation ultérieure est refusée. Le Pot disparaît de la navigation courante et n'est plus consultable comme Pot courant.
+
+`Pot@D` est reconstruit et matérialisé comme état terminal, mais n'est **pas consultable fonctionnellement** via l'API de Pot complet, même en lecture historique explicite : réponse `404`. Toutes les versions antérieures V<D restent consultables, sous réserve des droits du créateur ou des rattachements Shareholder **à V**, de l'EUI authentifiée et du `CurrentBinding` actif à la consultation (SEC-01). Les droits sur D et la visibilité actuelle ne sont pas une condition supplémentaire de l'accès historique à V. Aucune version ou composante ancienne n'est purgée par `DeletePot`.
+
+L'état `deleted` de D est nécessaire à la matérialisation et au contrôle READ ; son existence interne ne confère aucune permission de consulter D. Les effets Balance et Visibility sont précisés par V3-3 §16, les oracles par V3-5C §8 et V3-5D §61. Cet amendement prévaut sur toute règle antérieure supposant une révocation historique par suppression.
