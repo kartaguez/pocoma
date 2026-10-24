@@ -70,7 +70,7 @@ Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants 
 
 ## 6. Statut des points d'audit
 
-AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD-V3-006 rejeté dans sa proposition de slot synchrone ; certifications PostgreSQL, sécurité et charge restent à réaliser. AUD-V3-012 : **CLOS DOCUMENTAIREMENT** — refonte normative et renumérotation SPEC-01..10 réalisées ; inventaire GitHub, 27 exigences actives, conservation des familles E03/RCV01/F01/A10/A11, numérotation SPEC-10 et liens relatifs `docs/v3` vérifiés. La certification V3 demeure non exécutée. **AUD-V3-013** : prochain point, amplification d'écriture et coût du Grand Pot, non arbitré ici. Ne pas anticiper ses solutions dans SPEC-04 ou SPEC-09.
+AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD-V3-006 rejeté dans sa proposition de slot synchrone ; certifications PostgreSQL, sécurité et charge restent à réaliser. AUD-V3-012 : **CLOS DOCUMENTAIREMENT** — refonte normative et renumérotation SPEC-01..10 réalisées ; inventaire GitHub, 27 exigences actives, conservation des familles E03/RCV01/F01/A10/A11, numérotation SPEC-10 et liens relatifs `docs/v3` vérifiés. La certification V3 demeure non exécutée. **AUD-V3-013 : CLOS DOCUMENTAIREMENT** — matérialisation sélective et groupée des SubobjectVersion absentes de READ depuis WRITE@V, PotVersion complète et immuable sans delta/chaînage, recalcul intégral des balances actives avec accès groupés, manifeste HTTP complet et ordonné avec détails par lots. Aucun mécanisme ou budget nouveau ; mesures physiques et PERF-01/C-03 restent À PROUVER en V3-7. V3-6 demeure suspendue jusqu'à clôture de l'audit global.
 
 ## 7. Réserves et clôture
 
