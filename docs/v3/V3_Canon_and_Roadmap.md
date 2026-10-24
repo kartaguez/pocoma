@@ -312,3 +312,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Décisions validées :** le créateur immuable a droit de lire et modifier son Pot, gérer les Shareholders et Expenses, supprimer le Pot et supprimer un Shareholder **seulement sans Expense active le référençant**. Un utilisateur lié à un Shareholder actif possède les mêmes droits de lecture et mutation **sauf** supprimer le Pot ou un Shareholder. Le créateur conserve ces droits même sans Shareholder ; `PotVersion(P,V)` inclut donc le créateur dans les droits internes à V. Voir V3-1 §9 et V3-3 §11.
 
 **AUD-V3-001 : droits conceptuellement arbitrés ; AUD-V3-003 : condition de suppression Shareholder arbitrée, préconditions de concurrence restant à examiner.** Les preuves V3-5D et les anciens textes contraires doivent être harmonisés avant réalisation. **V3-6 reste suspendue pendant la revue contradictoire de l'audit**, sans annuler le GO historique de V3-CADRE.
+
+## Journal post-audit — parcours d'invitation (2026-10-24)
+
+**AUD-V3-002, parcours validé :** invité avec token opaque temporaire → authentification → Registration Identity si pas de Binding actif → choix d'un Shareholder libre → auto-rattachement versionné en Pot WRITE. Deux opérations/domaines séparés, aucun commit Registration + Pot partagé. Invitation et condition de liberté/restriction par User sont revérifiées à l'exécution. Les modalités de révocation et de sélection des Shareholders libres restent à cadrer ; V3-6 demeure suspendue pendant l'audit contradictoire.
