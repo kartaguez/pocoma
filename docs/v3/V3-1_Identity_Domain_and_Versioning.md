@@ -100,3 +100,15 @@ Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans pré
 **Cas Link :** `bindingToken` de E1 (initiateur) obligatoire ; E2 doit être authentifiée et consentir explicitement au Link particulier, mais n'a pas besoin de Binding initial. **Unlink :** Binding que l'EUI détache. **Invitation/auto-rattachement :** demande avec Binding actif du bénéficiaire lui-même. **Registration :** exception, car elle crée un nouveau Binding. Le mécanisme de récupération du token après Registration/Link doit être documenté sans permettre d'accéder au token d'une autre EUI.
 
 Aucune inférence implicite de `PocomaUserId` par le domaine à partir du seul `issuer/subject`. Toute formulation antérieure laissant entendre une résolution implicite est supplantée.
+
+## Amendement post-audit AUD-V3-009 — consultation de son propre Binding (2026-10-24)
+
+**Décision :** la consultation de `CurrentBinding` est une **lecture de découverte de son propre rattachement**, distincte de toute Command et IdentityRequest. Elle exige une EUI authentifiée, mais **n'exige pas de `bindingToken` entrant**, puisqu'elle sert à récupérer le token de ce Binding. La cible est exclusivement l'EUI issue de l'authentification `(issuer, subject)` ; le client ne peut choisir aucune autre EUI par paramètre.
+
+Le READ Supra renvoie à cet appelant sa version EUI projetée, l'état actif/inactif et **son propre `bindingToken` si actif** ; aucun token d'une autre EUI, aucun `PocomaUserId` exposé. Après `Registration(E1)`, E1 consulte son Binding. Après `Link(E1,E2)`, E1 consulte le résultat de sa demande, tandis qu'**une session authentifiée en E2** consulte ensuite `CurrentBinding(E2)` pour récupérer le nouveau token de E2. Une session E1 ne peut pas utiliser la réussite du Link pour obtenir le token E2.
+
+**Source de matérialisation :** `IDENTITY_EVENT(EUI,V)` ne transporte pas le token ; la Consumption `MaterializeCurrentBinding` lit le Binding autoritatif **à cette version EUI** depuis WRITE et écrit conditionnellement `CurrentBinding(EUI)` en READ (sans recul de version). En particulier, ne pas lire simplement le Binding WRITE *courant* lors d'un événement ancien si cela peut attribuer sa valeur à la mauvaise version.
+
+**Fraîcheur :** une lecture `minVersion` attend la présence de la projection cible ou retourne une indisponibilité temporaire explicite, sans inventer d'identité ni exposer un token obsolète comme s'il était nouveau. Les réponses contenant un token sont sensibles : pas de cache partagé, pas de journalisation du token et contrôle d'authentification à chaque appel.
+
+**Portée :** cette exception de lecture ne modifie pas la règle selon laquelle toute Command/IdentityRequest sauf Registration contient un bindingToken explicite et est revalidée dans WRITE.
