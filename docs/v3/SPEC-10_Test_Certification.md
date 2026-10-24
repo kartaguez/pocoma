@@ -20,9 +20,9 @@ Le tableau relie les exigences actives au protocole détaillé portant le même 
 | DOM-03 | Calcul de soldes rationnels exacts, poids par défaut à V ; balance complète par Pot/V | V3-1, V3-3 | JUnit ; Bruno | ACQUIS / À PROUVER |
 | ID-01 | Registration/Link/Unlink conservent unicité EUI, identité de la cible, tokens renouvelés, et aucune mutation partielle | V3-1 Identity | Bruno ; JUnit/PostgreSQL | ACQUIS / À PROUVER |
 | ID-02 | Link headless avec consentement externe E2 explicite, transactionnel, audience, durée et anti-rejeu | V3-1 Identity | Tests sécurité/Bruno ; JUnit | **ACQUIS / À PROUVER** |
-| EVT-01 | Quatre séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
+| EVT-01 | Cinq séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
-| EVT-03 | Six familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
+| EVT-03 | Sept familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT, et MaterializeInvitation indépendante | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
 | CON-01 | Discovery enrôle les non-burnables avec checkpoint global inspecté par partition, et les burnables PENDING sans checkpoint | V3-4 | JUnit/PostgreSQL crash/fenêtres | ACQUIS / À PROUVER |
 | CON-02 | Checkpoint avancé atomiquement avec tous ses slots ; absence de slot ne vaut complétion que sous ses conditions de preuve | V3-4 | JUnit/PostgreSQL crash/restart | ACQUIS / À PROUVER |
 | CON-03 | Propriété de partition autorise Discovery/acquisition ; claim individuel protège le commit, même après transfert de partition | V3-4 | JUnit/PostgreSQL interleavings | ACQUIS / À PROUVER |
@@ -266,7 +266,7 @@ Utiliser **Bruno/Keycloak** pour les authentifications indépendantes et attaque
 
 ### EVT-01 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Quatre séquences indépendantes : `POT`, `IDENTITY`, `COMMAND_COMPLETION`, `IDENTITY_COMPLETION`. Ces positions ne sont ni des versions métier ni un ordre total entre familles.
+**Statut : protocole proposé, non exécuté.** Cinq séquences indépendantes : `POT`, `INVITATION`, `IDENTITY`, `COMMAND_COMPLETION`, `IDENTITY_COMPLETION`. Ces positions ne sont ni des versions métier ni un ordre total entre familles.
 
 ### Préconditions et oracle
 
@@ -331,7 +331,7 @@ Avant chaque scénario, relever un état cohérent du domaine, la demande `PENDI
 
 ### Variantes de transactions et couplage des tests
 
-- Les familles de publication sont distinctes : `POT → COMMAND_COMPLETION` ou `IDENTITY → IDENTITY_COMPLETION` dans le même commit, mais **aucun ordre global entre les quatre séquences**.
+- Les familles de publication sont distinctes : `POT → COMMAND_COMPLETION`, `INVITATION → COMMAND_COMPLETION` ou `IDENTITY → IDENTITY_COMPLETION` dans le même commit, mais **aucun ordre global entre les cinq séquences**.
 - Pour `Registration`, forcer un échec après le premier événement Identity et vérifier qu'aucun des deux ne persiste. Contrôler leurs `subjectVersion` et leur `requestId` commun.
 - Vérifier les contraintes à la frontière **SQL réelle**, y compris lorsqu'un writer JDBC/JPA lève une erreur rattrapée par un appelant : l'unité physique doit être condamnée et ne pas committer d'effets partiels. La certification précise du manager commun et de l'empoisonnement des writers est conjointe avec CON-06.
 - Pour distinguer crash avant commit et réponse perdue après commit, orchestrer les points de coupure à l'aide de barrières/fault injection déterministes, sans en inférer le résultat uniquement de l'exception remontée au Worker.
@@ -343,11 +343,11 @@ Conserver les identifiants de demandes, snapshots SQL avant/après, journaux d'e
 
 ### EVT-03 — Protocole et oracles
 
-**Contrat :** exactement six familles logiques de consommables, dont deux burnables (COMMAND, IDENTITY_REQUEST) et quatre événements non-burnables séquencés. Aucun taskId, famille READ burnable ni préparation de tâches ; les trois Consumptions de POT_EVENT sont autonomes.
+**Contrat :** exactement sept familles logiques de consommables, dont deux burnables (COMMAND, IDENTITY_REQUEST) et cinq événements non-burnables séquencés. Aucun taskId, famille READ burnable ni préparation de tâches ; les trois Consumptions de POT_EVENT sont autonomes.
 
 | ID | Stimulus | Oracle |
 |---|---|---|
-| E03-A | Inventorier sources et destinataires | Six familles, quatre séquences, deux burnables, trois Consumptions indépendantes de POT_EVENT |
+| E03-A | Inventorier sources et destinataires | Sept familles, cinq séquences, deux burnables, trois Consumptions indépendantes de POT_EVENT, plus MaterializeInvitation |
 | E03-B | Un POT_EVENT(P,V) | Trois slots distincts, un par Consumption ; aucune tâche secondaire |
 | E03-C | Rejouer la Discovery d'une même Consumption | Slot idempotent, aucun doublon |
 | E03-D | Discovery concurrentes | Un enrôlement durable par couple Consumption/événement |
@@ -707,7 +707,7 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 **Contrat conceptuel arbitré ; réalisation V3-6 et certification V3-7 non exécutées.**
 
-**Contrat de matérialisation directe :** aucune tâche de préparation, aucune tâche Balance/Visibility ; six familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
+**Contrat de matérialisation directe :** aucune tâche de préparation, aucune tâche Balance/Visibility ; sept familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
 
 **Tests à construire :** trois checkpoints distincts progressant indépendamment ; crash/retry/fencing de chacun ; absence d'ordre imposé entre Consumptions ; matérialisation V+1 avant V pour chacun ; visibilité V tardive ne régressant pas ; version Pot/Balance absente => lecture temporairement indisponible, pas de mélange ; visibilité indépendante ; WRITE@V reconstitué séparément par projecteur ; budgets SQL/CPU/WAL et latence E2E avant/après simplification sans prétendre une amélioration mesurée. Aucun test V3 exécuté.
 
@@ -989,7 +989,7 @@ Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome
 
 - **Barrière opérationnelle :** avant le reset, empêcher toute nouvelle acquisition Discovery/Engine READ et attendre/neutraliser les écritures READ en cours ; une transaction READ ancienne ne peut pas committer après le reset en réinjectant des effets périmés. Pendant la reconstruction, les APIs ne doivent pas présenter READ partiellement reconstruit comme complet et prêt. La remise en service exige un critère explicite de disponibilité.
 - **Ensemble cohérent :** projections READ, slots, claims/leases de partition READ et checkpoints sont réinitialisés de manière coordonnée. Les définitions et IDs des Consumptions réutilisées restent stables. Les événements immuables de WRITE et les demandes autoritatives ne sont pas effacés.
-- **Reconstruction à mêmes IDs :** les checkpoints non-burnables repartent de zéro dans un espace READ entièrement réinitialisé. Les sources terminales WRITE ne sont **pas** rouvertes : READ redécouvre les quatre séquences d'événements immuables, pas les COMMAND/IDENTITY_REQUEST déjà terminales.
+- **Reconstruction à mêmes IDs :** les checkpoints non-burnables repartent de zéro dans un espace READ entièrement réinitialisé. Les sources terminales WRITE ne sont **pas** rouvertes : READ redécouvre les cinq séquences d'événements immuables, pas les COMMAND/IDENTITY_REQUEST déjà terminales.
 - **Consommations indépendantes :** leur finalisation n'exige pas d'ordre global ; un jalon de remise en service doit néanmoins attester les projections nécessaires aux parcours annoncés. Le rattrapage de CurrentPot ne suffit pas à lui seul à établir que les balances, visibilité, binding et résultats sont prêts.
 - **Rejeu indépendant :** un nouveau `consumptionId` produit des slots et checkpoints propres. Les projections existantes ne doivent pas être modifiées de façon incohérente par une deuxième génération d'écrivains ; leur destination, idempotence ou isolation doit être documentée avant la campagne.
 - **Récupération d'interruption :** une panne pendant reset/rebuild doit laisser READ hors service ou en état de reprise cohérente ; aucune stratégie de restauration séparée d'un ancien checkpoint avec de nouveaux slots/effets n'est acceptable.
@@ -1001,7 +1001,7 @@ Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome
 | RCV01-A | READ peuplé de CurrentPot, PotVersion, sous-versions, balances, listes, bindings, résultats et slots ; déclencher reset total | Aucune projection, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
 | RCV01-B | Un Worker READ possède un claim et exécute une transaction au moment de la demande de reset | Barrière empêche un commit tardif après reset ; rollback/achèvement de l'ancien traitement avant réinitialisation, avec absence de réapparition d'effets |
 | RCV01-C | Arrêt après reset mais avant relance des Consumers | READ reste explicitement indisponible ; ne sert pas un résultat vide comme une reconstruction achevée |
-| RCV01-D | Reconstruire sans nouveaux consumptionIds depuis les quatre séquences événementielles conservées | Checkpoints repartent de zéro puis progressent ; mêmes IDs de Consumption ; projections attendues équivalentes aux valeurs autoritatives |
+| RCV01-D | Reconstruire sans nouveaux consumptionIds depuis les cinq séquences événementielles conservées | Checkpoints repartent de zéro puis progressent ; mêmes IDs de Consumption ; projections attendues équivalentes aux valeurs autoritatives |
 | RCV01-E | Retraiter un même `POT_EVENT` par les trois Consumptions directes (`MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility`) après reset | Projections `PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance` et `PotVisibilityState`/`CurrentUserPotList` recréées exactement, sans collision ni état résiduel |
 | RCV01-F | Reconstruction avec événements Pot et Identity entrelacés, Consumptions Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot/PotVersion, Balance, visibilité, CurrentBinding et résultats ; aucune condition d'ordre artificielle |
 | RCV01-G | Panne au milieu de la reconstruction, avec quelques checkpoints et slots déjà créés | Reprise sûre à partir des données durables ou nouveau reset total coordonné ; aucune perte par avance incohérente de checkpoint |
@@ -1021,7 +1021,7 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 
 **PASS REC-01** : RCV01-A à RCV01-N, reset sans survivants, impossibilité de commit ancien après reset, rejeu fidèle avec mêmes IDs, replay indépendant isolé et API protégée tant que READ n'est pas déclaré prêt. Aucun test V3 n'est encore exécuté.
 
-**DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure retenue : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, slots, claims/propriétés et checkpoints READ, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les quatre séquences d'événements WRITE immuables.
+**DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure retenue : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, slots, claims/propriétés et checkpoints READ, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les cinq séquences d'événements WRITE immuables.
 
 **Condition de réouverture :** capturer quatre préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des six Consumptions READ jusqu'aux préfixes `B` et achèvement de **tous leurs slots enrôlés jusqu'à `B`** (`PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance`, `PotVisibilityState`/`CurrentUserPotList`, `CurrentBinding`, `CommandResult` et `IdentityRequestResult`). Le checkpoint de découverte seul ne vaut pas achèvement tant que des slots subsistent. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
 
