@@ -120,3 +120,13 @@ Pour chaque `(consumptionId, partitionId)`, Discovery :
 **Preuves nécessaires :** deux publications dont la première garde le verrou avant commit et la seconde attend ; rollback de la première puis réallocation sans trou ; fenêtre incluant des événements d'autres partitions ; conflit entre Discoveries sur K/ownership ; crash après lecture source mais avant commit des slots ; READ/WRITE séparés ; checkpoint jamais avancé si un slot de la fenêtre manque. Aucun test V3 exécuté.
 
 **Statut AUD-V3-004 : arbitrage conceptuel résolu ; preuve physique à réaliser en V3-6/7.**
+
+## Amendement post-audit AUD-V3-005 — Consumption autonome pour chaque projection (2026-10-24)
+
+**DÉCISION :** conserver l'association **Discovery + exécution au sein du Worker** pour chaque Consumption. Il n'y a ni Discovery globale distributrice de tâches, ni pipeline de préparation `PreparePotProjectionTasks`. `MaterializePotVersion`, `MaterializePotBalance` et `MaterializePotVisibility` sont trois Consumptions non-burnables autonomes de `POT_EVENT`, chacune avec ses checkpoints par partition, slots, revendications, fencing, transactions READ et retries. Une instance de Worker peut héberger les trois ; aucune séparation de déploiement n'est imposée.
+
+Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. Toutes les règles de Discovery non-burnable (fenêtre sûre, passage du checkpoint et création de slots atomiques dans la base des effets) s'appliquent **individuellement** à chacune des trois Consumptions. Les effets de chaque projecteur et la fin de son slot restent atomiques dans READ.
+
+`MaterializePotVisibility` calcule elle-même depuis WRITE@V la liste complète des utilisateurs visibles ; l'ancienne tâche `PotVisibilityTask(visibleUserIds)` n'existe plus. Elle conserve la garde transactionnelle `PotVisibilityState(P)` pour appliquer le différentiel sans écrasement par des événements hors ordre. `MaterializePotBalance` calcule les balances depuis WRITE@V, sans tâche portant les balances pré-calculées. `MaterializePotVersion` conserve les garanties d'immuabilité/pointeur.
+
+**Supplante** les références historiques aux deux tâches burnables internes et à leur préparation. AUD-V3-006 (opportunité de créer directement les slots de demandes à l'admission) est **distinct et non arbitré**.
