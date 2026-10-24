@@ -326,3 +326,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Contrat tranché :** la lecture de son propre `CurrentBinding` exige l'EUI authentifiée mais **pas le bindingToken entrant**. La cible ne peut être choisie par le client ; la réponse confidentielle contient la version de cette EUI, son état et son seul token actif, pas d'identifiant interne PocomaUser. La matérialisation reconstruit le Binding WRITE à V depuis `IDENTITY_EVENT(EUI,V)` (événement sans token). Après Link, E1 reçoit le résultat de demande, E2 récupère son propre token via sa propre session authentifiée. Voir V3-1 Identity, V3-3 §12, V3-5D §50.
 
 **Statut : AUD-V3-009 résolu conceptuellement, tests à réaliser.** Revue contradictoire des autres constats toujours en cours ; V3-6 suspendue.
+
+## Journal post-audit — AUD-V3-003, références Shareholder (2026-10-24)
+
+**Arbitrage :** une Expense référence le Shareholder stable, pas le PocomaUser lié : changement d'utilisateur rattaché ou de nom de Shareholder **sans obsolescence induite** de la Command Expense. Vérifier seulement l'existence du Shareholder à `observedVersion` et son activité au moment de l'exécution, outre les vraies dépendances financières et droits propres de l'auteur. Suppression du Shareholder toujours impossible s'il est référencé par une Expense active. Voir V3-1 §13. V3-6 suspendue pendant la revue d'audit.
