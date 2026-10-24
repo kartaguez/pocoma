@@ -7,7 +7,7 @@
 
 READ répond aux consultations courantes et historiques à partir de ses seules projections, jamais par une consultation synchrone de WRITE. Les projections peuvent être en retard : toute réponse porte la version effectivement servie, exacte et cohérente. La lecture Pot autorisée est complète à V ou temporairement indisponible, sans mélange de versions. Les Consumptions sont indépendantes, et la navigation n'est jamais une autorité de sécurité. Aucune nouvelle famille READ_REQUEST ni annuaire inverse Identity.
 
-## 2. Inventaire des huit projections logiques
+## 2. Inventaire des neuf projections logiques
 
 1. `PotVersion(P,V)` : composition immuable par version, références complètes de sous-objets, manifeste d'Expenses et droits internes à V.
 2. `CurrentPot(P)` : pointeur monotone vers la plus haute version PotVersion matérialisée.
@@ -17,14 +17,15 @@ READ répond aux consultations courantes et historiques à partir de ses seules 
 6. `CurrentBinding(EUI)` : rattachement courant de l'EUI et token réservé à celle-ci.
 7. `CommandResult` : résultat terminal immuable et provenance requesterEui.
 8. `IdentityRequestResult` : résultat terminal immuable et provenance requesterEui.
+9. `CurrentInvitation` : invitation projetée et lien restituable au seul créateur, avec index d'empreinte pour le parcours invité.
 
-Inventaire **logique**, sans obligation de huit tables. `PotVisibilityState` est une garde technique de la projection de navigation et non une neuvième projection métier ; aucune projection Identity inverse.
+Inventaire **logique**, sans obligation de neuf tables. `PotVisibilityState` est une garde technique de la projection de navigation et non une projection métier supplémentaire ; aucune projection Identity inverse.
 
 ## 3. PotVersion, CurrentPot et sous-objets
 
  La projection de composition est **légère** : elle conserve les références, non une duplication des contenus.
 
-- **`PotVersion(potId,V)`**, immuable et matérialisée à chaque version globale du Pot, porte la composition exacte : références de versions locales des composants Pot, Shareholders (avec l'indicateur booléen public `isFree` indiquant si `userId == null`, sans jamais exposer `userId`) et Expenses, inclusions/suppressions, et ensemble interne des `pocomaUserId` autorisés par rattachement à un Shareholder ou comme créateur **à V**. Elle ne copie ni les sous-objets complets ni les balances. Les données internes d'autorisation ne sont pas exposées dans la réponse client. Cette addition porte l'inventaire logique de sept à **huit projections**.
+- **`PotVersion(potId,V)`**, immuable et matérialisée à chaque version globale du Pot, porte la composition exacte : références de versions locales des composants Pot, Shareholders (avec l'indicateur booléen public `isFree` indiquant si `userId == null`, sans jamais exposer `userId`) et Expenses, inclusions/suppressions, et ensemble interne des `pocomaUserId` autorisés par rattachement à un Shareholder ou comme créateur **à V**. Elle ne copie ni les sous-objets complets ni les balances. Les données internes d'autorisation ne sont pas exposées dans la réponse client. L'indicateur `isFree` ne constitue pas une projection supplémentaire.
 - **`CurrentPot(potId)`** n'est plus qu'un pointeur mutable monotone vers le `V` maximal matérialisé. La lecture principale résout `PotVersion(P,V)`, les sous-objets des Shareholders et `PotBalance(P,V)` ; elle retourne aussi la liste ordonnée des références versionnées des Expenses, sans charger tous leurs détails. Si une dépendance de V manque, réponse temporairement indisponible, pas de mélange de versions.
 - **`MaterializePotVersion` est la Consumption** : reconstruction directe depuis l'événement `POT_EVENT(P,V)` et l'état WRITE@V, puis insertion de `PotVersion(P,V)`, insertion des `SubobjectVersion` nouvelles et mise à jour conditionnelle `CurrentPot` dans **une transaction READ** avec complétion du slot. Une arrivée tardive de V inférieure conserve ses données immuables sans reculer CurrentPot.
 - **Sécurité :** chaque requête résout d'abord l'EUI authentifiée et le binding actif dans `CurrentBinding`, puis recherche le `pocomaUserId` autorisé **à V** dans `PotVersion(P,V)` ; l'autorisation historique n'est jamais une capacité permanente. Une liste de navigation visible (incluant éventuellement un créateur non-Shareholder) **n'accorde aucun droit**. Les lectures groupées de références vérifient également l'appartenance exacte au manifeste de la version consultée. Les fenêtres de retard de révocation `CurrentBinding` restent celles de SEC-01.
@@ -109,9 +110,9 @@ Cet amendement complète SEC-01 et supplante les passages historiques de §§1�
 
 Les historiques PotVersion, SubobjectVersion et PotBalance sont conservés sans archivage ni purge automatique V3. Le coût d'un manifeste complet par V est assumé et doit être mesuré, notamment pour les grands Pots (AUD-V3-013), sans modifier la règle au titre du présent audit. Reconstruction READ : arrêt des writers, reset cohérent des projections, slots et checkpoints et rejeu conforme à C-02 en [SPEC-05](SPEC-05_Consumption_Discovery.md). Preuves PRJ-01/02/03, READ-01, SEC-01, A10 et A11 en [SPEC-10](SPEC-10_Test_Certification.md).
 
-## Amendement CurrentInvitation
+## 12. CurrentInvitation, restitution et consultation invitée
 
-La neuvième projection logique `CurrentInvitation` est indépendante des huit projections existantes. Elle contient l'identifiant, la version/état, le `creationRequestId`, la `creatorEui`, le `potId`, l'expiration, l'empreinte du token et le **lien restituable sous protection de confidentialité**. `MaterializeInvitation` consomme `INVITATION_EVENT`, lit WRITE à la version exacte et avance conditionnellement la projection, sans régression en cas d'événements hors ordre.
+`CurrentInvitation` est indépendante des huit autres projections. Elle contient l'identifiant, la version/état, le `creationRequestId`, la `creatorEui`, le `potId`, l'expiration, l'empreinte du token et le **lien restituable sous protection de confidentialité**. `MaterializeInvitation` consomme `INVITATION_EVENT`, lit WRITE à la version exacte et avance conditionnellement la projection, sans régression en cas d'événements hors ordre.
 
 Le lien est restitué au seul `creatorEui` authentifié, par `creationRequestId`, jamais par `CommandResult`. Pour l'invité authentifié présentant le token, READ vérifie son empreinte, son expiration, le Pot actif à la version courante projetée et l'absence de rattachement à un Shareholder actif ; elle propose seulement les Shareholders `isFree` et leurs noms. `authorizedUserIds` ne suffit pas à détecter un rattachement, car cette liste contient aussi le créateur indépendant de tout Shareholder : conserver un indicateur interne de rattachement par Shareholder, sans exposer userId. READ est éventuellement cohérent ; aucune place n'y est réservée.
 
