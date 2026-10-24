@@ -135,3 +135,11 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 **Frontière à préciser :** EUI authentifiée sans PocomaUser/Binding encore actif : Registration préalable ou parcours combiné ? Le droit du créateur de révoquer une invitation et le comportement après expiration doivent être figés. La protection du secret (non journalisation, pas dans analytics/referrer) et la gestion du retry/idempotence font partie des contrats des Supras.
 
 **Statut : solution fonctionnelle de principe retenue pour AUD-V3-002 ; détails de révocation et d'enrôlement d'un utilisateur non enregistré encore ouverts. Aucun code ni DDL V3 exécuté.**
+
+## 11. AUD-V3-002 — parcours invité non enregistré (2026-10-24)
+
+**Décision validée :** lorsqu'un invité ouvre le lien de son Pot, il s'authentifie ; s'il ne possède pas encore de `PocomaUser` / Binding actif, il effectue **Registration d'abord**, via le protocole Identity existant, attend que son Binding soit utilisable, puis sélectionne un Shareholder libre et demande son auto-rattachement avec le token d'invitation. Il n'existe pas de transaction trans-domaines « Registration + mutation du Pot » ni de nouveau type de lien identitaire. L'invitation n'accorde des droits qu'après rattachement réussi.
+
+**Revalidation à l'exécution WRITE du rattachement :** invitation toujours valable, Pot actif, Shareholder toujours libre, User pas déjà lié à un autre Shareholder actif de ce Pot. Le passage préalable par Registration ne réserve ni Shareholder ni validité du lien ; si l'invitation expire entre l'ouverture de la page et l'exécution, la mutation est rejetée sans effet. Un retry de la même demande déjà admise conserve sa sémantique idempotente, mais ne garantit pas la réussite métier.
+
+**À préciser ultérieurement :** révocation anticipée de l'invitation par le créateur, représentation de l'invitation comme objet WRITE et mécanisme de lecture contrôlée permettant à un invité encore non membre de voir uniquement les Shareholders libres (sans exposer les détails du Pot). Aucune consultation du Pot complet n'est autorisée avant rattachement. AUD-V3-002 : parcours Registration résolu ; contrat minimal de découverte des Shareholders libres encore à cadrer.
