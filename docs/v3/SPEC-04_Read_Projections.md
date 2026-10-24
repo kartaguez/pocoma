@@ -88,7 +88,7 @@ Les résultats peuvent être visibles avant la projection métier. Une Command r
 
 **Indépendance :** chaque Consumption conserve sa propre Discovery, checkpoint, slots, transaction d'effets, retry et possibilité de progrès, dans le même modèle de Worker. Aucune Discovery commune ni service physique supplémentaire exigés. La lecture complète Pot à V vérifie la disponibilité de PotVersion, Shareholder SubobjectVersion et PotBalance à V ; la visibilité reste indépendante. Les traitements de V peuvent arriver hors ordre ; pas de recul de pointeur ni de visibilité et toutes les balances historiques doivent être conservées.
 
-**Ce §13 supplante explicitement les mécanismes antérieurs de tâches préparées en §§4–9 et dans V3-2/V3-4.** Le nombre de projections logiques READ n'est pas modifié par la suppression des familles de tâches : `PotVersion`, `CurrentPot`, `SubobjectVersion`, `PotBalance`, `PotVisibilityState/CurrentUserPotList`, `CurrentBinding` et résultats restent selon leur inventaire normatif. Aucune implémentation réalisée.
+**La présente section sur les Consumptions directes supplante les anciens mécanismes de tâches préparées dans les documents historiques.** La suppression des familles de tâches ne modifie pas l'inventaire des projections logiques READ : `PotVersion`, `CurrentPot`, `SubobjectVersion`, `PotBalance`, `PotVisibilityState/CurrentUserPotList`, `CurrentBinding` et résultats restent selon leur inventaire normatif. Aucune implémentation réalisée.
 
 ## 9. Cohérence de lecture et complétude
 
