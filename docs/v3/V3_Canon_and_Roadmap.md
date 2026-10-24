@@ -306,3 +306,9 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 **Effet autorisé :** préparer puis lancer les lots d'implémentation V3-6 dans une séquence cohérente de petites étapes avec tests ; maintenir la compatibilité des invariants, interdiction de certification/activation prématurée, et conservation des preuves. **V3-6 AUTORISÉE mais NON DÉMARRÉE dans cette décision.** Les paramètres restant à fixer sont des gates d'implémentation/qualification, pas des permissions de les omettre.
 
 **Aucun runtime V3, DDL ni test V3 réalisé à l'occasion de ce gate documentaire.**
+
+## Journal post-audit — arbitrage AUD-V3-001 et suppression Shareholder (2026-10-24)
+
+**Décisions validées :** le créateur immuable a droit de lire et modifier son Pot, gérer les Shareholders et Expenses, supprimer le Pot et supprimer un Shareholder **seulement sans Expense active le référençant**. Un utilisateur lié à un Shareholder actif possède les mêmes droits de lecture et mutation **sauf** supprimer le Pot ou un Shareholder. Le créateur conserve ces droits même sans Shareholder ; `PotVersion(P,V)` inclut donc le créateur dans les droits internes à V. Voir V3-1 §9 et V3-3 §11.
+
+**AUD-V3-001 : droits conceptuellement arbitrés ; AUD-V3-003 : condition de suppression Shareholder arbitrée, préconditions de concurrence restant à examiner.** Les preuves V3-5D et les anciens textes contraires doivent être harmonisés avant réalisation. **V3-6 reste suspendue pendant la revue contradictoire de l'audit**, sans annuler le GO historique de V3-CADRE.
