@@ -3,7 +3,7 @@
 **Statut actuel : V3-CADRE VALIDÉ — GO de cadrage conceptuel (2026-10-23) ; V3-6 AUTORISÉE pour la réalisation, sans certification ni activation.**  
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
-**Nature :** cadrage uniquement ; aucune implémentation V3 autorisée à ce stade.
+**Nature :** cadrage et consolidation documentaire, sans certification ni activation.
 
 ## 1. Objectif et règle d'or
 
@@ -31,374 +31,47 @@ La simplicité ne dispense pas de correction : préserver, ou remplacer par une 
 - **Pas de mise en production implicite :** aucun résultat documentaire ni gate local ne certifie l'activation.
 - **Après chaque étape :** revenir à CE document, mettre à jour statut, décisions prises, livrables, preuves, écarts, questions résiduelles, dépendances et prochaine action ; lier les SHAs. Ce document reste l'unique autorité pour la progression V3.
 
-## 3. Ordre de travail et dépendances
+## 3. Spécifications normatives (ARB-08)
 
-**Ordre directeur : V3-0 → V3-1 (Pot + Identity) → V3-2 → V3-3 → V3-4 → V3-5 (cadrage final) → V3-CADRE → V3-6 (réalisation) → V3-7 (qualification).**
+Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalons d'implémentation**. Les références V3-0 à V3-7 désignent la feuille de route. Les décisions normatives complètes résident dans chaque SPEC ; ce canon conserve exclusivement les statuts, responsabilités et dépendances. L'historique des propositions et amendements reste consultable dans Git et dans le [rapport d'audit](V3_Independent_Conceptual_Audit_Report.md).
 
-Le **cadrage cohérent de toutes les étapes précède toute implémentation** : ne pas commencer les modifications runtime/DDL tant que les frontières, contrats structurants, invariants et dépendances des étapes V3-1 à V3-5 n'ont pas fait l'objet d'une revue globale. Les détails strictement locaux (classe précise, index, taille de batch) peuvent être tranchés lors de l'implémentation, si cela ne remet pas en cause le modèle partagé.
+| Document | Autorité normative | Statut |
+|---|---|---|
+| [SPEC-01](SPEC-01_Pot_Domain.md) | Domaine Pot, versions, suppressions, droits métier et invitations | Conceptuellement arbitré |
+| [SPEC-02](SPEC-02_Identity_Domain.md) | Identity, Binding, Registration/Link/Unlink et consentement | Conceptuellement arbitré |
+| [SPEC-03](SPEC-03_Events_Requests_Consumables.md) | Demandes, six familles, événements, provenance et séquences | Conceptuellement arbitré |
+| [SPEC-04](SPEC-04_Read_Projections.md) | Huit projections logiques, versions historiques, balances, résultats READ | Conceptuellement arbitré |
+| [SPEC-05](SPEC-05_Consumption_Discovery.md) | Discovery, Engine, slots, transactions, trois Consumptions directes, quarantaine | Conceptuellement arbitré |
+| [SPEC-06](SPEC-06_Supra_Contracts.md) | Admission, interfaces READ, autorisation, HTTP et protection | Conceptuellement arbitré |
+| [SPEC-07](SPEC-07_Transverse_Requirements.md) | Catalogue transversal des exigences actives | Conceptuellement arbitré |
+| [SPEC-08](SPEC-08_Observability.md) | Contrat de mesure O-01 et instrumentation | Conceptuellement arbitré |
+| [SPEC-09](SPEC-09_Performance.md) | Budgets et oracle C-03 | Conceptuellement arbitré |
+| [SPEC-10](SPEC-10_Test_Certification.md) | Matrice et protocoles des preuves à exécuter | Spécifiés, non exécutés |
 
-| Étape | Objet | Dépend de | Statut initial |
-|---|---|---|---|
-| **V3-0** | Canon, objectifs, questions, jalon de cadrage | Acquis et difficultés V2 | **EN CONCEPTION** |
-| **V3-1** | Domaine, sous-objets et versions | V3-0 | **CONCEPTION VALIDÉE (non implémentée)** |
-| **V3-2** | Événements, demandes et consommables | Modèle V3-1 | **CONCEPTION VALIDÉE (non implémentée)** |
-| **V3-3** | Projections, matérialisation cible et READ | V3-1 et V3-2 | **CONCEPTION VALIDÉE (non implémentée)** |
-| **V3-4** | Consumption, Discovery et Engine (sans Locator autonome) | Sources V3-2 et sorties V3-3 | À CADRER |
-| **V3-5** | Cadrage final : exigences, observabilité, objectifs de performance et plan de preuves | V3-1 à V3-4 | À CADRER |
-| **V3-CADRE** | Jalon obligatoire de validation du cadrage global avant code | V3-1 à V3-5E | **VALIDÉ — GO documentaire** |
-| **V3-6** | Implémentation V3 et construction des tests/instruments | V3-CADRE validé | **AUTORISÉ — NON DÉMARRÉ** |
-| **V3-7** | Exécution des preuves, qualification performance et certification | V3-6 | NON DÉMARRÉ |
+## 4. Feuille de route et dépendances
 
-Les étapes sont successives **pour trancher les contrats conceptuels** ; leur implémentation peut ensuite se découper en lots/branches coordonnés. Ne pas introduire de dépendances circulaires : les besoins des étapes suivantes peuvent rétroagir sur le cadrage précédent **avant le jalon de validation globale**.
+| Jalon | Finalité | Statut |
+|---|---|---|
+| V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
+| V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO historique du 2026-10-23 ; ne constitue pas certification et ne lève pas la suspension d'audit |
+| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **Suspendu** jusqu'à clôture de l'audit et décision de reprise |
+| V3-7 | Exécuter les preuves PostgreSQL, Bruno et k6 ; mesurer les budgets ; certifier ou refuser l'activation | Non commencé |
 
-## 4. Questions et livrables par étape
+Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
 
-### V3-0 — Cadrage transverse
+## 5. Décisions transversales résumées
 
-**Questions :** frontières des royaumes et des responsabilités ; vocabulaire partagé ; invariants non négociables ; niveau de preuve ; politique de rupture, de données et de documentation ; dépendances et critères de cohérence globale.
+- **Domaine :** créateur immuable, droits Shareholder indépendants, suppressions Pot/Shareholder réservées au créateur, suppression Shareholder refusée si Expenses actives la référencent. Expense référence ShareholderId, sans dépendre du lien identitaire.
+- **Identity :** EUI 0..1 PocomaUser, User 0..N EUI ; Binding relationnel, token explicite pour les demandes hors Registration. La lecture de son propre CurrentBinding ne requiert aucun token entrant. Link headless fondé sur une preuve externe d'autorisation/consentement transactionnel, produit fournisseur non imposé ; aucun index inverse Identity requis.
+- **Requests/Events :** six familles, demandes burnables uniquement Command et IdentityRequest ; requesterEui immuable à l'admission, événements de complétion minimaux. Résultats READ réservés à l'EUI initiatrice, HTTP 200/404/401/503 selon SPEC-06 ; aucune expiration fonctionnelle en V3.
+- **READ :** PotVersion immuable complet en références à chaque version, CurrentPot pointeur, soldes complets par version active. Trois Consumptions indépendantes de POT_EVENT, sans tâches intermédiaires. Navigation non autorisante. Droits historiques à V avec Binding actif. DeletePot produit la version terminale D mais pas Balance(D) ; courant et D non consultables, V<D consultables selon les droits.
+- **Consumption :** fenêtre Discovery committée et bornée, atomie checkpoint/slots, validation par claim, aucun graphe de dépendances. Échecs techniques constatés comptés jusqu'au seuil N, slot QUARANTINED persistant et exclu du softCap, réactivation administrative explicite avec compteur remis à zéro ; jamais de purge avant succès.
+- **Certification :** S-02 = manifeste complet d'Expenses exclusivement ; SEC-01 = autorisation historique. PRJ-04 est retiré sans réutilisation. C-01 consentement Link, C-02 maintenance READ exclusive, C-03 lecture complète autorisée W≥V pour Pot actif ou oracle interne PotVersion(D) pour DeletePot. Les scénarios A10-A..K et A11-A..N restent à exécuter.
 
-**Livrables :** ce canon/roadmap ; inventaire raisonné des garanties existantes ; critères du jalon global ; décisions et risques transversaux.
+## 6. Statut des points d'audit
 
-**Sortie :** ordre et périmètres de toutes les étapes compris ; la cible reste à concevoir en V3-1 à V3-4.
+AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD-V3-006 rejeté dans sa proposition de slot synchrone ; certifications PostgreSQL, sécurité et charge restent à réaliser. AUD-V3-012 : refonte normative, matrice et renumérotation SPEC-01..10 ; contrôle final de non-régression en cours. **AUD-V3-013** : prochain point, amplification d'écriture et coût du Grand Pot, non arbitré ici. Ne pas anticiper ses solutions dans SPEC-04 ou SPEC-09.
 
-### V3-1 — Domaine et sous-objets versionnés
+## 7. Réserves et clôture
 
-**Questions à résoudre :**
-- Délimiter les agrégats et sous-objets (Pot, Expense, Shareholder, ShareholderWeight, etc.) ; distinguer identités propres, valeurs intégrées et références.
-- Définir les versions autonomes nécessaires, notamment pour Expense et éventuellement ShareholderWeight ; quel changement incrémente quelle version ?
-- Quel rôle exact pour la version globale du Pot : cohérence historique, révision d'agrégat, ordre des mutations, lien aux versions des sous-objets ?
-- Comment reconstruire un Pot cohérent à une version globale donnée à partir de sous-objets versionnés ? Quelles références ou révisions doivent être conservées ?
-- Clarifier `expectedVersion` / `observedVersion`, conflits métier vs techniques, concurrence et CAS.
-- Définir les invariants des relations et de la modification/suppression des sous-objets.
-
-**Livrables :** modèle de domaine V3, tableau objets/identités/versions/owners, invariants, exemples de mutations et reconstructions ; questions résolues et décisions reportées. **Livré (cadrage Pot) :** [SPEC-01_Pot_Domain.md](SPEC-01_Pot_Domain.md) — huit sous-objets (Headers/Details et Weight/Financials), versions locales indépendantes, version globale Pot, intervalles historiques, suppression portée par Header, références métier stables, conditions d'obsolescence, commandes sans effet ou multi-cibles, poids par défaut dynamiques et reconstruction à V. Aucune implémentation ni preuve test V3.
-
-**Livré (cadrage Identity) :** [SPEC-02_Identity_Domain.md](SPEC-02_Identity_Domain.md) — PocomaUser autonome, ExternalUserIdentity versionnée, binding comme relation non autonome, bindingToken non devinable, Registration/Link/Unlink, admission déclarative, contrôle atomique des rattachements, concurrence et reconstruction locale. **Entitlements fournis par une autorité extérieure, sans domaine Entitlements Pocoma.** Reste à définir le protocole de preuve de contrôle de l'identité cible lors d'un Link, les contrats des événements/complétions, les READ et le protocole d'exécution. Aucune implémentation ni preuve test V3.
-
-### V3-2 — Événements, demandes et objets consommables
-
-**Questions à résoudre :**
-- Définir les deux royaumes (métier et identité) et deux natures : **modification du domaine** et **complétion d'une demande externe**. Quelles sont les vraies frontières et familles techniques nécessaires ?
-- Clarifier `BUSINESS_EVENT`, complétion de commande, `IDENTITY_EVENT` (PocomaUserCreated, ExternalUserIdentityLinked/Unlinked…) et complétion des demandes Registration/Link/Unlink ; distinguer types de faits, demandes, décisions et résultats.
-- Pour chaque type, établir identité, sujet, version/révision éventuelle, payload minimal, causalité et règles de publication.
-- Identifier les objets consommables et leur cycle de vie : **burnable** (disponibilité portée par la source) ou **non-burnable** (pas d'état de consommation sur la source) ; ne pas confondre burnability et exclusivité.
-- Définir séquences E / familles, densité, préfixes stables, frontières de transaction, ordre de publication, complétude, reprise et partitionnement, en réutilisant ou remplaçant explicitement les acquis 4A–4E.
-- Déterminer si les deux journaux d'identité actuels sont fusionnés et comment représenter les demandes/complétions d'identité sans familles artificielles.
-
-**Livrables :** catalogue conceptuel minimal de familles et types, contrats des événements et demandes, table des consommables/cycles de vie, invariants transactionnels et stratégie de remplacement des journaux de développement. **Livré (conception) :** [SPEC-03_Events_Requests_Consumables.md](SPEC-03_Events_Requests_Consumables.md) — six familles (deux demandes burnables avec statut explicite, quatre événements non-burnables), quatre séquences denses, eventId UUID, causalité requestId obligatoire pour les mutations, résultats terminaux et événements de complétion distincts, publication atomique, interdiction de mutation inter-domaines et matrice de cohérence V3-1. Réserves : READ, Consumption, protocole de preuve EUI cible pour Link, tests et schémas.
-
-### V3-3 — Projections et READ cible
-
-**Questions à résoudre :**
-- Identifier d'abord les besoins réels des API et écrans : consultation courante, historique, liste et cohérence par version.
-- Définir `CurrentPotHeader` (métadonnées, shareholders, références d'Expenses et de leurs versions), `ExpenseVersion`, balances, current binding, résultats de Command et Registration, liste des Pots et éventuelles autres vues justifiées.
-- Déterminer quelles projections sont mutables, immuables ou historisées, avec leur clé exacte et leur source autoritative.
-- Quelles garanties de cohérence entre header, expenses et balances ? Quels liens avec version globale Pot et versions des sous-objets ?
-- Définir les transformations et leurs sorties sans les coupler à l'orchestration Consumption ; mécanismes de reconstruction/rattrapage et coût de lecture.
-- Réduire duplications, cardinalités, index et jointures JSONB inutiles ; choisir selon besoins, non selon le pipeline actuel.
-
-**Livrables :** inventaire exhaustif minimal des projections V3, schémas logiques, contrats READ, mapping sources→transformations→sorties, exemples de lecture/version. **Livré (conception) :** [SPEC-04_Read_Projections.md](SPEC-04_Read_Projections.md) — sept projections logiques, lecture Pot courant complète ou indisponible, versions de sous-objets immuables, balance complète immuable par V, liste utilisateur monotone avec entrées retirées, unique CurrentBinding, résultats terminaux, minVersion pour READ asynchrone. Deux Consumptions Pot : matérialisation directe CurrentPot/sous-objets et préparation de deux tâches Balance/Visibilité ; Identity et résultats directement matérialisés. Consultation historique et READ_REQUEST hors périmètre présent. Risques/contrats d'exécution renvoyés à V3-4.
-
-### V3-4 — Consumption applicative et exécution
-
-**Questions à résoudre :**
-- Consacrer **Consumption = identité UUID stable + famille de consommables + transformation**, exprimée en Java et référençable par son seul ID.
-- Définir les contrats explicites, peu nombreux, de **Discovery** et **Engine**, tous liés à une Consumption. Pas d'exécution croisée.
-- Discovery des burnables par disponibilité source ; non-burnables par enrôlement/checkpoint quand un journal le justifie. Checkpoint `(consumptionId, partitionId)` ; slot logique `(consumptionId, consumableId)`, partition hors identité.
-- Définir la concurrence, le routage, le parcours E, les slots, claims, fencing, retry, terminalisation, atomicité des effets et résolution de COMMIT UNKNOWN.
-- Composer plusieurs Consumptions dans des Workers intégrés ou séparés, sans validateur global, manifeste, digest ni framework administratif.
-- Supprimer l'identité polymorphe et la provenance générique obligatoire si elles ne répondent à aucun invariant cible ; laisser chaque Consumer porter ses liens causaux utiles.
-- Vérifier coût PostgreSQL : nombre de lignes lues, jointures, index, backlogs et reprise ; préférer les algorithmes les plus simples qui satisfont les invariants.
-
-**Livrables :** grammaire applicative et ports, modèle durable minimal, protocoles transactionnels, cas complets (Event→ProjectionTasks, identité, burnable), stratégies de déploiement et preuve de correction.
-
-### V3-5 — Cadrage final et vérifiabilité (sans implémentation)
-
-**V3-5A — Revue globale et exigences :** matrice unique des parcours, invariants, arbitrages résiduels, dépendances et contrats vérifiables V3-1→V3-4. Sortie : aucune contradiction structurante non arbitrée.
-
-**V3-5B — Observabilité :** inventorier l'existant ; définir les phases temporelles (admission, attente Discovery, attente acquisition, exécution, validation, propagation READ et disponibilité bout en bout), traces, métriques, corrélations et instrumentation minimale. Sortie : chaque délai cible est mesurable ou ses limites explicitées.
-
-**V3-5C — Objectifs de performance :** hypothèses reproductibles de charge, volume et ressources ; budgets d'attente/travail/propagation ; objectifs p50/p95/p99, débit, backlog, temps de rattrapage et seuils d'acceptation. Sortie : objectifs chiffrés et vérifiables, sans revendiquer de mesures V3 non exécutées.
-
-**V3-5D — Plan de preuves et clôture :** lier chaque exigence structurante à une vérification adaptée : Bruno (API et parcours), k6 (charge et bout en bout), JUnit/PostgreSQL (atomicité, CAS/fencing, séquences, reprises et crash). Définir les jeux de données, les scénarios, les critères de réussite et l'ordre des lots de réalisation. Sortie : dossier V3-CADRE prêt pour revue.
-
-**Livrables V3-5 :** matrice d'exigences unique, contrat d'observabilité, budgets/performance, spécifications des scénarios Bruno/k6/JUnit, stratégie de réalisation, décision explicite au jalon V3-CADRE. Les fichiers de test exécutables peuvent être conçus ici mais **leur réalisation et exécution ne sont pas exigées** et ne constituent pas le livrable principal.
-
-**Exclusions :** aucun runtime, DDL, stack monitoring, optimisation prématurée, benchmark V3 prétendument mesuré ou certification.
-
-### V3-6 — Réalisation après V3-CADRE
-
-Implémenter domaine, consumables, Consumptions, Discovery/Engine, READ, API et observabilité minimale ; construire les collections Bruno, scénarios k6 et tests JUnit/PostgreSQL ; découper en lots avec preuves de non-régression et suppression des chemins obsolètes. Les changements de contrats structurants rouvrent le cadrage concerné.
-
-### V3-7 — Vérification, performance et clôture
-
-Exécuter les preuves fonctionnelles, transactionnelles, concurrentes, crash/UNKNOWN, Bruno et k6 ; mesurer ressources et performance (PostgreSQL, WAL, requêtes, latence, débit, backlog, rattrapage) dans des conditions reproductibles ; corriger les écarts, documenter limites et prendre une décision explicite de certification/activation. Une conception validée n'est pas une certification runtime.
-
-## 5. Jalon obligatoire — cadrage V3 cohérent avant code
-
-Le jalon **V3-CADRE** est atteint uniquement quand :
-- [x] V3-1 : domaines **Pot et Identity**, identités, versions autonomes/globales lorsque nécessaires et reconstruction historique arbitrés **au niveau conceptuel**, sous réserve de la revue de cohérence globale et des interfaces de sécurité Link.
-- [x] V3-2 : familles/types d'événements, demandes et consommables définis conceptuellement ; dépendances V3-3/4 et revue globale restent ouvertes.
-- [x] V3-3 : projections et contrats READ stabilisés conceptuellement ; garanties d'exécution/transfert à prouver en V3-4/5.
-- [x] V3-4 : contrats et garanties de Consumption sont définis à partir de ces sources/sorties.
-- [x] V3-5 : revue globale, matrice d'exigences et plan de preuves, contrat d'observabilité et objectifs mesurables de performance terminés.
-- [x] Les interfaces et invariants transversaux des quatre étapes sont compatibles.
-- [x] Les ruptures assumées, tests de remplacement et modalités d'intégration sont consignés.
-- [x] Une revue globale conclut explicitement **CADRAGE VALIDÉ** avec références documentaires.
-
-**Jalon validé conceptuellement le 2026-10-23.** La réalisation structurelle V3-6 devient autorisée, mais ne saurait être déclarée vérifiée ou activable avant les gates V3-7 et les preuves effectives. Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes. Ne pas confondre « cadrage détaillé » avec conception exhaustive des classes ou requêtes.
-
-## 6. Registre de suivi vivant
-
-| Étape | Statut | Décisions et résultats acquis | Preuves / référence | Questions ou risques restants | Prochaine action |
-|---|---|---|---|---|---|
-| V3-0 | EN CONCEPTION | Règle de simplicité, ordre domaine→événements→READ→Consumption→intégration, rupture V2 acceptée | Ce document | Revue et validation du cadrage directeur | Lancer l'étude V3-1 |
-| V3-1 | **CONCEPTION VALIDÉE** | **Pot :** huit sous-objets, versions locales/globales, suppressions, concurrence et histoire à V. **Identity :** User autonome, EUI versionnée, binding relationnel, token non devinable, Registration/Link/Unlink, concurrence et reconstruction. Entitlements externes. | [Pot](SPEC-01_Pot_Domain.md) ; [Identity](SPEC-02_Identity_Domain.md) | Sécuriser preuve de contrôle EUI cible au Link ; interfaces V3-2/3/4/5 et revue globale ; aucune preuve runtime V3 | Cadrer V3-2 avec les deux domaines |
-| V3-2 | **CONCEPTION VALIDÉE** | Six familles : COMMAND, IDENTITY_REQUEST burnables PENDING→TERMINAL ; POT_EVENT, IDENTITY_EVENT et deux événements de complétion non-burnables. Quatre séquences denses, UUID eventId, mutations liées obligatoirement à requestId, atomicité résultats/événements, deux domaines strictement séparés. Revue des cas Pot/Identity réalisée. | [Contrat V3-2](SPEC-03_Events_Requests_Consumables.md) ; commit `886ff35fc2b9db55c97313d7fdeffc3e3d212475` | Détails résultats, matérialisations READ, protocole Consumption, contrôle de EUI cible et preuves techniques ; aucun code V3 | **Cadrer V3-3 READ/projections** |
-| V3-3 | **CONCEPTION VALIDÉE** | Sept projections logiques ; Pot courant complet ou indisponible, sous-objets immuables, balances immuables pour chaque V, liste de visibilité monotone avec historique d'appartenance, CurrentBinding unique, résultats terminaux seuls ; minVersion READ asynchrone. Deux Consumptions sur POT_EVENT : direct CurrentPot/sous-objets et deux tâches Balance/Visibilité. Direct pour Identity et complétions. | [READ V3-3](SPEC-04_Read_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` | Reprise transactionnelle et concurrence, suivi des tâches, accès sécurisés, coût SQL/reconstruction, qualification ; READ_REQUEST et historique hors périmètre | **Cadrer V3-4 Consumption/Discovery** |
-| V3-4 | **CONCEPTION CONSOLIDÉE — REVUE TRANSVERSE EN COURS** | Slots durables, Discovery/checkpoints, fencing individuel et ownership partition, reprise unique par `retryAfter`, tâches internes READ, visibilité contrôlée par `PotVisibilityState`, READ asynchrone sécurisé par CurrentBinding, reconstruction READ à blanc. | [Cadrage V3-4](SPEC-05_Consumption_Discovery.md) ; harmonisation [V3-2](SPEC-03_Events_Requests_Consumables.md) et [V3-3](SPEC-04_Read_Projections.md), commit `d73dded7` | Preuve du protocole PostgreSQL, sécurité/consentement du Link, vérification exhaustive des flux et coûts en V3-5 ; aucune preuve runtime V3 | Cadrer V3-5 et mener revue V3-CADRE |
-| V3-5 | **V3-5A REVUE CONCEPTUELLE CLÔTURÉE** | Matrice initiale de 24 exigences ; parcours et arbitrages BLOC-01/02/03 ; 5B observabilité, 5C objectifs et 5D plan de preuves restant à cadrer | [Revue V3-5A](SPEC-07_Transverse_Requirements.md), `970abf99` | BLOC-01/02/03 arbitrés ; preuves PostgreSQL, instrumentation, performances et tests encore ouverts | Lancer V3-5C et chiffrer les budgets |
-| V3-6 | NON DÉMARRÉ | Réalisation et construction de la suite de tests | Après V3-CADRE | Implémentation et intégration | Attendre V3-CADRE |
-| V3-7 | NON DÉMARRÉ | Validation et qualification, mesures réelles | Après V3-6 | Certification et critères d'activation | Attendre réalisation |
-
-**Statuts autorisés :** À cadrer → En conception → Conception validée → En implémentation → Implémentée → Vérifiée. Ajouter BLOQUÉ avec motif si nécessaire. Distinguer systématiquement décision, proposition, réalisation et vérification.
-
-### Journal des mises à jour
-
-| 2026-10-23 | V3-5B clôture conceptuelle | O-01 option B validée : mesures d'étape fiables, E2E obligatoires, diagnostic par traitement selon observations conservées ; aucun timestamp durable de slot imposé. Branchement métrique à qualifier en V3-5D et vérifier en V3-7. | [V3-5B](SPEC-08_Observability.md), `9f637bfb` |
-
-| 2026-10-23 | V3-5B | Inventaire documentaire de Micrometer/Prometheus/Grafana, traces, audit historique de latence et scripts k6 historiques ; contrat initial des phases, SLIs, horloges, cardinalité et quatre questions O-01 à O-04. Pas de benchmark ni implémentation V3. | [V3-5B](SPEC-08_Observability.md), `a39d5de3` |
-
-| 2026-10-23 | V3-5A sécurité | BLOC-01 Link à double authentification et consentement immédiat ; BLOC-02 entitlements vérifiés à admission seulement ; BLOC-03 liaison stricte entre bindingToken et EUI authentifiée. Revue conceptuelle V3-5A clôturée, preuves ultérieures. | [V3-5A](SPEC-07_Transverse_Requirements.md) |
-
-| 2026-10-23 | V3-5A | Première revue globale et matrice traçable de 24 exigences documentées ; BLOC-01/02/03 à arbitrer, preuves V3 non exécutées, V3-CADRE ouvert. | [V3-5A](SPEC-07_Transverse_Requirements.md), `970abf99` |
-
-| 2026-10-23 | Feuille de route | Redécoupage confirmé : V3-5A à 5D = cadrage final (exigences, observabilité, performance, preuves) ; V3-CADRE avant code ; V3-6 = réalisation ; V3-7 = vérification et qualification. | Ce canon |
-
-| 2026-10-23 | V3-4 transversal | Revue croisée V3-1 à V3-4 : ajout explicite des deux tâches internes en V3-2, visibilité par `PotVisibilityState`, autorisation READ via `CurrentBinding` et bindingToken authentifié, protocole unique de retry, reconstruction READ à blanc. V3-4 consolidée conceptuellement ; **V3-CADRE toujours ouvert**, aucune implémentation/test V3. | [V3-4](SPEC-05_Consumption_Discovery.md), commits `a904afc1`, `16496b9f`, `d73dded7` |
-
-| 2026-10-23 | V3-4 | Consolidation des arbitrages Consumption/Discovery, slots, checkpoint de découverte, partition ownership, reprise, Worker mixte ; revue critique R1–R8 ouverte. Cadrage non validé, aucune implémentation ni preuve runtime V3. | [V3-4](SPEC-05_Consumption_Discovery.md), `0e93bf33d4a24bb70ac7093373c9b25c61b6f165` |
-| Date | Étape | Changement / décision | Référence |
-|---|---|---|---|
-| 2026-10-22 | V3-0 | Création du document directeur ; cadrage initial, aucune implémentation | Commit de création de ce fichier |
-| 2026-10-22 | V3-1 Pot | Conception conceptuelle validée : 8 sous-objets, règles de versions, suppressions, concurrence, finances et reconstruction ; aucune implémentation ni gate V3 ; jalon global toujours ouvert | [Pot](SPEC-01_Pot_Domain.md), `c3749981c47712a3f07b0b42b9557f2697f5911c` |
-| 2026-10-22 | V3-3 | Sept projections logiques, parcours WRITE→READ avec matérialisations directes et deux tâches Pot ; cohérence par version, monotonie, minVersion, sécurité/fraîcheur ; conception sans tests V3. | [V3-3](SPEC-04_Read_Projections.md), `6ad790f1b5e31a6c71e881a2aa2da214ec23a47e` |
-| 2026-10-22 | V3-2 | Six familles de consommables, quatre séquences transactionnelles, résultats + événements de complétion, causalité requestId et matrice de cohérence V3-1 ; conception seulement, aucune preuve runtime V3. | [V3-2](SPEC-03_Events_Requests_Consumables.md), `886ff35fc2b9db55c97313d7fdeffc3e3d212475` |
-| 2026-10-22 | V3-1 Identity | Conception conceptuelle validée : User, EUI versionnée, binding relationnel, témoin non devinable, Registration/Link/Unlink, concurrence/histoire ; entitlements externes. Protocole de contrôle de E2 et conception V3-2/3/4 ouverts ; aucun code ni gate V3. | [Identity](SPEC-02_Identity_Domain.md), `6371ce9521e9a7b849e18bbdecc907cea586e100` |
-
-À **chaque clôture d'étape**, ajouter une entrée datée avec SHA du livrable, résultats mesurables, invariants prouvés, exclusions, nouveaux arbitrages et statut. Réviser les étapes aval si une décision amont change leur hypothèse. Ne jamais revendiquer une preuve non exécutée.
-
-## 7. Héritage documentaire et sources
-
-- Branche technique source : `feat/consumption-transaction-protocol`, travaux de séquencement 4A–4E (PREPARED/ACTIVE et garanties transactionnelles), sans activation V3.
-- `docs/steps/current/DISCOVERY/Step_Canon.md` et `Step_Plan.md` : références historiques du chantier Discovery, **pas le plan d'implémentation V3**.
-- `docs/plans/2026-10-22-a2-minimal-consumption-discovery.md` : source de principes conceptuels Composition/Discovery/Engine utiles à V3, à revalider après domaines/événements/READ.
-- `docs/plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md` : **stratégie de migration A2-1 suspendue/supplantée pour V3** ; ne pas l'exécuter.
-- Les rapports, tests et documents V2 conservent leur valeur historique. Pas de modification rétrospective de leurs verdicts.
-
-**Prochaine action :** lancer V3-5C (hypothèses de charge et budgets chiffrés), puis V3-5D, vérifier les preuves et les derniers invariants du [cadrage V3-4](SPEC-05_Consumption_Discovery.md) depuis les six familles de sources V3-2 et les sorties directes/tâches [V3-3](SPEC-04_Read_Projections.md), dans V3-5 et la revue V3-CADRE ; résoudre les preuves d'exécution et le contrôle de l'EUI cible avant implémentation.
-
-## Journal V3 — revue V3-5C, 2026-10-23
-
-- **V3-5C : CADRAGE CONCEPTUEL CLÔTURÉ (non mesuré, non certifié).** Document normatif d'objectifs : [SPEC-09_Performance.md](SPEC-09_Performance.md). Trois tailles de Pot et volumes historiques ; charges offertes 1/10/50 commandes/s ; deux machines dédiées PostgreSQL et runtimes (4 vCPU, 8 Go chacune), deuxième configuration avec Keycloak réel isolé ; sondes de test isolées.
-- SLO Pot moyen indépendant : p95 ≤ 500 ms nominal, ≤ 1 s soutenu, ≤ 3 s pointe ; grand Pot nominal p95 ≤ 2 s ; nouveau binding utilisable en READ p95 ≤ 500 ms nominal ; lot de 10 000 commandes avec travaux READ à rattraper en ≤ 5 minutes sous 1 nouvelle commande/s. Contention sur même Pot : correction, progression, résorption, sans SLO de latence arbitraire.
-- **Preuves :** tous ces seuils sont des objectifs, pas des résultats observés. Les mesures et tests sont à définir en V3-5D, puis à construire/exécuter en V3-6/V3-7.
-- **Prochaine action : V3-5D — plan de preuves détaillé et traçabilité V3-5A/B/C.** Jalon **V3-CADRE toujours OUVERT** ; aucune implémentation V3/DDL autorisée.
-- Commit documentaire de clôture V3-5C : `78705de755fbbc0a06d476318da2c7435d41df79`.
-
-## Journal V3 — arbitrage C-03 et préparation de la revue V3-CADRE (2026-10-23)
-
-**C-03 — VALIDÉ CONCEPTUELLEMENT :** la performance utilisateur Command→Pot est mesurée jusqu'à la première lecture READ réellement complète, authentifiée et autorisée, satisfaisant `minVersion=V` avec une version servie W≥V. Les budgets p95 de V3-5C sont conservés. La matérialisation exacte des balances historiques V, de la visibilité et des tâches est une **exigence distincte de correction/progression**, non une condition artificielle de lecture d'un Pot historique. Le SLO technique nominal de Balance(P,V) est maintenu à part.
-
-**État du cadrage :** C-01 a un contrat conceptuel de consentement explicite attesté par l'IdP (qualification fournisseur à effectuer) ; C-02 adopte une reconstruction READ avec indisponibilité totale et maintenance exclusive ; C-03 est simplifié et arbitré. **V3-CADRE reste OUVERT** : fusion documentaire du doublon CON-06, traçabilité des preuves et revue finale avant décision explicite. Aucune implémentation/DDL ni exécution de test V3.
-
-## Journal V3 — consolidation de V3-5D avant le gate V3-CADRE (2026-10-23)
-
-**V3-5D CONSOLIDÉ DOCUMENTAIREMENT, NON CERTIFIÉ.** Les 24 exigences V3-5A disposent de protocoles détaillés. Deux versions de la fiche CON-06 ont été fusionnées en un protocole unique §14, avec correspondance complète des cas et conservation des assertions spécifiques, dans [V3-5D](SPEC-10_Test_Certification.md) (commit `87fb2cf7`). La revue pré-gate est consignée au §41.
-
-**Décisions structurantes :** C-01 = consentement métier attesté par un fournisseur d'identité qualifié, aucune IdentityRequest persistée avant preuve ; indicateurs de Pots accessibles/EUI liées purement informatifs sans contrainte de fraîcheur. C-02 = reconstruction READ à blanc en maintenance exclusive et READY fondé sur préfixes sûrs et effets dérivés terminés. C-03 = SLO utilisateur jusqu'à première lecture Pot READ complète pour W≥resultingPotVersion ; preuve des balances de chaque version historique et SLO technique Balance(P,V) distincts.
-
-**Réserves :** qualifier réellement l'attestation du fournisseur (notamment Keycloak), prouver l'exclusivité du reset sur les connexions/transactions, harmoniser les anciens paragraphes supplantés lors de la constitution du plan d'implémentation, fixer les paramètres de campagnes avant leur exécution.
-
-**Statut du jalon : V3-CADRE OUVERT.** Une décision explicite de validation reste nécessaire après revue des réserves. Aucune modification de runtime ou de DDL V3 ; aucune campagne de test V3 exécutée.
-
-## Journal V3 — revue formelle du gate V3-CADRE (2026-10-23)
-
-**VERDICT DE REVUE : GO RECOMMANDÉ POUR LE CADRAGE CONCEPTUEL, GATE EN ATTENTE DE DÉCISION EXPLICITE.** Voir [V3-5D, §42](SPEC-10_Test_Certification.md). Les huit critères du §5 ont été passés en revue : V3-1/2/3/4 conçus, V3-5 traçable à 24/24 exigences et plans de preuve ; ruptures V2 et suites de remplacement cadrées ; compatibilité des invariants revue, doublon CON-06 résolu.
-
-**Réserves d'exécution — non bloquantes pour la suffisance conceptuelle, impératives pour leur qualification :** attestation de consentement transactionnel réellement délivrée par un fournisseur d'identité compatible ; démonstration de la barrière physique et du READY de reconstruction READ ; fiabilité des mesures E2E et des tests de charge ; harmonisation des paragraphes V3-5D supplantés avant réalisation ; passage effectif des suites PostgreSQL, Bruno et k6. Ne pas assimiler ces réserves à des garanties déjà prouvées.
-
-**Statut inchangé à cette revue : V3-CADRE OUVERT**, pas de démarrage V3-6/DDL avant validation explicite du gate. **Prochaine action : décider GO/NO-GO du jalon**, puis seulement si GO dresser le plan d'implémentation V3-6 dans l'ordre des dépendances et des preuves.
-
-## Journal V3 — ouverture V3-5E : cadrage des Supras (2026-10-23)
-
-**Décision validée :** un Supra exerce les contrôles de frontière (structure, format, taille, identité/attestation, pagination, bornage des réponses) à partir de la requête et de ses contrats, **sans lire l'état métier WRITE pour anticiper les décisions du Worker**. Le domaine conserve l'autorité transactionnelle et ses propres invariants. Les sorties peuvent lire les projections READ, sous contrat d'autorisation et de cohérence. Admission refusée ≠ demande durable rejetée à l'exécution.
-
-**Nouvelle étape V3-5E OUVERTE** : [Contrats Supras et bornage](SPEC-06_Supra_Contracts.md) (commit `ac449d12`). Inventorier les opérations, fixer une politique minimale de validation d'entrée, décider pagination/cohérence et limites de sortie, ajouter les tests puis revoir V3-CADRE.
-
-**Conséquence :** malgré le verdict favorable de la revue V3-5D §42, **V3-CADRE reste OUVERT** jusqu'à la clôture cohérente de V3-5E et à une validation explicite ; aucune réalisation/DDL V3 n'est autorisée.
-
-## Journal V3 — décision PotVersion historique et archivage optionnel (2026-10-23)
-
-**V3-5E, décision validée :** une projection immuable complète `PotVersion(P,V)` porte le manifeste versionné, les références Shareholders/Expenses et les droits historiques dérivés des Shareholders. Le coût de duplication est accepté à ce stade pour simplifier pagination, autorisation et lectures stables. `CurrentPot` devient un simple pointeur mutable ; `MaterializeCurrentPot` produit la version historique et avance ce pointeur atomiquement sans nouveau Worker, tandis que Balance et Visibility restent indépendantes. Cf. [V3-5E §10](SPEC-06_Supra_Contracts.md).
-
-**Archivage :** étudier une politique future d'archivage des versions devenues obsolètes depuis n heures, **sans purge implicite de l'historique**. Aucun mécanisme automatique retenu pour le socle initial. Contrat de consultation/expiration, ordre de matérialisation et stratégie de reconstruction sont à préciser avant activation.
-
-**V3-CADRE toujours OUVERT :** harmoniser V3-3 et les protocoles READ/SEC/PRJ de V3-5D avec cette décision, puis terminer les autres contrats Supra et leur certification. Aucun runtime/DDL V3 implémenté.
-
-## Journal V3 — harmonisation READ / preuves de PotVersion (2026-10-23)
-
-**V3-3 amendée :** `PotVersion(P,V)` immuable de composition et d'autorisations historiques ; `CurrentPot` réduit à un pointeur. Huit projections logiques désormais, et non sept. `MaterializeCurrentPot` écrit PotVersion, sous-versions et pointeur en une transaction READ ; tâches Balance et Visibility inchangées. Voir [V3-3 §9](SPEC-04_Read_Projections.md), commit `1d9384b8`.
-
-**V3-5D amendée :** preuves PRJ-01, READ-01 et SEC-01 adaptées au manifeste et aux lectures groupées à V ; tests de coût de stockage et de transfert ajoutés. Voir [V3-5D §43](SPEC-10_Test_Certification.md), commit `2f8a7c26`.
-
-**Suite V3-5E :** arbitrer limites d'admission, bornes de chargements groupés et erreurs de frontière. **Gate V3-CADRE toujours ouvert**, aucun runtime/DDL/test V3 exécuté.
-
-## Journal V3 — revue de couverture V3-5E (2026-10-23)
-
-**Revue menée, clôture NON PRONONCÉE.** L'inventaire de couverture Admission Command/Identity, résultats individuels, CurrentBinding, PotVersion, chargements groupés, liste des Pots, erreurs et surcharge est consigné en [V3-5E §17](SPEC-06_Supra_Contracts.md), commit `a352b68d`.
-
-**Deux arbitrages structurants subsistent :** (S-01) pagination de la liste mutable `CurrentUserPotList` sans snapshot et comportement sous concurrence ; (S-02) autorisation d'une version historique après retrait du Shareholder dans une version plus récente (SEC-01 actuel) ou révocation rétroactive par les droits courants. Les plafonds numériques restent à mesurer et ne doivent pas induire de bornes métier arbitraires.
-
-**V3-CADRE demeure OUVERT ; aucun code ni test V3 exécuté.**
-
-## Journal V3 — revue de clôture V3-5E (2026-10-23)
-
-**REVUE EFFECTUÉE, V3-5E NON CLÔTURÉE.** Matrice de couverture et réserves dans [V3-5E §17](SPEC-06_Supra_Contracts.md). Les admissions Command/Identity, lectures Pot versionnées, chargements groupés d'Expenses, contrôle de sécurité et surcharge ont un cadrage conceptuel. Pas de plafonds numériques arbitraires retenus comme règles métier.
-
-**Trois arbitrages de contrat encore structurants :** S-01 pagination/ordre et cohérence de `CurrentUserPotList` ; S-02 taille et découpage éventuel du manifeste de références renvoyé avec `PotVersion` ; S-03 idempotence observable d'une admission après commit/réponse incertaine et réemploi de clé avec payload différent. Les paramètres de limites et de quotas peuvent être calibrés plus tard, sans changer le contrat.
-
-**V3-CADRE demeure OUVERT** jusqu'à résolution de ces choix et revue cohérente des preuves. Aucun runtime, DDL ou test V3 réalisé dans ce chantier.
-
-## Journal V3 — S-03 arbitré, décisions finales Supras (2026-10-23)
-
-**S-01, S-02, S-03 sont conceptuellement arbitrés** dans [V3-5E](SPEC-06_Supra_Contracts.md) : pagination `CurrentUserPotList` keyset par potId sans snapshot ; manifeste complet des références Expense dans la lecture principale PotVersion ; admission idempotente par clé client liée à une portée et à une intention canonique, 409 sur réemploi divergent, inscription atomique avec la demande. Les scénarios de certification complémentaires figurent dans V3-5D §§47–49.
-
-**Prochaine action :** revue de clôture V3-5E, cohérence finale des contrats et réserves (notamment rétention d'idempotence, tailles de transport), puis nouvelle décision explicite du gate V3-CADRE. **Gate toujours OUVERT**, aucun runtime/DDL ni test V3 exécuté.
-
-## Journal V3 — clôture documentaire V3-5E et clarification des S-02 (2026-10-23)
-
-**V3-5E CLOSED au niveau du cadrage conceptuel**, cf. [V3-5E §21](SPEC-06_Supra_Contracts.md). S-01 keyset `potId` sans snapshot (§18), S-02 manifeste complet d'Expenses à V (§19), S-03 admission idempotente atomique (§20) sont décidés et alignés avec [V3-3 §10](SPEC-04_Read_Projections.md) et V3-5D §§43–49.
-
-**Précision sur la collision de libellé :** le « S-02 » d'un **ancien journal** du canon évoquait les droits historiques après retrait d'un Shareholder, mais ce point n'est **pas** le « S-02 » de la revue finale des Supras. Pour les droits historiques, **SEC-01 prévaut** : attache Shareholder à V + CurrentBinding actif au moment de lire ; pas de révocation rétroactive automatique par suppression à V+1. L'ancien journal est conservé pour traçabilité, pas pour en faire une question ouverte.
-
-**Réserves d'exécution non levées :** calibration de plafonds et taux, contrat de rétention/d'expiration des clés d'idempotence, encodages et détails HTTP, qualification réelle de l'attestation externe Link, harmonisation des anciens paragraphes. Ne pas prétendre qu'ils sont testés ou qu'un fournisseur est qualifié. Prochaine étape : **revue formelle autonome V3-CADRE**. **V3-CADRE toujours OUVERT**, V3-6 non autorisée ; aucun code/DDL/test V3 livré.
-
-## Décision finale du gate V3-CADRE — 2026-10-23
-
-**VERDICT FORMEL : GO / CADRAGE VALIDÉ (conceptuel et documentaire seulement).** Cette décision **supplante les mentions antérieures « OUVERT »** conservées dans les journaux datés et les sections historiques ; elle ne prétend pas transformer ces anciens comptes rendus en résultats de tests.
-
-**Fondement de la décision :**
-1. **V3-1 à V3-4** : domaines Pot/Identity, versions globales/locales, six familles de sources, contrats de séquencement et de Consumption, projection READ historique PotVersion/CurrentPot, deux tâches internes et reconstruction READ en maintenance exclusive sont définis et reliés.
-2. **V3-5A/B/C/D** : traçabilité des 24 exigences de base, observabilité, profils et budgets de performance, protocole de preuves détaillé ; les ajouts de tests V3-5E §§43–49 complètent cette base sans prétendre avoir exécuté les essais.
-3. **V3-5E CLOSED conceptuellement (§21)** : S-01 keyset `potId` sans snapshot ; S-02 manifeste complet et détails Expense par lots ; S-03 idempotence d'admission atomique et `409` si intention divergente. Admission structurale sans lecture de l'état métier WRITE, 404 anti-divulgation et séparation plafonds techniques/invariants métier.
-4. **C-01/02/03** : consentement E2 transactionnel vérifié à l'admission, READ reconstruit sous exclusivité avec condition READY, critère de performance Command→lecture complète W≥V sont tous décidés **conceptuellement**.
-5. **Compatibilité et remplacement** : pas de dette artificielle de commandes V1 en production ; anciens textes incompatibles sont explicitement supplantés par les amendements normatifs les plus récents, sans suppression des preuves historiques.
-
-**Réserves qui n'empêchent pas le GO conceptuel, mais bloquent les revendications d'exécution/activation concernées :**
-- **R-01 Identity/Link** : qualifier un fournisseur réellement capable d'attester le consentement explicite, exact et anti-rejeu de E2. Aucun Link sécurisé certifié sur une promesse de compatibilité Keycloak.
-- **R-02 Reconstruction READ** : prouver la barrière physique des writers et transactions, le reset complet et le READY fondé sur les préfixes sûrs et tâches dérivées terminées.
-- **R-03 API/Supras** : figer avant activation durée de rétention et fenêtre de retry des clés d'idempotence, payload canonique, codes de succès/erreur, plafonds admissibles et comportements en surcharge ; mesurer le manifeste complet et le lot Expense. Ne pas changer silencieusement le contrat métier retenu.
-- **R-04 PostgreSQL/Consumption** : réaliser les preuves d'atomicité et d'absence de perte, CAS/fencing, ordre, retries, crash, concurrence et reconstruction avec PostgreSQL réel.
-- **R-05 Performance** : instrumenter et mesurer les SLO sur jeux V3-5C avec campagnes k6, charge/backlog et coût PostgreSQL, sans annoncer un PASS avant les observations.
-- **R-06 Cohérence documentaire** : consolider les passages historiques de V3-3, V3-5D et V3-5E qui précèdent les amendements ; supprimer les ambiguïtés dans les contrats utilisés pour implémenter. En particulier, une ancienne section de V3-5E réemploie « S-02 » pour les droits historiques : SEC-01 et V3-3 §§9–10 prévalent ; ce n'est pas S-02 manifeste.
-
-**Effet autorisé :** préparer puis lancer les lots d'implémentation V3-6 dans une séquence cohérente de petites étapes avec tests ; maintenir la compatibilité des invariants, interdiction de certification/activation prématurée, et conservation des preuves. **V3-6 AUTORISÉE mais NON DÉMARRÉE dans cette décision.** Les paramètres restant à fixer sont des gates d'implémentation/qualification, pas des permissions de les omettre.
-
-**Aucun runtime V3, DDL ni test V3 réalisé à l'occasion de ce gate documentaire.**
-
-## Journal post-audit — arbitrage AUD-V3-001 et suppression Shareholder (2026-10-24)
-
-**Décisions validées :** le créateur immuable a droit de lire et modifier son Pot, gérer les Shareholders et Expenses, supprimer le Pot et supprimer un Shareholder **seulement sans Expense active le référençant**. Un utilisateur lié à un Shareholder actif possède les mêmes droits de lecture et mutation **sauf** supprimer le Pot ou un Shareholder. Le créateur conserve ces droits même sans Shareholder ; `PotVersion(P,V)` inclut donc le créateur dans les droits internes à V. Voir V3-1 §9 et V3-3 §11.
-
-**AUD-V3-001 : droits conceptuellement arbitrés ; AUD-V3-003 : condition de suppression Shareholder arbitrée, préconditions de concurrence restant à examiner.** Les preuves V3-5D et les anciens textes contraires doivent être harmonisés avant réalisation. **V3-6 reste suspendue pendant la revue contradictoire de l'audit**, sans annuler le GO historique de V3-CADRE.
-
-## Journal post-audit — parcours d'invitation (2026-10-24)
-
-**AUD-V3-002, parcours validé :** invité avec token opaque temporaire → authentification → Registration Identity si pas de Binding actif → choix d'un Shareholder libre → auto-rattachement versionné en Pot WRITE. Deux opérations/domaines séparés, aucun commit Registration + Pot partagé. Invitation et condition de liberté/restriction par User sont revérifiées à l'exécution. Les modalités de révocation et de sélection des Shareholders libres restent à cadrer ; V3-6 demeure suspendue pendant l'audit contradictoire.
-
-## Journal post-audit — demande liée à un Binding explicite (2026-10-24)
-
-**Décision transverse :** toutes Commands et IdentityRequests, sauf Registration, contiennent un `bindingToken` explicite. L'EUI authentifiée ne suffit pas pour que le domaine devine le PocomaUser au nom duquel elle agit. Le Worker vérifie dans WRITE EUI + token + Binding actif, puis évalue les droits. Link porte le token de E1 ; E2 fournit indépendamment authentification et consentement. L'invité choisit parmi les Shareholders libres via une lecture minimale protégée par invitation et authentification. V3-6 reste suspendue pendant la résolution des constats de l'audit indépendant.
-
-## Journal post-audit — AUD-V3-009, CurrentBinding propre (2026-10-24)
-
-**Contrat tranché :** la lecture de son propre `CurrentBinding` exige l'EUI authentifiée mais **pas le bindingToken entrant**. La cible ne peut être choisie par le client ; la réponse confidentielle contient la version de cette EUI, son état et son seul token actif, pas d'identifiant interne PocomaUser. La matérialisation reconstruit le Binding WRITE à V depuis `IDENTITY_EVENT(EUI,V)` (événement sans token). Après Link, E1 reçoit le résultat de demande, E2 récupère son propre token via sa propre session authentifiée. Voir V3-1 Identity, V3-3 §12, V3-5D §50.
-
-**Statut : AUD-V3-009 résolu conceptuellement, tests à réaliser.** Revue contradictoire des autres constats toujours en cours ; V3-6 suspendue.
-
-## Journal post-audit — AUD-V3-003, références Shareholder (2026-10-24)
-
-**Arbitrage :** une Expense référence le Shareholder stable, pas le PocomaUser lié : changement d'utilisateur rattaché ou de nom de Shareholder **sans obsolescence induite** de la Command Expense. Vérifier seulement l'existence du Shareholder à `observedVersion` et son activité au moment de l'exécution, outre les vraies dépendances financières et droits propres de l'auteur. Suppression du Shareholder toujours impossible s'il est référencé par une Expense active. Voir V3-1 §13. V3-6 suspendue pendant la revue d'audit.
-
-## Journal post-audit — AUD-V3-004 (2026-10-24)
-
-**Résolu conceptuellement sans refonte :** Discovery parcourt une fenêtre sûre contiguë d'événements committés `(K,H]` dans une lecture cohérente ; filtre la partition ; crée tous les slots et avance K **atomiquement dans la base des effets**, sous garde de checkpoint et d'ownership. La lecture de la source et la transaction cible peuvent être dans des bases différentes ; aucune transaction SQL unique inter-bases exigée. Preuves de commit retardé, rollback, course et crash planifiées (V3-4, V3-5D §51). V3-6 demeure suspendue pendant la revue contradictoire de l'audit.
-
-## Journal post-audit — AUD-V3-005, pipeline READ simplifié (2026-10-24)
-
-**Arbitrage validé : Option B, trois Consumptions autonomes non-burnables sur `POT_EVENT(P,V)`.** `MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility` disposent chacune de Discovery + Engine, checkpoint, slots et retries ; elles peuvent tourner dans le même Worker physique. Aucun service de Discovery commun, aucune préparation qui charge WRITE et aucun objet `POT_BALANCE_TASK/POT_VISIBILITY_TASK` : six familles de sources V3 restent. Chaque projecteur lit seulement les données nécessaires à WRITE@V. La visibilité conserve `PotVisibilityState` comme garde de monotonie. Voir V3-2, V3-3 §13, V3-4 et V3-5D §52.
-
-**AUD-V3-005 : résolu conceptuellement, garanties d'exécution à prouver. AUD-V3-006 distinct, non tranché.** La réalisation V3-6 reste suspendue pendant l'audit contradictoire ; aucune implémentation ni test réalisé.
-
-## Journal post-audit — AUD-V3-006 rejeté (2026-10-24)
-
-**Arbitrage :** ne pas créer de slot dans la transaction HTTP d'admission d'une Command ou IdentityRequest. Admission = validation intrinsèque + idempotence + demande durable PENDING ; Discovery asynchrone enrôle ensuite les demandes PENDING sans slot. Objectif : limiter les écritures et la contention de l'admission. L'optimisation proposée par l'auditeur est rejetée ; la latence de prise en charge et le coût de Discovery sont à mesurer. Aucun code V3 exécuté.
-
-## Journal post-audit — AUD-V3-007 résolu conceptuellement (2026-10-24)
-
-**Correction adoptée :** le `softCap` de Discovery ne compte pas les slots `QUARANTINED` ; seuls les slots occupant encore une capacité de traitement sont comptés. Une quarantaine bloque ses dépendances causales propres, jamais les autres Pots/EUI de la même partition. V3-4 et V3-5D §53 amendés ; comportement à prouver sous PostgreSQL. V3-6 demeure suspendue pendant l'audit contradictoire.
-
-## Journal post-audit — correction d'AUD-V3-007 (2026-10-24)
-
-**RECTIFICATION du journal précédent :** le cadrage V3-4 impose déjà des retries techniques illimités par `retryAfter`, sans état de quarantaine, sans `maxAttempts` terminal et sans fausse terminalisation. L'audit AUD-V3-007 et la correction « exclure QUARANTINED du softCap » ont repris une hypothèse non normative : **AUD-V3-007 NON APPLICABLE dans cette formulation**. Les versions précédentes du journal sont historiques et supersédées. Un possible encombrement du softCap par des slots durablement différés reste un sujet de progression à éprouver, distinct du constat de quarantaine.
-
-## Journal post-audit — révision AUD-V3-007 : quarantaine retenue (2026-10-24)
-
-**Nouvel arbitrage de principe :** le risque de saturation du softCap par retries indéfinis conduit à retenir **N tentatives maximales**, puis un slot `QUARANTINED` non acquis automatiquement et non compté dans le softCap. Cette décision **supplante** le choix antérieur de retries illimités et la rectification post-audit refusant la quarantaine. La quarantaine ne vaut pas complétion ; pas de purge automatique du dernier témoin d'une Consumption non terminée. Reste à préciser N, résolution/reprise, causalité et purge sûre avant V3-6. Aucun runtime/DDL/test V3 exécuté.
-
-## Journal post-audit — AUD-V3-007-Q, reprise explicite (2026-10-24)
-
-**Arbitrage validé :** sortie de `QUARANTINED` uniquement par opération administrative **explicite** et atomique sur le slot visé, jamais automatiquement à cause d'un redémarrage, redéploiement ou délai. La réactivation ne réalise aucun effet métier et ne terminalise pas la source ; exécution ultérieure via acquisition ordinaire et rechargement intégral. Budget du cycle réactivé, politique de purge et causalité restent à préciser avant certification. Voir V3-4 et V3-5D §55.
-
-## Journal post-audit — AUD-V3-007-Q, compteur et expiration (2026-10-24)
-
-**Arbitrage validé :** `attemptCount` compte uniquement les échecs techniques durablement constatés, jusqu'au seuil configurable N ; l'expiration du claim ne compte pas comme échec. Une réactivation administrative explicite de `QUARANTINED` remet atomiquement le compteur à zéro, sans changer l'identité du slot. Garde par `claimToken` pour empêcher doubles comptages ou retards de cession. Valeur N, résolution causalité et purge restent ouvertes. Voir V3-4 et V3-5D §56.
-
-## Journal post-audit — AUD-V3-007-Q, aucun blocage causal (2026-10-24)
-
-**Décision :** les slots sont indépendants ; `QUARANTINED` n'empêche jamais la Discovery ni l'exécution d'un autre slot, y compris sur le même Pot/EUI ou pour une version supérieure. Projections immuables reconstituées depuis WRITE@V et projections mutables avec garde monotone ; seule une **lecture** nécessitant une projection absente reste indisponible. Les clauses antérieures sur « successeurs bloqués par la quarantaine » sont supersédées. Preuves hors ordre prévues V3-5D §57.
-
-## Journal post-audit — clôture conceptuelle AUD-V3-007 (2026-10-24)
-
-**Dernier arbitrage validé :** aucune purge directe d'un slot `QUARANTINED`. Il reste durablement présent jusqu'à sa réactivation administrative explicite puis la réussite du traitement ; seules les règles ordinaires de finalisation suppriment le slot **atomiquement avec les effets**. Aucune perte, aucune complétion fictive, aucun ré-enrôlement burnable. Quarantaines exclues du softCap et sans blocage des autres slots, même agrégat. Avec les arbitrages N configurable, `attemptCount` sur échec durable seulement et reset lors de reprise, le **cycle de vie AUD-V3-007 est clos conceptuellement** ; vérification SQL/concurrence et tests V3-5D §§54–58 à réaliser avant certification. V3-6 reste suspendue pendant l'audit global.
-
-## Journal post-audit — AUD-V3-008 clos conceptuellement (2026-10-24)
-
-**Indexation des Bindings :** aucun besoin de parcours inverse `PocomaUserId -> EUI` n'est retenu. Les opérations Identity/Commands/lectures et `CurrentBinding` partent de l'EUI ; le compteur d'EUI liées est **supprimé** de l'écran Link. Ni index inverse demandé ni annuaire/projection inverse Identity. Une optimisation SQL future justifiée par mesure reste possible sans changer le modèle. Pour le récapitulatif, conserver seulement l'EUI initiatrice E1 (identité présentable), le **nombre indicatif de Pots accessibles** à son User résolu depuis E1 via `CurrentUserPotList`, et l'heure de consultation READ. Sans fraîcheur maximale ni lecture WRITE synchrone pour les compteurs ; ces données ne décident jamais de l'autorisation.
-
-**Consentement Link :** séparation **conceptuelle** de l'Identity Provider (authentifier E2) et de l'Authorization Server (présenter la demande spécifique, obtenir et attester l'accord explicite de E2) ; **mutualisation concrète possible** dans un même serveur. Keycloak est un candidat non obligatoire, à éprouver, et non une contrainte de l'architecture. Une autre solution ou un service spécialisé propre au projet peuvent être choisis, selon le même contrat. Pocoma reste headless, sans page de consentement. RAR/RFC 9396 privilégié mais non requis. Maintenir intention exacte E1/E2/destination, identité E2, audience, intégrité, preuve d'accord, expiration, anti-rejeu et admission durable unique ; OIDC/ID Token seul insuffisant. Format concret et certification effective différés à V3-6/V3-7, réserve R-01 maintenue jusqu'à preuve du fournisseur.
-
-**AUD-V3-008 : ARBITRÉ / CLOS CONCEPTUELLEMENT, PROUVES À RÉALISER.** Références : V3-1 Identity amendement AUD-V3-008 ; V3-3 §14 ; V3-5D §59. Les formulations contradictoires historiques des §§32–37 de V3-5D sont supplantées sur ces seuls sujets. V3-6 reste suspendue pendant l'audit contradictoire ; aucune implémentation ni test V3 lancé.
-
-## Journal post-audit — AUD-V3-010 clos conceptuellement (2026-10-24)
-
-**Arbitrages validés :** toute `COMMAND` et `IDENTITY_REQUEST` admise capture immuablement l'EUI initiatrice authentifiée, y compris Registration et les rejets futurs pour `bindingToken` invalide. Cette EUI est seule propriétaire du résultat, pas le PocomaUser ; Unlink, changement de Binding ou re-Link ne transfèrent aucun ancien résultat. La Consumption de complétion charge en WRITE la demande et son résultat terminal via `requestId`, puis matérialise `requesterEui` dans `CommandResult` / `IdentityRequestResult` READ. Les événements de complétion restent minimaux et inchangés ; aucune projection ou autorité supplémentaire. Une Supra de résultat ne lit que READ : EUI authentifiée égale au propriétaire, sans `bindingToken` entrant, ni résolution de Binding/PocomaUser.
-
-**HTTP :** `200` pour résultat terminal appartenant à l'EUI, `404` uniforme si absent ou appartenant à autrui, `401` sans authentification, `503` seulement si READ réellement indisponible. Après `202 Accepted`, `404` est normal pendant le polling borné côté client et ne signifie ni rejet métier ni inexistence certaine. Aucun état `PENDING`/`EXPIRED` dans READ ; résultats immuables et sans expiration fonctionnelle V3 ; toute rétention opérationnelle ultérieure exige arbitrage distinct avec l'idempotence/reconstruction.
-
-**Statut : AUD-V3-010 CLOS CONCEPTUELLEMENT ; PREUVES DE CERTIFICATION RESTANTES** (V3-5D §60). V3-2, V3-3 §15, V3-5E amendés. **Prochain point : AUD-V3-011 — lecture d'un Pot supprimé**, puis AUD-V3-012 et AUD-V3-013. Les statuts antérieurs AUD-V3-001 à 009 restent inchangés. V3-6 suspendue pendant l'audit ; aucun développement, DDL ni test V3 lancé.
-
-## 16. Amendement post-audit AUD-V3-011 — suppression terminale et confidentialité READ (2026-10-24)
-
-**DÉCISIONS NORMATIVES VALIDÉES — AUD-V3-011 CLOS CONCEPTUELLEMENT, CERTIFICATION RESTANTE.** Les trois volets de l'audit sont arbitrés et intégrés dans V3-1 §13, V3-3 §16, V3-5C §8, V3-5D §61 et V3-5E §23.
-
-**A — Métier.** `DeletePot(P)` à D est terminal et conserve `PotVersion(P,D)` avec Header `deleted=true`. `CurrentPot` pointe D lorsque matérialisée ; le Pot est invisible en navigation, non modifiable, et la lecture courante **comme la lecture historique exacte D** renvoient `404`. Les anciennes versions V<D restent consultables selon les droits du créateur / des Shareholders **à V**, avec EUI authentifiée et `CurrentBinding` actif ; ni `CurrentUserPotList` ni les droits sur D ne conditionnent cet historique. Aucun effacement ni révocation rétroactive par suppression.
-
-**A — Coût des projections.** Les trois Consumptions directes restent indépendantes. `MaterializePotVersion` conserve la version terminale, `MaterializePotVisibility` retire les entrées de navigation, et `MaterializePotBalance` **termine avec succès sans créer de `PotBalance(P,D)`**. Cette absence est une complétude normale, sans état nouveau. Les balances des versions antérieures V<D restent obligatoires, y compris si leur traitement est postérieur à D.
-
-**B — C-03.** Pour les commandes maintenant le Pot actif, première lecture complète autorisée `minVersion=V` conformément au contrat existant. Pour `DeletePot`, jalon alternatif mesuré depuis l'admission durable jusqu'à l'observation **interne READ** de `CurrentPot(P)` pointant une `PotVersion(P,D)` terminale ; les mêmes budgets C-03 s'appliquent. Ne pas utiliser le simple `404` HTTP comme oracle de propagation, ni attendre Balance(D) ou Visibility(D). Ces dernières obligations indépendantes restent certifiées selon leur propre périmètre.
-
-**C — HTTP et sécurité.** Authentifier EUI et vérifier le Binding/token applicable. En lecture courante, prouver dans READ l'accès à la version courante active ; en historique, le prouver uniquement **à V**. Absence, suppression terminale et défaut de droits sont masqués par un `404` uniforme. **Après autorisation seulement**, vérifier `minVersion` et la complétude des dépendances (`503` en cas de retard). Un Pot créé dans WRITE mais non encore projeté dans READ donne `404` faute de preuve d'accès ; aucun WRITE synchrone. Les fenêtres de propagation de droits READ sont maintenues. Les pannes globales READ, indépendantes de l'identité du Pot, restent `503`.
-
-**Preuves :** V3-5D §61, cas A11-A à A11-N, tous définis mais non exécutés. Aucun code, DDL ni test V3 lancé dans le cadre de cet audit. **Point suivant : AUD-V3-012 — contradictions documentaires internes**, puis AUD-V3-013. V3-6 demeure suspendue pendant la revue d'audit malgré le GO historique du gate V3-CADRE.
+La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
