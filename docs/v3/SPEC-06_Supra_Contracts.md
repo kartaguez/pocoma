@@ -63,7 +63,7 @@ Toute lecture Pot ou Expense exige EUI authentifiée, bindingToken concordant et
 
 READ n'interroge jamais WRITE synchroniquement. Un Pot créé en WRITE mais encore absent de READ retourne `404` faute de preuve READ d'autorisation ; ce cas peut donc être temporaire, et le polling après admission peut rencontrer des `404`. L'état READ asynchrone peut temporairement refléter d'anciens droits, dans les limites SEC-01/02 déjà admises. Une indisponibilité globale de READ, indépendante du potId, peut retourner `503` ; l'enveloppe d'erreur ne distingue ni absence ni refus d'accès. Les contrôles de disponibilité ne doivent pas créer d'oracle d'existence via `minVersion` extrême, dépendance manquante, corps d'erreur ou cache.
 
-L'absence normale de `PotBalance(P,D)` pour la version terminale n'est jamais une indisponibilité de projection. Voir V3-3 §16, V3-5C §8, V3-5D §61. Cet arbitrage supplante l'ancien S-02 évoquant une autorisation courante supplémentaire pour les lectures historiques.
+L'absence normale de `PotBalance(P,D)` pour la version terminale n'est jamais une indisponibilité de projection. Voir SPEC-04 — §10, SPEC-09 — §5, SPEC-10 — A11-A à A11-N. Cet arbitrage supplante l'ancien S-02 évoquant une autorisation courante supplémentaire pour les lectures historiques.
 
 ## 5. Expenses et manifeste complet
 
@@ -120,7 +120,7 @@ La Supra prend uniquement l'EUI issue de l'authentification, sans paramètre de 
 | Résultat READ présent mais appartenant à une autre EUI | **même `404`** | Même enveloppe publique ; aucune fuite d'existence |
 | Service READ réellement indisponible | `503 Service Unavailable` | Incident technique, non substitut à l'absence d'une ligne |
 
-Après le `202 Accepted` d'admission, le client conserve le `requestId` et poursuit le polling malgré les `404` tant qu'il attend le résultat, selon une politique cliente bornée de délai/backoff. `404` ne certifie ni inexistence ni échec métier et n'est pas assimilé à `503`. `200` avec `REJECTED` est un résultat terminal valide, non un rejet HTTP d'admission. Un `requestId` d'autrui n'ouvre jamais accès, même si connu. La propriété demeure celle de l'EUI initiatrice après Unlink/re-Link ; l'EUI reste tenue de s'authentifier. Les résultats ne comportent pas d'expiration fonctionnelle V3 : aucune nouvelle purge ni statut `EXPIRED`. La rétention opérationnelle éventuelle nécessite une décision distincte, cohérente avec idempotence et reconstruction. Voir V3-2/V3-3 et V3-5D §60.
+Après le `202 Accepted` d'admission, le client conserve le `requestId` et poursuit le polling malgré les `404` tant qu'il attend le résultat, selon une politique cliente bornée de délai/backoff. `404` ne certifie ni inexistence ni échec métier et n'est pas assimilé à `503`. `200` avec `REJECTED` est un résultat terminal valide, non un rejet HTTP d'admission. Un `requestId` d'autrui n'ouvre jamais accès, même si connu. La propriété demeure celle de l'EUI initiatrice après Unlink/re-Link ; l'EUI reste tenue de s'authentifier. Les résultats ne comportent pas d'expiration fonctionnelle V3 : aucune nouvelle purge ni statut `EXPIRED`. La rétention opérationnelle éventuelle nécessite une décision distincte, cohérente avec idempotence et reconstruction. Voir V3-2/V3-3 et SPEC-10 — A10-A à A10-K.
 
 ## 9. Autorisation des ressources et masquage
 
