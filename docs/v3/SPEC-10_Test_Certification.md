@@ -178,10 +178,10 @@ Tests unitaires du calcul pur avec **oracle indépendant** fondé sur des entier
 
 - **Registration :** demande initiée par une EUI authentifiée non liée, inconnue ou existante libre. Une réussite crée **exactement un nouveau PocomaUser**, puis crée EUI directement liée v1 ou incrémente sa version si elle existe libre. Aucune EUI liée à un User existant n'est réenregistrée.
 - **Link :** E1 authentifiée et encore liée à U, E2 libre ou inconnue et consentante (les preuves d'admission de E2 sont spécifiées en ID-02). Le User cible est **déduit de E1**, jamais fourni librement ; E2 devient liée à ce User avec **un nouveau token**. Si E2 est déjà liée, même à ce User, la demande est rejetée.
-- **Unlink :** E1 encore liée à U, E2 encore liée au **même U**, et le token déclaré de E2 correspond exactement au token courant. Il peut s'agir de E1 elle-même, de la dernière EUI liée à U, ou d'une autre EUI de U. Unlink rend User et token de E2 nuls, en nouvelle version ; PocomaUser persiste.
+- **Unlink :** E1 encore liée à U (et présentant son propre `bindingToken` actif), E2 encore liée au **même U** (sans exiger que E1 connaisse le `bindingToken` secret de E2 lorsque `E1 != E2`). Il peut s'agir de E1 elle-même, de la dernière EUI liée à U, ou d'une autre EUI de U. Unlink rend User et token de E2 nuls, en nouvelle version ; PocomaUser persiste.
 - **Unicité/historique :** le couple `(issuer,subject)` ne peut pas être dupliqué même après Unlink ; une EUI liée U1 peut passer à U2 **uniquement via Unlink puis Link** ; ses versions sont reconstructibles directement. Des `subject` égaux avec `issuer` distincts sont deux EUI distinctes.
 - **Atomicité :** mutation du User/EUI, versions historiques, événements Identity correspondants, résultat, complétion et slot de la demande partagent la transaction WRITE (EVT-02/CON-06). Aucun User orphelin créé par une Registration perdante ; ni état `pocomaUserId` non nul avec token nul, ni l'inverse.
-- **Concurrence :** les vérifications de l'autorité initiatrice E1 et de l'état de E2 restent valides **jusqu'au commit** ; verrouillage des EUI concernées et ordre anti-deadlock seront prouvés. Un conflit technique de concurrence se résout selon CON-05, tandis qu'un rejet métier constaté est terminal.
+- **Concurrence :** les vérifications de l'autorité initiatrice E1 et de l'état de E2 restent valides **jusqu'au commit** ; verrouillage exclusif des EUI concernées dans l'ordre lexicographique canonique `(issuer, subject)` (SPEC-05 §4). Un conflit technique de concurrence se résout selon CON-05, tandis qu'un rejet métier constaté est terminal.
 
 ### Scénarios JUnit/PostgreSQL et Bruno
 
@@ -195,7 +195,7 @@ Tests unitaires du calcul pur avec **oracle indépendant** fondé sur des entier
 | I01-F | Deux Links concurrents visant la même E2, et Registration/Link concurrentes | Une transition gagnante, autres rejets sans mutation ; aucun User orphelin ni double liaison |
 | I01-G | Link sur une E2 déjà liée, y compris au même User | Rejet strict ; aucune nouvelle version et aucun token renouvelé |
 | I01-H | Unlink de E2 par E1 du même User, puis Unlink de E1 elle-même / dernière EUI | E2 devient libre avec token nul à version suivante ; PocomaUser persiste même sans EUI |
-| I01-I | Unlink avec token E2 obsolète, E2 déjà libre, ou E2 liée à autre User | Rejet, zéro mutation EUI, aucun nouveau token |
+| I01-I | Unlink avec `bindingToken` initiateur E1 obsolète, E2 déjà libre, ou E2 liée à un autre User | Rejet, zéro mutation EUI, aucun nouveau token |
 | I01-J | Deux Unlinks croisés E1→E2 et E2→E1 avec barrières concurrentes | Au plus un succès : la seconde perd sa qualité d'initiatrice valide ; absence de deadlock persistant |
 | I01-K | Link concurrent d'Unlink de E1 initiatrice | Link ne peut valider sur E1 déjà détachée ; vérification initiatrice et écriture E2 sérialisées jusqu'au commit |
 | I01-L | Historique E2 : liée U1/token B → libre → liée U2/token C → libre → liée U1/token D | Versions contiguës, UserId/tokens exacts à chaque version ; B, C, D distincts et anciens tokens non acceptés |
@@ -378,7 +378,7 @@ Tests PostgreSQL concurrents, injection de rollback et commit inconnu, contrôle
 
 - Pour chaque source `PENDING` routée vers P, créer au plus un slot durable de clé `(consumptionId,consumableId)`. Une source `TERMINAL` n'est jamais nouvellement enrôlée.
 - `PENDING` avec slot libre/claimé/expiré signifie **déjà enrôlé** et ne doit pas générer de doublon. `PENDING` sans slot est éligible. Le plafond soft peut retarder l'enrôlement, sans le faire perdre.
-- Il n'y a **ni checkpoint burnable ni besoin de parcourir l'histoire des états TERMINAL**. Une tâche READ porte sa seule Consumption destinataire, une demande métier sa Consumption configurée.
+- Il n'y a **ni checkpoint burnable ni besoin de parcourir l'histoire des états TERMINAL**. Chaque demande métier (`COMMAND` ou `IDENTITY_REQUEST`) cible sa Consumption WRITE configurée ; il n'existe aucune tâche READ burnable.
 
 ### Cas déterministes
 
@@ -517,7 +517,7 @@ C03-F ne permet **pas** à un claim déjà expiré avant protection finale d'êt
 | C04-G | Un claim ancien tente de renouveler ou libérer un slot désormais repris par B | Aucune modification de l'état de B ; le token courant n'est pas écrasé |
 | C04-H | Propriété de partition transférée alors que A détient encore un claim valide | A reste autorisé à finaliser ; la propriété courante de partition n'est pas consultée comme fence final |
 | C04-I | Deux exécutions de la même demande burnable se disputent le slot avec fault injection sur `TERMINAL` et résultat | Une seule terminalisation et un seul résultat ; jamais `TERMINAL` sans résultat correspondant |
-| C04-J | Deux tâches READ concurrentes visent des versions différentes ou la même version | Chaque slot se termine une fois ; idempotence des projections et ordre/version assurés par PRJ-02/03, sans imposer l'ordre des slots |
+| C04-J | Deux Consumptions READ concurrentes visent des versions différentes ou la même version | Chaque slot se termine une fois ; idempotence des projections et ordre/version assurés par PRJ-01/02/03, sans imposer l'ordre des slots |
 | C04-K | Concurrence répétée, takeover, rollbacks et interruptions de Workers | Nombre d'effets et publications conforme aux seules finalisations committées ; aucune duplication ni travail durablement perdu |
 | C04-L | Revue des voies SQL d'écriture/suppression du slot et cas d'administration | Aucune voie ne supprime ou ne finalise hors transaction protégée ; reset coordonné READ seul cas d'effacement administratif permis (REC-01) |
 
@@ -569,7 +569,7 @@ Tester séparément les retards de disponibilité introduits par `retryAfter` et
 
 Scénarios PostgreSQL exigés : (1) expiration de claim sans erreur enregistrée, puis réacquisition : `attemptCount` inchangé ; (2) un échec explicitement persisté incrémente une seule fois ; (3) `N-1` échecs puis succès ; (4) Nᵉ échec -> `QUARANTINED` ; (5) tentative tardive avec ancien `claimToken` après réacquisition : aucune incrémentation ni transition ; (6) réactivation administrative atomique de `QUARANTINED` -> éligible avec `attemptCount=0` et même identité ; (7) crash avant persistance de l'échec : aucun budget consommé. N reste configurable, sans chiffre arbitraire imposé. Aucun test V3 exécuté.
 
-Tests à construire : mettre Pot P version V en quarantaine, prouver la progression de P version V+1 dans la même Consumption et celle des autres Consumptions ; garder le point de lecture à V indisponible si une projection requise à V manque ; visibilité V+1 complète matérialisée depuis WRITE@V+1 malgré V en quarantaine, puis reprise tardive de V sans régression ; CurrentBinding hors ordre ; autre Pot dans la même partition non bloqué. Tester absence de toute attente sur statut du prédécesseur. Aucun test exécuté.
+Tests à construire : mettre Pot P version V en quarantaine, prouver la progression de P version V+1 dans la même Consumption et celle des autres Consumptions (la lecture courante avec `minVersion=V` réussit en `200` avec `V+1` ; la lecture historique à `V` retourne `404` si `PotVersion(P,V)` est absente en quarantaine, ou `503` après autorisation si `PotVersion(P,V)` est présente mais `PotBalance(P,V)` est en quarantaine) ; visibilité V+1 complète matérialisée depuis WRITE@V+1 malgré V en quarantaine, puis reprise tardive de V sans régression ; CurrentBinding hors ordre ; autre Pot dans la même partition non bloqué. Tester absence de toute attente sur statut du prédécesseur. Aucun test exécuté.
 
 **Scénarios de certification complémentaires :** (a) slot QUARANTINED conserve son identité et son état malgré redémarrages, reprise Discovery et écoulement du temps ; (b) aucune commande de purge directe d'un slot incomplet ; (c) pour non-burnable, checkpoint avancé + slot quarantainé ne vaut jamais preuve de traitement ; (d) pour burnable, PENDING + slot quarantainé ne provoque aucun ré-enrôlement ; (e) réactivation administrative ne supprime ni slot ni source ; (f) finalisation réussie : effets métier et suppression du slot dans une seule transaction ; (g) finalisation échouée : slot encore présent, pas de complétion ; (h) autres slots, y compris même agrégat, progressent. Archivage futur hors périmètre V3. Aucun test exécuté.
 
@@ -608,7 +608,7 @@ La Discovery, son checkpoint et ses slots s'enregistrent dans l'autorité **des 
 | C06-A | Mutation Pot, émission d'événements, terminalisation Command et suppression slot avec writers JPA et JDBC | Une seule transaction/connexion physique ; tous les effets visibles ensemble après commit |
 | C06-B | Registration avec deux Identity events + complétion et slot | Même unité WRITE malgré plusieurs repositories/writers, aucune demi-registration |
 | C06-C | Trois Consumptions directes POT_EVENT en READ, succès et rollback séparés | Chacune finalise atomiquement uniquement ses effets et son propre slot |
-| C06-D | Matérialisation de Balance ou Visibility, terminalisation de la task et suppression du slot | Même transaction READ ; rollback ne conserve ni projection ni source terminale |
+| C06-D | Matérialisation directe de Balance ou Visibility et suppression du slot | Même transaction READ ; rollback ne conserve ni projection ni suppression de slot |
 | C06-E | Writer JDBC échoue, exception interceptée par un niveau appelant, tentative de commit | Le commit est refusé/rollback intégral ; ni slot supprimé ni effet durable |
 | C06-F | Writer JPA échoue après un writer JDBC réussi, puis exception interceptée | Rollback de toutes les écritures y compris JDBC ; pas de transaction partielle |
 | C06-G | Writer JPA réussit, writer JDBC échoue et l'appelant poursuit | Rollback total ; protection contre toute récupération trompeuse de l'exception |
@@ -667,8 +667,8 @@ Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction ma
 - `CurrentPot(P)` ne recule jamais : mise à jour uniquement si `incomingVersion > storedVersion`, sous protection transactionnelle résistant à deux writers concurrents. Les références que porte le pointeur sont toutes celles de **la même version globale V**, sans mélange de V et V+1.
 - Si V+1 est matérialisée avant V, la livraison tardive de V doit **préserver ses sous-versions historiques**, même si la mise à jour CurrentPot(V) est ignorée.
 - Le commit de l'écriture READ et de la suppression du slot est indivisible ; rollback et réponse de commit perdue suivent CON-04/06.
-- **La disponibilité READ complète est séparée de PRJ-01** : CurrentPot peut pointer V tandis que certaines versions immuables référencées, venues d'autres événements, ne sont pas encore présentes, ou que `PotBalance(P,V)` n'est pas prête. Le lecteur ne doit pas présenter ce Pot comme complet ; oracle end-to-end de présence dans READ-01.
-- La conservation des `SubobjectVersion` **ne signifie pas** qu'une API de consultation historique arbitraire `Pot@V` est incluse en V3. Tester la persistance et la cohérence des données historiques, pas inventer une API historique.
+- **La disponibilité READ complète est séparée de PRJ-01** : `CurrentPot` peut pointer `V` (`PotVersion(P,V)` et ses `SubobjectVersion` committées atomiquement) tandis que `PotBalance(P,V)` n'est pas encore prête. Le lecteur ne doit pas présenter ce Pot comme complet ; oracle end-to-end de présence dans READ-01.
+- La conservation des `PotVersion(P,V)` et `SubobjectVersion` permet à la fois la lecture courante et la consultation historique autorisée `Pot@V` (pour `V < D`, cf. SPEC-04 §10 et SPEC-06 §4).
 
 ### Scénarios PostgreSQL déterministes
 
@@ -681,8 +681,8 @@ Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction ma
 | P01-E | Deux Workers matérialisent V et V+1 concurremment avec barrières au moment du remplacement | CurrentPot finit à max(V,V+1), avec références homogènes ; les deux ensembles de versions immuables conservés |
 | P01-F | Répéter une livraison déjà matérialisée ou une reprise après réponse de commit perdue | Aucun doublon ni mutation de version immuable ; slot/effets satisfaits une fois ; pointe courante inchangée ou avancée seulement |
 | P01-G | Injection d'échec après insertion de sous-objets mais avant écriture CurrentPot, puis après son écriture avant commit | Rollback intégral et slot intact ; aucune projection partielle durable |
-| P01-H | Injecter l'absence temporaire d'une SubobjectVersion référencée lors d'une arrivée hors ordre | CurrentPot peut avancer mais lecture complète refusée/temporairement indisponible jusqu'à présence de toutes les références nécessaires (READ-01) |
-| P01-I | Faire avancer CurrentPot V→V+1 pendant une lecture qui a capturé V | Réponse cohérente à la version V capturée ou indisponibilité explicite, jamais mélange de références de versions ; pas d'obligation d'API historique |
+| P01-H | Injecter par fault injection en base READ l'absence d'une SubobjectVersion référencée par PotVersion(P,V) | Lecture complète refusée/temporairement indisponible (`503` après autorisation) jusqu'à présence de toutes les références nécessaires (READ-01) |
+| P01-I | Faire avancer CurrentPot V→V+1 pendant une lecture qui a capturé V | Réponse cohérente à la version V capturée ou indisponibilité explicite, jamais mélange de références de versions |
 | P01-J | Événement ancien réémis ou traitement concurrent pendant que CurrentPot pointe V+2 | Conservation immuable des anciennes versions ; aucune régression, aucune réécriture du pointeur courant |
 | P01-K | Deux Pots indépendants, événements/transactions entremêlés | Monotonie et références garanties **par Pot**, sans imposer de synchronisation globale entre Pots |
 | P01-L | Mesurer les reconstructions Pot@V et la résolution des composants, grand Pot et historique long | Mesures des requêtes, absence de N+1 pathologique, latence et allocations collectées ; comparaison aux budgets V3-5C, sans supposer une performance déjà atteinte |
@@ -699,7 +699,7 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 **READ-01 — preuves complémentaires :** la lecture principale courante utilise pointeur→PotVersion→Shareholders/Balance de la même V, retourne en plus la liste complète des références des Expenses, sans leurs détails ; `minVersion` conserve sa signification ; la lecture complémentaire par groupes bornés de références versionnées à V respecte le manifeste de V même si CurrentPot avance, refuse toute référence absente/altérée, et n'assemble jamais plusieurs versions. Tester les courses V→V+1 entre pages, les dépendances momentanément manquantes et l'absence de fuite via les erreurs.
 
-**SEC-01 — preuves complémentaires :** à chaque lecture, `CurrentBinding` actif et EUI réellement authentifiée, correspondance de `pocomaUserId` dans la liste **interne** des Shareholders autorisés à V issue de `PotVersion(P,V)`. `CurrentUserPotList` n'est pas un oracle d'autorisation ; les références n'accordent aucun droit. Tester créateur non-Shareholder, Shareholder retiré après V, Unlink propagé, substitution d'Expense hors manifeste/pot et absence d'exposition de la liste des utilisateurs autorisés.
+**SEC-01 — preuves complémentaires :** à chaque lecture, `CurrentBinding` actif et EUI réellement authentifiée, correspondance de `pocomaUserId` dans la liste **interne** `authorizedUserIds` (incluant `creatorId` et les utilisateurs liés aux Shareholders actifs à V) issue de `PotVersion(P,V)`. `CurrentUserPotList` n'est pas un oracle d'autorisation ; les références n'accordent aucun droit. Tester créateur non-Shareholder, Shareholder retiré après V, Unlink propagé, substitution d'Expense hors manifeste/pot et absence d'exposition de la liste des utilisateurs autorisés.
 
 **PERF/OPS — preuves complémentaires :** taille de `PotVersion` et manifeste transmis sur 20/200 et 100/2 000, pression stockage/WAL sur 100, 1 000 et 10 000 versions, traitement V hors ordre, nombre de requêtes borné pour pages de 50 Expenses, impact sur latence E2E `minVersion` ; mesurer avant tout choix d'archivage/factorisation.
 
@@ -736,8 +736,8 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 | P02-F | Traiter la Consumption Balance V+2 **avant** celles de V et V+1 | Les trois balances restent distinctes, correctes, immuables et accessibles en stockage ; aucune exigence de traitement FIFO |
 | P02-G | Supprimer/retarder volontairement la balance V−1 puis traiter V | V est calculée et matérialisée correctement sans accès à V−1 |
 | P02-H | Démarrer la Consumption de V, faire avancer WRITE jusqu'à V+1 puis matérialiser V | Le contenu enregistré reste celui de V exactement, non celui de l'état WRITE courant |
-| P02-I | Deux Workers tentent de matérialiser la même tâche / même (P,V), avec commit incertain et retry | Une seule valeur durable canonique ; identité/contenu inchangés ; slot et tâche finalisés une seule fois |
-| P02-J | Erreur après insertion Balance mais avant terminalisation de tâche ou suppression du slot | Rollback total ; pas de balance durable orpheline, ni tâche terminale sans son résultat |
+| P02-I | Deux Workers tentent de matérialiser le même `POT_EVENT(P,V)`, avec commit incertain et retry | Une seule valeur durable canonique `PotBalance(P,V)` ; identité/contenu inchangés ; slot finalisé une seule fois |
+| P02-J | Erreur après insertion Balance mais avant suppression du slot | Rollback total ; pas de balance durable orpheline sans suppression de son slot |
 | P02-K | `CurrentPot` pointe V+1 tandis que seule la balance V existe, puis balance V+1 arrive | Consultation complète à V+1 indisponible jusqu'à présence de sa balance exacte ; aucune substitution de V (READ-01) |
 | P02-L | Deux Pots indépendants et plusieurs versions chacun, Consumptions entrelacées | Calculs et clés isolés par (P,V) ; aucune contamination entre Pots |
 | P02-M | Profils petit (5/20), moyen (20/200), grand (100/2 000) et historiques de volumes V3-5C | Mesurer séparément reconstruction/préparation, attente et transaction de matérialisation ; p95 E2E des scénarios nominaux évalué contre les objectifs V3-5C, sans les présumer atteints |
@@ -746,7 +746,7 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 JUnit et **PostgreSQL réel**, avec oracle rationnel indépendant, jeux de mutations connus, snapshots `Pot@V` attendus, captures de Consumptions, barrières de concurrence et injections de panne. Les tests de valeurs métier purs peuvent être unitaires ; l'immuabilité, les races et l'atomicité exigent PostgreSQL. Vérifier les clés et les **contenus** des anciennes balances après les traitements ultérieurs, non leur seule présence. Conserver les données génératrices (seed), les références et toutes les fractions de référence.
 
-Pour les performances, ne pas confondre le **temps de calcul pur**, la préparation en WRITE/READ, la création de tâche, son attente et la disponibilité par API. La mesure E2E doit inclure la chaîne complète et respecter l'incertitude du sondage. Le budget p95 de 50 ms sur calcul/écriture des balances demeure **candidat**, tandis que les SLO globaux (500 ms Pot moyen nominal, 2 s grand Pot nominal) sont les objectifs validés.
+Pour les performances, ne pas confondre le **temps de calcul pur**, la préparation en WRITE/READ, l'enrôlement du slot, son attente et la disponibilité par API. La mesure E2E doit inclure la chaîne complète et respecter l'incertitude du sondage. Le budget p95 de 50 ms sur calcul/écriture des balances demeure **candidat**, tandis que les SLO globaux (500 ms Pot moyen nominal, 2 s grand Pot nominal) sont les objectifs validés.
 
 **PASS PRJ-02** exige P02-A à P02-M, exactitude rationnelle, balance complète par version globale, immutabilité/idempotence et absence de dépendance à V−1. Les budgets sont qualifiés séparément en PERF-01 ; un succès fonctionnel ne certifie pas une performance. Aucun test V3 exécuté.
 
@@ -816,7 +816,7 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 | R01-A | Pot absent dans READ, puis projection initiale apparue | Avant matérialisation, `404` faute d'autorisation démontrable depuis READ ; après matérialisation, succès complet uniquement si autorisé ; aucun accès WRITE synchrone |
 | R01-B | CurrentPot actif V4, utilisateur autorisé à V4, requête `minVersion=5` | `503` temporaire après autorisation ; aucune réponse V4 présentée comme satisfaisant V5 |
 | R01-C | CurrentPot à V6 et `minVersion=5` | V6 peut être servie si complète et autorisée ; pas d'exigence artificielle de servir V5 |
-| R01-D | CurrentPot V6 référence plusieurs sous-versions dont l'une est absente | Lecture complète indisponible jusqu'à présence de toutes les références ; aucune suppression de champ silencieuse |
+| R01-D | CurrentPot V6 référence plusieurs sous-versions dont l'une est absente (injection de faute en base READ) | Lecture complète indisponible (`503` après autorisation) jusqu'à présence de toutes les références ; aucune suppression de champ silencieuse |
 | R01-E | CurrentPot V6 et Balance(P,V5) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais réutiliser le solde V5 |
 | R01-F | CurrentPot V6 et Balance(P,V7) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais emprunter un solde futur |
 | R01-G | CurrentPot passe V6→V7 pendant une lecture ayant capturé V6 | Réponse cohérente V6 ou indisponibilité ; jamais assemblage V6/V7 |
@@ -848,12 +848,12 @@ JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des mat
 
 | ID | Stimulus | Oracle de réussite |
 |---|---|---|
-| S01-A | EUI authentifiée E1 + bindingToken actif de E1 + Shareholder de Pot@V lié au User de E1 | Lecture autorisée, complète sous READ-01 |
+| S01-A | EUI authentifiée E1 + bindingToken actif de E1 + User de E1 autorisé dans Pot@V (créateur `creatorId` même sans Shareholder, ou Shareholder de Pot@V lié au User de E1) | Lecture autorisée, complète sous READ-01 |
 | S01-B | Aucun JWT/identité authentifiée, mais bindingToken valide connu | Accès refusé : token seul insuffisant |
 | S01-C | EUI E2 authentifiée présente le bindingToken de E1 | Refus, y compris si E2 connaît le Pot et son identifiant |
 | S01-D | EUI E1 authentifiée présente token inventé, expiré/remplacé ou appartenant à EUI liée à un autre User | Refus ; aucune résolution approximative par userId ou token seul |
 | S01-E | EUI authentifiée correcte, CurrentBinding absent, inactif ou sans pocomaUserId | Refus / absence de liaison, sans accès au Pot |
-| S01-F | EUI et bindingToken corrects, mais aucun Shareholder lié au User dans Pot@V | Refus malgré Pot connu ou liste de navigation trompeuse |
+| S01-F | EUI et bindingToken corrects, mais User ni créateur (`creatorId`) ni lié à aucun Shareholder dans Pot@V | Refus (`404`) malgré Pot connu ou liste de navigation trompeuse |
 | S01-G | Rattachement Shareholder présent à V puis retiré à V+1, avec lectures à versions réellement servies distinctes | Droit évalué sur la version servie ; accès admis à V si cette consultation est disponible, refus à V+1 si aucun lien restant |
 | S01-H | User lié à deux Shareholders, puis détaché de l'un | Droit maintenu tant qu'au moins un Shareholder de la version servie reste lié |
 | S01-I | CurrentUserPotList contient visible=true erroné ou périmé pour un User sans droit à Pot@V | Aucune autorisation par la liste ; ouverture du Pot refusée |
@@ -866,9 +866,9 @@ JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des mat
 
 ### Méthode et critères PASS
 
-Combiner **Bruno** (API, erreurs, contrôle de non-divulgation), **JUnit avec PostgreSQL réel** (versions, rattachements, état CurrentBinding, races et absence de navigation autoritative) et **Keycloak réel** pour les parcours OIDC dans la configuration B. Utiliser plusieurs identités EUI et Pots aux historiques divergents. Vérifier pour chaque refus l'absence de contenu protégé dans réponse et logs d'application observables ; ne pas journaliser les tokens. Les tests qui forcent d'anciennes versions de Pot ne doivent pas prétendre qu'une API historique arbitraire existe déjà : utiliser un CurrentPot contrôlé à la version V puis le faire progresser.
+Combiner **Bruno** (API, erreurs, contrôle de non-divulgation), **JUnit avec PostgreSQL réel** (versions, rattachements, état CurrentBinding, races et absence de navigation autoritative) et **Keycloak réel** pour les parcours OIDC dans la configuration B. Utiliser plusieurs identités EUI et Pots aux historiques divergents. Vérifier pour chaque refus l'absence de contenu protégé dans réponse et logs d'application observables ; ne pas journaliser les tokens. Couvrir à la fois la lecture courante (`GET /pots/{potId}`) et la lecture historique explicite à une version `V < D` (`SPEC-06 §4`, `A11-F`).
 
-**PASS SEC-01** : S01-A à S01-O, absence de confusion EUI/token, authentification indispensable, contrôle Shareholder à V, aucun privilège issu de CurrentUserPotList et aucune fuite de contenu lors des refus. SEC-02 teste séparément la fenêtre acceptée de propagation d'Unlink. Aucun test V3 n'a été implémenté ni exécuté.
+**PASS SEC-01** : S01-A à S01-O, absence de confusion EUI/token, authentification indispensable, contrôle des droits à V (`creatorId` ou Shareholder actif à V), aucun privilège issu de CurrentUserPotList et aucune fuite de contenu lors des refus. SEC-02 teste séparément la fenêtre acceptée de propagation d'Unlink. Aucun test V3 n'a été implémenté ni exécuté.
 
 ### SEC-02 — Protocole et oracles
 
@@ -914,7 +914,7 @@ JUnit avec **PostgreSQL réel** pour contrôler commits, ordres d'événements, 
 
 ### ADM-01 — Contrôle d'entrée
 
-Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
+Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. Intégré aux 27 exigences actives de la matrice §2.
 
 **Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
 
@@ -988,26 +988,26 @@ Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome
 ### Invariants de reconstruction
 
 - **Barrière opérationnelle :** avant le reset, empêcher toute nouvelle acquisition Discovery/Engine READ et attendre/neutraliser les écritures READ en cours ; une transaction READ ancienne ne peut pas committer après le reset en réinjectant des effets périmés. Pendant la reconstruction, les APIs ne doivent pas présenter READ partiellement reconstruit comme complet et prêt. La remise en service exige un critère explicite de disponibilité.
-- **Ensemble cohérent :** projections READ et slots, claims/leases de partition READ et checkpoints sont réinitialisés de manière coordonnée. Les définitions et IDs des Consumptions réutilisées restent stables. Les événements immuables de WRITE et les demandes autoritatives ne sont pas effacés.
-- **Reconstruction à mêmes IDs :** les checkpoints non-burnables repartent de zéro ; les tâches sont recréées avec leurs IDs déterministes d'origine, mais dans un espace READ entièrement réinitialisé. Les sources terminales WRITE ne sont **pas** rouvertes : READ redécouvre les événements immuables, pas les COMMAND/IDENTITY_REQUEST déjà terminales.
+- **Ensemble cohérent :** projections READ, slots, claims/leases de partition READ et checkpoints sont réinitialisés de manière coordonnée. Les définitions et IDs des Consumptions réutilisées restent stables. Les événements immuables de WRITE et les demandes autoritatives ne sont pas effacés.
+- **Reconstruction à mêmes IDs :** les checkpoints non-burnables repartent de zéro dans un espace READ entièrement réinitialisé. Les sources terminales WRITE ne sont **pas** rouvertes : READ redécouvre les quatre séquences d'événements immuables, pas les COMMAND/IDENTITY_REQUEST déjà terminales.
 - **Consommations indépendantes :** leur finalisation n'exige pas d'ordre global ; un jalon de remise en service doit néanmoins attester les projections nécessaires aux parcours annoncés. Le rattrapage de CurrentPot ne suffit pas à lui seul à établir que les balances, visibilité, binding et résultats sont prêts.
-- **Rejeu indépendant :** un nouveau `consumptionId` produit des slots/checkpoints propres et, pour une nouvelle Consumption de préparation, de nouveaux taskIds. Les projections existantes ne doivent pas être modifiées de façon incohérente par une deuxième génération d'écrivains ; leur destination, idempotence ou isolation doit être documentée avant la campagne.
+- **Rejeu indépendant :** un nouveau `consumptionId` produit des slots et checkpoints propres. Les projections existantes ne doivent pas être modifiées de façon incohérente par une deuxième génération d'écrivains ; leur destination, idempotence ou isolation doit être documentée avant la campagne.
 - **Récupération d'interruption :** une panne pendant reset/rebuild doit laisser READ hors service ou en état de reprise cohérente ; aucune stratégie de restauration séparée d'un ancien checkpoint avec de nouveaux slots/effets n'est acceptable.
 
 ### Cas déterministes
 
 | ID | Stimulus / incident | Oracle de réussite |
 |---|---|---|
-| RCV01-A | READ peuplé de CurrentPot, sous-versions, balances, listes, bindings, résultats, tâches et slots ; déclencher reset total | Aucune projection, tâche, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
+| RCV01-A | READ peuplé de CurrentPot, PotVersion, sous-versions, balances, listes, bindings, résultats et slots ; déclencher reset total | Aucune projection, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
 | RCV01-B | Un Worker READ possède un claim et exécute une transaction au moment de la demande de reset | Barrière empêche un commit tardif après reset ; rollback/achèvement de l'ancien traitement avant réinitialisation, avec absence de réapparition d'effets |
 | RCV01-C | Arrêt après reset mais avant relance des Consumers | READ reste explicitement indisponible ; ne sert pas un résultat vide comme une reconstruction achevée |
 | RCV01-D | Reconstruire sans nouveaux consumptionIds depuis les quatre séquences événementielles conservées | Checkpoints repartent de zéro puis progressent ; mêmes IDs de Consumption ; projections attendues équivalentes aux valeurs autoritatives |
-| RCV01-E | Repréparer un même `POT_EVENT` avec le même ID de Consumption de préparation après reset | Même paire de taskIds déterministes recréée, sans collision ni tâche historique résiduelle |
-| RCV01-F | Reconstruction avec événements Pot et Identity entrelacés, tâches Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot, Balance, visibilité, CurrentBinding et résultats ; aucune condition d'ordre artificielle |
+| RCV01-E | Retraiter un même `POT_EVENT` par les trois Consumptions directes (`MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility`) après reset | Projections `PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance` et `PotVisibilityState`/`CurrentUserPotList` recréées exactement, sans collision ni état résiduel |
+| RCV01-F | Reconstruction avec événements Pot et Identity entrelacés, Consumptions Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot/PotVersion, Balance, visibilité, CurrentBinding et résultats ; aucune condition d'ordre artificielle |
 | RCV01-G | Panne au milieu de la reconstruction, avec quelques checkpoints et slots déjà créés | Reprise sûre à partir des données durables ou nouveau reset total coordonné ; aucune perte par avance incohérente de checkpoint |
 | RCV01-H | Simuler restauration partielle : ancien checkpoint + slots effacés, ou projection effacée sans son slot | Procédure refusée/non autorisée ; ne pas déclarer READY un READ dont la preuve de complétion est cassée |
-| RCV01-I | Réinitialiser alors que des tâches PENDING et TERMINAL coexistent | Toutes les tâches du cycle précédent éliminées ; aucune tâche terminale ne bloque leur recréation avec mêmes IDs après reset |
-| RCV01-J | Démarrer une Consumption de replay indépendante avec nouvel ID sur événements historiques | Slots/checkpoints nouveaux, taskIds propres si préparation ; aucun réemploi d'ID de Consumption ou collision silencieuse |
+| RCV01-I | Réinitialiser alors que des slots READ libres, claimés et quarantainés coexistent | Tous les slots et checkpoints READ du cycle précédent éliminés ; aucun état antérieur ne bloque le ré-enrôlement complet après reset |
+| RCV01-J | Démarrer une Consumption de replay indépendante avec nouvel ID sur événements historiques | Slots et checkpoints nouveaux propres à ce nouvel ID ; aucun réemploi d'ID de Consumption ou collision silencieuse |
 | RCV01-K | Rejeu indépendant vers projection déjà alimentée par la Consumption initiale | Coexistence interdite si non démontrée sûre, ou preuve d'idempotence/isolation explicite ; pas de double écriture incohérente |
 | RCV01-L | Demandes WRITE encore en arrivée pendant rebuild READ, puis arrêt et drainage mesurés | La borne de reconstruction/READY est définie (préfixes observables et projections requises), et les nouvelles publications sont ensuite consommées sans perte |
 | RCV01-M | Requêtes API READ authentifiées pendant et après reset | Indisponibilité pendant reconstruction ; après READY, lectures complètes et autorisations via CurrentBinding, jamais bypass de sécurité |
@@ -1015,19 +1015,19 @@ Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome
 
 ### Méthode, preuves et décision opérationnelle restant à détailler
 
-JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes, crash/restart contrôlé et vérification de chaque famille de projection. Bruno vérifie indisponibilité READ, remise en service et autorisations. Capturer états avant/après, statut de barrière, ensembles d'IDs, checkpoints, tâches, slots, contenu projeté et bornes de publication WRITE. Ne pas présumer que l'arrêt d'un processus tue instantanément ses transactions : la preuve inclut leur résolution physique.
+JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes, crash/restart contrôlé et vérification de chaque famille de projection. Bruno vérifie indisponibilité READ, remise en service et autorisations. Capturer états avant/après, statut de barrière, ensembles d'IDs, checkpoints, slots, contenu projeté et bornes de publication WRITE. Ne pas présumer que l'arrêt d'un processus tue instantanément ses transactions : la preuve inclut leur résolution physique.
 
 **Point de cadrage pour V3-CADRE :** choisir et décrire la **barrière effective d'arrêt/reprise** et l'oracle de `READY` (notamment en présence de WRITE continu) ; le présent protocole définit ce qui doit être prouvé mais ne prétend pas avoir tranché ces mécanismes opérationnels. L'implémentation ne peut pas décider silencieusement d'une barrière plus faible.
 
 **PASS REC-01** : RCV01-A à RCV01-N, reset sans survivants, impossibilité de commit ancien après reset, rejeu fidèle avec mêmes IDs, replay indépendant isolé et API protégée tant que READ n'est pas déclaré prêt. Aucun test V3 n'est encore exécuté.
 
-**DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure de §38 est retenue conceptuellement : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, tâches, slots, claims/propriétés et checkpoints, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les événements WRITE immuables.
+**DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure retenue : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, slots, claims/propriétés et checkpoints READ, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les quatre séquences d'événements WRITE immuables.
 
-**Condition de réouverture :** capturer quatre préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des Consumptions READ jusqu'aux préfixes et achèvement de **tous les effets dérivés nécessaires**, notamment les deux Projection Tasks par événement Pot, les CurrentBinding et les résultats terminaux. Le checkpoint de découverte seul ne vaut pas achèvement. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
+**Condition de réouverture :** capturer quatre préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des six Consumptions READ jusqu'aux préfixes `B` et achèvement de **tous leurs slots enrôlés jusqu'à `B`** (`PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance`, `PotVisibilityState`/`CurrentUserPotList`, `CurrentBinding`, `CommandResult` et `IdentityRequestResult`). Le checkpoint de découverte seul ne vaut pas achèvement tant que des slots subsistent. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
 
 **Garde-fous :** ne jamais confondre perte de propriété de partition avec arrêt des claims déjà acquis : les anciens writers doivent être physiquement arrêtés ou neutralisés avant le reset. Si l'exclusivité de maintenance est perdue ou si le reset est interrompu, ne pas ouvrir READ ; reprendre une reconstruction totale cohérente. Aucun fencing/generation permanent de reconstruction et aucun arrêt prolongé de WRITE ne sont requis **sous condition que cette exclusivité soit effectivement prouvée**.
 
-**Impact REC-01 :** considérer §38 et cette décision comme le contrat de test RCV01-A à N ; les cas de writer tardif, tâche dérivée encore PENDING, publication au-delà de B et échec de reconstruction sont des tests bloquants pour la remise en service.
+**Impact REC-01 :** considérer cette décision comme le contrat de test RCV01-A à N ; les cas de writer tardif, slot READ encore non terminé sous `B`, publication au-delà de B et échec de reconstruction sont des tests bloquants pour la remise en service.
 
 **Statut : C-02 et C-03 conceptuellement arbitrés dans SPEC-05 et SPEC-09 ; preuves V3-6/V3-7 non exécutées. Décision de clôture globale séparée.**
 
@@ -1035,7 +1035,7 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 
 ### OPS-01 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Référence V3-4/V3-5B/C : Discovery et Engine possèdent **deux boucles adaptatives indépendantes**, sans notification obligatoire, avec round-robin entre Consumptions, capacités configurables par Worker et Consumption, lots bornés et sélection de slots sans famine durable. La stabilité ne se déduit ni d'un débit HTTP élevé ni de la seule disparition des slots Command : elle exige progression des événements, tasks et projections READ.
+**Statut : protocole proposé, non exécuté.** Référence V3-4/V3-5B/C : Discovery et Engine possèdent **deux boucles adaptatives indépendantes**, sans notification obligatoire, avec round-robin entre Consumptions, capacités configurables par Worker et Consumption, lots bornés et sélection de slots sans famine durable. La stabilité ne se déduit ni d'un débit HTTP élevé ni de la seule disparition des slots Command : elle exige progression des événements, des Consumptions READ et des projections READ.
 
 ### Oracles et indicateurs
 
@@ -1063,7 +1063,7 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 | O01-J | Nombreux événements hors partition, historique global 10k/1M/10M événements | Mesurer sélectivité, plans SQL, positions inspectées, nombre de lignes lues, progression de checkpoints ; pas de requête démesurée ignorée |
 | O01-K | Volume important de slots déjà réclamés/différés et quelques slots disponibles | Les slots éligibles restent trouvables sans lecture déraisonnable des claims inéligibles ; absence de famine |
 | O01-L | Déconnexion/crash d'un Worker puis redémarrage et renouvellement de claims | Observabilité des expirations, reprises, slots persistants et absence de double finalisation |
-| O01-M | Pause des Workers READ et constitution d'un backlog de tasks, tandis que les commandes continuent | Les deux boucles reprennent indépendamment ; progression visible par famille, pas seulement disparition des commandes |
+| O01-M | Pause des Workers READ et constitution d'un backlog d'événements/slots READ, tandis que les commandes continuent | Les deux boucles reprennent indépendamment ; progression visible par famille, pas seulement disparition des commandes |
 | O01-N | Instrumentation volontairement décalée/omise sur Discovery ou Engine dans un banc de vérification | La validation des métriques signale une frontière erronée ou absente ; simple présence d'une série ne suffit pas |
 
 ### Conditions de reproductibilité et interprétation
@@ -1137,7 +1137,7 @@ Répéter les campagnes comparables **au moins trois fois** avec données et env
 - **Fin F01-G :** toutes les demandes initiales TERMINAL avec résultats, Consumptions et projections attendues complétées, sans slot résiduel de traitement réussi (les slots QUARANTINED restent incomplets, jamais des succès).
 - **Stabilité B :** séries temporelles de backlog **par Consumption**, âges de la plus ancienne source/slot, débit de complétion et projection E2E ; vérifier qu'aucune pente positive durable ne se cache derrière une moyenne finale. Décrire la régression et la fenêtre choisies avant exécution.
 - **Pointe C :** mesurer les latences **pendant** la fenêtre 50/s sans exclure les travaux achevés après son terme ; poursuivre les sondes jusqu'à complétion/timeout et vérifier le drainage après le retour nominal.
-- **Instrumentation :** valider avec des injections déterministes que chaque timer/counter mesure la bonne frontière : source→slot, slot éligible→acquisition, préparation, verrou final, commit, événements et branches CurrentPot/Result/Tasks/Balance/Visibility/CurrentBinding, rollback, retry et expiration. Histogrammes Prometheus exploitables ; aucune étiquette à forte cardinalité ni token dans les logs. Comparer distributions côté client et agrégats internes, **sans additionner les p95 de phases parallèles**.
+- **Instrumentation :** valider avec des injections déterministes que chaque timer/counter mesure la bonne frontière : source→slot, slot éligible→acquisition, préparation, verrou final, commit, événements et branches PotVersion/CurrentPot/Result/Balance/Visibility/CurrentBinding, rollback, retry et expiration. Histogrammes Prometheus exploitables ; aucune étiquette à forte cardinalité ni token dans les logs. Comparer distributions côté client et agrégats internes, **sans additionner les p95 de phases parallèles**.
 - **Ressources :** CPU, mémoire, pauses GC, latences SQL, nombre de lignes scannées, plans SQL, connexions/pools, attente/verrous, IO et WAL sur les deux machines ; conserver métriques et plans des phases coûteuses. Distinguer saturation PostgreSQL, moteur, injecteurs et Keycloak.
 - **Critères de verdict :** **PASS** seulement si tous les invariants métier/sécurité sont conservés, volume offert réellement tenu, populations et sondes valides, et SLO contractuels satisfaits **sur chaque campagne requise**. **FAIL** si seuil dépassé ou invariant violé ; **INCONCLUSIVE** si échantillons, visibilité des jalons, trafic de sondage ou environnement empêchent d'établir le verdict. Documenter toute limitation de mesure, sans déplacer rétrospectivement les seuils.
 
@@ -1153,34 +1153,13 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 
 **Séparation des preuves :**
 - **Disponibilité utilisateur (READ-01 / PERF-01) :** première lecture réelle avec W≥V, complète et autorisée ; aucun besoin de `PotVisibilityState(P).materializedVersion ≥ V` dans ce jalon **si l'endpoint Pot ne dépend pas de la visibilité**.
-- **Correction et progression historique (DOM-01/03, PRJ-01/02/04, CON-02) :** chaque balance immutable `PotBalance(P,V)` doit exister et être correcte, toutes les tâches attendues doivent terminer et la visibilité progresser ; vérifier par oracles internes/états READ, sans prétendre exposer une API Pot historique.
+- **Correction et progression historique (DOM-01, PRJ-01/02/03, CON-02) :** chaque balance immuable `PotBalance(P,V)` (pour `V < D`) doit exister et être correcte, toutes les Consumptions attendues doivent terminer et la visibilité progresser ; vérifier par oracles internes/états READ et lecture historique autorisée (`V < D`).
 - **SLO technique de balance nominale :** conserver séparément le p95 ≤ 500 ms admission→`PotBalance(P,V)` exacte ; contrairement au SLO utilisateur, cette mesure peut reposer sur un oracle technique READ indépendant et précis.
-- **Backlog et reconstruction (REC-01 / PERF-01 F01-G) :** garder l'exigence de terminaison des trois Consumptions READ directes et de leurs effets dérivés pour chaque événement ciblé ; une lecture courante W≥V ne suffit pas à prouver que les tâches historiques sont finies.
+- **Backlog et reconstruction (REC-01 / PERF-01 F01-G) :** garder l'exigence de terminaison des trois Consumptions READ directes et de leurs effets pour chaque événement ciblé ; une lecture courante W≥V ne suffit pas à prouver que tous les slots historiques sont terminés.
 
 **Amendements aux campagnes §24 :** dans F01-A, rapporter deux SLO distincts : première lecture Pot W≥V et Balance(P,V) ; dans F01-B/C/D, le délai Pot désigne uniquement la première lecture READ complète W≥V. Le §24.4 point 4, lorsqu'il suggère la complétude simultanée des projections de V ou une exigence `PotVisibilityState≥V` pour la lecture courante, est **supplanté** par le présent contrat. Aucun nouveau jalon par version historique pour les campagnes de réactivité.
 
 **Effet sur la revue §30 :** **C-03 RÉSOLU AU NIVEAU CONCEPTUEL** par simplification du contrat de mesure. C-01 (consentement IdP) et C-02 (maintenance READ) disposent également de décisions de principe ; il reste la revue documentaire finale, la consolidation du doublon CON-06 et la soumission explicite de V3-CADRE. Aucun code/DDL ni test V3 exécuté.
-
-**Protocole conceptuel ; scénarios définis, non exécutés.** Construire un Pot P avec créateur C, Shareholders associés à A/B, état actif à V8 et suppression par C à D=V9. Vérifier séparément WRITE, chacune des trois Consumptions READ et les réponses HTTP. Ne pas ajouter de projection ni d'endpoint de test.
-
-| Cas | Stimulus | Oracle |
-|---|---|---|
-| A11-A | `DeletePot` appliqué après V8 | Seul PotHeader devient `deleted=true` à D ; commande terminale, aucune mutation métier post-D ; historique V1..V8 inchangé. |
-| A11-B | `MaterializePotVersion(P,D)` | `PotVersion(P,D)` durable, `CurrentPot(P) >= D` monotone ; version D non consultable via API métier. |
-| A11-C | `MaterializePotBalance(P,D)` | Consumption et slot terminent normalement **sans** `PotBalance(P,D)` ; absence intentionnelle non assimilée à erreur/retard. |
-| A11-D | Exécuter l'événement Balance V8 **après** D | `PotBalance(P,V8)` exacte et durable ; aucun skip des anciennes versions du fait de l'état supprimé courant. |
-| A11-E | `MaterializePotVisibility(P,D)` lente ou hors ordre | Le Pot devient invisible pour tous après progression de la visibilité ; aucune dépendance artificielle de CurrentPot/Balance à Visibility. |
-| A11-F | Créateur ou Shareholder autorisé à V7/V8 après suppression D | Lecture historique V<D `200` et références Expense autorisées à V ; pas d'exigence de droits sur D ni de présence dans la liste. |
-| A11-G | Lecture courante de P et lecture historique exacte D après matérialisation | `404` uniforme, même pour le créateur ; aucun `503` pour Balance(D) manquante volontairement. |
-| A11-H | Tiers non autorisé, Pot inexistant, Pot supprimé, `minVersion=999999` | Absence et refus indiscernables (`404`), sans `503` précoce, ni information de version par recherche dichotomique. |
-| A11-I | Version active autorisée mais `minVersion` au-delà de CurrentPot ou dépendances Balance/Subobject manquantes | `503` seulement **après** autorisation READ prouvée ; pas de réponse partielle ni de lecture WRITE synchronique. |
-| A11-J | Pot créé dans WRITE mais encore absent de READ | `404` jusqu'à preuve READ des droits, puis lecture normale / `503` de fraîcheur si autorisé et non complet ; aucun indice d'existence WRITE. |
-| A11-K | Droits Shareholder perdus après V8 ; Binding actif ou Unlink propagé | Droit historique à V8 conservé si Binding actif ; refus après révocation de Binding matérialisée ; fenêtre asynchrone conforme SEC-01/02. |
-| A11-L | Command `DeletePot` avec `resultingPotVersion=D` | Latence depuis admission jusqu'à observation interne READ `CurrentPot -> PotVersion(P,D).deleted=true`, mêmes budgets C-03 ; `404` HTTP seul n'est pas un succès de propagation. |
-| A11-M | Charges nominale/soutenue/pointe et Grand Pot, suppression | Budgets C-03 du jalon alternatif ; Balance(D) non attendue, balances actives antérieures et progression Visibility vérifiées distinctement. |
-| A11-N | Lecture des sous-objets et Expense batch à V antérieure depuis références légitimes ou falsifiées | Autorisation à V, appartenance au manifeste, refus 404 uniforme pour références étrangères ou hors V ; aucun accès via simple connaissance d'ID. |
-
-**Critère de certification :** démontrer exactement la suppression terminale, l'accessibilité historique autorisée, l'absence légitime de Balance(D), l'indépendance/hors ordre des Consumptions et l'ordre anti-énumération 401/404/503. Les tests PRJ-01, PRJ-02, READ-01, SEC-01, SEC-02, PERF-01 et SUPRA-READ-01 sont amendés en conséquence. Les anciens critères exigeant Balance à **chaque** version ou lecture HTTP `200` après `DeletePot` sont supplantés. Aucun test V3 lancé.
 
 ## 13. Critères de clôture
 

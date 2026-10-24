@@ -36,12 +36,12 @@ Invariants de chaque état :
 |---|---|---|
 | **Registration** | EUI authentifiée non liée, qu'elle soit inconnue ou déjà présente libre | Créer un **nouveau PocomaUser**, créer EUI directement liée v1 ou produire sa prochaine version liée ; nouveau token |
 | **Link** | EUI initiatrice E1 authentifiée déjà liée à U et encore valide ; preuve fiable de contrôle/consentement de l'EUI cible E2 ; E2 libre ou inconnue | Déduire U de E1 (pas du choix arbitraire d'un UserId), créer E2 directement liée v1 ou sa prochaine version liée ; nouveau token |
-| **Unlink** | E1 initiatrice authentifiée liée à U, E2 liée **au même U** et dont le token courant correspond au token cible déclaré | Produire la nouvelle version de E2 non liée et token nul |
+| **Unlink** | E1 initiatrice authentifiée liée à U (présentant son propre `bindingToken` actif), E2 actuellement liée **au même U** (sans exiger le `bindingToken` secret de E2 lorsque `E1 != E2`) | Produire la nouvelle version de E2 non liée et token nul |
 
-- `Link` et `Unlink` sont des **transitions strictes**, pas des affectations idempotentes d'état : une identité déjà liée, même au même User, entraîne rejet d'un nouveau Link ; une EUI déjà libre ou portant un token différent entraîne rejet d'un nouvel Unlink.
+- `Link` et `Unlink` sont des **transitions strictes**, pas des affectations idempotentes d'état : une identité déjà liée, même au même User, entraîne rejet d'un nouveau Link ; une EUI cible déjà libre, liée à un autre User, ou un initiateur E1 dont le `bindingToken` est obsolète entraîne rejet d'un nouvel Unlink.
 - Une réexécution technique de **la même demande durable** retrouve son résultat terminal original sans nouvel effet. La complétion de la demande et les faits de mutation sont des natures distinctes (contrats en V3-2).
 - Aucun transfert direct d'EUI de U1 vers U2 n'est retenu : Unlink puis Link.
-- E1 peut Unlink E2 du même User, ou elle-même ; elle peut aussi Unlink la **dernière** identité du User, qui persiste alors sans EUI liée.
+- E1 peut Unlink E2 du même User, ou elle-même ; elle peut aussi Unlink la **dernière** identité du User, qui persiste alors sans EUI liée (abandon définitif et irrévocable de ce `PocomaUser`, aucune opération ne rattachant une EUI à un `PocomaUser` dépourvu d'EUI active).
 - La preuve d'autorité sur E2 dans Link **ne se réduit jamais** à la connaissance de `(issuer,subject)`, d'un UserId ou d'un token divulgué. Le consentement E2 doit être attesté par un serveur d'autorisation qualifié selon le contrat du §5.
 
 ## 5. Admission, consentement et autorité à l'exécution
@@ -62,7 +62,7 @@ Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans pré
 
 L'admission est **déclarative**, sans lecture du modèle WRITE Identity : elle capture l'identité externe authentifiée, les attestations externes et les témoins de binding déclarés, puis enregistre l'intention durable. Elle ne certifie ni la disponibilité de la cible ni la fraîcheur du rattachement.
 
-À l'exécution seulement, Pocoma consulte l'autorité Identity : l'identité externe du demandeur doit correspondre à celle authentifiée à l'admission, le `bindingToken` déclaré de E1 doit être courant, U est résolu de E1 ; les préconditions de E2 (et pour Unlink son token exact déclaré) sont contrôlées ainsi que les droits externes et règles applicables. Le token opaque identifie l'occurrence revendiquée, **sans se substituer à l'authentification**. Le mode de consultation propre de CurrentBinding est défini au §6 et en V3-3 ; aucune lecture WRITE n'est ajoutée à l'admission.
+À l'exécution seulement, Pocoma consulte l'autorité Identity : l'identité externe du demandeur doit correspondre à celle authentifiée à l'admission, le `bindingToken` déclaré de E1 doit être courant, U est résolu de E1 ; les préconditions de E2 (libre pour Link, activement liée au même U pour Unlink) sont contrôlées ainsi que les droits externes et règles applicables. Le token opaque identifie l'occurrence revendiquée de E1, **sans se substituer à l'authentification**. Le mode de consultation propre de CurrentBinding est défini au §6 et en V3-3 ; aucune lecture WRITE n'est ajoutée à l'admission.
 
 ## 6. Binding explicite et récupération de son propre CurrentBinding
 
@@ -70,7 +70,7 @@ L'admission est **déclarative**, sans lecture du modèle WRITE Identity : elle 
 
 À l'exécution WRITE, vérifier la correspondance `(EUI authentifiée, bindingToken, Binding actif, PocomaUserId)` avant toute décision métier. Une EUI authentifiée présentant le token d'une autre EUI est refusée. La vérification intrinsèque/présence du token à l'admission ne remplace pas cette validation de l'état WRITE par le Worker. Les retries et la comparaison des intentions idempotentes sont liés à ce rattachement explicite.
 
-**Cas Link :** `bindingToken` de E1 (initiateur) obligatoire ; E2 doit être authentifiée et consentir explicitement au Link particulier, mais n'a pas besoin de Binding initial. **Unlink :** Binding que l'EUI détache. **Invitation/auto-rattachement :** demande avec Binding actif du bénéficiaire lui-même. **Registration :** exception, car elle crée un nouveau Binding. Le mécanisme de récupération du token après Registration/Link doit être documenté sans permettre d'accéder au token d'une autre EUI.
+**Cas Link :** `bindingToken` de E1 (initiateur) obligatoire ; E2 doit être authentifiée et consentir explicitement au Link particulier, mais n'a pas besoin de Binding initial. **Unlink :** `bindingToken` actif de l'EUI initiatrice E1 obligatoire (qui est aussi celui de E2 lorsque `E1 == E2` ; lorsque `E1 != E2`, E1 n'a jamais à fournir ni connaître le `bindingToken` de E2). **Invitation/auto-rattachement :** demande avec Binding actif du bénéficiaire lui-même. **Registration :** exception, car elle crée un nouveau Binding. Le mécanisme de récupération du token après Registration/Link doit être documenté sans permettre d'accéder au token d'une autre EUI.
 
 Aucune inférence implicite de `PocomaUserId` par le domaine à partir du seul `issuer/subject`. Toute formulation antérieure laissant entendre une résolution implicite est supplantée.
 
@@ -96,7 +96,7 @@ Le READ Supra renvoie à cet appelant sa version EUI projetée, l'état actif/in
 - Link/Unlink : vérifier **atomiquement** l'autorité initiatrice (E1 et son token courant) et les préconditions de E2 jusqu'au commit ; ne pas laisser Unlink de E1 passer entre contrôle et mutation de E2.
 - Deux Unlinks croisés, E1 demandant l'Unlink d'E2 et inversement : **un seul** peut réussir ; l'autre perd son autorité initiatrice. Des Unlinks dans une même direction peuvent réussir successivement seulement si leurs initiateurs et leurs cibles restent valides sous leurs témoins déclarés.
 - Une opération Unlink portant E1==E2 contrôle son propre rattachement puis le supprime atomiquement.
-- Les transitions sur EUI indépendantes n'ont pas besoin de version globale, mais les opérations à deux EUI doivent respecter leur frontière transactionnelle de cohérence ; verrouillage et ordre anti-deadlock à préciser en V3-4.
+- Les transitions sur EUI indépendantes n'ont pas besoin de version globale, mais les opérations à deux EUI (`Link(E1, E2)` et `Unlink(E1, E2)` avec `E1 != E2`) verrouillent exclusivement `E1` et `E2` dans l'ordre lexicographique canonique `(issuer, subject)` au sein de la transaction WRITE finale (cf. SPEC-05 §4).
 - Les éventuels rejets métier ne sont pas des erreurs d'infrastructure : aucune mutation ni fait Identity n'en résulte. La complétion terminale reste enregistrable séparément.
 
 ## 8. Reconstruction et exemples

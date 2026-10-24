@@ -67,7 +67,7 @@ Le changement métier, ses événements, la terminalisation, le résultat, les �
 |---|---|---|
 | Création Pot | Pot V1, un `POT_EVENT` | Succès + un `COMMAND_COMPLETION_EVENT` |
 | Command multi-cibles | Une nouvelle V globale, un événement Pot indiquant les composantes changées | Succès + complétion |
-| Command non obsolète sans effet | Aucune nouvelle V, aucun événement de mutation | Succès + complétion |
+| Command non obsolète sans effet | Aucune nouvelle V, aucun événement de mutation | Succès (`resultingPotVersion = V_courant`) + complétion |
 | Command obsolète | Aucune mutation ni événement métier | Rejet + complétion |
 | Suppression Expense | `ExpenseHeader` seul modifié, un événement Pot | Succès + complétion |
 | Suppression Pot | `PotHeader` seul modifié, un événement Pot, aucun événement enfant | Succès + complétion |
@@ -82,7 +82,7 @@ Lors d'une Registration, les deux événements Identity et la complétion sont p
 
 Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions directes : `MaterializePotVersion` (composition historique, sous-objets et pointeur courant), `MaterializePotBalance` (balance exacte et immuable à V pour une version active ; traitement terminal sans Balance(D) pour DeletePot) et `MaterializePotVisibility` (état de visibilité et navigation). Chaque Consumption dispose de son propre Discovery, de ses slots et checkpoints ; aucune tâche préparatoire, dépendance de slot ou séquence supplémentaire.
 
-`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; un événement de création de PocomaUser n'impose aucune projection Identity inverse. Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](SPEC-04_Read_Projections.md) pour les projections et [V3-4](SPEC-05_Consumption_Discovery.md) pour l'exécution, l'atomicité et la reprise.
+`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; seuls les événements `EXTERNAL_USER_IDENTITY` sont enrôlés/projetés par `MaterializeCurrentBinding` (un événement de création de `POCOMA_USER` n'impose aucune projection Identity inverse et est ignoré par `MaterializeCurrentBinding`). Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](SPEC-04_Read_Projections.md) pour les projections et [V3-4](SPEC-05_Consumption_Discovery.md) pour l'exécution, l'atomicité et la reprise.
 
 ## 8. Garanties et qualification restantes
 

@@ -63,11 +63,14 @@ Changer un poids par défaut **modifie rétroactivement la répartition des Expe
 |---|---|---|---|
 | Lire le Pot | Oui | Oui | Non |
 | Modifier les données du Pot | Oui | Oui | Non |
-| Ajouter un Shareholder | Oui | Oui | Non |
-| Modifier un Shareholder | Oui | Oui | Non |
+| Ajouter un Shareholder | Oui (libre ou auto-rattaché) | Oui (libre ou auto-rattaché) | Non |
+| Modifier un Shareholder (nom, poids) | Oui | Oui | Non |
+| Rattacher / détacher `ShareholderDetails.userId` | Auto-rattachement sur Shareholder libre ; détachement de tout Shareholder | Auto-rattachement sur Shareholder libre ; auto-détachement de son propre Shareholder uniquement | Auto-rattachement sur Shareholder libre via invitation valide (§8) |
 | Supprimer un Shareholder | **Oui, si aucune Expense ne le référence** | Non | Non |
 | Ajouter/modifier/supprimer une Expense | Oui | Oui | Non |
 | Supprimer le Pot | **Oui** | Non | Non |
+
+**Règles de rattachement et de détachement (`ShareholderDetails.userId`) :** aucun acteur (pas même le créateur) ne peut renseigner ou imposer le `PocomaUserId` d'un tiers sur un Shareholder. Lors de `CreateShareholder` ou `ModifyShareholderDetails`, un rattachement (`userId: null -> U`) ne peut associer qu'un Shareholder libre (`userId == null`) au propre `PocomaUserId` de l'auteur de la commande (résolu en WRITE depuis son `Binding` actif). Un détachement (`userId: U_target -> null`) ne peut être exécuté que par **le créateur du Pot (`creatorId`)** ou par **l'utilisateur `U_target` lui-même** (auto-détachement) ; un participant ne peut jamais détacher un autre participant. Le détachement dissocie uniquement l'utilisateur sans supprimer l'entité Shareholder ni altérer les Expenses qui la référencent.
 
 La condition « aucune Expense liée » est un invariant métier vérifié **au moment de l'exécution WRITE** de `DeleteShareholder`, sur l'état courant : refuser la suppression si le Shareholder apparaît comme payeur ou participant dans une Expense **active**. Les Expenses supprimées ne constituent pas une référence active bloquante ; leurs versions historiques restent conservées. La suppression du Pot est distincte de celle d'un Shareholder.
 
@@ -93,6 +96,7 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 | Supprimer Expense | ExpenseHeader, ExpenseDetails, ExpenseFinancials | ExpenseHeader |
 | Supprimer Pot | Pot global complet (égalité de V observée et courante) | PotHeader |
 | Supprimer Shareholder | Créateur exclusivement, aucune Expense active le référençant | ShareholderHeader |
+| Auto-rattacher Shareholder sur invitation (§8) | Pas de `observedVersion` requis ; vérifier Pot actif, invitation valide non expirée, Shareholder actif et libre (`userId == null`) à la version courante | ShareholderDetails |
 
 **Décision validée :** une Expense référence des `shareholderId` métier stables, non les `PocomaUserId` qui leur sont rattachés. Le changement de `ShareholderDetails.userId` (ou du nom affiché) **ne rend pas à lui seul OBSOLETE** une Command d'Expense qui référence ce Shareholder. Les données financières continuent de porter sur la même entité Shareholder.
 
@@ -104,7 +108,7 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 
 En plus : vérifier les Headers actifs, l'autorisation et les invariants de références sur l'état courant. Pour une composante existant déjà à la V observée, une instance courante dont `activeFrom <= observedVersion` n'a pas changé depuis l'observation ; cela n'élimine pas la validation d'existence et d'appartenance.
 
-Une commande multi-cibles est entièrement atomique : une cible obsolète entraîne rejet complet ; si elle est valide, seules les composantes réellement modifiées prennent une version locale supplémentaire, sous **une seule** nouvelle V globale. Une commande valide, non obsolète, sans changement de données réussit **sans** nouvelle V globale ni sous-version ; sa complétion externe doit néanmoins être représentable (V3-2). Une commande obsolète reste rejetée même si sa valeur demandée égale la valeur présente.
+Une commande multi-cibles est entièrement atomique : une cible obsolète entraîne rejet complet ; si elle est valide, seules les composantes réellement modifiées prennent une version locale supplémentaire, sous **une seule** nouvelle V globale. Une commande valide, non obsolète, sans changement de données réussit **sans** nouvelle V globale ni sous-version ; sa complétion externe retourne `resultingPotVersion = V_courant` (la version globale courante inchangée du Pot, cf. V3-2/V3-3). Une commande obsolète reste rejetée même si sa valeur demandée égale la valeur présente.
 
 Une modification des Financials et une modification du Weight peuvent toutes deux réussir si leurs dépendances métier respectives restent valides ; le calcul résultant utilise l'état composé à la nouvelle V. Une suppression d'Expense qui suit un changement de ses Details ou Financials observés est, au contraire, obsolète.
 
@@ -136,11 +140,11 @@ Chaque V reconstruit exactement son état ; V6 n'altère pas les soldes de V5, V
 
 **Règle d'exécution :** authentifier EUI et résoudre son PocomaUserId/Binding actif dans WRITE, puis, dans une transaction atomique, vérifier l'invitation non expirée, Pot actif, Shareholder cible actif/libre, absence de tout autre Shareholder actif déjà rattaché à ce même PocomaUserId dans le Pot, et procéder à la mutation versionnée de ShareholderDetails. Garantir l'exclusion des deux courses : plusieurs personnes visant le même Shareholder et une même personne visant simultanément plusieurs Shareholders. Une invitation ne délègue pas au porteur le droit d'attribuer un autre utilisateur : **auto-rattachement uniquement**. Une admission structurale n'anticipe pas ces décisions WRITE du Worker.
 
-**Décision validée :** lorsqu'un invité ouvre le lien de son Pot, il s'authentifie ; s'il ne possède pas encore de `PocomaUser` / Binding actif, il effectue **Registration d'abord**, via le protocole Identity existant, attend que son Binding soit utilisable, puis sélectionne un Shareholder libre et demande son auto-rattachement avec le token d'invitation. Il n'existe pas de transaction trans-domaines « Registration + mutation du Pot » ni de nouveau type de lien identitaire. L'invitation n'accorde des droits qu'après rattachement réussi.
+**Décision validée :** lorsqu'un invité ouvre le lien de son Pot, il s'authentifie ; s'il ne possède pas encore de `PocomaUser` / Binding actif, il effectue **Registration (ou Link vers son `PocomaUser` existant) d'abord**, via le protocole Identity existant, attend que son Binding soit utilisable, puis sélectionne un Shareholder libre et demande son auto-rattachement avec le token d'invitation. Il n'existe pas de transaction trans-domaines « Registration + mutation du Pot » ni de nouveau type de lien identitaire. L'invitation n'accorde des droits qu'après rattachement réussi.
 
-**Revalidation à l'exécution WRITE du rattachement :** invitation toujours valable, Pot actif, Shareholder toujours libre, User pas déjà lié à un autre Shareholder actif de ce Pot. Le passage préalable par Registration ne réserve ni Shareholder ni validité du lien ; si l'invitation expire entre l'ouverture de la page et l'exécution, la mutation est rejetée sans effet. Un retry de la même demande déjà admise conserve sa sémantique idempotente, mais ne garantit pas la réussite métier.
+**Revalidation à l'exécution WRITE du rattachement :** invitation toujours valable, Pot actif, Shareholder toujours libre (`userId == null`), User pas déjà lié à un autre Shareholder actif de ce Pot (sans exiger `observedVersion`, l'invité n'ayant pas accès au Pot complet avant rattachement). Le passage préalable par Registration ou Link ne réserve ni Shareholder ni validité du lien ; si l'invitation expire entre l'ouverture de la page et l'exécution, la mutation est rejetée sans effet. Un retry de la même demande déjà admise conserve sa sémantique idempotente, mais ne garantit pas la réussite métier.
 
-**Choix des Shareholders libres avant rattachement :** un utilisateur authentifié disposant d'une invitation encore valide peut obtenir une vue minimale de choix comprenant **identifiants et noms des Shareholders libres uniquement**, sans accès au Pot complet, Expenses ni balances. La possession du lien seule, sans authentification, est insuffisante. La liberté et les droits sont revérifiés à l'exécution de la Command d'auto-rattachement ; la liste affichée ne réserve aucune place.
+**Choix des Shareholders libres avant rattachement (respect strict de l'isolation READ / WRITE) :** un utilisateur authentifié disposant d'une invitation encore valide peut obtenir depuis READ une vue minimale de choix comprenant **identifiants et noms des Shareholders libres uniquement**, sans accès au Pot complet, Expenses ni balances, et **sans aucune lecture synchrone de WRITE**. À cette fin, `PotVersion(P,V)` en READ expose sur chaque référence de Shareholder actif le seul indicateur booléen public `isFree` (`userId == null`, sans jamais exposer `userId`), et la validité du jeton d'invitation est vérifiée par READ (jeton d'invitation signé `(potId, expiresAt)` ou empreinte active projetée dans `PotVersion`). La possession du lien seule, sans authentification, est insuffisante. La liberté et les droits sont revérifiés en WRITE à l'exécution de la Command d'auto-rattachement ; la liste affichée ne réserve aucune place.
 
 La politique de révocation anticipée du lien reste à préciser. La vue limitée d'invitation ne transforme pas le porteur du lien en utilisateur autorisé à consulter le Pot complet.
 

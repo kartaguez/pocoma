@@ -34,11 +34,10 @@ Les points suivants sont des **frontières logiques** et non l'obligation de les
 | T6 | Projection requise consultable par API READ | Mesure de disponibilité effective, avec ses conditions minVersion/composants |
 
 Pour les `POT_EVENT`, mesurer **indépendamment** :
-- `MaterializeCurrentPot` → CurrentPot et sous-objets ;
-- `MaterializePotVersion` → création atomique de deux tâches READ ;
-- `MaterializePotBalance` → PotBalance(P,V) ;
-- `MaterializePotVisibility` → PotVisibilityState(P,V), entrées utilisateur ;
-- `COMMAND_COMPLETION_EVENT` → CommandResult.
+- `MaterializePotVersion` → `PotVersion(P,V)`, `SubobjectVersion` et `CurrentPot(P)` ;
+- `MaterializePotBalance` → `PotBalance(P,V)` ;
+- `MaterializePotVisibility` → `PotVisibilityState(P)` et entrées `CurrentUserPotList` ;
+- `COMMAND_COMPLETION_EVENT` (`MaterializeCommandResult`) → `CommandResult`.
 
 Ne **pas additionner** les délais de branches parallèles. La disponibilité d'une consultation complète correspond à la satisfaction des projections **nécessaires à cette lecture**, pas automatiquement à toutes les projections existantes. Une lecture de liste n'a pas de barrière de synchronisation globale entre Pots.
 

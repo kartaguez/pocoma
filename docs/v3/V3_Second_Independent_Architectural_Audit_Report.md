@@ -606,3 +606,25 @@ Ces points ne relèvent pas d’un ajout de complexité : ils se résolvent par 
 * Tout mécanisme de fusion de deux `PocomaUser` existants (`U1` et `U2`) ou de transfert d’historique entre `PocomaUser` (`SPEC-02` §8).
 * Toute optimisation prématurée par calcul différentiel ou cache durable des balances (`SPEC-04` §4) tant que le calcul rationnel en lot par version respecte le budget Grand Pot (`p95 <= 2 s`) en `V3-7`.
 * Tout annuaire inverse global ou recherche publique d’utilisateurs dans `Identity` (`SPEC-02` §8, `SPEC-04` §6).
+
+---
+
+## Addendum post-audit — Résolution documentaire de `GEM-V3-001` à `GEM-V3-010` (2026-10-24)
+
+Les dix points `GEM-V3-001` à `GEM-V3-010` relevés ci-dessus ne remettaient en cause aucun invariant structurel de l’architecture Pocoma V3 et ont été intégralement résolus dans les spécifications normatives :
+
+| ID | Résolution appliquée | Fichiers mis à jour |
+| :--- | :--- | :--- |
+| **`GEM-V3-001`** | Exposition de l’indicateur booléen public `isFree` (`userId == null`) sur chaque référence de `Shareholder` dans `PotVersion(P,V)` (sans exposer `userId`) pour servir la vue minimale de choix depuis READ sans accès WRITE synchrone ; ajout de la précondition d’auto-rattachement sans `observedVersion` dans `SPEC-01` §6. | `SPEC-01` (§6, §8), `SPEC-04` (§3) |
+| **`GEM-V3-002`** | Règle explicite sur `ShareholderDetails.userId` : rattachement (`null -> U`) limité au propre `PocomaUserId` de l’appelant ; détachement (`U_target -> null`) réservé au créateur (`creatorId`) ou à `U_target` lui-même. | `SPEC-01` (§5) |
+| **`GEM-V3-003`** | Alignement d’`Unlink(E1 -> E2)` : `E1` fournit uniquement son propre `bindingToken` actif ; WRITE vérifie que `E1` et `E2` sont activement liées au même `U`, sans exiger le secret `bindingToken` de `E2`. | `SPEC-02` (§4, §5, §6), `SPEC-10` (`I01`, `I01-I`) |
+| **`GEM-V3-004`** | Explicitation du caractère irrévocable de l’`Unlink` de la dernière EUI d’un `PocomaUser`, et possibilité de `Link` (en plus de `Registration`) avant auto-rattachement sur invitation. | `SPEC-01` (§8), `SPEC-02` (§4) |
+| **`GEM-V3-005`** | Inscription dans `SPEC-02` §7 et `SPEC-05` §4 du verrouillage exclusif de `E1` et `E2` dans l’ordre lexicographique canonique `(issuer, subject)` lors des opérations Identity à deux EUI. | `SPEC-02` (§7), `SPEC-05` (§4), `SPEC-10` (`I01`) |
+| **`GEM-V3-006`** | Filtrage explicite par `MaterializeCurrentBinding` des seuls `IDENTITY_EVENT` de type `EXTERNAL_USER_IDENTITY` (`POCOMA_USER` ignoré). | `SPEC-03` (§7), `SPEC-04` (§6) |
+| **`GEM-V3-007`** | Purge des références résiduelles aux anciennes `Projection Tasks` READ dans `SPEC-08` §2 et `SPEC-10` (`CON-01`, `C04-J`, `C06-D`, `P02-I/J`, `REC-01` / `C-02`, `OPS-01`, `PERF-01`), alignement de `SPEC-09` §3 sur §4, correction de `S01-A`/`S01-F` pour le créateur non-Shareholder et suppression de la table `A11` dupliquée en fin de `SPEC-10`. | `SPEC-08` (§2), `SPEC-09` (§§3–4), `SPEC-10` |
+| **`GEM-V3-008`** | Qualification explicite de `P01-H` et `R01-D` (`SubobjectVersion` absente alors que `PotVersion(P,V)` est présente) comme scénarios d’injection de faute en base READ. | `SPEC-10` (`P01-H`, `R01-D`) |
+| **`GEM-V3-009`** | Alignement de l’oracle de quarantaine `CON-05` avec la règle `404` avant `503` (`404` à `V` si `PotVersion(P,V)` est en quarantaine, `503` à `V` si seule `PotBalance(P,V)` est en quarantaine, et `200` en lecture courante `minVersion=V` dès que `V+1` est prête). | `SPEC-10` (`CON-05`) |
+| **`GEM-V3-010`** | Précision de `resultingPotVersion = V_courant` pour une commande valide sans effet (`no-op`). | `SPEC-01` (§6), `SPEC-03` (§6), `SPEC-04` (§7) |
+
+**Verdict actualisé après nettoyage documentaire : `GO` architectural et documentaire pour `V3-6`.**
+
