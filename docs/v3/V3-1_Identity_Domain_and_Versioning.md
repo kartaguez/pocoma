@@ -1,7 +1,7 @@
 # Pocoma V3-1 — Identity : domaine et versionnement
 
 **Statut : conception conceptuelle validée dans les échanges ; non implémentée, non testée en V3.**  
-**Date :** 2026-10-22. **Document directeur :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).
+**Consolidation normative :** 2026-10-24. **Document directeur :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).
 
 ## 1. Frontières d'autorité
 
@@ -28,7 +28,7 @@ Invariants de chaque état :
 - Une mutation rejetée ne crée aucune version ; le retry d'une demande déjà terminalisée ne reproduit pas la mutation.
 - Pas de version globale Identity ni de sous-objets EUI. L'histoire `EUI@version` se reconstruit directement ; une reconstruction synchronisée de **toutes** les EUI à une « version globale Identity » n'est pas définie et n'est pas un besoin établi.
 
-## 4. Opérations applicatives retenues
+## 4. Transitions applicatives
 
 **Trois opérations**, sans commandes publiques autonomes `CreatePocomaUser` ni `CreateExternalUserIdentity` à ce stade :
 
@@ -42,48 +42,16 @@ Invariants de chaque état :
 - Une réexécution technique de **la même demande durable** retrouve son résultat terminal original sans nouvel effet. La complétion de la demande et les faits de mutation sont des natures distinctes (contrats en V3-2).
 - Aucun transfert direct d'EUI de U1 vers U2 n'est retenu : Unlink puis Link.
 - E1 peut Unlink E2 du même User, ou elle-même ; elle peut aussi Unlink la **dernière** identité du User, qui persiste alors sans EUI liée.
-- La preuve d'autorité sur E2 dans Link **ne se réduit jamais** à la connaissance de `(issuer,subject)`, d'un UserId ou d'un token divulgué. Le protocole exact d'attestation de contrôle/consentement de E2 reste à cadrer à la frontière d'admission/sécurité avant l'implémentation.
+- La preuve d'autorité sur E2 dans Link **ne se réduit jamais** à la connaissance de `(issuer,subject)`, d'un UserId ou d'un token divulgué. Le consentement E2 doit être attesté par un serveur d'autorisation qualifié selon le contrat du §5.
 
-## 5. Admission déclarative et autorité à l'exécution
+## 5. Admission, consentement et autorité à l'exécution
 
-L'admission est **déclarative**, sans lecture du modèle WRITE Identity : elle capture l'identité externe authentifiée, les attestations externes et les témoins de binding déclarés, puis enregistre l'intention durable. Elle ne certifie ni la disponibilité de la cible ni la fraîcheur du rattachement.
+**Décision validée :** distinguer conceptuellement le fournisseur d'identité, qui authentifie E2, du serveur d'autorisation, qui présente l'intention précise `Link(E1,E2)`, recueille le consentement explicite de E2 et délivre une preuve vérifiable de cet octroi. Ils peuvent être opérés par le même produit ou être distincts ; Keycloak n'est qu'un candidat de réalisation/qualification, sans dépendance normative ni exigence d'extension particulière. Pocoma demeure **headless**, sans page de consentement Pocoma. Un composant d'autorisation spécialisé, éventuellement développé pour le projet, est recevable s'il satisfait le même contrat.
 
-À l'exécution seulement, Pocoma consulte l'autorité Identity : l'identité externe du demandeur doit correspondre à celle authentifiée à l'admission, le `bindingToken` déclaré de E1 doit être courant, U est résolu de E1 ; les préconditions de E2 (et pour Unlink son token exact déclaré) sont contrôlées ainsi que les droits externes et règles applicables. Le token opaque identifie l'occurrence revendiquée, **sans se substituer à l'authentification**. Le mode de consultation READ permettant au client d'obtenir le témoin courant est à définir en V3-3 ; aucune lecture WRITE n'est ajoutée à l'admission.
+**Contrat maintenu :** intention Link non substituable (E1 authentifiée, cible E2 authentifiée, compte destinataire déduit de E1, identifiant/corrélation de demande), accord actif et explicite de E2, provenance et audience vérifiées, intégrité, expiration, anti-rejeu et admission unique atomique ; aucun ID Token OIDC ordinaire, `state` ou `nonce` seul ne constitue une preuve de consentement. Les droits WRITE et le `bindingToken` de E1 sont revalidés à l'exécution. RFC 9396 (RAR) est une référence technique privilégiée, **non obligatoire** ; les garanties priment sur le produit et le protocole choisis. La qualification effective du serveur est reportée à V3-6/V3-7, sans abaisser ces garanties.
 
-## 6. Concurrence et atomicité
+**Récapitulatif présenté à E2 :** désigner explicitement E1 (identité initiatrice de l'invitation) et le **nombre indicatif de Pots accessibles** au compte résolu depuis E1, via `CurrentUserPotList` en READ. Pas de nombre d'EUI déjà liées, ni d'annuaire inverse Identity. Le compteur de Pots peut être en retard et n'est ni condition de Link ni preuve d'état instantané ; sa variation ultérieure n'invalide pas l'accord. Ce § supplante les exigences de compteur `linkedEuiCount` et de collecte du consentement exclusivement par l'IdP de E2 des clauses historiques.
 
-- Deux Registrations concurrentes sur la même EUI : **une seule** crée User+link ; l'autre ne crée aucun User. Fonctionne aussi pour EUI auparavant inconnue via unicité `(issuer,subject)`.
-- Registration et Link concurrents visant la même EUI : **aucune priorité fonctionnelle** ; la première transition autoritativement validée gagne, l'autre est rejetée sans effet partiel.
-- Deux Links sur la même EUI : un seul succès.
-- Link/Unlink : vérifier **atomiquement** l'autorité initiatrice (E1 et son token courant) et les préconditions de E2 jusqu'au commit ; ne pas laisser Unlink de E1 passer entre contrôle et mutation de E2.
-- Deux Unlinks croisés, E1 demandant l'Unlink d'E2 et inversement : **un seul** peut réussir ; l'autre perd son autorité initiatrice. Des Unlinks dans une même direction peuvent réussir successivement seulement si leurs initiateurs et leurs cibles restent valides sous leurs témoins déclarés.
-- Une opération Unlink portant E1==E2 contrôle son propre rattachement puis le supprime atomiquement.
-- Les transitions sur EUI indépendantes n'ont pas besoin de version globale, mais les opérations à deux EUI doivent respecter leur frontière transactionnelle de cohérence ; verrouillage et ordre anti-deadlock à préciser en V3-4.
-- Les éventuels rejets métier ne sont pas des erreurs d'infrastructure : aucune mutation ni fait Identity n'en résulte. La complétion terminale reste enregistrable séparément.
-
-## 7. Reconstruction et exemples
-
-Exemple d'histoire locale : E2 v1 liée U1/token B, v2 libre, v3 liée U2/token C, v4 libre, v5 liée U1/token D. E1 peut rester en v1 liée U1/token A durant ces opérations ; U1 et U2 demeurent existants. B, C et D sont distincts, même lorsque l'owner redevient U1. Chaque état exact d'E2 se retrouve par son numéro de version, sans intervalle global ni état binding séparé.
-
-Une transition effective EUI et son nouvel état historique sont validés **dans la même transaction** ; aucun événement ne doit annoncer un état non committé. Registration crée User et le premier rattachement atomiquement, sans User orphelin issu d'une tentative perdante.
-
-## 8. Exigences pour V3-2 à V3-5
-
-- **V3-2 — événements/demandes :** distinguer faits User créé, EUI créée (si nouveau sujet), EUI liée/déliée et complétions Registration/Link/Unlink ; garantir que les faits reflètent seulement les objets réellement modifiés. Le catalogue, la représentation d'une création directement liée (un ou plusieurs faits), les causalités et consommables restent à arbitrer. Ne pas restaurer artificiellement `Binding` comme entité.
-- **V3-3 — READ :** accès autorisé au rattachement courant et à son témoin non devinable ; éventuellement historique par EUI/version et résultats des demandes. Pas de projection Entitlements propriétaire de Pocoma par défaut.
-- **V3-4 — Consumption :** admission sans lecture WRITE, vérification de témoins courants à l'exécution, acquisition concurrente de EUI, atomicité deux EUI et terminalisation, retries idempotents, protections contre stale token et deadlocks.
-- **V3-5 — intégration/preuves :** concurrence Registration/Registration, Registration/Link, Link/Link, Link/Unlink et Unlink/Unlink croisés ; sécurité du token, historique exact, anti-usurpation, absence de User orphelin, absence de double mutation sur retry. Les anciens objets `BindingId` et schémas de développement ne sont pas des exigences de compatibilité V3.
-
-## 9. Limites et statut
-
-Cette spécification consigne **les arbitrages conceptuels validés**, pas une implémentation. Les preuves de contrôle de E2 lors d'un Link, l'acquisition sûre de son attestation à l'admission, les détails des contrats de complétion et événements, les vues READ et les protocoles techniques sont **à cadrer explicitement avant V3-CADRE**. Les entitlements externes et leurs éventuelles contraintes d'évolution pendant l'attente d'une demande nécessitent une décision de contrat d'exécution, sans domaine Entitlements dans Pocoma.
-
-**Prochaine action :** V3-2, inventaire minimal des faits de mutation et des complétions de demandes dans les royaumes Pot et Identity, puis V3-3/4 et revue globale avant code.
-
-
-## Amendement transversal V3-5A — sécurité de Link et des bindings (2026-10-23)
-
-**Link :** admission immédiate avec authentification de E1 et E2, consentement explicite de E2 lié à la demande durable particulière ; aucune invitation ou consentement différé. Les preuves sont vérifiées à l'admission ; le retry réutilise le dossier de demande admis. À l'exécution, l'autorité WRITE Identity vérifie les préconditions courantes et rattache E2 au User déduit de E1.
 
 **Entitlements :** attestations et droits externes contrôlés à l'admission seulement ; une révocation ultérieure du fournisseur ne retire pas rétroactivement l'admission. Les préconditions et tokens de rattachement Pocoma sont contrôlés à l'exécution.
 
@@ -91,7 +59,12 @@ Cette spécification consigne **les arbitrages conceptuels validés**, pas une i
 
 Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans prétendre spécifier ici les formats des preuves, les tests ni l'implémentation.
 
-## Amendement post-audit — Binding explicite de toute demande hors Registration (2026-10-24)
+
+L'admission est **déclarative**, sans lecture du modèle WRITE Identity : elle capture l'identité externe authentifiée, les attestations externes et les témoins de binding déclarés, puis enregistre l'intention durable. Elle ne certifie ni la disponibilité de la cible ni la fraîcheur du rattachement.
+
+À l'exécution seulement, Pocoma consulte l'autorité Identity : l'identité externe du demandeur doit correspondre à celle authentifiée à l'admission, le `bindingToken` déclaré de E1 doit être courant, U est résolu de E1 ; les préconditions de E2 (et pour Unlink son token exact déclaré) sont contrôlées ainsi que les droits externes et règles applicables. Le token opaque identifie l'occurrence revendiquée, **sans se substituer à l'authentification**. Le mode de consultation propre de CurrentBinding est défini au §6 et en V3-3 ; aucune lecture WRITE n'est ajoutée à l'admission.
+
+## 6. Binding explicite et récupération de son propre CurrentBinding
 
 **Décision :** toute `Command` et toute `IdentityRequest` **sauf `Registration`** porte obligatoirement un `bindingToken` désignant explicitement le Binding au nom duquel l'EUI authentifiée agit. L'identité externe seule n'autorise pas le domaine à sélectionner ou deviner le `PocomaUserId` opérant.
 
@@ -101,7 +74,7 @@ Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans pré
 
 Aucune inférence implicite de `PocomaUserId` par le domaine à partir du seul `issuer/subject`. Toute formulation antérieure laissant entendre une résolution implicite est supplantée.
 
-## Amendement post-audit AUD-V3-009 — consultation de son propre Binding (2026-10-24)
+
 
 **Décision :** la consultation de `CurrentBinding` est une **lecture de découverte de son propre rattachement**, distincte de toute Command et IdentityRequest. Elle exige une EUI authentifiée, mais **n'exige pas de `bindingToken` entrant**, puisqu'elle sert à récupérer le token de ce Binding. La cible est exclusivement l'EUI issue de l'authentification `(issuer, subject)` ; le client ne peut choisir aucune autre EUI par paramètre.
 
@@ -113,10 +86,26 @@ Le READ Supra renvoie à cet appelant sa version EUI projetée, l'état actif/in
 
 **Portée :** cette exception de lecture ne modifie pas la règle selon laquelle toute Command/IdentityRequest sauf Registration contient un bindingToken explicite et est revalidée dans WRITE.
 
-## Amendement post-audit AUD-V3-008 — autorité de consentement Link (2026-10-24)
 
-**Décision validée :** distinguer conceptuellement le fournisseur d'identité, qui authentifie E2, du serveur d'autorisation, qui présente l'intention précise `Link(E1,E2)`, recueille le consentement explicite de E2 et délivre une preuve vérifiable de cet octroi. Ils peuvent être opérés par le même produit ou être distincts ; Keycloak n'est qu'un candidat de réalisation/qualification, sans dépendance normative ni exigence d'extension particulière. Pocoma demeure **headless**, sans page de consentement Pocoma. Un composant d'autorisation spécialisé, éventuellement développé pour le projet, est recevable s'il satisfait le même contrat.
 
-**Contrat maintenu :** intention Link non substituable (E1 authentifiée, cible E2 authentifiée, compte destinataire déduit de E1, identifiant/corrélation de demande), accord actif et explicite de E2, provenance et audience vérifiées, intégrité, expiration, anti-rejeu et admission unique atomique ; aucun ID Token OIDC ordinaire, `state` ou `nonce` seul ne constitue une preuve de consentement. Les droits WRITE et le `bindingToken` de E1 sont revalidés à l'exécution. RFC 9396 (RAR) est une référence technique privilégiée, **non obligatoire** ; les garanties priment sur le produit et le protocole choisis. La qualification effective du serveur est reportée à V3-6/V3-7, sans abaisser ces garanties.
+## 7. Concurrence et atomicité
 
-**Récapitulatif présenté à E2 :** désigner explicitement E1 (identité initiatrice de l'invitation) et le **nombre indicatif de Pots accessibles** au compte résolu depuis E1, via `CurrentUserPotList` en READ. Pas de nombre d'EUI déjà liées, ni d'annuaire inverse Identity. Le compteur de Pots peut être en retard et n'est ni condition de Link ni preuve d'état instantané ; sa variation ultérieure n'invalide pas l'accord. Ce § supplante les exigences de compteur `linkedEuiCount` et de collecte du consentement exclusivement par l'IdP de E2 des clauses historiques.
+- Deux Registrations concurrentes sur la même EUI : **une seule** crée User+link ; l'autre ne crée aucun User. Fonctionne aussi pour EUI auparavant inconnue via unicité `(issuer,subject)`.
+- Registration et Link concurrents visant la même EUI : **aucune priorité fonctionnelle** ; la première transition autoritativement validée gagne, l'autre est rejetée sans effet partiel.
+- Deux Links sur la même EUI : un seul succès.
+- Link/Unlink : vérifier **atomiquement** l'autorité initiatrice (E1 et son token courant) et les préconditions de E2 jusqu'au commit ; ne pas laisser Unlink de E1 passer entre contrôle et mutation de E2.
+- Deux Unlinks croisés, E1 demandant l'Unlink d'E2 et inversement : **un seul** peut réussir ; l'autre perd son autorité initiatrice. Des Unlinks dans une même direction peuvent réussir successivement seulement si leurs initiateurs et leurs cibles restent valides sous leurs témoins déclarés.
+- Une opération Unlink portant E1==E2 contrôle son propre rattachement puis le supprime atomiquement.
+- Les transitions sur EUI indépendantes n'ont pas besoin de version globale, mais les opérations à deux EUI doivent respecter leur frontière transactionnelle de cohérence ; verrouillage et ordre anti-deadlock à préciser en V3-4.
+- Les éventuels rejets métier ne sont pas des erreurs d'infrastructure : aucune mutation ni fait Identity n'en résulte. La complétion terminale reste enregistrable séparément.
+
+## 8. Reconstruction et exemples
+
+Exemple d'histoire locale : E2 v1 liée U1/token B, v2 libre, v3 liée U2/token C, v4 libre, v5 liée U1/token D. E1 peut rester en v1 liée U1/token A durant ces opérations ; U1 et U2 demeurent existants. B, C et D sont distincts, même lorsque l'owner redevient U1. Chaque état exact d'E2 se retrouve par son numéro de version, sans intervalle global ni état binding séparé.
+
+Une transition effective EUI et son nouvel état historique sont validés **dans la même transaction** ; aucun événement ne doit annoncer un état non committé. Registration crée User et le premier rattachement atomiquement, sans User orphelin issu d'une tentative perdante.
+
+
+## 9. Références et statut
+
+La sécurité des Supras, l'attestation Link et les réponses HTTP relèvent de [V3-5E](V3-5E_Supra_Boundary_Contracts.md) ; événements et provenance de [V3-2](V3-2_Events_Requests_and_Consumables.md) ; projections de [V3-3](V3-3_Read_and_Projections.md) ; exécution transactionnelle de [V3-4](V3-4_Consumption_and_Discovery.md). Les preuves ID-01/02 et AUD-V3-008/009 restent à implémenter et certifier dans [V3-5D](V3-5D_Test_and_Certification_Plan.md). Aucun code ou test V3 exécuté.
