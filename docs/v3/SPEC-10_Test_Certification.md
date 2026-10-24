@@ -362,7 +362,7 @@ Tests PostgreSQL concurrents, injection de rollback et commit inconnu, contrôle
 
 ### CON-01 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Contrat V3-4 : la Discovery crée des slots durables à partir des références de sources ; l'Engine seul charge ensuite les données métier. Les quatre familles événementielles sont **non-burnables**, avec chacune sa séquence **globale** dense et un checkpoint de **positions examinées**, propre à `(consumptionId, partitionId)`. Les quatre familles burnables (`COMMAND`, `IDENTITY_REQUEST`, `ancienne famille supprimée`, `ancienne famille supprimée`) sont découvertes par état `PENDING` et absence de slot, **sans checkpoint**. Les partitions sont fixes, le routage par `partitionHash` stable, et une seule propriété effective autorise l'enrôlement.
+**Statut : protocole proposé, non exécuté.** Contrat V3-4 : la Discovery crée des slots durables à partir des références de sources ; l'Engine seul charge ensuite les données métier. Les quatre familles événementielles sont **non-burnables**, avec chacune sa séquence **globale** dense et un checkpoint de **positions examinées**, propre à `(consumptionId, partitionId)`. Les deux familles burnables (`COMMAND`, `IDENTITY_REQUEST`) sont découvertes par état `PENDING` et absence de slot, **sans checkpoint**. Les partitions sont fixes, le routage par `partitionHash` stable, et une seule propriété effective autorise l'enrôlement.
 
 ### Oracles non-burnables
 
@@ -390,7 +390,7 @@ Tests PostgreSQL concurrents, injection de rollback et commit inconnu, contrôle
 | C01-F | Propriété de partition transférée après lecture préparatoire, avant transaction d'enrôlement | Ancien propriétaire ne commite ni slots ni checkpoint ; nouveau propriétaire reprend à K durable |
 | C01-G | Plafond souple atteint au milieu d'un lot comportant des événements éligibles | Pas de saut au-delà d'un événement non enrôlé ; progression reprend après libération de capacité |
 | C01-H | Slot non-burnable finalisé et supprimé, puis nouveau cycle de Discovery | Aucun réenrôlement si sa position est ≤ checkpoint ; absence du slot seule ne vaut pas preuve de fin |
-| C01-I | Pour chacune des quatre familles burnables : sources PENDING avec et sans slot, sources TERMINAL, lots répétés | Seules les PENDING sans slot sont enrôlées ; unicité même avec Discoveries concurrentes ; aucun checkpoint |
+| C01-I | Pour chacune des deux familles burnables : sources PENDING avec et sans slot, sources TERMINAL, lots répétés | Seules les PENDING sans slot sont enrôlées ; unicité même avec Discoveries concurrentes ; aucun checkpoint |
 | C01-J | PENDING avec claim expiré ou retryAfter futur, et plafond atteint | Slot existant respecté ; aucune seconde ligne, aucun contournement de retryAfter par Discovery |
 | C01-K | Nouvelle Consumption sur un historique conservé, avec checkpoints absents | Checkpoints à zéro pour cette Consumption ; scan indépendant et enrôlement selon la nouvelle identité sans perturber l'ancienne |
 | C01-L | Campagne avec beaucoup d'événements hors partition, slots actifs, sélections répétées | Mesurer références lues, parcours de fenêtres, écritures, SQL, temps de cycle et mémoire ; pas de charge métier complète dans Discovery |
@@ -705,13 +705,13 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 **V3-CADRE demeure OUVERT**, qualification V3-6/V3-7 non exécutée.
 
-**Amendement aux plans anciens PRJ/CON :** plus de `préparation historique supprimée` ni de `ancienne tâche supprimée/ancienne tâche supprimée` ; six familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
+**Contrat de matérialisation directe :** aucune tâche de préparation, aucune tâche Balance/Visibility ; six familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
 
 **Tests à construire :** trois checkpoints distincts progressant indépendamment ; crash/retry/fencing de chacun ; absence d'ordre imposé entre Consumptions ; matérialisation V+1 avant V pour chacun ; visibilité V tardive ne régressant pas ; version Pot/Balance absente => lecture temporairement indisponible, pas de mélange ; visibilité indépendante ; WRITE@V reconstitué séparément par projecteur ; budgets SQL/CPU/WAL et latence E2E avant/après simplification sans prétendre une amélioration mesurée. Aucun test V3 exécuté.
 
 ### PRJ-02 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Source V3-1/V3-3 : pour **chaque** mutation effective du Pot portant sa version globale à V, calculer intégralement les soldes rationnels de `Pot@V` (y compris pour une mutation non financière) et matérialiser `PotBalance(potId,V)` en READ, **sans dépendre de `PotBalance(V−1)`**. `PotBalance` est immuable ; il n'existe ni projection CurrentBalance, ni chaîne d'indirections entre versions. La tâche `ancienne famille supprimée` contient le résultat préparé pour V ; son traitement matérialise ce résultat et terminalise la tâche avec suppression de son slot dans la même transaction READ.
+**Statut : protocole proposé, non exécuté.** Source V3-1/V3-3 : pour **chaque** mutation effective du Pot portant sa version globale à V, calculer intégralement les soldes rationnels de `Pot@V` (y compris pour une mutation non financière) et matérialiser `PotBalance(potId,V)` en READ, **sans dépendre de `PotBalance(V−1)`**. `PotBalance` est immuable ; il n'existe ni projection CurrentBalance, ni chaîne d'indirections entre versions. La Consumption directe `MaterializePotBalance` reconstitue WRITE@V et calcule les soldes pour V dans sa propre tentative ; succès et suppression de son slot sont atomiques. À D terminale, elle termine sans insérer de Balance(D).
 
 ### Oracle métier indépendant
 
@@ -719,8 +719,8 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 - Vérifier **l'ensemble complet des utilisateurs/parts concernés**, les montants nets individuels et les invariants de conservation applicables ; comparer les valeurs rationnelles normalisées plutôt que les seuls formats textuels ou des égalités approchées. Les conventions de signe et les règles de répartition sont celles du contrat métier V3-1 ; ne pas en inventer d'autres dans les tests.
 - Le résultat matérialisé porte **exactement (potId,V)**. Une balance V+1 ne peut remplacer ni modifier V et ne permet pas de conclure que V a été matérialisée ; une balance V existe indépendamment du pointeur mutable `CurrentPot`.
 - Les calculs de V ne lisent pas `PotBalance(V−1)` comme condition nécessaire : injecter l'absence ou le retard de la version précédente et vérifier une production V correcte.
-- L'identité et le contenu de la tâche proviennent de la reconstruction autoritative à **V exacte** ; pas d'échantillonnage de l'état courant WRITE au moment tardif de la matérialisation. Une mutation V+1 après préparation de V ne modifie pas les données de V.
-- La validation finale de la tâche, les écritures de `PotBalance(P,V)`, la transition de tâche `PENDING → TERMINAL` et la suppression du slot sont atomiques (PRJ-04, CON-04/06). Une duplication/reprise ne peut altérer une balance déjà durable.
+- Le calcul de la Consumption part de WRITE à **V exacte** ; pas d'échantillonnage de l'état courant WRITE lors d'une matérialisation tardive. Une mutation V+1 après préparation de V ne modifie pas les données de V.
+- La validation finale de la Consumption, les écritures de `PotBalance(P,V)` et la suppression du slot sont atomiques (CON-04/06). Une duplication/reprise ne peut altérer une balance déjà durable.
 
 ### Scénarios déterministes
 
@@ -731,9 +731,9 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 | P02-C | Changement de poids par défaut ou de poids explicites entre V et V+1 | Balance V conforme aux poids à V et Balance V+1 conforme aux poids à V+1 ; aucun emprunt des valeurs courantes |
 | P02-D | Mutation non financière (libellé, métadonnée compatible) produisant une nouvelle V globale | Nouvelle `PotBalance(P,V)` **complète** et indépendante, même si les montants sont identiques à V−1 |
 | P02-E | Création, modification, suppression d'Expense et changement de rattachement affectant la répartition | Chaque version conserve le calcul attendu ; suppressions et liens historiques respectés |
-| P02-F | Traiter la tâche Balance V+2 **avant** celles de V et V+1 | Les trois balances restent distinctes, correctes, immuables et accessibles en stockage ; aucune exigence de traitement FIFO |
+| P02-F | Traiter la Consumption Balance V+2 **avant** celles de V et V+1 | Les trois balances restent distinctes, correctes, immuables et accessibles en stockage ; aucune exigence de traitement FIFO |
 | P02-G | Supprimer/retarder volontairement la balance V−1 puis traiter V | V est calculée et matérialisée correctement sans accès à V−1 |
-| P02-H | Préparer la tâche V, faire avancer WRITE jusqu'à V+1 puis matérialiser V | Le contenu enregistré reste celui de V exactement, non celui de l'état WRITE courant |
+| P02-H | Démarrer la Consumption de V, faire avancer WRITE jusqu'à V+1 puis matérialiser V | Le contenu enregistré reste celui de V exactement, non celui de l'état WRITE courant |
 | P02-I | Deux Workers tentent de matérialiser la même tâche / même (P,V), avec commit incertain et retry | Une seule valeur durable canonique ; identité/contenu inchangés ; slot et tâche finalisés une seule fois |
 | P02-J | Erreur après insertion Balance mais avant terminalisation de tâche ou suppression du slot | Rollback total ; pas de balance durable orpheline, ni tâche terminale sans son résultat |
 | P02-K | `CurrentPot` pointe V+1 tandis que seule la balance V existe, puis balance V+1 arrive | Consultation complète à V+1 indisponible jusqu'à présence de sa balance exacte ; aucune substitution de V (READ-01) |
