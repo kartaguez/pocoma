@@ -344,3 +344,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-006 rejeté (2026-10-24)
 
 **Arbitrage :** ne pas créer de slot dans la transaction HTTP d'admission d'une Command ou IdentityRequest. Admission = validation intrinsèque + idempotence + demande durable PENDING ; Discovery asynchrone enrôle ensuite les demandes PENDING sans slot. Objectif : limiter les écritures et la contention de l'admission. L'optimisation proposée par l'auditeur est rejetée ; la latence de prise en charge et le coût de Discovery sont à mesurer. Aucun code V3 exécuté.
+
+## Journal post-audit — AUD-V3-007 résolu conceptuellement (2026-10-24)
+
+**Correction adoptée :** le `softCap` de Discovery ne compte pas les slots `QUARANTINED` ; seuls les slots occupant encore une capacité de traitement sont comptés. Une quarantaine bloque ses dépendances causales propres, jamais les autres Pots/EUI de la même partition. V3-4 et V3-5D §53 amendés ; comportement à prouver sous PostgreSQL. V3-6 demeure suspendue pendant l'audit contradictoire.
