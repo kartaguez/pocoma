@@ -650,7 +650,7 @@ Combiner tests d'architecture (composition, managers, annotations interdites, ch
 
 Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction manager garantit une transaction physique commune : ce sont des hypothèses à prouver. Les verrous, contraintes et timings exacts seront démontrés dans CON-03/04 et EVT-01. Le protocole ne prescrit pas de framework transactionnel supplémentaire ; une composition non conforme doit être corrigée ou refusée.
 
-**PASS CON-06** : C06-A à C06-P vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, PRJ-04 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
+**PASS CON-06** : C06-A à C06-P vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, EVT-03, PRJ-01/02/03 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
 
 ## 7. Projections READ
 
@@ -819,7 +819,7 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 | R01-F | CurrentPot V6 et Balance(P,V7) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais emprunter un solde futur |
 | R01-G | CurrentPot passe V6→V7 pendant une lecture ayant capturé V6 | Réponse cohérente V6 ou indisponibilité ; jamais assemblage V6/V7 |
 | R01-H | CommandResult de la commande cible présent, mais CurrentPot cible pas encore à V | CommandResult consultable indépendamment ; lecture Pot avec `minVersion=V` encore indisponible |
-| R01-I | CurrentPot et composants prêts, mais tâche Balance ou Visibility en retard | Seules les lectures dont les composants requis manquent sont indisponibles ; test E2E « toutes projections » attend séparément les jalons Balance et Visibility |
+| R01-I | CurrentPot et composants prêts, mais Consumption Balance ou Visibility en retard | Seules les lectures dont les composants requis manquent sont indisponibles ; test E2E « toutes projections » attend séparément les jalons Balance et Visibility |
 | R01-J | Deux Pots avec projections et versions décalées dans CurrentUserPotList | Navigation sans faux snapshot inter-Pots ; toute ouverture de Pot réévalue son autorisation et sa complétude propre |
 | R01-K | Changement de rattachement Shareholder entre deux versions ; demande authentifiée | Autorisation appréciée selon le Shareholder de la **version réellement servie**, jamais sur liste de navigation ou snapshot WRITE courant |
 | R01-L | Projection CurrentPot plus récente que la cible d'une commande déjà achevée | `minVersion` est satisfait par V supérieure, si consultation V supérieure complète ; ne pas prétendre que Pot courant restitue automatiquement l'ancienne V cible |
