@@ -681,3 +681,29 @@ Voici, par ordre de priorité décroissante, les 5 décisions d’architecture e
   * **Option 5B** : Maintenir l’exigence stricte que seul l’écran hébergé par l’IdP affiche les compteurs métier dynamiques (`potCount`, `linkedEuiCount`, `readTimestamp`) et les signe dans une attestation propriétaire (ce qui impose de développer un SPI Keycloak sur mesure pour la Config B et exclut les IdP OIDC standards non modifiables).
 * **Recommandation** : **Option 5A**, complétée par l’index secondaire `CurrentBinding(pocomaUserId)` en READ.
 * **Impact** : `V3-1 Identity` (§4), `V3-3` (§1, §5), `V3-5D` (§§32–37), `V3-5E` (§20).
+
+---
+
+## VIII. Addendum post-audit — consolidation documentaire du 2026-10-24
+
+**Portée historique :** les sections I–VII conservent les constats, sévérités, variantes et recommandations au moment de l'audit initial (SHA indiqué en tête). Leur « GO SOUS RÉSERVES » n'est pas le verdict de clôture final. Les décisions désormais normatives résident dans SPEC-01 à SPEC-10 ; le canon demeure seul responsable du statut de progression. **Cet addendum ne lève pas la suspension de V3-6 et ne prononce aucun PASS V3-7.**
+
+| Point | Décision arbitrée | SPEC faisant autorité | Preuves restantes |
+|---|---|---|---|
+| AUD-V3-001 | Droits du créateur et autorisation WRITE | 01, 04, 06 | DOM-02, SEC-01 |
+| AUD-V3-002 | Rattachement et invitations ; révocation anticipée non résolue | 01, 02 | DOM-02, SEC-01 |
+| AUD-V3-003 | Dépendances observées, références et suppression Shareholder | 01 | DOM-01/02, PRJ-02 |
+| AUD-V3-004 | Fenêtre sûre committée et checkpoints atomiques | 03, 05 | EVT-01, CON-01/02 |
+| AUD-V3-005 | Trois Consumptions POT_EVENT directes, pas de tâches intermédiaires | 03, 04, 05 | EVT-03, PRJ-01/02/03 |
+| AUD-V3-006 | Discovery burnable asynchrone conservée, slot synchrone rejeté | 05 | CON-01, OPS-01 |
+| AUD-V3-007 | Quarantaine persistante et exclue du softCap | 05 | CON-05, OPS-01 |
+| AUD-V3-008 | Consentement externe Link transactionnel ; produit non imposé | 02, 06 | ID-02, C-01 |
+| AUD-V3-009 | CurrentBinding propre à l'EUI authentifiée | 02, 04, 06 | ID-01, SEC-02 |
+| AUD-V3-010 | requesterEui dans résultats READ, statut 200/404/503 | 03, 04, 06 | A10-A à A10-K |
+| AUD-V3-011 | DeletePot D terminal non lisible, passé préservé, oracle interne C-03 | 01, 04, 06, 09 | A11-A à A11-N, PERF-01 |
+| AUD-V3-012 | Refonte normative SPEC-01..10, historique préservé | Canon, 01..10 | Vérifications documentaires |
+| AUD-V3-013 | Sous-versions sélectives, soldes complets, manifeste HTTP exhaustif | 04, 05, 06, 09 | PERF-01, F01, mesure des coûts |
+
+**Réserves R-01 à R-04 :** clarification de suspension dans le canon, statuts de certification dissociés des arbitrages, alignement READ-01 sur 404/503 et nettoyage ciblé des références. Les mentions anciennes des sections I–VII sont archivistiques : elles ne rétablissent aucun contrat abandonné.
+
+**À qualifier pendant V3-6/V3-7 :** réalisation PostgreSQL de la borne sûre H, attestation effective du consentement Link, bornes de protection HTTP et rétention d'idempotence, valeur N de quarantaine, coûts de Grand Pot et preuves de sécurité/charge. Aucun code, DDL, test ou benchmark V3 n'est apporté par cet addendum. Reprise V3-6 uniquement sur décision explicite ultérieure.
