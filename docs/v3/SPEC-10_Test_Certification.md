@@ -7,6 +7,8 @@
 
 Chaque preuve dispose d'un ID stable, d'une précondition, d'un oracle observable et d'une méthode de reproduction. Distinguer conceptuellement défini, implémenté, exécuté, PASS, FAIL et INCONCLUSIVE. Une exécution absente ne constitue jamais PASS. PostgreSQL réel, interleavings déterministes, rollback et lecture après commit par connexion indépendante selon chaque contrat.
 
+**Alignement AUD-V3-013 :** les protocoles de performance portent sur trois Consumptions READ directes de `POT_EVENT`, **sans** `PreparePotProjectionTasks`, `PotBalanceTask` ou `PotVisibilityTask`. Les mentions résiduelles de « deux tâches », de progression de tâches ou d'acquisition de celles-ci sont historiques et ne créent aucun oracle actif. Mesurer séparément chaque slot/Consumption direct, leur backlog, leurs effets et la complétude des versions. Les budgets C-03 de SPEC-09 (§§4–5) priment : première lecture autorisée complète de W≥V pour Pot actif, observation interne terminale `CurrentPot→PotVersion(P,D)` pour DeletePot, sans `PotBalance(P,D)` ni barrière Visibility dans la lecture directe.
+
 ## 2. Matrice unique des exigences
 
 Le tableau relie les exigences actives au protocole détaillé portant le même identifiant ci-dessous. Les scénarios historiques sont conservés lorsqu'applicables et amendés par les décisions normatives. PRJ-04 est **retiré et non réutilisable** ; ses garanties sont migrées dans EVT-03, CON-02/04/06 et PRJ-02/03.
@@ -1076,6 +1078,8 @@ Les propriétés « aucune famine » et « pas de surcharge catastrophique » ex
 
 ### PERF-01 — Protocole et oracles
 
+**Cas discriminants AUD-V3-013 (non exécutés) :** mesurer le traitement à V d'un Grand Pot avec modification d'un simple libellé, modification de poids, modification des Financials, mutation multi-cibles, matérialisation hors ordre et rejeu READ vide. Vérifier que `MaterializePotVersion` reconstitue toutes les références mais ne charge les contenus financiers inchangés que lorsqu'ils manquent en READ ; contrôler idempotence et contenu exact lors des races sur sous-version. Pour `MaterializePotBalance`, vérifier le recalcul complet et exact sans N+1 et sans dépendance à V−1 ; pour HTTP, comparer octets bruts/compressés, exhaustivité/ordre des 2 000 références, réponse sans détails Financials, chargements détaillés par lots et absence de troncature. Relever latences, lignes lues, nombre de requêtes, CPU, mémoire, WAL et stockage historique. Aucun seuil nouveau ni PASS V3 n'est revendiqué.
+
 **Statut : protocole de qualification proposé, non exécuté.** Les nombres de V3-5C sont des **SLO à prouver**, et non des résultats déjà observés. La campagne doit démontrer à la fois une réponse correcte/complète, une latence E2E mesurée et une capacité soutenable. Le seul débit des admissions HTTP ou la seule disparition des slots Command est insuffisant.
 
 ### 24.1 Environnements, données et calendrier des campagnes
@@ -1129,7 +1133,7 @@ Répéter les campagnes comparables **au moins trois fois** avec données et env
 
 ### 24.5 Backlog, stabilité, instrumentation et capacité
 
-- **Préparation F01-G :** couper les Workers de traitement/Discovery pertinents tout en maintenant l'admission durable WRITE, puis créer et vérifier exactement 10 000 commandes historiques `PENDING` sur Pots indépendants. Après redémarrage, chacune engendrera les événements, deux tâches de projection et effets associés ; on ne suppose **pas** que ces travaux dérivés existent déjà au moment du redémarrage. Photographier le stock avant redémarrage.
+- **Préparation F01-G :** couper les Workers de traitement/Discovery pertinents tout en maintenant l'admission durable WRITE, puis créer et vérifier exactement 10 000 commandes historiques `PENDING` sur Pots indépendants. Après redémarrage, chacune engendrera les événements et les effets des trois Consumptions READ directes ; on ne suppose **pas** que ces travaux dérivés existent déjà au moment du redémarrage. Photographier le stock avant redémarrage.
 - **Fin F01-G :** toutes les demandes initiales TERMINAL avec résultats, Consumptions et projections attendues complétées, sans slot résiduel de traitement réussi (les slots QUARANTINED restent incomplets, jamais des succès).
 - **Stabilité B :** séries temporelles de backlog **par Consumption**, âges de la plus ancienne source/slot, débit de complétion et projection E2E ; vérifier qu'aucune pente positive durable ne se cache derrière une moyenne finale. Décrire la régression et la fenêtre choisies avant exécution.
 - **Pointe C :** mesurer les latences **pendant** la fenêtre 50/s sans exclure les travaux achevés après son terme ; poursuivre les sondes jusqu'à complétion/timeout et vérifier le drainage après le retour nominal.
@@ -1151,7 +1155,7 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 - **Disponibilité utilisateur (READ-01 / PERF-01) :** première lecture réelle avec W≥V, complète et autorisée ; aucun besoin de `PotVisibilityState(P).materializedVersion ≥ V` dans ce jalon **si l'endpoint Pot ne dépend pas de la visibilité**.
 - **Correction et progression historique (DOM-01/03, PRJ-01/02/04, CON-02) :** chaque balance immutable `PotBalance(P,V)` doit exister et être correcte, toutes les tâches attendues doivent terminer et la visibilité progresser ; vérifier par oracles internes/états READ, sans prétendre exposer une API Pot historique.
 - **SLO technique de balance nominale :** conserver séparément le p95 ≤ 500 ms admission→`PotBalance(P,V)` exacte ; contrairement au SLO utilisateur, cette mesure peut reposer sur un oracle technique READ indépendant et précis.
-- **Backlog et reconstruction (REC-01 / PERF-01 F01-G) :** garder l'exigence de terminaison des travaux dérivés (deux tasks) pour chaque événement ciblé ; une lecture courante W≥V ne suffit pas à prouver que les tâches historiques sont finies.
+- **Backlog et reconstruction (REC-01 / PERF-01 F01-G) :** garder l'exigence de terminaison des trois Consumptions READ directes et de leurs effets dérivés pour chaque événement ciblé ; une lecture courante W≥V ne suffit pas à prouver que les tâches historiques sont finies.
 
 **Amendements aux campagnes §24 :** dans F01-A, rapporter deux SLO distincts : première lecture Pot W≥V et Balance(P,V) ; dans F01-B/C/D, le délai Pot désigne uniquement la première lecture READ complète W≥V. Le §24.4 point 4, lorsqu'il suggère la complétude simultanée des projections de V ou une exigence `PotVisibilityState≥V` pour la lecture courante, est **supplanté** par le présent contrat. Aucun nouveau jalon par version historique pour les campagnes de réactivité.
 
