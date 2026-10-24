@@ -1505,3 +1505,9 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 **Contrat :** lecture de `CurrentBinding` par l'EUI authentifiée exclusivement, sans bindingToken entrant ; seul son token actif peut être renvoyé. `IDENTITY_EVENT(EUI,V)` déclenche une matérialisation lisant Binding WRITE à **V**, sans transport du token dans l'événement.
 
 **Preuves à réaliser :** (A) Registration E1 puis `me/binding?minVersion=V`, restitue uniquement token E1 ; (B) Link initié E1 vers E2 puis succès visible E1 sans exposition de token E2 ; (C) session E2 consulte son token E2 uniquement ; (D) usurpation via EUI/target choisie interdite ; (E) token périmé, Unlink et retard READ avec `minVersion` ; (F) replay hors ordre d'IDENTITY_EVENT et Binding reconstruit à la bonne version ; (G) absence de token dans événement partagé, logs, cache partagé et corps d'erreur. Prévoir Bruno + JUnit/PostgreSQL ; aucun essai V3 exécuté.
+
+## 51. AUD-V3-004 — preuve de borne sûre Discovery inter-bases (2026-10-24)
+
+**Contrat V3-4 :** fenêtre cohérente de positions globales committées `(K,H]`, séquence dense et transactionnelle, filtrage par partition, enrôlement de tous les slots requis et avancement du checkpoint atomiques dans la base des effets sous CAS/ownership. La lecture de la source peut être préalable et inter-bases ; aucune transaction distribuée présumée.
+
+**Scénarios JUnit/PostgreSQL :** publication concurrente avec compteur verrouillé ; commit et rollback ; observation d'une fenêtre homogène malgré transaction retardée ; positions d'autres partitions ; course de deux Discoveries ; crash entre lecture source et commit cible ; rollback sur échec d'insertion slot ; non-régression de K et absence de perte. Aucune preuve exécutée.
