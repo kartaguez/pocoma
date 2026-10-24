@@ -364,3 +364,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-007-Q, compteur et expiration (2026-10-24)
 
 **Arbitrage validé :** `attemptCount` compte uniquement les échecs techniques durablement constatés, jusqu'au seuil configurable N ; l'expiration du claim ne compte pas comme échec. Une réactivation administrative explicite de `QUARANTINED` remet atomiquement le compteur à zéro, sans changer l'identité du slot. Garde par `claimToken` pour empêcher doubles comptages ou retards de cession. Valeur N, résolution causalité et purge restent ouvertes. Voir V3-4 et V3-5D §56.
+
+## Journal post-audit — AUD-V3-007-Q, aucun blocage causal (2026-10-24)
+
+**Décision :** les slots sont indépendants ; `QUARANTINED` n'empêche jamais la Discovery ni l'exécution d'un autre slot, y compris sur le même Pot/EUI ou pour une version supérieure. Projections immuables reconstituées depuis WRITE@V et projections mutables avec garde monotone ; seule une **lecture** nécessitant une projection absente reste indisponible. Les clauses antérieures sur « successeurs bloqués par la quarantaine » sont supersédées. Preuves hors ordre prévues V3-5D §57.
