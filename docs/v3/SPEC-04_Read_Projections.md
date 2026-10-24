@@ -33,9 +33,19 @@ Inventaire **logique**, sans obligation de huit tables. `PotVisibilityState` est
 
 L'ensemble interne `authorizedUserIds` de PotVersion inclut le créateur immuable même sans Shareholder et tous les utilisateurs rattachés aux Shareholders à V. Il n'est pas exposé au client. Les versions immuables d'un événement tardif sont conservées sans recul du pointeur CurrentPot.
 
+### Chargement sélectif des sous-versions — AUD-V3-013
+
+Pour chaque `POT_EVENT(P,V)`, `MaterializePotVersion` reconstruit **depuis WRITE@V la composition complète** (composantes, sous-versions locales, suppressions et utilisateurs autorisés à V) ; il ne déduit jamais la composition de `PotVersion(P,V−1)` ni de l'état courant. La reconstruction des références ne nécessite pas de charger systématiquement les contenus détaillés des `ExpenseFinancials` et de leurs participations.
+
+Il vérifie **par lots** les clés immuables de `SubobjectVersion` déjà présentes dans READ, charge depuis WRITE les contenus **historiques exacts** des seules clés manquantes et matérialise ces sous-versions avec `PotVersion(P,V)` et l'avance conditionnelle de `CurrentPot` dans la transaction READ du slot. L'absence d'une sous-version en READ déclenche son chargement ; elle n'exige jamais la complétion préalable d'une autre PotVersion. Les traitements hors ordre, le rejeu à partir de READ vide et les mutations multi-cibles restent pris en charge. Une insertion concurrente de même clé est idempotente seulement si le contenu est identique ; toute divergence est une anomalie technique, jamais silencieusement acceptée. Aucune projection, tâche ou dépendance inter-Consumption supplémentaire.
+
+La composition `PotVersion(P,V)` demeure **complète, immuable et autonome** à chaque V : ni delta, ni pointeur sur une composition antérieure, ni déduplication structurelle exigeant une reconstruction en chaîne. Le coût de stockage historique des références est assumé et à mesurer physiquement (SPEC-09/10).
+
 ## 4. Balances
 
 Le calcul des soldes est **complet à chaque version active V**, y compris une mutation non financière, à partir des composantes WRITE@V et sans indirection vers une balance ancienne. Chaque PotBalance(P,V) est immuable ; les différentes versions peuvent être calculées dans n'importe quel ordre. À la version terminale D, la Consumption Balance termine normalement **sans** PotBalance(P,D). Les soldes de toutes les versions antérieures doivent être conservés, même si elles sont matérialisées après D. Voir §10.
+
+Le recalcul de `PotBalance(P,V)` reste intégral et indépendant pour chaque V active, même sans mutation financière, par lecture **groupée** des Expenses actives, Financials, participations et poids applicables à V depuis WRITE. Éviter les accès N+1 ; aucun cache durable, calcul différentiel ou chaînage avec d'autres balances. Les 200 000 participations potentielles d'un Grand Pot constituent une cardinalité de données à traiter, **pas** un nombre prescrit de requêtes SQL. Ce choix ne change pas le traitement terminal D.
 
 ## 5. Visibilité et navigation
 
