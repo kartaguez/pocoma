@@ -37,7 +37,7 @@ Le tableau relie les exigences actives au protocole détaillé portant le même 
 | SEC-02 | Retard de révocation CurrentBinding accepté explicitement ; aucune promesse de révocation WRITE immédiatement effective dans READ | V3-3, V3-4 | Bruno propagation | ACQUIS / À PROUVER |
 | REC-01 | Reconstruction READ en maintenance exclusive, reset coordonné projections/slots/checkpoints sans tâches | V3-4 | JUnit/PostgreSQL E2E | ACQUIS / À PROUVER |
 | OPS-01 | Progression et équité malgré quarantaine exclue du softCap, sans dépendance entre slots | V3-4 | k6 ; métriques serveur ; PostgreSQL | **À PROUVER**, budgets V3-5B/C |
-| PERF-01 | C-03 : première lecture active W≥V complète autorisée ; DeletePot oracle interne PotVersion(D), budgets inchangés | V3-5B/C à définir | k6 + instrumentation + SQL | **OUVERT (V3-5B/C)** |
+| PERF-01 | C-03 : première lecture active W≥V complète autorisée ; DeletePot oracle interne PotVersion(D), budgets inchangés | SPEC-09 | k6 + instrumentation + SQL | **ACQUIS conceptuellement / À PROUVER en V3-7** |
 | ADM-01 | Admission bornée, sans lecture métier WRITE, sans slot synchrone | SPEC-06/05 | Bruno ; tests d'admission | ACQUIS / À PROUVER |
 | S-01 | Navigation CurrentUserPotList keyset, non autorisante | SPEC-06 | Bruno ; tests de pagination | ACQUIS / À PROUVER |
 | S-02 | Manifeste complet et ordonné des références Expenses, détails par lots | SPEC-06/04 | Bruno ; tests de volumes | ACQUIS / À PROUVER |
@@ -703,9 +703,9 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 **PERF/OPS — preuves complémentaires :** taille de `PotVersion` et manifeste transmis sur 20/200 et 100/2 000, pression stockage/WAL sur 100, 1 000 et 10 000 versions, traitement V hors ordre, nombre de requêtes borné pour pages de 50 Expenses, impact sur latence E2E `minVersion` ; mesurer avant tout choix d'archivage/factorisation.
 
-**Supras :** bornes d'admission, taille maximale des collections/chargements et contrats d'erreur restent à définir en V3-5E. Ne pas revendiquer 24/24 preuves exécutées : seuls leurs protocoles existent.
+**Supras :** principes et statuts HTTP définis en SPEC-06 ; seuils physiques, enveloppes et paramètres de protection à qualifier avant certification. Ne pas revendiquer 24/24 preuves exécutées : seuls leurs protocoles existent.
 
-**V3-CADRE demeure OUVERT**, qualification V3-6/V3-7 non exécutée.
+**Contrat conceptuel arbitré ; réalisation V3-6 et certification V3-7 non exécutées.**
 
 **Contrat de matérialisation directe :** aucune tâche de préparation, aucune tâche Balance/Visibility ; six familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
 
@@ -801,7 +801,7 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 
 ### Oracles contractuels
 
-- Si `CurrentPot` est absent ou à `V < minVersion`, rendre une **indisponibilité temporaire explicite**, sans prétendre à une absence définitive de Pot. Les codes/réponses API exacts seront fixés par le contrat API V3-6 avant construction des tests Bruno ; ne pas inventer maintenant un code HTTP.
+- Contrôler d'abord authentification, Binding et autorisation démontrable dans READ selon SPEC-04 §10 et SPEC-06 §§9–10 : Pot absent de READ, terminal ou non autorisé => `404` uniforme. Pour un Pot actif matérialisé et autorisé, `CurrentPot.version < minVersion` ou dépendance nécessaire absente => `503` temporaire. Une panne globale READ peut également rendre `503`, sans révéler de ressource non autorisée.
 - Si `CurrentPot(P,V)` existe, capturer **une seule fois V et ses références**. Une consultation nécessitant la balance ne peut réussir que si `PotBalance(P,V)` existe, est complète et appartient exactement à V ; même règle pour chaque `SubobjectVersion` référencée. Si un élément nécessaire manque, rendre temporairement indisponible plutôt qu'une réponse partielle ou un substitut V−1/V+1.
 - Une consultation qui ne requiert pas une projection donnée ne doit pas attendre artificiellement sa matérialisation (par exemple un résultat terminal consultable peut précéder CurrentPot ; une lecture d'en-tête ne doit pas nécessairement attendre les balances si son contrat n'en a pas besoin).
 - Un déplacement concurrent de CurrentPot de V à V+1 après capture ne peut pas transformer la réponse en assemblage hybride. Les valeurs immuables de V restent lisibles pendant la requête ; assurer snapshot SQL adapté ou lecture cohérente par références figées, à démontrer.
@@ -813,8 +813,8 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 
 | ID | Stimulus | Oracle de réussite |
 |---|---|---|
-| R01-A | Pot absent dans READ, puis projection initiale apparue | Indisponibilité temporaire avant matérialisation, puis succès complet si accès autorisé ; ne pas déclarer une absence définitive à tort |
-| R01-B | CurrentPot à V4 et requête `minVersion=5` | Indisponibilité temporaire ; aucune réponse V4 présentée comme satisfaisant V5 |
+| R01-A | Pot absent dans READ, puis projection initiale apparue | Avant matérialisation, `404` faute d'autorisation démontrable depuis READ ; après matérialisation, succès complet uniquement si autorisé ; aucun accès WRITE synchrone |
+| R01-B | CurrentPot actif V4, utilisateur autorisé à V4, requête `minVersion=5` | `503` temporaire après autorisation ; aucune réponse V4 présentée comme satisfaisant V5 |
 | R01-C | CurrentPot à V6 et `minVersion=5` | V6 peut être servie si complète et autorisée ; pas d'exigence artificielle de servir V5 |
 | R01-D | CurrentPot V6 référence plusieurs sous-versions dont l'une est absente | Lecture complète indisponible jusqu'à présence de toutes les références ; aucune suppression de champ silencieuse |
 | R01-E | CurrentPot V6 et Balance(P,V5) présente, Balance(P,V6) absente | Consultation nécessitant Balance indisponible ; ne jamais réutiliser le solde V5 |
@@ -830,15 +830,15 @@ JUnit avec **PostgreSQL réel** : jeux `Visible(P,V)` établis indépendamment d
 
 ### Méthode et PASS
 
-JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des matérialisations et les transactions concurrentes, complété par Bruno sur l'API authentifiée. Comparer l'état retourné à un oracle de reconstruction autoritative Pot@V et aux versions locales référencées ; vérifier chaque composant et balance, pas uniquement le `potVersion`. Vérifier explicitement les réponses d'indisponibilité (sans imposer encore leur forme HTTP), puis la convergence lorsque les éléments arrivent. Conserver les versions/IDs, états de tâches, snapshots SQL et captures des réponses API.
+JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des matérialisations et les transactions concurrentes, complété par Bruno sur l'API authentifiée. Comparer l'état retourné à un oracle de reconstruction autoritative Pot@V et aux versions locales référencées ; vérifier chaque composant et balance, pas uniquement le `potVersion`. Vérifier les réponses `404` pour absence/non-autorisation et `503` pour retard après autorisation selon SPEC-06, puis la convergence lorsque les éléments arrivent. Conserver les versions/IDs, états de slots et Consumptions, snapshots SQL et captures des réponses API.
 
 **PASS READ-01** : R01-A à R01-N satisfaits ; aucun Pot partiel, aucune version mélangée, interprétation correcte de `minVersion`, indépendance des projections et des Pots ; pas de lecture WRITE synchrone. L'authentification et l'autorisation sont qualifiées avec SEC-01/02. Aucun test V3 exécuté.
 
-**SUPRA-READ-01, contrat candidat de SPEC-06 — §5** : le front découpe le manifeste `PotVersion(P,V)` en groupes ; le Supra READ impose une limite de références par lot, vérifie EUI/binding actif, autorisation à V et appartenance au manifeste, résout les `SubobjectVersion` nécessaires et répond **tout ou erreur**, sans troncature ni recours à WRITE. Aucun deuxième système de pagination serveur imposé.
+**SUPRA-READ-01, contrat normatif de SPEC-06 — §§4–5** : le front découpe le manifeste `PotVersion(P,V)` en groupes ; le Supra READ impose une limite de références par lot, vérifie EUI/binding actif, autorisation à V et appartenance au manifeste, résout les `SubobjectVersion` nécessaires et répond **tout ou erreur**, sans troncature ni recours à WRITE. Aucun deuxième système de pagination serveur imposé.
 
 **Tests bloquants avant qualification** : limites 0/1/N et plafond−1/plafond/plafond+1, doublons, références étrangères à V/Pot, versions de sous-objets substituées, Unlink et Shareholder lié à V, CurrentPot V+1 pendant lecture V, dépendance absente, grosse Expense conduisant au plafond de réponse, ordre et complétude du lot, latence et nombre de requêtes SQL pour 50 Expenses/2 000 références.
 
-**Réserves :** seuil numérique de lot, budget d'octets et codes d'erreur restent ouverts en V3-5E ; ce protocole décrit une preuve à construire, pas un test réalisé. V3-CADRE reste ouvert.
+**Réserves :** seuil numérique de lot et budget d'octets à qualifier conformément à SPEC-06. Les statuts HTTP suivent SPEC-06 §§7–10 ; protocoles non exécutés, sans réouverture du cadrage.
 
 ### SEC-01 — Protocole et oracles
 
@@ -1029,7 +1029,7 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 
 **Impact REC-01 :** considérer §38 et cette décision comme le contrat de test RCV01-A à N ; les cas de writer tardif, tâche dérivée encore PENDING, publication au-delà de B et échec de reconstruction sont des tests bloquants pour la remise en service.
 
-**Statut : C-02 RÉSOLU AU NIVEAU CONCEPTUEL, À PROUVER en V3-6/7.** V3-CADRE demeure ouvert : C-03 et la revue documentaire finale restent à traiter.
+**Statut : C-02 et C-03 conceptuellement arbitrés dans SPEC-05 et SPEC-09 ; preuves V3-6/V3-7 non exécutées. Décision de clôture globale séparée.**
 
 ## 11. Exploitation
 
