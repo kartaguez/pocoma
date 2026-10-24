@@ -130,3 +130,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 `MaterializePotVisibility` calcule elle-même depuis WRITE@V la liste complète des utilisateurs visibles ; l'ancienne tâche `PotVisibilityTask(visibleUserIds)` n'existe plus. Elle conserve la garde transactionnelle `PotVisibilityState(P)` pour appliquer le différentiel sans écrasement par des événements hors ordre. `MaterializePotBalance` calcule les balances depuis WRITE@V, sans tâche portant les balances pré-calculées. `MaterializePotVersion` conserve les garanties d'immuabilité/pointeur.
 
 **Supplante** les références historiques aux deux tâches burnables internes et à leur préparation. AUD-V3-006 (opportunité de créer directement les slots de demandes à l'admission) est **distinct et non arbitré**.
+
+## Amendement post-audit AUD-V3-006 — admission sans création de slot (2026-10-24)
+
+**Arbitrage validé : REJET de la création synchrone d'un slot dans l'admission.** Le Supra authentifie, valide la forme et l'idempotence, puis persiste la Command ou IdentityRequest `PENDING` (et son association idempotente) dans WRITE, sans créer ni revendiquer de slot. L'admission ne doit pas attendre les travaux d'enrôlement du moteur.
+
+**Discovery burnable maintenue :** recherche asynchrone, bornée et idempotente des demandes `PENDING` sans slot, puis création des slots selon le protocole normal ; aucune fenêtre de perte entre admission et découverte puisque la source durable reste PENDING. La transaction d'admission ne coordonne pas le cycle de vie de l'exécution. Pour les familles de projection supprimées par AUD-V3-005, il n'existe plus de Discovery burnable de tâches READ : seules COMMAND et IDENTITY_REQUEST demeurent.
+
+**Compromis assumé :** une étape et une latence de prise en charge supplémentaires contre un chemin d'admission minimal, découplé des aléas de Discovery et des contraintes des slots. Mesurer le délai admission→claim et le coût de sélection PENDING avant toute réouverture de cette décision.
