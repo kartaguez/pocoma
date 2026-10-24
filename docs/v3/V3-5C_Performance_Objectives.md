@@ -73,3 +73,11 @@ Les niveaux de débit, le scénario de contention, les volumes globaux et les co
 **Visibilité :** `PotVisibilityState` reste une projection métier à produire et à qualifier séparément ; la lecture directe d'un Pot ne doit pas attendre cette projection si son contrat de lecture ne l'exige pas. En conséquence, le SLO de lecture n'introduit **pas** une barrière artificielle de visibilité sur l'endpoint Pot. L'état complet de toutes les projections et la progression des tâches sont suivis dans les preuves de correction/backlog, hors jalon de première lecture du Pot.
 
 Aucun benchmark V3 exécuté. Les sections antérieures contradictoires sont **supplantées pour la définition du jalon E2E utilisateur** par le présent amendement.
+
+## 8. AUD-V3-011 — oracle C-03 pour DeletePot (2026-10-24)
+
+**Amendement normatif à §7 :** l'oracle de première lecture API READ complète `minVersion=V` demeure pour les commandes appliquées dont le Pot reste actif. Pour une commande `DeletePot` appliquée à la version terminale D, ce jalon HTTP `200` n'est pas exigible : le Pot courant et la version historique D sont `404` par contrat.
+
+Le jalon alternatif E2E de `DeletePot` est la **première observation interne dans READ** de `CurrentPot(P)` pointant une `PotVersion(P,D)` terminale `deleted=true`. Mesure depuis l'admission durable de la commande, avec les **mêmes budgets C-03** applicables au profil de charge ; un simple `404` HTTP ne prouve jamais que D est matérialisée. Aucune API, projection ni synchronisation supplémentaire n'est introduite pour l'oracle.
+
+`PotBalance(P,D)` est intentionnellement absente et n'entre ni dans ce jalon ni dans le SLO technique de calcul des balances. Le SLO technique et l'exactitude durable restent obligatoires pour **toutes les versions actives V<D**, y compris celles matérialisées tardivement. La mise à jour de `CurrentUserPotList` / `PotVisibilityState` reste un jalon indépendant ; l'absence de balance terminale n'est ni un échec ni un backlog incomplet. Les mesures distinctes de complétion des trois Consumptions et les garanties de reprise restent obligatoires.
