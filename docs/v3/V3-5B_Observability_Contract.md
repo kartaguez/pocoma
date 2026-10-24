@@ -1,6 +1,6 @@
-# Pocoma V3-5B — Contrat minimal d'observabilité
+# Pocoma SPEC-08 — Observabilité
 
-**Statut : PROPOSITION DOCUMENTÉE — arbitrage et revue ouverts ; aucune implémentation ni mesure V3.**
+**Statut : contrat conceptuel O-01 validé, non implémenté ni mesuré en V3.**
 **Date :** 2026-10-23. **Canon :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md). **Exigences :** [V3-5A](V3-5A_Global_Review_and_Requirements.md).
 
 ## 1. Inventaire de l'existant — réemploi, sans preuve de disponibilité V3
@@ -35,7 +35,7 @@ Les points suivants sont des **frontières logiques** et non l'obligation de les
 
 Pour les `POT_EVENT`, mesurer **indépendamment** :
 - `MaterializeCurrentPot` → CurrentPot et sous-objets ;
-- `PreparePotProjectionTasks` → création atomique de deux tâches READ ;
+- `MaterializePotVersion` → création atomique de deux tâches READ ;
 - `MaterializePotBalance` → PotBalance(P,V) ;
 - `MaterializePotVisibility` → PotVisibilityState(P,V), entrées utilisateur ;
 - `COMMAND_COMPLETION_EVENT` → CommandResult.
@@ -46,8 +46,8 @@ Ne **pas additionner** les délais de branches parallèles. La disponibilité d'
 
 1. **Côté client / Bruno / k6 :** mesurer l'admission HTTP et effectuer des lectures/polls bornés vers le résultat et les projections exigées ; enregistrer latence observée, issues, nombre de requêtes de polling et timeout. Les durées entre deux polls sont des bornes d'observation, pas des temps de commit exacts.
 2. **Côté Engine/Discovery :** timers monotones en mémoire pour cycle Discovery, sélection/enrôlement, acquisition, chargement/préparation, protection/validation et durée de transaction ; compteurs de tentatives/réessais, échecs, collisions et expirations ; gauges/capacités et backlog mesurés sans compter à chaque requête si coût excessif.
-3. **Côté durable :** explorer les timestamps déjà disponibles et ceux qui seraient indispensables aux segments d'attente qui traversent les processus/crashes. Ne **pas** réintroduire un journal de claims ou un état DONE uniquement pour obtenir une courbe. Le slot V3 reste à six champs conceptuels, sauf justification explicite future par un invariant/objectif concret.
-4. **Corrélation :** exploiter `requestId`, `eventId`, `consumptionId + consumableId`, `taskId`, et un traceId de diagnostic si disponible. Aucun nouvel identifiant métier global. Les identifiants à forte cardinalité ne sont jamais des labels Prometheus.
+3. **Côté durable :** explorer les timestamps déjà disponibles et ceux qui seraient indispensables aux segments d'attente qui traversent les processus/crashes. Ne **pas** réintroduire un journal de claims ou un état DONE uniquement pour obtenir une courbe. Le slot conserve claim/retry, `attemptCount` et `QUARANTINED`, sans timestamps durables supplémentaires imposés par les métriques.
+4. **Corrélation :** exploiter `requestId`, `eventId`, `consumptionId + consumableId`, et un traceId de diagnostic si disponible. Aucun nouvel identifiant métier global. Les identifiants à forte cardinalité ne sont jamais des labels Prometheus.
 5. **Traçage :** logs structurés et corrélations ciblées suffisent conceptuellement ; le besoin de tracing distribué complet ou d'un nouveau backend doit être démontré avant adoption.
 
 ## 4. Définitions des latences et contraintes de précision
@@ -56,7 +56,7 @@ Ne **pas additionner** les délais de branches parallèles. La disponibilité d'
 - **Attente de Discovery :** publication source durable → apparition durable du slot (mesure exacte seulement si frontières de commit accessibles ; sinon proxy avec biais annoncé).
 - **Attente Engine :** slot disponible → acquisition effective, en excluant / isolant les périodes `retryAfter` et de claim détenu.
 - **Temps d'exécution :** acquisition → fin de préparation → protection finale → commit/rollback, avec instrument monotone local. Une tentative avortée compte séparément.
-- **Propagation par projection :** `POT_EVENT` durable → projection spécifique observablement disponible ; la préparation des tasks est une phase intermédiaire, pas un retard imposé aux autres branches.
+- **Propagation par projection :** `POT_EVENT` durable → projection spécifique observablement disponible ; les traitements sont indépendants.
 - **Bout en bout métier :** soumission Command → résultat terminal visible, puis → lecture READ demandée disponible. Les rejets ne sont pas confondus avec les latences des mutations appliquées.
 - **Retries :** durées et issues par tentative ; latence E2E inclusive de toutes les attentes, même si les timers de travail sont par tentative.
 
@@ -64,43 +64,14 @@ Ne **pas additionner** les délais de branches parallèles. La disponibilité d'
 
 ## 5. Dimensions et cardinalité
 
-Dimensions admises par défaut : famille/Consumption logique connue, type d'opération, phase, issue bornée, partition seulement si cardinalité fixée et justifiée. Jamais `userId`, `potId`, `requestId`, `eventId`, `taskId`, `claimToken`, `bindingToken` ou `traceId` dans les labels de métriques ; aucun token dans logs/traces. Les durées p50/p95/p99 exigent des histogrammes adaptés (un timer total seul ou un scrape de moyenne `sum/count` ne suffit pas pour les quantiles fiables).
+Dimensions admises par défaut : famille/Consumption logique connue, type d'opération, phase, issue bornée, partition seulement si cardinalité fixée et justifiée. Jamais `userId`, `potId`, `requestId`, `eventId`, `claimToken`, `bindingToken` ou `traceId` dans les labels de métriques ; aucun token dans logs/traces. Les durées p50/p95/p99 exigent des histogrammes adaptés (un timer total seul ou un scrape de moyenne `sum/count` ne suffit pas pour les quantiles fiables).
 
-## 6. Questions ciblées à arbitrer avec V3-5C/D
+## 6. O-01 — Contrat de précision retenu
 
-- **O-01 — Granularité :** quel niveau de mesure durable des temps d'attente est indispensable : latence E2E externe + timers agrégés, ou diagnostics précis source→slot→claim par consommable et après crash ? Le second exige des bornes temporelles durables fiables, à justifier.
-- **O-02 — Contrat de disponibilité :** quelles consultations exigent CurrentPot seul, et lesquelles exigent PotBalance et/ou visibilité ? Les SLIs E2E doivent être définis par parcours observable.
-- **O-03 — Perte/retard :** fixer seuils de backlog, âge maximal des sources/slots et conditions de rattrapage dans V3-5C ; ne pas inventer de valeurs en V3-5B.
-- **O-04 — Validation des percentiles :** instrumentation histogramme et fenêtres de mesures sous profils de charge ; décider les détails techniques pendant V3-6, sans nouveau backend imposé.
+Le choix B est définitif : SLIs par étape fiables et comparables, diagnostic dans la limite des observations conservées, sans audit temporel durable et exact de chaque transition. Timers monotones locaux, histogrammes, attente estimée et sondages externes ; les biais entre horloges, timestamps pré-commit et instants READ sont explicités. Aucun nouveau timestamp ni journal de claims durable imposé pour la mesure seule.
 
-## 7. Statut et passage V3-5C
+Pour un Pot actif : admission→CommandResult, admission→première lecture autorisée Pot complet W≥V, admission→PotBalance(P,V) technique et progression de visibilité séparée. Pour DeletePot à D : jalon alternatif interne CurrentPot→PotVersion(P,D).deleted=true ; Balance(D) non attendue, 404 HTTP insuffisant comme oracle. Mesurer séparément les trois Consumptions POT_EVENT et ne pas additionner leurs branches parallèles. Identity : admission→IdentityRequestResult et CurrentBinding(EUI cible), puis disponibilité authentifiée du propre Binding.
 
-**V3-5B : cadrage initial documenté, NON ENCORE VALIDÉ.** Décider d'abord O-01 (niveau de détail durable nécessaire) ; les autres points se poursuivent vers V3-5C/D. Ni performances chiffrées, ni code, ni exécution k6 ne sont revendiqués.
+## 7. Qualité et certification
 
-
-## 8. Précision des parcours et jalons validée dans les échanges (2026-10-23)
-
-**Objectif B retenu :** diagnostics détaillés de chaque traitement, y compris attente et reprise après redémarrage, en préférant les timestamps/corrélations existants à de nouveaux champs durables. **Qualité du branchement des métriques** : démontrer en V3-5D/V3-7 que chaque instrument observe effectivement la bonne frontière et la bonne transaction (succès, rollback, retries et changements de Workers) ; ne pas confondre présence de série Prometheus et mesure valide.
-
-**Commande Pot :** distinguer séparément temps d'admission, attente source→slot Discovery, attente slot disponible→claim Engine, chargement/préparation, validation finale et commit. Après événement durable : mesurer chacune des branches indépendantes, avec **attente + exécution** pour `COMMAND_COMPLETION_EVENT→CommandResult`, `POT_EVENT→CurrentPot/SubobjectVersion`, `POT_EVENT→PreparePotProjectionTasks` (création atomique des deux tâches), puis **pour chaque tâche** attente Discovery, attente Engine, exécution et matérialisation de `PotBalance(P,V)` ou `PotVisibilityState(P,V)`. Les branches parallèles ne s'additionnent pas artificiellement.
-
-**Jalons E2E Command :** soumission→commande terminale ; soumission→CommandResult consultable ; soumission→CurrentPot à version au moins V et références nécessaires résolues ; soumission→balance exacte (P,V) ; soumission→visibilité matérialisée à V ou au-delà ; **soumission→ensemble des projections attendues de V effectivement disponibles**. Distinguer progression monotone des vues courantes et disponibilité exacte de versions historiques immuables : observer V+1 ne signifie pas que l'API sert encore la vue courante V.
-
-**Identity :** admission→IdentityRequest terminale ; admission→IdentityRequestResult consultable ; admission→CurrentBinding de l'EUI cible à `targetVersion` ou au-delà ; **admission→nouveau binding effectivement utilisable** pour une lecture authentifiée et autorisée sur une projection Pot disponible. Une projection Identity rattrapée ne garantit pas à elle seule une projection Pot prête. Les délais d'accès doivent distinguer attente Identity et éventuelle attente de contenu Pot.
-
-**Règle de mesure :** la fin métier des Consumptions correspond à un commit durable, tandis qu'une mesure côté client observe la première réponse qui prouve la disponibilité. Une sonde/poll fournit une borne d'observation, non une date de commit exacte. Les consommations ayant subi plusieurs tentatives doivent exposer temps d'attente et travail total avec retries, sans ajouter de mode REPLAY ni de nouveaux états durables.
-
-**Arbitrages restant en V3-5B/C :** définir la granularité effectivement mesurable pour chaque frontière avec l'instrumentation existante et la précision assumée ; qualifier explicitement les SLIs de disponibilité d'une version courante remplacée ; fixer les objectifs chiffrés en V3-5C.
-
-
-## 9. Arbitrage O-01 — niveau de précision retenu (2026-10-23)
-
-**Option B VALIDÉE.** Les SLIs de performance par étape doivent être fiables, comparables et mesurables sous les charges retenues ; les délais bout en bout observés par les clients/testeurs sont obligatoires. La reconstitution d'un traitement particulier après incident est un outil de diagnostic **dans la limite des observations conservées**, et non un audit temporel exact et durable de chaque transition.
-
-- Durées d'opérations mesurées par timers monotones dans les processus ; métriques agrégées et histogrammes adaptés.
-- Attentes mesurées à partir des observations/horodatages déjà disponibles ou de métriques instrumentées ; toute approximation, éventuel décalage d'horloge et limite de rétention sont documentés. Ne pas qualifier de « commit exact » une date enregistrée avant commit.
-- Mesure E2E externe indispensable pour admission→résultat, admission→chaque projection requise, Pot complètement consultable et nouveau binding effectivement utilisable. Les sondages donnent une borne d'observation.
-- **Aucun nouveau timestamp durable imposé aux slots V3 à ce stade**, ni journal des claims ajouté pour la mesure seule. Une extension future devra être motivée par une lacune avérée dans les objectifs V3-5C ou les preuves V3-5D.
-- **Qualité du branchement des métriques :** validation de la frontière instrumentée, du traitement des rollbacks/retries et des exports jusqu'à Prometheus prévue en V3-5D, vérification effective en V3-7.
-
-**V3-5B : CONTRAT CONCEPTUEL VALIDÉ, non implémenté ;** granularité des SLIs spécifiée, budgets chiffrés et hypothèses de charge à définir en V3-5C. Les questions O-02/O-03/O-04 sont transférées à V3-5C/D en tant que précisions de mesures et de preuves, sans rouvrir O-01.
+Valider chaque métrique sous succès, rollback, retries, changement de Worker et quarantaine ; l'existence d'une série Prometheus n'est pas une preuve de branchement correct. Labels de forte cardinalité et tokens interdits. Budget et profils dans SPEC-09, preuves dans SPEC-10. Aucun code, DDL ni essai V3 exécuté.
