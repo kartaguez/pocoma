@@ -90,3 +90,13 @@ Cette spécification consigne **les arbitrages conceptuels validés**, pas une i
 **BindingToken :** `(issuer,subject)` authentifié de la requête doit correspondre à l'EUI qui porte le bindingToken. READ contrôle CurrentBinding, WRITE contrôle l'autorité Identity pour les mutations. Jamais un droit fondé sur la connaissance du token seule, ni sur un pocomaUserId déclaré.
 
 Ces décisions ferment les arbitrages conceptuels reportés ci-dessus, sans prétendre spécifier ici les formats des preuves, les tests ni l'implémentation.
+
+## Amendement post-audit — Binding explicite de toute demande hors Registration (2026-10-24)
+
+**Décision :** toute `Command` et toute `IdentityRequest` **sauf `Registration`** porte obligatoirement un `bindingToken` désignant explicitement le Binding au nom duquel l'EUI authentifiée agit. L'identité externe seule n'autorise pas le domaine à sélectionner ou deviner le `PocomaUserId` opérant.
+
+À l'exécution WRITE, vérifier la correspondance `(EUI authentifiée, bindingToken, Binding actif, PocomaUserId)` avant toute décision métier. Une EUI authentifiée présentant le token d'une autre EUI est refusée. La vérification intrinsèque/présence du token à l'admission ne remplace pas cette validation de l'état WRITE par le Worker. Les retries et la comparaison des intentions idempotentes sont liés à ce rattachement explicite.
+
+**Cas Link :** `bindingToken` de E1 (initiateur) obligatoire ; E2 doit être authentifiée et consentir explicitement au Link particulier, mais n'a pas besoin de Binding initial. **Unlink :** Binding que l'EUI détache. **Invitation/auto-rattachement :** demande avec Binding actif du bénéficiaire lui-même. **Registration :** exception, car elle crée un nouveau Binding. Le mécanisme de récupération du token après Registration/Link doit être documenté sans permettre d'accéder au token d'une autre EUI.
+
+Aucune inférence implicite de `PocomaUserId` par le domaine à partir du seul `issuer/subject`. Toute formulation antérieure laissant entendre une résolution implicite est supplantée.
