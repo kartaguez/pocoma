@@ -330,3 +330,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-003, références Shareholder (2026-10-24)
 
 **Arbitrage :** une Expense référence le Shareholder stable, pas le PocomaUser lié : changement d'utilisateur rattaché ou de nom de Shareholder **sans obsolescence induite** de la Command Expense. Vérifier seulement l'existence du Shareholder à `observedVersion` et son activité au moment de l'exécution, outre les vraies dépendances financières et droits propres de l'auteur. Suppression du Shareholder toujours impossible s'il est référencé par une Expense active. Voir V3-1 §13. V3-6 suspendue pendant la revue d'audit.
+
+## Journal post-audit — AUD-V3-004 (2026-10-24)
+
+**Résolu conceptuellement sans refonte :** Discovery parcourt une fenêtre sûre contiguë d'événements committés `(K,H]` dans une lecture cohérente ; filtre la partition ; crée tous les slots et avance K **atomiquement dans la base des effets**, sous garde de checkpoint et d'ownership. La lecture de la source et la transaction cible peuvent être dans des bases différentes ; aucune transaction SQL unique inter-bases exigée. Preuves de commit retardé, rollback, course et crash planifiées (V3-4, V3-5D §51). V3-6 demeure suspendue pendant la revue contradictoire de l'audit.
