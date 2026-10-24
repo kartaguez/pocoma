@@ -104,3 +104,19 @@ READ reconstruit **dans la même base**, avec indisponibilité temporaire possib
 - La propriété atomique de l'ensemble de visibilité et l'initialisation concurrente du `PotVisibilityState` ; les voies d'écriture ne doivent jamais contourner sa protection.
 - Les contraintes d'authentification du porteur du `bindingToken` et la preuve de contrôle/consentement de l'EUI cible lors du Link.
 - Les scénarios de crash/reconstruction, l'intégrité checkpoint + slot + effets, la non-famine et les coûts SQL ; preuves exigées en V3-5.
+
+## Amendement post-audit AUD-V3-004 — fenêtre sûre de Discovery (2026-10-24)
+
+**Décision validée : conserver le modèle actuel et préciser l'algorithme, sans nouvel état durable ni nouvelle Consumption.** Les quatre séquences de publication sont transactionnelles et denses par famille : l'allocation de positions sous verrou tenu jusqu'au commit/rollback interdit qu'une position supérieure committe tandis qu'une position inférieure peut encore committer ultérieurement.
+
+Pour chaque `(consumptionId, partitionId)`, Discovery :
+1. lit le checkpoint de découverte `K` et détermine, dans la source d'événements committés, une **fenêtre globale contiguë et bornée** `(K,H]`, selon une photographie de lecture PostgreSQL cohérente ; le `H` retenu est effectivement couvert par cette lecture, pas un `MAX` arbitraire sur une autre photographie ;
+2. retient dans cette fenêtre les événements relevant de la partition, tout en considérant les autres positions comme examinées ;
+3. dans **une transaction de la base des effets**, valide l'ownership/fencing et le checkpoint attendu, enrôle idempotemment **tous** les slots requis pour cette partition et cette fenêtre puis avance `K` à `H` **dans le même commit** ;
+4. en cas de conflit de checkpoint/ownership ou d'échec, ne valide aucun avancement partiel et recalcule au prochain essai.
+
+**Point inter-bases :** la lecture préalable de la source WRITE peut se faire hors de la transaction d'enrôlement READ. L'exigence n'est **pas** « une seule requête SQL atomique couvrant WRITE et READ », mais : ne parcourir que des événements définitivement committés et immuables ; sélectionner une fenêtre cohérente ; traiter le checkpoint comme CAS/fencing avec création des slots atomique dans la base des effets. Les événements ne sont pas purgés dans le socle V3. Les règles de bornage et de progression par partition restent applicables.
+
+**Preuves nécessaires :** deux publications dont la première garde le verrou avant commit et la seconde attend ; rollback de la première puis réallocation sans trou ; fenêtre incluant des événements d'autres partitions ; conflit entre Discoveries sur K/ownership ; crash après lecture source mais avant commit des slots ; READ/WRITE séparés ; checkpoint jamais avancé si un slot de la fenêtre manque. Aucun test V3 exécuté.
+
+**Statut AUD-V3-004 : arbitrage conceptuel résolu ; preuve physique à réaliser en V3-6/7.**
