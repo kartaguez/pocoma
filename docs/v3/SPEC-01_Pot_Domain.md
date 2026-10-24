@@ -42,7 +42,7 @@ Création : tous les sous-objets d'un nouvel objet naissent atomiquement en vers
 
 `Pot@D` est reconstruit et matérialisé comme état terminal, mais n'est **pas consultable fonctionnellement** via l'API de Pot complet, même en lecture historique explicite : réponse `404`. Toutes les versions antérieures V<D restent consultables, sous réserve des droits du créateur ou des rattachements Shareholder **à V**, de l'EUI authentifiée et du `CurrentBinding` actif à la consultation (SEC-01). Les droits sur D et la visibilité actuelle ne sont pas une condition supplémentaire de l'accès historique à V. Aucune version ou composante ancienne n'est purgée par `DeletePot`.
 
-L'état `deleted` de D est nécessaire à la matérialisation et au contrôle READ ; son existence interne ne confère aucune permission de consulter D. Les effets Balance et Visibility sont précisés par V3-3 §16, les oracles par V3-5C §8 et V3-5D §61. Cet amendement prévaut sur toute règle antérieure supposant une révocation historique par suppression.
+L'état `deleted` de D est nécessaire à la matérialisation et au contrôle READ ; son existence interne ne confère aucune permission de consulter D. Les effets Balance et Visibility sont précisés par SPEC-04 — §10, les oracles par SPEC-09 — §5 et SPEC-10 — A11-A à A11-N. Cet amendement prévaut sur toute règle antérieure supposant une révocation historique par suppression.
 
 
 Le contrôle d'existence active d'un Header parent est distinct du contrôle de non-obsolescence d'une composante cible.
