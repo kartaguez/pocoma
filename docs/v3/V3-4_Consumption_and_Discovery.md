@@ -138,3 +138,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **Discovery burnable maintenue :** recherche asynchrone, bornée et idempotente des demandes `PENDING` sans slot, puis création des slots selon le protocole normal ; aucune fenêtre de perte entre admission et découverte puisque la source durable reste PENDING. La transaction d'admission ne coordonne pas le cycle de vie de l'exécution. Pour les familles de projection supprimées par AUD-V3-005, il n'existe plus de Discovery burnable de tâches READ : seules COMMAND et IDENTITY_REQUEST demeurent.
 
 **Compromis assumé :** une étape et une latence de prise en charge supplémentaires contre un chemin d'admission minimal, découplé des aléas de Discovery et des contraintes des slots. Mesurer le délai admission→claim et le coût de sélection PENDING avant toute réouverture de cette décision.
+
+## Amendement post-audit AUD-V3-007 — softCap et quarantaine (2026-10-24)
+
+**Arbitrage : défaut de progression confirmé et correction retenue.** Le plafond souple d'enrôlement par `(consumptionId,partitionId)` compte seulement les slots occupant une capacité de travail **hors quarantaine**, notamment prêts, réclamés et différés en retry. Les slots `QUARANTINED`, même conservés physiquement pour diagnostic, **sont exclus** du `COUNT` de `softCap` ; ne jamais utiliser `COUNT(*)` de tous les slots pour décider l'arrêt d'enrôlement.
+
+Une quarantaine peut bloquer les travaux **causalement dépendants du même Pot/EUI**, mais ne bloque pas la découverte ou l'exécution des autres agrégats de la partition. Le filtrage du softCap ne lève pas les protections de causalité ni les contraintes du checkpoint. Ce plafond est un mécanisme de régulation et non un oracle de correction.
+
+**Preuves :** remplir le softCap avec des slots quarantainés, vérifier que le checkpoint/discovery continue d'enrôler les agrégats indépendants ; mélanger READY/CLAIMED/retry différé/QUARANTINED ; vérifier que les dépendants du même agrégat ne contournent pas leur prédécesseur ; contrôler coûts et index du comptage. Aucun nouveau compteur durable ni nouveau type de slot.
