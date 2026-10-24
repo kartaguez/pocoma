@@ -39,8 +39,8 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | [SPEC-01](SPEC-01_Pot_Domain.md) | Domaine Pot, versions, suppressions, droits métier et invitations | Conceptuellement arbitré |
 | [SPEC-02](SPEC-02_Identity_Domain.md) | Identity, Binding, Registration/Link/Unlink et consentement | Conceptuellement arbitré |
-| [SPEC-03](SPEC-03_Events_Requests_Consumables.md) | Demandes, six familles, événements, provenance et séquences | Conceptuellement arbitré |
-| [SPEC-04](SPEC-04_Read_Projections.md) | Huit projections logiques, versions historiques, balances, résultats READ | Conceptuellement arbitré |
+| [SPEC-03](SPEC-03_Events_Requests_Consumables.md) | Demandes, sept familles, événements, provenance et séquences | Conceptuellement arbitré |
+| [SPEC-04](SPEC-04_Read_Projections.md) | Neuf projections logiques, versions historiques, balances, résultats READ | Conceptuellement arbitré |
 | [SPEC-05](SPEC-05_Consumption_Discovery.md) | Discovery, Engine, slots, transactions, trois Consumptions directes, quarantaine | Conceptuellement arbitré |
 | [SPEC-06](SPEC-06_Supra_Contracts.md) | Admission, interfaces READ, autorisation, HTTP et protection | Conceptuellement arbitré |
 | [SPEC-07](SPEC-07_Transverse_Requirements.md) | Catalogue transversal des exigences actives | Conceptuellement arbitré |
@@ -63,7 +63,7 @@ Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants 
 
 - **Domaine :** créateur immuable, droits Shareholder indépendants, suppressions Pot/Shareholder réservées au créateur, suppression Shareholder refusée si Expenses actives la référencent. Expense référence ShareholderId, sans dépendre du lien identitaire.
 - **Identity :** EUI 0..1 PocomaUser, User 0..N EUI ; Binding relationnel, token explicite pour les demandes hors Registration. La lecture de son propre CurrentBinding ne requiert aucun token entrant. Link headless fondé sur une preuve externe d'autorisation/consentement transactionnel, produit fournisseur non imposé ; aucun index inverse Identity requis.
-- **Requests/Events :** six familles, demandes burnables uniquement Command et IdentityRequest ; requesterEui immuable à l'admission, événements de complétion minimaux. Résultats READ réservés à l'EUI initiatrice, HTTP 200/404/401/503 selon SPEC-06 ; aucune expiration fonctionnelle en V3.
+- **Requests/Events :** sept familles, demandes burnables uniquement Command et IdentityRequest ; requesterEui immuable à l'admission, événements de complétion minimaux. Résultats READ réservés à l'EUI initiatrice, HTTP 200/404/401/503 selon SPEC-06 ; aucune expiration fonctionnelle en V3.
 - **READ :** PotVersion immuable complet en références à chaque version, CurrentPot pointeur, soldes complets par version active. Trois Consumptions indépendantes de POT_EVENT, sans tâches intermédiaires. Navigation non autorisante. Droits historiques à V avec Binding actif. DeletePot produit la version terminale D mais pas Balance(D) ; courant et D non consultables, V<D consultables selon les droits.
 - **Consumption :** fenêtre Discovery committée et bornée, atomie checkpoint/slots, validation par claim, aucun graphe de dépendances. Échecs techniques constatés comptés jusqu'au seuil N, slot QUARANTINED persistant et exclu du softCap, réactivation administrative explicite avec compteur remis à zéro ; jamais de purge avant succès.
 - **Certification :** S-02 = manifeste complet d'Expenses exclusivement ; SEC-01 = autorisation historique. PRJ-04 est retiré sans réutilisation. C-01 consentement Link, C-02 maintenance READ exclusive, C-03 lecture complète autorisée W≥V pour Pot actif ou oracle interne PotVersion(D) pour DeletePot. Les scénarios A10-A..K et A11-A..N restent à exécuter.
@@ -76,9 +76,9 @@ AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD
 
 La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
 
-## Arbitrage Invitation CQRS — 2026-10-24
+## 8. Arbitrage Invitation CQRS — 2026-10-24
 
 `CreateInvitation` produit en cas de succès une mutation WRITE d'invitation et `INVITATION_EVENT` indépendamment de `COMMAND_COMPLETED_EVENT`. `MaterializeInvitation` matérialise `CurrentInvitation` en READ ; seul le créateur authentifié retrouve le lien via `creationRequestId`. `CommandResult` ne transporte pas le lien. L'invité peut consulter depuis READ uniquement les Shareholders libres, avant de demander l'auto-rattachement en WRITE, dont la réussite produit un `POT_EVENT`. L'ensemble reste éventuellement cohérent sans synchronisation READ→WRITE.
 
-Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques et une Consumption supplémentaire. Les dénombrements antérieurs du canon sont historiques et supplantés. Contrat explicité dans SPEC-01/03/04/05/06 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
+Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques et une Consumption supplémentaire. Les inventaires normatifs de ce canon et des SPEC reflètent les nouveaux dénombrements. Contrat explicité dans SPEC-01/03/04/05/06 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
 
