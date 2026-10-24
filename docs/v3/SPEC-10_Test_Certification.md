@@ -832,7 +832,7 @@ JUnit sur PostgreSQL réel, incluant interventions précises sur l'ordre des mat
 
 **PASS READ-01** : R01-A à R01-N satisfaits ; aucun Pot partiel, aucune version mélangée, interprétation correcte de `minVersion`, indépendance des projections et des Pots ; pas de lecture WRITE synchrone. L'authentification et l'autorisation sont qualifiées avec SEC-01/02. Aucun test V3 exécuté.
 
-**SUPRA-READ-01, contrat candidat de V3-5E §11** : le front découpe le manifeste `PotVersion(P,V)` en groupes ; le Supra READ impose une limite de références par lot, vérifie EUI/binding actif, autorisation à V et appartenance au manifeste, résout les `SubobjectVersion` nécessaires et répond **tout ou erreur**, sans troncature ni recours à WRITE. Aucun deuxième système de pagination serveur imposé.
+**SUPRA-READ-01, contrat candidat de SPEC-06 — §5** : le front découpe le manifeste `PotVersion(P,V)` en groupes ; le Supra READ impose une limite de références par lot, vérifie EUI/binding actif, autorisation à V et appartenance au manifeste, résout les `SubobjectVersion` nécessaires et répond **tout ou erreur**, sans troncature ni recours à WRITE. Aucun deuxième système de pagination serveur imposé.
 
 **Tests bloquants avant qualification** : limites 0/1/N et plafond−1/plafond/plafond+1, doublons, références étrangères à V/Pot, versions de sous-objets substituées, Unlink et Shareholder lié à V, CurrentPot V+1 pendant lecture V, dépendance absente, grosse Expense conduisant au plafond de réponse, ordre et complétude du lot, latence et nombre de requêtes SQL pour 50 Expenses/2 000 références.
 
@@ -1113,7 +1113,7 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 
 ### ADM-01 — Contrôle d'entrée
 
-Contrat candidat : [V3-5E §12](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
+Contrat candidat : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. **Nouvelle exigence proposée**, en complément des 24 exigences déjà recensées — ne pas prétendre que la matrice initiale est désormais 25/25 tant que le périmètre et les scénarios ne sont pas validés.
 
 **Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
 
@@ -1121,17 +1121,17 @@ Contrat candidat : [V3-5E §12](SPEC-06_Supra_Contracts.md). Rejet autonome à l
 
 ### S-01 — Pagination CurrentUserPotList
 
-**Décision adoptée V3-5E §18 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
+**Décision adoptée SPEC-06 — §6 :** keyset `potId` croissant sur `CurrentUserPotList` visible pour l'utilisateur résolu depuis `CurrentBinding`, curseur opaque et **pas de snapshot** entre pages. Protocole à construire : pages stables sans doublon ; insertion visible avant curseur omise, après curseur éventuellement intégrée ; retrait de visibilité ; curseur altéré ; plafond serveur ; changement de binding ; isolation des utilisateurs et plans PostgreSQL sous grand nombre d'entrées. Aucun test V3 exécuté.
 
 ### S-02 — Manifeste complet
 
-**Contrat décidé V3-5E §19 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
+**Contrat décidé SPEC-06 — §5 :** réponse principale authentifiée/autorisé à V contenant en-tête, tous Shareholders, soldes exacts et **toutes les références ordonnées d'Expenses**, sans détail des Expenses ni pagination supplémentaire des références. Les chargements groupés des détails restent bornés par le serveur.
 
 **Preuves :** complétude du manifeste pour 0/200/2 000 Expenses et au-delà selon jeux pertinents ; aucune fuite des `pocomaUserId` internes ; aucun mélange V/V+1 ; liste de références et soldes cohérents à V ; taille JSON/latence/CPU/mémoire pour grand Pot ; réponse complète ou erreur explicite, sans troncature ; absence d'interprétation du plafond 1 Mio des lots de détails comme seuil du manifeste principal. Aucun test V3 exécuté.
 
 ### S-03 — Idempotence des admissions
 
-**Contrat validé V3-5E §20 :** clé client liée à identité/portée et intention canonique ; première admission durable atomique avec l'association ; réitération identique retrouve la même demande ; intention différente sous même clé donne 409, sans nouvelle admission. La clé ne constitue pas une autorisation, et ne remplace pas la preuve de consentement Link.
+**Contrat validé SPEC-06 — §2 :** clé client liée à identité/portée et intention canonique ; première admission durable atomique avec l'association ; réitération identique retrouve la même demande ; intention différente sous même clé donne 409, sans nouvelle admission. La clé ne constitue pas une autorisation, et ne remplace pas la preuve de consentement Link.
 
 **Preuves JUnit/PostgreSQL et Bruno :** course de deux admissions, contrainte unique et atomicité ; rollback, commit à issue inconnue puis retry, avant/après résultat terminal ; comparaison des intentions et JSON équivalents ; changement de limites entre admission et retry ; portées d'identité distinctes ; Link preuve d'octroi et cible non substituable. Exiger zéro doublon Command/IdentityRequest, aucun événement de mutation supplémentaire du seul fait du retry et aucune divulgation de l'intention d'autrui. Durée de rétention et codes nominaux à fixer avant exécution ; aucun test V3 lancé.
 
