@@ -92,3 +92,11 @@ Les contrats précis des résultats terminalisés (payload par opération), les 
 ## Amendement V3-4 — sources internes READ (2026-10-23)
 
 Le catalogue initial des **six familles** concerne les demandes métier et les événements. Deux familles techniques supplémentaires, **internes à READ et burnables**, sont retenues : `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK`, chacune à statut `PENDING → TERMINAL` et avec une seule Consumption destinataire. Aucune nouvelle séquence globale d'événements n'est introduite. Pour chaque `POT_EVENT`, la Consumption de préparation produit atomiquement les deux tâches avec la suppression de son slot, dans READ. Chaque tâche est identifiée de façon stable par `(preparationConsumptionId,potEventId,taskType)` ; un rejeu indépendant crée une nouvelle Consumption de préparation et donc de nouvelles tâches, alors qu'une reconstruction de READ à blanc peut réutiliser les mêmes IDs après reset cohérent. Matérialisation, terminalisation et suppression du slot d'une tâche s'effectuent en une transaction READ. Ces contrats devront être prouvés en V3-5.
+
+## Amendement post-audit AUD-V3-005 — suppression des tâches de projection (2026-10-24)
+
+**DÉCISION :** les familles techniques `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK` sont **supprimées de la cible V3**. Le catalogue revient à **six familles** de sources métier et événements ; aucune tâche durable de préparation, événement supplémentaire ni séquence globale nouvelle.
+
+Chaque `POT_EVENT(P,V)` est une source non-burnable consultée **indépendamment** par trois Consumptions : `MaterializePotVersion` (composition/subobjects/current pointer), `MaterializePotBalance` (balance immuable V) et `MaterializePotVisibility` (liste mutable). Chacune possède ses slots et checkpoints et calcule ses données depuis WRITE@V au moment de son exécution. Un même Worker physique peut héberger leurs Discovery + Engine. Aucun orchestrateur ni Discovery central ajouté.
+
+Cette décision **supplante** les paragraphes antérieurs proposant deux familles READ burnables et `PreparePotProjectionTasks`. Les exigences de reprise, fencing et atomicité propres à chaque Consumption restent inchangées.
