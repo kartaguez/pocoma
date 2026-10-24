@@ -1535,3 +1535,7 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 ## 56. AUD-V3-007-Q — budget des échecs et reprise (2026-10-24)
 
 Scénarios PostgreSQL exigés : (1) expiration de claim sans erreur enregistrée, puis réacquisition : `attemptCount` inchangé ; (2) un échec explicitement persisté incrémente une seule fois ; (3) `N-1` échecs puis succès ; (4) Nᵉ échec -> `QUARANTINED` ; (5) tentative tardive avec ancien `claimToken` après réacquisition : aucune incrémentation ni transition ; (6) réactivation administrative atomique de `QUARANTINED` -> éligible avec `attemptCount=0` et même identité ; (7) crash avant persistance de l'échec : aucun budget consommé. N reste configurable, sans chiffre arbitraire imposé. Aucun test V3 exécuté.
+
+## 57. AUD-V3-007-Q — indépendance après quarantaine (2026-10-24)
+
+Tests à construire : mettre Pot P version V en quarantaine, prouver la progression de P version V+1 dans la même Consumption et celle des autres Consumptions ; garder le point de lecture à V indisponible si une projection requise à V manque ; visibilité V+1 complète matérialisée depuis WRITE@V+1 malgré V en quarantaine, puis reprise tardive de V sans régression ; CurrentBinding hors ordre ; autre Pot dans la même partition non bloqué. Tester absence de toute attente sur statut du prédécesseur. Aucun test exécuté.
