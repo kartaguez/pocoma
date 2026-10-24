@@ -74,7 +74,7 @@ AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD
 
 ## 7. Réserves et clôture
 
-La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
+La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective, la protection du secret récupérable des invitations et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
 
 ## 8. Arbitrage Invitation CQRS — 2026-10-24
 
