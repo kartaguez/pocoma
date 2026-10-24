@@ -316,3 +316,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — parcours d'invitation (2026-10-24)
 
 **AUD-V3-002, parcours validé :** invité avec token opaque temporaire → authentification → Registration Identity si pas de Binding actif → choix d'un Shareholder libre → auto-rattachement versionné en Pot WRITE. Deux opérations/domaines séparés, aucun commit Registration + Pot partagé. Invitation et condition de liberté/restriction par User sont revérifiées à l'exécution. Les modalités de révocation et de sélection des Shareholders libres restent à cadrer ; V3-6 demeure suspendue pendant l'audit contradictoire.
+
+## Journal post-audit — demande liée à un Binding explicite (2026-10-24)
+
+**Décision transverse :** toutes Commands et IdentityRequests, sauf Registration, contiennent un `bindingToken` explicite. L'EUI authentifiée ne suffit pas pour que le domaine devine le PocomaUser au nom duquel elle agit. Le Worker vérifie dans WRITE EUI + token + Binding actif, puis évalue les droits. Link porte le token de E1 ; E2 fournit indépendamment authentification et consentement. L'invité choisit parmi les Shareholders libres via une lecture minimale protégée par invitation et authentification. V3-6 reste suspendue pendant la résolution des constats de l'audit indépendant.
