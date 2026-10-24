@@ -151,3 +151,13 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 **Choix des Shareholders libres avant rattachement :** un utilisateur authentifié disposant d'une invitation encore valide peut obtenir une vue minimale de choix comprenant **identifiants et noms des Shareholders libres uniquement**, sans accès au Pot complet, Expenses ni balances. La possession du lien seule, sans authentification, est insuffisante. La liberté et les droits sont revérifiés à l'exécution de la Command d'auto-rattachement ; la liste affichée ne réserve aucune place.
 
 La politique de révocation anticipée du lien reste à préciser. La vue limitée d'invitation ne transforme pas le porteur du lien en utilisateur autorisé à consulter le Pot complet.
+
+## 13. AUD-V3-003 — indépendance financière du rattachement identitaire (2026-10-24)
+
+**Décision validée :** une Expense référence des `shareholderId` métier stables, non les `PocomaUserId` qui leur sont rattachés. Le changement de `ShareholderDetails.userId` (ou du nom affiché) **ne rend pas à lui seul OBSOLETE** une Command d'Expense qui référence ce Shareholder. Les données financières continuent de porter sur la même entité Shareholder.
+
+**Contrôles de référence indépendants de l'obsolescence locale de l'Expense :** lors de l'exécution WRITE, toute création/modification de Financials référençant un Shareholder exige que son Header existe déjà à `observedVersion` (`activeFrom <= observedVersion`) et que le Shareholder soit encore actif à l'exécution. Le seul changement de `ShareholderDetails` entre ces versions n'est pas une raison de rejet. Les droits de l'auteur sont validés séparément à la version courante avec l'EUI authentifiée et le bindingToken explicite.
+
+**Suppression :** `DeleteShareholder` reste réservée au créateur et refusée s'il apparaît dans toute Expense active. Ce refus d'invariant n'exige pas de requalifier comme obsolètes les commandes portant sur son rattachement.
+
+**Statut : arbitrage AUD-V3-003 sur les références identitaires validé ; compléter les preuves d'existence historique, d'activité courante et de courses avec création/suppression.**
