@@ -143,3 +143,11 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 **Revalidation à l'exécution WRITE du rattachement :** invitation toujours valable, Pot actif, Shareholder toujours libre, User pas déjà lié à un autre Shareholder actif de ce Pot. Le passage préalable par Registration ne réserve ni Shareholder ni validité du lien ; si l'invitation expire entre l'ouverture de la page et l'exécution, la mutation est rejetée sans effet. Un retry de la même demande déjà admise conserve sa sémantique idempotente, mais ne garantit pas la réussite métier.
 
 **À préciser ultérieurement :** révocation anticipée de l'invitation par le créateur, représentation de l'invitation comme objet WRITE et mécanisme de lecture contrôlée permettant à un invité encore non membre de voir uniquement les Shareholders libres (sans exposer les détails du Pot). Aucune consultation du Pot complet n'est autorisée avant rattachement. AUD-V3-002 : parcours Registration résolu ; contrat minimal de découverte des Shareholders libres encore à cadrer.
+
+## 12. Amendement — BindingToken explicite des Commands et sélection d'invitation (2026-10-24)
+
+**Règle transversale Identity confirmée :** toute Command Pot, dont la demande d'auto-rattachement par invitation, porte un `bindingToken` explicite (en plus de l'identité EUI authentifiée). WRITE valide leur concordance avec un Binding actif et en déduit **uniquement alors** le `PocomaUserId` agissant ; ne jamais deviner celui-ci à partir de l'EUI seule. La même règle vaut pour les IdentityRequests sauf Registration ; cf. cadrage Identity.
+
+**Choix des Shareholders libres avant rattachement :** un utilisateur authentifié disposant d'une invitation encore valide peut obtenir une vue minimale de choix comprenant **identifiants et noms des Shareholders libres uniquement**, sans accès au Pot complet, Expenses ni balances. La possession du lien seule, sans authentification, est insuffisante. La liberté et les droits sont revérifiés à l'exécution de la Command d'auto-rattachement ; la liste affichée ne réserve aucune place.
+
+La politique de révocation anticipée du lien reste à préciser. La vue limitée d'invitation ne transforme pas le porteur du lien en utilisateur autorisé à consulter le Pot complet.
