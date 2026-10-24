@@ -360,3 +360,7 @@ Le jalon **V3-CADRE** est atteint uniquement quand :
 ## Journal post-audit — AUD-V3-007-Q, reprise explicite (2026-10-24)
 
 **Arbitrage validé :** sortie de `QUARANTINED` uniquement par opération administrative **explicite** et atomique sur le slot visé, jamais automatiquement à cause d'un redémarrage, redéploiement ou délai. La réactivation ne réalise aucun effet métier et ne terminalise pas la source ; exécution ultérieure via acquisition ordinaire et rechargement intégral. Budget du cycle réactivé, politique de purge et causalité restent à préciser avant certification. Voir V3-4 et V3-5D §55.
+
+## Journal post-audit — AUD-V3-007-Q, compteur et expiration (2026-10-24)
+
+**Arbitrage validé :** `attemptCount` compte uniquement les échecs techniques durablement constatés, jusqu'au seuil configurable N ; l'expiration du claim ne compte pas comme échec. Une réactivation administrative explicite de `QUARANTINED` remet atomiquement le compteur à zéro, sans changer l'identité du slot. Garde par `claimToken` pour empêcher doubles comptages ou retards de cession. Valeur N, résolution causalité et purge restent ouvertes. Voir V3-4 et V3-5D §56.
