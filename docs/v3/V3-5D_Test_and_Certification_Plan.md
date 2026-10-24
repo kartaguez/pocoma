@@ -1571,3 +1571,26 @@ Tests à construire : mettre Pot P version V en quarantaine, prouver la progress
 | A10-K | Relecture ultérieure d'un résultat sans expiration fonctionnelle | Même résultat immuable, aucun statut `EXPIRED`, aucun effacement automatique dans le modèle V3 actuel |
 
 **Preuves attendues :** états WRITE de demande/résultat et READ de résultat, traces de Consumption, assertions HTTP sur deux EUI, contrôles d'absence de requête WRITE de la Supra READ, ordre forcé entre complétion et projection, et scénarios négatifs anti-énumération. Les questions opérationnelles de conservation/idempotence restent distinctes. **PASS uniquement après exécution réelle**, non revendiqué ici.
+
+## 61. AUD-V3-011 — certification DeletePot, C-03 et anti-oracle 404/503 (2026-10-24)
+
+**Protocole conceptuel ; scénarios définis, non exécutés.** Construire un Pot P avec créateur C, Shareholders associés à A/B, état actif à V8 et suppression par C à D=V9. Vérifier séparément WRITE, chacune des trois Consumptions READ et les réponses HTTP. Ne pas ajouter de projection ni d'endpoint de test.
+
+| Cas | Stimulus | Oracle |
+|---|---|---|
+| A11-A | `DeletePot` appliqué après V8 | Seul PotHeader devient `deleted=true` à D ; commande terminale, aucune mutation métier post-D ; historique V1..V8 inchangé. |
+| A11-B | `MaterializePotVersion(P,D)` | `PotVersion(P,D)` durable, `CurrentPot(P) >= D` monotone ; version D non consultable via API métier. |
+| A11-C | `MaterializePotBalance(P,D)` | Consumption et slot terminent normalement **sans** `PotBalance(P,D)` ; absence intentionnelle non assimilée à erreur/retard. |
+| A11-D | Exécuter l'événement Balance V8 **après** D | `PotBalance(P,V8)` exacte et durable ; aucun skip des anciennes versions du fait de l'état supprimé courant. |
+| A11-E | `MaterializePotVisibility(P,D)` lente ou hors ordre | Le Pot devient invisible pour tous après progression de la visibilité ; aucune dépendance artificielle de CurrentPot/Balance à Visibility. |
+| A11-F | Créateur ou Shareholder autorisé à V7/V8 après suppression D | Lecture historique V<D `200` et références Expense autorisées à V ; pas d'exigence de droits sur D ni de présence dans la liste. |
+| A11-G | Lecture courante de P et lecture historique exacte D après matérialisation | `404` uniforme, même pour le créateur ; aucun `503` pour Balance(D) manquante volontairement. |
+| A11-H | Tiers non autorisé, Pot inexistant, Pot supprimé, `minVersion=999999` | Absence et refus indiscernables (`404`), sans `503` précoce, ni information de version par recherche dichotomique. |
+| A11-I | Version active autorisée mais `minVersion` au-delà de CurrentPot ou dépendances Balance/Subobject manquantes | `503` seulement **après** autorisation READ prouvée ; pas de réponse partielle ni de lecture WRITE synchronique. |
+| A11-J | Pot créé dans WRITE mais encore absent de READ | `404` jusqu'à preuve READ des droits, puis lecture normale / `503` de fraîcheur si autorisé et non complet ; aucun indice d'existence WRITE. |
+| A11-K | Droits Shareholder perdus après V8 ; Binding actif ou Unlink propagé | Droit historique à V8 conservé si Binding actif ; refus après révocation de Binding matérialisée ; fenêtre asynchrone conforme SEC-01/02. |
+| A11-L | Command `DeletePot` avec `resultingPotVersion=D` | Latence depuis admission jusqu'à observation interne READ `CurrentPot -> PotVersion(P,D).deleted=true`, mêmes budgets C-03 ; `404` HTTP seul n'est pas un succès de propagation. |
+| A11-M | Charges nominale/soutenue/pointe et Grand Pot, suppression | Budgets C-03 du jalon alternatif ; Balance(D) non attendue, balances actives antérieures et progression Visibility vérifiées distinctement. |
+| A11-N | Lecture des sous-objets et Expense batch à V antérieure depuis références légitimes ou falsifiées | Autorisation à V, appartenance au manifeste, refus 404 uniforme pour références étrangères ou hors V ; aucun accès via simple connaissance d'ID. |
+
+**Critère de certification :** démontrer exactement la suppression terminale, l'accessibilité historique autorisée, l'absence légitime de Balance(D), l'indépendance/hors ordre des Consumptions et l'ordre anti-énumération 401/404/503. Les tests PRJ-01, PRJ-02, READ-01, SEC-01, SEC-02, PERF-01 et SUPRA-READ-01 sont amendés en conséquence. Les anciens critères exigeant Balance à **chaque** version ou lecture HTTP `200` après `DeletePot` sont supplantés. Aucun test V3 lancé.
