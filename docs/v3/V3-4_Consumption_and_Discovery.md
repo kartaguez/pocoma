@@ -164,3 +164,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **Contrat minimal :** l'action cible sans ambiguïté le slot, vérifie durablement son état `QUARANTINED`, et change atomiquement son état pour le rendre à nouveau éligible, sous protection concurrente appropriée (CAS/transaction). Elle ne prétend pas que le traitement a réussi, n'altère ni la source ni les événements, n'ajoute pas d'effet READ/WRITE et n'exécute pas la projection elle-même. La prochaine acquisition ordinaire relit la source et reconstruit le contexte, comme tout retry. Le budget de tentatives du nouveau cycle et les éventuels détails de traçabilité seront définis au cadrage final ; aucune relance automatique en masse.
 
 **Maintien des invariants :** le slot reste présent en quarantaine et exclu du softCap, il ne peut être découvert à nouveau comme un nouveau travail ; une fois réactivé, il redevient soumis au softCap et au protocole normal. Toute purge devra être justifiée séparément par une preuve de complétion ou un protocole sûr, sans assimiler quarantaine et terminalité.
+
+## Complément AUD-V3-007-Q — budget et expirations de claim (2026-10-24)
+
+**Deux règles validées :** chaque slot porte un compteur `attemptCount` des **échecs techniques explicitement constatés et durablement enregistrés** ; le seuil `N` de tentatives est configurable. Lors d'une reprise administrative explicite d'un slot `QUARANTINED`, la même transaction de transition réinitialise `attemptCount = 0`, sans changer l'identité du slot ni recréer le travail.
+
+**Expiration de claim :** une expiration de bail, même suivie d'une réacquisition, n'est **pas** à elle seule un échec enregistré et ne modifie pas `attemptCount`. Une tentative sans issue durable connue ne peut consommer le budget par simple supposition. L'enregistrement de l'échec technique, son comptage et la transition conditionnelle vers `retryAfter` ou `QUARANTINED` doivent être protégés contre les écritures tardives d'un ancien `claimToken` et les doubles comptages. Le succès supprime le slot selon le protocole existant.
+
+**Restent à spécifier :** valeur/configuration de N, contrat d'erreurs et de cession durable en cas d'échec, cohérence exacte entre compteur et claim lors de races, comportement des dépendances causales et règles de purge. Aucun changement implémenté.
