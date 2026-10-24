@@ -41,7 +41,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 | [SPEC-02](SPEC-02_Identity_Domain.md) | Identity, Binding, Registration/Link/Unlink et consentement | Conceptuellement arbitré |
 | [SPEC-03](SPEC-03_Events_Requests_Consumables.md) | Demandes, sept familles, événements, provenance et séquences | Conceptuellement arbitré |
 | [SPEC-04](SPEC-04_Read_Projections.md) | Neuf projections logiques, versions historiques, balances, résultats READ | Conceptuellement arbitré |
-| [SPEC-05](SPEC-05_Consumption_Discovery.md) | Discovery, Engine, slots, transactions, trois Consumptions directes, quarantaine | Conceptuellement arbitré |
+| [SPEC-05](SPEC-05_Consumption_Discovery.md) | Discovery, Engine, slots, transactions, trois Consumptions directes de POT_EVENT et MaterializeInvitation, quarantaine | Conceptuellement arbitré |
 | [SPEC-06](SPEC-06_Supra_Contracts.md) | Admission, interfaces READ, autorisation, HTTP et protection | Conceptuellement arbitré |
 | [SPEC-07](SPEC-07_Transverse_Requirements.md) | Catalogue transversal des exigences actives | Conceptuellement arbitré |
 | [SPEC-08](SPEC-08_Observability.md) | Contrat de mesure O-01 et instrumentation | Conceptuellement arbitré |
@@ -80,5 +80,5 @@ La valeur opérationnelle N, les budgets physiques de protection, les plans SQL,
 
 `CreateInvitation` produit en cas de succès une mutation WRITE d'invitation et `INVITATION_EVENT` indépendamment de `COMMAND_COMPLETION_EVENT`. `MaterializeInvitation` matérialise `CurrentInvitation` en READ ; seul le créateur authentifié retrouve le lien via `creationRequestId`. `CommandResult` ne transporte pas le lien. L'invité peut consulter depuis READ uniquement les Shareholders libres, avant de demander l'auto-rattachement en WRITE, dont la réussite produit un `POT_EVENT`. L'ensemble reste éventuellement cohérent sans synchronisation READ→WRITE.
 
-Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques et une Consumption supplémentaire. Les inventaires normatifs de ce canon et des SPEC reflètent les nouveaux dénombrements. Contrat explicité dans SPEC-01/03/04/05/06 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
+Cet amendement porte les inventaires à sept familles de consommables (cinq événementielles), cinq séquences événementielles, neuf projections logiques, neuf Consumptions de référence (deux WRITE et sept READ) et 28 exigences actives (incluant `INV-01`). Les inventaires normatifs de ce canon et des SPEC (notamment `SPEC-07` et `SPEC-10`) reflètent intégralement les nouveaux dénombrements après la passe de cohérence finale (`CAUD-V3-001`). Contrat explicité dans SPEC-01/03/04/05/06/07 et oracles INV-01 de SPEC-10 ; aucun code ni certification réalisés. V3-6 reste suspendue jusqu'à décision explicite.
 

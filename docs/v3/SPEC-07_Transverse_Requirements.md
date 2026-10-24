@@ -8,7 +8,7 @@ Ce document définit les exigences transversales sans dupliquer leurs règles no
 
 ## 2. Catalogue d'exigences actives
 
-Les 23 identifiants initiaux encore valides sont conservés. `PRJ-04` est **retiré et non réutilisable** : ses garanties utiles relèvent de CON-02/04/06, PRJ-02/03 et EVT-03.
+Les 28 exigences actives ci-dessous constituent le catalogue transversal de référence (les 23 identifiants initiaux encore valides, les exigences Supra ADM-01 et S-01..03, ainsi que INV-01). `PRJ-04` est **retiré et non réutilisable** : ses garanties utiles relèvent de CON-02/04/06, PRJ-02/03 et EVT-03.
 
 | ID | Exigence contractuelle | Source historique | Preuve prévue | Statut |
 |---|---|---|---|---|
@@ -20,6 +20,7 @@ Les 23 identifiants initiaux encore valides sont conservés. `PRJ-04` est **reti
 | EVT-01 | Cinq séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | EVT-03 | Sept familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT et MaterializeInvitation indépendante | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
+| INV-01 | Création, projection, restitution et rattachement via invitation ; sécurité du lien, cohérence éventuelle et concurrence | SPEC-01/03/04/05/06 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | CON-01 | Discovery enrôle les non-burnables avec checkpoint global inspecté par partition, et les burnables PENDING sans checkpoint | V3-4 | JUnit/PostgreSQL crash/fenêtres | ACQUIS / À PROUVER |
 | CON-02 | Checkpoint avancé atomiquement avec tous ses slots ; absence de slot ne vaut complétion que sous ses conditions de preuve | V3-4 | JUnit/PostgreSQL crash/restart | ACQUIS / À PROUVER |
 | CON-03 | Propriété de partition autorise Discovery/acquisition ; claim individuel protège le commit, même après transfert de partition | V3-4 | JUnit/PostgreSQL interleavings | ACQUIS / À PROUVER |
@@ -42,7 +43,7 @@ Les 23 identifiants initiaux encore valides sont conservés. `PRJ-04` est **reti
 
 ## 3. Parcours transversaux
 
-1. Command : admission durable sans slot → Discovery burnable → validation WRITE de l'EUI et du bindingToken → mutation/événement/complétion atomiques → quatre résultats READ indépendants (PotVersion, Balance, Visibility, CommandResult).
+1. Command : admission durable sans slot → Discovery burnable → validation WRITE de l'EUI et du bindingToken → mutation/événement/complétion atomiques → quatre résultats READ indépendants pour une mutation de Pot (PotVersion, Balance, Visibility, CommandResult) ou deux résultats READ indépendants pour `CreateInvitation` (CurrentInvitation, CommandResult).
 2. Identity : Registration ou Link/Unlink, consentement E2 vérifiable quand requis, état WRITE autoritatif → CurrentBinding et IdentityRequestResult indépendants ; E2 récupère exclusivement son propre token.
 3. Projection : un même POT_EVENT(P,V) possède trois Consumptions autonomes, chacune capable d'avancer hors ordre et sans dépendance.
 4. Lecture : CurrentBinding actif et droits à V → lecture PotVersion et projections nécessaires, navigation non autorisante, ordre anti-oracle 404/503 ; résultats autorisés par requesterEui uniquement.

@@ -23,7 +23,7 @@ Le tableau relie les exigences actives au protocole détaillé portant le même 
 | EVT-01 | Cinq séquences globales denses, publication transactionnelle sans trou ni réordonnancement de commits | V3-2 | JUnit/PostgreSQL concurrent | ACQUIS / À PROUVER |
 | EVT-02 | Mutation, événement, résultat terminal et complétion atomiques ; aucune mutation événementielle sans requestId | V3-2 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | EVT-03 | Sept familles de sources, sans tâches READ ; trois Consumptions autonomes et directes de POT_EVENT, et MaterializeInvitation indépendante | V3-2, V3-4 | JUnit/PostgreSQL | ACQUIS / À PROUVER |
-| INV-01 | Création, projection, restitution et rattachement via invitation ; sécurité du lien, cohérence éventuelle et concurrence | SPEC-01/03/04/05/06 | JUnit/PostgreSQL ; Bruno | À PROUVER |
+| INV-01 | Création, projection, restitution et rattachement via invitation ; sécurité du lien, cohérence éventuelle et concurrence | SPEC-01/03/04/05/06 | JUnit/PostgreSQL ; Bruno | ACQUIS / À PROUVER |
 | CON-01 | Discovery enrôle les non-burnables avec checkpoint global inspecté par partition, et les burnables PENDING sans checkpoint | V3-4 | JUnit/PostgreSQL crash/fenêtres | ACQUIS / À PROUVER |
 | CON-02 | Checkpoint avancé atomiquement avec tous ses slots ; absence de slot ne vaut complétion que sous ses conditions de preuve | V3-4 | JUnit/PostgreSQL crash/restart | ACQUIS / À PROUVER |
 | CON-03 | Propriété de partition autorise Discovery/acquisition ; claim individuel protège le commit, même après transfert de partition | V3-4 | JUnit/PostgreSQL interleavings | ACQUIS / À PROUVER |
@@ -287,7 +287,7 @@ Utiliser **Bruno/Keycloak** pour les authentifications indépendantes et attaque
 | E01-D | T1 réserve un lot de deux événements Identity dans sa transaction ; T2 publie en concurrence | Les deux positions du lot sont consécutives et l'ordre interne déclaré est conservé ; pas d'intercalation |
 | E01-E | Command sans effet/rejet et demande Identity rejetée | Seule la famille de complétion avance ; aucune position de mutation consommée |
 | E01-F | Publication de mutation et complétion, puis rollback forcé avant commit | Aucun événement des deux familles durable, et aucun compteur avancé ; terminalisation/résultat absents (recoupement EVT-02) |
-| E01-G | Multiples transactions mixtes commit/rollback sur les quatre familles, ordre d'ouverture intercalé | Chacune des quatre suites demeure dense indépendamment ; les résultats reflètent uniquement les commits |
+| E01-G | Multiples transactions mixtes commit/rollback sur les cinq familles, ordre d'ouverture intercalé | Chacune des cinq suites demeure dense indépendamment ; les résultats reflètent uniquement les commits |
 | E01-H | Charge concurrente répétée, transactions lentes, aborts, redémarrage de connexions | Même invariant de densité ; aucune perte, doublon, inversion dans une même famille, ni attente bloquée inexpliquée |
 
 ### Garde-fous sur l'interprétation
@@ -295,7 +295,7 @@ Utiliser **Bruno/Keycloak** pour les authentifications indépendantes et attaque
 - Ne jamais accepter un test qui construit les positions avec `nextval()` PostgreSQL non transactionnel : les rollbacks y laissent des trous. Un test vérifie le **comportement public/durable**, pas une implémentation de compteur prescrite prématurément.
 - L'affirmation « ordre des commits » est **intra-famille** et sur les publications participant au séquencement transactionnel ; il n'existe pas d'ordre inter-familles à certifier.
 - Ne pas inférer un ordre physique de commit depuis `recordedAt`, un compteur local du test, un `sleep`, ou l'instant où un thread reçoit sa réponse. Les barrières doivent rendre la dépendance visible, et les assertions SQL vérifier l'état **après** résolution.
-- Cas de deadlock/protocole : établir qu'après prise des verrous de séquence le chemin n'acquiert plus de nouveaux verrous métier ; couvrir les deux paires d'ordres prévues `POT → COMMAND_COMPLETION` et `IDENTITY → IDENTITY_COMPLETION` par des scénarios de contention et analyse du graphe d'acquisition (liens avec CON-06).
+- Cas de deadlock/protocole : établir qu'après prise des verrous de séquence le chemin n'acquiert plus de nouveaux verrous métier ; couvrir les trois paires d'ordres prévues `POT → COMMAND_COMPLETION`, `INVITATION → COMMAND_COMPLETION` et `IDENTITY → IDENTITY_COMPLETION` par des scénarios de contention et analyse du graphe d'acquisition (liens avec CON-06).
 - Isoler l'éventuelle attente de verrou des budgets de performance de V3-5C et la mesurer ; aucun blocage infini toléré.
 
 ### Preuves à conserver et critère PASS
@@ -365,7 +365,7 @@ Tests PostgreSQL concurrents, injection de rollback et commit inconnu, contrôle
 
 ### CON-01 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Contrat V3-4 : la Discovery crée des slots durables à partir des références de sources ; l'Engine seul charge ensuite les données métier. Les quatre familles événementielles sont **non-burnables**, avec chacune sa séquence **globale** dense et un checkpoint de **positions examinées**, propre à `(consumptionId, partitionId)`. Les deux familles burnables (`COMMAND`, `IDENTITY_REQUEST`) sont découvertes par état `PENDING` et absence de slot, **sans checkpoint**. Les partitions sont fixes, le routage par `partitionHash` stable, et une seule propriété effective autorise l'enrôlement.
+**Statut : protocole proposé, non exécuté.** Contrat V3-4 : la Discovery crée des slots durables à partir des références de sources ; l'Engine seul charge ensuite les données métier. Les cinq familles événementielles sont **non-burnables**, avec chacune sa séquence **globale** dense et un checkpoint de **positions examinées**, propre à `(consumptionId, partitionId)`. Les deux familles burnables (`COMMAND`, `IDENTITY_REQUEST`) sont découvertes par état `PENDING` et absence de slot, **sans checkpoint**. Les partitions sont fixes, le routage par `partitionHash` stable, et une seule propriété effective autorise l'enrôlement.
 
 ### Oracles non-burnables
 
@@ -444,7 +444,7 @@ Pour chaque événement E non-burnable de position p, destiné à Consumption C 
 ### Protocole d'injection et de constat
 
 - PostgreSQL réel, connexions et transactions indépendantes. Des barrières arrêtent le flux aux frontières **pré-commit** ; injecter exceptions, rollback explicite, déconnexion, interruption du Worker et perte simulée de la réponse de commit. Ne pas assimiler une déconnexion à la preuve d'un rollback : inspecter ensuite l'état durable.
-- Capturer `K`, liste des sources éligibles de la fenêtre, clés `(consumptionId,consumableId)` attendues, slots effectivement persistés, effets métier/projection, statuts des tâches si pertinents, et issues transactionnelles.
+- Capturer `K`, liste des sources éligibles de la fenêtre, clés `(consumptionId,consumableId)` attendues, slots effectivement persistés, effets métier/projection, statuts des sources burnables si pertinents, et issues transactionnelles.
 - La lecture préparatoire de Discovery ne crée aucun état de complétion. Une éventuelle lecture cross-base des sources ne rend **pas** la transaction finale distribuée : checkpoint et slots doivent appartenir à l'autorité transactionnelle des effets de cette Consumption.
 - Vérifier les contraintes d'unicité et les seuls chemins autorisés de suppression ; un `DELETE` administratif direct hors transaction de reset briserait l'oracle, et ne doit pas être présenté comme un comportement sûr.
 - Couvrir une publication concurrente et la borne de préfixe sûr avec CON-01 ; l'ordre des verrous et la propriété de partition sont approfondis avec CON-03/06.
@@ -589,7 +589,7 @@ Tests à construire : mettre Pot P version V en quarantaine, prouver la progress
 | Matérialisation `POT_EVENT → PotVersion/CurrentPot/SubobjectVersion` | READ | Projections, validation de version, slot |
 | Matérialisation directe `POT_EVENT → PotBalance` | READ | PotBalance(P,V) si V active, slot |
 | Matérialisation directe `POT_EVENT → PotVisibilityState` | READ | PotVisibilityState, entrées visibles/tombstones, slot |
-| Matérialisation événements de complétion et Identity vers READ | READ | CommandResult / IdentityRequestResult / CurrentBinding selon Consumption, slot |
+| Matérialisation événements Invitation, de complétion et Identity vers READ | READ | CurrentInvitation / CommandResult / IdentityRequestResult / CurrentBinding selon Consumption, slot |
 
 La Discovery, son checkpoint et ses slots s'enregistrent dans l'autorité **des effets** de la Consumption ; le lease de partition correspondant appartient à cette même autorité. Cela ne signifie pas que les événements source et les projections se trouvent dans une seule base : la lecture de la source peut précéder la transaction READ finale, suivie d'une vérification de claim et de version appropriée.
 
@@ -659,7 +659,7 @@ Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction ma
 
 ### PRJ-01 — Protocole et oracles
 
-**Statut : protocole proposé, non exécuté.** Référence V3-3 : `MaterializeCurrentPot` consomme directement `POT_EVENT(P,V)`, reconstruit `Pot@V` depuis WRITE **sans dépendre de la projection V−1**, conserve les `SubobjectVersion` immuables et avance `CurrentPot` de manière monotone. Une transaction READ unique écrit les sous-objets nouveaux, le remplacement conditionnel du pointeur courant et la suppression du slot. Les branches Balance et Visibility sont indépendantes.
+**Statut : protocole proposé, non exécuté.** Référence V3-3 : `MaterializePotVersion` (anciennement `MaterializeCurrentPot`) consomme directement `POT_EVENT(P,V)`, reconstruit `Pot@V` depuis WRITE **sans dépendre de la projection V−1**, conserve les `SubobjectVersion` immuables et avance `CurrentPot` de manière monotone. Une transaction READ unique écrit les sous-objets nouveaux, le remplacement conditionnel du pointeur courant et la suppression du slot. Les branches Balance et Visibility sont indépendantes.
 
 ### Oracles et limites contractuelles
 
@@ -694,7 +694,7 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 
 **PASS PRJ-01** : P01-A à P01-L satisfaits, pointeur courant monotone et atomique, références homogènes, anciennes versions conservées sous arrivée hors ordre, aucun effet partiel ou historique fabriqué. Les consultations complètes restent à certifier en READ-01 et les soldes en PRJ-02. Aucun test V3 n'a encore été implémenté ou exécuté.
 
-**Décision de V3-5E intégrée au protocole de preuve** : `CurrentPot` devient un pointeur monotone vers `PotVersion(P,V)` immuable complet en références, avec liste interne d'autorisation à V et références ordonnées de toutes les Expenses. Les descriptions antérieures de pointeur portant lui-même toutes les références sont **supplantées**. Les tâches Balance et Visibility demeurent indépendantes ; aucune nouvelle Consumption.
+**Décision de V3-5E intégrée au protocole de preuve** : `CurrentPot` devient un pointeur monotone vers `PotVersion(P,V)` immuable complet en références, avec liste interne d'autorisation à V et références ordonnées de toutes les Expenses. Les descriptions antérieures de pointeur portant lui-même toutes les références sont **supplantées**. Les Consumptions Balance et Visibility demeurent indépendantes ; aucune nouvelle Consumption.
 
 **PRJ-01 — preuves complémentaires :** chaque événement `POT_EVENT(P,V)` matérialise `PotVersion(P,V)` et les sous-versions exactes, puis avance le pointeur seulement si V est supérieur, **atomiquement en READ** avec complétion du slot ; une arrivée hors ordre doit matérialiser PotVersion ancienne sans régresser CurrentPot ; aucun changement de PotVersion existante ; cohérence des références locales et de la liste des utilisateurs autorisés à V ; pas de duplication des valeurs complètes.
 
@@ -915,7 +915,7 @@ JUnit avec **PostgreSQL réel** pour contrôler commits, ordres d'événements, 
 
 ### ADM-01 — Contrôle d'entrée
 
-Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. Intégré aux 27 exigences actives de la matrice §2.
+Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome à l'entrée sans lire WRITE métier ; aucun état durable pour requête refusée ; admission unique des demandes admissibles ; validation métier maintenue au Worker. Intégré aux 28 exigences actives de la matrice §2.
 
 **Oracles de qualification :** refus avant persistance des tailles et structures aberrantes ; zéro événement/slot/résultat ; acceptation des limites exactes ; idempotence/concurrence ; rejet métier différé de cible inexistante, obsolète ou interdite ; authentification/consentement Link ; contrôle des limites de décompression et de cardinalité ; modification incrémentale d'une règle sans rétroactivité sur demandes déjà admises. JUnit/Bruno pour la sémantique, charge ciblée pour consommation de ressources.
 
@@ -999,12 +999,12 @@ Contrat normatif : [SPEC-06 — §2](SPEC-06_Supra_Contracts.md). Rejet autonome
 
 | ID | Stimulus / incident | Oracle de réussite |
 |---|---|---|
-| RCV01-A | READ peuplé de CurrentPot, PotVersion, sous-versions, balances, listes, bindings, résultats et slots ; déclencher reset total | Aucune projection, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
+| RCV01-A | READ peuplé de CurrentPot, PotVersion, sous-versions, balances, listes, bindings, invitations, résultats et slots ; déclencher reset total | Aucune projection, slot ni checkpoint ancien ne subsiste dans le périmètre réinitialisé ; WRITE est intact |
 | RCV01-B | Un Worker READ possède un claim et exécute une transaction au moment de la demande de reset | Barrière empêche un commit tardif après reset ; rollback/achèvement de l'ancien traitement avant réinitialisation, avec absence de réapparition d'effets |
 | RCV01-C | Arrêt après reset mais avant relance des Consumers | READ reste explicitement indisponible ; ne sert pas un résultat vide comme une reconstruction achevée |
 | RCV01-D | Reconstruire sans nouveaux consumptionIds depuis les cinq séquences événementielles conservées | Checkpoints repartent de zéro puis progressent ; mêmes IDs de Consumption ; projections attendues équivalentes aux valeurs autoritatives |
 | RCV01-E | Retraiter un même `POT_EVENT` par les trois Consumptions directes (`MaterializePotVersion`, `MaterializePotBalance`, `MaterializePotVisibility`) après reset | Projections `PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance` et `PotVisibilityState`/`CurrentUserPotList` recréées exactement, sans collision ni état résiduel |
-| RCV01-F | Reconstruction avec événements Pot et Identity entrelacés, Consumptions Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot/PotVersion, Balance, visibilité, CurrentBinding et résultats ; aucune condition d'ordre artificielle |
+| RCV01-F | Reconstruction avec événements Pot, Invitation et Identity entrelacés, Consumptions Balance/Visibility désynchronisées | Convergence indépendante vers CurrentPot/PotVersion, Balance, visibilité, CurrentBinding, CurrentInvitation et résultats ; aucune condition d'ordre artificielle |
 | RCV01-G | Panne au milieu de la reconstruction, avec quelques checkpoints et slots déjà créés | Reprise sûre à partir des données durables ou nouveau reset total coordonné ; aucune perte par avance incohérente de checkpoint |
 | RCV01-H | Simuler restauration partielle : ancien checkpoint + slots effacés, ou projection effacée sans son slot | Procédure refusée/non autorisée ; ne pas déclarer READY un READ dont la preuve de complétion est cassée |
 | RCV01-I | Réinitialiser alors que des slots READ libres, claimés et quarantainés coexistent | Tous les slots et checkpoints READ du cycle précédent éliminés ; aucun état antérieur ne bloque le ré-enrôlement complet après reset |
@@ -1024,7 +1024,7 @@ JUnit/ PostgreSQL réel avec Workers simultanés, points de pause déterministes
 
 **DÉCISION VALIDÉE :** une reconstruction complète de READ est une opération exceptionnelle de maintenance avec **indisponibilité totale temporaire des consultations READ**, acceptée explicitement. La procédure retenue : arrêter effectivement tous les writers et transactions READ, réinitialiser conjointement projections, slots, claims/propriétés et checkpoints READ, réutiliser les mêmes `consumptionId`, puis reconstruire depuis les cinq séquences d'événements WRITE immuables.
 
-**Condition de réouverture :** capturer quatre préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des six Consumptions READ jusqu'aux préfixes `B` et achèvement de **tous leurs slots enrôlés jusqu'à `B`** (`PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance`, `PotVisibilityState`/`CurrentUserPotList`, `CurrentBinding`, `CommandResult` et `IdentityRequestResult`). Le checkpoint de découverte seul ne vaut pas achèvement tant que des slots subsistent. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
+**Condition de réouverture :** capturer cinq préfixes sûrs de publications committées `B` dans WRITE ; la disponibilité `READY` n'est déclarée qu'après progression des sept Consumptions READ jusqu'aux préfixes `B` et achèvement de **tous leurs slots enrôlés jusqu'à `B`** (`PotVersion`/`SubobjectVersion`/`CurrentPot`, `PotBalance`, `PotVisibilityState`/`CurrentUserPotList`, `CurrentBinding`, `CurrentInvitation`, `CommandResult` et `IdentityRequestResult`). Le checkpoint de découverte seul ne vaut pas achèvement tant que des slots subsistent. Les événements postérieurs à B ne bloquent pas READY ; READ reprend son contrat habituel d'éventuel retard, `minVersion` et complétude de chaque consultation.
 
 **Garde-fous :** ne jamais confondre perte de propriété de partition avec arrêt des claims déjà acquis : les anciens writers doivent être physiquement arrêtés ou neutralisés avant le reset. Si l'exclusivité de maintenance est perdue ou si le reset est interrompu, ne pas ouvrir READ ; reprendre une reconstruction totale cohérente. Aucun fencing/generation permanent de reconstruction et aucun arrêt prolongé de WRITE ne sont requis **sous condition que cette exclusivité soit effectivement prouvée**.
 
@@ -1138,7 +1138,7 @@ Répéter les campagnes comparables **au moins trois fois** avec données et env
 - **Fin F01-G :** toutes les demandes initiales TERMINAL avec résultats, Consumptions et projections attendues complétées, sans slot résiduel de traitement réussi (les slots QUARANTINED restent incomplets, jamais des succès).
 - **Stabilité B :** séries temporelles de backlog **par Consumption**, âges de la plus ancienne source/slot, débit de complétion et projection E2E ; vérifier qu'aucune pente positive durable ne se cache derrière une moyenne finale. Décrire la régression et la fenêtre choisies avant exécution.
 - **Pointe C :** mesurer les latences **pendant** la fenêtre 50/s sans exclure les travaux achevés après son terme ; poursuivre les sondes jusqu'à complétion/timeout et vérifier le drainage après le retour nominal.
-- **Instrumentation :** valider avec des injections déterministes que chaque timer/counter mesure la bonne frontière : source→slot, slot éligible→acquisition, préparation, verrou final, commit, événements et branches PotVersion/CurrentPot/Result/Balance/Visibility/CurrentBinding, rollback, retry et expiration. Histogrammes Prometheus exploitables ; aucune étiquette à forte cardinalité ni token dans les logs. Comparer distributions côté client et agrégats internes, **sans additionner les p95 de phases parallèles**.
+- **Instrumentation :** valider avec des injections déterministes que chaque timer/counter mesure la bonne frontière : source→slot, slot éligible→acquisition, préparation, verrou final, commit, événements et branches PotVersion/CurrentPot/Result/Balance/Visibility/CurrentBinding/CurrentInvitation, rollback, retry et expiration. Histogrammes Prometheus exploitables ; aucune étiquette à forte cardinalité ni token dans les logs. Comparer distributions côté client et agrégats internes, **sans additionner les p95 de phases parallèles**.
 - **Ressources :** CPU, mémoire, pauses GC, latences SQL, nombre de lignes scannées, plans SQL, connexions/pools, attente/verrous, IO et WAL sur les deux machines ; conserver métriques et plans des phases coûteuses. Distinguer saturation PostgreSQL, moteur, injecteurs et Keycloak.
 - **Critères de verdict :** **PASS** seulement si tous les invariants métier/sécurité sont conservés, volume offert réellement tenu, populations et sondes valides, et SLO contractuels satisfaits **sur chaque campagne requise**. **FAIL** si seuil dépassé ou invariant violé ; **INCONCLUSIVE** si échantillons, visibilité des jalons, trafic de sondage ou environnement empêchent d'établir le verdict. Documenter toute limitation de mesure, sans déplacer rétrospectivement les seuils.
 
@@ -1164,7 +1164,7 @@ Les **durées/échantillons**, la cadence de sondage 25 ms, le nombre de répét
 
 ## 13. Critères de clôture
 
-Certifier toutes les lignes de la matrice avec résultats vérifiables, conserver les protocoles distincts C-01 (consentement externe Link), C-02 (reconstruction READ exclusive), C-03 (jalons de latence), et les familles RCV01-A à N, F01-A à J, A10-A à K, A11-A à N. Aucun scénario fondé uniquement sur une ancienne Projection Task, un retry illimité ou l'absence de quarantaine n'est exigible. Les mesures V3 et tests restent à exécuter en V3-6/V3-7. Aucune implémentation réalisée par le présent changement.
+Certifier toutes les lignes de la matrice avec résultats vérifiables, conserver les protocoles distincts C-01 (consentement externe Link), C-02 (reconstruction READ exclusive), C-03 (jalons de latence), et les familles RCV01-A à N, F01-A à J, A10-A à K, A11-A à N, INV-A à J. Aucun scénario fondé uniquement sur une ancienne Projection Task, un retry illimité ou l'absence de quarantaine n'est exigible. Les mesures V3 et tests restent à exécuter en V3-6/V3-7. Aucune implémentation réalisée par le présent changement.
 
 ## 14. INV-01 — Certification du parcours d'invitation (non exécutée)
 
