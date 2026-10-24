@@ -401,3 +401,17 @@ La projection `PotVersion` immuable, CurrentPot pointeur, la version de consulta
 **Réserves transférées à la préparation de réalisation/certification (non décisions de domaine) :** seuils numériques réels et essais de charge, format exact du curseur, tailles et formats des clés/digests d'idempotence, durée publiée de rétention d'une clé et stratégie de purge, sémantique détaillée des erreurs et succès HTTP, tests de fournisseur de consentement Link et normalisation de la documentation historique. Ces points **doivent être fixés avant de prétendre les API prêtes à être activées** ; ils ne créent pas d'invariant métier supplémentaire. En particulier, sans durée explicite de conservation d'une clé, ne pas promettre la répétition indéfinie d'une admission.
 
 **V3-CADRE demeure OUVERT tant que sa propre revue/gate n'est pas explicitement prononcé.** Aucun runtime/DDL/test V3 construit ni exécuté au titre de cette clôture documentaire.
+
+## Amendement post-audit AUD-V3-010 — résultats de demandes, propriété EUI et polling (2026-10-24)
+
+**DÉCISION NORMATIVE, prioritaire sur le « À préciser » du §17 et les propositions HTTP antérieures.** Pour `GET /commands/{requestId}/result` et la consultation équivalente d'`IdentityRequestResult`, la Supra READ exige une EUI authentifiée et consulte exclusivement la projection READ terminale. Elle ne demande aucun `bindingToken` et ne résout ni Binding courant ni PocomaUser. Le `requesterEui` immuable est présent dans chaque projection de résultat, recopié par la Consumption depuis la demande durable WRITE à l'occasion de la matérialisation ; aucune lecture WRITE synchrone à l'appel HTTP.
+
+| Situation | HTTP | Contrat |
+|---|---|---|
+| Non authentifié | `401` | Aucun renseignement sur la demande |
+| Résultat terminal READ présent et `requesterEui` identique à l'EUI authentifiée | `200 OK` | Résultat terminal unique, succès ou rejet métier |
+| Résultat absent de READ, quelle qu'en soit la cause (PENDING WRITE, complétion non projetée, inconnu) | `404 Not Found` | Pas d'oracle d'existence |
+| Résultat READ présent mais appartenant à une autre EUI | **même `404`** | Même enveloppe publique ; aucune fuite d'existence |
+| Service READ réellement indisponible | `503 Service Unavailable` | Incident technique, non substitut à l'absence d'une ligne |
+
+Après le `202 Accepted` d'admission, le client conserve le `requestId` et poursuit le polling malgré les `404` tant qu'il attend le résultat, selon une politique cliente bornée de délai/backoff. `404` ne certifie ni inexistence ni échec métier et n'est pas assimilé à `503`. `200` avec `REJECTED` est un résultat terminal valide, non un rejet HTTP d'admission. Un `requestId` d'autrui n'ouvre jamais accès, même si connu. La propriété demeure celle de l'EUI initiatrice après Unlink/re-Link ; l'EUI reste tenue de s'authentifier. Les résultats ne comportent pas d'expiration fonctionnelle V3 : aucune nouvelle purge ni statut `EXPIRED`. La rétention opérationnelle éventuelle nécessite une décision distincte, cohérente avec idempotence et reconstruction. Voir V3-2/V3-3 et V3-5D §60.
