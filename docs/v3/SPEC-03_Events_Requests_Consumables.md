@@ -14,18 +14,19 @@ Deux natures de faits durables :
 
 Un succès sans effet ou un rejet n'émet aucun événement de mutation, mais donne lieu à un résultat terminal et son événement de complétion. Une erreur technique transitoire n'est pas un rejet fonctionnel terminal.
 
-## 2. Catalogue normatif : six familles de consommables
+## 2. Catalogue normatif : sept familles de consommables
 
 | Famille | Domaine | Nature | Disponibilité / découverte |
 |---|---|---|---|
 | `COMMAND` | Pot | **Burnable** | Demande `PENDING`, état durable porté par la source |
 | `IDENTITY_REQUEST` | Identity | **Burnable** | Demande `PENDING`, état durable porté par la source |
 | `POT_EVENT` | Pot | **Non-burnable** | Séquence transactionnelle dense `POT` |
+| `INVITATION_EVENT` | Pot / Invitation | **Non-burnable** | Séquence transactionnelle dense `INVITATION` |
 | `IDENTITY_EVENT` | Identity | **Non-burnable** | Séquence transactionnelle dense `IDENTITY` |
 | `COMMAND_COMPLETION_EVENT` | Pot | **Non-burnable** | Séquence transactionnelle dense `COMMAND_COMPLETION` |
 | `IDENTITY_COMPLETION_EVENT` | Identity | **Non-burnable** | Séquence transactionnelle dense `IDENTITY_COMPLETION` |
 
-Ces familles sont **logiques** : ni six tables ni six moteurs ne sont imposés. Les événements ne portent aucun statut de consommation ; les demandes burnables portent leur propre statut. La Discovery des deux demandes burnables est asynchrone après admission, sans création de slot par la Supra ; les quatre sources événementielles sont non-burnables. Les algorithmes de Discovery, checkpoints, claims, quarantaine et retries sont définis en V3-4. Les anciennes familles techniques `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK` et `PreparePotProjectionTasks` n'existent pas en V3.
+Ces familles sont **logiques** : ni sept tables ni sept moteurs ne sont imposés. Les événements ne portent aucun statut de consommation ; les demandes burnables portent leur propre statut. La Discovery des deux demandes burnables est asynchrone après admission, sans création de slot par la Supra ; les cinq sources événementielles sont non-burnables. Les algorithmes de Discovery, checkpoints, claims, quarantaine et retries sont définis en V3-4. Les anciennes familles techniques `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK` et `PreparePotProjectionTasks` n'existent pas en V3.
 
 ## 3. Demandes burnables et résultats terminaux
 
@@ -44,6 +45,7 @@ La transition `PENDING → TERMINAL`, l'enregistrement du résultat, l'événeme
 
 **Événement de mutation :** socle + **`requestId` obligatoire** + `subjectVersion` (version **atteinte**, jamais ancienne). Pour `POT`, `changedComponents` contient les références/versions locales des composantes modifiées ; pour `POCOMA_USER` et `EXTERNAL_USER_IDENTITY`, aucune collection artificielle. Pas de `eventType`, pas de copie du nouvel état métier, pas de `bindingToken` dans l'événement partagé. L'histoire autoritative est la source des valeurs.
 
+- Invitation : exactement un `INVITATION_EVENT` par version locale effective ; aucune copie du token ou du lien dans cet événement.
 - Pot : **exactement un** événement par mutation effective de version globale V, y compris multi-cibles et suppression (pas d'événement de mutation par enfant).
 - EUI : **exactement un** événement par nouvelle version EUI (création, Link, Unlink), avec version locale.
 - PocomaUser : événement lors de création, version initiale **1**, non évolutive.
@@ -53,11 +55,11 @@ La transition `PENDING → TERMINAL`, l'enregistrement du résultat, l'événeme
 
 ## 5. Publication et séquences transactionnelles
 
-Quatre séquences **distinctes** : `POT`, `IDENTITY`, `COMMAND_COMPLETION`, `IDENTITY_COMPLETION`. Chaque événement publié a un `(sequence, position)` unique ; l'identité `eventId` reste indépendante de sa position.
+Cinq séquences **distinctes** : `POT`, `INVITATION`, `IDENTITY`, `COMMAND_COMPLETION`, `IDENTITY_COMPLETION`. Chaque événement publié a un `(sequence, position)` unique ; l'identité `eventId` reste indépendante de sa position.
 
 Positions croissantes et **denses** sur l'historique durable conservé, sans trou créé par rollback ; une position plus haute committée ne doit pas masquer une position plus basse qui pourrait committer plus tard. Des `nextval` PostgreSQL classiques ou des horodatages/UUID seuls ne prouvent pas cela. Les compteurs sont transactionnels, avec verrous retenus jusqu'à résolution physique de la transaction ; un lot de plusieurs événements d'une famille reçoit des positions consécutives dans l'ordre de publication déclaré. La position n'est ni version métier ni ordre inter-séquences.
 
-Une transaction `COMMAND` n'utilise au plus que `POT` puis `COMMAND_COMPLETION`. Une transaction `IDENTITY_REQUEST` n'utilise au plus que `IDENTITY` puis `IDENTITY_COMPLETION`. Une demande sans mutation n'utilise que sa séquence de complétion. Aucune transaction de demande ne mute les deux domaines. Pas d'ordre global entre les quatre séquences.
+Une transaction `COMMAND` utilise, selon sa mutation effective, `POT` ou `INVITATION` puis `COMMAND_COMPLETION`. Une transaction `IDENTITY_REQUEST` n'utilise au plus que `IDENTITY` puis `IDENTITY_COMPLETION`. Une demande sans mutation n'utilise que sa séquence de complétion. Aucune transaction de demande ne mute les deux domaines. Pas d'ordre global entre les cinq séquences.
 
 Le changement métier, ses événements, la terminalisation, le résultat, les événements de complétion et l'attribution des positions sont dans **une seule transaction physique**. Le suffixe d'attribution de positions intervient après la finalisation des écritures métier / validations, suivant une discipline explicite interdisant de retourner acquérir les verrous métier après ceux des séquences ; un échec annule tout. Les détails de composition du moteur, fencing, rollback/UNKNOWN et preuve d'absence de nouveaux cycles de verrouillage relèvent de V3-4/V3-5. Les garanties fonctionnelles 4A–4E sont un acquis historique à reproduire, **pas** une preuve V3 ni une contrainte de réutilisation littérale des tables/ports.
 
@@ -65,6 +67,7 @@ Le changement métier, ses événements, la terminalisation, le résultat, les �
 
 | Cas | Mutation(s) et événement(s) | Résultat / événement de complétion |
 |---|---|---|
+| Création Invitation | Invitation v1, un `INVITATION_EVENT`, sans nouvelle version Pot | Succès + un `COMMAND_COMPLETION_EVENT` ; lien absent de CommandResult |
 | Création Pot | Pot V1, un `POT_EVENT` | Succès + un `COMMAND_COMPLETION_EVENT` |
 | Command multi-cibles | Une nouvelle V globale, un événement Pot indiquant les composantes changées | Succès + complétion |
 | Command non obsolète sans effet | Aucune nouvelle V, aucun événement de mutation | Succès (`resultingPotVersion = V_courant`) + complétion |
@@ -82,15 +85,16 @@ Lors d'une Registration, les deux événements Identity et la complétion sont p
 
 Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions directes : `MaterializePotVersion` (composition historique, sous-objets et pointeur courant), `MaterializePotBalance` (balance exacte et immuable à V pour une version active ; traitement terminal sans Balance(D) pour DeletePot) et `MaterializePotVisibility` (état de visibilité et navigation). Chaque Consumption dispose de son propre Discovery, de ses slots et checkpoints ; aucune tâche préparatoire, dépendance de slot ou séquence supplémentaire.
 
-`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; seuls les événements `EXTERNAL_USER_IDENTITY` sont enrôlés/projetés par `MaterializeCurrentBinding` (un événement de création de `POCOMA_USER` n'impose aucune projection Identity inverse et est ignoré par `MaterializeCurrentBinding`). Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](SPEC-04_Read_Projections.md) pour les projections et [V3-4](SPEC-05_Consumption_Discovery.md) pour l'exécution, l'atomicité et la reprise.
+`INVITATION_EVENT` alimente indépendamment `CurrentInvitation` via `MaterializeInvitation` depuis l'état WRITE à la version exacte, sans lien dans l'événement. `IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; seuls les événements `EXTERNAL_USER_IDENTITY` sont enrôlés/projetés par `MaterializeCurrentBinding` (un événement de création de `POCOMA_USER` n'impose aucune projection Identity inverse et est ignoré par `MaterializeCurrentBinding`). Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](SPEC-04_Read_Projections.md) pour les projections et [V3-4](SPEC-05_Consumption_Discovery.md) pour l'exécution, l'atomicité et la reprise.
 
 ## 8. Garanties et qualification restantes
 
-Les six familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
+Les sept familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
 
 La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](SPEC-10_Test_Certification.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.
 
-## Amendement Invitation — événement de domaine
+## 9. Mutation d'invitation et complétion
 
-Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, `IDENTITY_REQUEST`) et cinq non-burnables (`POT_EVENT`, `INVITATION_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETED_EVENT`, `IDENTITY_REQUEST_COMPLETED_EVENT`), donc **cinq séquences événementielles denses**. Toute mutation effective d'invitation émet `INVITATION_EVENT(invitationId, invitationVersion, requestId)` et conserve l'état d'invitation historisé correspondant en WRITE. Aucun token ni lien en clair dans l'événement. Cet événement métier est atomique avec l'écriture WRITE et la complétion distincte de la commande ; un rejet n'émet que la complétion. `INVITATION_EVENT` ne se substitue pas à `POT_EVENT`, et `COMMAND_COMPLETED_EVENT` ne sert jamais à projeter l'invitation. Les dénombrements anciens sont supplantés.
+Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, `IDENTITY_REQUEST`) et cinq non-burnables (`POT_EVENT`, `INVITATION_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETION_EVENT`, `IDENTITY_COMPLETION_EVENT`), donc **cinq séquences événementielles denses**. Toute mutation effective d'invitation émet `INVITATION_EVENT(invitationId, invitationVersion, requestId)` et conserve l'état d'invitation historisé correspondant en WRITE. Aucun token ni lien en clair dans l'événement. Cet événement métier est atomique avec l'écriture WRITE et la complétion distincte de la commande ; un rejet n'émet que la complétion. `INVITATION_EVENT` ne se substitue pas à `POT_EVENT`, et `COMMAND_COMPLETION_EVENT` ne sert jamais à projeter l'invitation. 
 
+ 
