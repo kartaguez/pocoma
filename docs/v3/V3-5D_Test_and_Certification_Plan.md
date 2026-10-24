@@ -1539,3 +1539,7 @@ Scénarios PostgreSQL exigés : (1) expiration de claim sans erreur enregistrée
 ## 57. AUD-V3-007-Q — indépendance après quarantaine (2026-10-24)
 
 Tests à construire : mettre Pot P version V en quarantaine, prouver la progression de P version V+1 dans la même Consumption et celle des autres Consumptions ; garder le point de lecture à V indisponible si une projection requise à V manque ; visibilité V+1 complète matérialisée depuis WRITE@V+1 malgré V en quarantaine, puis reprise tardive de V sans régression ; CurrentBinding hors ordre ; autre Pot dans la même partition non bloqué. Tester absence de toute attente sur statut du prédécesseur. Aucun test exécuté.
+
+## 58. AUD-V3-007-Q — rétention et suppression après succès (2026-10-24)
+
+**Scénarios de certification complémentaires :** (a) slot QUARANTINED conserve son identité et son état malgré redémarrages, reprise Discovery et écoulement du temps ; (b) aucune commande de purge directe d'un slot incomplet ; (c) pour non-burnable, checkpoint avancé + slot quarantainé ne vaut jamais preuve de traitement ; (d) pour burnable, PENDING + slot quarantainé ne provoque aucun ré-enrôlement ; (e) réactivation administrative ne supprime ni slot ni source ; (f) finalisation réussie : effets métier et suppression du slot dans une seule transaction ; (g) finalisation échouée : slot encore présent, pas de complétion ; (h) autres slots, y compris même agrégat, progressent. Archivage futur hors périmètre V3. Aucun test exécuté.
