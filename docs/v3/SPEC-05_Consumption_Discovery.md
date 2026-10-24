@@ -85,3 +85,8 @@ Les accès à WRITE de `MaterializePotVersion` et de `MaterializePotBalance` son
 La reconstruction READ totale implique indisponibilité contrôlée, arrêt effectif des writers READ, reset coordonné des projections, slots et checkpoints, puis reprise des mêmes IDs de Consumption et rejeu avant disponibilité READY selon C-02. Un rejeu indépendant utilise un nouvel ID. Ne jamais restaurer un checkpoint sans les effets et slots qui le justifient.
 
 Restent à certifier (et non à arbitrer une seconde fois) : horloge PostgreSQL au verrou final, takeover concurrent, absence de deadlock, conflit de borne sûre, transaction physique, rattrapage sans famine, coût SQL, crashs et quarantaine. Voir [V3-5D](SPEC-10_Test_Certification.md), CON-01 à CON-06, REC-01 et OPS-01. Aucun code, DDL ou test V3 exécuté.
+
+## Amendement MaterializeInvitation
+
+`MaterializeInvitation` est une Consumption READ indépendante alimentée par la cinquième séquence événementielle `INVITATION_EVENT`. Elle utilise les mêmes Discovery, slots, checkpoint, claim, fencing, retry et quarantaine que les autres Consumptions. Pour chaque `(invitationId, invitationVersion)`, elle relit l'état WRITE exact puis matérialise `CurrentInvitation` et termine son slot atomiquement en READ. Aucun prérequis de `CommandResult`, `PotVersion` ou `MaterializePotVisibility`. Une version ancienne ne fait jamais régresser la projection ; la reconstruction READ rejoue également cette famille.
+
