@@ -165,7 +165,7 @@ Contrôles transport/configuration : octets bruts et décompressés, profondeur 
 
 Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10](SPEC-10_Test_Certification.md).
 
-## Amendement contrats Invitation
+## 13. Contrats Invitation
 
 L'admission de `CreateInvitation` retourne `202` et `requestId`, jamais le lien. WRITE décide si l'appelant est le créateur et exécute la mutation. `CommandResult` indique seulement succès/rejet. La consultation READ de `CurrentInvitation` par `creationRequestId` restitue le lien exclusivement à l'EUI créatrice authentifiée ; un identifiant absent ou appartenant à autrui répond indistinctement `404`. L'invité authentifié présentant le token peut consulter exclusivement les Shareholders libres du Pot actif, à condition de n'être déjà lié à aucun Shareholder actif de ce Pot. `CurrentBinding` doit être actif. Jamais de lecture synchrone WRITE ni accès au Pot complet avant rattachement. Le résultat READ n'est pas une réservation ; la commande WRITE d'auto-rattachement revalide tout. Protéger le lien contre cache partagé, logs, substitution de requête et lecture par une autre EUI.
 
