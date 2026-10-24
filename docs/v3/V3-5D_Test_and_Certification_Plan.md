@@ -1511,3 +1511,9 @@ Contrat candidat : [V3-5E §12](V3-5E_Supra_Boundary_Contracts.md). Rejet autono
 **Contrat V3-4 :** fenêtre cohérente de positions globales committées `(K,H]`, séquence dense et transactionnelle, filtrage par partition, enrôlement de tous les slots requis et avancement du checkpoint atomiques dans la base des effets sous CAS/ownership. La lecture de la source peut être préalable et inter-bases ; aucune transaction distribuée présumée.
 
 **Scénarios JUnit/PostgreSQL :** publication concurrente avec compteur verrouillé ; commit et rollback ; observation d'une fenêtre homogène malgré transaction retardée ; positions d'autres partitions ; course de deux Discoveries ; crash entre lecture source et commit cible ; rollback sur échec d'insertion slot ; non-régression de K et absence de perte. Aucune preuve exécutée.
+
+## 52. AUD-V3-005 — certification de trois Consumptions directes POT_EVENT (2026-10-24)
+
+**Amendement aux plans anciens PRJ/CON :** plus de `PreparePotProjectionTasks` ni de `PotBalanceTask/PotVisibilityTask` ; six familles de sources, trois Consumptions non-burnables directes sur `POT_EVENT`, chacune Discovery + Engine autonomes. Les scénarios anciens qui exigent la création/terminalisation des tâches préparées doivent être **remplacés**, sans perdre leurs oracles : balances exactes et immuables pour chaque V, visibilité différentielle correcte et monotone, snapshot complet PotVersion et lecture cohérente à V.
+
+**Tests à construire :** trois checkpoints distincts progressant indépendamment ; crash/retry/fencing de chacun ; absence d'ordre imposé entre Consumptions ; matérialisation V+1 avant V pour chacun ; visibilité V tardive ne régressant pas ; version Pot/Balance absente => lecture temporairement indisponible, pas de mélange ; visibilité indépendante ; WRITE@V reconstitué séparément par projecteur ; budgets SQL/CPU/WAL et latence E2E avant/après simplification sans prétendre une amélioration mesurée. Aucun test V3 exécuté.
