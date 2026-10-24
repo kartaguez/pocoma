@@ -112,7 +112,7 @@ La Supra prend uniquement l'EUI issue de l'authentification, sans paramètre de 
 
 ## 8. Résultats de demandes et polling
 
-**DÉCISION NORMATIVE, prioritaire sur le « À préciser » du §17 et les propositions HTTP antérieures.** Pour `GET /commands/{requestId}/result` et la consultation équivalente d'`IdentityRequestResult`, la Supra READ exige une EUI authentifiée et consulte exclusivement la projection READ terminale. Elle ne demande aucun `bindingToken` et ne résout ni Binding courant ni PocomaUser. Le `requesterEui` immuable est présent dans chaque projection de résultat, recopié par la Consumption depuis la demande durable WRITE à l'occasion de la matérialisation ; aucune lecture WRITE synchrone à l'appel HTTP.
+**DÉCISION NORMATIVE sur la lecture des résultats de demandes.** Pour `GET /commands/{requestId}/result` et la consultation équivalente d'`IdentityRequestResult`, la Supra READ exige une EUI authentifiée et consulte exclusivement la projection READ terminale. Elle ne demande aucun `bindingToken` et ne résout ni Binding courant ni PocomaUser. Le `requesterEui` immuable est présent dans chaque projection de résultat, recopié par la Consumption depuis la demande durable WRITE à l'occasion de la matérialisation ; aucune lecture WRITE synchrone à l'appel HTTP.
 
 | Situation | HTTP | Contrat |
 |---|---|---|
