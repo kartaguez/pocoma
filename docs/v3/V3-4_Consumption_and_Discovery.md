@@ -180,3 +180,11 @@ Les seules familles burnables restantes sont `COMMAND` et `IDENTITY_REQUEST`. To
 **Distinction :** la possibilité de lire un Pot complet à V suppose que ses différentes projections nécessaires à V soient matérialisées, mais n'établit aucune dépendance d'exécution entre leurs slots. La quarantaine conserve son slot et l'absence de sa projection ; elle ne doit jamais être interprétée comme une complétion.
 
 **Point de certification :** vérifier, dans chaque Consumption y compris Command et IdentityRequest, l'absence effective de précondition « slot précédent terminé » et la correction des effets hors ordre. Cet arbitrage n'autorise pas à négliger les contrôles de cohérence/versions au moment de l'exécution.
+
+## Complément AUD-V3-007-Q — purge uniquement après succès (2026-10-24)
+
+**Arbitrage définitif de cycle de vie :** un slot `QUARANTINED` n'est **jamais purgé directement**. Il reste durablement présent comme preuve d'un traitement incomplet, même sur une durée indéfinie. Il n'occupe pas le `softCap` et ne bloque aucun autre slot. Sa seule sortie vers le traitement est la réactivation administrative explicite : même identité de slot, `attemptCount=0`, retour à l'éligibilité normale. Après acquisition et **succès effectif**, la transaction de finalisation écrit les effets et supprime atomiquement le slot selon le protocole ordinaire. Pas de terminalisation artificielle ni de suppression administrative d'un travail incomplet.
+
+**Conséquences :** pour les sources non-burnables, un checkpoint déjà avancé ne doit jamais masquer un travail en quarantaine ; pour les sources burnables, la demande demeure PENDING avec son slot durable et Discovery ne doit pas la recréer. L'archivage de long terme, s'il devient utile, constitue un sujet ultérieur distinct qui ne peut violer ces garanties.
+
+**AUD-V3-007/Q : cycle conceptuel clos** — seuil N configurable (sa valeur opérationnelle reste un paramètre), erreur technique comptée une fois sous claim courant, expiration non comptée, reprise administrative explicite, indépendance totale entre slots et suppression après succès exclusivement. Certification PostgreSQL encore à exécuter ; aucune implémentation V3 engagée.
