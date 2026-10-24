@@ -123,3 +123,9 @@ Les noms sont descriptifs, pas des classes ou des identifiants UUID imposés. Le
 - L'idempotence des admissions (Command/IdentityRequest) relève des Supras et de leur persistance atomique en WRITE, **sans nouvelle projection READ**.
 
 Pour éviter toute ambiguïté, ces règles et §9 prévalent sur les formulations antérieures des §§1–8 qui décrivent un autre `CurrentPot` ou l'absence de manifeste historique. Voir V3-5E §§18–20 ; tests V3-5D §§47–49.
+
+## 11. Amendement post-audit — droit READ du créateur (2026-10-24)
+
+**Décision :** l'ensemble interne `authorizedUserIds` de `PotVersion(P,V)` inclut `PotDetails.creatorId` **ainsi que** les `PocomaUserId` associés aux Shareholders présents à V. Ainsi `CreatePot` à V1 est lisible par son créateur sans Shareholder. L'autorisation demeure distincte de `CurrentUserPotList`, qui n'est jamais une source d'autorité ; les droits historiques et le contrôle du `CurrentBinding` actif restent requis. Les formulations antérieures excluant explicitement le créateur non-Shareholder sont **supplantées**.
+
+La suppression d'un Shareholder est une action WRITE réservée au créateur et interdite tant qu'une Expense active le référence. La matrice d'autorisation WRITE est dans V3-1 §9. Adapter SEC-01, PRJ-01 et la preuve V1 créateur ; les réponses 404 restent indistinguables pour un tiers.
