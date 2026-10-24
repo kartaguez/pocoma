@@ -1,6 +1,6 @@
 # Pocoma V3-2 — Événements, demandes et consommables
 
-**Statut : CONCEPTION CONCEPTUELLE VALIDÉE, sous réserve de revue transversale V3-3/V3-4 et jalon V3-CADRE. Non implémentée, non testée en V3.**  
+**Statut : contrat conceptuel consolidé (AUD-V3-005/010) ; réalisation et certification V3 non exécutées.**  
 **Date :** 2026-10-22. **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).  
 **Fondations :** [Pot V3-1](V3-1_Domain_and_Versioning.md) et [Identity V3-1](V3-1_Identity_Domain_and_Versioning.md).
 
@@ -14,7 +14,7 @@ Deux natures de faits durables :
 
 Un succès sans effet ou un rejet n'émet aucun événement de mutation, mais donne lieu à un résultat terminal et son événement de complétion. Une erreur technique transitoire n'est pas un rejet fonctionnel terminal.
 
-## 2. Six familles de consommables, deux mécanismes de Discovery
+## 2. Catalogue normatif : six familles de consommables
 
 | Famille | Domaine | Nature | Disponibilité / découverte |
 |---|---|---|---|
@@ -25,16 +25,18 @@ Un succès sans effet ou un rejet n'émet aucun événement de mutation, mais do
 | `COMMAND_COMPLETION_EVENT` | Pot | **Non-burnable** | Séquence transactionnelle dense `COMMAND_COMPLETION` |
 | `IDENTITY_COMPLETION_EVENT` | Identity | **Non-burnable** | Séquence transactionnelle dense `IDENTITY_COMPLETION` |
 
-Ces familles sont **logiques** : ni six tables ni six moteurs ne sont imposés. Les événements ne portent aucun statut de consommation ; les demandes burnables portent leur propre statut. Les algorithmes de Discovery, checkpoints, claims et retries sont conçus en V3-4.
+Ces familles sont **logiques** : ni six tables ni six moteurs ne sont imposés. Les événements ne portent aucun statut de consommation ; les demandes burnables portent leur propre statut. La Discovery des deux demandes burnables est asynchrone après admission, sans création de slot par la Supra ; les quatre sources événementielles sont non-burnables. Les algorithmes de Discovery, checkpoints, claims, quarantaine et retries sont définis en V3-4. Les anciennes familles techniques `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK` et `PreparePotProjectionTasks` n'existent pas en V3.
 
 ## 3. Demandes burnables et résultats terminaux
 
-Contrat conceptuel minimal d'une demande durable :
+Contrat normatif d'une demande durable :
+- `requesterEui` : identité initiatrice authentifiée `(issuer,subject)`, capturée immuablement dès l'admission, y compris pour Registration et pour une demande ultérieurement rejetée ; elle est propriétaire de la demande et du résultat, sans transfert lors des Unlink/re-Link ;
+- `bindingToken` explicite de l'EUI initiatrice pour toute Command ou IdentityRequest sauf Registration, sans inférence implicite de PocomaUserId ; validation de l'occurrence active par WRITE à l'exécution ;
 - `requestId` stable et unique ; `operation` ; `payload` d'intention et preuves capturées de façon immuable ;
 - `status` durable `PENDING` ou `TERMINAL`, **sans** `PROCESSING`/`RETRYING` comme états métier ;
 - lors de la terminalisation, exactement un résultat terminal durable portant l'issue fonctionnelle et ses informations propres ; l'issue **ne se déduit pas** de `TERMINAL`.
 
-La transition `PENDING → TERMINAL`, l'enregistrement du résultat, l'événement de complétion et toutes les mutations/événements produits sont atomiques. La demande ne redevient pas `PENDING`. Une nouvelle tentative technique d'une demande déjà terminale ne reproduit aucun effet métier. La correspondance durable `TERMINAL` ↔ résultat existant est un invariant de cohérence, non une raison de supprimer le statut. Les opérations Identity partagent la famille `IDENTITY_REQUEST`, avec payloads et validations métier propres.
+La transition `PENDING → TERMINAL`, l'enregistrement du résultat, l'événement de complétion et toutes les mutations/événements produits sont atomiques. La demande ne redevient pas `PENDING`. Une nouvelle tentative technique d'une demande déjà terminale ne reproduit aucun effet métier. La correspondance durable `TERMINAL` ↔ résultat existant est un invariant de cohérence, non une raison de supprimer le statut. La demande et le résultat terminal WRITE restent retrouvables ensemble par `requestId`. La Consumption de complétion récupère les deux en WRITE puis matérialise `requesterEui` dans `CommandResult` ou `IdentityRequestResult` en READ ; aucune nouvelle projection ou consultation synchrone de WRITE par la Supra READ. Les opérations Identity partagent la famille `IDENTITY_REQUEST`, avec payloads et validations métier propres.
 
 ## 4. Contrats événementiels minimaux
 
@@ -47,7 +49,7 @@ La transition `PENDING → TERMINAL`, l'enregistrement du résultat, l'événeme
 - PocomaUser : événement lors de création, version initiale **1**, non évolutive.
 - Unicité naturelle complémentaire : `(subjectType, subjectId, subjectVersion)` ; `eventId` est néanmoins conservé pour simplifier les références techniques.
 
-**Événement de complétion :** socle, avec `subjectId = requestId` de la demande terminée et `subjectType` identifiant la catégorie de demande (Command ou opération Identity). Pas de `requestId` dupliqué, ni de version artificielle, ni de résultat recopié. Un événement de complétion par demande terminalisée ; pas de statut porté par cet événement.
+**Événement de complétion :** socle, avec `subjectId = requestId` de la demande terminée et `subjectType` identifiant la catégorie de demande (Command ou opération Identity). Pas de `requestId` dupliqué, ni de version artificielle, ni de résultat recopié. Un événement de complétion par demande terminalisée ; pas de statut porté par cet événement. Ni `requesterEui` ni `bindingToken` n'enrichissent cet événement partagé.
 
 ## 5. Publication et séquences transactionnelles
 
@@ -76,33 +78,14 @@ Le changement métier, ses événements, la terminalisation, le résultat, les �
 
 Lors d'une Registration, les deux événements Identity et la complétion sont publiés atomiquement dans **deux** séquences, sans ordre global entre elles. Le `requestId` commun relie les événements de mutation à la demande. Les événements de complétion sont consommables indépendamment de l'avancement des matérialisations de mutation ; **publication atomique ≠ projections READ simultanément à jour**.
 
-## 7. Décisions reportées et critères de clôture
+## 7. Destinataires des sources et frontières de responsabilité
 
-**V3-3** : projections exactes, liens causalement cohérents, lecture sécurisée des tokens et niveaux de fraîcheur des READ ; ne pas supposer qu'une complétion matérialisée entraîne nécessairement une projection Pot/Identity déjà matérialisée.
+Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions directes : `MaterializePotVersion` (composition historique, sous-objets et pointeur courant), `MaterializePotBalance` (balance exacte et immuable à V pour une version active ; traitement terminal sans Balance(D) pour DeletePot) et `MaterializePotVisibility` (état de visibilité et navigation). Chaque Consumption dispose de son propre Discovery, de ses slots et checkpoints ; aucune tâche préparatoire, dépendance de slot ou séquence supplémentaire.
 
-**V3-4** : identité stable `consumptionId` (une nouvelle définition de transformation reçoit un nouvel ID), `consumableId`, traitement déclenché par **une** source (lectures complémentaires possibles), Discovery et checkpoints par séquence, claims/retries/fencing, résolution de commit incertain, performances de sélection `PENDING`, traitement inter-projections sans dépendance implicite. Aucun `workId` nouvel UUID imposé.
+`IDENTITY_EVENT` alimente `CurrentBinding` depuis l'état autoritatif EUI@version sans propager le bindingToken dans l'événement ; un événement de création de PocomaUser n'impose aucune projection Identity inverse. Les événements de complétion alimentent les deux projections de résultats immuables, à partir de la demande et du résultat WRITE. Voir [V3-3](V3-3_Read_and_Projections.md) pour les projections et [V3-4](V3-4_Consumption_and_Discovery.md) pour l'exécution, l'atomicité et la reprise.
 
-**Admission/sécurité** : preuve fiable de contrôle/consentement de l'EUI cible pour Link, préservant les décisions V3-1 ; avant implémentation.
+## 8. Garanties et qualification restantes
 
-**V3-5** : preuves de densité et ordre de visibilité sous concurrence/rollback ; deux familles avec mutation + complétion ; Registration multi-événements ; commandes sans effet/rejetées ; atomie en cas de crash/UNKNOWN ; absence de perte et reprise ; mesures SQL/charge réalistes ; pas de certification production héritée de V2.
+Les six familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
 
-Les contrats précis des résultats terminalisés (payload par opération), les index/tables, la portée des IDs à l'échelle des familles et les mécanismes des workers restent à détailler sans ajouter d'abstraction inutile. **Aucune implémentation V3 n'est autorisée avant le jalon transverse V3-CADRE.**
-
-
-## Amendement V3-4 — sources internes READ (2026-10-23)
-
-Le catalogue initial des **six familles** concerne les demandes métier et les événements. Deux familles techniques supplémentaires, **internes à READ et burnables**, sont retenues : `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK`, chacune à statut `PENDING → TERMINAL` et avec une seule Consumption destinataire. Aucune nouvelle séquence globale d'événements n'est introduite. Pour chaque `POT_EVENT`, la Consumption de préparation produit atomiquement les deux tâches avec la suppression de son slot, dans READ. Chaque tâche est identifiée de façon stable par `(preparationConsumptionId,potEventId,taskType)` ; un rejeu indépendant crée une nouvelle Consumption de préparation et donc de nouvelles tâches, alors qu'une reconstruction de READ à blanc peut réutiliser les mêmes IDs après reset cohérent. Matérialisation, terminalisation et suppression du slot d'une tâche s'effectuent en une transaction READ. Ces contrats devront être prouvés en V3-5.
-
-## Amendement post-audit AUD-V3-005 — suppression des tâches de projection (2026-10-24)
-
-**DÉCISION :** les familles techniques `POT_BALANCE_TASK` et `POT_VISIBILITY_TASK` sont **supprimées de la cible V3**. Le catalogue revient à **six familles** de sources métier et événements ; aucune tâche durable de préparation, événement supplémentaire ni séquence globale nouvelle.
-
-Chaque `POT_EVENT(P,V)` est une source non-burnable consultée **indépendamment** par trois Consumptions : `MaterializePotVersion` (composition/subobjects/current pointer), `MaterializePotBalance` (balance immuable V) et `MaterializePotVisibility` (liste mutable). Chacune possède ses slots et checkpoints et calcule ses données depuis WRITE@V au moment de son exécution. Un même Worker physique peut héberger leurs Discovery + Engine. Aucun orchestrateur ni Discovery central ajouté.
-
-Cette décision **supplante** les paragraphes antérieurs proposant deux familles READ burnables et `PreparePotProjectionTasks`. Les exigences de reprise, fencing et atomicité propres à chaque Consumption restent inchangées.
-
-## Amendement post-audit AUD-V3-010 — provenance des demandes et complétions (2026-10-24)
-
-**NORMATIF ; supplante toute omission antérieure.** À l'admission durable de chaque `COMMAND` ou `IDENTITY_REQUEST`, enregistrer immuablement l'EUI authentifiée initiatrice (`requesterEui`, identité stable `issuer, subject` ; représentation physique libre). Cela inclut Registration sans Binding, Link, Unlink, Commands, et les demandes ensuite rejetées pour `bindingToken` invalide. Cette EUI est propriétaire de la demande et de son résultat, indépendamment du PocomaUser résolu à l'exécution et de tout changement ultérieur de Binding. Les refus avant admission ne créent pas de demande ni de résultat.
-
-Le résultat terminal WRITE et la demande restent retrouvables ensemble par `requestId`. L'événement de complétion **reste inchangé**, identifié par le `requestId` sans dupliquer `requesterEui` ou le résultat. La Consumption de complétion lit en WRITE la demande et le résultat terminal, puis matérialise `requesterEui` dans le résultat READ correspondant. Ce chargement WRITE asynchrone par Consumption ne permet jamais à la Supra READ de consulter WRITE lors d'une requête HTTP. Aucun événement, famille, projection ni autorité métier supplémentaire. Voir V3-3 §15, V3-5E amendement AUD-V3-010 et V3-5D §60.
+La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](V3-5D_Test_and_Certification_Plan.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.
