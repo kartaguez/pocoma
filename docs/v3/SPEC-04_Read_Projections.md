@@ -108,3 +108,10 @@ Cet amendement complète SEC-01 et supplante les passages historiques de §§1�
 ## 11. Reconstruction, coûts et preuves
 
 Les historiques PotVersion, SubobjectVersion et PotBalance sont conservés sans archivage ni purge automatique V3. Le coût d'un manifeste complet par V est assumé et doit être mesuré, notamment pour les grands Pots (AUD-V3-013), sans modifier la règle au titre du présent audit. Reconstruction READ : arrêt des writers, reset cohérent des projections, slots et checkpoints et rejeu conforme à C-02 en [SPEC-05](SPEC-05_Consumption_Discovery.md). Preuves PRJ-01/02/03, READ-01, SEC-01, A10 et A11 en [SPEC-10](SPEC-10_Test_Certification.md).
+
+## Amendement CurrentInvitation
+
+La neuvième projection logique `CurrentInvitation` est indépendante des huit projections existantes. Elle contient l'identifiant, la version/état, le `creationRequestId`, la `creatorEui`, le `potId`, l'expiration, l'empreinte du token et le **lien restituable sous protection de confidentialité**. `MaterializeInvitation` consomme `INVITATION_EVENT`, lit WRITE à la version exacte et avance conditionnellement la projection, sans régression en cas d'événements hors ordre.
+
+Le lien est restitué au seul `creatorEui` authentifié, par `creationRequestId`, jamais par `CommandResult`. Pour l'invité authentifié présentant le token, READ vérifie son empreinte, son expiration, le Pot actif à la version courante projetée et l'absence de rattachement à un Shareholder actif ; elle propose seulement les Shareholders `isFree` et leurs noms. `authorizedUserIds` ne suffit pas à détecter un rattachement, car cette liste contient aussi le créateur indépendant de tout Shareholder : conserver un indicateur interne de rattachement par Shareholder, sans exposer userId. READ est éventuellement cohérent ; aucune place n'y est réservée.
+
