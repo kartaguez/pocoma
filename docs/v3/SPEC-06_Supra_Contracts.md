@@ -132,7 +132,7 @@ Après le `202 Accepted` d'admission, le client conserve le `requestId` et pours
 
 **Preuves SUPRA-READ-01/SEC-01 à ajouter :** ressource absente vs interdite sans distinction observable pertinente (statut, corps, détails et comportement contrôlable), refus de références étrangères sans fuite, réponses sensibles non mises en cache partagé, et cas 403 éventuels prouvant l'indépendance de la ressource. Le cache et les timings sont à qualifier de façon réaliste, sans exiger une constante cryptographique de temps pour chaque lecture SQL.
 
-**Statut : politique validée ; inventaire d'éventuels 403 et conventions exactes d'erreur à finir dans V3-5E.**
+**Statut : politique conceptuellement validée ; les éventuels cas `403` et conventions d'enveloppe doivent respecter SPEC-06 et seront qualifiés avant certification. Les choix `401/404/503` ne sont pas rouverts.**
 
 **SEC-01 :** autoriser la lecture du Pot et des références Expenses sur la base du créateur immuable ou des Shareholders à la version demandée V, après résolution du Binding actif actuel et de l'EUI authentifiée. Une version ultérieure ne retire pas le droit historique, et la liste de navigation n'accorde aucun droit. Authentifier et autoriser **avant** tout contrôle de complétude ou minVersion susceptible de révéler la ressource. La lecture des résultats suit exclusivement requesterEui, distinctement de SEC-01.
 
@@ -157,10 +157,10 @@ Pour DeletePot(P) à la version terminale D, la lecture courante et la lecture h
 
 **Tests discriminants :** grande Command légitime au-dessus de 100 cibles (ne pas la déclarer métier invalide par défaut) ; Command atomique non sécable sous plafond ; corps volumineux invalidé avant parsing ; Pot 100/2 000 complet malgré limites de lot ; limites configurées à la baisse pour une nouvelle admission sans effet sur les demandes déjà persistées ; absence de requête WRITE métier à l'admission.
 
-**Statut : séparation conceptuelle VALIDÉE ; les seuils chiffrés des protections demeurent à calibrer avant qualification, sans ajout de règle métier arbitraire.** V3-CADRE reste ouvert.
+**Statut : séparation conceptuelle VALIDÉE ; les seuils chiffrés des protections demeurent à calibrer avant qualification, sans ajout de règle métier arbitraire.** Les preuves V3 restent à exécuter.
 
 Contrôles transport/configuration : octets bruts et décompressés, profondeur JSON, cardinalités des lots, budget de réponse et timeouts ; aucune troncature silencieuse de la réponse fonctionnellement complète. Les valeurs candidates de volume ou cardinalité des premières études ne sont **pas** des plafonds métier validés. Les limites concrètes doivent être qualifiées et publiées avant exécution.
 
 ## 12. Garanties, paramètres et qualification
 
-Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10 provisoire](SPEC-10_Test_Certification.md).
+Garanties à certifier : admissions atomiques et idempotentes (ADM-01, S-03), navigation non autorisante et keyset (S-01), manifeste complet et lots bornés (S-02), droits historiques et masquage (SEC-01), consentement externe Link (ID-02, C-01), résultats A10-A à A10-K et suppression A11-A à A11-N. Les valeurs opérationnelles de plafonds, budgets et transport, la qualification du serveur d'autorisation et le dimensionnement grand Pot restent à éprouver ; aucune certification V3 n'est revendiquée. Voir [SPEC-10](SPEC-10_Test_Certification.md).
