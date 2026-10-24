@@ -9,7 +9,7 @@ Les Supras sont des frontières API d'authentification, validation de forme, adm
 
 ## 2. Admission, provenance et idempotence
 
-**PROPOSITION À DISCUTER, pas encore un choix de seuils.** Les Supras d'admission rejettent avant persistance les demandes qui ne respectent pas le **contrat autonome d'entrée**, sans chercher l'état métier courant dans WRITE. La persistance de l'admission et la gestion de l'idempotence utilisent leur propre autorité transactionnelle ; l'interdiction concerne la lecture du **domaine métier** WRITE pour décider de l'acceptation.
+**Contrat d'admission validé ; les seuils chiffrés restent à qualifier.** Les Supras d'admission rejettent avant persistance les demandes qui ne respectent pas le **contrat autonome d'entrée**, sans chercher l'état métier courant dans WRITE. La persistance de l'admission et la gestion de l'idempotence utilisent leur propre autorité transactionnelle ; l'interdiction concerne la lecture du **domaine métier** WRITE pour décider de l'acceptation.
 
 | Couche de validation | Contrôles admissibles immédiatement | Ce qui reste au Worker |
 |---|---|---|
@@ -75,9 +75,9 @@ L'absence normale de `PotBalance(P,D)` pour la version terminale n'est jamais un
 
 **Cohérence :** toutes les références appartiennent à V ; les détails demandés ultérieurement utilisent exactement ces versions immuables, même si `CurrentPot` a avancé. L'UI contrôle le rafraîchissement de la version affichée.
 
-**Statut : S-02 RÉSOLU conceptuellement ; taille réelle et paramètres de protection à qualifier.** S-03 (idempotence d'admission) reste ouvert.
+**Statut : S-02 RÉSOLU conceptuellement ; taille réelle et paramètres de protection à qualifier.** S-03 (idempotence d'admission) est défini au §2.
 
-**À VALIDER :** une lecture groupée demande `potId`, `potVersion=V` et une **liste ordonnée et bornée de références d'Expenses** issues du manifeste `PotVersion(P,V)`. Chaque référence indique l'identité métier Expense et les versions locales nécessaires (`Header/Details/Financials`), ou un identifiant opaque équivalent résolu strictement dans le manifeste. Les détails sont servis exclusivement depuis `SubobjectVersion` ; le Supra ne contacte pas WRITE.
+**Contrat validé :** une lecture groupée demande `potId`, `potVersion=V` et une **liste ordonnée et bornée de références d'Expenses** issues du manifeste `PotVersion(P,V)`. Chaque référence indique l'identité métier Expense et les versions locales nécessaires (`Header/Details/Financials`), ou un identifiant opaque équivalent résolu strictement dans le manifeste. Les détails sont servis exclusivement depuis `SubobjectVersion` ; le Supra ne contacte pas WRITE.
 
 **Bornage symétrique :**
 - Refuser avant requête coûteuse une liste vide, des doublons si non normalisés, des références malformées, des volumes excessifs et des combinaisons `potId/V` incohérentes. **Plafond serveur configurable**, avec maximum contractuel publié, indépendant du nombre de références du manifeste principal. Un plafond ne se négocie pas à la hausse par le client.
@@ -102,7 +102,7 @@ L'absence normale de `PotBalance(P,D)` pour la version terminale n'est jamais un
 
 **Preuves S-01 :** pages successives sans duplication à liste fixe ; Pot ajouté avant/après curseur ; Pot devenant invisible ; cursor altéré/non valide ; demande au-delà du plafond ; changement de binding ; profil utilisateur avec beaucoup de Pots et index compatible. Vérifier l'absence de fuite inter-utilisateurs et l'absence de scan de toutes les entrées.
 
-**Statut : S-01 RÉSOLU conceptuellement.** Reste S-02 (taille du manifeste principal) puis S-03 (idempotence d'admission).
+**Statut : S-01 résolu conceptuellement ; dimensionnement et preuves encore à réaliser.**
 
 ## 7. Consultation de son CurrentBinding
 
