@@ -123,3 +123,15 @@ La condition « aucune Expense liée » est un invariant métier vérifié **au 
 **Effet READ à harmoniser :** à V, `PotVersion(P,V).authorizedUserIds` doit inclure le `creatorId` et les utilisateurs liés à des Shareholders de V ; le seul fait de figurer dans une liste de navigation n'est pas en soi une permission. La visibilité du créateur sans Shareholder est ici intentionnellement une conséquence de son rôle de gestion. Pour les versions historiques, les droits de Shareholder sont évalués à V sous réserve de `CurrentBinding` actif, et ceux du créateur découlent de son rôle immuable.
 
 **Statut : AUD-V3-001, volet droits créateur/Shareholder et matrice WRITE, arbitré ; AUD-V3-003, condition de suppression d'un Shareholder, arbitré partiellement.** Les autres conditions sur références croisées/obsolescence restent à examiner.
+
+## 10. Proposition post-audit AUD-V3-002 — invitation de rattachement à un Shareholder (2026-10-24)
+
+**Décision de principe exprimée :** le créateur peut générer un lien d'invitation temporaire pour son Pot. Toute personne authentifiée munie du lien peut choisir **n'importe quel Shareholder actif et libre** de ce Pot et réclamer son rattachement, **à condition de ne pas être déjà liée à un Shareholder actif de ce Pot**. Le lien transporte un secret opaque qui référence une invitation persistée avec `potId` et `expiresAt`. Ce n'est ni une authentification ni un droit permanent sur le Pot.
+
+**Modèle minimal candidat :** enregistrement WRITE `PotInvitation(tokenHash, potId, expiresAt)`, secret aléatoire fort côté client, seule empreinte conservée. Plusieurs utilisations possibles pendant la validité, puisque l'invitation concerne le Pot, pas une personne ni un Shareholder. La possibilité pour le créateur de révoquer l'invitation avant expiration est **recommandée, à confirmer** ; aucun compteur d'usages nécessaire par défaut.
+
+**Règle d'exécution :** authentifier EUI et résoudre son PocomaUserId/Binding actif dans WRITE, puis, dans une transaction atomique, vérifier l'invitation non expirée, Pot actif, Shareholder cible actif/libre, absence de tout autre Shareholder actif déjà rattaché à ce même PocomaUserId dans le Pot, et procéder à la mutation versionnée de ShareholderDetails. Garantir l'exclusion des deux courses : plusieurs personnes visant le même Shareholder et une même personne visant simultanément plusieurs Shareholders. Une invitation ne délègue pas au porteur le droit d'attribuer un autre utilisateur : **auto-rattachement uniquement**. Une admission structurale n'anticipe pas ces décisions WRITE du Worker.
+
+**Frontière à préciser :** EUI authentifiée sans PocomaUser/Binding encore actif : Registration préalable ou parcours combiné ? Le droit du créateur de révoquer une invitation et le comportement après expiration doivent être figés. La protection du secret (non journalisation, pas dans analytics/referrer) et la gestion du retry/idempotence font partie des contrats des Supras.
+
+**Statut : solution fonctionnelle de principe retenue pour AUD-V3-002 ; détails de révocation et d'enrôlement d'un utilisateur non enregistré encore ouverts. Aucun code ni DDL V3 exécuté.**
