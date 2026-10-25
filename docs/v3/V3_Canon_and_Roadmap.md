@@ -105,6 +105,8 @@ Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de produ
 
 **L1 : domaine Pot sous [SPEC-01](SPEC-01_Pot_Domain.md), non implémenté.** Le découpage suivant est un plan de réalisation et de suivi, pas un second canon normatif. Les SPEC restent la seule autorité normative fonctionnelle ; [SPEC-10](SPEC-10_Test_Certification.md) régit les preuves applicables. Chaque lot déclarera son périmètre de vérification avant implémentation selon la [politique du réacteur](../testing/Reactor_Verification_Policy.md).
 
+**L1-A — contrat proposé le 2026-10-25 :** [conception détaillée et plan de vérification](L1_Design_and_Verification_Plan.md), en attente de revue contradictoire avant autorisation du code. L0 reste clôturé et accepté pour la poursuite ; L1-A non implémenté, aucune preuve fonctionnelle L1 acquise.
+
 | Lot | Réalisation prévue | Statut / obligation de clôture |
 |---|---|---|
 | L1-A | Composantes métier immuables, état Pot cohérent, transitions pures, tests unitaires | Non implémenté ; renforcer la couverture ArchUnit des ports applicatifs, notamment `engine.*.port.*` (A-01), avant clôture |
