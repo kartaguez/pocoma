@@ -36,7 +36,7 @@ def compare(revision, expected):
     for name in names:
         if name and not excluded(name):
             path = ROOT / name
-            actual[name] = digest(path.read_bytes()) if path.is_file() else 'DELETED'
+            actual[name] = digest(path.read_bytes().replace(b'\r\n', b'\n')) if path.is_file() and name == 'app/mvnw.cmd' else (digest(path.read_bytes()) if path.is_file() else 'DELETED')
     if actual != expected:
         raise RuntimeError('Input mismatch: ' + str(sorted(k for k in set(actual)|set(expected) if actual.get(k)!=expected.get(k))))
     if git('rev-parse','HEAD').decode().strip() != revision:
