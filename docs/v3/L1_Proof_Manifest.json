@@ -143,7 +143,8 @@
       "methods": [
         "e01CanonicalV1ThroughV9AllEightComponentsAndExactBalances",
         "e02D01MNoopsRejectionsAndHistoricalDeletedShareholder",
-        "e03FinancialNoopObsoleteEqualityAndReplayHaveOnlyCompletions"
+        "e03FinancialNoopObsoleteEqualityAndReplayHaveOnlyCompletions",
+        "e04OldCreationObservationMixedBatchAndExpenseDeletionDependencies"
       ]
     }
   },

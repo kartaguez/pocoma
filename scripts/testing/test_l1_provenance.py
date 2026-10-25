@@ -39,6 +39,11 @@ class ProvenanceTest(unittest.TestCase):
     def test_executable_file_cannot_hide_in_evidence_exclusion(self):
         self.write('docs/testing/evidence/L1-DE/hidden.py','print("executable")\n');self.commit()
         with self.assertRaisesRegex(RuntimeError,'Untested publication'):verify.publication(self.tested,self.git('rev-parse','HEAD').strip(),False)
+    def test_executable_changed_then_reverted_is_not_documentary(self):
+        self.write('app/src/Code.java','class Changed {}\n');self.commit()
+        self.write('app/src/Code.java','class Code {}\n');self.commit()
+        self.assertEqual(self.inputs,verify.inputs(self.git('rev-parse','HEAD').strip()))
+        with self.assertRaisesRegex(RuntimeError,'Untested publication commit history'):verify.publication(self.tested,self.git('rev-parse','HEAD').strip(),False)
     def test_external_binary_change_and_new_dependency_are_rejected(self):
         for after in ({'jdk':'changed','jar':'same'},{'jdk':'same','jar':'same','new':'new'}):
             with self.assertRaisesRegex(RuntimeError,'External build inputs changed'):verify.verify_external({'jdk':'same','jar':'same'},after,{})

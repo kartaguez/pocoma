@@ -180,6 +180,14 @@ def validate_final_gates(tested, proof_index):
         if summary['revision']!=tested or summary['exit_code'] or summary['mandatory_verdict']!='PASS':
             raise RuntimeError('Final gate did not pass on tested revision: '+gate)
         if summary['counts']['failures'] or summary['counts']['errors']: raise RuntimeError('Gate failure')
+        if summary['problems'] != (['Skipped tests prevent complete gate coverage'] if summary['counts']['skipped'] else []):
+            raise RuntimeError('Unexplained incomplete final gate coverage')
+        manifest=json.loads(manifest_path.read_text())
+        definition=manifest['gates'][gate]
+        if summary['command']!=definition['command']: raise RuntimeError('Noncanonical final gate command')
+        expected_methods={(manifest['suites'][key]['class'],method) for key in definition['suites'] for method in manifest['suites'][key]['methods']}
+        actual_methods={(method['class'],method['method']) for method in summary['mandatory_methods'] if method['fresh_pass_executions']==1}
+        if actual_methods!=expected_methods: raise RuntimeError('Final gate mandatory methods differ from committed manifest')
         for skip in summary['skips']:
             if skip['classname']!='com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest' or skip['method']!='zExploratoryContentionSeparateFromCorrectness':
                 raise RuntimeError('Unexpected skip in final proof')
@@ -195,13 +203,19 @@ def validate_final_gates(tested, proof_index):
 
 def publication(tested,published,remote,proof_index=None):
     verified_gates=validate_final_gates(tested,proof_index)
+    git('merge-base','--is-ancestor',tested,published)
+    history_changes={}
+    for revision in git('rev-list','--ancestry-path',tested+'..'+published).decode().splitlines():
+        names=git('diff-tree','--no-commit-id','--name-only','-r',revision).decode().splitlines()
+        if any(not excluded(name) for name in names): raise RuntimeError('Untested publication commit history: '+revision)
+        history_changes[revision]=names
     expected=inputs(tested)
     changes=git('diff','--name-only',tested,published).decode().splitlines()
     forbidden=[name for name in changes if not excluded(name)]
     if forbidden or inputs(published)!=expected: raise RuntimeError('Untested publication inputs: '+str(forbidden))
     head=git('ls-remote','origin','refs/heads/feat/v3-architecture').decode().split()[0] if remote else None
     if remote and head!=published: raise RuntimeError('Remote differs from published commit')
-    result=dict(tested=tested,published=published,remote=head,verified_final_gates=verified_gates,changes=changes,exclusions=EXCLUSIONS,verdict='PASS',input_digest=digest(json.dumps(expected,sort_keys=True).encode()))
+    result=dict(tested=tested,published=published,remote=head,verified_final_gates=verified_gates,documentary_commit_history=history_changes,changes=changes,exclusions=EXCLUSIONS,verdict='PASS',input_digest=digest(json.dumps(expected,sort_keys=True).encode()))
     print(json.dumps(result,indent=2))
 
 if __name__=='__main__':

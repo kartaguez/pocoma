@@ -310,7 +310,85 @@ class L1IntegrationPostgresTest {
                 List.of(Map.of("kind", "EXPENSE_FINANCIALS", "local_version", 2L)),
                 f.jdbc.queryForList(
                         "select c.kind,c.local_version from v3_pot_event_component c join"
-                            + " v3_pot_event e using(event_id) where e.subject_version=4"));
+                                + " v3_pot_event e using(event_id) where e.subject_version=4"));
+        f.dense();
+    }
+
+    @Test
+    void e04OldCreationObservationMixedBatchAndExpenseDeletionDependencies() throws Exception {
+        f.base();
+        var before = f.snapshot();
+        f.run(
+                f.command(
+                        2,
+                        new UpdateShareholderWeights(
+                                List.of(
+                                        new ShareholderTransitions.WeightIntent(f.a, f.two),
+                                        new ShareholderTransitions.WeightIntent(f.b, f.one),
+                                        new ShareholderTransitions.WeightIntent(f.c, f.one)))));
+        var mixed = f.snapshot();
+        assertEquals(3, f.storeVersion());
+        assertEquals(
+                new Versioned<>(2, 3, new ShareholderWeight(f.p, f.a, f.two)),
+                mixed.shareholders().get(f.a).weight());
+        for (var id : List.of(f.b, f.c))
+            assertEquals(before.shareholders().get(id), mixed.shareholders().get(id));
+        assertEquals(
+                List.of(
+                        Map.of(
+                                "kind",
+                                "SHAREHOLDER_WEIGHT",
+                                "object_id",
+                                f.a.value(),
+                                "local_version",
+                                2L)),
+                f.jdbc.queryForList(
+                        "select c.kind,c.object_id,c.local_version from v3_pot_event_component c"
+                            + " join v3_pot_event e using(event_id) where e.subject_version=3"));
+        f.rejected(
+                f.run(
+                        f.command(
+                                2,
+                                new UpdateShareholderWeights(
+                                        List.of(
+                                                new ShareholderTransitions.WeightIntent(f.b, f.two),
+                                                new ShareholderTransitions.WeightIntent(
+                                                        f.a, f.two))))),
+                "OBSOLETE");
+        assertEquals(
+                mixed,
+                f
+                        .snapshot()); // Last requested target equals its stale value; first target
+                                      // cannot leak.
+        var late = new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(new UUID(12, 44));
+        assertEquals(
+                4L,
+                f.run(
+                                f.command(
+                                        2,
+                                        new AddShareholders(
+                                                List.of(
+                                                        new ShareholderTransitions.Creation(
+                                                                late,
+                                                                new Name("late"),
+                                                                Optional.empty(),
+                                                                f.one)))))
+                        .resultingPotVersion());
+        var financial = d.financial(100, f.a, Optional.empty());
+        assertEquals(5L, f.run(f.command(2, f.expense(financial))).resultingPotVersion());
+        d.exact(3, "0/1", "0/1", "0/1");
+        f.run(f.command(5, new UpdateExpenseFinancials(d.financial(120, f.a, Optional.empty()))));
+        f.rejected(f.run(f.command(5, new DeleteExpense(f.e))), "OBSOLETE");
+        d.weight(6, f.b, 3, 1);
+        assertEquals(8L, f.run(f.command(6, new DeleteExpense(f.e))).resultingPotVersion());
+        // A weight change alone leaves all three Expense dependencies valid for deletion.
+        assertEquals(new Fraction(120, 1), d.balance(7).values().get(f.a));
+        assertEquals(new Fraction(-90, 1), d.balance(7).values().get(f.b));
+        assertEquals(new Fraction(-30, 1), d.balance(7).values().get(f.c));
+        assertEquals(Fraction.ZERO, d.balance(7).values().get(late));
+        assertTrue(d.balance(8).values().values().stream().allMatch(Fraction.ZERO::equals));
+        assertEquals(1, f.snapshot().expenses().get(f.e).details().localVersion());
+        assertEquals(2, f.snapshot().expenses().get(f.e).financials().localVersion());
         f.dense();
     }
 }
