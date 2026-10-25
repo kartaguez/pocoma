@@ -19,3 +19,25 @@ Reuse existing stable PotId, ShareholderId, ExpenseId, UserId, Label and Name. N
 A-01 selects both top-level and engine-nested ports. SQL/JDBC and implementation/framework dependencies are forbidden. The exact legacy application contract exceptions are enumerated in `V3FoundationArchitectureTest.LEGACY_PORT_CONTRACTS`; they are pure context/outcome/cursor/ordering/admission values, retained until those consumers migrate, reviewed at each L1 contract change. No engine implementation package is generally permitted.
 
 A-02 is initiated by `scripts/testing/verify-v3-l1.py`: committed input comparison before/after each gate, strict expected methods, raw fresh XML/log archival and tested/published input correspondence. Full L1 closure and remote correspondence remain due. No PASS is claimed at this preparation stage.
+
+## A technical closure
+
+Code commits: `8a33b2cb` (domain and guards), `dbec5a8e` (Windows wrapper line endings in collector), `23f18a01` (prevent generated Python bytecode from becoming an untracked build input). Exploratory diagnostics are not certification; their logs are retained in the A archive.
+
+| Gate | Tested commit | Actual result | Evidence |
+|---|---|---|---|
+| G-A feedback | 23f18a01 | 220 tests, 0 failures/errors/skips; PASS | `a-domain-1792927055484795000/summary.json` |
+| G-A consumers | 23f18a01 | Maven exit 0; 1190 tests, 0 failures/errors, 1 optional historical skip; global complete coverage INCONCLUSIVE | `a-consumers-1792927068536741000/summary.json` |
+| G-ARCH | 23f18a01 | Maven exit 0; 1422 tests, 0 failures/errors, 1 optional historical skip; required A+ArchUnit methods PASS; global coverage INCONCLUSIVE | `a-arch-1792927315643647000/summary.json` |
+
+The consumer skip is `TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness`, disabled without `step3b.measure`. This optional V2 measurement is outside the mandatory L1 manifest. It remains a SKIP, and global coverage is not called PASS. Required A method outcomes are checked individually. No historical L0 result is transferred.
+
+### A proof mapping
+
+`PotTransitionsTest` methods `l1a01` through `l1a14` implement the corresponding rows L1A-01 through L1A-14 in plan §10 (full exact method names in the committed proof manifest). Variant assertions are deterministic table/loop assertions, not parameterized JUnit tests. Weight permutations cover both orders and final invalid/stale targets; financial assertions cover equal/stale/created-late/deleted/missing references; ordinary attachment covers self/creator/third party. L1A-15 maps to all five `V3FoundationArchitectureTest` methods, with nine nested-port fixtures, eight individually forbidden. No memory-only test is presented as CAS, transaction, durable history, or complete balance proof.
+
+**L1-A technical verdict: PASS, bounded to the mandatory domain/architecture methods and executed Maven gates.** A-01 is technically demonstrated by five fresh ArchUnit methods on production and nine nested fixtures. Global complete coverage remains INCONCLUSIVE due to the single optional historical measurement, with no gate failure/error. No business PostgreSQL proof in A, no unexpected production slice crossing, no full reactor (checkpoint A/B; deferred to E). I-01 is complete for A's values/compositions and lists V2 consumers still deferred. A-02 initiated, complete L1 closure still due. Independent acceptance is pending.
+
+Raw A evidence: `docs/testing/evidence/L1-AB/A-raw.tar.gz` (all gate directories and exploratory logs, including XML and environment/input manifests). `mandatory-verdict.json` records exact required method outcomes separately from global coverage. Seven fresh collector assessment unit tests passed as supplementary feedback.
+
+**B start declaration:** A PASS at `23f18a01`; B now proceeds under the scope already declared above. JDBC in the existing persistence adapter module is selected for explicit grouped SQL/history control, with constructor injection and caller-owned transactions. No production dependency/POM change, no transaction coordinator or runtime activation. Exact text rationals and stable-identity foreign keys replace incompatible V2 storage.
