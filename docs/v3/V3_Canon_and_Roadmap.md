@@ -105,7 +105,9 @@ Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de produ
 
 **L1 : domaine Pot sous [SPEC-01](SPEC-01_Pot_Domain.md), non implémenté.** Le découpage suivant est un plan de réalisation et de suivi, pas un second canon normatif. Les SPEC restent la seule autorité normative fonctionnelle ; [SPEC-10](SPEC-10_Test_Certification.md) régit les preuves applicables. Chaque lot déclarera son périmètre de vérification avant implémentation selon la [politique du réacteur](../testing/Reactor_Verification_Policy.md).
 
-**L1-A — contrat proposé le 2026-10-25 :** [conception détaillée et plan de vérification](L1_Design_and_Verification_Plan.md), en attente de revue contradictoire avant autorisation du code. L0 reste clôturé et accepté pour la poursuite ; L1-A non implémenté, aucune preuve fonctionnelle L1 acquise.
+**L1-A — contrat proposé le 2026-10-25 :** [conception détaillée et plan de vérification](L1_Design_and_Verification_Plan.md), en cours de revue contradictoire, conception non implémentée et code non autorisé. L0 reste clôturé et accepté pour la poursuite ; aucune preuve fonctionnelle L1 acquise.
+
+**N-01 — RÉSOLU DOCUMENTAIREMENT, 2026-10-25** (référence `9a349bbcd86d900b34e927cc29e16dd172ee7ab4`) : SPEC-01 fait autorité sur DeleteShareholder. [SPEC-10, DOM-01/02](SPEC-10_Test_Certification.md#3-domaine) corrigée : suppression historisée du Header seul (D01-M), autorisation créateur et références actives/historiques (D02-Q/R/S), variante concurrente réservée aux preuves PostgreSQL L1-C. Correspondances et limites unitaires actualisées dans le [plan L1-A, §10](L1_Design_and_Verification_Plan.md#10-matrice-junit-proposée-et-critères-probatoires). Aucun nouvel oracle exécuté ou satisfait ; aucun code ajouté. Les arbitrages **C-01 puis C-02 de la revue L1-A restent ouverts** avant consolidation finale du contrat ; ils sont distincts des protocoles de certification homonymes de SPEC-10.
 
 | Lot | Réalisation prévue | Statut / obligation de clôture |
 |---|---|---|
