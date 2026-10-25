@@ -1,6 +1,6 @@
 # V3-6 — L1-A : conception et plan de vérification du noyau Pot
 
-**Statut : conception détaillée PROPOSÉE, en attente de revue contradictoire ; L1-A NON IMPLÉMENTÉ.** Date : 2026-10-25. Référence inspectée : `5cc5db870c9cde91fd86997b365a61705dc95cf3`, branche de publication `feat/v3-architecture`.
+**Statut : L1-A en conception, NON IMPLÉMENTÉ ; N-01 résolu documentairement, C-01 et C-02 validés ; aucune implémentation autorisée.** Date : 2026-10-25. Référence de consolidation : `df113c8fea3443fe83f428c5e5eef1767ee42d03`, branche de publication `feat/v3-architecture`. Les observations V2 restent celles de `5cc5db870c9cde91fd86997b365a61705dc95cf3`.
 
 Ce plan technique est subordonné aux SPEC ; il ne constitue ni un nouveau canon, ni une autorisation de code, ni une preuve fonctionnelle L1. Le [canon, §11](V3_Canon_and_Roadmap.md#11-v3-6--passage-vers-l1) reste l'autorité de progression. L0 demeure clôturé documentairement et accepté pour la poursuite, avec I-01, A-01 et A-02 ouvertes selon le [rapport L0](L0_Execution_Report.md#independent-review-and-documentary-closure--2026-10-25). Aucun PASS L0 ou V2 n'est transféré à L1.
 
@@ -10,7 +10,7 @@ Sources lues dans le dépôt : [SPEC-01](SPEC-01_Pot_Domain.md) (modèle et règ
 
 **Acquis :** domaine Java pur indépendant de Spring, JPA, SQL et des transactions ; composantes immuables ; invariants protégés dans le domaine ; injection explicite par constructeur aux frontières applicatives ; Pot unité logique de cohérence et de version globale ; chargement sélectif ; réutilisation sélective V2 sans compatibilité artificielle. Les règles fonctionnelles de SPEC-01 ne sont pas rouvertes.
 
-**Proposé :** structures Java, emplacement des transitions, forme des faits et résultats, séquence de réalisation et matrice unitaire de ce document. **À prouver :** tous les comportements L1, pureté effective des nouveaux composants, clôture A-01 et intégration ultérieure. Un exemple de nom Java n'est jamais une signature validée.
+**Validé pour la conception L1-A :** C-01, enveloppe conceptuelle `Versioned<T>` (§4), et C-02, résultat scellé générique `TransitionResult<T>` (§7), avec leurs invariants. Les détails d’encapsulation Java pourront être affinés sans en changer la sémantique. Ces repères sont distincts des protocoles de certification homonymes de SPEC-10. **Proposé ou ouvert :** autres structures Java, localisation définitive des transitions, représentation et exhaustivité des faits, séquence de réalisation et matrice unitaire. Les autres exemples de noms Java ne sont pas des classes supplémentaires imposées. **À prouver :** tous les comportements L1, pureté effective des nouveaux composants, clôture A-01 et intégration ultérieure.
 
 Objectif L1-A : rendre exprimables et testables les huit composantes, leurs versions indépendantes, leurs transitions pures, les préconditions métier et l'atomicité logique d'une mutation. Les trois opérations du §8 sont les scénarios de conception obligatoires ; créations et suppressions complètent les invariants du noyau. Les droits métier nécessaires sont contrôlés à partir de faits explicites, sans simuler une authentification réussie.
 
@@ -61,15 +61,37 @@ Les bornes `activeFrom/activeTo` sont exprimées en V globales, jamais en révis
 
 ## 4. Structures Java à évaluer, sans signatures figées
 
+### C-01 — Composantes versionnées : contrat conceptuel validé
+
+```java
+record Versioned<T>(
+    long localVersion,
+    long activeFrom,
+    T value
+) {}
+```
+
+Ce contrat conceptuel est validé ; ce fragment ne constitue pas une implémentation Java. Les détails d'encapsulation pourront être affinés pendant l'implémentation, sans changer la sémantique suivante :
+
+- `localVersion >= 1`, `activeFrom >= 1`, `value != null` ; la valeur métier `T` est immuable, transitivement pour ses collections et leurs éléments (§3).
+- `activeFrom` désigne la version **globale du Pot** de début d'applicabilité ; il n'est ni une version locale ni un horodatage.
+- À la création, chaque composante naît en version locale 1 à la même V globale que les autres composantes du nouvel objet. Une nouvelle révision locale incrémente **exactement de 1** la précédente ; une composante inchangée conserve son enveloppe et sa version locale, sans recopie ni nouvelle révision.
+- Toute nouvelle révision effective reçoit `activeFrom = candidatePotVersion` ; toutes celles d'une même mutation partagent cette unique candidate (§7).
+- L'enveloppe ne contient ni `activeTo`, ni identifiant SQL, ni transaction, ni horodatage technique. La fermeture des intervalles historiques reste à L1-B selon SPEC-01 §2 ; l'absence de `activeTo` dans cette valeur du domaine ne supprime pas le contrat de persistance `[activeFrom,activeTo)`.
+
+`Versioned<T>` ne garantit pas seul la cohérence des identités, de l'appartenance au Pot ou des versions de travail. Les compositions et transitions contrôlent ces invariants (§5), notamment l'applicabilité à la V de travail des enveloppes courantes et la cohérence des révisions candidates. Pour une composante existant à l'observation, la non-obsolescence se vérifie par `current.activeFrom <= observedVersion` ; comparer seulement les versions locales est insuffisant (§6).
+
+Aucune méthode générique publique ne doit permettre de réviser arbitrairement une composante en contournant ses invariants métier : conserver le créateur, les identités et les préconditions relève des transitions contrôlées, pas du seul record.
+
+### Structures de composition restant proposées
+
 | Concept étudié | Invariant qui pourrait le justifier | Coût / alternative / proposition à revoir |
 |---|---|---|
 | `PotState` | Composition cohérente d'un Pot à une V, références et versions homogènes | Utile pour composition pure et oracle complet ; ne pas en faire un agrégat intégral obligatoire à chaque mutation. Ne pas représenter « non chargé » par collection vide |
 | `ShareholderState` | Même ShareholderId/Pot pour Header, Details et Weight | À retenir seulement si la construction contrôlée supprime un risque concret de mélange ; sinon composants nécessaires passés directement |
 | `ExpenseState` | Même ExpenseId/Pot et cohérence Header/Details/Financials | Même examen ; ne pas imposer Details à une modification Financials sans dépendance métier |
-| `Versioned<T>` | Associer valeur immuable, révision locale positive et début d'applicabilité global cohérent | Peut éviter huit copies de métadonnées ; ne doit pas accepter T mutable, versions de Pots mélangées ou métadonnées SQL arbitraires. Comparer avec métadonnées propres aux composantes ; encapsuler construction et incrément |
-| `TransitionResult` ou résultats spécialisés | Distinguer effet, succès sans effet et rejet sans combinaison impossible | Petite somme typée possible ; préférer résultats spécialisés si leurs invariants diffèrent. Éviter registre de transitions, moteur générique, Map non typée, booléens contradictoires et résultat universel nullable |
 
-Aucun de ces noms n'est validé. Le critère de choix est de rendre impossibles les incohérences du §5, avec le moins de concepts possible. Pas de nouvelle classe Context/Input/Snapshot/Result/Service/Port sans invariant ou frontière démontré. Les valeurs intrinsèquement invalides sont refusées à la construction ; les rejets d'une intention métier valide sont distingués des anomalies techniques. La nomenclature exacte des codes et exceptions reste à décider, sans imposer de framework.
+Les trois structures de composition ci-dessus restent proposées ; `Versioned<T>` est acquis par C-01 et `TransitionResult<T>` par C-02 (§7). Le critère de choix est de rendre impossibles les incohérences du §5, avec le moins de concepts possible. Pas de nouvelle classe Context/Input/Snapshot/Result/Service/Port sans invariant ou frontière démontré. Les valeurs intrinsèquement invalides sont refusées à la construction ; les rejets d'une intention métier valide sont distingués des anomalies techniques. La nomenclature exacte des codes et exceptions reste à décider, sans imposer de framework.
 
 ## 5. Pot cohérent et chargement sélectif
 
@@ -114,15 +136,27 @@ Pour toute création/modification de Financials, le Header de chaque Shareholder
 
 ## 7. Résultat typé, effet et version candidate
 
-La forme Java reste proposée ; le contrat attendu des trois issues est précis :
+### C-02 — Résultats de transition : contrat conceptuel validé
 
-| Issue | État / ensemble de changements | Version globale |
+```java
+sealed interface TransitionResult<T>
+    permits Rejected, Unchanged, Changed {
+}
+```
+
+Cette somme générique scellée définit trois issues **exclusives** ; le fragment exprime le contrat conceptuel, avec encapsulation Java à affiner sans en changer la sémantique :
+
+| Issue | Contenu et signification | Version globale |
 |---|---|---|
-| Rejet métier | Motif typé ; aucun nouvel état applicable ni changement partiel | Aucune candidate ; version de travail inchangée |
-| Succès sans effet | Valeurs inchangées ; ensemble de changements vide ; préconditions toutes satisfaites | Aucune nouvelle candidate ; L1-C retourne `resultingPotVersion = V_travail` |
-| Mutation effective | Nouvelles valeurs immuables cohérentes et références/révisions locales des seules composantes changées | Une seule candidate `V_travail + 1`, portée par l'issue globale |
+| `Rejected` | Motif de rejet métier ; aucune révision candidate ni changement partiel. Ne représente ni panne technique, ni perte de CAS, ni incohérence des faits | Aucune candidate ; version de travail inchangée |
+| `Unchanged` | Commande valide sans effet, après vérification de toutes les préconditions, notamment l'obsolescence ; aucune révision | Porte la version globale courante `currentPotVersion = V_travail` ; aucune candidate ; L1-C retourne cette version comme `resultingPotVersion` |
+| `Changed<T>` | Changements métier typés `T`, immuables et effectifs ; ne signifie pas qu'une transaction a été validée | Porte `expectedPotVersion = V_travail` et `candidatePotVersion = expectedPotVersion + 1` |
 
-Une mutation multi-cibles valide d'abord toutes ses cibles puis construit son résultat complet ; aucune mise à jour en place ni résultat partiel observable. Le résultat inclut les composantes nécessaires pour appliquer la mutation sans reconstruire artificiellement le Pot entier ; son ensemble des changements doit correspondre exactement aux différences de valeurs et de révisions. Les inchangées conservent leur révision et peuvent partager les mêmes instances immuables ; aucune nouvelle version historique ne leur est attribuée.
+Invariants de `Changed<T>` : au moins une modification effective ; chaque révision produite possède `activeFrom = candidatePotVersion` et sa version locale précédente +1 (création à 1) ; seules les composantes réellement modifiées sont révisées. Une mutation multi-cibles produit **une seule** version globale candidate. Le caractère non vide des changements doit être garanti par le contrat de `T` ou par une construction contrôlée du résultat ; un `Changed` vide n'est pas admissible.
+
+Pour une mutation simple, `T` peut directement être `Versioned<PotDetails>` (ou la composante ciblée). Pour une mutation multi-cibles, `T` peut être un type métier contenant une collection immuable de révisions, par exemple `ShareholderWeightChanges`. Ces exemples n'imposent pas de classes supplémentaires sans nécessité. Aucun registre universel de composants, `Map<String,Object>` ou framework générique de mutations n'est introduit.
+
+Une mutation multi-cibles valide d'abord toutes ses cibles puis construit son résultat complet ; aucune mise à jour en place ni résultat partiel observable. Le résultat inclut les composantes nécessaires pour appliquer la mutation sans reconstruire artificiellement le Pot entier ; son ensemble des changements doit correspondre exactement aux différences de valeurs et de révisions. Les inchangées conservent leur enveloppe et leur version locale ; elles ne figurent pas parmi les révisions produites. Aucun résultat partiellement modifié n’est permis en cas de `Rejected`.
 
 **Candidate ne signifie pas durable.** Le domaine ne réserve pas V+1, n'effectue aucun CAS et ne déclare aucun commit. Deux transitions préparées sur la même V peuvent proposer la même candidate ; une seule sera validée durablement si elles entrent en conflit. L1-C jette la proposition perdante, recharge les faits à une nouvelle V de travail et réévalue avec l'observation initiale. Un conflit CAS est technique, pas un rejet métier automatique. Aucun compteur, boucle de retry ou horloge partagée dans la transition pure.
 
@@ -138,9 +172,9 @@ Les chiffres suivants sont des fixtures proposées, pas des résultats exécuté
 
 | Variante | Oracle attendu |
 |---|---|
-| Demande label B | PotDetails d3 seul, C strictement conservé, candidate V9 ; PotHeader h1 et enfants inchangés |
-| Demande label A | Succès sans effet après contrôle des droits, activité et observation ; d2, V8, aucun changement |
-| Details d2 applicable depuis V7 avec observation V6, demande A déjà présente | Rejet obsolète, même si égalité ; aucune candidate |
+| Demande label B | `Changed<Versioned<PotDetails>>` : expectedPotVersion=8, candidatePotVersion=9 ; PotDetails d3 seul, activeFrom=9, C strictement conservé ; enveloppes de PotHeader h1 et des enfants conservées |
+| Demande label A | `Unchanged` portant V8 après contrôle des droits, activité et observation ; enveloppe d2 conservée, aucune révision |
+| Details d2 applicable depuis V7 avec observation V6, demande A déjà présente | `Rejected` pour obsolescence, même si égalité ; aucune candidate ni révision |
 | Header supprimé, auteur non autorisé, observation future ou faits d'un autre Pot | Refus ou anomalie selon nature ; aucun résultat effectif |
 | Tentative de changer creatorId | L'opération de changement de label ne l'accepte pas ; la construction du nouvel état conserve le créateur, sans setter ni chemin de remplacement arbitraire |
 
@@ -152,11 +186,11 @@ La simple immutabilité d'une valeur PotDetails ne suffit pas : la transition do
 
 | Variante | Oracle attendu |
 |---|---|
-| Lot valide | A passe à w3 ; B reste w3 ; une seule candidate V13 ; aucun Header/Details ni ExpenseFinancials changé |
-| B w3 applicable depuis V11 | Rejet global obsolète, bien que B soit demandé à valeur égale ; A reste w2, aucune candidate |
-| A et B demandés à valeur inchangée, toutes préconditions valides | Succès sans effet, V12 et révisions conservées |
+| Lot valide | `Changed<T>` (par exemple `ShareholderWeightChanges`) : expectedPotVersion=12, candidatePotVersion=13 ; seule révision produite A w3, activeFrom=13 ; B conserve son enveloppe w3 depuis V9 ; aucun Header/Details ni ExpenseFinancials changé |
+| B w3 applicable depuis V11 | `Rejected` global pour obsolescence, bien que B soit demandé à valeur égale ; A reste w2, aucune candidate ni révision |
+| A et B demandés à valeur inchangée, toutes préconditions valides | `Unchanged` portant V12 ; enveloppes conservées, aucune révision |
 | Dernière cible absente, supprimée, hors Pot ou poids zéro/négatif | Refus complet ; même la première cible valide ne change pas |
-| Deux poids effectivement différents | Deux révisions locales +1, une seule candidate V13 |
+| Deux poids effectivement différents | `Changed<T>` attendu à V12, candidat à V13 : deux révisions locales +1, toutes deux avec activeFrom=13 |
 
 L'absence d'effet sur ExpenseFinancials n'implique pas l'absence d'effet sur les futurs soldes à V13 : les participations sans specificWeight utiliseront les nouveaux défauts. Aucun chargement des Financials de toutes les Expenses n'est requis pour cette transition.
 
@@ -166,15 +200,15 @@ L'absence d'effet sur ExpenseFinancials n'implique pas l'absence d'effet sur les
 
 | Variante | Oracle attendu |
 |---|---|
-| Financials demandés différents, références valides | E.f4 seul ; cohérence montant/payeur/participants ; candidate V21 ; E.Header/Details et Shareholders inchangés |
+| Financials demandés différents, références valides | `Changed<Versioned<ExpenseFinancials>>` : expectedPotVersion=20, candidatePotVersion=21 ; E.f4 seul, activeFrom=21 ; cohérence montant/payeur/participants ; enveloppes de E.Header/Details et des Shareholders conservées |
 | Nom ou userId de B modifié à V18 ; Weight de B modifié à V19 | Ces changements seuls ne rendent pas Financials obsolètes. Réévaluer séparément les droits courants de l'auteur ; si toujours autorisé, accepter |
 | Un Shareholder référencé créé à V17 > observation V16 | Refus : référence non valide à l'observation, même si active aujourd'hui |
 | Header de C supprimé, référence absente/hors Pot, Pot ou Expense supprimé | Refus sans état partiel ; ne pas résoudre par UserId ni révision technique |
-| E.f4 courant applicable depuis V18 > V16, demande égale au contenu courant | Rejet obsolète avant no-op ; aucun état candidat |
+| E.f4 courant applicable depuis V18 > V16, demande égale au contenu courant | `Rejected` pour obsolescence avant no-op ; aucune candidate ni révision |
 | Montant négatif, participants vides ou specificWeight zéro/négatif | Invariant financier refusé ; aucune candidate |
-| Valeurs financières identiques après normalisation et toutes préconditions valides | Succès sans effet ; f3, V20 conservées |
+| Valeurs financières identiques après normalisation et toutes préconditions valides | `Unchanged` portant V20 ; enveloppe f3 conservée, aucune révision |
 
-Les poids effectifs ne sont pas figés dans Financials : pour un calcul à V, utiliser specificWeight sinon defaultWeight applicable à V. L1-A prouve l'intégrité des références et valeurs du résultat ; résolution historique PostgreSQL et balance exacte sur l'état composé sont dues ensuite. Si la transition n'a pas besoin du defaultWeight, elle ne le charge pas pour fabriquer un contrôle d'obsolescence.
+Les poids effectifs ne sont pas figés dans Financials : pour un calcul à V, utiliser specificWeight sinon defaultWeight applicable à V. L1-A devra prouver l'intégrité des références et valeurs du résultat ; résolution historique PostgreSQL et balance exacte sur l'état composé sont dues ensuite. Si la transition n'a pas besoin du defaultWeight, elle ne le charge pas pour fabriquer un contrôle d'obsolescence.
 
 ## 9. Frontières avec les autres lots
 
@@ -194,19 +228,19 @@ Toutes les lignes ci-dessous sont **À IMPLÉMENTER / NON EXÉCUTÉES**. Les ide
 
 | Repère | Cas à écrire / oracle décisif indépendant | Couverture normative / limite |
 |---|---|---|
-| L1A-01 | Modifier les collections sources après construction, tenter de modifier les collections retournées, réutiliser l'état initial après transition : valeurs initiales intactes, aucune mutation transitive | Immutabilité, base DOM-01 ; pas de preuve SQL |
+| L1A-01 | Vérifier C-01 : refuser localVersion<1, activeFrom<1 et value=null ; modifier les collections sources après construction, tenter de modifier celles exposées par les valeurs et changements typés C-02 ; réutiliser les enveloppes et états initiaux après transition : valeurs intactes, aucune mutation transitive ni chemin public de révision arbitraire contournant les invariants | Immutabilité, base DOM-01 ; pas de preuve SQL |
 | L1A-02 | Créer Pot puis enfants : toutes leurs composantes locales à 1 ; modifier successivement chaque type : seule sa révision avance ; identités stables conservées | D01-A/B/C/D/E, partie pure |
-| L1A-03 | Mutation simple et multi-cibles : candidate = V_travail+1 une seule fois ; ensemble des changements exactement égal aux différences, anciennes valeurs intactes | D01-K, D02-H ; commit/événement exclus |
-| L1A-04 | Demande égale valide puis demande égale obsolète (y compris retour A→B→A) : no-op seulement dans le premier cas, aucune candidate dans les deux | D02-I/J ; complétions dues ensuite |
-| L1A-05 | Lot mixte valeurs modifiées/inchangées ; rendre la dernière cible obsolète/invalide ; permuter l'ordre des cibles : succès cohérent ou rejet global sans effet partiel | D02-G/H ; pas de preuve transactionnelle |
+| L1A-03 | C-01/C-02 : `Changed<T>` porte expectedPotVersion=V_travail et candidatePotVersion=expectedPotVersion+1 ; changements non vides exactement égaux aux différences ; chaque révision locale avance de 1 et porte activeFrom=candidatePotVersion ; enveloppes inchangées conservées et absentes des révisions produites ; anciennes valeurs intactes. Construction de Changed vide impossible ; Rejected/Unchanged sans révision ni candidate, Unchanged porte V courante | D01-K, D02-H ; commit/événement exclus |
+| L1A-04 | Demande égale valide puis demande égale obsolète (y compris retour A→B→A) : vérifier current.activeFrom<=observedVersion pour chaque dépendance existant à l’observation, jamais les seules versions locales ; `Unchanged` portant V courante seulement si toutes les préconditions passent, sinon `Rejected` métier ; aucune candidate ni révision dans les deux | D02-I/J ; complétions dues ensuite |
+| L1A-05 | Lot mixte valeurs modifiées/inchangées : un seul `Changed<T>` avec une candidate commune à tous les activeFrom produits, seules cibles modifiées révisées ; rendre la dernière cible obsolète/invalide et permuter les cibles : rejet global sans candidate, révision ni état partiellement modifié. Toutes cibles égales et valides : Unchanged sans révision | D02-G/H ; pas de preuve transactionnelle |
 | L1A-06 | Exécuter toutes les variantes UpdatePotDetails du §8 ; créateur non-Shareholder conservé, aucun moyen de le remplacer | DOM-01/02 et SPEC-01 §§2/5/6 |
 | L1A-07 | Toutes variantes UpdateShareholderWeights ; aucune révision d'ExpenseFinancials ; un changement de Details ne bloque pas le Weight compatible | D01-D, D02-B/D/G/H ; soldes ultérieurs dus L1-D |
 | L1A-08 | Toutes variantes UpdateExpenseFinancials ; IDs stables, bon Pot, Headers actifs, référence antérieure à l'observation, indépendance Details/Weight, auteur encore autorisé | D01-H (composition), D02-D/N, D03-K ; historique/identité sécurisée non prouvés |
 | L1A-09 | DeleteExpense : Header seul révisé, refus si Details/Financials ont changé ; Weight indépendant accepté. DeletePot : égalité globale exigée, Header seul et terminalité. DeleteShareholder : rejouer V1..V4 de D01-M en mémoire ; à V4 seul Header h1→h2 deleted, Details d1/Weight w2 inchangés, une seule candidate ; états V2/V3 conservés et mutations ultérieures refusées | D01-F/M (partie pure), D02-C/E/N ; intervalles/histoire durables L1-B/C et HTTP A11 exclus |
 | L1A-10 | DeleteShareholder : Pot et Shareholder actifs requis ; refuser le participant non créateur sans candidate ni révision ; tester séparément payeur seul et participant seul d'Expense active ; autoriser le créateur si seules des Expenses supprimées référencent la cible ; aucune altération des Expenses ni de leurs Financials historiques fournis | SPEC-01 §§3/5/6, D02-Q/R/S (préconditions pures) ; faits exhaustifs durables et variante concurrente D02-S dus L1-C sous PostgreSQL, jamais prouvés par cette ligne unitaire |
 | L1A-11 | Montant zéro accepté, négatif refusé ; poids strictement positifs ; participants non vides ; payeur non participant accepté ; fractions équivalentes égales et normalisées | D03-B/C/J/K, partie valeurs ; aucune certification balance complète |
-| L1A-12 | Injecter faits de Pots/V/objets différents, témoin temporel futur, cible sans fait, absence de preuve exhaustive : anomalie explicite, jamais succès ou no-op | D01-J et D02, cohérence pure des préconditions |
-| L1A-13 | Deux calculs purs sur mêmes entrées : résultats égaux, états initiaux inchangés ; deux candidates identiques sur V ne sont pas deux commits ; recomposer avec nouvelle V et même observation | D02-K/L/M, modèle de réévaluation seulement ; CAS réel dû L1-C |
+| L1A-12 | Injecter faits/enveloppes de Pots/V/objets différents, témoin temporel futur, cible sans fait, absence de preuve exhaustive : compositions/transitions signalent l’anomalie, que `Versioned<T>` seul ne garantit pas ; jamais `Changed`, `Unchanged` ni `Rejected` métier pour masquer une incohérence technique | D01-J et D02, cohérence pure des préconditions |
+| L1A-13 | Deux calculs purs sur mêmes entrées : mêmes variantes et contenus C-02, enveloppes initiales intactes ; deux Changed identiques sur V ne sont pas deux commits. Après collision simulée, jeter la proposition perdante, recomposer tous les faits à la nouvelle V avec observedVersion initiale : recalcul déterministe, nouvelle expected/candidate et activeFrom si effet compatible, ou rejet métier si dépendance devenue obsolète ; la collision elle-même n’est pas Rejected | D02-K/L/M, modèle de réévaluation seulement ; CAS réel dû L1-C |
 | L1A-14 | Construire à la main des compositions cohérentes à V5/V6 (défaut révisé, Financials identique), puis rejeter composantes croisées ; résolution conceptuelle à même V sans V−1 | D01-G/H/L, oracle mémoire ; reconstruction SQL non prouvée |
 | L1A-15 | Tests ArchUnit production non vide, domaine pur, ports internes couverts, fixtures positives/négatives (§11) | Séparation domaine/infrastructure et A-01 ; pas de preuve transactionnelle CON-06 |
 
@@ -234,7 +268,7 @@ Aucune modification des règles ou fixtures n'est faite par le présent mandat d
 
 ## 12. Déclaration préalable du périmètre Maven
 
-Cette déclaration concerne la **future implémentation L1-A**, à confirmer sur la tête alors inspectée avant toute écriture de code, selon les §§3/14/17/29 de la politique. La résolution N-01 ne modifie que SPEC-10, ce plan et le canon ; aucun périmètre Maven n'est activé par ce mandat documentaire.
+Cette déclaration concerne la **future implémentation L1-A**, à confirmer sur la tête alors inspectée avant toute écriture de code, selon les §§3/14/17/29 de la politique. La présente consolidation C-01/C-02 ne modifie que ce plan et le canon ; aucun périmètre Maven n’est activé par ce mandat documentaire. La résolution N-01 et les SPEC restent inchangées.
 
 | Champ | Périmètre déclaré pour L1-A |
 |---|---|
@@ -268,20 +302,23 @@ Escalade avant poursuite : identifier module/capacité, invariant et raison de t
 | Point | Constat / décision restant due | Traitement attendu |
 |---|---|---|
 | N-01 — RÉSOLU DOCUMENTAIREMENT, 2026-10-25 | Arbitrage : SPEC-01 §§3/5/6 fait autorité pour DeleteShareholder ; correction de l'interdiction erronée de SPEC-10 DOM-01 et ajout de la ligne de dépendances DOM-02 | [SPEC-10 DOM-01](SPEC-10_Test_Certification.md#dom-01--protocole-et-oracles) : D01-M ; [DOM-02](SPEC-10_Test_Certification.md#dom-02--protocole-et-oracles) : D02-Q/R/S et critères PASS actualisés ; correspondances L1A-09/10 ci-dessus. Oracles définis, non exécutés, aucun PASS acquis ; concurrence D02-S à prouver en L1-C sous PostgreSQL |
-| Structures et encapsulation | PotState/ShareholderState/ExpenseState, Versioned<T>, somme de résultats ou types spécialisés non validés | Choisir après revue les structures minimales empêchant les mélanges et états impossibles ; pas de squelette Java anticipé |
+| C-01 — VALIDÉ, 2026-10-25 | `Versioned<T>(localVersion, activeFrom, value)`, invariants au §4 | Contrat conceptuel acquis ; encapsulation Java affinable sans changer sa sémantique ; cohérence inter-composantes contrôlée par compositions et transitions |
+| C-02 — VALIDÉ, 2026-10-25 | `TransitionResult<T>` scellé, `Rejected` / `Unchanged` / `Changed<T>`, invariants au §7 | Contrat conceptuel acquis ; changements typés non vides, candidate distincte du commit ; aucun registre ni moteur générique |
+| Structures et encapsulation restantes | PotState/ShareholderState/ExpenseState et détails d’encapsulation Java | Choisir les structures minimales empêchant les mélanges et états impossibles, sous C-01/C-02 ; pas de squelette Java anticipé |
+| Localisation des transitions | Localisation Java définitive encore ouverte | Choisir pendant la préparation L1-A selon les invariants et dépendances, sans infrastructure dans le domaine |
 | Faits temporels et exhaustivité | Distinguer valeur, révision, début d'applicabilité, existence initiale et V de travail ; absence de référence active à prouver exhaustivement | L1-A vérifie cohérence interne ; L1-B/C devront garantir vérité et protection des faits ; décider leur représentation sans prolifération de Context |
-| Capacité numérique | Fraction V2 stocke des long ; les intermédiaires BigInteger ne suppriment pas le risque de dépassement final | Qualifier et choisir représentation exacte ou refus technique explicite ; aucun arrondi ni nouvelle limite métier implicite ; preuves des limites avant réutilisation |
+| Capacité numérique de Weight et Fraction | Capacité encore ouverte ; Fraction V2 stocke des long, les intermédiaires BigInteger ne suppriment pas le risque de dépassement final | À traiter préalablement à la préparation du premier sous-lot d’implémentation L1-A : qualifier et choisir représentation exacte ou refus technique explicite ; aucun arrondi ni nouvelle limite métier implicite ; preuves des limites avant réutilisation |
 | Égalité et collections | Map/collection canonique, doublons d'une cible ou d'un participant, égalité de fractions et coût des copies | Décider la représentation et la gestion des doublons avant code ; conserver une cible logique unique et ne pas importer la sommation V2 par accident. L'ordre canonique pour digest/projection sera traité là où requis |
 | Localisation des droits | Invariants minimaux nécessaires dès L1-A, matrice détaillée L1-D et autorité sécurisée L1-C | Éviter politique V2 restrictive copiée ou booléen client faisant autorité ; vérifier créateur indépendant et droits courants |
 | Intégration V2 | Remplacer directement une classe partagée peut casser engines/adaptateurs, alors que leur production est hors périmètre prévu | Analyser le graphe et redéclarer avant extension ; nommer explicitement les ruptures intentionnelles et garanties encore dues ; aucune compatibilité fictive |
 | A-01 / A-02 | Couverture des ports internes / correspondance code testé–commit publié incomplètes | A-01 avant clôture L1-A ; A-02 avant clôture L1 ; aucun de ces points n'est résolu par la rédaction du plan |
 
-**Arbitrages de la revue L1-A : C-01 puis C-02 restent OUVERTS**, avant consolidation finale du contrat et autorisation explicite du code. Ces repères de revue ne désignent pas les protocoles de certification homonymes C-01/C-02 de SPEC-10. La résolution documentaire N-01 ne tranche aucun de ces choix.
+**Décisions acquises : N-01, C-01 et C-02 ne sont pas à rouvrir sans contradiction démontrée avec les SPEC.** C-01/C-02 sont les arbitrages de conception L1-A décrits ici, distincts des protocoles de certification homonymes de SPEC-10 ; leurs détails de représentation encore ouverts ne remettent pas en cause leur sémantique validée. Leur consolidation ne vaut pas autorisation du code.
 
-Séquence proposée après revue et autorisation du code : fixer les représentations minimales et les oracles ; construire valeurs/composantes et contrôles de composition ; réaliser les trois transitions et les suppressions/créations pertinentes ; renforcer A-01 ; exécuter les preuves déclarées et publier leurs résultats bornés. Les dépendances PostgreSQL/événements/Consumption/READ restent planifiées dans les lots suivants. Une contradiction de norme se signale avant d'être contournée dans le code.
+Séquence proposée : traiter d’abord la capacité numérique de Weight/Fraction, puis préparer le premier sous-lot d’implémentation L1-A avec ses représentations minimales et oracles. Après autorisation explicite du code seulement : construire valeurs/composantes et contrôles de composition ; réaliser les trois transitions et les suppressions/créations pertinentes ; renforcer A-01 ; exécuter les preuves déclarées et publier leurs résultats bornés. Les dépendances PostgreSQL/événements/Consumption/READ restent planifiées dans les lots suivants. Une contradiction de norme se signale avant d'être contournée dans le code.
 
 ## 14. Vérification de ce mandat documentaire et reprise
 
-Périmètre présent : résolution documentaire N-01 depuis `9a349bbcd86d900b34e927cc29e16dd172ee7ab4`, limitée à SPEC-10, ce plan et le canon ; SPEC-01 inchangée. Vérifications attendues avant publication : alignement SPEC-01/SPEC-10, recherche des contradictions résiduelles dans le corpus V3, résolution des liens relatifs et ancres Markdown, stabilité des identifiants de scénarios existants, distinction acquis/proposé/à prouver, `git diff --check`, liste exacte des fichiers et contrôle qu'aucun fichier production/test/migration/POM/script n'a changé. Aucun Maven, PostgreSQL ni full reactor requis ou exécuté pour cette seule documentation ; gate global requis pour la clôture future L1-A, pas pour publier ce plan.
+Périmètre présent : consolidation documentaire C-01/C-02 depuis `df113c8fea3443fe83f428c5e5eef1767ee42d03`, limitée à ce plan et au canon ; toutes les SPEC restent inchangées, N-01 demeure résolu documentairement. Vérifications attendues avant publication : alignement SPEC-01/SPEC-10, recherche des contradictions résiduelles dans le corpus V3, résolution des liens relatifs et ancres Markdown, stabilité des identifiants de scénarios existants, distinction acquis/proposé/à prouver, `git diff --check`, liste exacte des fichiers et contrôle qu'aucun fichier production/test/migration/POM/script n'a changé. Aucun Maven, PostgreSQL ni full reactor requis ou exécuté pour cette seule documentation ; gate global requis pour la clôture future L1-A, pas pour publier ce plan.
 
-Publier un commit documentaire cohérent sur `feat/v3-architecture` après vérification de sa tête distante, sans force et depuis un worktree isolé ; préserver les autres worktrees, index et modifications. Le SHA publié et les résultats des vérifications figurent dans le rapport de livraison et dans l'historique Git. La prochaine étape est l'arbitrage C-01 de la revue L1-A, puis C-02, avant consolidation finale du contrat et autorisation de l'implémentation Java. **L1-A reste non implémenté et aucune preuve fonctionnelle L1 n'est acquise.**
+Publier un commit documentaire cohérent sur `feat/v3-architecture` après vérification de sa tête distante, sans force et depuis un worktree isolé ; préserver les autres worktrees, index et modifications. Le SHA publié et les résultats des vérifications figurent dans le rapport de livraison et dans l'historique Git. La prochaine étape sera de préparer le premier sous-lot d’implémentation L1-A, en traitant préalablement la capacité numérique de Weight et Fraction. Cette préparation et l’implémentation Java ne démarrent pas automatiquement par la publication documentaire ; toute implémentation nécessite son autorisation explicite. **L1-A reste non implémenté et aucune preuve fonctionnelle L1 n'est acquise.**
