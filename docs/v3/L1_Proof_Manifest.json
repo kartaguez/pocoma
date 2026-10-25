@@ -50,7 +50,8 @@
         "b15CorruptReferencesAndMissingParticipantsAreNeverNegativeFacts",
         "b16LastCreationFailureRollsBackEveryComponentAndVersion",
         "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation",
-        "b18CommittedVersionCannotReceiveAnotherProposalLater"
+        "b18CommittedVersionCannotReceiveAnotherProposalLater",
+        "b19PhysicalTransactionIdentityKeepsItsEpoch"
       ]
     }
   },

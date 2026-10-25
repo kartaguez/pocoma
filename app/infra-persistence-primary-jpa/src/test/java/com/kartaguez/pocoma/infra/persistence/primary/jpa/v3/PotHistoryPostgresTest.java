@@ -1401,6 +1401,57 @@ class PotHistoryPostgresTest {
         assertEquals(1, jdbc.queryForObject("select count(*) from v3_pot_details", Integer.class));
     }
 
+    @Test
+    void b19PhysicalTransactionIdentityKeepsItsEpoch() {
+        expense();
+        var proposal =
+                in(
+                        () -> {
+                            var view = current();
+                            return change(
+                                    PotTransitions.updateDetails(
+                                            view.facts(),
+                                            3,
+                                            present(view.details()),
+                                            new Label("epoch")));
+                        });
+        assertThrows(
+                ForcedRollback.class,
+                () ->
+                        write(
+                                () -> {
+                                    writer.recordVersion(p, 3, 4, TIME.plusSeconds(4));
+                                    assertTrue(
+                                            jdbc.queryForObject(
+                                                    "select writer_xid = pg_current_xact_id() from"
+                                                        + " v3_pot_version where pot_id=? and"
+                                                        + " version=4",
+                                                    Boolean.class,
+                                                    p.value()));
+                                    jdbc.update(
+                                            "update v3_pot_version set"
+                                                + " writer_xid=(writer_xid::text::numeric+4294967296)::text::xid8"
+                                                + " where pot_id=? and version=4",
+                                            p.value());
+                                    assertTrue(
+                                            jdbc.queryForObject(
+                                                    "select"
+                                                        + " mod(writer_xid::text::numeric,4294967296)=mod(pg_current_xact_id()::text::numeric,4294967296)"
+                                                        + " from v3_pot_version where pot_id=? and"
+                                                        + " version=4",
+                                                    Boolean.class,
+                                                    p.value()));
+                                    assertThrows(
+                                            InconsistentPotFactsException.class,
+                                            () -> writer.revisePotDetails(p, proposal));
+                                    System.out.println(
+                                            "V3_POT_XID8 epoch alias differs despite equal low 32"
+                                                + " bits; revision rejected");
+                                    throw new ForcedRollback();
+                                }));
+        assertEquals(oracle(3), in(() -> reader.atVersion(p, 3).orElseThrow()));
+    }
+
     @Entity(name = "V3IdentityProbe")
     @Table(name = "v3_pot_identity")
     public static class IdentityProbe {

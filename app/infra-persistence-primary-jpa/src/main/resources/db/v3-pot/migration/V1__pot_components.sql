@@ -3,6 +3,7 @@ create table v3_pot_identity (pot_id uuid primary key);
 create table v3_pot_version (
     pot_id uuid not null references v3_pot_identity(pot_id),
     version bigint not null check (version >= 1), recorded_at timestamptz not null,
+    writer_xid xid8 not null default pg_current_xact_id(),
     primary key(pot_id,version)
 );
 create table v3_shareholder_identity (

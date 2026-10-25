@@ -66,13 +66,11 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         if (versions.isEmpty()
                 || number(versions.getLast(), "version") != proposal.candidatePotVersion())
             throw bad("Candidate metadata missing");
-        // xmin is PostgreSQL's physical inserting transaction, never a domain version.
-        // Compare the low 32 bits of xid8 to support transaction-id wraparound without overflow.
+        // Full xid8 identity remains distinct across 32-bit transaction-id epochs.
         Boolean owned =
                 rows.jdbc.queryForObject(
-                        "select xmin::text::numeric ="
-                            + " mod(pg_current_xact_id()::text::numeric,4294967296) from"
-                            + " v3_pot_version where pot_id=? and version=?",
+                        "select writer_xid = pg_current_xact_id() from v3_pot_version where"
+                            + " pot_id=? and version=?",
                         Boolean.class,
                         pot.value(),
                         proposal.candidatePotVersion());
