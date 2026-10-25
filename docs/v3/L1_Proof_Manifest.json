@@ -1,5 +1,5 @@
 {
-  "scope": "L1-A/B internal bounded proof; independent audit pending",
+  "scope": "L1-A/B references plus L1-C internal bounded proof; independent C audit pending",
   "suites": {
     "A": {
       "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
@@ -52,6 +52,60 @@
         "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation",
         "b18CommittedVersionCannotReceiveAnotherProposalLater",
         "b19PhysicalTransactionIdentityKeepsItsEpoch"
+      ]
+    },
+    "C-UNIT": {
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest",
+      "methods": [
+        "u01ChangedUsesOneOrderedFinalUnit",
+        "u02NoopAndBusinessRejectionNeverWriteRevisions",
+        "u03CollisionNeverRetriesWithinClaimOrPretendsBusinessRejection",
+        "u04LostClaimNeverWritesOrConsumesFailureBudget",
+        "u05TechnicalAndInconsistentFactsRemainDistinctAndCanExhaustPolicy",
+        "u06TerminalReplaySkipsPreparationAndAllWrites"
+      ]
+    },
+    "C-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+      "methods": [
+        "c01DurableMutationsNoopRejectionAndExactHistory",
+        "c02SameComponentCollisionReacquiresAndPreservesObservation",
+        "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible",
+        "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders",
+        "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials",
+        "c06AttachmentRevocationNoopAndRejectionAllRevalidate",
+        "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected",
+        "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion",
+        "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults",
+        "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit",
+        "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection",
+        "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting",
+        "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing",
+        "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes",
+        "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits",
+        "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition",
+        "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+        "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters",
+        "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence",
+        "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned",
+        "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget",
+        "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution",
+        "c23LostFailureCessionAcknowledgementNeverDoubleCounts",
+        "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts"
+      ]
+    },
+    "C-COMPOSITION": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+      "methods": [
+        "compositionUsesOneWriteManagerAndExplicitAuthority"
+      ]
+    },
+    "C-ARCH": {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+      "methods": [
+        "carch01OrchestrationAndContractsRemainPure",
+        "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards",
+        "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
       ]
     }
   },
@@ -131,6 +185,55 @@
         "A",
         "B",
         "ARCH"
+      ]
+    },
+    "c-persistence": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG"
+      ]
+    },
+    "c-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "C-COMPOSITION"
+      ]
+    },
+    "c-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH"
       ]
     }
   }

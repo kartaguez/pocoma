@@ -22,42 +22,56 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     @Override
     public void createPot(TransitionResult.Changed<PotState> proposal, Instant recordedAt) {
-        rows.requireTransaction(false);
-        Objects.requireNonNull(recordedAt);
-        var state = proposal.changes();
-        var pot = state.header().value().potId();
-        if (proposal.expectedPotVersion() != 0
-                || proposal.candidatePotVersion() != 1
-                || state.header().value().deleted()) throw bad("Invalid initial Pot proposal");
-        initial(state.header(), 1);
-        initial(state.details(), 1);
-        rows.jdbc.update("insert into v3_pot_identity(pot_id) values (?)", pot.value());
-        rows.jdbc.update(
-                "insert into v3_pot_version(pot_id,version,recorded_at) values (?,1,?)",
-                pot.value(),
-                Timestamp.from(recordedAt));
-        insertPotHeader(state.header());
-        insertPotDetails(state.details());
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(false);
+                    Objects.requireNonNull(recordedAt);
+                    var state = proposal.changes();
+                    var pot = state.header().value().potId();
+                    if (proposal.expectedPotVersion() != 0
+                            || proposal.candidatePotVersion() != 1
+                            || state.header().value().deleted())
+                        throw bad("Invalid initial Pot proposal");
+                    initial(state.header(), 1);
+                    initial(state.details(), 1);
+                    rows.jdbc.update("insert into v3_pot_identity(pot_id) values (?)", pot.value());
+                    rows.jdbc.update(
+                            "insert into v3_pot_version(pot_id,version,recorded_at) values (?,1,?)",
+                            pot.value(),
+                            Timestamp.from(recordedAt));
+                    insertPotHeader(state.header());
+                    insertPotDetails(state.details());
+                });
     }
 
     @Override
     public void recordVersion(PotId pot, long expected, long candidate, Instant recordedAt) {
-        rows.requireTransaction(false);
-        Objects.requireNonNull(recordedAt);
-        if (expected < 1 || Math.incrementExact(expected) != candidate)
-            throw bad("Invalid version step");
-        var versions = rows.versions(pot);
-        if (versions.isEmpty() || number(versions.getLast(), "version") != expected)
-            throw bad("Unexpected current Pot version");
-        var header =
-                rows.component("pot_header", pot, expected, expected, Map.of(pot.value(), 1L))
-                        .get(pot.value());
-        if ((boolean) header.get("deleted")) throw bad("Terminal Pot cannot advance");
-        rows.jdbc.update(
-                "insert into v3_pot_version(pot_id,version,recorded_at) values (?,?,?)",
-                pot.value(),
-                candidate,
-                Timestamp.from(recordedAt));
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    rows.requireTransaction(false);
+                    Objects.requireNonNull(recordedAt);
+                    if (expected < 1 || Math.incrementExact(expected) != candidate)
+                        throw bad("Invalid version step");
+                    var versions = rows.versions(pot);
+                    if (versions.isEmpty() || number(versions.getLast(), "version") != expected)
+                        throw bad("Unexpected current Pot version");
+                    var header =
+                            rows.component(
+                                            "pot_header",
+                                            pot,
+                                            expected,
+                                            expected,
+                                            Map.of(pot.value(), 1L))
+                                    .get(pot.value());
+                    if ((boolean) header.get("deleted")) throw bad("Terminal Pot cannot advance");
+                    rows.jdbc.update(
+                            "insert into v3_pot_version(pot_id,version,recorded_at) values (?,?,?)",
+                            pot.value(),
+                            candidate,
+                            Timestamp.from(recordedAt));
+                });
     }
 
     private void proposal(PotId pot, TransitionResult.Changed<?> proposal) {
@@ -70,7 +84,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         Boolean owned =
                 rows.jdbc.queryForObject(
                         "select writer_xid = pg_current_xact_id() from v3_pot_version where"
-                            + " pot_id=? and version=?",
+                                + " pot_id=? and version=?",
                         Boolean.class,
                         pot.value(),
                         proposal.candidatePotVersion());
@@ -81,164 +95,213 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void createShareholders(
             PotId pot, TransitionResult.Changed<List<ShareholderState>> proposal) {
-        proposal(pot, proposal);
-        if (proposal.changes().isEmpty()) throw bad("Empty creation");
-        var ids = new HashSet<ShareholderId>();
-        for (var state : proposal.changes()) {
-            samePot(pot, state.header().value().potId());
-            if (!ids.add(state.header().value().shareholderId())
-                    || state.header().value().deleted()) throw bad("Invalid shareholder creation");
-            initial(state.header(), proposal.candidatePotVersion());
-            initial(state.details(), proposal.candidatePotVersion());
-            initial(state.weight(), proposal.candidatePotVersion());
-        }
-        for (var state : proposal.changes()) {
-            rows.jdbc.update(
-                    "insert into v3_shareholder_identity(pot_id,object_id,created_at) values"
-                            + " (?,?,?)",
-                    pot.value(),
-                    state.header().value().shareholderId().value(),
-                    proposal.candidatePotVersion());
-            insertShareholderHeader(state.header());
-            insertShareholderDetails(state.details());
-            insertShareholderWeight(state.weight());
-        }
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    if (proposal.changes().isEmpty()) throw bad("Empty creation");
+                    var ids = new HashSet<ShareholderId>();
+                    for (var state : proposal.changes()) {
+                        samePot(pot, state.header().value().potId());
+                        if (!ids.add(state.header().value().shareholderId())
+                                || state.header().value().deleted())
+                            throw bad("Invalid shareholder creation");
+                        initial(state.header(), proposal.candidatePotVersion());
+                        initial(state.details(), proposal.candidatePotVersion());
+                        initial(state.weight(), proposal.candidatePotVersion());
+                    }
+                    for (var state : proposal.changes()) {
+                        rows.jdbc.update(
+                                "insert into v3_shareholder_identity(pot_id,object_id,created_at)"
+                                    + " values (?,?,?)",
+                                pot.value(),
+                                state.header().value().shareholderId().value(),
+                                proposal.candidatePotVersion());
+                        insertShareholderHeader(state.header());
+                        insertShareholderDetails(state.details());
+                        insertShareholderWeight(state.weight());
+                    }
+                });
     }
 
     @Override
     public void createExpense(PotId pot, TransitionResult.Changed<ExpenseState> proposal) {
-        proposal(pot, proposal);
-        var state = proposal.changes();
-        samePot(pot, state.header().value().potId());
-        if (state.header().value().deleted()) throw bad("Invalid Expense creation");
-        initial(state.header(), proposal.candidatePotVersion());
-        initial(state.details(), proposal.candidatePotVersion());
-        initial(state.financials(), proposal.candidatePotVersion());
-        financialReferences(pot, state.financials().value(), proposal);
-        rows.jdbc.update(
-                "insert into v3_expense_identity(pot_id,object_id,created_at) values (?,?,?)",
-                pot.value(),
-                state.header().value().expenseId().value(),
-                proposal.candidatePotVersion());
-        insertExpenseHeader(state.header());
-        insertExpenseDetails(state.details());
-        insertExpenseFinancials(state.financials());
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var state = proposal.changes();
+                    samePot(pot, state.header().value().potId());
+                    if (state.header().value().deleted()) throw bad("Invalid Expense creation");
+                    initial(state.header(), proposal.candidatePotVersion());
+                    initial(state.details(), proposal.candidatePotVersion());
+                    initial(state.financials(), proposal.candidatePotVersion());
+                    financialReferences(pot, state.financials().value(), proposal);
+                    rows.jdbc.update(
+                            "insert into v3_expense_identity(pot_id,object_id,created_at) values"
+                                + " (?,?,?)",
+                            pot.value(),
+                            state.header().value().expenseId().value(),
+                            proposal.candidatePotVersion());
+                    insertExpenseHeader(state.header());
+                    insertExpenseDetails(state.details());
+                    insertExpenseFinancials(state.financials());
+                });
     }
 
     @Override
     public void revisePotDetails(
             PotId pot, TransitionResult.Changed<Versioned<PotDetails>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        var old = check("pot_details", pot, pot.value(), next, proposal);
-        if (!uuid(old, "creator_id").equals(next.value().creatorId().value()))
-            throw bad("Creator must remain immutable");
-        close("pot_details", pot, pot.value(), next);
-        insertPotDetails(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    var old = check("pot_details", pot, pot.value(), next, proposal);
+                    if (!uuid(old, "creator_id").equals(next.value().creatorId().value()))
+                        throw bad("Creator must remain immutable");
+                    close("pot_details", pot, pot.value(), next);
+                    insertPotDetails(next);
+                });
     }
 
     @Override
     public void revisePotHeader(
             PotId pot, TransitionResult.Changed<Versioned<PotHeader>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        deletion("pot_header", pot, pot.value(), next, next.value().deleted(), proposal);
-        close("pot_header", pot, pot.value(), next);
-        insertPotHeader(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    deletion(
+                            "pot_header", pot, pot.value(), next, next.value().deleted(), proposal);
+                    close("pot_header", pot, pot.value(), next);
+                    insertPotHeader(next);
+                });
     }
 
     @Override
     public void reviseShareholderDetails(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> proposal) {
-        proposal(pot, proposal);
-        for (var entry : proposal.changes().entrySet()) {
-            var next = entry.getValue();
-            samePot(pot, next.value().potId());
-            if (!entry.getKey().equals(next.value().shareholderId()))
-                throw bad("Mixed details key");
-            check("shareholder_details", pot, entry.getKey().value(), next, proposal);
-        }
-        for (var entry : proposal.changes().entrySet()) {
-            close("shareholder_details", pot, entry.getKey().value(), entry.getValue());
-            insertShareholderDetails(entry.getValue());
-        }
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    for (var entry : proposal.changes().entrySet()) {
+                        var next = entry.getValue();
+                        samePot(pot, next.value().potId());
+                        if (!entry.getKey().equals(next.value().shareholderId()))
+                            throw bad("Mixed details key");
+                        check("shareholder_details", pot, entry.getKey().value(), next, proposal);
+                    }
+                    for (var entry : proposal.changes().entrySet()) {
+                        close("shareholder_details", pot, entry.getKey().value(), entry.getValue());
+                        insertShareholderDetails(entry.getValue());
+                    }
+                });
     }
 
     @Override
     public void reviseShareholderWeights(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderWeight>>> proposal) {
-        proposal(pot, proposal);
-        for (var entry : proposal.changes().entrySet()) {
-            var next = entry.getValue();
-            samePot(pot, next.value().potId());
-            if (!entry.getKey().equals(next.value().shareholderId())) throw bad("Mixed weight key");
-            check("shareholder_weight", pot, entry.getKey().value(), next, proposal);
-        }
-        for (var entry : proposal.changes().entrySet()) {
-            close("shareholder_weight", pot, entry.getKey().value(), entry.getValue());
-            insertShareholderWeight(entry.getValue());
-        }
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    for (var entry : proposal.changes().entrySet()) {
+                        var next = entry.getValue();
+                        samePot(pot, next.value().potId());
+                        if (!entry.getKey().equals(next.value().shareholderId()))
+                            throw bad("Mixed weight key");
+                        check("shareholder_weight", pot, entry.getKey().value(), next, proposal);
+                    }
+                    for (var entry : proposal.changes().entrySet()) {
+                        close("shareholder_weight", pot, entry.getKey().value(), entry.getValue());
+                        insertShareholderWeight(entry.getValue());
+                    }
+                });
     }
 
     @Override
     public void reviseShareholderHeader(
             PotId pot, TransitionResult.Changed<Versioned<ShareholderHeader>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        deletion(
-                "shareholder_header",
-                pot,
-                next.value().shareholderId().value(),
-                next,
-                next.value().deleted(),
-                proposal);
-        close("shareholder_header", pot, next.value().shareholderId().value(), next);
-        insertShareholderHeader(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    deletion(
+                            "shareholder_header",
+                            pot,
+                            next.value().shareholderId().value(),
+                            next,
+                            next.value().deleted(),
+                            proposal);
+                    close("shareholder_header", pot, next.value().shareholderId().value(), next);
+                    insertShareholderHeader(next);
+                });
     }
 
     @Override
     public void reviseExpenseDetails(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseDetails>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        check("expense_details", pot, next.value().expenseId().value(), next, proposal);
-        close("expense_details", pot, next.value().expenseId().value(), next);
-        insertExpenseDetails(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    check("expense_details", pot, next.value().expenseId().value(), next, proposal);
+                    close("expense_details", pot, next.value().expenseId().value(), next);
+                    insertExpenseDetails(next);
+                });
     }
 
     @Override
     public void reviseExpenseFinancials(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseFinancials>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        check("expense_financials", pot, next.value().expenseId().value(), next, proposal);
-        financialReferences(pot, next.value(), proposal);
-        close("expense_financials", pot, next.value().expenseId().value(), next);
-        insertExpenseFinancials(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    check(
+                            "expense_financials",
+                            pot,
+                            next.value().expenseId().value(),
+                            next,
+                            proposal);
+                    financialReferences(pot, next.value(), proposal);
+                    close("expense_financials", pot, next.value().expenseId().value(), next);
+                    insertExpenseFinancials(next);
+                });
     }
 
     @Override
     public void reviseExpenseHeader(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseHeader>> proposal) {
-        proposal(pot, proposal);
-        var next = proposal.changes();
-        samePot(pot, next.value().potId());
-        deletion(
-                "expense_header",
-                pot,
-                next.value().expenseId().value(),
-                next,
-                next.value().deleted(),
-                proposal);
-        close("expense_header", pot, next.value().expenseId().value(), next);
-        insertExpenseHeader(next);
+        PotCommandJdbcTransactions.revision(
+                rows.dataSource,
+                () -> {
+                    proposal(pot, proposal);
+                    var next = proposal.changes();
+                    samePot(pot, next.value().potId());
+                    deletion(
+                            "expense_header",
+                            pot,
+                            next.value().expenseId().value(),
+                            next,
+                            next.value().deleted(),
+                            proposal);
+                    close("expense_header", pot, next.value().expenseId().value(), next);
+                    insertExpenseHeader(next);
+                });
     }
 
     private Map<String, Object> check(

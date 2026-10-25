@@ -14,7 +14,7 @@ sys.dont_write_bytecode = True
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
-EXCLUSIONS = ('docs/testing/evidence/L1-AB/', 'docs/v3/L1_AB_Execution_Report.md', 'docs/v3/V3_Canon_and_Roadmap.md')
+EXCLUSIONS = ('docs/testing/evidence/L1-AB/', 'docs/v3/L1_AB_Execution_Report.md', 'docs/v3/V3_Canon_and_Roadmap.md', 'docs/testing/evidence/L1-C/', 'docs/v3/L1_C_Execution_Report.md')
 
 def excluded(name):
     return any(name == item or (item.endswith('/') and name.startswith(item)) for item in EXCLUSIONS)
@@ -58,7 +58,7 @@ def run(gate):
     revision=git('rev-parse','HEAD').decode().strip()
     expected_inputs=inputs(revision)
     before=compare(revision,expected_inputs)
-    evidence=ROOT/'docs/testing/evidence/L1-AB'/f'{gate}-{time.time_ns()}'
+    evidence=ROOT/('docs/testing/evidence/L1-C' if gate.startswith('c-') else 'docs/testing/evidence/L1-AB')/f'{gate}-{time.time_ns()}'
     evidence.mkdir(parents=True)
     (evidence/'inputs.json').write_text(json.dumps(expected_inputs,indent=2)+'\n')
     (evidence/'before.json').write_text(json.dumps(before,indent=2)+'\n')
