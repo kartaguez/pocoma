@@ -1,7 +1,7 @@
 # Pocoma V3 — Canon et feuille de route
 
 **Statut de clôture : L1 ACCEPTED — internal V3 foundation (2026-10-25), après livraison L1-A à L1-E et audit indépendant confirmé par le mandat du responsable. Acceptation limitée au périmètre interne vérifié ; aucun certificat V3 complet ni activation.**
-**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **Prochaine étape : revue du plan directeur ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
+**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **Prochaine étape : cadrage L2 après validation de son plan ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** autorité des décisions transversales ; progression opérationnelle dans le plan directeur, preuves dans les rapports et manifestes.
@@ -189,3 +189,5 @@ Baseline documentaire et technique `2fb9a536f3894e797923c0b49aeba1a9b5adfda2`, c
 Arbitrages appliqués : lecture SQL directe de V sans chaîne, contrôles globaux conservés dans le protocole WRITE et un vérificateur indépendant hors chemin critique ; INVALID_BINDING sans accès Pot mais avec claim/commande/témoin Identity protégés ; listes multi-cibles intrinsèquement valides et immuables ; invitation réutilisable par Pot jusqu'à expiration, jamais consommée/réservée, auto-rattachement au seul acteur résolu sans élargir canMutate ; 22 contraintes B statiques avant suffixe, contrôles de publication différés ; calcul rationnel exact, optimisation seulement après profilage ; neuf motifs initiaux et huit composantes inventoriés ; correspondance WRITE CHANGED/UNCHANGED→READ COMPLETED et REJECTED→REJECTED.
 
 L1-F ne livre pas création/restitution du lien, CurrentInvitation, validation atomique token/expiration ni exécution durable complète d'invitation : transition pure et primitives transactionnelles seulement, suite réelle maintenue à L5. Identity réelle, HTTP, READ et moteur Consumption restent aux lots compétents. L2 doit remplacer le slot Command spécifique par le protocole canonique commun, sans second moteur, selon SPEC-05 §11 ; aucune migration ni implémentation L2 dans L1-F. Aucun nouveau SLO ni certificat V3 global.
+
+Clôture L1-F : deux gates frais sur `c94e7a4bec479ccbf22b058fd341ae0350c2ca67`, 100/108 méthodes obligatoires PASS, respectivement 1306/1511 tests déclarés, zéro failure/error et un skip exploratoire V2 conservé. Couverture complète INCONCLUSIVE, aucun skip obligatoire ; full reactor non requis/non exécuté. Archives, profils appariés et limites dans le rapport. L1-F CLOSED / PASS interne ; L2 reste DESIGN PENDING.

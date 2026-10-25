@@ -1,0 +1,12 @@
+  audit/step-4e-candidate               8e09b433 [origin/audit/step-4e-candidate] Publish qualified 4E candidate for independent audit
+  audit/takeover-flakiness              eef30128 [origin/audit/takeover-flakiness] docs: audit takeover test flakiness and verification limits
+  feat/consumption-transaction-protocol ac1a895a [origin/feat/consumption-transaction-protocol] docs(discovery): propose auditable A2 implementation plan
+* feat/runtime-monolith                 90a3e9bc [origin/feat/runtime-monolith] docs: amend minimal A2 plan against delivered Discovery protocol
++ feat/v3-architecture                  ddca2827 (/private/tmp/pocoma-v3-cleanup) [origin/feat/v3-architecture: behind 27] docs(v3): align residual counts and nomenclature across SPEC-07..10 and canon (CAUD-V3-001)
+  fix/binding-lock-order-guard          2eef3ab9 [origin/fix/binding-lock-order-guard] docs: resolve DEBT-WA6-01 with bounded Binding ownership proofs
+  fix/expense-context-version-coherence 116f4e4a docs: close integrated R03 fix and resume late Event numbering study
+  main                                  cf18d766 [origin/main] docs: record takeover test flakiness debt
+  split-runtimes                        f8328c4b [origin/split-runtimes] 0.9.1 - Fix metrics collection
+  test/takeover-fencing                 4a07b111 [origin/test/takeover-fencing] docs: record successful PostgreSQL takeover validation campaigns
+  test/takeover-races                   e0bd47a4 [origin/test/takeover-races] docs: resolve takeover test quality debt
+  v2-make-it-pull                       ec88ecb5 [origin/v2-make-it-pull] docs: close modularity migration

@@ -1,0 +1,10 @@
+M  docs/v3/SPEC-01_Pot_Domain.md
+M  docs/v3/SPEC-03_Events_Requests_Consumables.md
+M  docs/v3/SPEC-04_Read_Projections.md
+M  docs/v3/SPEC-05_Consumption_Discovery.md
+M  docs/v3/SPEC-06_Supra_Contracts.md
+M  docs/v3/SPEC-07_Transverse_Requirements.md
+M  docs/v3/SPEC-08_Observability.md
+M  docs/v3/SPEC-09_Performance.md
+M  docs/v3/SPEC-10_Test_Certification.md
+M  docs/v3/V3_Canon_and_Roadmap.md

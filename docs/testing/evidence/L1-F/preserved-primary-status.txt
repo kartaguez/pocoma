@@ -1,0 +1,21 @@
+ M docker/keycloak/pocoma-realm.json
+ M docs/README.md
+ D "scripts/bruno/00 Pot E2E/01 Create Pot.bru"
+ M "scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru"
+ M "scripts/bruno/00 Pot E2E/03 Read Pot V1.bru"
+ M "scripts/bruno/00 Pot E2E/04 Update Pot Details.bru"
+ M "scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru"
+ M "scripts/bruno/00 Pot E2E/06 Read Pot V2.bru"
+ M "scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru"
+ M "scripts/bruno/00 Pot E2E/folder.bru"
+?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java
+?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md
+?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md
+?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md
+?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md
+?? docs/testing/evidence/
+?? docs/v3/
+?? "scripts/bruno/00 Pot E2E/001 Registrations.bru"
+?? "scripts/bruno/00 Pot E2E/002 RegistrationResult.bru"
+?? "scripts/bruno/00 Pot E2E/003 Me-Binding.bru"
+?? "scripts/bruno/00 Pot E2E/004 Create Pot.bru"

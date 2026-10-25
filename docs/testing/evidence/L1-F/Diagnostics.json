@@ -1,0 +1,101 @@
+[
+  {
+    "log": "diagnostic-all-corrections.log",
+    "counts_from_class_summaries": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-domain-before.log",
+    "counts_from_class_summaries": {
+      "tests": 229,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-engine.log",
+    "counts_from_class_summaries": {
+      "tests": 352,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-history-plans.log",
+    "counts_from_class_summaries": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-postgres-docker.log",
+    "counts_from_class_summaries": {
+      "tests": 46,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-postgres.log",
+    "counts_from_class_summaries": {
+      "tests": 2,
+      "failures": 0,
+      "errors": 2,
+      "skipped": 0
+    },
+    "maven_success": false,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-unit-after.log",
+    "counts_from_class_summaries": {
+      "tests": 359,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-unit-final.log",
+    "counts_from_class_summaries": {
+      "tests": 359,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  },
+  {
+    "log": "diagnostic-unit.log",
+    "counts_from_class_summaries": {
+      "tests": 356,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "maven_success": true,
+    "complete": true
+  }
+]

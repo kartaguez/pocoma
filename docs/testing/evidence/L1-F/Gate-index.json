@@ -1,0 +1,79 @@
+{
+  "scope": "L1-F internal correction proof; full gate coverage INCONCLUSIVE for one preserved V2 exploratory skip",
+  "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+  "baseline": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+  "gates": [
+    {
+      "gate": "architecture",
+      "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1511,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_count": 108,
+      "mandatory_verdict": "PASS",
+      "verdict": "INCONCLUSIVE",
+      "skips": [
+        {
+          "classname": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "reason": "System property [step3b.measure] does not exist"
+        }
+      ],
+      "inputs_sha256": "17b7bc0e9b8e12e44b16563afd065a8f3d94181679af7e44f9878ed789054913",
+      "archive_directory": "architecture-1792958031838993000"
+    },
+    {
+      "gate": "consumers",
+      "tested_sha": "c94e7a4bec479ccbf22b058fd341ae0350c2ca67",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1306,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_count": 100,
+      "mandatory_verdict": "PASS",
+      "verdict": "INCONCLUSIVE",
+      "skips": [
+        {
+          "classname": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "reason": "System property [step3b.measure] does not exist"
+        }
+      ],
+      "inputs_sha256": "17b7bc0e9b8e12e44b16563afd065a8f3d94181679af7e44f9878ed789054913",
+      "archive_directory": "consumers-1792957739995819000"
+    }
+  ],
+  "archives": {
+    "gates-raw.tar.gz": {
+      "sha256": "888e8551e5b8523af7659488317a1acf098d8b613737b4adf74a63ccf190a33c",
+      "bytes": 2446973
+    },
+    "performance-raw.tar.gz": {
+      "sha256": "1dda1432b56e6861e274e8654ba9e9ceccb79d95d7d4c686d437343c9a35cafb",
+      "bytes": 14587
+    },
+    "diagnostics-raw.tar.gz": {
+      "sha256": "c245907e82776b23970782de2299829c19e8d858ea18ae78b0a51cba2f07f697",
+      "bytes": 263023
+    }
+  }
+}
