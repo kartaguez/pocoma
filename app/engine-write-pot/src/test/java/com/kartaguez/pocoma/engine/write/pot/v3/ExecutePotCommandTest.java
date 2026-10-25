@@ -32,7 +32,7 @@ class ExecutePotCommandTest {
                     2,
                     new PotCommand.UpdatePotDetails(new Label("new")));
     Optional<Result> terminal = Optional.empty();
-    boolean claimValid = true, potValid = true, actorValid = true;
+    boolean claimValid = true, potValid = true, actorValid = true, bindingValid = true;
     RuntimeException historyFailure;
     FailureRecorded failureRecorded = FailureRecorded.RETRY_SCHEDULED;
     int failures, preparations;
@@ -70,7 +70,9 @@ class ExecutePotCommandTest {
                 (method, args) ->
                         switch (method.getName()) {
                             case "load" -> new Stored(command, terminal);
-                            case "currentVersion" -> 2L;
+                            case "currentVersion" -> {
+                                throw new AssertionError("Unexpected Pot version read");
+                            }
                             case "protectClaim" -> {
                                 calls.add("slot");
                                 yield claimValid;
@@ -100,7 +102,7 @@ class ExecutePotCommandTest {
         var authority =
                 new PotActorAuthority() {
                     public Witness observe(PotCommand c) {
-                        return new Witness(1, Optional.of(actor));
+                        return new Witness(1, bindingValid ? Optional.of(actor) : Optional.empty());
                     }
 
                     public boolean protect(PotCommand c, Witness witness) {
@@ -238,4 +240,25 @@ class ExecutePotCommandTest {
         assertTrue(calls.isEmpty());
         assertFalse(command.toString().contains("secret"));
     }
+
+    @Test
+    void f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity() {
+        bindingValid = false;
+        historyFailure = new AssertionErrorAsRuntime();
+        var attempt = engine().execute(request, claim);
+        assertEquals(Status.COMPLETED, attempt.status());
+        assertEquals("INVALID_BINDING", attempt.result().orElseThrow().rejection());
+        assertEquals(List.of("slot", "actor", "finish", "publish"), calls);
+        assertEquals(0, preparations);
+        assertEquals(0, failures);
+        calls.clear();
+        actorValid = false;
+        var collision = engine().execute(request, claim);
+        assertEquals(Cause.COLLISION, collision.cause());
+        assertTrue(collision.result().isEmpty());
+        assertEquals(List.of("slot", "actor"), calls);
+        assertEquals(1, failures);
+    }
+
+    private static final class AssertionErrorAsRuntime extends RuntimeException {}
 }

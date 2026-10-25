@@ -427,6 +427,422 @@ class CommandExecutionPostgresTest {
     }
 
     @Test
+    void f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced() {
+        base();
+        var command = command(eui, "wrong-token", 2, new UpdatePotDetails(new Label("P")));
+        var token = admit(command);
+        var held = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var blocker =
+                threads.submit(
+                        () ->
+                                tx.write(
+                                        () -> {
+                                            assertTrue(store.protectPot(p, 2));
+                                            held.countDown();
+                                            await(release);
+                                            return null;
+                                        }));
+        await(held);
+        try {
+            var guardedStore =
+                    intercept(
+                            PotCommandStore.class,
+                            store,
+                            (method, args) -> {
+                                if (Set.of("currentVersion", "protectPot")
+                                        .contains(method.getName()))
+                                    fail("Invalid binding accessed Pot: " + method);
+                            },
+                            NOTHING);
+            var first =
+                    threads.submit(
+                            () ->
+                                    engine(
+                                                    tx,
+                                                    guardedStore,
+                                                    revisions,
+                                                    new RetryPolicy(3, Duration.ZERO))
+                                            .execute(command.requestId(), token));
+            var second =
+                    threads.submit(
+                            () ->
+                                    engine(
+                                                    tx,
+                                                    guardedStore,
+                                                    revisions,
+                                                    new RetryPolicy(3, Duration.ZERO))
+                                            .execute(command.requestId(), token));
+            var attempts = List.of(get(first), get(second));
+            assertTrue(attempts.stream().anyMatch(x -> x.status() == Status.COMPLETED));
+            for (var attempt : attempts) {
+                if (attempt.status() == Status.COMPLETED)
+                    rejected(attempt.result().orElseThrow(), "INVALID_BINDING");
+                else assertEquals(Status.CLAIM_LOST, attempt.status());
+            }
+            assertFalse(blocker.isDone(), "Pot lock is still held by independent transaction");
+            assertEquals(
+                    1,
+                    jdbc.queryForObject(
+                            "select count(*) from v3_command_completion_event where subject_id=?",
+                            Integer.class,
+                            command.requestId()));
+            assertEquals(
+                    0,
+                    jdbc.queryForObject(
+                            "select count(*) from v3_pot_event where request_id=?",
+                            Integer.class,
+                            command.requestId()));
+        } finally {
+            release.countDown();
+            get(blocker);
+        }
+        dense();
+    }
+
+    @Test
+    void f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections() {
+        base();
+        for (var operation :
+                List.of(
+                        "AddShareholders",
+                        "UpdateShareholderDetails",
+                        "UpdateShareholderWeights")) {
+            var cmd = command(2, new UpdatePotDetails(new Label("P")));
+            var token = admit(cmd);
+            // Test-only corruption bypasses the immutable admitted-intention trigger.
+            jdbc.execute("alter table v3_command disable trigger v3_command_intention");
+            try {
+                jdbc.update(
+                        "update v3_command set operation=?,payload='{\"targets\":[]}'::jsonb where"
+                            + " request_id=?",
+                        operation,
+                        cmd.requestId());
+            } finally {
+                jdbc.execute("alter table v3_command enable trigger v3_command_intention");
+            }
+            var attempt = engine().execute(cmd.requestId(), token);
+            assertEquals(Cause.INCONSISTENT_FACTS, attempt.cause());
+            assertEquals(Status.RETRY_SCHEDULED, attempt.status());
+            pending(cmd.requestId(), 1);
+        }
+        var absent = new ShareholderId(UUID.randomUUID());
+        rejected(
+                run(
+                        command(
+                                2,
+                                new UpdateShareholderWeights(
+                                        List.of(
+                                                new ShareholderTransitions.WeightIntent(
+                                                        absent, one))))),
+                "NOT_FOUND");
+        rejected(
+                run(
+                        command(
+                                2,
+                                new UpdateShareholderDetails(
+                                        List.of(
+                                                new ShareholderTransitions.DetailsIntent(
+                                                        absent,
+                                                        new Name("x"),
+                                                        Optional.empty()))))),
+                "NOT_FOUND");
+        rejected(
+                run(
+                        command(
+                                2,
+                                new AddShareholders(
+                                        List.of(
+                                                new ShareholderTransitions.Creation(
+                                                        a,
+                                                        new Name("x"),
+                                                        Optional.empty(),
+                                                        one))))),
+                "ALREADY_EXISTS");
+        dense();
+    }
+
+    @Test
+    void f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred()
+            throws Exception {
+        var catalog =
+                jdbc.queryForList(
+                        "select c.conname, c.condeferred, pg_get_constraintdef(c.oid) as definition"
+                            + " from pg_constraint c join pg_class t on t.oid=c.conrelid join"
+                            + " pg_namespace n on n.oid=t.relnamespace where"
+                            + " n.nspname=current_schema() and c.condeferrable and t.relname in"
+                            + " ('v3_pot_identity','v3_pot_version','v3_shareholder_identity','v3_expense_identity','v3_pot_header','v3_pot_details','v3_shareholder_header','v3_shareholder_details','v3_shareholder_weight','v3_expense_header','v3_expense_details','v3_expense_financials')"
+                            + " order by c.conname");
+        assertEquals(22, catalog.size());
+        assertTrue(catalog.stream().allMatch(r -> Boolean.TRUE.equals(r.get("condeferred"))));
+        var code =
+                Files.readString(
+                        Path.of(
+                                "src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java"));
+        var start = code.indexOf("set constraints\n");
+        var end = code.indexOf("immediate", start);
+        var explicit =
+                Arrays.stream(code.substring(start + "set constraints".length(), end).split(","))
+                        .map(String::strip)
+                        .collect(java.util.stream.Collectors.toSet());
+        var actual =
+                catalog.stream()
+                        .map(r -> (String) r.get("conname"))
+                        .collect(java.util.stream.Collectors.toSet());
+        assertEquals(actual, explicit);
+        var finalChecks =
+                jdbc.queryForList(
+                        "select conname from pg_constraint where"
+                            + " connamespace=current_schema()::regnamespace and condeferrable and"
+                            + " conname in"
+                            + " ('v3_command_unit','v3_result_unit','v3_pot_event_request')",
+                        String.class);
+        assertEquals(
+                Set.of("v3_command_unit", "v3_result_unit", "v3_pot_event_request"),
+                Set.copyOf(finalChecks));
+        assertTrue(Collections.disjoint(explicit, finalChecks));
+        Files.createDirectories(Path.of("target/v3-pot-evidence"));
+        Files.writeString(
+                Path.of("target/v3-pot-evidence/F-constraint-catalog.txt"),
+                catalog.toString() + "\nPublication deferred: " + finalChecks);
+        base(); // would fail before suffix if final publication checks had become immediate
+    }
+
+    @Test
+    void f02InvalidBindingHoldsIdentityUntilCommit() {
+        base();
+        var command = command(eui, "wrong-token", 2, new UpdatePotDetails(new Label("P")));
+        var token = admit(command);
+        var finishing = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var commands =
+                intercept(
+                        PotCommandStore.class,
+                        store,
+                        NOTHING,
+                        (method, args) -> {
+                            if (method.getName().equals("finish")) {
+                                finishing.countDown();
+                                await(release);
+                            }
+                        });
+        var work =
+                threads.submit(
+                        () ->
+                                engine(tx, commands, revisions, new RetryPolicy(3, Duration.ZERO))
+                                        .execute(command.requestId(), token));
+        await(finishing);
+        var mutation =
+                threads.submit(
+                        () ->
+                                jdbc.update(
+                                        "update fixture_actor set"
+                                            + " revision=revision+1,token='changed' where issuer=?"
+                                            + " and subject=?",
+                                        eui.issuer(),
+                                        eui.subject()));
+        try {
+            blocked("update fixture_actor");
+            assertFalse(mutation.isDone());
+        } finally {
+            release.countDown();
+        }
+        rejected(get(work).result().orElseThrow(), "INVALID_BINDING");
+        assertEquals(1, get(mutation));
+        assertEquals(2, storeVersion());
+        dense();
+    }
+
+    @Test
+    void f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot() {
+        long before = jdbc.queryForObject("select count(*) from v3_command", Long.class);
+        for (var invalid :
+                List.<Supplier<Intent>>of(
+                        () -> new AddShareholders(List.of()),
+                        () -> new UpdateShareholderDetails(List.of()),
+                        () -> new UpdateShareholderWeights(List.of()),
+                        () ->
+                                new AddShareholders(
+                                        List.of(
+                                                new ShareholderTransitions.Creation(
+                                                        a, new Name("A"), Optional.empty(), one),
+                                                new ShareholderTransitions.Creation(
+                                                        a, new Name("A2"), Optional.empty(), two))),
+                        () ->
+                                new UpdateShareholderDetails(
+                                        List.of(
+                                                new ShareholderTransitions.DetailsIntent(
+                                                        a, new Name("A"), Optional.empty()),
+                                                new ShareholderTransitions.DetailsIntent(
+                                                        a, new Name("B"), Optional.empty()))),
+                        () ->
+                                new UpdateShareholderWeights(
+                                        List.of(
+                                                new ShareholderTransitions.WeightIntent(a, one),
+                                                new ShareholderTransitions.WeightIntent(a, two)))))
+            assertThrows(IllegalArgumentException.class, () -> admit(command(2, invalid.get())));
+        assertEquals(before, jdbc.queryForObject("select count(*) from v3_command", Long.class));
+        assertEquals(0, jdbc.queryForObject("select count(*) from v3_command_slot", Integer.class));
+        assertEquals(
+                0, jdbc.queryForObject("select count(*) from v3_command_result", Integer.class));
+    }
+
+    @Test
+    void f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets() {
+        base();
+        // Prevalidated invitation/resolved User fixtures: proves domain + B/C CAS primitives only.
+        // Token expiry, durable invitation execution and its POT_EVENT are due in L5.
+        var guest = new UserId(UUID.randomUUID());
+        var other = new UserId(UUID.randomUUID());
+        var selection =
+                new PotHistoryPort.Selection(
+                        Set.of(a, c), Set.of(), false, true, false, false, false);
+        for (boolean sameUser : List.of(false, true)) {
+            if (sameUser)
+                run(
+                        command(
+                                storeVersion(),
+                                new UpdateShareholderDetails(
+                                        List.of(
+                                                new ShareholderTransitions.DetailsIntent(
+                                                        a, new Name("A"), Optional.empty())))));
+            var first = tx.snapshot(() -> history.current(p, guest, selection).orElseThrow());
+            var second =
+                    tx.snapshot(
+                            () ->
+                                    history.current(p, sameUser ? guest : other, selection)
+                                            .orElseThrow());
+            ShareholderId leftId = sameUser ? c : a, rightId = a;
+            long version = first.facts().workingVersion();
+            var before = tx.snapshot(() -> history.atVersion(p, version).orElseThrow());
+            var left = invitationProposal(first, leftId);
+            var right = invitationProposal(second, rightId);
+            var start = new CountDownLatch(1);
+            var winner1 =
+                    threads.submit(
+                            () -> {
+                                await(start);
+                                return applyInvitationPrimitive(version, left);
+                            });
+            var winner2 =
+                    threads.submit(
+                            () -> {
+                                await(start);
+                                return applyInvitationPrimitive(version, right);
+                            });
+            start.countDown();
+            assertNotEquals(
+                    get(winner1), get(winner2), "Exactly one prepared candidate wins Pot CAS");
+            assertEquals(version + 1, storeVersion());
+            assertEquals(before, tx.snapshot(() -> history.atVersion(p, version).orElseThrow()));
+            var refreshed = tx.snapshot(() -> history.current(p, guest, selection).orElseThrow());
+            var again =
+                    new AttachShareholderViaInvitation(rightId)
+                            .decide(
+                                    refreshed.facts(),
+                                    refreshed.shareholders().get(rightId).reference(),
+                                    ((ComponentRead.Present<ShareholderDetails>)
+                                                    refreshed.shareholders().get(rightId).details())
+                                            .revision());
+            assertInstanceOf(TransitionResult.Rejected.class, again);
+            assertEquals(
+                    0,
+                    jdbc.queryForObject(
+                            "select count(*) from v3_shareholder_details where active_from=? and"
+                                + " object_id not in (?,?)",
+                            Integer.class,
+                            version + 1,
+                            a.value(),
+                            c.value()));
+        }
+    }
+
+    TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> invitationProposal(
+            PotHistoryPort.SelectedPot view, ShareholderId id) {
+        var result =
+                new AttachShareholderViaInvitation(id)
+                        .decide(
+                                view.facts(),
+                                view.shareholders().get(id).reference(),
+                                ((ComponentRead.Present<ShareholderDetails>)
+                                                view.shareholders().get(id).details())
+                                        .revision());
+        @SuppressWarnings("unchecked")
+        var changed =
+                (TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>>)
+                        assertInstanceOf(TransitionResult.Changed.class, result);
+        return changed;
+    }
+
+    boolean applyInvitationPrimitive(
+            long version,
+            TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> proposal) {
+        return tx.write(
+                () -> {
+                    if (!store.protectPot(p, version)) return false;
+                    revisions.recordVersion(p, version, version + 1, Instant.now());
+                    revisions.reviseShareholderDetails(p, proposal);
+                    return true;
+                });
+    }
+
+    @Test
+    void f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack() {
+        base();
+        var before = snapshot();
+        var command = command(2, new UpdatePotDetails(new Label("broken")));
+        var token = admit(command);
+        var failures = new ArrayList<PotCommandTransactions.Failure>();
+        PotCommandTransactions observing =
+                new PotCommandTransactions() {
+                    public <T> T snapshot(Supplier<T> action) {
+                        return tx.snapshot(action);
+                    }
+
+                    public <T> T write(Supplier<T> action) {
+                        try {
+                            return tx.write(action);
+                        } catch (PotCommandTransactions.Failure failure) {
+                            failures.add(failure);
+                            throw failure;
+                        }
+                    }
+                };
+        var corrupting =
+                intercept(
+                        PotRevisionPort.class,
+                        revisions,
+                        NOTHING,
+                        (method, args) -> {
+                            if (method.getName().equals("revisePotDetails"))
+                                jdbc.update(
+                                        "update v3_pot_details set active_to=999 where pot_id=? and"
+                                            + " local_version=1",
+                                        p.value());
+                        });
+        var attempt =
+                engine(observing, store, corrupting, new RetryPolicy(3, Duration.ZERO))
+                        .execute(command.requestId(), token);
+        assertEquals(Status.RETRY_SCHEDULED, attempt.status());
+        assertEquals(Cause.TECHNICAL, attempt.cause());
+        assertEquals(1, failures.size());
+        Throwable cause = failures.getFirst();
+        while (cause.getCause() != null) cause = cause.getCause();
+        assertInstanceOf(java.sql.SQLException.class, cause);
+        assertEquals("23503", ((java.sql.SQLException) cause).getSQLState());
+        assertTrue(cause.getMessage().contains("v3_pot_details_pot_id_active_to_fkey"));
+        assertEquals(before, snapshot());
+        pending(command.requestId(), 1);
+        assertEquals(
+                0,
+                jdbc.queryForObject(
+                        "select count(*) from v3_pot_event where request_id=?",
+                        Integer.class,
+                        command.requestId()));
+        dense();
+    }
+
+    @Test
     void c01DurableMutationsNoopRejectionAndExactHistory() {
         base();
         var old = tx.snapshot(() -> history.atVersion(p, 2).orElseThrow());
@@ -1231,7 +1647,7 @@ class CommandExecutionPostgresTest {
             try (var statement =
                     blocker.prepareStatement(
                             "select request_id from v3_command_slot where request_id=? for"
-                                + " update")) {
+                                    + " update")) {
                 statement.setObject(1, command.requestId());
                 statement.executeQuery().close();
             }

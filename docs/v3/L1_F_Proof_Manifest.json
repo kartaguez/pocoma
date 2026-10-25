@@ -1,0 +1,80 @@
+{
+  "scope": "L1-F internal post-audit correction proof; historical L1 manifest unchanged; no global V3 certification",
+  "gates": {
+    "consumers": {
+      "regression_gate": "e-consumers",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ]
+    },
+    "architecture": {
+      "regression_gate": "e-arch",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ]
+    }
+  },
+  "corrections": [
+    {
+      "source": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/InvitationAttachmentTest.java",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "methods": [
+        "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+        "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+        "mixedOrMissingDurableFactsAreTechnicalAnomalies"
+      ]
+    },
+    {
+      "source": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/PotCommandIntentTest.java",
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest",
+      "methods": [
+        "additionsValidateStructureAndCopy",
+        "detailsValidateStructureAndCopy",
+        "weightsValidateStructureAndCopy"
+      ]
+    },
+    {
+      "source": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java",
+      "class": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest",
+      "methods": [
+        "f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJsonTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest",
+      "methods": [
+        "allThreeTargetListsRoundTripAndDurableCorruptionIsExplicitlyTechnical"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+      "methods": [
+        "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced",
+        "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections",
+        "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred",
+        "f02InvalidBindingHoldsIdentityUntilCommit",
+        "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot",
+        "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets",
+        "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack"
+      ]
+    },
+    {
+      "source": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryPostgresTest.java",
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "methods": [
+        "f01PointQueriesUseIndexesAndBoundedBuffersAcrossHistoryDepth",
+        "f01MaintenanceAuditRetainsEveryGlobalChainCheck"
+      ]
+    }
+  ]
+}

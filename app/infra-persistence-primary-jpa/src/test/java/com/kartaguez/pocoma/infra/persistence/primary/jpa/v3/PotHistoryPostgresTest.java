@@ -396,7 +396,7 @@ class PotHistoryPostgresTest {
                         "v3_expense_participant"),
                 Set.copyOf(names));
         assertEquals(
-                1,
+                2,
                 jdbc.queryForObject(
                         "select count(*) from flyway_schema_history where version is not null",
                         Integer.class));
@@ -950,7 +950,18 @@ class PotHistoryPostgresTest {
                                     boundary,
                                     a.value()));
             assertThrows(
-                    InconsistentPotFactsException.class, () -> in(() -> reader.atVersion(p, 5)));
+                    InconsistentPotFactsException.class,
+                    () ->
+                            in(
+                                    () -> {
+                                        reader.verifyHistory(p);
+                                        return null;
+                                    }));
+            // Gap at V5 or overlap at V6: point reads detect corruption at the requested V.
+            long corruptVersion = boundary == 5 ? 5 : 6;
+            assertThrows(
+                    InconsistentPotFactsException.class,
+                    () -> in(() -> reader.atVersion(p, corruptVersion)));
             write(
                     () ->
                             jdbc.update(
@@ -1424,8 +1435,8 @@ class PotHistoryPostgresTest {
                                     assertTrue(
                                             jdbc.queryForObject(
                                                     "select writer_xid = pg_current_xact_id() from"
-                                                        + " v3_pot_version where pot_id=? and"
-                                                        + " version=4",
+                                                            + " v3_pot_version where pot_id=? and"
+                                                            + " version=4",
                                                     Boolean.class,
                                                     p.value()));
                                     jdbc.update(
@@ -1446,10 +1457,194 @@ class PotHistoryPostgresTest {
                                             () -> writer.revisePotDetails(p, proposal));
                                     System.out.println(
                                             "V3_POT_XID8 epoch alias differs despite equal low 32"
-                                                + " bits; revision rejected");
+                                                    + " bits; revision rejected");
                                     throw new ForcedRollback();
                                 }));
         assertEquals(oracle(3), in(() -> reader.atVersion(p, 3).orElseThrow()));
+    }
+
+    @Test
+    void f01PointQueriesUseIndexesAndBoundedBuffersAcrossHistoryDepth() throws Exception {
+        pot();
+        int previous = 1;
+        var proof = new StringBuilder("Direct reads, no planner switches; depths 100/1000/10000\n");
+        for (int depth : new int[] {100, 1000, 10000}) {
+            int first = previous + 1;
+            write(
+                    () -> {
+                        jdbc.update(
+                                "update v3_pot_details set active_to=? where pot_id=? and active_to"
+                                    + " is null",
+                                first,
+                                p.value());
+                        jdbc.update(
+                                "insert into v3_pot_version(pot_id,version,recorded_at) select"
+                                    + " ?,v,?::timestamptz+v*interval '1 second' from"
+                                    + " generate_series(?,?) v",
+                                p.value(),
+                                java.sql.Timestamp.from(TIME),
+                                first,
+                                depth);
+                        jdbc.update(
+                                "insert into"
+                                    + " v3_pot_details(pot_id,object_id,local_version,active_from,active_to,label,creator_id)"
+                                    + " select ?,?,v,v,case when v=? then null else v+1"
+                                    + " end,'L'||v,? from generate_series(?,?) v",
+                                p.value(),
+                                p.value(),
+                                depth,
+                                creator.value(),
+                                first,
+                                depth);
+                    });
+            jdbc.execute("analyze v3_pot_details");
+            jdbc.execute("analyze v3_pot_version");
+            source.sql.clear();
+            long start = System.nanoTime();
+            long wanted = depth / 2;
+            var historical = in(() -> reader.atVersion(p, wanted).orElseThrow());
+            var latest =
+                    in(
+                            () ->
+                                    reader.current(
+                                                    p,
+                                                    creator,
+                                                    new Selection(
+                                                            Set.of(), Set.of(), true, false, false,
+                                                            false, false))
+                                            .orElseThrow());
+            assertEquals("L" + wanted, historical.pot().details().value().label().value());
+            assertEquals(depth, latest.facts().workingVersion());
+            assertEquals("L" + depth, present(latest.details()).value().label().value());
+            long elapsed = System.nanoTime() - start;
+            var actualSql = List.copyOf(source.sql);
+            assertTrue(
+                    actualSql.stream()
+                            .filter(q -> q.contains("v3_pot_version"))
+                            .allMatch(q -> q.contains("version=?") || q.contains("limit 1")));
+            assertTrue(
+                    actualSql.stream()
+                            .filter(q -> q.contains("from v3_pot_details"))
+                            .allMatch(q -> q.contains("active_to is null")));
+            String historicalSql =
+                    "select * from v3_pot_details where pot_id=? and object_id in (?) and"
+                        + " active_from<=? and (active_to is null or ?<active_to) and"
+                        + " int8range(active_from,active_to,'[)') @> cast(? as bigint)";
+            String plan =
+                    jdbc.queryForObject(
+                            "explain (analyze,buffers,format json) " + historicalSql,
+                            String.class,
+                            p.value(),
+                            p.value(),
+                            wanted,
+                            wanted,
+                            wanted);
+            String openPlan =
+                    jdbc.queryForObject(
+                            "explain (analyze,buffers,format json) select * from v3_pot_details"
+                                + " where pot_id=? and object_id in (?) and active_to is null",
+                            String.class,
+                            p.value(),
+                            p.value());
+            var tree =
+                    new com.fasterxml.jackson.databind.ObjectMapper()
+                            .readTree(plan)
+                            .get(0)
+                            .get("Plan");
+            assertEquals(1, tree.get("Actual Rows").asInt());
+            int buffers =
+                    tree.path("Shared Hit Blocks").asInt()
+                            + tree.path("Shared Read Blocks").asInt();
+            assertTrue(buffers <= 32, "History lookup buffers grew with depth: " + plan);
+            if (depth >= 1000) {
+                assertTrue(plan.contains("v3_pot_details_interval"), plan);
+                assertTrue(openPlan.contains("v3_pot_details_open"), openPlan);
+            }
+            proof.append("depth=")
+                    .append(depth)
+                    .append(" readNanos=")
+                    .append(elapsed)
+                    .append(" historicalBuffers=")
+                    .append(buffers)
+                    .append("\nSQL=")
+                    .append(actualSql)
+                    .append("\nHISTORICAL=")
+                    .append(plan)
+                    .append("\nCURRENT=")
+                    .append(openPlan)
+                    .append('\n');
+            previous = depth;
+        }
+        // An unrelated historical defect must be found by the independent auditor, not by a scan
+        // hidden in every read. The valid current state remains directly readable.
+        write(
+                () ->
+                        jdbc.update(
+                                "update v3_pot_details set local_version=20000 where pot_id=? and"
+                                    + " active_from=2",
+                                p.value()));
+        assertEquals(10000, in(() -> reader.atVersion(p, 10000).orElseThrow()).version());
+        assertThrows(
+                InconsistentPotFactsException.class,
+                () ->
+                        in(
+                                () -> {
+                                    reader.verifyHistory(p);
+                                    return null;
+                                }));
+        evidence("F-point-plans", proof);
+    }
+
+    @Test
+    void f01MaintenanceAuditRetainsEveryGlobalChainCheck() {
+        history();
+        var corruptions =
+                List.<Runnable>of(
+                        () ->
+                                jdbc.update(
+                                        "update v3_shareholder_weight set local_version=99 where"
+                                            + " object_id=? and local_version=1",
+                                        a.value()),
+                        () ->
+                                jdbc.update(
+                                        "update v3_shareholder_identity set created_at=3 where"
+                                            + " object_id=?",
+                                        a.value()),
+                        () ->
+                                jdbc.update(
+                                        "update v3_shareholder_weight set active_to=9 where"
+                                            + " object_id=? and active_to is null",
+                                        a.value()),
+                        () ->
+                                jdbc.update(
+                                        "delete from v3_shareholder_weight where object_id=?",
+                                        a.value()),
+                        () -> {
+                            jdbc.execute("set local session_replication_role=replica");
+                            jdbc.update("delete from v3_pot_version where version=7");
+                        },
+                        () -> {
+                            jdbc.execute("set local session_replication_role=replica");
+                            jdbc.update("delete from v3_pot_version");
+                        });
+        for (var corrupt : corruptions) {
+            assertThrows(
+                    ForcedRollback.class,
+                    () ->
+                            write(
+                                    () -> {
+                                        corrupt.run();
+                                        assertThrows(
+                                                InconsistentPotFactsException.class,
+                                                () -> reader.verifyHistory(p));
+                                        throw new ForcedRollback();
+                                    }));
+            in(
+                    () -> {
+                        reader.verifyHistory(p);
+                        return null;
+                    });
+        }
     }
 
     @Entity(name = "V3IdentityProbe")
