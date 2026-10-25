@@ -1,0 +1,12 @@
+{
+  "/Users/julien.guezennec/Dev/projects/pocoma": {
+    "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431\n",
+    "branch": "feat/runtime-monolith\n",
+    "status": " M docker/keycloak/pocoma-realm.json\n M docs/README.md\n D \"scripts/bruno/00 Pot E2E/01 Create Pot.bru\"\n M \"scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru\"\n M \"scripts/bruno/00 Pot E2E/03 Read Pot V1.bru\"\n M \"scripts/bruno/00 Pot E2E/04 Update Pot Details.bru\"\n M \"scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru\"\n M \"scripts/bruno/00 Pot E2E/06 Read Pot V2.bru\"\n M \"scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru\"\n M \"scripts/bruno/00 Pot E2E/folder.bru\"\n?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java\n?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md\n?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md\n?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md\n?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md\n?? docs/testing/evidence/\n?? docs/v3/\n?? \"scripts/bruno/00 Pot E2E/001 Registrations.bru\"\n?? \"scripts/bruno/00 Pot E2E/002 RegistrationResult.bru\"\n?? \"scripts/bruno/00 Pot E2E/003 Me-Binding.bru\"\n?? \"scripts/bruno/00 Pot E2E/004 Create Pot.bru\"\n"
+  },
+  "/private/tmp/pocoma-v3-cleanup": {
+    "head": "ddca2827dac7cf13f8b07f620f0cd3b3cb392196\n",
+    "branch": "feat/v3-architecture\n",
+    "status": "M  docs/v3/SPEC-01_Pot_Domain.md\nM  docs/v3/SPEC-03_Events_Requests_Consumables.md\nM  docs/v3/SPEC-04_Read_Projections.md\nM  docs/v3/SPEC-05_Consumption_Discovery.md\nM  docs/v3/SPEC-06_Supra_Contracts.md\nM  docs/v3/SPEC-07_Transverse_Requirements.md\nM  docs/v3/SPEC-08_Observability.md\nM  docs/v3/SPEC-09_Performance.md\nM  docs/v3/SPEC-10_Test_Certification.md\nM  docs/v3/V3_Canon_and_Roadmap.md\n"
+  }
+}

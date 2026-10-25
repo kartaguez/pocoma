@@ -1,0 +1,20 @@
+{
+  "baseline": "b3df3f3e619eeed6fc551177c778b412daa4fa4b",
+  "tested_sha": "e154276aa4f89a6619893e8d27150a8b2442d718",
+  "gate_inputs_before_after": "IDENTICAL",
+  "external_verdict": "PASS",
+  "post_gate_app_and_scripts_diff": "EMPTY (content and modes)",
+  "all_exhaustive_helper_calls": [
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java:30:        var versions = rows.versions(pot);",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java:34:        rows.checkedComponent(\"pot_header\", pot, latest, latest, potBirth);",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java:35:        rows.checkedComponent(\"pot_details\", pot, latest, latest, potBirth);",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java:38:            rows.checkedComponent(table, pot, latest, latest, shareholders);",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java:41:            rows.checkedComponent(table, pot, latest, latest, expenses);"
+  ],
+  "delivery_changes": "docs/v3 and docs/testing/evidence/L1-F2 only",
+  "delivery_sha_lookup": "git log -1 --format=%H -- docs/v3/L1_F2_Closure_Report.md",
+  "pre_push_remote_head": "b3df3f3e619eeed6fc551177c778b412daa4fa4b",
+  "publication_target": "HEAD:refs/heads/feat/v3-architecture",
+  "force": false,
+  "note": "This durable pre-publication receipt does not invent its own commit SHA. Exact final SHA and remote synchronization are independently checked after commit/push and reported in delivery."
+}

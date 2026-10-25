@@ -1,0 +1,2 @@
+schema=v3_pot_3847a9069abd4b948c86f66abed94b28
+actual pg_blocking_pids wait; first close=1, second=0; one complete successor; audit PASS

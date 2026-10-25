@@ -1,0 +1,114 @@
+{
+  "scope": "Internal physical WRITE, no admission, HTTP, Discovery or READ/SLO claim",
+  "warmups": 5,
+  "repetitions": 10,
+  "before_sha": "3544898353076d6839bd6f78122d52a5932a64b8",
+  "after_sha": "e154276a",
+  "profiles": [
+    {
+      "depth": 100,
+      "before": {
+        "fixture_ms": 636.338666,
+        "java_rows_range": [
+          341,
+          368
+        ],
+        "initial_version_range": [
+          105,
+          114
+        ],
+        "preparation_ms": 10.072021,
+        "finalization_ms": 19.7799585,
+        "total_ms": 29.758792,
+        "sql_count": 44.0,
+        "java_rows": 354.5
+      },
+      "after": {
+        "fixture_ms": 302.442625,
+        "java_rows_range": [
+          28,
+          28
+        ],
+        "initial_version_range": [
+          105,
+          114
+        ],
+        "preparation_ms": 9.691729,
+        "finalization_ms": 18.8849165,
+        "total_ms": 28.728167,
+        "sql_count": 43.0,
+        "java_rows": 28.0
+      }
+    },
+    {
+      "depth": 1000,
+      "before": {
+        "fixture_ms": 354.010125,
+        "java_rows_range": [
+          3041,
+          3068
+        ],
+        "initial_version_range": [
+          1005,
+          1014
+        ],
+        "preparation_ms": 9.836792,
+        "finalization_ms": 20.8830415,
+        "total_ms": 30.6314165,
+        "sql_count": 44.0,
+        "java_rows": 3054.5
+      },
+      "after": {
+        "fixture_ms": 331.261584,
+        "java_rows_range": [
+          28,
+          28
+        ],
+        "initial_version_range": [
+          1005,
+          1014
+        ],
+        "preparation_ms": 10.1020415,
+        "finalization_ms": 19.6244165,
+        "total_ms": 29.664375,
+        "sql_count": 43.0,
+        "java_rows": 28.0
+      }
+    },
+    {
+      "depth": 10000,
+      "before": {
+        "fixture_ms": 3236.701334,
+        "java_rows_range": [
+          30041,
+          30068
+        ],
+        "initial_version_range": [
+          10005,
+          10014
+        ],
+        "preparation_ms": 9.9694375,
+        "finalization_ms": 39.214708,
+        "total_ms": 49.044979,
+        "sql_count": 44.0,
+        "java_rows": 30054.5
+      },
+      "after": {
+        "fixture_ms": 2837.363042,
+        "java_rows_range": [
+          28,
+          28
+        ],
+        "initial_version_range": [
+          10005,
+          10014
+        ],
+        "preparation_ms": 9.8898545,
+        "finalization_ms": 19.0385625,
+        "total_ms": 29.4622085,
+        "sql_count": 43.0,
+        "java_rows": 28.0
+      }
+    }
+  ]
+}

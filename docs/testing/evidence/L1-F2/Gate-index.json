@@ -1,0 +1,38 @@
+{
+  "scope": "L1-F2 internal WRITE",
+  "baseline": "b3df3f3e619eeed6fc551177c778b412daa4fa4b",
+  "tested_sha": "e154276aa4f89a6619893e8d27150a8b2442d718",
+  "gate_directory": "command-1792961062290431000",
+  "archive": "command-1792961062290431000.tar.gz",
+  "summary": "COMMAND-summary.json",
+  "environment": "COMMAND-environment.json",
+  "performance": [
+    "before/F2-write-performance.json",
+    "after/F2-write-performance.json",
+    "Performance.json"
+  ],
+  "supplemental_close": "Exact-close-plans.json",
+  "before_provenance": "before/provenance.json",
+  "mandatory_verdict": "PASS",
+  "full_gate_coverage": "INCONCLUSIVE: historical exploratory V2 skip",
+  "architecture": "NOT REQUIRED / NOT RUN",
+  "full_reactor": "NOT REQUIRED / NOT RUN",
+  "archives": {
+    "command-1792961062290431000.tar.gz": {
+      "sha256": "5c03f28ceeae72deafdd84c6bdc1144b95debe0c8cb2d8f1f8bb4cd70823ad6b",
+      "bytes": 1125208
+    },
+    "supplemental.tar.gz": {
+      "sha256": "f9ec7621c858d54243a580a416178d53b7faac531f722f9705c0cac4810364d6",
+      "bytes": 4616
+    },
+    "diagnostics.tar.gz": {
+      "sha256": "cc8d64389583a9ec8f0e044a1f477afc4aac85bab3946684e1372bdf6a88b995",
+      "bytes": 75361
+    },
+    "before.tar.gz": {
+      "sha256": "4a05d7ed30bb3f1008f8fe7eb8c88de6ea72af15ca0756b221d1a3c6b54b4f8f",
+      "bytes": 27619
+    }
+  }
+}
