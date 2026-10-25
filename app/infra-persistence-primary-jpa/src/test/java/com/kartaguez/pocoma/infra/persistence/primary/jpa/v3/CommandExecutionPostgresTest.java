@@ -86,7 +86,7 @@ class CommandExecutionPostgresTest {
                 .migrate();
         jdbc.execute(
                 "create table fixture_actor(issuer text,subject text,revision bigint not"
-                    + " null,user_id uuid,token text,primary key(issuer,subject))");
+                        + " null,user_id uuid,token text,primary key(issuer,subject))");
         jdbc.update(
                 "insert into fixture_actor values (?,?,1,?,?)",
                 eui.issuer(),
@@ -125,7 +125,7 @@ class CommandExecutionPostgresTest {
         var evidence =
                 new StringBuilder(
                         "Internal fixture authority and initial claim; no Identity/Discovery"
-                            + " certification\n");
+                                + " certification\n");
         evidence.append("PostgreSQL: ")
                 .append(jdbc.queryForObject("select version()", String.class))
                 .append('\n');
@@ -217,7 +217,7 @@ class CommandExecutionPostgresTest {
                         status -> {
                             jdbc.queryForList(
                                     "select request_id from v3_command_slot where request_id=? for"
-                                        + " update",
+                                            + " update",
                                     request);
                             return jdbc.update(
                                                     "update v3_command_slot set"
@@ -312,7 +312,7 @@ class CommandExecutionPostgresTest {
             var positions =
                     jdbc.queryForList(
                             "select position from v3_event_position where family=? order by"
-                                + " position",
+                                    + " position",
                             Long.class,
                             family);
             for (int i = 0; i < positions.size(); i++) assertEquals(i + 1L, positions.get(i));
@@ -387,7 +387,7 @@ class CommandExecutionPostgresTest {
             var rows =
                     sql.queryForList(
                             "select revision,user_id,token from fixture_actor where issuer=? and"
-                                + " subject=?",
+                                    + " subject=?",
                             command.requester().issuer(),
                             command.requester().subject());
             if (rows.isEmpty()) return new Witness(0, Optional.empty());
@@ -408,7 +408,7 @@ class CommandExecutionPostgresTest {
                                 try (var lock =
                                         connection.prepareStatement(
                                                 "select pg_advisory_xact_lock(hashtextextended(?,"
-                                                    + " 732))")) {
+                                                        + " 732))")) {
                                     lock.setString(
                                             1,
                                             command.requester().issuer()
@@ -749,7 +749,7 @@ class CommandExecutionPostgresTest {
         await(dp.prepared);
         jdbc.update(
                 "update fixture_actor set revision=revision+1,user_id=? where issuer=? and"
-                    + " subject=?",
+                        + " subject=?",
                 creator.value(),
                 memberEui.issuer(),
                 memberEui.subject());
@@ -779,7 +779,7 @@ class CommandExecutionPostgresTest {
         await(paused.prepared);
         jdbc.update(
                 "update fixture_actor set revision=revision+1,user_id=null,token=null where"
-                    + " issuer=? and subject=?",
+                        + " issuer=? and subject=?",
                 eui.issuer(),
                 eui.subject());
         paused.resume.countDown();
@@ -801,7 +801,7 @@ class CommandExecutionPostgresTest {
         await(np.prepared);
         jdbc.update(
                 "update fixture_actor set revision=revision+1,user_id=?,token=? where issuer=? and"
-                    + " subject=?",
+                        + " subject=?",
                 creator.value(),
                 "creator-token",
                 eui.issuer(),
@@ -1041,8 +1041,8 @@ class CommandExecutionPostgresTest {
                     + " $$");
         jdbc.execute(
                 "create constraint trigger fixture_commit_failure after insert on v3_command_result"
-                    + " deferrable initially deferred for each row execute function"
-                    + " fixture_commit_failure()");
+                        + " deferrable initially deferred for each row execute function"
+                        + " fixture_commit_failure()");
         var command = command(2, new UpdatePotDetails(new Label("failed")));
         var token = admit(command);
         var attempt = engine().execute(command.requestId(), token);
@@ -1084,7 +1084,7 @@ class CommandExecutionPostgresTest {
         for (int count = 2; count <= 3; count++) {
             jdbc.update(
                     "update v3_command_slot set retry_after=clock_timestamp()-interval '1 second'"
-                        + " where request_id=?",
+                            + " where request_id=?",
                     command.requestId());
             var next = acquire(command.requestId());
             assertNotEquals(token, next);
@@ -1107,14 +1107,14 @@ class CommandExecutionPostgresTest {
                 1,
                 jdbc.update(
                         "update v3_command_slot set"
-                            + " state='AVAILABLE',attempt_count=0,retry_after=null where"
-                            + " request_id=? and state='QUARANTINED'",
+                                + " state='AVAILABLE',attempt_count=0,retry_after=null where"
+                                + " request_id=? and state='QUARANTINED'",
                         command.requestId()));
         assertEquals(
                 0,
                 jdbc.update(
                         "update v3_command_slot set state='AVAILABLE',attempt_count=0 where"
-                            + " request_id=? and state='QUARANTINED'",
+                                + " request_id=? and state='QUARANTINED'",
                         command.requestId()));
         assertEquals(
                 4L,
@@ -1206,7 +1206,7 @@ class CommandExecutionPostgresTest {
                     assertEquals(before, snapshot());
                     jdbc.update(
                             "update v3_command_slot set claimed_until=clock_timestamp()-interval '1"
-                                + " second' where request_id=?",
+                                    + " second' where request_id=?",
                             command.requestId());
                     assertEquals(
                             3L,
@@ -1230,13 +1230,38 @@ class CommandExecutionPostgresTest {
             blocker.setAutoCommit(false);
             try (var statement =
                     blocker.prepareStatement(
-                            "update v3_command_slot set claimed_until=clock_timestamp()-interval '1"
-                                + " second' where request_id=?")) {
+                            "select request_id from v3_command_slot where request_id=? for"
+                                + " update")) {
                 statement.setObject(1, command.requestId());
-                statement.executeUpdate();
+                statement.executeQuery().close();
             }
             var work = threads.submit(() -> engine().execute(command.requestId(), token));
             blocked("select claim_token,claimed_until,state from v3_command_slot");
+            // An oracle discriminating stale now() from a fresh post-wait clock:
+            // final transaction start < expiry < actual DB clock while the row stays locked.
+            var started =
+                    jdbc.queryForObject(
+                            "select xact_start from pg_stat_activity where"
+                                + " datname=current_database() and wait_event_type='Lock' and query"
+                                + " like ?",
+                            Timestamp.class,
+                            "%select claim_token,claimed_until,state from v3_command_slot%");
+            var expiry = Timestamp.from(started.toInstant().plusNanos(1000));
+            try (var statement =
+                    blocker.prepareStatement(
+                            "update v3_command_slot set claimed_until=? where request_id=?")) {
+                statement.setTimestamp(1, expiry);
+                statement.setObject(2, command.requestId());
+                assertEquals(1, statement.executeUpdate());
+            }
+            assertTrue(started.before(expiry));
+            assertTrue(jdbc.queryForObject("select clock_timestamp()>?", Boolean.class, expiry));
+            timeline.add(
+                    "final transaction start="
+                            + started
+                            + " < expiry="
+                            + expiry
+                            + " < DB clock confirmed before releasing the row lock");
             blocker.commit();
             assertEquals(Status.CLAIM_LOST, get(work).status());
             pending(command.requestId(), 0);
@@ -1263,8 +1288,8 @@ class CommandExecutionPostgresTest {
             var waiters =
                     jdbc.queryForList(
                             "select pid,wait_event,pg_blocking_pids(pid) as blockers from"
-                                + " pg_stat_activity where datname=current_database() and"
-                                + " wait_event_type='Lock' and query like ?",
+                                    + " pg_stat_activity where datname=current_database() and"
+                                    + " wait_event_type='Lock' and query like ?",
                             "%" + query + "%");
             if (!waiters.isEmpty()) {
                 timeline.add("actual PostgreSQL lock wait: " + waiters);
@@ -1694,7 +1719,7 @@ class CommandExecutionPostgresTest {
         var stale = admit(abandoned);
         jdbc.update(
                 "update v3_command_slot set claimed_until=clock_timestamp()-interval '1 second'"
-                    + " where request_id=?",
+                        + " where request_id=?",
                 abandoned.requestId());
         var fresh = acquire(abandoned.requestId());
         assertNotEquals(stale, fresh);
@@ -1745,8 +1770,8 @@ class CommandExecutionPostgresTest {
                             () ->
                                     jdbc.update(
                                             "update fixture_actor set"
-                                                + " revision=revision+1,user_id=null,token=null"
-                                                + " where issuer=? and subject=?",
+                                                    + " revision=revision+1,user_id=null,token=null"
+                                                    + " where issuer=? and subject=?",
                                             command.requester().issuer(),
                                             command.requester().subject()));
             blocked("update fixture_actor");
@@ -1838,7 +1863,7 @@ class CommandExecutionPostgresTest {
                 } else
                     jdbc.update(
                             "update v3_command_slot set claimed_until=clock_timestamp()-interval '1"
-                                + " second' where request_id=?",
+                                    + " second' where request_id=?",
                             command.requestId());
                 assertEquals(
                         Status.COMPLETED,
@@ -1883,7 +1908,7 @@ class CommandExecutionPostgresTest {
         var revision =
                 jdbc.queryForObject(
                         "select revision_id from v3_expense_financials where pot_id=? and"
-                            + " object_id=?",
+                                + " object_id=?",
                         Long.class,
                         p.value(),
                         e.value());
@@ -1898,13 +1923,13 @@ class CommandExecutionPostgresTest {
                 false,
                 jdbc.queryForObject(
                         "select deleted from v3_shareholder_header where object_id=? and active_to"
-                            + " is null",
+                                + " is null",
                         Boolean.class,
                         a.value()));
         assertEquals(4, storeVersion());
         jdbc.update(
                 "insert into v3_expense_participant(pot_id,financial_revision_id,shareholder_id)"
-                    + " values (?,?,?)",
+                        + " values (?,?,?)",
                 p.value(),
                 revision,
                 b.value());

@@ -76,7 +76,7 @@ All methods below are declared in [L1 proof manifest](L1_Proof_Manifest.json), w
 | c11 | Real deferred SQL error at physical commit; full rollback, technical failure accounting, not terminal business rejection |
 | c12 | Configurable N=3 fixture; retryAfter blocks acquisition, old token cannot double-count, Nth failure quarantines persistent PENDING slot; later command on same Pot progresses; explicit expected-state admin reset once then full attempt succeeds |
 | c13 | **Two real wire faults** before COMMIT and after server COMMIT acknowledgement; independent durable observation proves zero/one effect, no speculative budget consumption or double effect |
-| c14 | Actual PG lock wait while deadline changes; fresh post-lock DB clock rejects expiry, old token cannot finalize/count failure after takeover (C03-E/G/H) |
+| c14 | Actual PG lock wait; assert final transaction start < deadline < fresh DB clock before releasing the row (a stale now() would authorize); fresh post-lock DB clock rejects expiry, old token cannot finalize/count failure after takeover (C03-E/G/H) |
 | c15 | Controlled expiry after valid final lock; actual takeover waits until physical commit, then sees no slot and cannot duplicate (C03-F, C04-C) |
 | c16 | **Two variants** first publisher commits/rolls back; different Pot/EUI second publisher blocked on real counter lock, no higher durable position until resolution; dense continuation of pre-existing prefix (E01-A/B/C/E/F/H bounded two families) |
 | c17 | JPA/JDBC identical PID/XID; caught validation errors and JPA errors in both relevant write orders rollback both; actual JPA-manager command finalization passes (C06-A/E/F/G) |
