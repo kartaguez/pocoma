@@ -1191,3 +1191,16 @@ Certifier toutes les lignes de la matrice avec résultats vérifiables, conserve
 - INV-I : aucun secret dans INVITATION_EVENT, logs ou cache partagé ; lien récupérable mais accessible exclusivement à creatorEui.
 - INV-J : multi-rattachement général possible, mais invitation refusée dès qu'un premier Shareholder est rattaché ; créateur non-Shareholder distinct.
 
+## 15. Compléments de preuve post-audit L1-F
+
+Ces compléments s'ajoutent aux scénarios existants sans requalifier les campagnes historiques L1-A…E.
+
+- D01-G/I/J/L : sélection directe à V et courante ; intégrité ponctuelle (absence/ambiguïté à V), corruption historique étrangère à V détectée par une vérification indépendante explicitement exécutable ; conservation des contrôles writers. EXPLAIN ANALYZE BUFFERS sur profondeurs 100/1000/10000, SQL effectivement émis, index choisis et buffers/durées ; aucune option forçant artificiellement un index.
+- CON-04/05 et SEC-01 internes : INVALID_BINDING sans lecture/verrou Pot, même sous contention Pot réelle ; témoin Identity négatif protégé jusqu'au commit, mutation entre phases → collision/réévaluation, deux finaliseurs → une complétion. Les autres rejets conservent leur protection Pot.
+- ADM-01 interne : trois intentions multi-cibles refusent null/vide/null élément/doublon avant tout durable ; copies immuables et round-trip valides. Une corruption durable est INCONSISTENT_FACTS, une cible métier impossible donne le rejet normal. HTTP réel reste à L5.
+- EVT-02 : contrôle des 22 contraintes différables B par liste statique égale au catalogue réel, définition et état initialement différé conservés ; checks finaux de publication toujours différés ; violation métier avant suffixe et rollback intégral. SET CONSTRAINTS ALL IMMEDIATE ne constitue pas un oracle acceptable.
+- DOM-03 : oracle rationnel indépendant, somme exactement nulle, permutation et grandes fractions préservés après optimisation mesurée ; les mesures internes des trois profils ne certifient pas PERF-01.
+- Résultats : CHANGED/UNCHANGED → READ COMPLETED, REJECTED → READ REJECTED ; no-op sans V/POT_EVENT, complétion unique ; tests WRITE maintenant, matérialisation/API réelle à L4/L5.
+- INV-01 : même invitation réutilisable avant expiration par deux bénéficiaires distincts sur deux Shareholders libres ; aucune consommation/réservation ni nouvel INVITATION_EVENT d'utilisation. Après premier rattachement d'un bénéficiaire, réutilisation par celui-ci refusée ; INV-F conserve les deux courses et INV-E l'expiration. Transition pure et CAS des primitives vérifiables en L1-F ; création, restitution confidentielle, token/expiration protégés, intention durable et POT_EVENT effectif du parcours réel restent à prouver en L5. Une fixture prévalidée ne certifie pas ces garanties manquantes.
+
+Les preuves et verdicts internes frais sont dans le [rapport L1-F](L1_F_Closure_Report.md). Aucun PASS global V3 n'en découle ; aucune projection READ, autorité Identity réelle ou Consumption générique n'est réputée implémentée.

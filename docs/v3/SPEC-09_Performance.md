@@ -77,3 +77,7 @@ Le jalon alternatif E2E de `DeletePot` est la **première observation interne da
 ## 6. Qualification et certification
 
 Le p95 se mesure depuis l'admission durable jusqu'au premier jalon réellement observable selon les profils et budgets contractuels ; les lectures 404/503, sondages manqués, délais de polling et biais de mesure sont documentés. La visibilité possède ses propres preuves indépendantes, et une version active antérieure V<D reste due même lorsque D a été matérialisée. Les scénarios F01-A à F01-J, A11-L/M et la reconstruction C-02 relèvent de SPEC-10. La problématique de coût du Grand Pot relève de AUD-V3-013, sans en anticiper l'arbitrage. Aucun benchmark V3 exécuté.
+
+## 7. Mesures internes L1-F
+
+Le profilage du seul calcul pur distingue durée, octets alloués cumulés par thread et heap occupé après GC avec entrée/résultat retenus. Les profils sont 5/20/100, 20/200/4000 et 100/2000/200000 (Shareholders/Expenses/participations). JVM/options, seed, échauffement, échantillons et données brutes figurent au [rapport L1-F](L1_F_Closure_Report.md). Une allocation cumulée n'est ni une mémoire retenue ni un pic RSS. Les mesures locales n'attestent aucun SLO E2E ni budget de production. Les index historiques sont qualifiés séparément par EXPLAIN ANALYZE BUFFERS, sans confondre nombre de requêtes constant et coût SQL constant.

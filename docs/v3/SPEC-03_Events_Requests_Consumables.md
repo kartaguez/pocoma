@@ -97,6 +97,16 @@ La publication dense, l'atomicité des transactions physiques et leur absence de
 
 ## 9. Mutation d'invitation et complétion
 
-Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, `IDENTITY_REQUEST`) et cinq non-burnables (`POT_EVENT`, `INVITATION_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETION_EVENT`, `IDENTITY_COMPLETION_EVENT`), donc **cinq séquences événementielles denses**. Toute mutation effective d'invitation émet `INVITATION_EVENT(invitationId, invitationVersion, requestId)` et conserve l'état d'invitation historisé correspondant en WRITE. Aucun token ni lien en clair dans l'événement. Cet événement métier est atomique avec l'écriture WRITE et la complétion distincte de la commande ; un rejet n'émet que la complétion. `INVITATION_EVENT` ne se substitue pas à `POT_EVENT`, et `COMMAND_COMPLETION_EVENT` ne sert jamais à projeter l'invitation. 
+Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, `IDENTITY_REQUEST`) et cinq non-burnables (`POT_EVENT`, `INVITATION_EVENT`, `IDENTITY_EVENT`, `COMMAND_COMPLETION_EVENT`, `IDENTITY_COMPLETION_EVENT`), donc **cinq séquences événementielles denses**. Toute mutation effective d'invitation émet `INVITATION_EVENT(invitationId, invitationVersion, requestId)` et conserve l'état d'invitation historisé correspondant en WRITE. Aucun token ni lien en clair dans l'événement. Cet événement métier est atomique avec l'écriture WRITE et la complétion distincte de la commande ; un rejet n'émet que la complétion. `INVITATION_EVENT` ne se substitue pas à `POT_EVENT`, et `COMMAND_COMPLETION_EVENT` ne sert jamais à projeter l'invitation.
 
- 
+## 10. Correspondance WRITE / READ des résultats — L1-F
+
+| Issue durable WRITE | Statut fonctionnel terminal READ | Effets Pot |
+|---|---|---|
+| CHANGED | COMPLETED | Une nouvelle V globale et un POT_EVENT pour une mutation effective de Pot |
+| UNCHANGED | COMPLETED | Aucune nouvelle V ni POT_EVENT ; resultingPotVersion reste V courante |
+| REJECTED | REJECTED | Aucune mutation/V/POT_EVENT ; motif métier conservé |
+
+Chaque ligne produit exactement une complétion de la demande. `ExecutePotCommand.Attempt.COMPLETED` signifie tentative terminalisée et peut donc contenir une issue WRITE REJECTED ; il ne remplace pas le statut fonctionnel READ. TECHNICAL, INCONSISTENT_FACTS, COLLISION, RETRY_SCHEDULED, QUARANTINED, CLAIM_LOST et RECOVERY_PENDING ne deviennent pas des rejets métier READ. Le matérialisateur V3 réel de résultats reste à livrer en L4 ; les tests internes WRITE ne certifient pas cette projection.
+
+Le rattachement effectif via invitation réutilisable du même Pot révise ShareholderDetails et Pot, publie POT_EVENT et sa complétion, sans modifier ni consommer l'invitation. Il ne produit donc pas un nouvel INVITATION_EVENT au seul titre de son utilisation.

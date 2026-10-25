@@ -91,3 +91,9 @@ All methods below are declared in [L1 proof manifest](L1_Proof_Manifest.json), w
 | carch01..03 + existing A-01 | Pure orchestration/ports, owner guards on every writer, WRITE isolation, no independent transaction declaration in writer sources, explicit inactive composition, no production authority/mock fixture |
 
 DOM-03 balance calculation, all Identity/Invitation families, real partition ownership/acquisition/Discovery, READ, Bruno, k6, SLOs and full CON/EVT/DOM certification remain outside this bounded proof. CON-06 READ scenarios N/O/P remain due at their lots. A passing internal gate cannot certify missing system paths.
+
+## Post-audit L1-F (current correction to the protocol above)
+
+INVALID_BINDING is prepared from the Identity witness alone, with no Pot version/history lookup. Finalization still protects claim, reloads durable intention and protects that witness, then finishes/publishes the rejection without protectPot. A changed Identity witness collides and is reacquired/re-evaluated normally. Other decisions retain the original Pot protection. Empty/duplicate multi-target intentions now fail construction; durable codec corruption remains explicitly INCONSISTENT_FACTS.
+
+Before the closed publication suffix, `validateBusinessConstraints` executes one static SET CONSTRAINTS naming precisely the 18 deferred B FKs and four deferred B completeness triggers. It replaces catalogue discovery plus 22 separate statements. `v3_command_unit`, `v3_result_unit` and `v3_pot_event_request` remain deferred to physical commit. The catalogue equivalence test retains names/definitions/properties, and the injected FK failure retains technical classification and full rollback. No ALL IMMEDIATE, change to the owner or weakening of the final publication unit.

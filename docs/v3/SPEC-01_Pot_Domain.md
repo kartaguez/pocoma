@@ -140,6 +140,8 @@ Chaque V reconstruit exactement son état ; V6 n'altère pas les soldes de V5, V
 
 ## 8. Invitations et auto-rattachement
 
+**Arbitrage post-audit L1-F :** une invitation concerne un Pot et reste réutilisable jusqu'à son expiration. Plusieurs bénéficiaires distincts peuvent utiliser le même lien pour rejoindre des Shareholders libres. Un rattachement réussi ne consomme pas le token ; aucun état `consumed`, compteur d'usages ou réservation de Shareholder n'est introduit. L'expiration n'annule pas un rattachement déjà validé. La validité de l'invitation et son expiration doivent être revalidées atomiquement dans WRITE avec les autres préconditions ; une lecture READ préalable ne les garantit pas.
+
 Le créateur émet une `COMMAND CreateInvitation` asynchrone. WRITE vérifie son autorisation, crée l'invitation identifiée par `invitationId`, `creationRequestId`, `creatorEui`, `potId`, `expiresAt`, `tokenHash` et un lien **restituable et confidentiel**. Un hash seul ne permet pas de récupérer le lien ; la forme récupérable est protégée en WRITE et READ. Le token clair ne figure jamais dans l'événement. Une création effective émet atomiquement `INVITATION_EVENT` et `COMMAND_COMPLETION_EVENT`, sans nouvelle version globale du Pot ni `POT_EVENT`. La création d'invitation n'est pas la création du rattachement.
 
 `CurrentInvitation` READ restitue le lien uniquement à l'EUI créatrice authentifiée via `creationRequestId`. `CommandResult` donne seulement le statut de la demande, **jamais le lien**. L'invité authentifié présente le token à READ, qui vérifie son empreinte et expiration et ne présente que les Shareholders actifs libres du Pot actif s'il n'est pas lui-même déjà rattaché. La liste peut être retardée. WRITE vérifie atomiquement toutes ces préconditions avant auto-rattachement et émet alors le `POT_EVENT` du changement réel de ShareholderDetails. La règle « pas déjà rattaché » concerne exclusivement l'invitation et n'interdit pas le multi-rattachement général du domaine. Révocation anticipée hors périmètre jusqu'à arbitrage. Cet amendement remplace les variantes de jeton signé, d'empreinte dans PotVersion et de génération nécessairement côté client du §8.
@@ -147,3 +149,23 @@ Le créateur émet une `COMMAND CreateInvitation` asynchrone. WRITE vérifie son
 ## 9. Statut et références
 
 Conception normative uniquement, sans code ni certification V3. Contrats complémentaires : [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md), [V3-4](SPEC-05_Consumption_Discovery.md), [V3-5E](SPEC-06_Supra_Contracts.md) ; preuves dans [V3-5D](SPEC-10_Test_Certification.md).
+
+## 10. Catalogue des résultats métier internes — L1-F
+
+Le catalogue des huit composantes versionnées du §1 est exhaustif : PotHeader, PotDetails, ShareholderHeader, ShareholderDetails, ShareholderWeight, ExpenseHeader, ExpenseDetails, ExpenseFinancials. Chaque composante a sa propre version locale et intervalle global ; aucune composante Invitation ne s'ajoute à ce découpage du Pot.
+
+Les sources L1 contiennent **neuf motifs distincts** : huit dans `domain-pot/.../v3/TransitionResult.Rejection`, et `INVALID_BINDING` dans `engine-write-pot/.../v3/ExecutePotCommand`. Ce dénombrement est celui des codes effectivement implémentés, pas une contrainte empêchant de futurs motifs justifiés.
+
+| Motif | Signification / condition réelle |
+|---|---|
+| INVALID_BINDING | L'autorité WRITE ne résout pas un acteur pour l'EUI et le token présentés ; avant toute lecture/protection du Pot. Le témoin Identity négatif est protégé jusqu'à complétion ; un changement du témoin provoque collision et réévaluation |
+| FORBIDDEN | Acteur valide sans droit courant de mutation, ou suppression réservée au créateur tentée par un autre ; indépendant du seul observedVersion |
+| DELETED | Pot ou Header de la cible déjà supprimé ; aucun effet après suppression |
+| NOT_FOUND | Pot absent hors création, cible absente ou référence Shareholder absente dans les faits autoritatifs sélectionnés |
+| ALREADY_EXISTS | Identité Pot/Shareholder/Expense déjà présente lors d'une création, même si supprimée logiquement |
+| OBSOLETE | Observation hors domaine valide, dépendance pertinente révisée après l'observation, ou DeletePot sans égalité globale ; contrôlé avant égalité/no-op. Une collision CAS seule n'est pas ce rejet |
+| INVALID_REFERENCE | Shareholder référencé créé après observedVersion ; distinct d'une absence (NOT_FOUND) ou suppression (DELETED) |
+| INVALID_ATTACHMENT | Rattachement ordinaire imposant un tiers/changement non permis ; détachement d'autrui sans qualité de créateur ; invitation sur cible occupée ou bénéficiaire déjà activement rattaché |
+| REFERENCED | DeleteShareholder trouve la cible comme payeur ou participant d'une Expense active |
+
+La priorité des contrôles reste celle des transitions ; ce tableau ne réordonne pas les décisions. Faits incohérents, corruption durable, SQL/transport, retries et quarantaines sont techniques : aucun motif métier inventé pour les terminaliser.
