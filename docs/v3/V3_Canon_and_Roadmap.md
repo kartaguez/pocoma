@@ -147,3 +147,7 @@ Orchestration dans engine-write-pot, transitions A inchangées, faits B sélecti
 COMMAND primaire, EVENT/PROJECTION secondaires, gate architecture global requis. Full reactor non requis pour C, réservé au jalon E selon le plan. Aucune réalisation D/E, READ, HTTP, cycle Identity ou Discovery générique. L1-C ne sera définitivement accepté que par audit indépendant.
 
 Publication code/rapport/archives : `0a6742944ac9eb5f1452d9a590b798e52ce732dc`, avance rapide sans force ; tête distante vérifiée et correspondance avec le code testé `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf` PASS, divergence 0/0. Le suivi documentaire du constat et son contrôle final sont distingués des entrées exécutables dans le [rapport C](L1_C_Execution_Report.md). **STOP C ; audit indépendant avant toute autorisation D/E.**
+
+## 13. Autorisation D/E — 2026-10-25
+
+Le responsable confirme le GO de poursuite après revues indépendantes A/B/C et autorise la campagne D→E depuis `9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164`, avec full reactor et architecture au jalon E, provenance A-02 et publication sans force. Cette autorisation supplante les anciens statuts « D/E non autorisés ». Aucun lot suivant autorisé ; arrêt au checkpoint indépendant final L1, sans acceptation définitive. Voir le [rapport D](L1_D_Execution_Report.md).

@@ -55,6 +55,51 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                         expenses));
     }
 
+    @Override
+    public Optional<PotFinancialState> financialAtVersion(PotId pot, long version) {
+        rows.requireTransaction(true);
+        if (version < 1) throw new IllegalArgumentException("Positive version required");
+        var versions = rows.versions(pot);
+        if (versions.isEmpty()) return Optional.empty();
+        long latest = number(versions.getLast(), "version");
+        if (version > latest) throw bad("Requested financial version absent");
+        var header =
+                potHeader(
+                        rows.component("pot_header", pot, version, latest, Map.of(pot.value(), 1L))
+                                .get(pot.value()));
+        var births = rows.identities("shareholder", pot, null);
+        var headers = rows.component("shareholder_header", pot, version, latest, births);
+        var weights = rows.component("shareholder_weight", pot, version, latest, births);
+        var shareholders = new LinkedHashMap<ShareholderId, PotFinancialState.Shareholder>();
+        headers.forEach(
+                (id, row) ->
+                        shareholders.put(
+                                new ShareholderId(id),
+                                new PotFinancialState.Shareholder(
+                                        shareholderHeader(row),
+                                        shareholderWeight(weights.get(id)))));
+        var expenseBirths = rows.identities("expense", pot, null);
+        var expenseHeaders = rows.component("expense_header", pot, version, latest, expenseBirths);
+        var financials =
+                financials(
+                        rows.component("expense_financials", pot, version, latest, expenseBirths));
+        var expenses = new LinkedHashMap<ExpenseId, PotFinancialState.Expense>();
+        financials.forEach(
+                (id, value) -> {
+                    var references = new HashSet<>(value.value().participants().keySet());
+                    references.add(value.value().payerId());
+                    for (var reference : references)
+                        if (!births.containsKey(reference.value())
+                                || births.get(reference.value()) > value.activeFrom())
+                            throw bad("Financial reference created after Financials");
+                    expenses.put(
+                            new ExpenseId(id),
+                            new PotFinancialState.Expense(
+                                    expenseHeader(expenseHeaders.get(id)), value));
+                });
+        return Optional.of(new PotFinancialState(pot, version, header, shareholders, expenses));
+    }
+
     private Map<ShareholderId, ShareholderState> shareholders(
             PotId pot, long version, long latest, Map<UUID, Long> births) {
         var headers = rows.component("shareholder_header", pot, version, latest, births);

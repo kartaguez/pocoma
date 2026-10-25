@@ -80,6 +80,10 @@ public interface PotHistoryPort {
         }
     }
 
+    /** Complete grouped financial facts at V, including explicit zero-balance Shareholders.
+     * No Details, current weights, previous balances or READ access. Caller owns the snapshot. */
+    Optional<PotFinancialState> financialAtVersion(PotId potId, long version);
+
     Optional<Snapshot> atVersion(PotId potId, long version);
 
     Optional<SelectedPot> current(PotId potId, UserId actor, Selection selection);

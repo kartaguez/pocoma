@@ -1,5 +1,5 @@
 {
-  "scope": "L1-A/B references plus L1-C internal bounded proof; independent C audit pending",
+  "scope": "L1 A/B/C accepted for continuation by human; authorized D/E internal campaign, final independent audit required",
   "suites": {
     "A": {
       "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
@@ -106,6 +106,36 @@
         "carch01OrchestrationAndContractsRemainPure",
         "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards",
         "carch03ExplicitCompositionAndNoIdentityFixtureInProduction"
+      ]
+    },
+    "D-FIN": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+      "methods": [
+        "d01PayerParticipantAndSeparatePayerExactZeros",
+        "d02DefaultsOverridesAndIndependentHistoricalResults",
+        "d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+        "d04DeletionTerminalAndOutOfOrderAreIndependent",
+        "d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+        "d06SeededSizesPermutationAndIndicativeCost"
+      ]
+    },
+    "D-RIGHTS": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "methods": [
+        "d07EveryMutationRoleAndPotLifecycleCell",
+        "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+        "d09InvitationEligibilityAndDeletedTargets"
+      ]
+    },
+    "D-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "methods": [
+        "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+        "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+        "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+        "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+        "d14FinancialRollbackAtEveryPublicationBoundary",
+        "d15OneVersionComposesWeightAndFinancialPrimitives"
       ]
     }
   },
@@ -231,6 +261,60 @@
         "B",
         "C-UNIT",
         "C-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH"
+      ]
+    },
+    "d-domain": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "domain-pot",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "D-FIN",
+        "D-RIGHTS"
+      ]
+    },
+    "d-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION"
+      ]
+    },
+    "d-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
         "C-COMPOSITION",
         "ARCH",
         "C-ARCH"

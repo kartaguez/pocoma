@@ -88,6 +88,17 @@ public final class ShareholderTransitions {
         }
         return changes.isEmpty() ? new TransitionResult.Unchanged<>(pot.workingVersion()) : TransitionResult.Changed.propose(pot.workingVersion(),Map.copyOf(changes));
     }
+    /** Pure eligibility only; token validity/expiry and atomic execution belong to the Invitation lot. */
+    public static boolean invitationEligible(PotFacts pot, Versioned<ShareholderHeader> header,
+            Versioned<ShareholderDetails> details) {
+        TransitionChecks.revision(pot, header.value().potId(), header);
+        TransitionChecks.revision(pot, details.value().potId(), details);
+        if (!header.value().shareholderId().equals(details.value().shareholderId()))
+            throw new InconsistentPotFactsException("Mixed invitation target");
+        return !pot.header().value().deleted() && !header.value().deleted()
+                && details.value().userId().isEmpty() && !pot.authorization().activelyAttached();
+    }
+
     private static boolean attachmentAllowed(AuthorizationFacts actor, Optional<UserId> old, Optional<UserId> requested) {
         if (old.equals(requested)) return true;
         if (old.isEmpty()) return requested.orElseThrow().equals(actor.actorUserId());
