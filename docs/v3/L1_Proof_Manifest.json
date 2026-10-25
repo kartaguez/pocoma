@@ -1,5 +1,5 @@
 {
-  "scope": "L1 A/B/C accepted for continuation by human; authorized D/E internal campaign, final independent audit required",
+  "scope": "L1 A–E internal proof only; A/B/C continuation GO confirmed by human; D internal PASS; final independent L1 audit required",
   "suites": {
     "A": {
       "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
@@ -136,6 +136,14 @@
         "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
         "d14FinancialRollbackAtEveryPublicationBoundary",
         "d15OneVersionComposesWeightAndFinancialPrimitives"
+      ]
+    },
+    "E-PG": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1IntegrationPostgresTest",
+      "methods": [
+        "e01CanonicalV1ThroughV9AllEightComponentsAndExactBalances",
+        "e02D01MNoopsRejectionsAndHistoricalDeletedShareholder",
+        "e03FinancialNoopObsoleteEqualityAndReplayHaveOnlyCompletions"
       ]
     }
   },
@@ -318,6 +326,67 @@
         "C-COMPOSITION",
         "ARCH",
         "C-ARCH"
+      ]
+    },
+    "e-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "E-PG"
+      ]
+    },
+    "e-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH",
+        "E-PG"
+      ]
+    },
+    "e-full": {
+      "command": [
+        "./mvnw",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
+        "C-UNIT",
+        "C-PG",
+        "D-FIN",
+        "D-RIGHTS",
+        "D-PG",
+        "C-COMPOSITION",
+        "ARCH",
+        "C-ARCH",
+        "E-PG"
       ]
     }
   }

@@ -2,11 +2,24 @@ package com.kartaguez.pocoma.runtime.command.v3;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.kartaguez.pocoma.domain.pot.v3.Amount;
+import com.kartaguez.pocoma.domain.pot.v3.ExpenseDetails;
+import com.kartaguez.pocoma.domain.pot.v3.ExpenseFinancials;
+import com.kartaguez.pocoma.domain.pot.v3.Fraction;
+import com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculator;
+import com.kartaguez.pocoma.domain.pot.v3.ShareholderTransitions;
+import com.kartaguez.pocoma.domain.pot.v3.Weight;
 import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.Name;
 import com.kartaguez.pocoma.domain.pot.value.UserId;
+import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
+import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
+import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotHistoryAdapter;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJdbcTransactions;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 
 import org.flywaydb.core.Flyway;
@@ -50,7 +63,7 @@ class V3PotCommandCompositionPostgresTest {
                 .migrate();
         sql.execute(
                 "create table fixture_identity(issuer text,subject text,user_id uuid,token"
-                    + " text,primary key(issuer,subject))");
+                        + " text,primary key(issuer,subject))");
         var user = new UserId(UUID.randomUUID());
         var pot = new PotId(UUID.randomUUID());
         sql.update(
@@ -72,7 +85,7 @@ class V3PotCommandCompositionPostgresTest {
                             var rows =
                                     sql.queryForList(
                                             "select user_id from fixture_identity where issuer=?"
-                                                + " and subject=? and token=?",
+                                                    + " and subject=? and token=?",
                                             c.requester().issuer(),
                                             c.requester().subject(),
                                             c.bindingToken());
@@ -90,7 +103,7 @@ class V3PotCommandCompositionPostgresTest {
                         public boolean protect(PotCommand c, Witness witness) {
                             sql.queryForList(
                                     "select user_id from fixture_identity where issuer=? and"
-                                        + " subject=? for update",
+                                            + " subject=? for update",
                                     c.requester().issuer(),
                                     c.requester().subject());
                             return observe(c).equals(witness);
@@ -115,7 +128,7 @@ class V3PotCommandCompositionPostgresTest {
                     PotCommandJson.encode(intent));
             sql.update(
                     "insert into v3_command_slot(request_id,claim_token,claimed_until) values"
-                        + " (?,?,clock_timestamp()+interval '1 minute')",
+                            + " (?,?,clock_timestamp()+interval '1 minute')",
                     request,
                     claim);
             var result = execution.execute(request, claim);
@@ -135,6 +148,89 @@ class V3PotCommandCompositionPostgresTest {
                     sql.queryForObject(
                             "select count(*) from v3_command_completion_event", Integer.class));
             assertEquals(result, execution.execute(request, claim));
+            // E: actual Spring/JPA composition also executes finance and historical calculation.
+            var a = new ShareholderId(UUID.randomUUID());
+            var b = new ShareholderId(UUID.randomUUID());
+            var expense = new ExpenseId(UUID.randomUUID());
+            var one = new Weight(Fraction.ONE);
+            java.util.function.Consumer<PotCommand.Intent> submit =
+                    operation -> {
+                        var id = UUID.randomUUID();
+                        var token = UUID.randomUUID();
+                        long observed =
+                                sql.queryForObject(
+                                        "select current_version from v3_pot_identity where"
+                                            + " pot_id=?",
+                                        Long.class,
+                                        pot.value());
+                        sql.update(
+                                "insert into"
+                                    + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
+                                    + " values (?,'issuer','subject','secret',?,?,?,?::jsonb)",
+                                id,
+                                pot.value(),
+                                observed,
+                                operation.getClass().getSimpleName(),
+                                PotCommandJson.encode(operation));
+                        sql.update(
+                                "insert into v3_command_slot(request_id,claim_token,claimed_until)"
+                                    + " values (?,?,clock_timestamp()+interval '1 minute')",
+                                id,
+                                token);
+                        var completed = execution.execute(id, token);
+                        assertEquals(ExecutePotCommand.Status.COMPLETED, completed.status());
+                        assertEquals(
+                                observed + 1,
+                                completed.result().orElseThrow().resultingPotVersion());
+                    };
+            submit.accept(
+                    new PotCommand.AddShareholders(
+                            List.of(
+                                    new ShareholderTransitions.Creation(
+                                            a, new Name("A"), Optional.empty(), one),
+                                    new ShareholderTransitions.Creation(
+                                            b,
+                                            new Name("B"),
+                                            Optional.empty(),
+                                            new Weight(new Fraction(3, 1))))));
+            submit.accept(
+                    new PotCommand.CreateExpense(
+                            new ExpenseDetails(
+                                    pot, expense, new Label("E"), LocalDate.of(2026, 10, 25)),
+                            new ExpenseFinancials(
+                                    pot,
+                                    expense,
+                                    new Amount(new Fraction(100, 1)),
+                                    a,
+                                    Map.of(a, Optional.empty(), b, Optional.empty()))));
+            var owner = new PotCommandJdbcTransactions(source, manager);
+            var balances =
+                    new CalculatePotBalances(
+                            new JdbcPotHistoryAdapter(source), new PotBalanceCalculator());
+            var old = owner.snapshot(() -> balances.atVersion(pot, 3).orElseThrow());
+            assertEquals(Map.of(a, new Fraction(75, 1), b, new Fraction(-75, 1)), old.values());
+            submit.accept(
+                    new PotCommand.UpdateShareholderWeights(
+                            List.of(
+                                    new ShareholderTransitions.WeightIntent(
+                                            a, new Weight(new Fraction(3, 1))))));
+            assertEquals(
+                    Map.of(a, new Fraction(50, 1), b, new Fraction(-50, 1)),
+                    owner.snapshot(() -> balances.atVersion(pot, 4).orElseThrow()).values());
+            assertEquals(old, owner.snapshot(() -> balances.atVersion(pot, 3).orElseThrow()));
+            try {
+                var output =
+                        java.nio.file.Path.of("target/v3-pot-evidence/E-spring-composition.txt");
+                java.nio.file.Files.createDirectories(output.getParent());
+                java.nio.file.Files.writeString(
+                        output,
+                        "Actual composition factory + JpaTransactionManager\n"
+                                + old
+                                + "\n"
+                                + owner.snapshot(() -> balances.atVersion(pot, 4).orElseThrow()));
+            } catch (java.io.IOException error) {
+                throw new AssertionError(error);
+            }
             var different =
                     new DriverManagerDataSource(
                             POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
