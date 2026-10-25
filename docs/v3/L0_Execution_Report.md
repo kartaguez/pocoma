@@ -14,6 +14,26 @@ The collector returned exit 2 / **INCONCLUSIVE** for complete global coverage be
 Its per-proof verdicts for L0-B, L0-C, L0-D-TX, L0-D-HISTORY and L0-E are all PASS.
 These two verdict levels are deliberately distinct; there is no claim that all 1,407 tests executed successfully.
 
+## Independent review and documentary closure — 2026-10-25
+
+Reviewed L0 delivery: `7c8470a568ece88c4e6652d080dfb026f57681e1`, published on `feat/v3-architecture`.
+**Verdict: L0 acceptable pour la poursuite, sans défaut bloquant démontré.**
+The independent review was static and documentary; it did not reproduce the PostgreSQL tests.
+It accepts the bounded foundation for continuation, with the reservations below, without requiring a rewrite of L0.
+
+The recorded results remain distinct: **19 mandatory Java L0 methods PASS** (15 PostgreSQL/composition, 4 ArchUnit), **7 collector tests PASS**, global Maven gate **BUILD SUCCESS**, but complete global coverage **INCONCLUSIVE** because of the historical exploratory skip identified below.
+There is **no V3 functional certification**. This closure records the review outcome only: no new proof result, test rerun or retrospective change to the [proof manifest](L0_Proof_Manifest.json) or raw test reports.
+
+| Reservation | Disposition and deadline |
+|---|---|
+| I-01 | The V2 inventory is sufficient for L0, but not exhaustive for V3 migrations. Complete targeted impact analyses at the start of each affected lot; no new general inventory. |
+| A-01 | ArchUnit coverage of application ports is incomplete, notably `engine.*.port.*`. Strengthen it during L1-A, before that lot closes. |
+| A-02 | Complete automatic verification that the tested code matches the published commit is absent. Resolve before L1 closes; existing fingerprints alone do not close this reservation. |
+
+L0 is documentarily closed as acceptable for continuation; these follow-up obligations remain open.
+L1 (Pot domain under [SPEC-01](SPEC-01_Pot_Domain.md)) is **not implemented**. Its L1-A through L1-E realization plan and acquired technical choices are tracked in the [canon, section 11](V3_Canon_and_Roadmap.md#11-v3-6--passage-vers-l1).
+The SPEC remain the sole functional normative authority; applicable proofs remain due under [SPEC-10](SPEC-10_Test_Certification.md).
+
 ## Git and production impact
 
 - Reference / implementation start HEAD: `4405b9c338ab8d5e9a3d27be33ccea06bd1daff2`.

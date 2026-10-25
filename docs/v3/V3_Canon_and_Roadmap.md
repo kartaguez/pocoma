@@ -1,6 +1,6 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut actuel : V3-CADRE validé ; GO conceptuel explicite pour le démarrage de V3-6, décidé le 2026-10-24 après deux contre-audits concordants et consolidation au SHA `ddca2827dac7cf13f8b07f620f0cd3b3cb392196`. V3-6 autorisée à démarrer ; aucune certification technique V3, aucun PASS ni activation revendiqués.**  
+**Statut actuel : V3-CADRE validé ; GO conceptuel V3-6 du 2026-10-24 (baseline `ddca2827dac7cf13f8b07f620f0cd3b3cb392196`). L0 réalisé : preuves techniques obligatoires PASS, couverture globale INCONCLUSIVE, revue indépendante acceptable pour la poursuite. L1 / domaine Pot non implémenté ; aucune certification fonctionnelle V3 ni activation.**
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** cadrage et consolidation documentaire, sans certification ni activation.
@@ -54,7 +54,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
 | V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
-| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **GO — démarrage autorisé** le 2026-10-24 ; réalisation et preuves encore à produire |
+| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **En cours** : L0 réalisé et revue indépendante acceptable ; L1 non implémenté (suivi §§10–11) |
 | V3-7 | Exécuter les preuves PostgreSQL, Bruno et k6 ; mesurer les budgets ; certifier ou refuser l'activation | Non commencé |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
@@ -74,7 +74,7 @@ AUD-V3-001 à AUD-V3-011 : arbitrages conceptuels consignés dans les SPEC ; AUD
 
 ## 7. Réserves et clôture
 
-La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective, la protection du secret récupérable des invitations et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. Aucun DDL, code, test ni benchmark V3 effectué dans le cadre de la consolidation.
+La valeur opérationnelle N, les budgets physiques de protection, les plans SQL, l'autorité de consentement effective, la protection du secret récupérable des invitations et les performances Grand Pot doivent être qualifiés à la réalisation. Les questions de révocation anticipée des invitations restent explicitement ouvertes. Toute évolution de contrat doit être arbitrée avant implémentation. La consolidation conceptuelle n'a réalisé aucun DDL, code, test ni benchmark V3 ; le socle technique L0 livré ensuite est décrit au §10.
 
 ## 8. Arbitrage Invitation CQRS — 2026-10-24
 
@@ -97,4 +97,24 @@ Livrables : [inventaire et réutilisation](L0_Technical_Inventory.md), [graphe M
 
 Les 19 méthodes Java obligatoires de L0 passent (15 PostgreSQL/composition, 4 ArchUnit), ainsi que 7 tests du collecteur. La preuve locale FOUNDATION inclut également les 4 tests H2 préexistants. Le gate global `./mvnw -pl architecture-tests -am test` réussit côté Maven avec 1 407 tests déclarés, zéro échec/erreur et un scénario exploratoire historique ignoré. La collecte conserve donc **INCONCLUSIVE pour la couverture globale**, avec les preuves obligatoires L0 toutes PASS ; aucun skip ni PASS historique n'est requalifié en certification V3.
 
-Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de production, endpoint, parcours Bruno ou k6 ajouté. Aucun réacteur complet ni activation. Les preuves fonctionnelles et de certification SPEC-10 restent à produire sur les composants réels. Prochaine étape : L1 / domaine Pot SPEC-01, avec déclaration de vérification propre ; aucune réalisation L1 incluse dans L0.
+**Clôture documentaire du 2026-10-25 — référence L0 : `7c8470a568ece88c4e6652d080dfb026f57681e1`.** Revue indépendante : **L0 acceptable pour la poursuite, sans défaut bloquant démontré**. Revue statique et documentaire, sans reproduction des tests PostgreSQL ; elle ne constitue aucun nouveau résultat de preuve. Les réserves I-01/A-01/A-02 et leurs échéances figurent dans le [rapport](L0_Execution_Report.md#independent-review-and-documentary-closure--2026-10-25) et le suivi ci-dessous. Aucune réécriture de L0 demandée.
+
+Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de production, endpoint, parcours Bruno ou k6 ajouté par L0. Aucun réacteur complet ni activation. Les preuves fonctionnelles et de certification SPEC-10 restent à produire sur les composants réels. Prochaine étape : L1-A, avec déclaration de vérification propre ; aucune réalisation L1 incluse dans cette clôture documentaire.
+
+## 11. V3-6 — Passage vers L1
+
+**L1 : domaine Pot sous [SPEC-01](SPEC-01_Pot_Domain.md), non implémenté.** Le découpage suivant est un plan de réalisation et de suivi, pas un second canon normatif. Les SPEC restent la seule autorité normative fonctionnelle ; [SPEC-10](SPEC-10_Test_Certification.md) régit les preuves applicables. Chaque lot déclarera son périmètre de vérification avant implémentation selon la [politique du réacteur](../testing/Reactor_Verification_Policy.md).
+
+| Lot | Réalisation prévue | Statut / obligation de clôture |
+|---|---|---|
+| L1-A | Composantes métier immuables, état Pot cohérent, transitions pures, tests unitaires | Non implémenté ; renforcer la couverture ArchUnit des ports applicatifs, notamment `engine.*.port.*` (A-01), avant clôture |
+| L1-B | Persistance PostgreSQL V3, intervalles historiques, reconstruction exacte de `Pot@V` | Non implémenté ; schéma PostgreSQL à définir dans ce lot |
+| L1-C | Mutations, préconditions métier, obsolescence et concurrence | Non implémenté |
+| L1-D | Droits métier, références financières, poids, fractions et balances | Non implémenté |
+| L1-E | Intégration, vérifications progressives, traçabilité et clôture des preuves applicables | Non implémenté ; résoudre A-02 avant clôture L1 : vérification automatique complète de correspondance entre code testé et commit publié |
+
+**I-01 — suivi transversal :** l'[inventaire V2](L0_Technical_Inventory.md) suffit pour L0, sans exhaustivité pour les migrations V3. Compléter les analyses d'impact au début des lots concernés, sans nouvel inventaire général. A-01 et A-02 restent ouvertes jusqu'à leurs échéances ci-dessus ; aucun résultat de résolution n'est revendiqué ici.
+
+**Arbitrages techniques acquis :** composantes métier immuables ; transitions métier pures ; domaine Java indépendant des infrastructures ; injection explicite par constructeur aux frontières applicatives ; schéma PostgreSQL reporté à L1-B ; réutilisation sélective du code V2 sans compatibilité artificielle. La simplicité des structures, concepts et algorithmes reste la règle d'or.
+
+**Choix encore ouverts :** signatures Java, représentation exacte de `PotState`, `Versioned<T>` et `TransitionResult`, granularité des ports. Ces propositions ne sont pas des décisions validées et restent à arbitrer pendant les lots concernés, sous les SPEC.
