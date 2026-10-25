@@ -6,6 +6,12 @@ Pocoma is a Java 21 application for shared pots: participants can record expense
 
 Pocoma is not presented as a production-ready financial product. Its purpose is to make difficult consistency and modularity choices explicit, executable, and testable.
 
+## Programme V3
+
+Le [plan directeur L0–L8](docs/v3/V3_Implementation_Master_Plan.md) est le point d’entrée opérationnel V3 ; le [canon](docs/v3/V3_Canon_and_Roadmap.md) et les SPEC portent les décisions normatives. **L1 ACCEPTED — internal V3 foundation**, avec [preuves et limites](docs/v3/L1_Documentary_Closure.md), sans certificat V3 complet. Prochaine étape : revue du plan directeur, puis cadrage L2 après validation.
+
+Les chaînes et commandes décrites ci-dessous représentent l’architecture historique encore présente ; elles ne sont pas les contrats ni une distribution V3 certifiée. La convergence vers une seule implémentation Pocoma et la distribution Docker Compose finale sont des chantiers futurs L7/L8 proposés dans le plan directeur.
+
 ## Why Pocoma Exists
 
 A shared-pot domain looks simple until an HTTP request, a business mutation, an event, several projections, and an authorization decision happen in different processes and at different times. Pocoma explores how to keep that system honest:

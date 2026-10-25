@@ -1,5 +1,7 @@
 # Pocoma SPEC-08 — Observabilité
 
+> **Lecture des statuts (clôture L1, 2026-10-25) :** les mentions de non-implémentation/non-exécution ci-dessous décrivent l’état du cadrage conceptuel lors de sa rédaction, pas un relevé actuel des tests. Les contrats et oracles restent normatifs ; contributions internes L1 et limites dans le [dossier de clôture](L1_Documentary_Closure.md), programme et statuts dans le [plan directeur](V3_Implementation_Master_Plan.md). Aucun PASS global de cette SPEC n’est acquis par cette note.
+
 **Statut : contrat conceptuel O-01 validé, non implémenté ni mesuré en V3.**
 **Date :** 2026-10-23. **Canon :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md). **Exigences :** [V3-5A](SPEC-07_Transverse_Requirements.md).
 

@@ -1,5 +1,7 @@
 # Pocoma SPEC-01 — Domaine Pot
 
+> **Lecture des statuts (clôture L1, 2026-10-25) :** les mentions de non-implémentation/non-exécution ci-dessous décrivent l’état du cadrage conceptuel lors de sa rédaction, pas un relevé actuel des tests. Les contrats et oracles restent normatifs ; contributions internes L1 et limites dans le [dossier de clôture](L1_Documentary_Closure.md), programme et statuts dans le [plan directeur](V3_Implementation_Master_Plan.md). Aucun PASS global de cette SPEC n’est acquis par cette note.
+
 **Statut : CONCEPTION VALIDÉE (conceptuelle), non implémentée.**  
 **Consolidation normative :** 2026-10-25 (précision des rationnels et des poids, §4). **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).
 **Principe :** simplicité des structures, concepts et algorithmes, sans sacrifier la correction.

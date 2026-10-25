@@ -1,0 +1,223 @@
+{
+  "scope": "Documentary consolidation only; no new Maven/PostgreSQL proof or independent audit",
+  "initial_head": "f50a413ee200a60b7747107abf96b62353e769e0",
+  "checked_markdown_files": 27,
+  "checked_relative_references": 504,
+  "new_broken_references": [],
+  "preexisting_archival_reference_issues": [],
+  "sha_objects_and_ancestry": {
+    "A": "23f18a0126bf4ccd668aa1ad9f5d229d90666544",
+    "B": "887c24f3f266304e46c281cc61ba170f35d4de9a",
+    "AB-delivery": "0942ecb3c1c07d6baf7bab3d136270e96bfda380",
+    "AB-head": "56d658f9fd5313db2744fa11ff36699f4376aacb",
+    "C-tested": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+    "C-head": "9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164",
+    "D": "69acce7842364d5ee3881d41b8a70257fd09b81d",
+    "E-tested": "9899a2943760660893768fa4ba9452732ee17d50",
+    "L1-head": "f50a413ee200a60b7747107abf96b62353e769e0"
+  },
+  "l1_mandatory_methods": 91,
+  "l1_final_gate_counts_and_verdicts": "MATCH PUBLISHED INDEX; global INCONCLUSIVE; skip preserved",
+  "initial_H_to_L1_head_provenance": {
+    "tested": "9899a2943760660893768fa4ba9452732ee17d50",
+    "published": "f50a413ee200a60b7747107abf96b62353e769e0",
+    "remote": null,
+    "verified_final_gates": [
+      {
+        "gate": "e-arch",
+        "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+        "mandatory_methods": 91,
+        "counts": {
+          "tests": 1494,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "global_coverage": "INCONCLUSIVE",
+        "receipt_sha256": "386fafbf6faab8e03e10b00f7f88ca62b91bb1db7a02f3b8440e509d3fb4bbed"
+      },
+      {
+        "gate": "e-consumers",
+        "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+        "mandatory_methods": 83,
+        "counts": {
+          "tests": 1289,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "global_coverage": "INCONCLUSIVE",
+        "receipt_sha256": "2bb0b743c2edff58886efacb03d5c09a0171535be6868a0b702881ed02af44e5"
+      },
+      {
+        "gate": "e-full",
+        "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+        "mandatory_methods": 91,
+        "counts": {
+          "tests": 1494,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "global_coverage": "INCONCLUSIVE",
+        "receipt_sha256": "dd8fd4956b77b04c3092e0d01833b777b481a549e695c8717a79fecd06ad481f"
+      }
+    ],
+    "documentary_commit_history": {
+      "f50a413ee200a60b7747107abf96b62353e769e0": [
+        "docs/testing/evidence/L1-DE/Changed-files-final.json",
+        "docs/testing/evidence/L1-DE/Publication-preflight.json",
+        "docs/testing/evidence/L1-DE/Publication-state.json",
+        "docs/testing/evidence/L1-DE/Publication.json",
+        "docs/testing/evidence/L1-DE/Push.log",
+        "docs/testing/evidence/L1-DE/Remote-before-push.txt",
+        "docs/testing/evidence/L1-DE/Worktree-inputs-preflight.json",
+        "docs/v3/L1_D_Execution_Report.md",
+        "docs/v3/L1_E_Execution_Report.md",
+        "docs/v3/V3_Canon_and_Roadmap.md"
+      ],
+      "05aa9f37c158fd7ee58f026072110fa640eafd0a": [
+        "docs/testing/evidence/L1-DE/Architecture-populations.json",
+        "docs/testing/evidence/L1-DE/Changed-files-final.json",
+        "docs/testing/evidence/L1-DE/Compiler-and-SQL-provenance.json",
+        "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz",
+        "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz.sha256",
+        "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz",
+        "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz.sha256",
+        "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz",
+        "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz.sha256",
+        "docs/testing/evidence/L1-DE/Final-gate-validation.json",
+        "docs/testing/evidence/L1-DE/Gate-index.json",
+        "docs/testing/evidence/L1-DE/README.md",
+        "docs/testing/evidence/L1-DE/Remote-during-gates.txt",
+        "docs/testing/evidence/L1-DE/SPEC10-matrix.json",
+        "docs/testing/evidence/L1-DE/Worktree-preservation-verdict.json",
+        "docs/v3/L1_D_Execution_Report.md",
+        "docs/v3/L1_E_Execution_Report.md",
+        "docs/v3/V3_Canon_and_Roadmap.md"
+      ]
+    },
+    "changes": [
+      "docs/testing/evidence/L1-DE/Architecture-populations.json",
+      "docs/testing/evidence/L1-DE/Changed-files-final.json",
+      "docs/testing/evidence/L1-DE/Compiler-and-SQL-provenance.json",
+      "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz",
+      "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz.sha256",
+      "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz",
+      "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz.sha256",
+      "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz",
+      "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz.sha256",
+      "docs/testing/evidence/L1-DE/Final-gate-validation.json",
+      "docs/testing/evidence/L1-DE/Gate-index.json",
+      "docs/testing/evidence/L1-DE/Publication-preflight.json",
+      "docs/testing/evidence/L1-DE/Publication-state.json",
+      "docs/testing/evidence/L1-DE/Publication.json",
+      "docs/testing/evidence/L1-DE/Push.log",
+      "docs/testing/evidence/L1-DE/README.md",
+      "docs/testing/evidence/L1-DE/Remote-before-push.txt",
+      "docs/testing/evidence/L1-DE/Remote-during-gates.txt",
+      "docs/testing/evidence/L1-DE/SPEC10-matrix.json",
+      "docs/testing/evidence/L1-DE/Worktree-inputs-preflight.json",
+      "docs/testing/evidence/L1-DE/Worktree-preservation-verdict.json",
+      "docs/v3/L1_D_Execution_Report.md",
+      "docs/v3/L1_E_Execution_Report.md",
+      "docs/v3/V3_Canon_and_Roadmap.md"
+    ],
+    "exclusions": [
+      "docs/testing/evidence/L1-AB/",
+      "docs/v3/L1_AB_Execution_Report.md",
+      "docs/v3/V3_Canon_and_Roadmap.md",
+      "docs/testing/evidence/L1-C/",
+      "docs/v3/L1_C_Execution_Report.md",
+      "docs/testing/evidence/L1-DE/",
+      "docs/v3/L1_D_Execution_Report.md",
+      "docs/v3/L1_E_Execution_Report.md"
+    ],
+    "verdict": "PASS",
+    "input_digest": "3b109d557f6d772a8d146713cb2647dc1ff8a9fac36e8d58b47ea10ce2145c17"
+  },
+  "programme_statuses": {
+    "L0": "ACCEPTED",
+    "L1": "ACCEPTED",
+    "L2": "DESIGN PENDING",
+    "L3": "DESIGN PENDING",
+    "L4": "DESIGN PENDING",
+    "L5": "DESIGN PENDING",
+    "L6": "DESIGN PENDING",
+    "L7": "DESIGN PENDING",
+    "L8": "DESIGN PENDING"
+  },
+  "executable_tree_comparison": "IDENTICAL to tested E code for app/scripts/docker/.github and root Compose",
+  "historical_L1_reports_and_manifest": "UNCHANGED",
+  "allowed_documentary_files": [
+    "README.md",
+    "docs/README.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/v3/L1_Design_and_Verification_Plan.md",
+    "docs/v3/V3_Implementation_Master_Plan.md",
+    "docs/v3/L1_Documentary_Closure.md",
+    "docs/v3/SPEC-01_Pot_Domain.md",
+    "docs/v3/SPEC-02_Identity_Domain.md",
+    "docs/v3/SPEC-03_Events_Requests_Consumables.md",
+    "docs/v3/SPEC-04_Read_Projections.md",
+    "docs/v3/SPEC-05_Consumption_Discovery.md",
+    "docs/v3/SPEC-06_Supra_Contracts.md",
+    "docs/v3/SPEC-07_Transverse_Requirements.md",
+    "docs/v3/SPEC-08_Observability.md",
+    "docs/v3/SPEC-09_Performance.md",
+    "docs/v3/SPEC-10_Test_Certification.md",
+    "docs/testing/evidence/L1-closure/Documentary-checks.json"
+  ],
+  "worktree_preservation": [
+    {
+      "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-c01-c02",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-cleanup",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l0",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-ab",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-c",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-consolidation",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-de",
+      "preexisting_untracked_paths_preserved": 13
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-plan",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-n01",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "head_index_tracked_diff_untracked_names": "UNCHANGED"
+    }
+  ],
+  "maven_slices": "NONE",
+  "unexpected_slice_crossing": "NONE",
+  "global_gate": "NOT REQUIRED",
+  "full_reactor": "NOT RUN; documentation only",
+  "database": "NONE",
+  "verdict": "PASS"
+}

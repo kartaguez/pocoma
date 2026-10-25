@@ -1,6 +1,16 @@
 # Documentation Pocoma
 
-Sources **CURRENT** de l’état livré :
+## Programme V3 courant
+
+- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne, L2–L8 DESIGN PENDING. Revue du plan puis cadrage L2 après validation ; aucune implémentation L2 commencée.
+- [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.
+- [Clôture L1](v3/L1_Documentary_Closure.md), [plan L1](v3/L1_Design_and_Verification_Plan.md), [rapport final](v3/L1_E_Execution_Report.md) et [manifeste historique](v3/L1_Proof_Manifest.json) : preuves et limites, sans certificat V3 complet.
+
+## Architecture historique encore livrée
+
+Les sources et plans ci-dessous décrivent l’architecture historique encore présente ; leurs anciens « courant/NEXT » ne pilotent pas V3. Les stratégies de migration A2/A2-1 sont supplantées pour V3 par le canon. Préserver leurs preuves, sans les assimiler à une certification V3.
+
+Sources de l’état historique livré :
 
 1. [Functional Model](product/Functional_Model.md) — comportement observable.
 2. [Architecture](architecture/Architecture.md) — chaînes et modules exécutés.
@@ -8,7 +18,7 @@ Sources **CURRENT** de l’état livré :
 
 La [validation croisée](Documentation_Truth_Validation.md) retrace les preuves et leurs limites.
 
-## Chantier courant : séquencement → Discovery → READ
+## Chantier historique : séquencement → Discovery → READ
 
 - [Step Canon — current_canon](steps/current/DISCOVERY/Step_Canon.md) : décisions, état livré, cibles et limites.
 - [Step Plan — current_plan](steps/current/DISCOVERY/Step_Plan.md) : **4A–4E implémentation fonctionnelle terminée ; Discovery efficiente NEXT**, réserves de certification et preuves de clôture. Activation production NON AUTORISÉE.
@@ -22,7 +32,7 @@ promouvoir le prochain plan. [Gouvernance](Documentation_Rationalization_Audit.m
 
 ## Architecture finale, dettes et historique
 
-- **CURRENT = TARGET ACHIEVED** : l'[Architecture](architecture/Architecture.md) reste la source normative ; la [topologie finale](steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), la [traçabilité](steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et le [re-audit final PASS](steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) en conservent la preuve historique.
+- **CURRENT = TARGET ACHIEVED** : l'[Architecture](architecture/Architecture.md) reste la description de référence historique ; la [topologie finale](steps/completed/ARCHITECTURE/Modularity_Target_Topology.md), la [traçabilité](steps/completed/ARCHITECTURE/Modularity_Current_Target_Traceability.md) et le [re-audit final PASS](steps/completed/ARCHITECTURE/Modularity_Final_Reaudit.md) en conservent la preuve historique.
 - **HISTORICAL design** : [révision des trois familles de moteurs](steps/completed/ARCHITECTURE/Three_Engine_Families_Revision.md). Ses tableaux et anciens comptes sont des matériaux de migration superseded.
 - **TARGET / références spécialisées** : [architecture READ cible](architecture/read-side-target.md) et [contrats du kernel d’autorisation](architecture/authorization-kernel-contracts.md) ; leur portée est indiquée dans chaque document.
 - **DEBTS** : [registre des dettes techniques](debts/README.md), pour les écarts connus et acceptés sans en faire une source normative du système ni un Step automatiquement actif.

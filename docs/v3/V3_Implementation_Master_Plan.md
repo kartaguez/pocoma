@@ -1,0 +1,185 @@
+# Pocoma V3 — Plan directeur de réalisation L0–L8
+
+Date : 2026-10-25. Référence inventoriée : `f50a413ee200a60b7747107abf96b62353e769e0`, branche `feat/v3-architecture`.
+
+**Point d’entrée opérationnel unique du programme. L0 : ACCEPTED pour la poursuite. L1 : ACCEPTED — internal V3 foundation. L2–L8 : DESIGN PENDING, à cadrer ; aucune implémentation autorisée par ce document.** Prochain événement : revue du présent plan, puis cadrage L2 après validation explicite. La présente livraison s’arrête après publication documentaire.
+
+## 1. Autorités, vision et périmètre
+
+Le [canon](V3_Canon_and_Roadmap.md) porte les décisions normatives transversales et renvoie aux [SPEC-01 à SPEC-10](V3_Canon_and_Roadmap.md#3-spécifications-normatives-arb-08). Ce plan porte le programme, les dépendances et les statuts ; les plans de lot portent la conception et l’exécution détaillées ; les rapports et manifestes attestent les réalisations. Une modification du programme ne modifie pas un invariant des SPEC. Une contradiction métier exige un arbitrage dans son autorité normative avant code.
+
+Pocoma gère des Pots partagés : créateur immuable, Shareholders indépendants de leur rattachement identitaire, Expenses et soldes rationnels exacts. Huit composantes possèdent leurs révisions locales ; une mutation effective produit une seule version globale Pot, reconstructible directement à V. Les suppressions sont logiques et conservent l’histoire. Les balances actives sont complètes à V, sans calcul différentiel depuis V−1.
+
+La chaîne cible sépare admission durable WRITE, exécution métier, événements immuables, Consumption et consultation READ. Discovery enrôle les références ; Engine acquiert et exécute une tentative complète par claim. Les slots/checkpoints résident dans la même autorité physique que leurs effets. WRITE et READ ne partagent aucune transaction distribuée. Les trois Consumptions de POT_EVENT sont directes et indépendantes ; aucune tâche intermédiaire Balance/Visibility. Les sept familles, cinq séquences, neuf projections et neuf Consumptions logiques des SPEC ne prescrivent pas un nombre de tables, processus ou conteneurs.
+
+Identity possède PocomaUser et EUI versionnée : EUI → 0..1 User, User → 0..N EUI, Binding relationnel et bindingToken renouvelé à chaque occurrence. Authentification externe, token et droits métier sont distincts. Entitlements et consentement Link sont contrôlés à l’admission ; autorité Pocoma courante revalidée en WRITE. READ autorise à V avec CurrentBinding actif ; navigation non autorisante, résultats appartenant à requesterEui. Le serveur d’autorisation reste à qualifier, Keycloak compris.
+
+Architecture hexagonale : domaine pur, engines orchestrant des ports explicites, adaptateurs techniques, compositions par injection de constructeurs. Chaque abstraction, conversion, mécanisme ou persistance doit répondre à un invariant réel. Réutiliser le savoir-faire historique sans recopier les regroupements V2 ni créer des passerelles de compatibilité fictives. Traçabilité scénario → méthode → commande → SHA testé → artefact → publication → audit ; aucun succès Maven ne remplace la certification fonctionnelle, technique ou de performance.
+
+À la livraison finale, une seule implémentation active de référence existe : **Pocoma**. Le chantier de convergence du §6 retire la coexistence transitoire V2/V3. Les preuves historiques restent conservées.
+
+## 2. Origine du découpage et statuts
+
+Le corpus courant approuve L0, L1-A…E et les jalons conceptuels V3-CADRE, V3-6 (réalisation), V3-7 (qualification). Aucun plan directeur L0–L8 ni plan détaillé L2–L8 n’a été trouvé dans les fichiers suivis. La recherche Git du canon et des anciens plans ne fournit pas d’affectation L2–L8 approuvée. L’audit conceptuel ancien évoque « Lot 2 — Séquencement, Slots, Discovery, Engine », « Lot 3 — Identity », « Lots 4 et 5 — READ et Supras » ; ces mentions corroborent un ordre de travail mais ne constituent pas une approbation de plans d’exécution.
+
+La proposition ci-dessous conserve cet ordre et les objectifs approuvés. **L2–L8 sont à cadrer** ; les périmètres et frontières physiques proposés doivent être validés avant lancement. L7 convergence/certification et L8 distribution reprennent l’orientation du mandat, sans renommer V3-7 en L7 : V3-7 reste le jalon de qualification transversal, auquel contribuent L6/L7/L8. Aucun périmètre historique approuvé n’est écrasé.
+
+| Statut de programme | Signification |
+|---|---|
+| NOT STARTED | Travail identifié, préparation non engagée |
+| DESIGN PENDING | Périmètre/plan proposé, décisions ou revue encore nécessaires ; code non autorisé |
+| DESIGN APPROVED | Plan audité et validé ; autorisation d’implémentation à enregistrer séparément |
+| IMPLEMENTING | Campagne autorisée en cours |
+| INTERNAL PASS | Preuves obligatoires internes satisfaites, limites explicites |
+| AUDIT PENDING | Dossier publié soumis au checkpoint indépendant |
+| ACCEPTED | Acceptation explicite après revue, dans le périmètre attesté |
+| BLOCKED | Dépendance, défaut ou arbitrage bloquant identifié et documenté |
+
+PASS/FAIL/INCONCLUSIVE sont des verdicts de preuve, distincts du statut de programme. Chaque passage à ACCEPTED cite sa décision, ses SHAs et ses preuves. Le statut ACCEPTED de L0/L1 ne vaut aucune activation ni certificat V3 complet.
+
+## 3. Tableau directeur
+
+Les critères détaillés des §§4–8 font partie de chaque ligne. Pour L2–L8, « livrables » et « sortie » désignent des obligations futures, pas des réalisations. Les gates proposés doivent être revalidés sur le graphe réel avant code selon le §5.
+
+| Lot / statut | Objectif, périmètre et livrables | Dépendances et critères d’entrée | Critères de sortie, gates et preuves | Références, risques et décisions ouvertes |
+|---|---|---|---|---|
+| **L0 — ACCEPTED** | Socle de vérification : pureté/direction, banc PostgreSQL isolé, transaction physique JPA/JDBC, intervalles, composition, collecte | V3-CADRE validé, inventaire L0-A et autorisation L0-B…F | 19 méthodes Java obligatoires + 7 tests collecteur PASS rapportés ; FOUNDATION et architecture exécutés ; couverture globale INCONCLUSIVE, full non requis | [Plan](L0_Verification_Plan.md), [inventaire](L0_Technical_Inventory.md), [rapport](L0_Execution_Report.md), [manifeste](L0_Proof_Manifest.json), acceptation pour poursuite [canon §10](V3_Canon_and_Roadmap.md#10-v3-6--socle-l0-2026-10-24). Socle de test, aucune autorité métier certifiée |
+| **L1 — ACCEPTED** | Fondation Pot interne : A domaine/transitions, B histoire PostgreSQL, C orchestration/CAS/transactions/reprises, D droits/calcul exact, E intégration/preuves | L0, plan L1 approuvé, checkpoints A/B puis C puis final L1 | 91 méthodes obligatoires PASS selon dossier final ; architecture et full reactor exécutés sur `9899a2943760660893768fa4ba9452732ee17d50` ; A-01 technique, A-02 automatique PASS, I-01 complet L1 ; couverture globale INCONCLUSIVE | [Plan L1](L1_Design_and_Verification_Plan.md), [clôture et attribution](L1_Documentary_Closure.md), [rapport E](L1_E_Execution_Report.md), [manifeste](L1_Proof_Manifest.json). Autorité Identity réelle, HTTP/READ/Consumption/Discovery hors périmètre ; performances non certifiées |
+| **L2 — DESIGN PENDING** | Fondations Consumption/Discovery et catalogue événementiel : grammaire minimale, slots/partitions/checkpoints, cinq séquences, deux boucles, retries/quarantaine ; pilote réel Command Pot et banc READ | Revue du plan directeur, cadrage L2 validé, L0/L1 acceptés ; reprendre les contrats C sans élargir leurs garanties | CON-01…06 et EVT-01…03 applicables prouvés sur PG réel ; claim au verrou final, fenêtre sûre, commit incertain, aucune perte/famine démontrable, réactivation administrative ; pilote passant. Slices COMMAND/EVENT/PROJECTION à déclarer, architecture selon frontières, full à la clôture majeure prévue | [SPEC-03](SPEC-03_Events_Requests_Consumables.md), [SPEC-05](SPEC-05_Consumption_Discovery.md), [SPEC-10 §6](SPEC-10_Test_Certification.md#6-consumption-et-discovery). DDL/ports/équité/N/capacités à cadrer ; familles Identity/Invitation ne peuvent être globalement certifiées avant leurs producteurs |
+| **L3 — DESIGN PENDING** | Autorité Identity réelle : EUI@version, User, Registration/Link/Unlink, histoire/tokens, exécution durable et événements ; remplacement des fixtures d’autorité L1 | L2 fondations acceptées, contrats SPEC-02 et ordre canonique des EUI ; frontière avec qualification externe L5 explicitée | ID-01 interne, EVT/CON Identity, races à deux EUI, rollback et absence d’User orphelin ; tests Command avec vrai fournisseur d’autorité. BINDING/COMMAND et runtimes Registration affectés à déterminer ; architecture selon frontières | [SPEC-02](SPEC-02_Identity_Domain.md), [SPEC-03](SPEC-03_Events_Requests_Consumables.md), [contrat C](L1_C_Transaction_Contract.md). Ne pas certifier ID-02 externe avec fixture ; qualification du consentement préparée ici, prouvée à L5 |
+| **L4 — DESIGN PENDING** | READ et matérialisations : PotVersion/SubobjectVersion/CurrentPot, Balance, Visibility, CurrentBinding et deux résultats ; contrat CurrentInvitation réservé au cycle L5 ; accès internes depuis READ | L1 histoire/calcul, L2 slots READ et Discovery acceptés, L3 histoire Identity réelle ; schémas/contrats des neuf projections validés avant code | PRJ-01…03, READ-01 interne, résultats requesterEui, sous-versions par lots, hors ordre, immutabilité et conflits de contenu ; D terminale sans Balance(D). PROJECTION/EVENT/BINDING et consommateurs READ affectés ; architecture si frontières | [SPEC-04](SPEC-04_Read_Projections.md), [SPEC-05](SPEC-05_Consumption_Discovery.md). Stockage physique et API de lots à cadrer ; coût des manifestes complets et historiques longs ; CurrentInvitation achevée L5, aucune certification des neuf projections avant cela |
+| **L5 — DESIGN PENDING** | Supras et parcours externes complets : AuthN, admission/idempotence, autorisation READ, consentement Link qualifié, invitations WRITE→événement→CurrentInvitation→auto-rattachement ; Bruno de travail | L2/L3/L4 acceptés, protocoles HTTP et secrets/consentement décidés ; fournisseur qualifié avant acceptation des parcours Link | ADM-01, S-01…03, SEC-01/02, ID-02/C-01, INV-01, A10/A11 et compléments DOM/READ via HTTP/Bruno ; limites/admission atomique. WEB primaire et slices métier modifiées explicites, gates consommateurs correspondants | [SPEC-01 §8](SPEC-01_Pot_Domain.md#8-invitations-et-auto-rattachement), [SPEC-06](SPEC-06_Supra_Contracts.md), [SPEC-10](SPEC-10_Test_Certification.md). Keycloak/RAR à qualifier ; encodage/rétention idempotence, limites/erreurs et protection du lien récupérable à cadrer |
+| **L6 — DESIGN PENDING** | Intégration exploitable, reconstruction READ exclusive, instrumentation O-01 et préparation/qualification de performance ; dossier complet des exigences sur composants réels | L2–L5 acceptés ; neuf Consumptions/productions réelles, protocoles de mesure ratifiés avant campagnes | REC-01/C-02, OPS-01 et PERF-01 F01-A…J sur environnements fixés ; Bruno/JUnit/PG/k6, données brutes, métriques validées et défauts traités ; gates slices réelles, architecture/full au jalon majeur | [SPEC-08](SPEC-08_Observability.md), [SPEC-09](SPEC-09_Performance.md), [SPEC-10 §§10–12](SPEC-10_Test_Certification.md#10-reconstruction). Durées/sondes/échantillons, coûts Grand Pot/long historique à ratifier ; qualification à reconfirmer après convergence L7 |
+| **L7 — DESIGN PENDING** | Convergence V2 → Pocoma, nettoyage et certification fonctionnelle/technique du code unifié (§6) ; confirmation performance après changements affectant le coût | L2–L6 acceptés, inventaire de tous chemins et plan de retrait audité, exigences encore ouvertes recensées | Aucune voie productive historique, aucun namespace/suffixe v3 actif, schémas neufs et noms consolidés, suites applicables et SPEC-10 prouvées ; architecture globale + full requis pour restructuration ; audit indépendant du code unifié | [Canon §15](V3_Canon_and_Roadmap.md#15-livraison-finale-et-convergence), §6 présent. Retrait sans perdre oracle/preuve, périmètre migration de données conditionnel ; aucune certification étendue par simple renommage |
+| **L8 — DESIGN PENDING** | Distribution finale facilement déployable : Compose monolithe prioritaire, distribuée si permise, PostgreSQL/autorisation/Prometheus/Grafana, Bruno final, guides et installation vierge (§7) | L7 accepté et code unifié certifié ; contrats images/configuration/topologies arrêtés, fournisseur d’autorisation qualifié | Installation neuve répétable, scénarios et balances conformes, healthchecks/migrations/imports automatiques, dashboards et logs, arrêt/reset ; parité topologies et provenance release ; tests runtime/packaging, gates globaux si changement structurel, audit final de distribution | §7 présent, [SPEC-06](SPEC-06_Supra_Contracts.md), [SPEC-08](SPEC-08_Observability.md), [SPEC-10](SPEC-10_Test_Certification.md). Packaging ne certifie pas à lui seul sécurité production/SLO ; adaptation de l’existant, nombre final de runtimes à cadrer |
+
+## 4. Ordre et conditions de passage
+
+Progression proposée : **L0 → L1 → L2 → L3 → L4 → L5 → L6 → L7 → L8**. Les contrats de leurs consommateurs peuvent être étudiés pour concevoir une fondation ; leur implémentation attend ses preuves et son acceptation. Une revue de contrat ne vaut pas livraison du consommateur.
+
+L2 reçoit les garanties internes C et les étend au moteur effectif. Le pilote utilise la vraie mutation Pot L1 ; l’autorité Identity reste explicitement une fixture tant que L3 n’est pas livré. Un banc de transformation READ peut prouver les frontières L2 sans prétendre matérialiser le métier L4. L3 remplace cette fixture puis fait revérifier le contrat Command. L4 consomme les histoires réelles des deux domaines. L5 ferme les parcours HTTP, l’invitation et le consentement ; une preuve technique externe peut être étudiée pendant son cadrage, sans accepter un Link réel avant qualification. L6 mesure l’ensemble et prouve la maintenance. L7 certifie le code unifié après retrait ; toute évolution modifiant coût ou topologie invalide les mesures affectées, à refaire avant certification finale. L8 valide le livrable reproductible issu du même code.
+
+Instrumentation et Bruno progressent avec les capacités concernées dès L2/L5 ; leur livraison finale et leur provisionnement appartiennent à L8. La certification fonctionnelle/technique s’accumule par lot, puis porte sur le code unifié L7. La performance se prépare dès les fondations, se qualifie à L6 et se confirme à L7/L8 si leurs changements affectent les mesures. V3-7 n’est clos qu’avec toutes les preuves applicables, les réserves explicites et la décision de certification ; aucune acceptation de lot ne le clôt implicitement.
+
+À chaque passage : dossier publié et vérification de provenance, INTERNAL PASS borné, AUDIT PENDING, revue indépendante, corrections bloquantes revérifiées, décision ACCEPTED. Le lancement suivant exige son plan validé et son autorisation explicite. Aucun passage par silence ou autoévaluation.
+
+## 5. Contrat d’exécution et gates des futurs lots
+
+Chaque futur chat commence par ce plan, le canon, la politique normative de [vérification](../testing/Reactor_Verification_Policy.md), les SPEC applicables et les rapports amont. Recontrôler HEAD local/distant, divergence, worktrees et modifications ; ne pas utiliser une conversation comme spécification. Réactualiser I-01 sur les modules et contrats réellement touchés avant de déclarer les slices.
+
+Au lancement de chaque lot, produire un plan de conception/vérification : objectifs et exclusions, contrats/invariants, inventaire de modules/runtimes/writers et décisions REUSE/ADAPT/REPLACE/RETIRE/DEFER, scénarios SPEC-10 et oracles indépendants, critères de certification, commandes Maven, modes DB, provenance et checkpoint d’audit. Les choix ouverts bloquant le lot sont tranchés avant ses écritures de code. Le rapport et le manifeste sont ouverts à ce lancement, complétés par les résultats frais puis publiés ; leurs artefacts attendus sont fixés avant tests.
+
+Commandes canoniques actuelles, **prospectives pour L2–L8**, depuis `app/` :
+
+| Slice / gate | Commande |
+|---|---|
+| FOUNDATION (test infrastructure uniquement) | `./mvnw -pl infra-tx-spring -am test` |
+| COMMAND | `./mvnw -pl runtime-command-consumption-worker -am test` |
+| EVENT | `./mvnw -pl runtime-event-consumption-worker -am test` |
+| PROJECTION | `./mvnw -pl runtime-task-consumption-worker -am test` |
+| BINDING | `./mvnw -pl runtime-binding-consumption-worker -am test` |
+| WEB | `./mvnw -pl runtime-web-api -am test` |
+| LKV (tant que sa capacité historique existe) | `./mvnw -pl runtime-latest-known-version-consumption-worker -am test` |
+| Architecture globale, quand requise | `./mvnw -pl architecture-tests -am test` |
+| Full reactor, quand requis | `./mvnw test` |
+
+Composer explicitement les ancres concernées avec `-pl a,b -am test`. Aucun `-amd` par défaut. Registration, Results et monolithe peuvent nécessiter des ancres complémentaires justifiées par le graphe réel ; ils ne sont pas de nouvelles slices canoniques décrétées ici. Réviser la politique et les ancres avec la rationalisation L7, avant usage des nouveaux noms.
+
+Architecture globale requise si dépendances/modules/frontières/isolation changent ; full reactor aux clôtures majeures prévues, restructuration large ou intégration main. Aucun global/full automatique à chaque étape. Tout franchissement inattendu est expliqué et redéclaré avant poursuite. DB CURRENT pour les schémas concernés ; baseline seulement si TRUSTED démontrée. Pas de répétition séparée des migrations historiques par défaut ; tracer celles effectivement lancées transitivement. L’installation neuve L8 est une preuve distincte d’une migration de données V2.
+
+Provenance : SHA testé propre, liste d’entrées et modes, outils/dépendances/images/configurations non secrètes, XML frais et reçus d’archives, résultats et skips, comparaison avant/après puis code testé→publication et tête distante. **Limite du vérificateur L1 existant :** sa liste d’exclusions est figée pour la campagne L1 ; elle n’autorise pas tous les futurs Markdown. Le conserver intact. La présente consolidation contrôle séparément son diff documentaire ; un échec d’exclusion ne doit pas être contourné ni présenté comme un nouvel A-02 PASS sur la feuille de route.
+
+## 6. Convergence finale V2 → Pocoma — chantier L7 proposé
+
+Principe normatif du [canon](V3_Canon_and_Roadmap.md#15-livraison-finale-et-convergence) : aucune coexistence de deux implémentations actives à la fin. Retirer progressivement les usages devenus inutiles pendant L2–L6, puis fermer exhaustivement à L7 ; aucun nettoyage exécuté par le présent mandat.
+
+Le plan L7 devra couvrir : suppression du code V2 inutile, des runtimes/compositions obsolètes et des adaptations de compatibilité ; rationalisation Maven ; disparition des packages et suffixes `v3` du code actif ; retrait des flags, configurations, chemins et bootstrap transitoires ; consolidation des schémas et migrations de référence ; noms de modules/classes/interfaces exprimant Pocoma ; révision des tests, gardes d’architecture, scripts et outils ; documentation utilisateur/exploitant et README courant remplaçant les points d’entrée historiques.
+
+Pour chaque retrait, recenser imports, POM de production/test, wiring Spring explicite et scans, ressources, migrations, Docker, scripts et consommateurs indirects. Associer chaque test à sa propriété : conserver, remplacer sous le contrat cible ou retirer avec justification si propriété disparue. Le retrait d’une ancienne implémentation ne justifie aucune baisse de garantie. Retirer aussi les exceptions ArchUnit V2 nominatives devenues inutiles ; aucune permission générale de contourner les ports.
+
+**Acceptation de convergence :**
+
+- Graphe Maven effectif sans modules historiques inutiles ni dépendance vers une ancienne implémentation ; architecture et full reactor applicables passent sur le code unifié.
+- Inventaire exhaustif des points d’entrée productifs, imports/compositions/configurations/commandes de démarrage démontrant qu’aucun chemin de production ne sélectionne l’ancienne architecture, même par flag ou profil. Tests des compositions réellement distribuées et monolithiques, et analyse des classpaths/image contents.
+- Aucun package/suffixe `v3` dans le code actif ; noms et documentation de démarrage convergent vers Pocoma. Les chemins `docs/v3` et preuves portant leurs noms historiques restent permis et nécessaires.
+- Aucun bootstrap implicite des anciennes tables ou mécanismes Task/LKV/Binding autonome éliminés ; parcours et oracles applicables réexécutés, code réellement testé identique à celui publié.
+- Rapport de retrait ancien→nouveau avec chemins, propriétés préservées et preuve d’absence de voies secondaires ; audit indépendant avant ACCEPTED.
+
+**Données :** une installation vierge reçoit le schéma Pocoma final et ses migrations de référence. Le canon ne prescrit aucun système V2 déployé à migrer : ne pas inventer une migration de données V2 obligatoire. Si des données réellement nécessaires sont identifiées, arbitrer explicitement périmètre, mapping, conservation, restauration et preuve de migration dans un chantier distinct avant toute suppression pertinente. Une preuve de schéma neuf ou d’équivalence de baseline ne prouve pas la migration de données. Archives, rapports, SHAs et preuves brutes historiques restent auditables via chemins conservés ou index d’archives durablement référencés.
+
+## 7. Distribution finale — exigence L8
+
+**Livrable attendu :** distribution Docker Compose de référence reproductible depuis un environnement vierge, guide utilisateur et guide exploitant, collection Bruno importable/exécutable et observabilité provisionnée. Rien de ceci n’est construit dans cette clôture documentaire.
+
+### Topologies et infrastructure
+
+Privilégier pour démonstration/prise en main **un runtime Pocoma monolithe** regroupant les fonctions nécessaires, avec configuration minimale et démarrage simple. Prévoir aussi une topologie distribuée si l’architecture finale le permet : séparation selon responsabilités effectives, mêmes contrats et comportement métier. Aucun nombre de runtimes fixé avant cadrage et inventaire des compositions. Les frontières WRITE/READ restent physiques par transaction même dans un processus unique.
+
+Compose doit contenir PostgreSQL, un serveur d’autorisation répondant aux besoins normatifs (**Keycloak si validé**), Prometheus, Grafana et les runtimes retenus. La présence de Keycloak dans une stack historique ne certifie ni RAR ni consentement transactionnel Link ; qualifier l’adéquation exacte, documenter extensions ou fournisseur alternatif si nécessaire sans affaiblir C-01.
+
+Prévoir images et versions identifiables, build ou récupération reproductible, dépendances ordonnées par disponibilité, réseaux et résolution des noms/issuer depuis hôte et conteneurs, volumes, healthchecks et readiness réels, migrations WRITE/READ automatiques sans course, données et configurations de démonstration initialisées de façon reproductible, ports et paramètres documentés, ressources et temps d’attente réalistes. Les images démontrées correspondent au SHA/code unifié certifié ; un `latest` flottant ou une image construite avec tests sautés ne constitue pas une preuve de release.
+
+### Bruno et observabilité
+
+Adapter la collection existante à l’API réellement livrée : environnements documentés monolithe/distribué, authentification fonctionnelle et sessions EUI distinctes, obtention de son propre bindingToken, IDs/requestIds/versions capturés et corrélation propagée. Parcours représentatifs : Registration, Command Pot/Shareholders/Expense/poids et balances exactes, historique/suppression, Link/Unlink et invitation selon contrats livrés ; succès, no-op, rejet et refus d’accès. Les résultats asynchrones sont vérifiés par polling borné avec timeout/backoff et diagnostics ; un seul passage CLI supposant une convergence immédiate ne suffit pas. Séparer `404` normal de polling et erreur finale ; aucun secret de production versionné.
+
+Exposer les métriques, collecter avec Prometheus et provisionner datasource/dashboards Grafana sans import manuel. Indicateurs : admissions/commandes et issues, publications événementielles, slots/Consumptions et projections, débits, backlog/âge/retards, durées Discovery/acquisition/préparation/validation/commit, retries/CAS/erreurs/expirations/quarantaines, état des workers et dépendances. Les anciens indicateurs de tâches sont adaptés aux traitements réellement livrés ; aucune famille technique Task réintroduite pour un dashboard. Journaux structurés exploitables, corrélation requestId/eventId/Consumption et trace si utile, aucun token/secret, aucun identifiant à forte cardinalité en label Prometheus. Vérifier les séries et dashboards par succès, incident et reprise conformément à O-01, sans additionner les p95 des branches parallèles.
+
+### Installation rapide et preuve sur environnement vierge
+
+Le guide doit permettre de :
+
+1. Récupérer dépôt ou distribution identifiée par version/SHA et vérifier les prérequis Docker/Compose et ressources.
+2. Fournir une configuration minimale documentée, avec valeurs locales de démonstration clairement marquées.
+3. Démarrer la composition monolithe de référence ; proposer la composition distribuée validée.
+4. Attendre la disponibilité effective des services avec délai et diagnostic explicites.
+5. Initialiser automatiquement schémas, realm/configuration d’autorisation et données de démonstration utiles, sans SQL manuel complexe.
+6. S’authentifier avec la procédure documentée puis obtenir son propre binding lorsqu’il existe.
+7. Importer/exécuter le scénario Bruno de référence et gérer ses corrélations.
+8. Vérifier résultats asynchrones, versions et balances exactes attendues.
+9. Ouvrir métriques/dashboards provisionnés et retrouver les opérations dans les logs.
+10. Arrêter, redémarrer avec données persistantes, puis remettre à zéro volontairement selon une procédure explicite et documentée.
+
+Objectif : installation simple, sans intervention manuelle complexe ; aucune promesse de démarrage instantané quelle que soit la machine. Démonstration locale et production sécurisée sont documentées séparément : secrets externes, TLS/issuer, accès réseau, comptes/rôles, sauvegarde/restauration, quotas et exposition monitoring sont à définir pour la production, sans présenter les comptes ou mots de passe locaux comme configuration sécurisée.
+
+**Acceptation L8 :** répéter le parcours depuis volumes/images/configuration initialement absents dans un environnement déclaré ; garder commandes, versions/images, logs de bootstrap/health, résultats Bruno et balances, captures/export dashboards, arrêt/reprise/reset. Prouver la parité fonctionnelle des deux topologies annoncées ; si la distribuée n’est pas livrée, documenter l’arbitrage et la limitation avant acceptation. Tester installation vierge séparément de toute migration V2 éventuelle. Audit indépendant de la distribution, provenance et concordance avec le code certifié ; aucune certification performance par simple démarrage de Compose.
+
+## 8. Inventaire vérifié au départ et réemploi
+
+Inventaire statique à la référence d’ouverture ; disponibilité d’un fichier ≠ fonctionnement V3 démontré. Les modifications non publiées des autres worktrees ne sont pas considérées comme livrables.
+
+| Existant localisé | Constat / suite du programme |
+|---|---|
+| [POM racine](../../app/pom.xml), [graphe L0](L0_Maven_Graph.json) | 60 modules enfants : 6 domaines, 4 contrats, 3 ports, 17 engines, 10 supras, 2 orchestrateurs, 1 projecteur, 5 infrastructures, 1 composition, 10 runtimes et architecture-tests ; pas de nouveau module requis par principe |
+| [runtime-monolith](../../app/runtime-monolith/), [composition](../../app/composition-runtime-spring/) | Monolithe déjà présent ; importe Web, Registration/Result, Binding, Command/Result, Event et ProjectionTask historiques. Une factory Pot L1 existe ; aucun parcours V3 externe complet certifié |
+| Neuf runtimes séparés sous [app](../../app/) | `runtime-web-api`, `runtime-command-consumption-worker`, `runtime-command-result-consumption-worker`, `runtime-event-consumption-worker`, `runtime-task-consumption-worker`, `runtime-binding-consumption-worker`, `runtime-latest-known-version-consumption-worker`, `runtime-registration-consumption-worker`, `runtime-registration-result-consumption-worker` ; rationaliser selon responsabilités finales, pas neuf futurs services imposés |
+| Packages de production contenant `v3` | 43 sources : domain-pot 27, engine-write-pot 9 (ports inclus), infra-persistence-primary-jpa 6, composition-runtime-spring 1 ; [inventaire L1-C](L1_C_Transaction_Contract.md) et [fichiers D/E](../testing/evidence/L1-DE/Changed-files-final.json). Namespace transitoire à retirer L7, pas maintenant |
+| Migrations | PRIMARY V1–V31 ; READ V1–V14 ; V3 `db/v3-pot/migration` V1 et `db/v3-pot-execution/migration` V2 ; fixture L0 séparée. [Contrat B](L1_B_Persistence_Contract.md). Aucune baseline V2 TRUSTED ; schémas V3 internes ≠ distribution finale |
+| [Compose fonctionnel](../../docker-compose.functional.yml), [Dockerfile](../../app/Dockerfile), [PostgreSQL local](../../app/docker-compose.postgres.yml) | Stack historique monolithe/PostgreSQL/Keycloak avec init et healthchecks déjà présente ; version PG différente du banc L1. À adapter/qualifier, pas déclarée distribution V3 |
+| [Compose distribué](../../docker-compose.distributed.yml), [docker](../../docker/) | API, workers Event/Task/Command/Result/LKV, PostgreSQL, Prometheus, Grafana ; cette composition ne couvre pas à elle seule tout le cycle Identity. Inventaire final des services requis avant packaging |
+| [Realm Keycloak](../../docker/keycloak/pocoma-realm.json), [init PG](../../docker/postgres/functional-init.sql) | Acquis de démonstration locale ; aucun PASS de consentement/RAR déduit de leur présence |
+| [Bruno](../../scripts/bruno/), [guide](../../scripts/bruno/README.md) | Collection et environnement Local : Pot E2E, commandes/queries/expenses/balances, Registration→Command, cleanup. Références bindingId/routes historiques et polling manuel à adapter aux contrats V3 ; authentification automatisée finale encore à vérifier |
+| [Prometheus](../../docker/prometheus/prometheus.distributed.yml), [Grafana](../../docker/grafana/), [observabilité](../../app/contracts-observability/) | Actuator/Micrometer et corrélation déjà présents ; datasource/dashboard provisionnés. Métriques actuelles historiques, conformité O-01 future à vérifier |
+| [k6](../../scripts/k6/), [collecteurs](../../scripts/testing/) | Smoke/stress/backpressure et collecte XML/provenance L0/L1 présents ; adapter les scénarios, aucun PASS de performance V3 existant |
+
+Plans examinés : [Discovery Step Plan](../steps/current/DISCOVERY/Step_Plan.md), [Next Plan](../steps/current/DISCOVERY/Next_Plan.md), [A2 minimal](../plans/2026-10-22-a2-minimal-consumption-discovery.md), [A2-1](../plans/2026-10-22-a2-1-consumption-contract-implementation-plan.md), [migration modulaire historique](../steps/completed/ARCHITECTURE/Modularity_Migration_Plan.md), [clôture POST-WP6](../steps/completed/ARCHITECTURE/Modularity_Post_WP6_Closure_Report.md), inventaires L0/L1 et audits conceptuels V3. Leurs stratégies de compatibilité/cutover sont supplantées pour V3 par le canon ; leurs garanties et preuves restent historiques. Leurs anciens « NEXT » ne pilotent pas le programme V3.
+
+## 9. Documents disponibles, manquants et reprise du prochain lot
+
+| Lot | Documents disponibles | À produire lors du lancement / de la livraison |
+|---|---|---|
+| L0 | Plan, inventaire, graphe, rapport, manifeste et archives liés §3 | Aucun nouveau plan ; compléments transversaux I-01 selon lots futurs |
+| L1 | Plan A…E, contrats B/C, rapports A/B, C, D, E, manifeste, index/archives/matrice SPEC-10 ; [clôture](L1_Documentary_Closure.md) | Rapport original détaillé d’audit final à rattacher s’il devient disponible ; acceptation transmise par mandat distinguée des preuves techniques |
+| L2 | SPEC-03/05/10, contrat C, historique A2 comme matériau | Plan L2 de conception/vérification audité, inventaire et arbitrages ; rapport/manifeste et checkpoint selon §5 |
+| L3 | SPEC-02/03/05/10, contrat d’autorité consommé L1 | Plan L3, contrat réel d’autorité, stratégie de remplacement de fixture, preuves Identity et audit |
+| L4 | SPEC-04/05/10, sources historiques et calcul L1 | Plan L4, contrats physiques READ/lectures groupées, preuves de matérialisation et audit |
+| L5 | SPEC-01/02/04/06/10, Bruno historique | Plan L5, contrat de consentement/fournisseur, API/rétention/limites/secrets, preuves sécurité/parcours et audit |
+| L6 | SPEC-08/09/10, outils historiques | Plan L6 et protocole de mesure ratifié, procédure maintenance/READY, rapport/manifeste de certification et audit |
+| L7 | Chantier §6 et inventaires historiques | Plan de convergence/retrait et suites de remplacement ; manifeste des chemins, preuves sur code unifié et audit |
+| L8 | Existant Docker/Bruno/observabilité §8, contrat §7 | Plan packaging/installation, guides utilisateur/exploitant, manifeste de distribution, preuves installation/parité et audit |
+
+Ne pas créer maintenant sept plans détaillés qui présupposeraient des décisions non prises. Les invariants et scénarios normatifs existent ; les plans de réalisation L2–L8 restent absents et ne sont pas réputés DESIGN APPROVED.
+
+**Décisions ouvertes :** valider le découpage L2–L8 et les transferts L4/L5 (invitations)/L6–L8 (certification) ; cadrer grammaire/DDL/équité/capacité/N L2 ; autorité Identity réelle L3 ; formes physiques READ L4 ; qualification réelle du consentement (Keycloak/RAR ou autre), rétention d’idempotence et bornes de protection L5 ; protocole Grand Pot/historiques/sondes L6 ; carte de retrait/noms/schémas neufs L7 et éventuel besoin réel de données V2 ; topologies/images/bootstrap et exigences d’exploitation L8. Révocation anticipée des invitations reste hors périmètre jusqu’à arbitrage du canon. Aucun changement métier décidé silencieusement ici.
+
+**Reprise autoportante :** ouvrir ce plan → lire canon/SPEC/politique → vérifier Git et dossier L1 → faire valider la proposition de programme → cadrer L2 avec décisions, inventaire et scope explicites → audit du plan L2 → autorisation d’implémentation distincte. Ce mandat s’arrête à la publication ; ni L2, ni nettoyage, ni construction Docker final.

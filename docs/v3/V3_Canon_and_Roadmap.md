@@ -1,9 +1,10 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Statut actuel : V3-CADRE validé ; L0 accepté pour la poursuite ; GO de poursuite après revues indépendantes L1-A/B/C confirmé par le responsable. L1-D implémenté et PASS technique interne (`69acce7842364d5ee3881d41b8a70257fd09b81d`). L1-E implémenté, preuves obligatoires internes et gates finaux réussis sur `9899a2943760660893768fa4ba9452732ee17d50` : G-E 1289/0/0/1, architecture et full reactor chacun 1494/0/0/1, 91 méthodes obligatoires finales PASS. A-02 automatique CLOSE POUR L1 : publication et tête distante concordantes, digest des entrées inchangé ; constat dans le rapport E. [Rapport D](L1_D_Execution_Report.md), [rapport E](L1_E_Execution_Report.md). Aucune acceptation définitive L1, certification V3 globale ni activation ; arrêt à l'audit indépendant final L1.**
+**Statut de clôture : L1 ACCEPTED — internal V3 foundation (2026-10-25), après livraison L1-A à L1-E et audit indépendant confirmé par le mandat du responsable. Acceptation limitée au périmètre interne vérifié ; aucun certificat V3 complet ni activation.**
+**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **Prochaine étape : revue du plan directeur ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
-**Nature :** cadrage et consolidation documentaire, sans certification ni activation.
+**Nature :** autorité des décisions transversales ; progression opérationnelle dans le plan directeur, preuves dans les rapports et manifestes.
 
 ## 1. Objectif et règle d'or
 
@@ -29,11 +30,11 @@ La simplicité ne dispense pas de correction : préserver, ou remplacer par une 
 - **Documentation existante :** demeure historique, pas normative pour V3. Marquer les plans A2/A2-1 précédents comme **supplantés pour leur stratégie de migration** ; préserver les décisions conceptuelles encore valides. Ne pas réécrire les rapports PASS anciens ni présenter leurs preuves comme des tests V3.
 - **Acquis techniques :** traiter 4A–4E, CAS/claims/transactions/rollback comme preuves et savoir-faire réutilisables, non comme formes obligatoires de tables et ports. Toute modification de ces mécanismes exige des preuves au moins équivalentes.
 - **Pas de mise en production implicite :** aucun résultat documentaire ni gate local ne certifie l'activation.
-- **Après chaque étape :** revenir à CE document, mettre à jour statut, décisions prises, livrables, preuves, écarts, questions résiduelles, dépendances et prochaine action ; lier les SHAs. Ce document reste l'unique autorité pour la progression V3.
+- **Après chaque étape :** consigner les décisions normatives dans ce canon et les SPEC concernées ; mettre à jour programme, statut, dépendances, prochaine action et liens vers SHAs/preuves dans le [plan directeur](V3_Implementation_Master_Plan.md). Les plans de lot détaillent l’exécution ; rapports et manifestes attestent les résultats. Aucun registre concurrent de progression.
 
 ## 3. Spécifications normatives (ARB-08)
 
-Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalons d'implémentation**. Les références V3-0 à V3-7 désignent la feuille de route. Les décisions normatives complètes résident dans chaque SPEC ; ce canon conserve exclusivement les statuts, responsabilités et dépendances. L'historique des propositions et amendements reste consultable dans Git et dans le [rapport d'audit](V3_Independent_Conceptual_Audit_Report.md).
+Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalons d'implémentation**. Les références V3-0 à V3-7 désignent la feuille de route. Les décisions normatives complètes résident dans chaque SPEC ; ce canon porte les décisions transversales et leur provenance ; le plan directeur porte les statuts, responsabilités et dépendances opérationnels. L'historique des propositions et amendements reste consultable dans Git et dans le [rapport d'audit](V3_Independent_Conceptual_Audit_Report.md).
 
 | Document | Autorité normative | Statut |
 |---|---|---|
@@ -46,7 +47,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 | [SPEC-07](SPEC-07_Transverse_Requirements.md) | Catalogue transversal des exigences actives | Conceptuellement arbitré |
 | [SPEC-08](SPEC-08_Observability.md) | Contrat de mesure O-01 et instrumentation | Conceptuellement arbitré |
 | [SPEC-09](SPEC-09_Performance.md) | Budgets et oracle C-03 | Conceptuellement arbitré |
-| [SPEC-10](SPEC-10_Test_Certification.md) | Matrice et protocoles des preuves à exécuter | Spécifiés, non exécutés |
+| [SPEC-10](SPEC-10_Test_Certification.md) | Matrice et protocoles des preuves à exécuter | Protocoles normatifs ; contributions internes L1 exécutées, certification globale non acquise |
 
 ## 4. Feuille de route et dépendances
 
@@ -54,8 +55,8 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
 | V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
-| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **En cours** : L0 réalisé et revue indépendante acceptable ; L1-A/B acceptables pour poursuivre selon confirmation humaine ; GO indépendant C confirmé ; D livré PASS technique interne, E livré, gates finaux réussis, publié avec provenance A-02 vérifiée (suivi §13 et rapports D/E) |
-| V3-7 | Exécuter les preuves PostgreSQL, Bruno et k6 ; mesurer les budgets ; certifier ou refuser l'activation | Non commencé |
+| V3-6 | Réaliser les capacités et leurs tests | Programme détaillé dans le [plan directeur](V3_Implementation_Master_Plan.md) ; fondation interne L1 acceptée, lots suivants à cadrer |
+| V3-7 | Qualification transversale PostgreSQL/Bruno/k6, budgets et décision de certification | Certification complète non acquise ; contributions et gates internes L1 conservés ; allocation proposée L6/L7/L8 dans le plan directeur |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
 
@@ -97,13 +98,13 @@ Livrables : [inventaire et réutilisation](L0_Technical_Inventory.md), [graphe M
 
 Les 19 méthodes Java obligatoires de L0 passent (15 PostgreSQL/composition, 4 ArchUnit), ainsi que 7 tests du collecteur. La preuve locale FOUNDATION inclut également les 4 tests H2 préexistants. Le gate global `./mvnw -pl architecture-tests -am test` réussit côté Maven avec 1 407 tests déclarés, zéro échec/erreur et un scénario exploratoire historique ignoré. La collecte conserve donc **INCONCLUSIVE pour la couverture globale**, avec les preuves obligatoires L0 toutes PASS ; aucun skip ni PASS historique n'est requalifié en certification V3.
 
-**Clôture documentaire du 2026-10-25 — référence L0 : `7c8470a568ece88c4e6652d080dfb026f57681e1`.** Revue indépendante : **L0 acceptable pour la poursuite, sans défaut bloquant démontré**. Revue statique et documentaire, sans reproduction des tests PostgreSQL ; elle ne constitue aucun nouveau résultat de preuve. Les réserves I-01/A-01/A-02 et leurs échéances figurent dans le [rapport](L0_Execution_Report.md#independent-review-and-documentary-closure--2026-10-25) et le suivi ci-dessous. Aucune réécriture de L0 demandée.
+**Clôture documentaire du 2026-10-25 — référence L0 : `7c8470a568ece88c4e6652d080dfb026f57681e1`.** Revue indépendante : **L0 acceptable pour la poursuite, sans défaut bloquant démontré**. Revue statique et documentaire, sans reproduction des tests PostgreSQL ; elle ne constitue aucun nouveau résultat de preuve. Les réserves I-01/A-01/A-02 et leurs échéances figurent dans le [rapport](L0_Execution_Report.md) et le suivi ci-dessous. Aucune réécriture de L0 demandée.
 
 Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de production, endpoint, parcours Bruno ou k6 ajouté par L0. Aucun réacteur complet ni activation. Les preuves fonctionnelles et de certification SPEC-10 restent à produire sur les composants réels. Prochaine étape : L1-A, avec déclaration de vérification propre ; aucune réalisation L1 incluse dans cette clôture documentaire.
 
 ## 11. V3-6 — Passage vers L1
 
-**L1 : domaine Pot sous [SPEC-01](SPEC-01_Pot_Domain.md), A/B/C implémentés ; GO de poursuite après revues indépendantes confirmé par le responsable. D/E autorisés au §13, D PASS technique interne et E PASS technique interne et A-02 automatiquement vérifiée après publication ; audit final indépendant requis.** Le découpage suivant est un plan de réalisation et de suivi, pas un second canon normatif. Les SPEC restent la seule autorité normative fonctionnelle ; [SPEC-10](SPEC-10_Test_Certification.md) régit les preuves applicables. Chaque lot déclarera son périmètre de vérification avant implémentation selon la [politique du réacteur](../testing/Reactor_Verification_Policy.md).
+**L1 : ACCEPTED — internal V3 foundation.** La décision de clôture et ses limites sont enregistrées au §14 et dans le [dossier de clôture](L1_Documentary_Closure.md). Le découpage A…E ci-dessous conserve les contrats et la provenance ; le [plan directeur](V3_Implementation_Master_Plan.md) fait autorité pour le programme et les statuts opérationnels. Les SPEC gouvernent les règles et SPEC-10 les critères probatoires. Les campagnes datées §§12–13 sont historiques : leurs arrêts d’audit ont été suivis de la décision §14, sans nouvelle exécution de tests.
 
 **L1-A à L1-E — plan approuvé, puis autorisation explicite A/B du 2026-10-25 :** [plan de référence](L1_Design_and_Verification_Plan.md), référence approuvée `8221692287420cd69feebd170df7c9ea6c279fdd`. [Rapport A/B et preuves](L1_AB_Execution_Report.md) : 14 méthodes domaine A, 19 PostgreSQL B, 5 ArchUnit obligatoires PASS ; gates Maven BUILD SUCCESS, couverture complète consommateurs/architecture INCONCLUSIVE pour un skip exploratoire V2 conservé. Dernières entrées exécutables testées : `887c24f3f266304e46c281cc61ba170f35d4de9a`. Aucun PASS global V3. Le GO humain ultérieur confirme la revue indépendante A/B acceptable pour poursuivre vers C ; il ne constitue pas une nouvelle exécution de leurs tests.
 
@@ -113,13 +114,13 @@ Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de produ
 
 | Lot | Réalisation prévue | Statut / obligation de clôture |
 |---|---|---|
-| [L1-A](L1_Design_and_Verification_Plan.md#16-l1-a--noyau-pur-et-preuves-unitaires) | Valeurs rationnelles exactes, huit composantes, transitions pures et preuves unitaires | IMPLÉMENTÉ / PASS technique borné ; A-01 démontrée, gates exécutés ; revue indépendante acceptable pour poursuite confirmée par GO humain |
-| [L1-B](L1_Design_and_Verification_Plan.md#17-l1-b--persistance-histoire-et-faits-autoritatifs) | Persistance V3, révisions, reconstruction directe Pot@V et faits autoritatifs sélectifs | IMPLÉMENTÉ / PASS technique borné ; A+B et preuves conservés ; GO de poursuite après revue indépendante confirmé par le responsable |
-| [L1-C](L1_Design_and_Verification_Plan.md#18-l1-c--mutation-durable-cas-et-reprises) | Mutation durable, protection des faits, CAS, transaction unique et reprises complètes | IMPLÉMENTÉ, PASS technique borné ; couverture complète consommateurs/architecture INCONCLUSIVE (skip exploratoire V2) ; [rapport C](L1_C_Execution_Report.md) et [contrat réalisé](L1_C_Transaction_Contract.md) ; GO de poursuite après audit indépendant confirmé par le responsable au §13 |
-| [L1-D](L1_Design_and_Verification_Plan.md#19-l1-d--droits-références-financières-et-balances-exactes) | Matrice des droits, références financières, résolution des poids à V et calcul complet exact | IMPLÉMENTÉ / PASS technique interne ; [rapport D](L1_D_Execution_Report.md), calcul intégral à V et droits, sans seconde politique ni READ |
-| [L1-E](L1_Design_and_Verification_Plan.md#20-l1-e--intégration-interne-et-dossier-de-certification-l1) | Intégration et certification bornée du noyau L1, dossier de preuves et provenance A-02 | IMPLÉMENTÉ / PASS TECHNIQUE INTERNE ; A-02 CLOSE POUR L1, publié ; [rapport E](L1_E_Execution_Report.md), architecture + full reactor et A-02 obligatoires ; **audit indépendant final avant toute clôture définitive** |
+| [L1-A](L1_Design_and_Verification_Plan.md#16-l1-a--noyau-pur-et-preuves-unitaires) | Domaine pur et transitions | ACCEPTED dans la fondation interne L1 ; [rapport A/B](L1_AB_Execution_Report.md) |
+| [L1-B](L1_Design_and_Verification_Plan.md#17-l1-b--persistance-histoire-et-faits-autoritatifs) | Persistance et historique PostgreSQL | ACCEPTED dans la fondation interne L1 ; références A/B publiées conservées |
+| [L1-C](L1_Design_and_Verification_Plan.md#18-l1-c--mutation-durable-cas-et-reprises) | Orchestration, CAS, transactions et reprises | ACCEPTED dans la fondation interne L1 ; `9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164`, [rapport C](L1_C_Execution_Report.md) |
+| [L1-D](L1_Design_and_Verification_Plan.md#19-l1-d--droits-références-financières-et-balances-exactes) | Autorisations et calcul financier exact | ACCEPTED dans la fondation interne L1 ; `69acce7842364d5ee3881d41b8a70257fd09b81d`, [rapport D](L1_D_Execution_Report.md) |
+| [L1-E](L1_Design_and_Verification_Plan.md#20-l1-e--intégration-interne-et-dossier-de-certification-l1) | Intégration et vérification finale | ACCEPTED dans la fondation interne L1 ; code testé `9899a2943760660893768fa4ba9452732ee17d50`, tête finale L1 `f50a413ee200a60b7747107abf96b62353e769e0`, [rapport E](L1_E_Execution_Report.md) |
 
-**I-01 — suivi transversal :** inventaires A/B complétés (valeurs/composantes, ports, mappings SQL, migration, graphe et consommateurs), voir [rapport A/B](L1_AB_Execution_Report.md) et [contrat de persistance](L1_B_Persistence_Contract.md). Suivi global ouvert pour les futurs writers C et les lots READ/Consumption. **A-01 : clôture technique A/B démontrée et revue acceptable pour poursuite ; gardes réexécutées pour C. A-02 : amorcé avec contrôles automatiques d’entrées et publication au checkpoint, non clos pour L1 complet ; clôture obligatoire avant E terminé.**
+**A-01 : clôture technique pour L1. A-02 : PASS automatique documenté pour L1. I-01 : complet pour L1, suivi transversal ouvert** pour Identity/Consumption/READ et convergence finale. Les rapports A/B/C conservent leurs états de checkpoint historiques ; le dossier E et la [clôture](L1_Documentary_Closure.md) donnent le bilan final et ses limites.
 
 **Arbitrages consolidés, décisions validées :**
 
@@ -140,6 +141,8 @@ Aucun code de production, domaine Pot/Identity, moteur Consumption, DDL de produ
 
 ## 12. L1-C — Autorisation et réalisation bornée, 2026-10-25
 
+**Journal historique du checkpoint C ; décision de clôture ultérieure au §14.**
+
 Le responsable confirme le GO après revue indépendante A/B et autorise C exclusivement depuis `56d658f9fd5313db2744fa11ff36699f4376aacb`. Réalisation initiale `be4c0d56103e55f45fd70e92818d947a51b374b9`, correction de fixture `2494a4e17a212281ed7d8602608b3d6b8ab11bcf`, renforcement final de l’oracle temporel `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf`. [Rapport C](L1_C_Execution_Report.md), [protocole effectivement réalisé](L1_C_Transaction_Contract.md), [manifeste](L1_Proof_Manifest.json). Les trois gates finaux sur `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf` terminent BUILD SUCCESS : persistance 886/0/0/0, consommateurs COMMAND+EVENT+PROJECTION 1270/0/0/1, architecture globale 1475/0/0/1. Les 72 méthodes obligatoires du gate architecture passent, dont 34 nouvelles C. Couverture globale complète INCONCLUSIVE pour le seul skip exploratoire V2 ; aucun scénario obligatoire C ignoré. Archives et provenance dans le rapport.
 
 Orchestration dans engine-write-pot, transitions A inchangées, faits B sélectifs, autorité EUI distincte et Pot protégés jusqu’au commit, CAS, terminalisation/résultat/événements/slot atomiques, reprise sous nouveau claim et observation initiale, quarantaines et récupération après vrais commits réseau incertains. Raccord applicatif et composition explicite seulement ; autorité Identity et acquisition initiale restent des fixtures PostgreSQL nommées, sans certification de bout en bout. Aucune SPEC ni arbitrage C-01/C-02/N-01 modifié.
@@ -150,6 +153,8 @@ Publication code/rapport/archives : `0a6742944ac9eb5f1452d9a590b798e52ce732dc`, 
 
 ## 13. Autorisation D/E — 2026-10-25
 
+**Journal historique de campagne ; la proposition de clôture ci-dessous est suivie de l’acceptation interne au §14.**
+
 Le responsable confirme le GO de poursuite après revues indépendantes A/B/C et autorise la campagne D→E depuis `9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164`, avec full reactor et architecture au jalon E, provenance A-02 et publication sans force. Cette autorisation supplante les anciens statuts « D/E non autorisés ». Aucun lot suivant autorisé ; arrêt au checkpoint indépendant final L1, sans acceptation définitive. Voir le [rapport D](L1_D_Execution_Report.md).
 
 État de campagne : G-D et architecture D PASS obligatoires, G-E final PASS obligatoire (1289/0/0/1, 83 méthodes). Un premier G-E final a échoué au démarrage PostgreSQL SSL `08P01` (1065/0/14/0) ; diagnostic isolé 14/0/0/0 puis gate complet frais réussi sans changement de code. Architecture finale et full reactor terminés BUILD SUCCESS, chacun 1494/0/0/1 et 91 méthodes obligatoires PASS, sur le même H final. Aucun lot suivant autorisé. Le skip exploratoire V2 reste SKIP et la couverture globale INCONCLUSIVE.
@@ -157,3 +162,22 @@ Le responsable confirme le GO de poursuite après revues indépendantes A/B/C et
 Dossier final : [index des gates](../testing/evidence/L1-DE/Gate-index.json), [matrice 336 scénarios](../testing/evidence/L1-DE/SPEC10-matrix.json) (107 contributions internes exécutées, 229 reports hors L1), [rapport E](L1_E_Execution_Report.md). A-01 réexécutée et close techniquement ; I-01 complété pour L1, suivi transversal futur ouvert ; A-02 close techniquement pour L1 par le constat distant automatique PASS. Les archives brutes conservent le skip V2, les exécutions remplacées et le gate échoué ; aucune certification V3 complète ni acceptation définitive L1.
 
 Publication vérifiée D/E : **`05aa9f37c158fd7ee58f026072110fa640eafd0a`**, avance rapide sans force depuis `9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164`, divergence 0/0, entrées identiques à H=`9899a2943760660893768fa4ba9452732ee17d50`. Le suivi documentaire de ce constat est soumis au même contrôle final automatique après push ; aucune entrée exécutable nouvelle. **D : PASS interne ; E : PASS interne ; proposition L1 : noyau interne vérifié, soumis à audit indépendant final. STOP. Aucun lot suivant ni acceptation définitive L1.**
+
+
+## 14. Clôture documentaire L1 — 2026-10-25
+
+**L1 ACCEPTED — internal V3 foundation.** Le responsable mandate cette clôture après livraison et audit indépendant de L1-A…E. Cette décision accepte le noyau interne réellement vérifié ; elle ne transforme pas L1 en certification globale V3. [Dossier de clôture et attribution](L1_Documentary_Closure.md), [plan L1 §27](L1_Design_and_Verification_Plan.md#27-clôture-documentaire-l1), [programme L0–L8](V3_Implementation_Master_Plan.md).
+
+Les résultats rapportés par Codex sont attestés par les index/archives et le manifeste : **91 méthodes obligatoires L1 PASS**, architecture et full reactor exécutés sur `9899a2943760660893768fa4ba9452732ee17d50`, chacun 1494 tests / 0 failure / 0 error / 1 skip. Le skip exploratoire V2 est conservé ; la couverture globale reste **INCONCLUSIVE**. Le contrôle de provenance A-02 est automatique et documenté, distinct de l’audit indépendant et d’une réexécution de tests.
+
+SHAs : C `9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164` ; D `69acce7842364d5ee3881d41b8a70257fd09b81d` ; E code testé `9899a2943760660893768fa4ba9452732ee17d50` ; tête finale L1 `f50a413ee200a60b7747107abf96b62353e769e0`. Références A/B du §11 et du rapport A/B intégralement conservées. A-01 close techniquement L1 ; A-02 PASS automatique L1 ; I-01 complet L1 et ouvert transversalement.
+
+Le mandat confirme l’issue acceptable de l’audit final pour cette clôture. Aucun compte rendu détaillé distinct d’audit final L1 n’a été trouvé dans le dépôt ; ne pas inventer ses constats ni lui attribuer une reproduction des tests. Les audits conceptuels V3 ne sont pas cet audit de code. Le dossier de clôture sépare cette décision, les constats techniques Codex et les contrôles de provenance.
+
+**Limites maintenues :** aucun certificat V3 complet ; autorité Identity réelle et parcours HTTP/READ/Consumption/Discovery hors périmètre ; consentement/invitations réels, sécurité API, Bruno/k6 et reconstruction READ non certifiés. Réserves de performance Grand Pot et historiques longs ouvertes, notamment allocations du calcul exact et coûts de stockage/lecture. Aucun SLO déduit des mesures indicatives D. Prochaine étape : revue du plan directeur, puis cadrage L2 après validation ; aucun lancement L2 par cette clôture.
+
+## 15. Livraison finale et convergence
+
+À la fin du programme, il n’existe plus deux implémentations actives V2 et V3 : une seule implémentation de référence, **Pocoma**. Retirer code, modules, runtimes/compositions, packages/suffixes v3 actifs et configurations/chemins transitoires devenus inutiles ; consolider noms, schémas, migrations, tests, outils et documentation courante/README. Préserver les preuves historiques nécessaires à l’audit. Le [plan directeur §6](V3_Implementation_Master_Plan.md#6-convergence-finale-v2--pocoma--chantier-l7-proposé) porte le chantier et les preuves d’absence de voie productive ancienne. Aucune migration de données V2 obligatoire n’est déduite d’une installation neuve : démontrer le besoin réel avant de la prescrire.
+
+**Exigence finale L8 :** distribution Docker Compose de référence facilement déployable depuis un environnement vierge ; monolithe privilégié, topologie distribuée si permise et qualifiée, PostgreSQL, serveur d’autorisation qualifié (Keycloak si validé), Prometheus/Grafana, Bruno conforme à l’API réelle, observabilité provisionnée et guides utilisateur/exploitant. Conditions et preuve d’installation neuve au [plan directeur §7](V3_Implementation_Master_Plan.md#7-distribution-finale--exigence-l8). La présence de Keycloak ne certifie pas RAR/consentement. Démonstration et production sécurisée restent distinctes. Aucune construction Docker finale ni convergence n’est entreprise maintenant.
