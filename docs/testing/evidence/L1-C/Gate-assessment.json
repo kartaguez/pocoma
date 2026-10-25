@@ -1,0 +1,63 @@
+{
+  "tested": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+  "mandatory_internal_verdict": "PASS",
+  "global_complete_coverage": "INCONCLUSIVE",
+  "global_reason": "One optional V2 exploratory skip in consumer/architecture gates; no mandatory L1-C skip",
+  "input_digests": [
+    "386b74e99de4013d018795371002f570b9197a1636a5338d49689a923c2e3c0a"
+  ],
+  "full_reactor_run": false,
+  "gates": [
+    {
+      "gate": "c-arch",
+      "mandatory": "PASS",
+      "counts": {
+        "tests": 1475,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "methods": 72,
+      "complete": "INCONCLUSIVE",
+      "skipped": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "reason": "System property [step3b.measure] does not exist"
+        }
+      ]
+    },
+    {
+      "gate": "c-consumers",
+      "mandatory": "PASS",
+      "counts": {
+        "tests": 1270,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "methods": 64,
+      "complete": "INCONCLUSIVE",
+      "skipped": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "reason": "System property [step3b.measure] does not exist"
+        }
+      ]
+    },
+    {
+      "gate": "c-persistence",
+      "mandatory": "PASS",
+      "counts": {
+        "tests": 886,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "methods": 63,
+      "complete": "PASS",
+      "skipped": []
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "tested": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+  "gates": [
+    {
+      "directory": "c-arch-1792938960331069000",
+      "revision": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 0,
+      "counts": {
+        "tests": 1475,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 72,
+      "mandatory_verdict": "PASS",
+      "coverage_verdict": "INCONCLUSIVE",
+      "retained": true,
+      "replacement_reason": null
+    },
+    {
+      "directory": "c-consumers-1792936420840846000",
+      "revision": "2494a4e17a212281ed7d8602608b3d6b8ab11bcf",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 0,
+      "counts": {
+        "tests": 1270,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 64,
+      "mandatory_verdict": "PASS",
+      "coverage_verdict": "INCONCLUSIVE",
+      "retained": false,
+      "replacement_reason": "Fixture isolation or strengthened clock oracle; final SHA supersedes this execution"
+    },
+    {
+      "directory": "c-consumers-1792938621686215000",
+      "revision": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 0,
+      "counts": {
+        "tests": 1270,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 64,
+      "mandatory_verdict": "PASS",
+      "coverage_verdict": "INCONCLUSIVE",
+      "retained": true,
+      "replacement_reason": null
+    },
+    {
+      "directory": "c-persistence-1792936040239651000",
+      "revision": "be4c0d56103e55f45fd70e92818d947a51b374b9",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 1,
+      "counts": {
+        "tests": 886,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "mandatory_methods": 63,
+      "mandatory_verdict": "FAIL",
+      "coverage_verdict": "FAIL",
+      "retained": false,
+      "replacement_reason": "Fixture isolation or strengthened clock oracle; final SHA supersedes this execution"
+    },
+    {
+      "directory": "c-persistence-1792936284247759000",
+      "revision": "2494a4e17a212281ed7d8602608b3d6b8ab11bcf",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 0,
+      "counts": {
+        "tests": 886,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mandatory_methods": 63,
+      "mandatory_verdict": "PASS",
+      "coverage_verdict": "PASS",
+      "retained": false,
+      "replacement_reason": "Fixture isolation or strengthened clock oracle; final SHA supersedes this execution"
+    },
+    {
+      "directory": "c-persistence-1792936743519592000",
+      "revision": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "cwd": "app",
+      "exit_code": 0,
+      "counts": {
+        "tests": 886,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "mandatory_methods": 63,
+      "mandatory_verdict": "PASS",
+      "coverage_verdict": "PASS",
+      "retained": true,
+      "replacement_reason": null
+    }
+  ]
+}
