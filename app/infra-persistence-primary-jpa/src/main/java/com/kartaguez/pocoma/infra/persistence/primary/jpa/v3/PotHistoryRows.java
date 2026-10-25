@@ -95,7 +95,7 @@ final class PotHistoryRows {
         var latest =
                 jdbc.queryForList(
                         "select version,recorded_at from v3_pot_version where pot_id=? order by"
-                            + " version desc limit 1",
+                                + " version desc limit 1",
                         pot.value());
         if (latest.isEmpty()) {
             if (Boolean.TRUE.equals(
@@ -110,7 +110,7 @@ final class PotHistoryRows {
         var exact =
                 jdbc.queryForList(
                         "select version,recorded_at from v3_pot_version where pot_id=? and"
-                            + " version=?",
+                                + " version=?",
                         pot.value(),
                         requested);
         if (exact.size() != 1) throw bad("Requested Pot version does not exist");
@@ -144,8 +144,8 @@ final class PotHistoryRows {
                 version == latest
                         ? "active_to is null"
                         : "active_from<=:version and (active_to is null or :version<active_to) and"
-                              + " int8range(active_from,active_to,'[)') @> cast(:version as"
-                              + " bigint)";
+                                + " int8range(active_from,active_to,'[)') @> cast(:version as"
+                                + " bigint)";
         var applicable =
                 named.queryForList(
                         "select "
@@ -173,6 +173,74 @@ final class PotHistoryRows {
             if (birth.getValue() > version && result.containsKey(birth.getKey()))
                 throw bad("Revision before identity birth in " + table);
         }
+        return Map.copyOf(result);
+    }
+
+    /**
+     * WRITE preconditions for the open revisions only. First, immediate predecessor and last local
+     * keys are indexed probes, not a reconstruction of the intervening history.
+     */
+    Map<UUID, Map<String, Object>> openComponent(
+            String table, PotId pot, long expected, Map<UUID, Long> births) {
+        if (births.isEmpty()) return Map.of();
+        String relation = "v3_" + table;
+        var current =
+                named.queryForList(
+                        "select c.*,f.active_from as first_from,f.active_to as first_to,"
+                                + " p.active_from as previous_from,p.active_to as previous_to,"
+                                + " l.local_version as last_local,"
+                                + " exists(select 1 from "
+                                + relation
+                                + " o where o.pot_id=c.pot_id"
+                                + " and o.object_id=c.object_id and o.revision_id<>c.revision_id"
+                                + " and int8range(o.active_from,o.active_to,'[)')"
+                                + " && int8range(c.active_from,null,'[)')) as overlapping"
+                                + " from "
+                                + relation
+                                + " c left join "
+                                + relation
+                                + " f on f.pot_id=c.pot_id and f.object_id=c.object_id and"
+                                + " f.local_version=1 left join "
+                                + relation
+                                + " p on p.pot_id=c.pot_id and p.object_id=c.object_id and"
+                                + " p.local_version=c.local_version-1 left join lateral(select"
+                                + " local_version from "
+                                + relation
+                                + " where pot_id=c.pot_id and object_id=c.object_id order by"
+                                + " local_version desc limit 1) l on true where c.pot_id=:pot and"
+                                + " c.object_id in (:ids) and c.active_to is null",
+                        Map.of("pot", pot.value(), "ids", births.keySet()));
+        var result = new LinkedHashMap<UUID, Map<String, Object>>();
+        for (var row : current) {
+            UUID id = uuid(row, "object_id");
+            long birth = births.get(id), local = number(row, "local_version");
+            long from = number(row, "active_from");
+            Long first = (Long) row.get("first_from"), firstTo = (Long) row.get("first_to");
+            Long previous = (Long) row.get("previous_from"),
+                    previousTo = (Long) row.get("previous_to");
+            if (birth > expected
+                    || from < birth
+                    || from > expected
+                    || local < 1
+                    || first == null
+                    || first != birth
+                    || number(row, "last_local") != local
+                    || Boolean.TRUE.equals(row.get("overlapping"))
+                    || (local == 1 && (from != birth || firstTo != null))
+                    || (local > 1
+                            && (firstTo == null
+                                    || firstTo <= birth
+                                    || firstTo > from
+                                    || previous == null
+                                    || previous < birth
+                                    || previous >= from
+                                    || previousTo == null
+                                    || previousTo != from)))
+                throw bad("Invalid open revision or adjacent history in " + table);
+            if (result.put(id, row) != null) throw bad("Multiple open revisions in " + table);
+        }
+        if (!result.keySet().equals(births.keySet()))
+            throw bad("Missing open revision in " + table);
         return Map.copyOf(result);
     }
 

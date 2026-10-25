@@ -54,16 +54,11 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     Objects.requireNonNull(recordedAt);
                     if (expected < 1 || Math.incrementExact(expected) != candidate)
                         throw bad("Invalid version step");
-                    var versions = rows.versions(pot);
-                    if (versions.isEmpty() || number(versions.getLast(), "version") != expected)
+                    var latest = rows.version(pot, null);
+                    if (latest == null || number(latest, "version") != expected)
                         throw bad("Unexpected current Pot version");
                     var header =
-                            rows.checkedComponent(
-                                            "pot_header",
-                                            pot,
-                                            expected,
-                                            expected,
-                                            Map.of(pot.value(), 1L))
+                            rows.openComponent("pot_header", pot, expected, Map.of(pot.value(), 1L))
                                     .get(pot.value());
                     if ((boolean) header.get("deleted")) throw bad("Terminal Pot cannot advance");
                     rows.jdbc.update(
@@ -76,19 +71,16 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     private void proposal(PotId pot, TransitionResult.Changed<?> proposal) {
         rows.requireTransaction(false);
-        var versions = rows.versions(pot);
-        if (versions.isEmpty()
-                || number(versions.getLast(), "version") != proposal.candidatePotVersion())
-            throw bad("Candidate metadata missing");
         // Full xid8 identity remains distinct across 32-bit transaction-id epochs.
-        Boolean owned =
-                rows.jdbc.queryForObject(
-                        "select writer_xid = pg_current_xact_id() from v3_pot_version where"
-                                + " pot_id=? and version=?",
-                        Boolean.class,
-                        pot.value(),
-                        proposal.candidatePotVersion());
-        if (!Boolean.TRUE.equals(owned))
+        var latest =
+                rows.jdbc.queryForList(
+                        "select version,writer_xid=pg_current_xact_id() as owned from"
+                            + " v3_pot_version where pot_id=? order by version desc limit 1",
+                        pot.value());
+        if (latest.size() != 1
+                || number(latest.getFirst(), "version") != proposal.candidatePotVersion())
+            throw bad("Candidate metadata missing");
+        if (!Boolean.TRUE.equals(latest.getFirst().get("owned")))
             throw bad("Candidate metadata belongs to another physical transaction");
     }
 
@@ -161,7 +153,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     var old = check("pot_details", pot, pot.value(), next, proposal);
                     if (!uuid(old, "creator_id").equals(next.value().creatorId().value()))
                         throw bad("Creator must remain immutable");
-                    close("pot_details", pot, pot.value(), next);
+                    close("pot_details", pot, pot.value(), next, old);
                     insertPotDetails(next);
                 });
     }
@@ -175,9 +167,15 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    deletion(
-                            "pot_header", pot, pot.value(), next, next.value().deleted(), proposal);
-                    close("pot_header", pot, pot.value(), next);
+                    var old =
+                            deletion(
+                                    "pot_header",
+                                    pot,
+                                    pot.value(),
+                                    next,
+                                    next.value().deleted(),
+                                    proposal);
+                    close("pot_header", pot, pot.value(), next, old);
                     insertPotHeader(next);
                 });
     }
@@ -195,10 +193,17 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                         samePot(pot, next.value().potId());
                         if (!entry.getKey().equals(next.value().shareholderId()))
                             throw bad("Mixed details key");
-                        check("shareholder_details", pot, entry.getKey().value(), next, proposal);
                     }
+                    var targets = new LinkedHashMap<UUID, Versioned<?>>();
+                    proposal.changes().forEach((id, next) -> targets.put(id.value(), next));
+                    var old = checkAll("shareholder_details", pot, targets, proposal);
                     for (var entry : proposal.changes().entrySet()) {
-                        close("shareholder_details", pot, entry.getKey().value(), entry.getValue());
+                        close(
+                                "shareholder_details",
+                                pot,
+                                entry.getKey().value(),
+                                entry.getValue(),
+                                old.get(entry.getKey().value()));
                         insertShareholderDetails(entry.getValue());
                     }
                 });
@@ -217,10 +222,17 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                         samePot(pot, next.value().potId());
                         if (!entry.getKey().equals(next.value().shareholderId()))
                             throw bad("Mixed weight key");
-                        check("shareholder_weight", pot, entry.getKey().value(), next, proposal);
                     }
+                    var targets = new LinkedHashMap<UUID, Versioned<?>>();
+                    proposal.changes().forEach((id, next) -> targets.put(id.value(), next));
+                    var old = checkAll("shareholder_weight", pot, targets, proposal);
                     for (var entry : proposal.changes().entrySet()) {
-                        close("shareholder_weight", pot, entry.getKey().value(), entry.getValue());
+                        close(
+                                "shareholder_weight",
+                                pot,
+                                entry.getKey().value(),
+                                entry.getValue(),
+                                old.get(entry.getKey().value()));
                         insertShareholderWeight(entry.getValue());
                     }
                 });
@@ -235,14 +247,20 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    deletion(
+                    var old =
+                            deletion(
+                                    "shareholder_header",
+                                    pot,
+                                    next.value().shareholderId().value(),
+                                    next,
+                                    next.value().deleted(),
+                                    proposal);
+                    close(
                             "shareholder_header",
                             pot,
                             next.value().shareholderId().value(),
                             next,
-                            next.value().deleted(),
-                            proposal);
-                    close("shareholder_header", pot, next.value().shareholderId().value(), next);
+                            old);
                     insertShareholderHeader(next);
                 });
     }
@@ -256,8 +274,14 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    check("expense_details", pot, next.value().expenseId().value(), next, proposal);
-                    close("expense_details", pot, next.value().expenseId().value(), next);
+                    var old =
+                            check(
+                                    "expense_details",
+                                    pot,
+                                    next.value().expenseId().value(),
+                                    next,
+                                    proposal);
+                    close("expense_details", pot, next.value().expenseId().value(), next, old);
                     insertExpenseDetails(next);
                 });
     }
@@ -271,14 +295,15 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    check(
-                            "expense_financials",
-                            pot,
-                            next.value().expenseId().value(),
-                            next,
-                            proposal);
+                    var old =
+                            check(
+                                    "expense_financials",
+                                    pot,
+                                    next.value().expenseId().value(),
+                                    next,
+                                    proposal);
                     financialReferences(pot, next.value(), proposal);
-                    close("expense_financials", pot, next.value().expenseId().value(), next);
+                    close("expense_financials", pot, next.value().expenseId().value(), next, old);
                     insertExpenseFinancials(next);
                 });
     }
@@ -292,14 +317,15 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     proposal(pot, proposal);
                     var next = proposal.changes();
                     samePot(pot, next.value().potId());
-                    deletion(
-                            "expense_header",
-                            pot,
-                            next.value().expenseId().value(),
-                            next,
-                            next.value().deleted(),
-                            proposal);
-                    close("expense_header", pot, next.value().expenseId().value(), next);
+                    var old =
+                            deletion(
+                                    "expense_header",
+                                    pot,
+                                    next.value().expenseId().value(),
+                                    next,
+                                    next.value().deleted(),
+                                    proposal);
+                    close("expense_header", pot, next.value().expenseId().value(), next, old);
                     insertExpenseHeader(next);
                 });
     }
@@ -310,31 +336,35 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
             UUID id,
             Versioned<?> next,
             TransitionResult.Changed<?> proposal) {
-        if (next.activeFrom() != proposal.candidatePotVersion())
-            throw bad("Wrong applicability start");
+        return checkAll(table, pot, Map.of(id, next), proposal).get(id);
+    }
+
+    private Map<UUID, Map<String, Object>> checkAll(
+            String table,
+            PotId pot,
+            Map<UUID, Versioned<?>> next,
+            TransitionResult.Changed<?> proposal) {
+        if (next.isEmpty()) throw bad("Empty revision batch");
         var births =
                 table.startsWith("pot_")
-                        ? Map.of(id, 1L)
+                        ? Map.of(pot.value(), 1L)
                         : rows.identities(
                                 table.startsWith("shareholder_") ? "shareholder" : "expense",
                                 pot,
-                                Set.of(id));
-        if (!births.containsKey(id)) throw bad("Missing revision identity");
-        var old =
-                rows.checkedComponent(
-                                table,
-                                pot,
-                                proposal.expectedPotVersion(),
-                                proposal.candidatePotVersion(),
-                                births)
-                        .get(id);
-        if (old == null
-                || Math.incrementExact(number(old, "local_version")) != next.localVersion()
-                || old.get("active_to") != null) throw bad("Unexpected local revision");
+                                next.keySet());
+        if (!births.keySet().equals(next.keySet())) throw bad("Missing revision identity");
+        var old = rows.openComponent(table, pot, proposal.expectedPotVersion(), births);
+        next.forEach(
+                (id, revision) -> {
+                    if (revision.activeFrom() != proposal.candidatePotVersion()
+                            || Math.incrementExact(number(old.get(id), "local_version"))
+                                    != revision.localVersion())
+                        throw bad("Unexpected local revision or applicability start");
+                });
         return old;
     }
 
-    private void deletion(
+    private Map<String, Object> deletion(
             String table,
             PotId pot,
             UUID id,
@@ -344,19 +374,24 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         var old = check(table, pot, id, next, proposal);
         if (!deleted || (boolean) old.get("deleted"))
             throw bad("Header deletion must be effective");
+        return old;
     }
 
-    private void close(String table, PotId pot, UUID id, Versioned<?> next) {
+    private void close(
+            String table, PotId pot, UUID id, Versioned<?> next, Map<String, Object> old) {
         int count =
                 rows.jdbc.update(
                         "update v3_"
                                 + table
                                 + " set active_to=? where pot_id=? and object_id=? and"
-                                + " local_version=? and active_to is null and active_from<?",
+                                + " revision_id=? and local_version=? and active_from=? and"
+                                + " active_to is null and active_from<?",
                         next.activeFrom(),
                         pot.value(),
                         id,
+                        number(old, "revision_id"),
                         Math.decrementExact(next.localVersion()),
+                        number(old, "active_from"),
                         next.activeFrom());
         if (count != 1) throw bad("Revision close conflict");
     }
@@ -367,15 +402,11 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         ids.add(financials.payerId().value());
         financials.participants().keySet().forEach(id -> ids.add(id.value()));
         var births = rows.identities("shareholder", pot, ids);
+        if (!births.keySet().equals(ids)) throw bad("Invalid financial reference identity");
         var headers =
-                rows.checkedComponent(
-                        "shareholder_header",
-                        pot,
-                        proposal.expectedPotVersion(),
-                        proposal.candidatePotVersion(),
-                        births);
-        if (!headers.keySet().equals(ids)
-                || headers.values().stream().anyMatch(row -> (boolean) row.get("deleted")))
+                rows.openComponent(
+                        "shareholder_header", pot, proposal.expectedPotVersion(), births);
+        if (headers.values().stream().anyMatch(row -> (boolean) row.get("deleted")))
             throw bad("Invalid financial reference");
     }
 

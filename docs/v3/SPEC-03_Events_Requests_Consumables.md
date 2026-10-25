@@ -110,3 +110,7 @@ Le catalogue comporte désormais **sept familles** : deux burnables (`COMMAND`, 
 Chaque ligne produit exactement une complétion de la demande. `ExecutePotCommand.Attempt.COMPLETED` signifie tentative terminalisée et peut donc contenir une issue WRITE REJECTED ; il ne remplace pas le statut fonctionnel READ. TECHNICAL, INCONSISTENT_FACTS, COLLISION, RETRY_SCHEDULED, QUARANTINED, CLAIM_LOST et RECOVERY_PENDING ne deviennent pas des rejets métier READ. Le matérialisateur V3 réel de résultats reste à livrer en L4 ; les tests internes WRITE ne certifient pas cette projection.
 
 Le rattachement effectif via invitation réutilisable du même Pot révise ShareholderDetails et Pot, publie POT_EVENT et sa complétion, sans modifier ni consommer l'invitation. Il ne produit donc pas un nouvel INVITATION_EVENT au seul titre de son utilisation.
+
+## 11. Complément WRITE L1-F2
+
+La vérification de changedComponents porte sur les seules révisions nées à la candidate, par Pot et borne globale indexés ; elle reste exhaustive sur les huit types et ne relit pas les anciennes versions. Cette optimisation ne change ni l’égalité avec la proposition effective, ni l’ownership xid8, ni la validation des contraintes avant suffixe, ni l’unité physique événement/résultat/complétion. Les index d’accès ne constituent pas des contraintes d’intégrité. [Matrice et preuves](L1_F2_Invariant_Matrix.md).

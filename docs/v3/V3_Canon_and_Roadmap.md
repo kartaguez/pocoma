@@ -1,7 +1,7 @@
 # Pocoma V3 — Canon et feuille de route
 
 **Statut de clôture : L1 ACCEPTED — internal V3 foundation (2026-10-25), après livraison L1-A à L1-E et audit indépendant confirmé par le mandat du responsable. Acceptation limitée au périmètre interne vérifié ; aucun certificat V3 complet ni activation.**
-**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **Prochaine étape : cadrage L2 après validation de son plan ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
+**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **L1-F2 IMPLEMENTING**, complément correctif WRITE avant L2 : [dossier](L1_F2_Closure_Report.md). **Prochaine étape : validation/audit L1-F2, puis cadrage L2 ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** autorité des décisions transversales ; progression opérationnelle dans le plan directeur, preuves dans les rapports et manifestes.
@@ -191,3 +191,7 @@ Arbitrages appliqués : lecture SQL directe de V sans chaîne, contrôles globau
 L1-F ne livre pas création/restitution du lien, CurrentInvitation, validation atomique token/expiration ni exécution durable complète d'invitation : transition pure et primitives transactionnelles seulement, suite réelle maintenue à L5. Identity réelle, HTTP, READ et moteur Consumption restent aux lots compétents. L2 doit remplacer le slot Command spécifique par le protocole canonique commun, sans second moteur, selon SPEC-05 §11 ; aucune migration ni implémentation L2 dans L1-F. Aucun nouveau SLO ni certificat V3 global.
 
 Clôture L1-F : deux gates frais sur `c94e7a4bec479ccbf22b058fd341ae0350c2ca67`, 100/108 méthodes obligatoires PASS, respectivement 1306/1511 tests déclarés, zéro failure/error et un skip exploratoire V2 conservé. Couverture complète INCONCLUSIVE, aucun skip obligatoire ; full reactor non requis/non exécuté. Archives, profils appariés et limites dans le rapport. L1-F CLOSED / PASS interne ; L2 reste DESIGN PENDING.
+
+## 17. L1-F2 — complément correctif des écritures
+
+Mandat autonome depuis `b3df3f3e619eeed6fc551177c778b412daa4fa4b`. L1-F reste historiquement CLOSED/PASS sur son périmètre, qui conservait explicitement les parcours WRITE exhaustifs. L1-F2 remplace ces parcours par les préconditions locales indexées de la [matrice](L1_F2_Invariant_Matrix.md), sans modifier domaine, ports ni protocole physique. Vérification déclarée COMMAND ; architecture/full non requis tant que frontières inchangées. [Inventaire préalable](L1_F2_Contradictory_Inventory.md), [manifestes et résultats](L1_F2_Closure_Report.md). L2 exige validation/audit de ce complément et doit préserver ces garanties, ainsi que claim/Identity/Pot, ownership, poisoning et publication atomique. Aucun L2 commencé ni certificat V3 global.

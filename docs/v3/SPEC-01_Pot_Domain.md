@@ -31,6 +31,8 @@ Chaque instance historisée possède `activeFrom` et `activeTo`, exprimés en **
 
 Création : tous les sous-objets d'un nouvel objet naissent atomiquement en version locale 1 à la même V globale. Un objet absent avant sa création n'a aucune composante applicable. Le `PotDetails.creatorId` est conservé à l'identique lorsque le libellé change.
 
+**Allocation WRITE / audit (L1-F2) :** connaître la dernière version globale et les révisions locales courantes ne nécessite pas de reconstruire leurs chaînes. Chaque mutation vérifie directement les révisions ouvertes concernées, leur identité/naissance et leurs jonctions immédiates, ferme exactement l'ancienne révision et insère son successeur atomiquement. Une incohérence touchant cette révision ne doit être ni créée ni aggravée silencieusement. Une ancienne corruption étrangère à la mutation peut relever de l'audit exhaustif explicitement invocable ; elle n'est jamais réparée automatiquement. [Matrice des protections](L1_F2_Invariant_Matrix.md). Aucun changement des règles métier, des suppressions ou des composantes non chargées.
+
 ## 3. Cycle de vie et suppressions
 
 `deleted` appartient **exclusivement au Header**. Les Details, Financials et Weight ne portent pas ce champ.
