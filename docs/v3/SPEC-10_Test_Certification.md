@@ -1,7 +1,7 @@
 # Pocoma SPEC-10 — Tests et certification
 
 **Statut : protocoles normatifs définis, AUCUN test V3 exécuté ni PASS revendiqué.**  
-**Consolidation :** 2026-10-24. Les décisions finales AUD-V3-001 à AUD-V3-011 prévalent ; une exigence abandonnée n'est pas réintroduite par un scénario historique.
+**Consolidation :** 2026-10-25 (clarification des oracles rationnels DOM-03). Les décisions finales AUD-V3-001 à AUD-V3-011 prévalent ; une exigence abandonnée n'est pas réintroduite par un scénario historique.
 
 ## 1. Principes de certification
 
@@ -158,7 +158,7 @@ Recoupements obligatoires avec DOM-01 (intervalles), DOM-03 (soldes), EVT-02 (re
 | D03-A | Expense de 100, payeur A, participants A/B de poids 1 et 3 | Crédit A +100 ; débits A −25 et B −75 ; soldes nets A +75, B −75, total exactement zéro |
 | D03-B | Payeur A non participant, bénéficiaires B/C à poids 1/2 | A reçoit tout le crédit ; B/C portent les fractions exactes du débit ; somme zéro |
 | D03-C | Montants et poids conduisant à des tiers/septièmes, avec multiples Expenses | Fractions exactes réduites ; aucune dérive flottante ni arrondi cumulatif |
-| D03-D | Participant à specificWeight et autre au defaultWeight, puis changer seulement le defaultWeight | Seules les parts dépendant du défaut évoluent ; ExpenseFinancials inchangé ; balances historiques intactes |
+| D03-D | Participant à specificWeight et autre au defaultWeight, puis changer seulement le defaultWeight | Seuls les poids effectifs utilisant le défaut sont remplacés ; le dénominateur commun et donc les proportions, y compris à poids spécifique constant, peuvent évoluer ; ExpenseFinancials et autres poids stockés inchangés ; balances historiques intactes |
 | D03-E | Tous les participants ont specificWeight ; réviser leur defaultWeight | Répartition de cette Expense inchangée, mais **nouvelle balance complète** à la nouvelle V globale |
 | D03-F | Modifier amount et payerId d'une Expense, avec références valides | Solde recalculé sur les Financials exacts de la nouvelle V ; ancien résultat conservé |
 | D03-G | Modifier le libellé ou la date sans modifier Financials | Même valeur numérique attendue à la nouvelle V, stockée comme balance indépendante |
@@ -170,6 +170,8 @@ Recoupements obligatoires avec DOM-01 (intervalles), DOM-03 (soldes), EVT-02 (re
 | D03-M | Recalculer V ancienne après changement de poids et suppression à V+N | Résultat strictement identique à celui calculé initialement pour V |
 | D03-N | Traitement Balance V+1 avant V, retry et duplication | Balances exactes, immuables et indépendantes ; aucune dépendance à une balance précédente (PRJ-02) |
 | D03-O | Petits, moyens et grands Pots ; montants/poids rationnels de tailles diverses | Vérifier la conservation et l'exactitude sur cas générés reproductibles ; documenter coûts sans inférer un PASS de performance |
+
+**Précisions discriminantes du 2026-10-25 (D03-C/D/E/K/O, sans nouvel identifiant) :** vérifier des numérateurs/dénominateurs et résultats réduits dépassant `Long.MAX_VALUE`, des décimaux exacts (`0.125 = 1/8`) et fractions équivalentes ; zéro/valeurs négatives sont interdits pour Weight, zéro est canonique pour Fraction. Une modification de specificWeight ne change aucun autre poids stocké et la somme stockée n'est pas renormalisée. Fixture : montant 100, payeur A non participant, B au défaut 1/2 et C au spécifique 3/2 ; soldes A=100, B=−25, C=−75. Si le défaut B devient 3/2, soldes A=100, B=−50, C=−50 ; le spécifique C reste 3/2. Si ensuite seul le spécifique C devient 1/2, soldes A=100, B=−75, C=−25 ; le défaut B reste 3/2. Chaque ancienne V conserve ses résultats exacts. Round-trip de stockage et conversion aux frontières sans flottant ni réduction en long ; aucune limite métier numérique créée par le test.
 
 ### Méthode et PASS
 
@@ -741,7 +743,7 @@ JUnit avec PostgreSQL réel (transactions et connexions indépendantes, barrièr
 | P02-B | Dépenses fractionnaires, nombres premiers dans les poids et montants, réductions de fractions | Aucun arrondi ou dérive numérique ; égalité exacte à l'oracle indépendant |
 | P02-C | Changement de poids par défaut ou de poids explicites entre V et V+1 | Balance V conforme aux poids à V et Balance V+1 conforme aux poids à V+1 ; aucun emprunt des valeurs courantes |
 | P02-D | Mutation non financière (libellé, métadonnée compatible) produisant une nouvelle V globale | Nouvelle `PotBalance(P,V)` **complète** et indépendante, même si les montants sont identiques à V−1 |
-| P02-E | Création, modification, suppression d'Expense et changement de rattachement affectant la répartition | Chaque version conserve le calcul attendu ; suppressions et liens historiques respectés |
+| P02-E | Création, modification, suppression d'Expense puis changement de rattachement userId seul | Chaque version conserve le calcul attendu ; suppression exclut la contribution ; rattachement userId seul sans effet numérique, références ShareholderId et liens historiques respectés |
 | P02-F | Traiter la Consumption Balance V+2 **avant** celles de V et V+1 | Les trois balances restent distinctes, correctes, immuables et accessibles en stockage ; aucune exigence de traitement FIFO |
 | P02-G | Supprimer/retarder volontairement la balance V−1 puis traiter V | V est calculée et matérialisée correctement sans accès à V−1 |
 | P02-H | Démarrer la Consumption de V, faire avancer WRITE jusqu'à V+1 puis matérialiser V | Le contenu enregistré reste celui de V exactement, non celui de l'état WRITE courant |

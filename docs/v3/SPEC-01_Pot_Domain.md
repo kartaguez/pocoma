@@ -1,7 +1,7 @@
 # Pocoma SPEC-01 — Domaine Pot
 
 **Statut : CONCEPTION VALIDÉE (conceptuelle), non implémentée.**  
-**Consolidation normative :** 2026-10-24. **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).  
+**Consolidation normative :** 2026-10-25 (précision des rationnels et des poids, §4). **Autorité de progression :** [V3_Canon_and_Roadmap.md](V3_Canon_and_Roadmap.md).
 **Principe :** simplicité des structures, concepts et algorithmes, sans sacrifier la correction.
 
 ## 1. Identités et découpage
@@ -50,6 +50,10 @@ Le contrôle d'existence active d'un Header parent est distinct du contrôle de 
 ## 4. Finances et résolution à V
 
 `ExpenseFinancials` porte le montant, le payeur (`ShareholderId`) et la liste non vide des participants (`ShareholderId → specificWeight?`). Le payeur n'a pas besoin d'être participant. Payeur et participants appartiennent au même Pot. `specificWeight`, lorsqu'il est fourni, et `defaultWeight` sont strictement positifs. Le montant est non négatif et les calculs conservent les fractions rationnelles exactes normalisées.
+
+**Clarification normative du 2026-10-25 :** `Fraction` est un rationnel exact à normalisation canonique (dénominateur strictement positif, numérateur et dénominateur premiers entre eux, zéro représenté par 0/1). `Weight` est un tel rationnel **strictement positif**. La représentation et les opérations supportent des entiers arbitrairement grands pour numérateur et dénominateur, sans dépassement silencieux, arrondi de domaine ni plafond métier ajouté. La saisie d'un poids spécifique peut être décimale ou fractionnaire ; conversions et présentation aux frontières préservent exactement sa valeur.
+
+Un `specificWeight` présent **remplace** le défaut de ce participant ; il ne le multiplie pas. Sa modification n'ajuste automatiquement aucun autre poids. Aucune normalisation de la somme des poids **stockés** n'est imposée ; seule la proportion calculée utilise leur somme. Aucun mécanisme de répartition supplémentaire n'est introduit. Une évolution de cette somme peut donc changer les proportions de tous les participants, y compris ceux dont le poids spécifique reste identique.
 
 À une version globale V : `effectiveWeight(participant,V) = specificWeight` s'il est présent, sinon `ShareholderWeight.defaultWeight` **applicable à V**. La part = `amount × effectiveWeight / somme(effectiveWeight)`; le payeur reçoit le crédit du montant, les participants le débit de leurs parts. Les soldes se compensent exactement.
 
