@@ -1,0 +1,165 @@
+{
+  "scope": "Internal L1 only; global V3 not certified",
+  "tested": "9899a2943760660893768fa4ba9452732ee17d50",
+  "initial_remote": "9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164",
+  "gates": [
+    {
+      "gate": "d-arch",
+      "directory": "docs/testing/evidence/L1-DE/d-arch-1792944182710753000",
+      "revision": "69acce7842364d5ee3881d41b8a70257fd09b81d",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1490,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 87,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": true,
+      "reason": null
+    },
+    {
+      "gate": "d-consumers",
+      "directory": "docs/testing/evidence/L1-DE/d-consumers-1792943908007675000",
+      "revision": "69acce7842364d5ee3881d41b8a70257fd09b81d",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1255,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 79,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": true,
+      "reason": null
+    },
+    {
+      "gate": "e-arch",
+      "directory": "docs/testing/evidence/L1-DE/e-arch-1792945682329992000",
+      "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1494,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 91,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": true,
+      "reason": null
+    },
+    {
+      "gate": "e-consumers",
+      "directory": "docs/testing/evidence/L1-DE/e-consumers-1792944750570068000",
+      "revision": "5a954a20eb4ebd2c6a36a677a675985a75b34e51",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1288,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 82,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": false,
+      "reason": "replaced after strengthening E"
+    },
+    {
+      "gate": "e-consumers",
+      "directory": "docs/testing/evidence/L1-DE/e-consumers-1792945125245137000",
+      "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1065,
+        "failures": 0,
+        "errors": 14,
+        "skipped": 0
+      },
+      "mandatory_methods": 83,
+      "mandatory_verdict": "FAIL",
+      "global_coverage": "FAIL",
+      "retained": false,
+      "reason": "FAIL: PostgreSQL SSL 08P01 startup; targeted diagnostic passed; fresh whole gate required"
+    },
+    {
+      "gate": "e-consumers",
+      "directory": "docs/testing/evidence/L1-DE/e-consumers-1792945374015831000",
+      "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-event-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "counts": {
+        "tests": 1289,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 83,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": true,
+      "reason": null
+    },
+    {
+      "gate": "e-full",
+      "directory": "docs/testing/evidence/L1-DE/e-full-1792946059399771000",
+      "revision": "9899a2943760660893768fa4ba9452732ee17d50",
+      "command": [
+        "./mvnw",
+        "test"
+      ],
+      "counts": {
+        "tests": 1494,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "mandatory_methods": 91,
+      "mandatory_verdict": "PASS",
+      "global_coverage": "INCONCLUSIVE",
+      "retained": true,
+      "reason": null
+    }
+  ]
+}

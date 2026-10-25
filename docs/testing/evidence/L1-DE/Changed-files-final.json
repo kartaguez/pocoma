@@ -1,0 +1,192 @@
+{
+  "start": "9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164",
+  "tested": "9899a2943760660893768fa4ba9452732ee17d50",
+  "production_files": [
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/PotBalanceCalculator.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/PotFinancialState.java"
+    },
+    {
+      "status": "M",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/ShareholderTransitions.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/persistence/v3/PotHistoryPort.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/CalculatePotBalances.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java"
+    }
+  ],
+  "all_changes": [
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/PotBalanceCalculator.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/PotFinancialState.java"
+    },
+    {
+      "status": "M",
+      "path": "app/domain-pot/src/main/java/com/kartaguez/pocoma/domain/pot/v3/ShareholderTransitions.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/PotAuthorizationTest.java"
+    },
+    {
+      "status": "A",
+      "path": "app/domain-pot/src/test/java/com/kartaguez/pocoma/domain/pot/v3/PotBalanceCalculatorTest.java"
+    },
+    {
+      "status": "M",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/persistence/v3/PotHistoryPort.java"
+    },
+    {
+      "status": "A",
+      "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/CalculatePotBalances.java"
+    },
+    {
+      "status": "M",
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L1IntegrationPostgresTest.java"
+    },
+    {
+      "status": "A",
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotFinancePostgresTest.java"
+    },
+    {
+      "status": "M",
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Architecture-populations.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Changed-files-final.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Compiler-and-SQL-provenance.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/D-diagnostics.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/D-diagnostics.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/D-gates-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/D-gates-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/D-gates.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-diagnostics.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-gates-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz.sha256"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Final-gate-validation.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Gate-index.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Preserved-worktrees.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Remote-during-gates.txt"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/SPEC10-matrix.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Worktree-preservation-verdict.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L1_D_Execution_Report.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/L1_Design_and_Verification_Plan.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/v3/L1_E_Execution_Report.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/L1_Proof_Manifest.json"
+    },
+    {
+      "status": "M",
+      "path": "docs/v3/V3_Canon_and_Roadmap.md"
+    },
+    {
+      "status": "A",
+      "path": "scripts/testing/build-l1-matrix.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/testing/test_l1_provenance.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/testing/verify-v3-l1.py"
+    }
+  ]
+}
