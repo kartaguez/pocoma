@@ -1,4 +1,4 @@
-package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.fixture;
+package com.kartaguez.pocoma.infra.persistence.primary.jpa.v3commandfixture;
 
 import jakarta.persistence.*;
 

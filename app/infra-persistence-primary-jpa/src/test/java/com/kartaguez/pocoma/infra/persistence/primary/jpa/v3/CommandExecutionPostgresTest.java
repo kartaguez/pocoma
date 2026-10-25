@@ -13,7 +13,7 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.fixture.CommandProbe;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3commandfixture.CommandProbe;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
