@@ -44,8 +44,8 @@ public final class JdbcPotCommandStore implements PotCommandStore {
         var rows =
                 jdbc.queryForList(
                         "select c.*,r.outcome,r.resulting_pot_version,r.rejection from v3_command c"
-                            + " left join v3_command_result r using(request_id) where"
-                            + " c.request_id=?",
+                                + " left join v3_command_result r using(request_id) where"
+                                + " c.request_id=?",
                         requestId);
         if (rows.size() != 1) throw new InconsistentPotFactsException("Durable Command missing");
         var row = rows.getFirst();
@@ -71,8 +71,8 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                 requestId))
                 || jdbc.queryForObject(
                                 "select count(*) from v3_command_completion_event e join"
-                                    + " v3_event_position p on p.event_id=e.event_id and"
-                                    + " p.family='COMMAND_COMPLETION' where e.subject_id=?",
+                                        + " v3_event_position p on p.event_id=e.event_id and"
+                                        + " p.family='COMMAND_COMPLETION' where e.subject_id=?",
                                 Long.class,
                                 requestId)
                         != 1)
@@ -107,7 +107,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     var rows =
                             jdbc.queryForList(
                                     "select claim_token,claimed_until,state from v3_command_slot"
-                                        + " where request_id=? for update",
+                                            + " where request_id=? for update",
                                     requestId);
                     if (rows.isEmpty()) return false;
                     var row = rows.getFirst();
@@ -143,7 +143,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     var rows =
                             jdbc.queryForList(
                                     "select current_version from v3_pot_identity where pot_id=? for"
-                                        + " update",
+                                            + " update",
                                     Long.class,
                                     pot.value());
                     return (rows.isEmpty() ? 0 : rows.getFirst()) == expected;
@@ -164,12 +164,12 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                             result.rejection());
                     if (jdbc.update(
                                     "update v3_command set status='TERMINAL' where request_id=? and"
-                                        + " status='PENDING'",
+                                            + " status='PENDING'",
                                     command.requestId())
                             != 1) throw new InconsistentPotFactsException("Command not pending");
                     if (jdbc.update(
                                     "delete from v3_command_slot where request_id=? and"
-                                        + " claim_token=?",
+                                            + " claim_token=?",
                                     command.requestId(),
                                     claim)
                             != 1)
@@ -241,7 +241,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
         Boolean owned =
                 jdbc.queryForObject(
                         "select writer_xid=pg_current_xact_id() from v3_pot_version where pot_id=?"
-                            + " and version=?",
+                                + " and version=?",
                         Boolean.class,
                         pot.value(),
                         version);
@@ -278,22 +278,42 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     private void validateBusinessConstraints() {
         // Keep final publication-completeness checks deferred; those are read-only at physical
         // commit.
-        var names =
-                jdbc.queryForList(
-                        "select distinct c.conname from pg_constraint c join pg_class t on"
-                            + " t.oid=c.conrelid join pg_namespace n on n.oid=t.relnamespace where"
-                            + " n.nspname=current_schema() and c.condeferrable and t.relname in"
-                            + " ('v3_pot_identity','v3_pot_version','v3_shareholder_identity','v3_expense_identity','v3_pot_header','v3_pot_details','v3_shareholder_header','v3_shareholder_details','v3_shareholder_weight','v3_expense_header','v3_expense_details','v3_expense_financials')",
-                        String.class);
-        for (var name : names)
-            jdbc.execute("set constraints \"" + name.replace("\"", "\"\"") + "\" immediate");
+        // Exact V1 business set (18 deferred FKs + four deferred completeness triggers).
+        // V2 command/result/event publication constraints must remain deferred to physical commit.
+        jdbc.execute(
+                """
+                set constraints
+                    v3_shareholder_identity_pot_id_created_at_fkey,
+                    v3_expense_identity_pot_id_created_at_fkey,
+                    v3_pot_header_pot_id_active_from_fkey,
+                    v3_pot_header_pot_id_active_to_fkey,
+                    v3_pot_details_pot_id_active_from_fkey,
+                    v3_pot_details_pot_id_active_to_fkey,
+                    v3_shareholder_header_pot_id_active_from_fkey,
+                    v3_shareholder_header_pot_id_active_to_fkey,
+                    v3_shareholder_details_pot_id_active_from_fkey,
+                    v3_shareholder_details_pot_id_active_to_fkey,
+                    v3_shareholder_weight_pot_id_active_from_fkey,
+                    v3_shareholder_weight_pot_id_active_to_fkey,
+                    v3_expense_header_pot_id_active_from_fkey,
+                    v3_expense_header_pot_id_active_to_fkey,
+                    v3_expense_details_pot_id_active_from_fkey,
+                    v3_expense_details_pot_id_active_to_fkey,
+                    v3_expense_financials_pot_id_active_from_fkey,
+                    v3_expense_financials_pot_id_active_to_fkey,
+                    v3_version_has_effect,
+                    v3_pot_complete,
+                    v3_shareholder_complete,
+                    v3_expense_complete
+                immediate
+                """);
     }
 
     private void position(String family, UUID event) {
         Long position =
                 jdbc.queryForObject(
                         "update v3_event_counter set position=position+1 where family=? returning"
-                            + " position",
+                                + " position",
                         Long.class,
                         family);
         if (position == null) throw new InconsistentPotFactsException("Event family missing");

@@ -65,11 +65,19 @@ final class PotHistoryRows {
     }
 
     Map<UUID, Long> identities(String kind, PotId pot, Set<UUID> selected) {
+        return identities(kind, pot, selected, null);
+    }
+
+    Map<UUID, Long> identities(String kind, PotId pot, Set<UUID> selected, Long version) {
         if (selected != null && selected.isEmpty()) return Map.of();
         String condition = selected == null ? "" : " and object_id in (:ids)";
         var params = new HashMap<String, Object>();
         params.put("pot", pot.value());
         if (selected != null) params.put("ids", selected);
+        if (version != null) {
+            params.put("version", version);
+            condition += " and created_at<=:version";
+        }
         var result = new LinkedHashMap<UUID, Long>();
         for (var row :
                 named.queryForList(
@@ -82,9 +90,37 @@ final class PotHistoryRows {
         return Map.copyOf(result);
     }
 
+    /** One indexed metadata lookup, never the global version chain. */
+    Map<String, Object> version(PotId pot, Long requested) {
+        var latest =
+                jdbc.queryForList(
+                        "select version,recorded_at from v3_pot_version where pot_id=? order by"
+                            + " version desc limit 1",
+                        pot.value());
+        if (latest.isEmpty()) {
+            if (Boolean.TRUE.equals(
+                    jdbc.queryForObject(
+                            "select exists(select 1 from v3_pot_identity where pot_id=?)",
+                            Boolean.class,
+                            pot.value()))) throw bad("Pot identity without version history");
+            return null;
+        }
+        var last = latest.getFirst();
+        if (requested == null) return last;
+        var exact =
+                jdbc.queryForList(
+                        "select version,recorded_at from v3_pot_version where pot_id=? and"
+                            + " version=?",
+                        pot.value(),
+                        requested);
+        if (exact.size() != 1) throw bad("Requested Pot version does not exist");
+        var result = new HashMap<>(exact.getFirst());
+        result.put("latest", number(last, "version"));
+        return result;
+    }
+
     /**
-     * Validate complete interval chains, then select directly at V. Empty is allowed only before
-     * birth.
+     * Only applicable rows cross JDBC. Global chain validation is an explicit separate operation.
      */
     Map<UUID, Map<String, Object>> component(
             String table, PotId pot, long version, long latest, Map<UUID, Long> births) {
@@ -92,6 +128,64 @@ final class PotHistoryRows {
     }
 
     Map<UUID, Map<String, Object>> component(
+            String table,
+            PotId pot,
+            long version,
+            long latest,
+            Map<UUID, Long> births,
+            String projection) {
+        if (births.isEmpty()) return Map.of();
+        String columns =
+                projection.equals("*")
+                        ? "*"
+                        : "revision_id,pot_id,object_id,local_version,active_from,active_to,"
+                                + projection;
+        String interval =
+                version == latest
+                        ? "active_to is null"
+                        : "active_from<=:version and (active_to is null or :version<active_to) and"
+                              + " int8range(active_from,active_to,'[)') @> cast(:version as"
+                              + " bigint)";
+        var applicable =
+                named.queryForList(
+                        "select "
+                                + columns
+                                + " from v3_"
+                                + table
+                                + " where pot_id=:pot and object_id in (:ids) and "
+                                + interval,
+                        Map.of("pot", pot.value(), "ids", births.keySet(), "version", version));
+        var result = new LinkedHashMap<UUID, Map<String, Object>>();
+        for (var row : applicable) {
+            UUID id = uuid(row, "object_id");
+            long from = number(row, "active_from");
+            Long to = (Long) row.get("active_to");
+            if (from < births.get(id)
+                    || from > version
+                    || from > latest
+                    || (to != null && (to <= version || to > latest)))
+                throw bad("Invalid applicable revision in " + table);
+            if (result.put(id, row) != null) throw bad("Multiple applicable revisions in " + table);
+        }
+        for (var birth : births.entrySet()) {
+            if (birth.getValue() <= version && !result.containsKey(birth.getKey()))
+                throw bad("Missing applicable " + table);
+            if (birth.getValue() > version && result.containsKey(birth.getKey()))
+                throw bad("Revision before identity birth in " + table);
+        }
+        return Map.copyOf(result);
+    }
+
+    /**
+     * Validate complete interval chains, then select directly at V. Empty is allowed only before
+     * birth.
+     */
+    Map<UUID, Map<String, Object>> checkedComponent(
+            String table, PotId pot, long version, long latest, Map<UUID, Long> births) {
+        return checkedComponent(table, pot, version, latest, births, "*");
+    }
+
+    Map<UUID, Map<String, Object>> checkedComponent(
             String table,
             PotId pot,
             long version,

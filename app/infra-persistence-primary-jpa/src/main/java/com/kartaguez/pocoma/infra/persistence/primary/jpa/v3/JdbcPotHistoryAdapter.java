@@ -24,14 +24,30 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
         rows = new PotHistoryRows(dataSource);
     }
 
+    /** Maintenance check in a caller-owned snapshot; deliberately outside point reads. */
+    public void verifyHistory(PotId pot) {
+        rows.requireTransaction(true);
+        var versions = rows.versions(pot);
+        if (versions.isEmpty()) return;
+        long latest = number(versions.getLast(), "version");
+        var potBirth = Map.of(pot.value(), 1L);
+        rows.checkedComponent("pot_header", pot, latest, latest, potBirth);
+        rows.checkedComponent("pot_details", pot, latest, latest, potBirth);
+        var shareholders = rows.identities("shareholder", pot, null);
+        for (var table : List.of("shareholder_header", "shareholder_details", "shareholder_weight"))
+            rows.checkedComponent(table, pot, latest, latest, shareholders);
+        var expenses = rows.identities("expense", pot, null);
+        for (var table : List.of("expense_header", "expense_details", "expense_financials"))
+            rows.checkedComponent(table, pot, latest, latest, expenses);
+    }
+
     @Override
     public Optional<Snapshot> atVersion(PotId pot, long version) {
         rows.requireTransaction(true);
         if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var versions = rows.versions(pot);
-        if (versions.isEmpty()) return Optional.empty();
-        long latest = number(versions.getLast(), "version");
-        if (version > latest) throw bad("Requested Pot version does not exist");
+        var metadata = rows.version(pot, version);
+        if (metadata == null) return Optional.empty();
+        long latest = number(metadata, "latest");
         var potBirth = Map.of(pot.value(), 1L);
         var header =
                 potHeader(
@@ -41,15 +57,16 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                 potDetails(
                         rows.component("pot_details", pot, version, latest, potBirth)
                                 .get(pot.value()));
-        var shareholderBirths = rows.identities("shareholder", pot, null);
+        var shareholderBirths = rows.identities("shareholder", pot, null, version);
         var shareholders = shareholders(pot, version, latest, shareholderBirths);
-        var expenses = expenses(pot, version, latest, rows.identities("expense", pot, null));
+        var expenses =
+                expenses(pot, version, latest, rows.identities("expense", pot, null, version));
         validateReferences(shareholders, expenses, shareholderBirths);
         return Optional.of(
                 new Snapshot(
                         pot,
                         version,
-                        instant(versions.get(Math.toIntExact(version - 1)), "recorded_at"),
+                        instant(metadata, "recorded_at"),
                         new PotState(header, details),
                         shareholders,
                         expenses));
@@ -59,15 +76,14 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
     public Optional<PotFinancialState> financialAtVersion(PotId pot, long version) {
         rows.requireTransaction(true);
         if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var versions = rows.versions(pot);
-        if (versions.isEmpty()) return Optional.empty();
-        long latest = number(versions.getLast(), "version");
-        if (version > latest) throw bad("Requested financial version absent");
+        var metadata = rows.version(pot, version);
+        if (metadata == null) return Optional.empty();
+        long latest = number(metadata, "latest");
         var header =
                 potHeader(
                         rows.component("pot_header", pot, version, latest, Map.of(pot.value(), 1L))
                                 .get(pot.value()));
-        var births = rows.identities("shareholder", pot, null);
+        var births = rows.identities("shareholder", pot, null, version);
         var headers = rows.component("shareholder_header", pot, version, latest, births);
         var weights = rows.component("shareholder_weight", pot, version, latest, births);
         var shareholders = new LinkedHashMap<ShareholderId, PotFinancialState.Shareholder>();
@@ -78,7 +94,7 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                                 new PotFinancialState.Shareholder(
                                         shareholderHeader(row),
                                         shareholderWeight(weights.get(id)))));
-        var expenseBirths = rows.identities("expense", pot, null);
+        var expenseBirths = rows.identities("expense", pot, null, version);
         var expenseHeaders = rows.component("expense_header", pot, version, latest, expenseBirths);
         var financials =
                 financials(
@@ -138,9 +154,9 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
         rows.requireTransaction(true);
         Objects.requireNonNull(actor);
         Objects.requireNonNull(selection);
-        var versions = rows.versions(pot);
-        if (versions.isEmpty()) return Optional.empty();
-        long version = number(versions.getLast(), "version");
+        var metadata = rows.version(pot, null);
+        if (metadata == null) return Optional.empty();
+        long version = number(metadata, "version");
         return Optional.of(selected(pot, actor, selection, version, version));
     }
 
@@ -151,10 +167,9 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
         Objects.requireNonNull(actor);
         Objects.requireNonNull(selection);
         if (version < 1) throw new IllegalArgumentException("Positive version required");
-        var versions = rows.versions(pot);
-        if (versions.isEmpty()) return Optional.empty();
-        long latest = number(versions.getLast(), "version");
-        if (version > latest) throw bad("Requested version absent");
+        var metadata = rows.version(pot, version);
+        if (metadata == null) return Optional.empty();
+        long latest = number(metadata, "latest");
         return Optional.of(selected(pot, actor, selection, version, latest));
     }
 
@@ -176,7 +191,7 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                         .get(pot.value());
         // Authorization needs active attachment facts; weights and Expense payloads are not read
         // here.
-        var allBirths = rows.identities("shareholder", pot, null);
+        var allBirths = rows.identities("shareholder", pot, null, version);
         var allHeaders = rows.component("shareholder_header", pot, version, latest, allBirths);
         var allDetails =
                 rows.component("shareholder_details", pot, version, latest, allBirths, "user_id");
@@ -260,7 +275,7 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                 selection.expenses().stream()
                         .map(ExpenseId::value)
                         .collect(java.util.stream.Collectors.toSet());
-        var births = rows.identities("expense", pot, ids);
+        var births = rows.identities("expense", pot, ids, version);
         var headers = rows.component("expense_header", pot, version, latest, births);
         var details =
                 selection.expenseDetails()
@@ -295,17 +310,17 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
     @Override
     public ActiveShareholderUsage activeUsage(PotId pot, long version, ShareholderId shareholder) {
         rows.requireTransaction(true);
-        var versions = rows.versions(pot);
-        if (versions.isEmpty() || version < 1 || version > number(versions.getLast(), "version"))
-            throw bad("Unknown usage version");
-        long latest = number(versions.getLast(), "version");
-        var shareholders = rows.identities("shareholder", pot, null);
+        if (version < 1) throw bad("Unknown usage version");
+        var metadata = rows.version(pot, version);
+        if (metadata == null) throw bad("Unknown usage version");
+        long latest = number(metadata, "latest");
+        var shareholders = rows.identities("shareholder", pot, null, version);
         if (!shareholders.containsKey(shareholder.value())
                 || shareholders.get(shareholder.value()) > version)
             throw bad("Unknown usage subject");
         var shareholderHeaders =
                 rows.component("shareholder_header", pot, version, latest, shareholders);
-        var births = rows.identities("expense", pot, null);
+        var births = rows.identities("expense", pot, null, version);
         var headers = rows.component("expense_header", pot, version, latest, births);
         var financials =
                 financials(rows.component("expense_financials", pot, version, latest, births));

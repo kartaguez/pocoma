@@ -132,7 +132,9 @@ public final class ExecutePotCommand {
         if (durable.terminal().isPresent() || !durable.command().equals(command))
             throw new InconsistentPotFactsException("Request changed after preparation");
         if (!authority.protect(command, prepared.actor())) throw new Collision();
-        if (!store.protectPot(command.potId(), prepared.workingVersion())) throw new Collision();
+        if (prepared.actor().actor().isPresent()
+                && !store.protectPot(command.potId(), prepared.workingVersion()))
+            throw new Collision();
         prepared.apply().run();
         store.finish(command, token, prepared.result());
         store.publish(command, prepared.result(), prepared.components());
@@ -145,8 +147,7 @@ public final class ExecutePotCommand {
             return new Prepared(c, stored.terminal(), null, 0, null, () -> {}, List.of());
         var actor = authority.observe(c);
         // Even invalid authority must be protected until its rejection commits.
-        if (actor.actor().isEmpty())
-            return rejected(c, actor, currentVersion(c), "INVALID_BINDING");
+        if (actor.actor().isEmpty()) return rejected(c, actor, 0, "INVALID_BINDING");
         var selected = history.current(c.potId(), actor.actor().get(), selection(c.intent()));
         long version = selected.map(p -> p.facts().workingVersion()).orElse(0L);
         if (c.intent() instanceof CreatePot intent) {
@@ -164,11 +165,6 @@ public final class ExecutePotCommand {
         }
         if (selected.isEmpty()) return rejected(c, actor, 0, "NOT_FOUND");
         return decide(c, actor, selected.get());
-    }
-
-    private long currentVersion(PotCommand c) {
-        // Identity failure still needs a protected Pot observation for a consistent terminal unit.
-        return store.currentVersion(c.potId());
     }
 
     private Prepared decide(PotCommand c, PotActorAuthority.Witness actor, SelectedPot p) {

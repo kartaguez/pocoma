@@ -68,22 +68,34 @@ public record PotCommand(
 
     public record AddShareholders(List<ShareholderTransitions.Creation> targets) implements Intent {
         public AddShareholders {
-            targets = List.copyOf(targets);
+            targets = PotCommand.targets(targets, ShareholderTransitions.Creation::id);
         }
     }
 
     public record UpdateShareholderDetails(List<ShareholderTransitions.DetailsIntent> targets)
             implements Intent {
         public UpdateShareholderDetails {
-            targets = List.copyOf(targets);
+            targets = PotCommand.targets(targets, ShareholderTransitions.DetailsIntent::id);
         }
     }
 
     public record UpdateShareholderWeights(List<ShareholderTransitions.WeightIntent> targets)
             implements Intent {
         public UpdateShareholderWeights {
-            targets = List.copyOf(targets);
+            targets = PotCommand.targets(targets, ShareholderTransitions.WeightIntent::id);
         }
+    }
+
+    private static <T> List<T> targets(
+            List<T> targets, java.util.function.Function<T, ShareholderId> id) {
+        if (targets == null || targets.isEmpty())
+            throw new IllegalArgumentException("Targets required");
+        var seen = new HashSet<ShareholderId>();
+        for (var target : targets) {
+            if (target == null) throw new IllegalArgumentException("Null target");
+            if (!seen.add(id.apply(target))) throw new IllegalArgumentException("Duplicate target");
+        }
+        return List.copyOf(targets);
     }
 
     public record DeleteShareholder(ShareholderId id) implements Intent {

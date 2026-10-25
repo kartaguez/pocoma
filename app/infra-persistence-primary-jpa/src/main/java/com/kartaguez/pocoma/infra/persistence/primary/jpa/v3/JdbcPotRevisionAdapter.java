@@ -58,7 +58,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     if (versions.isEmpty() || number(versions.getLast(), "version") != expected)
                         throw bad("Unexpected current Pot version");
                     var header =
-                            rows.component(
+                            rows.checkedComponent(
                                             "pot_header",
                                             pot,
                                             expected,
@@ -113,7 +113,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     for (var state : proposal.changes()) {
                         rows.jdbc.update(
                                 "insert into v3_shareholder_identity(pot_id,object_id,created_at)"
-                                    + " values (?,?,?)",
+                                        + " values (?,?,?)",
                                 pot.value(),
                                 state.header().value().shareholderId().value(),
                                 proposal.candidatePotVersion());
@@ -139,7 +139,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                     financialReferences(pot, state.financials().value(), proposal);
                     rows.jdbc.update(
                             "insert into v3_expense_identity(pot_id,object_id,created_at) values"
-                                + " (?,?,?)",
+                                    + " (?,?,?)",
                             pot.value(),
                             state.header().value().expenseId().value(),
                             proposal.candidatePotVersion());
@@ -321,7 +321,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
                                 Set.of(id));
         if (!births.containsKey(id)) throw bad("Missing revision identity");
         var old =
-                rows.component(
+                rows.checkedComponent(
                                 table,
                                 pot,
                                 proposal.expectedPotVersion(),
@@ -368,7 +368,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         financials.participants().keySet().forEach(id -> ids.add(id.value()));
         var births = rows.identities("shareholder", pot, ids);
         var headers =
-                rows.component(
+                rows.checkedComponent(
                         "shareholder_header",
                         pot,
                         proposal.expectedPotVersion(),

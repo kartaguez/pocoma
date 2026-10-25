@@ -30,30 +30,29 @@ public final class PotBalanceCalculator {
         for (var expense : state.expenses().values()) {
             if (expense.header().value().deleted()) continue;
             var financials = expense.financials().value();
-            var weights = new HashMap<ShareholderId, Fraction>();
-            financials
-                    .participants()
-                    .forEach(
-                            (id, specific) ->
-                                    weights.put(
-                                            id,
-                                            specific.orElse(
-                                                            state.shareholders()
-                                                                    .get(id)
-                                                                    .weight()
-                                                                    .value()
-                                                                    .defaultWeight())
-                                                    .value()));
-            Fraction total = weights.values().stream().reduce(Fraction.ZERO, Fraction::add);
+            Fraction total = Fraction.ZERO;
+            for (var participant : financials.participants().entrySet())
+                total =
+                        total.add(
+                                effectiveWeight(
+                                        state, participant.getKey(), participant.getValue()));
             Fraction amount = financials.amount().value();
             balances.merge(financials.payerId(), amount, Fraction::add);
-            weights.forEach(
-                    (id, weight) ->
-                            balances.merge(
-                                    id,
-                                    Fraction.ZERO.subtract(amount.multiply(weight).divide(total)),
-                                    Fraction::add));
+            // Exact distributivity: compute the common negative factor once per Expense.
+            Fraction debitPerWeight = Fraction.ZERO.subtract(amount.divide(total));
+            for (var participant : financials.participants().entrySet()) {
+                var weight = effectiveWeight(state, participant.getKey(), participant.getValue());
+                balances.merge(
+                        participant.getKey(), debitPerWeight.multiply(weight), Fraction::add);
+            }
         }
         return Optional.of(new Balances(state.potId(), state.version(), balances));
+    }
+
+    private static Fraction effectiveWeight(
+            PotFinancialState state, ShareholderId id, Optional<Weight> specific) {
+        return specific.orElseGet(
+                        () -> state.shareholders().get(id).weight().value().defaultWeight())
+                .value();
     }
 }
