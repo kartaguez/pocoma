@@ -19,3 +19,22 @@ Tests nouveaux : six méthodes de calcul pur (dont seed 731, 3/20/100 Shareholde
 ## Résultats, commandes et limites
 
 À compléter après gates sur commit identifié. Les diagnostics ciblés ne remplacent aucun gate. Limites héritées : autorité Identity, admission/acquisition initiales et rattachement initial en fixtures C nommées ; aucune certification E2E Identity/Invitation/Consumption/READ/Bruno/k6. Les garanties historiques A/B/C ne sont pas transférées sans réexécution.
+
+## Clôture technique D — preuves exécutées
+
+**PASS technique interne D**, sur le code `69acce7842364d5ee3881d41b8a70257fd09b81d`. G-D : 1255 tests / 0 failure / 0 error / 1 skip, 79 méthodes obligatoires PASS. G-ARCH D : 1490 / 0 / 0 / 1, 87 méthodes obligatoires PASS. Maven BUILD SUCCESS pour les deux ; collecteur global INCONCLUSIVE uniquement pour `TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness` (`step3b.measure` absent). Aucun skip obligatoire. Les 15 méthodes nouvelles D sont toutes exécutées. Aucun résultat n'est déduit de la compilation.
+
+Commandes exactes depuis `app/` :
+
+```bash
+./mvnw -pl domain-pot -am test
+./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=PotFinancePostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+./mvnw -pl runtime-command-consumption-worker,runtime-task-consumption-worker -am test
+./mvnw -pl architecture-tests -am test
+```
+
+Les diagnostics PG ont utilisé `./app/mvnw -f app/pom.xml` depuis la racine, équivalent au projet ci-dessus. Défauts de banc corrigés avant gates : imports de valeurs V2/V3 ambigus, appel de helper mal qualifié, répertoire de sortie absent, et assertion de corruption qui devait vérifier la cause technique enveloppée par le propriétaire transactionnel C. Aucun défaut de production A/B/C, affaiblissement de test ou réouverture de checkpoint. Les diagnostics en échec sont conservés et ne sont pas requalifiés PASS. Support : `python3 -B -m unittest discover -s scripts/testing -p test_summarize_v3.py` (7 PASS) et `git diff --check`.
+
+[Résultats détaillés D](../testing/evidence/L1-DE/D-gates.json), [archives brutes D](../testing/evidence/L1-DE/D-gates-raw.tar.gz), [diagnostics](../testing/evidence/L1-DE/D-diagnostics.tar.gz), empreintes adjacentes. Les archives contiennent commandes, SHA, environnement, XML, méthodes, inputs before/after, classes/ressources/JARs et snapshots PG. Extraction dans `docs/testing/evidence/L1-DE/` : les répertoires nommés dans l'index sont autonomes. PostgreSQL 17.11, image postgres:17-alpine/digest consigné dans chaque environment.json ; JDK21/Maven3.9.14, macOS aarch64. Le lecteur financier utilise 9 requêtes pour une comme pour 21 Expenses ; aucun Details lu. Les migrations V3 V1+V2 sont explicites ; PRIMARY V1–V31/READ V1–V14 transitives sont visibles dans les logs, sans gate historique séparé.
+
+Aucun franchissement inattendu ; architecture globale requise et exécutée. Full reactor non exécuté pour D, dû à E. A-01 réexécutée ; A-02 D compare automatiquement les entrées avant/après, clôture L1 due à E ; I-01 finances complété, transverse futur ouvert. D satisfait ses critères internes et autorise la poursuite automatique vers E selon le mandat humain. Aucune acceptation indépendante ni certification globale DOM-03/PRJ-02/V3.
