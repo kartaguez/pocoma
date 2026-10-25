@@ -71,6 +71,14 @@ Commandes exactes :
 
 Les commandes consommateurs et architecture ont été exécutées pour A puis B. Support : `python3 -B -m unittest discover -s scripts/testing -p test_summarize_v3.py` : 7 tests PASS. `git diff --check` a été exécuté. Les diagnostics ciblés `-Dtest=PotTransitionsTest`, `-Dtest=V3FoundationArchitectureTest` ou `-Dtest=PotHistoryPostgresTest`, avec `-Dsurefire.failIfNoSpecifiedTests=false`, sont du feedback et ne remplacent aucun gate non filtré.
 
+Commandes de diagnostic effectivement utilisées (feedback seulement) :
+
+```bash
+./mvnw -pl architecture-tests -am test -Dtest=V3FoundationArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false
+./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=PotTransitionsTest -Dsurefire.failIfNoSpecifiedTests=false
+./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=PotHistoryPostgresTest -Dsurefire.failIfNoSpecifiedTests=false
+```
+
 Le skip unique est `TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness`, conditionné par `step3b.measure`, une mesure V2 optionnelle hors manifeste obligatoire L1. Il reste SKIP, jamais PASS. Les gates consommateurs/architecture sont BUILD SUCCESS mais leur couverture globale est INCONCLUSIVE. Le dernier G-ARCH exécute **38 méthodes obligatoires** : 14 domaine A, 19 PostgreSQL B, 5 ArchUnit, toutes présentes une fois et PASS. Les résultats de commandes répétées ne sont pas additionnés comme tests uniques.
 
 Le feedback B initial sur `f72a9f30` a exécuté 855 tests sans défaut mais est **remplacé** pour certification par le feedback corrigé : la revue a identifié l’insuffisance d’un garde xmin/32 bits ; le code final conserve l’époque xid8 complète. Les préflights/diagnostics ayant échoué (normalisation CRLF du wrapper Windows, bytecode Python généré, syntaxe/inférence de type et prédicat ArchUnit) ont été corrigés avant les gates retenus. Leurs traces restent consultables ; aucun ancien résultat n’est effacé ou requalifié.
@@ -107,3 +115,9 @@ Travail dans `/private/tmp/pocoma-v3-l1-ab`, détaché de la référence approuv
 Tête distante revérifiée avant publication : `8221692287420cd69feebd170df7c9ea6c279fdd`. Après push, la correspondance du commit publié avec `887c24f3f266304e46c281cc61ba170f35d4de9a` et la divergence distante sont contrôlées automatiquement et consignées. Le worktree de livraison peut conserver les extractions brutes de preuves ; aucune entrée exécutable non committée ne peut affecter les gates ou la publication.
 
 **Prochain événement : audit indépendant A/B. STOP. Aucun passage à C sur autoévaluation.** Tout défaut bloquant de l’audit devra être corrigé et revérifié avant audit accepté et nouvelle autorisation explicite C.
+
+## Constat de publication conservé
+
+Le commit code + rapport + archives `0942ecb3c1c07d6baf7bab3d136270e96bfda380` a été poussé sans force sur `feat/v3-architecture`. La lecture distante a retourné exactement ce SHA ; divergence **0 / 0**. Le [contrôle automatique de publication](../testing/evidence/L1-AB/Publication.json) compare toutes ses entrées à `887c24f3f266304e46c281cc61ba170f35d4de9a` et aux trois manifestes réellement exécutés : **PASS**, digest d’entrées `8c53f5805e2c3b398095afe60297ac665d413175c52534938b928d3fc90d94a4`. La [sortie du push](../testing/evidence/L1-AB/Push.log) est conservée.
+
+Le commit documentaire qui ajoute ce constat ne change aucune entrée exécutable ; le contrôle H→tête distante est répété après sa publication. Ce suivi ne clôt pas A-02 pour les lots L1 futurs. Le prochain événement reste l’audit indépendant A/B, sans démarrage C.
