@@ -29,6 +29,29 @@
         "eachForbiddenDependencyIsActuallyDetected",
         "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
       ]
+    },
+    "B": {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "methods": [
+        "b01FreshSchemaRestartAndExactCatalog",
+        "b02ReconstructsV1ThroughV9IndependentlyInRandomOrder",
+        "b03HalfOpenIntervalsAndOnlyChangedComponents",
+        "b04ShareholderDeletionD01MRetainsAllOldStates",
+        "b05RollbackAndNoopPreserveMetadataAndIntervals",
+        "b06SelectiveReadsDistinguishAbsentAndNotLoadedAndHistoricalRights",
+        "b07ReferenceSearchIsExhaustiveForPayerAndParticipantAndIgnoresDeletedExpenses",
+        "b08ExactArbitraryRationalsRoundTripAndOptionalOverride",
+        "b09RejectsGapsOverlapsMissingComponentsAndNoncanonicalRationals",
+        "b10DatabaseConstraintsRejectDuplicateOpenCrossPotAndMalformedRationals",
+        "b11SnapshotRemainsCoherentWhileAnotherConnectionCommits",
+        "b12GroupedReadCountDoesNotGrowPerExpense",
+        "b13CallerTransactionAndIsolationAreMandatory",
+        "b14SharesJpaPhysicalTransactionAndRollback",
+        "b15CorruptReferencesAndMissingParticipantsAreNeverNegativeFacts",
+        "b16LastCreationFailureRollsBackEveryComponentAndVersion",
+        "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation",
+        "b18CommittedVersionCannotReceiveAnotherProposalLater"
+      ]
     }
   },
   "gates": {
@@ -66,6 +89,46 @@
       ],
       "suites": [
         "A",
+        "ARCH"
+      ]
+    },
+    "b-persistence": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-primary-jpa",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B"
+      ]
+    },
+    "b-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B"
+      ]
+    },
+    "b-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "B",
         "ARCH"
       ]
     }

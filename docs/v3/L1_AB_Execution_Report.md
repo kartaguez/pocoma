@@ -41,3 +41,36 @@ The consumer skip is `TerminalSequencingPostgresTest.zExploratoryContentionSepar
 Raw A evidence: `docs/testing/evidence/L1-AB/A-raw.tar.gz` (all gate directories and exploratory logs, including XML and environment/input manifests). `mandatory-verdict.json` records exact required method outcomes separately from global coverage. Seven fresh collector assessment unit tests passed as supplementary feedback.
 
 **B start declaration:** A PASS at `23f18a01`; B now proceeds under the scope already declared above. JDBC in the existing persistence adapter module is selected for explicit grouped SQL/history control, with constructor injection and caller-owned transactions. No production dependency/POM change, no transaction coordinator or runtime activation. Exact text rationals and stable-identity foreign keys replace incompatible V2 storage.
+
+## B implementation before closure gates
+
+Production impact remains exactly the declared B boundary: three internal persistence port files in `engine-write-pot`, three JDBC implementation/helper files and one fresh migration in `infra-persistence-primary-jpa`. No POM, runtime/composition, READ/HTTP, Identity, generic Consumption or transaction-framework production changed. No unexpected slice crossing. Transaction-manager compatibility is tested through explicit test composition.
+
+See [persistence contract](L1_B_Persistence_Contract.md) for storage, query semantics, transaction preconditions and the C handoff. Review identified a possible delayed write into already committed version metadata; the writer now verifies that the candidate metadata was inserted in its current physical PostgreSQL transaction. A dedicated test exercises the previously unchanged component case, independently of local-version collision. Deferred constraints reject empty versions and incomplete initial components. These are storage-integrity protections; no C CAS/claim/request/event orchestration has been implemented.
+
+The 18 PostgreSQL methods are enumerated before the closure campaign in `L1_Proof_Manifest.json`. Mapping:
+
+| Method prefix | Proof/oracle |
+|---|---|
+| b01 | Exact fresh schema/catalog, functions/triggers, Flyway restart/validate, no V2 tables |
+| b02 | D01-A..L full literal snapshots, random version order seed 731 |
+| b03 | Semi-open bounds, only changed components, old rows retained |
+| b04 | D01-M Shareholder deletion, exact Header/Details/Weight intervals and old states |
+| b05 | D01-K primitive rollback/no-op, no metadata/local revision advance |
+| b06 | Selected current/historical facts; absence versus not loaded; user association at V |
+| b07 | Exhaustive payer-only / participant-only last reference among 35 prior Expenses; deleted Expenses and old V |
+| b08 | Arbitrary BigInteger amount/default/specific weight, 0.125, canonical zero, old V intact |
+| b09 | Gap, overlap, missing component, unreduced stored rational rejected |
+| b10 | Active uniqueness, syntax/nullity/sign, cross-Pot foreign keys |
+| b11 | Repeatable-read snapshot during another physical commit; no sleeps |
+| b12 | Constant grouped read count for 1/21 Expenses, one participant query |
+| b13 | Mandatory caller transaction and isolation; invalid V rejected |
+| b14 | JPA/JDBC physical transaction compatibility, independent observer, rollback |
+| b15 | Corrupt references/missing participants cannot become negative usage facts |
+| b16 | Last creation fails: first creation, metadata and all components roll back |
+| b17 | Deferred integrity: SQLSTATE 23514 for empty version/incomplete creation |
+| b18 | Already committed candidate cannot receive a later proposal on another component |
+
+The last focused diagnostic executed 18 PostgreSQL methods without failures/errors/skips. Diagnostics remain non-certifying and are retained in `B-diagnostics.tar.gz`. Final gates have not yet run on the committed code at this entry. New B Java code was formatted with temporary google-java-format 1.24.0; no project dependency was added.
+
+A-02 collector extended for B: removes generated Maven targets before a gate, checks committed inputs before/after, inventories resulting bytecode/resources, resolved dependency JAR digests, external configuration digests and nonsecret runtime options; archives PostgreSQL tables/catalog/query evidence alongside raw XML/logs. Global versus required-method verdicts remain separate. Complete L1 closure remains due before E finishes.
