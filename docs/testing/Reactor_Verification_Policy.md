@@ -119,6 +119,7 @@ The canonical slices are:
 * PROJECTION
 * BINDING
 * LKV
+* FOUNDATION (V3 L0 test infrastructure only; section 34)
 
 A change MAY involve more than one slice.
 
@@ -1162,3 +1163,32 @@ The correct proof is the one whose scope corresponds to the invariant being esta
 The full reactor remains authoritative for global integration.
 
 It is no longer the default answer to local uncertainty.
+
+⸻
+
+34. FOUNDATION — bounded V3 L0 test infrastructure
+
+Anchor: infra-tx-spring
+
+Canonical local command (from app/):
+
+./mvnw -pl infra-tx-spring -am test
+
+This slice verifies test-only PostgreSQL/Flyway fixtures, transaction behavior,
+generic historical intervals and minimal explicit Spring composition. It does
+not implement or certify Pot, Identity, Consumption or production migrations.
+Additional PostgreSQL/JPA/Flyway dependencies MUST remain in test scope.
+Its Flyway bootstrap is restricted to classpath:db/v3-foundation/migration;
+this is a fresh fixture, not a trusted baseline or bypass of V2 migrations.
+
+Production changes to a shared transaction component still require the affected
+consumer slices under section 14. FOUNDATION alone is insufficient for those changes.
+Changes to forbidden-dependency guards or module dependencies require the
+canonical global architecture gate under section 17. That unfiltered gate still
+runs existing upstream tests, including historical migrations; do not describe it
+as an isolated L0 database proof. The existing V2 trusted-baseline status is unchanged.
+Test-only L0 additions without production graph restructuring do not require FULL;
+the later integration/major-wave gates remain applicable.
+
+See docs/v3/L0_Verification_Plan.md and docs/v3/L0_Proof_Manifest.json for
+the bounded proof inventory, commands and collection contract.

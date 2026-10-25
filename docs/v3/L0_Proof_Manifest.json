@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "V3-6 L0 foundation only; no functional V3 certification",
+  "reference_commit": "4405b9c338ab8d5e9a3d27be33ccea06bd1daff2",
+  "gates": {
+    "architecture-focus": {
+      "command": ["./mvnw", "-pl", "architecture-tests", "-am", "test", "-Dtest=V3FoundationArchitectureTest", "-Dsurefire.failIfNoSpecifiedTests=false"],
+      "suites": ["L0-B"]
+    },
+    "foundation": {
+      "command": ["./mvnw", "-pl", "infra-tx-spring", "-am", "test"],
+      "suites": ["L0-C", "L0-D-TX", "L0-D-HISTORY", "L0-E"]
+    },
+    "architecture": {
+      "command": ["./mvnw", "-pl", "architecture-tests", "-am", "test"],
+      "suites": ["L0-B", "L0-C", "L0-D-TX", "L0-D-HISTORY", "L0-E"]
+    }
+  },
+  "proofs": {
+    "L0-B": {
+      "spec": ["SPEC-05", "SPEC-10"],
+      "class": "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest",
+      "methods": ["productionImportsAreNonemptyAndExcludeFixtures", "productionKeepsPureDomainsAndInwardApplicationPorts", "positiveFixturesSatisfyTheSameRules", "eachForbiddenDependencyIsActuallyDetected"]
+    },
+    "L0-C": {
+      "spec": ["SPEC-10"],
+      "class": "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest",
+      "methods": ["installsOnlyTheExplicitFoundationFixtureOnRealPostgres", "restartValidatesWithoutReexecutingAndKeepsIndependentHistories"]
+    },
+    "L0-D-TX": {
+      "spec": ["SPEC-05", "SPEC-10"],
+      "class": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "methods": ["jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit", "rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect", "caughtRequiredParticipantFailureStillRollsBackTheOwner", "deferredConstraintFailureAtCommitRestoresAllEffects", "observerFailureAfterCommitDoesNotMeanRollback", "contendingConnectionsWaitForPhysicalRollbackBeforeCommitting"]
+    },
+    "L0-D-HISTORY": {
+      "spec": ["SPEC-01 section 2 (generic fixture only)", "SPEC-10"],
+      "class": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "methods": ["resolvesSemiOpenBoundariesAndOpenEndInAnyOrder", "closesAndOpensAtomicallyAndRollbackPreservesHistory", "rejectsInvalidIntervalsAndDuplicateOpenVersions", "reportsGapsAndOverlapsInsteadOfFallingBackToCurrent"]
+    },
+    "L0-E": {
+      "spec": ["SPEC-05", "SPEC-10"],
+      "class": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest",
+      "methods": ["existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap", "ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority", "explicitRealmCompositionUsesIndependentPhysicalTransactions"]
+    }
+  }
+}
