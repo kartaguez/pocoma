@@ -142,7 +142,27 @@
     },
     {
       "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Publication-preflight.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Publication-state.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Publication.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Push.log"
+    },
+    {
+      "status": "A",
       "path": "docs/testing/evidence/L1-DE/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Remote-before-push.txt"
     },
     {
       "status": "A",
@@ -151,6 +171,10 @@
     {
       "status": "A",
       "path": "docs/testing/evidence/L1-DE/SPEC10-matrix.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/testing/evidence/L1-DE/Worktree-inputs-preflight.json"
     },
     {
       "status": "A",
