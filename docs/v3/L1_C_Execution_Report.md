@@ -16,7 +16,7 @@ Le GO humain du 2026-10-25 confirme les revues indépendantes A/B acceptables po
 | `2494a4e17a212281ed7d8602608b3d6b8ab11bcf` | Isolation de la fixture JPA C hors du scan B |
 | `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf` | Oracle de temps discriminant contre une lecture à l’instant de début de transaction |
 
-**SHA final d’entrées exécutables testé : `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf`.** Tous les gates retenus repartent de ce SHA avec targets frais. Les résultats précédents restent archivés, marqués remplacés. La publication et sa provenance seront renseignées après collecte.
+**SHA final d’entrées exécutables testé : `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf`.** Tous les gates retenus repartent de ce SHA avec targets frais. Les résultats précédents restent archivés, marqués remplacés. Le constat de publication et sa provenance figurent au §10 ci-dessous.
 
 Le checkout initial est sur `feat/runtime-monolith` à `90a3e9bc`, avec des modifications préexistantes ; le worktree qui porte la branche locale V3 est à `ddca2827`, avec ses documents indexés. Ils sont préservés. Notre travail est réalisé dans le worktree détaché neuf `/private/tmp/pocoma-v3-l1-c`, issu du SHA distant exact. Aucun reset, stash, déplacement de branche locale ou fichier préexistant intégré.
 
@@ -142,6 +142,12 @@ Restent à D : matrice complète droits/finances et calcul intégral rationnel ;
 
 ## 10. Publication et arrêt
 
-Les gates finaux sont collectés. La publication documentaire est autorisée uniquement en avance rapide sans force vers `feat/v3-architecture`, après relecture de sa tête `56d658f9fd5313db2744fa11ff36699f4376aacb`, sans déplacer la branche locale de l’autre worktree. Le contrôle automatique de publication compare ses entrées à celles du SHA testé ; les résultats et le SHA distant seront enregistrés dans le constat ci-dessous.
+Le commit de livraison code + rapport + archives **`0a6742944ac9eb5f1452d9a590b798e52ce732dc`** a été poussé sans force sur `feat/v3-architecture`, après relecture de la tête distante initiale exacte `56d658f9fd5313db2744fa11ff36699f4376aacb` et contrôle de son ascendance. La relecture distante a retourné exactement `0a6742944ac9eb5f1452d9a590b798e52ce732dc`. Divergence de cette livraison avec origin : **0 / 0**.
+
+Le [contrôle automatique de publication](../testing/evidence/L1-C/Publication.json) est **PASS** : seules les exclusions documentaires/probatoires autorisées diffèrent depuis `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf`, et le digest des 1 482 entrées reste `386b74e99de4013d018795371002f570b9197a1636a5338d49689a923c2e3c0a`. [Préflight local](../testing/evidence/L1-C/Publication-preflight.json), [sortie du push](../testing/evidence/L1-C/Push.log), [préservation des worktrees](../testing/evidence/L1-C/Worktree-preservation-verdict.json).
+
+Ce constat est enregistré par un commit documentaire de suivi. Le contrôle H→tête distante est répété après sa publication ; son SHA final et son verdict sont communiqués dans la livraison, sans prétendre inclure le propre hash d’un commit dans son contenu. Aucun gate n’est invalidé : aucune source, ressource, migration, test, POM, configuration ou script exécutable ne change. Le worktree de livraison conserve des répertoires bruts d’extraction non suivis sous le chemin de preuves exclu ; aucune entrée exécutable n’est sale. Les autres worktrees et leur index sont inchangés.
+
+Un premier préflight de lecture a refusé une référence documentaire mal recopiée ; aucun push n’avait été effectué. Le préflight et les contrôles retenus lisent le SHA directement depuis Git. Aucun résultat de gate n’a été requalifié pour cette erreur de référence.
 
 **STOP au checkpoint après publication C et collecte des preuves.** L’audit indépendant doit examiner le protocole réel, les faits jusqu’au commit, les reprises, les frontières physiques, PostgreSQL et la simplicité. L1-C ne sera pas déclaré définitivement accepté par autoévaluation ; aucun démarrage D/E.

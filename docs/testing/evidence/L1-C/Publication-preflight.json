@@ -1,0 +1,30 @@
+{
+  "tested": "2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf",
+  "published": "0a6742944ac9eb5f1452d9a590b798e52ce732dc",
+  "remote": null,
+  "changes": [
+    "docs/testing/evidence/L1-C/Architecture-populations.json",
+    "docs/testing/evidence/L1-C/Diagnostics.sha256",
+    "docs/testing/evidence/L1-C/Diagnostics.tar.gz",
+    "docs/testing/evidence/L1-C/Gate-assessment.json",
+    "docs/testing/evidence/L1-C/Gate-index.json",
+    "docs/testing/evidence/L1-C/Gates-raw.sha256",
+    "docs/testing/evidence/L1-C/Gates-raw.tar.gz",
+    "docs/testing/evidence/L1-C/Preserved-worktrees.json",
+    "docs/testing/evidence/L1-C/Superseded-raw.sha256",
+    "docs/testing/evidence/L1-C/Superseded-raw.tar.gz",
+    "docs/testing/evidence/L1-C/Worktree-preservation-verdict.json",
+    "docs/testing/evidence/L1-C/changed-files.json",
+    "docs/v3/L1_C_Execution_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md"
+  ],
+  "exclusions": [
+    "docs/testing/evidence/L1-AB/",
+    "docs/v3/L1_AB_Execution_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/testing/evidence/L1-C/",
+    "docs/v3/L1_C_Execution_Report.md"
+  ],
+  "verdict": "PASS",
+  "input_digest": "386b74e99de4013d018795371002f570b9197a1636a5338d49689a923c2e3c0a"
+}

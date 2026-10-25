@@ -54,7 +54,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
 | V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
-| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **En cours** : L0 réalisé et revue indépendante acceptable ; L1-A/B acceptables pour poursuivre selon confirmation humaine ; C implémenté, méthodes internes obligatoires PASS, en publication au checkpoint ; D/E non démarrés (suivi §§10–11) |
+| V3-6 | Réaliser domaine, requêtes, événements, Consumptions, READ, Supras, instrumentation et tests | **En cours** : L0 réalisé et revue indépendante acceptable ; L1-A/B acceptables pour poursuivre selon confirmation humaine ; C implémenté, méthodes internes obligatoires PASS, publié au checkpoint d’audit indépendant ; D/E non démarrés (suivi §§10–11) |
 | V3-7 | Exécuter les preuves PostgreSQL, Bruno et k6 ; mesurer les budgets ; certifier ou refuser l'activation | Non commencé |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
@@ -145,3 +145,5 @@ Le responsable confirme le GO après revue indépendante A/B et autorise C exclu
 Orchestration dans engine-write-pot, transitions A inchangées, faits B sélectifs, autorité EUI distincte et Pot protégés jusqu’au commit, CAS, terminalisation/résultat/événements/slot atomiques, reprise sous nouveau claim et observation initiale, quarantaines et récupération après vrais commits réseau incertains. Raccord applicatif et composition explicite seulement ; autorité Identity et acquisition initiale restent des fixtures PostgreSQL nommées, sans certification de bout en bout. Aucune SPEC ni arbitrage C-01/C-02/N-01 modifié.
 
 COMMAND primaire, EVENT/PROJECTION secondaires, gate architecture global requis. Full reactor non requis pour C, réservé au jalon E selon le plan. Aucune réalisation D/E, READ, HTTP, cycle Identity ou Discovery générique. L1-C ne sera définitivement accepté que par audit indépendant.
+
+Publication code/rapport/archives : `0a6742944ac9eb5f1452d9a590b798e52ce732dc`, avance rapide sans force ; tête distante vérifiée et correspondance avec le code testé `2825f7b4c90e6b0c4b064e1166de6dd9a93f2bcf` PASS, divergence 0/0. Le suivi documentaire du constat et son contrôle final sont distingués des entrées exécutables dans le [rapport C](L1_C_Execution_Report.md). **STOP C ; audit indépendant avant toute autorisation D/E.**
