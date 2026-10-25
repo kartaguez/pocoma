@@ -1,0 +1,73 @@
+{
+  "scope": "L1-A/B internal bounded proof; independent audit pending",
+  "suites": {
+    "A": {
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "methods": [
+        "l1a01ImmutableEnvelopesAndCollections",
+        "l1a02CreationVersionsAndStableIdentities",
+        "l1a03ChangedContainsExactlyEffectiveRevisions",
+        "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+        "l1a05AtomicWeightBatchesAndPermutations",
+        "l1a06PotDetailsRightsLifecycleAndObservation",
+        "l1a07DetailsAndWeightsAreIndependent",
+        "l1a08FinancialsReferenceAndEqualityVariants",
+        "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+        "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+        "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+        "l1a12MixedFactsAreTechnicalAnomalies",
+        "l1a13DeterministicReevaluationPreservesInitialObservation",
+        "l1a14HistoricalCompositionsAndOrdinaryAttachment"
+      ]
+    },
+    "ARCH": {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest",
+      "methods": [
+        "productionImportsAreNonemptyAndExcludeFixtures",
+        "productionKeepsPureDomainsAndInwardApplicationPorts",
+        "positiveFixturesSatisfyTheSameRules",
+        "eachForbiddenDependencyIsActuallyDetected",
+        "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+      ]
+    }
+  },
+  "gates": {
+    "a-domain": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "domain-pot",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A"
+      ]
+    },
+    "a-consumers": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker,runtime-task-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A"
+      ]
+    },
+    "a-arch": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "suites": [
+        "A",
+        "ARCH"
+      ]
+    }
+  }
+}

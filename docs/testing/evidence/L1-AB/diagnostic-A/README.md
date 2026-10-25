@@ -1,0 +1,1 @@
+Exploratory runs on dirty sources, not certification. First domain diagnostic accidentally did not include the new test source; superseded by second (14 new methods). Architecture diagnostic failed on a package predicate and one additional pure legacy contract; corrected before committed gates. Required closure uses fresh committed-input gates.
