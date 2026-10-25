@@ -9,6 +9,8 @@ from pathlib import Path
 import shutil
 import subprocess
 import time
+import sys
+sys.dont_write_bytecode = True
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
