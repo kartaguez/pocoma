@@ -2,7 +2,7 @@
 
 > **Lecture des statuts (clôture L1, 2026-10-25) :** les mentions de non-implémentation/non-exécution ci-dessous décrivent l’état du cadrage conceptuel lors de sa rédaction, pas un relevé actuel des tests. Les contrats et oracles restent normatifs ; contributions internes L1 et limites dans le [dossier de clôture](L1_Documentary_Closure.md), programme et statuts dans le [plan directeur](V3_Implementation_Master_Plan.md). Aucun PASS global de cette SPEC n’est acquis par cette note.
 
-**Statut : EN CONCEPTION — consolidation des arbitrages conversationnels, revue critique ouverte ; non implémenté et non certifié.**
+**Statut : conception L2 arbitrée (douze décisions humaines), dossier documentaire préparé ; revue critique et compléments ouverts. Moteur commun L2 non implémenté et non certifié.**
 **Référence :** [Canon et feuille de route](V3_Canon_and_Roadmap.md), [V3-2](SPEC-03_Events_Requests_Consumables.md), [V3-3](SPEC-04_Read_Projections.md).
 **Règle d'or :** chaque mécanisme supplémentaire exige un invariant concret.
 
@@ -103,3 +103,10 @@ Garanties L1 à préserver et à réexécuter sur le pilote réel : une acquisit
 Le protocole commun doit couvrir Command et un pilote READ non-burnable avec slots/checkpoints dans leurs bases d'effets respectives. Discovery, ownership, fencing d'acquisition et renouvellement complètent ces acquis ; aucune transaction distribuée ni dépendance entre slots n'est permise. Les oracles CON-01…06, EVT-01…03 et le contrat transactionnel L1-C sont les prérequis du plan L2, pas des preuves déjà acquises du moteur générique.
 
 **Prérequis complémentaire L1-F2 :** avant l’implémentation L2, valider le lot correctif WRITE et son audit. Le pilote Command devra préserver les accès directs aux versions/révisions concernées, les préconditions locales et la fermeture exacte atomique, sans réintroduire une lecture de chaîne historique par tentative. L’auditeur exhaustif reste une opération de maintenance explicite. [Matrice WRITE](L1_F2_Invariant_Matrix.md) ; statuts et conditions d’entrée dans le plan directeur.
+
+
+## 12. Dossier de conception L2 — checkpoint documentaire du 2026-10-26
+
+Les douze arbitrages humains sont transcrits une fois dans le [registre L2](L2_Decision_Register.md), options B/B/A/B/A/A/B/B/B/A/A/B. Le [plan de conception et de vérification](L2_Design_and_Verification_Plan.md) porte l'inventaire, les frontières physiques, protocoles futurs, campagnes et preuves ; il ne remplace pas les invariants de cette SPEC. Remplacement direct du slot dédié dans une installation V3 de développement propre (A01), cycle technique porté par Engine (A02/A09), trois tables techniques spécialisées (A03), UUID explicites (A04), curseur burnable volatil (A07), délai fixe configurable (A10) et pilotes Command réel/READ technique (A12) sont des choix de conception, pas des capacités déjà livrées.
+
+La [revue contradictoire](L2_Contradictory_Review.md) conserve les compléments ouverts, notamment suppression Engine après transformation face au suffixe fermé L1, capacité sous concurrence/réactivation, contrat exact de routage et tour complet burnable. Aucune résolution implicite dans le code ou le SQL ; L1-C demeure la description du handoff L1. L2 reste DESIGN PENDING dans le plan directeur ; audit/validation du dossier et autorisation de code distincte requis. Aucun scénario PostgreSQL L2 exécuté.

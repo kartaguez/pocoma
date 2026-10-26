@@ -1,7 +1,7 @@
 # Pocoma V3 — Canon et feuille de route
 
 **Statut de clôture : L1 ACCEPTED — internal V3 foundation (2026-10-25), après livraison L1-A à L1-E et audit indépendant confirmé par le mandat du responsable. Acceptation limitée au périmètre interne vérifié ; aucun certificat V3 complet ni activation.**
-**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE avant L2 : [dossier](L1_F2_Closure_Report.md). **Prochaine étape : validation/audit L1-F2, puis cadrage L2 ; L2 non commencé.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
+**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE avant L2 : [dossier](L1_F2_Closure_Report.md). **Prochaine étape : revue du dossier L2 préparé et validation/audit L1-F2 ; implémentation L2 non commencée et non autorisée.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** autorité des décisions transversales ; progression opérationnelle dans le plan directeur, preuves dans les rapports et manifestes.
@@ -195,3 +195,10 @@ Clôture L1-F : deux gates frais sur `c94e7a4bec479ccbf22b058fd341ae0350c2ca67`,
 ## 17. L1-F2 — complément correctif des écritures
 
 Mandat autonome depuis `b3df3f3e619eeed6fc551177c778b412daa4fa4b`. L1-F reste historiquement CLOSED/PASS sur son périmètre, qui conservait explicitement les parcours WRITE exhaustifs. L1-F2 remplace ces parcours par les préconditions locales indexées de la [matrice](L1_F2_Invariant_Matrix.md), sans modifier domaine, ports ni protocole physique. Vérification déclarée COMMAND ; architecture/full non requis tant que frontières inchangées. [Inventaire préalable](L1_F2_Contradictory_Inventory.md), [manifestes et résultats](L1_F2_Closure_Report.md). L2 exige validation/audit de ce complément et doit préserver ces garanties, ainsi que claim/Identity/Pot, ownership, poisoning et publication atomique. Aucun L2 commencé ni certificat V3 global.
+
+
+## 18. L2 — préparation documentaire et revue contradictoire, 2026-10-26
+
+Les douze choix de conception validés humainement sont transcrits dans le [registre L2](L2_Decision_Register.md) ; le [plan L2](L2_Design_and_Verification_Plan.md) applique SPEC-03/05/10 et les garanties L1-C/F/F2. La [première revue contradictoire](L2_Contradictory_Review.md) expose dix constats et les compléments à trancher avant code ; elle prépare l'audit indépendant, sans s'y substituer. Les détails des décisions ne sont pas dupliqués dans ce canon.
+
+L2 reste **DESIGN PENDING**, sans implémentation, test PostgreSQL, ACCEPTED ou certification nouvelle. La préparation ne lance aucun lot ultérieur. Le [plan directeur](V3_Implementation_Master_Plan.md) reste l'unique registre de progression ; validation du dossier puis autorisation humaine d'implémentation distincte nécessaires.

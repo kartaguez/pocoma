@@ -91,7 +91,7 @@ Chaque `POT_EVENT(P,V)` est consommé indépendamment par trois Consumptions dir
 
 ## 8. Garanties et qualification restantes
 
-Les sept familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont stables pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4.
+Les sept familles sont **logiques** et n'imposent aucune topologie de tables ou de Workers. Les identifiants de Consumption sont des **UUID explicites et stables** pour une définition donnée et changent pour un rejeu réellement indépendant ; les règles de reconstruction restent définies en V3-4. Le consommable conserve son UUID natif (requestId ou eventId). Choix humain L2-A04, [registre de conception](L2_Decision_Register.md#l2-a04--identités-et-familles--b) ; [catalogue et périmètre de preuve L2](L2_Design_and_Verification_Plan.md#2-objectifs-exclusions-et-catalogue-exact), sans nouveau producteur réputé livré.
 
 La publication dense, l'atomicité des transactions physiques et leur absence de pertes sont à prouver dans les exigences EVT-01/02, CON-04/06 et REC-01 de [V3-5D](SPEC-10_Test_Certification.md). Les trois Consumptions directes et l'absence de familles techniques sont à certifier dans EVT-03 et PRJ-01/02/03 ; la propriété EUI des résultats dans les scénarios A10-A à A10-K. Aucun code, DDL ou test V3 n'est revendiqué par cette consolidation.
 

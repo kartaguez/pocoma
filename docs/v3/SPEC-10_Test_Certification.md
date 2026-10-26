@@ -11,6 +11,10 @@ Chaque preuve dispose d'un ID stable, d'une précondition, d'un oracle observabl
 
 **Alignement AUD-V3-013 :** les protocoles de performance portent sur trois Consumptions READ directes de `POT_EVENT`, **sans** `PreparePotProjectionTasks`, `PotBalanceTask` ou `PotVisibilityTask`. Les mentions résiduelles de « deux tâches », de progression de tâches ou d'acquisition de celles-ci sont historiques et ne créent aucun oracle actif. Mesurer séparément chaque slot/Consumption direct, leur backlog, leurs effets et la complétude des versions. Les budgets C-03 de SPEC-09 (§§4–5) priment : première lecture autorisée complète de W≥V pour Pot actif, observation interne terminale `CurrentPot→PotVersion(P,D)` pour DeletePot, sans `PotBalance(P,D)` ni barrière Visibility dans la lecture directe.
 
+### Contribution L2 et limites de certification — 2026-10-26
+
+Le [plan L2, matrice de couverture](L2_Design_and_Verification_Plan.md#12-matrice-de-couverture-normative-et-campagnes) alloue les variantes CON-01…06 et EVT-01…03 au Command Pot réel et au banc READ technique, selon [L2-A12](L2_Decision_Register.md#l2-a12--pilotes-et-certification-bornée--b). Les critères PASS globaux ci-dessous restent inchangés. Les producteurs Identity/Invitation et projections métier absents empêchent leurs variantes de devenir PASS ; les analogues de fixture prouvent uniquement le mécanisme technique. Exigence incomplète = INCONCLUSIVE global, même si une contribution bornée réussit. [Revue R6](L2_Contradictory_Review.md#r6--certification-l2-réalisable-et-absence-de-faux-pass). Aucun test PostgreSQL L2 exécuté par cette consolidation.
+
 ## 2. Matrice unique des exigences
 
 Le tableau relie les exigences actives au protocole détaillé portant le même identifiant ci-dessous. Les scénarios historiques sont conservés lorsqu'applicables et amendés par les décisions normatives. PRJ-04 est **retiré et non réutilisable** ; ses garanties sont migrées dans EVT-03, CON-02/04/06 et PRJ-02/03.
@@ -574,7 +578,7 @@ Tester séparément les retards de disponibilité introduits par `retryAfter` et
 
 **PASS CON-05** : C05-A à C05-M satisfaits ; rollback avant toute reprise, une seule exécution par acquisition, libération conditionnelle non destructive, respect de retryAfter, rechargement complet et distinction démontrée entre conflit technique et rejet métier. Recoupements CON-03/04, DOM-02 et observabilité V3-5B. Aucun test V3 n'est encore exécuté.
 
-**Décision révisée :** budget N de tentatives techniques, `retryAfter` tant que budget disponible, puis `QUARANTINED` ; exclusion du softCap et de l'acquisition automatique. Le slot reste durablement traçable et non terminal tant que le protocole de purge/résolution n'est pas prouvé.
+**Décision révisée :** budget N de tentatives techniques, `retryAfter` tant que budget disponible, puis `QUARANTINED` ; exclusion du softCap et de l'acquisition automatique. Le slot reste durablement traçable et non terminal jusqu'à sa finalisation réussie ; aucune purge de slot incomplet n'est autorisée. Le reset READ total coordonné de REC-01 est une opération distincte. Correction documentaire du constat R8 de la revue L2 fondée sur SPEC-05 §7 et l'arbitrage humain L2-A10, sans nouvelle permission d'administration.
 
 **Tests à préparer :** N-1 échecs puis succès ; N échecs vers quarantaine ; softCap occupé par quarantaines, autre Pot indépendant progresse ; même Pot avec dépendance non satisfaite ne produit pas d'effet incorrect ; burnable PENDING ne se réenrôle pas après quarantaine ; non-burnable checkpoint ne fait pas passer slot absent pour complété ; reprise administrative puis succès ; crash/expiration ne doivent pas consommer arbitrairement des tentatives sans contrat explicite. Aucun test réalisé.
 
