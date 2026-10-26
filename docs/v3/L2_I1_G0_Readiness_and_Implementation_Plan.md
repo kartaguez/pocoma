@@ -4,6 +4,12 @@
 
 **Autorités :** [SPEC-03](SPEC-03_Events_Requests_Consumables.md), [SPEC-05](SPEC-05_Consumption_Discovery.md), [SPEC-10](SPEC-10_Test_Certification.md), [plan L2](L2_Design_and_Verification_Plan.md), [A01–A12](L2_Decision_Register.md), [R1–R10](L2_R1_R10_Normative_Consolidation.md), [manifeste](L2_Certification_Coverage_Manifest.md), [oracles](L2_Independent_Test_Oracles.md), [contrat L1-C](L1_C_Transaction_Contract.md), [matrice F2](L1_F2_Invariant_Matrix.md), `AGENTS.md` et [politique du réacteur](../testing/Reactor_Verification_Policy.md). Les signatures du plan L2 sont conceptuelles, pas des classes Java imposées. Les décisions A/R restent closes. Les mentions anciennes « G0 non validé » sont des instantanés historiques ; le [plan directeur](V3_Implementation_Master_Plan.md) porte le statut courant.
 
+## Décision courante — G0 franchi le 26 octobre 2026
+
+Le responsable autorise explicitement G0 → I1 après examen du plan amendé et de sa revue. Il lève la réserve procédurale relative à la recevabilité de la validation indépendante L1-F2 et accepte les preuves existantes avec leurs limites documentées (portée WRITE bornée, skip exploratoire V2, absence de garantie générale O(1)). L’audit historique a été réalisé puis contesté ; cette dérogation ne réécrit aucun rapport historique, ne certifie pas globalement L1-F2 et ne vaut ni PASS I1 ni qualification G1/G2/G3. Aucun nouvel audit L1-F2 n’est demandé. Les verdicts de préparation ci-dessous sont des instantanés antérieurs à cette décision.
+
+Exécution I1 ouverte depuis le HEAD distant vérifié `2b4d46cf08509c95fc490afa1d66ae38f41957b6`, worktree isolé `/private/tmp/pocoma-v3-l2-i1-execution`. Périmètre déclaré avant code : COMMAND primaire ; READ et monolithe en preuves complémentaires ; aucun comportement EVENT/PROJECTION/WEB/BINDING/LKV modifié. Gate architecture requis (isolation/composition), full reactor non requis. Commandes de clôture : les quatre commandes du §8. DB CURRENT V3 neuf ; historiques L1 inchangés. I2–I5 exclus.
+
 ## 1. Quatre réserves de la revue et résolution
 
 | Réserve | Résolution dans ce plan | Preuve exigible |
