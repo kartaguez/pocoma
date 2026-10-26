@@ -201,4 +201,6 @@ Mandat autonome depuis `b3df3f3e619eeed6fc551177c778b412daa4fa4b`. L1-F reste hi
 
 Les douze choix de conception validés humainement sont transcrits dans le [registre L2](L2_Decision_Register.md) ; le [plan L2](L2_Design_and_Verification_Plan.md) applique SPEC-03/05/10 et les garanties L1-C/F/F2. La [première revue contradictoire](L2_Contradictory_Review.md) expose dix constats et les compléments à trancher avant code ; elle prépare l'audit indépendant, sans s'y substituer. Les détails des décisions ne sont pas dupliqués dans ce canon.
 
+Le [contre-audit indépendant L2](L2_Independent_Counter_Audit_and_G0_Assessment.md) reconstitue A01–A12 et R1–R10 au SHA `39aecafd`, retire du dossier courant le rapport Gemini publié à `055e34eb` en raison de ses erreurs de référentiel et distingue soumission à G0 de son approbation. Ce contre-audit ne remplace ni les décisions normatives ni la validation humaine.
+
 L2 reste **DESIGN PENDING**, sans implémentation, test PostgreSQL, ACCEPTED ou certification nouvelle. La préparation ne lance aucun lot ultérieur. Le [plan directeur](V3_Implementation_Master_Plan.md) reste l'unique registre de progression ; validation du dossier puis autorisation humaine d'implémentation distincte nécessaires.

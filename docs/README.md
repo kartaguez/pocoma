@@ -4,7 +4,7 @@
 
 - [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne, L2–L8 DESIGN PENDING. Dossier L2 préparé pour revue ; aucune implémentation L2 commencée.
 - [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.
-- Dossier L2 : [plan de conception et vérification](v3/L2_Design_and_Verification_Plan.md), [douze décisions validées](v3/L2_Decision_Register.md), [première revue contradictoire](v3/L2_Contradictory_Review.md). DESIGN PENDING, checkpoint humain avant code ; aucun résultat PostgreSQL L2.
+- Dossier L2 : [plan de conception et vérification](v3/L2_Design_and_Verification_Plan.md), [douze décisions validées](v3/L2_Decision_Register.md), [consolidation R1–R10](v3/L2_R1_R10_Normative_Consolidation.md), [contre-audit indépendant et état de G0](v3/L2_Independent_Counter_Audit_and_G0_Assessment.md). Le rapport Gemini erroné est conservé uniquement dans l'historique Git. DESIGN PENDING, checkpoint humain avant code ; aucun résultat PostgreSQL L2.
 - [Clôture L1](v3/L1_Documentary_Closure.md), [plan L1](v3/L1_Design_and_Verification_Plan.md), [rapport final](v3/L1_E_Execution_Report.md) et [manifeste historique](v3/L1_Proof_Manifest.json) : preuves et limites, sans certificat V3 complet.
 
 ## Architecture historique encore livrée
