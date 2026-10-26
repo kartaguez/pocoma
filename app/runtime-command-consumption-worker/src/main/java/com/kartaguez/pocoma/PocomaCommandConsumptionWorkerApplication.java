@@ -1,14 +1,25 @@
 package com.kartaguez.pocoma;
 
+import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
-import com.kartaguez.pocoma.runtime.command.consumption.CommandConsumptionRuntimeConfiguration;
 
-@SpringBootApplication
-@Import(CommandConsumptionRuntimeConfiguration.class)
+@SpringBootApplication(scanBasePackages = "com.kartaguez.pocoma.runtime.bootstrap")
+@Import({
+    PocomaCommandConsumptionWorkerApplication.Legacy.class,
+    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class
+})
 public class PocomaCommandConsumptionWorkerApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(PocomaCommandConsumptionWorkerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PocomaCommandConsumptionWorkerApplication.class, args);
+    }
+
+    /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
+    @org.springframework.context.annotation.Profile("!v3-consumption-pilot")
+    @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
+    @org.springframework.context.annotation.ComponentScan("com.kartaguez.pocoma")
+    @Import(CommandConsumptionRuntimeConfiguration.class)
+    public static class Legacy {}
 }

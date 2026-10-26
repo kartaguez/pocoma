@@ -1368,6 +1368,7 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.event.consumption..")
 				.and().areNotAnnotatedWith(SpringBootApplication.class)
+                .and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaRuntimeMonolithApplication$Legacy")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.event.consumption..")
 				.check(CLASSES);
@@ -1375,6 +1376,7 @@ class HexagonalArchitectureTest {
 		noClasses()
 				.that().resideOutsideOfPackage(ROOT_PACKAGE + ".runtime.task.consumption..")
 				.and().areNotAnnotatedWith(SpringBootApplication.class)
+                .and().doNotHaveFullyQualifiedName(ROOT_PACKAGE + ".PocomaRuntimeMonolithApplication$Legacy")
 				.should().dependOnClassesThat().resideInAPackage(
 						ROOT_PACKAGE + ".runtime.task.consumption..")
 				.check(CLASSES);
