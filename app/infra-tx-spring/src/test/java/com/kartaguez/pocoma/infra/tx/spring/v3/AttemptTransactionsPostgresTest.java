@@ -193,6 +193,12 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                         AttemptTransactions.Resolution.ROLLED_BACK,
                         failure.resolution(),
                         kind + " " + jpaFirst);
+                if (kind.equals("jdbc")) {
+                    Throwable original = failure.getCause();
+                    while (original.getCause() != null) original = original.getCause();
+                    assertInstanceOf(SQLException.class, original);
+                    assertEquals("22012", ((SQLException) original).getSQLState());
+                }
                 assertEquals(0, write.observedEffects());
             }
     }

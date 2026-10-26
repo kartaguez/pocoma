@@ -31,6 +31,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         final TransactionSynchronization synchronization;
         boolean active = true;
         boolean publicationClosed;
+        Throwable poisonCause;
 
         Unit(
                 TransactionStatus status,
@@ -65,7 +66,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                                     || TransactionSynchronizationManager.getResource(emf)
                                             != entityManager)))
                 throw new IllegalTransactionStateException(
-                        "Attempt unit changed, expired or poisoned");
+                        "Attempt unit changed, expired or poisoned", poisonCause);
         }
 
         void open() {
@@ -178,6 +179,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         int[] completion = {TransactionSynchronization.STATUS_UNKNOWN};
         boolean[] handedToCommit = {false};
         Throwable[] callbackFailure = {null};
+        Unit[] capturedUnit = {null};
         try {
             T result =
                     template.execute(
@@ -190,6 +192,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                                             }
                                         };
                                 var unit = new Unit(status, source, emf, reading, synchronization);
+                                capturedUnit[0] = unit;
                                 TransactionSynchronizationManager.bindResource(
                                         new Key(source), unit);
                                 TransactionSynchronizationManager.registerSynchronization(
@@ -216,7 +219,12 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                         Resolution.UNKNOWN, new IllegalStateException("Commit unconfirmed"));
             return result;
         } catch (RuntimeException failure) {
-            Throwable original = callbackFailure[0] != null ? callbackFailure[0] : failure;
+            Throwable original =
+                    callbackFailure[0] != null
+                            ? callbackFailure[0]
+                            : capturedUnit[0] != null && capturedUnit[0].poisonCause != null
+                                    ? capturedUnit[0].poisonCause
+                                    : failure;
             if (original != failure) original.addSuppressed(failure);
             var resolution =
                     completion[0] == TransactionSynchronization.STATUS_COMMITTED
@@ -302,6 +310,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                 .map(Unit.class::cast)
                 .forEach(
                         unit -> {
+                            if (unit.poisonCause == null) unit.poisonCause = cause;
                             unit.status.setRollbackOnly();
                             // Like JpaTransactionManager.doSetRollbackOnly: after the owner
                             // callback,
