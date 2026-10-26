@@ -422,3 +422,8 @@ Les 60 modules ci-dessous sont extraits statiquement de `app/pom.xml` à la réf
 | `runtime-task-consumption-worker` | ADAPT — chemin commun/pilote/banc ou garde, selon inventaire §4 |
 | `runtime-command-consumption-worker` | ADAPT — chemin commun/pilote/banc ou garde, selon inventaire §4 |
 | `architecture-tests` | ADAPT — chemin commun/pilote/banc ou garde, selon inventaire §4 |
+
+
+## Décisions R1–R10 ratifiées — supersession des propositions ouvertes (2026-10-26)
+
+Le [contrat normatif consolidé](L2_R1_R10_Normative_Consolidation.md) fait foi pour les dix points R1–R10. Les passages précédents présentant R1, R3, R4, R5, R9 ou R10 comme « ouverts » sont **historiques et supersédés**, notamment la suppression du slot *après* fermeture de la publication : la décision R1 exige un unique `SlotCompletion.complete()` **avant** suffixe. R3 étend les trois tables prévues à **quatre** par autorité concernée, avec `consumption_routing_contract` initialisé administrativement. Les tests Rn-Txx sont planifiés et non exécutés ; la matrice de variantes SPEC-10 doit être figée et auditée avant code. Les risques SQL/coverage signalés §12 du contrat consolidé restent des conditions G0 et de campagne, pas des preuves acquises.
