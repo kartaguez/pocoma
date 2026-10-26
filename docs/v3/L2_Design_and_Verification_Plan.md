@@ -274,6 +274,8 @@ Dans une autorité READ distincte, persister un effet technique déterministe, p
 
 ### Observations indépendantes
 
+Les familles de preuves et leurs critères PASS/FAIL/INCONCLUSIVE sont détaillés dans le [catalogue des oracles L2](L2_Independent_Test_Oracles.md) et raccordés ligne par ligne au [manifeste](L2_Certification_Coverage_Manifest.md). La revue contradictoire documentaire du catalogue donne des exemples calculés indépendamment ; elle ne remplace ni les essais futurs ni la revue indépendante de G0.
+
 Les assertions ne rappellent pas le sélecteur/mapper/fonction de routage de production pour calculer l'attendu. Une connexion PostgreSQL extérieure, ouverte après résolution, lit directement tables sources, positions/compteurs, K, ownership, slots et effets. Pour chaque scénario, archiver snapshot avant/après, ensemble attendu des UUID/positions/partitions/effets, chronologie de barrières et issue physique. Une jointure d'observation cross-base n'est pas une transaction d'effets ; capturer séparément les deux états stables.
 
 Oracles : (a) sources conservées et ensembles éligibles littéraux ; (b) positions durables exactement 1..M par famille testée, pas d'ordre inféré de recordedAt ; (c) K monotone et chaque p éligible≤K couvert par slot ou effet réellement committé ; (d) compte de résultats/complétions et candidate exactes ; (e) intégralité rollback ; (f) identité réelle connexion/xid/EntityManager, poisoning testé même exception interceptée ; (g) concurrence attendue observée avec barrières et `pg_blocking_pids`, pas par sleeps ; (h) catalogue de contraintes/indexs et requêtes/ResultSet/buffers réellement observés ; (i) aucune nouvelle lecture de chaîne dans WRITE courant, auditeur historique explicite séparé.

@@ -79,6 +79,67 @@ for norm, suffixes in required_subcases.items():
     found = {r[1].split("L2M-" + norm + "-", 1)[1] for r in records if r[0] == norm and r[1].startswith("L2M-" + norm + "-")}
     for suffix in sorted(suffixes - found):
         errors.append("missing subscenario " + norm + "/" + suffix)
+# Mechanical checks only. Semantic fit is recorded by human contradictory review.
+catalog_path = ROOT / "L2_Independent_Test_Oracles.md"
+catalog = catalog_path.read_text() if catalog_path.exists() else ""
+if not catalog:
+    errors.append("missing oracle catalog")
+sections = re.findall(r"^### (OR-[A-Z0-9]+-[A-Z0-9]+)\s*$([\s\S]*?)(?=^### OR-|^## |\Z)", catalog, re.M)
+catalog_ids = [ident for ident, _ in sections]
+for ident in sorted({x for x in catalog_ids if catalog_ids.count(x) > 1}):
+    errors.append("duplicate catalog oracle " + ident)
+required_fields = ("Invariant", "Préparation", "Stimulus", "Source indépendante",
+                   "Observations", "Assertions", "FAIL", "INCONCLUSIVE", "Provenance")
+for ident, body in sections:
+    for field in required_fields:
+        if not re.search(r"\*\*" + re.escape(field) + r"\s*:\*\*\s*\S", body, re.M):
+            errors.append("missing oracle field " + ident + "/" + field)
+oracle_refs = []
+for r in records:
+    refs = re.findall(r"OR-[A-Z0-9]+-[A-Z0-9]+", r[4])
+    if not refs:
+        errors.append("proof row without oracle " + r[1])
+    if len(refs) != len(set(refs)):
+        errors.append("duplicate oracle reference in " + r[1])
+    if not r[4].endswith("paramètres et injection : colonne Stimulus") or "cas " + r[1].removeprefix("L2M-") + " ;" not in r[4]:
+        errors.append("scenario binding absent " + r[1])
+    if r[1].endswith("-REPORT") and "rejouer " not in r[4]:
+        errors.append("reported scenario replay source absent " + r[1])
+    for ref in refs:
+        if ref not in catalog_ids:
+            errors.append("undefined oracle " + r[1] + "/" + ref)
+    oracle_refs.extend(refs)
+for ref in sorted(set(catalog_ids) - set(oracle_refs)):
+    errors.append("orphan catalog oracle " + ref)
+if len(expected) != 253 or len(records) != 380:
+    errors.append("POSTAUD-002 baseline 253 identifiers/380 rows changed")
+subscenario_count = sum(r[0] in required_subcases and r[1] != "L2M-" + r[0]
+                        and not r[1].endswith("-REPORT") for r in records)
+if subscenario_count != 87:
+    errors.append("POSTAUD-002 baseline 87 subscenario rows changed")
+if sum(r[7] == "obligatoire L2" for r in records) != 324 or sum(r[7] == "reporté" for r in records) != 56:
+    errors.append("POSTAUD-002 allocation baseline changed")
+critical_refs = {
+    "L2M-R1-05-MISSING": {"OR-AT-POISON"},
+    "L2M-R2-04": {"OR-NB-CAP", "OR-NB-SET"},
+    "L2M-R3-01": {"OR-AR-ROUTE"},
+    "L2M-R4-10-SKIPPED": {"OR-B-KEYSET"},
+    "L2M-R9-03-NOTCOMPLETED": {"OR-RC-FOUR"},
+    "L2M-R10-08-S1S2": {"OR-EQ-RENEW", "OR-CL-RENEW"},
+    "L2M-R10-10-MW1": {"OR-EQ-CAP"},
+    "L2M-CON-05-NMINUS1": {"OR-RT-SUCCESS", "OR-AT-UNIT"},
+    "L2M-CON-05-NTH": {"OR-RT-CEDE", "OR-RT-QUAR"},
+    "L2M-CON-05-CONFIG": {"OR-RT-CONFIG"},
+    "L2M-CON-05-HTTP": {"OR-READ-HTTP"},
+    "L2M-C06-I-EFFECT": {"OR-AT-POISON", "OR-AR-BOUND"},
+    "L2M-C06-I-DELETE": {"OR-AT-POISON", "OR-AR-BOUND"},
+    "L2M-E02-F-02": {"OR-AT-UNIT", "OR-AT-POISON"},
+    "L2M-E02-F-04": {"OR-AT-UNIT", "OR-AT-POISON"},
+}
+by_id = {r[1]: r for r in records}
+for proof_id, required in critical_refs.items():
+    if proof_id not in by_id or not required.issubset(set(re.findall(r"OR-[A-Z0-9]+-[A-Z0-9]+", by_id[proof_id][4]))):
+        errors.append("critical oracle binding missing " + proof_id)
 for r in records:
     norm, ident, prop, stimulus, oracle, authority, subject, allocation, method, campaign, gate, report, status, evidence = r
     if not (prop and stimulus and oracle and authority and subject):
@@ -176,6 +237,9 @@ if errors:
 print(f"OK: {len(expected)} normative identifiers, {len(records)} proof rows, "
       f"{sum(r[7] == 'obligatoire L2' for r in records)} L2 obligations, "
       f"{sum(r[7] == 'reporté' for r in records)} reports, "
-      f"{sum(bool(r[4]) for r in records)} defined oracles, "
-      f"{sum(r[0] in required_subcases and r[1] != 'L2M-' + r[0] and not r[1].endswith('-REPORT') for r in records)} subscenario rows, "
-      f"{local_links} relative links, {anchors_checked} anchors.")
+      f"{len(catalog_ids)} distinct oracles, {len(oracle_refs)} oracle references, "
+      f"{len(set(catalog_ids) - set(oracle_refs))} orphan catalog oracles, "
+      f"{sum(not re.findall(r'OR-[A-Z0-9]+-[A-Z0-9]+', r[4]) for r in records)} rows without oracle, "
+      f"{subscenario_count} subscenario rows, "
+      f"{local_links} relative links, {anchors_checked} anchors. "
+      "Mechanical checks only; semantic adequacy requires contradictory review.")
