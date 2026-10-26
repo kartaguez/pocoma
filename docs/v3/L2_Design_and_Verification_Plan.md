@@ -114,7 +114,7 @@ REUSE conserve une garantie ou un composant compatible ; ADAPT modifie le contra
 | `db/v3-pot/migration` V1/V3/V4 | REUSE histoire, contraintes, index temporels/effets et préconditions F2 ; installation propre ne dispense pas de leurs garanties |
 | `db/v3-pot-execution/migration` V2 | ADAPT reconstruction V3 autorisée A01 : v3_command/result, événements/positions/compteurs utiles ; REPLACE v3_command_slot et références de triggers ; aucun changement aujourd'hui |
 | PRIMARY V1–V31, READ V1–V14 | DEFER comme historiques ; aucune baseline V2 TRUSTED ; ne pas les présenter comme bootstrap V3 final |
-| Trois tables L2 WRITE et READ | REPLACE stockage technique, concept §5 ; pas de catalogue SQL, compteur softCap ou état supplémentaire |
+| Quatre tables L2 WRITE et READ, incluant le contrat de routage administratif R3 | REPLACE stockage technique, concept §5 ; pas de catalogue SQL, compteur softCap ou état supplémentaire |
 | Séquences POT/COMMAND_COMPLETION L1 | REUSE protocole dense ; ADAPT owner/suffixe ; autres séquences : contrat/fixture technique tant que producteurs absents |
 | Banc L0 `db/v3-foundation/migration` | REUSE méthode de schémas isolés, pas comme schéma métier ou baseline certifiée |
 
@@ -200,11 +200,11 @@ La borne U rend un tour fini sur un ensemble initial fini, mais ne garantit pas 
 
 **Command :** ordre slot→demande/intention→Identity→Pot ; INVALID_BINDING protège le témoin négatif Identity sans lire/verrouiller le Pot ; autres branches protègent Pot, revalident la version de travail et CAS. Changed seul crée candidate/révisions typées ; Unchanged/Rejected n'inventent pas de mutation. writer_xid xid8, comparaison exhaustive des huit composantes à candidate, flush et contraintes métier différées avant suffixe ; complétion/résultat/source atomiques. Les contraintes de correspondance publication restent différées en lecture seule au commit.
 
-**R1 est ouvert.** L1 `finish()` supprime avant `publish()` ; `publish()` ferme l'owner puis ne fait que compteurs/positions. A09 attribue désormais la suppression à l'Engine après transformation. Recommandation soumise à décision : garder verrou du slot acquis en tête ; permettre **une seule suppression protocolaire Engine de ce slot déjà protégé après publication**, avant commit, avec contrôle de clé/token/nombre de lignes, sans rouvrir les writers métier et sans acquérir de nouveau verrou métier/partition. Cela exige une permission technique étroite du guard fermé et une analyse des FK/triggers réels de DELETE. Alternative : suppression Engine avant suffixe via raccord Command limité, explicitement revu, sans DSL universel. Aucun des deux ordres n'est réputé choisi par ce plan.
+**Historique R1 (supersédé par la consolidation normative).** L1 `finish()` supprime avant `publish()` ; `publish()` ferme l'owner puis ne fait que compteurs/positions. A09 attribue désormais la suppression à l'Engine après transformation. **Décision ratifiée R1 :** supprimer le slot protégé via `SlotCompletion.complete()` à usage unique, après effets et résultat, **avant la fermeture du suffixe dense** ; échec/absence/double appel empoisonne l'unité et provoque rollback. Cela exige une permission technique étroite du guard fermé et une analyse des FK/triggers réels de DELETE. Alternative : suppression Engine avant suffixe via raccord Command limité, explicitement revu, sans DSL universel. L'ordre définitif est celui de R1 dans [la consolidation](L2_R1_R10_Normative_Consolidation.md).
 
 R1 conditionne l'ordre final reproductible et les futurs guards/DDL. Tests exigés dans les deux cas retenus : erreur de suppression→rollback de métier/positions/résultat, writer métier post-suffixe refusé/poison, aucune nouvelle attente/cycle de verrous, contraintes terminales sur slot canonique, expiration post-verrou, ACK commit perdu. Ne pas contourner la difficulté en laissant Command supprimer son propre slot.
 
-**Recovery.** Engine classe rollback certain vs transport/commit ambigu, puis observe la vérité dans l'autorité d'effets. Command : TERMINAL avec résultat/complétion originaux et slot absent = complété une fois ; PENDING avec slot = pas de permission de réexécuter immédiatement, attendre issue/reprise conditionnelle. Banc non-burnable : K et absence du slot seulement sous ses invariants, effet technique vérifiable indépendamment. Les contrats d'observation de chaque Consumption doivent exprimer cohérent terminé / présent récupérable / incohérence / indisponibilité ; aucune donnée Pot dans le cœur générique. R9 exige le format exact avant code, sans table de reçus supplémentaire.
+**Recovery.** Engine classe rollback certain vs transport/commit ambigu, puis observe la vérité dans l'autorité d'effets. Command : TERMINAL avec résultat/complétion originaux et slot absent = complété une fois ; PENDING avec slot = pas de permission de réexécuter immédiatement, attendre issue/reprise conditionnelle. Banc non-burnable : K et absence du slot seulement sous ses invariants, effet technique vérifiable indépendamment. Les contrats d'observation de chaque Consumption doivent exprimer cohérent terminé / présent récupérable / incohérence / indisponibilité ; aucune donnée Pot dans le cœur générique. R9 est arbitré conceptuellement ; les signatures et postconditions SQL exactes sont à figer avant code, sans table de reçus supplémentaire.
 
 ## 9. Retry, quarantaine et réactivation
 
@@ -231,7 +231,7 @@ Trois limites distinctes : stock non QUARANTINED par `(C,p)` pour Discovery ; te
 
 Le dispositif Engine de renouvellement doit avoir un accès indépendant aux threads/connexions ; cadence < durée utile du lease/claim avec marge tenant compte de l'attente DB, sans promesse de lease perpétuel sous panne. Perte de partition arrête ses Discoveries/nouvelles acquisitions/renewal partition, pas les renouvellements des claims individuels valides.
 
-Équité : opportunités répétées lorsque du travail reste éligible et que les ressources reviennent, pas égalité de débit. Hypothèses minimales de campagne : ensembles testés finis ou charge contrôlée, retour de capacité, transactions/verrous finissant, DB disponible durant fenêtres annoncées, périodes sans crash suffisamment longues. Round-robin entre Consumptions ne prouve pas à lui seul l'équité entre slots SKIP LOCKED : R10 demande une politique de sélection à parcours borné ou une démonstration sous contention admissible. Ne pas introduire FIFO comme nouvelle norme.
+Équité : opportunités répétées lorsque du travail reste éligible et que les ressources reviennent, pas égalité de débit. Hypothèses minimales de campagne : ensembles testés finis ou charge contrôlée, retour de capacité, transactions/verrous finissant, DB disponible durant fenêtres annoncées, périodes sans crash suffisamment longues. Round-robin entre Consumptions ne prouve pas à lui seul l'équité entre slots SKIP LOCKED : R10 impose un parcours circulaire volatil borné et sa démonstration sous contention admissible. Ne pas introduire FIFO comme nouvelle norme.
 
 Mesures : âge du plus ancien éligible, délai entre occasions, pages/tours, références/slots insérés/acquis, échecs CAS/takeovers, durées/attentes DB, renouvellements à temps/en retard, concurrence effective C/Worker. Pas de UUID/token comme labels métriques à forte cardinalité ; traces de preuve privées corrélées séparément. PERF-01 global reste hors certification L2.
 
@@ -243,7 +243,7 @@ Admission interne minimale durable, vraie intention L1, aucune création de slot
 
 ### READ technique
 
-Dans une autorité READ distincte, persister un effet technique déterministe, par exemple une ligne immuable keyed `(UUID_banc,eventId)` avec valeur attendue calculée par l'oracle ; pas de statut DONE Engine ou table de positions traitées. Utiliser les vrais événements POT/COMMAND_COMPLETION du pilote quand disponibles et des sources explicitement fixtures pour autres familles. L'effet appartient au banc, pas aux trois tables techniques ou au catalogue métier. Deux définitions techniques indépendantes sur une même publication peuvent montrer commits/retries autonomes. Aucun CurrentPot/Balance/Visibility/Binding/Result/Invitation réel déduit de ces lignes.
+Dans une autorité READ distincte, persister un effet technique déterministe, par exemple une ligne immuable keyed `(UUID_banc,eventId)` avec valeur attendue calculée par l'oracle ; pas de statut DONE Engine ou table de positions traitées. Utiliser les vrais événements POT/COMMAND_COMPLETION du pilote quand disponibles et des sources explicitement fixtures pour autres familles. L'effet appartient au banc, pas aux quatre tables techniques ou au catalogue métier. Deux définitions techniques indépendantes sur une même publication peuvent montrer commits/retries autonomes. Aucun CurrentPot/Balance/Visibility/Binding/Result/Invitation réel déduit de ces lignes.
 
 ### Observations indépendantes
 
@@ -275,7 +275,7 @@ Critères globaux SPEC-10 demeurent inchangés : CON-01 A…L, CON-02 A…L, CON
 
 | Campagne future | Stimuli et oracle décisif | Gates / preuves attendues |
 |---|---|---|
-| P1 — Structure/identités/bootstrap | Trois tables par autorité, enums/UUID, configuration stable, ancienne voie inactive, writers/DDL couverts | Catalogue, inventaire des compositions/imports, vecteurs hash/config, gardes architecture |
+| P1 — Structure/identités/bootstrap | Quatre tables par autorité, enums/UUID, configuration stable, ancienne voie inactive, writers/DDL couverts | Catalogue, inventaire des compositions/imports, vecteurs hash/config, gardes architecture |
 | P2 — Non-burnable | Fenêtres inter-partitions, zéro local, capacité coupant fenêtre, deux Discoveries, takeover entre lecture/commit, coupures chaque frontière K/slots, ACK perdu | C01/C02/C06-K ; ensembles SQL littéraux et K avant/après, aucun événement omis |
 | P3 — Burnable | PENDING/TERMINAL, slot expiré/retry/quarantaine, source terminalisant pendant sélection, admissions devant/derrière cursor, perte/restart, capacité rétablie | Aucune PENDING éligible oubliée sur tour complet ; aucun réenrôlement TERMINAL ; propriétés fixtures étiquetées |
 | P4 — Leases/claims | C03-A…L, lots partiels SKIP LOCKED, ancienne propriété/token, renouvellement expiré, attente réelle au verrou final et expiration après verrou | Horloge DB après acquisition effective ; protection jusqu'à résolution ; pas de reprise anticipée |
@@ -329,7 +329,7 @@ Ces unités internes restent toutes dans L2 ; elles ne lancent aucun lot suivant
 | Ordre | Travail futur et condition de fin locale | Dépendance |
 |---|---|---|
 | I0 | Clore les décisions ouvertes ; figer signatures/ownership, paramètres de campagne, UUID de test, matrices et manifestes ; zéro code avant autorisation | G0 humain |
-| I1 | Valeurs pures/familles/identités, trois tables par autorité et bootstrap neuf, contraintes/index, anciens writers incompatibles désactivés dans composition pilote ; aucun slot dédié actif | I0, R3/R7 |
+| I1 | Valeurs pures/familles/identités, quatre tables par autorité et bootstrap administratif du routage R3, environnement neuf, contraintes/index, anciens writers incompatibles désactivés dans composition pilote ; aucun slot dédié actif | I0, R3/R7 |
 | I2 | Owner physique commun et participation Command, guards/poison, suppression protocolaire suivant R1, adaptation des contraintes terminales ; régressions C/F/F2 avant nouveau polling | I1, R1/R9 |
 | I3 | Leases, acquisition/renouvellement/capacité et cession/quarantaine/admin communes ; courses PostgreSQL ciblées avant intégration des boucles | I2, R2/R5 |
 | I4 | Discovery non-burnable et burnable, préfixe/capacité, tour volatil et revalidation de PENDING ; aucune perte dans P2/P3 | I3, R4 |
