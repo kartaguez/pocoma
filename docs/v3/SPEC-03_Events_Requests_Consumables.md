@@ -114,3 +114,8 @@ Le rattachement effectif via invitation réutilisable du même Pot révise Share
 ## 11. Complément WRITE L1-F2
 
 La vérification de changedComponents porte sur les seules révisions nées à la candidate, par Pot et borne globale indexés ; elle reste exhaustive sur les huit types et ne relit pas les anciennes versions. Cette optimisation ne change ni l’égalité avec la proposition effective, ni l’ownership xid8, ni la validation des contraintes avant suffixe, ni l’unité physique événement/résultat/complétion. Les index d’accès ne constituent pas des contraintes d’intégrité. [Matrice et preuves](L1_F2_Invariant_Matrix.md).
+
+
+## Précision L2 sur la conservation des sources (2026-10-26)
+
+La décision [R7](L2_R1_R10_Normative_Consolidation.md#7-r7--bootstrap-neuf-isolé-option-a) impose le pilote L2 dans des environnements V3 neufs et isolés : aucune migration ni destruction implicite des sources préexistantes. Les demandes nouvellement admises PENDING restent durables et découvrables indépendamment des slots ; TERMINAL et leurs résultats ne sont jamais réenrôlés. Le redémarrage d'un Worker ne réinitialise aucune source. Ces prescriptions complètent les garanties d'intention immuable et de terminalisation atomique.
