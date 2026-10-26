@@ -10,7 +10,8 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
-import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.*;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1CommandCompatibilityHarness.*;
+import com.kartaguez.pocoma.port.transaction.v3.*;
 
 import org.junit.jupiter.api.*;
 import org.testcontainers.junit.jupiter.*;
@@ -50,8 +51,8 @@ class PotFinancePostgresTest {
     }
 
     PotBalanceCalculator.Balances balance(long version) {
-        return f.tx.snapshot(
-                () ->
+        return f.tx.read(
+                context ->
                         new CalculatePotBalances(f.history, new PotBalanceCalculator())
                                 .atVersion(f.p, version)
                                 .orElseThrow());
@@ -121,8 +122,8 @@ class PotFinancePostgresTest {
         exact(10, "0/1", "0/1", "0/1");
         f.run(f.command(10, new DeletePot()));
         assertTrue(
-                f.tx.snapshot(
-                                () ->
+                f.tx.read(
+                                context ->
                                         new CalculatePotBalances(
                                                         f.history, new PotBalanceCalculator())
                                                 .atVersion(f.p, 11))
@@ -133,7 +134,7 @@ class PotFinancePostgresTest {
             if (v == 6) exact(v, "100/1", "-75/1", "-25/1");
             if (v == 7 || v == 8) exact(v, "0/1", "56/5", "-56/5");
         }
-        assertEquals(old, f.tx.snapshot(() -> f.history.atVersion(f.p, 4).orElseThrow()));
+        assertEquals(old, f.tx.read(context -> f.history.atVersion(f.p, 4).orElseThrow()));
         f.dense();
     }
 
@@ -195,8 +196,8 @@ class PotFinancePostgresTest {
         assertEquals(before.values(), balance(6).values());
         assertEquals(
                 financials,
-                f.tx.snapshot(
-                        () ->
+                f.tx.read(
+                        context ->
                                 f.history
                                         .financialAtVersion(f.p, 3)
                                         .orElseThrow()
@@ -296,8 +297,7 @@ class PotFinancePostgresTest {
                 f.e.value());
         var failure =
                 assertThrows(
-                        com.kartaguez.pocoma.engine.write.pot.port.execution.v3
-                                .PotCommandTransactions.Failure.class,
+                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.Failure.class,
                         () -> balance(3));
         assertInstanceOf(InconsistentPotFactsException.class, failure.getCause());
         assertThrows(
@@ -307,7 +307,7 @@ class PotFinancePostgresTest {
     @Test
     void d14FinancialRollbackAtEveryPublicationBoundary() throws Exception {
         for (String phase :
-                List.of("recordVersion", "reviseExpenseFinancials", "finish", "publish")) {
+                List.of("recordVersion", "reviseExpenseFinancials", "finishTerminal", "publish")) {
             if (f.storeVersion() != 0) {
                 f.captureEvidence();
                 f.setup();
@@ -332,8 +332,7 @@ class PotFinancePostgresTest {
                             });
             var commands =
                     f.intercept(
-                            com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore
-                                    .class,
+                            L1CommandStore.class,
                             f.store,
                             CommandExecutionPostgresTest.NOTHING,
                             (method, args) -> {
@@ -379,8 +378,8 @@ class PotFinancePostgresTest {
         f.run(f.command(2, f.expense(financial(100, f.a, Optional.empty()))));
         var before = f.snapshot();
         var view =
-                f.tx.snapshot(
-                        () ->
+                f.tx.read(
+                        context ->
                                 f.history
                                         .current(
                                                 f.p,
@@ -440,7 +439,7 @@ class PotFinancePostgresTest {
         assertEquals(4, f.storeVersion());
         assertEquals(2, f.snapshot().shareholders().get(f.b).weight().localVersion());
         assertEquals(2, f.snapshot().expenses().get(f.e).financials().localVersion());
-        assertEquals(before, f.tx.snapshot(() -> f.history.atVersion(f.p, 3).orElseThrow()));
+        assertEquals(before, f.tx.read(context -> f.history.atVersion(f.p, 3).orElseThrow()));
     }
 
     @SuppressWarnings("unchecked")

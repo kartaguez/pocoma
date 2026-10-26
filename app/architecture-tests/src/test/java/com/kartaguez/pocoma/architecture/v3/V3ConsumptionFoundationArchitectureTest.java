@@ -12,7 +12,7 @@ import java.nio.file.*;
 
 class V3ConsumptionFoundationArchitectureTest {
     @Test
-    void v3RoutingDomainIsPureAndNoI2ContractsExistYet() {
+    void v3RoutingDomainRemainsPure() {
         var classes =
                 new ClassFileImporter()
                         .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)

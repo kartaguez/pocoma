@@ -106,7 +106,6 @@
 			<groupId>com.kartaguez.pocoma</groupId>
 			<artifactId>pocoma-infra-tx-spring</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.kartaguez.pocoma</groupId>

@@ -56,7 +56,7 @@ class L1IntegrationPostgresTest {
                         f.a,
                         Map.of(f.a, Optional.empty(), f.b, Optional.empty()));
         f.run(f.command(2, f.expense(financials)));
-        var historical = f.tx.snapshot(() -> f.history.atVersion(f.p, 3).orElseThrow());
+        var historical = f.tx.read(context -> f.history.atVersion(f.p, 3).orElseThrow());
         var oldBalance = d.balance(3);
         f.run(f.command(3, new UpdateExpenseDetails(f.e, new Label("E2"), f.date.plusDays(1))));
         f.run(
@@ -84,7 +84,7 @@ class L1IntegrationPostgresTest {
         var versions = new ArrayList<>(List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L));
         Collections.shuffle(versions, new Random(731));
         for (long v : versions) {
-            var s = f.tx.snapshot(() -> f.history.atVersion(f.p, v).orElseThrow());
+            var s = f.tx.read(context -> f.history.atVersion(f.p, v).orElseThrow());
             assertEquals(
                     new PotState(
                             new Versioned<>(
@@ -157,8 +157,8 @@ class L1IntegrationPostgresTest {
                                                 financials.participants()))),
                         s.expenses().get(f.e));
             var balance =
-                    f.tx.snapshot(
-                            () ->
+                    f.tx.read(
+                            context ->
                                     new com.kartaguez.pocoma.engine.write.pot.v3
                                                     .CalculatePotBalances(
                                                     f.history, new PotBalanceCalculator())
@@ -184,7 +184,7 @@ class L1IntegrationPostgresTest {
                 assertEquals(expected, balance.orElseThrow().values());
             }
         }
-        assertEquals(historical, f.tx.snapshot(() -> f.history.atVersion(f.p, 3).orElseThrow()));
+        assertEquals(historical, f.tx.read(context -> f.history.atVersion(f.p, 3).orElseThrow()));
         assertEquals(oldBalance, d.balance(3));
         assertEquals(9, f.jdbc.queryForObject("select count(*) from v3_pot_event", Integer.class));
         assertEquals(
@@ -229,7 +229,7 @@ class L1IntegrationPostgresTest {
                                 List.of(
                                         new ShareholderTransitions.Creation(
                                                 f.a, new Name("A"), Optional.empty(), f.one)))));
-        var old = f.tx.snapshot(() -> f.history.atVersion(f.p, 2).orElseThrow());
+        var old = f.tx.read(context -> f.history.atVersion(f.p, 2).orElseThrow());
         d.weight(2, f.a, 3, 1);
         var noop =
                 f.run(
@@ -268,7 +268,7 @@ class L1IntegrationPostgresTest {
                                                 new ShareholderTransitions.DetailsIntent(
                                                         f.a, new Name("X"), Optional.empty()))))),
                 "DELETED");
-        assertEquals(old, f.tx.snapshot(() -> f.history.atVersion(f.p, 2).orElseThrow()));
+        assertEquals(old, f.tx.read(context -> f.history.atVersion(f.p, 2).orElseThrow()));
         assertEquals(4, f.jdbc.queryForObject("select count(*) from v3_pot_event", Integer.class));
         assertEquals(
                 7,
@@ -356,10 +356,8 @@ class L1IntegrationPostgresTest {
                                                         f.a, f.two))))),
                 "OBSOLETE");
         assertEquals(
-                mixed,
-                f
-                        .snapshot()); // Last requested target equals its stale value; first target
-                                      // cannot leak.
+                mixed, f.snapshot()); // Last requested target equals its stale value; first target
+        // cannot leak.
         var late = new com.kartaguez.pocoma.domain.pot.value.id.ShareholderId(new UUID(12, 44));
         assertEquals(
                 4L,

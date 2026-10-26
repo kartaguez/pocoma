@@ -5,6 +5,7 @@ import static com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryRo
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotRevisionPort;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,7 +23,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     @Override
     public void createPot(TransitionResult.Changed<PotState> proposal, Instant recordedAt) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     rows.requireTransaction(false);
@@ -47,7 +48,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     @Override
     public void recordVersion(PotId pot, long expected, long candidate, Instant recordedAt) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     rows.requireTransaction(false);
@@ -75,7 +76,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
         var latest =
                 rows.jdbc.queryForList(
                         "select version,writer_xid=pg_current_xact_id() as owned from"
-                            + " v3_pot_version where pot_id=? order by version desc limit 1",
+                                + " v3_pot_version where pot_id=? order by version desc limit 1",
                         pot.value());
         if (latest.size() != 1
                 || number(latest.getFirst(), "version") != proposal.candidatePotVersion())
@@ -87,7 +88,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void createShareholders(
             PotId pot, TransitionResult.Changed<List<ShareholderState>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -118,7 +119,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
 
     @Override
     public void createExpense(PotId pot, TransitionResult.Changed<ExpenseState> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -144,7 +145,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void revisePotDetails(
             PotId pot, TransitionResult.Changed<Versioned<PotDetails>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -161,7 +162,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void revisePotHeader(
             PotId pot, TransitionResult.Changed<Versioned<PotHeader>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -184,7 +185,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     public void reviseShareholderDetails(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderDetails>>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -213,7 +214,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     public void reviseShareholderWeights(
             PotId pot,
             TransitionResult.Changed<Map<ShareholderId, Versioned<ShareholderWeight>>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -241,7 +242,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void reviseShareholderHeader(
             PotId pot, TransitionResult.Changed<Versioned<ShareholderHeader>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -268,7 +269,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void reviseExpenseDetails(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseDetails>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -289,7 +290,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void reviseExpenseFinancials(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseFinancials>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);
@@ -311,7 +312,7 @@ public final class JdbcPotRevisionAdapter implements PotRevisionPort {
     @Override
     public void reviseExpenseHeader(
             PotId pot, TransitionResult.Changed<Versioned<ExpenseHeader>> proposal) {
-        PotCommandJdbcTransactions.revision(
+        SpringAttemptTransactions.revision(
                 rows.dataSource,
                 () -> {
                     proposal(pot, proposal);

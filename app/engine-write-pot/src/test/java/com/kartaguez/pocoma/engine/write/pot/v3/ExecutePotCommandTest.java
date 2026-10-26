@@ -34,26 +34,18 @@ class ExecutePotCommandTest {
     Optional<Result> terminal = Optional.empty();
     boolean claimValid = true, potValid = true, actorValid = true, bindingValid = true;
     RuntimeException historyFailure;
-    FailureRecorded failureRecorded = FailureRecorded.RETRY_SCHEDULED;
-    int failures, preparations;
-    PotCommandTransactions transactions =
-            new PotCommandTransactions() {
-                public <T> T snapshot(Supplier<T> action) {
-                    return run(action);
-                }
+    int preparations;
+    Result finished;
 
-                public <T> T write(Supplier<T> action) {
-                    return run(action);
-                }
-
-                private <T> T run(Supplier<T> action) {
-                    try {
-                        return action.get();
-                    } catch (RuntimeException failure) {
-                        throw new Failure(Resolution.ROLLED_BACK, failure);
-                    }
-                }
-            };
+    Result execute() {
+        var prepared = engine().prepare(request).orElseThrow();
+        prepared.finalizeIn(
+                () -> {
+                    calls.add("complete");
+                    prepared.requireCompletionReady();
+                });
+        return finished;
+    }
 
     @SuppressWarnings("unchecked")
     <T> T port(Class<T> type, BiFunction<Method, Object[], Object> invoke) {
@@ -73,16 +65,13 @@ class ExecutePotCommandTest {
                             case "currentVersion" -> {
                                 throw new AssertionError("Unexpected Pot version read");
                             }
-                            case "protectClaim" -> {
-                                calls.add("slot");
-                                yield claimValid;
-                            }
                             case "protectPot" -> {
                                 calls.add("pot");
                                 assertEquals(2L, args[1]);
                                 yield potValid;
                             }
-                            case "finish" -> {
+                            case "finishTerminal" -> {
+                                finished = (Result) args[1];
                                 calls.add("finish");
                                 yield null;
                             }
@@ -90,9 +79,9 @@ class ExecutePotCommandTest {
                                 calls.add("publish");
                                 yield null;
                             }
-                            case "recordFailure" -> {
-                                failures++;
-                                yield failureRecorded;
+                            case "requireCompletionReady" -> {
+                                calls.add("ready");
+                                yield null;
                             }
                             default -> throw new AssertionError(method);
                         });
@@ -142,32 +131,30 @@ class ExecutePotCommandTest {
                             return null;
                         });
         return new ExecutePotCommand(
-                transactions,
                 store(),
+                (id, context) ->
+                        com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation.COMPLETED,
                 authority,
                 history,
                 revisions,
-                new RetryPolicy(3, Duration.ZERO),
                 Clock.fixed(Instant.EPOCH, ZoneOffset.UTC));
     }
 
     @Test
     void u01ChangedUsesOneOrderedFinalUnit() {
-        var result = engine().execute(request, claim);
-        assertEquals(Status.COMPLETED, result.status());
-        assertEquals(3L, result.result().orElseThrow().resultingPotVersion());
+        assertEquals(3L, execute().resultingPotVersion());
         assertEquals(
                 List.of(
-                        "slot",
                         "actor",
                         "pot",
                         "recordVersion",
                         "revisePotDetails",
                         "finish",
+                        "complete",
+                        "ready",
                         "publish"),
                 calls);
         assertEquals(1, preparations);
-        assertEquals(0, failures);
     }
 
     @Test
@@ -180,10 +167,8 @@ class ExecutePotCommandTest {
                         pot,
                         2,
                         new PotCommand.UpdatePotDetails(new Label("old")));
-        assertEquals(
-                Outcome.UNCHANGED,
-                engine().execute(request, claim).result().orElseThrow().outcome());
-        assertEquals(List.of("slot", "actor", "pot", "finish", "publish"), calls);
+        assertEquals(Outcome.UNCHANGED, execute().outcome());
+        assertEquals(List.of("actor", "pot", "finish", "complete", "ready", "publish"), calls);
         calls.clear();
         command =
                 new PotCommand(
@@ -193,49 +178,45 @@ class ExecutePotCommandTest {
                         pot,
                         3,
                         new PotCommand.UpdatePotDetails(new Label("old")));
-        assertEquals(
-                Outcome.REJECTED,
-                engine().execute(request, claim).result().orElseThrow().outcome());
-        assertEquals(0, failures);
+        assertEquals(Outcome.REJECTED, execute().outcome());
+        assertEquals(List.of("actor", "pot", "finish", "complete", "ready", "publish"), calls);
     }
 
     @Test
     void u03CollisionNeverRetriesWithinClaimOrPretendsBusinessRejection() {
         potValid = false;
-        var attempt = engine().execute(request, claim);
-        assertEquals(Status.RETRY_SCHEDULED, attempt.status());
-        assertEquals(Cause.COLLISION, attempt.cause());
-        assertEquals(1, failures);
+        assertThrows(Collision.class, this::execute);
+        assertNull(finished);
         assertEquals(1, preparations);
-        assertEquals(List.of("slot", "actor", "pot"), calls);
+        assertEquals(List.of("actor", "pot"), calls);
         assertEquals(2, command.observedVersion());
     }
 
     @Test
-    void u04LostClaimNeverWritesOrConsumesFailureBudget() {
-        claimValid = false;
-        assertEquals(Status.CLAIM_LOST, engine().execute(request, claim).status());
-        assertEquals(List.of("slot"), calls);
-        assertEquals(0, failures);
+    void u04LostClaimIsEngineResponsibilityAndCannotReachThisParticipant() {
+        // Port shape: Command has neither a transaction owner nor a claim/slot dependency.
+        assertTrue(
+                Arrays.stream(ExecutePotCommand.class.getDeclaredFields())
+                        .noneMatch(
+                                f ->
+                                        f.getType().getName().contains("Transactions")
+                                                || f.getType().getName().contains("Slot")));
     }
 
     @Test
-    void u05TechnicalAndInconsistentFactsRemainDistinctAndCanExhaustPolicy() {
+    void u05TechnicalAndInconsistentFactsRemainDistinct() {
         historyFailure = new IllegalStateException("unavailable");
-        failureRecorded = FailureRecorded.QUARANTINED;
-        var technical = engine().execute(request, claim);
-        assertEquals(Status.QUARANTINED, technical.status());
-        assertEquals(Cause.TECHNICAL, technical.cause());
+        assertSame(historyFailure, assertThrows(IllegalStateException.class, this::execute));
         historyFailure = new InconsistentPotFactsException("mixed facts");
-        assertEquals(Cause.INCONSISTENT_FACTS, engine().execute(request, claim).cause());
+        assertSame(
+                historyFailure, assertThrows(InconsistentPotFactsException.class, this::execute));
         assertTrue(calls.isEmpty());
-        assertEquals(2, failures);
     }
 
     @Test
     void u06TerminalReplaySkipsPreparationAndAllWrites() {
         terminal = Optional.of(new Result(Outcome.CHANGED, 3L, null));
-        assertEquals(terminal, engine().execute(request, claim).result());
+        assertTrue(engine().prepare(request).isEmpty());
         assertEquals(0, preparations);
         assertTrue(calls.isEmpty());
         assertFalse(command.toString().contains("secret"));
@@ -244,21 +225,13 @@ class ExecutePotCommandTest {
     @Test
     void f02InvalidBindingNeverReadsOrProtectsPotAndStillFencesIdentity() {
         bindingValid = false;
-        historyFailure = new AssertionErrorAsRuntime();
-        var attempt = engine().execute(request, claim);
-        assertEquals(Status.COMPLETED, attempt.status());
-        assertEquals("INVALID_BINDING", attempt.result().orElseThrow().rejection());
-        assertEquals(List.of("slot", "actor", "finish", "publish"), calls);
+        historyFailure = new IllegalStateException("Pot must not be read");
+        assertEquals("INVALID_BINDING", execute().rejection());
+        assertEquals(List.of("actor", "finish", "complete", "ready", "publish"), calls);
         assertEquals(0, preparations);
-        assertEquals(0, failures);
         calls.clear();
         actorValid = false;
-        var collision = engine().execute(request, claim);
-        assertEquals(Cause.COLLISION, collision.cause());
-        assertTrue(collision.result().isEmpty());
-        assertEquals(List.of("slot", "actor"), calls);
-        assertEquals(1, failures);
+        assertThrows(Collision.class, this::execute);
+        assertEquals(List.of("actor"), calls);
     }
-
-    private static final class AssertionErrorAsRuntime extends RuntimeException {}
 }

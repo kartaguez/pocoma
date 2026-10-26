@@ -11,11 +11,12 @@ import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
-import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
-import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.*;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1CommandCompatibilityHarness.*;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1CommandStore.FailureRecorded;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3commandfixture.CommandProbe;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
+import com.kartaguez.pocoma.port.transaction.v3.*;
 
-import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.*;
@@ -43,7 +44,11 @@ import javax.sql.DataSource;
 @Testcontainers
 class CommandExecutionPostgresTest {
     @Container
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
+    static final PostgreSQLContainer POSTGRES =
+            new PostgreSQLContainer(
+                    org.testcontainers.utility.DockerImageName.parse(
+                                    "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73")
+                            .asCompatibleSubstituteFor("postgres"));
 
     final PotId p = new PotId(new UUID(11, 1));
     final ShareholderId a = new ShareholderId(new UUID(12, 1)),
@@ -57,8 +62,8 @@ class CommandExecutionPostgresTest {
     final LocalDate date = LocalDate.of(2026, 10, 25);
     DataSource source;
     JdbcTemplate jdbc;
-    PotCommandJdbcTransactions tx;
-    JdbcPotCommandStore store;
+    SpringAttemptTransactions tx;
+    L1CommandStore store;
     JdbcPotHistoryAdapter history;
     JdbcPotRevisionAdapter revisions;
     FixtureAuthority authority;
@@ -71,19 +76,14 @@ class CommandExecutionPostgresTest {
         schema = "v3_c_" + UUID.randomUUID().toString().replace("-", "");
         source =
                 new DriverManagerDataSource(
-                        POSTGRES.getJdbcUrl() + "&currentSchema=" + schema + "&socketTimeout=20",
+                        POSTGRES.getJdbcUrl()
+                                + "&currentSchema="
+                                + schema
+                                + "&socketTimeout=20&options=-c%20lock_timeout=10000%20-c%20statement_timeout=20000",
                         POSTGRES.getUsername(),
                         POSTGRES.getPassword());
         jdbc = new JdbcTemplate(source);
-        Flyway.configure()
-                .dataSource(source)
-                .defaultSchema(schema)
-                .schemas(schema)
-                .createSchemas(true)
-                .locations(
-                        "classpath:db/v3-pot/migration", "classpath:db/v3-pot-execution/migration")
-                .load()
-                .migrate();
+        I2Schema.migrate(source, schema);
         jdbc.execute(
                 "create table fixture_actor(issuer text,subject text,revision bigint not"
                         + " null,user_id uuid,token text,primary key(issuer,subject))");
@@ -102,8 +102,8 @@ class CommandExecutionPostgresTest {
         jdbc.execute("create table v3_command_probe(id bigint primary key,value text not null)");
         var manager = new DataSourceTransactionManager(source);
         manager.setNestedTransactionAllowed(false);
-        tx = new PotCommandJdbcTransactions(source, manager);
-        store = new JdbcPotCommandStore(source, tx);
+        tx = new SpringAttemptTransactions(source, manager);
+        store = new L1CommandStore.Fixture(source, new JdbcPotCommandStore(source, tx));
         history = new JdbcPotHistoryAdapter(source);
         revisions = new JdbcPotRevisionAdapter(source);
         authority = new FixtureAuthority(source);
@@ -162,24 +162,24 @@ class CommandExecutionPostgresTest {
         evidence.append("slots: ")
                 .append(
                         jdbc.queryForList(
-                                "select request_id,claim_token is not null as"
+                                "select consumable_id,claim_token is not null as"
                                     + " claimed,claimed_until,retry_after,attempt_count,state from"
-                                    + " v3_command_slot"))
+                                    + " consumption_slot"))
                 .append('\n');
         evidence.append("barriers: ").append(timeline).append('\n');
         Files.writeString(output, evidence);
     }
 
-    ExecutePotCommand engine() {
+    L1CommandCompatibilityHarness engine() {
         return engine(tx, store, revisions, new RetryPolicy(3, Duration.ZERO));
     }
 
-    ExecutePotCommand engine(
-            PotCommandTransactions transactions,
-            PotCommandStore commands,
+    L1CommandCompatibilityHarness engine(
+            AttemptTransactions transactions,
+            L1CommandStore commands,
             PotRevisionPort writer,
             RetryPolicy policy) {
-        return new ExecutePotCommand(
+        return new L1CommandCompatibilityHarness(
                 transactions, commands, authority, history, writer, policy, Clock.systemUTC());
     }
 
@@ -204,7 +204,13 @@ class CommandExecutionPostgresTest {
                 command.observedVersion(),
                 command.intent().getClass().getSimpleName(),
                 PotCommandJson.encode(command.intent()));
-        jdbc.update("insert into v3_command_slot(request_id) values (?)", command.requestId());
+        jdbc.update(
+                "insert into"
+                    + " consumption_slot(consumption_id,consumable_id,partition_hash,partition_id)"
+                    + " select '98f7268d-d340-581c-b83d-010926223e14',id,h,((h::bigint%4+4)%4)::int"
+                    + " from (select id,consumption_hash_v1('COMMAND',id) h from (select ?::uuid"
+                    + " id) x) y",
+                command.requestId());
         return acquire(command.requestId());
     }
 
@@ -216,13 +222,13 @@ class CommandExecutionPostgresTest {
                 .execute(
                         status -> {
                             jdbc.queryForList(
-                                    "select request_id from v3_command_slot where request_id=? for"
-                                            + " update",
+                                    "select consumable_id from consumption_slot where"
+                                        + " consumable_id=? for update",
                                     request);
                             return jdbc.update(
-                                                    "update v3_command_slot set"
+                                                    "update consumption_slot set"
                                                         + " claim_token=?,claimed_until=clock_timestamp()+interval"
-                                                        + " '5 minutes' where request_id=? and"
+                                                        + " '5 minutes' where consumable_id=? and"
                                                         + " state='AVAILABLE' and (claim_token is"
                                                         + " null or"
                                                         + " claimed_until<=clock_timestamp()) and"
@@ -280,7 +286,7 @@ class CommandExecutionPostgresTest {
     }
 
     PotHistoryPort.Snapshot snapshot() {
-        return tx.snapshot(() -> history.atVersion(p, store.currentVersion(p)).orElseThrow());
+        return tx.read(context -> history.atVersion(p, store.currentVersion(p)).orElseThrow());
     }
 
     void rejected(Result result, String reason) {
@@ -302,7 +308,7 @@ class CommandExecutionPostgresTest {
         assertEquals(
                 failures,
                 jdbc.queryForObject(
-                        "select attempt_count from v3_command_slot where request_id=?",
+                        "select attempt_count from consumption_slot where consumable_id=?",
                         Integer.class,
                         request));
     }
@@ -357,12 +363,16 @@ class CommandExecutionPostgresTest {
         }
     }
 
-    final class Paused implements PotCommandTransactions {
+    final class Paused extends ForwardingTransactions {
+        Paused() {
+            super(tx);
+        }
+
         final CountDownLatch prepared = new CountDownLatch(1), resume = new CountDownLatch(1);
 
         @Override
-        public <T> T snapshot(Supplier<T> action) {
-            var value = tx.snapshot(action);
+        public <T> T read(java.util.function.Function<RecoveryReadContext, T> action) {
+            var value = tx.read(action);
             timeline.add("preparation committed");
             prepared.countDown();
             await(resume);
@@ -447,7 +457,7 @@ class CommandExecutionPostgresTest {
         try {
             var guardedStore =
                     intercept(
-                            PotCommandStore.class,
+                            L1CommandStore.class,
                             store,
                             (method, args) -> {
                                 if (Set.of("currentVersion", "protectPot")
@@ -515,7 +525,7 @@ class CommandExecutionPostgresTest {
             try {
                 jdbc.update(
                         "update v3_command set operation=?,payload='{\"targets\":[]}'::jsonb where"
-                            + " request_id=?",
+                                + " request_id=?",
                         operation,
                         cmd.requestId());
             } finally {
@@ -617,11 +627,11 @@ class CommandExecutionPostgresTest {
         var release = new CountDownLatch(1);
         var commands =
                 intercept(
-                        PotCommandStore.class,
+                        L1CommandStore.class,
                         store,
                         NOTHING,
                         (method, args) -> {
-                            if (method.getName().equals("finish")) {
+                            if (method.getName().equals("finishTerminal")) {
                                 finishing.countDown();
                                 await(release);
                             }
@@ -682,7 +692,8 @@ class CommandExecutionPostgresTest {
                                                 new ShareholderTransitions.WeightIntent(a, two)))))
             assertThrows(IllegalArgumentException.class, () -> admit(command(2, invalid.get())));
         assertEquals(before, jdbc.queryForObject("select count(*) from v3_command", Long.class));
-        assertEquals(0, jdbc.queryForObject("select count(*) from v3_command_slot", Integer.class));
+        assertEquals(
+                0, jdbc.queryForObject("select count(*) from consumption_slot", Integer.class));
         assertEquals(
                 0, jdbc.queryForObject("select count(*) from v3_command_result", Integer.class));
     }
@@ -706,15 +717,15 @@ class CommandExecutionPostgresTest {
                                         List.of(
                                                 new ShareholderTransitions.DetailsIntent(
                                                         a, new Name("A"), Optional.empty())))));
-            var first = tx.snapshot(() -> history.current(p, guest, selection).orElseThrow());
+            var first = tx.read(context -> history.current(p, guest, selection).orElseThrow());
             var second =
-                    tx.snapshot(
-                            () ->
+                    tx.read(
+                            context ->
                                     history.current(p, sameUser ? guest : other, selection)
                                             .orElseThrow());
             ShareholderId leftId = sameUser ? c : a, rightId = a;
             long version = first.facts().workingVersion();
-            var before = tx.snapshot(() -> history.atVersion(p, version).orElseThrow());
+            var before = tx.read(context -> history.atVersion(p, version).orElseThrow());
             var left = invitationProposal(first, leftId);
             var right = invitationProposal(second, rightId);
             var start = new CountDownLatch(1);
@@ -734,8 +745,8 @@ class CommandExecutionPostgresTest {
             assertNotEquals(
                     get(winner1), get(winner2), "Exactly one prepared candidate wins Pot CAS");
             assertEquals(version + 1, storeVersion());
-            assertEquals(before, tx.snapshot(() -> history.atVersion(p, version).orElseThrow()));
-            var refreshed = tx.snapshot(() -> history.current(p, guest, selection).orElseThrow());
+            assertEquals(before, tx.read(context -> history.atVersion(p, version).orElseThrow()));
+            var refreshed = tx.read(context -> history.current(p, guest, selection).orElseThrow());
             var again =
                     new AttachShareholderViaInvitation(rightId)
                             .decide(
@@ -749,7 +760,7 @@ class CommandExecutionPostgresTest {
                     0,
                     jdbc.queryForObject(
                             "select count(*) from v3_shareholder_details where active_from=? and"
-                                + " object_id not in (?,?)",
+                                    + " object_id not in (?,?)",
                             Integer.class,
                             version + 1,
                             a.value(),
@@ -792,17 +803,17 @@ class CommandExecutionPostgresTest {
         var before = snapshot();
         var command = command(2, new UpdatePotDetails(new Label("broken")));
         var token = admit(command);
-        var failures = new ArrayList<PotCommandTransactions.Failure>();
-        PotCommandTransactions observing =
-                new PotCommandTransactions() {
-                    public <T> T snapshot(Supplier<T> action) {
-                        return tx.snapshot(action);
+        var failures = new ArrayList<AttemptTransactions.Failure>();
+        AttemptTransactions observing =
+                new ForwardingTransactions(tx) {
+                    public <T> T read(java.util.function.Function<RecoveryReadContext, T> action) {
+                        return tx.read(action);
                     }
 
                     public <T> T write(Supplier<T> action) {
                         try {
                             return tx.write(action);
-                        } catch (PotCommandTransactions.Failure failure) {
+                        } catch (AttemptTransactions.Failure failure) {
                             failures.add(failure);
                             throw failure;
                         }
@@ -817,7 +828,7 @@ class CommandExecutionPostgresTest {
                             if (method.getName().equals("revisePotDetails"))
                                 jdbc.update(
                                         "update v3_pot_details set active_to=999 where pot_id=? and"
-                                            + " local_version=1",
+                                                + " local_version=1",
                                         p.value());
                         });
         var attempt =
@@ -845,7 +856,7 @@ class CommandExecutionPostgresTest {
     @Test
     void c01DurableMutationsNoopRejectionAndExactHistory() {
         base();
-        var old = tx.snapshot(() -> history.atVersion(p, 2).orElseThrow());
+        var old = tx.read(context -> history.atVersion(p, 2).orElseThrow());
         assertEquals(
                 Outcome.UNCHANGED, run(command(2, new UpdatePotDetails(new Label("P")))).outcome());
         assertEquals(3L, run(command(2, expense(financial(a, b)))).resultingPotVersion());
@@ -901,7 +912,7 @@ class CommandExecutionPostgresTest {
         assertEquals(9L, run(command(8, new DeleteShareholder(a))).resultingPotVersion());
         assertEquals(10L, run(command(9, new DeletePot())).resultingPotVersion());
         rejected(run(command(10, new UpdatePotDetails(new Label("late")))), "DELETED");
-        assertEquals(old, tx.snapshot(() -> history.atVersion(p, 2).orElseThrow()));
+        assertEquals(old, tx.read(context -> history.atVersion(p, 2).orElseThrow()));
         var finalState = snapshot();
         assertTrue(finalState.pot().header().value().deleted());
         assertEquals(2, finalState.expenses().get(e).header().localVersion());
@@ -919,7 +930,7 @@ class CommandExecutionPostgresTest {
     }
 
     long storeVersion() {
-        return tx.snapshot(() -> store.currentVersion(p));
+        return tx.read(context -> store.currentVersion(p));
     }
 
     @Test
@@ -1122,7 +1133,7 @@ class CommandExecutionPostgresTest {
                         .orElseThrow()
                         .outcome());
         assertEquals(old.expenses().get(e).financials(), snapshot().expenses().get(e).financials());
-        assertEquals(old, tx.snapshot(() -> history.atVersion(p, 3).orElseThrow()));
+        assertEquals(old, tx.read(context -> history.atVersion(p, 3).orElseThrow()));
         safeReferences();
         dense();
     }
@@ -1408,11 +1419,12 @@ class CommandExecutionPostgresTest {
                             });
             var commands =
                     intercept(
-                            PotCommandStore.class,
+                            L1CommandStore.class,
                             store,
                             NOTHING,
                             (m, args) -> {
-                                if ((phase.equals("after-finish") && m.getName().equals("finish"))
+                                if ((phase.equals("after-finish")
+                                                && m.getName().equals("finishTerminal"))
                                         || (phase.equals("after-publish")
                                                 && m.getName().equals("publish")))
                                     throw new IllegalStateException("injected terminal failure");
@@ -1499,8 +1511,8 @@ class CommandExecutionPostgresTest {
                 tx.write(() -> store.recordFailure(command.requestId(), stale, 3, Duration.ZERO)));
         for (int count = 2; count <= 3; count++) {
             jdbc.update(
-                    "update v3_command_slot set retry_after=clock_timestamp()-interval '1 second'"
-                            + " where request_id=?",
+                    "update consumption_slot set retry_after=clock_timestamp()-interval '1 second'"
+                            + " where consumable_id=?",
                     command.requestId());
             var next = acquire(command.requestId());
             assertNotEquals(token, next);
@@ -1522,15 +1534,15 @@ class CommandExecutionPostgresTest {
         assertEquals(
                 1,
                 jdbc.update(
-                        "update v3_command_slot set"
+                        "update consumption_slot set"
                                 + " state='AVAILABLE',attempt_count=0,retry_after=null where"
-                                + " request_id=? and state='QUARANTINED'",
+                                + " consumable_id=? and state='QUARANTINED'",
                         command.requestId()));
         assertEquals(
                 0,
                 jdbc.update(
-                        "update v3_command_slot set state='AVAILABLE',attempt_count=0 where"
-                                + " request_id=? and state='QUARANTINED'",
+                        "update consumption_slot set state='AVAILABLE',attempt_count=0 where"
+                                + " consumable_id=? and state='QUARANTINED'",
                         command.requestId()));
         assertEquals(
                 4L,
@@ -1574,13 +1586,14 @@ class CommandExecutionPostgresTest {
                                 POSTGRES.getPassword());
                 var manager = new DataSourceTransactionManager(proxied);
                 manager.setNestedTransactionAllowed(false);
-                var pt = new PotCommandJdbcTransactions(proxied, manager);
-                PotCommandTransactions armed =
-                        new PotCommandTransactions() {
+                var pt = new SpringAttemptTransactions(proxied, manager);
+                AttemptTransactions armed =
+                        new ForwardingTransactions(pt) {
                             @Override
-                            public <T> T snapshot(Supplier<T> action) {
-                                var result = pt.snapshot(action);
-                                proxy.armed.set(fault);
+                            public <T> T read(
+                                    java.util.function.Function<RecoveryReadContext, T> action) {
+                                var result = pt.read(action);
+                                if (proxy.intercepted.get() == 0) proxy.armed.set(fault);
                                 return result;
                             }
 
@@ -1592,9 +1605,10 @@ class CommandExecutionPostgresTest {
                 var command = command(2, new UpdatePotDetails(new Label("wire")));
                 var token = admit(command);
                 var execution =
-                        new ExecutePotCommand(
+                        new L1CommandCompatibilityHarness(
                                 armed,
-                                new JdbcPotCommandStore(proxied, pt),
+                                new L1CommandStore.Fixture(
+                                        proxied, new JdbcPotCommandStore(proxied, pt)),
                                 new FixtureAuthority(proxied),
                                 new JdbcPotHistoryAdapter(proxied),
                                 new JdbcPotRevisionAdapter(proxied),
@@ -1621,8 +1635,8 @@ class CommandExecutionPostgresTest {
                     pending(command.requestId(), 0);
                     assertEquals(before, snapshot());
                     jdbc.update(
-                            "update v3_command_slot set claimed_until=clock_timestamp()-interval '1"
-                                    + " second' where request_id=?",
+                            "update consumption_slot set claimed_until=clock_timestamp()-interval"
+                                + " '1 second' where consumable_id=?",
                             command.requestId());
                     assertEquals(
                             3L,
@@ -1646,13 +1660,13 @@ class CommandExecutionPostgresTest {
             blocker.setAutoCommit(false);
             try (var statement =
                     blocker.prepareStatement(
-                            "select request_id from v3_command_slot where request_id=? for"
+                            "select consumable_id from consumption_slot where consumable_id=? for"
                                     + " update")) {
                 statement.setObject(1, command.requestId());
                 statement.executeQuery().close();
             }
             var work = threads.submit(() -> engine().execute(command.requestId(), token));
-            blocked("select claim_token,claimed_until,state from v3_command_slot");
+            blocked("select claim_token,claimed_until,state from consumption_slot");
             // An oracle discriminating stale now() from a fresh post-wait clock:
             // final transaction start < expiry < actual DB clock while the row stays locked.
             var started =
@@ -1661,11 +1675,11 @@ class CommandExecutionPostgresTest {
                                 + " datname=current_database() and wait_event_type='Lock' and query"
                                 + " like ?",
                             Timestamp.class,
-                            "%select claim_token,claimed_until,state from v3_command_slot%");
+                            "%select claim_token,claimed_until,state from consumption_slot%");
             var expiry = Timestamp.from(started.toInstant().plusNanos(1000));
             try (var statement =
                     blocker.prepareStatement(
-                            "update v3_command_slot set claimed_until=? where request_id=?")) {
+                            "update consumption_slot set claimed_until=? where consumable_id=?")) {
                 statement.setTimestamp(1, expiry);
                 statement.setObject(2, command.requestId());
                 assertEquals(1, statement.executeUpdate());
@@ -1725,7 +1739,7 @@ class CommandExecutionPostgresTest {
         var release = new CountDownLatch(1);
         var commands =
                 intercept(
-                        PotCommandStore.class,
+                        L1CommandStore.class,
                         store,
                         NOTHING,
                         (method, args) -> {
@@ -1733,9 +1747,9 @@ class CommandExecutionPostgresTest {
                                 // Controlled expiry AFTER successful protection; emulates
                                 // wall-clock passage without sleeps.
                                 jdbc.update(
-                                        "update v3_command_slot set"
+                                        "update consumption_slot set"
                                             + " claimed_until=clock_timestamp()-interval '1 second'"
-                                            + " where request_id=?",
+                                            + " where consumable_id=?",
                                         command.requestId());
                                 locked.countDown();
                                 await(release);
@@ -1748,7 +1762,7 @@ class CommandExecutionPostgresTest {
                                         .execute(command.requestId(), token));
         await(locked);
         var takeover = threads.submit(() -> acquire(command.requestId()));
-        blocked("select request_id from v3_command_slot");
+        blocked("select consumable_id from consumption_slot");
         assertFalse(takeover.isDone());
         release.countDown();
         assertEquals(Status.COMPLETED, get(work).status());
@@ -1794,7 +1808,7 @@ class CommandExecutionPostgresTest {
             var release = new CountDownLatch(1);
             var commands =
                     intercept(
-                            PotCommandStore.class,
+                            L1CommandStore.class,
                             store,
                             NOTHING,
                             (method, args) -> {
@@ -1857,12 +1871,13 @@ class CommandExecutionPostgresTest {
             var manager = new JpaTransactionManager(emf);
             manager.setDataSource(source);
             manager.setNestedTransactionAllowed(false);
-            var jpaTx = new PotCommandJdbcTransactions(source, manager);
-            var commands = new JdbcPotCommandStore(source, jpaTx);
+            var jpaTx = new SpringAttemptTransactions(source, manager);
+            var commands =
+                    new L1CommandStore.Fixture(source, new JdbcPotCommandStore(source, jpaTx));
             for (boolean jpaFirst : List.of(false, true)) {
                 var before = snapshot();
                 assertThrows(
-                        PotCommandTransactions.Failure.class,
+                        AttemptTransactions.Failure.class,
                         () ->
                                 jpaTx.write(
                                         () -> {
@@ -1914,7 +1929,7 @@ class CommandExecutionPostgresTest {
             }
             for (boolean jpaFirst : List.of(false, true)) {
                 assertThrows(
-                        PotCommandTransactions.Failure.class,
+                        AttemptTransactions.Failure.class,
                         () ->
                                 jpaTx.write(
                                         () -> {
@@ -1964,15 +1979,16 @@ class CommandExecutionPostgresTest {
         var wrong = new DataSourceTransactionManager(other);
         wrong.setNestedTransactionAllowed(false);
         assertThrows(
+                IllegalArgumentException.class, () -> new SpringAttemptTransactions(source, wrong));
+        assertThrows(
                 IllegalArgumentException.class,
-                () -> new PotCommandJdbcTransactions(source, wrong));
-        assertThrows(IllegalArgumentException.class, () -> new JdbcPotCommandStore(other, tx));
-        assertThrows(PotCommandTransactions.Failure.class, () -> tx.write(() -> tx.write(() -> 1)));
+                () -> new L1CommandStore.Fixture(other, new JdbcPotCommandStore(other, tx)));
+        assertThrows(AttemptTransactions.Failure.class, () -> tx.write(() -> tx.write(() -> 1)));
         var command = command(2, new UpdatePotDetails(new Label("closed")));
         var token = admit(command);
         var commands =
                 intercept(
-                        PotCommandStore.class,
+                        L1CommandStore.class,
                         store,
                         NOTHING,
                         (method, args) -> {
@@ -2085,7 +2101,7 @@ class CommandExecutionPostgresTest {
         nested.setPropagationBehavior(
                 org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         assertThrows(
-                PotCommandTransactions.Failure.class,
+                AttemptTransactions.Failure.class,
                 () ->
                         tx.write(
                                 () -> {
@@ -2134,8 +2150,8 @@ class CommandExecutionPostgresTest {
                 command(3, new UpdatePotDetails(new Label("crash before failure accounting")));
         var stale = admit(abandoned);
         jdbc.update(
-                "update v3_command_slot set claimed_until=clock_timestamp()-interval '1 second'"
-                        + " where request_id=?",
+                "update consumption_slot set claimed_until=clock_timestamp()-interval '1 second'"
+                        + " where consumable_id=?",
                 abandoned.requestId());
         var fresh = acquire(abandoned.requestId());
         assertNotEquals(stale, fresh);
@@ -2162,7 +2178,7 @@ class CommandExecutionPostgresTest {
             var release = new CountDownLatch(1);
             var commands =
                     intercept(
-                            PotCommandStore.class,
+                            L1CommandStore.class,
                             store,
                             NOTHING,
                             (method, args) -> {
@@ -2231,11 +2247,12 @@ class CommandExecutionPostgresTest {
                                 POSTGRES.getPassword());
                 var manager = new DataSourceTransactionManager(proxied);
                 manager.setNestedTransactionAllowed(false);
-                var pt = new PotCommandJdbcTransactions(proxied, manager);
-                var durable = new JdbcPotCommandStore(proxied, pt);
+                var pt = new SpringAttemptTransactions(proxied, manager);
+                var durable =
+                        new L1CommandStore.Fixture(proxied, new JdbcPotCommandStore(proxied, pt));
                 var commands =
                         intercept(
-                                PotCommandStore.class,
+                                L1CommandStore.class,
                                 durable,
                                 NOTHING,
                                 (method, args) -> {
@@ -2251,7 +2268,7 @@ class CommandExecutionPostgresTest {
                                 },
                                 NOTHING);
                 var execution =
-                        new ExecutePotCommand(
+                        new L1CommandCompatibilityHarness(
                                 pt,
                                 commands,
                                 new FixtureAuthority(proxied),
@@ -2278,8 +2295,8 @@ class CommandExecutionPostgresTest {
                     pending(command.requestId(), 1);
                 } else
                     jdbc.update(
-                            "update v3_command_slot set claimed_until=clock_timestamp()-interval '1"
-                                    + " second' where request_id=?",
+                            "update consumption_slot set claimed_until=clock_timestamp()-interval"
+                                + " '1 second' where consumable_id=?",
                             command.requestId());
                 assertEquals(
                         Status.COMPLETED,
@@ -2304,7 +2321,7 @@ class CommandExecutionPostgresTest {
                             throw new IllegalStateException("loading fault");
                         });
         var execution =
-                new ExecutePotCommand(
+                new L1CommandCompatibilityHarness(
                         tx,
                         store,
                         authority,

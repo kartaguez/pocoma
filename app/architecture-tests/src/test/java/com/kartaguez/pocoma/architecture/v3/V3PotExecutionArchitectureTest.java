@@ -49,7 +49,7 @@ class V3PotExecutionArchitectureTest {
                                     d ->
                                             d.getTargetClass()
                                                     .getSimpleName()
-                                                    .equals("PotCommandJdbcTransactions")),
+                                                    .equals("SpringAttemptTransactions")),
                     name);
             assertFalse(
                     writer.getMethods().stream()

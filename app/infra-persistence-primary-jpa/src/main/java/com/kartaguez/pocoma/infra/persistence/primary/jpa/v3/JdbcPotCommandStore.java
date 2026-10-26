@@ -4,12 +4,11 @@ import com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.sql.Timestamp;
-import java.time.*;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -19,9 +18,9 @@ import javax.sql.DataSource;
 public final class JdbcPotCommandStore implements PotCommandStore {
     private final DataSource source;
     private final JdbcTemplate jdbc;
-    private final PotCommandJdbcTransactions transactions;
+    private final SpringAttemptTransactions transactions;
 
-    public JdbcPotCommandStore(DataSource source, PotCommandJdbcTransactions transactions) {
+    public JdbcPotCommandStore(DataSource source, SpringAttemptTransactions transactions) {
         this.source = Objects.requireNonNull(source);
         this.transactions = Objects.requireNonNull(transactions);
         transactions.requireSource(source);
@@ -29,7 +28,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     }
 
     private <T> T guarded(Supplier<T> action) {
-        return PotCommandJdbcTransactions.guarded(source, action);
+        return SpringAttemptTransactions.guarded(source, action);
     }
 
     private void requireTransaction() {
@@ -64,19 +63,6 @@ public final class JdbcPotCommandStore implements PotCommandStore {
         if (terminal != (row.get("outcome") != null))
             throw new InconsistentPotFactsException("Terminal/result mismatch");
         if (!terminal) return new Stored(command, Optional.empty());
-        if (Boolean.TRUE.equals(
-                        jdbc.queryForObject(
-                                "select exists(select 1 from v3_command_slot where request_id=?)",
-                                Boolean.class,
-                                requestId))
-                || jdbc.queryForObject(
-                                "select count(*) from v3_command_completion_event e join"
-                                        + " v3_event_position p on p.event_id=e.event_id and"
-                                        + " p.family='COMMAND_COMPLETION' where e.subject_id=?",
-                                Long.class,
-                                requestId)
-                        != 1)
-            throw new InconsistentPotFactsException("Terminal Command incomplete");
         var version = (Number) row.get("resulting_pot_version");
         return new Stored(
                 command,
@@ -96,29 +82,6 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                         Long.class,
                         pot.value());
         return versions.isEmpty() ? 0 : versions.getFirst();
-    }
-
-    @Override
-    public boolean protectClaim(UUID requestId, UUID token) {
-        return guarded(
-                () -> {
-                    // Separate statements ensure clock_timestamp is evaluated AFTER the actual lock
-                    // wait.
-                    var rows =
-                            jdbc.queryForList(
-                                    "select claim_token,claimed_until,state from v3_command_slot"
-                                            + " where request_id=? for update",
-                                    requestId);
-                    if (rows.isEmpty()) return false;
-                    var row = rows.getFirst();
-                    Instant now =
-                            jdbc.queryForObject("select clock_timestamp()", Timestamp.class)
-                                    .toInstant();
-                    return token.equals(row.get("claim_token"))
-                            && row.get("state").equals("AVAILABLE")
-                            && row.get("claimed_until") instanceof Timestamp until
-                            && until.toInstant().isAfter(now);
-                });
     }
 
     @Override
@@ -151,7 +114,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
     }
 
     @Override
-    public void finish(PotCommand command, UUID claim, Result result) {
+    public void finishTerminal(PotCommand command, Result result) {
         guarded(
                 () -> {
                     jdbc.update(
@@ -167,21 +130,19 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                                             + " status='PENDING'",
                                     command.requestId())
                             != 1) throw new InconsistentPotFactsException("Command not pending");
-                    if (jdbc.update(
-                                    "delete from v3_command_slot where request_id=? and"
-                                            + " claim_token=?",
-                                    command.requestId(),
-                                    claim)
-                            != 1)
-                        throw new InconsistentPotFactsException("Protected slot disappeared");
                     return null;
                 });
     }
 
     @Override
-    public void publish(PotCommand command, Result result, List<Component> changed) {
+    public void requireCompletionReady(PotCommand command, Result result, List<Component> changed) {
         guarded(
                 () -> {
+                    var durable = load(command.requestId());
+                    if (!durable.command().equals(command)
+                            || !durable.terminal().equals(Optional.of(result)))
+                        throw new InconsistentPotFactsException(
+                                "Completion requires the exact terminal result");
                     if (result.outcome() == Outcome.CHANGED) {
                         var actual =
                                 changedComponents(command.potId(), result.resultingPotVersion());
@@ -193,6 +154,25 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                     } else if (!changed.isEmpty())
                         throw new InconsistentPotFactsException(
                                 "No-effect publication has changes");
+                    if (result.outcome() != Outcome.CHANGED
+                            && Boolean.TRUE.equals(
+                                    jdbc.queryForObject(
+                                            "select coalesce((select"
+                                                + " writer_xid=pg_current_xact_id() from"
+                                                + " v3_pot_version where pot_id=? order by version"
+                                                + " desc limit 1),false)",
+                                            Boolean.class,
+                                            command.potId().value())))
+                        throw new InconsistentPotFactsException(
+                                "No-effect completion has a candidate in this attempt");
+                    return null;
+                });
+    }
+
+    @Override
+    public void publish(PotCommand command, Result result, List<Component> changed) {
+        guarded(
+                () -> {
                     UUID potEvent = result.outcome() == Outcome.CHANGED ? UUID.randomUUID() : null;
                     if (potEvent != null) {
                         jdbc.update(
@@ -227,7 +207,7 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                             command.requestId());
                     transactions.flushBeforePublication();
                     validateBusinessConstraints();
-                    PotCommandJdbcTransactions.closePublication(source);
+                    SpringAttemptTransactions.closePublication(source);
                     // Closed suffix. Only pre-existing family counters and new publication-position
                     // rows.
                     if (potEvent != null) position("POT", potEvent);
@@ -322,33 +302,5 @@ public final class JdbcPotCommandStore implements PotCommandStore {
                 family,
                 position,
                 event);
-    }
-
-    @Override
-    public FailureRecorded recordFailure(UUID request, UUID claim, int maximum, Duration delay) {
-        if (maximum < 1 || delay.isNegative())
-            throw new IllegalArgumentException("Invalid retry policy");
-        return guarded(
-                () -> {
-                    if (!protectClaim(request, claim)) return FailureRecorded.CLAIM_LOST;
-                    var state =
-                            jdbc.queryForObject(
-                                    "update v3_command_slot set attempt_count=attempt_count+1,"
-                                        + " claim_token=null,claimed_until=null, state=case when"
-                                        + " attempt_count+1>=? then 'QUARANTINED' else 'AVAILABLE'"
-                                        + " end, retry_after=case when attempt_count+1>=? then null"
-                                        + " else clock_timestamp()+(? * interval '1 millisecond')"
-                                        + " end where request_id=? and claim_token=? returning"
-                                        + " state",
-                                    String.class,
-                                    maximum,
-                                    maximum,
-                                    delay.toMillis(),
-                                    request,
-                                    claim);
-                    return "QUARANTINED".equals(state)
-                            ? FailureRecorded.QUARANTINED
-                            : FailureRecorded.RETRY_SCHEDULED;
-                });
     }
 }

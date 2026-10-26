@@ -2,7 +2,6 @@ package com.kartaguez.pocoma.engine.write.pot.port.execution.v3;
 
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 
-import java.time.Duration;
 import java.util.*;
 
 /**
@@ -44,31 +43,19 @@ public interface PotCommandStore {
         }
     }
 
-    enum FailureRecorded {
-        RETRY_SCHEDULED,
-        QUARANTINED,
-        CLAIM_LOST
-    }
-
     Stored load(UUID requestId);
 
     long currentVersion(PotId potId);
 
-    /**
-     * Exclusive slot lock, then fresh DB time. Hold through physical commit, no partition fence.
-     */
-    boolean protectClaim(UUID requestId, UUID claimToken);
-
-    /** Protect absence too (CreatePot/NOT_FOUND). Return false on changed working version. */
+    /** Protect absence too; false means the prepared working version changed. */
     boolean protectPot(PotId potId, long expectedVersion);
 
-    /** After all domain writes: result/status and slot removal, no publication lock yet. */
-    void finish(PotCommand command, UUID claimToken, Result result);
+    void finishTerminal(PotCommand command, Result result);
 
-    /** Last operation: flush/deferred checks, then dense POT -> COMMAND_COMPLETION publication. */
+    /** Actual result and exact effects of this transaction, before Engine completes the slot. */
+    void requireCompletionReady(
+            PotCommand command, Result result, List<Component> changedComponents);
+
+    /** Last operation: events, flush/constraints, closed dense POT -> COMPLETION suffix. */
     void publish(PotCommand command, Result result, List<Component> changedComponents);
-
-    /** A short, separate transaction AFTER confirmed rollback; conditional once per valid claim. */
-    FailureRecorded recordFailure(
-            UUID requestId, UUID claimToken, int maximumFailures, Duration delay);
 }

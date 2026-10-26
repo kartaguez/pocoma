@@ -2,132 +2,80 @@ package com.kartaguez.pocoma.engine.write.pot.v3;
 
 import com.kartaguez.pocoma.domain.pot.v3.*;
 import com.kartaguez.pocoma.domain.pot.value.id.*;
+import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommandStore.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort.*;
+import com.kartaguez.pocoma.port.transaction.v3.RecoveryReadContext;
 
 import java.time.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
-/** One acquisition, one complete attempt. Scheduling and acquisition belong to Consumption. */
-public final class ExecutePotCommand {
-    public enum Status {
-        COMPLETED,
-        RETRY_SCHEDULED,
-        QUARANTINED,
-        CLAIM_LOST,
-        RECOVERY_PENDING
-    }
-
-    public enum Cause {
-        NONE,
-        COLLISION,
-        TECHNICAL,
-        INCONSISTENT_FACTS,
-        COMMIT_UNCERTAIN
-    }
-
-    public record Attempt(Status status, Optional<Result> result, Cause cause) {}
-
-    public record RetryPolicy(int maximumFailures, Duration delay) {
-        public RetryPolicy {
-            if (maximumFailures < 1 || delay == null || delay.isNegative())
-                throw new IllegalArgumentException("Invalid retry policy");
-        }
-    }
-
-    private record Prepared(
+/** Command participant: business preparation, revalidation, effects and publication. */
+public final class ExecutePotCommand implements ConsumptionParticipant {
+    private record Proposal(
             PotCommand command,
-            Optional<Result> terminal,
             PotActorAuthority.Witness actor,
             long workingVersion,
             Result result,
             Runnable apply,
             List<Component> components) {}
 
-    private static final class Collision extends RuntimeException {}
+    public static final class Collision extends RuntimeException {}
 
-    private static final class ClaimLost extends RuntimeException {}
-
-    private final PotCommandTransactions transactions;
     private final PotCommandStore store;
+    private final PotCommandObservation observation;
     private final PotActorAuthority authority;
     private final PotHistoryPort history;
     private final PotRevisionPort revisions;
-    private final RetryPolicy retries;
     private final Clock clock;
 
     public ExecutePotCommand(
-            PotCommandTransactions transactions,
             PotCommandStore store,
+            PotCommandObservation observation,
             PotActorAuthority authority,
             PotHistoryPort history,
             PotRevisionPort revisions,
-            RetryPolicy retries,
             Clock clock) {
-        this.transactions = Objects.requireNonNull(transactions);
         this.store = Objects.requireNonNull(store);
+        this.observation = Objects.requireNonNull(observation);
         this.authority = Objects.requireNonNull(authority);
         this.history = Objects.requireNonNull(history);
         this.revisions = Objects.requireNonNull(revisions);
-        this.retries = Objects.requireNonNull(retries);
         this.clock = Objects.requireNonNull(clock);
     }
 
-    public Attempt execute(UUID requestId, UUID claimToken) {
-        Objects.requireNonNull(requestId);
-        Objects.requireNonNull(claimToken);
-        try {
-            var prepared = transactions.snapshot(() -> prepare(store.load(requestId)));
-            if (prepared.terminal().isPresent()) return completed(prepared.terminal().get());
-            return transactions.write(() -> finalize(prepared, claimToken));
-        } catch (PotCommandTransactions.Failure failure) {
-            if (failure.resolution() == PotCommandTransactions.Resolution.UNKNOWN)
-                return recover(requestId);
-            var cause = failure.getCause();
-            if (cause instanceof ClaimLost)
-                return new Attempt(Status.CLAIM_LOST, Optional.empty(), Cause.NONE);
-            Cause classified =
-                    cause instanceof Collision
-                            ? Cause.COLLISION
-                            : cause instanceof InconsistentPotFactsException
-                                    ? Cause.INCONSISTENT_FACTS
-                                    : Cause.TECHNICAL;
-            try {
-                var recorded =
-                        transactions.write(
-                                () ->
-                                        store.recordFailure(
-                                                requestId,
-                                                claimToken,
-                                                retries.maximumFailures(),
-                                                retries.delay()));
-                return new Attempt(Status.valueOf(recorded.name()), Optional.empty(), classified);
-            } catch (PotCommandTransactions.Failure recordingFailure) {
-                // An uncertain cession is never repeated: the durable slot governs reacquisition.
-                return new Attempt(
-                        Status.RECOVERY_PENDING, Optional.empty(), Cause.COMMIT_UNCERTAIN);
-            }
-        }
+    @Override
+    public Optional<ConsumptionParticipant.Prepared> prepare(UUID requestId) {
+        var stored = store.load(requestId);
+        if (stored.terminal().isPresent()) return Optional.empty();
+        var proposal = prepare(stored);
+        return Optional.of(
+                new ConsumptionParticipant.Prepared() {
+                    @Override
+                    public void finalizeIn(SlotCompletion completion) {
+                        finalizeProposal(proposal, completion);
+                    }
+
+                    @Override
+                    public void requireCompletionReady() {
+                        store.requireCompletionReady(
+                                proposal.command(), proposal.result(), proposal.components());
+                    }
+                });
     }
 
-    private Attempt recover(UUID requestId) {
-        try {
-            var durable = transactions.snapshot(() -> store.load(requestId));
-            if (durable.terminal().isPresent()) return completed(durable.terminal().get());
-        } catch (PotCommandTransactions.Failure unresolved) {
-            // The database may not yet be reachable or the original transaction still unresolved.
-        }
-        return new Attempt(Status.RECOVERY_PENDING, Optional.empty(), Cause.COMMIT_UNCERTAIN);
+    @Override
+    public RecoveryObservation observe(UUID requestId, RecoveryReadContext context) {
+        return observation.observe(requestId, context);
     }
 
-    private Attempt finalize(Prepared prepared, UUID token) {
+    private void finalizeProposal(Proposal prepared, SlotCompletion completion) {
         var command = prepared.command();
-        if (!store.protectClaim(command.requestId(), token)) throw new ClaimLost();
         var durable = store.load(command.requestId());
         if (durable.terminal().isPresent() || !durable.command().equals(command))
             throw new InconsistentPotFactsException("Request changed after preparation");
@@ -136,15 +84,13 @@ public final class ExecutePotCommand {
                 && !store.protectPot(command.potId(), prepared.workingVersion()))
             throw new Collision();
         prepared.apply().run();
-        store.finish(command, token, prepared.result());
+        store.finishTerminal(command, prepared.result());
+        completion.complete();
         store.publish(command, prepared.result(), prepared.components());
-        return completed(prepared.result());
     }
 
-    private Prepared prepare(Stored stored) {
+    private Proposal prepare(Stored stored) {
         var c = stored.command();
-        if (stored.terminal().isPresent())
-            return new Prepared(c, stored.terminal(), null, 0, null, () -> {}, List.of());
         var actor = authority.observe(c);
         // Even invalid authority must be protected until its rejection commits.
         if (actor.actor().isEmpty()) return rejected(c, actor, 0, "INVALID_BINDING");
@@ -167,7 +113,7 @@ public final class ExecutePotCommand {
         return decide(c, actor, selected.get());
     }
 
-    private Prepared decide(PotCommand c, PotActorAuthority.Witness actor, SelectedPot p) {
+    private Proposal decide(PotCommand c, PotActorAuthority.Witness actor, SelectedPot p) {
         var facts = p.facts();
         long observed = c.observedVersion();
         long version = facts.workingVersion();
@@ -362,7 +308,7 @@ public final class ExecutePotCommand {
         };
     }
 
-    private <T> Prepared decision(
+    private <T> Proposal decision(
             PotCommand c,
             PotActorAuthority.Witness actor,
             long version,
@@ -372,18 +318,16 @@ public final class ExecutePotCommand {
         if (result instanceof TransitionResult.Rejected<T> rejected)
             return rejected(c, actor, version, rejected.reason().name());
         if (result instanceof TransitionResult.Unchanged<T> unchanged)
-            return new Prepared(
+            return new Proposal(
                     c,
-                    Optional.empty(),
                     actor,
                     version,
                     new Result(Outcome.UNCHANGED, unchanged.currentPotVersion(), null),
                     () -> {},
                     List.of());
         var changed = (TransitionResult.Changed<T>) result;
-        return new Prepared(
+        return new Proposal(
                 c,
-                Optional.empty(),
                 actor,
                 version,
                 new Result(Outcome.CHANGED, changed.candidatePotVersion(), null),
@@ -399,14 +343,9 @@ public final class ExecutePotCommand {
                 List.copyOf(components.apply(changed.changes())));
     }
 
-    private static Prepared rejected(
+    private static Proposal rejected(
             PotCommand c, PotActorAuthority.Witness actor, long version, String reason) {
-        return new Prepared(
-                c, Optional.empty(), actor, version, Result.rejected(reason), () -> {}, List.of());
-    }
-
-    private static Attempt completed(Result result) {
-        return new Attempt(Status.COMPLETED, Optional.of(result), Cause.NONE);
+        return new Proposal(c, actor, version, Result.rejected(reason), () -> {}, List.of());
     }
 
     private static Component component(String kind, EntityId id, Versioned<?> revision) {

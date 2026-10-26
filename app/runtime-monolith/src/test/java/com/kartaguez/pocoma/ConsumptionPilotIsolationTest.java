@@ -38,12 +38,12 @@ class ConsumptionPilotIsolationTest {
                 var s = c.createStatement()) {
             s.execute(
                     "create role pilot_w login password 'fixture-runtime';create role pilot_r login"
-                        + " password 'fixture-runtime'");
+                            + " password 'fixture-runtime'");
             s.execute("create database pilot_read");
             s.execute(
                     "create schema historical;create table historical.requests(id int primary"
-                        + " key,status text);insert into historical.requests"
-                        + " values(1,'PENDING'),(2,'TERMINAL')");
+                            + " key,status text);insert into historical.requests"
+                            + " values(1,'PENDING'),(2,'TERMINAL')");
         }
         PG.copyFileToContainer(
                 MountableFile.forHostPath(
@@ -176,6 +176,16 @@ class ConsumptionPilotIsolationTest {
             app.setWebApplicationType(WebApplicationType.NONE);
             try (var context = app.run(args())) {
                 assertNotNull(context.getBean(V3BootstrapGuard.class));
+                assertTrue(
+                        context.getBeansOfType(
+                                        com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine
+                                                .class)
+                                .isEmpty());
+                assertTrue(
+                        context.getBeansOfType(
+                                        com.kartaguez.pocoma.infra.tx.spring.v3
+                                                .SpringAttemptTransactions.class)
+                                .isEmpty());
                 assertTrue(
                         context.getBeansOfType(org.springframework.boot.ApplicationRunner.class)
                                 .isEmpty());

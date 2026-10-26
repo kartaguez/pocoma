@@ -40,12 +40,12 @@ class ConsumptionBootstrapPostgresTest {
                 var s = c.createStatement()) {
             s.execute(
                     "create role pilot_w login password 'fixture-runtime';create role pilot_r login"
-                        + " password 'fixture-runtime'");
+                            + " password 'fixture-runtime'");
             s.execute("create database pilot_read");
             s.execute(
                     "create schema historical;create table historical.requests(id int primary"
-                        + " key,status text);insert into historical.requests"
-                        + " values(1,'PENDING'),(2,'TERMINAL')");
+                            + " key,status text);insert into historical.requests"
+                            + " values(1,'PENDING'),(2,'TERMINAL')");
         }
         PG.copyFileToContainer(
                 MountableFile.forHostPath(
@@ -180,7 +180,7 @@ class ConsumptionBootstrapPostgresTest {
             actual.addAll(
                     j.queryForList(
                             "select consumption_id::text||':'||family from"
-                                + " consumption_routing_contract",
+                                    + " consumption_routing_contract",
                             String.class));
         assertEquals(9, actual.size());
         assertEquals(7, expected.stream().map(ConsumptionDefinition::family).distinct().count());
@@ -220,8 +220,8 @@ class ConsumptionBootstrapPostgresTest {
         write.execute(original);
         write.execute(
                 "alter table consumption_routing_contract disable trigger"
-                    + " consumption_contract_immutable;update consumption_routing_contract set"
-                    + " family='IDENTITY_REQUEST' where family='COMMAND'");
+                        + " consumption_contract_immutable;update consumption_routing_contract set"
+                        + " family='IDENTITY_REQUEST' where family='COMMAND'");
         assertThrows(IllegalStateException.class, () -> guard().validate());
         var dir = Path.of("target/l2-i1-proof");
         Files.createDirectories(dir);
@@ -413,9 +413,13 @@ class ConsumptionBootstrapPostgresTest {
                 List.of(
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotCommandStore
                                 .class,
-                        com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
-                                .PotCommandJdbcTransactions.class,
+                        com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions.class,
                         com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand.class,
+                        com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.class,
+                        com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption
+                                .JdbcConsumptionSlotStore.class,
+                        com.kartaguez.pocoma.infra.persistence.primary.jpa.v3
+                                .JdbcPotCommandObservation.class,
                         com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption
                                 .JpaConsumptionLifecycleAdapter.class,
                         com.kartaguez.pocoma.orchestrator.poll.consumption.ConsumptionPollingWorker

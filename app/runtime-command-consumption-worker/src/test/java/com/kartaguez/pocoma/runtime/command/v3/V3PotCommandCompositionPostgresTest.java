@@ -2,6 +2,7 @@ package com.kartaguez.pocoma.runtime.command.v3;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
 import com.kartaguez.pocoma.domain.pot.v3.Amount;
 import com.kartaguez.pocoma.domain.pot.v3.ExpenseDetails;
 import com.kartaguez.pocoma.domain.pot.v3.ExpenseFinancials;
@@ -15,12 +16,12 @@ import com.kartaguez.pocoma.domain.pot.value.UserId;
 import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
+import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
-import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotHistoryAdapter;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJdbcTransactions;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
@@ -52,15 +53,32 @@ class V3PotCommandCompositionPostgresTest {
                         POSTGRES.getUsername(),
                         POSTGRES.getPassword());
         var sql = new JdbcTemplate(source);
+        sql.execute("create extension if not exists pgcrypto with schema public");
+        sql.execute("create role " + schema + "_runtime nologin");
         Flyway.configure()
                 .dataSource(source)
                 .schemas(schema)
                 .defaultSchema(schema)
                 .createSchemas(true)
                 .locations(
-                        "classpath:db/v3-pot/migration", "classpath:db/v3-pot-execution/migration")
+                        "classpath:db/v3-pot/migration",
+                        "classpath:db/v3-pot-execution/migration",
+                        "classpath:db/v3-consumption-write/migration")
+                .placeholders(
+                        Map.of(
+                                "expectedDatabase",
+                                POSTGRES.getDatabaseName(),
+                                "expectedSchema",
+                                schema,
+                                "expectedAdmin",
+                                POSTGRES.getUsername(),
+                                "expectedRuntime",
+                                schema + "_runtime"))
                 .load()
                 .migrate();
+        sql.update(
+                "insert into consumption_routing_contract values"
+                        + " ('98f7268d-d340-581c-b83d-010926223e14','COMMAND','sha256-v1',4)");
         sql.execute(
                 "create table fixture_identity(issuer text,subject text,user_id uuid,token"
                         + " text,primary key(issuer,subject))");
@@ -110,12 +128,7 @@ class V3PotCommandCompositionPostgresTest {
                         }
                     };
             var execution =
-                    V3PotCommandComposition.assemble(
-                            source,
-                            manager,
-                            authority,
-                            new ExecutePotCommand.RetryPolicy(3, Duration.ZERO),
-                            Clock.systemUTC());
+                    V3PotCommandComposition.assemble(source, manager, authority, Clock.systemUTC());
             var request = UUID.randomUUID();
             var claim = UUID.randomUUID();
             var intent = new PotCommand.CreatePot(new Label("composed"));
@@ -127,13 +140,22 @@ class V3PotCommandCompositionPostgresTest {
                     pot.value(),
                     PotCommandJson.encode(intent));
             sql.update(
-                    "insert into v3_command_slot(request_id,claim_token,claimed_until) values"
-                            + " (?,?,clock_timestamp()+interval '1 minute')",
-                    request,
-                    claim);
-            var result = execution.execute(request, claim);
-            assertEquals(ExecutePotCommand.Status.COMPLETED, result.status());
-            assertEquals(1L, result.result().orElseThrow().resultingPotVersion());
+                    "insert into"
+                        + " consumption_slot(consumption_id,consumable_id,partition_hash,partition_id,claim_token,claimed_until)"
+                        + " select"
+                        + " '98f7268d-d340-581c-b83d-010926223e14',id,h,((h::bigint%4+4)%4)::int,token,clock_timestamp()+interval"
+                        + " '1 minute' from (select id,token,consumption_hash_v1('COMMAND',id) h"
+                        + " from (select ?::uuid id,?::uuid token) x) y",
+                    request, claim);
+            var result = execution.execute(claim(request, claim));
+            assertEquals(ConsumptionEngine.Status.COMMITTED, result.status());
+            assertEquals(
+                    1L,
+                    sql.queryForObject(
+                            "select resulting_pot_version from v3_command_result where"
+                                + " request_id=?",
+                            Long.class,
+                            request));
             assertEquals(
                     "TERMINAL",
                     sql.queryForObject(
@@ -141,13 +163,15 @@ class V3PotCommandCompositionPostgresTest {
                             String.class,
                             request));
             assertEquals(
-                    0, sql.queryForObject("select count(*) from v3_command_slot", Integer.class));
+                    0, sql.queryForObject("select count(*) from consumption_slot", Integer.class));
             assertEquals(1, sql.queryForObject("select count(*) from v3_pot_event", Integer.class));
             assertEquals(
                     1,
                     sql.queryForObject(
                             "select count(*) from v3_command_completion_event", Integer.class));
-            assertEquals(result, execution.execute(request, claim));
+            assertEquals(
+                    ConsumptionEngine.Status.COMMITTED,
+                    execution.execute(claim(request, claim)).status());
             // E: actual Spring/JPA composition also executes finance and historical calculation.
             var a = new ShareholderId(UUID.randomUUID());
             var b = new ShareholderId(UUID.randomUUID());
@@ -160,7 +184,7 @@ class V3PotCommandCompositionPostgresTest {
                         long observed =
                                 sql.queryForObject(
                                         "select current_version from v3_pot_identity where"
-                                            + " pot_id=?",
+                                                + " pot_id=?",
                                         Long.class,
                                         pot.value());
                         sql.update(
@@ -173,15 +197,23 @@ class V3PotCommandCompositionPostgresTest {
                                 operation.getClass().getSimpleName(),
                                 PotCommandJson.encode(operation));
                         sql.update(
-                                "insert into v3_command_slot(request_id,claim_token,claimed_until)"
-                                    + " values (?,?,clock_timestamp()+interval '1 minute')",
-                                id,
-                                token);
-                        var completed = execution.execute(id, token);
-                        assertEquals(ExecutePotCommand.Status.COMPLETED, completed.status());
+                                "insert into"
+                                    + " consumption_slot(consumption_id,consumable_id,partition_hash,partition_id,claim_token,claimed_until)"
+                                    + " select"
+                                    + " '98f7268d-d340-581c-b83d-010926223e14',id,h,((h::bigint%4+4)%4)::int,token,clock_timestamp()+interval"
+                                    + " '1 minute' from (select"
+                                    + " id,token,consumption_hash_v1('COMMAND',id) h from (select"
+                                    + " ?::uuid id,?::uuid token) x) y",
+                                id, token);
+                        var completed = execution.execute(claim(id, token));
+                        assertEquals(ConsumptionEngine.Status.COMMITTED, completed.status());
                         assertEquals(
                                 observed + 1,
-                                completed.result().orElseThrow().resultingPotVersion());
+                                sql.queryForObject(
+                                        "select resulting_pot_version from v3_command_result where"
+                                            + " request_id=?",
+                                        Long.class,
+                                        id));
                     };
             submit.accept(
                     new PotCommand.AddShareholders(
@@ -203,11 +235,11 @@ class V3PotCommandCompositionPostgresTest {
                                     new Amount(new Fraction(100, 1)),
                                     a,
                                     Map.of(a, Optional.empty(), b, Optional.empty()))));
-            var owner = new PotCommandJdbcTransactions(source, manager);
+            var owner = new SpringAttemptTransactions(source, manager);
             var balances =
                     new CalculatePotBalances(
                             new JdbcPotHistoryAdapter(source), new PotBalanceCalculator());
-            var old = owner.snapshot(() -> balances.atVersion(pot, 3).orElseThrow());
+            var old = owner.read(context -> balances.atVersion(pot, 3).orElseThrow());
             assertEquals(Map.of(a, new Fraction(75, 1), b, new Fraction(-75, 1)), old.values());
             submit.accept(
                     new PotCommand.UpdateShareholderWeights(
@@ -216,8 +248,8 @@ class V3PotCommandCompositionPostgresTest {
                                             a, new Weight(new Fraction(3, 1))))));
             assertEquals(
                     Map.of(a, new Fraction(50, 1), b, new Fraction(-50, 1)),
-                    owner.snapshot(() -> balances.atVersion(pot, 4).orElseThrow()).values());
-            assertEquals(old, owner.snapshot(() -> balances.atVersion(pot, 3).orElseThrow()));
+                    owner.read(context -> balances.atVersion(pot, 4).orElseThrow()).values());
+            assertEquals(old, owner.read(context -> balances.atVersion(pot, 3).orElseThrow()));
             try {
                 var output =
                         java.nio.file.Path.of("target/v3-pot-evidence/E-spring-composition.txt");
@@ -227,7 +259,7 @@ class V3PotCommandCompositionPostgresTest {
                         "Actual composition factory + JpaTransactionManager\n"
                                 + old
                                 + "\n"
-                                + owner.snapshot(() -> balances.atVersion(pot, 4).orElseThrow()));
+                                + owner.read(context -> balances.atVersion(pot, 4).orElseThrow()));
             } catch (java.io.IOException error) {
                 throw new AssertionError(error);
             }
@@ -238,13 +270,16 @@ class V3PotCommandCompositionPostgresTest {
                     IllegalArgumentException.class,
                     () ->
                             V3PotCommandComposition.assemble(
-                                    different,
-                                    manager,
-                                    authority,
-                                    new ExecutePotCommand.RetryPolicy(3, Duration.ZERO),
-                                    Clock.systemUTC()));
+                                    different, manager, authority, Clock.systemUTC()));
         } finally {
             factory.destroy();
         }
+    }
+
+    static ClaimedSlot claim(UUID request, UUID token) {
+        return new ClaimedSlot(
+                new ConsumptionId(UUID.fromString("98f7268d-d340-581c-b83d-010926223e14")),
+                request,
+                token);
     }
 }
