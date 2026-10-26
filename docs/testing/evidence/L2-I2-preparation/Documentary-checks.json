@@ -1,0 +1,206 @@
+{
+  "checked_at_utc": "2026-10-26T19:49:15.331601+00:00",
+  "scope": "Documentation only: I1 closure and I2 implementation plan, no application implementation",
+  "initial_remote_and_worktree_sha": "a2e6814f6ebf8d2ee87d88d16ad2dfa4fe07f512",
+  "initial_local_target_branch_sha": "f528586c94ee7e1b0574e9ff9b108781b0e8090f",
+  "initial_local_target_vs_remote_divergence": [
+    0,
+    6
+  ],
+  "remote_additional_commits_above_I1": [],
+  "declared_slices": [],
+  "executed_maven_slices": [],
+  "unexpected_slice_crossings": [],
+  "global_architecture_gate": "NOT REQUIRED / NOT RUN for this documentary mandate",
+  "full_reactor": "NOT REQUIRED / NOT RUN; no production impact",
+  "database_campaigns": "NONE; archived evidence read only",
+  "commands_executed": [
+    {
+      "command": "python3 -B docs/v3/check_l2_manifest.py",
+      "exit_code": 0,
+      "result": "OK: 253 normative identifiers, 380 proof rows, 324 L2 obligations, 56 reports, 33 distinct oracles, 783 oracle references, 0 orphan catalog oracles, 0 rows without oracle, 87 subscenario rows, 661 relative links, 61 anchors. Mechanical checks only; semantic adequacy requires contradictory review."
+    },
+    {
+      "command": "python3 -B scripts/v3/check-routing-vectors.py",
+      "exit_code": 0,
+      "result": "PASS: 21 independent routing vectors"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "no errors"
+    },
+    {
+      "command": "python3 -B docs/testing/evidence/L2-I2-preparation/recheck_i1.py --output docs/testing/evidence/L2-I2-preparation/I1-proof-recheck.json",
+      "exit_code": 0,
+      "result": "Archived four gates: hashes, actual XML, 33 I1 methods, L1 91/17/24 and 1157 inputs verified"
+    }
+  ],
+  "other_checks": {
+    "manifest_380_allocations_byte_identical": true,
+    "diff_limited_to_docs": true,
+    "app_scripts_unchanged": true,
+    "relative_links_anchors_checked_by_manifest_script": true,
+    "no_I2_application_code": true,
+    "A01_A12_R1_R10_not_reopened": true
+  },
+  "intermediate_diagnostics": [
+    {
+      "command": "git ls-remote origin refs/heads/feat/v3-architecture",
+      "result": "Initial sandbox DNS failure; subsequent authorized network fetch and ls-remote succeeded at I1 delivery"
+    },
+    {
+      "command": "python3 -B docs/v3/check_l2_manifest.py",
+      "result": "Intermediate missing link to Documentary-checks.json before its creation; final complete check succeeds"
+    }
+  ],
+  "preserved_other_worktrees": [
+    {
+      "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+      "status_sha256": "13caeb5aa08af5e14c9457f9d9627f5e1f87e48454688c057737d269a926d36d",
+      "modified_untracked_entries_checked": 33,
+      "content_inventory_sha256": "3a1c11ed3bfa6998b625612842c67212526603683d232fc8da9f7289c9a961e6",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-c01-c02",
+      "head": "8764433da01fa010f01a56be01c8dc69a4ac8b3a",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-cleanup",
+      "head": "ddca2827dac7cf13f8b07f620f0cd3b3cb392196",
+      "status_sha256": "d75bcfe3c8d6062108822a1f5a39fbc27a2022909108244e2e4205b3db407b45",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l0",
+      "head": "5cc5db870c9cde91fd86997b365a61705dc95cf3",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-ab",
+      "head": "56d658f9fd5313db2744fa11ff36699f4376aacb",
+      "status_sha256": "6235c02c7515816a1e22251c5bc8e99c88df8fcd9d39c08a3641eb041c1c8dd2",
+      "modified_untracked_entries_checked": 1504,
+      "content_inventory_sha256": "4c998f3cdc5e4879f27715312bffe6131e79ca919a48c42deb1fdc3b9c41612f",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-c",
+      "head": "9dfe5a8d55d95bba29bb6a07e5c387c4ae8b0164",
+      "status_sha256": "d2a216b2b11043fa27fa7f462146b2cd86b7555335d801bd9b2736b1e19f7cc4",
+      "modified_untracked_entries_checked": 1579,
+      "content_inventory_sha256": "059268227e950d5ba868c2dd4b5431a7ca2486dbbaa4fb3b2bc4e7496ae1508e",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-consolidation",
+      "head": "8221692287420cd69feebd170df7c9ea6c279fdd",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-de",
+      "head": "2fb9a536f3894e797923c0b49aeba1a9b5adfda2",
+      "status_sha256": "6bf68b6cb80efd71408bd09a133e839206ed72f05f33184b425320b20bfdecde",
+      "modified_untracked_entries_checked": 2294,
+      "content_inventory_sha256": "678257686be7f69014bc191e7d5502636e5300b059d2d6b94aeb5b1d9ebed87f",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-f2",
+      "head": "4127767f2f9337b495501d7cd5d933ae9782c8ec",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-f2-before",
+      "head": "3544898353076d6839bd6f78122d52a5932a64b8",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l1-plan",
+      "head": "9a349bbcd86d900b34e927cc29e16dd172ee7ab4",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l2-i1-amend",
+      "head": "2b4d46cf08509c95fc490afa1d66ae38f41957b6",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-l2-i1-execution",
+      "head": "a2e6814f6ebf8d2ee87d88d16ad2dfa4fe07f512",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-n01",
+      "head": "df113c8fea3443fe83f428c5e5eef1767ee42d03",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/private/tmp/pocoma-v3-postaud",
+      "head": "f528586c94ee7e1b0574e9ff9b108781b0e8090f",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "head": "2eef3ab9785c524c2fab86f586fc12580c8b1c2e",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma",
+      "head": "f81cbd72590a5cb6bdaa083641f8b8ab59371a55",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "modified_untracked_entries_checked": 0,
+      "content_inventory_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "preserved": true
+    }
+  ],
+  "I1_status": "I1 — CLOSED / LOCAL BOUNDED PASS",
+  "I2_status": "PLAN READY FOR AUDIT / NOT IMPLEMENTED",
+  "G1_G2_G3": "FUTURE",
+  "recommendation": "GO technical for described I2 scope after plan audit and distinct human execution instruction",
+  "publication": {
+    "target": "feat/v3-architecture",
+    "force_push": false,
+    "required_pre_push_remote_sha": "a2e6814f6ebf8d2ee87d88d16ad2dfa4fe07f512",
+    "delivery_commit_lookup": "git log -1 --format=%H -- docs/v3/L2_I2_Implementation_Plan.md",
+    "post_push_checks": "git ls-remote and fetch; compare origin/feat/v3-architecture to detached delivery HEAD; local occupied branch is intentionally preserved"
+  }
+}

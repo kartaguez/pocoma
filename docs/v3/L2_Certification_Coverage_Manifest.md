@@ -1,12 +1,12 @@
 # L2 — Manifeste de couverture de certification
 
-**Statut : allocation G1/G2/G3 prospective ; fondations I1 implémentées, preuves locales rattachées ci-dessous. Aucun PASS L2 ou global.** Référence : [SPEC-10](SPEC-10_Test_Certification.md), [R1–R10](L2_R1_R10_Normative_Consolidation.md), [contrat L1-C](L1_C_Transaction_Contract.md), [L1-F](L1_F_Closure_Report.md), [L1-F2](L1_F2_Invariant_Matrix.md). Ce manifeste alloue les obligations sans modifier leurs oracles normatifs. Les identifiants OR-... renvoient au [catalogue des oracles indépendants](L2_Independent_Test_Oracles.md), avec règles de paramétrage et revue contradictoire documentaire. Le plan des étapes/gates est dans le [plan L2 §14](L2_Design_and_Verification_Plan.md#14-vérification-future-gates-provenance-et-critères-de-sortie).
+**Statut : allocation G1/G2/G3 prospective ; I1 CLOSED / LOCAL BOUNDED PASS, preuves locales rattachées ci-dessous ; plan I2 préparé pour audit, non exécuté. Aucun PASS global L2.** Référence : [SPEC-10](SPEC-10_Test_Certification.md), [R1–R10](L2_R1_R10_Normative_Consolidation.md), [contrat L1-C](L1_C_Transaction_Contract.md), [L1-F](L1_F_Closure_Report.md), [L1-F2](L1_F2_Invariant_Matrix.md). Ce manifeste alloue les obligations sans modifier leurs oracles normatifs. Les identifiants OR-... renvoient au [catalogue des oracles indépendants](L2_Independent_Test_Oracles.md), avec règles de paramétrage et revue contradictoire documentaire. Le plan des étapes/gates est dans le [plan L2 §14](L2_Design_and_Verification_Plan.md#14-vérification-future-gates-provenance-et-critères-de-sortie).
 
 Une ligne **obligatoire L2** désigne une preuve à produire sur le sujet indiqué. « Banc technique » et « fixture » ne certifient jamais le composant métier absent. Une ligne **reporté** garde le même identifiant normatif et désigne le lot receveur ; ce report ne vaut jamais PASS. Les méthodes nommées sont toutes **prévisionnelles** et doivent être reliées plus tard à une méthode réellement exécutée, ses XML, SQL, traces et SHA. Un oracle indépendant utilise un snapshot PostgreSQL extérieur après résolution, des barrières et horloges DB pour les courses, ou un inventaire statique contrôlé pour les contrats documentaires. Aucun résultat n'est inventé ici.
 
 Les identifiants C01…C06 et E01…E03 sont ceux des tables de SPEC-10. Les compléments non lettrés de CON-05 conservent **CON-05** dans la colonne normative et reçoivent chacun un identifiant de preuve distinct. Les suffixes de preuve décomposent les variantes composées sans créer de nouvelle exigence métier. Les reports L3–L6 suivent les lots du [plan directeur](V3_Implementation_Master_Plan.md). P1–P8 et G1–G3 sont des campagnes/gates **futurs** ; P0/G0 relisent ce manifeste avant code.
 
-## Contribution locale I1 — sans promotion des variantes futures
+## Contribution locale I1 clôturée — sans promotion des variantes futures
 
 G0 est franchi par décision humaine explicite ; réserve procédurale L1-F2 levée avec limites documentées. [Réalisation I1, commandes, critères et limites](L2_I1_G0_Readiness_and_Implementation_Plan.md#9-réalisation-i1-et-preuves-bornées), [index des preuves](../testing/evidence/L2-I1/Gate-index.json). Les noms de méthodes de l'allocation complète restent prévisionnels : les nouveaux tests ci-dessous sont des contributions aux fondations, pas des substitutions aux scénarios Engine/Discovery futurs.
 
@@ -20,6 +20,12 @@ G0 est franchi par décision humaine explicite ; réserve procédurale L1-F2 lev
 | L1-C/F/F2 | Suites historiques fraîches dans les quatre archives de gates ; méthodes et skips dans les résumés JSON | Non-régression historique bornée ; pas de certification générale ni O(1) global |
 
 Les résultats par méthode et le SHA se trouvent dans les résumés `*-summary.json` ; les XML, catalogues, traces de blocage, états SQL et mesures brutes sont conservés dans `*.tar.gz`. Une contribution I1 réussie ne certifie pas les variantes d'exécution ci-dessous. Les états G1/G2/G3 restent futurs.
+
+## Préparation I2 — aucune nouvelle preuve exécutée
+
+I1 est **CLOSED / LOCAL BOUNDED PASS** par décision humaine : [clôture et provenance recontrôlée](L2_I1_G0_Readiness_and_Implementation_Plan.md#10-clôture-définitive-i1-et-préparation-i2--26-octobre-2026), [recontrôle archives/XML](../testing/evidence/L2-I2-preparation/I1-proof-recheck.json). Les archives et résultats historiques ne sont pas réécrits.
+
+Le [plan I2, matrice et interleavings](L2_I2_Implementation_Plan.md#10-matrice-de-tests-oracles-et-interleavings) raccorde les méthodes prévisionnelles existantes à R1/R9, CON-04/06, EVT-01/02 pertinents et transferts C/F/F2. La [frontière des fixtures](L2_I2_Implementation_Plan.md#1-objectifs-exclusions-et-entrée) exclut acquisition/leases/cession I3 et le banc intégré I5. Les 380 lignes ci-dessous, leurs reports et leurs oracles restent intacts ; aucune méthode I2 n'est annoncée PASS. G1/G2/G3 futurs, exigences globales incomplètes et L2 non ACCEPTED.
 
 ## Allocation scénario par scénario
 

@@ -1,8 +1,8 @@
 # L2 — Plan de conception et de vérification
 
-2026-10-26 — **G0 FRANCHI PAR DÉCISION HUMAINE ; I1 IMPLÉMENTÉ / PASS LOCAL BORNÉ, suite non engagée ; G1/G2/G3 futurs.**
+2026-10-26 — **G0 FRANCHI PAR DÉCISION HUMAINE ; I1 CLOSED / LOCAL BOUNDED PASS ; plan I2 prêt pour audit, implémentation I2 non engagée ; G1/G2/G3 futurs.**
 
-La préparation conceptuelle ci-dessous reste le référentiel des étapes futures. Le [dossier I1 courant](L2_I1_G0_Readiness_and_Implementation_Plan.md) consigne la décision humaine G0, les fondations techniques effectivement livrées et les preuves exécutées. Les anciennes mentions de non-exécution décrivent la préparation initiale ; elles ne révoquent pas le mandat I1. L2 n'est pas ACCEPTED et les certifications G1/G2/G3 restent futures.
+La préparation conceptuelle ci-dessous reste le référentiel des étapes futures. Le [dossier I1 courant](L2_I1_G0_Readiness_and_Implementation_Plan.md) consigne la décision humaine G0, les fondations techniques effectivement livrées et les preuves exécutées. Les anciennes mentions de non-exécution décrivent la préparation initiale ; elles ne révoquent pas le mandat I1. L2 n'est pas ACCEPTED et les certifications G1/G2/G3 restent futures. Le [plan d'implémentation I2](L2_I2_Implementation_Plan.md) précise l'extraction Command, les signatures et protocoles R1/R9, les fichiers et tests ; préparation seule autorisée, audit puis instruction humaine distincte avant code.
 
 ## 1. Autorités, état de départ et contrat de reprise
 
@@ -363,8 +363,8 @@ Ces unités internes restent toutes dans L2 ; elles ne lancent aucun lot suivant
 |---|---|---|
 | P0 | Manifeste, matrices, signatures conceptuelles, modules, dépendances/gates et paramètres pré-code ; contrôle de cohérence | Décisions A01–A12/R1–R10 acquises |
 | G0 | Revue indépendante de P0, validation/audit L1-F2 et autorisation humaine d'implémentation ; aucune preuve du futur code | P0 |
-| I1 | Valeurs pures/familles/identités, quatre tables par autorité et bootstrap administratif du routage R3, environnement neuf, contraintes/index, anciens writers incompatibles désactivés dans composition pilote ; aucun slot dédié actif | G0, R3/R7 |
-| I2 | Owner physique commun et participation Command, guards/poison, suppression protocolaire suivant R1, adaptation des contraintes terminales ; régressions C/F/F2 avant nouveau polling | I1, R1/R9 |
+| I1 — CLOSED / LOCAL BOUNDED PASS | Valeurs pures/familles/identités, quatre tables par autorité et bootstrap administratif du routage R3, environnement neuf, contraintes/index, anciens writers incompatibles désactivés dans composition pilote ; aucun slot dédié actif | G0, R3/R7 |
+| I2 — PLAN READY FOR AUDIT, non implémenté | Owner physique commun et participation Command, guards/poison, suppression protocolaire suivant R1, adaptation des contraintes terminales ; régressions C/F/F2 avant nouveau polling | I1, R1/R9 |
 | I3 | Leases, acquisition/renouvellement/capacité et cession/quarantaine/admin communes ; courses PostgreSQL ciblées avant intégration des boucles | I2, R2/R5 |
 | I4 | Discovery non-burnable et burnable, préfixe/capacité, tour volatil et revalidation de PENDING ; aucune perte dans P2/P3 | I3, R4 |
 | I5 | Deux boucles et raccord explicite Command réel ; banc READ technique avec owner propre et effets réels ; renouvellement indépendant sous saturation | I4, R10 |
@@ -482,3 +482,10 @@ Les 60 modules ci-dessous sont extraits statiquement de `app/pom.xml` à la réf
 ## Décisions R1–R10 ratifiées — supersession des propositions ouvertes (2026-10-26)
 
 Le [contrat normatif consolidé](L2_R1_R10_Normative_Consolidation.md) fait foi pour les dix points R1–R10. Les passages antérieurs présentant R1, R3, R4, R5, R9 ou R10 comme ouverts sont historiques et supersédés. Le modèle en vigueur comporte **quatre** tables par autorité, dont `consumption_routing_contract` initialisé administrativement. Le [manifeste](L2_Certification_Coverage_Manifest.md) alloue les variantes SPEC-10 et obligations R1–R10 ; ses méthodes restent prévisionnelles. Les analyses documentaires signalées au §12 de la consolidation conditionnent G0, tandis que SQL, barrières et mesures du futur code conditionnent G1/G2. Aucune preuve n'est acquise par cette mise à jour.
+
+
+## 16. Passage I1 clos → plan I2 soumis à audit
+
+Le mandat humain de clôture accepte I1 sur sa portée bornée : [statut définitif et recontrôle de provenance](L2_I1_G0_Readiness_and_Implementation_Plan.md#10-clôture-définitive-i1-et-préparation-i2--26-octobre-2026). Aucune campagne I1 relancée ; aucune modification de code pour clôturer. La contribution technique et les régressions L1 ne constituent pas le franchissement G1/G2/G3 ni l'acceptation globale L2.
+
+Le [plan I2 dédié](L2_I2_Implementation_Plan.md) développe l'étape du §14 sans changer A01–A12/R1–R10 : owner commun, participant Command, suppression R1 avant suffixe et observation R9 ; entrée déjà claimée en fixture, aucun moteur réel d'acquisition/cession I3. COMMAND primaire, preuves directes owner/monolithe et architecture globale requise à la future réalisation ; full différé au gate majeur sauf impact réellement non bornable. Recommandation GO technique pour la réalisation bornée, après audit et instruction distincte. **Arrêt documentaire avant tout code I2.**

@@ -1,0 +1,79 @@
+{
+  "checked_at_utc": "2026-10-26T19:47:05.889265+00:00",
+  "scope": "Archived I1 evidence/provenance recheck only; no new application test PASS",
+  "delivery_I1_sha": "a2e6814f6ebf8d2ee87d88d16ad2dfa4fe07f512",
+  "gates": {
+    "COMMAND": {
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am test",
+      "archive_sha256": "112a54e7214b71086bf11639a28c8dc734d2c2eb9f43c6cf70f5ce419f8b5a84",
+      "xml_totals": {
+        "tests": 1293,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skips": [
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness"
+      ]
+    },
+    "READ": {
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "command": "./mvnw -pl infra-persistence-read-jdbc -am test",
+      "archive_sha256": "4189765db725b1f679d7676d5c7cee00e861024ad608eec41ffc19f3b01b1857",
+      "xml_totals": {
+        "tests": 354,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": []
+    },
+    "MONOLITH": {
+      "tested_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+      "command": "./mvnw -pl runtime-monolith -am test",
+      "archive_sha256": "483f1e8addc094c8335ebf6f0c546a8216ef34a28134bf11daa7b2d115c955be",
+      "xml_totals": {
+        "tests": 1067,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "skips": []
+    },
+    "ARCHITECTURE": {
+      "tested_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d",
+      "command": "./mvnw -pl architecture-tests -am test",
+      "archive_sha256": "cdff7c7d84dc71a9659558495f96e324405a2f834b268add9507b9bbcb0dddaf",
+      "xml_totals": {
+        "tests": 1551,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "skips": [
+        "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness"
+      ]
+    }
+  },
+  "I1_unique_methods_present_in_source_and_PASS_in_actual_XML": 33,
+  "L1_manifest_methods_PASS_in_actual_XML": {
+    "L1_Proof_Manifest.json": 91,
+    "L1_F_Proof_Manifest.json": 17,
+    "L1_F2_Proof_Manifest.json": 24
+  },
+  "tested_input_hashes_verified": 1157,
+  "checkout_conversions": [
+    {
+      "path": "app/mvnw.cmd",
+      "reason": "Git eol=crlf checkout",
+      "sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+    }
+  ],
+  "only_app_scripts_delta_to_delivery": [
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/HexagonalArchitectureTest.java"
+  ],
+  "maven_postgres_campaigns_rerun": false,
+  "G1_G2_G3": "FUTURE",
+  "L2_global_acceptance": false
+}
