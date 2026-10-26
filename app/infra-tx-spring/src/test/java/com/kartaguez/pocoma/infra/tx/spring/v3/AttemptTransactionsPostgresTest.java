@@ -204,6 +204,49 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
     }
 
     @Test
+    void autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers() {
+        var jdbc = new DataSourceTransactionManager(write.dataSource);
+        for (PlatformTransactionManager manager : List.of(write.manager, jdbc))
+            for (boolean jpaPrefix :
+                    manager == write.manager ? List.of(false, true) : List.of(false)) {
+                assertThrows(
+                        UnexpectedRollbackException.class,
+                        () ->
+                                new TransactionTemplate(manager)
+                                        .execute(
+                                                status -> {
+                                                    if (jpaPrefix) {
+                                                        em().persist(
+                                                                        new FoundationEffect(
+                                                                                new UUID(0, 17),
+                                                                                "autonomous JPA"));
+                                                        em().flush();
+                                                    } else
+                                                        write.jdbc.update(
+                                                                "insert into foundation_effect"
+                                                                    + " values (?,?)",
+                                                                new UUID(0, 17),
+                                                                "autonomous JDBC");
+                                                    try {
+                                                        SpringAttemptTransactions.revision(
+                                                                write.dataSource,
+                                                                () -> {
+                                                                    throw new IllegalArgumentException(
+                                                                            "caught autonomous B"
+                                                                                + " validation");
+                                                                });
+                                                    } catch (IllegalArgumentException intercepted) {
+                                                        assertEquals(
+                                                                "caught autonomous B validation",
+                                                                intercepted.getMessage());
+                                                    }
+                                                    return null;
+                                                }));
+                assertEquals(0, write.observedEffects());
+            }
+    }
+
+    @Test
     void requiresNewJpaAndJdbcCannotCommitEffectOrDelete() {
         write.jdbc.update("insert into fixture_owner_slot values (1)");
         for (boolean jpa : List.of(false, true))

@@ -246,7 +246,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
     public void poison(Throwable cause) {
         Objects.requireNonNull(cause);
         poisonUnits(cause);
-        poisonConnection(source);
+        poisonConnection(source, cause);
     }
 
     @Override
@@ -272,7 +272,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
             return action.get();
         } catch (RuntimeException | Error failure) {
             poisonUnits(failure);
-            poisonConnection(source);
+            poisonConnection(source, failure);
             throw failure;
         }
     }
@@ -288,7 +288,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
             action.run();
         } catch (RuntimeException | Error failure) {
             poisonUnits(failure);
-            poisonConnection(source);
+            poisonConnection(source, failure);
             throw failure;
         }
     }
@@ -318,20 +318,33 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                             // flag
                             // alone is no longer checked there; JPA must also be globally
                             // rollback-only.
-                            try {
-                                if (unit.entityManager instanceof EntityManagerHolder holder) {
-                                    var transaction = holder.getEntityManager().getTransaction();
-                                    if (transaction.isActive()) transaction.setRollbackOnly();
-                                }
-                            } catch (RuntimeException markingFailure) {
-                                if (markingFailure != cause) cause.addSuppressed(markingFailure);
-                            }
+                            poisonEntityManager(unit.entityManager, cause);
                         });
     }
 
-    private static void poisonConnection(DataSource source) {
+    private static void poisonEntityManager(Object resource, Throwable cause) {
+        try {
+            if (resource instanceof EntityManagerHolder holder) {
+                var transaction = holder.getEntityManager().getTransaction();
+                if (transaction.isActive()) transaction.setRollbackOnly();
+            }
+        } catch (RuntimeException markingFailure) {
+            if (markingFailure != cause) cause.addSuppressed(markingFailure);
+        }
+    }
+
+    private static void poisonConnection(DataSource source, Throwable cause) {
         if (TransactionSynchronizationManager.getResource(source)
                 instanceof ConnectionHolder holder) holder.setRollbackOnly();
+        // Autonomous L1-B can use a caller-owned JPA transaction, without an Engine Unit.
+        // JpaTransactionManager reads the EntityTransaction flag, not the JDBC holder flag.
+        TransactionSynchronizationManager.getResourceMap()
+                .forEach(
+                        (key, resource) -> {
+                            if (key instanceof EntityManagerFactoryInfo info
+                                    && info.getDataSource() == source)
+                                poisonEntityManager(resource, cause);
+                        });
     }
 
     public void flushBeforePublication() {
