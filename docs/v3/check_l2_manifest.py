@@ -160,7 +160,7 @@ for r in records:
         errors.append("L1 guarantee deferred " + ident)
 # The gate graph is checked against the producer/consumer table in the L2 plan.
 plan = (ROOT / "L2_Design_and_Verification_Plan.md").read_text()
-dependency = plan.split("### Dépendances des obligations et des gates", 1)[1].split("Le présent mandat", 1)[0]
+dependency = plan.split("### Dépendances des obligations et des gates", 1)[1].split("### Provenance future", 1)[0]
 order = ["P0", "G0", "I1", "I2", "I3", "I4", "I5", "G1", "G2", "I6", "I7", "G3"]
 index = {x: i for i, x in enumerate(order)}
 if len(index) != len(order):
@@ -193,7 +193,7 @@ if "Aucun PASS de performance V3 n’est acquis" not in master:
     errors.append("PERF-01 status not aligned in master plan")
 if "I0 |" in plan or "trois tables L2" in plan or "permission technique étroite du guard fermé" in plan or "Recommandation R4" in plan or "faire ratifier cette classification" in plan or "si retenue" in plan:
     errors.append("superseded active wording in L2 plan")
-if "transaction manager PRIMARY" in spec or "G0 NON VALIDÉ" not in plan:
+if "transaction manager PRIMARY" in spec or "G0 FRANCHI PAR DÉCISION HUMAINE" not in plan:
     errors.append("CON-06 manager or G0 status inconsistent")
 if "Après fermeture, aucun writer métier ni suppression de slot n'est autorisé" not in plan:
     errors.append("R1 closed-publication rule missing")

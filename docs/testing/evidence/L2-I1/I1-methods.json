@@ -1,0 +1,571 @@
+{
+  "local_verdict": "PASS bounded I1",
+  "final_test_sha": "6835b5c15cc40d09c22e0b0a4f3b6538ac49992d",
+  "production_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+  "methods": [
+    {
+      "class": "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "method": "monolithRefusesIncompleteReadBootstrapBeforeRefresh",
+      "observations": [
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "method": "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration",
+      "observations": [
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.ConsumptionPilotIsolationTest",
+      "method": "monolithWithIndirectOldRuntimeFailsBeforeProcessing",
+      "observations": [
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest",
+      "method": "commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction",
+      "observations": [
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest",
+      "method": "v3RoutingDomainIsPureAndNoI2ContractsExistYet",
+      "observations": [
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test",
+      "method": "twentyOneIndependentVectorsAndSignedExtremes",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "READ",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "acceptsCompleteChangedSqlUnitAndPreservesPublicationImmutability",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "bootstrapRollsBackEachBoundaryRejectsWrongTargetRerunAndPartialSeed",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "historicalTerminalAndOriginalPublicationsArePreservedOnRefusal",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "missingPublicPgcryptoFailsBeforeAnyFoundationDdl",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "noinheritMembershipCannotBypassMigrationPrivilegeGuard",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "otherConsumptionSlotDoesNotMasqueradeAsCanonicalCommandSlot",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "pendingAndTerminalNegativeUnitsRollbackWithoutPartialPublications",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "pilotContractChecksRejectUnknownFamilyVersionAndPartitionCount",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "preservesEveryL1FunctionTriggerAndConstraintExceptExactSlotPredicate",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "refusesInheritedRuntimeWritePrivilegesAtomically",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "rejectsMalformedRowsAndPreservesDurableStateAfterEveryRollback",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "runtimeCannotWriteTruncateCreateAlterDropOrBootstrap",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "serializesTwoAdministratorsWithObservedPostgresBlocker",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "sqlMatchesAllTwentyOneIndependentDigestsHashesAndPartitions",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "method": "wrongMigrationTargetAndHistoricalPendingAreNeverDestroyed",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "method": "actualReadRuntimeHasOnlySelectIncludingPublicAndMembership",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "READ",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "method": "checkpointIsMonotoneAndImmutableInIdentityAndNonnegative",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "READ",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "method": "ownershipIdentityAndPairedLeaseAndSlotQuarantineAreEnforced",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "READ",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "method": "readHasExactlyFourTechnicalTablesSevenRoutesAndTwentyEightPartitions",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "READ",
+          "status": "PASS"
+        },
+        {
+          "gate": "MONOLITH",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "catalogSeedAndTriggerShareExactlyNineStableIdentitiesAndSevenFamilies",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "explicitLegacyRuntimeImportFailsBeforeBeanConstruction",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "noinheritMembershipCannotBypassRuntimePrivilegeGuard",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "oldWriterSqlFailsOnMissingDedicatedSlotAndRollsBackAdmission",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "refusesMissingPartitionWrongSchemaRoleAndAuthorityBeforeProcessing",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "refusesSamePhysicalDatabaseEvenWithSeparateCompleteSchemas",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "rejectsAllOldWriterOwnerAndPollerTypesBeforeInstantiation",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest",
+      "method": "validDistributedPilotIsInertAcrossRestartAndDoesNotTouchHistoricalSentinel",
+      "observations": [
+        {
+          "gate": "COMMAND",
+          "status": "PASS"
+        },
+        {
+          "gate": "ARCHITECTURE",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "unique_methods": 33,
+  "scope_excludes": [
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "G1",
+    "G2",
+    "G3"
+  ]
+}

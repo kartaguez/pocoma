@@ -1,0 +1,50 @@
+{
+  "scope": "Intermediate attempts, not final I1 verdicts",
+  "commands": [
+    {
+      "log": "i1-initial-build.log",
+      "command": "./mvnw -pl domain-consumption,composition-runtime-spring -am test",
+      "outcome": "preliminary BUILD SUCCESS; superseded, no final verdict"
+    },
+    {
+      "log": "i1-foundation-test.log",
+      "command": "./mvnw -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am test -Dtest=ConsumptionFoundationPostgresTest,ReadConsumptionFoundationPostgresTest,RoutingV1Test -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "FAIL: bootstrap CASE syntax; corrected"
+    },
+    {
+      "log": "i1-foundation-test2.log",
+      "command": "./mvnw -pl infra-persistence-primary-jpa,infra-persistence-read-jdbc -am test -Dtest=ConsumptionFoundationPostgresTest,ReadConsumptionFoundationPostgresTest,RoutingV1Test -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "FAIL: overbroad negative fixture mutation; corrected"
+    },
+    {
+      "log": "i1-focused3.log",
+      "command": "./mvnw -pl runtime-command-consumption-worker,infra-persistence-read-jdbc -am test -Dtest=ConsumptionBootstrapPostgresTest,ConsumptionFoundationPostgresTest,ReadConsumptionFoundationPostgresTest,RoutingV1Test -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "targeted PASS; superseded by final gates"
+    },
+    {
+      "log": "i1-focused4.log",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,infra-persistence-read-jdbc -am test -Dtest=ConsumptionBootstrapPostgresTest,ConsumptionPilotIsolationTest,ConsumptionFoundationPostgresTest,ReadConsumptionFoundationPostgresTest,RoutingV1Test -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "targeted PASS; superseded by final gates"
+    },
+    {
+      "log": "i1-command.log",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am test",
+      "outcome": "FAIL: missing Boot component-scan exclusions; fixed in 12eaa5ae"
+    },
+    {
+      "log": "i1-composition-fix.log",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith -am test -Dtest=PotCasConsumptionPostgresTest,ConsumptionBootstrapPostgresTest,ConsumptionPilotIsolationTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "targeted correction PASS on 12eaa5ae; followed by full canonical gates"
+    },
+    {
+      "log": "i1-architecture-package-inventory-failure.log",
+      "command": "./mvnw -pl architecture-tests -am test",
+      "outcome": "FAIL: closed package inventory omitted planned .domain.consumption.v3; production purity and all other tests passed; corrected in 6835b5c1"
+    },
+    {
+      "log": "i1-architecture-inventory-check.log",
+      "command": "./mvnw -pl architecture-tests -am test -Dtest=HexagonalArchitectureTest,V3ConsumptionFoundationArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false",
+      "outcome": "PASS: 56 structural tests; followed by complete canonical architecture gate"
+    }
+  ]
+}

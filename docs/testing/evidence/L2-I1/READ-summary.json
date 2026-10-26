@@ -1,0 +1,3025 @@
+{
+  "scope": "I1 local bounded foundation; not G1/G2/G3 certification",
+  "gate": "READ",
+  "collected_utc": "2026-10-26T18:12:48.321328+00:00",
+  "code_sha": "12eaa5ae983c23a4b07c0299ce59c4d7933bfb5d",
+  "command": "./mvnw -pl infra-persistence-read-jdbc -am test",
+  "exit_code": 0,
+  "totals": {
+    "tests": 354,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "module": "domain-authorization",
+      "class": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest",
+      "xml": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest",
+          "method": "requiresAtLeastOneCurrentCapability",
+          "status": "PASS",
+          "seconds": "0.016"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest",
+          "method": "composesRequiredCapabilitiesWithoutMutatingTheOriginal",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest",
+          "method": "copiesTokenCapabilitiesAndChecksEveryRequirement",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-authorization",
+      "class": "com.kartaguez.pocoma.domain.authorization.PermissionTest",
+      "xml": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.PermissionTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.PermissionTest",
+          "method": "exposesTheCanonicalCurrentCapabilityCatalog",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.PermissionTest",
+          "method": "acceptsFuturePermissions",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.PermissionTest",
+          "method": "validatesComponentsAndKeepsExactCase",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-authorization",
+      "class": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest",
+      "xml": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest",
+          "method": "emptyAuthoritiesProduceNoPermissions",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest",
+          "method": "translatesKnownAndFuturePocomaAuthoritiesWithoutEscalation",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest",
+          "method": "translatesTheCanonicalCurrentArchiveCapability",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-event",
+      "class": "com.kartaguez.pocoma.domain.event.EventTypeTest",
+      "xml": "app/domain-event/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.event.EventTypeTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.event.EventTypeTest",
+          "method": "requiresANonBlankValue",
+          "status": "PASS",
+          "seconds": "0.019"
+        }
+      ]
+    },
+    {
+      "module": "domain-user-identity",
+      "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "xml": "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.xml",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "externalIdentityPreservesExactIssuerAndSubjectEquality",
+          "status": "PASS",
+          "seconds": "0.018"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "bindingRevisionHasLocalNonNegativeValueSemantics",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "detachedFactRequiresACompletePositiveRevisionShapeWithUserId",
+          "status": "PASS",
+          "seconds": "0.008"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "attachedFactRequiresACompletePositiveRevisionShape",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "bindingIdIsAnOpaqueUuidValueWithoutOrdering",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+          "method": "userContainsOnlyItsCanonicalIdentity",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest",
+          "method": "rejectsNullWeight",
+          "status": "PASS",
+          "seconds": "0.028"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest",
+          "method": "rejectsNullShareholderId",
+          "status": "PASS",
+          "seconds": "0.003"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest",
+          "method": "createsExpenseShareDraft",
+          "status": "PASS",
+          "seconds": "0.002"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+          "method": "createsExpenseShare",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+          "method": "rejectsNullWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+          "method": "rejectsNullShareholderId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+          "method": "rejectsNullExpenseId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.entity.ShareholderTest.xml",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "reconstitutesShareholder",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "rejectsNullWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "rejectsNullId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "createsShareholderWithoutUserId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "rejectsNullName",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+          "method": "createsShareholder",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest.xml",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "createsPotHeader",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "reconstitutesPotHeader",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "createsDeletedPotHeader",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsNullCreatorId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "updatesDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsNullId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "marksAsDeleted",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsNullLabelWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsMarkAsDeletedWhenDeleted",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsUpdateDetailsWhenDeleted",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+          "method": "rejectsNullLabel",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest.xml",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "reconstitutesExpenseHeader",
+          "status": "PASS",
+          "seconds": "0.004"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "updatesDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullAmount",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullPayerId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "reconstitutesDeletedExpenseHeader",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullDateWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "marksAsDeleted",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullLabelWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullPayerIdWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsMarkAsDeletedWhenDeleted",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullDate",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsUpdateDetailsWhenDeleted",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullAmountWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullLabel",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest.xml",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullNameWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullShareholderIdWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "copiesShareholders",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "updatesShareholderWeight",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullShareholderIdWhenUpdatingWeight",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "reconstitutesPotShareholders",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullWeightWhenAddingShareholder",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "doesNotMarkAddedShareholderAsUpdated",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "addsShareholderWithoutUserId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsUnknownShareholderIdWhenUpdatingWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullShareholder",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "updatesShareholderDetailsWithoutUserId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullShareholders",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "createsPotShareholders",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "updatesShareholderDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullNameWhenAddingShareholder",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullWeightWhenUpdatingWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsUnknownShareholderIdWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsDeletedShareholderWhenUpdatingDetails",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "addsShareholder",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+          "method": "rejectsDeletedShareholderWhenUpdatingWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest.xml",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "updatesExpenseShares",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "mergesExpenseSharesWithSameShareholderId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "reconstitutesExpenseShares",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsNullShareholderIdsWhenUpdating",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsNullShares",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "replacesExpenseSharesWhenUpdating",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsExpenseShareWithUnknownShareholderId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsNullShareholderIdWhenUpdating",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+          "method": "rejectsNullShare",
+          "status": "PASS",
+          "seconds": "0.002"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+          "method": "generatedCollisionCannotReplaceExistingOrEarlierAddedShareholder",
+          "status": "PASS",
+          "seconds": "0.002"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.FractionTest.xml",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "addsFractions",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "rejectsOverflowingResult",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "comparesFractions",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "subtractsFractions",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "normalizesZero",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "dividesFractions",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "rejectsZeroDenominator",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "normalizesFraction",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "multipliesFractions",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+          "method": "rejectsDivisionByZeroFraction",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.AmountTest.xml",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "rejectsNegativeSubtractionResult",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "addsAmounts",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "exposesZeroAmount",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "rejectsNegativeValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "subtractsAmounts",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+          "method": "createsAmountFromFraction",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.NameTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.NameTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.NameTest",
+          "method": "createsNameFromString",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.NameTest",
+          "method": "comparesNamesByValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.NameTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.LabelTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.LabelTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.LabelTest",
+          "method": "createsLabelFromString",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.LabelTest",
+          "method": "comparesLabelsByValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.LabelTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.PotIdTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest",
+          "method": "doesNotEqualAnotherEntityIdTypeWithSameValue",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest",
+          "method": "createsPotIdFromUuid",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest",
+          "method": "createsShareholderIdFromUuid",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest",
+          "method": "comparesEntityIdsByValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest",
+          "method": "createsEntityIdFromUuid",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest",
+          "method": "createsExpenseIdFromUuid",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.WeightTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+          "method": "acceptsZeroValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+          "method": "rejectsNegativeValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+          "method": "createsWeightFromFraction",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+          "method": "comparesWeightsByValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.value.UserIdTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.UserIdTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.UserIdTest",
+          "method": "comparesUserIdsByValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.UserIdTest",
+          "method": "createsUserIdFromUuid",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.value.UserIdTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.created.PotCreatedTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+          "method": "rejectsNullCreatorId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+          "method": "rejectsNullId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+          "method": "createsPotCreated",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+          "method": "rejectsNullLabel",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest.xml",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "createsExpenseCreated",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "copiesShares",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullAmount",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullPayerId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullShares",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullLabel",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+          "method": "rejectsNullShare",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest",
+          "method": "rejectsVersionLowerThanOne",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest",
+          "method": "createsPotGlobalVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest.xml",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d01PayerParticipantAndSeparatePayerExactZeros",
+          "status": "PASS",
+          "seconds": "0.005"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d06SeededSizesPermutationAndIndicativeCost",
+          "status": "PASS",
+          "seconds": "0.708"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d05ZeroAndInconsistentInputsNeverProducePartialBalances",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d04DeletionTerminalAndOutOfOrderAreIndependent",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d03MultipleExpensesAndRationalsBeyondMachineIntegers",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+          "method": "d02DefaultsOverridesAndIndependentHistoricalResults",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+          "method": "d08AttachmentDetachmentAndGeneralMultipleAttachment",
+          "status": "PASS",
+          "seconds": "0.004"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+          "method": "d07EveryMutationRoleAndPotLifecycleCell",
+          "status": "PASS",
+          "seconds": "0.003"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+          "method": "d09InvitationEligibilityAndDeletedTargets",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+          "method": "occupiedDeletedAbsentAndAlreadyAttachedRemainRejected",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+          "method": "mixedOrMissingDurableFactsAreTechnicalAnomalies",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+          "method": "outsiderAndUnattachedCreatorAttachOnlyThemselvesWithOneDetailsRevision",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a04ObsolescencePrecedesEqualityIncludingReturnToOldValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a13DeterministicReevaluationPreservesInitialObservation",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a07DetailsAndWeightsAreIndependent",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a12MixedFactsAreTechnicalAnomalies",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a10ShareholderDeletionRequiresCreatorAndExhaustiveAbsence",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a01ImmutableEnvelopesAndCollections",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a14HistoricalCompositionsAndOrdinaryAttachment",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a03ChangedContainsExactlyEffectiveRevisions",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a08FinancialsReferenceAndEqualityVariants",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a11ExactRationalsAndIntrinsicFinancialInvariants",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a05AtomicWeightBatchesAndPermutations",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a02CreationVersionsAndStableIdentities",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a09DeletionDependenciesAndHeaderOnlyChanges",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+          "method": "l1a06PotDetailsRightsLifecycleAndObservation",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest",
+          "method": "exposesTheExactExhaustiveCanonicalMapping",
+          "status": "PASS",
+          "seconds": "0.002"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest",
+          "method": "allowsOnlyWhenEveryRequiredCurrentCapabilityIsPresent",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest",
+          "method": "ignoresOnlyUnrequiredTokenCapabilities",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest",
+          "method": "derivesCreatorMemberAndTargetIdentityFactsFromStructuralRelations",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest",
+          "method": "equivalentCurrentAndHistoricalRelationsProduceIdenticalFacts",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest",
+          "method": "rejectsAnExistingPotTargetFromDifferentRelations",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest.xml",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "requiresEveryCurrentCapabilityRegardlessOfItsOrigin",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "allowsProspectiveCreationTargetsWithoutPreallocatedIds",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "requirementCatalogIsExhaustive",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "usesOneBusinessDenialForDisjunctivePolicies",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "failsClosedWhenAnExistingTargetIsRequired",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "failsClosedForWrongTargetOrMissingBaseRequirement",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "failsClosedWhenTheMappingIsMissing",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "authorizesTheTargetShareholderWithoutCreatorFact",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+          "method": "derivesOnlyFactsSupportedByTheTargetIdentity",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+          "method": "mismatchedTargetTypeFailsClosed",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+          "method": "creatorIsAllowedForEveryCanonicalPotAction",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+          "method": "memberIsAllowedOnlyByTheCanonicalMemberRules",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+          "method": "targetShareholderFactOnlyAuthorizesUpdatingTheirDetails",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+          "method": "noBusinessFactFailsWithOneNonAmbiguousReason",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest",
+          "method": "rejectsNullRuleCode",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest",
+          "method": "rejectsNullMessage",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest",
+          "method": "createsBusinessRuleViolationException",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest",
+          "method": "rejectsVersionLowerThanOne",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest",
+          "method": "createsPotDeletedEvent",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest",
+          "method": "createsPotCreatedEvent",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest",
+          "method": "rejectsVersionLowerThanOne",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.RecordedEventTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.RecordedEventTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.RecordedEventTest",
+          "method": "decoratesADomainEventWithDurableIdentityRecordingTimeAndTrace",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+          "method": "shareholderEventsDefensivelyCopyTheirIdentifiers",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+          "method": "everyPotEventExposesItsCanonicalTypeAndTheCatalogueIsExactAndImmutable",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+          "method": "everyPotEventExposesItsPotAndPositiveVersionThroughTheDomainContract",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+          "method": "everyEventRejectsANonPositiveVersion",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+          "method": "rejectsNullShareholderIds",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+          "method": "rejectsInvalidVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+          "method": "createsPotShareholdersAddedEvent",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest",
+          "method": "createsPotDetailsUpdatedEvent",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest",
+          "method": "rejectsInvalidVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest",
+          "method": "createsExpense",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest",
+          "method": "rejectsNullPotId",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest",
+          "method": "rejectsNullCreatorId",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest",
+          "method": "createsPot",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest",
+          "method": "rejectsNullLabel",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest",
+          "method": "allowsAuthenticatedUser",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest",
+          "method": "rejectsAnonymousUser",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest.xml",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "calculatesDifferentialPotBalances",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "rejectsExpenseWithZeroTotalWeight",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "calculatesBalancesForExpense",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "rejectsTargetVersionNotGreaterThanPreviousVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "rejectsExpenseWithShareReferencingDifferentExpense",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "rejectsExpenseWithDifferentSharesPot",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+          "method": "rejectsDeletedExpense",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.BalanceTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest",
+          "method": "acceptsSignedValues",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest",
+          "method": "rejectsNullShareholderId",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest",
+          "method": "rejectsNullValue",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+          "method": "rejectsInconsistentBalanceKey",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+          "method": "copiesBalances",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+          "method": "rejectsVersionBelowOne",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+          "method": "reconstitutesPotBalances",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-pot",
+      "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest",
+      "xml": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest",
+          "method": "subtractsBalancesWithMissingValuesAsZero",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest",
+          "method": "addsBalancesWithCommonAndDistinctShareholders",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest",
+          "method": "keepsZeroResults",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-projection",
+      "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+      "xml": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest.xml",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "createsAProofOnlyAfterAllChecksSucceed",
+          "status": "PASS",
+          "seconds": "0.017"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "rejectsDuplicateKeysWithinTheSameArtifactType",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "acceptsZeroArtifactsWhenCardinalityAllowsIt",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "evaluatesCardinalitiesIndependentlyForEachArtifactType",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "rejectsATargetObjectTypeThatDoesNotMatchTheDefinition",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "rejectsAProjectionTypeThatDoesNotMatchTheDefinition",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "validatedProjectionHasNoPublicConstructor",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "rejectsAnArtifactTypeThatIsNotDeclared",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "acceptsTheSameArtifactKeyForDifferentArtifactTypes",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "delegatesEachSchemaPayloadPairAndRejectsAnInvalidPayload",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+          "method": "rejectsCardinalitiesBelowTheMinimumAndAboveTheMaximum",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-projection",
+      "class": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+      "xml": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+          "method": "definitionCopiesItsListRejectsNullsAndDuplicateArtifactTypes",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+          "method": "jsonContainersDefensivelyCopyTheirContents",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+          "method": "cardinalitySupportsBoundsAndAnUnboundedMaximum",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+          "method": "jsonContainersRejectJavaNullButAcceptTheJsonNullSingleton",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-projection",
+      "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+      "xml": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+          "method": "projectionCopiesArtifactsAndDelegatesItsIdentity",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+          "method": "textualValueObjectsRejectNullAndBlankValues",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+          "method": "projectionFailureRequiresItsThreeFieldsAndUuidKeepsEqualFailuresDistinct",
+          "status": "PASS",
+          "seconds": "0.017"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+          "method": "projectionAndArtifactRejectEveryRequiredJavaNull",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+          "method": "projectionKeyRequiresAllComponentsAndAPositiveTargetVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest",
+          "method": "computesAStablePotHash",
+          "status": "PASS",
+          "seconds": "0.016"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest",
+          "method": "computesAStablePipelineAndPotHash",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest",
+          "method": "rejectsInvalidPartitionKeys",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+          "method": "assignsEveryHashToExactlyOneSegment",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+          "method": "singleSegmentOwnsEveryHash",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+          "method": "validatesSegmentBounds",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+          "method": "handlesNegativeHashesDeterministically",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+          "method": "rejectsNullHash",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest",
+          "method": "describesAProcessingFailure",
+          "status": "PASS",
+          "seconds": "0.007"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest",
+          "method": "rejectsIncompleteFailureDescriptions",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest",
+          "method": "acceptsExtensibleTechnicalCodes",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest",
+          "method": "rejectsMissingCodes",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest",
+          "method": "acceptsAnyNonBlankGenericCode",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest",
+          "method": "rejectsMissingOrBlankCodes",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest",
+          "method": "validatesExplicitIdentities",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest",
+          "method": "defensivelyCopiesIdentityComponents",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest",
+          "method": "equalitySeparatesLogicalConsumers",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest",
+          "method": "representsActuallyReadInputs",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest",
+          "method": "requiresTheCompleteSubjectTriple",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest",
+          "method": "representsProducedArtifactAndSubjectVersions",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test",
+          "method": "twentyOneIndependentVectorsAndSignedExtremes",
+          "status": "PASS",
+          "seconds": "0.016"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ClaimTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest",
+          "method": "recordsAllClosureHistories",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest",
+          "method": "leaseExpiryDoesNotCloseOrInvalidateTheClaim",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest",
+          "method": "validatesAttemptAndPreventsASecondClosure",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest",
+          "method": "wrapsAPositiveDuration",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest",
+          "method": "rejectsNullZeroOrNegativeDuration",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest",
+          "method": "wrapsAWorkerIdentifier",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest",
+          "method": "rejectsNullOrBlankValue",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "domain-consumption",
+      "class": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+      "xml": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+          "method": "abandonmentFencesTheCurrentClaimAndDoneIsIrreversible",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+          "method": "claimsReleasesAndCompletesWithMonotoneRevisions",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+          "method": "rejectsInconsistentStatesAndStaleClaims",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+          "method": "enforcesTheTerminalOutcomeReasonMatrix",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "engine-consumption",
+      "class": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest",
+      "xml": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest",
+          "method": "everyDecoratorRunsItsDelegateInATransaction",
+          "status": "PASS",
+          "seconds": "0.012"
+        }
+      ]
+    },
+    {
+      "module": "engine-consumption",
+      "class": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest",
+      "xml": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest",
+          "method": "refusedPreconditionDoesNotTouchPersistence",
+          "status": "PASS",
+          "seconds": "0.006"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest",
+          "method": "acceptedPreconditionDelegatesExactlyOnce",
+          "status": "PASS",
+          "seconds": "0.014"
+        }
+      ]
+    },
+    {
+      "module": "engine-consumption",
+      "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+      "xml": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+          "method": "rejectsCrossSlotProvenanceBeforeWritingAnything",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+          "method": "mapsBusinessRejectionToRejectedTerminalOutcome",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+          "method": "resultOwnsDefensiveCopiesAndRejectionCodeIsValidated",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+          "method": "executesBusinessThenProvenanceThenSuccessFencing",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+          "method": "failedFencingThrowsAfterProvenanceWasRequested",
+          "status": "PASS",
+          "seconds": "0.002"
+        }
+      ]
+    },
+    {
+      "module": "engine-consumption",
+      "class": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest",
+      "xml": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest",
+          "method": "appliesTheV1BackoffAndStopsAtTheFourthAttempt",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "engine-consumption",
+      "class": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+      "xml": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+          "method": "casLossSignalsRollback",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+          "method": "terminalFailureAppliesItsEffectBeforeSlotTermination",
+          "status": "PASS",
+          "seconds": "0.002"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+          "method": "appliesEffectBeforeFencing",
+          "status": "PASS",
+          "seconds": "0.0"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+          "method": "staleClaimSignalsRollbackAfterProvisionalEffect",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "engine-read-current-binding",
+      "class": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest",
+      "xml": "app/engine-read-current-binding/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest.xml",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest",
+          "method": "hidesDetachedAndAbsentBindings",
+          "status": "PASS",
+          "seconds": "0.029"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest",
+          "method": "issuerAndSubjectHomonymsDoNotSelectAnotherIdentity",
+          "status": "PASS",
+          "seconds": "0.003"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest",
+          "method": "returnsOnlyAnAttachedBindingForTheExactExternalIdentity",
+          "status": "PASS",
+          "seconds": "0.001"
+        }
+      ]
+    },
+    {
+      "module": "engine-materialize-latest-known-version",
+      "class": "com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest",
+      "xml": "app/engine-materialize-latest-known-version/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest",
+          "method": "delegatesTheMonotoneAdvance",
+          "status": "PASS",
+          "seconds": "0.034"
+        }
+      ]
+    },
+    {
+      "module": "engine-materialize-latest-known-version",
+      "class": "com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest",
+      "xml": "app/engine-materialize-latest-known-version/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest",
+          "method": "retainsOnlyFunctionalSourceVersionState",
+          "status": "PASS",
+          "seconds": "0.001"
+        },
+        {
+          "class": "com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest",
+          "method": "rejectsNonPositiveVersion",
+          "status": "PASS",
+          "seconds": "0.0"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-projection-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest",
+      "xml": "app/infra-persistence-projection-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest",
+          "method": "rejectsInvalidStoredJson",
+          "status": "PASS",
+          "seconds": "0.016"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest",
+          "method": "roundTripsEveryJsonValueKind",
+          "status": "PASS",
+          "seconds": "0.009"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest.xml",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "nanosecondFailureReplayUsesTheCanonicalPersistedMicrosecond",
+          "status": "PASS",
+          "seconds": "0.443"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "concurrentExactFailureReplaySucceedsAndStoresOneOccurrence",
+          "status": "PASS",
+          "seconds": "0.158"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "rootWaiterKeepsCommittedHolderArtifacts",
+          "status": "PASS",
+          "seconds": "0.191"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "recordFailureJoinsACompatibleOuterTransactionAndRollsBackWithIt",
+          "status": "PASS",
+          "seconds": "0.137"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "migrationUsesInternalBigintIdentitiesAndMicrosecondFailureTimestamps",
+          "status": "PASS",
+          "seconds": "0.149"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "rollsBackRootAndEarlierArtifactsWhenAnArtifactInsertFails",
+          "status": "PASS",
+          "seconds": "0.147"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "exactFailureReplayAtMicrosecondPrecisionIsIdempotent",
+          "status": "PASS",
+          "seconds": "0.127"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "publishesAndReadsAProjectionWithZeroArtifacts",
+          "status": "PASS",
+          "seconds": "0.128"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "concurrentPublicationOfTheSameKeyPublishesExactlyOnce",
+          "status": "PASS",
+          "seconds": "0.154"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "rejectsFailureIdReusedWithDifferentPersistedContent",
+          "status": "PASS",
+          "seconds": "0.141"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "roundTripsEveryJsonValueVariantThroughPostgresJsonbAndExposesNumericNormalization",
+          "status": "PASS",
+          "seconds": "0.21"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "differentJavaInstantsNormalizingToTheSameMicrosecondAreTheSamePersistedContent",
+          "status": "PASS",
+          "seconds": "0.149"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "firstPublishedProjectionWinsWithoutContentComparison",
+          "status": "PASS",
+          "seconds": "0.153"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "projectionAndFailureLookupsRequireAllFourExactKeyComponents",
+          "status": "PASS",
+          "seconds": "0.192"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "rootWaiterPublishesAfterHolderRollback",
+          "status": "PASS",
+          "seconds": "0.147"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "readsArtifactsInCanonicalTechnicalOrderRatherThanInsertionOrder",
+          "status": "PASS",
+          "seconds": "0.141"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "historicalFailuresCoexistWithAProjectionAndDistinctIdsRemainAppendOnly",
+          "status": "PASS",
+          "seconds": "0.146"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+          "method": "joinsACompatibleOuterTransactionAndRollsBackWithIt",
+          "status": "PASS",
+          "seconds": "0.125"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest.xml",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "revisionZeroUpgradeUsesTheRealBaselineFactEventId",
+          "status": "PASS",
+          "seconds": "0.289"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "attachDetachReattachCannotBeResurrectedByOldFact",
+          "status": "PASS",
+          "seconds": "0.146"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "appliesFirstUpdateTombstoneDuplicateStaleJumpAndOutOfOrderByRevisionOnly",
+          "status": "PASS",
+          "seconds": "0.136"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "detachedShapeAndAbsenceAreDistinctAndEnforcedInSql",
+          "status": "PASS",
+          "seconds": "0.148"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "upgradeNormalizesOldTombstoneWithoutLosingIdentityRevisionOrSource",
+          "status": "PASS",
+          "seconds": "0.273"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+          "method": "equalRevisionDivergenceIsObservableAndBootstrapZeroNeverOverwritesOne",
+          "status": "PASS",
+          "seconds": "0.129"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest",
+          "method": "concurrentOutOfOrderObservationsKeepTheMaximum",
+          "status": "PASS",
+          "seconds": "0.156"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest",
+          "method": "firstObservationMayStartAboveOneAndOnlyRealAdvancesChangeAdvancedAt",
+          "status": "PASS",
+          "seconds": "0.143"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest.xml",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "rejectsNonTerminalSourceEventIdEvenWhenBusinessPayloadMatches",
+          "status": "PASS",
+          "seconds": "0.189"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "rejectsAProjectionWithNoTerminalFact",
+          "status": "PASS",
+          "seconds": "0.152"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "rejectsAProjectionAtAnEarlierRealRevision",
+          "status": "PASS",
+          "seconds": "0.154"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "rejectsAnIdentityMissingFromCurrentBinding",
+          "status": "PASS",
+          "seconds": "0.145"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "acceptsExactAttachedDetachedReattachedAndR0BaselineWithTerminalProvenance",
+          "status": "PASS",
+          "seconds": "0.202"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+          "method": "rejectsDivergentTerminalStateUserAndBindingId",
+          "status": "PASS",
+          "seconds": "0.207"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest.xml",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest",
+          "method": "readMigrationsInstallAutonomouslyAndRestartIdempotently",
+          "status": "PASS",
+          "seconds": "0.48"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest",
+          "method": "readStoreCompositionKeepsOnlyCanonicalAndLatestKnownVersionAccess",
+          "status": "PASS",
+          "seconds": "0.137"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest.xml",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+          "method": "readHasExactlyFourTechnicalTablesSevenRoutesAndTwentyEightPartitions",
+          "status": "PASS",
+          "seconds": "0.099"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+          "method": "ownershipIdentityAndPairedLeaseAndSlotQuarantineAreEnforced",
+          "status": "PASS",
+          "seconds": "0.09"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+          "method": "actualReadRuntimeHasOnlySelectIncludingPublicAndMembership",
+          "status": "PASS",
+          "seconds": "0.05"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+          "method": "checkpointIsMonotoneAndImmutableInIdentityAndNonnegative",
+          "status": "PASS",
+          "seconds": "0.075"
+        }
+      ]
+    },
+    {
+      "module": "infra-persistence-read-jdbc",
+      "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+      "xml": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "methods": [
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+          "method": "freshReadStorePasses",
+          "status": "PASS",
+          "seconds": "0.154"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+          "method": "malformedExactIdentityBlocksCutover",
+          "status": "PASS",
+          "seconds": "0.144"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+          "method": "mixedArtifactBlocksCutover",
+          "status": "PASS",
+          "seconds": "0.145"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+          "method": "exactIdentityArtifactPassesWithoutMutation",
+          "status": "PASS",
+          "seconds": "0.138"
+        },
+        {
+          "class": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+          "method": "legacyArtifactBlocksCutoverAndRemainsIntact",
+          "status": "PASS",
+          "seconds": "0.15"
+        }
+      ]
+    }
+  ],
+  "archive": {
+    "file": "READ.tar.gz",
+    "bytes": 57607,
+    "sha256": "4189765db725b1f679d7676d5c7cee00e861024ad608eec41ffc19f3b01b1857"
+  }
+}

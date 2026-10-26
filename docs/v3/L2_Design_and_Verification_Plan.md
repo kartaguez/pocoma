@@ -1,8 +1,8 @@
 # L2 — Plan de conception et de vérification
 
-2026-10-26 — **DESIGN PENDING / corrections P0 après audit ; G0 NON VALIDÉ ; implémentation NON AUTORISÉE.**
+2026-10-26 — **G0 FRANCHI PAR DÉCISION HUMAINE ; I1 IMPLÉMENTÉ / PASS LOCAL BORNÉ, suite non engagée ; G1/G2/G3 futurs.**
 
-Ce dossier ne livre aucun Java, SQL, Flyway, POM, configuration runtime ou test exécutable. Aucun scénario PostgreSQL n'a été exécuté. L2 n'est pas ACCEPTED. Les commandes Maven ci-dessous sont exclusivement prospectives. Arrêt obligatoire après cette préparation ; validation humaine du dossier puis autorisation d'implémentation distincte.
+La préparation conceptuelle ci-dessous reste le référentiel des étapes futures. Le [dossier I1 courant](L2_I1_G0_Readiness_and_Implementation_Plan.md) consigne la décision humaine G0, les fondations techniques effectivement livrées et les preuves exécutées. Les anciennes mentions de non-exécution décrivent la préparation initiale ; elles ne révoquent pas le mandat I1. L2 n'est pas ACCEPTED et les certifications G1/G2/G3 restent futures.
 
 ## 1. Autorités, état de départ et contrat de reprise
 
@@ -401,7 +401,7 @@ Ces unités internes restent toutes dans L2 ; elles ne lancent aucun lot suivant
 
 Ordre topologique : **P0 → G0 → I1 → I2 → I3 → I4 → I5 → G1 → G2 → I6 → I7 → G3**. Les preuves locales peuvent être recueillies dès leur étape productrice ; leur consommation formelle reste G1/G2. Aucun artefact futur ne conditionne G0. Les preuves documentaires disponibles avant code y restent.
 
-Le présent mandat s'arrête **avant G0 autorisant code**. Il prépare l'audit, ne remplace pas l'auditeur indépendant par une autoévaluation.
+Le mandat de préparation initial s'arrêtait avant G0. La décision humaine du 26-10-2026 lève explicitement la réserve procédurale L1-F2 et autorise I1 seul, avec les limites des preuves historiques conservées. Aucun audit historique n'est réécrit.
 
 ### Provenance future
 
