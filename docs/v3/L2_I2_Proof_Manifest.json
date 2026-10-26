@@ -16,7 +16,8 @@
     "No global L2 / G1-G3 certification",
     "Legacy cession/retry assertions use test-only fixtures; no I3 proof",
     "F2 primitive oracles retained under common revision guards; Command scenarios run through new Engine",
-    "Repeated scenario bridges do not multiply distinct guarantees or unique test counts"
+    "Repeated scenario bridges do not multiply distinct guarantees or unique test counts",
+    "Architecture-only rule adaptation permits exactly RecoveryReadContext, keeps owners forbidden, with positive/negative examples; earlier COMMAND/owner/monolith inputs remain unchanged."
   ],
   "required_groups": {
     "i2": {
@@ -255,6 +256,16 @@
         "rejectedAbstractionsAndPotOwnerAbsent",
         "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
         "negativeExamplesReallyFailRules"
+      ],
+      "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest": [
+        "businessProductionAndNarrowTransactionContractRemainTechnologyFree",
+        "onlyTheReadContextIsAllowedAndTransactionOwnershipStillFails",
+        "allDurablePortImplementationsAndPublicationFactoriesAreInventoried",
+        "currentParticipantAnnotationsAndBodyGuardsCannotDisappear",
+        "knownParticipantsHaveNoIndependentResolutionOrExternalEffects",
+        "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
+        "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
+        "incompatibleExternalDurableCompositionIsRejectedBeforeSending"
       ]
     }
   },
