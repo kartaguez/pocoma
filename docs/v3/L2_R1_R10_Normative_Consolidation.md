@@ -142,19 +142,19 @@
 | R9 | SPEC-05, plan L2, registre A02/A09 | P5/P6 ; lectures cohérentes, UNKNOWN |
 | R10 | SPEC-05, plan L2, registre A08/A11 | P4/P7 ; famine, saturation, renouvellements |
 
-La matrice initiale des variantes de SPEC-10 reste exhaustive et **à figer** dans un manifeste méthode-par-méthode avant implémentation, selon R6. Les tests Rn-Txx préparés pendant les arbitrages sont des scénarios de qualification à incorporer, **pas** des preuves exécutées.
+La matrice des variantes de SPEC-10 et les obligations R1–R10 sont allouées dans le [manifeste de couverture L2](L2_Certification_Coverage_Manifest.md), à revoir et figer à G0. Ses méthodes sont prévisionnelles et ne constituent pas des preuves exécutées.
 
 ## 12. Revue de cohérence documentaire — points bloquants avant G0
 
 Les dix options ont été ratifiées, mais l'examen contradictoire des conséquences techniques conserve les vérifications suivantes :
 
-1. **R1 / publication :** vérifier dans le code et le DDL l'appel à SlotCompletion *avant* fermeture du suffixe, l'ordre des verrous, la suppression exactement une ligne et le poisoning sur double/absence d'appel.
-2. **R2 / R4 :** démontrer qu'une page PENDING non enrôlée pour manque de capacité est revisitable et que la sélection de références permet réellement de terminer un tour sous admissions continues. Ne pas assimiler page filtrée vide à fin de population.
+1. **R1 / publication :** P0 documente l'ordre `SlotCompletion.complete()` avant fermeture, les contraintes/FK/triggers L1 à adapter, l'ordre des verrous et les points d'injection. La preuve sur code, DDL et PostgreSQL est produite après I2 et consommée par G1.
+2. **R2 / R4 :** P0 fixe l'invariant de revisite et le modèle de tour fini ; après I4, P2/P3 démontrent sur SQL réel qu'une page PENDING non enrôlée reste revisitable et que le tour termine sous admissions continues. Une page filtrée vide ne prouve pas la fin de population.
 3. **R3 / A03 / R7 :** remplacer partout « trois tables » par « quatre tables » dans les exigences en vigueur ; droits administratifs uniquement sur le contrat de routage, vérification de compatibilité atomique avec leases.
 4. **R5 / R9 :** séparer décision de cession après rollback certain et observation d'un commit indécidable ; NOT_COMPLETED n'est jamais une preuve de rollback.
 5. **R8 :** correction de non-purge déjà présente dans SPEC-10, ne pas réintroduire l'ancienne phrase en fusion documentaire.
-6. **R10 :** une requête uniquement `WHERE eligible FOR UPDATE SKIP LOCKED` ne fournit pas, à elle seule, les clés sautées et ne prouve pas la couverture des tours ; exiger SQL/barrières réels et mesures avant validation.
+6. **R10 :** P0 fixe l'obligation de navigation distincte de `SKIP LOCKED`, les scénarios de clés sautées et les paramètres bloquants. Après I5, P4/P7 produisent SQL, barrières et mesures réels pour G2 ; une seule requête `WHERE eligible FOR UPDATE SKIP LOCKED` ne prouve pas la couverture.
 7. **R6 :** couverture des vrais producteurs et projections non réalisés = INCONCLUSIVE global, même si le mécanisme L2 est PASS borné.
 8. **R3 :** les règles « contrat par Consumption » et « P identique par famille » doivent être contrôlées ensemble au bootstrap administratif, faute de quoi deux Consumptions d'une même famille pourraient recevoir des nombres de partitions contradictoires.
 
-**Verdict provisoire de revue documentaire interne :** décisions cohérentes sous ces obligations, mais **G0 NON CERTIFIÉ**, audit indépendant non mené et tests non lancés. Toute proposition de clôture totale doit citer les preuves satisfaisant chacun de ces points. La présente revue rédactionnelle **ne se substitue pas à l'audit indépendant** attendu.
+**Statut de cette revue de consolidation :** décisions conceptuelles cohérentes sous ces obligations ; l'audit indépendant post-consolidation a ensuite rendu un FAIL documentaire, traité dans un dossier de correction distinct. **G0 NON VALIDÉ**, tests L2 non lancés. Les preuves de code et PostgreSQL listées ci-dessus sont des conditions de G1/G2, jamais de G0.

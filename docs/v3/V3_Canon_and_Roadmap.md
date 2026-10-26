@@ -1,7 +1,7 @@
 # Pocoma V3 — Canon et feuille de route
 
 **Statut de clôture : L1 ACCEPTED — internal V3 foundation (2026-10-25), après livraison L1-A à L1-E et audit indépendant confirmé par le mandat du responsable. Acceptation limitée au périmètre interne vérifié ; aucun certificat V3 complet ni activation.**
-**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE avant L2 : [dossier](L1_F2_Closure_Report.md). **Prochaine étape : revue du dossier L2 préparé et validation/audit L1-F2 ; implémentation L2 non commencée et non autorisée.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
+**Programme et statuts L0–L8 :** [plan directeur unique](V3_Implementation_Master_Plan.md). **L1-F CLOSED / PASS interne**, [rapport](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE avant L2 : [dossier](L1_F2_Closure_Report.md). **Prochaine étape : revue indépendante des [corrections documentaires L2](L2_Post_Audit_Corrections_Closure.md) et du [manifeste P0](L2_Certification_Coverage_Manifest.md), validation/audit L1-F2, puis décision humaine explicite G0 ; implémentation L2 non commencée et non autorisée.** [Clôture L1, preuves et attribution](L1_Documentary_Closure.md).
 **Branche directrice :** `feat/v3-architecture`, créée depuis `feat/consumption-transaction-protocol`.  
 **Date d'ouverture :** 2026-10-22.  
 **Nature :** autorité des décisions transversales ; progression opérationnelle dans le plan directeur, preuves dans les rapports et manifestes.

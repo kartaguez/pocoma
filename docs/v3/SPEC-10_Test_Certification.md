@@ -611,7 +611,7 @@ La Discovery, son checkpoint et ses slots s'enregistrent dans l'autorité **des 
 
 ### Oracles structurants
 
-1. **Transaction unique :** les écritures JPA et JDBC affectées à la même Consumption utilisent le même transaction manager PRIMARY et la même transaction **physique** (connexion/identité transactionnelle PostgreSQL effectivement partagée), pas seulement des annotations `@Transactional` portant le même nom.
+1. **Transaction unique :** le transaction manager de l'autorité concernée, **WRITE ou READ**, contrôle la même unité **physique** que les écritures JDBC/JPA affectées à la Consumption et la suppression du slot (connexion et identité transactionnelle PostgreSQL effectivement partagées), pas seulement des annotations `@Transactional` portant le même nom.
 2. **Rollback empoisonné :** toute erreur durable d'un writer, y compris interceptée localement, empêche le commit partiel de l'unité d'effets. Une erreur SQL PostgreSQL qui invalide une transaction ne doit pas être masquée ; les exceptions applicatives interceptées doivent également marquer explicitement la transaction rollback-only si l'invariant le requiert.
 3. **Aucun commit intermédiaire :** interdiction des effets `REQUIRES_NEW` ou autres transactions indépendantes laissant persister métier/projections, séquences, tasks, slots ou résultats séparément.
 4. **WRITE et READ :** une Consumption n'écrit ses effets transactionnels que dans son autorité. Composer les deux types dans un Worker ne crée **ni XA/2PC ni commit multi-base**.
@@ -670,6 +670,8 @@ Combiner tests d'architecture (composition, managers, annotations interdites, ch
 Ne pas supposer qu'un simple partage de `DataSource` ou un nom de transaction manager garantit une transaction physique commune : ce sont des hypothèses à prouver. Les verrous, contraintes et timings exacts seront démontrés dans CON-03/04 et EVT-01. Le protocole ne prescrit pas de framework transactionnel supplémentaire ; une composition non conforme doit être corrigée ou refusée.
 
 **PASS CON-06** : C06-A à C06-P vérifiés, zéro transaction à effets séparés, empoisonnement de tout writer après erreur, routes WRITE/READ indépendantes et absence de 2PC. Les preuves communes EVT-01/02, EVT-03, PRJ-01/02/03 et CON-03/04 sont requises. Aucun code V3 ni test n'a été exécuté.
+
+Le [manifeste L2](L2_Certification_Coverage_Manifest.md) distingue les preuves techniques du banc READ des matérialisations métier reportées ; l'oracle de manager commun s'applique séparément à chaque autorité physique.
 
 ## 7. Projections READ
 
@@ -1219,3 +1221,5 @@ Preuve de profondeur 100/1 000/10 000 par véritable ExecutePotCommand avant/apr
 ## Amendements de certification L2 R1–R10 (2026-10-26)
 
 La [consolidation R1–R10](L2_R1_R10_Normative_Consolidation.md) précise les scénarios supplémentaires et la portée des verdicts. **PASS d'une contribution L2 ≠ PASS global** de la variante/exigence SPEC-10. Les fixtures ne certifient pas les producteurs ni projections métier absents ; les reports doivent être nominativement associés à une variante et à un lot receveur. Les scénarios R1–R10 sont des obligations de test futures, sans preuve d'exécution au 2026-10-26. R8 interdit strictement la purge d'un slot incomplet ; seules finalisation atomique réussie et procédure distincte de reset READ total coordonné sont possibles. Un manifeste variantes/méthodes/oracles/gates et un audit indépendant sont requis avant PASS L2.
+
+Le [manifeste de couverture](L2_Certification_Coverage_Manifest.md) est produit à P0 avec méthodes prévisionnelles et sous-scénarios distincts. Sa présence n'est ni une exécution ni un PASS ; les mesures PERF-01 restent attendues selon [SPEC-09](SPEC-09_Performance.md).

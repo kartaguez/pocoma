@@ -37,7 +37,7 @@ Les 28 exigences actives ci-dessous constituent le catalogue transversal de réf
 | SEC-02 | Retard de révocation CurrentBinding accepté explicitement ; aucune promesse de révocation WRITE immédiatement effective dans READ | V3-3, V3-4 | Bruno propagation | ACQUIS / À PROUVER |
 | REC-01 | Reconstruction READ en maintenance exclusive, reset coordonné projections/slots/checkpoints sans tâches | V3-4 | JUnit/PostgreSQL E2E | ACQUIS / À PROUVER |
 | OPS-01 | Progression et équité malgré quarantaine exclue du softCap, sans dépendance entre slots | V3-4 | k6 ; métriques serveur ; PostgreSQL | **À PROUVER**, budgets V3-5B/C |
-| PERF-01 | C-03 : première lecture active W≥V complète autorisée ; DeletePot oracle interne PotVersion(D), budgets inchangés | V3-5B/C à définir | k6 + instrumentation + SQL | **OUVERT (V3-5B/C)** |
+| PERF-01 | C-03 : première lecture active W≥V complète autorisée ; DeletePot oracle interne PotVersion(D), budgets inchangés | [SPEC-09 §§3–5](SPEC-09_Performance.md#3-scénarios-et-budgets) ; [SPEC-10 §12](SPEC-10_Test_Certification.md#12-performance) | k6 + instrumentation + SQL | **Objectifs acquis conceptuellement / mesures et qualification V3 attendues ; aucun PASS** |
 | ADM-01 | Admission bornée, sans lecture métier WRITE, sans slot synchrone | SPEC-06/05 | Bruno ; tests d'admission | ACQUIS / À PROUVER |
 | S-01 | Navigation CurrentUserPotList keyset, non autorisante | SPEC-06 | Bruno ; tests de pagination | ACQUIS / À PROUVER |
 | S-02 | Manifeste complet et ordonné des références Expenses, détails par lots | SPEC-06/04 | Bruno ; tests de volumes | ACQUIS / À PROUVER |
