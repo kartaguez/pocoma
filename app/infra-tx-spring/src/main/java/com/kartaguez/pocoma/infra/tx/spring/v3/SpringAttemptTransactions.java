@@ -169,9 +169,11 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
     private <T> T run(TransactionTemplate template, boolean reading, Function<Unit, T> action) {
         if (TransactionSynchronizationManager.isActualTransactionActive()
                 || TransactionSynchronizationManager.isSynchronizationActive()) {
-            poisonUnits();
-            throw new IllegalTransactionStateException(
-                    "Attempt owner requires no ambient transaction");
+            var failure =
+                    new IllegalTransactionStateException(
+                            "Attempt owner requires no ambient transaction");
+            poisonUnits(failure);
+            throw failure;
         }
         int[] completion = {TransactionSynchronization.STATUS_UNKNOWN};
         boolean[] handedToCommit = {false};
@@ -235,7 +237,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
     @Override
     public void poison(Throwable cause) {
         Objects.requireNonNull(cause);
-        poisonUnits();
+        poisonUnits(cause);
         poisonConnection(source);
     }
 
@@ -261,7 +263,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
             unit.open();
             return action.get();
         } catch (RuntimeException | Error failure) {
-            poisonUnits();
+            poisonUnits(failure);
             poisonConnection(source);
             throw failure;
         }
@@ -277,7 +279,7 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
                 throw new IllegalTransactionStateException("Revision belongs to another authority");
             action.run();
         } catch (RuntimeException | Error failure) {
-            poisonUnits();
+            poisonUnits(failure);
             poisonConnection(source);
             throw failure;
         }
@@ -294,11 +296,28 @@ public final class SpringAttemptTransactions implements AttemptTransactions {
         return (Unit) TransactionSynchronizationManager.getResource(new Key(source));
     }
 
-    private static void poisonUnits() {
+    private static void poisonUnits(Throwable cause) {
         TransactionSynchronizationManager.getResourceMap().values().stream()
                 .filter(Unit.class::isInstance)
                 .map(Unit.class::cast)
-                .forEach(unit -> unit.status.setRollbackOnly());
+                .forEach(
+                        unit -> {
+                            unit.status.setRollbackOnly();
+                            // Like JpaTransactionManager.doSetRollbackOnly: after the owner
+                            // callback,
+                            // a beforeCommit listener can catch a guard failure. Spring's local
+                            // flag
+                            // alone is no longer checked there; JPA must also be globally
+                            // rollback-only.
+                            try {
+                                if (unit.entityManager instanceof EntityManagerHolder holder) {
+                                    var transaction = holder.getEntityManager().getTransaction();
+                                    if (transaction.isActive()) transaction.setRollbackOnly();
+                                }
+                            } catch (RuntimeException markingFailure) {
+                                if (markingFailure != cause) cause.addSuppressed(markingFailure);
+                            }
+                        });
     }
 
     private static void poisonConnection(DataSource source) {

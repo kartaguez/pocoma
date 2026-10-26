@@ -87,37 +87,45 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
 
     @Test
     void guardedLateCallbackRefusedBeforeSqlAndRollback() {
-        assertThrows(
-                AttemptTransactions.Failure.class,
-                () ->
-                        owner.write(
-                                () -> {
-                                    guarded(
-                                            () -> {
-                                                em().persist(
-                                                                new FoundationEffect(
-                                                                        new UUID(0, 1), "prefix"));
-                                                return null;
-                                            });
-                                    close();
-                                    TransactionSynchronizationManager.registerSynchronization(
-                                            new TransactionSynchronization() {
-                                                public void beforeCommit(boolean readOnly) {
-                                                    guarded(
-                                                            () -> {
-                                                                write.jdbc.update(
-                                                                        "insert into"
-                                                                            + " foundation_effect"
-                                                                            + " values (?,?)",
-                                                                        new UUID(0, 2),
-                                                                        "late");
-                                                                return null;
-                                                            });
-                                                }
-                                            });
-                                    return null;
-                                }));
-        assertEquals(0, write.observedEffects());
+        for (boolean intercept : List.of(false, true)) {
+            assertThrows(
+                    AttemptTransactions.Failure.class,
+                    () ->
+                            owner.write(
+                                    () -> {
+                                        guarded(
+                                                () -> {
+                                                    em().persist(
+                                                                    new FoundationEffect(
+                                                                            new UUID(0, 1),
+                                                                            "prefix"));
+                                                    return null;
+                                                });
+                                        close();
+                                        TransactionSynchronizationManager.registerSynchronization(
+                                                new TransactionSynchronization() {
+                                                    public void beforeCommit(boolean readOnly) {
+                                                        try {
+                                                            guarded(
+                                                                    () -> {
+                                                                        write.jdbc.update(
+                                                                                "insert into"
+                                                                                    + " foundation_effect"
+                                                                                    + " values"
+                                                                                    + " (?,?)",
+                                                                                new UUID(0, 2),
+                                                                                "late");
+                                                                        return null;
+                                                                    });
+                                                        } catch (RuntimeException failure) {
+                                                            if (!intercept) throw failure;
+                                                        }
+                                                    }
+                                                });
+                                        return null;
+                                    }));
+            assertEquals(0, write.observedEffects(), "caught=" + intercept);
+        }
     }
 
     @Test
@@ -311,7 +319,7 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                                 () ->
                                                         read.jdbc.update(
                                                                 "insert into foundation_effect"
-                                                                    + " values (?,?)",
+                                                                        + " values (?,?)",
                                                                 new UUID(0, 1),
                                                                 "wrong"));
                                     } catch (RuntimeException caught) {
@@ -395,13 +403,13 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                                     () -> {
                                                         write.jdbc.update(
                                                                 "insert into foundation_effect"
-                                                                    + " values (?,?)",
+                                                                        + " values (?,?)",
                                                                 new UUID(0, 1),
                                                                 "rollback");
                                                         write.jdbc.update(
                                                                 "insert into"
-                                                                    + " foundation_commit_guard"
-                                                                    + " values (?,?)",
+                                                                        + " foundation_commit_guard"
+                                                                        + " values (?,?)",
                                                                 new UUID(0, 2),
                                                                 new UUID(0, 3));
                                                         return null;
@@ -471,7 +479,7 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                                     () -> {
                                                         write.jdbc.update(
                                                                 "insert into foundation_effect"
-                                                                    + " values (?,?)",
+                                                                        + " values (?,?)",
                                                                 new UUID(0, 1),
                                                                 "committed");
                                                         return null;
@@ -483,8 +491,8 @@ class AttemptTransactionsPostgresTest extends PostgresFoundationTestSupport {
                                                                 public void afterCommit() {
                                                                     throw new IllegalStateException(
                                                                             "cleanup failure after"
-                                                                                + " confirmed"
-                                                                                + " commit");
+                                                                                    + " confirmed"
+                                                                                    + " commit");
                                                                 }
                                                             });
                                             return null;
