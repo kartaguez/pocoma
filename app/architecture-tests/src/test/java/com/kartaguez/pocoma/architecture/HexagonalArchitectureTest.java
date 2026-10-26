@@ -787,8 +787,9 @@ class HexagonalArchitectureTest {
 				ROOT_PACKAGE + ".domain.consumption.key",
 				ROOT_PACKAGE + ".domain.consumption.lifecycle",
 				ROOT_PACKAGE + ".domain.consumption.provenance",
-				ROOT_PACKAGE + ".domain.consumption.segmentation"), packages,
-				"domain-consumption contains generic claim, key, lifecycle, provenance and segmentation");
+				ROOT_PACKAGE + ".domain.consumption.segmentation",
+                        ROOT_PACKAGE + ".domain.consumption.v3"), packages,
+				"domain-consumption contains generic claim, key, lifecycle, provenance, segmentation and V3 routing values");
 	}
 
 	@Test
