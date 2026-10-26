@@ -197,3 +197,8 @@ Autorités : [canon](V3_Canon_and_Roadmap.md), [SPEC-03](SPEC-03_Events_Requests
 **Impacts documentaires.** SPEC-10 garde ses critères globaux ; plan §§11–14 décompose contributions L2 et reports ; revue R6. Aucun scénario PG exécuté dans ce mandat.
 
 **Vérifications futures.** P1…P8 ; manifeste ouvert avant toute campagne future ; absence/skip ≠ PASS ; statut global INCONCLUSIVE tant que variantes normatives manquent.
+
+
+## Décisions complémentaires R1–R10 (2026-10-26)
+
+Les dix arbitrages humains sont **CLOSED conceptuellement** ; voir le [contrat consolidé](L2_R1_R10_Normative_Consolidation.md). Affectations : R1→A02/A09 ; R2→A03/A06/A10 ; R3→A03/A05 ; R4→A07/A11 ; R5→A09/A10 ; R6→A12 ; R7→A01 ; R8→A03/A10 ; R9→A02/A09 ; R10→A08/A11. **A03 est amendé** : quatre tables par autorité concernée (ajout de `consumption_routing_contract`), bootstrap administratif exclusivement. Les références du corps historique à trois tables décrivent l'arbitrage initial, pas le modèle en vigueur. R1 retient l'appel unique `SlotCompletion.complete()` avant suffixe ; R10 retient un parcours circulaire volatil, avec ressources threads et JDBC indépendantes pour les renouvellements. Aucun code ou PASS n'est impliqué.
