@@ -241,3 +241,8 @@ Le code retour 1 de git diff --no-index signifie qu'un nouveau fichier diffère 
 ## 6. Publication documentaire sur demande explicite
 
 Le responsable demande ensuite la publication du dossier préparé. Tête distante recontrôlée avant publication : `4127767f2f9337b495501d7cd5d933ae9782c8ec`, identique à la base du worktree isolé. Publication limitée aux neuf Markdown inventoriés, par avance rapide sur `feat/v3-architecture`, sans force ; aucune branche locale préexistante déplacée. Le SHA de livraison est consultable par `git log -1 --format=%H -- docs/v3/L2_Contradictory_Review.md` et le constat distant accompagne le compte rendu de livraison. Aucun test Maven/PostgreSQL supplémentaire ni code L2. Le checkpoint avant implémentation reste obligatoire.
+
+
+## État de traitement des constats R1–R10 (2026-10-26)
+
+**Dix décisions conceptuelles validées ; rapport initial conservé comme historique de constats, non comme source de décisions ouvertes.** Le [contrat consolidé](L2_R1_R10_Normative_Consolidation.md) fixe R1 option B, R2 A, R3 B + bootstrap administratif, R4 A, R5 A + changements N/délai prospectifs, R6 A, R7 A, R8 correction documentaire préexistante, R9 A, R10 B + ressources de renouvellement indépendantes. Toute recommandation divergente du présent rapport est supersédée. L'audit indépendant de cohérence après consolidation reste **à réaliser** ; aucun PASS technique revendiqué.
