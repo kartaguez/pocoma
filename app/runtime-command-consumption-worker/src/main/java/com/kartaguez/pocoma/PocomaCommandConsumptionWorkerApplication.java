@@ -19,7 +19,18 @@ public class PocomaCommandConsumptionWorkerApplication {
     /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
     @org.springframework.context.annotation.Profile("!v3-consumption-pilot")
     @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
-    @org.springframework.context.annotation.ComponentScan("com.kartaguez.pocoma")
+    @org.springframework.context.annotation.ComponentScan(
+            basePackages = "com.kartaguez.pocoma",
+            excludeFilters = {
+                @org.springframework.context.annotation.ComponentScan.Filter(
+                        type = org.springframework.context.annotation.FilterType.CUSTOM,
+                        classes = org.springframework.boot.context.TypeExcludeFilter.class),
+                @org.springframework.context.annotation.ComponentScan.Filter(
+                        type = org.springframework.context.annotation.FilterType.CUSTOM,
+                        classes =
+                                org.springframework.boot.autoconfigure
+                                        .AutoConfigurationExcludeFilter.class)
+            })
     @Import(CommandConsumptionRuntimeConfiguration.class)
     public static class Legacy {}
 }
