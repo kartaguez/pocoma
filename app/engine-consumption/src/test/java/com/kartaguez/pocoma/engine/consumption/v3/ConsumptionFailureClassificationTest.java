@@ -174,6 +174,13 @@ class ConsumptionFailureClassificationTest {
                                 }
                         });
         var h = handle(e);
+        // The fake SQL ports cannot grant a claim: a full ticket budget must return before them.
+        var noPlace =
+                e.acquire(
+                        new PartitionLease(definition.id(), 0, new UUID(0, 9), Instant.now()),
+                        List.of(new UUID(0, 10)));
+        assertEquals(0, noPlace.examinedCount());
+        assertTrue(noPlace.claims().isEmpty());
         var exited = new CountDownLatch(1);
         try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
             var f =

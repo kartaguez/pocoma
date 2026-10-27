@@ -799,7 +799,8 @@
       "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-WRITE.txt",
       "contains": [
         "VARIANT PASS i3_acquisition_partial WRITE",
-        "independent final snapshot"
+        "independent final snapshot",
+        "examinedCount partial=2 won=1; capacity full=0 keys/0 SQL"
       ]
     },
     {
@@ -807,7 +808,8 @@
       "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-READ.txt",
       "contains": [
         "VARIANT PASS i3_acquisition_partial READ",
-        "independent final snapshot"
+        "independent final snapshot",
+        "examinedCount partial=2 won=1; capacity full=0 keys/0 SQL"
       ]
     },
     {
@@ -1495,5 +1497,6 @@
     "Global CON-03/05 and L2 certification INCONCLUSIVE",
     "No G1/G2/G3 or L2 ACCEPTED"
   ],
-  "proof_review_correction": "The initial C05-K harness stopped before preparation; replaced with actual RO rollback followed by an injected process stop in classification before cession. C05-B now also forces a real deferred commit rejection. Earlier e9a6848f gates are superseded for final I3 proof."
+  "proof_review_correction": "The initial C05-K harness stopped before preparation; replaced with actual RO rollback followed by an injected process stop in classification before cession. C05-B now also forces a real deferred commit rejection. Earlier e9a6848f gates are superseded for final I3 proof.",
+  "acquisition_result": "Acquisition(claims, examinedCount): committed submitted prefix, 0 with no ticket or ownership; UNKNOWN throws and returns no cursor advancement evidence. No navigation I5 implemented."
 }

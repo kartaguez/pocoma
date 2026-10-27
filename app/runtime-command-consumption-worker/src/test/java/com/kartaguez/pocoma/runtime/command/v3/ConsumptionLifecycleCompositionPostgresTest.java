@@ -156,7 +156,7 @@ class ConsumptionLifecycleCompositionPostgresTest {
                         "select partition_id from consumption_slot where consumable_id=?",
                         Integer.class,
                         id);
-        return e.acquire(e.acquirePartition(p).orElseThrow(), List.of(id)).getFirst();
+        return e.acquire(e.acquirePartition(p).orElseThrow(), List.of(id)).claims().getFirst();
     }
 
     @Test
@@ -175,10 +175,10 @@ class ConsumptionLifecycleCompositionPostgresTest {
                         Integer.class,
                         ri);
         var lr = er.acquirePartition(p).orElseThrow();
-        assertTrue(er.acquire(lr, List.of(ri)).isEmpty());
+        assertTrue(er.acquire(lr, List.of(ri)).claims().isEmpty());
         assertEquals(1, cap.snapshot().worker());
         ew.abandon(wh);
-        var rh = er.acquire(lr, List.of(ri)).getFirst();
+        var rh = er.acquire(lr, List.of(ri)).claims().getFirst();
         assertEquals(1, cap.snapshot().worker());
         er.abandon(rh);
         assertEquals(0, cap.snapshot().worker());
@@ -377,7 +377,7 @@ class ConsumptionLifecycleCompositionPostgresTest {
                                     Integer.class,
                                     id);
                     var lease = leases.computeIfAbsent(p, k -> e.acquirePartition(k).orElseThrow());
-                    handles.add(e.acquire(lease, List.of(id)).getFirst());
+                    handles.add(e.acquire(lease, List.of(id)).claims().getFirst());
                 }
                 assertEquals(4, cap.snapshot().worker());
                 var held = new ArrayList<Connection>();

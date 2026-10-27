@@ -90,7 +90,7 @@ class ConsumptionLifecyclePostgresTest {
             ConsumptionEngine e,
             PartitionLease lease,
             UUID id) {
-        var result = e.acquire(lease, List.of(id));
+        var result = e.acquire(lease, List.of(id)).claims();
         assertEquals(1, result.size());
         assertEquals(id, result.getFirst().claim().consumableId());
         return result.getFirst();
@@ -191,7 +191,7 @@ class ConsumptionLifecyclePostgresTest {
                     var b = f.engine();
                     var newLease = b.acquirePartition(0).orElseThrow();
                     assertNotEquals(lease.ownerToken(), newLease.ownerToken());
-                    assertTrue(b.acquire(newLease, List.of(s)).isEmpty());
+                    assertTrue(b.acquire(newLease, List.of(s)).claims().isEmpty());
                     var other = acquire(f, b, newLease, s2);
                     try (var partition = f.admin.getConnection()) {
                         partition.setAutoCommit(false);
@@ -219,7 +219,9 @@ class ConsumptionLifecyclePostgresTest {
                     var b = f.engine();
                     b.acquirePartition(0).orElseThrow();
                     var before = f.row(s);
-                    assertTrue(a.acquire(old, List.of(s)).isEmpty());
+                    var denied = a.acquire(old, List.of(s));
+                    assertEquals(0, denied.examinedCount());
+                    assertTrue(denied.claims().isEmpty());
                     assertTrue(a.renewPartitions(List.of(old)).isEmpty());
                     assertEquals(before, f.row(s));
                     assertEquals(0, f.capacity.snapshot().worker());
@@ -265,7 +267,7 @@ class ConsumptionLifecyclePostgresTest {
                     var b = f.engine();
                     var next = b.acquirePartition(0).orElseThrow();
                     var before = f.row(id);
-                    assertTrue(b.acquire(next, List.of(id)).isEmpty());
+                    assertTrue(b.acquire(next, List.of(id)).claims().isEmpty());
                     assertEquals(before, f.row(id));
                     completed(f, a, h);
                 });
@@ -313,7 +315,7 @@ class ConsumptionLifecyclePostgresTest {
                                             () -> worker.renewClaims(List.of(old.claim())));
                             latch(held);
                             try {
-                                assertTrue(a.acquire(lease, List.of(id)).isEmpty());
+                                assertTrue(a.acquire(lease, List.of(id)).claims().isEmpty());
                             } finally {
                                 finish.countDown();
                             }
@@ -321,7 +323,8 @@ class ConsumptionLifecyclePostgresTest {
                             next = acquire(f, a, lease, id);
                         } else {
                             var acquisition =
-                                    f.threads.submit(() -> worker.acquire(lease, List.of(id)));
+                                    f.threads.submit(
+                                            () -> worker.acquire(lease, List.of(id)).claims());
                             latch(held);
                             try {
                                 assertTrue(a.renewClaims(List.of(old.claim())).isEmpty());
@@ -372,7 +375,7 @@ class ConsumptionLifecyclePostgresTest {
                     try {
                         f.await(() -> f.now().isAfter(deadline));
                         var b = f.engine();
-                        assertTrue(b.acquire(lease, List.of(id)).isEmpty());
+                        assertTrue(b.acquire(lease, List.of(id)).claims().isEmpty());
                         f.noEffects(id);
                         f.trace.add(
                                 "DB after deadline="
@@ -385,7 +388,7 @@ class ConsumptionLifecyclePostgresTest {
                             ConsumptionEngine.Status.COMMITTED,
                             task.get(8, TimeUnit.SECONDS).status());
                     assertEquals(1, f.effects(id));
-                    assertTrue(f.engine().acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(f.engine().acquire(lease, List.of(id)).claims().isEmpty());
                 });
     }
 
@@ -399,7 +402,7 @@ class ConsumptionLifecyclePostgresTest {
                     var h = acquire(f, e, lease, id);
                     f.oracle.update(
                             "update consumption_slot set claimed_until=clock_timestamp()+interval"
-                                + " '300 milliseconds' where consumable_id=?",
+                                    + " '300 milliseconds' where consumable_id=?",
                             id);
                     var deadline = ((Timestamp) f.row(id).get("claimed_until")).toInstant();
                     var pid = new AtomicInteger();
@@ -445,7 +448,7 @@ class ConsumptionLifecyclePostgresTest {
                     var acquired = acquire(f, finalizer, freshLease, other);
                     f.oracle.update(
                             "update consumption_slot set claimed_until=clock_timestamp()+interval"
-                                + " '300 milliseconds' where consumable_id=?",
+                                    + " '300 milliseconds' where consumable_id=?",
                             other);
                     var finalDeadline = ((Timestamp) f.row(other).get("claimed_until")).toInstant();
                     try (var lock = f.lock(other)) {
@@ -503,7 +506,7 @@ class ConsumptionLifecyclePostgresTest {
                     var c = f.engine();
                     c.acquirePartition(0).orElseThrow();
                     assertEquals(1, b.renewClaims(List.of(hb.claim())).size());
-                    assertTrue(b.acquire(lb, List.of(f.seed(0))).isEmpty());
+                    assertTrue(b.acquire(lb, List.of(f.seed(0))).claims().isEmpty());
                     completed(f, b, hb);
                 });
     }
@@ -525,8 +528,8 @@ class ConsumptionLifecyclePostgresTest {
                         var old = acquire(f, a, la, id);
                         f.expireLease(p);
                         var lb = b.acquirePartition(p).orElseThrow();
-                        assertTrue(a.acquire(la, List.of(id)).isEmpty());
-                        assertTrue(b.acquire(lb, List.of(id)).isEmpty());
+                        assertTrue(a.acquire(la, List.of(id)).claims().isEmpty());
+                        assertTrue(b.acquire(lb, List.of(id)).claims().isEmpty());
                         assertEquals(1, a.renewClaims(List.of(old.claim())).size());
                         completed(f, a, old);
                         var next = acquire(f, b, lb, f.seed(p));
@@ -554,7 +557,7 @@ class ConsumptionLifecyclePostgresTest {
                                     ConsumptionEngine.Status.CLAIM_LOST, a.execute(old).status());
                             completed(f, b, next);
                         } else {
-                            assertTrue(b.acquire(lease, List.of(id)).isEmpty());
+                            assertTrue(b.acquire(lease, List.of(id)).claims().isEmpty());
                             completed(f, a, old);
                         }
                         f.trace.add(
@@ -737,18 +740,37 @@ class ConsumptionLifecyclePostgresTest {
                     try (var lock = f.lock(ids.get(5))) {
                         // M_C=2 reserves first two examined keys only, never advances over the
                         // unsupplied remainder.
-                        var result = e.acquire(lease, List.of(ids.get(0), ids.get(1), ids.get(2)));
+                        var acquisition =
+                                e.acquire(lease, List.of(ids.get(0), ids.get(1), ids.get(2)));
+                        assertEquals(2, acquisition.examinedCount());
+                        var result = acquisition.claims();
                         assertEquals(1, result.size());
                         e.abandon(result.getFirst());
                         assertEquals(0, f.capacity.snapshot().worker());
                         assertNull(f.row(ids.get(2)).get("retry_after"));
-                        assertTrue(e.acquire(lease, List.of(ids.get(3), ids.get(4))).isEmpty());
-                        assertTrue(e.acquire(lease, List.of(ids.get(5))).isEmpty());
+                        assertEquals(new UUID(9, 2), f.row(ids.get(2)).get("claim_token"));
+                        assertTrue(
+                                e.acquire(lease, List.of(ids.get(3), ids.get(4)))
+                                        .claims()
+                                        .isEmpty());
+                        assertTrue(e.acquire(lease, List.of(ids.get(5))).claims().isEmpty());
                         lock.rollback();
                     }
                     var takeover = acquire(f, e, lease, ids.get(2));
                     assertNotEquals(new UUID(9, 2), takeover.claim().claimToken());
                     completed(f, e, takeover);
+                    var held = e.acquire(lease, List.of(f.seed(0), f.seed(0)));
+                    assertEquals(2, held.examinedCount());
+                    assertEquals(2, held.claims().size());
+                    var untouched = f.seed(0);
+                    var full = e.acquire(lease, List.of(untouched));
+                    assertEquals(0, full.examinedCount());
+                    assertTrue(full.claims().isEmpty());
+                    assertNull(f.row(untouched).get("claim_token"));
+                    held.claims().forEach(e::abandon);
+                    f.trace.add(
+                            "examinedCount partial=2 won=1; capacity full=0 keys/0 SQL; unexamined"
+                                    + " remainder preserved");
                     // Concurrent acquisition under the same lease: no key is won twice.
                     var start = new CountDownLatch(1);
                     var a = f.engine();
@@ -757,13 +779,15 @@ class ConsumptionLifecyclePostgresTest {
                             f.threads.submit(
                                     () -> {
                                         latch(start);
-                                        return a.acquire(lease, List.of(ids.get(5), ids.get(6)));
+                                        return a.acquire(lease, List.of(ids.get(5), ids.get(6)))
+                                                .claims();
                                     });
                     var y =
                             f.threads.submit(
                                     () -> {
                                         latch(start);
-                                        return b.acquire(lease, List.of(ids.get(5), ids.get(6)));
+                                        return b.acquire(lease, List.of(ids.get(5), ids.get(6)))
+                                                .claims();
                                     });
                     start.countDown();
                     var xs = x.get(8, TimeUnit.SECONDS);
@@ -789,7 +813,7 @@ class ConsumptionLifecyclePostgresTest {
                     var lease = e.acquirePartition(0).orElseThrow();
                     var s1 = f.seed(0);
                     var s2 = f.seed(0);
-                    var hs = e.acquire(lease, List.of(s1, s2));
+                    var hs = e.acquire(lease, List.of(s1, s2)).claims();
                     assertEquals(2, hs.size());
                     var before = (Timestamp) f.row(s2).get("claimed_until");
                     var mixed =
@@ -900,7 +924,7 @@ class ConsumptionLifecyclePostgresTest {
                         lock.setAutoCommit(false);
                         lock.createStatement()
                                 .execute("lock table consumption_slot in access exclusive mode");
-                        var task = f.threads.submit(() -> e.acquire(lease, List.of(id)));
+                        var task = f.threads.submit(() -> e.acquire(lease, List.of(id)).claims());
                         f.await(
                                 () ->
                                         f.oracle.queryForObject(
@@ -1173,7 +1197,7 @@ class ConsumptionLifecyclePostgresTest {
         assertTrue(found);
         f.trace.add(
                 "actual deferred commit SQLSTATE 23514; physical rollback then distinct committed"
-                    + " productive cession count=1");
+                        + " productive cession count=1");
     }
 
     @Test
@@ -1215,7 +1239,7 @@ class ConsumptionLifecyclePostgresTest {
                     var deadline = result.cession().retryAfter();
                     assertNotNull(deadline);
                     var good = f.engine();
-                    assertTrue(good.acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(good.acquire(lease, List.of(id)).claims().isEmpty());
                     f.await(() -> !f.now().isBefore(deadline));
                     completed(f, good, acquire(f, good, lease, id));
                 });
@@ -1292,7 +1316,7 @@ class ConsumptionLifecyclePostgresTest {
                                 bad.execute(acquire(f, bad, lease, id)).cession().attemptCount());
                     assertEquals("QUARANTINED", f.row(id).get("state"));
                     assertNull(f.row(id).get("retry_after"));
-                    assertTrue(bad.acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(bad.acquire(lease, List.of(id)).claims().isEmpty());
                     f.noEffects(id);
                     if (f.write)
                         assertEquals(
@@ -1351,7 +1375,7 @@ class ConsumptionLifecyclePostgresTest {
                                         assertTrue(sawRollback.get());
                                         throw new AssertionError(
                                                 "process stops after confirmed rollback before"
-                                                    + " cession");
+                                                        + " cession");
                                     });
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
@@ -1368,7 +1392,7 @@ class ConsumptionLifecyclePostgresTest {
                     completed(f, restarted, acquire(f, restarted, lease, id));
                     f.trace.add(
                             "actual rollback confirmed before injected process stop; zero"
-                                + " cession/budget; new acquisition succeeds");
+                                    + " cession/budget; new acquisition succeeds");
                 });
     }
 
@@ -1404,7 +1428,7 @@ class ConsumptionLifecyclePostgresTest {
                     var id = f.seed(0);
                     var attempt = e.execute(acquire(f, e, lease, id));
                     assertEquals(1, attempt.cession().attemptCount());
-                    assertTrue(e.acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(e.acquire(lease, List.of(id)).claims().isEmpty());
                 });
     }
 
@@ -1531,7 +1555,7 @@ class ConsumptionLifecyclePostgresTest {
                     bad.execute(h);
                     var before = f.row(id);
                     var restarted = f.engine();
-                    assertTrue(restarted.acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(restarted.acquire(lease, List.of(id)).claims().isEmpty());
                     assertTrue(restarted.renewClaims(List.of(h.claim())).isEmpty());
                     assertEquals(
                             Protection.STALE_OR_EXPIRED,
@@ -1786,7 +1810,7 @@ class ConsumptionLifecyclePostgresTest {
                     var l = separate.acquirePartition(p).orElseThrow();
                     assertEquals(
                             ConsumptionEngine.Status.COMMITTED,
-                            separate.execute(separate.acquire(l, List.of(key)).getFirst())
+                            separate.execute(separate.acquire(l, List.of(key)).claims().getFirst())
                                     .status());
                     assertEquals(
                             1,
@@ -1855,7 +1879,7 @@ class ConsumptionLifecyclePostgresTest {
                             bad.execute(acquire(f, bad, lease, id)).cession().state());
                     assertEquals(3, f.row(id).get("attempt_count"));
                     f.settings = LifecycleSettings.pilot();
-                    assertTrue(f.engine().acquire(lease, List.of(id)).isEmpty());
+                    assertTrue(f.engine().acquire(lease, List.of(id)).claims().isEmpty());
                     assertEquals("QUARANTINED", f.row(id).get("state"));
                 });
     }
@@ -1938,7 +1962,9 @@ class ConsumptionLifecyclePostgresTest {
                         writes.set(0);
                         armed.set(true);
                         var failure =
-                                assertThrows(Failure.class, () -> e.acquire(lease, List.of(id)));
+                                assertThrows(
+                                        Failure.class,
+                                        () -> e.acquire(lease, List.of(id)).claims());
                         assertEquals(Resolution.UNKNOWN, failure.resolution());
                         f.noEffects(id);
                         assertEquals(0, f.row(id).get("attempt_count"));
@@ -2089,7 +2115,7 @@ class ConsumptionLifecyclePostgresTest {
             assertEquals(1, capacity.snapshot().worker());
             f.await(() -> f.now().isAfter(deadline));
             assertEquals(0, e.settlePending());
-            assertTrue(e.acquire(lease, List.of(f.seed(0))).isEmpty());
+            assertTrue(e.acquire(lease, List.of(f.seed(0))).claims().isEmpty());
             f.trace.add(
                     "local Engine exited; physical final transaction still open, uncommitted"
                             + " DELETE/expected effects; capacity="
@@ -2165,7 +2191,7 @@ class ConsumptionLifecyclePostgresTest {
                 task.cancel(true);
                 assertEquals(0, active.settlePending());
                 assertEquals(1, capacity.snapshot().worker());
-                assertTrue(active.acquire(lease, List.of(id)).isEmpty());
+                assertTrue(active.acquire(lease, List.of(id)).claims().isEmpty());
                 f.trace.add(
                         "claim transaction resolved; local callback active despite cancellation,"
                                 + " capacity retained");
@@ -2347,11 +2373,11 @@ class ConsumptionLifecyclePostgresTest {
                     var id = f.seed(0);
                     try (var lock = f.lock(id)) {
                         failureMode.set(true);
-                        assertThrows(Failure.class, () -> e.acquire(lease, List.of(id)));
+                        assertThrows(Failure.class, () -> e.acquire(lease, List.of(id)).claims());
                         failureMode.set(false);
                         assertEquals(1, capacity.snapshot().worker());
                         assertEquals(0, e.settlePending());
-                        assertTrue(e.acquire(lease, List.of(id)).isEmpty());
+                        assertTrue(e.acquire(lease, List.of(id)).claims().isEmpty());
                         f.trace.add(
                                 "local acquisition returned UNKNOWN, existing slot protection"
                                         + " unresolved; capacity retained="

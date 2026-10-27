@@ -40,6 +40,13 @@ public final class ConsumptionEngine {
         }
     }
 
+    /** The caller may advance only over this committed prefix of its supplied keys. */
+    public record Acquisition(List<AcquiredClaim> claims, int examinedCount) {
+        public Acquisition {
+            claims = List.copyOf(claims);
+        }
+    }
+
     private static final class ClaimLost extends RuntimeException {}
 
     private final ConsumptionDefinition definition;
@@ -135,11 +142,11 @@ public final class ConsumptionEngine {
         return technical(() -> slots.renew(claims, settings.claimDuration()));
     }
 
-    public List<AcquiredClaim> acquire(PartitionLease lease, List<UUID> examinedKeys) {
+    public Acquisition acquire(PartitionLease lease, List<UUID> examinedKeys) {
         checkLease(lease);
         bounded(examinedKeys);
         var tickets = capacity.reserve(definition.id(), examinedKeys.size());
-        if (tickets.isEmpty()) return List.of();
+        if (tickets.isEmpty()) return new Acquisition(List.of(), 0);
         var candidates = new ArrayList<ClaimCandidate>();
         var handles = new ArrayList<AcquiredClaim>();
         for (int i = 0; i < tickets.size(); i++) {
@@ -159,17 +166,16 @@ public final class ConsumptionEngine {
                                                             slots.acquire(
                                                                     protectedLease,
                                                                     candidates,
-                                                                    settings.claimDuration()))
-                                            .orElseGet(List::of));
+                                                                    settings.claimDuration())));
             var won = new HashSet<ClaimedSlot>();
-            granted.forEach(g -> won.add(g.claim()));
+            granted.orElseGet(List::of).forEach(g -> won.add(g.claim()));
             var result = new ArrayList<AcquiredClaim>();
             for (var handle : handles) {
                 pending.remove(handle);
                 if (won.contains(handle.claim)) result.add(handle);
                 else handle.ticket.release();
             }
-            return List.copyOf(result);
+            return new Acquisition(result, granted.isPresent() ? candidates.size() : 0);
         } catch (Failure failure) {
             if (failure.resolution() == Resolution.ROLLED_BACK) {
                 for (var handle : handles) {

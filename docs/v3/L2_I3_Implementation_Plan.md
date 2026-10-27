@@ -14,7 +14,10 @@ Dépôt `kartaguez/pocoma`, cible `feat/v3-architecture`, baseline I2 examinée 
 
 Ce plan développe I3 du [plan L2](L2_Design_and_Verification_Plan.md#14-vérification-future-gates-provenance-et-critères-de-sortie), sans modifier A01–A12/R1–R10. Les protocoles SQL et signatures ci-dessous sont des **choix techniques proposés**, pas du code livré ni de nouvelles normes. Aucun nouvel arbitrage conceptuel bloquant identifié. Les adaptations minimales de droits, de composition et d’entrée de l’Engine sont explicites ci-dessous.
 
-## Écart technique constaté pendant l’implémentation
+## Écarts techniques constatés pendant l’implémentation
+
+**Amendement d’API R10 avant correction :** la liste des seuls claims gagnés ne permet pas au futur appelant de connaître le préfixe réellement examiné lorsque r < page ou r=0. Le résultat de `acquire` devient donc le record imbriqué `Acquisition(claims, examinedCount)` : zéro en absence de place ou de protection ownership, r après la sélection bornée committée, y compris clés actives/verrouillées/absentes. Il n’expose aucun curseur ni algorithme I5 et n’ajoute pas d’état durable. Après UNKNOWN, aucune valeur n’est retournée et le futur appelant n’avance pas son curseur. Cette information est indispensable à R10-04/06 ; un record suffit, aucun coordinateur ou mécanisme de navigation ajouté. Scope inchangé COMMAND + preuves READ/MONOLITH + architecture ; full toujours non requis.
+
 
 Le test réel `i3_reactivate` sous rôle non propriétaire échoue avec SQLSTATE 42501 : `consumption_row_guard` lit `family` dans `consumption_routing_contract` par `consumption_id`. Le rôle de réactivation exige donc **SELECT(consumption_id,family)** sur cette table, en plus du slot. Cet ajout minimal est nécessaire au trigger invoker conservé ; aucun droit de mutation du routage, aucune migration/SECURITY DEFINER. Le tableau historique §5 doit être lu avec cette précision.
 
@@ -119,7 +122,7 @@ API Engine proposée :
 ```java
 Optional<PartitionLease> acquirePartition(int partition);
 List<PartitionLease> renewPartitions(List<PartitionLease> leases);
-List<AcquiredClaim> acquire(PartitionLease lease, List<UUID> examinedKeys);
+Acquisition acquire(PartitionLease lease, List<UUID> examinedKeys); // claims + examinedCount
 List<GrantedClaim> renewClaims(List<ClaimedSlot> claims);
 Attempt execute(AcquiredClaim acquired); // un seul démarrage possible
 void abandon(AcquiredClaim acquired);    // avant démarrage ; pas une cession
