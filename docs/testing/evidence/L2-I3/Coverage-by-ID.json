@@ -1,0 +1,1860 @@
+[
+  {
+    "method": "i3_acquisition_lease_clock",
+    "normative_ids": [
+      "L2M-R3-06"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_lease_clock",
+        "physical_files": [
+          "i3_acquisition_lease_clock-WRITE.txt",
+          "i3_acquisition_lease_clock-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_lease_clock",
+        "physical_files": [
+          "i3_acquisition_lease_clock-WRITE.txt",
+          "i3_acquisition_lease_clock-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_lease_clock",
+        "physical_files": [
+          "i3_acquisition_lease_clock-WRITE.txt",
+          "i3_acquisition_lease_clock-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_acquisition_partial",
+    "normative_ids": [
+      "L2M-R10-06-SATURATION",
+      "L2M-R10-06",
+      "L2M-R10-07"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_partial",
+        "physical_files": [
+          "i3_acquisition_partial-WRITE.txt",
+          "i3_acquisition_partial-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_partial",
+        "physical_files": [
+          "i3_acquisition_partial-WRITE.txt",
+          "i3_acquisition_partial-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_acquisition_partial",
+        "physical_files": [
+          "i3_acquisition_partial-WRITE.txt",
+          "i3_acquisition_partial-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_a",
+    "normative_ids": [
+      "L2M-C03-A"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_a",
+        "physical_files": [
+          "i3_c03_a-WRITE.txt",
+          "i3_c03_a-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_a",
+        "physical_files": [
+          "i3_c03_a-WRITE.txt",
+          "i3_c03_a-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_a",
+        "physical_files": [
+          "i3_c03_a-WRITE.txt",
+          "i3_c03_a-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_b",
+    "normative_ids": [
+      "L2M-C03-B"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_b",
+        "physical_files": [
+          "i3_c03_b-WRITE.txt",
+          "i3_c03_b-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_b",
+        "physical_files": [
+          "i3_c03_b-WRITE.txt",
+          "i3_c03_b-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_b",
+        "physical_files": [
+          "i3_c03_b-WRITE.txt",
+          "i3_c03_b-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_c",
+    "normative_ids": [
+      "L2M-C03-C"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_c",
+        "physical_files": [
+          "i3_c03_c-WRITE.txt",
+          "i3_c03_c-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_c",
+        "physical_files": [
+          "i3_c03_c-WRITE.txt",
+          "i3_c03_c-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_c",
+        "physical_files": [
+          "i3_c03_c-WRITE.txt",
+          "i3_c03_c-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_d",
+    "normative_ids": [
+      "L2M-C03-D"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_d",
+        "physical_files": [
+          "i3_c03_d-WRITE.txt",
+          "i3_c03_d-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_d",
+        "physical_files": [
+          "i3_c03_d-WRITE.txt",
+          "i3_c03_d-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_d",
+        "physical_files": [
+          "i3_c03_d-WRITE.txt",
+          "i3_c03_d-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_e",
+    "normative_ids": [
+      "L2M-C03-E"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_e",
+        "physical_files": [
+          "i3_c03_e-WRITE.txt",
+          "i3_c03_e-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_e",
+        "physical_files": [
+          "i3_c03_e-WRITE.txt",
+          "i3_c03_e-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_e",
+        "physical_files": [
+          "i3_c03_e-WRITE.txt",
+          "i3_c03_e-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_f",
+    "normative_ids": [
+      "L2M-C03-F"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_f",
+        "physical_files": [
+          "i3_c03_f-WRITE.txt",
+          "i3_c03_f-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_f",
+        "physical_files": [
+          "i3_c03_f-WRITE.txt",
+          "i3_c03_f-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_f",
+        "physical_files": [
+          "i3_c03_f-WRITE.txt",
+          "i3_c03_f-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_g",
+    "normative_ids": [
+      "L2M-C03-G"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_g",
+        "physical_files": [
+          "i3_c03_g-WRITE.txt",
+          "i3_c03_g-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_g",
+        "physical_files": [
+          "i3_c03_g-WRITE.txt",
+          "i3_c03_g-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_g",
+        "physical_files": [
+          "i3_c03_g-WRITE.txt",
+          "i3_c03_g-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_h",
+    "normative_ids": [
+      "L2M-C03-H"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_h",
+        "physical_files": [
+          "i3_c03_h-WRITE.txt",
+          "i3_c03_h-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_h",
+        "physical_files": [
+          "i3_c03_h-WRITE.txt",
+          "i3_c03_h-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_h",
+        "physical_files": [
+          "i3_c03_h-WRITE.txt",
+          "i3_c03_h-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_i",
+    "normative_ids": [
+      "L2M-C03-I"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_i",
+        "physical_files": [
+          "i3_c03_i-WRITE.txt",
+          "i3_c03_i-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_i",
+        "physical_files": [
+          "i3_c03_i-WRITE.txt",
+          "i3_c03_i-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_i",
+        "physical_files": [
+          "i3_c03_i-WRITE.txt",
+          "i3_c03_i-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_j",
+    "normative_ids": [
+      "L2M-C03-J"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_j",
+        "physical_files": [
+          "i3_c03_j-WRITE.txt",
+          "i3_c03_j-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_j",
+        "physical_files": [
+          "i3_c03_j-WRITE.txt",
+          "i3_c03_j-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_j",
+        "physical_files": [
+          "i3_c03_j-WRITE.txt",
+          "i3_c03_j-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_k",
+    "normative_ids": [
+      "L2M-C03-K"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_k",
+        "physical_files": [
+          "i3_c03_k-WRITE.txt",
+          "i3_c03_k-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_k",
+        "physical_files": [
+          "i3_c03_k-WRITE.txt",
+          "i3_c03_k-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_k",
+        "physical_files": [
+          "i3_c03_k-WRITE.txt",
+          "i3_c03_k-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c03_l",
+    "normative_ids": [
+      "L2M-C03-L"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_l",
+        "physical_files": [
+          "i3_c03_l-WRITE.txt",
+          "i3_c03_l-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_l",
+        "physical_files": [
+          "i3_c03_l-WRITE.txt",
+          "i3_c03_l-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c03_l",
+        "physical_files": [
+          "i3_c03_l-WRITE.txt",
+          "i3_c03_l-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_a",
+    "normative_ids": [
+      "L2M-C05-A"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_a",
+        "physical_files": [
+          "i3_c05_a-WRITE.txt",
+          "i3_c05_a-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_a",
+        "physical_files": [
+          "i3_c05_a-WRITE.txt",
+          "i3_c05_a-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_a",
+        "physical_files": [
+          "i3_c05_a-WRITE.txt",
+          "i3_c05_a-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_b",
+    "normative_ids": [
+      "L2M-C05-B"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_b",
+        "physical_files": [
+          "i3_c05_b-WRITE.txt",
+          "i3_c05_b-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_b",
+        "physical_files": [
+          "i3_c05_b-WRITE.txt",
+          "i3_c05_b-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_b",
+        "physical_files": [
+          "i3_c05_b-WRITE.txt",
+          "i3_c05_b-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_c",
+    "normative_ids": [
+      "L2M-C05-C"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_c",
+        "physical_files": [
+          "i3_c05_c-WRITE.txt",
+          "i3_c05_c-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_c",
+        "physical_files": [
+          "i3_c05_c-WRITE.txt",
+          "i3_c05_c-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_c",
+        "physical_files": [
+          "i3_c05_c-WRITE.txt",
+          "i3_c05_c-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_d",
+    "normative_ids": [
+      "L2M-C05-D"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_d",
+        "physical_files": [
+          "i3_c05_d-WRITE.txt",
+          "i3_c05_d-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_d",
+        "physical_files": [
+          "i3_c05_d-WRITE.txt",
+          "i3_c05_d-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_d",
+        "physical_files": [
+          "i3_c05_d-WRITE.txt",
+          "i3_c05_d-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_e",
+    "normative_ids": [
+      "L2M-C05-E"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_e",
+        "physical_files": [
+          "i3_c05_e-WRITE.txt",
+          "i3_c05_e-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_e",
+        "physical_files": [
+          "i3_c05_e-WRITE.txt",
+          "i3_c05_e-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_e",
+        "physical_files": [
+          "i3_c05_e-WRITE.txt",
+          "i3_c05_e-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_f",
+    "normative_ids": [
+      "L2M-C05-F"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_f",
+        "physical_files": [
+          "i3_c05_f-WRITE.txt",
+          "i3_c05_f-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_f",
+        "physical_files": [
+          "i3_c05_f-WRITE.txt",
+          "i3_c05_f-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_f",
+        "physical_files": [
+          "i3_c05_f-WRITE.txt",
+          "i3_c05_f-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_g",
+    "normative_ids": [
+      "L2M-C05-G"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_g",
+        "physical_files": [
+          "i3_c05_g-WRITE.txt",
+          "i3_c05_g-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_g",
+        "physical_files": [
+          "i3_c05_g-WRITE.txt",
+          "i3_c05_g-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_g",
+        "physical_files": [
+          "i3_c05_g-WRITE.txt",
+          "i3_c05_g-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_h",
+    "normative_ids": [
+      "L2M-C05-H"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_h",
+        "physical_files": [
+          "i3_c05_h-WRITE.txt",
+          "i3_c05_h-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_h",
+        "physical_files": [
+          "i3_c05_h-WRITE.txt",
+          "i3_c05_h-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_h",
+        "physical_files": [
+          "i3_c05_h-WRITE.txt",
+          "i3_c05_h-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_i",
+    "normative_ids": [
+      "L2M-C05-I"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_i",
+        "physical_files": [
+          "i3_c05_i-WRITE.txt",
+          "i3_c05_i-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_i",
+        "physical_files": [
+          "i3_c05_i-WRITE.txt",
+          "i3_c05_i-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_i",
+        "physical_files": [
+          "i3_c05_i-WRITE.txt",
+          "i3_c05_i-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_j",
+    "normative_ids": [
+      "L2M-C05-J"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_j",
+        "physical_files": [
+          "i3_c05_j-WRITE.txt",
+          "i3_c05_j-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_j",
+        "physical_files": [
+          "i3_c05_j-WRITE.txt",
+          "i3_c05_j-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_j",
+        "physical_files": [
+          "i3_c05_j-WRITE.txt",
+          "i3_c05_j-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_k",
+    "normative_ids": [
+      "L2M-C05-K"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_k",
+        "physical_files": [
+          "i3_c05_k-WRITE.txt",
+          "i3_c05_k-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_k",
+        "physical_files": [
+          "i3_c05_k-WRITE.txt",
+          "i3_c05_k-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_k",
+        "physical_files": [
+          "i3_c05_k-WRITE.txt",
+          "i3_c05_k-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_l",
+    "normative_ids": [
+      "L2M-C05-L"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_l",
+        "physical_files": [
+          "i3_c05_l-WRITE.txt",
+          "i3_c05_l-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_l",
+        "physical_files": [
+          "i3_c05_l-WRITE.txt",
+          "i3_c05_l-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_l",
+        "physical_files": [
+          "i3_c05_l-WRITE.txt",
+          "i3_c05_l-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_c05_m",
+    "normative_ids": [
+      "L2M-C05-M"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_m",
+        "physical_files": [
+          "i3_c05_m-WRITE.txt",
+          "i3_c05_m-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_m",
+        "physical_files": [
+          "i3_c05_m-WRITE.txt",
+          "i3_c05_m-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_c05_m",
+        "physical_files": [
+          "i3_c05_m-WRITE.txt",
+          "i3_c05_m-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_capacity_uncertainty",
+    "normative_ids": [
+      "L2M-R10-06",
+      "L2M-R9-05",
+      "L2M-R5-04"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_capacity_uncertainty",
+        "physical_files": [
+          "i3_capacity_uncertainty-WRITE.txt",
+          "i3_capacity_uncertainty-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_capacity_uncertainty",
+        "physical_files": [
+          "i3_capacity_uncertainty-WRITE.txt",
+          "i3_capacity_uncertainty-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_capacity_uncertainty",
+        "physical_files": [
+          "i3_capacity_uncertainty-WRITE.txt",
+          "i3_capacity_uncertainty-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_cession_once",
+    "normative_ids": [
+      "L2M-R5-05"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_cession_once",
+        "physical_files": [
+          "i3_cession_once-WRITE.txt",
+          "i3_cession_once-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_cession_once",
+        "physical_files": [
+          "i3_cession_once-WRITE.txt",
+          "i3_cession_once-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_cession_once",
+        "physical_files": [
+          "i3_cession_once-WRITE.txt",
+          "i3_cession_once-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_failure_classification",
+    "normative_ids": [
+      "L2M-R5-03",
+      "L2M-R5-04"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_failure_classification",
+        "physical_files": [
+          "i3_failure_classification-WRITE.txt",
+          "i3_failure_classification-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_failure_classification",
+        "physical_files": [
+          "i3_failure_classification-WRITE.txt",
+          "i3_failure_classification-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_failure_classification",
+        "physical_files": [
+          "i3_failure_classification-WRITE.txt",
+          "i3_failure_classification-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_lease_races",
+    "normative_ids": [
+      "L2M-R3-06",
+      "L2M-R10-09"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_lease_races",
+        "physical_files": [
+          "i3_lease_races-WRITE.txt",
+          "i3_lease_races-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_lease_races",
+        "physical_files": [
+          "i3_lease_races-WRITE.txt",
+          "i3_lease_races-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_lease_races",
+        "physical_files": [
+          "i3_lease_races-WRITE.txt",
+          "i3_lease_races-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_other_slot_progresses",
+    "normative_ids": [
+      "L2M-R8-01",
+      "L2M-R10-11"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_other_slot_progresses",
+        "physical_files": [
+          "i3_other_slot_progresses-WRITE.txt",
+          "i3_other_slot_progresses-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_other_slot_progresses",
+        "physical_files": [
+          "i3_other_slot_progresses-WRITE.txt",
+          "i3_other_slot_progresses-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_other_slot_progresses",
+        "physical_files": [
+          "i3_other_slot_progresses-WRITE.txt",
+          "i3_other_slot_progresses-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_quarantine_persists",
+    "normative_ids": [
+      "L2M-R8-01",
+      "L2M-R8-02",
+      "L2M-R5-06"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_quarantine_persists",
+        "physical_files": [
+          "i3_quarantine_persists-WRITE.txt",
+          "i3_quarantine_persists-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_quarantine_persists",
+        "physical_files": [
+          "i3_quarantine_persists-WRITE.txt",
+          "i3_quarantine_persists-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_quarantine_persists",
+        "physical_files": [
+          "i3_quarantine_persists-WRITE.txt",
+          "i3_quarantine_persists-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_reactivate",
+    "normative_ids": [
+      "L2M-R2-06",
+      "L2M-R5-08"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate",
+        "physical_files": [
+          "i3_reactivate-WRITE.txt",
+          "i3_reactivate-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate",
+        "physical_files": [
+          "i3_reactivate-WRITE.txt",
+          "i3_reactivate-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate",
+        "physical_files": [
+          "i3_reactivate-WRITE.txt",
+          "i3_reactivate-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_reactivate_over_cap",
+    "normative_ids": [
+      "L2M-R2-06",
+      "L2M-R2-07"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate_over_cap",
+        "physical_files": [
+          "i3_reactivate_over_cap-WRITE.txt",
+          "i3_reactivate_over_cap-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate_over_cap",
+        "physical_files": [
+          "i3_reactivate_over_cap-WRITE.txt",
+          "i3_reactivate_over_cap-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_reactivate_over_cap",
+        "physical_files": [
+          "i3_reactivate_over_cap-WRITE.txt",
+          "i3_reactivate_over_cap-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_renew_relation_timeout",
+    "normative_ids": [
+      "L2M-R10-08"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_relation_timeout",
+        "physical_files": [
+          "i3_renew_relation_timeout-WRITE.txt",
+          "i3_renew_relation_timeout-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_relation_timeout",
+        "physical_files": [
+          "i3_renew_relation_timeout-WRITE.txt",
+          "i3_renew_relation_timeout-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_relation_timeout",
+        "physical_files": [
+          "i3_renew_relation_timeout-WRITE.txt",
+          "i3_renew_relation_timeout-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_renew_s1_s2",
+    "normative_ids": [
+      "L2M-R10-08-S1S2",
+      "L2M-R10-08",
+      "L2M-R10-09"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_s1_s2",
+        "physical_files": [
+          "i3_renew_s1_s2-WRITE.txt",
+          "i3_renew_s1_s2-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_s1_s2",
+        "physical_files": [
+          "i3_renew_s1_s2-WRITE.txt",
+          "i3_renew_s1_s2-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_renew_s1_s2",
+        "physical_files": [
+          "i3_renew_s1_s2-WRITE.txt",
+          "i3_renew_s1_s2-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_retry_config_prospective",
+    "normative_ids": [
+      "L2M-R5-09",
+      "L2M-R5-10"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_retry_config_prospective",
+        "physical_files": [
+          "i3_retry_config_prospective-WRITE.txt",
+          "i3_retry_config_prospective-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_retry_config_prospective",
+        "physical_files": [
+          "i3_retry_config_prospective-WRITE.txt",
+          "i3_retry_config_prospective-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_retry_config_prospective",
+        "physical_files": [
+          "i3_retry_config_prospective-WRITE.txt",
+          "i3_retry_config_prospective-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_route_admin_serialization",
+    "normative_ids": [
+      "L2M-R3-05",
+      "L2M-R3-06"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_route_admin_serialization",
+        "physical_files": [
+          "i3_route_admin_serialization-WRITE.txt",
+          "i3_route_admin_serialization-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_route_admin_serialization",
+        "physical_files": [
+          "i3_route_admin_serialization-WRITE.txt",
+          "i3_route_admin_serialization-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_route_admin_serialization",
+        "physical_files": [
+          "i3_route_admin_serialization-WRITE.txt",
+          "i3_route_admin_serialization-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_sql_costs",
+    "normative_ids": [],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_sql_costs",
+        "physical_files": [
+          "i3_sql_costs-WRITE.txt",
+          "i3_sql_costs-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_sql_costs",
+        "physical_files": [
+          "i3_sql_costs-WRITE.txt",
+          "i3_sql_costs-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_sql_costs",
+        "physical_files": [
+          "i3_sql_costs-WRITE.txt",
+          "i3_sql_costs-READ.txt"
+        ]
+      }
+    ]
+  },
+  {
+    "method": "i3_two_admins",
+    "normative_ids": [
+      "L2M-R5-08"
+    ],
+    "bounded_variant_status": "PASS",
+    "authorities": [
+      "WRITE real Command / Identity fixture",
+      "READ technical effect"
+    ],
+    "global_requirement_status": "INCONCLUSIVE",
+    "scope": "productive lifecycle primitives; WRITE real Command with fixture Identity; READ technical effect; Discovery/loops/real projections excluded",
+    "evidence": [
+      {
+        "gate": "command",
+        "archive": "command-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_two_admins",
+        "physical_files": [
+          "i3_two_admins-WRITE.txt",
+          "i3_two_admins-READ.txt"
+        ]
+      },
+      {
+        "gate": "monolith",
+        "archive": "monolith-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_two_admins",
+        "physical_files": [
+          "i3_two_admins-WRITE.txt",
+          "i3_two_admins-READ.txt"
+        ]
+      },
+      {
+        "gate": "architecture",
+        "archive": "architecture-1d7cf51c.tar.gz",
+        "xml_class": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+        "method": "i3_two_admins",
+        "physical_files": [
+          "i3_two_admins-WRITE.txt",
+          "i3_two_admins-READ.txt"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "gate": "command",
+  "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793115518.0486279,
+  "elapsed_seconds": 445.417,
+  "exit_code": 0,
+  "tests": 1497,
+  "failures_or_errors": 0,
+  "skips": [
+    {
+      "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+      "method": "zExploratoryContentionSeparateFromCorrectness",
+      "state": "SKIP"
+    }
+  ],
+  "required_methods": 249,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "6788698128c2b8460b384ef55941481f9aef9dad5ee6c333e66c836a945afb69"
+}

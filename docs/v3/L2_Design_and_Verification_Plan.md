@@ -1,6 +1,6 @@
 # L2 — Plan de conception et de vérification
 
-2026-10-27 — **G0 FRANCHI PAR DÉCISION HUMAINE ; I1 et I2 CLOSED / LOCAL BOUNDED PASS ; audit indépendant du code I2 à venir, I3 non autorisé ; G1/G2/G3 futurs.**
+2026-10-27 — **G0 FRANCHI PAR DÉCISION HUMAINE ; I1 et I2 CLOSED / LOCAL BOUNDED PASS ; audit indépendant du code I2 à venir, I3 CLOSED / LOCAL BOUNDED PASS, audit code + preuves à venir ; G1/G2/G3 futurs.**
 
 La préparation conceptuelle ci-dessous reste le référentiel des étapes futures. Le [dossier I1 courant](L2_I1_G0_Readiness_and_Implementation_Plan.md) consigne la décision humaine G0, les fondations techniques effectivement livrées et les preuves exécutées. Les anciennes mentions de non-exécution décrivent la préparation initiale ; elles ne révoquent pas le mandat I1. L2 n'est pas ACCEPTED et les certifications G1/G2/G3 restent futures. Le [plan d'implémentation I2](L2_I2_Implementation_Plan.md) précise l'extraction Command, les signatures et protocoles R1/R9, les fichiers et tests ; implémentation I2 autorisée par un mandat humain distinct puis vérifiée localement ; audit indépendant du code et des preuves à venir, arrêt avant I3.
 
@@ -494,4 +494,9 @@ Le [plan I2 dédié](L2_I2_Implementation_Plan.md) développe l'étape du §14 s
 
 GO humain d’implémentation reçu après audit du plan simplifié. [Dossier I2](L2_I2_Execution_Report.md), [inventaire de preuves](L2_I2_Proof_Manifest.json) et [archives](../testing/evidence/L2-I2/Gate-index.json) : Engine transactionnel, participant Command, R1/R9 et protections L1 repris, quatre commandes canoniques PASS au SHA final. COMMAND primaire ; owner/monolithe en preuves directes ; architecture globale requise/exécutée ; aucun franchissement inattendu ; full reactor non requis/non exécuté pour cette tranche bornée.
 
-**I2 CLOSED / LOCAL BOUNDED PASS**, audit indépendant du code et des preuves à venir. Les mentions prospectives historiques du présent plan ne révoquent pas cette réalisation ; elles restent applicables aux étapes non livrées. Aucun I3, worker actif, G1/G2/G3 ou ACCEPTED global L2 engagé.
+**I2 CLOSED / LOCAL BOUNDED PASS**, audit indépendant du code et des preuves à venir. Les mentions prospectives historiques du présent plan ne révoquent pas cette réalisation ; elles restent applicables aux étapes non livrées. À cette clôture historique I2, I3 n’était pas engagé ; son mandat et sa clôture distincts du 27 octobre ci-dessous font désormais autorité. Aucun worker actif, G1/G2/G3 ou ACCEPTED global L2.
+
+
+## Implémentation I3 autorisée — 27 octobre 2026
+
+Audit du plan approuvé `bb33b56d` : PASS WITH MINOR AMENDMENTS, puis GO humain explicite avec réserves R-I3-01/02/03. [Plan amendé](L2_I3_Implementation_Plan.md), [rapport I3](L2_I3_Execution_Report.md), [manifeste de preuves](L2_I3_Proof_Manifest.json). Scope déclaré COMMAND, preuves directes READ JDBC/MONOLITH, architecture globale de clôture, aucun full reactor requis pour cette étape bornée. État de campagne courant : I3 CLOSED / LOCAL BOUNDED PASS sur `1d7cf51c`, quatre gates exécutés sans filtre ; audit indépendant code + preuves à venir. Aucun changement conceptuel A/R, aucune autorisation I4/I5 ni passage G1/G2/G3 ou ACCEPTED L2.

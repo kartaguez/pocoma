@@ -1,0 +1,41 @@
+{
+  "baseline": "bb33b56d",
+  "code_sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+  "production_files": [
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/LifecycleSettings.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/PartitionLease.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacity.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/AttemptFailureClassifier.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionSlotStore.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/PartitionOwnershipStore.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcPartitionOwnershipStore.java"
+  ],
+  "pom_changes": [],
+  "migration_changes": [],
+  "transaction_owner_changes": [],
+  "business_participant_changes": [],
+  "public_SQL_entries": {
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java": [
+      "acquire",
+      "renew",
+      "cede",
+      "inspectResolved",
+      "protectFinal",
+      "deleteProtected",
+      "observe"
+    ],
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcPartitionOwnershipStore.java": [
+      "bound",
+      "acquire",
+      "renew",
+      "protectAcquisition"
+    ]
+  },
+  "no_new_worker_beans": true,
+  "production_delta_after_initial_freeze": "Only ConsumptionEngine: Acquisition result with committed examinedCount; no navigation or durable state."
+}

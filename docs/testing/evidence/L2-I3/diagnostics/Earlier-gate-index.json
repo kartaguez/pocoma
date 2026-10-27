@@ -1,0 +1,30 @@
+[
+  {
+    "gate": "command",
+    "sha": "e9a6848f0ad98a6057942f92bf4e407eef172ea5",
+    "verdict": "PASS",
+    "archive": "command-e9a6848f.tar.gz",
+    "sha256": "f77b6ab18042675bb4a6bba831a5a1211c0fda2d65fb4cb6465f32f16f627472",
+    "result_sha256": "feaed1cd8378ecd2e10ac596a1a4e271d82946017375116919cf6009480e3a72",
+    "artifacts": 736,
+    "final_I3_status": "SUPERSEDED by strengthened C05-B/K proof at bdee72b0; not a final certification gate"
+  },
+  {
+    "gate": "read",
+    "sha": "e9a6848f0ad98a6057942f92bf4e407eef172ea5",
+    "verdict": "PASS",
+    "archive": "read-e9a6848f.tar.gz",
+    "sha256": "a311b56384115cd5732f9c1e912dc6580b4fdfd7f444c9a19507e3bd1b2696eb",
+    "result_sha256": "1358ebe3c681bfa2c02f63d540b158366f1e1cf618f49c37deffeb578006aa72",
+    "artifacts": 85,
+    "final_I3_status": "SUPERSEDED by strengthened C05-B/K proof at bdee72b0; not a final certification gate"
+  },
+  {
+    "gate": "monolith",
+    "sha": "e9a6848f0ad98a6057942f92bf4e407eef172ea5",
+    "archive": "monolith-e9a6848f.tar.gz",
+    "sha256": "c178db0cea1478cffed7853a2bcbd6cadd38b9a2f5d453f3a803cbabdbfff81e",
+    "verdict": "PASS",
+    "final_I3_status": "SUPERSEDED by strengthened C05-B/K proof at bdee72b0; not a final certification gate"
+  }
+]

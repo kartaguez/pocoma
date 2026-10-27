@@ -1,3 +1,5 @@
+> **Clôture locale du 27-10-2026 : I3 CLOSED / LOCAL BOUNDED PASS, audit indépendant code + preuves à venir.** Code vérifié `1d7cf51c13671c7c85a5c9c1281f526be2b2abfb` ; quatre gates sans filtre PASS. [Rapport autosuffisant](L2_I3_Execution_Report.md), [manifeste de preuves](L2_I3_Proof_Manifest.json). Aucun G1/G2/G3, L2 non ACCEPTED, arrêt avant I4/I5. Le plan historique approuvé ci-dessous conserve ses formulations prospectives ; le mandat et cette clôture datée gouvernent son état présent.
+
 > **Mandat du 27-10-2026 : GO humain I3 après audit indépendant PASS WITH MINOR AMENDMENTS.** Implémentation autorisée avec R-I3-01/02/03. Les mentions prospectives ci-dessous conservent le plan approuvé ; le rapport I3 consigne l’exécution réelle. I4/I5 et activation production exclus.
 >
 > **Scope déclaré avant code :** COMMAND primaire ; secondaires NONE ; preuves directes READ JDBC et MONOLITH ; architecture globale REQUIRED à clôture, full reactor NOT REQUIRED (impact borné, graphe Maven conservé). DB CURRENT V3 neuf, migrations existantes seulement. Escalade préalable si owner/suffixe/graphe/autre runtime requis.
@@ -481,8 +483,8 @@ Le manifeste I3 liste chaque méthode, chaque sous-variante WRITE/READ/commit/ro
 | C | composition-runtime-spring / main | `runtime/consumption/v3/V3ConsumptionLifecycleComposition.java` |
 | C | engine-consumption / test | `engine/consumption/v3/WorkerCapacityTest.java` |
 | C | engine-consumption / test | `engine/consumption/v3/ConsumptionFailureClassificationTest.java` |
-| C | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/consumption/ConsumptionLifecyclePostgresTest.java` |
-| C | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/consumption/ConsumptionLifecyclePostgresFixture.java` |
+| C | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java` |
+| C | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresFixture.java` |
 | C | infra-persistence-primary-jpa / test | `engine/consumption/v3/I2ReservedClaimFixture.java` (helper test-only dans le package du handle, pas une dépendance productive) |
 | M | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/L1CommandCompatibilityHarness.java` |
 | M | infra-persistence-primary-jpa / test | `infra/persistence/primary/jpa/v3/L2ManifestProof.java` (handoff de capacité seulement ; variantes R1/R9 conservées) |
@@ -493,6 +495,7 @@ Le manifeste I3 liste chaque méthode, chaque sous-variante WRITE/READ/commit/ro
 | C | infra-persistence-read-jdbc / test | `infra/persistence/read/jdbc/v3/consumption/ReadConsumptionLifecyclePrivilegesPostgresTest.java` |
 | M | runtime-monolith / test | `ConsumptionPilotIsolationTest.java` (refus des imports/activations incompatibles maintenu) |
 | M | architecture-tests / test | `architecture/v3/V3ConsumptionEngineArchitectureTest.java` (nouveaux writers/ports/handles et négatifs, aucun affaiblissement des règles) |
+| M | architecture-tests / test | `architecture/v3/V3FoundationArchitectureTest.java` (deux valeurs pures exactement énumérées ; tous les négatifs conservés) |
 
 Autres fichiers exacts :
 

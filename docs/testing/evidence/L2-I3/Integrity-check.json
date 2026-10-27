@@ -1,0 +1,35 @@
+{
+  "code_sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+  "gates": [
+    {
+      "gate": "command",
+      "tests": 1497,
+      "required_methods": 249,
+      "artifacts": 736,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "read",
+      "tests": 361,
+      "required_methods": 1,
+      "artifacts": 85,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "monolith",
+      "tests": 1266,
+      "required_methods": 246,
+      "artifacts": 708,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "architecture",
+      "tests": 1761,
+      "required_methods": 270,
+      "artifacts": 790,
+      "verdict": "PASS"
+    }
+  ],
+  "input_hashes": "PASS",
+  "delivery_code_diff": "EMPTY"
+}

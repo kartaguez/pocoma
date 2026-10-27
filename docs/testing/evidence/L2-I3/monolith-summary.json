@@ -1,0 +1,22 @@
+{
+  "gate": "monolith",
+  "sha": "1d7cf51c13671c7c85a5c9c1281f526be2b2abfb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-monolith",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793115985.4731991,
+  "elapsed_seconds": 344.803,
+  "exit_code": 0,
+  "tests": 1266,
+  "failures_or_errors": 0,
+  "skips": [],
+  "required_methods": 246,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "e6a457b6d7395bcb10c2118744c2e3a6f413a43506389e1354f481d550d60d40"
+}
