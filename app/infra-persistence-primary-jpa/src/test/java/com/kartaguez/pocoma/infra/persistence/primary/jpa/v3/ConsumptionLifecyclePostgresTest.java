@@ -393,124 +393,73 @@ class ConsumptionLifecyclePostgresTest {
     void i3_c03_g() throws Exception {
         both(
                 f -> {
-                    for (boolean cession : List.of(true)) {
-                        var e = f.engine();
-                        var lease =
-                                e.acquirePartition(0)
-                                        .orElseGet(
-                                                () ->
-                                                        new PartitionLease(
-                                                                f.definition.id(),
-                                                                0,
-                                                                (UUID)
-                                                                        f.oracle
-                                                                                .queryForMap(
-                                                                                        "select"
-                                                                                            + " owner_token"
-                                                                                            + " from"
-                                                                                            + " partition_ownership"
-                                                                                            + " where"
-                                                                                            + " consumption_id=?"
-                                                                                            + " and partition_id=0",
-                                                                                        f.definition
-                                                                                                .id()
-                                                                                                .value())
-                                                                                .get("owner_token"),
-                                                                f.now().plusSeconds(30)));
-                        var id = f.seed(0);
-                        var h = acquire(f, e, lease, id);
-                        f.oracle.update(
-                                "update consumption_slot set"
-                                    + " claimed_until=clock_timestamp()+interval '300 milliseconds'"
-                                    + " where consumable_id=?",
-                                id);
-                        var deadline = ((Timestamp) f.row(id).get("claimed_until")).toInstant();
-                        var pid = new AtomicInteger();
-                        try (var lock = f.lock(id)) {
-                            var future =
-                                    f.threads.submit(
-                                            () -> {
-                                                if (cession)
-                                                    return f.technical(
-                                                            () -> {
-                                                                pid.set(
-                                                                        f.sql.queryForObject(
-                                                                                "select"
-                                                                                    + " pg_backend_pid()",
-                                                                                Integer.class));
-                                                                return f.slots.cede(
-                                                                        h.claim(),
-                                                                        f.settings.retry());
-                                                            });
-                                                var guarded =
-                                                        intercept(
-                                                                f,
-                                                                (name, args) -> {
-                                                                    if (name.equals("protectFinal"))
-                                                                        pid.set(
-                                                                                f.sql
-                                                                                        .queryForObject(
-                                                                                                "select"
-                                                                                                    + " pg_backend_pid()",
-                                                                                                Integer
-                                                                                                        .class));
-                                                                });
-                                                return f.engine(f.participant, f.tx, guarded)
-                                                        .execute(h);
-                                            });
-                            // The final Engine must own its handle; use the original Engine for
-                            // finalization below.
-                            if (!cession) {
-                                lock.rollback();
-                                assertThrows(
-                                        ExecutionException.class,
-                                        () -> future.get(8, TimeUnit.SECONDS));
-                                e.abandon(h);
-                                continue;
-                            }
-                            f.await(() -> pid.get() != 0);
-                            f.blocked(pid.get());
-                            f.await(() -> f.now().isAfter(deadline));
-                            lock.rollback();
-                            assertEquals(Optional.empty(), future.get(8, TimeUnit.SECONDS));
-                            assertEquals(0, f.row(id).get("attempt_count"));
-                            e.abandon(h);
-                        }
-                    }
-                    // Actual finalizer waits through its deadline, under the same Engine/handle.
-                    var pid = new AtomicInteger();
-                    var slots =
-                            intercept(
-                                    f,
-                                    (name, args) -> {
-                                        if (name.equals("protectFinal"))
-                                            pid.set(
-                                                    f.sql.queryForObject(
-                                                            "select pg_backend_pid()",
-                                                            Integer.class));
-                                    });
-                    var e = f.engine(f.participant, f.tx, slots);
-                    f.expireLease(0);
+                    var e = f.engine();
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
                     f.oracle.update(
                             "update consumption_slot set claimed_until=clock_timestamp()+interval"
-                                    + " '300 milliseconds' where consumable_id=?",
+                                + " '300 milliseconds' where consumable_id=?",
                             id);
                     var deadline = ((Timestamp) f.row(id).get("claimed_until")).toInstant();
+                    var pid = new AtomicInteger();
                     try (var lock = f.lock(id)) {
-                        var task = f.threads.submit(() -> e.execute(h));
+                        var task =
+                                f.threads.submit(
+                                        () ->
+                                                f.technical(
+                                                        () -> {
+                                                            pid.set(
+                                                                    f.sql.queryForObject(
+                                                                            "select"
+                                                                                + " pg_backend_pid()",
+                                                                            Integer.class));
+                                                            return f.slots.cede(
+                                                                    h.claim(), f.settings.retry());
+                                                        }));
                         f.await(() -> pid.get() != 0);
                         f.blocked(pid.get());
                         f.await(() -> f.now().isAfter(deadline));
+                        lock.rollback();
+                        assertEquals(Optional.empty(), task.get(8, TimeUnit.SECONDS));
+                        assertEquals(0, f.row(id).get("attempt_count"));
+                    }
+                    e.abandon(h);
+                    f.noEffects(id);
+                    // Finalization has the same post-wait time rule, through its own Engine/handle.
+                    var finalPid = new AtomicInteger();
+                    var guarded =
+                            intercept(
+                                    f,
+                                    (name, args) -> {
+                                        if (name.equals("protectFinal"))
+                                            finalPid.set(
+                                                    f.sql.queryForObject(
+                                                            "select pg_backend_pid()",
+                                                            Integer.class));
+                                    });
+                    var finalizer = f.engine(f.participant, f.tx, guarded);
+                    f.expireLease(0);
+                    var freshLease = finalizer.acquirePartition(0).orElseThrow();
+                    var other = f.seed(0);
+                    var acquired = acquire(f, finalizer, freshLease, other);
+                    f.oracle.update(
+                            "update consumption_slot set claimed_until=clock_timestamp()+interval"
+                                + " '300 milliseconds' where consumable_id=?",
+                            other);
+                    var finalDeadline = ((Timestamp) f.row(other).get("claimed_until")).toInstant();
+                    try (var lock = f.lock(other)) {
+                        var task = f.threads.submit(() -> finalizer.execute(acquired));
+                        f.await(() -> finalPid.get() != 0);
+                        f.blocked(finalPid.get());
+                        f.await(() -> f.now().isAfter(finalDeadline));
                         lock.rollback();
                         assertEquals(
                                 ConsumptionEngine.Status.CLAIM_LOST,
                                 task.get(8, TimeUnit.SECONDS).status());
                     }
-                    f.noEffects(id);
-                    assertEquals(0, f.row(id).get("attempt_count"));
+                    f.noEffects(other);
+                    assertEquals(0, f.row(other).get("attempt_count"));
                 });
     }
 
@@ -1088,6 +1037,7 @@ class ConsumptionLifecyclePostgresTest {
                     var h2 = acquire(f, sqlFailure, l2, f.seed(0));
                     assertEquals(1, sqlFailure.execute(h2).cession().attemptCount());
                     assertEquals(0, f.effects(h2.claim().consumableId()));
+                    deferredCommitFailure(f);
                 });
     }
 
@@ -1182,6 +1132,48 @@ class ConsumptionLifecyclePostgresTest {
                 "actual Pot CAS collision -> count=1 -> new claim/preparation -> obsolete terminal"
                         + " rejection; immutable intention="
                         + sourceBefore);
+    }
+
+    void deferredCommitFailure(ConsumptionLifecyclePostgresFixture f) {
+        f.expireLease(0);
+        f.oracle.execute(
+                "create function fixture_reject_commit() returns trigger language plpgsql as $$"
+                    + " begin raise exception 'fixture deferred failure' using errcode='23514'; end"
+                    + " $$");
+        f.oracle.execute(
+                "create constraint trigger fixture_reject_at_commit after insert on "
+                        + (f.write ? "v3_command_result" : "fixture_effect")
+                        + " deferrable initially deferred for each row execute function"
+                        + " fixture_reject_commit()");
+        var e = f.engine();
+        var lease = e.acquirePartition(0).orElseThrow();
+        var id = f.seed(0);
+        var h = acquire(f, e, lease, id);
+        var result = e.execute(h);
+        assertEquals(Resolution.ROLLED_BACK, result.resolution());
+        assertEquals(ConsumptionEngine.Status.ROLLED_BACK, result.status());
+        assertEquals(1, result.cession().attemptCount());
+        assertEquals(Resolution.COMMITTED, result.cessionResolution());
+        f.noEffects(id);
+        assertEquals(1, f.row(id).get("attempt_count"));
+        var queue = new ArrayDeque<Throwable>();
+        queue.add(result.cause());
+        var seen = Collections.newSetFromMap(new IdentityHashMap<Throwable, Boolean>());
+        boolean found = false;
+        while (!queue.isEmpty()) {
+            var cause = queue.removeFirst();
+            if (!seen.add(cause)) continue;
+            if (cause instanceof SQLException sql) {
+                if ("23514".equals(sql.getSQLState())) found = true;
+                if (sql.getNextException() != null) queue.add(sql.getNextException());
+            }
+            if (cause.getCause() != null) queue.add(cause.getCause());
+            Collections.addAll(queue, cause.getSuppressed());
+        }
+        assertTrue(found);
+        f.trace.add(
+                "actual deferred commit SQLSTATE 23514; physical rollback then distinct committed"
+                    + " productive cession count=1");
     }
 
     @Test
@@ -1331,27 +1323,52 @@ class ConsumptionLifecyclePostgresTest {
     void i3_c05_k() throws Exception {
         both(
                 f -> {
-                    var crashed =
+                    var sawRollback = new AtomicBoolean();
+                    var physical =
                             new ForwardingTransactions(f.tx) {
-                                public <T> T write(Supplier<T> action) {
-                                    return f.tx.write(action);
-                                }
-
                                 public <T> T read(Function<RecoveryReadContext, T> action) {
-                                    throw new AssertionError("process stops before cession");
+                                    try {
+                                        return f.tx.read(action);
+                                    } catch (Failure failure) {
+                                        assertEquals(Resolution.ROLLED_BACK, failure.resolution());
+                                        sawRollback.set(true);
+                                        throw failure;
+                                    }
                                 }
                             };
-                    var e = f.engine(f.participant, crashed, f.slots);
+                    var e =
+                            new ConsumptionEngine(
+                                    f.definition,
+                                    physical,
+                                    f.slots,
+                                    preparationFailure(
+                                            f,
+                                            new IllegalStateException("actual preparation fault")),
+                                    f.ownership,
+                                    f.settings,
+                                    f.capacity,
+                                    cause -> {
+                                        assertTrue(sawRollback.get());
+                                        throw new AssertionError(
+                                                "process stops after confirmed rollback before"
+                                                    + " cession");
+                                    });
                     var lease = e.acquirePartition(0).orElseThrow();
                     var id = f.seed(0);
                     var h = acquire(f, e, lease, id);
                     assertThrows(AssertionError.class, () -> e.execute(h));
+                    assertTrue(sawRollback.get());
+                    f.noEffects(id);
                     assertEquals(0, f.row(id).get("attempt_count"));
+                    assertEquals(h.claim().claimToken(), f.row(id).get("claim_token"));
                     assertEquals(1, f.capacity.snapshot().worker());
                     assertEquals(1, e.settlePending());
                     f.expire(id);
                     var restarted = f.engine();
                     completed(f, restarted, acquire(f, restarted, lease, id));
+                    f.trace.add(
+                            "actual rollback confirmed before injected process stop; zero"
+                                + " cession/budget; new acquisition succeeds");
                 });
     }
 
@@ -2228,7 +2245,7 @@ class ConsumptionLifecyclePostgresTest {
             assertFalse(
                     f.oracle.queryForObject(
                             "select exists(select 1 from pg_stat_activity where pid=? and"
-                                + " xact_start is not null)",
+                                    + " xact_start is not null)",
                             Boolean.class,
                             pid.get()));
             assertEquals(0, e.settlePending());
@@ -2238,7 +2255,7 @@ class ConsumptionLifecyclePostgresTest {
             f.noEffects(id);
             f.trace.add(
                     "physical preparation transaction resolved; local continuation can still start"
-                        + " business callback; ticket retained until actual exit");
+                            + " business callback; ticket retained until actual exit");
         } finally {
             finish.countDown();
         }
