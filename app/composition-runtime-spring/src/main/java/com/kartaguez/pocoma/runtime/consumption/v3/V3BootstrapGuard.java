@@ -57,8 +57,8 @@ public final class V3BootstrapGuard {
 
     public void validate() {
         try {
-            String w = inspect(write, Authority.WRITE);
-            String r = inspect(read, Authority.READ);
+            String w = inspect(write, Authority.WRITE, false);
+            String r = inspect(read, Authority.READ, false);
             if (w.equals(r))
                 throw new IllegalStateException("WRITE and READ share a physical database");
         } catch (SQLException failure) {
@@ -66,7 +66,32 @@ public final class V3BootstrapGuard {
         }
     }
 
-    private String inspect(Target target, Authority authority) throws SQLException {
+    public void validateLifecyclePrivileges() {
+        try {
+            String w = inspect(write, Authority.WRITE, true);
+            String r = inspect(read, Authority.READ, true);
+            if (w.equals(r))
+                throw new IllegalStateException("WRITE and READ share a physical database");
+        } catch (SQLException failure) {
+            throw new IllegalStateException("L2 lifecycle authority refused", failure);
+        }
+    }
+
+    public void validateLifecycleSource(DataSource source, Authority authority) {
+        var expected = authority == Authority.WRITE ? write : read;
+        try {
+            inspect(
+                    new Target(
+                            source, expected.database(), expected.schema(), expected.runtimeRole()),
+                    authority,
+                    true);
+        } catch (SQLException failure) {
+            throw new IllegalStateException("actual lifecycle source refused", failure);
+        }
+    }
+
+    private String inspect(Target target, Authority authority, boolean lifecycle)
+            throws SQLException {
         try (var c = target.source().getConnection()) {
             c.setReadOnly(true);
             c.setAutoCommit(false);
@@ -109,7 +134,7 @@ public final class V3BootstrapGuard {
                 try (var rs =
                         s.executeQuery(
                                 "select consumption_id,family,routing_version,partition_count from"
-                                    + " consumption_routing_contract")) {
+                                        + " consumption_routing_contract")) {
                     while (rs.next()) {
                         var definition = expected.remove(rs.getObject(1, UUID.class));
                         require(
@@ -135,7 +160,8 @@ public final class V3BootstrapGuard {
                             "extra ownership");
                 }
                 // All table rights are effective rights: PUBLIC and inherited roles included.
-                for (String table : TABLES) {
+                if (lifecycle) inspectLifecycle(s);
+                for (String table : lifecycle ? List.<String>of() : TABLES) {
                     try (var rs =
                             s.executeQuery(
                                     "select has_table_privilege('"
@@ -195,7 +221,7 @@ public final class V3BootstrapGuard {
                 try (var rs =
                         s.executeQuery(
                                 "select inet_server_addr()::text || ':' || inet_server_port() ||"
-                                    + " '/' || current_database()")) {
+                                        + " '/' || current_database()")) {
                     rs.next();
                     String identity = rs.getString(1);
                     require(identity != null, "TCP physical authority identity required");
@@ -204,6 +230,70 @@ public final class V3BootstrapGuard {
                 }
             } finally {
                 c.rollback();
+            }
+        }
+    }
+
+    private static void inspectLifecycle(Statement s) throws SQLException {
+        // Reject role switching too: NOINHERIT does not prevent SET ROLE.
+        try (var rs =
+                s.executeQuery(
+                        "select exists(select 1 from pg_roles where rolname<>current_user and"
+                                + " pg_has_role(current_user,oid,'MEMBER'))")) {
+            rs.next();
+            require(!rs.getBoolean(1), "lifecycle role membership");
+        }
+        for (String table : TABLES) {
+            var columns =
+                    table.equals("partition_ownership")
+                            ? Set.of("owner_token", "owned_until")
+                            : table.equals("consumption_slot")
+                                    ? Set.of(
+                                            "claim_token",
+                                            "claimed_until",
+                                            "retry_after",
+                                            "attempt_count",
+                                            "state")
+                                    : Set.<String>of();
+            try (var rs =
+                    s.executeQuery(
+                            "select has_table_privilege('"
+                                    + table
+                                    + "','SELECT'),"
+                                    + "has_table_privilege('"
+                                    + table
+                                    + "','INSERT,UPDATE,TRUNCATE,REFERENCES,TRIGGER'),"
+                                    + "has_table_privilege('"
+                                    + table
+                                    + "','DELETE'),pg_has_role(current_user,(select tableowner from"
+                                    + " pg_tables where schemaname=current_schema() and tablename='"
+                                    + table
+                                    + "'),'MEMBER')")) {
+                rs.next();
+                require(
+                        rs.getBoolean(1)
+                                && !rs.getBoolean(2)
+                                && !rs.getBoolean(4)
+                                && rs.getBoolean(3) == table.equals("consumption_slot"),
+                        "unsafe lifecycle table rights: " + table);
+            }
+            try (var rs =
+                    s.executeQuery(
+                            "select column_name,has_column_privilege('"
+                                    + table
+                                    + "',column_name,'UPDATE'),"
+                                    + "has_column_privilege('"
+                                    + table
+                                    + "',column_name,'INSERT,REFERENCES') from"
+                                    + " information_schema.columns where"
+                                    + " table_schema=current_schema() and table_name='"
+                                    + table
+                                    + "'")) {
+                while (rs.next())
+                    require(
+                            rs.getBoolean(2) == columns.contains(rs.getString(1))
+                                    && !rs.getBoolean(3),
+                            "unsafe lifecycle column rights: " + table + "." + rs.getString(1));
             }
         }
     }

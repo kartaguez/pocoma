@@ -42,7 +42,7 @@ final class L1CommandCompatibilityHarness {
     record RetryPolicy(int maximumFailures, Duration delay) {}
 
     final ThreadLocal<Result> terminal = new ThreadLocal<>();
-    final ConsumptionEngine engine;
+    final I2ReservedClaimFixture engine;
     final L1CommandStore store;
     final RetryPolicy policy;
     final AttemptTransactions transactions;
@@ -61,6 +61,28 @@ final class L1CommandCompatibilityHarness {
         var canonical = new JdbcConsumptionSlotStore(store.source());
         var slots =
                 new ConsumptionSlotStore() {
+                    public java.util.List<GrantedClaim> acquire(
+                            PartitionLease l,
+                            java.util.List<ClaimCandidate> c,
+                            java.time.Duration d) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.List<GrantedClaim> renew(
+                            java.util.List<ClaimedSlot> c, java.time.Duration d) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.Optional<Cession> cede(
+                            ClaimedSlot c, LifecycleSettings.RetryPolicy p) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.List<ClaimInspection> inspectResolved(
+                            java.util.List<ClaimedSlot> c) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
                     public Protection protectFinal(ClaimedSlot claim) {
                         return store.protectClaim(claim.consumableId(), claim.claimToken())
                                 ? Protection.VALID
@@ -96,7 +118,7 @@ final class L1CommandCompatibilityHarness {
                                     }
                                 });
         engine =
-                new ConsumptionEngine(
+                new I2ReservedClaimFixture(
                         new ConsumptionDefinition(
                                 L1CommandStore.claim(new UUID(0, 1), new UUID(0, 2))
                                         .consumptionId(),

@@ -1,3 +1,11 @@
+> **Mandat du 27-10-2026 : GO humain I3 après audit indépendant PASS WITH MINOR AMENDMENTS.** Implémentation autorisée avec R-I3-01/02/03. Les mentions prospectives ci-dessous conservent le plan approuvé ; le rapport I3 consigne l’exécution réelle. I4/I5 et activation production exclus.
+>
+> **Scope déclaré avant code :** COMMAND primaire ; secondaires NONE ; preuves directes READ JDBC et MONOLITH ; architecture globale REQUIRED à clôture, full reactor NOT REQUIRED (impact borné, graphe Maven conservé). DB CURRENT V3 neuf, migrations existantes seulement. Escalade préalable si owner/suffixe/graphe/autre runtime requis.
+>
+> **R-I3-01 :** restituer seulement après fin locale définitive ET résolution physique ou observation technique suffisante du verrou ; absence après tentative exige R9 COMPLETED. Aucun timeout/interruption/expiration ne suffit.
+> **R-I3-02 :** SKIP LOCKED + horloge post-lock et transactions séparées ; dimensionnement du pool ne réserve pas les ressources. Le harnais borné I3 ne certifie pas tous les emprunteurs/exécuteurs I5.
+> **R-I3-03 :** claim durable, ticket local et Engine seul orchestrateur ; suivi local borné aux réservations réellement incertaines/en cours d’opération, sans copie de l’état SQL.
+
 # Pocoma V3 — L2 / I3 : plan d’implémentation du Consumption lifecycle
 
 **27 octobre 2026 — PLAN PROPOSÉ POUR AUDIT ; IMPLÉMENTATION NON AUTORISÉE.**
@@ -5,6 +13,16 @@
 Dépôt `kartaguez/pocoma`, cible `feat/v3-architecture`, baseline I2 examinée directement : `03f0725c690bcbd9748d3ea59b62136e1a911e05`, également tête distante vérifiée au début de cette préparation. I2 est **CLOSED / LOCAL BOUNDED PASS** ; ses preuves ne deviennent pas des preuves I3. Le mandat courant autorise la préparation, le commit et le push de ce document, puis impose l’arrêt avant implémentation. Aucun code productif, test I3, migration ou runtime n’est exécuté ou modifié par cette préparation. Audit indépendant du plan puis GO humain distinct obligatoires.
 
 Ce plan développe I3 du [plan L2](L2_Design_and_Verification_Plan.md#14-vérification-future-gates-provenance-et-critères-de-sortie), sans modifier A01–A12/R1–R10. Les protocoles SQL et signatures ci-dessous sont des **choix techniques proposés**, pas du code livré ni de nouvelles normes. Aucun nouvel arbitrage conceptuel bloquant identifié. Les adaptations minimales de droits, de composition et d’entrée de l’Engine sont explicites ci-dessous.
+
+## Écart technique constaté pendant l’implémentation
+
+Le test réel `i3_reactivate` sous rôle non propriétaire échoue avec SQLSTATE 42501 : `consumption_row_guard` lit `family` dans `consumption_routing_contract` par `consumption_id`. Le rôle de réactivation exige donc **SELECT(consumption_id,family)** sur cette table, en plus du slot. Cet ajout minimal est nécessaire au trigger invoker conservé ; aucun droit de mutation du routage, aucune migration/SECURITY DEFINER. Le tableau historique §5 doit être lu avec cette précision.
+
+Les transactions techniques configurent localement `lock_timeout` (500 ms pilote), `statement_timeout` (2 s) et `transaction_timeout` PostgreSQL 17 (statement + 1 s, donc 3 s). Les transactions R1/R9 gardent l’owner I2 et son timeout ; `settlePending` examine au plus min(B,M_W) tickets, avec au plus une observation R9 par absence. Le timeout SQL ne prouve jamais le rollback.
+
+La fabrique vérifie les droits de la **source réellement injectée** en plus des deux cibles du garde. Elle refuse moins de M_W+4 connexions déclarées, et contrôle le maximum réel pour Hikari. Pour une source sans pool exposé, le nombre est une précondition déclarée, pas une réservation. Aucun exécuteur ni admission globale des emprunteurs n’est livré ; accès garanti sous saturation uniquement pour le harnais explicitement inventorié, qualification intégrée I5 INCONCLUSIVE.
+
+Les deux nouveaux fichiers de banc PRIMARY sont placés dans le package de test `v3`, comme I2, pour réutiliser le proxy filaire existant sans le rendre public ni le dupliquer. Leur module et leur portée ne changent pas.
 
 ## 1. Référentiel, autorité et limites
 

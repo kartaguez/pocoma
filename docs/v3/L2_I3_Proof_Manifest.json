@@ -1,0 +1,1494 @@
+{
+  "baseline": "bb33b56dc86a8a1d31c577f983d7ea1a07bc8128",
+  "status": "IMPLEMENTING / UNEXECUTED",
+  "global_L2": "INCONCLUSIVE",
+  "gate_commands": {
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "read": [
+      "./mvnw",
+      "-pl",
+      "infra-persistence-read-jdbc",
+      "-am",
+      "test"
+    ],
+    "monolith": [
+      "./mvnw",
+      "-pl",
+      "runtime-monolith",
+      "-am",
+      "test"
+    ],
+    "architecture": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ]
+  },
+  "required_groups": {
+    "lifecycle": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest": [
+        "i3_acquisition_lease_clock",
+        "i3_acquisition_partial",
+        "i3_c03_a",
+        "i3_c03_b",
+        "i3_c03_c",
+        "i3_c03_d",
+        "i3_c03_e",
+        "i3_c03_f",
+        "i3_c03_g",
+        "i3_c03_h",
+        "i3_c03_i",
+        "i3_c03_j",
+        "i3_c03_k",
+        "i3_c03_l",
+        "i3_c05_a",
+        "i3_c05_b",
+        "i3_c05_c",
+        "i3_c05_d",
+        "i3_c05_e",
+        "i3_c05_f",
+        "i3_c05_g",
+        "i3_c05_h",
+        "i3_c05_i",
+        "i3_c05_j",
+        "i3_c05_k",
+        "i3_c05_l",
+        "i3_c05_m",
+        "i3_capacity_uncertainty",
+        "i3_cession_once",
+        "i3_failure_classification",
+        "i3_lease_races",
+        "i3_other_slot_progresses",
+        "i3_quarantine_persists",
+        "i3_reactivate",
+        "i3_reactivate_over_cap",
+        "i3_renew_relation_timeout",
+        "i3_renew_s1_s2",
+        "i3_retry_config_prospective",
+        "i3_route_admin_serialization",
+        "i3_sql_costs",
+        "i3_two_admins"
+      ]
+    },
+    "i2": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof": [
+        "l2m_r1_01",
+        "l2m_r1_02",
+        "l2m_r1_03",
+        "l2m_r1_04",
+        "l2m_r1_05",
+        "l2m_r1_05_missing",
+        "l2m_r1_05_double",
+        "l2m_r1_05_late",
+        "l2m_r1_05_wrong",
+        "l2m_r1_06",
+        "l2m_r1_07",
+        "l2m_c04_b",
+        "l2m_r1_09",
+        "l2m_r1_10",
+        "l2m_e02_f_04",
+        "l2m_e02_f_05",
+        "l2m_c06_e",
+        "l2m_c06_i_effect",
+        "l2m_c06_i_delete",
+        "l2m_c06_h",
+        "l2m_c06_a",
+        "l2m_r9_01",
+        "l2m_r9_02",
+        "l2m_r9_03_completed",
+        "l2m_r9_03_notcompleted",
+        "l2m_r9_03_inconsistent",
+        "l2m_r9_03_unavailable",
+        "l2m_r9_03",
+        "l2m_r9_04",
+        "l2m_r9_05",
+        "l2m_r9_06",
+        "l2m_r9_07",
+        "l2m_r9_08",
+        "l2m_r9_09",
+        "l2m_e01_e_command_noop",
+        "l2m_e01_e_command_reject",
+        "l2m_e02_g_commit_ack",
+        "l2m_e02_g_rollback_ack",
+        "l2m_r9_10",
+        "completionFromEarlierCallbackPoisonsCurrentAttemptAndWitnessSlotSurvives",
+        "completionDeleteZeroAndOtherConsumptionKeyUntouched",
+        "successAtNMinusOneDoesNotAddFailureOrRunCession",
+        "l2m_l1_c_c01",
+        "l2m_l1_c_c02",
+        "l2m_l1_c_c03",
+        "l2m_l1_c_c04",
+        "l2m_l1_c_c05",
+        "l2m_l1_c_c06",
+        "l2m_l1_c_c07",
+        "l2m_l1_c_c08",
+        "l2m_l1_c_c09",
+        "l2m_l1_c_c10",
+        "l2m_l1_c_c11",
+        "l2m_l1_c_c13",
+        "l2m_l1_c_c14",
+        "l2m_l1_c_c15",
+        "l2m_l1_c_c16",
+        "l2m_l1_c_c17",
+        "l2m_l1_c_c18",
+        "l2m_l1_c_c19",
+        "l2m_l1_c_c20",
+        "l2m_l1_c_c21",
+        "l2m_l1_c_c22",
+        "l2m_l1_c_c24",
+        "l2m_l1_f_f02",
+        "l2m_l1_f_f03",
+        "l2m_l1_f_f05",
+        "l2m_r1_08",
+        "l2m_c04_a",
+        "l2m_c04_c",
+        "l2m_c04_d",
+        "l2m_c04_e",
+        "l2m_c04_f",
+        "l2m_c04_h",
+        "l2m_c04_i",
+        "l2m_c04_i_status",
+        "l2m_c04_i_result",
+        "l2m_c04_l",
+        "l2m_c06_f",
+        "l2m_c06_g",
+        "l2m_c06_i",
+        "l2m_c06_l",
+        "l2m_c06_m",
+        "l2m_e01_a",
+        "l2m_e01_b",
+        "l2m_e01_c",
+        "l2m_e01_f",
+        "l2m_e01_g_pot_comp",
+        "l2m_e01_h",
+        "l2m_e02_a_create",
+        "l2m_e02_a_update",
+        "l2m_e02_a_multitarget",
+        "l2m_e02_b",
+        "l2m_e02_c",
+        "l2m_e02_h",
+        "l2m_e02_f_01",
+        "l2m_e02_f_02",
+        "l2m_e02_f_03",
+        "l2m_e02_f_06",
+        "rollbackAfterEachDenseCounterAndPositionAndAtFlush",
+        "l2m_e02_i_abs",
+        "l2m_e02_i_unknown",
+        "l2m_e02_i_wrong",
+        "l2m_l1_f_f01",
+        "l2m_l1_f2_f201",
+        "l2m_l1_f2_f202",
+        "l2m_l1_f2_f203",
+        "l2m_l1_f2_f204",
+        "l2m_l1_f2_f205",
+        "l2m_l1_f2_f206",
+        "l2m_l1_f2_f207",
+        "l2m_l1_f2_continuite_globale",
+        "l2m_l1_f2_continuite_locale",
+        "l2m_l1_f2_premiere_revision_naissance",
+        "l2m_l1_f2_from_to_valide",
+        "l2m_l1_f2_absence_de_chevauchement",
+        "l2m_l1_f2_au_plus_une_ouverte",
+        "l2m_l1_f2_presence_d_une_ouverte",
+        "l2m_l1_f2_identites_references",
+        "l2m_l1_f2_aucune_v_sans_effet",
+        "l2m_l1_f2_completude_composantes",
+        "l2m_l1_f2_fermeture_insertion_atomiques",
+        "l2m_l1_f2_aucun_effet_partiel",
+        "l2m_l1_f2_mutations_concurrentes",
+        "l2m_l1_f2_claim_identity_pot",
+        "l2m_l1_f2_publication_atomique_evenements_resultats",
+        "engineRejectsLocallyCorruptRevisionWithoutCessionOrPartialCommit",
+        "preparationCommitCleanupFailureNeverAnnouncesBusinessCommit",
+        "l2m_r8_01",
+        "l2m_r8_02",
+        "l2m_c03_e",
+        "l2m_c03_f",
+        "l2m_c03_g",
+        "l2m_c03_h",
+        "l2m_l1_c_summary_c01",
+        "l2m_l1_c_summary_c02",
+        "l2m_l1_c_summary_c03",
+        "l2m_l1_c_summary_c04",
+        "l2m_l1_f_summary_f01",
+        "l2m_l1_f_summary_f02",
+        "l2m_l1_f2_summary_f201",
+        "l2m_l1_f2_summary_f202"
+      ]
+    },
+    "owner": {
+      "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest": [
+        "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+        "guardedLateCallbackRefusedBeforeSqlAndRollback",
+        "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+        "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+        "nestedAmbientWrongSourceAndWrongEmfRefused",
+        "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime",
+        "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+        "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup",
+        "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers"
+      ]
+    },
+    "legacy": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest": [
+        "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced",
+        "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections",
+        "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred",
+        "f02InvalidBindingHoldsIdentityUntilCommit",
+        "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot",
+        "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets",
+        "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack",
+        "c01DurableMutationsNoopRejectionAndExactHistory",
+        "c02SameComponentCollisionReacquiresAndPreservesObservation",
+        "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible",
+        "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders",
+        "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials",
+        "c06AttachmentRevocationNoopAndRejectionAllRevalidate",
+        "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected",
+        "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion",
+        "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults",
+        "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit",
+        "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection",
+        "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting",
+        "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing",
+        "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes",
+        "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits",
+        "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition",
+        "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+        "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters",
+        "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence",
+        "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned",
+        "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget",
+        "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution",
+        "c23LostFailureCessionAcknowledgementNeverDoubleCounts",
+        "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts"
+      ]
+    },
+    "finance": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest": [
+        "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+        "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+        "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+        "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+        "d14FinancialRollbackAtEveryPublicationBoundary",
+        "d15OneVersionComposesWeightAndFinancialPrimitives"
+      ]
+    },
+    "f2": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest": [
+        "f202RejectsLocalCorruptionAndRollsBackCandidate",
+        "f203UnrelatedOldGapDoesNotBlockWriteButAuditRejects",
+        "f204FinancialReferenceAndIdentityCorruptionBlockWrite",
+        "f205GroupedBatchesAndNotLoadedRemainSelective",
+        "f206SameRevisionCannotCloseTwiceUnderActualLockWait",
+        "f207EffectIndexAvoidsScanningOldRevisions"
+      ]
+    },
+    "depth": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest": [
+        "f201WriteDepthProfiles"
+      ]
+    },
+    "composition": {
+      "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+        "compositionUsesOneWriteManagerAndExplicitAuthority"
+      ]
+    },
+    "inert_monolith": {
+      "com.kartaguez.pocoma.ConsumptionPilotIsolationTest": [
+        "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration",
+        "monolithWithIndirectOldRuntimeFailsBeforeProcessing",
+        "monolithRefusesIncompleteReadBootstrapBeforeRefresh"
+      ]
+    },
+    "architecture": {
+      "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest": [
+        "engineAndContractsPureAndAgnostic",
+        "rejectedAbstractionsAndPotOwnerAbsent",
+        "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+        "negativeExamplesReallyFailRules",
+        "lifecycleHasOneHandleAndNoSchedulerOrOwner"
+      ],
+      "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest": [
+        "businessProductionAndNarrowTransactionContractRemainTechnologyFree",
+        "onlyTheReadContextIsAllowedAndTransactionOwnershipStillFails",
+        "allDurablePortImplementationsAndPublicationFactoriesAreInventoried",
+        "currentParticipantAnnotationsAndBodyGuardsCannotDisappear",
+        "knownParticipantsHaveNoIndependentResolutionOrExternalEffects",
+        "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
+        "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
+        "incompatibleExternalDurableCompositionIsRejectedBeforeSending"
+      ]
+    },
+    "capacity": {
+      "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest": [
+        "simultaneousLimits",
+        "partialAndDoubleRelease",
+        "settingsRejectInvalidConfiguration"
+      ],
+      "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest": [
+        "countableRequiresKnownCauseAndRollback",
+        "lostUnknownCancellationAndConfigNeverCount",
+        "oneShotAndCancellation"
+      ]
+    },
+    "lifecycle_composition": {
+      "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest": [
+        "sharedCapacityAcrossAuthorities",
+        "renewalsHaveReservedDatabaseAccess",
+        "lifecyclePrivilegesAndInertPilotStaySeparate",
+        "oneOwnerAndNoActiveScheduler",
+        "failureCauseGraphClassification"
+      ]
+    },
+    "read_lifecycle": {
+      "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest": [
+        "effectiveLeastPrivileges"
+      ]
+    }
+  },
+  "scenarios": [
+    {
+      "method": "i3_acquisition_lease_clock",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_acquisition_partial",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_a",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_b",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_c",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_d",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_e",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_f",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_g",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_h",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_i",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_j",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_k",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c03_l",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_a",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_b",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_c",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_d",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_e",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_f",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_g",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_h",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_i",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_j",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_k",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_l",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_c05_m",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_capacity_uncertainty",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_cession_once",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_failure_classification",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_lease_races",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_other_slot_progresses",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_quarantine_persists",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_reactivate",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_reactivate_over_cap",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_renew_relation_timeout",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_renew_s1_s2",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_retry_config_prospective",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_route_admin_serialization",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_sql_costs",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    },
+    {
+      "method": "i3_two_admins",
+      "authorities": [
+        "WRITE real Command / Identity fixture",
+        "READ technical effect"
+      ],
+      "oracle": "external SQL snapshot + literal expectation + DB clock/barriers",
+      "status": "UNEXECUTED"
+    }
+  ],
+  "amendments": [
+    "R-I3-01 local exit AND physical resolution/technical lock observation; R9 alone owns business completion",
+    "R-I3-02 pool size is not a reservation; integrated borrowers/executors I5",
+    "R-I3-03 ticket + durable claim + Engine, no second orchestrator"
+  ],
+  "inventory_note": "i3_c03_* in approved plan is a family wildcard, not a test method; all A through L are individually required.",
+  "gate_groups": {
+    "command": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "composition",
+      "capacity",
+      "lifecycle",
+      "lifecycle_composition",
+      "read_lifecycle"
+    ],
+    "read": [
+      "read_lifecycle"
+    ],
+    "monolith": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "inert_monolith",
+      "capacity",
+      "lifecycle",
+      "read_lifecycle"
+    ],
+    "architecture": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "composition",
+      "inert_monolith",
+      "architecture",
+      "capacity",
+      "lifecycle",
+      "lifecycle_composition",
+      "read_lifecycle"
+    ]
+  },
+  "physical_requirements": [
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_lease_clock-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_lease_clock WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_lease_clock-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_lease_clock READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_partial WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_partial READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_a-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_a WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_a-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_a READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_b-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_b WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_b-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_b READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_c-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_c WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_c-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_c READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_d-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_d WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_d-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_d READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_e-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_e WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_e-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_e READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_f-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_f WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_f-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_f READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_g-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_g WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_g-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_g READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_h-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_h WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_h-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_h READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_i-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_i WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_i-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_i READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_j WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=final fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=final fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_j-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_j READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=final fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=final fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_k-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_k WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_k-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_k READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_l-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_l WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_l-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_l READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_a-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_a WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_a-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_a READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_b-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_b WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_b-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_b READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_c-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_c WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_c-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_c READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_d-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_d WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_d-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_d READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_e-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_e WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_e-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_e READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_f-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_f WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_f-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_f READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_g-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_g WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_g-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_g READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_h-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_h WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_h-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_h READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_i-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_i WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_i-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_i READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_j-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_j WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_j-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_j READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_k-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_k WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_k-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_k READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_l-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_l WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_l-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_l READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_m-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_m WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_m-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_m READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_capacity_uncertainty-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_capacity_uncertainty WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT",
+        "physical final transaction still open",
+        "local callback active despite cancellation",
+        "absent slot did not release until coherent business R9"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_capacity_uncertainty-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_capacity_uncertainty READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT",
+        "physical final transaction still open",
+        "local callback active despite cancellation",
+        "absent slot did not release until coherent business R9"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_cession_once-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_cession_once WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_cession_once-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_cession_once READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_failure_classification-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_failure_classification WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_failure_classification-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_failure_classification READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_lease_races-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_lease_races WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_lease_races-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_lease_races READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_other_slot_progresses-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_other_slot_progresses WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_other_slot_progresses-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_other_slot_progresses READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_quarantine_persists-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_quarantine_persists WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_quarantine_persists-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_quarantine_persists READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate_over_cap-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate_over_cap WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate_over_cap-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate_over_cap READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_relation_timeout-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_relation_timeout WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_relation_timeout-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_relation_timeout READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_s1_s2-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_s1_s2 WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_s1_s2-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_s1_s2 READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_retry_config_prospective-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_retry_config_prospective WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_retry_config_prospective-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_retry_config_prospective READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_route_admin_serialization-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_route_admin_serialization WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_route_admin_serialization-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_route_admin_serialization READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_sql_costs-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_sql_costs WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_sql_costs-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_sql_costs READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_two_admins-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_two_admins WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_two_admins-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_two_admins READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/sharedCapacityAcrossAuthorities.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/renewalsHaveReservedDatabaseAccess.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/lifecyclePrivilegesAndInertPilotStaySeparate.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/oneOwnerAndNoActiveScheduler.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/failureCauseGraphClassification.txt",
+      "contains": []
+    },
+    {
+      "group": "read_lifecycle",
+      "path": "infra-persistence-read-jdbc/target/v3-i3-evidence/read-effective-privileges.txt",
+      "contains": [
+        "effective nonadmin worker="
+      ]
+    }
+  ],
+  "limits": [
+    "No I4 Discovery or I5 scheduler/borrower completeness",
+    "WRITE participant real Command with fixture Identity; READ technical effects only",
+    "Global CON-03/05 and L2 certification INCONCLUSIVE",
+    "No G1/G2/G3 or L2 ACCEPTED"
+  ]
+}

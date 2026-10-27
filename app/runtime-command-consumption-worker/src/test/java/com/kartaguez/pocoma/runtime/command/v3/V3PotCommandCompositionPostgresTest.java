@@ -22,10 +22,10 @@ import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotHistoryAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
+import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
-import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.*;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -41,47 +41,73 @@ import java.util.*;
  */
 @Testcontainers
 class V3PotCommandCompositionPostgresTest {
-    @Container
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
+    @Container static final PostgreSQLContainer POSTGRES = ConsumptionBootstrapPostgresTest.PG;
+
+    @BeforeAll
+    static void initialize() throws Exception {
+        ConsumptionBootstrapPostgresTest.databases();
+    }
 
     @Test
     void compositionUsesOneWriteManagerAndExplicitAuthority() {
-        var schema = "v3_composition_" + UUID.randomUUID().toString().replace("-", "");
-        var source =
-                new DriverManagerDataSource(
-                        POSTGRES.getJdbcUrl() + "&currentSchema=" + schema,
-                        POSTGRES.getUsername(),
-                        POSTGRES.getPassword());
-        var sql = new JdbcTemplate(source);
-        sql.execute("create extension if not exists pgcrypto with schema public");
-        sql.execute("create role " + schema + "_runtime nologin");
-        Flyway.configure()
-                .dataSource(source)
-                .schemas(schema)
-                .defaultSchema(schema)
-                .createSchemas(true)
-                .locations(
-                        "classpath:db/v3-pot/migration",
-                        "classpath:db/v3-pot-execution/migration",
-                        "classpath:db/v3-consumption-write/migration")
-                .placeholders(
-                        Map.of(
-                                "expectedDatabase",
-                                POSTGRES.getDatabaseName(),
-                                "expectedSchema",
-                                schema,
-                                "expectedAdmin",
+        var fixture = new ConsumptionBootstrapPostgresTest();
+        try {
+            fixture.freshAuthorities();
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+        var schema = fixture.schema;
+        var source = fixture.w.source();
+        var sql = fixture.write;
+        String reactivationRole = "react_" + UUID.randomUUID().toString().replace("-", "");
+        sql.execute("create role " + reactivationRole + " login password 'fixture-runtime'");
+        try {
+            POSTGRES.copyFileToContainer(
+                    org.testcontainers.utility.MountableFile.forHostPath(
+                            java.nio.file.Path.of("../../scripts/v3/grant-l2-lifecycle.sql")
+                                    .toAbsolutePath()),
+                    "/tmp/grants.sql");
+            for (var target : List.of(fixture.w, fixture.r)) {
+                var result =
+                        POSTGRES.execInContainer(
+                                "env",
+                                "PGOPTIONS=-c search_path=" + schema,
+                                "psql",
+                                "-X",
+                                "-U",
                                 POSTGRES.getUsername(),
-                                "expectedRuntime",
-                                schema + "_runtime"))
-                .load()
-                .migrate();
-        sql.update(
-                "insert into consumption_routing_contract values"
-                        + " ('98f7268d-d340-581c-b83d-010926223e14','COMMAND','sha256-v1',4)");
+                                "-d",
+                                target.database(),
+                                "-v",
+                                "ON_ERROR_STOP=1",
+                                "-v",
+                                "expected_database=" + target.database(),
+                                "-v",
+                                "expected_schema=" + schema,
+                                "-v",
+                                "expected_admin=" + POSTGRES.getUsername(),
+                                "-v",
+                                "runtime_role=" + target.runtimeRole(),
+                                "-v",
+                                "reactivation_role=" + reactivationRole,
+                                "-f",
+                                "/tmp/grants.sql");
+                assertEquals(0, result.getExitCode(), result.getStderr());
+            }
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+        var capacity =
+                new WorkerCapacity(
+                        4,
+                        Map.of(
+                                new ConsumptionId(
+                                        UUID.fromString("98f7268d-d340-581c-b83d-010926223e14")),
+                                2));
         sql.execute(
                 "create table fixture_identity(issuer text,subject text,user_id uuid,token"
                         + " text,primary key(issuer,subject))");
+        sql.execute("grant select,update(token) on fixture_identity to pilot_w");
         var user = new UserId(UUID.randomUUID());
         var pot = new PotId(UUID.randomUUID());
         sql.update(
@@ -128,7 +154,15 @@ class V3PotCommandCompositionPostgresTest {
                         }
                     };
             var execution =
-                    V3PotCommandComposition.assemble(source, manager, authority, Clock.systemUTC());
+                    V3PotCommandComposition.assemble(
+                            source,
+                            manager,
+                            authority,
+                            Clock.systemUTC(),
+                            fixture.guard(),
+                            LifecycleSettings.pilot(),
+                            capacity,
+                            8);
             var request = UUID.randomUUID();
             var claim = UUID.randomUUID();
             var intent = new PotCommand.CreatePot(new Label("composed"));
@@ -147,13 +181,13 @@ class V3PotCommandCompositionPostgresTest {
                         + " '1 minute' from (select id,token,consumption_hash_v1('COMMAND',id) h"
                         + " from (select ?::uuid id,?::uuid token) x) y",
                     request, claim);
-            var result = execution.execute(claim(request, claim));
+            var result = CommandReservedClaimFixture.execute(execution, claim(request, claim));
             assertEquals(ConsumptionEngine.Status.COMMITTED, result.status());
             assertEquals(
                     1L,
                     sql.queryForObject(
                             "select resulting_pot_version from v3_command_result where"
-                                + " request_id=?",
+                                    + " request_id=?",
                             Long.class,
                             request));
             assertEquals(
@@ -171,7 +205,7 @@ class V3PotCommandCompositionPostgresTest {
                             "select count(*) from v3_command_completion_event", Integer.class));
             assertEquals(
                     ConsumptionEngine.Status.COMMITTED,
-                    execution.execute(claim(request, claim)).status());
+                    CommandReservedClaimFixture.execute(execution, claim(request, claim)).status());
             // E: actual Spring/JPA composition also executes finance and historical calculation.
             var a = new ShareholderId(UUID.randomUUID());
             var b = new ShareholderId(UUID.randomUUID());
@@ -205,13 +239,14 @@ class V3PotCommandCompositionPostgresTest {
                                     + " id,token,consumption_hash_v1('COMMAND',id) h from (select"
                                     + " ?::uuid id,?::uuid token) x) y",
                                 id, token);
-                        var completed = execution.execute(claim(id, token));
+                        var completed =
+                                CommandReservedClaimFixture.execute(execution, claim(id, token));
                         assertEquals(ConsumptionEngine.Status.COMMITTED, completed.status());
                         assertEquals(
                                 observed + 1,
                                 sql.queryForObject(
                                         "select resulting_pot_version from v3_command_result where"
-                                            + " request_id=?",
+                                                + " request_id=?",
                                         Long.class,
                                         id));
                     };
@@ -270,7 +305,14 @@ class V3PotCommandCompositionPostgresTest {
                     IllegalArgumentException.class,
                     () ->
                             V3PotCommandComposition.assemble(
-                                    different, manager, authority, Clock.systemUTC()));
+                                    different,
+                                    manager,
+                                    authority,
+                                    Clock.systemUTC(),
+                                    fixture.guard(),
+                                    LifecycleSettings.pilot(),
+                                    capacity,
+                                    8));
         } finally {
             factory.destroy();
         }

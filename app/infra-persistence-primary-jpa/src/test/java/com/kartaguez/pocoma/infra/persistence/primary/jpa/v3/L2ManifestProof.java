@@ -83,15 +83,15 @@ class L2ManifestProof {
         f.collect();
     }
 
-    ConsumptionEngine engine() {
+    I2ReservedClaimFixture engine() {
         return engine(participant, slots, f.tx);
     }
 
-    ConsumptionEngine engine(
+    I2ReservedClaimFixture engine(
             ConsumptionParticipant business,
             ConsumptionSlotStore technical,
             AttemptTransactions tx) {
-        return new ConsumptionEngine(definition, tx, technical, business);
+        return new I2ReservedClaimFixture(definition, tx, technical, business);
     }
 
     ConsumptionParticipant wrapped(Consumer<ConsumptionParticipant.Prepared> action) {
@@ -366,6 +366,28 @@ class L2ManifestProof {
         var before = vector();
         var technical =
                 new ConsumptionSlotStore() {
+                    public java.util.List<GrantedClaim> acquire(
+                            PartitionLease l,
+                            java.util.List<ClaimCandidate> c,
+                            java.time.Duration d) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.List<GrantedClaim> renew(
+                            java.util.List<ClaimedSlot> c, java.time.Duration d) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.Optional<Cession> cede(
+                            ClaimedSlot c, LifecycleSettings.RetryPolicy p) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
+                    public java.util.List<ClaimInspection> inspectResolved(
+                            java.util.List<ClaimedSlot> c) {
+                        throw new AssertionError("I2 fixture");
+                    }
+
                     public Protection protectFinal(ClaimedSlot c) {
                         return slots.protectFinal(c);
                     }
@@ -1473,8 +1495,8 @@ class L2ManifestProof {
                                                     if (variant.equals("wrong"))
                                                         f.jdbc.execute(
                                                                 "set constraints"
-                                                                    + " v3_pot_event_request"
-                                                                    + " immediate");
+                                                                        + " v3_pot_event_request"
+                                                                        + " immediate");
                                                     return null;
                                                 });
                                     });

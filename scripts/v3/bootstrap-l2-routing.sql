@@ -1,6 +1,6 @@
 -- psql -X -v ON_ERROR_STOP=1; expected_* and authority are mandatory.
 begin;
-lock table consumption_routing_contract in share row exclusive mode;
+lock table consumption_routing_contract in access exclusive mode;
 -- Assertions repeat inside the locked transaction; arguments have no defaults.
 select set_config('pocoma.expected_database', :'expected_database', true);
 select set_config('pocoma.expected_schema', :'expected_schema', true);

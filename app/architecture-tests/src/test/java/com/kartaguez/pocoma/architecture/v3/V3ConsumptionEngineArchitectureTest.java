@@ -179,6 +179,52 @@ class V3ConsumptionEngineArchitectureTest {
                         .hasViolation());
     }
 
+    @Test
+    void lifecycleHasOneHandleAndNoSchedulerOrOwner() throws Exception {
+        var engine = com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.class;
+        assertThrows(
+                NoSuchMethodException.class,
+                () ->
+                        engine.getMethod(
+                                "execute",
+                                com.kartaguez.pocoma.engine.consumption.v3.ClaimedSlot.class));
+        assertNotNull(
+                engine.getMethod(
+                        "execute",
+                        com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine.AcquiredClaim
+                                .class));
+        var lifecycle =
+                select(
+                        PROD,
+                        c ->
+                                c.getPackageName().startsWith(ROOT + ".engine.consumption.v3")
+                                        || c.getName().endsWith("JdbcPartitionOwnershipStore")
+                                        || c.getName().endsWith("JdbcConsumptionSlotStore"));
+        noClasses()
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "java.util.concurrent.Executors",
+                        "java.util.concurrent.ScheduledExecutorService",
+                        "org.springframework.scheduling..")
+                .check(lifecycle);
+        for (var c : lifecycle)
+            assertFalse(
+                    c.getMethodCallsFromSelf().stream()
+                            .anyMatch(
+                                    call ->
+                                            Set.of(
+                                                            "commit",
+                                                            "rollback",
+                                                            "getConnection",
+                                                            "createEntityManager",
+                                                            "scheduleAtFixedRate")
+                                                    .contains(call.getTarget().getName())),
+                    c.getName());
+        assertEquals(
+                1, PROD.stream().filter(c -> c.getSimpleName().equals("WorkerCapacity")).count());
+    }
+
     static class BadSqlEngine {
         java.sql.Connection connection;
     }

@@ -1,13 +1,15 @@
 package com.kartaguez.pocoma.runtime.command.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily;
-import com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine;
+import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotActorAuthority;
 import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.*;
-import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.JdbcConsumptionSlotStore;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
+import com.kartaguez.pocoma.runtime.consumption.v3.V3BootstrapGuard;
 import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration;
+import com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionLifecycleComposition;
 
 import org.springframework.orm.jpa.JpaTransactionManager;
 
@@ -23,7 +25,11 @@ public final class V3PotCommandComposition {
             DataSource writeSource,
             JpaTransactionManager manager,
             PotActorAuthority identityAuthority,
-            Clock clock) {
+            Clock clock,
+            V3BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            int maximumConnections) {
         var transactions = new SpringAttemptTransactions(writeSource, manager, 60);
         var participant =
                 new ExecutePotCommand(
@@ -38,7 +44,36 @@ public final class V3PotCommandComposition {
                         .filter(d -> d.family() == ConsumableFamily.COMMAND)
                         .findFirst()
                         .orElseThrow();
-        return new ConsumptionEngine(
-                definition, transactions, new JdbcConsumptionSlotStore(writeSource), participant);
+        return V3ConsumptionLifecycleComposition.assemble(
+                guard,
+                definition,
+                writeSource,
+                transactions,
+                participant,
+                settings,
+                capacity,
+                maximumConnections,
+                cause -> {
+                    var common = V3ConsumptionLifecycleComposition.classify(cause);
+                    if (common == FailureKind.NON_COUNTABLE) return common;
+                    var seen =
+                            java.util.Collections.newSetFromMap(
+                                    new java.util.IdentityHashMap<Throwable, Boolean>());
+                    var queue = new java.util.ArrayDeque<Throwable>();
+                    if (cause != null) queue.add(cause);
+                    while (!queue.isEmpty()) {
+                        var next = queue.removeFirst();
+                        if (!seen.add(next)) continue;
+                        if (next instanceof ExecutePotCommand.Collision)
+                            return FailureKind.COLLISION;
+                        if (next
+                                instanceof
+                                com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException)
+                            return FailureKind.INCONSISTENT_FACTS;
+                        if (next.getCause() != null) queue.add(next.getCause());
+                        java.util.Collections.addAll(queue, next.getSuppressed());
+                    }
+                    return common;
+                });
     }
 }
