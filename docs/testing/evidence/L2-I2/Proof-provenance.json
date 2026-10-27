@@ -1,0 +1,12 @@
+{
+  "delivery_code_sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+  "unchanged_application_sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+  "gate_shas": {
+    "COMMAND": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+    "TRANSACTIONS": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+    "MONOLITH": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+    "ARCHITECTURE": "4f2264ae6e11e7e6e1511577064bca5e31ad1336"
+  },
+  "application_and_collector_delta": [],
+  "conclusion": "All four canonical commands ran on the same final code SHA, with no app/scripts edits between gates. The delivery adds only documentation and raw evidence after these gates."
+}

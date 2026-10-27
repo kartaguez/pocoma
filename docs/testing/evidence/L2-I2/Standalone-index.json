@@ -1,0 +1,77 @@
+{
+  "archive": "Standalone-raw.tar.gz",
+  "sha256": "aaa9e9be2cff685ea5a0a0e3c1a59861ae6b6b92a9a6ca861c248685e31965b9",
+  "members": [
+    {
+      "member": "Autonomous-delivery.log",
+      "sha256": "7febb82f3b6bd966c50e0c2931a67573f6ace34eb9bf83224f611310f971b393",
+      "bytes": 6556
+    },
+    {
+      "member": "Autonomous-jpa-after.log",
+      "sha256": "3f62c979c614bf4085619e7df57970e1d27edfc71079f36ca229eb033715a6b1",
+      "bytes": 6556
+    },
+    {
+      "member": "Autonomous-jpa-before.log",
+      "sha256": "b8bcb47b1c0f750ea1952cf1554865147dc6d6c3b9ff569034038ef5f34759e1",
+      "bytes": 6685
+    },
+    {
+      "member": "Callback-delivery.log",
+      "sha256": "93fb2172deb439def9ef6d1c16464613d6016b27c007885da9aeecbd7534a35a",
+      "bytes": 6566
+    },
+    {
+      "member": "Late-callback-after.log",
+      "sha256": "81cbd687cd4d87608e9477a7a073f971562cf7c260224c61e6bd8056f8eff154",
+      "bytes": 6566
+    },
+    {
+      "member": "Late-callback-before.log",
+      "sha256": "dafa0c3f127dc73690ac841a6df2ce828a2202978e91c7050cb1549c993fc025",
+      "bytes": 6732
+    },
+    {
+      "member": "Late-callback-final.log",
+      "sha256": "904fbaf755027e5b46112af476070aa142a0b5c1faef6b5700fe0fd5fb169666",
+      "bytes": 6566
+    },
+    {
+      "member": "Performance-after-paired.log",
+      "sha256": "9bd5a9ad41cc4755055a6d66c4ee6899e799602eba27a0d4212f4af31d38d352",
+      "bytes": 59993
+    },
+    {
+      "member": "Performance-before.log",
+      "sha256": "2652a591b9bd7ab6a266033e7429538e5f1b82002f5deda57d37f2be7c99e59a",
+      "bytes": 63561
+    },
+    {
+      "member": "R9-delivery.log",
+      "sha256": "42c990f2bc21fc39511141ed54eec0520b147be31fa30b7fc32284965adbdbdf",
+      "bytes": 18759
+    },
+    {
+      "member": "R9-supplement-setup-failure.log",
+      "sha256": "77a20e196ad9990d0c8a8b76adca42268c0c4b76326dab6131f7f6255cf02136",
+      "bytes": 11224
+    },
+    {
+      "member": "R9-supplement.log",
+      "sha256": "b758815c8847159f2c04999da99507a0dfb29cc645a6ef0b7f73233b6635af5e",
+      "bytes": 18759
+    },
+    {
+      "member": "Performance-after-paired.xml",
+      "sha256": "7ab25bab101e843db450f4463eeae7796478e863b996560ba7a2b57a22cd38f8",
+      "bytes": 42882
+    },
+    {
+      "member": "Performance-before.xml",
+      "sha256": "f0e1a39603b743955f4d01c92c9a1566f6bab185961c3e409264b0c86d8f2aa7",
+      "bytes": 42626
+    }
+  ],
+  "note": "Raw log/XML bytes preserved unchanged; log fields in Supplement-provenance refer to members of this archive."
+}

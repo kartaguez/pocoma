@@ -1,0 +1,278 @@
+[
+  {
+    "status": "M",
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/EventPublicationContractArchitectureTest.java",
+    "module": "architecture-tests",
+    "sha256": "a75eb1131c41eb042333bdbf7961df4280cfafcc769b6d1c1daf78b03ec9fe8d"
+  },
+  {
+    "status": "A",
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+    "module": "architecture-tests",
+    "sha256": "e0edcda5064a4fb24d947e701a4055dfe0753d6e998a3f93face87bc03cb376b"
+  },
+  {
+    "status": "M",
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java",
+    "module": "architecture-tests",
+    "sha256": "84b870af9b52b3c9163a394e28e46bc0e87dc46a67700021bf42224ee7369aa4"
+  },
+  {
+    "status": "M",
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3FoundationArchitectureTest.java",
+    "module": "architecture-tests",
+    "sha256": "4a3cc2915de8ef8a2fcc2c3d41b7f80e1ecef35673d9b9228c4d14bd61885962"
+  },
+  {
+    "status": "M",
+    "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3PotExecutionArchitectureTest.java",
+    "module": "architecture-tests",
+    "sha256": "d71bf75c63c86f9abb5d5364225ae7840c5f106ed95f5ca1c7000731716e782f"
+  },
+  {
+    "status": "M",
+    "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java",
+    "module": "composition-runtime-spring",
+    "sha256": "d6662e4b9ab5c14d6ded1ffdda61ddcdea87c1217bb0e8213329e6149b1dd0e8"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ClaimedSlot.java",
+    "module": "engine-consumption",
+    "sha256": "047d7983513baa5130e0795fd16f563bf08427e2734bceced655bb3806ba54a6"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+    "module": "engine-consumption",
+    "sha256": "3bf2cf17434b046016b54bb8d1f6c479cb4ea1de06e5a1fc02c0a69e6ae3d167"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionParticipant.java",
+    "module": "engine-consumption",
+    "sha256": "b44e5c90f0f263b68cf8ddcfe5374d58fa654c498c069b21672bda0716f03ea3"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/RecoveryObservation.java",
+    "module": "engine-consumption",
+    "sha256": "3faff0064b926960daac765b7e90754f0dda94242ceba20c36e8723444c87601"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/SlotCompletion.java",
+    "module": "engine-consumption",
+    "sha256": "ea6116e1fd335b324d1b15bd90482d497d43ca1bba74471f414e3b8affbcc881"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionSlotStore.java",
+    "module": "engine-consumption",
+    "sha256": "9edf2d82c74840cb13ee191426ae5c5068b04fe1d28f4d895dc7c9163eb0804a"
+  },
+  {
+    "status": "M",
+    "path": "app/engine-write-pot/pom.xml",
+    "module": "engine-write-pot",
+    "sha256": "5d2b8acf9902cad48c5a83f4ecf5a89ff846bfcf9f8289610846745ada07621c"
+  },
+  {
+    "status": "A",
+    "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandObservation.java",
+    "module": "engine-write-pot",
+    "sha256": "0e2bf633ae76630d6f7c41cab8afa0fd6dd5cf92114661154ecf28f25f908169"
+  },
+  {
+    "status": "M",
+    "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandStore.java",
+    "module": "engine-write-pot",
+    "sha256": "04808917786301606bb7ee15bffdb6792e8d4f7d5618eaf7e8879c0d0e2c6e20"
+  },
+  {
+    "status": "D",
+    "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/port/execution/v3/PotCommandTransactions.java",
+    "module": "engine-write-pot",
+    "sha256": null
+  },
+  {
+    "status": "M",
+    "path": "app/engine-write-pot/src/main/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommand.java",
+    "module": "engine-write-pot",
+    "sha256": "8d232df969045fcf5b7390188af9c5b67a0622a7674212b965ddec094b16e11c"
+  },
+  {
+    "status": "M",
+    "path": "app/engine-write-pot/src/test/java/com/kartaguez/pocoma/engine/write/pot/v3/ExecutePotCommandTest.java",
+    "module": "engine-write-pot",
+    "sha256": "a92bfaf4f624124beb3d0b0f9d23642ebc7cb0adbd59839026b2b28e3f057e1e"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/pom.xml",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "04a18bac295eea0f91357712b5c83ebc8b6ad04b66f2ac81f232df605cc4fa39"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandObservation.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "8fa94675abc6052000e71a65f9e058c9016fe0a4130bb35f94c0aaecddfd5077"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotCommandStore.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "eb66708ff568070f325cbaa4c8fb2cc3629e62c35aaef54e4eafbc610d0bbdd5"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotRevisionAdapter.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "f70330f349837115a333d25d4501612d078416e5f884c37d0f10d87798db0489"
+  },
+  {
+    "status": "D",
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotCommandJdbcTransactions.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": null
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcConsumptionSlotStore.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "c26af84c0f1716766a9c80b7311d15b9c37a21c6cbd44f5bd8e1e31f237e3620"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/CommandExecutionPostgresTest.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "cab7a9d0f35642fdf4ad3f069819fa8be52e9aeeaa3ae8c2bfe79ea7d13fbe78"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ForwardingTransactions.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "67a97937b8035f4ab9cf1b413eab770869e5f25e2d94978db08d0388f7697797"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/I2Schema.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "beaad8dfecbdf0e79399660c0cb2988fbe0ddb37e38675ec9cf60503d6b2d30f"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L1CommandCompatibilityHarness.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "c0a8dfc5e43425c112e237aef3950ec04a81b462bc3bf13db32e722eb4895c43"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L1CommandStore.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "a1aa9454312b5e490af7806d2fa482ad78681d664efff82679e581bc3e4ec9d6"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L1IntegrationPostgresTest.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "2b7969ce3859885166c188753b4051838c6a53294550f2154ee552f3910ab509"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/L2ManifestProof.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "9da4bb0577cf6a799dc32133060956b52ca4be05813aa52f8e6bb491675a26b1"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotFinancePostgresTest.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "3019a8fce4892df5de9e96ee337c0b5c2fee8c73d9ffe4148d01951eb731c594"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java",
+    "module": "infra-persistence-primary-jpa",
+    "sha256": "6a91adaa2b10b27a51f08beeade9981112cc9617842d8a8b84c6886e9a2a2ea0"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-tx-spring/pom.xml",
+    "module": "infra-tx-spring",
+    "sha256": "50a859a9ca8fc6732e2d31597c7409305e90ddd94f35ac2580dcbd5f3ad22634"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-tx-spring/src/main/java/com/kartaguez/pocoma/infra/tx/spring/v3/SpringAttemptTransactions.java",
+    "module": "infra-tx-spring",
+    "sha256": "3ff26ac72df478387699a8a051e5b3683ce0be531fad0254318a46df4ad58a46"
+  },
+  {
+    "status": "A",
+    "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/AttemptTransactionsPostgresTest.java",
+    "module": "infra-tx-spring",
+    "sha256": "45ef6b92f5d9cfbf4cd90897ce25b8a3850d22293d93893d25ec7824643399c6"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/PostgresFoundationTestSupport.java",
+    "module": "infra-tx-spring",
+    "sha256": "23825b0e6ff55543b669bd5a217bdc3c42a7a812fa51a58327b21bbab77d05e4"
+  },
+  {
+    "status": "M",
+    "path": "app/infra-tx-spring/src/test/java/com/kartaguez/pocoma/infra/tx/spring/v3/fixture/FoundationEffect.java",
+    "module": "infra-tx-spring",
+    "sha256": "f76b0916f766a183304d9f9263b146f74232e7152a7fed048f4ab805fc929b0c"
+  },
+  {
+    "status": "A",
+    "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/AttemptTransactions.java",
+    "module": "port-transaction",
+    "sha256": "ef903b754c881b29a1523ba5540d3242d71c0b4a1fc7b53610ad1ebc1fe3f02a"
+  },
+  {
+    "status": "A",
+    "path": "app/port-transaction/src/main/java/com/kartaguez/pocoma/port/transaction/v3/RecoveryReadContext.java",
+    "module": "port-transaction",
+    "sha256": "dfe30aca23bb4021fa0b800861e24e952a2e69c513f5a64bd6b9e0b03433692b"
+  },
+  {
+    "status": "M",
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionBootstrapPostgresTest.java",
+    "module": "runtime-command-consumption-worker",
+    "sha256": "4669758f2fce3b5da64d648c8482da8c4694e03aa1bc3d457ab1469928161d6f"
+  },
+  {
+    "status": "M",
+    "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandCompositionPostgresTest.java",
+    "module": "runtime-command-consumption-worker",
+    "sha256": "6b70fa69ec8953dece0d15c384c9644d8b8640a6c7e6c77071e3e301758a0759"
+  },
+  {
+    "status": "M",
+    "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ConsumptionPilotIsolationTest.java",
+    "module": "runtime-monolith",
+    "sha256": "0912e54d64af2652d43403f83fbe71c1f74a345d69fe95f2a21526199fe2c0a2"
+  },
+  {
+    "status": "A",
+    "path": "docs/v3/L2_I2_Proof_Manifest.json",
+    "module": null,
+    "sha256": "fdc45ed6f30a0f63d106c62adffc1c2258334353035c64c83519e11232865147"
+  },
+  {
+    "status": "A",
+    "path": "scripts/testing/test_i2_evidence.py",
+    "module": null,
+    "sha256": "bdf297bded76309ef7ab89b9f29534c844b6204df2acec6578bcc8fce459daf5"
+  },
+  {
+    "status": "A",
+    "path": "scripts/testing/verify-v3-l2-i2.py",
+    "module": null,
+    "sha256": "488ffa8608dfd7172058091caad978b6e73725a20e35924393a6096ccc0a3fbc"
+  }
+]

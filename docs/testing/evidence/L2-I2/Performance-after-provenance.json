@@ -1,0 +1,8 @@
+{
+  "sha": "4f2264ae6e11e7e6e1511577064bca5e31ad1336",
+  "command": "./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=WriteRevisionPerformancePostgresTest -Dsurefire.failIfNoSpecifiedTests=false -Df2.variant=i2-after",
+  "cwd": "/private/tmp/pocoma-v3-i2-execution/app",
+  "maven_concurrent_in_this_campaign": false,
+  "comparison": "Matched fixture, warmups/repetitions and machine; code API adaptations only. Independent targeted build after the four gates, not an SLO proof.",
+  "raw_log_and_xml_archive": "Standalone-raw.tar.gz"
+}

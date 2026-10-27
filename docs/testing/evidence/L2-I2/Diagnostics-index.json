@@ -1,0 +1,219 @@
+[
+  {
+    "log": "i2-architecture-diagnostic-2.log",
+    "sha256": "ccac2ff2f20e91fca8a08f0a7834b9e63b2280914d93d04d6416c621b0ce1dce",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-architecture-diagnostic.log",
+    "sha256": "772fabcedb213f41cb257fb74904b27f9197c0a4f53d19b2d961abcd34879361",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-autonomous-owner.log",
+    "sha256": "7bf2da07228da7f3c29401883fe7a2fb9d316db713ca0b75840fa7aff0e3b4a4",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-command-compile.log",
+    "sha256": "de919f6c4746096938fef563ba1ed73e972d6766fd7ac8660cd082f4d969e507",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-command-gate-summary-1.log",
+    "sha256": "157c481c9df8b479183e2e12b9dea2ffeed9f7ac56f0a29bf4ec8570b5980018",
+    "maven_success": false,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-command-gate-summary-2.log",
+    "sha256": "e080ae60d5dd140e809cc121caa2c1784698faa656ba7445b266e7a11215a136",
+    "maven_success": false,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-expanded-diagnostic-2.log",
+    "sha256": "8322e54dca83ca8f4df3d0f39d86345e9634e8b101f1fdf42e46e058042f0547",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-expanded-diagnostic-3.log",
+    "sha256": "6b7e7164b3de33555e84cca12a41d91042caf9fac332a1aaa3a9b84443a94418",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-extended-compile.log",
+    "sha256": "d5eefdeb2dd257a4d1fb1edd6b0e187d211e582503195c0afbdf586c546eec4a",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-final-edge-diagnostic.log",
+    "sha256": "1b572e5da831c4c698168c7a693dcea610fb314357dc5f9f616c2ddabf6436ce",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-freeze-compile.log",
+    "sha256": "853d7076f89bd91eafb88d221e65ddd8483b25d609a02ec3e888264b7343e1a9",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-global-rule-diagnostic.log",
+    "sha256": "f11a119fd63abe02b8cb55218de0b5174ddd73ca67c8c960640bfdbe1b05315f",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-historical-diagnostic-2.log",
+    "sha256": "b46b27655ac0bd99b17c51ff85bc83d2926e2b75d557ba49b47a2b5b1aa3c450",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-historical-diagnostic.log",
+    "sha256": "17daf04a0553909e20a590b6bf2c722bc4d19369f3d38a2e379f24e2ccafc72c",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-infra-tx-gate-1.log",
+    "sha256": "440adb46ab824f425a739c961a0eae0a213d886edf787debe3ecb77dacfcb5e2",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-infra-tx-gate-2.log",
+    "sha256": "1e0358c4a683a26dff627217f49733328bc40adfe2a566a80dfe34ae178f044b",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-infra-tx-gate-3.log",
+    "sha256": "c9074fbb13b38d1ff8e248979d0fdc947a381aefb5723c5d0f091b962d0afa07",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-late-poison-diagnostic.log",
+    "sha256": "9d2713303fa86cf7bedc5652d3623d234121d2d1ef6935f5e4fdd6aeb91950f3",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-new-proofs-diagnostic.log",
+    "sha256": "5679125aa0dc569913f5507c2b296ef644c25ba82a22fa80f9a0ec4f4dfe6361",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-owner-diagnostic-3.log",
+    "sha256": "9be0e8370e8a607510853c7862e7f868b68b1dce8df5d377b2d5bb645290c2f7",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-owner-diagnostic-4.log",
+    "sha256": "769ffd7073e5c6953ef688712747884187dc8bb80be9b55ac14c890cad7d9636",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-performance-before.log",
+    "sha256": "2652a591b9bd7ab6a266033e7429538e5f1b82002f5deda57d37f2be7c99e59a",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-physical-diagnostic.log",
+    "sha256": "1a50f7209205b2f03d90cb69765c1fbae169ba2a5ac0637236d102a878017ebd",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-poison-cause-diagnostic-2.log",
+    "sha256": "8e5b601851bb454e7e5787686c28c01d860ed791fe544bec6d9382f57cf0752e",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-poison-cause-diagnostic.log",
+    "sha256": "2a7e04ee41b85c606297bbd062a7803f6b890706228d347722db77c4ca88c734",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-ports-compile.log",
+    "sha256": "e11980f248456758c590aa2bb4a2ad610359691636dc11d279a38b4dc5017d9e",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-production-compile.log",
+    "sha256": "a314a8ca2676fd68f1d6a192dfd3dc10347eb92aad48a9ba9e8e4f0874a95ab0",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-runtime-compile.log",
+    "sha256": "65c10caea84f73c7491312dde2080ea65e970dc45847c367ef6b951ad2c53413",
+    "maven_success": true,
+    "maven_failure": false,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-test-compile-2.log",
+    "sha256": "2752ed00921723231792720e8bf04c8737794044965a8b9c5646978c3a10b29f",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-test-compile-3.log",
+    "sha256": "5aa16ef18ea564d227fe94f7c3da14fe7b023a7f2b2d4546032bc45ececdf938",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  },
+  {
+    "log": "i2-test-compile.log",
+    "sha256": "69bc18d5df6d0d8db3df6a261ef97c47810ffc50251490bb4023fd2b7be57b66",
+    "maven_success": false,
+    "maven_failure": true,
+    "note": "Diagnostic only; setup/command failures retained. No canonical gate qualification inferred."
+  }
+]
