@@ -326,6 +326,13 @@
         "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
         "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
         "incompatibleExternalDurableCompositionIsRejectedBeforeSending"
+      ],
+      "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest": [
+        "productionImportsAreNonemptyAndExcludeFixtures",
+        "productionKeepsPureDomainsAndInwardApplicationPorts",
+        "positiveFixturesSatisfyTheSameRules",
+        "eachForbiddenDependencyIsActuallyDetected",
+        "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
       ]
     },
     "capacity": {
@@ -1498,5 +1505,6 @@
     "No G1/G2/G3 or L2 ACCEPTED"
   ],
   "proof_review_correction": "The initial C05-K harness stopped before preparation; replaced with actual RO rollback followed by an injected process stop in classification before cession. C05-B now also forces a real deferred commit rejection. Earlier e9a6848f gates are superseded for final I3 proof.",
-  "acquisition_result": "Acquisition(claims, examinedCount): committed submitted prefix, 0 with no ticket or ownership; UNKNOWN throws and returns no cursor advancement evidence. No navigation I5 implemented."
+  "acquisition_result": "Acquisition(claims, examinedCount): committed submitted prefix, 0 with no ticket or ownership; UNKNOWN throws and returns no cursor advancement evidence. No navigation I5 implemented.",
+  "architecture_review": "The complete e67011af architecture gate exposed the historical exact-value whitelist. Only PartitionLease and LifecycleSettings.RetryPolicy were added; all five foundation direction/negative methods are required and unchanged in intent."
 }

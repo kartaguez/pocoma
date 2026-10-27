@@ -25,6 +25,8 @@ Les transactions techniques configurent localement `lock_timeout` (500 ms pilote
 
 La fabrique vérifie les droits de la **source réellement injectée** en plus des deux cibles du garde. Elle refuse moins de M_W+4 connexions déclarées, et contrôle le maximum réel pour Hikari. Pour une source sans pool exposé, le nombre est une précondition déclarée, pas une réservation. Aucun exécuteur ni admission globale des emprunteurs n’est livré ; accès garanti sous saturation uniquement pour le harnais explicitement inventorié, qualification intégrée I5 INCONCLUSIVE.
 
+Le premier gate global complet sur `e67011af` a exécuté 1 761 tests et détecté une seule règle historique d’inventaire : `V3FoundationArchitectureTest` n’énumère que ClaimedSlot/RecoveryObservation parmi les valeurs pures Engine autorisées aux ports. Ajouter à la liste exacte **PartitionLease** et **LifecycleSettings.RetryPolicy**, sans autoriser les implémentations Engine ou les frameworks, et conserver tous les négatifs. Révision du tableau §10 : **M architecture-tests/test `architecture/v3/V3FoundationArchitectureTest.java`**, nécessaire au nouveau contrat pur. Aucun franchissement productif ni full reactor requis ; gate échoué conservé, architecture à rejouer après correction.
+
 Les deux nouveaux fichiers de banc PRIMARY sont placés dans le package de test `v3`, comme I2, pour réutiliser le proxy filaire existant sans le rendre public ni le dupliquer. Leur module et leur portée ne changent pas.
 
 ## 1. Référentiel, autorité et limites

@@ -97,10 +97,15 @@ class V3FoundationArchitectureTest {
                                         || (pkg.startsWith(root + ".engine.")
                                                 && (pkg.endsWith(".port")
                                                         || pkg.contains(".port.")))) return true;
-                                // Pure I2 execution values used by the slot and observation ports.
+                                // Precisely enumerated pure I2/I3 values, never Engine
+                                // implementations.
                                 if (root.equals(ROOT)
                                         && java.util.Set.of(
                                                         ROOT + ".engine.consumption.v3.ClaimedSlot",
+                                                        ROOT
+                                                                + ".engine.consumption.v3.PartitionLease",
+                                                        ROOT
+                                                                + ".engine.consumption.v3.LifecycleSettings$RetryPolicy",
                                                         ROOT
                                                                 + ".engine.consumption.v3.RecoveryObservation")
                                                 .contains(type.getName())) return true;
