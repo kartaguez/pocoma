@@ -1,0 +1,159 @@
+{
+  "baseline": "222e06c21a5f0b0ebe35befc693db02d9b919cd2",
+  "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+  "scope": "I3 post-audit local bounded corrections only",
+  "global_L2": "INCONCLUSIVE; no ACCEPTED or G1/G2/G3",
+  "full_reactor_executed": false,
+  "gates": [
+    {
+      "gate": "command",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "started_epoch": 1793124249.658462,
+      "elapsed_seconds": 439.732,
+      "exit_code": 0,
+      "tests": 1513,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 265,
+      "verdict": "PASS",
+      "log_sha256": "74ef057904a1907afd2a4273ec628e343e232fbdcb5f340c87229afd14f69927",
+      "archive": "command-3ee57594.tar.gz",
+      "sha256": "7223417bb1afb2a15d0129756f858980464a39c4fb0696886343bcf699f45966",
+      "result_sha256": "3fa03b941420bdcccf9cb9f0c76f380f41bd8ef88cbeca498f425dbc4af62250",
+      "artifacts": 746
+    },
+    {
+      "gate": "read",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-read-jdbc",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "started_epoch": 1793124736.097446,
+      "elapsed_seconds": 21.548,
+      "exit_code": 0,
+      "tests": 363,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 1,
+      "verdict": "PASS",
+      "log_sha256": "3a7475fed42041b972be97d00dc922b20bf57555ef2a9f6db95de6341db48e44",
+      "archive": "read-3ee57594.tar.gz",
+      "sha256": "bb11d26c93e4ccc662e0fbb248ac37a3030e8c8b635dbcb88fb54df411c92f45",
+      "result_sha256": "2dcc0925fdfa10ebe6bff62bd3ef1c991bfa146cc84ec04dbbe7386e8a9efabf",
+      "artifacts": 85
+    },
+    {
+      "gate": "monolith",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "started_epoch": 1793124780.483721,
+      "elapsed_seconds": 344.878,
+      "exit_code": 0,
+      "tests": 1272,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 252,
+      "verdict": "PASS",
+      "log_sha256": "8296d504e2dab099f9899b33d65c2c248604bec9821f1a2aca6527995fe176f5",
+      "archive": "monolith-3ee57594.tar.gz",
+      "sha256": "7d47dfe6065ffbf8a6bc221802d040b60c6cfe25106883291269c19db7e13052",
+      "result_sha256": "39cf3adeb9140e55383cf47ef8978c9b9095b14e580a13f6eafe9c4091bb70db",
+      "artifacts": 716
+    },
+    {
+      "gate": "architecture",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "started_epoch": 1793125153.588727,
+      "elapsed_seconds": 548.009,
+      "exit_code": 0,
+      "tests": 1777,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 286,
+      "verdict": "PASS",
+      "log_sha256": "728816cfdd39793cf654a967d187b28f9a4135868be9ef1938eb9bae9c8b571a",
+      "archive": "architecture-3ee57594.tar.gz",
+      "sha256": "8e37e57cc20682fe1650ddfc6b3f73fd073a8e1965578580abdaccc78c80e4c5",
+      "result_sha256": "f4e3f0a6b99b294e7ac10d3cf0840357acecd9b09981163353dc5c8e86863933",
+      "artifacts": 800
+    }
+  ],
+  "supplementary_artifacts": [
+    {
+      "path": "Code-freeze.json",
+      "sha256": "a91f48c77c46155db6cbdaa218d000cc4c984a87158da998dd5b458a4897e3f6"
+    },
+    {
+      "path": "Diagnostic-commands.json",
+      "sha256": "39ce555d07984b13c9063eff2d25eda2699a38197efd5f269eb91f88ab62b8f3"
+    },
+    {
+      "path": "Invariant-preservation.json",
+      "sha256": "00284a6276d5edc222ce0d8f21bddab4410408381efa90bbc88bdb1d5e0a7bd9"
+    },
+    {
+      "path": "Non-regression-inventory.json",
+      "sha256": "d85497b38ea7c9cbafab0041ba0b7611cddaf6f95bd6afae77b7f5f9b36227c7"
+    },
+    {
+      "path": "Observed-interleavings.json",
+      "sha256": "8199986cb74b32401dfef769ca422612ecc455081fac89e0fd755dcb2dd56850"
+    },
+    {
+      "path": "Preserved-user-worktree.txt",
+      "sha256": "276f6cb58c83987fb30519f255793e1da704c50588b58f109c121f46d956639f"
+    },
+    {
+      "path": "audit-archives.py",
+      "sha256": "659bddcf6bb0ca7ba1f86ceebe35c0e1c879d1e22d67325769fc61e0c2f8674f"
+    },
+    {
+      "path": "diagnostics.tar.gz",
+      "sha256": "52613e569046f0c484cf5d0e0749ad14f1267da54302b0a64306ff1c80938f4f"
+    },
+    {
+      "path": "run-gate.py",
+      "sha256": "2c4ef5d70fda483b78d5554d3aef67b2a735dccf95e2ccb898a8c3d9c14715ee"
+    }
+  ]
+}

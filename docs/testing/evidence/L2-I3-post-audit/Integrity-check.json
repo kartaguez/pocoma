@@ -1,0 +1,44 @@
+{
+  "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+  "code_unchanged_since_gates": true,
+  "all_four_unfiltered_gates_verified": true,
+  "checks": [
+    {
+      "gate": "command",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "tests": 1513,
+      "artifacts": 746,
+      "physical_requirements": 97,
+      "required_methods": 265,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "read",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "tests": 363,
+      "artifacts": 85,
+      "physical_requirements": 1,
+      "required_methods": 1,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "monolith",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "tests": 1272,
+      "artifacts": 716,
+      "physical_requirements": 91,
+      "required_methods": 252,
+      "verdict": "PASS"
+    },
+    {
+      "gate": "architecture",
+      "sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+      "tests": 1777,
+      "artifacts": 800,
+      "physical_requirements": 97,
+      "required_methods": 286,
+      "verdict": "PASS"
+    }
+  ],
+  "limits": "Local bounded corrections only; global L2 and I5 resources remain INCONCLUSIVE"
+}

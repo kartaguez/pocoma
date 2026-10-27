@@ -1,10 +1,10 @@
 # Pocoma V3 — L2 / I3 : corrections post-audit indépendant
 
-**27 octobre 2026 — EN COURS : corrections et reproductions ciblées effectuées, gates frais à exécuter.**
+**27 octobre 2026 — CLOSED / LOCAL BOUNDED PASS des corrections post-audit I3.**
 
 Mandat : R-AUD-I3-01 et R-AUD-I3-02 exclusivement. R-AUD-I3-03 reste reporté à I5, **INCONCLUSIVE**. Aucun I4/I5, Worker actif, déploiement, ACCEPTED L2 ou franchissement G1/G2/G3.
 
-## Références et périmètre déclaré avant implementation
+## Références et périmètre déclaré avant implémentation
 
 SHA initial distant vérifié par `git ls-remote origin refs/heads/feat/v3-architecture` : **`222e06c21a5f0b0ebe35befc693db02d9b919cd2`**. Code historique I3 : `1d7cf51c13671c7c85a5c9c1281f526be2b2abfb`. Ces résultats historiques ne sont pas utilisés comme preuves des corrections. Worktree de livraison isolé `/private/tmp/pocoma-v3-i3-audit-fixes`, HEAD détachée sur la lignée distante ; destination exclusive `origin/feat/v3-architecture`, sans déplacement de la branche locale occupée dans un worktree préexistant.
 
@@ -42,7 +42,7 @@ Les reproductions ajoutées à `ConsumptionFailureClassificationTest` échouent 
 | Exception brute du port owner, de début/cleanup, ou Error sans `Failure` exploitable | Aucune résolution prouvée dans Engine | Conserver le ticket, inspection existante après fin locale |
 | Annulation/interruption/expiration/timeout | Aucune preuve physique en soi | Aucun droit supplémentaire de restitution ou de comptabilisation |
 
-Les adaptateurs SQL et le participant peuvent lever des erreurs applicatives/JDBC/JPA. Le véritable `SpringAttemptTransactions` transforme les RuntimeException du callback/begin/commit/rollback en `Failure` selon les preuves physiques, sauf son refus d'ambiance préalable ; un Error peut s'échapper sans résolution qualifiée. Les ports injectés n'imposent pas de clause checked et peuvent aussi lever une exception brute ; Engine ne peut pas lui inventer une résolution. `observe` et l'inspection indisponibles restent conservateurs. La classification est un port injecté sans owner transactionnel : ses exceptions ne sont pas automatiquement des `Failure` transactionnelles.
+Le contrôle initial de handle refuse un propriétaire étranger ou un usage répété avant toute nouvelle tentative, sans restitution du ticket de l'appel déjà actif. Les adaptateurs SQL et le participant peuvent lever des erreurs applicatives/JDBC/JPA. Le véritable `SpringAttemptTransactions` transforme les RuntimeException du callback/begin/commit/rollback en `Failure` selon les preuves physiques, sauf son refus d'ambiance préalable ; un Error peut s'échapper sans résolution qualifiée. Les ports injectés n'imposent pas de clause checked et peuvent aussi lever une exception brute ; Engine ne peut pas lui inventer une résolution. `observe` et l'inspection indisponibles restent conservateurs. La classification est un port injecté sans owner transactionnel : ses exceptions ne sont pas automatiquement des `Failure` transactionnelles.
 
 ### Modification minimale
 
@@ -81,13 +81,13 @@ Les scénarios historiques frais `i3_c05_h`, `i3_capacity_uncertainty`, les 142 
 
 Fin locale effective **et** dernière résolution physique connue, ou inspection technique suffisante, restent nécessaires. Une transaction physique encore ouverte garde son ticket ; un slot absent après tentative exige R9 COMPLETED cohérent. Aucun UNKNOWN, timeout ou signal de cancellation n'est converti en rollback. Aucune relance de tentative, cession ou publication après issue incertaine. Aucun incrément sans rollback certain et cause comptabilisable. M_C/M_W, restitution idempotente, guards/poisoning/ordre/suffixe et toutes les contraintes I2 restent inchangés.
 
-Les ressources globales d'un Worker actif, tous ses emprunteurs et exécuteurs, ses cadences/accès réservés restent **I5 INCONCLUSIVE**. Le dimensionnement et le harnais de saturation existants restent inchangés. Pas de nouveau pool, thread de renouvellement, scheduler ou admission globale. READ reste un effet technique de fixture, Identity une fixture ; aucune projection/producteur absent n'est certifié.
+Les ressources globales d'un Worker actif, tous ses emprunteurs et exécuteurs, ses cadences/accès réservés restent **I5 INCONCLUSIVE**. Le dimensionnement et le harnais de saturation existants restent inchangés. Pas de nouveau pool, thread de renouvellement, scheduler ou admission globale. READ reste un effet technique de fixture, Identity une fixture ; aucune projection/producteur absent n'est certifié. Une exception brute du port owner qui masque sa résolution reste conservativement inspectable ; I3 n'ajoute aucune orchestration automatique des réservations réellement incertaines.
 
 ## Gates frais, provenance et livraison
 
-**À compléter après gel du code et exécution des quatre gates.** Aucun PASS de clôture n'est présumé à ce stade.
+**SHA final de code/tests vérifié : `3ee575940669feb56b73b10122b5a3406bce6a08`.** Les quatre gates ont été exécutés sur ce même commit, app/scripts propres avant chaque lancement. Le commit de clôture ajoute seulement documentation et preuves ; l'égalité de son code avec ce SHA est contrôlée par Git et SHA256. Le SHA de livraison documentaire et la concordance distante sont fournis dans le reçu final, sans auto-inscription circulaire dans ce document.
 
-Collecteur réutilisé sans modification : [verify-v3-l2-i3.py](../../scripts/testing/verify-v3-l2-i3.py), via [run-gate.py](../testing/evidence/L2-I3-post-audit/run-gate.py) et le [manifeste post-audit](L2_I3_Post_Audit_Proof_Manifest.json). Commandes Maven exactes depuis `app/`, sans filtre ni exclusion :
+Collecteur réutilisé sans modification : [verify-v3-l2-i3.py](../../scripts/testing/verify-v3-l2-i3.py), via [run-gate.py](../testing/evidence/L2-I3-post-audit/run-gate.py) et le [manifeste post-audit](L2_I3_Post_Audit_Proof_Manifest.json). Commandes Maven effectivement exécutées depuis `app/`, sans filtre ni exclusion :
 
 ```sh
 ./mvnw -pl runtime-command-consumption-worker -am test
@@ -96,6 +96,55 @@ Collecteur réutilisé sans modification : [verify-v3-l2-i3.py](../../scripts/te
 ./mvnw -pl architecture-tests -am test
 ```
 
-Le gel app/scripts est vérifié avant chaque gate. XML et traces doivent être frais, méthodes obligatoires présentes une seule fois et sans skip, sous-variantes physiques présentes. Un skip historique éventuel reste un skip. Aucun test absent, omis ou interrompu ne vaut PASS. Les archives conserveront aussi les échecs de reproduction.
+| Gate frais | Testcases XML | Échecs/erreurs | Skips | Méthodes obligatoires présentes et PASS | Verdict |
+|---|---:|---:|---:|---:|---|
+| COMMAND | 1513 | 0 | 1 | 265 | PASS |
+| READ | 363 | 0 | 0 | 1 | PASS |
+| MONOLITH | 1272 | 0 | 0 | 252 | PASS |
+| ARCHITECTURE | 1777 | 0 | 1 | 286 | PASS |
 
-**Verdict à ce stade : certification finale en attente.** Les limites globales restent inchangées, aucun G1/G2/G3 ni ACCEPTED L2. Arrêt impératif après ces corrections.
+Le seul skip, COMMAND/ARCHITECTURE, est `TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness`, essai exploratoire historique hors obligations I3 ; il ne vaut pas PASS. Les méthodes obligatoires n'ont aucun skip. Les comptes ne sont pas additionnés entre gates. Les dix méthodes composites tournent dans COMMAND/ARCHITECTURE ; les cinq tests Engine et 45 méthodes PostgreSQL lifecycle (chacune WRITE et READ) sont également frais dans MONOLITH. La fabrique Command réellement testée conserve son unique owner WRITE et son filtre commun avant spécialisation métier.
+
+L'[audit des archives](../testing/evidence/L2-I3-post-audit/audit-archives.py), distinct du collecteur, a reparsé les XML, contrôlé l'unicité et l'état des méthodes obligatoires, les timestamps, chaque empreinte d'artefact et les sous-variantes physiques, puis vérifié l'égalité app/scripts avec le commit testé : [Integrity-check.json](../testing/evidence/L2-I3-post-audit/Integrity-check.json). Il a vérifié **746 / 85 / 716 / 800 artefacts frais** et **97 / 1 / 91 / 97 fichiers de preuves physiques requis**, respectivement. Archives et SHA256 : [Gate-index.json](../testing/evidence/L2-I3-post-audit/Gate-index.json), mode d'emploi et sources : [dossier de preuves](../testing/evidence/L2-I3-post-audit/README.md).
+
+### Observations effectivement exécutées
+
+Les [extraits verbatim](../testing/evidence/L2-I3-post-audit/Observed-interleavings.json) renvoient aux traces physiques fraîches COMMAND ; chaque archive contient aussi les snapshots SQL extérieurs complets et les XML. Exemples de cette campagne, sans généraliser les valeurs jetables :
+
+| Scénario / interleaving | Observation et assertions exécutées |
+|---|---|
+| Classifier RuntimeException / Error / null après effets puis rollback réel | WRITE et READ : ROLLED_BACK, ticket 1→0 sans inspection, slot inchangé, zéro effet/cession/budget ; acquisition ultérieure et commit réussis |
+| Callback de classification maintenu à une barrière après rollback | Deux inspections concurrentes rendent 0, ticket=1, acquisition refusée ; après sortie locale, ticket=0 et nouvelle acquisition possible |
+| Cession avec UPDATE puis exception inattendue | Rollback physique réel, count=0 et ligne identique ; résolution portée par Failure : restitution immédiate ; résolution masquée par le port de test : ticket conservé jusqu'à inspection, deux settle rendent au total 1 ; jamais de seconde cession |
+| Cession UNKNOWN dont PostgreSQL reste actif après retour local | WRITE : PID 5735, XID 3129, xact_start non NULL ; UPDATE non committé, ticket=1 après deadline, inspection saute le verrou ; rollback explicite puis somme de deux restitutions=1, ticket=0 et count=0 ; variante READ également PASS |
+| ACK de cession perdu avant / après COMMIT | Vraies coupures filaires WRITE/READ, cessionResolution UNKNOWN ; count extérieur 0 / 1 selon coupure, jamais de répétition |
+| Slot absent après tentative UNKNOWN | R9 incohérent retient la capacité ; R9 COMPLETED cohérent autorise une seule restitution ; aucun effet/budget supplémentaire |
+| Résolution physique avant sortie du callback local, avec cancellation | Le ticket reste occupé jusqu'à sortie locale effective ; ni absence de transaction active ni Future.cancel ne suffisent isolément |
+
+Les invariants I2/I3 sont aussi établis par les preuves fraîches obligatoires : 142 méthodes I2, neuf méthodes owner, régressions L1-C/F/F2, densité/suffixe/poisoning/R9 et règles d'architecture. [Invariant-preservation.json](../testing/evidence/L2-I3-post-audit/Invariant-preservation.json) confirme en plus que les corps I2 `executeAttempt/finalizeAttempt/observe/Completion` et `settlePending` sont identiques octet pour octet ; seuls les deux fichiers productifs annoncés changent. [Non-regression-inventory.json](../testing/evidence/L2-I3-post-audit/Non-regression-inventory.json) contrôle le corps inchangé de `i3_capacity_uncertainty` et le sur-ensemble exact des obligations/traces historiques.
+
+### Reproductions, commandes complémentaires et limites des logs
+
+[Diagnostic-commands.json](../testing/evidence/L2-I3-post-audit/Diagnostic-commands.json) donne **toutes les commandes de reproduction/ciblage**, leur répertoire, leurs logs et leurs résultats. L'archive `diagnostics.tar.gz` conserve les échecs avant correction : deux reproductions Engine échouées et deux méthodes composites échouées, avec leurs XML ; puis les campagnes ciblées réussies, dont la dernière de **23 méthodes**, sans échec/skip, avec les variantes PostgreSQL WRITE/READ. Ces tests ciblés ont été exécutés avant les gates ; ils ne les remplacent pas.
+
+Autres commandes effectivement exécutées :
+
+```sh
+python3 -B -m unittest scripts/testing/test_i3_evidence.py
+python3 -B docs/v3/check_l2_manifest.py
+python3 -B scripts/v3/check-routing-vectors.py
+python3 -B docs/testing/evidence/L2-I3-post-audit/audit-archives.py
+git diff --check
+```
+
+Six tests du collecteur PASS ; contrôle du manifeste normatif sans perte d'allocation ; 21 vecteurs de routage PASS. Le recontrôle d'archives et Git ne remplace aucun oracle métier. Les avertissements historiques de pools après arrêt de conteneurs et de sortie tardive du JVM Surefire après `System.exit(0)` sont conservés ; aucune modification de timeout/skip pour les masquer. Maven retourne zéro et les XML frais obligatoires sont tous présents et PASS ; aucun timeout de scénario I3 n'est requalifié en succès.
+
+Les suites historiques transitives ont réellement rejoué leurs migrations de test V2 (WRITE jusqu'à V31, READ jusqu'à V14 suivant les modules), comme imposé par les fermetures canoniques. Le banc de correction utilise exclusivement les migrations V3 existantes sur des cibles neuves et jetables. Aucun schéma productif ni environnement existant migré/purgé.
+
+### Delta et verdict borné
+
+Liste exacte des fichiers : [Delivery-files.txt](../testing/evidence/L2-I3-post-audit/Delivery-files.txt). Impact productif attendu **et observé** : Engine et classification composite seulement. **Aucun franchissement de slice inattendu.** Architecture globale **requise et exécutée PASS** ; full reactor `./mvnw test` **non requis et non exécuté**, pour ce correctif borné sans modification du graphe ou protocole I2, sans clôture majeure L2 ni intégration main. Les fixtures, scripts SQL, ressources, pools et bornes du harnais existant sont conservés.
+
+**R-AUD-I3-01 : défaut confirmé, corrigé et vérifié localement. R-AUD-I3-02 : priorité conservatrice validée ; deux lacunes ciblées reproduites, corrigées et vérifiées. Verdict des corrections : CLOSED / LOCAL BOUNDED PASS.** R-AUD-I3-03 demeure **I5 INCONCLUSIVE**, sans promotion au PASS. **L2 global INCONCLUSIVE, non ACCEPTED ; aucun G1/G2/G3.** Arrêt après ces corrections ; aucune poursuite I4/I5 ni activation production.
+
+Publication autorisée exclusivement vers `origin/feat/v3-architecture`, sans force. Le distant initial a été vérifié avant modification ; il est recontrôlé avant push, puis le reçu de livraison donne le SHA final, sa concordance distante et la propreté du worktree isolé. Les autres branches/checkouts et travaux préexistants restent préservés.

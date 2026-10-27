@@ -1,0 +1,12 @@
+{
+  "baseline_sha": "222e06c21a5f0b0ebe35befc693db02d9b919cd2",
+  "tested_code_sha": "3ee575940669feb56b73b10122b5a3406bce6a08",
+  "I2_executeAttempt_finalize_observe_completion_byte_identical": true,
+  "settlePending_byte_identical": true,
+  "changed_production_files": [
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+    "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java"
+  ],
+  "migrations_poms_SQL_adapters_transaction_owner_capacity_unchanged": true,
+  "predicate": "git diff baseline...code SHA: no other production file changed"
+}

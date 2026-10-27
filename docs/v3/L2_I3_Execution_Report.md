@@ -1,3 +1,5 @@
+> **Complément du 27-10-2026 :** les réserves post-audit R-AUD-I3-01/02 sont corrigées et vérifiées par quatre gates frais sur `3ee575940669feb56b73b10122b5a3406bce6a08`. Voir le [rapport dédié](L2_I3_Post_Audit_Corrections_Report.md) et ses archives. Le rapport historique ci-dessous conserve ses SHA/preuves ; aucun PASS global L2 ni garantie de ressources I5 supplémentaire.
+
 # L2 / I3 — Consumption Lifecycle : rapport d’exécution
 
 **27 octobre 2026 — I3 CLOSED / LOCAL BOUNDED PASS — AUDIT INDÉPENDANT CODE + PREUVES PENDING.**

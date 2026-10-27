@@ -1,0 +1,15 @@
+{
+  "reproduction_baseline_production_sha": "222e06c21a5f0b0ebe35befc693db02d9b919cd2",
+  "note": "Reproductions used newly added uncommitted tests against baseline production; later targeted tests used the corrections before code freeze. These diagnostics are not final gates.",
+  "commands": [
+    {"cwd":"app/", "command":"./mvnw -pl engine-consumption -am test -Dtest=ConsumptionFailureClassificationTest -Dsurefire.failIfNoSpecifiedTests=false", "log":"diagnostics/reproduction.log", "exit_code":1, "result":"5 tests, 2 reproduced failures"},
+    {"cwd":"app/", "command":"./mvnw -pl infra-persistence-primary-jpa -am test -Dtest=ConsumptionFailureClassificationTest,ConsumptionLifecyclePostgresTest#i3_audit_classifier_exits+i3_audit_classifier_active+i3_audit_cession_failure+i3_capacity_uncertainty+i3_c05_h+i3_c05_k -Dsurefire.failIfNoSpecifiedTests=false", "log":"diagnostics/exceptional-exits.log", "exit_code":0, "result":"11 tests pass"},
+    {"cwd":"repository root", "command":"./app/mvnw -f app/pom.xml -pl runtime-command-consumption-worker -am test -Dtest=ConsumptionCompositeClassificationTest -Dsurefire.failIfNoSpecifiedTests=false", "log":"diagnostics/composite-reproduction.log", "exit_code":1, "result":"10 tests, 2 reproduced failures"},
+    {"cwd":"repository root", "command":"./app/mvnw -f app/pom.xml -pl runtime-command-consumption-worker -am test -Dtest=ConsumptionCompositeClassificationTest,V3PotCommandCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false", "log":"diagnostics/composite-fixed.log", "exit_code":0, "result":"11 tests pass"},
+    {"cwd":"repository root", "command":"./app/mvnw -f app/pom.xml -pl runtime-command-consumption-worker -am test -Dtest=ConsumptionFailureClassificationTest,ConsumptionCompositeClassificationTest,V3PotCommandCompositionPostgresTest,ConsumptionLifecyclePostgresTest#i3_audit_classifier_exits+i3_audit_classifier_active+i3_audit_cession_failure+i3_audit_cession_unknown_active+i3_capacity_uncertainty+i3_c05_h+i3_c05_k -Dsurefire.failIfNoSpecifiedTests=false", "log":"diagnostics/targeted-final.log", "exit_code":0, "result":"23 tests pass; PostgreSQL lifecycle methods each execute WRITE and READ"},
+    {"cwd":"repository root", "command":"python3 -B -m unittest scripts/testing/test_i3_evidence.py", "log":"diagnostics/collector-tests.log", "exit_code":0},
+    {"cwd":"repository root", "command":"python3 -B docs/v3/check_l2_manifest.py", "log":"diagnostics/l2-manifest.log", "exit_code":0},
+    {"cwd":"repository root", "command":"python3 -B scripts/v3/check-routing-vectors.py", "log":"diagnostics/routing.log", "exit_code":0},
+    {"cwd":"repository root", "command":"git diff --check", "exit_code":0}
+  ]
+}

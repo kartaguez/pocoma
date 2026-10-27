@@ -1,0 +1,11 @@
+{
+  "uncertainty_test_body_byte_identical": true,
+  "historical_required_methods_preserved": true,
+  "historical_physical_requirements_preserved": true,
+  "new_required_methods_by_gate": {
+    "command": 265,
+    "read": 1,
+    "monolith": 252,
+    "architecture": 286
+  }
+}
