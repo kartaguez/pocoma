@@ -1385,8 +1385,9 @@ class ConsumptionLifecyclePostgresTest {
                     f.noEffects(id);
                     assertEquals(0, f.row(id).get("attempt_count"));
                     assertEquals(h.claim().claimToken(), f.row(id).get("claim_token"));
-                    assertEquals(1, f.capacity.snapshot().worker());
-                    assertEquals(1, e.settlePending());
+                    // Classification stopped after a known rollback: no inspection is needed.
+                    assertEquals(0, f.capacity.snapshot().worker());
+                    assertEquals(0, e.settlePending());
                     f.expire(id);
                     var restarted = f.engine();
                     completed(f, restarted, acquire(f, restarted, lease, id));
@@ -2023,6 +2024,16 @@ class ConsumptionLifecyclePostgresTest {
     }
 
     void unresolvedPhysicalFinalization(ConsumptionLifecyclePostgresFixture f) throws Exception {
+        unresolvedPhysicalTransaction(f, false);
+    }
+
+    @Test
+    void i3_audit_cession_unknown_active() throws Exception {
+        both(f -> unresolvedPhysicalTransaction(f, true));
+    }
+
+    void unresolvedPhysicalTransaction(ConsumptionLifecyclePostgresFixture f, boolean cession)
+            throws Exception {
         var arm = new AtomicBoolean();
         var physical = new AtomicReference<Connection>();
         var source =
@@ -2093,7 +2104,10 @@ class ConsumptionLifecyclePostgresTest {
                             f.definition,
                             tx,
                             new JdbcConsumptionSlotStore(source),
-                            f.participantFor(source, real),
+                            cession
+                                    ? preparationFailure(
+                                            f, new IllegalStateException("before cession"))
+                                    : f.participantFor(source, real),
                             new JdbcPartitionOwnershipStore(source),
                             f.settings,
                             capacity,
@@ -2109,16 +2123,42 @@ class ConsumptionLifecyclePostgresTest {
             var deadline = ((Timestamp) f.row(id).get("claimed_until")).toInstant();
             enable.set(true);
             var result = e.execute(h);
-            assertEquals(Resolution.UNKNOWN, result.resolution());
+            assertEquals(
+                    cession ? Resolution.ROLLED_BACK : Resolution.UNKNOWN, result.resolution());
+            if (cession) assertEquals(Resolution.UNKNOWN, result.cessionResolution());
             assertNotNull(physical.get());
+            try (var statement = physical.get().createStatement();
+                    var row =
+                            statement.executeQuery(
+                                    "select pg_backend_pid(),pg_current_xact_id()::text")) {
+                assertTrue(row.next());
+                int physicalPid = row.getInt(1);
+                assertTrue(
+                        f.oracle.queryForObject(
+                                "select exists(select 1 from pg_stat_activity where pid=? and"
+                                    + " xact_start is not null)",
+                                Boolean.class,
+                                physicalPid));
+                f.trace.add(
+                        "AUDIT physical transaction active after local exit cession="
+                                + cession
+                                + " PID="
+                                + physicalPid
+                                + " XID="
+                                + row.getString(2));
+            }
             f.noEffects(id);
             assertEquals(1, capacity.snapshot().worker());
             f.await(() -> f.now().isAfter(deadline));
             assertEquals(0, e.settlePending());
             assertTrue(e.acquire(lease, List.of(f.seed(0))).claims().isEmpty());
             f.trace.add(
-                    "local Engine exited; physical final transaction still open, uncommitted"
-                            + " DELETE/expected effects; capacity="
+                    (cession
+                                    ? "local Engine exited; physical cession transaction still"
+                                          + " open, uncommitted UPDATE"
+                                    : "local Engine exited; physical final transaction still open,"
+                                          + " uncommitted DELETE/expected effects")
+                            + "; capacity="
                             + capacity.snapshot()
                             + " DB="
                             + f.now());
@@ -2341,6 +2381,270 @@ class ConsumptionLifecyclePostgresTest {
         assertEquals(0, e.settlePending());
         assertEquals(0, capacity.snapshot().worker());
         f.trace.add("absent slot did not release until coherent business R9; no replay/no budget");
+    }
+
+    @Test
+    void i3_audit_classifier_exits() throws Exception {
+        both(
+                f -> {
+                    for (String mode : List.of("runtime", "error", "null")) {
+                        var fault = new IllegalStateException("classifier failure");
+                        var fatal = new AssertionError("classifier error");
+                        var rollback = new AtomicReference<Resolution>();
+                        var failOnce = new AtomicBoolean(true);
+                        var owner =
+                                new ForwardingTransactions(f.tx) {
+                                    public <T> T write(Supplier<T> action) {
+                                        try {
+                                            return f.tx.write(action);
+                                        } catch (Failure failure) {
+                                            rollback.set(failure.resolution());
+                                            throw failure;
+                                        }
+                                    }
+                                };
+                        var cessions = new AtomicInteger();
+                        var capacity = new WorkerCapacity(1, Map.of(f.definition.id(), 1));
+                        var e =
+                                new ConsumptionEngine(
+                                        f.definition,
+                                        owner,
+                                        intercept(
+                                                f,
+                                                (name, args) -> {
+                                                    if (name.equals("cede"))
+                                                        cessions.incrementAndGet();
+                                                }),
+                                        wrap(
+                                                f,
+                                                p -> {},
+                                                p -> {
+                                                    if (failOnce.compareAndSet(true, false))
+                                                        throw new IllegalStateException(
+                                                                "after effects and publication");
+                                                }),
+                                        f.ownership,
+                                        f.settings,
+                                        capacity,
+                                        cause -> {
+                                            assertEquals(Resolution.ROLLED_BACK, rollback.get());
+                                            assertEquals(1, capacity.snapshot().worker());
+                                            if (mode.equals("runtime")) throw fault;
+                                            if (mode.equals("error")) throw fatal;
+                                            return null;
+                                        });
+                        f.expireLease(0);
+                        var lease = e.acquirePartition(0).orElseThrow();
+                        var id = f.seed(0);
+                        var h = acquire(f, e, lease, id);
+                        var before = f.row(id);
+                        if (mode.equals("runtime"))
+                            assertSame(
+                                    fault,
+                                    assertThrows(IllegalStateException.class, () -> e.execute(h)));
+                        else if (mode.equals("error"))
+                            assertSame(
+                                    fatal, assertThrows(AssertionError.class, () -> e.execute(h)));
+                        else assertThrows(NullPointerException.class, () -> e.execute(h));
+                        assertEquals(before, f.row(id));
+                        f.noEffects(id);
+                        assertEquals(0, cessions.get());
+                        assertEquals(0, capacity.snapshot().worker());
+                        assertEquals(0, capacity.snapshot().consumptions().get(f.definition.id()));
+                        assertEquals(0, e.settlePending());
+                        assertThrows(IllegalArgumentException.class, () -> e.execute(h));
+                        var next = f.seed(0);
+                        completed(f, e, acquire(f, e, lease, next));
+                        assertEquals(0, capacity.snapshot().worker());
+                        f.trace.add(
+                                "AUDIT classifier="
+                                        + mode
+                                        + " physical="
+                                        + rollback.get()
+                                        + " ticket=1->0 without inspection; no cession; subsequent"
+                                        + " acquisition committed");
+                    }
+                });
+    }
+
+    @Test
+    void i3_audit_classifier_active() throws Exception {
+        both(
+                f -> {
+                    var entered = new CountDownLatch(1);
+                    var finish = new CountDownLatch(1);
+                    var capacity = new WorkerCapacity(1, Map.of(f.definition.id(), 1));
+                    var fault = new IllegalStateException("classifier exits after barrier");
+                    var e =
+                            new ConsumptionEngine(
+                                    f.definition,
+                                    f.tx,
+                                    f.slots,
+                                    preparationFailure(
+                                            f, new IllegalStateException("preparation rollback")),
+                                    f.ownership,
+                                    f.settings,
+                                    capacity,
+                                    cause -> {
+                                        entered.countDown();
+                                        latch(finish);
+                                        throw fault;
+                                    });
+                    var lease = e.acquirePartition(0).orElseThrow();
+                    var id = f.seed(0);
+                    var h = acquire(f, e, lease, id);
+                    var task =
+                            f.threads.submit(
+                                    () ->
+                                            assertSame(
+                                                    fault,
+                                                    assertThrows(
+                                                            IllegalStateException.class,
+                                                            () -> e.execute(h))));
+                    try {
+                        latch(entered);
+                        var a = f.threads.submit(e::settlePending);
+                        var b = f.threads.submit(e::settlePending);
+                        assertEquals(0, a.get(8, TimeUnit.SECONDS) + b.get(8, TimeUnit.SECONDS));
+                        assertEquals(1, capacity.snapshot().worker());
+                        assertTrue(e.acquire(lease, List.of(f.seed(0))).claims().isEmpty());
+                        f.noEffects(id);
+                        f.trace.add(
+                                "AUDIT classifier callback active after rollback; two"
+                                        + " inspections=0; ticket=1");
+                    } finally {
+                        finish.countDown();
+                    }
+                    task.get(8, TimeUnit.SECONDS);
+                    assertEquals(0, capacity.snapshot().worker());
+                    assertEquals(0, e.settlePending());
+                    e.abandon(acquire(f, e, lease, f.seed(0)));
+                    assertEquals(0, capacity.snapshot().worker());
+                    f.trace.add(
+                            "AUDIT classifier local exit confirmed; ticket=0; capacity reacquired"
+                                    + " once");
+                });
+    }
+
+    @Test
+    void i3_audit_cession_failure() throws Exception {
+        both(
+                f -> {
+                    for (boolean unreported : List.of(false, true)) {
+                        var armed = new AtomicBoolean();
+                        var cessions = new AtomicInteger();
+                        var rollback = new AtomicReference<Resolution>();
+                        var fault = new IllegalStateException("unexpected cession fault after SQL");
+                        var owner =
+                                new ForwardingTransactions(f.tx) {
+                                    public <T> T write(Supplier<T> action) {
+                                        try {
+                                            return f.tx.write(action);
+                                        } catch (Failure failure) {
+                                            rollback.set(failure.resolution());
+                                            if (unreported && armed.compareAndSet(true, false))
+                                                throw fault;
+                                            throw failure;
+                                        }
+                                    }
+                                };
+                        var store =
+                                (ConsumptionSlotStore)
+                                        Proxy.newProxyInstance(
+                                                getClass().getClassLoader(),
+                                                new Class<?>[] {ConsumptionSlotStore.class},
+                                                (proxy, method, args) -> {
+                                                    Object value;
+                                                    try {
+                                                        value = method.invoke(f.slots, args);
+                                                    } catch (InvocationTargetException failure) {
+                                                        throw failure.getCause();
+                                                    }
+                                                    if (method.getName().equals("cede")) {
+                                                        cessions.incrementAndGet();
+                                                        assertEquals(
+                                                                1,
+                                                                ((Optional<Cession>) value)
+                                                                        .orElseThrow()
+                                                                        .attemptCount());
+                                                        throw fault; // Real UPDATE is rolled back
+                                                        // by the actual I2 owner.
+                                                    }
+                                                    return value;
+                                                });
+                        var capacity = new WorkerCapacity(1, Map.of(f.definition.id(), 1));
+                        var e =
+                                new ConsumptionEngine(
+                                        f.definition,
+                                        owner,
+                                        store,
+                                        preparationFailure(
+                                                f, new IllegalStateException("business fault")),
+                                        f.ownership,
+                                        f.settings,
+                                        capacity,
+                                        cause -> {
+                                            armed.set(true);
+                                            return AttemptFailureClassifier.FailureKind.TECHNICAL;
+                                        });
+                        f.expireLease(0);
+                        var lease = e.acquirePartition(0).orElseThrow();
+                        var id = f.seed(0);
+                        var h = acquire(f, e, lease, id);
+                        var before = f.row(id);
+                        if (unreported) {
+                            assertSame(
+                                    fault,
+                                    assertThrows(IllegalStateException.class, () -> e.execute(h)));
+                            assertEquals(1, capacity.snapshot().worker());
+                            // The injected owner withheld its resolution: inspection remains
+                            // mandatory.
+                            try (var lock = f.lock(id)) {
+                                assertEquals(0, e.settlePending());
+                                assertTrue(e.acquire(lease, List.of(f.seed(0))).claims().isEmpty());
+                                lock.rollback();
+                            }
+                            var start = new CountDownLatch(1);
+                            var a =
+                                    f.threads.submit(
+                                            () -> {
+                                                latch(start);
+                                                return e.settlePending();
+                                            });
+                            var b =
+                                    f.threads.submit(
+                                            () -> {
+                                                latch(start);
+                                                return e.settlePending();
+                                            });
+                            start.countDown();
+                            assertEquals(
+                                    1, a.get(8, TimeUnit.SECONDS) + b.get(8, TimeUnit.SECONDS));
+                        } else {
+                            var result = e.execute(h);
+                            assertEquals(Resolution.ROLLED_BACK, result.resolution());
+                            assertEquals(Resolution.ROLLED_BACK, result.cessionResolution());
+                            assertNull(result.cession());
+                            assertEquals(0, capacity.snapshot().worker());
+                        }
+                        assertEquals(Resolution.ROLLED_BACK, rollback.get());
+                        assertEquals(before, f.row(id));
+                        f.noEffects(id);
+                        assertEquals(1, cessions.get());
+                        assertEquals(0, capacity.snapshot().worker());
+                        assertEquals(0, e.settlePending());
+                        assertThrows(IllegalArgumentException.class, () -> e.execute(h));
+                        e.abandon(acquire(f, e, lease, f.seed(0)));
+                        assertEquals(0, capacity.snapshot().worker());
+                        f.trace.add(
+                                "AUDIT cession unreported="
+                                        + unreported
+                                        + " physical="
+                                        + rollback.get()
+                                        + " count=0; cessions=1; ticket=1->0; capacity reacquired;"
+                                        + " no replay");
+                    }
+                });
     }
 
     @Test

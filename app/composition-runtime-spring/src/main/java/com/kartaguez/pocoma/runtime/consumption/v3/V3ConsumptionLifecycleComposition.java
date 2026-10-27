@@ -10,6 +10,8 @@ import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import javax.sql.DataSource;
 
@@ -47,6 +49,7 @@ public final class V3ConsumptionLifecycleComposition {
                 classifier);
     }
 
+    /** Excluded causes dominate SQL/JPA, then technical faults; wrappers alone prove no fault. */
     public static FailureKind classify(Throwable failure) {
         if (failure == null) return FailureKind.NON_COUNTABLE;
         var seen = Collections.newSetFromMap(new IdentityHashMap<Throwable, Boolean>());
@@ -58,6 +61,9 @@ public final class V3ConsumptionLifecycleComposition {
             if (!seen.add(cause)) continue;
             if (cause.getCause() != null) queue.addLast(cause.getCause());
             Collections.addAll(queue, cause.getSuppressed());
+            if (cause instanceof org.springframework.transaction.TransactionSystemException system
+                    && system.getOriginalException() != null)
+                queue.addLast(system.getOriginalException());
             if (cause instanceof SQLException jdbc) {
                 if (jdbc.getNextException() != null) queue.addLast(jdbc.getNextException());
                 var state = jdbc.getSQLState();
@@ -70,6 +76,8 @@ public final class V3ConsumptionLifecycleComposition {
                     || cause instanceof org.springframework.beans.BeansException) excluded = true;
             else if (cause instanceof CancellationException
                     || cause instanceof InterruptedException
+                    || cause instanceof CompletionException
+                    || cause instanceof ExecutionException
                     || cause instanceof org.springframework.transaction.UnexpectedRollbackException
                     || cause instanceof org.springframework.transaction.TransactionSystemException
                     || cause instanceof AttemptTransactions.Failure) {

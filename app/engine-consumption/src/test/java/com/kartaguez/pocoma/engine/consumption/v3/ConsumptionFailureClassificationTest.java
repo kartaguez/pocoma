@@ -48,6 +48,15 @@ class ConsumptionFailureClassificationTest {
             };
 
     ConsumptionEngine engine(Runnable callback) {
+        return engine(
+                callback,
+                c ->
+                        c instanceof NullPointerException
+                                ? FailureKind.TECHNICAL
+                                : FailureKind.NON_COUNTABLE);
+    }
+
+    ConsumptionEngine engine(Runnable callback, AttemptFailureClassifier classifier) {
         var slots =
                 (ConsumptionSlotStore)
                         java.lang.reflect.Proxy.newProxyInstance(
@@ -105,10 +114,7 @@ class ConsumptionFailureClassificationTest {
                 ownership,
                 LifecycleSettings.pilot(),
                 capacity,
-                c ->
-                        c instanceof NullPointerException
-                                ? FailureKind.TECHNICAL
-                                : FailureKind.NON_COUNTABLE);
+                classifier);
     }
 
     ConsumptionEngine.AcquiredClaim handle(ConsumptionEngine engine) {
@@ -116,6 +122,34 @@ class ConsumptionFailureClassificationTest {
                 engine,
                 new ClaimedSlot(definition.id(), new UUID(0, 2), new UUID(0, 3)),
                 capacity.reserve(definition.id(), 1).getFirst());
+    }
+
+    @Test
+    void classifierExceptionAfterConfirmedRollbackReturnsCapacity() {
+        var fault = new IllegalStateException("classifier failed");
+        var e =
+                engine(
+                        () -> {},
+                        c -> {
+                            throw fault;
+                        });
+        var h = handle(e);
+        assertSame(fault, assertThrows(IllegalStateException.class, () -> e.execute(h)));
+        assertEquals(0, cessions.get());
+        assertEquals(0, capacity.snapshot().worker());
+        assertEquals(0, e.settlePending());
+        assertThrows(IllegalArgumentException.class, () -> e.execute(h));
+        e.abandon(handle(e));
+        assertEquals(0, capacity.snapshot().worker());
+    }
+
+    @Test
+    void nullClassificationAfterConfirmedRollbackReturnsCapacity() {
+        var e = engine(() -> {}, c -> null);
+        assertThrows(NullPointerException.class, () -> e.execute(handle(e)));
+        assertEquals(0, cessions.get());
+        assertEquals(0, capacity.snapshot().worker());
+        assertEquals(0, e.settlePending());
     }
 
     @Test

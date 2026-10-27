@@ -7,6 +7,7 @@ import com.kartaguez.pocoma.domain.pot.v3.Amount;
 import com.kartaguez.pocoma.domain.pot.v3.ExpenseDetails;
 import com.kartaguez.pocoma.domain.pot.v3.ExpenseFinancials;
 import com.kartaguez.pocoma.domain.pot.v3.Fraction;
+import com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException;
 import com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculator;
 import com.kartaguez.pocoma.domain.pot.v3.ShareholderTransitions;
 import com.kartaguez.pocoma.domain.pot.v3.Weight;
@@ -17,8 +18,11 @@ import com.kartaguez.pocoma.domain.pot.value.id.ExpenseId;
 import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.pot.value.id.ShareholderId;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
+import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
+import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.*;
 import com.kartaguez.pocoma.engine.write.pot.v3.CalculatePotBalances;
+import com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotHistoryAdapter;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
@@ -32,6 +36,9 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.SQLException;
 import java.time.*;
 import java.util.*;
 
@@ -46,6 +53,53 @@ class V3PotCommandCompositionPostgresTest {
     @BeforeAll
     static void initialize() throws Exception {
         ConsumptionBootstrapPostgresTest.databases();
+    }
+
+    static void assertInjectedCompositeClassifier(ConsumptionEngine execution) {
+        try {
+            var field = ConsumptionEngine.class.getDeclaredField("classifier");
+            field.setAccessible(true);
+            var classifier = (AttemptFailureClassifier) field.get(execution);
+            var trace = new ArrayList<String>();
+            for (boolean collision : List.of(true, false)) {
+                for (String excluded : List.of("none", "08006", "40003", "configuration")) {
+                    RuntimeException business =
+                            collision
+                                    ? new ExecutePotCommand.Collision()
+                                    : new InconsistentPotFactsException("invalid facts");
+                    var expected =
+                            collision ? FailureKind.COLLISION : FailureKind.INCONSISTENT_FACTS;
+                    if (!excluded.equals("none")) {
+                        business.addSuppressed(
+                                excluded.equals("configuration")
+                                        ? new org.springframework.transaction
+                                                .IllegalTransactionStateException(
+                                                "invalid composition")
+                                        : new SQLException("uncertain", excluded));
+                        expected = FailureKind.NON_COUNTABLE;
+                    }
+                    // The real Command mapping must not override the common exclusion decision.
+                    assertEquals(expected, classifier.classify(business));
+                    assertEquals(
+                            expected,
+                            classifier.classify(
+                                    new org.springframework.transaction.UnexpectedRollbackException(
+                                            "wrapper", business)));
+                    trace.add(
+                            "PASS command collision="
+                                    + collision
+                                    + " excluded="
+                                    + excluded
+                                    + " direct and wrapped="
+                                    + expected);
+                }
+            }
+            var path = Path.of("target/v3-i3-evidence/command-composite-classifier.txt");
+            Files.createDirectories(path.getParent());
+            Files.write(path, trace);
+        } catch (ReflectiveOperationException | java.io.IOException failure) {
+            throw new AssertionError(failure);
+        }
     }
 
     @Test
@@ -163,6 +217,7 @@ class V3PotCommandCompositionPostgresTest {
                             LifecycleSettings.pilot(),
                             capacity,
                             8);
+            assertInjectedCompositeClassifier(execution);
             var request = UUID.randomUUID();
             var claim = UUID.randomUUID();
             var intent = new PotCommand.CreatePot(new Label("composed"));

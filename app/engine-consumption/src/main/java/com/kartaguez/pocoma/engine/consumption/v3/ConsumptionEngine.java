@@ -206,9 +206,10 @@ public final class ConsumptionEngine {
         acquired.localDone = false;
         acquired.businessStarted = true;
         pending.add(acquired);
+        boolean resolved = false;
         try {
             var attempt = executeAttempt(acquired.claim);
-            boolean resolved = attempt.resolution() != Resolution.UNKNOWN;
+            resolved = attempt.resolution() != Resolution.UNKNOWN;
             var kind = FailureKind.NON_COUNTABLE;
             Cession cession = null;
             Resolution cessionResolution = null;
@@ -216,11 +217,14 @@ public final class ConsumptionEngine {
                     && attempt.resolution() == Resolution.ROLLED_BACK) {
                 kind = Objects.requireNonNull(classifier.classify(attempt.cause()));
                 if (kind != FailureKind.NON_COUNTABLE) {
+                    // The business rollback says nothing about this new physical operation.
+                    resolved = false;
                     try {
                         cession =
                                 technical(() -> slots.cede(acquired.claim, settings.retry()))
                                         .orElse(null);
                         cessionResolution = Resolution.COMMITTED;
+                        resolved = true;
                     } catch (Failure failure) {
                         cessionResolution = failure.resolution();
                         resolved = cessionResolution != Resolution.UNKNOWN;
@@ -228,11 +232,6 @@ public final class ConsumptionEngine {
                         // Never repeat an uncertain cession, even if a later read looks unchanged.
                     }
                 }
-            }
-            if (resolved) {
-                acquired.localDone = true;
-                pending.remove(acquired);
-                acquired.ticket.release();
             }
             return new Attempt(
                     attempt.status(),
@@ -245,6 +244,12 @@ public final class ConsumptionEngine {
         } finally {
             // A cancellation request is not this event. Only the synchronous callback's exit is.
             acquired.localDone = true;
+            // Classification can fail after a confirmed rollback. Release only when the last
+            // physical operation is known resolved; raw port failures and UNKNOWN stay pending.
+            if (resolved) {
+                pending.remove(acquired);
+                acquired.ticket.release();
+            }
         }
     }
 
