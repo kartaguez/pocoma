@@ -203,3 +203,8 @@ La conception L2 et A01–A12/R1–R10 restent validés. I1 est clos sur sa cont
 **I2 — CLOSED / LOCAL BOUNDED PASS.** [Code, preuves et limites](L2_I2_Execution_Report.md) ; GO humain reçu après audit du plan simplifié, quatre gates canoniques réussis au SHA final. Audit indépendant du code I2 à venir ; arrêt obligatoire avant I3. Le paragraphe de préparation ci-dessous est historique.
 
 **Préparation historique I2.** Le [plan dédié](L2_I2_Implementation_Plan.md) fixe extraction du participant Command, owner physique commun, R1/R9, DDL/locks, fichiers/signatures, preuves et slices. Recommandation technique GO sur ce périmètre, sous audit du plan et instruction humaine avant réalisation. Acquisition/leases/cession/retry/quarantaine restent I3, Discovery I4 et raccord actif I5. G1/G2/G3 restent futurs ; **L2 non ACCEPTED globalement**. La préparation documentaire ne vaut aucun PASS I2.
+
+
+### Préparation I3 — mandat documentaire du 27 octobre 2026
+
+[Plan technique I3 proposé pour audit](L2_I3_Implementation_Plan.md), préparé depuis la baseline I2 `03f0725c690bcbd9748d3ea59b62136e1a911e05` : ownership, claims/renewals, capacité, classification/cession/retry, quarantaine et réactivation administrative ; SQL, fichiers, preuves PostgreSQL et gates prospectifs détaillés. **Préparation et publication documentaire seules autorisées ; aucun code, test I3 ou migration modifié, aucune campagne applicative exécutée.** Aucun nouvel arbitrage normatif bloquant identifié ; choix techniques soumis à l’audit indépendant du plan. Attendre le GO humain distinct avant implémentation I3 ; I4/I5 et G1/G2/G3 restent futurs, L2 non ACCEPTED globalement.
