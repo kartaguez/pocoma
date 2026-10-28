@@ -1,0 +1,115 @@
+{
+  "recorded": "before final code freeze",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "commands": [
+    {
+      "command": [
+        "java",
+        "-version"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "openjdk version \"21\" 2023-09-19 LTS\nOpenJDK Runtime Environment Temurin-21+35 (build 21+35-LTS)\nOpenJDK 64-Bit Server VM Temurin-21+35 (build 21+35-LTS, mixed mode)\n"
+    },
+    {
+      "command": [
+        "bash",
+        "app/mvnw",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "Apache Maven 3.9.14 (996c630dbc656c76214ce58821dcc58be960875b)\nMaven home: /Users/julien.guezennec/.m2/wrapper/dists/apache-maven-3.9.14/db91789b\nJava version: 21, vendor: Eclipse Adoptium, runtime: /Users/julien.guezennec/.sdkman/candidates/java/21-tem\nDefault locale: fr_FR, platform encoding: UTF-8\nOS name: \"mac os x\", version: \"27.0\", arch: \"aarch64\", family: \"mac\"\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "sw_vers"
+      ],
+      "exit_code": 0,
+      "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uname",
+        "-a"
+      ],
+      "exit_code": 0,
+      "stdout": "Darwin MacBook-Air-de-Julien.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:02:57 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8132 arm64\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "exit_code": 0,
+      "stdout": " M app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java\n M app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java\n M app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java\n M app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java\n M app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java\n M app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/ConsumptionBootstrapPostgresTest.java\n M app/runtime-monolith/src/test/java/com/kartaguez/pocoma/ConsumptionPilotIsolationTest.java\n?? app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionDiscoveryComposition.java\n?? app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/DiscoveryEngine.java\n?? app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/BurnableReferences.java\n?? app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/DiscoveryAdmissionStore.java\n?? app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/NonBurnableReferences.java\n?? app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/DiscoveryEngineTest.java\n?? app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcCommandDiscoveryReferences.java\n?? app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcDiscoveryAdmissionStore.java\n?? app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcEventDiscoveryReferences.java\n?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/DiscoveryPostgresFixture.java\n?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/DiscoveryPostgresTest.java\n?? app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/consumption/ReadDiscoveryPrivilegesPostgresTest.java\n?? app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/DiscoveryCompositionPostgresTest.java\n?? docs/testing/evidence/L2-I4/\n?? docs/v3/L2_I4_Execution_Report.md\n?? docs/v3/L2_I4_Proof_Manifest.json\n?? scripts/testing/test_i4_evidence.py\n?? scripts/testing/verify-v3-l2-i4.py\n?? scripts/v3/grant-l2-discovery.sql\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "489259dbad757e3256572f8ce2041a187adeb38d\n",
+      "stderr": ""
+    }
+  ],
+  "preserved_files": {
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V1__initialize_read_store.sql": "5b17be9a75d1ef35ca2c3c511dadafbfe2bf1bda2b38b2d1214753c215d186e2",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V2__generic_projection_foundation.sql": "694a1decb3d180bc2accd96ae0c1753848f416423a69c87bf3d61c2441182f78",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V9__current_external_identity_binding.sql": "083d1f0f83bfba657e77ce4929ab7d5a492f8047d89921fe8bd167fd40e399b5",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V7__canonical_projection_store.sql": "1b63a453b5d3aca7d4cc20b6ba02ede52ab948373bfed411a97a36c2edeb57c8",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V12__current_binding_fact_provenance.sql": "fb5bd721296965cee096bd995b7bd63062f90eaa850192af0886c7129431b68b",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V11__current_binding_canonical_detached.sql": "2a83afa1364ffec2cee11a37fcc7cb415d19f61d89561d79d41d6c4e17b2ac6f",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V3__remove_projection_coverage.sql": "15781dd12400d860caba787363869fc309669ca7313a1991e983732dd17f2cc8",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V10__current_binding_expand.sql": "f9f2a651951cc666a27c18cd54d155ad5a4d739b3e44edf04bab2fdd659138bf",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V14__gate_command_result_exact_identity.sql": "8b51eaca00a1c6f4c0cbf32367cc6adf414d33ce0118efeda387fa74f2bb1728",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V5__canonical_pot_projection.sql": "4ffaba7276f7135825f0e22ac37d96d909aaf2b6a06e7fc425209a0de05df619",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V4__add_source_version_watermarks.sql": "5fbe10ce43eb0d24c6aa4e64a4272511949380a0fc5c3fbeef54c760370ad17e",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V13__verify_terminal_binding_facts.sql": "0ebaa7a744281719def665925e83e356912b18bad899ac5d2f23a8dc21ce262d",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V8__drop_legacy_read_projection_structures.sql": "44bd50ed884795534f8747f67a3cde8be9878e3c972f5be0ed5293eef0e28e34",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/read-store/migration/V6__pot_version_metadata_and_user_index.sql": "9d2af4a62f93e83730f04e920c27cca02bf195cf0c8e40ae92636bdb4821d31f",
+    "app/infra-persistence-read-jdbc/src/main/resources/db/v3-consumption-read/migration/V1__consumption_foundation.sql": "3579a121b1360273477e18c7d0d5d5ef080124a389c2939cdb22dfb77cc74e19",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V24__contract_recorded_commands.sql": "bd6cf2210b71299a71b63f95d7d8d08a29d477d7c27936a17822be5d457ec4b1",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V11__pot_version_metadata.sql": "d1b5cbd33d0c3d4cb5ff0d336e794ad5b4d81225736c0d3efa7deea0e76bc760",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V29__registration_results.sql": "a111eda3236bf51c5ddd5c6876743f85f1bf64753ea62aaa1dafc4715103f186",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V21__binding_occurrences_and_fact_expand.sql": "9445b8d7c1ce2490cfaa6c856ef37c2e857b6e8509b33d3759e70509988feccd",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V28__registration_outcomes.sql": "8dd0a2a97269d08419da02be2b2ed5a8dabbd38922e39fba85f82b7127779ebc",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V17__command_outcomes_and_terminal_events.sql": "522d3f73c2c59dc8f4df22bdc3d1f362ffc0a8a13f63b5038cadcf272ef02597",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V30__prepared_event_transactional_sequencing.sql": "01a64bc55727089b62f3ac9234a01a311ad7ae6de961ac280255750f02d48679",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V7__consumption_processing_failure_code.sql": "e5d7e497898d395a4952d85db7d45c1fac57fbd1a8fe091998c7aa4fe800e3a5",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V26__retire_command_result_projection_data.sql": "96bc275a710f0fce284b1d405e197bf8827ba2694b730a15e02e66efadc8824a",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V6__consumption_terminal_reason.sql": "974a32c0ac88955f9f298046c8bc1c309053d090a63c5a2deb018ec77fe6d228",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V16__drop_legacy_projection_runtime_structures.sql": "a3f1bcc925d607f40eba2be2b000cdf259d9593824fde6996bde5ff344dff7e7",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V9__external_identities.sql": "9988e95fcc7570f83a1c40dd5d3eb2cb82af88cf17abddb5fe65924b1a56a54b",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V5__transactional_task_consumption.sql": "2cb5b706743858ffd77225f0b22cfc7a0e01a1f978bbf8b0cde27f6239a980cb",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V31__event_sequencing_administration.sql": "9a207d4cb81a7bdc6004d57dda45796d1aa7f4033be1ad58a61d05b5ae09c4c6",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V14__expense_business_date.sql": "898806ceaf415bab032b110669b561c3070bfad85d5796333272635987adb212",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V18__user_identity_binding_authority.sql": "495a3c072df28e4b7d3bd3edae1fb229c4a401fb3156246891a2559456181f38",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V22__repair_binding_history_and_contract.sql": "36951a325c52ff3e78670088eba90ea311d1aca7e2bdf8f2dd6ec224f5a2d1f4",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V13__canonical_projection_tasks.sql": "f30f354b8aba453494b048e09515ed549e612820ab5ae24d6efdc543cbc8a5f8",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V27__registration_requests.sql": "7fb9faffe9bc015a34c75052ae10d3c2f2a0c256bec59adea6f9a748226ac5b7",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V10__align_projection_task_scheduling.sql": "a33a9c41e1d68e3fa27b7bac9bd0eeb9fccbd677827a303d647bfc79734ebfde",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V4__consumption_engine.sql": "43c23185db61f14cbc22c6cbc116e25baf7a248a721451b919695aedfc441354",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V19__recorded_command_envelope_expand.sql": "705a199bab87630e63b5bd013b895859934b65b1be6035117582ba8aa82993a5",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V2__projection_outbox_tasks.sql": "998ac4c5c4a57eb4e074f8e905630395ec03a0b58f78c367c5c5fd45f5617150",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V1__init_schema.sql": "d35a440f7ac3d3722176844fc29c3ab9b515e864d77fb9788eb12639ad712ae4",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V8__recorded_commands.sql": "3dbe7ef9073da956d8be3eaf4d4d6a6cfb3c2bc160ad1c51ea19e6f41d8fdafe",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V20__external_identity_binding_lifecycle.sql": "dee2e66b5d631af9acf56fdf6988e226f66e4040fb26b63b5db5b12dc0f7e14c",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V3__pipeline_materialization_tasks.sql": "974a89b5e2abedb3fd1c6e353c7c47081a67ebf480206c0ec1a10b3897c964d0",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V15__canonical_business_event_types.sql": "3b3ab42acf93de6c32b9bee80332acc15fdc323f5428f5401bb63f1aac475f74",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V12__pipeline_version_lifecycle.sql": "b83cef2c00da4fde15e6a2c587ff7487ac05d924f12ddfb3135f52444bca6399",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V23__close_binding_fact_type_contract.sql": "b1569a5366d0d16014415beec8c8fca0cb379132aaa54b3c842b42a084f5b8b7",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/migration/V25__immutable_command_result.sql": "cc7ee8696b8bd5817995a8712332ca1cb57c26ff3c7705f90c91626168780d2f",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot-execution/migration/V2__command_execution.sql": "f7719a4d7ec585af88761837528a7e244ee4736b73c8669889eb148806b7bc02",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-consumption-write/migration/V5__consumption_foundation.sql": "6e003959336a68f9f5ad371f72e62f7af41e27e92dcf2b0d1443cd35cbc8d14f",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V3__point_history_indexes.sql": "616534170d04e69802527dc0c43ad0f6f3dde073de187e93a3b4450725f3ae86",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V4__write_effect_indexes.sql": "c20cf15c91d0b9f0c6268c976c214ac900adbc0d46dc5330dd8ef6e25242a6cf",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-pot/migration/V1__pot_components.sql": "48a2e451513f77becddc456b6525a7321de49a71cb4321c0f721a389240d6d18"
+  }
+}

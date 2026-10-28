@@ -1,0 +1,363 @@
+{
+  "reference_sha": "489259dbad757e3256572f8ce2041a187adeb38d",
+  "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+  "status": "I4 LOCAL BOUNDED PASS \u2014 AWAITING INDEPENDENT CODE AND EVIDENCE AUDIT",
+  "l2_global": "INCONCLUSIVE",
+  "archive_receipts": {
+    "command": {
+      "archive": "final-command.tar.gz",
+      "sha256": "fcb8fa18b58d14d1d01c6603aa8ef1b49c66048632fc5059831199c2adb2a8ed",
+      "bytes": 31319386,
+      "verified_entries": 1057,
+      "result_sha256": "ce3751799d75e167d81ccbf3893f3ec58ee979cf1d6ce65a09916eab1c7cb48c",
+      "log_sha256": "946680d0cecd108aeb486bf25c6510ce2475e7906725228e9a11423cea55e1ab",
+      "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "xml_and_physical_artifacts": 1055,
+      "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+    },
+    "read": {
+      "archive": "final-read.tar.gz",
+      "sha256": "538ec1928480d548c5c36697fe3bfa09fe8a6e2a4b55ac04a6e0e0924576a1dc",
+      "bytes": 187371,
+      "verified_entries": 90,
+      "result_sha256": "4c1728016a700b8963774ffb4a393268118c10df00cc31a845671c084f412043",
+      "log_sha256": "85e68ebc0966ef26d0c65315bff88ae07071c6549f452b7133fd332e97c3c14d",
+      "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "xml_and_physical_artifacts": 88,
+      "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+    },
+    "monolith": {
+      "archive": "final-monolith.tar.gz",
+      "sha256": "b3f15452d8975364f922954450c78dec306e15e003422559750af49a2070b12b",
+      "bytes": 31129810,
+      "verified_entries": 1024,
+      "result_sha256": "c7c992fdf1a40ee42920d3ccf6a81d0e6c8b1671dea24c9dd4a258e486e3bbb4",
+      "log_sha256": "bc0c8d8f0ae2f58bee61c2b58205eff74fd335e2328c2171a03c6b050b91322e",
+      "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "xml_and_physical_artifacts": 1022,
+      "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+    },
+    "architecture": {
+      "archive": "final-architecture.tar.gz",
+      "sha256": "932094e558f533bc0fcf4beffbe492ff62f050569c4fed3a6526845512eb62d7",
+      "bytes": 31618410,
+      "verified_entries": 1111,
+      "result_sha256": "cb7c818335d445e338388f739de56ad4a30223dc6264d6774c9361a58ae8f2e1",
+      "log_sha256": "b5412c401ffab8a2e1d880a84b3e47c1b963e2deda218fa88028a9ecb36bbbfb",
+      "code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "xml_and_physical_artifacts": 1109,
+      "archive_paths": "relative to extracted directory, xml/ and physical/; includes maven.log and result.json"
+    }
+  },
+  "gates": {
+    "command": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "verdict": "PASS",
+      "tests": 1573,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 333
+    },
+    "read": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-read-jdbc",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "verdict": "PASS",
+      "tests": 372,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 10
+    },
+    "monolith": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "verdict": "PASS",
+      "tests": 1330,
+      "failures_or_errors": 0,
+      "skips": [],
+      "required_methods": 310
+    },
+    "architecture": {
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+      "verdict": "PASS",
+      "tests": 1839,
+      "failures_or_errors": 0,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "required_methods": 356
+    }
+  },
+  "files": [
+    {
+      "path": "Archive-Receipts.json",
+      "bytes": 2323,
+      "sha256": "cc23c8c367ab35d860bc7b3e9a95ee779f903a2674b26e4876437f18b9ae9c27"
+    },
+    {
+      "path": "Archive-Recipe.txt",
+      "bytes": 1935,
+      "sha256": "a1d079ec6336e2cfb8cdf39c551e7e6c4139ca17b35d8f22e3301369f0f7a84e"
+    },
+    {
+      "path": "Changed-Files.txt",
+      "bytes": 5285,
+      "sha256": "54c5ee55eccb41a43a875d3fd130db31db1f4bd1deff6a9bc1a9758d9f5d319e"
+    },
+    {
+      "path": "Diagnostics-Summary.json",
+      "bytes": 139764,
+      "sha256": "7fe5108dbdcba4ad132ed744d0e6f77200a7c30f11af60285bccb63991dc5434"
+    },
+    {
+      "path": "Docker-version.json",
+      "bytes": 1108,
+      "sha256": "121d0b53ef27c4f70deafa50bbf26203824e6cd3e4c0d868f463dde9891b4703"
+    },
+    {
+      "path": "Environment-before-freeze.json",
+      "bytes": 13855,
+      "sha256": "b78a824a100a2618f47a53add4bc38f078fbc2b0cbe7a522ba561b40ca04f3e6"
+    },
+    {
+      "path": "Git-Before-Publish.json",
+      "bytes": 5931,
+      "sha256": "2ce3de61fc57d53fcead4ce6588a4a20f47120b442ba80ba055f9119dc7ded9d"
+    },
+    {
+      "path": "I4-1-unit-with-discovery.log",
+      "bytes": 12134,
+      "sha256": "4b30db3762e0fd41871e8ee38e87873f1428d08d5b265d9b6b5a715093c03077"
+    },
+    {
+      "path": "I4-1-unit.log",
+      "bytes": 12200,
+      "sha256": "16192de20656ab3e8c8a45ee73650548b9a9d89607ac6061a467f0bf9f3f047c"
+    },
+    {
+      "path": "I4-2-read.log",
+      "bytes": 195556,
+      "sha256": "9c75b028c31dd686bcc56b2c9b46e7979ad77e4823bd3d2d24d5541d0f47c273"
+    },
+    {
+      "path": "I4-3-initial-command.log",
+      "bytes": 3066004,
+      "sha256": "2195d5b6515dbe57610a0dd280b321a9a51ad6f834cb45d2edd33a4e663d5cf5"
+    },
+    {
+      "path": "I4-3-initial-command.tar.gz",
+      "bytes": 972421,
+      "sha256": "af901ddae5db0566215c33b7ce1d147d3e9fa49aa206d85637590bf7cd96ab2e"
+    },
+    {
+      "path": "I4-4-5-discovery-diagnostic.log",
+      "bytes": 731155,
+      "sha256": "218bf8c235efe435c1866706c258c1222e9b32185afa2ff95816c87b864fd062"
+    },
+    {
+      "path": "I4-4-5-discovery-diagnostic.tar.gz",
+      "bytes": 429411,
+      "sha256": "6c98745f579179c5225979ff8cf20cd3fde18c85826c0b744c0d3d6ae4bb8072"
+    },
+    {
+      "path": "I4-4-5-discovery-retry.log",
+      "bytes": 736819,
+      "sha256": "fd15a9eb4bad5f8c0cff27299a09be8357d6e953489239bc7812e234442707f2"
+    },
+    {
+      "path": "I4-6-all49-diagnostic.log",
+      "bytes": 1258080,
+      "sha256": "33cb1c597d77f6140260934e54934671d2f2094924c927f23aace245022da71f"
+    },
+    {
+      "path": "I4-6-all49-diagnostic.tar.gz",
+      "bytes": 5445016,
+      "sha256": "2b0eb8281514c39631928887576f3dcc62b26c532cd249aa15008e84ff690676"
+    },
+    {
+      "path": "I4-7-complements-command-cases.json",
+      "bytes": 293603,
+      "sha256": "b2e6904a029a57f69a537c86c16448ed7c515d0d3f5418c87f307e24e8b31f68"
+    },
+    {
+      "path": "I4-7-complements-command.log",
+      "bytes": 5235201,
+      "sha256": "8fd4acfef336268f0461589135a43b7ad1961692ffa2d9fb5c8bd1599dff60f7"
+    },
+    {
+      "path": "I4-7-complements-command.tar.gz",
+      "bytes": 28645838,
+      "sha256": "bdd821698b2b1abbb0aeac8f50ad2ea24a66be633d24b5658ae9d72a05678c84"
+    },
+    {
+      "path": "I4-7-last-variants-diagnostic.log",
+      "bytes": 534387,
+      "sha256": "9e964d7ad54402e786903d53b5b4406b7a419921ba1f6e4ef287752d5e6fa452"
+    },
+    {
+      "path": "I4-7-last-variants-diagnostic.tar.gz",
+      "bytes": 28782304,
+      "sha256": "f1d3d13517777ef6257ce83c8fc263c5110bf9dfb71a3696d1adce5290520ea5"
+    },
+    {
+      "path": "I4-7-last-variants-retry.log",
+      "bytes": 430119,
+      "sha256": "792b63791e31a48b49959d04123bb2328128bb33c9d7b841f3da7006d3e4d495"
+    },
+    {
+      "path": "I4-7-last-variants-retry.tar.gz",
+      "bytes": 9354646,
+      "sha256": "76253df917c634db242d3561d283c3593dd9a47e93db3f4500a1c3cf783f0959"
+    },
+    {
+      "path": "Initial-Git.txt",
+      "bytes": 2527,
+      "sha256": "31217eab945b80daebeb74620b7dd49dd6a225646fd90c14098c269867f80d76"
+    },
+    {
+      "path": "Performance-Summary-Recipe.txt",
+      "bytes": 3707,
+      "sha256": "1a0d62182ff80d6526dabb9f1f65cc02fe09a723f124accd8425559b6206115d"
+    },
+    {
+      "path": "Performance-Summary.json",
+      "bytes": 1733307,
+      "sha256": "10b1b2b2d96c1936ac192df26914c40dedf36802abd0019a857a4e13f58e1996"
+    },
+    {
+      "path": "Performance-inputs.json",
+      "bytes": 6160591,
+      "sha256": "151c9ca1295b966711e3e9013fb3be62bc7cfaace6fde59c843a91a0fd720db8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3579,
+      "sha256": "3c3c3b0e5c84ea6a2d52c0f45e54ca38cd71a76b7e4f4926bab093f743f4bacb"
+    },
+    {
+      "path": "Source-Freeze.json",
+      "bytes": 49093,
+      "sha256": "c8852a9510d250e808632392ea471abee0323968b9a07c3d432362d03dd55bf5"
+    },
+    {
+      "path": "final-architecture/maven.log",
+      "bytes": 5655876,
+      "sha256": "b5412c401ffab8a2e1d880a84b3e47c1b963e2deda218fa88028a9ecb36bbbfb"
+    },
+    {
+      "path": "final-architecture/result.json",
+      "bytes": 1059412,
+      "sha256": "cb7c818335d445e338388f739de56ad4a30223dc6264d6774c9361a58ae8f2e1"
+    },
+    {
+      "path": "final-architecture-collector.log",
+      "bytes": 1509,
+      "sha256": "4ad7650126b0d0cb48b1756422bc6c25cd37e1b348f62e43faf2d6a703c2aaed"
+    },
+    {
+      "path": "final-architecture.tar.gz",
+      "bytes": 31618410,
+      "sha256": "932094e558f533bc0fcf4beffbe492ff62f050569c4fed3a6526845512eb62d7"
+    },
+    {
+      "path": "final-command/maven.log",
+      "bytes": 5014190,
+      "sha256": "946680d0cecd108aeb486bf25c6510ce2475e7906725228e9a11423cea55e1ab"
+    },
+    {
+      "path": "final-command/result.json",
+      "bytes": 993972,
+      "sha256": "ce3751799d75e167d81ccbf3893f3ec58ee979cf1d6ce65a09916eab1c7cb48c"
+    },
+    {
+      "path": "final-command-collector.log",
+      "bytes": 1521,
+      "sha256": "a1137eefe47dcd25f7d401ed002baa950c72fd339e1095434cf1c0961daa119e"
+    },
+    {
+      "path": "final-command.tar.gz",
+      "bytes": 31319386,
+      "sha256": "fcb8fa18b58d14d1d01c6603aa8ef1b49c66048632fc5059831199c2adb2a8ed"
+    },
+    {
+      "path": "final-monolith/maven.log",
+      "bytes": 4635446,
+      "sha256": "bc0c8d8f0ae2f58bee61c2b58205eff74fd335e2328c2171a03c6b050b91322e"
+    },
+    {
+      "path": "final-monolith/result.json",
+      "bytes": 930718,
+      "sha256": "c7c992fdf1a40ee42920d3ccf6a81d0e6c8b1671dea24c9dd4a258e486e3bbb4"
+    },
+    {
+      "path": "final-monolith-collector.log",
+      "bytes": 1290,
+      "sha256": "f239a1eb818edf02b31ec4fbe40dd2ca769922e766f0fc967bcb6b4099cc3b73"
+    },
+    {
+      "path": "final-monolith.tar.gz",
+      "bytes": 31129810,
+      "sha256": "b3f15452d8975364f922954450c78dec306e15e003422559750af49a2070b12b"
+    },
+    {
+      "path": "final-read/maven.log",
+      "bytes": 193894,
+      "sha256": "85e68ebc0966ef26d0c65315bff88ae07071c6549f452b7133fd332e97c3c14d"
+    },
+    {
+      "path": "final-read/result.json",
+      "bytes": 537216,
+      "sha256": "4c1728016a700b8963774ffb4a393268118c10df00cc31a845671c084f412043"
+    },
+    {
+      "path": "final-read-collector.log",
+      "bytes": 604,
+      "sha256": "200ef71d7240e5f59135e0162dddb660c00888534ec0f040a71ac8f93a277484"
+    },
+    {
+      "path": "final-read.tar.gz",
+      "bytes": 187371,
+      "sha256": "538ec1928480d548c5c36697fe3bfa09fe8a6e2a4b55ac04a6e0e0924576a1dc"
+    }
+  ],
+  "index_excludes_itself": true
+}

@@ -213,3 +213,11 @@ La conception L2 et A01–A12/R1–R10 restent validés. I1 est clos sur sa cont
 ### I3 — mandat d’implémentation du 27 octobre 2026
 
 Le [plan I3](L2_I3_Implementation_Plan.md), commit approuvé `bb33b56dc86a8a1d31c577f983d7ea1a07bc8128`, a reçu l’avis indépendant **PASS WITH MINOR AMENDMENTS** puis le **GO humain explicite** d’implémentation/publication. Les interdictions du mandat documentaire précédent sont historiques. R-I3-01/02/03 sont reprises dans le plan et le [rapport d’exécution](L2_I3_Execution_Report.md) ; [manifeste figé](L2_I3_Proof_Manifest.json). État courant : **I3 CLOSED / LOCAL BOUNDED PASS — AUDIT PENDING**, code vérifié `1d7cf51c`, quatre gates sans filtre PASS ; les [preuves](../testing/evidence/L2-I3/README.md) conservent diagnostics et limites. Aucun GO I4/I5, aucune activation production, G1/G2/G3 non franchis, L2 non ACCEPTED. Après I3 : arrêt et audit indépendant code+preuves puis nouvelle décision humaine.
+
+## Contribution I4 — Discovery, 28 octobre 2026
+
+GO humain sur le [plan I4 approuvé](L2_I4_Implementation_Plan.md), référence `489259dbad757e3256572f8ce2041a187adeb38d`. Discovery indépendante implémentée : fenêtre globale dense et préfixe couvert avec K/slots atomiques ; tour UUID volatil et stratégie B PENDING protégée / existence de tout slot / INSERT strict. Owners physiques I2/I3 et finaliseur Command conservés, profil SQL combiné explicite et factories inactives. [Rapport d’exécution](L2_I4_Execution_Report.md), [manifeste de preuves](L2_I4_Proof_Manifest.json).
+
+**État courant : I4 LOCAL BOUNDED PASS sur le code figé `0b08d3bf0bfce1334260cfd5249b13c3040a67bb` — audit indépendant encore attendu.** Les 49 méthodes PostgreSQL et leurs sous-variantes obligatoires ont passé sans skip I4 ; les quatre gates canoniques sans filtre passent au même SHA, avec archives et empreintes concordantes. Contribution bornée aux primitives disponibles Command/POT/COMMAND_COMPLETION ; autres producteurs et effets métier absents restent explicitement techniques dans les preuves. Cette contribution ne promeut aucune des 380 allocations ni les 56 reports normatifs.
+
+L2 global demeure **INCONCLUSIVE**, G1/G2/G3 non franchis. I5, les Workers, HTTP et les parcours métier L3/L4/L5 restent hors GO. Audit indépendant du code et des preuves encore attendu ; le rapport d’implémentation n’en tient pas lieu.

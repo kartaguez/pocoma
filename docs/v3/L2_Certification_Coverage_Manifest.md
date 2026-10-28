@@ -441,3 +441,11 @@ Après implémentation, chaque méthode exécutée devra référencer son identi
 | Non-régression R1/R9 et L1-C/F/F2 | Groupes du manifeste I2 repris explicitement par gate | Stimuli historiques de cession I2 distincts des transitions productives I3 ; ancienne archive seule ne vaut pas PASS frais |
 
 Aucune exigence globale CON/OPS/PERF n’est certifiée par cette contribution. Le manifeste de couverture global reste **INCONCLUSIVE**, L2 non ACCEPTED, G1/G2/G3 futurs. Les 56 reports existants restent inchangés ; les capacités I4/I5/L3–L6 gardent leur lot receveur.
+
+## Contribution I4 — Discovery, 28 octobre 2026
+
+GO humain sur le [plan I4 approuvé](L2_I4_Implementation_Plan.md), référence `489259dbad757e3256572f8ce2041a187adeb38d`. Discovery indépendante implémentée : fenêtre globale dense et préfixe couvert avec K/slots atomiques ; tour UUID volatil et stratégie B PENDING protégée / existence de tout slot / INSERT strict. Owners physiques I2/I3 et finaliseur Command conservés, profil SQL combiné explicite et factories inactives. [Rapport d’exécution](L2_I4_Execution_Report.md), [manifeste de preuves](L2_I4_Proof_Manifest.json).
+
+**État courant : I4 LOCAL BOUNDED PASS sur le code figé `0b08d3bf0bfce1334260cfd5249b13c3040a67bb` — audit indépendant encore attendu.** Les 49 méthodes PostgreSQL et leurs sous-variantes obligatoires ont passé sans skip I4 ; les quatre gates canoniques sans filtre passent au même SHA, avec archives et empreintes concordantes. Contribution bornée aux primitives disponibles Command/POT/COMMAND_COMPLETION ; autres producteurs et effets métier absents restent explicitement techniques dans les preuves. Cette contribution ne promeut aucune des 380 allocations ni les 56 reports normatifs.
+
+L2 global demeure **INCONCLUSIVE**, G1/G2/G3 non franchis. I5, les Workers, HTTP et les parcours métier L3/L4/L5 restent hors GO. Audit indépendant du code et des preuves encore attendu ; le rapport d’implémentation n’en tient pas lieu.

@@ -500,3 +500,11 @@ GO humain d’implémentation reçu après audit du plan simplifié. [Dossier I2
 ## Implémentation I3 autorisée — 27 octobre 2026
 
 Audit du plan approuvé `bb33b56d` : PASS WITH MINOR AMENDMENTS, puis GO humain explicite avec réserves R-I3-01/02/03. [Plan amendé](L2_I3_Implementation_Plan.md), [rapport I3](L2_I3_Execution_Report.md), [manifeste de preuves](L2_I3_Proof_Manifest.json). Scope déclaré COMMAND, preuves directes READ JDBC/MONOLITH, architecture globale de clôture, aucun full reactor requis pour cette étape bornée. État de campagne courant : I3 CLOSED / LOCAL BOUNDED PASS sur `1d7cf51c`, quatre gates exécutés sans filtre ; audit indépendant code + preuves à venir. Aucun changement conceptuel A/R, aucune autorisation I4/I5 ni passage G1/G2/G3 ou ACCEPTED L2.
+
+## Contribution I4 — Discovery, 28 octobre 2026
+
+GO humain sur le [plan I4 approuvé](L2_I4_Implementation_Plan.md), référence `489259dbad757e3256572f8ce2041a187adeb38d`. Discovery indépendante implémentée : fenêtre globale dense et préfixe couvert avec K/slots atomiques ; tour UUID volatil et stratégie B PENDING protégée / existence de tout slot / INSERT strict. Owners physiques I2/I3 et finaliseur Command conservés, profil SQL combiné explicite et factories inactives. [Rapport d’exécution](L2_I4_Execution_Report.md), [manifeste de preuves](L2_I4_Proof_Manifest.json).
+
+**État courant : I4 LOCAL BOUNDED PASS sur le code figé `0b08d3bf0bfce1334260cfd5249b13c3040a67bb` — audit indépendant encore attendu.** Les 49 méthodes PostgreSQL et leurs sous-variantes obligatoires ont passé sans skip I4 ; les quatre gates canoniques sans filtre passent au même SHA, avec archives et empreintes concordantes. Contribution bornée aux primitives disponibles Command/POT/COMMAND_COMPLETION ; autres producteurs et effets métier absents restent explicitement techniques dans les preuves. Cette contribution ne promeut aucune des 380 allocations ni les 56 reports normatifs.
+
+L2 global demeure **INCONCLUSIVE**, G1/G2/G3 non franchis. I5, les Workers, HTTP et les parcours métier L3/L4/L5 restent hors GO. Audit indépendant du code et des preuves encore attendu ; le rapport d’implémentation n’en tient pas lieu.

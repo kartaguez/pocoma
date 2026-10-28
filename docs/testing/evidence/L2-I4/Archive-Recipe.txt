@@ -1,0 +1,30 @@
+from pathlib import Path
+import json,hashlib,tarfile,shutil,sys
+base=Path('docs/testing/evidence/L2-I4');gate=sys.argv[1];folder=base/('final-'+gate);archive=base/('final-'+gate+'.tar.gz')
+def digest(path):
+ h=hashlib.sha256()
+ with path.open('rb') as stream:
+  for block in iter(lambda:stream.read(1024*1024),b''):h.update(block)
+ return h.hexdigest()
+result=json.loads((folder/'result.json').read_text());assert result['verdict']=='PASS',result['problems']
+expected={r['path']:r['sha256'] for r in result['artifacts']}
+expected.update({name:digest(folder/name) for name in ['maven.log','result.json']})
+assert not archive.exists(),archive
+with tarfile.open(archive,'w:gz') as t:
+ for name,value in sorted(expected.items()):
+  assert digest(folder/name)==value,name
+  t.add(folder/name,arcname=name,recursive=False)
+seen=set()
+with tarfile.open(archive,'r|gz') as t:
+ for member in t:
+  assert member.isfile() and member.name in expected,member.name
+  h=hashlib.sha256();stream=t.extractfile(member)
+  for block in iter(lambda:stream.read(1024*1024),b''):h.update(block)
+  assert h.hexdigest()==expected[member.name],member.name
+  seen.add(member.name)
+assert seen==set(expected),(len(seen),len(expected))
+receipt={'archive':archive.name,'sha256':digest(archive),'bytes':archive.stat().st_size,'verified_entries':len(seen),'result_sha256':expected['result.json'],'log_sha256':expected['maven.log'],'code_sha':result['sha'],'xml_and_physical_artifacts':len(result['artifacts']),'archive_paths':'relative to extracted directory, xml/ and physical/; includes maven.log and result.json'}
+index=base/'Archive-Receipts.json';data=json.loads(index.read_text()) if index.exists() else {};data[gate]=receipt;index.write_text(json.dumps(data,indent=2)+'\n')
+# Only the copies produced by this gate's collector are replaced by their verified archive.
+for name in ['xml','physical']:shutil.rmtree(folder/name)
+print(json.dumps(receipt,indent=2))

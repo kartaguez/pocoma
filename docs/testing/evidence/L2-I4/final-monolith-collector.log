@@ -1,0 +1,41 @@
+{
+  "measurement_summary": {
+    "partition": {
+      "samples": 644,
+      "upper_bound_p50_ns": 6197000,
+      "upper_bound_p95_ns": 31467000,
+      "upper_bound_max_ns": 96716000,
+      "lower_bound_max_ns": 91311000,
+      "meaning": "PG clocks bracket actual acquisition and confirmed commit; includes observer/JDBC instrumentation overhead; no universal bound"
+    },
+    "source": {
+      "samples": 3028,
+      "upper_bound_p50_ns": 11338000,
+      "upper_bound_p95_ns": 31556000,
+      "upper_bound_max_ns": 94612000,
+      "lower_bound_max_ns": 89973000,
+      "meaning": "PG clocks bracket actual acquisition and confirmed commit; includes observer/JDBC instrumentation overhead; no universal bound"
+    }
+  },
+  "manifest_sha256": "af5079415617b870189fa87e828fe6e219ae456688f06873dff7cb7fb2c5c81b",
+  "gate": "monolith",
+  "sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+  "command": [
+    "./mvnw",
+    "-pl",
+    "runtime-monolith",
+    "-am",
+    "test"
+  ],
+  "cwd": "app/",
+  "started_epoch": 1793195777.339458,
+  "elapsed_seconds": 861.374,
+  "exit_code": 0,
+  "tests": 1330,
+  "failures_or_errors": 0,
+  "skips": [],
+  "required_methods": 310,
+  "problems": [],
+  "verdict": "PASS",
+  "log_sha256": "bc0c8d8f0ae2f58bee61c2b58205eff74fd335e2328c2171a03c6b050b91322e"
+}
