@@ -541,6 +541,7 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                                             + " upperNs="
                                             + upper);
                         }
+                        f.trace.add("D confirmed physical progress=" + result);
                         return result;
                     } finally {
                         held.remove();
@@ -586,12 +587,34 @@ final class DiscoveryPostgresFixture implements AutoCloseable {
                 }
 
                 public Optional<UUID> upperPending(RecoveryReadContext c) {
-                    return source.upperPending(c);
+                    var upper = source.upperPending(c);
+                    f.trace.add(
+                            "D upper PENDING U="
+                                    + upper
+                                    + " source snapshot="
+                                    + sql.queryForMap(
+                                            "select"
+                                                + " pg_backend_pid(),pg_current_xact_id()::text,clock_timestamp()"));
+                    return upper;
                 }
 
                 public List<UUID> pendingPage(
                         Optional<UUID> a, UUID u, int n, RecoveryReadContext c) {
-                    return source.pendingPage(a, u, n, c);
+                    var page = source.pendingPage(a, u, n, c);
+                    f.trace.add(
+                            "D loaded global pending page after="
+                                    + a
+                                    + " U="
+                                    + u
+                                    + " B="
+                                    + n
+                                    + " references="
+                                    + page
+                                    + " source snapshot="
+                                    + sql.queryForMap(
+                                            "select"
+                                                + " pg_backend_pid(),pg_current_xact_id()::text,clock_timestamp()"));
+                    return page;
                 }
 
                 public boolean tryProtectPending(UUID id) {

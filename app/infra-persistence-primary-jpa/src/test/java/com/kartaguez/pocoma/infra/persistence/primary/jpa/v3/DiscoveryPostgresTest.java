@@ -3041,7 +3041,8 @@ class DiscoveryPostgresTest {
                             f.target.oracle.update(
                                     "update partition_ownership set"
                                         + " owned_until=clock_timestamp()-interval '1 second' where"
-                                        + " consumption_id=?",
+                                        + " consumption_id=? and partition_id=0 and owner_token is"
+                                        + " not null",
                                     f.definition.id().value());
                             var pots =
                                     f.write.oracle.queryForList(
@@ -3725,7 +3726,7 @@ class DiscoveryPostgresTest {
                                     } finally {
                                         f.trace.add(
                                                 "COST actual harness single-platform-thread"
-                                                    + " dispatchNs="
+                                                        + " dispatchNs="
                                                         + dispatch
                                                         + " executingThreadCumulativeAllocatedBytes="
                                                         + (allocatedBytes() - allocation)

@@ -3007,7 +3007,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-commit",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -3016,7 +3019,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -3039,7 +3045,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-commit",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -3048,7 +3057,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -4672,7 +4684,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-commit",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -4681,7 +4696,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -4704,7 +4722,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-commit",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
@@ -4713,7 +4734,10 @@
       "contains": [
         "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
         "independent final",
-        "LOCK duration physical=COMMITTED"
+        "LOCK duration physical=COMMITTED",
+        "D loaded global pending page after=",
+        "D confirmed physical progress=",
+        "B18 confirmed progress="
       ]
     },
     {
