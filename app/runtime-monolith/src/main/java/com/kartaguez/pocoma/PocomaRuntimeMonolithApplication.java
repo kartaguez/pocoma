@@ -15,7 +15,8 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication(scanBasePackages = "com.kartaguez.pocoma.runtime.bootstrap")
 @Import({
     PocomaRuntimeMonolithApplication.Legacy.class,
-    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class
+    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration.class,
+    com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionWorkerConfiguration.class
 })
 public class PocomaRuntimeMonolithApplication {
     public static void main(String[] args) {
@@ -23,7 +24,8 @@ public class PocomaRuntimeMonolithApplication {
     }
 
     /** Legacy scanning and processing are mutually exclusive with the inert pilot. */
-    @org.springframework.context.annotation.Profile("!v3-consumption-pilot")
+    @org.springframework.context.annotation.Profile(
+            "!v3-consumption-pilot & !v3-consumption-worker-dev")
     @org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
     @org.springframework.context.annotation.ComponentScan(
             basePackages = "com.kartaguez.pocoma",

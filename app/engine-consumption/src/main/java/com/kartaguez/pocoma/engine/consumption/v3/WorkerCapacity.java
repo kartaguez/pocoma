@@ -1,7 +1,9 @@
 package com.kartaguez.pocoma.engine.consumption.v3;
 
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId;
+import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
 
+import java.time.Duration;
 import java.util.*;
 
 /** One instance per Worker, shared by every Consumption and physical authority. */
@@ -10,8 +12,17 @@ public final class WorkerCapacity {
     private final Map<ConsumptionId, Integer> limits;
     private final Map<ConsumptionId, Integer> used = new HashMap<>();
     private int total;
+    private final ConsumptionObservation observation;
 
     public WorkerCapacity(int workerLimit, Map<ConsumptionId, Integer> consumptionLimits) {
+        this(workerLimit, consumptionLimits, ConsumptionObservation.noop());
+    }
+
+    public WorkerCapacity(
+            int workerLimit,
+            Map<ConsumptionId, Integer> consumptionLimits,
+            ConsumptionObservation observation) {
+        this.observation = Objects.requireNonNull(observation);
         if (workerLimit < 1
                 || consumptionLimits.isEmpty()
                 || consumptionLimits.values().stream().anyMatch(n -> n == null || n < 1))
@@ -38,6 +49,14 @@ public final class WorkerCapacity {
         for (int i = 0; i < count; i++) result.add(new Ticket(id));
         total += count;
         used.merge(id, count, Integer::sum);
+        if (count > 0)
+            ConsumptionObservation.safely(
+                    observation,
+                    id,
+                    ConsumptionObservation.Phase.CAPACITY_RESERVED,
+                    ConsumptionObservation.Outcome.CONFIRMED,
+                    count,
+                    Duration.ZERO);
         return List.copyOf(result);
     }
 
@@ -60,12 +79,25 @@ public final class WorkerCapacity {
             return WorkerCapacity.this == capacity && this.id.equals(id);
         }
 
+        boolean retained() {
+            synchronized (WorkerCapacity.this) {
+                return !released;
+            }
+        }
+
         boolean release() {
             synchronized (WorkerCapacity.this) {
                 if (released) return false;
                 released = true;
                 total--;
                 used.compute(id, (key, count) -> count - 1);
+                ConsumptionObservation.safely(
+                        observation,
+                        id,
+                        ConsumptionObservation.Phase.CAPACITY_RETURNED,
+                        ConsumptionObservation.Outcome.CONFIRMED,
+                        1,
+                        Duration.ZERO);
                 return true;
             }
         }

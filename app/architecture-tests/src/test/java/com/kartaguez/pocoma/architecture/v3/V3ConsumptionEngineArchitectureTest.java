@@ -60,6 +60,62 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".port.transaction.v3.AttemptTransactions");
     }
 
+    static ArchRule purePollWorker() {
+        return noClasses()
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "java.sql..",
+                        "javax.sql..",
+                        "org.springframework..",
+                        "jakarta.persistence..",
+                        ROOT + ".infra..",
+                        ROOT + ".runtime..",
+                        ROOT + ".port.transaction.v3.AttemptTransactions",
+                        ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket");
+    }
+
+    @Test
+    void i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority() {
+        var worker =
+                select(
+                        PROD,
+                        c -> c.getPackageName().equals(ROOT + ".orchestrator.poll.consumption.v3"));
+        assertTrue(worker.size() >= 4);
+        purePollWorker().check(worker);
+        var sqlBad = new ClassFileImporter().importClasses(BadWorkerSql.class);
+        assertTrue(purePollWorker().evaluate(sqlBad).hasViolation());
+        for (var entry :
+                Map.of(
+                                ROOT + ".port.transaction.v3.AttemptTransactions",
+                                BadWorkerOwner.class,
+                                ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket",
+                                BadWorkerTicket.class)
+                        .entrySet()) {
+            var rule =
+                    noClasses()
+                            .should()
+                            .dependOnClassesThat()
+                            .haveFullyQualifiedName(entry.getKey());
+            rule.check(worker);
+            assertTrue(
+                    rule.evaluate(new ClassFileImporter().importClasses(entry.getValue()))
+                            .hasViolation());
+        }
+    }
+
+    static class BadWorkerSql {
+        java.sql.Connection connection;
+    }
+
+    static class BadWorkerTicket {
+        com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacity.Ticket ticket;
+    }
+
+    static class BadWorkerOwner {
+        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions owner;
+    }
+
     @Test
     void engineAndContractsPureAndAgnostic() {
         pureEngine()

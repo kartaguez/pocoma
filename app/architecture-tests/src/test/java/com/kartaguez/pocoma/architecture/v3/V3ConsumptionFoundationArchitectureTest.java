@@ -78,8 +78,9 @@ class V3ConsumptionFoundationArchitectureTest {
                                             + clazz
                                             + ".java"));
             assertTrue(
-                    code.contains(
-                            "@org.springframework.context.annotation.Profile(\"!v3-consumption-pilot\")"));
+                    code.replaceAll("\\s+", "")
+                            .contains(
+                                    "@org.springframework.context.annotation.Profile(\"!v3-consumption-pilot&!v3-consumption-worker-dev\")"));
             assertTrue(code.contains("V3ConsumptionCatalogConfiguration.class"));
         }
     }

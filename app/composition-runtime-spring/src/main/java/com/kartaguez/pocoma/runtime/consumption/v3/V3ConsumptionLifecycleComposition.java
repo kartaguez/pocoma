@@ -80,6 +80,43 @@ public final class V3ConsumptionLifecycleComposition {
                 classifier);
     }
 
+    /** Four-pool runtime: effects and control units are consecutive, never nested. */
+    public static ConsumptionEngine assemble(
+            V3BootstrapGuard guard,
+            ConsumptionDefinition definition,
+            com.zaxxer.hikari.HikariDataSource business,
+            com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions effects,
+            ConsumptionParticipant participant,
+            com.zaxxer.hikari.HikariDataSource control,
+            com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions technical,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            AttemptFailureClassifier classifier,
+            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+        if (business == control
+                || business.getMaximumPoolSize() < capacity.workerLimit() + 2
+                || control.getMaximumPoolSize() < capacity.workerLimit() + 6)
+            throw new IllegalArgumentException("distinct Business/Control reserves required");
+        effects.requireSource(business);
+        technical.requireSource(control);
+        var profile = V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY;
+        guard.validateLifecycleSource(business, definition.authority(), profile);
+        guard.validateLifecycleSource(control, definition.authority(), profile);
+        return new ConsumptionEngine(
+                definition,
+                effects,
+                new JdbcConsumptionSlotStore(business),
+                participant,
+                technical,
+                new JdbcConsumptionSlotStore(control),
+                new JdbcPartitionOwnershipStore(control),
+                settings,
+                capacity,
+                classifier,
+                new JdbcSlotKeyNavigation(control, settings),
+                observation);
+    }
+
     /** Excluded causes dominate SQL/JPA, then technical faults; wrappers alone prove no fault. */
     public static FailureKind classify(Throwable failure) {
         if (failure == null) return FailureKind.NON_COUNTABLE;

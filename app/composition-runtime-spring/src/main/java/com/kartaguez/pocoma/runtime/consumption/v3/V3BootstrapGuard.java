@@ -25,6 +25,9 @@ public final class V3BootstrapGuard {
         LIFECYCLE_AND_DISCOVERY
     }
 
+    private final boolean development;
+    private final boolean technicalProbes;
+    private final boolean fixtureIdentity;
     private final Target write;
     private final Target read;
     private final List<ConsumptionDefinition> definitions;
@@ -53,12 +56,42 @@ public final class V3BootstrapGuard {
     }
 
     public V3BootstrapGuard(Target write, Target read, List<ConsumptionDefinition> definitions) {
+        this(write, read, definitions, false, false, false);
+    }
+
+    private V3BootstrapGuard(
+            Target write,
+            Target read,
+            List<ConsumptionDefinition> definitions,
+            boolean development,
+            boolean probes,
+            boolean fixture) {
         this.write = Objects.requireNonNull(write);
         this.read = Objects.requireNonNull(read);
         this.definitions = List.copyOf(definitions);
-        if (definitions.size() != 9
-                || definitions.stream().map(ConsumptionDefinition::id).distinct().count() != 9)
-            throw new IllegalArgumentException("nine unique pilot identities required");
+        this.development = development;
+        this.technicalProbes = probes;
+        this.fixtureIdentity = fixture;
+        if (!development) {
+            if (definitions.size() != 9
+                    || definitions.stream().map(ConsumptionDefinition::id).distinct().count() != 9)
+                throw new IllegalArgumentException("nine unique pilot identities required");
+        } else {
+            var expected = new ArrayList<>(V3ConsumptionCatalogConfiguration.definitions());
+            if (probes) expected.addAll(V3ConsumptionWorkerSettings.probeDefinitions());
+            if (definitions.size() != expected.size()
+                    || !new HashSet<>(definitions).equals(new HashSet<>(expected)))
+                throw new IllegalArgumentException("exact business/technical tuples required");
+        }
+    }
+
+    public static V3BootstrapGuard development(
+            Target write,
+            Target read,
+            List<ConsumptionDefinition> definitions,
+            boolean probes,
+            boolean fixture) {
+        return new V3BootstrapGuard(write, read, definitions, true, probes, fixture);
     }
 
     public void validate() {
@@ -173,9 +206,14 @@ public final class V3BootstrapGuard {
                 try (var rs = s.executeQuery("select count(*) from partition_ownership")) {
                     rs.next();
                     require(
-                            rs.getInt(1) == (authority == Authority.WRITE ? 8 : 28),
+                            rs.getInt(1)
+                                    == definitions.stream()
+                                                    .filter(d -> d.authority() == authority)
+                                                    .count()
+                                            * 4,
                             "extra ownership");
                 }
+                if (development) inspectDevelopment(s, authority);
                 // All table rights are effective rights: PUBLIC and inherited roles included.
                 if (profile != null) inspectLifecycle(s, profile);
                 if (profile == Privileges.LIFECYCLE_AND_DISCOVERY && authority == Authority.WRITE)
@@ -439,9 +477,105 @@ public final class V3BootstrapGuard {
         try (var rows =
                 statement.executeQuery(
                         "select exists(select 1 from pg_proc where pronamespace=(select oid from"
-                            + " pg_namespace where nspname=current_schema()) and prosecdef)")) {
+                                + " pg_namespace where nspname=current_schema()) and prosecdef)")) {
             rows.next();
             require(!rows.getBoolean(1), "SECURITY DEFINER in combined authority");
+        }
+    }
+
+    private void inspectDevelopment(Statement s, Authority authority) throws SQLException {
+        try (var row =
+                s.executeQuery(
+                        "select"
+                            + " has_database_privilege(current_database(),'CREATE,TEMP'),has_schema_privilege('public','CREATE')")) {
+            row.next();
+            require(
+                    !row.getBoolean(1) && !row.getBoolean(2),
+                    "runtime database/public-schema DDL privilege");
+        }
+        String fixture =
+                authority == Authority.WRITE ? "i5_fixture_identity" : "i5_read_probe_effect";
+        boolean enabled = authority == Authority.WRITE ? fixtureIdentity : technicalProbes;
+        try (var row = s.executeQuery("select to_regclass('" + fixture + "') is not null")) {
+            row.next();
+            require(
+                    row.getBoolean(1) == enabled,
+                    "fixture installation differs from explicit mode");
+        }
+        if (enabled) {
+            try (var row =
+                    s.executeQuery(
+                            "select has_table_privilege('"
+                                    + fixture
+                                    + "','SELECT'),has_table_privilege('"
+                                    + fixture
+                                    + "','INSERT'),has_table_privilege('"
+                                    + fixture
+                                    + "','UPDATE,DELETE,TRUNCATE,TRIGGER,REFERENCES')")) {
+                row.next();
+                require(
+                        row.getBoolean(1)
+                                && row.getBoolean(2) == (authority == Authority.READ)
+                                && !row.getBoolean(3),
+                        "unsafe fixture table rights");
+            }
+            try (var rows =
+                    s.executeQuery(
+                            "select column_name,has_column_privilege('"
+                                    + fixture
+                                    + "',column_name,'INSERT'),has_column_privilege('"
+                                    + fixture
+                                    + "',column_name,'UPDATE'),has_column_privilege('"
+                                    + fixture
+                                    + "',column_name,'REFERENCES') from information_schema.columns"
+                                    + " where table_schema=current_schema() and table_name='"
+                                    + fixture
+                                    + "'")) {
+                while (rows.next())
+                    require(
+                            rows.getBoolean(2) == (authority == Authority.READ)
+                                    && rows.getBoolean(3)
+                                            == (authority == Authority.WRITE
+                                                    && rows.getString(1).equals("revision"))
+                                    && !rows.getBoolean(4),
+                            "unsafe fixture column rights");
+            }
+        }
+        // Effective grants on any unlisted object would introduce another borrower/writer.
+        try (var rows =
+                s.executeQuery(
+                        "select"
+                            + " tablename,has_table_privilege(quote_ident(schemaname)||'.'||quote_ident(tablename),'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')"
+                            + " from pg_tables where schemaname=current_schema()")) {
+            var writeTables =
+                    Set.of(
+                            "v3_command",
+                            "v3_command_result",
+                            "v3_pot_identity",
+                            "v3_pot_version",
+                            "v3_shareholder_identity",
+                            "v3_expense_identity",
+                            "v3_pot_header",
+                            "v3_pot_details",
+                            "v3_shareholder_header",
+                            "v3_shareholder_details",
+                            "v3_shareholder_weight",
+                            "v3_expense_header",
+                            "v3_expense_details",
+                            "v3_expense_financials",
+                            "v3_expense_participant",
+                            "v3_pot_event",
+                            "v3_pot_event_component",
+                            "v3_command_completion_event",
+                            "v3_event_position",
+                            "v3_event_counter");
+            while (rows.next()) {
+                String table = rows.getString(1);
+                if (TABLES.contains(table)
+                        || (enabled && table.equals(fixture))
+                        || (authority == Authority.WRITE && writeTables.contains(table))) continue;
+                require(!rows.getBoolean(2), "unallocated runtime table privileges");
+            }
         }
     }
 

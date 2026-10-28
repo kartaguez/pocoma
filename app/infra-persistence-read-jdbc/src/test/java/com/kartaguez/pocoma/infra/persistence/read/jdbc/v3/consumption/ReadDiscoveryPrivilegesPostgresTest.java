@@ -53,6 +53,14 @@ class ReadDiscoveryPrivilegesPostgresTest {
                         "runtime_role=" + worker,
                         "-v",
                         "reactivation_role=" + react,
+                        "-v",
+                        "environment=DEV",
+                        "-v",
+                        "fixture_identity=false",
+                        "-v",
+                        "technical_probes=true",
+                        "-v",
+                        "injector_role=" + react,
                         "-f",
                         "/tmp/" + name);
         trace.add(name + " exit=" + r.getExitCode() + " " + r.getStdout() + r.getStderr());
@@ -68,7 +76,7 @@ class ReadDiscoveryPrivilegesPostgresTest {
         var source = new DriverManagerDataSource(url, PG.getUsername(), PG.getPassword());
         var admin = new JdbcTemplate(source);
         admin.execute(
-                "create extension pgcrypto with schema public;create role "
+                "create extension if not exists pgcrypto with schema public;create role "
                         + worker
                         + " login password 'fixture';create role "
                         + react
@@ -190,5 +198,121 @@ class ReadDiscoveryPrivilegesPostgresTest {
         var path = Path.of("target/v3-i4-evidence/read-effective-privileges.txt");
         Files.createDirectories(path.getParent());
         Files.write(path, trace);
+    }
+
+    @Test
+    void i5_read_pools() throws Exception {
+        schema = "i5r_" + UUID.randomUUID().toString().replace("-", "");
+        worker = schema + "_w";
+        react = schema + "_a";
+        String url = PG.getJdbcUrl() + "&currentSchema=" + schema;
+        var source = new DriverManagerDataSource(url, PG.getUsername(), PG.getPassword());
+        var admin = new JdbcTemplate(source);
+        admin.execute(
+                "create extension if not exists pgcrypto with schema public;create role "
+                        + worker
+                        + " login password 'fixture';create role "
+                        + react
+                        + " login password 'fixture'");
+        Flyway.configure()
+                .dataSource(source)
+                .schemas(schema)
+                .defaultSchema(schema)
+                .locations("classpath:db/v3-consumption-read/migration")
+                .placeholders(
+                        Map.of(
+                                "expectedDatabase",
+                                PG.getDatabaseName(),
+                                "expectedSchema",
+                                schema,
+                                "expectedAdmin",
+                                PG.getUsername(),
+                                "expectedRuntime",
+                                worker))
+                .load()
+                .migrate();
+        for (String script :
+                List.of(
+                        "bootstrap-l2-routing.sql",
+                        "grant-l2-lifecycle.sql",
+                        "grant-l2-discovery.sql",
+                        "bootstrap-l2-worker-dev.sql",
+                        "grant-l2-worker-dev.sql")) assertEquals(0, script(script));
+        assertEquals(
+                9,
+                admin.queryForObject(
+                        "select count(*) from consumption_routing_contract", Integer.class));
+        var businessConfig = new com.zaxxer.hikari.HikariConfig();
+        businessConfig.setJdbcUrl(url);
+        businessConfig.setUsername(worker);
+        businessConfig.setPassword("fixture");
+        businessConfig.setPoolName("i5-read-business");
+        businessConfig.setMaximumPoolSize(3);
+        businessConfig.setMinimumIdle(3);
+        var controlConfig = new com.zaxxer.hikari.HikariConfig();
+        controlConfig.setJdbcUrl(url);
+        controlConfig.setUsername(worker);
+        controlConfig.setPassword("fixture");
+        controlConfig.setPoolName("i5-read-control");
+        controlConfig.setMaximumPoolSize(7);
+        controlConfig.setMinimumIdle(7);
+        try (var business = new com.zaxxer.hikari.HikariDataSource(businessConfig);
+                var control = new com.zaxxer.hikari.HikariDataSource(controlConfig)) {
+            var held = new ArrayList<java.sql.Connection>();
+            try {
+                for (int n = 0; n < 3; n++) held.add(business.getConnection());
+                assertEquals(3, business.getHikariPoolMXBean().getActiveConnections());
+                try (var c = control.getConnection()) {
+                    c.setReadOnly(true);
+                    c.setAutoCommit(false);
+                    try (var q = c.createStatement();
+                            var row =
+                                    q.executeQuery(
+                                            "select"
+                                                + " current_database(),current_schema(),current_user,pg_backend_pid(),pg_current_xact_id_if_assigned()::text")) {
+                        row.next();
+                        assertEquals(worker, row.getString(3));
+                        assertEquals(schema, row.getString(2));
+                        trace.add(
+                                "independent READ control borrow and commit while three Business"
+                                    + " connections held, PID="
+                                        + row.getInt(4));
+                    }
+                    c.commit();
+                }
+                var sql = new JdbcTemplate(control);
+                assertFalse(
+                        sql.queryForObject(
+                                "select has_database_privilege(current_database(),'CREATE,TEMP')",
+                                Boolean.class));
+                assertThrows(
+                        RuntimeException.class,
+                        () -> sql.execute("create temporary table forbidden_temp(id int)"));
+                assertThrows(
+                        RuntimeException.class,
+                        () -> sql.execute("create table forbidden_persistent(id int)"));
+                assertThrows(
+                        RuntimeException.class,
+                        () ->
+                                sql.execute(
+                                        "update consumption_routing_contract set"
+                                            + " partition_count=4"));
+                assertEquals(
+                        0,
+                        admin.queryForObject(
+                                "select count(*) from i5_read_probe_effect", Integer.class));
+                admin.execute("grant create on schema " + schema + " to " + worker);
+                assertNotEquals(0, script("grant-l2-worker-dev.sql"));
+                trace.add(
+                        "two READ pools share only exact role/schema, distinct physical resource;"
+                            + " no READ projection certified");
+            } finally {
+                for (var connection : held) connection.close();
+            }
+        } finally {
+            var path = Path.of("target/v3-i5-evidence/i5_read_pools.txt");
+            Files.createDirectories(path.getParent());
+            Files.write(path, trace);
+        }
     }
 }

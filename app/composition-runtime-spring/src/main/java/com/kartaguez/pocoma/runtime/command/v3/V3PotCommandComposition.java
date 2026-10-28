@@ -77,28 +77,62 @@ public final class V3PotCommandComposition {
                 settings,
                 capacity,
                 maximumConnections,
-                cause -> {
-                    var common = V3ConsumptionLifecycleComposition.classify(cause);
-                    if (common == FailureKind.NON_COUNTABLE) return common;
-                    var seen =
-                            java.util.Collections.newSetFromMap(
-                                    new java.util.IdentityHashMap<Throwable, Boolean>());
-                    var queue = new java.util.ArrayDeque<Throwable>();
-                    if (cause != null) queue.add(cause);
-                    while (!queue.isEmpty()) {
-                        var next = queue.removeFirst();
-                        if (!seen.add(next)) continue;
-                        if (next instanceof ExecutePotCommand.Collision)
-                            return FailureKind.COLLISION;
-                        if (next
-                                instanceof
-                                com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException)
-                            return FailureKind.INCONSISTENT_FACTS;
-                        if (next.getCause() != null) queue.add(next.getCause());
-                        java.util.Collections.addAll(queue, next.getSuppressed());
-                    }
-                    return common;
-                },
+                V3PotCommandComposition::classify,
                 privileges);
+    }
+
+    private static FailureKind classify(Throwable cause) {
+        var common = V3ConsumptionLifecycleComposition.classify(cause);
+        if (common == FailureKind.NON_COUNTABLE) return common;
+        var seen =
+                java.util.Collections.newSetFromMap(
+                        new java.util.IdentityHashMap<Throwable, Boolean>());
+        var queue = new java.util.ArrayDeque<Throwable>();
+        if (cause != null) queue.add(cause);
+        while (!queue.isEmpty()) {
+            var next = queue.removeFirst();
+            if (!seen.add(next)) continue;
+            if (next instanceof ExecutePotCommand.Collision) return FailureKind.COLLISION;
+            if (next instanceof com.kartaguez.pocoma.domain.pot.v3.InconsistentPotFactsException)
+                return FailureKind.INCONSISTENT_FACTS;
+            if (next.getCause() != null) queue.add(next.getCause());
+            java.util.Collections.addAll(queue, next.getSuppressed());
+        }
+        return common;
+    }
+
+    public static ConsumptionEngine assemble(
+            com.zaxxer.hikari.HikariDataSource business,
+            SpringAttemptTransactions effects,
+            com.zaxxer.hikari.HikariDataSource control,
+            SpringAttemptTransactions technical,
+            PotActorAuthority identity,
+            Clock clock,
+            V3BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation observation) {
+        effects.requireSource(business);
+        var participant =
+                new ExecutePotCommand(
+                        new JdbcPotCommandStore(business, effects),
+                        new JdbcPotCommandObservation(business),
+                        identity,
+                        new JdbcPotHistoryAdapter(business),
+                        new JdbcPotRevisionAdapter(business),
+                        clock);
+        var definition = V3ConsumptionCatalogConfiguration.definitions().getFirst();
+        return V3ConsumptionLifecycleComposition.assemble(
+                guard,
+                definition,
+                business,
+                effects,
+                participant,
+                control,
+                technical,
+                settings,
+                capacity,
+                V3PotCommandComposition::classify,
+                observation);
     }
 }

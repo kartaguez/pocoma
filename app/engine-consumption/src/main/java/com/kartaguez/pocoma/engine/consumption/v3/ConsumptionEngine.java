@@ -3,12 +3,16 @@ package com.kartaguez.pocoma.engine.consumption.v3;
 import com.kartaguez.pocoma.domain.consumption.v3.ConsumptionDefinition;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier;
 import com.kartaguez.pocoma.engine.consumption.v3.port.AttemptFailureClassifier.FailureKind;
+import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
+import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionSlotStore.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.PartitionOwnershipStore;
+import com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions;
 import com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -53,6 +57,10 @@ public final class ConsumptionEngine {
     private final AttemptTransactions transactions;
     private final ConsumptionSlotStore slots;
     private final ConsumptionParticipant participant;
+    private final AttemptTransactions controlTransactions;
+    private final ConsumptionSlotStore controlSlots;
+    private final SlotKeyNavigation navigation;
+    private final ConsumptionObservation observation;
 
     private final PartitionOwnershipStore ownership;
     private final LifecycleSettings settings;
@@ -93,9 +101,41 @@ public final class ConsumptionEngine {
             LifecycleSettings settings,
             WorkerCapacity capacity,
             AttemptFailureClassifier classifier) {
+        this(
+                definition,
+                transactions,
+                slots,
+                participant,
+                transactions,
+                slots,
+                ownership,
+                settings,
+                capacity,
+                classifier,
+                null,
+                ConsumptionObservation.noop());
+    }
+
+    public ConsumptionEngine(
+            ConsumptionDefinition definition,
+            AttemptTransactions effectsTransactions,
+            ConsumptionSlotStore effectsSlots,
+            ConsumptionParticipant participant,
+            AttemptTransactions controlTransactions,
+            ConsumptionSlotStore controlSlots,
+            PartitionOwnershipStore ownership,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            AttemptFailureClassifier classifier,
+            SlotKeyNavigation navigation,
+            ConsumptionObservation observation) {
         this.definition = Objects.requireNonNull(definition);
-        this.transactions = Objects.requireNonNull(transactions);
-        this.slots = Objects.requireNonNull(slots);
+        this.transactions = Objects.requireNonNull(effectsTransactions);
+        this.slots = Objects.requireNonNull(effectsSlots);
+        this.controlTransactions = Objects.requireNonNull(controlTransactions);
+        this.controlSlots = Objects.requireNonNull(controlSlots);
+        this.navigation = navigation;
+        this.observation = Objects.requireNonNull(observation);
         this.participant = Objects.requireNonNull(participant);
         this.ownership = Objects.requireNonNull(ownership);
         this.settings = Objects.requireNonNull(settings);
@@ -106,14 +146,110 @@ public final class ConsumptionEngine {
     }
 
     private <T> T technical(Supplier<T> operation) {
-        return transactions.write(
+        return controlTransactions.write(
                 () -> {
                     ownership.bound(settings.lockTimeout(), settings.statementTimeout());
                     return operation.get();
                 });
     }
 
+    /** Read-only local information; never an execution or release permission. */
+    public boolean retainsCapacity(AcquiredClaim handle) {
+        if (handle == null || handle.owner != this)
+            throw new IllegalArgumentException("foreign claim handle");
+        return handle.ticket.retained();
+    }
+
+    public SlotKeyNavigation.Page navigate(
+            PartitionLease lease, SlotKeyNavigation.Walk walk, int limit) {
+        checkLease(lease);
+        Objects.requireNonNull(walk);
+        if (navigation == null) throw new IllegalStateException("slot navigation not configured");
+        if (limit < 1 || limit > settings.batchSize())
+            throw new IllegalArgumentException("invalid page bound");
+        return measured(
+                Phase.NAVIGATION,
+                () ->
+                        controlTransactions.read(
+                                context ->
+                                        navigation.readPage(
+                                                definition.id(),
+                                                lease.partitionId(),
+                                                walk,
+                                                limit,
+                                                context)));
+    }
+
+    private <T> T measured(Phase phase, Supplier<T> operation) {
+        long begin = System.nanoTime();
+        Outcome outcome = Outcome.CONFIRMED;
+        long amount = 1;
+        try {
+            T result = operation.get();
+            if (result instanceof Attempt attempt)
+                outcome =
+                        switch (attempt.resolution()) {
+                            case COMMITTED -> Outcome.COMMITTED;
+                            case ROLLED_BACK -> Outcome.ROLLED_BACK;
+                            case UNKNOWN -> Outcome.UNKNOWN;
+                        };
+            if (phase == Phase.ATTEMPT && result instanceof Attempt attempt) {
+                if (attempt.status() == Status.INCONSISTENT) outcome = Outcome.INCONSISTENT;
+                else if (attempt.status() == Status.RECOVERY_PENDING)
+                    outcome = Outcome.RECOVERY_PENDING;
+                else if (attempt.status() == Status.CLAIM_LOST) outcome = Outcome.CLAIM_LOST;
+            }
+            if (result instanceof Acquisition acquired) {
+                amount = acquired.claims().size();
+                ConsumptionObservation.safely(
+                        observation,
+                        definition.id(),
+                        Phase.ACQUISITION_EXAMINED,
+                        Outcome.CONFIRMED,
+                        acquired.examinedCount(),
+                        Duration.ZERO);
+            } else if (result instanceof SlotKeyNavigation.Page page) amount = page.keys().size();
+            else if (phase == Phase.SETTLE && result instanceof Integer count) amount = count;
+            else if (result instanceof List<?> list) amount = list.size();
+            else if (result instanceof java.util.Optional<?> optional) {
+                if (optional.isEmpty()) {
+                    amount = 0;
+                    outcome = Outcome.EMPTY;
+                }
+            }
+            return result;
+        } catch (Failure failure) {
+            if (phase == Phase.CESSION
+                    || phase == Phase.ACQUIRE
+                    || phase == Phase.CLAIM_RENEW
+                    || phase == Phase.LEASE_ACQUIRE
+                    || phase == Phase.LEASE_RENEW) amount = 0;
+            outcome =
+                    switch (failure.resolution()) {
+                        case COMMITTED -> Outcome.COMMITTED;
+                        case ROLLED_BACK -> Outcome.ROLLED_BACK;
+                        case UNKNOWN -> Outcome.UNKNOWN;
+                    };
+            throw failure;
+        } catch (RuntimeException | Error failure) {
+            outcome = Outcome.UNKNOWN;
+            throw failure;
+        } finally {
+            ConsumptionObservation.safely(
+                    observation,
+                    definition.id(),
+                    phase,
+                    outcome,
+                    amount,
+                    Duration.ofNanos(System.nanoTime() - begin));
+        }
+    }
+
     public Optional<PartitionLease> acquirePartition(int partition) {
+        return measured(Phase.LEASE_ACQUIRE, () -> acquirePartitionOperation(partition));
+    }
+
+    private Optional<PartitionLease> acquirePartitionOperation(int partition) {
         checkPartition(partition);
         // If the ACK is UNKNOWN, no lease is returned or used. A later acquisition gets a new
         // token.
@@ -127,22 +263,34 @@ public final class ConsumptionEngine {
     }
 
     public List<PartitionLease> renewPartitions(List<PartitionLease> leases) {
+        return measured(Phase.LEASE_RENEW, () -> renewPartitionsOperation(leases));
+    }
+
+    private List<PartitionLease> renewPartitionsOperation(List<PartitionLease> leases) {
         bounded(leases);
         leases.forEach(this::checkLease);
         return technical(() -> ownership.renew(definition, leases, settings.leaseDuration()));
     }
 
     public List<GrantedClaim> renewClaims(List<ClaimedSlot> claims) {
+        return measured(Phase.CLAIM_RENEW, () -> renewClaimsOperation(claims));
+    }
+
+    private List<GrantedClaim> renewClaimsOperation(List<ClaimedSlot> claims) {
         bounded(claims);
         claims.forEach(
                 c -> {
                     if (!c.consumptionId().equals(definition.id()))
                         throw new IllegalArgumentException("foreign claim");
                 });
-        return technical(() -> slots.renew(claims, settings.claimDuration()));
+        return technical(() -> controlSlots.renew(claims, settings.claimDuration()));
     }
 
     public Acquisition acquire(PartitionLease lease, List<UUID> examinedKeys) {
+        return measured(Phase.ACQUIRE, () -> acquireOperation(lease, examinedKeys));
+    }
+
+    private Acquisition acquireOperation(PartitionLease lease, List<UUID> examinedKeys) {
         checkLease(lease);
         bounded(examinedKeys);
         var tickets = capacity.reserve(definition.id(), examinedKeys.size());
@@ -154,7 +302,7 @@ public final class ConsumptionEngine {
             candidates.add(new ClaimCandidate(claim.consumableId(), claim.claimToken()));
             handles.add(new AcquiredClaim(this, claim, tickets.get(i)));
         }
-        pending.addAll(handles);
+        handles.forEach(this::addPending);
         try {
             var granted =
                     technical(
@@ -163,7 +311,7 @@ public final class ConsumptionEngine {
                                             .protectAcquisition(definition, lease)
                                             .map(
                                                     protectedLease ->
-                                                            slots.acquire(
+                                                            controlSlots.acquire(
                                                                     protectedLease,
                                                                     candidates,
                                                                     settings.claimDuration())));
@@ -171,7 +319,7 @@ public final class ConsumptionEngine {
             granted.orElseGet(List::of).forEach(g -> won.add(g.claim()));
             var result = new ArrayList<AcquiredClaim>();
             for (var handle : handles) {
-                pending.remove(handle);
+                removePending(handle);
                 if (won.contains(handle.claim)) result.add(handle);
                 else handle.ticket.release();
             }
@@ -179,7 +327,7 @@ public final class ConsumptionEngine {
         } catch (Failure failure) {
             if (failure.resolution() == Resolution.ROLLED_BACK) {
                 for (var handle : handles) {
-                    pending.remove(handle);
+                    removePending(handle);
                     handle.ticket.release();
                 }
             }
@@ -202,13 +350,25 @@ public final class ConsumptionEngine {
     }
 
     public Attempt execute(AcquiredClaim acquired) {
+        return measured(Phase.ATTEMPT, () -> executeOperation(acquired));
+    }
+
+    private Attempt executeOperation(AcquiredClaim acquired) {
         start(acquired);
         acquired.localDone = false;
         acquired.businessStarted = true;
-        pending.add(acquired);
+        addPending(acquired);
         boolean resolved = false;
         try {
             var attempt = executeAttempt(acquired.claim);
+            if (attempt.status() == Status.CLAIM_LOST)
+                ConsumptionObservation.safely(
+                        observation,
+                        definition.id(),
+                        Phase.CLAIM_LOST,
+                        Outcome.CONFIRMED,
+                        1,
+                        Duration.ZERO);
             resolved = attempt.resolution() != Resolution.UNKNOWN;
             var kind = FailureKind.NON_COUNTABLE;
             Cession cession = null;
@@ -221,10 +381,25 @@ public final class ConsumptionEngine {
                     resolved = false;
                     try {
                         cession =
-                                technical(() -> slots.cede(acquired.claim, settings.retry()))
+                                measured(
+                                                Phase.CESSION,
+                                                () ->
+                                                        technical(
+                                                                () ->
+                                                                        controlSlots.cede(
+                                                                                acquired.claim,
+                                                                                settings.retry())))
                                         .orElse(null);
                         cessionResolution = Resolution.COMMITTED;
                         resolved = true;
+                        if (cession != null && "QUARANTINED".equals(cession.state()))
+                            ConsumptionObservation.safely(
+                                    observation,
+                                    definition.id(),
+                                    Phase.QUARANTINE,
+                                    Outcome.COMMITTED,
+                                    1,
+                                    Duration.ZERO);
                     } catch (Failure failure) {
                         cessionResolution = failure.resolution();
                         resolved = cessionResolution != Resolution.UNKNOWN;
@@ -247,7 +422,7 @@ public final class ConsumptionEngine {
             // Classification can fail after a confirmed rollback. Release only when the last
             // physical operation is known resolved; raw port failures and UNKNOWN stay pending.
             if (resolved) {
-                pending.remove(acquired);
+                removePending(acquired);
                 acquired.ticket.release();
             }
         }
@@ -255,6 +430,10 @@ public final class ConsumptionEngine {
 
     /** Bounded technical inspection only; never cede, re-execute or repair business data. */
     public int settlePending() {
+        return measured(Phase.SETTLE, () -> settlePendingOperation());
+    }
+
+    private int settlePendingOperation() {
         List<AcquiredClaim> snapshot;
         synchronized (pending) {
             snapshot =
@@ -266,7 +445,7 @@ public final class ConsumptionEngine {
             inspections =
                     technical(
                             () ->
-                                    slots.inspectResolved(
+                                    controlSlots.inspectResolved(
                                             snapshot.stream().map(h -> h.claim).toList()));
         } catch (RuntimeException unavailable) {
             return 0;
@@ -285,10 +464,34 @@ public final class ConsumptionEngine {
                                     && (!handle.businessStarted
                                             || observe(handle.claim)
                                                     == RecoveryObservation.COMPLETED));
-            if (safe && handle.localDone && pending.remove(handle) && handle.ticket.release())
+            if (safe && handle.localDone && removePending(handle) && handle.ticket.release())
                 released++;
         }
         return released;
+    }
+
+    private void addPending(AcquiredClaim handle) {
+        if (pending.add(handle))
+            ConsumptionObservation.safely(
+                    observation,
+                    definition.id(),
+                    Phase.PENDING,
+                    Outcome.CONFIRMED,
+                    1,
+                    Duration.ZERO);
+    }
+
+    private boolean removePending(AcquiredClaim handle) {
+        boolean removed = pending.remove(handle);
+        if (removed)
+            ConsumptionObservation.safely(
+                    observation,
+                    definition.id(),
+                    Phase.PENDING,
+                    Outcome.CONFIRMED,
+                    -1,
+                    Duration.ZERO);
+        return removed;
     }
 
     private void checkPartition(int partition) {
@@ -316,7 +519,12 @@ public final class ConsumptionEngine {
             throw new IllegalArgumentException("Claim belongs to another Consumption");
         java.util.Optional<ConsumptionParticipant.Prepared> prepared;
         try {
-            prepared = transactions.read(context -> participant.prepare(claim.consumableId()));
+            prepared =
+                    measured(
+                            Phase.PREPARE,
+                            () ->
+                                    transactions.read(
+                                            context -> participant.prepare(claim.consumableId())));
         } catch (Failure failure) {
             // A committed preparation snapshot is not a committed business attempt.
             return failure.resolution() == Resolution.ROLLED_BACK
@@ -330,6 +538,11 @@ public final class ConsumptionEngine {
     }
 
     private Attempt finalizeAttempt(ClaimedSlot claim, ConsumptionParticipant.Prepared prepared) {
+        return measured(Phase.FINALIZE, () -> finalizeAttemptOperation(claim, prepared));
+    }
+
+    private Attempt finalizeAttemptOperation(
+            ClaimedSlot claim, ConsumptionParticipant.Prepared prepared) {
         try {
             transactions.write(
                     () -> {
@@ -364,6 +577,10 @@ public final class ConsumptionEngine {
 
     /** A fresh, physically read-only coherent snapshot; never repair or infer rollback. */
     public RecoveryObservation observe(ClaimedSlot claim) {
+        return measured(Phase.OBSERVE, () -> observeOperation(claim));
+    }
+
+    private RecoveryObservation observeOperation(ClaimedSlot claim) {
         if (!definition.id().equals(claim.consumptionId()))
             throw new IllegalArgumentException("Claim belongs to another Consumption");
         try {

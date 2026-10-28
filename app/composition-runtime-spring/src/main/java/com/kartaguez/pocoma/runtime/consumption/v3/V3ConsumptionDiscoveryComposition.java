@@ -23,7 +23,8 @@ public final class V3ConsumptionDiscoveryComposition {
                 != V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY)
             throw new IllegalArgumentException(
                     "Discovery requires an explicitly selected combined profile");
-        if (!V3ConsumptionCatalogConfiguration.definitions().contains(definition))
+        if (!V3ConsumptionCatalogConfiguration.definitions().contains(definition)
+                && !V3ConsumptionWorkerSettings.probeDefinitions().contains(definition))
             throw new IllegalArgumentException("unknown pilot definition");
         Objects.requireNonNull(guard).validateLifecyclePrivileges(privileges);
         guard.validateLifecycleSource(source, definition.authority(), privileges);

@@ -1,0 +1,884 @@
+{
+  "milestone": "L2-I5",
+  "baseline": "73a588f3b24ca48d16573a5d757b0d0c9e50c93b",
+  "authorization": "Explicit human GO, 2026-10-28",
+  "status": "NOT RUN",
+  "audit_reservation": "R-AUD-I3-03 OPEN",
+  "scope": "COMMAND; READ JDBC; MONOLITH; architecture and full final gates",
+  "required_methods": {
+    "V3ConsumptionWorkerTest": [
+      "i5_u01",
+      "i5_u02",
+      "i5_u03",
+      "i5_u04",
+      "i5_u05",
+      "i5_u06",
+      "i5_u07"
+    ],
+    "SlotNavigationPostgresTest": [
+      "i5_n01",
+      "i5_n02",
+      "i5_n03",
+      "i5_n04",
+      "i5_n05",
+      "i5_n06",
+      "i5_n07",
+      "i5_n08"
+    ],
+    "V3WorkerPostgresTest": [
+      "i5_w01",
+      "i5_w02",
+      "i5_w03",
+      "i5_w04",
+      "i5_w05",
+      "i5_w06",
+      "i5_w07",
+      "i5_w08",
+      "i5_w09",
+      "i5_w10",
+      "i5_w11",
+      "i5_w12",
+      "i5_w13",
+      "i5_w14",
+      "i5_w15",
+      "i5_w16",
+      "i5_w17",
+      "i5_w18",
+      "i5_w19"
+    ],
+    "V3WorkerResourcesPostgresTest": [
+      "i5_r01",
+      "i5_r02",
+      "i5_r03",
+      "i5_r04",
+      "i5_r05",
+      "i5_r06",
+      "i5_r07",
+      "i5_r08",
+      "i5_r09"
+    ],
+    "V3WorkerCompositionPostgresTest": [
+      "i5_c01",
+      "i5_c02",
+      "i5_c03",
+      "i5_c04",
+      "i5_c05"
+    ],
+    "V3WorkerMetricsTest": [
+      "i5_m01",
+      "i5_m02"
+    ],
+    "V3WorkerMonolithPostgresTest": [
+      "i5_mono01"
+    ],
+    "ReadDiscoveryPrivilegesPostgresTest": [
+      "i5_read_pools"
+    ]
+  },
+  "required_variants": {
+    "i5_w17": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ],
+    "i5_w18": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6"
+    ],
+    "i5_r09": [
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6",
+      "P7"
+    ]
+  },
+  "resource_proofs": {
+    "WRITE": {
+      "A": "NOT RUN",
+      "B": "NOT RUN",
+      "C": "NOT RUN"
+    },
+    "READ": {
+      "A": "NOT RUN",
+      "B": "NOT RUN",
+      "C": "NOT RUN"
+    }
+  },
+  "inherited_manifests": [
+    "L2_I2_Proof_Manifest.json",
+    "L2_I3_Post_Audit_Proof_Manifest.json",
+    "L2_I4_Proof_Manifest.json"
+  ],
+  "gates": {
+    "C": "NOT RUN",
+    "R": "NOT RUN",
+    "M": "NOT RUN",
+    "A": "NOT RUN",
+    "F": "NOT RUN"
+  },
+  "read_probes": "TECHNICAL_ONLY",
+  "global_L2": "NOT_CERTIFIED",
+  "method_modules": {
+    "V3ConsumptionWorkerTest": "orchestrator-poll-consumption",
+    "SlotNavigationPostgresTest": "infra-persistence-primary-jpa",
+    "V3WorkerPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerResourcesPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerCompositionPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerMetricsTest": "runtime-command-consumption-worker",
+    "V3WorkerMonolithPostgresTest": "runtime-monolith",
+    "ReadDiscoveryPrivilegesPostgresTest": "infra-persistence-read-jdbc"
+  },
+  "class_names": {
+    "V3ConsumptionWorkerTest": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+    "SlotNavigationPostgresTest": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+    "V3WorkerPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+    "V3WorkerResourcesPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+    "V3WorkerCompositionPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+    "V3WorkerMetricsTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest",
+    "V3WorkerMonolithPostgresTest": "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest",
+    "ReadDiscoveryPrivilegesPostgresTest": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest"
+  },
+  "gate_modules": {
+    "C": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-command-consumption-worker"
+    ],
+    "R": [
+      "engine-consumption",
+      "infra-persistence-read-jdbc"
+    ],
+    "M": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-monolith"
+    ],
+    "A": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-command-consumption-worker",
+      "runtime-monolith",
+      "architecture-tests"
+    ]
+  },
+  "physical_requirements": [
+    {
+      "id": "N1",
+      "glob": "**/i5_n01-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N2",
+      "glob": "**/i5_n02-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N3",
+      "glob": "**/i5_n03-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N4",
+      "glob": "**/i5_n04-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N5",
+      "glob": "**/i5_n05-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N6",
+      "glob": "**/i5_n06-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N7",
+      "glob": "**/i5_n07-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N8",
+      "glob": "**/i5_n08-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H1",
+      "glob": "**/i5_w17-H1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-WRITE",
+      "glob": "**/i5_w17-H2-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-WRITE",
+      "glob": "**/i5_w17-H3-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-WRITE",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-WRITE",
+      "glob": "**/i5_r02-P2-WRITE.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-WRITE",
+      "glob": "**/i5_r03-P1-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-WRITE",
+      "glob": "**/i5_r03-P3-P6-WRITE.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-WRITE",
+      "glob": "**/i5_r04-P4-WRITE.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-BEFORE",
+      "glob": "**/i5_r06-P5-WRITE-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-AFTER",
+      "glob": "**/i5_r06-P5-WRITE-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-RETAIN",
+      "glob": "**/i5_r06-P5-WRITE-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-WRITE",
+      "glob": "**/i5_r09-P7-WRITE.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-WRITE",
+      "glob": "**/i5_r02-joint-WRITE.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-READ",
+      "glob": "**/i5_w17-H2-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-READ",
+      "glob": "**/i5_w17-H3-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-true",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-true",
+      "glob": "**/i5_physical-READ-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-READ",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-READ",
+      "glob": "**/i5_r02-P2-READ.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-READ",
+      "glob": "**/i5_r03-P1-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-READ",
+      "glob": "**/i5_r03-P3-P6-READ.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-READ",
+      "glob": "**/i5_r04-P4-READ.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-BEFORE",
+      "glob": "**/i5_r06-P5-READ-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-AFTER",
+      "glob": "**/i5_r06-P5-READ-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-RETAIN",
+      "glob": "**/i5_r06-P5-READ-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-READ",
+      "glob": "**/i5_r09-P7-READ.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-READ",
+      "glob": "**/i5_r02-joint-READ.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D1",
+      "glob": "**/i5_w18-D1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D4",
+      "glob": "**/i5_w18-D4.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D2",
+      "glob": "**/i5_w05-D2.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D3",
+      "glob": "**/i5_w05-D3.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-admission",
+      "glob": "**/i5_w14-admission.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-acquire",
+      "glob": "**/i5_w14-acquire.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-delete",
+      "glob": "**/i5_w14-delete.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-publication",
+      "glob": "**/i5_w14-publication.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-commit",
+      "glob": "**/i5_w14-commit.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-cession",
+      "glob": "**/i5_w14-cession.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "idle",
+      "glob": "**/i5_w16.txt",
+      "contains": [
+        "idle=before",
+        "idle=after"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW1-held0",
+      "glob": "**/i5_r05-C-B32-MW1-held0.txt",
+      "contains": [
+        "due->physical commit/cleanup samples="
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW1-held1",
+      "glob": "**/i5_r05-C-B32-MW1-held1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples="
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW4-held-1",
+      "glob": "**/i5_r05-C-B32-MW4-held-1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples="
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-1-MW4-held-1",
+      "glob": "**/i5_r05-C-B1-MW4-held-1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples="
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "A-inventory",
+      "glob": "**/i5_r02-A-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "B-business",
+      "glob": "**/i5_r01-B-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "activation",
+      "glob": "**/i5_c05.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "mono",
+      "glob": "**/i5_mono01.txt",
+      "contains": [],
+      "gates": [
+        "M",
+        "A",
+        "F"
+      ]
+    }
+  ],
+  "variant_coverage": {
+    "H1": "w17-H1",
+    "H2": "w17-H2 WRITE/READ",
+    "H3": "w17-H3 WRITE/READ",
+    "H4": "w17 physical WRITE/READ before/after retirement",
+    "D1": "w18-D1",
+    "D2": "w05-D2",
+    "D3": "w05-D3",
+    "D4": "w18-D4",
+    "D5": "w11 physical WRITE/READ; w06 cancellation physical active",
+    "D6": "w13 physical deadline WRITE/READ",
+    "P1": "r03 row SKIP LOCKED WRITE/READ",
+    "P2": "r01/r02 saturation natural joint and artificial stress WRITE/READ",
+    "P3": "r03 targeted lock wait WRITE/READ",
+    "P4": "r04 relation WRITE/READ",
+    "P5": "r06 real TCP before/after/residual WRITE/READ",
+    "P6": "r03 confirmed PostgreSQL timeout and normal resumption",
+    "P7": "r09 child UNKNOWN sticky WRITE/READ"
+  }
+}

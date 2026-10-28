@@ -97,4 +97,27 @@ class WorkerCapacityTest {
                 30_000_000L,
                 LifecycleSettings.micros(LifecycleSettings.pilot().retry().delay(), true));
     }
+
+    @Test
+    void readOnlyRetentionAndObserverFailureCannotReleaseOrLeak() {
+        var seen = new java.util.concurrent.atomic.AtomicInteger();
+        var capacity =
+                new WorkerCapacity(
+                        2,
+                        Map.of(a, 2),
+                        (id, phase, outcome, n, elapsed) -> {
+                            seen.addAndGet((int) n);
+                            throw new AssertionError("metric failure");
+                        });
+        var tickets = capacity.reserve(a, 2);
+        assertEquals(2, capacity.snapshot().worker());
+        assertTrue(tickets.getFirst().retained());
+        assertEquals(2, seen.get());
+        assertTrue(tickets.getFirst().release());
+        assertFalse(tickets.getFirst().retained());
+        assertFalse(tickets.getFirst().release());
+        assertTrue(tickets.getLast().release());
+        assertEquals(0, capacity.snapshot().worker());
+        assertEquals(4, seen.get());
+    }
 }
