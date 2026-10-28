@@ -19,6 +19,12 @@ public final class V3BootstrapGuard {
                     "partition_ownership",
                     "discovery_checkpoint",
                     "consumption_slot");
+
+    public enum Privileges {
+        LIFECYCLE_ONLY,
+        LIFECYCLE_AND_DISCOVERY
+    }
+
     private final Target write;
     private final Target read;
     private final List<ConsumptionDefinition> definitions;
@@ -57,8 +63,8 @@ public final class V3BootstrapGuard {
 
     public void validate() {
         try {
-            String w = inspect(write, Authority.WRITE, false);
-            String r = inspect(read, Authority.READ, false);
+            String w = inspect(write, Authority.WRITE, null);
+            String r = inspect(read, Authority.READ, null);
             if (w.equals(r))
                 throw new IllegalStateException("WRITE and READ share a physical database");
         } catch (SQLException failure) {
@@ -67,9 +73,14 @@ public final class V3BootstrapGuard {
     }
 
     public void validateLifecyclePrivileges() {
+        validateLifecyclePrivileges(Privileges.LIFECYCLE_ONLY);
+    }
+
+    public void validateLifecyclePrivileges(Privileges profile) {
+        Objects.requireNonNull(profile);
         try {
-            String w = inspect(write, Authority.WRITE, true);
-            String r = inspect(read, Authority.READ, true);
+            String w = inspect(write, Authority.WRITE, profile);
+            String r = inspect(read, Authority.READ, profile);
             if (w.equals(r))
                 throw new IllegalStateException("WRITE and READ share a physical database");
         } catch (SQLException failure) {
@@ -78,19 +89,25 @@ public final class V3BootstrapGuard {
     }
 
     public void validateLifecycleSource(DataSource source, Authority authority) {
+        validateLifecycleSource(source, authority, Privileges.LIFECYCLE_ONLY);
+    }
+
+    public void validateLifecycleSource(
+            DataSource source, Authority authority, Privileges profile) {
+        Objects.requireNonNull(profile);
         var expected = authority == Authority.WRITE ? write : read;
         try {
             inspect(
                     new Target(
                             source, expected.database(), expected.schema(), expected.runtimeRole()),
                     authority,
-                    true);
+                    profile);
         } catch (SQLException failure) {
             throw new IllegalStateException("actual lifecycle source refused", failure);
         }
     }
 
-    private String inspect(Target target, Authority authority, boolean lifecycle)
+    private String inspect(Target target, Authority authority, Privileges profile)
             throws SQLException {
         try (var c = target.source().getConnection()) {
             c.setReadOnly(true);
@@ -160,8 +177,10 @@ public final class V3BootstrapGuard {
                             "extra ownership");
                 }
                 // All table rights are effective rights: PUBLIC and inherited roles included.
-                if (lifecycle) inspectLifecycle(s);
-                for (String table : lifecycle ? List.<String>of() : TABLES) {
+                if (profile != null) inspectLifecycle(s, profile);
+                if (profile == Privileges.LIFECYCLE_AND_DISCOVERY && authority == Authority.WRITE)
+                    inspectDiscoveryWrite(s);
+                for (String table : profile != null ? List.<String>of() : TABLES) {
                     try (var rs =
                             s.executeQuery(
                                     "select has_table_privilege('"
@@ -234,7 +253,7 @@ public final class V3BootstrapGuard {
         }
     }
 
-    private static void inspectLifecycle(Statement s) throws SQLException {
+    private static void inspectLifecycle(Statement s, Privileges profile) throws SQLException {
         // Reject role switching too: NOINHERIT does not prevent SET ROLE.
         try (var rs =
                 s.executeQuery(
@@ -242,6 +261,19 @@ public final class V3BootstrapGuard {
                                 + " pg_has_role(current_user,oid,'MEMBER'))")) {
             rs.next();
             require(!rs.getBoolean(1), "lifecycle role membership");
+        }
+        try (var rows =
+                s.executeQuery(
+                        "select exists(select 1 from pg_class c join pg_namespace n on"
+                            + " n.oid=c.relnamespace, lateral aclexplode(c.relacl) acl where"
+                            + " n.nspname=current_schema() and acl.grantee=0 and"
+                            + " acl.privilege_type<>'SELECT') or exists(select 1 from pg_attribute"
+                            + " a join pg_class c on c.oid=a.attrelid join pg_namespace n on"
+                            + " n.oid=c.relnamespace, lateral aclexplode(a.attacl) acl where"
+                            + " n.nspname=current_schema() and acl.grantee=0 and"
+                            + " acl.privilege_type<>'SELECT')")) {
+            rows.next();
+            require(!rows.getBoolean(1), "PUBLIC mutation grant in lifecycle authority");
         }
         for (String table : TABLES) {
             var columns =
@@ -254,7 +286,22 @@ public final class V3BootstrapGuard {
                                             "retry_after",
                                             "attempt_count",
                                             "state")
-                                    : Set.<String>of();
+                                    : table.equals("discovery_checkpoint")
+                                                    && profile == Privileges.LIFECYCLE_AND_DISCOVERY
+                                            ? Set.of("position")
+                                            : Set.<String>of();
+            var insertColumns =
+                    profile != Privileges.LIFECYCLE_AND_DISCOVERY
+                            ? Set.<String>of()
+                            : table.equals("consumption_slot")
+                                    ? Set.of(
+                                            "consumption_id",
+                                            "consumable_id",
+                                            "partition_hash",
+                                            "partition_id")
+                                    : table.equals("discovery_checkpoint")
+                                            ? Set.of("consumption_id", "partition_id", "position")
+                                            : Set.<String>of();
             try (var rs =
                     s.executeQuery(
                             "select has_table_privilege('"
@@ -284,7 +331,9 @@ public final class V3BootstrapGuard {
                                     + "',column_name,'UPDATE'),"
                                     + "has_column_privilege('"
                                     + table
-                                    + "',column_name,'INSERT,REFERENCES') from"
+                                    + "',column_name,'INSERT'),has_column_privilege('"
+                                    + table
+                                    + "',column_name,'REFERENCES') from"
                                     + " information_schema.columns where"
                                     + " table_schema=current_schema() and table_name='"
                                     + table
@@ -292,9 +341,107 @@ public final class V3BootstrapGuard {
                 while (rs.next())
                     require(
                             rs.getBoolean(2) == columns.contains(rs.getString(1))
-                                    && !rs.getBoolean(3),
+                                    && rs.getBoolean(3) == insertColumns.contains(rs.getString(1))
+                                    && !rs.getBoolean(4),
                             "unsafe lifecycle column rights: " + table + "." + rs.getString(1));
             }
+        }
+    }
+
+    private static void inspectDiscoveryWrite(Statement statement) throws SQLException {
+        var insertTables =
+                Set.of(
+                        "v3_command_result",
+                        "v3_pot_identity",
+                        "v3_pot_version",
+                        "v3_shareholder_identity",
+                        "v3_expense_identity",
+                        "v3_pot_header",
+                        "v3_pot_details",
+                        "v3_shareholder_header",
+                        "v3_shareholder_details",
+                        "v3_shareholder_weight",
+                        "v3_expense_header",
+                        "v3_expense_details",
+                        "v3_expense_financials",
+                        "v3_expense_participant",
+                        "v3_pot_event",
+                        "v3_pot_event_component",
+                        "v3_command_completion_event",
+                        "v3_event_position");
+        var tables = new HashSet<>(insertTables);
+        tables.addAll(Set.of("v3_command", "v3_event_counter"));
+        var history =
+                Set.of(
+                        "v3_pot_header",
+                        "v3_pot_details",
+                        "v3_shareholder_header",
+                        "v3_shareholder_details",
+                        "v3_shareholder_weight",
+                        "v3_expense_header",
+                        "v3_expense_details",
+                        "v3_expense_financials");
+        for (String table : tables) {
+            try (var row =
+                    statement.executeQuery(
+                            "select has_table_privilege('"
+                                    + table
+                                    + "','SELECT'),has_table_privilege('"
+                                    + table
+                                    + "','INSERT'),has_table_privilege('"
+                                    + table
+                                    + "','UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'),pg_has_role(current_user,(select"
+                                    + " tableowner from pg_tables where schemaname=current_schema()"
+                                    + " and tablename='"
+                                    + table
+                                    + "'),'MEMBER')")) {
+                row.next();
+                require(
+                        row.getBoolean(1)
+                                && row.getBoolean(2) == insertTables.contains(table)
+                                && !row.getBoolean(3)
+                                && !row.getBoolean(4),
+                        "unsafe combined business table rights: " + table);
+            }
+            Set<String> updates =
+                    history.contains(table)
+                            ? Set.of("active_to")
+                            : table.equals("v3_command")
+                                    ? Set.of("status")
+                                    : table.equals("v3_event_counter")
+                                            ? Set.of("position")
+                                            : table.equals("v3_pot_identity")
+                                                    ? Set.of("current_version")
+                                                    : Set.of();
+            try (var rows =
+                    statement.executeQuery(
+                            "select column_name,has_column_privilege('"
+                                    + table
+                                    + "',column_name,'UPDATE'),has_column_privilege('"
+                                    + table
+                                    + "',column_name,'INSERT'),has_column_privilege('"
+                                    + table
+                                    + "',column_name,'REFERENCES') from information_schema.columns"
+                                    + " where table_schema=current_schema() and table_name='"
+                                    + table
+                                    + "'")) {
+                while (rows.next())
+                    require(
+                            rows.getBoolean(2) == updates.contains(rows.getString(1))
+                                    && rows.getBoolean(3) == insertTables.contains(table)
+                                    && !rows.getBoolean(4),
+                            "unsafe combined business column rights: "
+                                    + table
+                                    + "."
+                                    + rows.getString(1));
+            }
+        }
+        try (var rows =
+                statement.executeQuery(
+                        "select exists(select 1 from pg_proc where pronamespace=(select oid from"
+                            + " pg_namespace where nspname=current_schema()) and prosecdef)")) {
+            rows.next();
+            require(!rows.getBoolean(1), "SECURITY DEFINER in combined authority");
         }
     }
 

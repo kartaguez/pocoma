@@ -29,8 +29,39 @@ public final class V3ConsumptionLifecycleComposition {
             WorkerCapacity capacity,
             int maximumConnections,
             AttemptFailureClassifier classifier) {
-        Objects.requireNonNull(guard).validateLifecyclePrivileges();
-        guard.validateLifecycleSource(source, definition.authority());
+        return assemble(
+                guard,
+                definition,
+                source,
+                transactions,
+                participant,
+                settings,
+                capacity,
+                maximumConnections,
+                classifier,
+                V3BootstrapGuard.Privileges.LIFECYCLE_ONLY);
+    }
+
+    public static ConsumptionEngine assemble(
+            V3BootstrapGuard guard,
+            ConsumptionDefinition definition,
+            DataSource source,
+            AttemptTransactions transactions,
+            ConsumptionParticipant participant,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            int maximumConnections,
+            AttemptFailureClassifier classifier,
+            V3BootstrapGuard.Privileges privileges) {
+        Objects.requireNonNull(guard).validateLifecyclePrivileges(privileges);
+        guard.validateLifecycleSource(source, definition.authority(), privileges);
+        if (privileges == V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY) {
+            if (!(transactions
+                    instanceof
+                    com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions owner))
+                throw new IllegalArgumentException("explicit shared physical owner required");
+            owner.requireSource(source);
+        }
         if (source instanceof com.zaxxer.hikari.HikariDataSource pool
                 && maximumConnections != pool.getMaximumPoolSize())
             throw new IllegalArgumentException(

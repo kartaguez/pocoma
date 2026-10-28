@@ -31,6 +31,30 @@ public final class V3PotCommandComposition {
             WorkerCapacity capacity,
             int maximumConnections) {
         var transactions = new SpringAttemptTransactions(writeSource, manager, 60);
+        return assemble(
+                writeSource,
+                transactions,
+                identityAuthority,
+                clock,
+                guard,
+                settings,
+                capacity,
+                maximumConnections,
+                V3BootstrapGuard.Privileges.LIFECYCLE_ONLY);
+    }
+
+    /** Joint I4 assembly: the caller injects the very same physical owner used by Discovery. */
+    public static ConsumptionEngine assemble(
+            DataSource writeSource,
+            SpringAttemptTransactions transactions,
+            PotActorAuthority identityAuthority,
+            Clock clock,
+            V3BootstrapGuard guard,
+            LifecycleSettings settings,
+            WorkerCapacity capacity,
+            int maximumConnections,
+            V3BootstrapGuard.Privileges privileges) {
+        transactions.requireSource(writeSource);
         var participant =
                 new ExecutePotCommand(
                         new JdbcPotCommandStore(writeSource, transactions),
@@ -74,6 +98,7 @@ public final class V3PotCommandComposition {
                         java.util.Collections.addAll(queue, next.getSuppressed());
                     }
                     return common;
-                });
+                },
+                privileges);
     }
 }

@@ -83,4 +83,25 @@ class V3ConsumptionFoundationArchitectureTest {
             assertTrue(code.contains("V3ConsumptionCatalogConfiguration.class"));
         }
     }
+
+    @Test
+    void discoveryFactoryIsExplicitAndKeepsTheNineDefinitions() {
+        var factory =
+                com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionDiscoveryComposition.class;
+        assertEquals(0, factory.getAnnotations().length);
+        assertTrue(
+                java.util.Arrays.stream(factory.getDeclaredMethods())
+                        .allMatch(m -> java.lang.reflect.Modifier.isStatic(m.getModifiers())));
+        assertEquals(
+                9,
+                com.kartaguez.pocoma.runtime.consumption.v3.V3ConsumptionCatalogConfiguration
+                        .definitions()
+                        .size());
+        assertTrue(
+                java.util.Arrays.stream(
+                                        com.kartaguez.pocoma.domain.consumption.v3.ConsumableFamily
+                                                .values())
+                                .count()
+                        == 7);
+    }
 }

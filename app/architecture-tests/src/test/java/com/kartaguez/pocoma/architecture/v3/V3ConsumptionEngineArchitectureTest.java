@@ -225,6 +225,104 @@ class V3ConsumptionEngineArchitectureTest {
                 1, PROD.stream().filter(c -> c.getSimpleName().equals("WorkerCapacity")).count());
     }
 
+    @Test
+    void discoveryPortsAndWritersRemainBounded() {
+        var discovery =
+                select(
+                        PROD,
+                        c ->
+                                c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.consumption.v3.DiscoveryEngine")
+                                        || c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.consumption.v3.port.NonBurnableReferences")
+                                        || c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.consumption.v3.port.BurnableReferences")
+                                        || c.getName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".engine.consumption.v3.port.DiscoveryAdmissionStore"));
+        pureEngine().check(discovery);
+        assertTrue(discovery.stream().anyMatch(c -> c.getSimpleName().equals("DiscoveryEngine")));
+        var writers =
+                select(
+                        PROD,
+                        c ->
+                                java.util.Set.of(
+                                                "JdbcDiscoveryAdmissionStore",
+                                                "JdbcCommandDiscoveryReferences",
+                                                "JdbcEventDiscoveryReferences")
+                                        .contains(c.getSimpleName()));
+        assertEquals(3, writers.size());
+        noHiddenTransactionOwner().check(writers);
+        var rawCommit = noClasses().should().callMethod(java.sql.Connection.class, "commit");
+        rawCommit.check(writers);
+        for (var writer : writers) {
+            assertFalse(
+                    writer.getMethodCallsFromSelf().stream()
+                            .anyMatch(
+                                    call ->
+                                            java.util.Set.of(
+                                                            "getConnection",
+                                                            "rollback",
+                                                            "createEntityManager",
+                                                            "bindResource",
+                                                            "registerSynchronization",
+                                                            "scheduleAtFixedRate")
+                                                    .contains(call.getTarget().getName())),
+                    writer.getName());
+        }
+        var admission =
+                writers.stream()
+                        .filter(c -> c.getSimpleName().equals("JdbcDiscoveryAdmissionStore"))
+                        .findFirst()
+                        .orElseThrow();
+        for (String method :
+                java.util.Set.of(
+                        "currentCheckpoint",
+                        "liveSlots",
+                        "contains",
+                        "insertInitial",
+                        "advanceCheckpoint"))
+            assertTrue(
+                    admission.getMethods().stream()
+                            .filter(m -> m.getName().equals(method))
+                            .anyMatch(
+                                    m ->
+                                            m.getMethodCallsFromSelf().stream()
+                                                    .anyMatch(
+                                                            call ->
+                                                                    call.getTarget()
+                                                                            .getName()
+                                                                            .equals("guarded"))),
+                    method);
+        var negative =
+                new ClassFileImporter()
+                        .importClasses(BadRawDiscoveryWriter.class, BadSqlEngine.class);
+        assertTrue(
+                rawCommit
+                        .evaluate(
+                                select(
+                                        negative,
+                                        c -> c.getSimpleName().equals("BadRawDiscoveryWriter")))
+                        .hasViolation());
+        assertTrue(
+                pureEngine()
+                        .evaluate(select(negative, c -> c.getSimpleName().equals("BadSqlEngine")))
+                        .hasViolation());
+    }
+
+    static class BadRawDiscoveryWriter {
+        void insert(java.sql.Connection connection) throws java.sql.SQLException {
+            connection.commit();
+        }
+    }
+
     static class BadSqlEngine {
         java.sql.Connection connection;
     }

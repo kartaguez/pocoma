@@ -1,0 +1,4893 @@
+{
+  "status": "IN_PROGRESS — NOT CERTIFIED",
+  "reference_sha": "489259dbad757e3256572f8ce2041a187adeb38d",
+  "scope": {
+    "primary": "COMMAND",
+    "secondary": [],
+    "complementary": [
+      "infra-persistence-read-jdbc",
+      "runtime-monolith"
+    ],
+    "architecture": "REQUIRED at closure",
+    "full_reactor": "NOT REQUIRED",
+    "database": "CURRENT V3 fresh disposable"
+  },
+  "proofs": [
+    {
+      "id": "I4-N01",
+      "method": "DiscoveryPostgresTest.i4_n01",
+      "obligation": "| I4-N01 / n01 | C01-A, E03-B ; OR-NB-SET | F-N K0, positions1…4, aucun slot | D lit page puis admet p0 et p1 dans unités distinctes | p0 slots{1,3}, p1{2,4}, K=4 chacun ; autres p indépendants ; F-R attendu calculé avant D | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N02",
+      "method": "DiscoveryPostgresTest.i4_n02",
+      "obligation": "| I4-N02 / n02 | C01-B, C02-F ; OR-NB-SET/ATOMIC | F-N fenêtre seulement hors p, stock déjà cap | D prépare/admet malgré zéro référence locale | K=H, zéro nouveau slot, autres C/p inchangés | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N03",
+      "method": "DiscoveryPostgresTest.i4_n03",
+      "obligation": "| I4-N03 / n03 | C01-C ; OR-NB-SET | F-N plusieurs centaines positions, W1/2/3 | Appels manuels répétés ; barrière entre chaque fenêtre | Union des préfixes exacte, aucune position omise aux bornes ; taille≤W et inserts≤B | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N04",
+      "method": "DiscoveryPostgresTest.i4_n04",
+      "obligation": "| I4-N04 / n04 | C01-D-COMMIT, E01-B ; OR-NB-SET/DENSE | F-N/F-R préfixe4, T1 publie5 non committé | Barrière après compteur T1 ; T2 publisher attend réellement ; D snapshot avant commit puis après | Avant : safe4/K≤4, aucun slot5 ; après commit : 5 puis T2 couverts exactement, pas de trou | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N05",
+      "method": "DiscoveryPostgresTest.i4_n05",
+      "obligation": "| I4-N05 / n05 | C01-D-ROLLBACK, E01-C/F ; OR-NB-SET/ATOMIC/DENSE | Même préfixe et T1 ouverte | Même ordre, rollback T1 puis résolution T2 | Compteur/position5 réutilisée par seul commit T2 ; D ne perd aucune publication | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N06",
+      "method": "DiscoveryPostgresTest.i4_n06",
+      "obligation": "| I4-N06 / n06 | C01-E, C02-G, E03-D ; OR-NB-FENCE/SET | Deux D préparent le même K | Bloquer D1 sous partition ; D2 saute ou attend sa prochaine invocation ; D1 commit ; soumettre page D2 périmée | Un seul delta de slots, K monotone ; D2 stale, repart du K durable | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N07",
+      "method": "DiscoveryPostgresTest.i4_n07",
+      "obligation": "| I4-N07 / n07 | C01-F, C02-H, C03-B ; OR-NB-FENCE/CL-OWNER | A prépare K0 sous ancien lease | Pause préparation ; expiration DB/takeover B ; A admet puis B admet | A zéro delta ; B seul produit préfixe/slots ; horloge et tokens DB établis | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N08",
+      "method": "DiscoveryPostgresTest.i4_n08",
+      "obligation": "| I4-N08 / n08 | C02-A/B, E03-E ; OR-NB-ATOMIC | F-N page avec≥2 locales, K0 | Deux sous-cas : faute avant INSERT1 ; puis après INSERT1 avant INSERT2 ; résolution rollback observée | K0 et zéro nouveau slot dans chaque cas ; reprise complète | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N09",
+      "method": "DiscoveryPostgresTest.i4_n09",
+      "obligation": "| I4-N09 / n09 | C02-C ; OR-NB-ATOMIC | F-N K0 | Faute après dernier INSERT avant CAS K | Tous INSERT annulés ; K0 ; aucune demi-fenêtre | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N10",
+      "method": "DiscoveryPostgresTest.i4_n10",
+      "obligation": "| I4-N10 / n10 | C02-D ; OR-NB-ATOMIC | F-N K0 | Barrière après CAS K, coupure/rollback avant commit | Lecteur extérieur ne voit jamais le K isolé ; après résolution K0/zéro slot | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N11",
+      "method": "DiscoveryPostgresTest.i4_n11",
+      "obligation": "| I4-N11 / n11 | C02-E, E03-F ; OR-NB-ATOMIC | F-N/F-R K0 | Proxy filaire supprime ACK **après commit serveur** ; seconde variante coupe avant commit, résolution contrôlée | Commit : K=H et slots exacts ; rollback : K0/aucun ; nouvel appel idempotent, aucun résultat de progrès supposé | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N12",
+      "method": "DiscoveryPostgresTest.i4_n12",
+      "obligation": "| I4-N12 / n12 | C01-G, R2-01…05 ; OR-NB-CAP | F-N locales1,3 ; stock63/cap64 | D COUNT puis admission ; marge épuisée après1 ; libérer capacité par vraie completion technique puis reprendre | Premier K2/slot1 ; second inclut3 ; variantes marge0 et limite B ; jamais K≥3 sans couverture | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N13",
+      "method": "DiscoveryPostgresTest.i4_n13",
+      "obligation": "| I4-N13 / n13 | SPEC-03§7, R3 ; OR-NB-SET/AR-ROUTE | IDENTITY_EVENT : POCOMA_USER puis EUI locale ; K0 | D CurrentBinding avec filtre fixé ; variantes autres partitions/aucune EUI | K examine les deux ; slot EUI seul ; aucun slot User ou mauvais p | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N14",
+      "method": "DiscoveryPostgresTest.i4_n14",
+      "obligation": "| I4-N14 / n14 | C01-H, C02-I/J/K ; OR-NB-SET/AT-UNIT/RC-FOUR | K≥position, slot admis | Acquisition I3 puis effet technique I2 ; rollback précommit et commit ACK perdu séparés ; redémarrer D | Rollback conserve slot ; commit donne effet exact/slot absent ; D ne recrée rien derrière K | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N15",
+      "method": "DiscoveryPostgresTest.i4_n15",
+      "obligation": "| I4-N15 / n15 | C01-K, E03-H ; OR-NB-SET/AT-READ | Historique conservé F-R ; C ancien avec K/effets | Admin installe C technique neuf dans destination isolée, K absent ; D neuf et ancien | K neuf part0, slots propres ; ancien intact ; aucun effet métier double prétendu | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N16",
+      "method": "DiscoveryPostgresTest.i4_n16",
+      "obligation": "| I4-N16 / n16 | C02-L, R3-05/07, R8 ; OR-AR-NOPURGE/AR-ROUTE | F-N K et slots existants, rôles réels | Tentatives reset partiel/K décroissant/burnable checkpoint/route erronée ; SQL rejeté et rollback | Témoins intacts ; routes/hash et K incohérents ne sont pas masqués ; pas de procédure de reset livrée | G-C, G-R ACL |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N17",
+      "method": "DiscoveryPostgresTest.i4_n17",
+      "obligation": "| I4-N17 / n17 | C01/C02 négatifs ; OR-NB-SET/ATOMIC | Journal fixture volontairement troué ou enveloppe absente, safe incohérent | Préparation lit compteur et lignes dans RR ; une variante publication entre les SELECT | Faute explicite sans delta K/slot ; snapshot cohérent conserve son préfixe ancien | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-N18",
+      "method": "DiscoveryPostgresTest.i4_n18",
+      "obligation": "| I4-N18 / n18 | R2/R3, C06-K ; OR-NB-FENCE/AT-POISON | Lease valide au premier contrôle | Verrou relation contrôlé entre protection et INSERT/CAS ; clock franchit deadline ; libérer avant timeout dans sous-cas | Horloge post-attente entraîne rollback intégral, aucun K/slot sous lease expiré ; autre cas timeout diagnostiqué | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B01",
+      "method": "DiscoveryPostgresTest.i4_b01",
+      "obligation": "| I4-B01 / b01 | C01-I-NOSLOT ; OR-B-SET | F-B PENDING k1 sans slot | Admission source committe avant D ; barrière après admission initiale | Source reste PENDING et possède exactement1 slot initial ; aucun K burnable | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B02",
+      "method": "DiscoveryPostgresTest.i4_b02",
+      "obligation": "| I4-B02 / b02 | C01-I-EXISTING ; OR-B-SET | PENDING avec slot libre puis claim actif | D repeated, claims acquis par I3 dans variante active | Même clé/token/champs, aucun INSERT ni effet | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B03",
+      "method": "DiscoveryPostgresTest.i4_b03",
+      "obligation": "| I4-B03 / b03 | C01-J ; OR-B-SET | Claim expiré, source PENDING | D avant acquisition de reprise I3 | Pas de nouveau slot/effacement du token ; I3 seul reprend normalement | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B04",
+      "method": "DiscoveryPostgresTest.i4_b04",
+      "obligation": "| I4-B04 / b04 | C01-J, C05-F ; OR-B-SET | Slot retryAfter futur | D avant échéance DB, puis après avec même slot | D ne contourne pas le retry, source/slot identiques ; reprise I3 inchangée | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B05",
+      "method": "DiscoveryPostgresTest.i4_b05",
+      "obligation": "| I4-B05 / b05 | CON-05-DISCOVERY/PERSIST ; OR-B-SET/RT-QUAR | Q persistante/PENDING, stock hors-Q libre | Redémarrer Engine Discovery et faire plusieurs tours | Q exclue COUNT mais jamais recréée/reset ; même count/claimNULL | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B06",
+      "method": "DiscoveryPostgresTest.i4_b06",
+      "obligation": "| I4-B06 / b06 | C01-I-TERMINAL, E02-J ; OR-B-SET/AT-UNIT | TERMINAL par vrai I2, aucun slot | Page ancienne capturée PENDING avant F ; F commit puis D admission | Aucun réenrôlement ; résultat/complétion originaux uniques | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B07",
+      "method": "DiscoveryPostgresTest.i4_b07",
+      "obligation": "| I4-B07 / b07 | R4-07, C04-I ; OR-B-SET/AT-UNIT | PENDING avec slot ; F arrêté avant FK source | D protège source, barrière ; F tente résultat/FK ; D constate slot et commit ; F reprend | Attente F→D démontrée, aucune attente D→slot ; F termine exactement1 fois | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B08",
+      "method": "DiscoveryPostgresTest.i4_b08",
+      "obligation": "| I4-B08 / b08 | R4-07, C01-I ; OR-B-SET/AT-UNIT | F arrêté après FK puis après UPDATE puis après DELETE dans trois sous-cas | D tente source SKIP pendant F ouverte ; maintenir F à la barrière jusqu’à retour D | D zéro INSERT, clé examinée ; commit F⇒terminal sans slot, rollback F⇒slot original ; prochaine visite correcte | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B09",
+      "method": "DiscoveryPostgresTest.i4_b09",
+      "obligation": "| I4-B09 / b09 | C01-I, R2-02 ; OR-B-SET/NB-CAP | Deux D pages mêmes k1/k2 sans slot, même lease | D1 partition sous barrière, D2 concurrent ; résoudre D1 puis rejouer D2 | Un seul slot par clé, stock≤marge observée ; aucune collision masquée | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B10",
+      "method": "DiscoveryPostgresTest.i4_b10",
+      "obligation": "| I4-B10 / b10 | R4-04/05/10 ; OR-B-KEYSET | k1<k2<k3, U=k3, cursor atteint k2 | Insérer k0 derrière curseur après barrière page ; terminer puis nouveau tour | k0 non couvert au premier tour, admis au suivant ; PENDING jamais perdu | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B11",
+      "method": "DiscoveryPostgresTest.i4_b11",
+      "obligation": "| I4-B11 / b11 | R4-03/04 ; OR-B-KEYSET | Même tour U=k3 | Insérer k4>U après capture U | Premier tour ne franchit pas U ; prochain capte nouvelle U et visite k4 | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B12",
+      "method": "DiscoveryPostgresTest.i4_b12",
+      "obligation": "| I4-B12 / b12 | R4-05/09/10-SKIPPED ; OR-B-KEYSET/SET | B1, première clé hors p ; deuxième déjà slot ; troisième PENDING sans slot sous verrou de fixture ; suivante admissible | Pages brutes non vides mais filtrées ; garder le verrou jusqu’au retour D, finir le tour puis libérer ; appels au nouveau tour pendant période libre/capacité établies | Trace externe : clé sautée réellement rencontrée/franchie, zéro admission et source toujours PENDING sans slot ; page filtrée vide ne clôt pas ; revisite effective puis exactement1 slot committé pour cette clé au tour suivant, sans perte malgré son ancien cursor franchi | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B13",
+      "method": "DiscoveryPostgresTest.i4_b13",
+      "obligation": "| I4-B13 / b13 | R4-06/09, R2-03 ; OR-B-SAT/SET | Deux PENDING sans slot, cap occupé ; variante source d’abord verrouillée | D à cap plein ; libérer capacité par completion I2 et verrou par résolution physique ; reprendre walk avec appels effectifs en période libre | Saturation initiale : examined=advanced=committedAdmissions=0 et même walk/U ; SQL conserve toutes demandes ; après capacité/liberté chaque référence est revue puis admise une fois, sans couverture déduite du cursor | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B14",
+      "method": "DiscoveryPostgresTest.i4_b14",
+      "obligation": "| I4-B14 / b14 | R4-05/06 ; OR-B-SAT/SET | Marge1, page k1/k2/k3 PENDING sans slot | D insère k1, rencontre k2 sans budget, s’arrête avant de la franchir ; retour capacité par completion réelle puis reprise | Premier résultat examined=2/advanced=1/committedAdmissions=1, next.after=k1/U inchangée ; k3 non examinée ; k2/k3 PENDING sans slot ; reprise visite k2 avant k3 et les admet sous capacité, aucune avance fictive | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B15",
+      "method": "DiscoveryPostgresTest.i4_b15",
+      "obligation": "| I4-B15 / b15 | R4-08/09 ; OR-B-CRASH/KEYSET | Tour après k2, PENDING k0/k4 ; k0 a été franchie lors d’un saut de verrou dans ce tour | Résoudre le verrou, arrêter caller ; expiration/takeover réel B ; nouvel objet et walk vierge ; capacité et période sans crash attestées | Première page repart du début, revisite k0 toujours PENDING sans slot puis l’admet ; k4 admise selon nouvelle U ; slots existants identiques, aucune persistance cursor/U ni perte due au saut précédent | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B16",
+      "method": "DiscoveryPostgresTest.i4_b16",
+      "obligation": "| I4-B16 / b16 | R4-03…06/09/10 ; OR-B-KEYSET/SET/OBS-METRIC | Population initiale finie, page2/cap contrôlée, clés sautées identifiées indépendamment | Arrivées contrôlées derrière/entre cursor et U/au-delà à chaque barrière ; fixer fin de l’injection, retour capacité, libération des verrous et appels en périodes sans crash ; terminer puis relancer les tours | U constante pour chaque tour ; trace SQL des clés rencontrées/franchies et delta réel des slots séparés ; fin effective de chaque tour malgré pages filtrées vides ; registre initial+arrivées encore PENDING sans slot revisité puis admis sous conditions R4-09/10 ; aucune promesse N0/B ou latence absolue | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B17",
+      "method": "DiscoveryPostgresTest.i4_b17",
+      "obligation": "| I4-B17 / b17 | C06, R4-08 ; OR-B-CRASH/AT-UNIT | Page de PENDING sans slot | Faults après INSERT1/dernier, puis wire ACK avant/après commit ; reprendre walk d’entrée | Rollback zéro slots, commit sous-ensemble atomique attendu ; second appel ne duplique rien ; aucune terminalisation/cession par D | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-B18",
+      "method": "DiscoveryPostgresTest.i4_b18",
+      "obligation": "| I4-B18 / b18 | R-I4-03, R2-03/09, R4-05…10, R8, R10-08/09 ; OR-B-SET/KEYSET/SAT/AT-UNIT/CL-RENEW/RT-QUAR | Cinq UUID ordonnés/routés indépendamment, états et COUNT=1/cap2 du §16.3 | D/F/R/O et barrières §16.3 ; F tient q2, D admet q1, saute q2, constate Q q3, s’arrête sur q4 sans franchir q5 ; variantes F commit/rollback et page majoritairement doublons/verrouillée | Delta slots D={q1}, résultat exam4/adv3/admissions1/cursor=q3/U=q5 ; Q identique ; F résout après D ; reprise q4/q5 et revisite q2 encore PENDING en variante rollback ; aucun verrou résiduel, doublon ou terminal extra ; archives et verdict conjonctif §16.3 | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X01",
+      "method": "DiscoveryPostgresTest.i4_x01",
+      "obligation": "| I4-X01 / x01 | R3-01…09, C03-B ; OR-AR-ROUTE/CL-OWNER | F-X ; mauvaises famille/version/P/source ; route admin verrouillée dans les deux ordres runtime/admin | Refus avant gains ; admin/runtime sérialisés ; aucun delta sous mismatch ou ancien owner ; vecteurs Java/SQL/Python concordants | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X02",
+      "method": "DiscoveryPostgresTest.i4_x02",
+      "obligation": "| I4-X02 / x02 | C03-A/B/C, R10-09 ; OR-CL-OWNER/RENEW | A perd partition à B avec claim S valide ; A tente D, renouvelle/termine S ; B D d’autre source | A zéro nouveaux slots, claim renewal/finalisation autorisés ; B progresse indépendamment ; état K/slots exact | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X03",
+      "method": "DiscoveryPostgresTest.i4_x03",
+      "obligation": "| I4-X03 / x03 | R2-06…09, CON-05-REACTCAP ; OR-NB-CAP/RT-REACT | stock64+Q ; D COUNT sous partition, admin CAS Q→AVAILABLE avant/après COUNT dans deux essais | Réactivation même slot/count0, éventuel dépassement R2 admis ; prochain D n’insère plus ; autres slots restent traitables | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X04",
+      "method": "DiscoveryPostgresTest.i4_x04",
+      "obligation": "| I4-X04 / x04 | C03/C04/R10-08 ; OR-CL-RENEW/AT-UNIT | F tient slot S1 ; D travaille autre source ; renewal S1/S2 et lease sur connexions distinctes, échéances DB archivées | S1 sauté, S2 renouvelé avant deadline pendant F ouverte ; D n’acquiert aucun claim ; preuve primitive, ressources Worker intégré toujours I5 | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X05",
+      "method": "DiscoveryPostgresTest.i4_x05",
+      "obligation": "| I4-X05 / x05 | R1/R5/R9, C06-K ; OR-AR-BOUND/AT-UNIT | WRITE JPA et READ JDBC réels ; tracer PID/xid des INSERT slots/K, puis tentative/cession séparées | Slots+K même xid READ, aucune mutation WRITE de D événementiel ; F/cession I3 propres ; aucune transaction inter-base | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X06",
+      "method": "DiscoveryPostgresTest.i4_x06",
+      "obligation": "| I4-X06 / x06 | C06-E…I/M ; OR-AT-POISON/AR-BOUND | Writers Discovery gardés ; faute Java/SQL interceptée, mauvais datasource, ambiance/nested/REQUIRES_NEW aux INSERT/K | Refus/poison et zéro delta extérieur, aucune écriture indépendante ; corps owner I2 inchangé | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X07",
+      "method": "DiscoveryPostgresTest.i4_x07",
+      "obligation": "| I4-X07 / x07 | R1-10/R4-07 ; OR-AT-UNIT/AR-BOUND | SQL isolé A naïve→cycle attendu ; A corrigée→attente source/expiry ; B→b07/b08 ; deux Command mêmes/différents Pot/EUI et contre-lock counter | Contre-exemple A naïve archivé, rollback intégral ; B sans attente D sur slot ou source F, F finit après libération, aucune seconde complétion | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X08",
+      "method": "DiscoveryPostgresTest.i4_x08",
+      "obligation": "| I4-X08 / x08 | R8, R3/R7 ; OR-AR-NOPURGE/BOOT | Catalogue pg_constraint/index/trigger/pg_get_functiondef, grants table/colonne/fonctions, scanners sources/writers | Aucune nouvelle FK/cascade/source writer/DELETE ; seuls droits §13 ; baselines/migrations intègres | G-C, G-R |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X09",
+      "method": "DiscoveryPostgresTest.i4_x09",
+      "obligation": "| I4-X09 / x09 | E03-B/C/D/G, C06-P ; OR-AT-READ/NB-SET | Même POT_EVENT, trois C READ du catalogue avec participants techniques indépendants ; échec d’un D/F, autres résolvent | Trois espaces de slots/K autonomes, autres avancent ; aucune tâche/famille/ordre inter-C ; **pas PASS projections L4** | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-X10",
+      "method": "DiscoveryPostgresTest.i4_x10",
+      "obligation": "| I4-X10 / x10 | E02-A/B/C/J, R1/R9 ; OR-L1-STATE/AT-UNIT/RC-FOUR | Admission PENDING réelle→D→acquire I3→F Command pour Changed/Unchanged/Rejected ; ACK perdu et nouvelle visite D | Intention immuable ; mutation éventuelle/terminal/résultat/completion/suppression uniques ; D ne ressuscite rien | G-C |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-P01",
+      "method": "DiscoveryPostgresTest.i4_p01",
+      "obligation": "| I4-P01 / p01 | W=1/32/128, B=1/16/32, cap=1/64 ; 100/1000/10000 positions, 0/25/100% local ; cinq sources techniques et deux réelles lorsque possible | Références globales/enveloppes/lignes JDBC, slots/K, transactions, buffers/WAL/index ; tailles≤W/B, exactitude N01/N12 ; COUNT indépendant concordant ; hors-partition ne provoque pas de payload métier |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-P02",
+      "method": "DiscoveryPostgresTest.i4_p02",
+      "obligation": "| I4-P02 / p02 | 100/1000/10000 PENDING, proportions slots actifs/expirés/retry/Q, pages1/16/32, clés hors p et pages filtrées ; variante B18 majoritairement doublons/verrouillée | Keyset uses pending index/PK selon planner, aucune histoire TERMINAL transférée ; clés chargées/examinées/franchies, admissions committées, requêtes/pages/tours, locks source sautés, coût par nouveau slot ; B12/B16/B18 restent corrects, aucune attente de ligne D sur source/slot détenu ni recherche interne non bornée |",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "I4-P03",
+      "method": "DiscoveryPostgresTest.i4_p03",
+      "obligation": "| I4-P03 / p03 | Stock100/1000/10000 par p, variations Q0/50/90%, cap plein puis rendu, admin et renewals concurrentes bornées ; lot composite B18 | Coût COUNT, durée de chaque lock partition/source jusqu’à résolution, attente relation/unikité, renewals S2, retries de Discovery, mémoire temporaire et WAL ; cursor/U/budget et ordre physique D/F archivés, retour de progression sous capacité/liberté attestées |",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "mandatory_variants_source": "L2_I4_Implementation_Plan.md §§16–18 (all conjunctive; absent variants prevent PASS)",
+  "gates": [],
+  "required_groups": {
+    "lifecycle": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest": [
+        "i3_acquisition_lease_clock",
+        "i3_acquisition_partial",
+        "i3_c03_a",
+        "i3_c03_b",
+        "i3_c03_c",
+        "i3_c03_d",
+        "i3_c03_e",
+        "i3_c03_f",
+        "i3_c03_g",
+        "i3_c03_h",
+        "i3_c03_i",
+        "i3_c03_j",
+        "i3_c03_k",
+        "i3_c03_l",
+        "i3_c05_a",
+        "i3_c05_b",
+        "i3_c05_c",
+        "i3_c05_d",
+        "i3_c05_e",
+        "i3_c05_f",
+        "i3_c05_g",
+        "i3_c05_h",
+        "i3_c05_i",
+        "i3_c05_j",
+        "i3_c05_k",
+        "i3_c05_l",
+        "i3_c05_m",
+        "i3_capacity_uncertainty",
+        "i3_cession_once",
+        "i3_failure_classification",
+        "i3_lease_races",
+        "i3_other_slot_progresses",
+        "i3_quarantine_persists",
+        "i3_reactivate",
+        "i3_reactivate_over_cap",
+        "i3_renew_relation_timeout",
+        "i3_renew_s1_s2",
+        "i3_retry_config_prospective",
+        "i3_route_admin_serialization",
+        "i3_sql_costs",
+        "i3_two_admins",
+        "i3_audit_classifier_exits",
+        "i3_audit_classifier_active",
+        "i3_audit_cession_failure",
+        "i3_audit_cession_unknown_active"
+      ]
+    },
+    "i2": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof": [
+        "l2m_r1_01",
+        "l2m_r1_02",
+        "l2m_r1_03",
+        "l2m_r1_04",
+        "l2m_r1_05",
+        "l2m_r1_05_missing",
+        "l2m_r1_05_double",
+        "l2m_r1_05_late",
+        "l2m_r1_05_wrong",
+        "l2m_r1_06",
+        "l2m_r1_07",
+        "l2m_c04_b",
+        "l2m_r1_09",
+        "l2m_r1_10",
+        "l2m_e02_f_04",
+        "l2m_e02_f_05",
+        "l2m_c06_e",
+        "l2m_c06_i_effect",
+        "l2m_c06_i_delete",
+        "l2m_c06_h",
+        "l2m_c06_a",
+        "l2m_r9_01",
+        "l2m_r9_02",
+        "l2m_r9_03_completed",
+        "l2m_r9_03_notcompleted",
+        "l2m_r9_03_inconsistent",
+        "l2m_r9_03_unavailable",
+        "l2m_r9_03",
+        "l2m_r9_04",
+        "l2m_r9_05",
+        "l2m_r9_06",
+        "l2m_r9_07",
+        "l2m_r9_08",
+        "l2m_r9_09",
+        "l2m_e01_e_command_noop",
+        "l2m_e01_e_command_reject",
+        "l2m_e02_g_commit_ack",
+        "l2m_e02_g_rollback_ack",
+        "l2m_r9_10",
+        "completionFromEarlierCallbackPoisonsCurrentAttemptAndWitnessSlotSurvives",
+        "completionDeleteZeroAndOtherConsumptionKeyUntouched",
+        "successAtNMinusOneDoesNotAddFailureOrRunCession",
+        "l2m_l1_c_c01",
+        "l2m_l1_c_c02",
+        "l2m_l1_c_c03",
+        "l2m_l1_c_c04",
+        "l2m_l1_c_c05",
+        "l2m_l1_c_c06",
+        "l2m_l1_c_c07",
+        "l2m_l1_c_c08",
+        "l2m_l1_c_c09",
+        "l2m_l1_c_c10",
+        "l2m_l1_c_c11",
+        "l2m_l1_c_c13",
+        "l2m_l1_c_c14",
+        "l2m_l1_c_c15",
+        "l2m_l1_c_c16",
+        "l2m_l1_c_c17",
+        "l2m_l1_c_c18",
+        "l2m_l1_c_c19",
+        "l2m_l1_c_c20",
+        "l2m_l1_c_c21",
+        "l2m_l1_c_c22",
+        "l2m_l1_c_c24",
+        "l2m_l1_f_f02",
+        "l2m_l1_f_f03",
+        "l2m_l1_f_f05",
+        "l2m_r1_08",
+        "l2m_c04_a",
+        "l2m_c04_c",
+        "l2m_c04_d",
+        "l2m_c04_e",
+        "l2m_c04_f",
+        "l2m_c04_h",
+        "l2m_c04_i",
+        "l2m_c04_i_status",
+        "l2m_c04_i_result",
+        "l2m_c04_l",
+        "l2m_c06_f",
+        "l2m_c06_g",
+        "l2m_c06_i",
+        "l2m_c06_l",
+        "l2m_c06_m",
+        "l2m_e01_a",
+        "l2m_e01_b",
+        "l2m_e01_c",
+        "l2m_e01_f",
+        "l2m_e01_g_pot_comp",
+        "l2m_e01_h",
+        "l2m_e02_a_create",
+        "l2m_e02_a_update",
+        "l2m_e02_a_multitarget",
+        "l2m_e02_b",
+        "l2m_e02_c",
+        "l2m_e02_h",
+        "l2m_e02_f_01",
+        "l2m_e02_f_02",
+        "l2m_e02_f_03",
+        "l2m_e02_f_06",
+        "rollbackAfterEachDenseCounterAndPositionAndAtFlush",
+        "l2m_e02_i_abs",
+        "l2m_e02_i_unknown",
+        "l2m_e02_i_wrong",
+        "l2m_l1_f_f01",
+        "l2m_l1_f2_f201",
+        "l2m_l1_f2_f202",
+        "l2m_l1_f2_f203",
+        "l2m_l1_f2_f204",
+        "l2m_l1_f2_f205",
+        "l2m_l1_f2_f206",
+        "l2m_l1_f2_f207",
+        "l2m_l1_f2_continuite_globale",
+        "l2m_l1_f2_continuite_locale",
+        "l2m_l1_f2_premiere_revision_naissance",
+        "l2m_l1_f2_from_to_valide",
+        "l2m_l1_f2_absence_de_chevauchement",
+        "l2m_l1_f2_au_plus_une_ouverte",
+        "l2m_l1_f2_presence_d_une_ouverte",
+        "l2m_l1_f2_identites_references",
+        "l2m_l1_f2_aucune_v_sans_effet",
+        "l2m_l1_f2_completude_composantes",
+        "l2m_l1_f2_fermeture_insertion_atomiques",
+        "l2m_l1_f2_aucun_effet_partiel",
+        "l2m_l1_f2_mutations_concurrentes",
+        "l2m_l1_f2_claim_identity_pot",
+        "l2m_l1_f2_publication_atomique_evenements_resultats",
+        "engineRejectsLocallyCorruptRevisionWithoutCessionOrPartialCommit",
+        "preparationCommitCleanupFailureNeverAnnouncesBusinessCommit",
+        "l2m_r8_01",
+        "l2m_r8_02",
+        "l2m_c03_e",
+        "l2m_c03_f",
+        "l2m_c03_g",
+        "l2m_c03_h",
+        "l2m_l1_c_summary_c01",
+        "l2m_l1_c_summary_c02",
+        "l2m_l1_c_summary_c03",
+        "l2m_l1_c_summary_c04",
+        "l2m_l1_f_summary_f01",
+        "l2m_l1_f_summary_f02",
+        "l2m_l1_f2_summary_f201",
+        "l2m_l1_f2_summary_f202"
+      ]
+    },
+    "owner": {
+      "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest": [
+        "jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit",
+        "guardedLateCallbackRefusedBeforeSqlAndRollback",
+        "caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+        "requiresNewJpaAndJdbcCannotCommitEffectOrDelete",
+        "nestedAmbientWrongSourceAndWrongEmfRefused",
+        "sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime",
+        "commitServerRejectionRollbackAndMaskedCommitRemainDistinct",
+        "originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup",
+        "autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers"
+      ]
+    },
+    "legacy": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest": [
+        "f02InvalidBindingCompletesWhilePotIsLockedAndIdentityStillFenced",
+        "f03DurableInvalidListsAreTechnicalAndValidImpossibleTargetsAreBusinessRejections",
+        "f05StaticBusinessConstraintSetExactlyMatchesCatalogAndLeavesPublicationDeferred",
+        "f02InvalidBindingHoldsIdentityUntilCommit",
+        "f03InvalidAdmissionConstructorsLeaveNoDurableCommandOrSlot",
+        "f04InvitationPrimitiveSerializesCompetingUsersAndSameUserTargets",
+        "f05BusinessForeignKeyViolationStillFailsBeforePublicationAndRollsBack",
+        "c01DurableMutationsNoopRejectionAndExactHistory",
+        "c02SameComponentCollisionReacquiresAndPreservesObservation",
+        "c03DistinctComponentsAndFinancialWeightCollisionRemainCompatible",
+        "c04DeletionVersusExpenseCreationAndFinancialPayerParticipantBothOrders",
+        "c05ExpenseDeletionReleasesReferenceAndPreservesHistoricalFinancials",
+        "c06AttachmentRevocationNoopAndRejectionAllRevalidate",
+        "c07IdentityRevocationAndNegativeAuthorityFactsStayProtected",
+        "c08NoopObsoleteAfterConcurrentChangeAndMutationAgainstPotDeletion",
+        "c09SameRequestFinalizesOnceAndEquivalentRequestsOwnTheirResults",
+        "c10FaultsBeforeAfterEveryWriterRollbackWholeCommandUnit",
+        "c11DeferredCommitFailureRollsBackAndDoesNotBecomeBusinessRejection",
+        "c12RetryBudgetDelayQuarantineAndConditionalFailureAccounting",
+        "c13RealLostCommitAcknowledgementAndRollbackBeforeCommitRecoverWithoutGuessing",
+        "c14ClaimExpiryAfterActualLockWaitAndOldTokenNeverFinalizes",
+        "c15ClaimProtectedThroughCommitAfterDeadlineAndTakeoverWaits",
+        "c16DenseSequencingWaitsForPhysicalCommitAndRollbackDoesNotConsumePosition",
+        "c17JpaJdbcOnePhysicalUnitAndCaughtErrorsPoisonBothOrders",
+        "c18CompositionRejectsMismatchedManagersAmbientAndPostSuffixWriters",
+        "c19DurableIntentionCodecExactRationalsIntegrityAndNegativeExistence",
+        "c20IndependentNestedEffectsAreRejectedAndOuterUnitPoisoned",
+        "c21NMinusOneFailuresThenSuccessAndExpiryConsumesNoBudget",
+        "c22NoopAndRejectionHoldIdentityAndPotUntilPhysicalResolution",
+        "c23LostFailureCessionAcknowledgementNeverDoubleCounts",
+        "c24PreparationFailureAndInconsistentUsageCannotCommitNegativeFacts"
+      ]
+    },
+    "finance": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest": [
+        "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+        "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+        "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+        "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+        "d14FinancialRollbackAtEveryPublicationBoundary",
+        "d15OneVersionComposesWeightAndFinancialPrimitives"
+      ]
+    },
+    "f2": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest": [
+        "f202RejectsLocalCorruptionAndRollsBackCandidate",
+        "f203UnrelatedOldGapDoesNotBlockWriteButAuditRejects",
+        "f204FinancialReferenceAndIdentityCorruptionBlockWrite",
+        "f205GroupedBatchesAndNotLoadedRemainSelective",
+        "f206SameRevisionCannotCloseTwiceUnderActualLockWait",
+        "f207EffectIndexAvoidsScanningOldRevisions"
+      ]
+    },
+    "depth": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest": [
+        "f201WriteDepthProfiles"
+      ]
+    },
+    "composition": {
+      "com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest": [
+        "compositionUsesOneWriteManagerAndExplicitAuthority"
+      ]
+    },
+    "inert_monolith": {
+      "com.kartaguez.pocoma.ConsumptionPilotIsolationTest": [
+        "monolithStartsInertAndRestartsWithoutAnyLegacyWriterOrMigration",
+        "monolithWithIndirectOldRuntimeFailsBeforeProcessing",
+        "monolithRefusesIncompleteReadBootstrapBeforeRefresh"
+      ]
+    },
+    "architecture": {
+      "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest": [
+        "engineAndContractsPureAndAgnostic",
+        "rejectedAbstractionsAndPotOwnerAbsent",
+        "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+        "negativeExamplesReallyFailRules",
+        "lifecycleHasOneHandleAndNoSchedulerOrOwner"
+      ],
+      "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest": [
+        "businessProductionAndNarrowTransactionContractRemainTechnologyFree",
+        "onlyTheReadContextIsAllowedAndTransactionOwnershipStillFails",
+        "allDurablePortImplementationsAndPublicationFactoriesAreInventoried",
+        "currentParticipantAnnotationsAndBodyGuardsCannotDisappear",
+        "knownParticipantsHaveNoIndependentResolutionOrExternalEffects",
+        "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
+        "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
+        "incompatibleExternalDurableCompositionIsRejectedBeforeSending"
+      ],
+      "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest": [
+        "productionImportsAreNonemptyAndExcludeFixtures",
+        "productionKeepsPureDomainsAndInwardApplicationPorts",
+        "positiveFixturesSatisfyTheSameRules",
+        "eachForbiddenDependencyIsActuallyDetected",
+        "nestedPortsCannotEscapeTheSelectorOrLeakImplementations"
+      ]
+    },
+    "capacity": {
+      "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest": [
+        "simultaneousLimits",
+        "partialAndDoubleRelease",
+        "settingsRejectInvalidConfiguration"
+      ],
+      "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest": [
+        "countableRequiresKnownCauseAndRollback",
+        "lostUnknownCancellationAndConfigNeverCount",
+        "oneShotAndCancellation",
+        "classifierExceptionAfterConfirmedRollbackReturnsCapacity",
+        "nullClassificationAfterConfirmedRollbackReturnsCapacity"
+      ]
+    },
+    "lifecycle_composition": {
+      "com.kartaguez.pocoma.runtime.command.v3.ConsumptionLifecycleCompositionPostgresTest": [
+        "sharedCapacityAcrossAuthorities",
+        "renewalsHaveReservedDatabaseAccess",
+        "lifecyclePrivilegesAndInertPilotStaySeparate",
+        "oneOwnerAndNoActiveScheduler",
+        "failureCauseGraphClassification"
+      ]
+    },
+    "read_lifecycle": {
+      "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest": [
+        "effectiveLeastPrivileges"
+      ]
+    },
+    "composite_classification": {
+      "com.kartaguez.pocoma.runtime.command.v3.ConsumptionCompositeClassificationTest": [
+        "isolatedBusinessTechnicalAndPersistenceFaults",
+        "connectionAndStatementCompletionUnknownNeverCount",
+        "excludedWinsAcrossMixedCauseAndSuppressedInBothOrders",
+        "jdbcNextExceptionExclusionWinsInBothOrdersWithCycles",
+        "springJpaCompositePreservesExcludedCauses",
+        "springOriginalApplicationExceptionParticipatesInClassification",
+        "cancellationInterruptionAndTheirStandardWrappersAloneNeverCount",
+        "cancellationDoesNotEraseAProvenCountableFault",
+        "businessTypesWithExcludedCauseRemainNonCountable",
+        "mixedGraphCyclesTerminateAndSqlPrecedesTechnical"
+      ]
+    },
+    "discovery": {
+      "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest": [
+        "i4_n01",
+        "i4_n02",
+        "i4_n03",
+        "i4_n04",
+        "i4_n05",
+        "i4_n06",
+        "i4_n07",
+        "i4_n08",
+        "i4_n09",
+        "i4_n10",
+        "i4_n11",
+        "i4_n12",
+        "i4_n13",
+        "i4_n14",
+        "i4_n15",
+        "i4_n16",
+        "i4_n17",
+        "i4_n18",
+        "i4_b01",
+        "i4_b02",
+        "i4_b03",
+        "i4_b04",
+        "i4_b05",
+        "i4_b06",
+        "i4_b07",
+        "i4_b08",
+        "i4_b09",
+        "i4_b10",
+        "i4_b11",
+        "i4_b12",
+        "i4_b13",
+        "i4_b14",
+        "i4_b15",
+        "i4_b16",
+        "i4_b17",
+        "i4_b18",
+        "i4_x01",
+        "i4_x02",
+        "i4_x03",
+        "i4_x04",
+        "i4_x05",
+        "i4_x06",
+        "i4_x07",
+        "i4_x08",
+        "i4_x09",
+        "i4_x10",
+        "i4_p01",
+        "i4_p02",
+        "i4_p03"
+      ]
+    },
+    "discovery_unit": {
+      "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest": [
+        "coveredPrefixStopsBeforeFirstUnadmittedReference",
+        "zeroLocalReferencesAdvanceGlobally",
+        "quarantinedPresenceIsNotNewWork",
+        "filteredPageIsNotEndOfTour",
+        "capacityPreservesUnexaminedSuffix",
+        "walkUsesUnsignedUuidOrder",
+        "unknownTransactionReturnsNoProgress",
+        "invalidSourceOrWindowRefusedBeforeAdmission"
+      ]
+    },
+    "discovery_read": {
+      "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest": [
+        "effectiveDiscoveryColumnPrivileges"
+      ]
+    },
+    "discovery_composition": {
+      "com.kartaguez.pocoma.runtime.command.v3.DiscoveryCompositionPostgresTest": [
+        "sharedPhysicalOwnerAndAuthorities",
+        "explicitPrivilegesDoNotActivatePilot"
+      ]
+    },
+    "discovery_architecture": {
+      "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest": [
+        "discoveryPortsAndWritersRemainBounded"
+      ],
+      "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest": [
+        "discoveryFactoryIsExplicitAndKeepsTheNineDefinitions"
+      ]
+    },
+    "discovery_i1": {
+      "com.kartaguez.pocoma.runtime.command.v3.ConsumptionBootstrapPostgresTest": [
+        "catalogSeedAndTriggerShareExactlyNineStableIdentitiesAndSevenFamilies",
+        "validDistributedPilotIsInertAcrossRestartAndDoesNotTouchHistoricalSentinel",
+        "refusesMissingPartitionWrongSchemaRoleAndAuthorityBeforeProcessing",
+        "refusesSamePhysicalDatabaseEvenWithSeparateCompleteSchemas",
+        "explicitLegacyRuntimeImportFailsBeforeBeanConstruction",
+        "oldWriterSqlFailsOnMissingDedicatedSlotAndRollsBackAdmission",
+        "rejectsAllOldWriterOwnerAndPollerTypesBeforeInstantiation",
+        "noinheritMembershipCannotBypassRuntimePrivilegeGuard"
+      ]
+    }
+  },
+  "gate_groups": {
+    "command": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "composition",
+      "capacity",
+      "lifecycle",
+      "lifecycle_composition",
+      "read_lifecycle",
+      "composite_classification",
+      "discovery_unit",
+      "discovery_read",
+      "discovery",
+      "discovery_composition",
+      "discovery_i1"
+    ],
+    "read": [
+      "read_lifecycle",
+      "discovery_unit",
+      "discovery_read"
+    ],
+    "monolith": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "inert_monolith",
+      "capacity",
+      "lifecycle",
+      "read_lifecycle",
+      "discovery_unit",
+      "discovery_read",
+      "discovery"
+    ],
+    "architecture": [
+      "i2",
+      "owner",
+      "legacy",
+      "finance",
+      "f2",
+      "depth",
+      "composition",
+      "inert_monolith",
+      "architecture",
+      "capacity",
+      "lifecycle",
+      "lifecycle_composition",
+      "read_lifecycle",
+      "composite_classification",
+      "discovery_unit",
+      "discovery_read",
+      "discovery",
+      "discovery_composition",
+      "discovery_i1",
+      "discovery_architecture"
+    ]
+  },
+  "physical_requirements": [
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_lease_clock-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_lease_clock WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_lease_clock-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_lease_clock READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_partial WRITE",
+        "independent final snapshot",
+        "examinedCount partial=2 won=1; capacity full=0 keys/0 SQL"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_acquisition_partial-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_acquisition_partial READ",
+        "independent final snapshot",
+        "examinedCount partial=2 won=1; capacity full=0 keys/0 SQL"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_a-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_a WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_a-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_a READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_b-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_b WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_b-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_b READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_c-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_c WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_c-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_c READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_d-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_d WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_d-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_d READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_e-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_e WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_e-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_e READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_f-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_f WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_f-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_f READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_g-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_g WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_g-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_g READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_h-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_h WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_h-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_h READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_i-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_i WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_i-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_i READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_j-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_j WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=final fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=final fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_j-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_j READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=final fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=final fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_k-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_k WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_k-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_k READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_l-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_l WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c03_l-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c03_l READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_a-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_a WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_a-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_a READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_b-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_b WRITE",
+        "independent final snapshot",
+        "actual deferred commit SQLSTATE 23514"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_b-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_b READ",
+        "independent final snapshot",
+        "actual deferred commit SQLSTATE 23514"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_c-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_c WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_c-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_c READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_d-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_d WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_d-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_d READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_e-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_e WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_e-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_e READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_f-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_f WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_f-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_f READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_g-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_g WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_g-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_g READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_h-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_h WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_h-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_h READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=cession fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=cession fault=AFTER_COMMIT"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_i-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_i WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_i-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_i READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_j-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_j WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_j-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_j READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_k-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_k WRITE",
+        "independent final snapshot",
+        "actual rollback confirmed before injected process stop"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_k-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_k READ",
+        "independent final snapshot",
+        "actual rollback confirmed before injected process stop"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_l-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_l WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_l-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_l READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_m-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_m WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_c05_m-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_c05_m READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_capacity_uncertainty-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_capacity_uncertainty WRITE",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT",
+        "physical final transaction still open",
+        "local callback active despite cancellation",
+        "absent slot did not release until coherent business R9"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_capacity_uncertainty-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_capacity_uncertainty READ",
+        "independent final snapshot",
+        "WIRE VARIANT PASS phase=acquisition fault=BEFORE_COMMIT",
+        "WIRE VARIANT PASS phase=acquisition fault=AFTER_COMMIT",
+        "physical final transaction still open",
+        "local callback active despite cancellation",
+        "absent slot did not release until coherent business R9"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_cession_once-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_cession_once WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_cession_once-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_cession_once READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_failure_classification-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_failure_classification WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_failure_classification-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_failure_classification READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_lease_races-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_lease_races WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_lease_races-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_lease_races READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_other_slot_progresses-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_other_slot_progresses WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_other_slot_progresses-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_other_slot_progresses READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_quarantine_persists-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_quarantine_persists WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_quarantine_persists-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_quarantine_persists READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate_over_cap-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate_over_cap WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_reactivate_over_cap-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_reactivate_over_cap READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_relation_timeout-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_relation_timeout WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_relation_timeout-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_relation_timeout READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_s1_s2-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_s1_s2 WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_renew_s1_s2-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_renew_s1_s2 READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_retry_config_prospective-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_retry_config_prospective WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_retry_config_prospective-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_retry_config_prospective READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_route_admin_serialization-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_route_admin_serialization WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_route_admin_serialization-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_route_admin_serialization READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_sql_costs-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_sql_costs WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_sql_costs-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_sql_costs READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_two_admins-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_two_admins WRITE",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_two_admins-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_two_admins READ",
+        "independent final snapshot"
+      ]
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/sharedCapacityAcrossAuthorities.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/renewalsHaveReservedDatabaseAccess.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/lifecyclePrivilegesAndInertPilotStaySeparate.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/oneOwnerAndNoActiveScheduler.txt",
+      "contains": []
+    },
+    {
+      "group": "lifecycle_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/failureCauseGraphClassification.txt",
+      "contains": []
+    },
+    {
+      "group": "read_lifecycle",
+      "path": "infra-persistence-read-jdbc/target/v3-i3-evidence/read-effective-privileges.txt",
+      "contains": [
+        "effective nonadmin worker="
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_classifier_exits-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_classifier_exits WRITE",
+        "independent final snapshot",
+        "AUDIT classifier=runtime physical=ROLLED_BACK",
+        "AUDIT classifier=error physical=ROLLED_BACK",
+        "AUDIT classifier=null physical=ROLLED_BACK",
+        "subsequent acquisition committed"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_classifier_exits-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_classifier_exits READ",
+        "independent final snapshot",
+        "AUDIT classifier=runtime physical=ROLLED_BACK",
+        "AUDIT classifier=error physical=ROLLED_BACK",
+        "AUDIT classifier=null physical=ROLLED_BACK",
+        "subsequent acquisition committed"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_classifier_active-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_classifier_active WRITE",
+        "independent final snapshot",
+        "two inspections=0; ticket=1",
+        "classifier local exit confirmed; ticket=0; capacity reacquired once"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_classifier_active-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_classifier_active READ",
+        "independent final snapshot",
+        "two inspections=0; ticket=1",
+        "classifier local exit confirmed; ticket=0; capacity reacquired once"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_cession_failure-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_cession_failure WRITE",
+        "independent final snapshot",
+        "cession unreported=false physical=ROLLED_BACK",
+        "cession unreported=true physical=ROLLED_BACK",
+        "capacity reacquired; no replay"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_cession_failure-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_cession_failure READ",
+        "independent final snapshot",
+        "cession unreported=false physical=ROLLED_BACK",
+        "cession unreported=true physical=ROLLED_BACK",
+        "capacity reacquired; no replay"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_cession_unknown_active-WRITE.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_cession_unknown_active WRITE",
+        "independent final snapshot",
+        "physical transaction active after local exit cession=true",
+        "physical cession transaction still open",
+        "local callback active despite cancellation"
+      ]
+    },
+    {
+      "group": "lifecycle",
+      "path": "infra-persistence-primary-jpa/target/v3-i3-evidence/i3_audit_cession_unknown_active-READ.txt",
+      "contains": [
+        "VARIANT PASS i3_audit_cession_unknown_active READ",
+        "independent final snapshot",
+        "physical transaction active after local exit cession=true",
+        "physical cession transaction still open",
+        "local callback active despite cancellation"
+      ]
+    },
+    {
+      "group": "composition",
+      "path": "runtime-command-consumption-worker/target/v3-i3-evidence/command-composite-classifier.txt",
+      "contains": [
+        "PASS command collision=true excluded=none direct and wrapped=COLLISION",
+        "PASS command collision=true excluded=08006 direct and wrapped=NON_COUNTABLE",
+        "PASS command collision=true excluded=40003 direct and wrapped=NON_COUNTABLE",
+        "PASS command collision=true excluded=configuration direct and wrapped=NON_COUNTABLE",
+        "PASS command collision=false excluded=none direct and wrapped=INCONSISTENT_FACTS",
+        "PASS command collision=false excluded=08006 direct and wrapped=NON_COUNTABLE",
+        "PASS command collision=false excluded=40003 direct and wrapped=NON_COUNTABLE",
+        "PASS command collision=false excluded=configuration direct and wrapped=NON_COUNTABLE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-POT_EVENT-dense-four.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED dense-four",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-INVITATION_EVENT-dense-four.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED dense-four",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-IDENTITY_EVENT-dense-four.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED dense-four",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-COMMAND_COMPLETION_EVENT-dense-four.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED dense-four",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-IDENTITY_COMPLETION_EVENT-dense-four.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED dense-four",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-POT_EVENT-delivered-producer.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-producer",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n01-COMMAND_COMPLETION_EVENT-delivered-producer.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-producer",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n02-POT_EVENT-outside-at-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED outside-at-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n02-INVITATION_EVENT-outside-at-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED outside-at-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n02-IDENTITY_EVENT-outside-at-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED outside-at-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n02-COMMAND_COMPLETION_EVENT-outside-at-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED outside-at-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n02-IDENTITY_COMPLETION_EVENT-outside-at-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED outside-at-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n03-POT_EVENT-window-boundaries-1-2-3.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED window-boundaries-1-2-3",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n03-INVITATION_EVENT-window-boundaries-1-2-3.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED window-boundaries-1-2-3",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n03-IDENTITY_EVENT-window-boundaries-1-2-3.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED window-boundaries-1-2-3",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n03-COMMAND_COMPLETION_EVENT-window-boundaries-1-2-3.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED window-boundaries-1-2-3",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n03-IDENTITY_COMPLETION_EVENT-window-boundaries-1-2-3.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED window-boundaries-1-2-3",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-POT_EVENT-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-INVITATION_EVENT-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-IDENTITY_EVENT-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-COMMAND_COMPLETION_EVENT-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-IDENTITY_COMPLETION_EVENT-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-POT_EVENT-delivered-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n04-COMMAND_COMPLETION_EVENT-delivered-publisher-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-publisher-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-POT_EVENT-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-INVITATION_EVENT-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-IDENTITY_EVENT-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-COMMAND_COMPLETION_EVENT-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-IDENTITY_COMPLETION_EVENT-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-POT_EVENT-delivered-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n05-COMMAND_COMPLETION_EVENT-delivered-publisher-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED delivered-publisher-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-POT_EVENT-same-K-stale.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-K-stale",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-INVITATION_EVENT-same-K-stale.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-K-stale",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-IDENTITY_EVENT-same-K-stale.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-K-stale",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-COMMAND_COMPLETION_EVENT-same-K-stale.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-K-stale",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-IDENTITY_COMPLETION_EVENT-same-K-stale.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-K-stale",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-POT_EVENT-real-stale-K.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-stale-K",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n06-COMMAND_COMPLETION_EVENT-real-stale-K.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-stale-K",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n07-POT_EVENT-takeover-after-preparation.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED takeover-after-preparation",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-POT_EVENT-before-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-POT_EVENT-before-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-INVITATION_EVENT-before-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-INVITATION_EVENT-before-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-IDENTITY_EVENT-before-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-IDENTITY_EVENT-before-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-COMMAND_COMPLETION_EVENT-before-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-COMMAND_COMPLETION_EVENT-before-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-IDENTITY_COMPLETION_EVENT-before-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n08-IDENTITY_COMPLETION_EVENT-before-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED before-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n09-POT_EVENT-after-last-insert-before-CAS.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-last-insert-before-CAS",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n10-POT_EVENT-after-CAS-before-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-CAS-before-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-POT_EVENT-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-POT_EVENT-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-INVITATION_EVENT-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-INVITATION_EVENT-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-IDENTITY_EVENT-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-IDENTITY_EVENT-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-COMMAND_COMPLETION_EVENT-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-COMMAND_COMPLETION_EVENT-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-IDENTITY_COMPLETION_EVENT-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-IDENTITY_COMPLETION_EVENT-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-POT_EVENT-real-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-POT_EVENT-real-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-COMMAND_COMPLETION_EVENT-real-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-wire-BEFORE_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n11-COMMAND_COMPLETION_EVENT-real-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-wire-AFTER_COMMIT",
+        "independent final",
+        "WIRE"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-POT_EVENT-cap-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-POT_EVENT-cap-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-POT_EVENT-stock63-cap64.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock63-cap64",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-POT_EVENT-batch1-with-cap64-margin.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED batch1-with-cap64-margin",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-INVITATION_EVENT-cap-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-INVITATION_EVENT-cap-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-INVITATION_EVENT-stock63-cap64.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock63-cap64",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-INVITATION_EVENT-batch1-with-cap64-margin.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED batch1-with-cap64-margin",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_EVENT-cap-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_EVENT-cap-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_EVENT-stock63-cap64.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock63-cap64",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_EVENT-batch1-with-cap64-margin.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED batch1-with-cap64-margin",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-COMMAND_COMPLETION_EVENT-cap-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-COMMAND_COMPLETION_EVENT-cap-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-COMMAND_COMPLETION_EVENT-stock63-cap64.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock63-cap64",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-COMMAND_COMPLETION_EVENT-batch1-with-cap64-margin.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED batch1-with-cap64-margin",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_COMPLETION_EVENT-cap-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_COMPLETION_EVENT-cap-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cap-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_COMPLETION_EVENT-stock63-cap64.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock63-cap64",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n12-IDENTITY_COMPLETION_EVENT-batch1-with-cap64-margin.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED batch1-with-cap64-margin",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n13-IDENTITY_EVENT-stable-EUI-filter.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stable-EUI-filter",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n13-IDENTITY_EVENT-no-EUI-only-User.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED no-EUI-only-User",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n14-POT_EVENT-completion-rollback-then-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED completion-rollback-then-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n14-POT_EVENT-real-finalization-ACK-lost.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-finalization-ACK-lost",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n14-POT_EVENT-real-finalization-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-finalization-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n14-COMMAND_COMPLETION_EVENT-real-finalization-ACK-lost.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-finalization-ACK-lost",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n14-COMMAND_COMPLETION_EVENT-real-finalization-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-finalization-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n15-POT_EVENT-independent-consumption.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED independent-consumption",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n15-COMMAND_COMPLETION_EVENT-independent-consumption.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED independent-consumption",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n16-POT_EVENT-negative-SQL-invariants.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED negative-SQL-invariants",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n16-COMMAND-no-burnable-checkpoint.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED no-burnable-checkpoint",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n16-IDENTITY_REQUEST-no-burnable-checkpoint.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED no-burnable-checkpoint",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-POT_EVENT-hole.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED hole",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-POT_EVENT-duplicate.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED duplicate",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-POT_EVENT-safe-behind.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED safe-behind",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-POT_EVENT-publication-between-RR-SELECTs.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED publication-between-RR-SELECTs",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-POT_EVENT-missing-real-envelope.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED missing-real-envelope",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n17-COMMAND_COMPLETION_EVENT-missing-real-envelope.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED missing-real-envelope",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n18-POT_EVENT-relation-timeout.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED relation-timeout",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n18-POT_EVENT-post-wait-expiry.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED post-wait-expiry",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n18-POT_EVENT-checkpoint-relation-timeout.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED checkpoint-relation-timeout",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_n18-POT_EVENT-checkpoint-post-wait-expiry.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED checkpoint-post-wait-expiry",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b01-COMMAND-pending-admission.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED pending-admission",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b01-IDENTITY_REQUEST-pending-admission.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED pending-admission",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b02-COMMAND-existing-free-and-claimed.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED existing-free-and-claimed",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b02-IDENTITY_REQUEST-existing-free-and-claimed.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED existing-free-and-claimed",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b03-COMMAND-expired-claim.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED expired-claim",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b03-IDENTITY_REQUEST-expired-claim.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED expired-claim",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b04-COMMAND-retry-deadline.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED retry-deadline",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b04-IDENTITY_REQUEST-retry-deadline.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED retry-deadline",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b05-COMMAND-quarantine-restart.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED quarantine-restart",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b05-IDENTITY_REQUEST-quarantine-restart.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED quarantine-restart",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b06-COMMAND-terminal-between-page-and-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED terminal-between-page-and-lock",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b06-IDENTITY_REQUEST-terminal-between-page-and-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED terminal-between-page-and-lock",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b07-COMMAND-F-before-FK-D-holds-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED F-before-FK-D-holds-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b07-IDENTITY_REQUEST-F-before-FK-D-holds-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED F-before-FK-D-holds-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-FK-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-FK-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-update-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-update-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-delete-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-COMMAND-after-delete-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-FK-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-FK-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-update-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-update-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-delete-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b08-IDENTITY_REQUEST-after-delete-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b09-COMMAND-same-owner-concurrent-Discoveries.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-owner-concurrent-Discoveries",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b09-COMMAND-same-token-race-one-remaining-place.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-token-race-one-remaining-place",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b09-IDENTITY_REQUEST-same-owner-concurrent-Discoveries.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-owner-concurrent-Discoveries",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b09-IDENTITY_REQUEST-same-token-race-one-remaining-place.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED same-token-race-one-remaining-place",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b10-COMMAND-arrival-behind.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrival-behind",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b10-IDENTITY_REQUEST-arrival-behind.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrival-behind",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b11-COMMAND-arrival-above-U.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrival-above-U",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b11-IDENTITY_REQUEST-arrival-above-U.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrival-above-U",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b12-COMMAND-skip-then-free-next-tour.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED skip-then-free-next-tour",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b12-IDENTITY_REQUEST-skip-then-free-next-tour.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED skip-then-free-next-tour",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b13-COMMAND-initial-saturation-and-return.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED initial-saturation-and-return",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b13-COMMAND-initial-capacity-with-protected-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED initial-capacity-with-protected-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b13-IDENTITY_REQUEST-initial-saturation-and-return.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED initial-saturation-and-return",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b13-IDENTITY_REQUEST-initial-capacity-with-protected-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED initial-capacity-with-protected-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b14-COMMAND-capacity-frontier.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED capacity-frontier",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b14-IDENTITY_REQUEST-capacity-frontier.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED capacity-frontier",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b15-COMMAND-takeover-loses-walk.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED takeover-loses-walk",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b15-IDENTITY_REQUEST-takeover-loses-walk.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED takeover-loses-walk",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b16-COMMAND-controlled-finite-arrivals.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED controlled-finite-arrivals",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b16-COMMAND-arrivals-and-skipped-then-free.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrivals-and-skipped-then-free",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b16-IDENTITY_REQUEST-controlled-finite-arrivals.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED controlled-finite-arrivals",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b16-IDENTITY_REQUEST-arrivals-and-skipped-then-free.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED arrivals-and-skipped-then-free",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-COMMAND-rollback-after-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED rollback-after-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-COMMAND-rollback-after-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED rollback-after-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-COMMAND-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-COMMAND-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-IDENTITY_REQUEST-rollback-after-insert-1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED rollback-after-insert-1",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-IDENTITY_REQUEST-rollback-after-insert-2.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED rollback-after-insert-2",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-IDENTITY_REQUEST-wire-BEFORE_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-BEFORE_COMMIT",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b17-IDENTITY_REQUEST-wire-AFTER_COMMIT.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED wire-AFTER_COMMIT",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-COMMAND-composite-five-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-commit",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-COMMAND-composite-five-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-COMMAND-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-IDENTITY_REQUEST-composite-five-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-commit",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-IDENTITY_REQUEST-composite-five-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_b18-IDENTITY_REQUEST-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x01-COMMAND-old-claim-after-takeover.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED old-claim-after-takeover",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x01-IDENTITY_REQUEST-old-claim-after-takeover.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED old-claim-after-takeover",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x02-POT_EVENT-expired-lease-discovery-refused-existing-claim-finishes.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED expired-lease-discovery-refused-existing-claim-finishes",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x03-COMMAND-administrative-reactivation-over-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED administrative-reactivation-over-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x03-IDENTITY_REQUEST-administrative-reactivation-over-cap.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED administrative-reactivation-over-cap",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x04-COMMAND-Discovery-held-independent-renewals.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED Discovery-held-independent-renewals",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x04-IDENTITY_REQUEST-Discovery-held-independent-renewals.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED Discovery-held-independent-renewals",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x05-POT_EVENT-READ-xid-and-WRITE-read-only.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED READ-xid-and-WRITE-read-only",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x06-COMMAND-writers-reject-escape-and-poison.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED writers-reject-escape-and-poison",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x06-IDENTITY_REQUEST-writers-reject-escape-and-poison.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED writers-reject-escape-and-poison",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-A-naive-physical-cycle-counterexample.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED A-naive-physical-cycle-counterexample",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-A-naive-physical-cycle-counterexample.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED A-naive-physical-cycle-counterexample",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-A-corrected-wait-expiry-rejected.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED A-corrected-wait-expiry-rejected",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x08-COMMAND-catalogue-and-rights.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED catalogue-and-rights",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x08-IDENTITY_REQUEST-catalogue-and-rights.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED catalogue-and-rights",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x09-POT_EVENT-three-independent-spaces.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED three-independent-spaces",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x10-COMMAND-Changed-Unchanged-Rejected.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED Changed-Unchanged-Rejected",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-F-before-FK-D-holds-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED F-before-FK-D-holds-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-FK-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-FK-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-update-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-update-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-delete-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-after-delete-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-F-before-FK-D-holds-source.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED F-before-FK-D-holds-source",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-FK-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-FK-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-FK-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-update-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-update-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-update-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-delete-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-commit",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-IDENTITY_REQUEST-after-delete-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED after-delete-rollback",
+        "independent final"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N100-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N100-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N100-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N100-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N100-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N100-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N100-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N100-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N100-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N100-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N100-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N100-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N100-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N100-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N100-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N100-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-real-cost-N100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-real-cost-N100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N100-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N100-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N100-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N100-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N100-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N100-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N100-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N100-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N100-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N100-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N100-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N100-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N100-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N100-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N1000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N1000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N1000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N1000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N1000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N1000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N1000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N1000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N1000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N1000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N1000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N1000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N1000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N1000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N1000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N1000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-real-cost-N1000.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N1000",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-real-cost-N1000.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N1000",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N1000-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N1000-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N1000-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N1000-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N1000-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N1000-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N1000-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N1000-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N1000-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N1000-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N1000-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N1000-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N1000-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N1000-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N10000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N10000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N10000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N10000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N10000-local0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local0",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N10000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N10000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N10000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N10000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N10000-local25.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local25",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-cost-N10000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-INVITATION_EVENT-cost-N10000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_EVENT-cost-N10000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-cost-N10000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-IDENTITY_COMPLETION_EVENT-cost-N10000-local100.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-N10000-local100",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-POT_EVENT-real-cost-N10000.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N10000",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p01-COMMAND_COMPLETION_EVENT-real-cost-N10000.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED real-cost-N10000",
+        "independent final",
+        "P01 sample=0",
+        "P01 sample=9",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N10000-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N10000-B1.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B1",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N10000-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N10000-B16.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B16",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-keyset-cost-N10000-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-keyset-cost-N10000-B32.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED keyset-cost-N10000-B32",
+        "independent final",
+        "P02 sample=0",
+        "P02 sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N10000-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N10000-Q0.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q0",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N10000-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N10000-Q50.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q50",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-stock-cost-N10000-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-stock-cost-N10000-Q90.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED stock-cost-N10000-Q90",
+        "independent final",
+        "sample=0",
+        "sample=9",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "consumedRows=",
+        "P DML EXPLAIN ANALYZE BUFFERS WAL",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-composite-five-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-commit",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-COMMAND-composite-five-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-majority-duplicate-locked-before-new.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED majority-duplicate-locked-before-new",
+        "independent final",
+        "LOCK duration physical=COMMITTED",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-composite-five-commit.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-commit",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p03-IDENTITY_REQUEST-composite-five-rollback.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED composite-five-rollback",
+        "independent final",
+        "LOCK duration physical=COMMITTED"
+      ]
+    },
+    {
+      "group": "discovery_read",
+      "path": "infra-persistence-read-jdbc/target/v3-i4-evidence/read-effective-privileges.txt",
+      "contains": [
+        "grant-l2-discovery.sql",
+        "session_user"
+      ]
+    },
+    {
+      "group": "discovery_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i4-evidence/sharedPhysicalOwnerAndAuthorities.txt",
+      "contains": [
+        "grant-l2-discovery.sql",
+        "WRITE ACL",
+        "READ ACL"
+      ]
+    },
+    {
+      "group": "discovery_composition",
+      "path": "runtime-command-consumption-worker/target/v3-i4-evidence/explicitPrivilegesDoNotActivatePilot.txt",
+      "contains": [
+        "grant-l2-discovery.sql",
+        "WRITE ACL",
+        "READ ACL"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-two-Command-Pot-false-EUI-false-counter-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED two-Command-Pot-false-EUI-false-counter-lock",
+        "independent final",
+        "two actual F",
+        "D already physically committed"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-two-Command-Pot-false-EUI-true-counter-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED two-Command-Pot-false-EUI-true-counter-lock",
+        "independent final",
+        "two actual F",
+        "D already physically committed"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-two-Command-Pot-true-EUI-false-counter-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED two-Command-Pot-true-EUI-false-counter-lock",
+        "independent final",
+        "two actual F",
+        "D already physically committed"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x07-COMMAND-two-Command-Pot-true-EUI-true-counter-lock.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED two-Command-Pot-true-EUI-true-counter-lock",
+        "independent final",
+        "two actual F",
+        "D already physically committed"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_x10-COMMAND-Command-finalization-AFTER_COMMIT-ACK-lost.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED Command-finalization-AFTER_COMMIT-ACK-lost",
+        "independent final",
+        "UNKNOWN historical outcome",
+        "no reenrollment"
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-COMMAND-cost-fully-filtered-page-before-local.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-fully-filtered-page-before-local",
+        "independent final",
+        "filtered first page is global navigation",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    },
+    {
+      "group": "discovery",
+      "path": "infra-persistence-primary-jpa/target/v3-i4-evidence/i4_p02-IDENTITY_REQUEST-cost-fully-filtered-page-before-local.txt",
+      "contains": [
+        "VARIANT ASSERTIONS SATISFIED cost-fully-filtered-page-before-local",
+        "independent final",
+        "filtered first page is global navigation",
+        "COST actual application JDBC statements=",
+        "COST environment image=",
+        "COST catalog indexes=",
+        "COST table statistics=",
+        "COST actual harness single-platform-thread dispatchNs="
+      ]
+    }
+  ],
+  "variant_inventory": {
+    "origin": "Approved plan §§16–18; explicit method/family/physical-variant paths before final certification gates",
+    "required_i4_physical_files": 305,
+    "performance_full_cartesian_P01": {
+      "W": [
+        1,
+        32,
+        128
+      ],
+      "B": [
+        1,
+        16,
+        32
+      ],
+      "softCap": [
+        1,
+        64
+      ],
+      "sizes": [
+        100,
+        1000,
+        10000
+      ],
+      "localPercent": [
+        0,
+        25,
+        100
+      ],
+      "warmups": 5,
+      "measured_samples": 10
+    },
+    "fixtures": "IDENTITY/INVITATION sources remain technical only; real source chain is Command/POT/COMMAND_COMPLETION with fixture Identity authority; no absent product certified."
+  },
+  "gate_commands": {
+    "command": [
+      "./mvnw",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "test"
+    ],
+    "read": [
+      "./mvnw",
+      "-pl",
+      "infra-persistence-read-jdbc",
+      "-am",
+      "test"
+    ],
+    "monolith": [
+      "./mvnw",
+      "-pl",
+      "runtime-monolith",
+      "-am",
+      "test"
+    ],
+    "architecture": [
+      "./mvnw",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "test"
+    ]
+  },
+  "instrumentation": {
+    "lock_duration": "Conservative lower/upper physical acquisition and confirmed-commit bounds measured with PG clocks; test instrumentation overhead included; p50/p95/max upper bounds descriptive only",
+    "cost_topology": "Pinned sequential real runtime connections, actual SQL-only Spring/JDBC owners for cost; production shared JPA owner proven by concurrency/composition; no I5 resources certification",
+    "routing_inputs_sha256": "151c9ca1295b966711e3e9013fb3be62bc7cfaace6fde59c843a91a0fd720db8",
+    "routing_generator": "scripts/testing/verify-v3-l2-i4.py generate-inputs <new-path>"
+  }
+}

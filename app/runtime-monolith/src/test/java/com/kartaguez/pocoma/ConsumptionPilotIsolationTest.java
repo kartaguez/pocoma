@@ -178,6 +178,13 @@ class ConsumptionPilotIsolationTest {
                 assertNotNull(context.getBean(V3BootstrapGuard.class));
                 assertTrue(
                         context.getBeansOfType(
+                                        com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine
+                                                .class)
+                                .isEmpty());
+                assertTrue(
+                        context.getBeansOfType(V3ConsumptionDiscoveryComposition.class).isEmpty());
+                assertTrue(
+                        context.getBeansOfType(
                                         com.kartaguez.pocoma.engine.consumption.v3.ConsumptionEngine
                                                 .class)
                                 .isEmpty());
