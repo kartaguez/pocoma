@@ -140,8 +140,8 @@
     },
     {
       "path": "Changed-Files.txt",
-      "bytes": 5285,
-      "sha256": "54c5ee55eccb41a43a875d3fd130db31db1f4bd1deff6a9bc1a9758d9f5d319e"
+      "bytes": 5396,
+      "sha256": "5d663fbd67fd0c3dc4212f6eb0d38748cc91c5310be1bea66a2423dff2285607"
     },
     {
       "path": "Diagnostics-Summary.json",
@@ -269,6 +269,16 @@
       "sha256": "151c9ca1295b966711e3e9013fb3be62bc7cfaace6fde59c843a91a0fd720db8"
     },
     {
+      "path": "Publication-Delivery-Push.log",
+      "bytes": 95,
+      "sha256": "ed769dcb2da8855d2cb9b5fb5c41046db03c624abb1b78eb8aff8b1173b56e91"
+    },
+    {
+      "path": "Publication-Receipt.json",
+      "bytes": 2533,
+      "sha256": "cfdbeb1b0145783ce38bca7156f2e09346d4989c5944eb738423c9cbeaa1b7b8"
+    },
+    {
       "path": "README.md",
       "bytes": 3579,
       "sha256": "3c3c3b0e5c84ea6a2d52c0f45e54ca38cd71a76b7e4f4926bab093f743f4bacb"
@@ -359,5 +369,6 @@
       "sha256": "538ec1928480d548c5c36697fe3bfa09fe8a6e2a4b55ac04a6e0e0924576a1dc"
     }
   ],
-  "index_excludes_itself": true
+  "index_excludes_itself": true,
+  "publication_payload_sha": "88ef9f92cd5eb7988338f318884ac130a63cf994"
 }

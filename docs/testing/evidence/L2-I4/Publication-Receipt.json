@@ -1,0 +1,30 @@
+{
+  "payload_sha": "88ef9f92cd5eb7988338f318884ac130a63cf994",
+  "reference_sha": "489259dbad757e3256572f8ce2041a187adeb38d",
+  "tested_code_sha": "0b08d3bf0bfce1334260cfd5249b13c3040a67bb",
+  "remote_verified_sha": "88ef9f92cd5eb7988338f318884ac130a63cf994",
+  "branch": "feat/v3-architecture",
+  "remote_divergence": "0/0",
+  "worktree_before_receipt": "CLEAN",
+  "ordinary_push": "489259db..88ef9f92 HEAD -> feat/v3-architecture",
+  "force_push": false,
+  "verified_utc": "2026-10-28T14:42:21.789117+00:00",
+  "main_checkout_preserved": true,
+  "main_checkout": {
+    "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+    "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+    "branch": "feat/runtime-monolith",
+    "status": "M docker/keycloak/pocoma-realm.json\n M docs/README.md\n D \"scripts/bruno/00 Pot E2E/01 Create Pot.bru\"\n M \"scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru\"\n M \"scripts/bruno/00 Pot E2E/03 Read Pot V1.bru\"\n M \"scripts/bruno/00 Pot E2E/04 Update Pot Details.bru\"\n M \"scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru\"\n M \"scripts/bruno/00 Pot E2E/06 Read Pot V2.bru\"\n M \"scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru\"\n M \"scripts/bruno/00 Pot E2E/folder.bru\"\n?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java\n?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md\n?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md\n?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md\n?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md\n?? docs/testing/evidence/\n?? docs/v3/\n?? \"scripts/bruno/00 Pot E2E/001 Registrations.bru\"\n?? \"scripts/bruno/00 Pot E2E/002 RegistrationResult.bru\"\n?? \"scripts/bruno/00 Pot E2E/003 Me-Binding.bru\"\n?? \"scripts/bruno/00 Pot E2E/004 Create Pot.bru\""
+  },
+  "code_and_script_tree_equal_to_tested_sha": {
+    "app": true,
+    "scripts": true,
+    "docs/testing/evidence/L2-I4/Performance-inputs.json": true
+  },
+  "receipt_commit": "This post-publication documentary receipt does not change the tested code; final branch-head SHA is provided in the final response after its ordinary push.",
+  "i4": "LOCAL BOUNDED PASS \u2014 AWAITING INDEPENDENT CODE AND EVIDENCE AUDIT",
+  "l2_global": "INCONCLUSIVE",
+  "i5": "NOT STARTED",
+  "workers": "NOT ACTIVATED",
+  "g1_g2_g3": "NOT CROSSED"
+}

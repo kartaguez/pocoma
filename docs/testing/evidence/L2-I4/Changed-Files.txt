@@ -47,6 +47,8 @@ docs/testing/evidence/L2-I4/Initial-Git.txt
 docs/testing/evidence/L2-I4/Performance-Summary-Recipe.txt
 docs/testing/evidence/L2-I4/Performance-Summary.json
 docs/testing/evidence/L2-I4/Performance-inputs.json
+docs/testing/evidence/L2-I4/Publication-Delivery-Push.log
+docs/testing/evidence/L2-I4/Publication-Receipt.json
 docs/testing/evidence/L2-I4/README.md
 docs/testing/evidence/L2-I4/Source-Freeze.json
 docs/testing/evidence/L2-I4/final-architecture-collector.log

@@ -10155,6 +10155,13 @@
     "input_files": 1281,
     "physical_requirements": 402,
     "archives": "../testing/evidence/L2-I4/Archive-Receipts.json",
-    "performance": "../testing/evidence/L2-I4/Performance-Summary.json"
+    "performance": "../testing/evidence/L2-I4/Performance-Summary.json",
+    "publication": {
+      "payload_sha": "88ef9f92cd5eb7988338f318884ac130a63cf994",
+      "remote_verified_sha": "88ef9f92cd5eb7988338f318884ac130a63cf994",
+      "divergence": "0/0",
+      "receipt": "../testing/evidence/L2-I4/Publication-Receipt.json",
+      "code_unchanged_since_gates": true
+    }
   }
 }
