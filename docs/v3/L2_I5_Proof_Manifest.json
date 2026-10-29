@@ -62,7 +62,8 @@
       "i5_r08",
       "i5_r09",
       "i5_r10",
-      "i5_r11"
+      "i5_r11",
+      "i5_r12"
     ],
     "V3WorkerCompositionPostgresTest": [
       "i5_c01",
@@ -113,6 +114,12 @@
       "P5",
       "P6",
       "P7"
+    ],
+    "i5_r12": [
+      "B32-MW1",
+      "B32-MW4",
+      "B1-MW1",
+      "B1-MW4"
     ]
   },
   "resource_proofs": {
@@ -1054,6 +1061,78 @@
         "A",
         "F"
       ]
+    },
+    {
+      "id": "C-W2-B32-MW1",
+      "glob": "**/i5_r12-C-W2-B32-MW1.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B32-MW4",
+      "glob": "**/i5_r12-C-W2-B32-MW4.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B1-MW1",
+      "glob": "**/i5_r12-C-W2-B1-MW1.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B1-MW4",
+      "glob": "**/i5_r12-C-W2-B1-MW4.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
     }
   ],
   "variant_coverage": {
@@ -1174,6 +1253,16 @@
       "scope": "TEST ONLY; source code executor policy unchanged",
       "counterexample": "F at c8b0815b: third single-pass dispatch rejected because previous effect count became visible before the zero-queue executor returned to waiting handoff; 5s condition failed.",
       "change": "Wait for both Engine capacity0 and activeCount0 and actual attempt thread parked in SynchronousQueue before each next single-pass assertion; effects/rotation expectations unchanged. This local unit oracle is not a PostgreSQL resolution witness."
+    },
+    {
+      "id": "I5-T04",
+      "methods": [
+        "i5_r12"
+      ],
+      "scope": "TEST ONLY; production byte-identical to7296e11c",
+      "purpose": "Complete planned section22 r05 two-loaded-Worker calibration; existing w02 overlap safety was insufficient for C.",
+      "cases": "B1/B32 x MW1/4; two real compositions, disjoint candidates0|1 vs2|3 jointly own all12 C/p; overlapping ownership remains w02.",
+      "oracles": "Real RO preparation PID/XID; MC/MW per Worker, distinct capacity/four pools each,40/64 actual role connections with server100 and reserved16, complete measured paths including original retry due, PG old deadlines safety2s, JVM gap1s, qualified dual drain and unique effects/no incomplete slot purge."
     }
   ]
 }
