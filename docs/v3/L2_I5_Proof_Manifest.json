@@ -322,7 +322,8 @@
       "id": "H4-WRITE-false",
       "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -334,7 +335,8 @@
       "id": "H4-WRITE-true",
       "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -346,7 +348,8 @@
       "id": "physical-WRITE-false",
       "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -358,7 +361,8 @@
       "id": "physical-WRITE-true",
       "glob": "**/i5_physical-WRITE-cessiontrue-deadlinefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -370,7 +374,8 @@
       "id": "D6-WRITE",
       "glob": "**/i5_physical-WRITE-cessionfalse-deadlinetrue.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -509,7 +514,8 @@
       "id": "H4-READ-false",
       "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -521,7 +527,8 @@
       "id": "H4-READ-true",
       "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -533,7 +540,8 @@
       "id": "physical-READ-false",
       "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -545,7 +553,8 @@
       "id": "physical-READ-true",
       "glob": "**/i5_physical-READ-cessiontrue-deadlinefalse.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -557,7 +566,8 @@
       "id": "D6-READ",
       "glob": "**/i5_physical-READ-cessionfalse-deadlinetrue.txt",
       "contains": [
-        "external physical rollback"
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
       ],
       "gates": [
         "C",
@@ -1263,6 +1273,18 @@
       "purpose": "Complete planned section22 r05 two-loaded-Worker calibration; existing w02 overlap safety was insufficient for C.",
       "cases": "B1/B32 x MW1/4; two real compositions, disjoint candidates0|1 vs2|3 jointly own all12 C/p; overlapping ownership remains w02.",
       "oracles": "Real RO preparation PID/XID; MC/MW per Worker, distinct capacity/four pools each,40/64 actual role connections with server100 and reserved16, complete measured paths including original retry due, PG old deadlines safety2s, JVM gap1s, qualified dual drain and unique effects/no incomplete slot purge."
+    },
+    {
+      "id": "I5-T05",
+      "methods": [
+        "i5_w11",
+        "i5_w13",
+        "i5_w17"
+      ],
+      "scope": "TEST ONLY; production unchanged since7296e11c",
+      "counterexample": "At e257c381 C/R/M/A passed; F w13 READ saw target effect1 while another READ transaction was held UNKNOWN. The RetainingSource shared by both probes selected any v3-attempt thread, so a sibling commit could consume the armed fault.",
+      "change": "Capture the exact target attempt Thread in its participant, restrict fault predicate to that object, await that envelope wrapper exit under the existing monitor, and verify Engine retainsCapacity for its exact handle. No production policy change, no weakened outcome/slot/physical assertions.",
+      "targeted_result": "w11/w13/w17 WRITE/READ targeted PASS; final common gates must rerun."
     }
   ]
 }

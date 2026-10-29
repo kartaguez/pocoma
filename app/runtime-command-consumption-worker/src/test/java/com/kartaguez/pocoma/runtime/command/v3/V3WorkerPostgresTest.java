@@ -1797,11 +1797,17 @@ class V3WorkerPostgresTest {
                 var sql = write ? f.write : f.read;
                 if (!write) seedPublications(f, runtime, 1);
                 returned.set(0);
+                var targetThread = new AtomicReference<Thread>();
+                java.util.function.Predicate<String> selected =
+                        name ->
+                                name.startsWith("v3-attempt-")
+                                        && Thread.currentThread() == targetThread.get();
                 var fault =
                         cession
                                 ? V3WorkerResourcesPostgresTest.controlFault(
-                                        runtime, write, name -> name.startsWith("v3-attempt-"))
-                                : V3WorkerResourcesPostgresTest.businessFault(runtime, write);
+                                        runtime, write, selected)
+                                : V3WorkerResourcesPostgresTest.businessFault(
+                                        runtime, write, selected);
                 var engine = runtime.bindings.get(index).engine();
                 var original = (ConsumptionParticipant) field(engine, "participant");
                 var renewalCommitted = new CountDownLatch(1);
@@ -1833,6 +1839,7 @@ class V3WorkerPostgresTest {
                         new ConsumptionParticipant() {
                             public Optional<Prepared> prepare(UUID id) {
                                 var value = original.prepare(id);
+                                targetThread.set(Thread.currentThread());
                                 prepared.countDown();
                                 latch(continueAttempt);
                                 if (cession) {
@@ -1873,6 +1880,25 @@ class V3WorkerPostgresTest {
                                             + " consumption_id=? and claim_token is not null",
                                     UUID.class,
                                     cid);
+                    Object lifecycleMonitor = field(runtime.worker, "monitor");
+                    List<?> registered;
+                    synchronized (lifecycleMonitor) {
+                        registered = List.copyOf((List<?>) field(runtime.worker, "envelopes"));
+                    }
+                    Object found = null;
+                    ConsumptionEngine.AcquiredClaim targetHandle = null;
+                    for (Object envelope : registered) {
+                        var handle = (ConsumptionEngine.AcquiredClaim) field(envelope, "handle");
+                        if (handle.claim().consumableId().equals(id)
+                                && handle.claim().consumptionId().value().equals(cid)) {
+                            found = envelope;
+                            targetHandle = handle;
+                            break;
+                        }
+                    }
+                    assertNotNull(found);
+                    assertNotNull(targetHandle);
+                    Object targetEnvelope = found;
                     sql.update(
                             "update consumption_slot set claimed_until=clock_timestamp()+interval"
                                     + " '1 second' where consumption_id=? and consumable_id=?",
@@ -1888,9 +1914,22 @@ class V3WorkerPostgresTest {
                                     .toInstant();
                     continueAttempt.countDown();
                     await(
-                            () ->
-                                    fault.physical.get() != null
-                                            && runtime.worker.snapshot().localExited() > 0);
+                            () -> {
+                                if (fault.physical.get() == null) return false;
+                                synchronized (lifecycleMonitor) {
+                                    try {
+                                        return (boolean) field(targetEnvelope, "wrapperExited");
+                                    } catch (Exception error) {
+                                        throw new AssertionError(error);
+                                    }
+                                }
+                            });
+                    assertTrue(
+                            engine.retainsCapacity(targetHandle),
+                            "the target handle, not another Consumption, retains its ticket");
+                    f.trace.add(
+                            "transport fault scoped to target envelope thread; target wrapper"
+                                + " exited with its own ticket retained");
                     assertTrue(
                             sql.queryForObject(
                                     "select exists(select 1 from pg_stat_activity where pid=? and"
@@ -2149,7 +2188,7 @@ class V3WorkerPostgresTest {
             assertEquals(0, stopped.get());
             System.out.println(
                     "RECOVERY_PENDING externalRollback=true capacity=1 closes=0 stopped=0"
-                        + " state=DRAINING");
+                            + " state=DRAINING");
             System.out.flush();
             while (true) Thread.sleep(1000);
         }
@@ -2466,7 +2505,7 @@ class V3WorkerPostgresTest {
                             var row =
                                     f.read.queryForMap(
                                             "select consumable_id,partition_id from"
-                                                + " consumption_slot where consumption_id=?",
+                                                    + " consumption_slot where consumption_id=?",
                                             binding.definition().id().value());
                             id = (UUID) row.get("consumable_id");
                             partition = ((Number) row.get("partition_id")).intValue();
@@ -2494,7 +2533,7 @@ class V3WorkerPostgresTest {
                         var matcher =
                                 java.util.regex.Pattern.compile(
                                                 "RECOVERY_UNKNOWN pid=(\\d+) xid=(\\d+)"
-                                                    + " readOnly=(true|false)")
+                                                        + " readOnly=(true|false)")
                                         .matcher(child.output());
                         assertTrue(matcher.find());
                         int pid = Integer.parseInt(matcher.group(1));
@@ -2502,8 +2541,8 @@ class V3WorkerPostgresTest {
                         assertTrue(
                                 sql.queryForObject(
                                         "select exists(select 1 from pg_stat_activity where pid=?"
-                                            + " and backend_xid::text=? and xact_start is not"
-                                            + " null)",
+                                                + " and backend_xid::text=? and xact_start is not"
+                                                + " null)",
                                         Boolean.class,
                                         pid,
                                         matcher.group(2)));
@@ -2517,13 +2556,13 @@ class V3WorkerPostgresTest {
                                         + " locks="
                                         + sql.queryForList(
                                                 "select locktype,mode,granted from pg_locks where"
-                                                    + " pid=?",
+                                                        + " pid=?",
                                                 pid));
                         assertEquals(
                                 0,
                                 sql.queryForObject(
                                         "select count(*) from consumption_slot where"
-                                            + " consumable_id=?",
+                                                + " consumable_id=?",
                                         Integer.class,
                                         id));
                         assertTrue(
@@ -2533,13 +2572,13 @@ class V3WorkerPostgresTest {
                                 () ->
                                         !sql.queryForObject(
                                                 "select exists(select 1 from pg_stat_activity where"
-                                                    + " pid=? and xact_start is not null)",
+                                                        + " pid=? and xact_start is not null)",
                                                 Boolean.class,
                                                 pid));
                         child.signal("finish");
                         child.stage(
                                 "RECOVERY_PENDING externalRollback=true capacity=1 closes=0"
-                                    + " stopped=0 state=DRAINING");
+                                        + " stopped=0 state=DRAINING");
                         assertTrue(child.process.isAlive());
                         f.trace.add(
                                 "Repeated drain and later inspection cannot reuse uncertain"
@@ -2561,7 +2600,7 @@ class V3WorkerPostgresTest {
                                         Integer.class));
                         f.trace.add(
                                 "Normal restart retains one Command result and exactly two"
-                                    + " technical READ effects");
+                                        + " technical READ effects");
                         f.evidence("i5_w21-recovery-" + kind + "-" + authority);
                     }
                 }
