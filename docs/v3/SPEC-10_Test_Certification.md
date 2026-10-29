@@ -15,6 +15,19 @@ Chaque preuve dispose d'un ID stable, d'une précondition, d'un oracle observabl
 
 Le [plan L2, matrice de couverture](L2_Design_and_Verification_Plan.md#12-matrice-de-couverture-normative-et-campagnes) alloue les variantes CON-01…06 et EVT-01…03 au Command Pot réel et au banc READ technique, selon [L2-A12](L2_Decision_Register.md#l2-a12--pilotes-et-certification-bornée--b). Les critères PASS globaux ci-dessous restent inchangés. Les producteurs Identity/Invitation et projections métier absents empêchent leurs variantes de devenir PASS ; les analogues de fixture prouvent uniquement le mécanisme technique. Exigence incomplète = INCONCLUSIVE global, même si une contribution bornée réussit. [Revue R6](L2_Contradictory_Review.md#r6--certification-l2-réalisable-et-absence-de-faux-pass). Aucun test PostgreSQL L2 exécuté par cette consolidation.
 
+### Clarification procédurale de campagne — 29 octobre 2026
+
+La [matrice de vérification proportionnée](../testing/Reactor_Verification_Policy.md#34-proportionate-certification-and-evidence-reuse)
+précise le choix des slices, la composition des ancres et la réutilisation bornée
+des observations historiques. La [politique de conservation](../testing/Certification_Evidence_Rationalization.md)
+préserve reçus, contre-exemples et octets de preuve par compression sans perte.
+Ces clarifications ne modifient aucun scénario, oracle, seuil, précondition,
+variante, allocation ni critère PASS ci-dessous. Une gate ou exécution fraîche
+expressément obligatoire reste due ; toute dispense normative demande un
+arbitrage humain distinct. FAIL, SKIP, NOT RUN, UNKNOWN et INCONCLUSIVE restent
+visibles ; aucune absence n'est convertie en PASS. Aucun PASS applicatif produit
+par ce chantier documentaire/Git.
+
 ## 2. Matrice unique des exigences
 
 Le tableau relie les exigences actives au protocole détaillé portant le même identifiant ci-dessous. Les scénarios historiques sont conservés lorsqu'applicables et amendés par les décisions normatives. PRJ-04 est **retiré et non réutilisable** ; ses garanties sont migrées dans EVT-03, CON-02/04/06 et PRJ-02/03.

@@ -1192,3 +1192,60 @@ the later integration/major-wave gates remain applicable.
 
 See docs/v3/L0_Verification_Plan.md and docs/v3/L0_Proof_Manifest.json for
 the bounded proof inventory, commands and collection contract.
+
+⸻
+
+## 34. Proportionate certification and evidence reuse
+
+Procedural clarification adopted for future campaigns, 2026-10-29. Sections
+3–33, applicable lot contracts and SPEC-10 remain authoritative. This section
+does not remove an oracle, a required fresh execution or a contractual gate.
+Historical execution commands and verdicts are never rewritten.
+
+| Change category | Minimum verification | Conditions requiring a wider gate |
+|---|---|---|
+| Documentation / evidence encoding only | Changed links/anchors, manifest paths and SHA-256, lossless restoration where relevant; script checks if tooling changes. Maven slices NONE. | An executable input, oracle, dependency or application contract actually changes: redeclare the corresponding row before implementation. A normative relaxation requires explicit human arbitration. |
+| Tests or collection scripts only | Execute the changed tooling's meaningful positive/negative checks; for changed application tests, prove the required methods on their actual module/consumer slice and preserve their independent oracles. | New dependency/boundary/forbidden-dependency rule: §17 global architecture gate. Lot closure still requires its specified unfiltered consumer gate; a filtered run is feedback, not a substitute. |
+| Internal to one slice | Its canonical consumer anchor, `./mvnw -pl <anchor> -am test`, with required methods, outcomes and skips recorded. | Changed shared contract or consumer behavior: explicitly add affected consumer anchors. Global triggers remain §§17/19; uncertainty alone does not trigger FULL. |
+| Transactional / SQL | Canonical affected consumer slice(s), plus real PostgreSQL protocols for changed atomicity, locking, fencing, commit/rollback/recovery hypotheses and physical authorities. | Cross-authority/owner/routing contract: affected consumers plus architecture gate when §17 applies. Historical migration proof only under §27; current bootstrap may use a trusted baseline only after §§24–26 certification. Trusted baseline currently NONE. |
+| Architectural boundary | All materially affected canonical consumer slices plus `./mvnw -pl architecture-tests -am test`. | Broad Maven/module restructuring or unbounded cross-cutting infrastructure impact: full reactor under §19. |
+| Lot closure | The lot's declared unfiltered slices and required PostgreSQL variants, provenance and closure/audit evidence; reused observations explicitly distinguished from newly executed results. | Architectural milestone: §21.2 and its explicit plan. Major Wave normally requires `./mvnw test`; no automatic FULL for every small lot or documentary human acceptance. An explicit lot gate is not silently waived. |
+| Release certification / significant main integration | `./mvnw test`, global architecture gate, applicable database upgrade/current-schema proof and all release-specific SPEC-10 protocols, with an explicit scope and open reserves. | Deployment/environment/scale assumptions not covered require additional relevant qualification. A local PASS never certifies absent business variants or production readiness. |
+
+Commands run from `app/`. `<anchor>` means one of the canonical anchors in
+§§5–10, not a new aggregator. Direct fixture/module proofs remain bounded
+contributions, not additional canonical runtime slices.
+
+When several declared slices share upstream modules, prefer one composed
+invocation, for example:
+
+```
+./mvnw -pl runtime-command-consumption-worker,runtime-event-consumption-worker -am test
+```
+
+Maven builds/tests a shared module once within that invocation. This is allowed
+only when each anchor is included, the required methods/variants and physical
+proofs are present, and the contract does not require independent isolated
+executions. Never combine work against shared mutable targets or reports from
+concurrent gates. Do not infer architectural isolation from a composed gate.
+Do not use `-DskipTests`, `-amd`, optional-test masking or a stale XML set to
+manufacture a saving. Preserve FAIL, SKIP, NOT RUN, UNKNOWN and INCONCLUSIVE.
+
+PostgreSQL concurrency campaigns are selected by the affected contract and its
+actual WRITE/READ authorities: an SQL/transaction/fencing/renewal/oracle change
+requires the applicable interleavings, including adverse outcomes. A document or
+lossless encoding change does not require replaying historical concurrency
+campaigns. A required unchanged test may still run transitively in a canonical
+unfiltered Maven closure; this section does not bypass such tests.
+
+Historical proof reuse requires a recorded tested SHA, accessible and verified
+artifacts, an explicit old→new input/hypothesis comparison (including semantic
+configuration, SQL, dependencies and relevant toolchain/PG environment), the
+original oracle and all limits. Changed or unverified assumptions prohibit
+reuse for that property. Reuse is an attribution to the old SHA, never a fresh
+execution, and cannot satisfy a specifically required fresh release/lot gate.
+
+Evidence retention, byte-preserving storage aliases and the I5 human acceptance
+are documented in [the rationalization dossier](Certification_Evidence_Rationalization.md).
+Any future change to a SPEC-10 requirement, oracle, threshold, variant allocation
+or explicit mandatory gate is normative and requires separate human arbitration.

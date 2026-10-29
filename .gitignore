@@ -11,3 +11,6 @@
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Raw certification staging only; durable retention must be verified separately.
+/certification-raw/
