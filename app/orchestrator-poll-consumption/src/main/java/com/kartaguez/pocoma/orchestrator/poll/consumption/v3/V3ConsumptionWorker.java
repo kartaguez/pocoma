@@ -130,7 +130,10 @@ public final class V3ConsumptionWorker {
                             1,
                             Duration.ZERO);
                     var attempt = binding.engine().execute(handle);
-                    if (attempt.status() == ConsumptionEngine.Status.INCONSISTENT) requestDrain();
+                    if (attempt.status() == ConsumptionEngine.Status.INCONSISTENT
+                            || attempt.resolution()
+                                    == com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                            .Resolution.UNKNOWN) requestDrain();
                 }
             } catch (RuntimeException | Error failure) {
                 // An unqualified Engine exit cannot be converted into a release or re-execution.

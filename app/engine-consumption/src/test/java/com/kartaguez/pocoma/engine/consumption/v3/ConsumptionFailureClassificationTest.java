@@ -166,8 +166,38 @@ class ConsumptionFailureClassificationTest {
         e.execute(handle(e));
         assertEquals(1, cessions.get());
         assertEquals(1, capacity.snapshot().worker());
+        assertEquals(0, e.settlePending());
+        assertEquals(
+                1,
+                capacity.snapshot().worker(),
+                "an unlocked slot cannot resolve UNKNOWN read-only preparation");
+    }
+
+    @Test
+    void committedPreparationAckCanBeInspected() {
+        resolution.set(Resolution.COMMITTED);
+        var e = engine(() -> {});
+        var h = handle(e);
+        assertEquals(Resolution.UNKNOWN, e.execute(h).resolution());
         assertEquals(1, e.settlePending());
         assertEquals(0, capacity.snapshot().worker());
+        assertEquals(0, cessions.get());
+        assertThrows(IllegalArgumentException.class, () -> e.execute(h));
+    }
+
+    @Test
+    void rawPreparationExitCannotBeSettledFromSlot() {
+        var e =
+                engine(
+                        () -> {
+                            throw new AssertionError("raw owner/callback exit");
+                        });
+        var h = handle(e);
+        assertThrows(AssertionError.class, () -> e.execute(h));
+        assertEquals(0, e.settlePending());
+        assertEquals(1, capacity.snapshot().worker());
+        assertEquals(0, cessions.get());
+        assertThrows(IllegalArgumentException.class, () -> e.execute(h));
     }
 
     @Test
@@ -236,9 +266,15 @@ class ConsumptionFailureClassificationTest {
         } finally {
             finish.countDown();
         }
-        assertEquals(1, e.settlePending());
-        assertEquals(1, prepares.get());
         assertEquals(0, e.settlePending());
+        assertEquals(1, prepares.get());
+        assertEquals(1, capacity.snapshot().worker());
+        assertEquals(0, e.settlePending());
+    }
+
+    @Test
+    void unusedConfirmedClaimCanBeAbandoned() {
+        var e = engine(() -> {});
         var unused = handle(e);
         e.abandon(unused);
         assertEquals(0, capacity.snapshot().worker());

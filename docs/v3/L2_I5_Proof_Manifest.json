@@ -73,6 +73,13 @@
     ],
     "ReadDiscoveryPrivilegesPostgresTest": [
       "i5_read_pools"
+    ],
+    "ConsumptionFailureClassificationTest": [
+      "countableRequiresKnownCauseAndRollback",
+      "oneShotAndCancellation",
+      "committedPreparationAckCanBeInspected",
+      "rawPreparationExitCannotBeSettledFromSlot",
+      "unusedConfirmedClaimCanBeAbandoned"
     ]
   },
   "required_variants": {
@@ -134,7 +141,8 @@
     "V3WorkerCompositionPostgresTest": "runtime-command-consumption-worker",
     "V3WorkerMetricsTest": "runtime-command-consumption-worker",
     "V3WorkerMonolithPostgresTest": "runtime-monolith",
-    "ReadDiscoveryPrivilegesPostgresTest": "infra-persistence-read-jdbc"
+    "ReadDiscoveryPrivilegesPostgresTest": "infra-persistence-read-jdbc",
+    "ConsumptionFailureClassificationTest": "engine-consumption"
   },
   "class_names": {
     "V3ConsumptionWorkerTest": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
@@ -144,7 +152,8 @@
     "V3WorkerCompositionPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
     "V3WorkerMetricsTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest",
     "V3WorkerMonolithPostgresTest": "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest",
-    "ReadDiscoveryPrivilegesPostgresTest": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest"
+    "ReadDiscoveryPrivilegesPostgresTest": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest",
+    "ConsumptionFailureClassificationTest": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest"
   },
   "gate_modules": {
     "C": [
@@ -860,6 +869,34 @@
         "A",
         "F"
       ]
+    },
+    {
+      "id": "I5-F01-WRITE",
+      "glob": "**/i5_w13-READ-PREPARATION-WRITE.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F01-READ",
+      "glob": "**/i5_w13-READ-PREPARATION-READ.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
     }
   ],
   "variant_coverage": {
@@ -880,5 +917,21 @@
     "P5": "r06 real TCP before/after/residual WRITE/READ",
     "P6": "r03 confirmed PostgreSQL timeout and normal resumption",
     "P7": "r09 child UNKNOWN sticky WRITE/READ"
+  },
+  "implementation_findings": {
+    "I5-F01": {
+      "status": "UNDER VERIFICATION",
+      "normative_invariant": "UNKNOWN read-only physical unit cannot be resolved by unlocked slot inspection",
+      "resolution": "Engine retains ticket with a local monotone unresolvedPreparation flag; Worker drains on UNKNOWN; no new owner/SQL/durable state/API",
+      "proof_methods": [
+        "ConsumptionFailureClassificationTest",
+        "ConsumptionLifecyclePostgresTest.i3_c05_j",
+        "V3WorkerPostgresTest.i5_w13 WRITE/READ child variants"
+      ],
+      "historical_assertions_strengthened": [
+        "engine-consumption/ConsumptionFailureClassificationTest",
+        "infra-persistence-primary-jpa/ConsumptionLifecyclePostgresTest.i3_c05_j"
+      ]
+    }
   }
 }

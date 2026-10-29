@@ -77,6 +77,10 @@ public final class ConsumptionEngine {
         private final AtomicBoolean used = new AtomicBoolean();
         private volatile boolean localDone;
         private boolean businessStarted;
+        // A read-only preparation can outlive local transport failure without a slot row lock.
+        // The current ports expose no physical resolution witness for that unit. Never settle
+        // its reservation from slot availability; retain it until this Worker is terminated.
+        private volatile boolean unresolvedPreparation;
 
         AcquiredClaim(ConsumptionEngine owner, ClaimedSlot claim, WorkerCapacity.Ticket ticket) {
             this.owner = Objects.requireNonNull(owner);
@@ -360,7 +364,7 @@ public final class ConsumptionEngine {
         addPending(acquired);
         boolean resolved = false;
         try {
-            var attempt = executeAttempt(acquired.claim);
+            var attempt = executeAttempt(acquired);
             if (attempt.status() == Status.CLAIM_LOST)
                 ConsumptionObservation.safely(
                         observation,
@@ -437,7 +441,10 @@ public final class ConsumptionEngine {
         List<AcquiredClaim> snapshot;
         synchronized (pending) {
             snapshot =
-                    pending.stream().filter(h -> h.localDone).limit(settings.batchSize()).toList();
+                    pending.stream()
+                            .filter(h -> h.localDone && !h.unresolvedPreparation)
+                            .limit(settings.batchSize())
+                            .toList();
         }
         if (snapshot.isEmpty()) return 0;
         List<ClaimInspection> inspections;
@@ -513,7 +520,8 @@ public final class ConsumptionEngine {
             throw new IllegalArgumentException("invalid bounded keys");
     }
 
-    private Attempt executeAttempt(ClaimedSlot claim) {
+    private Attempt executeAttempt(AcquiredClaim acquired) {
+        var claim = acquired.claim;
         Objects.requireNonNull(claim);
         if (!definition.id().equals(claim.consumptionId()))
             throw new IllegalArgumentException("Claim belongs to another Consumption");
@@ -526,11 +534,15 @@ public final class ConsumptionEngine {
                                     transactions.read(
                                             context -> participant.prepare(claim.consumableId())));
         } catch (Failure failure) {
+            if (failure.resolution() == Resolution.UNKNOWN) acquired.unresolvedPreparation = true;
             // A committed preparation snapshot is not a committed business attempt.
             return failure.resolution() == Resolution.ROLLED_BACK
                     ? new Attempt(
                             Status.ROLLED_BACK, Resolution.ROLLED_BACK, null, failure.getCause())
                     : observed(claim, Resolution.UNKNOWN, failure.getCause());
+        } catch (RuntimeException | Error failure) {
+            acquired.unresolvedPreparation = true;
+            throw failure;
         }
         return prepared.isEmpty()
                 ? observed(claim, Resolution.UNKNOWN, null)

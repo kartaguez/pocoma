@@ -1339,7 +1339,13 @@ class ConsumptionLifecyclePostgresTest {
                     var h = acquire(f, e, lease, id2);
                     assertEquals(Resolution.UNKNOWN, e.execute(h).resolution());
                     assertEquals(0, f.row(id2).get("attempt_count"));
-                    assertEquals(1, e.settlePending());
+                    assertEquals(0, e.settlePending());
+                    assertEquals(1, f.capacity.snapshot().worker());
+                    f.noEffects(id2);
+                    f.trace.add(
+                            "I5-F01 strengthened: UNKNOWN read-only preparation cannot be resolved"
+                                + " by an unlocked slot; no physical witness in current ports,"
+                                + " retain ticket until Worker termination");
                 });
     }
 
@@ -2136,7 +2142,7 @@ class ConsumptionLifecyclePostgresTest {
                 assertTrue(
                         f.oracle.queryForObject(
                                 "select exists(select 1 from pg_stat_activity where pid=? and"
-                                    + " xact_start is not null)",
+                                        + " xact_start is not null)",
                                 Boolean.class,
                                 physicalPid));
                 f.trace.add(
@@ -2155,9 +2161,9 @@ class ConsumptionLifecyclePostgresTest {
             f.trace.add(
                     (cession
                                     ? "local Engine exited; physical cession transaction still"
-                                          + " open, uncommitted UPDATE"
+                                            + " open, uncommitted UPDATE"
                                     : "local Engine exited; physical final transaction still open,"
-                                          + " uncommitted DELETE/expected effects")
+                                            + " uncommitted DELETE/expected effects")
                             + "; capacity="
                             + capacity.snapshot()
                             + " DB="

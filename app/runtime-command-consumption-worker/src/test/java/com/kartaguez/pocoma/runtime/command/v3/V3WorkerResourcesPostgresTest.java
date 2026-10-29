@@ -44,6 +44,7 @@ class V3WorkerResourcesPostgresTest {
             extends org.springframework.jdbc.datasource.DelegatingDataSource {
         final AtomicBoolean armed = new AtomicBoolean();
         final AtomicReference<Connection> physical = new AtomicReference<>();
+        final AtomicBoolean readOnly = new AtomicBoolean();
         final AtomicInteger pid = new AtomicInteger();
         final AtomicReference<String> xid = new AtomicReference<>();
         final AtomicReference<UUID> changedKey = new AtomicReference<>();
@@ -70,10 +71,11 @@ class V3WorkerResourcesPostgresTest {
                                             var row =
                                                     q.executeQuery(
                                                             "select"
-                                                                + " pg_backend_pid(),pg_current_xact_id()::text")) {
+                                                                + " pg_backend_pid(),pg_current_xact_id()::text,current_setting('transaction_read_only')")) {
                                         row.next();
                                         pid.set(row.getInt(1));
                                         xid.set(row.getString(2));
+                                        readOnly.set("on".equals(row.getString(3)));
                                     }
                                     try (var q = actual.createStatement();
                                             var row =
@@ -88,7 +90,7 @@ class V3WorkerResourcesPostgresTest {
                                     physical.set(actual);
                                     throw new SQLException(
                                             "test commit transport lost with physical transaction"
-                                                + " retained",
+                                                    + " retained",
                                             "08006");
                                 }
                                 if (uncertain.get()) {
@@ -356,7 +358,7 @@ class V3WorkerResourcesPostgresTest {
                     }
                     sql.execute(
                             "create function i5_renew_wait() returns trigger language plpgsql as $$"
-                                + " begin if new.consumable_id='"
+                                    + " begin if new.consumable_id='"
                                     + s1
                                     + "'::uuid and new.claim_token=old.claim_token and"
                                     + " new.claimed_until>old.claimed_until then perform"
@@ -388,7 +390,7 @@ class V3WorkerResourcesPostgresTest {
                             () ->
                                     sql.queryForObject(
                                                     "select claimed_until from consumption_slot"
-                                                        + " where consumable_id=?",
+                                                            + " where consumable_id=?",
                                                     Timestamp.class,
                                                     s2)
                                             .toInstant()
@@ -405,15 +407,15 @@ class V3WorkerResourcesPostgresTest {
                             () ->
                                     sql.queryForObject(
                                                     "select claimed_until from consumption_slot"
-                                                        + " where consumable_id=?",
+                                                            + " where consumable_id=?",
                                                     Timestamp.class,
                                                     s1)
                                             .toInstant()
                                             .isAfter(initial.get(s1)));
                     f.trace.add(
                             "P3/P6: S2 singleton committed during S1 PostgreSQL wait; S1 server"
-                                + " timeout rollback confirmed, then normal same-token renewal"
-                                + " resumed after physical resolution");
+                                    + " timeout rollback confirmed, then normal same-token renewal"
+                                    + " resumed after physical resolution");
                 } finally {
                     try (var q = blocker.createStatement()) {
                         q.execute("select pg_advisory_unlock_all()");
@@ -578,8 +580,8 @@ class V3WorkerResourcesPostgresTest {
                             () ->
                                     sql.queryForObject(
                                                     "select count(*) from pg_stat_activity where"
-                                                        + " application_name=? and"
-                                                        + " wait_event='advisory'",
+                                                            + " application_name=? and"
+                                                            + " wait_event='advisory'",
                                                     Integer.class,
                                                     "i5-test-"
                                                             + (write ? "write" : "read")
@@ -590,8 +592,8 @@ class V3WorkerResourcesPostgresTest {
                             () ->
                                     sql.queryForObject(
                                                     "select count(*) from pg_stat_activity where"
-                                                        + " application_name=? and"
-                                                        + " wait_event='advisory'",
+                                                            + " application_name=? and"
+                                                            + " wait_event='advisory'",
                                                     Integer.class,
                                                     "i5-test-"
                                                             + (write ? "write" : "read")
@@ -710,8 +712,10 @@ class V3WorkerResourcesPostgresTest {
                 var binding = runtime.bindings.get(write ? 0 : 1);
                 var sql = write ? f.write : f.read;
                 var handles = new ArrayList<ConsumptionEngine.AcquiredClaim>();
+                var leases = new ArrayList<PartitionLease>();
                 for (int p = 0; p < 4 && handles.size() < 2; p++) {
                     var lease = binding.engine().acquirePartition(p).orElseThrow();
+                    leases.add(lease);
                     if (write)
                         binding.discovery()
                                 .discoverRequests(lease, DiscoveryEngine.RequestWalk.fresh());
@@ -719,8 +723,8 @@ class V3WorkerResourcesPostgresTest {
                     var keys =
                             sql.queryForList(
                                     "select consumable_id from consumption_slot where"
-                                        + " consumption_id=? and partition_id=? order by"
-                                        + " consumable_id limit ?",
+                                            + " consumption_id=? and partition_id=? order by"
+                                            + " consumable_id limit ?",
                                     UUID.class,
                                     binding.definition().id().value(),
                                     p,
@@ -731,7 +735,7 @@ class V3WorkerResourcesPostgresTest {
                 assertEquals(2, handles.size());
                 var pool = runtime.pool(write ? "writeControl" : "readControl");
                 var loans = new ArrayList<Connection>();
-                var entered = new CountDownLatch(2);
+                var entered = new CountDownLatch(3);
                 var release = new CountDownLatch(1);
                 var real =
                         (com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions)
@@ -756,10 +760,8 @@ class V3WorkerResourcesPostgresTest {
                 try (var threads = Executors.newVirtualThreadPerTaskExecutor()) {
                     try {
                         for (int n = 0; n < 7; n++)
-                            loans.add(
-                                    pool
-                                            .getConnection()); // artificial non-renewal upper bound
-                                                               // MW+3
+                            loans.add(pool.getConnection()); // artificial non-renewal upper bound
+                        // MW+3
                         var futures = new ArrayList<Future<?>>();
                         for (var handle : handles)
                             futures.add(
@@ -773,8 +775,15 @@ class V3WorkerResourcesPostgresTest {
                                                 return binding.engine()
                                                         .renewClaims(List.of(handle.claim()));
                                             }));
+                        futures.add(
+                                threads.submit(
+                                        () -> {
+                                            Thread.currentThread()
+                                                    .setName("i5-test-reserved-leases");
+                                            return binding.engine().renewPartitions(leases);
+                                        }));
                         latch(entered);
-                        assertEquals(9, pool.getHikariPoolMXBean().getActiveConnections());
+                        assertEquals(10, pool.getHikariPoolMXBean().getActiveConnections());
                         release.countDown();
                         for (var future : futures) future.get(5, TimeUnit.SECONDS);
                         for (var loan : loans) loan.close();
@@ -795,9 +804,10 @@ class V3WorkerResourcesPostgresTest {
                         future.get(5, TimeUnit.SECONDS);
                         f.trace.add(
                                 "P2 artificial stress distinct from reachable production maximum: 7"
-                                    + " identified nonrenewal blockers +2 successful real renewals"
-                                    + " active9/10; all10 blocked => actual Hikari waiter then"
-                                    + " bounded borrow failure; no physical transaction inferred");
+                                    + " identified nonrenewal blockers +3 successful real renewals"
+                                    + " (S1/S2/leases) active10/10; all10 blocked => actual Hikari"
+                                    + " waiter then bounded borrow failure; no physical transaction"
+                                    + " inferred");
                     } finally {
                         release.countDown();
                         for (var loan : loans) loan.close();
@@ -1003,7 +1013,7 @@ class V3WorkerResourcesPostgresTest {
                                     (write ? f.write : f.read)
                                             .queryForObject(
                                                     "select exists(select 1 from pg_stat_activity"
-                                                        + " where application_name='i5-test-"
+                                                            + " where application_name='i5-test-"
                                                             + (write ? "write" : "read")
                                                             + "-control' and"
                                                             + " cardinality(pg_blocking_pids(pid))>0)",
@@ -1523,8 +1533,8 @@ class V3WorkerResourcesPostgresTest {
                                     () ->
                                             !sql.queryForObject(
                                                     "select exists(select 1 from pg_stat_activity"
-                                                        + " where application_name=? and"
-                                                        + " backend_xid is not null)",
+                                                            + " where application_name=? and"
+                                                            + " backend_xid is not null)",
                                                     Boolean.class,
                                                     app));
                         }
@@ -1534,9 +1544,9 @@ class V3WorkerResourcesPostgresTest {
                                                 ? advanced(sql, initial)
                                                 : sql.queryForObject(
                                                                 "select claimed_until from"
-                                                                    + " consumption_slot where"
-                                                                    + " consumption_id=? and"
-                                                                    + " consumable_id=?",
+                                                                        + " consumption_slot where"
+                                                                        + " consumption_id=? and"
+                                                                        + " consumable_id=?",
                                                                 Timestamp.class,
                                                                 binding.definition().id().value(),
                                                                 id)
@@ -1603,7 +1613,7 @@ class V3WorkerResourcesPostgresTest {
                     assertTrue(
                             sql.queryForObject(
                                     "select exists(select 1 from pg_stat_activity where pid=? and"
-                                        + " xact_start is not null)",
+                                            + " xact_start is not null)",
                                     Boolean.class,
                                     pid));
                     f.trace.add(
@@ -1626,7 +1636,7 @@ class V3WorkerResourcesPostgresTest {
                             () ->
                                     !sql.queryForObject(
                                             "select exists(select 1 from pg_stat_activity where"
-                                                + " pid=? and xact_start is not null)",
+                                                    + " pid=? and xact_start is not null)",
                                             Boolean.class,
                                             pid));
                     child.signal("finish");
@@ -1636,8 +1646,8 @@ class V3WorkerResourcesPostgresTest {
                     assertTrue(child.process.isAlive());
                     f.trace.add(
                             "P7: healthy S2 progressed; server later resolved S1, but no local"
-                                + " rearm/stop callback; business handles/tickets drained to0;"
-                                + " external termination is CRASH, before Spring120s");
+                                    + " rearm/stop callback; business handles/tickets drained to0;"
+                                    + " external termination is CRASH, before Spring120s");
                     f.evidence("i5_r09-P7-" + (write ? "WRITE" : "READ"));
                 }
             }
