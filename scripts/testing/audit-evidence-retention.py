@@ -33,10 +33,13 @@ def main():
     archived = [r for r in rows if r['category'] == 'B']
     assert all(r['category'] in ('A', 'B') for r in rows)
     removed = {r['path'] for r in archived}
-    actual_deleted = set(git('diff', '--name-only', '--diff-filter=D', baseline, '--', 'docs/testing/evidence').decode().splitlines())
+    actual_deleted = set(git('diff', '--name-only', '--diff-filter=D', baseline).decode().splitlines())
     assert removed == actual_deleted, (removed - actual_deleted, actual_deleted - removed)
     assert not git('diff', baseline, '--', 'app'), 'Application/oracle change forbidden'
-    modified = git('diff', '--name-only', baseline).decode().splitlines()
+    added = set(git('diff', '--name-only', '--diff-filter=A', baseline).decode().splitlines())
+    expected_added = {row['path'] for row in inventory['delivery_files'] if row['operation'] == 'add'}
+    assert added <= expected_added, ('Unexpected added file', added - expected_added)
+    modified = git('diff', '--name-only', '--diff-filter=M', baseline).decode().splitlines()
     for name in modified:
         if name in removed or name in ('scripts/testing/evidence-storage.py', 'scripts/testing/test_evidence_storage.py'):
             continue

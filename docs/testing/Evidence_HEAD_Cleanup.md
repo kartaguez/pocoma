@@ -15,7 +15,7 @@ ni allocation des blocs du checkout. Les mesures du HEAD incluent tous les ajout
 | Périmètre | Initial | Final | Gain | Gain relatif |
 |---|---:|---:|---:|---:|
 | `docs/testing/evidence/` | 737970498 | 49211617 | 688758881 | 93.33149 % |
-| Tous fichiers du HEAD | 759145260 | 72323674 | 686821586 | 90.47301 % |
+| Tous fichiers du HEAD | 759145260 | 72323946 | 686821314 | 90.47298 % |
 
 Les 7 609 754 octets de deux logs locaux préexistants ignorés dans le worktree
 restent intacts ; ils ne sont pas dans le HEAD. Le CRLF local de `app/mvnw.cmd`

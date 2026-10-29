@@ -42920,8 +42920,8 @@
       "docs/testing/evidence/L2-I5-audit-remediation/deterministic.tar.gz"
     ],
     "preexisting_ignored_evidence_bytes": 7609754,
-    "final_head_bytes": 72323674,
-    "head_gain_bytes": 686821586
+    "final_head_bytes": 72323946,
+    "head_gain_bytes": 686821314
   },
   "delivery_files": [
     {
