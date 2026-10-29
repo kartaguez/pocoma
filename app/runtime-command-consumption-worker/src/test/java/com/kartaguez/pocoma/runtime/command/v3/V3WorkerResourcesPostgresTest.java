@@ -288,6 +288,14 @@ class V3WorkerResourcesPostgresTest {
                 var r = deadlines(f.read);
                 assertFalse(w.isEmpty());
                 assertTrue(r.size() >= 2);
+                await(() -> advanced(f.write, w) && advanced(f.read, r));
+                f.trace.add(
+                        "B nominal RUNNING MW4 saturation: actual background WRITE/READ renewals"
+                                + " committed");
+                runtime.worker.requestDrain();
+                await(() -> runtime.worker.snapshot().operations() == 0);
+                var drainWrite = deadlines(f.write);
+                var drainRead = deadlines(f.read);
                 for (String name : List.of("writeBusiness", "readBusiness")) {
                     var pool = runtime.pool(name);
                     int remaining =
@@ -298,15 +306,55 @@ class V3WorkerResourcesPostgresTest {
                             pool.getMaximumPoolSize(),
                             pool.getHikariPoolMXBean().getActiveConnections());
                 }
-                await(() -> advanced(f.write, w) && advanced(f.read, r));
+                await(() -> advanced(f.write, drainWrite) && advanced(f.read, drainRead));
                 f.trace.add(
                         "B WRITE/READ: MW4 real preparations held; additional test-only blockers"
-                            + " physically exhaust both Business pools; runtime renewal committed"
-                            + " on Control");
+                                + " physically exhaust both Business pools during DRAINING; runtime"
+                                + " claim renewal committed on Control; no new Discovery borrow is"
+                                + " requested");
                 for (var connection : borrowed) connection.close();
                 borrowed.clear();
                 release.countDown();
-                f.verify(id);
+                await(
+                        () ->
+                                runtime.worker.snapshot().state()
+                                        == com.kartaguez.pocoma.orchestrator.poll.consumption.v3
+                                                .V3ConsumptionWorker.State.STOPPED);
+                assertEquals(
+                        "TERMINAL",
+                        f.write.queryForObject(
+                                "select status from v3_command where request_id=?",
+                                String.class,
+                                id));
+                assertEquals(
+                        1,
+                        f.write.queryForObject(
+                                "select count(*) from v3_command_result where request_id=?",
+                                Integer.class,
+                                id));
+                assertEquals(
+                        1,
+                        f.write.queryForObject(
+                                "select count(*) from v3_pot_event where request_id=?",
+                                Integer.class,
+                                id));
+                assertEquals(
+                        1,
+                        f.write.queryForObject(
+                                "select count(*) from v3_command_completion_event where"
+                                    + " subject_id=?",
+                                Integer.class,
+                                id));
+                assertEquals(
+                        0,
+                        f.write.queryForObject(
+                                "select count(*) from consumption_slot where consumable_id=?",
+                                Integer.class,
+                                id));
+                assertTrue(
+                        f.read.queryForObject(
+                                        "select count(*) from i5_read_probe_effect", Integer.class)
+                                >= 3);
             } finally {
                 for (var connection : borrowed) connection.close();
                 release.countDown();
@@ -1118,11 +1166,13 @@ class V3WorkerResourcesPostgresTest {
                     }
                     var entered = new CountDownLatch(mw == 4 ? 4 : 1);
                     var release = new CountDownLatch(1);
-                    if (mw == 4) holdFourWithWrite(runtime, entered, release);
+                    var heldKeys = java.util.concurrent.ConcurrentHashMap.<UUID>newKeySet();
+                    if (mw == 4) holdFourWithWrite(runtime, entered, release, heldKeys::add);
                     else
                         runtime.prepareBarrier(
                                 held,
-                                () -> {
+                                id -> {
+                                    heldKeys.add(id);
                                     entered.countDown();
                                     latch(release);
                                 });
@@ -1160,19 +1210,42 @@ class V3WorkerResourcesPostgresTest {
                                         f.write.queryForObject(
                                                                 "select count(*) from"
                                                                     + " partition_ownership where"
-                                                                    + " owner_token is not null",
+                                                                    + " owner_token is not null and"
+                                                                    + " owned_until>clock_timestamp()",
                                                                 Integer.class)
                                                         == 4
                                                 && f.read.queryForObject(
                                                                 "select count(*) from"
                                                                     + " partition_ownership where"
-                                                                    + " owner_token is not null",
+                                                                    + " owner_token is not null and"
+                                                                    + " owned_until>clock_timestamp()",
                                                                 Integer.class)
                                                         == 8);
                         var w = deadlines(f.write);
                         var r = deadlines(f.read);
+                        var unusedWrite = new HashMap<>(w);
+                        var unusedRead = new HashMap<>(r);
+                        w.keySet().retainAll(heldKeys);
+                        r.keySet().retainAll(heldKeys);
+                        unusedWrite.keySet().removeAll(heldKeys);
+                        unusedRead.keySet().removeAll(heldKeys);
+                        assertEquals(mw, heldKeys.size());
+                        assertEquals(mw, w.size() + r.size());
                         var writeLeases = leaseDeadlines(f.write);
                         var readLeases = leaseDeadlines(f.read);
+                        f.trace.add(
+                                "C initial Worker="
+                                        + runtime.worker.snapshot()
+                                        + " held="
+                                        + heldKeys
+                                        + " claims WRITE="
+                                        + w
+                                        + " READ="
+                                        + r
+                                        + " leases WRITE="
+                                        + writeLeases
+                                        + " READ="
+                                        + readLeases);
                         if (held == 0) assertFalse(w.isEmpty());
                         else if (held == 1) assertFalse(r.isEmpty());
                         else {
@@ -1235,6 +1308,23 @@ class V3WorkerResourcesPostgresTest {
                                                 + " expiry by safety2s");
                         }
                         for (var entry :
+                                Map.of(f.write, unusedWrite, f.read, unusedRead).entrySet()) {
+                            var current = deadlines(entry.getKey());
+                            for (var unused : entry.getValue().entrySet())
+                                assertEquals(
+                                        unused.getValue(),
+                                        current.get(unused.getKey()),
+                                        "unused abandoned SQL claim must not be renewed");
+                        }
+                        f.trace.add(
+                                "renewable held preparation IDs="
+                                        + heldKeys
+                                        + " unused claims"
+                                        + " excluded and not renewed WRITE="
+                                        + unusedWrite.size()
+                                        + " READ="
+                                        + unusedRead.size());
+                        for (var entry :
                                 Map.of(f.write, writeLeases, f.read, readLeases).entrySet()) {
                             var now =
                                     entry.getKey()
@@ -1249,7 +1339,7 @@ class V3WorkerResourcesPostgresTest {
                         }
                         f.trace.add(
                                 "all12leases renewed; partial-batch conservative"
-                                    + " candidatesPerAuthority="
+                                        + " candidatesPerAuthority="
                                         + leaseCandidates
                                         + " maxWholeOperationNs="
                                         + maxOperationNs
@@ -1266,6 +1356,19 @@ class V3WorkerResourcesPostgresTest {
                                 "C bounded PASS for declared local hypotheses; no promise during"
                                         + " durable DB outage or unbounded JVM pause");
                     } finally {
+                        f.trace.add(
+                                "C before release Worker="
+                                        + runtime.worker.snapshot()
+                                        + " capacity="
+                                        + runtime.capacity.snapshot()
+                                        + " claims WRITE="
+                                        + deadlines(f.write)
+                                        + " READ="
+                                        + deadlines(f.read)
+                                        + " leases WRITE="
+                                        + leaseDeadlines(f.write)
+                                        + " READ="
+                                        + leaseDeadlines(f.read));
                         release.countDown();
                         stopHeartbeat.set(true);
                         heartbeat.shutdownNow();

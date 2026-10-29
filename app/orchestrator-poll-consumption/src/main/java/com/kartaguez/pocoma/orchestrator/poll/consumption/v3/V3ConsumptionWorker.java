@@ -328,7 +328,36 @@ public final class V3ConsumptionWorker {
         }
     }
 
-    void endOperation() {
+    void endOperation(Throwable failure) {
+        boolean resolved =
+                failure == null
+                        || (failure
+                                        instanceof
+                                        com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                                                .Failure
+                                                        tx
+                                && tx.resolution()
+                                        != com.kartaguez.pocoma.port.transaction.v3
+                                                .AttemptTransactions.Resolution.UNKNOWN);
+        if (!resolved) {
+            // L1 remains outstanding after an unqualified local return. These ports expose
+            // no physical witness for the whole opportunity; neither time nor a released
+            // business ticket permits closing its pools. Only Worker termination drops it.
+            requestDrain();
+            try {
+                System.getLogger(V3ConsumptionWorker.class.getName())
+                        .log(
+                                System.Logger.Level.WARNING,
+                                "Unresolved Worker opportunity retained: type={0}, causeType={1}",
+                                failure.getClass().getName(),
+                                failure.getCause() == null
+                                        ? "none"
+                                        : failure.getCause().getClass().getName());
+            } catch (RuntimeException | Error ignored) {
+                // Diagnostic types only; logging cannot qualify or release the operation.
+            }
+            return;
+        }
         synchronized (monitor) {
             operations--;
         }

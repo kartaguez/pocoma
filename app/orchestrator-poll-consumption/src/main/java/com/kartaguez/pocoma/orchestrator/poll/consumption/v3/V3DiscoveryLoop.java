@@ -29,6 +29,7 @@ public final class V3DiscoveryLoop {
         int p = binding.partitions().get(nextPartitions[selected]);
         nextPartitions[selected] = (nextPartitions[selected] + 1) % binding.partitions().size();
         Outcome outcome = Outcome.UNKNOWN;
+        Throwable failure = null;
         worker.event(binding, Phase.DISCOVERY_ROTATION, Outcome.CONFIRMED, 1, Duration.ZERO);
         try {
             var lease = worker.lease(binding, p);
@@ -80,6 +81,9 @@ public final class V3DiscoveryLoop {
             worker.event(
                     binding, Phase.DISCOVERY_ADMITTED, Outcome.CONFIRMED, admitted, Duration.ZERO);
             return admitted > 0 || advanced > 0;
+        } catch (RuntimeException | Error exit) {
+            failure = exit;
+            throw exit;
         } finally {
             worker.event(
                     binding,
@@ -87,7 +91,7 @@ public final class V3DiscoveryLoop {
                     outcome,
                     1,
                     Duration.ofNanos(System.nanoTime() - began));
-            worker.endOperation();
+            worker.endOperation(failure);
         }
     }
 }

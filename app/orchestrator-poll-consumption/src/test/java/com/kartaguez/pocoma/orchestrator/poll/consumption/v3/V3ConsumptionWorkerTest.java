@@ -59,7 +59,10 @@ class V3ConsumptionWorkerTest {
         final WorkerCapacity capacity;
         final V3ConsumptionWorker worker;
         final ThreadPoolExecutor executor;
-        volatile Runnable beforeEffect = () -> {}, beforeAcquire = () -> {}, beforeRenew = () -> {};
+        volatile Runnable beforeEffect = () -> {},
+                beforeAcquire = () -> {},
+                beforeRenew = () -> {},
+                beforeLease = () -> {};
         volatile boolean unknown, failAcquire, zeroAcquire;
 
         Fixture(int count, int mw, boolean manual, ThreadPoolExecutor supplied) throws Exception {
@@ -178,6 +181,7 @@ class V3ConsumptionWorkerTest {
                         new PartitionOwnershipStore() {
                             public Optional<PartitionLease> acquire(
                                     ConsumptionDefinition d, int p, UUID token, Duration duration) {
+                                beforeLease.run();
                                 return Optional.of(
                                         new PartitionLease(
                                                 d.id(), p, token, Instant.now().plusSeconds(30)));
@@ -630,6 +634,52 @@ class V3ConsumptionWorkerTest {
             assertEquals(0, f.capacity.snapshot().worker());
             assertEquals(0, f.worker.snapshot().renewalCalls());
             assertEquals(0, f.effects.stream().mapToInt(AtomicInteger::get).sum());
+        }
+    }
+
+    @Test
+    void i5_u09() throws Exception {
+        for (boolean discovery : List.of(true, false)) {
+            for (boolean raw : List.of(true, false)) {
+                try (var f = new Fixture(1, 1, true, null)) {
+                    f.beforeLease =
+                            () -> {
+                                if (raw) throw new IllegalStateException("unqualified local exit");
+                                throw new AttemptTransactions.Failure(
+                                        AttemptTransactions.Resolution.UNKNOWN,
+                                        new IllegalStateException("physical unit unresolved"));
+                            };
+                    assertThrows(
+                            RuntimeException.class,
+                            () -> {
+                                if (discovery) new V3DiscoveryLoop(f.worker).runOnePass();
+                                else new V3ConsumptionLoop(f.worker).runOnePass();
+                            });
+                    assertEquals(V3ConsumptionWorker.State.DRAINING, f.worker.snapshot().state());
+                    assertEquals(1, f.worker.snapshot().operations());
+                    assertEquals(0, f.capacity.snapshot().worker());
+                    f.bindings.getFirst().engine().settlePending();
+                    f.worker.prune();
+                    assertEquals(1, f.worker.snapshot().operations());
+                    assertEquals(0, f.closes.get());
+                }
+            }
+            try (var f = new Fixture(1, 1, true, null)) {
+                f.beforeLease =
+                        () -> {
+                            throw new AttemptTransactions.Failure(
+                                    AttemptTransactions.Resolution.ROLLED_BACK,
+                                    new IllegalStateException("known rollback"));
+                        };
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () -> {
+                            if (discovery) new V3DiscoveryLoop(f.worker).runOnePass();
+                            else new V3ConsumptionLoop(f.worker).runOnePass();
+                        });
+                assertEquals(0, f.worker.snapshot().operations());
+                assertEquals(V3ConsumptionWorker.State.RUNNING, f.worker.snapshot().state());
+            }
         }
     }
 }

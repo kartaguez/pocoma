@@ -513,6 +513,10 @@ class V3WorkerPostgresTest {
         }
 
         void prepareBarrier(int index, Runnable barrier) throws Exception {
+            prepareBarrier(index, id -> barrier.run());
+        }
+
+        void prepareBarrier(int index, Consumer<UUID> barrier) throws Exception {
             var engine = bindings.get(index).engine();
             var real = (ConsumptionParticipant) field(engine, "participant");
             replace(
@@ -520,7 +524,7 @@ class V3WorkerPostgresTest {
                     "participant",
                     new ConsumptionParticipant() {
                         public Optional<Prepared> prepare(UUID id) {
-                            barrier.run();
+                            barrier.accept(id);
                             return real.prepare(id);
                         }
 
@@ -699,9 +703,16 @@ class V3WorkerPostgresTest {
 
     static void holdFourWithWrite(Runtime runtime, CountDownLatch entered, CountDownLatch release)
             throws Exception {
+        holdFourWithWrite(runtime, entered, release, id -> {});
+    }
+
+    static void holdFourWithWrite(
+            Runtime runtime, CountDownLatch entered, CountDownLatch release, Consumer<UUID> held)
+            throws Exception {
         runtime.prepareBarrier(
                 0,
-                () -> {
+                id -> {
+                    held.accept(id);
                     entered.countDown();
                     latch(release);
                 });
@@ -709,12 +720,13 @@ class V3WorkerPostgresTest {
         for (int i = 1; i < 3; i++)
             runtime.prepareBarrier(
                     i,
-                    () -> {
+                    id -> {
                         // Three held READ attempts leave one place for WRITE even after a
                         // legitimate startup
                         // lease collision. Further READ attempts finish normally instead of
                         // monopolizing it.
                         if (reads.incrementAndGet() <= 3) {
+                            held.accept(id);
                             entered.countDown();
                             latch(release);
                         }
@@ -2061,6 +2073,60 @@ class V3WorkerPostgresTest {
         var values = new LinkedHashMap<String, Object>();
         properties.forEach((k, v) -> values.put(k.toString(), v));
         Path directory = Path.of(args[1]).getParent();
+        if (args[0].startsWith("control-unknown-")) {
+            boolean write = args[0].endsWith("WRITE");
+            var runtime = new Runtime(values, ConsumptionObservation.noop());
+            var fault =
+                    V3WorkerResourcesPostgresTest.controlFault(
+                            runtime,
+                            write,
+                            name ->
+                                    name.startsWith("v3-discovery-")
+                                            || name.startsWith("v3-consumption-"));
+            var closes = new AtomicInteger();
+            var stopped = new AtomicInteger();
+            var realClose = (Runnable) field(runtime.worker, "closeResources");
+            replace(
+                    runtime.worker,
+                    "closeResources",
+                    (Runnable)
+                            () -> {
+                                closes.incrementAndGet();
+                                realClose.run();
+                            });
+            fault.armed.set(true);
+            runtime.worker.start();
+            await(() -> fault.physical.get() != null);
+            runtime.worker.requestDrain(stopped::incrementAndGet);
+            await(() -> runtime.worker.snapshot().operations() == 1);
+            if (runtime.worker.snapshot().state() != V3ConsumptionWorker.State.DRAINING
+                    || runtime.capacity.snapshot().worker() != 0
+                    || closes.get() != 0)
+                throw new AssertionError("Control UNKNOWN lost L1 or started pool closure");
+            System.out.println(
+                    "CONTROL_OPERATION_UNKNOWN pid="
+                            + fault.pid.get()
+                            + " xid="
+                            + fault.xid.get()
+                            + " state=DRAINING operations=1 capacity=0 closes=0");
+            System.out.flush();
+            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
+            await(() -> runtime.worker.snapshot().deadlineExceeded());
+            for (String pool :
+                    List.of("writeBusiness", "writeControl", "readBusiness", "readControl"))
+                if (runtime.pool(pool).isClosed())
+                    throw new AssertionError("pool closed on unknown L1");
+            if (runtime.worker.snapshot().operations() != 1
+                    || closes.get() != 0
+                    || stopped.get() != 0)
+                throw new AssertionError("external resolution or deadline released L1");
+            System.out.println(
+                    "CONTROL_OPERATION_PENDING externalRollback=true operations=1 capacity=0"
+                            + " closes=0 stopped=0 state="
+                            + runtime.worker.snapshot().state());
+            System.out.flush();
+            while (true) Thread.sleep(1000); // Parent terminates this incomplete drain as CRASH.
+        }
         if (args[0].startsWith("preparation-unknown-")) {
             boolean write = args[0].endsWith("WRITE");
             var runtime = new Runtime(values, ConsumptionObservation.noop());
@@ -2290,6 +2356,81 @@ class V3WorkerPostgresTest {
             // resolution.
         }
         throw new IllegalArgumentException("unknown child mode");
+    }
+
+    @Test
+    void i5_w20() throws Exception {
+        for (boolean write : List.of(true, false)) {
+            try (var f = new Fixture(PG)) {
+                f.properties.put("pocoma.v3.worker.worker-limit", "1");
+                f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "1000");
+                f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "20000");
+                f.properties.put("pocoma.v3.worker.lifecycle.claim-duration-ms", "10000");
+                f.properties.put("pocoma.v3.worker.drain-timeout", "250");
+                var sql = write ? f.write : f.read;
+                try (var child = new Child(f, "control-unknown-" + (write ? "WRITE" : "READ"))) {
+                    child.stage("CONTROL_OPERATION_UNKNOWN");
+                    var matcher =
+                            java.util.regex.Pattern.compile(
+                                            "CONTROL_OPERATION_UNKNOWN pid=(\\d+) xid=(\\d+)")
+                                    .matcher(child.output());
+                    assertTrue(matcher.find());
+                    int pid = Integer.parseInt(matcher.group(1));
+                    assertTrue(
+                            sql.queryForObject(
+                                    "select exists(select 1 from pg_stat_activity where pid=? and"
+                                            + " backend_xid::text=? and xact_start is not null)",
+                                    Boolean.class,
+                                    pid,
+                                    matcher.group(2)));
+                    f.trace.add(
+                            "Control physical UNKNOWN after local return PID="
+                                    + pid
+                                    + " XID="
+                                    + matcher.group(2)
+                                    + " locks="
+                                    + sql.queryForList(
+                                            "select locktype,mode,granted,relation::regclass::text"
+                                                    + " from pg_locks where pid=?",
+                                            pid));
+                    assertEquals(
+                            0,
+                            sql.queryForObject(
+                                    "select count(*) from consumption_slot", Integer.class));
+                    assertTrue(
+                            sql.queryForObject(
+                                    "select pg_terminate_backend(?)", Boolean.class, pid));
+                    await(
+                            () ->
+                                    !sql.queryForObject(
+                                            "select exists(select 1 from pg_stat_activity"
+                                                    + " where pid=? and xact_start is not null)",
+                                            Boolean.class,
+                                            pid));
+                    child.signal("finish");
+                    child.stage(
+                            "CONTROL_OPERATION_PENDING externalRollback=true operations=1"
+                                    + " capacity=0 closes=0 stopped=0 state=DRAINING");
+                    assertTrue(child.process.isAlive());
+                    f.trace.add(
+                            "L1 retained with capacity0; external rollback and deadline did not"
+                                + " close pools or qualify STOPPED; parent termination is CRASH");
+                }
+                var request = f.inject(20100);
+                try (var successor = new Runtime(f, ConsumptionObservation.noop())) {
+                    successor.worker.start();
+                    f.verify(request);
+                    assertEquals(
+                            1,
+                            f.write.queryForObject(
+                                    "select count(*) from v3_command_result where request_id=?",
+                                    Integer.class,
+                                    request));
+                    f.trace.add("normal fenced restart; one real Command and two READ effects");
+                    f.evidence("i5_w20-control-unknown-" + (write ? "WRITE" : "READ"));
+                }
+            }
+        }
     }
 
     void unresolvedReadPreparation(boolean write) throws Exception {

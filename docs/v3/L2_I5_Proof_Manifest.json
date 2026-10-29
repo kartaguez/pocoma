@@ -14,7 +14,8 @@
       "i5_u05",
       "i5_u06",
       "i5_u07",
-      "i5_u08"
+      "i5_u08",
+      "i5_u09"
     ],
     "SlotNavigationPostgresTest": [
       "i5_n01",
@@ -45,7 +46,8 @@
       "i5_w16",
       "i5_w17",
       "i5_w18",
-      "i5_w19"
+      "i5_w19",
+      "i5_w20"
     ],
     "V3WorkerResourcesPostgresTest": [
       "i5_r01",
@@ -924,6 +926,36 @@
         "all12leases renewed",
         "priorDeadlineMarginNs"
       ]
+    },
+    {
+      "id": "I5-F03-WRITE",
+      "glob": "**/i5_w20-control-unknown-WRITE.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F03-READ",
+      "glob": "**/i5_w20-control-unknown-READ.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
     }
   ],
   "variant_coverage": {
@@ -971,6 +1003,17 @@
         "V3WorkerResourcesPostgresTest.i5_r05 all12 lease deadlines and partial-batch calibration"
       ],
       "limit": "Nominal configured batch count is only an initial guard; C qualification counts candidates and full measured paths plus polling/JVM margins, then checks every PG deadline. No unconditional production guarantee."
+    },
+    "I5-F03": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-03 / OR-AT-UNIT / drain physical qualification",
+      "counterexample": "Unchanged 3efcb8cc: local Control UNKNOWN returned with operations=0 and capacity=0 while PostgreSQL backend remained active; worker reported stopped=true and closed resources with activeAtPoolClose=true.",
+      "change": "Retain existing L1 registration on UNKNOWN or raw unqualified opportunity exit and request DRAINING. No new owner, ticket, durable state, recovery API or pool. Only a normal return or physically qualified Failure(COMMITTED/ROLLED_BACK) retires L1.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u09",
+        "V3WorkerPostgresTest.i5_w20 WRITE/READ child variants"
+      ],
+      "limit": "Current opportunity ports expose no physical witness after UNKNOWN. Even later external rollback cannot clear L1; incomplete drain remains DRAINING with pools open and no successful callback until JVM termination classified CRASH."
     }
   },
   "verification_adjustments": [
@@ -986,6 +1029,18 @@
         "D1: held Consumption L1 plus optional returning Discovery L1; bounded1..2, then zero after qualified stop",
         "Quarantine: explicit MW1 claim10s lease20s renewal1s; unchanged64 active slots +Q, ordinary expiry and restricted reactivation; per-verification watchdog180s, no absolute R10 latency assertion",
         "Borrower inventory: eight seeded READ effects before deliberate UNKNOWN; real Command outcome/two publications/slot removal plus R9 and cession inventory; no new READ dispatch required during drain"
+      ]
+    },
+    {
+      "id": "I5-T02",
+      "methods": [
+        "i5_r01",
+        "i5_r05"
+      ],
+      "scope": "TEST ORACLES alongside productive I5-F03",
+      "details": [
+        "r01 first proves actual WRITE/READ background renewals under MW4 RUNNING, then prohibits new opportunities before synthetic Business loan exhaustion; held claims still renew in DRAINING and finish their real effects. No post-drain source borrow or new dispatch is required.",
+        "r05 tracks only genuinely started held preparation IDs, checks abandoned unused claims do not renew, and requires all12 leases to advance. Startup lease ownership requires a future PostgreSQL deadline. Detailed independent SQL/local snapshots retained on failure."
       ]
     }
   ]

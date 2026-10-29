@@ -52,6 +52,7 @@ public final class V3ConsumptionLoop {
         nextPartitions[selected] = (nextPartitions[selected] + 1) % binding.partitions().size();
         long began = System.nanoTime();
         Outcome outcome = Outcome.UNKNOWN;
+        Throwable exit = null;
         if (lastOpportunity[selected] != 0)
             worker.event(
                     binding,
@@ -111,6 +112,7 @@ public final class V3ConsumptionLoop {
             }
             return acquired.examinedCount() > 0;
         } catch (RuntimeException | Error failure) {
+            exit = failure;
             outcome = Outcome.UNKNOWN;
             throw failure;
         } finally {
@@ -120,7 +122,7 @@ public final class V3ConsumptionLoop {
                     outcome,
                     1,
                     Duration.ofNanos(System.nanoTime() - began));
-            worker.endOperation();
+            worker.endOperation(exit);
         }
     }
 
