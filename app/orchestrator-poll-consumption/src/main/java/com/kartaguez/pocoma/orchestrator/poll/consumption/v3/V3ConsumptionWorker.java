@@ -85,6 +85,8 @@ public final class V3ConsumptionWorker {
         PartitionLease lease;
         boolean usable = true;
         long renewedAt = System.nanoTime();
+        long retryUntil; // Local work budget after a qualified omission, never a DB deadline.
+        long retryDue; // Preserve the original opportunity for complete lag/service measurement.
 
         LeaseEntry(Pair pair, PartitionLease lease) {
             this.pair = pair;

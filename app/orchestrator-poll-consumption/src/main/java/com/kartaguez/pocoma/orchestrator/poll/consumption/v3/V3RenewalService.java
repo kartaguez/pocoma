@@ -161,6 +161,12 @@ public final class V3RenewalService {
         return true;
     }
 
+    private long leaseDue(V3ConsumptionWorker.LeaseEntry entry) {
+        return entry.retryUntil == 0
+                ? entry.renewedAt + worker.settings.renewalInterval().toNanos()
+                : entry.retryDue;
+    }
+
     public boolean renewLeasesOnce(Authority authority) {
         Call call = null;
         long now = System.nanoTime();
@@ -197,13 +203,13 @@ public final class V3RenewalService {
                             2,
                             null,
                             batch,
-                            batch.stream().mapToLong(e -> e.renewedAt).min().orElseThrow()
-                                    + worker.settings.renewalInterval().toNanos());
+                            batch.stream().mapToLong(this::leaseDue).min().orElseThrow());
             worker.renewalCalls.add(call);
             for (var e : batch) e.renewedAt = now;
         }
         boolean certain = false;
         List<PartitionLease> result = List.of();
+        int suspended = 0;
         try {
             result =
                     call.leases
@@ -239,12 +245,39 @@ public final class V3RenewalService {
                     if (renewed.isPresent() && certain && worker.running()) {
                         entry.lease = renewed.get();
                         entry.usable = true;
+                        entry.retryUntil = 0;
+                        entry.retryDue = 0;
+                    } else if (certain && worker.running()) {
+                        // SKIP LOCKED can omit a still-valid incarnation. Suspend new uses;
+                        // only a later positive CAS can restore them. A bounded local window
+                        // permits fresh, physically resolved renewals, never an UNKNOWN retry.
+                        long returnedAt = System.nanoTime();
+                        if (entry.retryUntil == 0) {
+                            entry.retryDue = call.due;
+                            entry.retryUntil =
+                                    returnedAt + worker.settings.renewalBudget().toNanos();
+                        }
+                        if (returnedAt - entry.retryUntil < 0) {
+                            if (entry.usable) suspended++;
+                            entry.usable = false;
+                            entry.renewedAt =
+                                    now
+                                            - worker.settings.renewalInterval().toNanos()
+                                            + worker.settings.minPoll().toNanos();
+                        } else worker.leases.remove(entry.pair);
                     } else
                         worker.leases.remove(
                                 entry.pair); // Never reinsert an incarnation removed during this
                     // call.
                 }
             }
+            if (suspended > 0)
+                worker.event(
+                        call.leases.getFirst().pair.binding(),
+                        Phase.LEASE_SUSPEND,
+                        Outcome.BUSY,
+                        suspended,
+                        Duration.ZERO);
             finish(call, certain);
         }
         return true;

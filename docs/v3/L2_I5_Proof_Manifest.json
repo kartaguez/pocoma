@@ -15,7 +15,8 @@
       "i5_u06",
       "i5_u07",
       "i5_u08",
-      "i5_u09"
+      "i5_u09",
+      "i5_u10"
     ],
     "SlotNavigationPostgresTest": [
       "i5_n01",
@@ -60,7 +61,8 @@
       "i5_r07",
       "i5_r08",
       "i5_r09",
-      "i5_r10"
+      "i5_r10",
+      "i5_r11"
     ],
     "V3WorkerCompositionPostgresTest": [
       "i5_c01",
@@ -1018,6 +1020,40 @@
         "A",
         "F"
       ]
+    },
+    {
+      "id": "I5-F05-WRITE",
+      "glob": "**/i5_r11-lease-skip-WRITE.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=WRITE",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F05-READ",
+      "glob": "**/i5_r11-lease-skip-READ.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=READ",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
     }
   ],
   "variant_coverage": {
@@ -1087,6 +1123,20 @@
         "V3WorkerPostgresTest.i5_w21 CONTROL/READ x WRITE/READ"
       ],
       "limit": "No local clear/rearm even after independent external rollback; incomplete drain needs process termination classified CRASH and normal successor. Known COMMITTED/ROLLED_BACK units remain retryable for fresh inspection; valid individual claim renewals continue."
+    },
+    "I5-F05": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02 / OR-EQ-RENEW; qualified SKIP LOCKED lease omission",
+      "counterexample": "r05 held READ failed with one unchanged lease while other11 leases and held claim advanced. On 3599e770, deterministic r11 WRITE actual row blocker caused qualified omission; after blocker release target was not renewed before the5s watchdog, although prior lease deadline remained future. Unit u10 also fails before fix.",
+      "change": "Existing LeaseEntry retains an unusable incarnation for a bounded revalidation window after a physically qualified omission. Normal CAS renewals only; positive same-incarnation result restores local usability. UNKNOWN remains excluded with its Call, never retried. Retry window exhaustion removes local entry without asserting durable loss. Two local timing fields preserve original due/service measurement separately from the retry work budget; bounded list and existing lane only.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u10",
+        "V3WorkerResourcesPostgresTest.i5_r11 WRITE/READ",
+        "V3WorkerResourcesPostgresTest.i5_r05",
+        "V3WorkerResourcesPostgresTest.i5_r10"
+      ],
+      "limit": "Window bounds starts of fresh revalidation opportunities, not physical resolution of an in-flight call. Original due-to-completion remains measured. Persistent lock/loss may require ordinary DB expiry and reacquisition; no guarantee under outage, no release/takeover inferred from local timeout.",
+      "measurement": "r11 holds real lock path for PostgreSQL pg_sleep0.1 and verifies second complete service retains original due; r05 budget takes max of conservative candidate operation sum and measured complete due-to-commit service plus JVM margin, against predeclared TTL and independent old SQL deadlines."
     }
   },
   "verification_adjustments": [

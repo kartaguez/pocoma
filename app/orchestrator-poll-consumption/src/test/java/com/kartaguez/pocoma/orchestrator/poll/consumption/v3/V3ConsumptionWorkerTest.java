@@ -399,6 +399,68 @@ class V3ConsumptionWorkerTest {
     }
 
     @Test
+    void i5_u10() throws Exception {
+        try (var f = new Fixture(1, 1, true, null)) {
+            var binding = f.bindings.getFirst();
+            var lease = f.worker.lease(binding, 0);
+            var pair = new V3ConsumptionWorker.Pair(binding, 0);
+            var entry = f.worker.leases.get(pair);
+            var originalField = ConsumptionEngine.class.getDeclaredField("ownership");
+            originalField.setAccessible(true);
+            var original = (PartitionOwnershipStore) originalField.get(binding.engine());
+            var calls = new AtomicInteger();
+            var alwaysMissing = new AtomicBoolean();
+            originalField.set(
+                    binding.engine(),
+                    Proxy.newProxyInstance(
+                            getClass().getClassLoader(),
+                            new Class[] {PartitionOwnershipStore.class},
+                            (proxy, method, args) -> {
+                                if (method.getName().equals("renew")
+                                        && (calls.incrementAndGet() == 1 || alwaysMissing.get()))
+                                    return List.of();
+                                try {
+                                    return method.invoke(original, args);
+                                } catch (InvocationTargetException failure) {
+                                    throw failure.getCause();
+                                }
+                            }));
+            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+            var renewal = new V3RenewalService(f.worker);
+            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
+            assertSame(
+                    entry,
+                    f.worker.leases.get(pair),
+                    "SKIP LOCKED omission is not proof of lease loss");
+            assertFalse(entry.usable);
+            assertNull(f.worker.lease(binding, 0));
+            await(
+                    () ->
+                            System.nanoTime() - entry.renewedAt
+                                    >= f.worker.settings.renewalInterval().toNanos());
+            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
+            assertSame(entry, f.worker.leases.get(pair));
+            assertTrue(entry.usable);
+            assertEquals(2, calls.get());
+            assertEquals(0, f.capacity.snapshot().worker());
+            alwaysMissing.set(true);
+            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
+            assertSame(entry, f.worker.leases.get(pair));
+            assertFalse(entry.usable);
+            var budget = entry.getClass().getDeclaredField("retryUntil");
+            budget.setAccessible(true);
+            budget.setLong(entry, System.nanoTime() - 1);
+            entry.renewedAt = System.nanoTime() - f.worker.settings.renewalInterval().toNanos();
+            assertTrue(renewal.renewLeasesOnce(binding.definition().authority()));
+            assertFalse(
+                    f.worker.leases.containsKey(pair),
+                    "bounded local retry expires without asserting durable loss");
+            assertEquals(0, f.effects.getFirst().get());
+        }
+    }
+
+    @Test
     void i5_u01() throws Exception {
         try (var f = new Fixture(3, 1, true, null)) {
             var loop = new V3ConsumptionLoop(f.worker);

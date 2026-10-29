@@ -275,6 +275,193 @@ class V3WorkerResourcesPostgresTest {
     }
 
     @Test
+    void i5_r11() throws Exception {
+        for (boolean write : List.of(true, false)) {
+            try (var f = new Fixture(PG)) {
+                f.properties.put("pocoma.v3.worker.worker-limit", "1");
+                f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "1000");
+                f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "20000");
+                f.properties.put("pocoma.v3.worker.lifecycle.claim-duration-ms", "10000");
+                var watched = new AtomicReference<UUID>();
+                var captureService = new AtomicBoolean();
+                var fullService = new CopyOnWriteArrayList<Duration>();
+                ConsumptionObservation observer =
+                        (id, phase, outcome, amount, elapsed) -> {
+                            if (phase == ConsumptionObservation.Phase.RENEWAL_LEASE
+                                    && java.util.Objects.equals(id.value(), watched.get())
+                                    && captureService.compareAndSet(true, false))
+                                fullService.add(elapsed);
+                        };
+                try (var runtime = new V3WorkerPostgresTest.Runtime(f, observer);
+                        var blocker = (write ? f.write : f.read).getDataSource().getConnection()) {
+                    var binding = runtime.bindings.get(write ? 0 : 1);
+                    var sql = write ? f.write : f.read;
+                    var cid = binding.definition().id().value();
+                    watched.set(cid);
+                    var original =
+                            (com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .PartitionOwnershipStore)
+                                    field(binding.engine(), "ownership");
+                    var omitted = new CountDownLatch(1);
+                    var allowReturn = new CountDownLatch(1);
+                    var armed = new AtomicBoolean();
+                    var targetCalls = new AtomicInteger();
+                    var renewalPid = new AtomicInteger();
+                    replace(
+                            binding.engine(),
+                            "ownership",
+                            java.lang.reflect.Proxy.newProxyInstance(
+                                    getClass().getClassLoader(),
+                                    new Class[] {
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .PartitionOwnershipStore.class
+                                    },
+                                    (proxy, method, args) -> {
+                                        Object result;
+                                        try {
+                                            result = method.invoke(original, args);
+                                        } catch (
+                                                java.lang.reflect.InvocationTargetException
+                                                        failure) {
+                                            throw failure.getCause();
+                                        }
+                                        if (method.getName().equals("renew") && armed.get()) {
+                                            var leases = (List<PartitionLease>) args[1];
+                                            if (leases.stream()
+                                                    .anyMatch(l -> l.partitionId() == 0)) {
+                                                targetCalls.incrementAndGet();
+                                                captureService.set(true);
+                                                var renewed = (List<PartitionLease>) result;
+                                                if (renewed.stream()
+                                                                .noneMatch(
+                                                                        l -> l.partitionId() == 0)
+                                                        && omitted.getCount() > 0) {
+                                                    renewalPid.set(
+                                                            new JdbcTemplate(
+                                                                            runtime.pool(
+                                                                                    write
+                                                                                            ? "writeControl"
+                                                                                            : "readControl"))
+                                                                    .queryForObject(
+                                                                            "select"
+                                                                                + " pg_backend_pid()",
+                                                                            Integer.class));
+                                                    omitted.countDown();
+                                                    latch(allowReturn);
+                                                }
+                                            }
+                                        }
+                                        return result;
+                                    }));
+                    runtime.worker.start();
+                    await(
+                            () ->
+                                    sql.queryForObject(
+                                                    "select count(*) from partition_ownership where"
+                                                        + " consumption_id=? and partition_id=0 and"
+                                                        + " owned_until>clock_timestamp()",
+                                                    Integer.class,
+                                                    cid)
+                                            == 1);
+                    blocker.setAutoCommit(false);
+                    Timestamp before;
+                    Object token;
+                    try (var q =
+                            blocker.prepareStatement(
+                                    "select owned_until,owner_token from partition_ownership where"
+                                            + " consumption_id=? and partition_id=0 for update")) {
+                        q.setObject(1, cid);
+                        try (var row = q.executeQuery()) {
+                            assertTrue(row.next());
+                            before = row.getTimestamp(1);
+                            token = row.getObject(2);
+                        }
+                    }
+                    int pid;
+                    try (var q = blocker.createStatement();
+                            var row = q.executeQuery("select pg_backend_pid()")) {
+                        row.next();
+                        pid = row.getInt(1);
+                    }
+                    armed.set(true);
+                    try {
+                        latch(omitted);
+                        f.trace.add(
+                                "SKIP LOCKED omitted live lease authority="
+                                        + (write ? "WRITE" : "READ")
+                                        + " blockerPID="
+                                        + pid
+                                        + " renewPID="
+                                        + renewalPid.get()
+                                        + " locks="
+                                        + sql.queryForList(
+                                                "select locktype,mode,granted from pg_locks where"
+                                                        + " pid in (?,?)",
+                                                pid,
+                                                renewalPid.get())
+                                        + " blocking="
+                                        + sql.queryForObject(
+                                                "select pg_blocking_pids(?)::text",
+                                                String.class,
+                                                renewalPid.get()));
+                        try (var pause = blocker.createStatement()) {
+                            pause.execute("select pg_sleep(0.1)");
+                        }
+                        blocker.commit();
+                        allowReturn.countDown();
+                        await(
+                                () ->
+                                        sql.queryForObject(
+                                                        "select owned_until from"
+                                                                + " partition_ownership where"
+                                                                + " consumption_id=? and"
+                                                                + " partition_id=0",
+                                                        Timestamp.class,
+                                                        cid)
+                                                .after(before),
+                                Duration.ofSeconds(5));
+                        assertTrue(targetCalls.get() >= 2);
+                        await(() -> fullService.size() >= 2);
+                        assertTrue(fullService.getFirst().compareTo(Duration.ofMillis(80)) > 0);
+                        assertTrue(
+                                fullService.get(1).compareTo(fullService.getFirst()) >= 0,
+                                "retry service must retain the original due, not reset it");
+                        f.trace.add(
+                                "original due retained across revalidation; full"
+                                    + " due->commit/cleanup samples="
+                                        + fullService);
+                        assertTrue(
+                                java.util.Objects.equals(
+                                        token,
+                                        sql.queryForObject(
+                                                "select owner_token from partition_ownership where"
+                                                        + " consumption_id=? and partition_id=0",
+                                                Object.class,
+                                                cid)),
+                                "same lease incarnation; no expiry/takeover");
+                        var now =
+                                sql.queryForObject("select clock_timestamp()", Timestamp.class)
+                                        .toInstant();
+                        assertTrue(
+                                Duration.between(now, before.toInstant())
+                                                .compareTo(Duration.ofSeconds(2))
+                                        > 0);
+                        f.trace.add(
+                                "same incarnation renewed before prior PG deadline with safety2s;"
+                                    + " bounded revalidation after known omission, no new ticket or"
+                                    + " owner; targetCalls="
+                                        + targetCalls.get());
+                    } finally {
+                        blocker.rollback();
+                        allowReturn.countDown();
+                        f.evidence("i5_r11-lease-skip-" + (write ? "WRITE" : "READ"));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void i5_r01() throws Exception {
         try (var f = new Fixture(PG);
                 var runtime = new V3WorkerPostgresTest.Runtime(f, ConsumptionObservation.noop())) {
@@ -1280,6 +1467,17 @@ class V3WorkerResourcesPostgresTest {
                                         .plusSeconds(
                                                 2) // measured JVM/jitter1 + idle renewal polling<=1
                                         .plusMillis(10L * leaseCandidates); // worked-loop polling
+                        // Fresh revalidations are additional units: include the measured complete
+                        // due->last commit path, not only N times one operation's duration.
+                        var observedService =
+                                Duration.ofNanos(
+                                                service.stream()
+                                                        .mapToLong(Duration::toNanos)
+                                                        .max()
+                                                        .orElseThrow())
+                                        .plusSeconds(1);
+                        if (observedService.compareTo(leaseBudget) > 0)
+                            leaseBudget = observedService;
                         long claimBudget = mw * 5L + 1;
                         assertTrue(
                                 Duration.ofSeconds(12)
