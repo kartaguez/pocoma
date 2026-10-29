@@ -13,7 +13,8 @@
       "i5_u04",
       "i5_u05",
       "i5_u06",
-      "i5_u07"
+      "i5_u07",
+      "i5_u08"
     ],
     "SlotNavigationPostgresTest": [
       "i5_n01",
@@ -55,7 +56,8 @@
       "i5_r06",
       "i5_r07",
       "i5_r08",
-      "i5_r09"
+      "i5_r09",
+      "i5_r10"
     ],
     "V3WorkerCompositionPostgresTest": [
       "i5_c01",
@@ -786,7 +788,9 @@
       "id": "cadence-32-MW1-held0",
       "glob": "**/i5_r05-C-B32-MW1-held0.txt",
       "contains": [
-        "due->physical commit/cleanup samples="
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
       ],
       "gates": [
         "C",
@@ -798,7 +802,9 @@
       "id": "cadence-32-MW1-held1",
       "glob": "**/i5_r05-C-B32-MW1-held1.txt",
       "contains": [
-        "due->physical commit/cleanup samples="
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
       ],
       "gates": [
         "C",
@@ -810,7 +816,9 @@
       "id": "cadence-32-MW4-held-1",
       "glob": "**/i5_r05-C-B32-MW4-held-1.txt",
       "contains": [
-        "due->physical commit/cleanup samples="
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
       ],
       "gates": [
         "C",
@@ -822,7 +830,9 @@
       "id": "cadence-1-MW4-held-1",
       "glob": "**/i5_r05-C-B1-MW4-held-1.txt",
       "contains": [
-        "due->physical commit/cleanup samples="
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
       ],
       "gates": [
         "C",
@@ -897,6 +907,23 @@
         "A",
         "F"
       ]
+    },
+    {
+      "id": "C-lease-aging",
+      "glob": "**/i5_r10-lease-rotation-WRITE-READ.txt",
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ],
+      "contains": [
+        "real lease SQL wait WRITE",
+        "real lease SQL wait READ",
+        "lease authority=WRITE",
+        "lease authority=READ",
+        "all12leases renewed",
+        "priorDeadlineMarginNs"
+      ]
     }
   ],
   "variant_coverage": {
@@ -932,6 +959,18 @@
         "engine-consumption/ConsumptionFailureClassificationTest",
         "infra-persistence-primary-jpa/ConsumptionLifecyclePostgresTest.i3_c05_j"
       ]
+    },
+    "I5-F02": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02 / R-AUD-I3-03 / OR-EQ-RENEW",
+      "counterexample": "Fixed first-due order can repeatedly renew early entries and starve a later lease. Unit negative and real PostgreSQL B1/1.5s SQL negative recorded.",
+      "change": "Oldest local renewal age selects the binding and orders its bounded batch; no new state/owner/pool/queue. SQL authority unchanged.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u08",
+        "V3WorkerResourcesPostgresTest.i5_r10",
+        "V3WorkerResourcesPostgresTest.i5_r05 all12 lease deadlines and partial-batch calibration"
+      ],
+      "limit": "Nominal configured batch count is only an initial guard; C qualification counts candidates and full measured paths plus polling/JVM margins, then checks every PG deadline. No unconditional production guarantee."
     }
   },
   "verification_adjustments": [

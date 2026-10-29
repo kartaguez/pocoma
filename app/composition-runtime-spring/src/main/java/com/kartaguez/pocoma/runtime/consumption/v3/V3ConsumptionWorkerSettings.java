@@ -215,7 +215,9 @@ public record V3ConsumptionWorkerSettings(
                         life.renewalInterval(),
                         Duration.ofSeconds(5),
                         duration(env, "drain-timeout", 90000));
-        // Predeclared whole-path budgets, not a claim of measured certification.
+        // Necessary nominal-batch check, not physical certification. Partial batches can
+        // require more calls: qualification must count every candidate, include polling,
+        // and observe all PostgreSQL deadlines with the measured whole-path envelope.
         int leaseLots =
                 partitions.values().stream().mapToInt(p -> (p.size() + batch - 1) / batch).sum();
         if (settings.renewalInterval()

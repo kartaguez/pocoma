@@ -1171,6 +1171,8 @@ class V3WorkerResourcesPostgresTest {
                                                         == 8);
                         var w = deadlines(f.write);
                         var r = deadlines(f.read);
+                        var writeLeases = leaseDeadlines(f.write);
+                        var readLeases = leaseDeadlines(f.read);
                         if (held == 0) assertFalse(w.isEmpty());
                         else if (held == 1) assertFalse(r.isEmpty());
                         else {
@@ -1179,21 +1181,41 @@ class V3WorkerResourcesPostgresTest {
                         }
                         // Real GC participates in the measured end-to-end path; no p95 summation.
                         System.gc();
-                        await(() -> allAdvanced(f.write, w) && allAdvanced(f.read, r));
+                        await(
+                                () ->
+                                        allAdvanced(f.write, w)
+                                                && allAdvanced(f.read, r)
+                                                && leasesAdvanced(f.write, writeLeases)
+                                                && leasesAdvanced(f.read, readLeases));
                         assertFalse(service.isEmpty());
                         assertFalse(operation.isEmpty());
                         for (var d : operation)
                             assertTrue(
                                     d.compareTo(Duration.ofSeconds(5)) < 0,
                                     "whole synchronous operation budget");
-                        long leaseLots = 3L * ((4 + batch - 1) / batch);
-                        long leaseBudget = leaseLots * 5 + 1, claimBudget = mw * 5L + 1;
-                        assertTrue(10 + leaseBudget + 2 < leaseSeconds);
+                        // No assumption of full batches: even B32 may serve staggered keys.
+                        int leaseCandidates = Math.max(writeLeases.size(), readLeases.size());
+                        long maxOperationNs =
+                                operation.stream().mapToLong(Duration::toNanos).max().orElseThrow();
+                        var leaseBudget =
+                                Duration.ofNanos(maxOperationNs * leaseCandidates)
+                                        .plusSeconds(
+                                                2) // measured JVM/jitter1 + idle renewal polling<=1
+                                        .plusMillis(10L * leaseCandidates); // worked-loop polling
+                        long claimBudget = mw * 5L + 1;
+                        assertTrue(
+                                Duration.ofSeconds(12)
+                                                .plus(leaseBudget)
+                                                .compareTo(Duration.ofSeconds(leaseSeconds))
+                                        < 0);
                         assertTrue(10 + claimBudget + 2 < 60);
-                        long serviceBudget = Math.max(leaseBudget, claimBudget);
+                        var serviceBudget =
+                                leaseBudget.compareTo(Duration.ofSeconds(claimBudget)) > 0
+                                        ? leaseBudget
+                                        : Duration.ofSeconds(claimBudget);
                         for (var d : service)
                             assertTrue(
-                                    d.compareTo(Duration.ofSeconds(serviceBudget)) < 0,
+                                    d.compareTo(serviceBudget) < 0,
                                     "due->borrow->SQL/commit->cleanup scheduling budget");
                         assertTrue(
                                 maxGap.get() < Duration.ofSeconds(1).toNanos(),
@@ -1212,6 +1234,27 @@ class V3WorkerResourcesPostgresTest {
                                         "external post-commit observation must still precede prior"
                                                 + " expiry by safety2s");
                         }
+                        for (var entry :
+                                Map.of(f.write, writeLeases, f.read, readLeases).entrySet()) {
+                            var now =
+                                    entry.getKey()
+                                            .queryForObject(
+                                                    "select clock_timestamp()", Timestamp.class)
+                                            .toInstant();
+                            for (var deadline : entry.getValue().values())
+                                assertTrue(
+                                        Duration.between(now, deadline)
+                                                        .compareTo(Duration.ofSeconds(2))
+                                                > 0);
+                        }
+                        f.trace.add(
+                                "all12leases renewed; partial-batch conservative"
+                                    + " candidatesPerAuthority="
+                                        + leaseCandidates
+                                        + " maxWholeOperationNs="
+                                        + maxOperationNs
+                                        + " measuredLeaseCycleBudget="
+                                        + leaseBudget);
                         f.trace.add(
                                 "operation samples="
                                         + operation
@@ -1241,6 +1284,149 @@ class V3WorkerResourcesPostgresTest {
                         e ->
                                 current.containsKey(e.getKey())
                                         && current.get(e.getKey()).isAfter(e.getValue()));
+    }
+
+    static Map<String, Instant> leaseDeadlines(JdbcTemplate sql) {
+        var result = new HashMap<String, Instant>();
+        sql.query(
+                "select consumption_id::text||'/'||partition_id,owned_until from"
+                        + " partition_ownership where owner_token is not null",
+                r -> {
+                    result.put(r.getString(1), r.getTimestamp(2).toInstant());
+                });
+        return result;
+    }
+
+    static boolean leasesAdvanced(JdbcTemplate sql, Map<String, Instant> initial) {
+        var current = leaseDeadlines(sql);
+        return initial.entrySet().stream()
+                .allMatch(
+                        e ->
+                                current.containsKey(e.getKey())
+                                        && current.get(e.getKey()).isAfter(e.getValue()));
+    }
+
+    @Test
+    void i5_r10() throws Exception {
+        try (var f = new Fixture(PG)) {
+            f.properties.put("pocoma.v3.worker.lifecycle.batch-size", "1");
+            f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "90000");
+            try (var runtime = new V3WorkerPostgresTest.Runtime(f, ConsumptionObservation.noop())) {
+                for (var binding : runtime.bindings) {
+                    var engine = binding.engine();
+                    var ownership =
+                            (com.kartaguez.pocoma.engine.consumption.v3.port
+                                            .PartitionOwnershipStore)
+                                    field(engine, "ownership");
+                    var pool =
+                            runtime.pool(
+                                    binding.definition().authority()
+                                                    == com.kartaguez.pocoma.domain.consumption.v3
+                                                            .ConsumptionDefinition.Authority.WRITE
+                                            ? "writeControl"
+                                            : "readControl");
+                    replace(
+                            engine,
+                            "ownership",
+                            java.lang.reflect.Proxy.newProxyInstance(
+                                    getClass().getClassLoader(),
+                                    new Class[] {
+                                        com.kartaguez.pocoma.engine.consumption.v3.port
+                                                .PartitionOwnershipStore.class
+                                    },
+                                    (p, method, args) -> {
+                                        try {
+                                            if (method.getName().equals("renew"))
+                                                new JdbcTemplate(pool)
+                                                        .execute("select pg_sleep(1.5)");
+                                            return method.invoke(ownership, args);
+                                        } catch (
+                                                java.lang.reflect.InvocationTargetException
+                                                        failure) {
+                                            throw failure.getCause();
+                                        }
+                                    }));
+                }
+                runtime.worker.start();
+                try {
+                    await(
+                            () ->
+                                    leaseDeadlines(f.write).size() == 4
+                                            && leaseDeadlines(f.read).size() == 8);
+                    var write = leaseDeadlines(f.write);
+                    var read = leaseDeadlines(f.read);
+                    f.trace.add("initial lease deadlines WRITE=" + write + " READ=" + read);
+                    for (var authority : List.of("WRITE", "READ")) {
+                        var sql = authority.equals("WRITE") ? f.write : f.read;
+                        String application =
+                                "i5-test-"
+                                        + authority.toLowerCase(java.util.Locale.ROOT)
+                                        + "-control";
+                        await(
+                                () ->
+                                        sql.queryForObject(
+                                                "select exists(select 1 from pg_stat_activity where"
+                                                    + " application_name=? and wait_event='PgSleep'"
+                                                    + " and xact_start is not null)",
+                                                Boolean.class,
+                                                application));
+                        f.trace.add(
+                                "real lease SQL wait "
+                                        + authority
+                                        + " "
+                                        + sql.queryForList(
+                                                "select"
+                                                    + " pid,backend_xid::text,xact_start,state,wait_event"
+                                                    + " from pg_stat_activity where"
+                                                    + " application_name=? and"
+                                                    + " wait_event='PgSleep'",
+                                                application));
+                    }
+                    // Full predeclared lot bound: cadence10 + 12*5 + jitter1 + safety2 < 90.
+                    await(
+                            () -> leasesAdvanced(f.write, write) && leasesAdvanced(f.read, read),
+                            Duration.ofSeconds(75));
+                    assertEquals(
+                            com.kartaguez.pocoma.orchestrator.poll.consumption.v3
+                                    .V3ConsumptionWorker.State.RUNNING,
+                            runtime.worker.snapshot().state());
+                    for (var authority : List.of("WRITE", "READ")) {
+                        var sql = authority.equals("WRITE") ? f.write : f.read;
+                        var initial = authority.equals("WRITE") ? write : read;
+                        var now =
+                                sql.queryForObject("select clock_timestamp()", Timestamp.class)
+                                        .toInstant();
+                        long margin =
+                                initial.values().stream()
+                                        .mapToLong(
+                                                deadline ->
+                                                        Duration.between(now, deadline).toNanos())
+                                        .min()
+                                        .orElseThrow();
+                        assertTrue(margin > Duration.ofSeconds(2).toNanos());
+                        f.trace.add(
+                                "lease authority="
+                                        + authority
+                                        + " initial="
+                                        + initial
+                                        + " renewed="
+                                        + leaseDeadlines(sql)
+                                        + " priorDeadlineMarginNs="
+                                        + margin);
+                    }
+                    f.trace.add(
+                            "lease_pg_sleep=1.5s B1 cadence10s lease90s all12leases renewed; oldest"
+                                + " due before newly due, no fixed binding/partition starvation");
+                } finally {
+                    f.trace.add(
+                            "final lease snapshots WRITE="
+                                    + leaseDeadlines(f.write)
+                                    + " READ="
+                                    + leaseDeadlines(f.read));
+                    f.evidence("i5_r10-lease-rotation-WRITE-READ");
+                }
+            }
+        }
     }
 
     @Test

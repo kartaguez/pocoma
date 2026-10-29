@@ -180,10 +180,15 @@ public final class V3RenewalService {
                                                                     .toNanos())
                             .toList();
             if (due.isEmpty()) return false;
-            var binding = due.getFirst().pair.binding();
+            // A serviced lease can become due again before a slow tour finishes. Age the
+            // bounded candidates, including within a binding, so it cannot jump ahead again.
+            var oldest =
+                    Comparator.comparingLong((V3ConsumptionWorker.LeaseEntry e) -> e.renewedAt);
+            var binding = due.stream().min(oldest).orElseThrow().pair.binding();
             var batch =
                     due.stream()
                             .filter(e -> e.pair.binding() == binding)
+                            .sorted(oldest)
                             .limit(worker.settings.pageSize())
                             .toList();
             call =

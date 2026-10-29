@@ -599,4 +599,37 @@ class V3ConsumptionWorkerTest {
             }
         }
     }
+
+    @Test
+    void i5_u08() throws Exception {
+        try (var f = new Fixture(2, 1, true, null)) {
+            for (var binding : f.bindings) f.worker.lease(binding, 0);
+            for (var entry : f.worker.leases.values())
+                entry.renewedAt = System.nanoTime() - Duration.ofSeconds(10).toNanos();
+            var renewals = new V3RenewalService(f.worker);
+            var visited = new HashSet<V3ConsumptionWorker.LeaseEntry>();
+            for (int round = 0; round < 4; round++) {
+                var before = new IdentityHashMap<V3ConsumptionWorker.LeaseEntry, Long>();
+                for (var entry : f.worker.leases.values()) before.put(entry, entry.renewedAt);
+                assertTrue(renewals.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
+                var changed =
+                        f.worker.leases.values().stream()
+                                .filter(entry -> entry.renewedAt != before.get(entry))
+                                .toList();
+                assertEquals(1, changed.size());
+                visited.addAll(changed);
+                // Deterministic elapsed opportunities: a serviced lease is due again while
+                // another is older. This proves local selection, never a PostgreSQL deadline.
+                for (var entry : f.worker.leases.values())
+                    entry.renewedAt -= f.worker.settings.renewalInterval().toNanos() + 1;
+            }
+            assertEquals(
+                    2,
+                    visited.size(),
+                    "no fixed-binding starvation when a lease becomes due again");
+            assertEquals(0, f.capacity.snapshot().worker());
+            assertEquals(0, f.worker.snapshot().renewalCalls());
+            assertEquals(0, f.effects.stream().mapToInt(AtomicInteger::get).sum());
+        }
+    }
 }
