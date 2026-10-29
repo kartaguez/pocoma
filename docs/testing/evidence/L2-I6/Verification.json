@@ -39,10 +39,64 @@
       "meaning": "Tool/documentary check only; no application campaign"
     }
   ],
-  "qualification_status": "Source freeze; final qualification receipt follows in a documentary commit",
-  "prequalification_archive_review": {
+  "qualification_status": "COMPLETE — documentary checks only; not application recertification or independent I7 audit",
+  "diagnostics_preserved": [
+    {
+      "check": "Strict source-vs-blob hash comparison before explicit checkout representation handling",
+      "result": "FAIL at app/mvnw.cmd",
+      "classification": "Existing CRLF Windows checkout representation vs LF Git blob; no Java/SQL/oracle or application defect",
+      "correction": "Checker compares both exact hashes only for app/mvnw.cmd; raw bytes required elsewhere; added negative tests"
+    },
+    {
+      "check": "git ls-remote under restricted network",
+      "result": "DNS resolution failure",
+      "followup": "Same read-only command with environment permission returned exact baseline; no approval rejection"
+    }
+  ],
+  "application_tests_reexecuted": false,
+  "Maven_commands_actually_executed": [],
+  "global_gate": "NOT RUN in I6; required later at G3 when preconditions hold",
+  "full_reactor": "NOT RUN in I6; no runtime delta, G3 preconditions absent, temporal replay unauthorized",
+  "qualification_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c",
+  "qualified_sources_sha256": {
+    "scripts/testing/check-v3-l2-i6.py": "3dfb1d855d14a2ead3beac5f0855cfbce0a802a667eaadaf619a93076ddae645",
+    "scripts/testing/test_i6_evidence.py": "db99c9eb15e2b0b215c92acab08288547d7a5cbb6a46c6811e62f54b650c4157"
+  },
+  "qualification_commands": [
+    {
+      "command": "python3 -B -m unittest scripts/testing/test_i6_evidence.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.07841266598552465,
+      "tested_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c",
+      "output": "docs/testing/evidence/L2-I6/i6-tests.txt",
+      "sha256": "4190e6532da5d52050bd5ea71ff40310f4ffe0846610b4b159650675a5a9c2b2"
+    },
+    {
+      "command": "python3 -B scripts/testing/check-v3-l2-i6.py --archives",
+      "exit_code": 0,
+      "elapsed_seconds": 2.2608354589901865,
+      "tested_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c"
+    },
+    {
+      "command": "python3 -B docs/v3/check_l2_manifest.py",
+      "exit_code": 0,
+      "elapsed_seconds": 0.09512649988755584,
+      "tested_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c",
+      "output": "docs/testing/evidence/L2-I6/manifest-final.txt",
+      "sha256": "ebf4fac21e9abff2fed2d57af615d6c31f4e3ad73b8f1f502caf2e4361768c46"
+    },
+    {
+      "command": "git diff --check 5ab89dd3e58a7bfd617cdd6526f730e6d6854c80 HEAD",
+      "exit_code": 0,
+      "elapsed_seconds": 0.02325879130512476,
+      "tested_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c",
+      "output": "docs/testing/evidence/L2-I6/whitespace-final.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "archive_review": {
     "kind": "DOCUMENTARY VERIFICATION ONLY",
-    "checked_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+    "checked_sha": "127d59834aa8702b7735a5f02f6dc1f6328b0a7c",
     "rows": 380,
     "L2": 324,
     "deferred": 56,
@@ -53,7 +107,7 @@
       "NOT RUN": 5,
       "PASS": 26
     },
-    "input_hashes": 83,
+    "input_hashes": 86,
     "application_and_campaign_inputs": "UNCHANGED",
     "independent_I7_audit": "NOT PERFORMED",
     "Maven": "NOT RUN",
@@ -244,21 +298,44 @@
       }
     ]
   },
-  "diagnostics_preserved": [
-    {
-      "check": "Strict source-vs-blob hash comparison before explicit checkout representation handling",
-      "result": "FAIL at app/mvnw.cmd",
-      "classification": "Existing CRLF Windows checkout representation vs LF Git blob; no Java/SQL/oracle or application defect",
-      "correction": "Checker compares both exact hashes only for app/mvnw.cmd; raw bytes required elsewhere; added negative tests"
-    },
-    {
-      "check": "git ls-remote under restricted network",
-      "result": "DNS resolution failure",
-      "followup": "Same read-only command with environment permission returned exact baseline; no approval rejection"
-    }
-  ],
-  "application_tests_reexecuted": false,
-  "Maven_commands_actually_executed": [],
-  "global_gate": "NOT RUN in I6; required later at G3 when preconditions hold",
-  "full_reactor": "NOT RUN in I6; no runtime delta, G3 preconditions absent, temporal replay unauthorized"
+  "artifact_integrity": {
+    "docs/testing/evidence/L2-I6/Certification-costs.json": "258c0f8e97b88965500eb71931190c830f075e98109faed1dd750fd3b9b25e77",
+    "docs/testing/evidence/L2-I6/Coverage.tsv": "63887d7b7f72edf2161c091321fefcd82dc8276460121afdbf8dc4629dd05a3d",
+    "docs/testing/evidence/L2-I6/Proof-index.json": "4ef692c684e5b7c518f597dfea8deaf3adc187bec2ef4c6498f7dc32988c8b8b",
+    "docs/testing/evidence/L2-I6/Provenance.json": "1740e4fcdfdd12586d539380ca5fbb71465758fb4a86906df098bd11b0c15e54",
+    "docs/testing/evidence/L2-I6/i6-tests.txt": "4190e6532da5d52050bd5ea71ff40310f4ffe0846610b4b159650675a5a9c2b2",
+    "docs/testing/evidence/L2-I6/manifest-baseline.txt": "4a5083e9d83839b2d9623c81afd168dffbbdfb0c9202bb6bc06ed10ce590601c",
+    "docs/testing/evidence/L2-I6/manifest-final.txt": "ebf4fac21e9abff2fed2d57af615d6c31f4e3ad73b8f1f502caf2e4361768c46",
+    "docs/testing/evidence/L2-I6/routing-baseline.txt": "58ab847be2073eaaea3e11f6743a70be02c05b2d1cd20093356caec77d8b1cf2",
+    "docs/testing/evidence/L2-I6/storage-baseline.txt": "f96c81c367a3ec04d36e8cefb0969cfb84d3aceefd92d965c1488949d32a2e6a",
+    "docs/testing/evidence/L2-I6/tools-baseline.txt": "8bbea644e8b55a4b39316853fb9cdc0929a57fe7cbd38bc49732280924cfaaf3",
+    "docs/testing/evidence/L2-I6/whitespace-final.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "application_identity": {
+    "app_tree": "3fbf9e9039286787a08a64081f831aab94f32a6f",
+    "scripts_v3_tree": "c038e60c22f9be4443023d4d80190ae77c369f0f",
+    "baseline_to_qualification_app_and_scripts_v3_diff": "EMPTY",
+    "historical_campaign_script_hashes": "Checked individually by Proof-index.json; new I6 tooling hashes above",
+    "last_application_tested_sha": "a2133b6b43a74999374bc26a222f70c7500fadda",
+    "last_application_result": "FAIL bench / INCONCLUSIVE availability; not new PASS"
+  },
+  "publication": {
+    "branch": "feat/v3-architecture",
+    "remote_before_changes": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+    "mode": "normal commits, normal push; no force",
+    "published_sha": "Commit containing this completed receipt; exact HEAD and remote equality reported after push. No self-referential SHA invented."
+  },
+  "scope_outcome": {
+    "production_changes": "NONE",
+    "unexpected_slice_crossings": "NONE",
+    "primary_slice": "NONE",
+    "secondary_slices": [],
+    "database": "NONE / NOT RUN",
+    "global_gate": "NOT REQUIRED for I6 delta; G3 preconditions absent, remains required for closure",
+    "full_reactor": "NOT RUN in I6; no application delta, no integration, temporal campaign not authorized",
+    "independent_I7": "NOT PERFORMED",
+    "L2": "INCONCLUSIVE / NON ACCEPTED",
+    "I5": "CLOSED BY HUMAN ACCEPTANCE WITH AVAILABILITY RESERVE",
+    "readiness": "READY WITH EXPLICIT RESERVATIONS"
+  }
 }

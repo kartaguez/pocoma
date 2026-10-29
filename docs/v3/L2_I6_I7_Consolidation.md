@@ -216,6 +216,12 @@ git diff 5ab89dd3e58a7bfd617cdd6526f730e6d6854c80 -- app scripts/v3
 git ls-remote origin refs/heads/feat/v3-architecture
 ```
 
+Qualification documentaire au SHA **`127d59834aa8702b7735a5f02f6dc1f6328b0a7c`** : sept tests I6 PASS,
+neuf archives relues, 1 657 cas requis contrôlés (répétitions inter-campagnes
+incluses) et 3 820 empreintes d'entrées de reçus disponibles rapprochées du Git
+historique, avec trois représentations CRLF explicites du seul wrapper Windows.
+Aucun nouveau PASS applicatif.
+
 Les 39 tests d'outils préexistants, le catalogue L2 et les 21 vecteurs ont été
 contrôlés à la baseline ; les nouveaux contrôles I6 sont qualifiés au commit
 indiqué dans le reçu. Aucun de ces tests Python n'exécute les campagnes Java.
