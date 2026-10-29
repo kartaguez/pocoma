@@ -68,6 +68,9 @@ public final class ConsumptionEngine {
     private final AttemptFailureClassifier classifier;
     // At most M_W entries across the Engines: each entry owns one reserved ticket.
     private final Set<AcquiredClaim> pending = Collections.synchronizedSet(new HashSet<>());
+    // Inspection/observation ports expose no witness for a locally returned UNKNOWN unit.
+    // This is a local exclusion, never a durable result or a claim/ticket authority.
+    private volatile boolean unresolvedRecovery;
 
     /** Local capacity handle. No mirrored durable state or cached deadline. */
     public static final class AcquiredClaim {
@@ -77,7 +80,8 @@ public final class ConsumptionEngine {
         private final AtomicBoolean used = new AtomicBoolean();
         private volatile boolean localDone;
         private boolean businessStarted;
-        // A read-only preparation can outlive local transport failure without a slot row lock.
+        // A preparation or recovery read can outlive local transport failure without a slot row
+        // lock.
         // The current ports expose no physical resolution witness for that unit. Never settle
         // its reservation from slot availability; retain it until this Worker is terminated.
         private volatile boolean unresolvedPreparation;
@@ -164,6 +168,23 @@ public final class ConsumptionEngine {
         return handle.ticket.retained();
     }
 
+    /** Monotone local uncertainty only; never a permission to execute or release. */
+    public boolean hasUnresolvedRecovery() {
+        return unresolvedRecovery;
+    }
+
+    private void recoveryFailed(Throwable fault, ClaimedSlot claim) {
+        if (fault instanceof Failure f && f.resolution() != Resolution.UNKNOWN) return;
+        unresolvedRecovery = true;
+        if (claim != null) {
+            synchronized (pending) {
+                pending.stream()
+                        .filter(h -> h.claim.equals(claim))
+                        .forEach(h -> h.unresolvedPreparation = true);
+            }
+        }
+    }
+
     public SlotKeyNavigation.Page navigate(
             PartitionLease lease, SlotKeyNavigation.Walk walk, int limit) {
         checkLease(lease);
@@ -221,6 +242,8 @@ public final class ConsumptionEngine {
                     outcome = Outcome.EMPTY;
                 }
             }
+            if ((phase == Phase.SETTLE || phase == Phase.OBSERVE) && unresolvedRecovery)
+                outcome = Outcome.UNKNOWN;
             return result;
         } catch (Failure failure) {
             if (phase == Phase.CESSION
@@ -425,7 +448,7 @@ public final class ConsumptionEngine {
             acquired.localDone = true;
             // Classification can fail after a confirmed rollback. Release only when the last
             // physical operation is known resolved; raw port failures and UNKNOWN stay pending.
-            if (resolved) {
+            if (resolved && !acquired.unresolvedPreparation) {
                 removePending(acquired);
                 acquired.ticket.release();
             }
@@ -438,6 +461,7 @@ public final class ConsumptionEngine {
     }
 
     private int settlePendingOperation() {
+        if (unresolvedRecovery) return 0;
         List<AcquiredClaim> snapshot;
         synchronized (pending) {
             snapshot =
@@ -454,11 +478,13 @@ public final class ConsumptionEngine {
                             () ->
                                     controlSlots.inspectResolved(
                                             snapshot.stream().map(h -> h.claim).toList()));
-        } catch (RuntimeException unavailable) {
+        } catch (RuntimeException | Error unavailable) {
+            recoveryFailed(unavailable, null);
             return 0;
         }
         int released = 0;
         for (var handle : snapshot) {
+            if (unresolvedRecovery) break;
             var inspection =
                     inspections.stream()
                             .filter(i -> i.claim().equals(handle.claim))
@@ -595,6 +621,7 @@ public final class ConsumptionEngine {
     private RecoveryObservation observeOperation(ClaimedSlot claim) {
         if (!definition.id().equals(claim.consumptionId()))
             throw new IllegalArgumentException("Claim belongs to another Consumption");
+        if (unresolvedRecovery) return RecoveryObservation.UNAVAILABLE;
         try {
             return transactions.read(
                     context -> {
@@ -613,7 +640,8 @@ public final class ConsumptionEngine {
                             case INCONSISTENT, UNAVAILABLE -> business;
                         };
                     });
-        } catch (RuntimeException failure) {
+        } catch (RuntimeException | Error failure) {
+            recoveryFailed(failure, claim);
             return RecoveryObservation.UNAVAILABLE;
         }
     }

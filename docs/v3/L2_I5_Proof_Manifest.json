@@ -47,7 +47,8 @@
       "i5_w17",
       "i5_w18",
       "i5_w19",
-      "i5_w20"
+      "i5_w20",
+      "i5_w21"
     ],
     "V3WorkerResourcesPostgresTest": [
       "i5_r01",
@@ -83,7 +84,8 @@
       "oneShotAndCancellation",
       "committedPreparationAckCanBeInspected",
       "rawPreparationExitCannotBeSettledFromSlot",
-      "unusedConfirmedClaimCanBeAbandoned"
+      "unusedConfirmedClaimCanBeAbandoned",
+      "unresolvedRecoveryCannotBeRetriedOrSettled"
     ]
   },
   "required_variants": {
@@ -956,6 +958,66 @@
         "A",
         "F"
       ]
+    },
+    {
+      "id": "I5-F04-CONTROL-WRITE",
+      "glob": "**/i5_w21-recovery-CONTROL-WRITE.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-CONTROL-READ",
+      "glob": "**/i5_w21-recovery-CONTROL-READ.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-WRITE",
+      "glob": "**/i5_w21-recovery-READ-WRITE.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-READ",
+      "glob": "**/i5_w21-recovery-READ-READ.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
     }
   ],
   "variant_coverage": {
@@ -1014,6 +1076,17 @@
         "V3WorkerPostgresTest.i5_w20 WRITE/READ child variants"
       ],
       "limit": "Current opportunity ports expose no physical witness after UNKNOWN. Even later external rollback cannot clear L1; incomplete drain remains DRAINING with pools open and no successful callback until JVM termination classified CRASH."
+    },
+    "I5-F04": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02/R-I5-03; inspection and read-only recovery physical uncertainty",
+      "counterexample": "On c8b0815b, real Command committed with lost ACK then maintenance inspect UNKNOWN; repeated authorized requestDrain wakes let later inspection release the ticket and close pools with original PostgreSQL PID/XID still active. No timeout or SQL policy changed.",
+      "change": "Engine retains a monotone local unresolvedRecovery exclusion for unqualified inspection/observation; its existing handles retain any uncertain recovery read. Read-only hasUnresolvedRecovery view lets the existing maintenance lane stop reuse and lets supervisor refuse STOPPED. No new owner, transaction protocol, SQL, pool, tickets or durable machine.",
+      "proofs": [
+        "ConsumptionFailureClassificationTest.unresolvedRecoveryCannotBeRetriedOrSettled",
+        "V3WorkerPostgresTest.i5_w21 CONTROL/READ x WRITE/READ"
+      ],
+      "limit": "No local clear/rearm even after independent external rollback; incomplete drain needs process termination classified CRASH and normal successor. Known COMMITTED/ROLLED_BACK units remain retryable for fresh inspection; valid individual claim renewals continue."
     }
   },
   "verification_adjustments": [
@@ -1042,6 +1115,15 @@
         "r01 first proves actual WRITE/READ background renewals under MW4 RUNNING, then prohibits new opportunities before synthetic Business loan exhaustion; held claims still renew in DRAINING and finish their real effects. No post-drain source borrow or new dispatch is required.",
         "r05 tracks only genuinely started held preparation IDs, checks abandoned unused claims do not renew, and requires all12 leases to advance. Startup lease ownership requires a future PostgreSQL deadline. Detailed independent SQL/local snapshots retained on failure."
       ]
+    },
+    {
+      "id": "I5-T03",
+      "methods": [
+        "i5_u01"
+      ],
+      "scope": "TEST ONLY; source code executor policy unchanged",
+      "counterexample": "F at c8b0815b: third single-pass dispatch rejected because previous effect count became visible before the zero-queue executor returned to waiting handoff; 5s condition failed.",
+      "change": "Wait for both Engine capacity0 and activeCount0 and actual attempt thread parked in SynchronousQueue before each next single-pass assertion; effects/rotation expectations unchanged. This local unit oracle is not a PostgreSQL resolution witness."
     }
   ]
 }

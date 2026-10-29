@@ -382,6 +382,22 @@ class V3ConsumptionWorkerTest {
         }
     }
 
+    static boolean awaitingHandoff(Fixture f) {
+        return f.capacity.snapshot().worker() == 0
+                && f.executor.getActiveCount() == 0
+                && Thread.getAllStackTraces().entrySet().stream()
+                        .anyMatch(
+                                e ->
+                                        e.getKey().getName().startsWith("test-attempt-")
+                                                && e.getKey().getState() == Thread.State.WAITING
+                                                && Arrays.stream(e.getValue())
+                                                        .anyMatch(
+                                                                frame ->
+                                                                        frame.getClassName()
+                                                                                .startsWith(
+                                                                                        "java.util.concurrent.SynchronousQueue")));
+    }
+
     @Test
     void i5_u01() throws Exception {
         try (var f = new Fixture(3, 1, true, null)) {
@@ -402,11 +418,12 @@ class V3ConsumptionWorkerTest {
             } finally {
                 release.countDown();
             }
-            await(() -> f.capacity.snapshot().worker() == 0 && f.executor.getActiveCount() == 0);
+            await(() -> awaitingHandoff(f));
             f.beforeEffect = () -> {};
             loop.runOnePass();
             await(() -> f.effects.get(1).get() == 1);
             assertEquals(2, loop.nextConsumption());
+            await(() -> awaitingHandoff(f));
             loop.runOnePass();
             await(() -> f.effects.get(2).get() == 1);
             assertEquals(List.of(1, 1, 1), f.effects.stream().map(AtomicInteger::get).toList());

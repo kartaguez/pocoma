@@ -679,6 +679,10 @@ public final class V3ConsumptionWorker {
         }
     }
 
+    boolean recoveryUncertain() {
+        return bindings.stream().anyMatch(b -> b.engine().hasUnresolvedRecovery());
+    }
+
     private void maintain() {
         try {
             while (true) {
@@ -687,6 +691,8 @@ public final class V3ConsumptionWorker {
                 renewals.checkDeadlines();
                 boolean ready, newlyExceeded = false;
                 int used = capacity.snapshot().worker();
+                boolean unresolvedRecovery = recoveryUncertain();
+                if (unresolvedRecovery) requestDrain();
                 synchronized (monitor) {
                     if (state == State.DRAINING
                             && !deadlineExceeded
@@ -706,6 +712,7 @@ public final class V3ConsumptionWorker {
                                     && envelopes.isEmpty()
                                     && used == 0
                                     && renewalCalls.isEmpty()
+                                    && !unresolvedRecovery
                                     && executor.isTerminated();
                     if (ready) renewalsAllowed = false;
                 }

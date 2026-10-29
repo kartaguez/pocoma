@@ -285,6 +285,11 @@ public final class V3RenewalService {
     }
 
     public void settleOnce() {
+        // This single maintenance lane cannot be reused while its prior physical unit is unknown.
+        if (worker.recoveryUncertain()) {
+            worker.requestDrain();
+            return;
+        }
         var binding = worker.bindings.get(nextSettle);
         nextSettle = (nextSettle + 1) % worker.bindings.size();
         try {
@@ -292,6 +297,7 @@ public final class V3RenewalService {
         } catch (RuntimeException | Error fault) {
             worker.requestDrain();
         }
+        if (worker.recoveryUncertain()) worker.requestDrain();
         worker.prune();
     }
 

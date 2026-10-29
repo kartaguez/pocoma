@@ -125,6 +125,75 @@ class ConsumptionFailureClassificationTest {
     }
 
     @Test
+    void unresolvedRecoveryCannotBeRetriedOrSettled() throws Exception {
+        for (boolean control : List.of(true, false)) {
+            for (int kind = 0; kind < 3; kind++) {
+                var fixture = new ConsumptionFailureClassificationTest();
+                fixture.resolution.set(Resolution.COMMITTED);
+                var engine = fixture.engine(() -> {});
+                var handle = fixture.handle(engine);
+                assertEquals(Resolution.UNKNOWN, engine.execute(handle).resolution());
+                fixture.inspection.set(ConsumptionSlotStore.Inspection.ABSENT);
+                fixture.observation.set(RecoveryObservation.COMPLETED);
+                var armed = new AtomicBoolean(true);
+                var calls = new AtomicInteger();
+                int selected = kind;
+                var owner =
+                        (AttemptTransactions)
+                                java.lang.reflect.Proxy.newProxyInstance(
+                                        getClass().getClassLoader(),
+                                        new Class[] {AttemptTransactions.class},
+                                        (proxy, method, args) -> {
+                                            if (method.getName()
+                                                    .equals(control ? "write" : "read")) {
+                                                calls.incrementAndGet();
+                                                if (armed.compareAndSet(true, false)) {
+                                                    if (selected == 2)
+                                                        throw new IllegalStateException(
+                                                                "raw unqualified exit");
+                                                    throw new Failure(
+                                                            selected == 0
+                                                                    ? Resolution.UNKNOWN
+                                                                    : Resolution.ROLLED_BACK,
+                                                            new IllegalStateException(
+                                                                    "recovery transport"));
+                                                }
+                                            }
+                                            try {
+                                                return method.invoke(fixture.tx, args);
+                                            } catch (
+                                                    java.lang.reflect.InvocationTargetException
+                                                            failure) {
+                                                throw failure.getCause();
+                                            }
+                                        });
+                var field =
+                        ConsumptionEngine.class.getDeclaredField(
+                                control ? "controlTransactions" : "transactions");
+                field.setAccessible(true);
+                field.set(engine, owner);
+                assertEquals(0, engine.settlePending());
+                assertEquals(1, fixture.capacity.snapshot().worker());
+                assertEquals(kind != 1, engine.hasUnresolvedRecovery());
+                if (kind == 1) {
+                    assertEquals(1, engine.settlePending());
+                    assertEquals(0, fixture.capacity.snapshot().worker());
+                    assertEquals(2, calls.get());
+                } else {
+                    for (int n = 0; n < 3; n++) assertEquals(0, engine.settlePending());
+                    assertEquals(
+                            1,
+                            calls.get(),
+                            "the physically uncertain recovery lane cannot be reused");
+                    assertEquals(1, fixture.capacity.snapshot().worker());
+                }
+                assertEquals(0, fixture.cessions.get());
+                assertThrows(IllegalArgumentException.class, () -> engine.execute(handle));
+            }
+        }
+    }
+
+    @Test
     void classifierExceptionAfterConfirmedRollbackReturnsCapacity() {
         var fault = new IllegalStateException("classifier failed");
         var e =

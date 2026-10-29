@@ -2073,6 +2073,86 @@ class V3WorkerPostgresTest {
         var values = new LinkedHashMap<String, Object>();
         properties.forEach((k, v) -> values.put(k.toString(), v));
         Path directory = Path.of(args[1]).getParent();
+        if (args[0].startsWith("recovery-unknown-")) {
+            var mode = args[0].split("-", 6);
+            boolean control = mode[2].equals("CONTROL"), write = mode[3].equals("WRITE");
+            int partition = Integer.parseInt(mode[4]);
+            UUID id = UUID.fromString(mode[5]);
+            var runtime = new Runtime(values, ConsumptionObservation.noop());
+            var engine = runtime.bindings.get(write ? 0 : 1).engine();
+            var lease = engine.acquirePartition(partition).orElseThrow();
+            var handle = engine.acquire(lease, List.of(id)).claims().getFirst();
+            var business = (AttemptTransactions) field(engine, "transactions");
+            replace(
+                    engine,
+                    "transactions",
+                    new ForwardingTransactions(business) {
+                        public <T> T write(java.util.function.Supplier<T> action) {
+                            T result = business.write(action);
+                            throw new AttemptTransactions.Failure(
+                                    AttemptTransactions.Resolution.UNKNOWN,
+                                    new IllegalStateException(
+                                            "test ACK lost after actual final commit"));
+                        }
+                    });
+            assertEquals(
+                    AttemptTransactions.Resolution.UNKNOWN, engine.execute(handle).resolution());
+            assertEquals(1, runtime.capacity.snapshot().worker());
+            replace(engine, "transactions", business);
+            var fault =
+                    control
+                            ? V3WorkerResourcesPostgresTest.controlFault(
+                                    runtime, write, name -> name.startsWith("v3-maintenance-"))
+                            : V3WorkerResourcesPostgresTest.businessFault(
+                                    runtime, write, name -> name.startsWith("v3-maintenance-"));
+            var closes = new AtomicInteger();
+            var stopped = new AtomicInteger();
+            var realClose = (Runnable) field(runtime.worker, "closeResources");
+            replace(
+                    runtime.worker,
+                    "closeResources",
+                    (Runnable)
+                            () -> {
+                                closes.incrementAndGet();
+                                realClose.run();
+                            });
+            fault.armed.set(true);
+            runtime.worker.requestDrain(stopped::incrementAndGet);
+            runtime.worker.start();
+            await(engine::hasUnresolvedRecovery);
+            for (int n = 0; n < 8; n++) {
+                runtime.worker.requestDrain();
+                Thread.sleep(10);
+            }
+            assertEquals(1, runtime.capacity.snapshot().worker());
+            assertEquals(V3ConsumptionWorker.State.DRAINING, runtime.worker.snapshot().state());
+            assertEquals(0, closes.get());
+            assertEquals(0, stopped.get());
+            System.out.println(
+                    "RECOVERY_UNKNOWN pid="
+                            + fault.pid.get()
+                            + " xid="
+                            + fault.xid.get()
+                            + " readOnly="
+                            + fault.readOnly.get()
+                            + " capacity=1 closes=0 stopped=0");
+            System.out.flush();
+            while (!Files.exists(directory.resolve("finish"))) Thread.sleep(10);
+            Thread.sleep(350);
+            for (int n = 0; n < 4; n++) {
+                assertEquals(0, engine.settlePending());
+                runtime.worker.requestDrain();
+            }
+            assertTrue(engine.hasUnresolvedRecovery());
+            assertEquals(1, runtime.capacity.snapshot().worker());
+            assertEquals(0, closes.get());
+            assertEquals(0, stopped.get());
+            System.out.println(
+                    "RECOVERY_PENDING externalRollback=true capacity=1 closes=0 stopped=0"
+                        + " state=DRAINING");
+            System.out.flush();
+            while (true) Thread.sleep(1000);
+        }
         if (args[0].startsWith("control-unknown-")) {
             boolean write = args[0].endsWith("WRITE");
             var runtime = new Runtime(values, ConsumptionObservation.noop());
@@ -2356,6 +2436,136 @@ class V3WorkerPostgresTest {
             // resolution.
         }
         throw new IllegalArgumentException("unknown child mode");
+    }
+
+    @Test
+    void i5_w21() throws Exception {
+        for (boolean control : List.of(true, false))
+            for (boolean write : List.of(true, false)) {
+                try (var f = new Fixture(PG)) {
+                    f.properties.put("pocoma.v3.worker.worker-limit", "1");
+                    f.properties.put("pocoma.v3.worker.drain-timeout", "250");
+                    UUID id, request;
+                    int partition;
+                    try (var setup = new Runtime(f, ConsumptionObservation.noop())) {
+                        if (write) {
+                            request = pendingAtPartitionZero(f, 30100);
+                            id = request;
+                            partition = 0;
+                            admitBeforeStart(f, setup, id);
+                        } else {
+                            seedPublications(f, setup, 1);
+                            request =
+                                    f.write.queryForObject(
+                                            "select request_id from v3_command", UUID.class);
+                            var binding = setup.bindings.get(1);
+                            for (int p = 0; p < 4; p++) {
+                                var lease = binding.engine().acquirePartition(p).orElseThrow();
+                                binding.discovery().discoverEvents(lease);
+                            }
+                            var row =
+                                    f.read.queryForMap(
+                                            "select consumable_id,partition_id from"
+                                                + " consumption_slot where consumption_id=?",
+                                            binding.definition().id().value());
+                            id = (UUID) row.get("consumable_id");
+                            partition = ((Number) row.get("partition_id")).intValue();
+                            f.read.update(
+                                    "update partition_ownership set"
+                                        + " owned_until=clock_timestamp()-interval '1 second' where"
+                                        + " owner_token is not null");
+                        }
+                    }
+                    var sql = write ? f.write : f.read;
+                    String kind = control ? "CONTROL" : "READ",
+                            authority = write ? "WRITE" : "READ";
+                    try (var child =
+                            new Child(
+                                    f,
+                                    "recovery-unknown-"
+                                            + kind
+                                            + "-"
+                                            + authority
+                                            + "-"
+                                            + partition
+                                            + "-"
+                                            + id)) {
+                        child.stage("RECOVERY_UNKNOWN");
+                        var matcher =
+                                java.util.regex.Pattern.compile(
+                                                "RECOVERY_UNKNOWN pid=(\\d+) xid=(\\d+)"
+                                                    + " readOnly=(true|false)")
+                                        .matcher(child.output());
+                        assertTrue(matcher.find());
+                        int pid = Integer.parseInt(matcher.group(1));
+                        assertEquals(!control, Boolean.parseBoolean(matcher.group(3)));
+                        assertTrue(
+                                sql.queryForObject(
+                                        "select exists(select 1 from pg_stat_activity where pid=?"
+                                            + " and backend_xid::text=? and xact_start is not"
+                                            + " null)",
+                                        Boolean.class,
+                                        pid,
+                                        matcher.group(2)));
+                        f.trace.add(
+                                "Recovery "
+                                        + kind
+                                        + " physically active after local UNKNOWN PID="
+                                        + pid
+                                        + " XID="
+                                        + matcher.group(2)
+                                        + " locks="
+                                        + sql.queryForList(
+                                                "select locktype,mode,granted from pg_locks where"
+                                                    + " pid=?",
+                                                pid));
+                        assertEquals(
+                                0,
+                                sql.queryForObject(
+                                        "select count(*) from consumption_slot where"
+                                            + " consumable_id=?",
+                                        Integer.class,
+                                        id));
+                        assertTrue(
+                                sql.queryForObject(
+                                        "select pg_terminate_backend(?)", Boolean.class, pid));
+                        await(
+                                () ->
+                                        !sql.queryForObject(
+                                                "select exists(select 1 from pg_stat_activity where"
+                                                    + " pid=? and xact_start is not null)",
+                                                Boolean.class,
+                                                pid));
+                        child.signal("finish");
+                        child.stage(
+                                "RECOVERY_PENDING externalRollback=true capacity=1 closes=0"
+                                    + " stopped=0 state=DRAINING");
+                        assertTrue(child.process.isAlive());
+                        f.trace.add(
+                                "Repeated drain and later inspection cannot reuse uncertain"
+                                    + " recovery unit, release ticket or close pools; external"
+                                    + " rollback/deadline do not qualify STOPPED; termination is"
+                                    + " CRASH");
+                    }
+                    try (var successor = new Runtime(f, ConsumptionObservation.noop())) {
+                        successor.worker.start();
+                        f.verify(request);
+                        assertEquals(
+                                1,
+                                f.write.queryForObject(
+                                        "select count(*) from v3_command_result", Integer.class));
+                        assertEquals(
+                                2,
+                                f.read.queryForObject(
+                                        "select count(*) from i5_read_probe_effect",
+                                        Integer.class));
+                        f.trace.add(
+                                "Normal restart retains one Command result and exactly two"
+                                    + " technical READ effects");
+                        f.evidence("i5_w21-recovery-" + kind + "-" + authority);
+                    }
+                }
+            }
     }
 
     @Test

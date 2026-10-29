@@ -163,10 +163,15 @@ class V3WorkerResourcesPostgresTest {
 
     static RetainingSource businessFault(V3WorkerPostgresTest.Runtime runtime, boolean write)
             throws Exception {
+        return businessFault(runtime, write, name -> name.startsWith("v3-attempt-"));
+    }
+
+    static RetainingSource businessFault(
+            V3WorkerPostgresTest.Runtime runtime, boolean write, Predicate<String> selected)
+            throws Exception {
         var source =
                 new RetainingSource(
-                        runtime.pool(write ? "writeBusiness" : "readBusiness"),
-                        name -> name.startsWith("v3-attempt-"));
+                        runtime.pool(write ? "writeBusiness" : "readBusiness"), selected);
         org.springframework.transaction.PlatformTransactionManager manager;
         if (write) {
             var emf = new org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean();
@@ -342,7 +347,7 @@ class V3WorkerResourcesPostgresTest {
                         1,
                         f.write.queryForObject(
                                 "select count(*) from v3_command_completion_event where"
-                                    + " subject_id=?",
+                                        + " subject_id=?",
                                 Integer.class,
                                 id));
                 assertEquals(
