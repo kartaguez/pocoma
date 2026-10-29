@@ -1,0 +1,56 @@
+{
+  "id": "V2-W2-AVAILABILITY-WINDOW-01",
+  "classification": "FAIL of required sufficient availability witness; no observed lease expiry or token replacement",
+  "freeze": "5eab2e94379ef40c3f9ff54c14a4d04a8f13dcbd",
+  "contractSha256": "b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478",
+  "stage": "W2-B32-MW4 nominal stage1",
+  "requiredKey": "a5000000-0000-4000-8000-000000000001/1",
+  "assertion": "B missing independent available window a5000000-0000-4000-8000-000000000001/1",
+  "attempt": {
+    "worker": 0,
+    "authority": "READ",
+    "dueNs": 2456819933777500,
+    "startNs": 2456820925808708,
+    "storeStartNs": 2456820926921625,
+    "storeEndNs": 2456820928618083,
+    "endNs": 2456820928762833,
+    "outcome": "CONFIRMED",
+    "retryDeadlines": "a5000000-0000-4000-8000-000000000001/1=0, a5000000-0000-4000-8000-000000000001/0=0",
+    "candidates": "PartitionLease[consumptionId=ConsumptionId[value=a5000000-0000-4000-8000-000000000001], partitionId=0, ownerToken=9088938e-1e20-4cd0-bb16-786dd8b5b17e, ownedUntil=2026-10-29T18:41:42.682939Z], PartitionLease[consumptionId=ConsumptionId[value=a5000000-0000-4000-8000-000000000001], partitionId=1, ownerToken=0622a81d-90e3-48e4-8ddf-dc99d616e2f3, ownedUntil=2026-10-29T18:41:42.725924Z]",
+    "returned": "PartitionLease[consumptionId=ConsumptionId[value=a5000000-0000-4000-8000-000000000001], partitionId=0, ownerToken=9088938e-1e20-4cd0-bb16-786dd8b5b17e, ownedUntil=2026-10-29T18:41:53.677617Z], PartitionLease[consumptionId=ConsumptionId[value=a5000000-0000-4000-8000-000000000001], partitionId=1, ownerToken=0622a81d-90e3-48e4-8ddf-dc99d616e2f3, ownedUntil=2026-10-29T18:41:53.678511Z"
+  },
+  "overlappingTransactions": [
+    {
+      "authority": "READ",
+      "thread": "v3-discovery-0",
+      "startNs": 2456820925265750,
+      "endNs": 2456820927476541,
+      "pid": 250,
+      "xid": "2160",
+      "resolution": "COMMITTED",
+      "keys": "a5000000-0000-4000-8000-000000000001/1"
+    },
+    {
+      "authority": "READ",
+      "thread": "v3-renew-READ-2-0",
+      "startNs": 2456820925828750,
+      "endNs": 2456820928734083,
+      "pid": 251,
+      "xid": "2161",
+      "resolution": "COMMITTED",
+      "keys": "a5000000-0000-4000-8000-000000000001/1, a5000000-0000-4000-8000-000000000001/0"
+    }
+  ],
+  "physicalRowLockAtExactCas": "NOT PROVEN by transaction envelope overlap; batch covers partition0 then partition1",
+  "runtimePropertyCounterexample": false,
+  "results": {
+    "durableSameTokenExtendedBeforeOldDeadline": true,
+    "localWindowExpired": false,
+    "RBoundUsed": false
+  },
+  "notRun": [
+    "W2 admissible contention",
+    "W2 excessive contention",
+    "COMMAND + MONOLITH unfiltered gate"
+  ]
+}
