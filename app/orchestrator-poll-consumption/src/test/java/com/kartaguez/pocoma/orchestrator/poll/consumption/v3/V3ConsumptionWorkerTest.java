@@ -66,6 +66,16 @@ class V3ConsumptionWorkerTest {
         volatile boolean unknown, failAcquire, zeroAcquire;
 
         Fixture(int count, int mw, boolean manual, ThreadPoolExecutor supplied) throws Exception {
+            this(count, mw, manual, supplied, ConsumptionObservation.noop());
+        }
+
+        Fixture(
+                int count,
+                int mw,
+                boolean manual,
+                ThreadPoolExecutor supplied,
+                ConsumptionObservation observation)
+                throws Exception {
             var limits = new LinkedHashMap<ConsumptionId, Integer>();
             for (int i = 0; i < count; i++) limits.put(new ConsumptionId(new UUID(0, i + 1)), mw);
             capacity = new WorkerCapacity(mw, limits);
@@ -346,7 +356,7 @@ class V3ConsumptionWorkerTest {
                             capacity,
                             limits,
                             settings,
-                            ConsumptionObservation.noop(),
+                            observation,
                             closes::incrementAndGet,
                             executor);
             executor.prestartAllCoreThreads();
@@ -759,6 +769,314 @@ class V3ConsumptionWorkerTest {
                 assertEquals(0, f.worker.snapshot().operations());
                 assertEquals(V3ConsumptionWorker.State.RUNNING, f.worker.snapshot().state());
             }
+        }
+    }
+
+    /**
+     * Independent ordered source and owner-return journal; expected tours are fixed by each test.
+     */
+    static final class TourFixture implements AutoCloseable {
+        final List<String> journal = new ArrayList<>();
+        final List<UUID> source = new ArrayList<>();
+        final Set<UUID> admitted = new HashSet<>();
+        final AtomicInteger tours = new AtomicInteger();
+        final Fixture base;
+        final V3DiscoveryLoop loop;
+        boolean full, noLease, notOwner, sourceFailure, admissionFailure, fenceFailure;
+        boolean observerFailure;
+        AttemptTransactions.Resolution lostResult;
+        int protections;
+        long checkpoint;
+
+        TourFixture(ConsumableFamily family, int count, int size, int pageSize, int softCap)
+                throws Exception {
+            base =
+                    new Fixture(
+                            count,
+                            1,
+                            true,
+                            null,
+                            (id, phase, outcome, amount, elapsed) -> {
+                                if (phase == ConsumptionObservation.Phase.DISCOVERY_TOUR) {
+                                    journal.add("metric:" + id.value());
+                                    tours.addAndGet((int) amount);
+                                }
+                                if (observerFailure)
+                                    throw new AssertionError("observer unavailable");
+                            });
+            for (long n = 1; source.size() < size; n++) {
+                var key = new UUID(0, n);
+                if (RoutingV1.partition(RoutingV1.hash(family, key), 4) == 0) source.add(key);
+            }
+            var bindings = new ArrayList<V3ConsumptionWorker.Binding>();
+            for (var original : base.bindings) {
+                var definition =
+                        new ConsumptionDefinition(
+                                original.definition().id(),
+                                family,
+                                family == ConsumableFamily.COMMAND
+                                                || family == ConsumableFamily.IDENTITY_REQUEST
+                                        ? ConsumptionDefinition.Authority.WRITE
+                                        : ConsumptionDefinition.Authority.READ);
+                var ownership =
+                        new PartitionOwnershipStore() {
+                            public Optional<PartitionLease> acquire(
+                                    ConsumptionDefinition d, int p, UUID token, Duration ttl) {
+                                return noLease
+                                        ? Optional.empty()
+                                        : Optional.of(
+                                                new PartitionLease(
+                                                        d.id(),
+                                                        p,
+                                                        token,
+                                                        Instant.now().plusSeconds(90)));
+                            }
+
+                            public List<PartitionLease> renew(
+                                    ConsumptionDefinition d,
+                                    List<PartitionLease> leases,
+                                    Duration ttl) {
+                                return leases;
+                            }
+
+                            public Optional<PartitionLease> protectAcquisition(
+                                    ConsumptionDefinition d, PartitionLease lease) {
+                                protections++;
+                                if (fenceFailure && protections > 1)
+                                    throw new IllegalStateException("fence");
+                                return notOwner ? Optional.empty() : Optional.of(lease);
+                            }
+
+                            public void bound(Duration lock, Duration statement) {}
+                        };
+                var admissions =
+                        (DiscoveryAdmissionStore)
+                                Proxy.newProxyInstance(
+                                        getClass().getClassLoader(),
+                                        new Class[] {DiscoveryAdmissionStore.class},
+                                        (p, m, args) ->
+                                                switch (m.getName()) {
+                                                    case "liveSlots" ->
+                                                            full
+                                                                    ? (long) softCap
+                                                                    : (long) admitted.size();
+                                                    case "contains" ->
+                                                            admitted.contains((UUID) args[2]);
+                                                    case "insertInitial" -> {
+                                                        if (admissionFailure)
+                                                            throw new IllegalStateException(
+                                                                    "admission");
+                                                        admitted.add((UUID) args[2]);
+                                                        yield null;
+                                                    }
+                                                    case "checkpoint", "currentCheckpoint" ->
+                                                            checkpoint;
+                                                    case "advanceCheckpoint" -> {
+                                                        checkpoint = (long) args[2];
+                                                        yield null;
+                                                    }
+                                                    default ->
+                                                            throw new AssertionError(m.getName());
+                                                });
+                var owner =
+                        new AttemptTransactions() {
+                            public <T> T read(Function<RecoveryReadContext, T> body) {
+                                return body.apply(() -> {});
+                            }
+
+                            public <T> T write(Supplier<T> body) {
+                                journal.add("owner-enter");
+                                T result = body.get();
+                                if (lostResult != null)
+                                    throw new AttemptTransactions.Failure(
+                                            lostResult, new RuntimeException("lost result"));
+                                journal.add("owner-return");
+                                return result;
+                            }
+
+                            public void poison(Throwable failure) {}
+
+                            public void requirePublicationClosed() {}
+                        };
+                var settings =
+                        new DiscoveryEngine.Settings(
+                                32,
+                                pageSize,
+                                softCap,
+                                softCap,
+                                Duration.ofMillis(10),
+                                Duration.ofMillis(20));
+                DiscoveryEngine discovery;
+                if (family == ConsumableFamily.COMMAND
+                        || family == ConsumableFamily.IDENTITY_REQUEST) {
+                    var requests =
+                            new BurnableReferences() {
+                                public ConsumableFamily family() {
+                                    return family;
+                                }
+
+                                public Optional<UUID> upperPending(RecoveryReadContext read) {
+                                    journal.add("upper");
+                                    if (sourceFailure) throw new IllegalStateException("source");
+                                    return source.stream().max(SlotKeyNavigation::compare);
+                                }
+
+                                public List<UUID> pendingPage(
+                                        Optional<UUID> after,
+                                        UUID upper,
+                                        int limit,
+                                        RecoveryReadContext read) {
+                                    journal.add("page:" + after);
+                                    return source.stream()
+                                            .filter(
+                                                    k ->
+                                                            after.isEmpty()
+                                                                    || SlotKeyNavigation.compare(
+                                                                                    k, after.get())
+                                                                            > 0)
+                                            .filter(k -> SlotKeyNavigation.compare(k, upper) <= 0)
+                                            .limit(limit)
+                                            .toList();
+                                }
+
+                                public boolean tryProtectPending(UUID key) {
+                                    return true;
+                                }
+                            };
+                    discovery =
+                            new DiscoveryEngine(
+                                    definition, owner, ownership, admissions, settings, requests);
+                } else {
+                    var events =
+                            new NonBurnableReferences() {
+                                public ConsumableFamily family() {
+                                    return family;
+                                }
+
+                                public Window window(
+                                        long after, int max, RecoveryReadContext read) {
+                                    return new Window(
+                                            after,
+                                            after == 0 ? 1 : after,
+                                            after == 0
+                                                    ? List.of(
+                                                            new Reference(
+                                                                    1, source.getFirst(), "test"))
+                                                    : List.of());
+                                }
+                            };
+                    discovery =
+                            new DiscoveryEngine(
+                                    definition,
+                                    owner,
+                                    ownership,
+                                    admissions,
+                                    settings,
+                                    owner,
+                                    events,
+                                    r -> true);
+                }
+                set(original.engine(), "ownership", ownership);
+                bindings.add(
+                        new V3ConsumptionWorker.Binding(
+                                definition, original.engine(), discovery, List.of(0)));
+            }
+            set(base.worker, "bindings", List.copyOf(bindings));
+            loop = new V3DiscoveryLoop(base.worker);
+        }
+
+        static void set(Object target, String name, Object value) throws Exception {
+            var field = target.getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(target, value);
+        }
+
+        void pass(int expectedTours) {
+            protections = 0;
+            loop.runOnePass();
+            assertEquals(expectedTours, tours.get(), journal.toString());
+            for (int i = 0; i < journal.size(); i++)
+                if (journal.get(i).startsWith("metric:"))
+                    assertEquals("owner-return", journal.get(i - 1));
+        }
+
+        public void close() throws Exception {
+            base.close();
+        }
+    }
+
+    @Test
+    void i5_u11_discovery_tours() throws Exception {
+        for (var family : List.of(ConsumableFamily.COMMAND, ConsumableFamily.IDENTITY_REQUEST)) {
+            try (var f = new TourFixture(family, 2, 3, 1, 100)) {
+                for (int expected : List.of(0, 0, 0, 0, 1, 2)) f.pass(expected);
+                assertEquals(3, f.admitted.size());
+                // Same keys, no new admission; the next complete traversal still counts.
+                for (int expected : List.of(2, 2, 2, 2, 3, 4)) f.pass(expected);
+                assertEquals(3, f.admitted.size());
+            }
+            try (var f = new TourFixture(family, 1, 0, 1, 100)) {
+                f.pass(1);
+            }
+            try (var f = new TourFixture(family, 1, 3, 1, 100)) {
+                f.pass(0);
+                f.source.clear();
+                f.pass(1);
+            }
+            try (var f = new TourFixture(family, 1, 3, 3, 1)) {
+                f.full = true;
+                f.pass(0);
+                f.full = false;
+                f.pass(0); // Partial prefix, capacity is reached before U.
+                assertEquals(1, f.admitted.size());
+                f.admitted.clear();
+                f.pass(0);
+                f.admitted.clear();
+                f.pass(1);
+            }
+        }
+    }
+
+    @Test
+    void i5_u12_discovery_negatives() throws Exception {
+        for (int size : List.of(0, 1)) {
+            try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, size, 1, 100)) {
+                f.noLease = true;
+                f.pass(0);
+                assertTrue(f.journal.isEmpty());
+            }
+            try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, size, 1, 100)) {
+                f.notOwner = true;
+                f.pass(0);
+            }
+        }
+        for (var resolution : AttemptTransactions.Resolution.values()) {
+            try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, 1, 1, 100)) {
+                f.lostResult = resolution;
+                assertThrows(AttemptTransactions.Failure.class, () -> f.loop.runOnePass());
+                assertEquals(0, f.tours.get());
+            }
+        }
+        for (String fault : List.of("source", "admission", "fence")) {
+            try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, 1, 1, 100)) {
+                f.sourceFailure = fault.equals("source");
+                f.admissionFailure = fault.equals("admission");
+                f.fenceFailure = fault.equals("fence");
+                assertThrows(IllegalStateException.class, () -> f.loop.runOnePass());
+                assertEquals(0, f.tours.get());
+            }
+        }
+        try (var f = new TourFixture(ConsumableFamily.POT_EVENT, 1, 1, 1, 100)) {
+            f.pass(0);
+            assertEquals(1, f.checkpoint);
+            f.pass(0);
+        }
+        try (var f = new TourFixture(ConsumableFamily.COMMAND, 1, 3, 1, 100)) {
+            f.observerFailure = true;
+            f.pass(0);
+            f.pass(0);
+            f.pass(1);
+            assertEquals(3, f.admitted.size());
         }
     }
 }

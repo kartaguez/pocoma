@@ -254,6 +254,619 @@ class V3WorkerResourcesPostgresTest {
         return source;
     }
 
+    /**
+     * Campaign-local instrumentation only: real owners/stores, separate SQL observer and fixed
+     * inputs.
+     */
+    static final class CJournal {
+        record Sample(
+                String authority,
+                int lane,
+                long due,
+                long began,
+                long ended,
+                List<String> candidates,
+                List<String> omitted,
+                Duration service,
+                String outcome) {}
+
+        final Fixture fixture;
+        final int worker, workers, mw, batch;
+        final List<Sample> samples = new CopyOnWriteArrayList<>();
+        final List<String> errors = new CopyOnWriteArrayList<>();
+        final AtomicInteger captured = new AtomicInteger();
+        final List<String> operations = new CopyOnWriteArrayList<>();
+        final Map<String, Connection> blockers = new ConcurrentHashMap<>();
+        final ThreadLocal<Object> current = new ThreadLocal<>();
+        final ThreadLocal<List<String>> candidates = new ThreadLocal<>(),
+                omitted = new ThreadLocal<>();
+        final Map<UUID, Map<String, Object>> preparations = new ConcurrentHashMap<>();
+        volatile int cycle;
+        V3WorkerPostgresTest.Runtime runtime;
+
+        CJournal(Fixture fixture, int worker, int workers, int mw, int batch) {
+            this.fixture = fixture;
+            this.worker = worker;
+            this.workers = workers;
+            this.mw = mw;
+            this.batch = batch;
+        }
+
+        static void preflight(int workers, int mw, int batch) {
+            assertTrue(List.of(1, 2).contains(workers));
+            assertTrue(List.of(1, 4).contains(mw));
+            assertTrue(List.of(1, 32).contains(batch));
+            I5TemporalBudgetTest.feasible(
+                    workers == 1 ? 4 : 2, 1, I5TemporalBudgetTest.limit("lease"));
+            I5TemporalBudgetTest.feasible(
+                    workers == 1 ? 8 : 4, 1, I5TemporalBudgetTest.limit("lease"));
+            I5TemporalBudgetTest.feasible(mw, 0, I5TemporalBudgetTest.limit("claim"));
+        }
+
+        void observe(
+                com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId id,
+                ConsumptionObservation.Phase phase,
+                ConsumptionObservation.Outcome outcome,
+                long amount,
+                Duration elapsed) {
+            try {
+                if (Set.of(
+                                ConsumptionObservation.Phase.LEASE_ACQUIRE,
+                                ConsumptionObservation.Phase.ACQUIRE,
+                                ConsumptionObservation.Phase.LEASE_RENEW,
+                                ConsumptionObservation.Phase.CLAIM_RENEW)
+                        .contains(phase)) {
+                    operations.add(
+                            "cycle="
+                                    + cycle
+                                    + " id="
+                                    + id
+                                    + " phase="
+                                    + phase
+                                    + " outcome="
+                                    + outcome
+                                    + " ns="
+                                    + elapsed.toNanos());
+                    I5TemporalBudgetTest.below(
+                            elapsed, I5TemporalBudgetTest.limit("operation"), "C-OP");
+                }
+                if (Set.of(
+                                ConsumptionObservation.Phase.RENEWAL_LEASE,
+                                ConsumptionObservation.Phase.RENEWAL_S1,
+                                ConsumptionObservation.Phase.RENEWAL_S2)
+                        .contains(phase)) {
+                    var call = current.get();
+                    if (call == null) throw new AssertionError("missing independent call journal");
+                    var authority = field(call, "authority").toString();
+                    int lane = (int) field(call, "lane");
+                    var sample =
+                            new Sample(
+                                    authority,
+                                    lane,
+                                    (long) field(call, "due"),
+                                    (long) field(call, "began"),
+                                    System.nanoTime(),
+                                    candidates.get(),
+                                    omitted.get(),
+                                    elapsed,
+                                    outcome.toString());
+                    samples.add(sample);
+                    current.remove();
+                    candidates.remove();
+                    omitted.remove();
+                }
+            } catch (Throwable failure) {
+                errors.add(failure.toString());
+            }
+        }
+
+        void attach(V3WorkerPostgresTest.Runtime runtime) throws Exception {
+            this.runtime = runtime;
+            for (var binding : runtime.bindings) {
+                var settings = (LifecycleSettings) field(binding.engine(), "settings");
+                assertEquals(I5TemporalBudgetTest.limit("lease"), settings.leaseDuration());
+                assertEquals(I5TemporalBudgetTest.limit("claim"), settings.claimDuration());
+                assertEquals(I5TemporalBudgetTest.limit("cadence"), settings.renewalInterval());
+                assertEquals(batch, settings.batchSize());
+                var owner = (PartitionOwnershipStore) field(binding.engine(), "ownership");
+                replace(
+                        binding.engine(),
+                        "ownership",
+                        java.lang.reflect.Proxy.newProxyInstance(
+                                getClass().getClassLoader(),
+                                new Class[] {PartitionOwnershipStore.class},
+                                (p, m, args) -> {
+                                    if (!m.getName().equals("renew")) return invoke(owner, m, args);
+                                    capture(
+                                            binding.definition().authority().toString(),
+                                            2,
+                                            ((List<PartitionLease>) args[1])
+                                                    .stream()
+                                                            .map(
+                                                                    l ->
+                                                                            l.consumptionId()
+                                                                                            .value()
+                                                                                    + "/"
+                                                                                    + l
+                                                                                            .partitionId())
+                                                            .toList());
+                                    var result = (List<PartitionLease>) invoke(owner, m, args);
+                                    var returned =
+                                            result.stream()
+                                                    .map(
+                                                            l ->
+                                                                    l.consumptionId().value()
+                                                                            + "/"
+                                                                            + l.partitionId())
+                                                    .toList();
+                                    var missing =
+                                            candidates.get().stream()
+                                                    .filter(k -> !returned.contains(k))
+                                                    .toList();
+                                    omitted.set(missing);
+                                    for (var key : missing) {
+                                        var blocker = blockers.remove(key);
+                                        if (blocker != null) {
+                                            blocker.commit();
+                                            blocker.close();
+                                        }
+                                    }
+                                    return result;
+                                }));
+                var slots = (ConsumptionSlotStore) field(binding.engine(), "controlSlots");
+                replace(
+                        binding.engine(),
+                        "controlSlots",
+                        java.lang.reflect.Proxy.newProxyInstance(
+                                getClass().getClassLoader(),
+                                new Class[] {ConsumptionSlotStore.class},
+                                (p, m, args) -> {
+                                    if (m.getName().equals("renew")) {
+                                        capture(
+                                                binding.definition().authority().toString(),
+                                                -1,
+                                                ((List<ClaimedSlot>) args[0])
+                                                        .stream()
+                                                                .map(
+                                                                        c ->
+                                                                                c.consumptionId()
+                                                                                                .value()
+                                                                                        + "/"
+                                                                                        + c
+                                                                                                .consumableId())
+                                                                .toList());
+                                        omitted.set(List.of());
+                                    }
+                                    return invoke(slots, m, args);
+                                }));
+            }
+            fixture.trace.add(
+                    "FROZEN contract="
+                            + I5TemporalBudgetTest.VERSION
+                            + " sha256="
+                            + I5TemporalBudgetTest.HASH
+                            + " worker="
+                            + worker
+                            + "/"
+                            + workers
+                            + " MW="
+                            + mw
+                            + " B="
+                            + batch
+                            + " lease90s claim60s cadence10s; default30s NOT CERTIFIED");
+        }
+
+        static Object invoke(Object target, java.lang.reflect.Method method, Object[] args)
+                throws Throwable {
+            try {
+                return method.invoke(target, args);
+            } catch (java.lang.reflect.InvocationTargetException failure) {
+                throw failure.getCause();
+            }
+        }
+
+        void capture(String authority, int lane, List<String> keys) throws Exception {
+            var monitor = field(runtime.worker, "monitor");
+            synchronized (monitor) {
+                var calls = (Collection<?>) field(runtime.worker, "renewalCalls");
+                var call =
+                        calls.stream()
+                                .filter(
+                                        c -> {
+                                            try {
+                                                return field(c, "authority")
+                                                                .toString()
+                                                                .equals(authority)
+                                                        && (lane == 2
+                                                                ? (int) field(c, "lane") == 2
+                                                                : (int) field(c, "lane") != 2)
+                                                        && (lane == 2
+                                                                || ((ConsumptionEngine
+                                                                                        .AcquiredClaim)
+                                                                                field(
+                                                                                        field(
+                                                                                                c,
+                                                                                                "envelope"),
+                                                                                        "handle"))
+                                                                        .claim()
+                                                                        .consumableId()
+                                                                        .toString()
+                                                                        .equals(
+                                                                                keys.getFirst()
+                                                                                        .substring(
+                                                                                                37)));
+                                            } catch (Exception e) {
+                                                throw new IllegalStateException(e);
+                                            }
+                                        })
+                                .findFirst()
+                                .orElseThrow();
+                captured.incrementAndGet();
+                current.set(call);
+                candidates.set(keys);
+                omitted.set(List.of());
+            }
+        }
+
+        void lockOmission() throws Exception {
+            for (boolean write : List.of(true, false)) {
+                var binding = runtime.bindings.get(write ? 0 : 1);
+                int partition = workers == 1 ? 0 : worker * 2;
+                var sql = write ? fixture.write : fixture.read;
+                var connection = sql.getDataSource().getConnection();
+                connection.setAutoCommit(false);
+                try (var q =
+                        connection.prepareStatement(
+                                "select owner_token from partition_ownership where consumption_id=?"
+                                        + " and partition_id=? for update")) {
+                    q.setObject(1, binding.definition().id().value());
+                    q.setInt(2, partition);
+                    try (var row = q.executeQuery()) {
+                        assertTrue(row.next());
+                        assertNotNull(row.getObject(1));
+                    }
+                }
+                String key = binding.definition().id().value() + "/" + partition;
+                blockers.put(key, connection);
+                try (var q = connection.createStatement();
+                        var row =
+                                q.executeQuery(
+                                        "select pg_backend_pid(),pg_current_xact_id()::text")) {
+                    row.next();
+                    fixture.trace.add(
+                            "C cycle2 worker="
+                                    + worker
+                                    + " authority="
+                                    + (write ? "WRITE" : "READ")
+                                    + " locked="
+                                    + key
+                                    + " blockerPID="
+                                    + row.getInt(1)
+                                    + " XID="
+                                    + row.getString(2));
+                }
+            }
+        }
+
+        void capturePreparation(UUID id) {
+            try {
+                boolean write =
+                        fixture.write.queryForObject(
+                                "select exists(select 1 from v3_command where request_id=?)",
+                                Boolean.class,
+                                id);
+                var row =
+                        new JdbcTemplate(runtime.pool(write ? "writeBusiness" : "readBusiness"))
+                                .queryForMap(
+                                        "select pg_backend_pid() pid,pg_current_xact_id()::text"
+                                            + " xid,current_setting('transaction_read_only') ro");
+                assertEquals("on", row.get("ro"));
+                assertNull(preparations.putIfAbsent(id, row));
+            } catch (Exception failure) {
+                throw new AssertionError(failure);
+            }
+        }
+
+        void checkDelta(JdbcTemplate sql, Map<String, CVector> vector) throws Exception {
+            var monitor = field(runtime.worker, "monitor");
+            synchronized (monitor) {
+                var entries = (Map<?, ?>) field(runtime.worker, "leases");
+                for (var entry : entries.values()) {
+                    var lease = (PartitionLease) field(entry, "lease");
+                    String key =
+                            "lease/" + lease.consumptionId().value() + "/" + lease.partitionId();
+                    var v = vector.get(key);
+                    if (v == null) continue; // This vector belongs to the other authority.
+                    assertEquals(
+                            v.until, lease.ownedUntil(), "incoherent SQL/local deadline snapshot");
+                    long ref = (long) field(entry, "renewedAt");
+                    long age =
+                            Duration.between(
+                                            v.until.minus(I5TemporalBudgetTest.limit("lease")),
+                                            v.now)
+                                    .toNanos();
+                    long deltaUpper = age - (v.began - ref);
+                    assertTrue(
+                            deltaUpper < I5TemporalBudgetTest.limit("delta").toNanos(),
+                            "C-OP delta lease age");
+                    fixture.trace.add(
+                            "C delta-upper worker=" + worker + " key=" + key + " ns=" + deltaUpper);
+                }
+                for (var entry : (Collection<?>) field(runtime.worker, "envelopes")) {
+                    var claim = ((ConsumptionEngine.AcquiredClaim) field(entry, "handle")).claim();
+                    String key =
+                            "claim/" + claim.consumptionId().value() + "/" + claim.consumableId();
+                    var v = vector.get(key);
+                    if (v == null) continue;
+                    long ref = (long) field(entry, "renewedAt");
+                    long age =
+                            Duration.between(
+                                            v.until.minus(I5TemporalBudgetTest.limit("claim")),
+                                            v.now)
+                                    .toNanos();
+                    long deltaUpper = age - (v.began - ref);
+                    assertTrue(
+                            deltaUpper < I5TemporalBudgetTest.limit("delta").toNanos(),
+                            "C-OP delta claim age");
+                    fixture.trace.add(
+                            "C delta-upper worker=" + worker + " key=" + key + " ns=" + deltaUpper);
+                }
+            }
+        }
+
+        void verify(int cycle, int from) {
+            assertTrue(errors.isEmpty(), errors.toString());
+            var selected = samples.subList(from, samples.size());
+            assertFalse(selected.isEmpty(), "missing C samples");
+            for (String authority : List.of("WRITE", "READ")) {
+                int n = (authority.equals("WRITE") ? 4 : 8) / workers;
+                var leases =
+                        selected.stream()
+                                .filter(s -> s.authority.equals(authority) && s.lane == 2)
+                                .toList();
+                assertFalse(leases.isEmpty(), "missing authority " + authority);
+                int extra = leases.stream().mapToInt(s -> s.omitted.size()).sum();
+                assertEquals(
+                        cycle == 2 ? 1 : 0,
+                        extra,
+                        "R=1 is a scenario limit, all omissions counted");
+                I5TemporalBudgetTest.calls(leases.size(), n, cycle == 2 ? 1 : 0);
+                I5TemporalBudgetTest.calls(
+                        (int)
+                                selected.stream()
+                                        .filter(s -> s.authority.equals(authority) && s.lane != 2)
+                                        .count(),
+                        mw,
+                        0);
+                assertTrue(
+                        leases.stream().flatMap(s -> s.candidates.stream()).distinct().count() == n,
+                        "all candidates, including omitted ones");
+            }
+            for (var s : selected) {
+                assertEquals("CONFIRMED", s.outcome);
+                int n = s.lane == 2 ? (s.authority.equals("WRITE") ? 4 : 8) / workers : mw;
+                int r = s.lane == 2 && cycle == 2 ? 1 : 0;
+                I5TemporalBudgetTest.below(
+                        s.service, I5TemporalBudgetTest.service(n, r), "C-SERVICE");
+                I5TemporalBudgetTest.below(
+                        Duration.ofNanos(s.ended - s.began),
+                        I5TemporalBudgetTest.limit("operation"),
+                        "C-OP complete call/cleanup");
+                // Busy time is charged to T; accumulate all remaining scheduler/idle gaps from
+                // original due.
+                long busy =
+                        samples.stream()
+                                .filter(p -> p.authority.equals(s.authority) && p.lane == s.lane)
+                                .mapToLong(
+                                        p ->
+                                                Math.max(
+                                                        0,
+                                                        Math.min(p.ended, s.ended)
+                                                                - Math.max(p.began, s.due)))
+                                .sum();
+                long gaps = Math.max(0, s.ended - s.due - busy);
+                var permittedPolling =
+                        I5TemporalBudgetTest.limit("idle")
+                                .plus(I5TemporalBudgetTest.limit("poll").multipliedBy(n + r));
+                I5TemporalBudgetTest.below(
+                        Duration.ofNanos(Math.max(0, gaps - permittedPolling.toNanos())),
+                        I5TemporalBudgetTest.limit("jitter"),
+                        "C-JITTER cumulative uncharged delay");
+            }
+            assertTrue(blockers.isEmpty(), "missing injected omission");
+            fixture.trace.add(
+                    "C cycle="
+                            + cycle
+                            + " worker="
+                            + worker
+                            + " ALL_CALLS="
+                            + selected
+                            + " OPERATIONS="
+                            + operations);
+        }
+    }
+
+    record CVector(String token, Instant until, Instant now, int pid, long began) {}
+
+    static Map<String, CVector> cVector(JdbcTemplate sql, Set<UUID> held) {
+        var result = new LinkedHashMap<String, CVector>();
+        long began = System.nanoTime();
+        sql.query(
+                "select 'lease' kind,consumption_id::text cid,partition_id::text"
+                    + " key,owner_token::text token,owned_until until,clock_timestamp()"
+                    + " now,pg_backend_pid() pid from partition_ownership where owner_token is not"
+                    + " null union all select"
+                    + " 'claim',consumption_id::text,consumable_id::text,claim_token::text,claimed_until,clock_timestamp(),pg_backend_pid()"
+                    + " from consumption_slot where claim_token is not null",
+                row -> {
+                    if (row.getString("kind").equals("lease")
+                            || held.contains(UUID.fromString(row.getString("key"))))
+                        result.put(
+                                row.getString("kind")
+                                        + "/"
+                                        + row.getString("cid")
+                                        + "/"
+                                        + row.getString("key"),
+                                new CVector(
+                                        row.getString("token"),
+                                        row.getTimestamp("until").toInstant(),
+                                        row.getTimestamp("now").toInstant(),
+                                        row.getInt("pid"),
+                                        began));
+                });
+        return result;
+    }
+
+    static void qualifyC(Fixture f, List<CJournal> journals, Set<UUID> held) throws Exception {
+        int established = 0;
+        for (var journal : journals) {
+            assertEquals(journal.mw, journal.runtime.capacity.snapshot().worker());
+            for (var e : journal.runtime.capacity.snapshot().consumptions().entrySet())
+                assertTrue(e.getValue() <= journal.runtime.workerLimit(e.getKey()));
+            for (String name :
+                    List.of("writeBusiness", "writeControl", "readBusiness", "readControl")) {
+                var pool = journal.runtime.pool(name);
+                assertEquals(
+                        pool.getMaximumPoolSize(),
+                        pool.getHikariPoolMXBean().getTotalConnections());
+                established += pool.getMaximumPoolSize();
+            }
+        }
+        assertEquals(
+                established,
+                f.write.queryForObject(
+                        "select count(*) from pg_stat_activity where usename in (?,?)",
+                        Integer.class,
+                        f.writeRole,
+                        f.readRole));
+        int server = f.write.queryForObject("show max_connections", Integer.class);
+        int external =
+                f.write.queryForObject(
+                        "select count(*) from pg_stat_activity where usename is not null and"
+                            + " usename not in (?,?)",
+                        Integer.class,
+                        f.writeRole,
+                        f.readRole);
+        assertEquals(100, server);
+        assertTrue(established + 16 <= server);
+        assertTrue(external <= 16);
+        f.trace.add(
+                "C-LOAD established="
+                        + established
+                        + " external="
+                        + external
+                        + " reserved=16 server="
+                        + server
+                        + " sessions="
+                        + f.write.queryForList(
+                                "select usename,count(*) from pg_stat_activity where usename is not"
+                                    + " null group by usename"));
+        for (int cycle = 1; cycle <= 2; cycle++) {
+            var initial = Map.of(f.write, cVector(f.write, held), f.read, cVector(f.read, held));
+            assertEquals(12 + held.size(), initial.values().stream().mapToInt(Map::size).sum());
+            for (var j : journals)
+                for (var e : initial.entrySet()) j.checkDelta(e.getKey(), e.getValue());
+            var starts = journals.stream().map(j -> j.samples.size()).toList();
+            for (var j : journals) {
+                j.cycle = cycle;
+                if (cycle == 2) j.lockOmission();
+            }
+            System.gc();
+            try {
+                for (var entry : initial.entrySet()) {
+                    var sql = entry.getKey();
+                    var before = entry.getValue();
+                    await(
+                            () -> {
+                                var after = cVector(sql, held);
+                                return before.entrySet().stream()
+                                        .allMatch(
+                                                e ->
+                                                        after.containsKey(e.getKey())
+                                                                && after.get(e.getKey())
+                                                                        .until
+                                                                        .isAfter(
+                                                                                e.getValue()
+                                                                                        .until));
+                            },
+                            I5TemporalBudgetTest.limit("watchdog"));
+                    var after = cVector(sql, held);
+                    f.trace.add(
+                            "C cycle="
+                                    + cycle
+                                    + " authority="
+                                    + (sql == f.write ? "WRITE" : "READ")
+                                    + " BEFORE="
+                                    + before
+                                    + " AFTER="
+                                    + after);
+                    for (var e : before.entrySet()) {
+                        var next = after.get(e.getKey());
+                        assertNotNull(next);
+                        I5TemporalBudgetTest.sameIncarnation(
+                                e.getValue().token,
+                                next.token,
+                                e.getValue().until,
+                                next.until,
+                                next.now);
+                    }
+                }
+                // SQL visibility can precede the local callback: require its physical/cleanup
+                // journal too.
+                await(
+                        () ->
+                                journals.stream()
+                                        .allMatch(
+                                                j -> {
+                                                    try {
+                                                        synchronized (
+                                                                field(
+                                                                        j.runtime.worker,
+                                                                        "monitor")) {
+                                                            return ((Collection<?>)
+                                                                                    field(
+                                                                                            j.runtime
+                                                                                                    .worker,
+                                                                                            "renewalCalls"))
+                                                                            .isEmpty()
+                                                                    && j.captured.get()
+                                                                            == j.samples.size();
+                                                        }
+                                                    } catch (Exception e) {
+                                                        throw new IllegalStateException(e);
+                                                    }
+                                                }),
+                        I5TemporalBudgetTest.limit("operation"));
+                for (int w = 0; w < journals.size(); w++)
+                    journals.get(w).verify(cycle, starts.get(w));
+            } finally {
+                for (var j : journals) {
+                    f.trace.add(
+                            "C audit all samples worker="
+                                    + j.worker
+                                    + " "
+                                    + j.samples
+                                    + " errors="
+                                    + j.errors);
+                    for (var c : j.blockers.values()) {
+                        c.rollback();
+                        c.close();
+                    }
+                    j.blockers.clear();
+                }
+                f.evidence(
+                        "audit-C-W"
+                                + journals.size()
+                                + "-B"
+                                + journals.getFirst().batch
+                                + "-MW"
+                                + journals.getFirst().mw
+                                + "-cycle"
+                                + cycle);
+            }
+        }
+    }
+
     static Map<UUID, Instant> deadlines(JdbcTemplate sql) {
         var result = new HashMap<UUID, Instant>();
         sql.query(
@@ -278,6 +891,7 @@ class V3WorkerResourcesPostgresTest {
     void i5_r12() throws Exception {
         for (int batch : List.of(32, 1))
             for (int mw : List.of(1, 4)) {
+                CJournal.preflight(2, mw, batch);
                 try (var f = new Fixture(PG)) {
                     var writeRequests = new HashSet<UUID>();
                     try (var setup =
@@ -293,23 +907,11 @@ class V3WorkerResourcesPostgresTest {
                             }
                         }
                     }
-                    int leaseSeconds = batch == 1 ? 90 : 30;
-                    var operation = new CopyOnWriteArrayList<Duration>();
-                    var service = new CopyOnWriteArrayList<Duration>();
-                    ConsumptionObservation observer =
-                            (id, phase, outcome, amount, elapsed) -> {
-                                if (phase == ConsumptionObservation.Phase.LEASE_RENEW
-                                        || phase == ConsumptionObservation.Phase.CLAIM_RENEW)
-                                    operation.add(elapsed);
-                                if (phase == ConsumptionObservation.Phase.RENEWAL_LEASE
-                                        || phase == ConsumptionObservation.Phase.RENEWAL_S1
-                                        || phase == ConsumptionObservation.Phase.RENEWAL_S2)
-                                    service.add(elapsed);
-                            };
+                    int leaseSeconds = 90;
                     var configs = new ArrayList<Map<String, Object>>();
                     for (int worker = 0; worker < 2; worker++) {
                         var values = new LinkedHashMap<>(f.properties);
-                        values.put("pocoma.v3.worker.worker-name", "i5-calibration-" + worker);
+                        values.put("pocoma.v3.worker.worker-name", "i5-C90-validation-" + worker);
                         values.put("pocoma.v3.worker.worker-limit", "" + mw);
                         values.put("pocoma.v3.worker.lifecycle.batch-size", "" + batch);
                         values.put(
@@ -336,8 +938,12 @@ class V3WorkerResourcesPostgresTest {
                                     + "s claim60s cadence10s op5s JVM1s safety2s; all12 C/p"
                                     + " jointly; server budget pool maxima plus16"
                                     + " external/reserved");
-                    try (var a = new V3WorkerPostgresTest.Runtime(configs.get(0), observer);
-                            var b = new V3WorkerPostgresTest.Runtime(configs.get(1), observer)) {
+                    var ja = new CJournal(f, 0, 2, mw, batch);
+                    var jb = new CJournal(f, 1, 2, mw, batch);
+                    try (var a = new V3WorkerPostgresTest.Runtime(configs.get(0), ja::observe);
+                            var b = new V3WorkerPostgresTest.Runtime(configs.get(1), jb::observe)) {
+                        ja.attach(a);
+                        jb.attach(b);
                         assertNotSame(a.capacity, b.capacity);
                         var runtimes = List.of(a, b);
                         var release = new CountDownLatch(1);
@@ -468,7 +1074,7 @@ class V3WorkerResourcesPostgresTest {
                                     () ->
                                             f.write.queryForObject(
                                                             "select count(*) from pg_stat_activity"
-                                                                + " where usename in (?,?)",
+                                                                    + " where usename in (?,?)",
                                                             Integer.class,
                                                             f.writeRole,
                                                             f.readRole)
@@ -486,8 +1092,8 @@ class V3WorkerResourcesPostgresTest {
                                 assertTrue(
                                         sql.queryForObject(
                                                 "select exists(select 1 from pg_stat_activity where"
-                                                    + " pid=? and backend_xid::text=? and"
-                                                    + " xact_start is not null)",
+                                                        + " pid=? and backend_xid::text=? and"
+                                                        + " xact_start is not null)",
                                                 Boolean.class,
                                                 pid,
                                                 row.get("xid")));
@@ -536,100 +1142,18 @@ class V3WorkerResourcesPostgresTest {
                             slotsRead =
                                     f.read.queryForObject(
                                             "select count(*) from consumption_slot", Integer.class);
-                            var cw = claimsWrite;
-                            var cr = claimsRead;
-                            System.gc();
-                            await(
-                                    () ->
-                                            allAdvanced(f.write, cw)
-                                                    && allAdvanced(f.read, cr)
-                                                    && leasesAdvanced(f.write, writeLeases)
-                                                    && leasesAdvanced(f.read, readLeases));
-                            assertTrue(
-                                    ownersWrite.equals(f.write.queryForList(ownerSql)),
-                                    "WRITE incarnation unchanged during calibration");
-                            assertTrue(
-                                    ownersRead.equals(f.read.queryForList(ownerSql)),
-                                    "READ incarnation unchanged during calibration");
-                            assertFalse(operation.isEmpty());
-                            assertFalse(service.isEmpty());
-                            long maxOperation =
-                                    operation.stream()
-                                            .mapToLong(Duration::toNanos)
-                                            .max()
-                                            .orElseThrow();
-                            long maxService =
-                                    service.stream()
-                                            .mapToLong(Duration::toNanos)
-                                            .max()
-                                            .orElseThrow();
-                            assertTrue(maxOperation < Duration.ofSeconds(5).toNanos());
-                            assertTrue(maxGap.get() < Duration.ofSeconds(1).toNanos());
-                            var candidateBudget =
-                                    Duration.ofNanos(8 * maxOperation)
-                                            .plusSeconds(2)
-                                            .plusMillis(80);
-                            var serviceBudget = Duration.ofNanos(maxService).plusSeconds(1);
-                            var budget =
-                                    candidateBudget.compareTo(serviceBudget) > 0
-                                            ? candidateBudget
-                                            : serviceBudget;
-                            assertTrue(
-                                    Duration.ofSeconds(12)
-                                                    .plus(budget)
-                                                    .compareTo(Duration.ofSeconds(leaseSeconds))
-                                            < 0);
-                            assertTrue(10 + mw * 5 + 1 + 2 < 60);
-                            for (var entry :
-                                    Map.of(f.write, writeLeases, f.read, readLeases).entrySet()) {
-                                var now =
-                                        entry.getKey()
-                                                .queryForObject(
-                                                        "select clock_timestamp()", Timestamp.class)
-                                                .toInstant();
-                                for (var until : entry.getValue().values())
-                                    assertTrue(
-                                            Duration.between(now, until)
-                                                            .compareTo(Duration.ofSeconds(2))
-                                                    > 0);
-                            }
-                            for (var entry : Map.of(f.write, cw, f.read, cr).entrySet()) {
-                                var now =
-                                        entry.getKey()
-                                                .queryForObject(
-                                                        "select clock_timestamp()", Timestamp.class)
-                                                .toInstant();
-                                for (var until : entry.getValue().values())
-                                    assertTrue(
-                                            Duration.between(now, until)
-                                                            .compareTo(Duration.ofSeconds(2))
-                                                    > 0);
-                            }
+                            qualifyC(f, List.of(ja, jb), allHeld);
                             for (var runtime : runtimes)
                                 assertEquals(
                                         com.kartaguez.pocoma.orchestrator.poll.consumption.v3
                                                 .V3ConsumptionWorker.State.RUNNING,
                                         runtime.worker.snapshot().state());
                             f.trace.add(
-                                    "W2 all12 leases and "
-                                            + (2 * mw)
-                                            + " held claims renewed before old PG deadlines"
-                                            + " safety2s; each MC/MW respected; distinct"
-                                            + " capacities/four pools each; actual role"
-                                            + " connections="
+                                    "C-LOAD W2 pool connections="
                                             + expectedConnections
-                                            + " server max="
+                                            + " server="
                                             + maxConnections
-                                            + " reserved16");
-                            f.trace.add(
-                                    "W2 complete operation samples="
-                                            + operation
-                                            + " original due->commit/cleanup samples="
-                                            + service
-                                            + " measured cycle budget="
-                                            + budget
-                                            + " JVM maximum gap ns="
-                                            + maxGap.get());
+                                            + " reserved=16; all held real RO PIDs/XIDs verified");
                         } finally {
                             a.worker.requestDrain();
                             b.worker.requestDrain();
@@ -663,7 +1187,7 @@ class V3WorkerResourcesPostgresTest {
                                     1,
                                     f.write.queryForObject(
                                             "select count(*) from v3_command_result where"
-                                                + " request_id=?",
+                                                    + " request_id=?",
                                             Integer.class,
                                             id));
                             assertEquals(
@@ -676,14 +1200,14 @@ class V3WorkerResourcesPostgresTest {
                                     1,
                                     f.write.queryForObject(
                                             "select count(*) from v3_command_completion_event where"
-                                                + " subject_id=?",
+                                                    + " subject_id=?",
                                             Integer.class,
                                             id));
                             assertEquals(
                                     0,
                                     f.write.queryForObject(
                                             "select count(*) from consumption_slot where"
-                                                + " consumable_id=?",
+                                                    + " consumable_id=?",
                                             Integer.class,
                                             id));
                         }
@@ -692,14 +1216,14 @@ class V3WorkerResourcesPostgresTest {
                                     1,
                                     f.read.queryForObject(
                                             "select count(*) from i5_read_probe_effect where"
-                                                + " consumable_id=?",
+                                                    + " consumable_id=?",
                                             Integer.class,
                                             id));
                             assertEquals(
                                     0,
                                     f.read.queryForObject(
                                             "select count(*) from consumption_slot where"
-                                                + " consumable_id=?",
+                                                    + " consumable_id=?",
                                             Integer.class,
                                             id));
                         }
@@ -717,15 +1241,15 @@ class V3WorkerResourcesPostgresTest {
                                 () ->
                                         f.write.queryForObject(
                                                         "select count(*) from pg_stat_activity"
-                                                            + " where usename in (?,?)",
+                                                                + " where usename in (?,?)",
                                                         Integer.class,
                                                         f.writeRole,
                                                         f.readRole)
                                                 == 0);
                         f.trace.add(
                                 "W2 both qualified STOPPED, physical role connections0, held real"
-                                    + " effects once, incomplete slots not purged; READ remains"
-                                    + " technical only");
+                                        + " effects once, incomplete slots not purged; READ remains"
+                                        + " technical only");
                         f.evidence("i5_r12-C-W2-B" + batch + "-MW" + mw);
                     }
                 }
@@ -1789,26 +2313,17 @@ class V3WorkerResourcesPostgresTest {
                         new int[] {32, 4, -1},
                         new int[] {1, 4, -1})) {
             int batch = configuration[0], mw = configuration[1], held = configuration[2];
+            CJournal.preflight(1, mw, batch);
             try (var f = new Fixture(PG)) {
                 f.properties.put("pocoma.v3.worker.worker-limit", Integer.toString(mw));
                 f.properties.put("pocoma.v3.worker.lifecycle.batch-size", Integer.toString(batch));
-                long leaseSeconds = batch == 1 ? 90 : 30;
+                long leaseSeconds = 90;
                 f.properties.put(
                         "pocoma.v3.worker.lifecycle.lease-duration-ms",
                         Long.toString(leaseSeconds * 1000));
-                var service = new CopyOnWriteArrayList<Duration>();
-                var operation = new CopyOnWriteArrayList<Duration>();
-                ConsumptionObservation observation =
-                        (id, phase, outcome, n, elapsed) -> {
-                            if ((phase == ConsumptionObservation.Phase.RENEWAL_S1
-                                    || phase == ConsumptionObservation.Phase.RENEWAL_S2
-                                    || phase == ConsumptionObservation.Phase.RENEWAL_LEASE))
-                                service.add(elapsed);
-                            if (phase == ConsumptionObservation.Phase.CLAIM_RENEW
-                                    || phase == ConsumptionObservation.Phase.LEASE_RENEW)
-                                operation.add(elapsed);
-                        };
-                try (var runtime = new V3WorkerPostgresTest.Runtime(f, observation)) {
+                var journal = new CJournal(f, 0, 1, mw, batch);
+                try (var runtime = new V3WorkerPostgresTest.Runtime(f, journal::observe)) {
+                    journal.attach(runtime);
                     seedPublications(f, runtime, 6);
                     if (held != 1) {
                         var id = pendingAtPartitionZero(f, 50001);
@@ -1817,12 +2332,21 @@ class V3WorkerResourcesPostgresTest {
                     var entered = new CountDownLatch(mw == 4 ? 4 : 1);
                     var release = new CountDownLatch(1);
                     var heldKeys = java.util.concurrent.ConcurrentHashMap.<UUID>newKeySet();
-                    if (mw == 4) holdFourWithWrite(runtime, entered, release, heldKeys::add);
+                    if (mw == 4)
+                        holdFourWithWrite(
+                                runtime,
+                                entered,
+                                release,
+                                id -> {
+                                    heldKeys.add(id);
+                                    journal.capturePreparation(id);
+                                });
                     else
                         runtime.prepareBarrier(
                                 held,
                                 id -> {
                                     heldKeys.add(id);
+                                    journal.capturePreparation(id);
                                     entered.countDown();
                                     latch(release);
                                 });
@@ -1902,72 +2426,24 @@ class V3WorkerResourcesPostgresTest {
                             assertFalse(w.isEmpty());
                             assertFalse(r.isEmpty());
                         }
-                        // Real GC participates in the measured end-to-end path; no p95 summation.
-                        System.gc();
-                        await(
-                                () ->
-                                        allAdvanced(f.write, w)
-                                                && allAdvanced(f.read, r)
-                                                && leasesAdvanced(f.write, writeLeases)
-                                                && leasesAdvanced(f.read, readLeases));
-                        assertFalse(service.isEmpty());
-                        assertFalse(operation.isEmpty());
-                        for (var d : operation)
+                        assertEquals(mw, journal.preparations.size());
+                        for (var e : journal.preparations.entrySet()) {
+                            var row = e.getValue();
                             assertTrue(
-                                    d.compareTo(Duration.ofSeconds(5)) < 0,
-                                    "whole synchronous operation budget");
-                        // No assumption of full batches: even B32 may serve staggered keys.
-                        int leaseCandidates = Math.max(writeLeases.size(), readLeases.size());
-                        long maxOperationNs =
-                                operation.stream().mapToLong(Duration::toNanos).max().orElseThrow();
-                        var leaseBudget =
-                                Duration.ofNanos(maxOperationNs * leaseCandidates)
-                                        .plusSeconds(
-                                                2) // measured JVM/jitter1 + idle renewal polling<=1
-                                        .plusMillis(10L * leaseCandidates); // worked-loop polling
-                        // Fresh revalidations are additional units: include the measured complete
-                        // due->last commit path, not only N times one operation's duration.
-                        var observedService =
-                                Duration.ofNanos(
-                                                service.stream()
-                                                        .mapToLong(Duration::toNanos)
-                                                        .max()
-                                                        .orElseThrow())
-                                        .plusSeconds(1);
-                        if (observedService.compareTo(leaseBudget) > 0)
-                            leaseBudget = observedService;
-                        long claimBudget = mw * 5L + 1;
-                        assertTrue(
-                                Duration.ofSeconds(12)
-                                                .plus(leaseBudget)
-                                                .compareTo(Duration.ofSeconds(leaseSeconds))
-                                        < 0);
-                        assertTrue(10 + claimBudget + 2 < 60);
-                        var serviceBudget =
-                                leaseBudget.compareTo(Duration.ofSeconds(claimBudget)) > 0
-                                        ? leaseBudget
-                                        : Duration.ofSeconds(claimBudget);
-                        for (var d : service)
-                            assertTrue(
-                                    d.compareTo(serviceBudget) < 0,
-                                    "due->borrow->SQL/commit->cleanup scheduling budget");
-                        assertTrue(
-                                maxGap.get() < Duration.ofSeconds(1).toNanos(),
-                                "declared JVM/jitter bound exceeded");
-                        for (var entry : Map.of(f.write, w, f.read, r).entrySet()) {
-                            var now =
-                                    entry.getKey()
-                                            .queryForObject(
-                                                    "select clock_timestamp()", Timestamp.class)
-                                            .toInstant();
-                            for (var deadline : entry.getValue().values())
-                                assertTrue(
-                                        Duration.between(now, deadline)
-                                                        .compareTo(Duration.ofSeconds(2))
-                                                > 0,
-                                        "external post-commit observation must still precede prior"
-                                                + " expiry by safety2s");
+                                    f.write.queryForObject(
+                                            "select exists(select 1 from pg_stat_activity where"
+                                                + " pid=? and backend_xid::text=? and xact_start is"
+                                                + " not null)",
+                                            Boolean.class,
+                                            row.get("pid"),
+                                            row.get("xid")));
                         }
+                        f.trace.add(
+                                "C-LOAD W1 held real RO preparations="
+                                        + journal.preparations
+                                        + " capacity="
+                                        + runtime.capacity.snapshot());
+                        qualifyC(f, List.of(journal), heldKeys);
                         for (var entry :
                                 Map.of(f.write, unusedWrite, f.read, unusedRead).entrySet()) {
                             var current = deadlines(entry.getKey());
@@ -1975,47 +2451,11 @@ class V3WorkerResourcesPostgresTest {
                                 assertEquals(
                                         unused.getValue(),
                                         current.get(unused.getKey()),
-                                        "unused abandoned SQL claim must not be renewed");
+                                        "abandoned claim not renewed");
                         }
                         f.trace.add(
-                                "renewable held preparation IDs="
-                                        + heldKeys
-                                        + " unused claims"
-                                        + " excluded and not renewed WRITE="
-                                        + unusedWrite.size()
-                                        + " READ="
-                                        + unusedRead.size());
-                        for (var entry :
-                                Map.of(f.write, writeLeases, f.read, readLeases).entrySet()) {
-                            var now =
-                                    entry.getKey()
-                                            .queryForObject(
-                                                    "select clock_timestamp()", Timestamp.class)
-                                            .toInstant();
-                            for (var deadline : entry.getValue().values())
-                                assertTrue(
-                                        Duration.between(now, deadline)
-                                                        .compareTo(Duration.ofSeconds(2))
-                                                > 0);
-                        }
-                        f.trace.add(
-                                "all12leases renewed; partial-batch conservative"
-                                        + " candidatesPerAuthority="
-                                        + leaseCandidates
-                                        + " maxWholeOperationNs="
-                                        + maxOperationNs
-                                        + " measuredLeaseCycleBudget="
-                                        + leaseBudget);
-                        f.trace.add(
-                                "operation samples="
-                                        + operation
-                                        + " due->physical commit/cleanup samples="
-                                        + service
-                                        + " heartbeat maximum gap ns="
-                                        + maxGap.get());
-                        f.trace.add(
-                                "C bounded PASS for declared local hypotheses; no promise during"
-                                        + " durable DB outage or unbounded JVM pause");
+                                "C bounded validation90s ONLY, two cycles, all tokens/deadlines,"
+                                        + " independent fixed bounds; default30s NOT CERTIFIED");
                     } finally {
                         f.trace.add(
                                 "C before release Worker="

@@ -206,8 +206,230 @@ class V3WorkerMetricsTest {
                 assertThrows(AssertionError.class, () -> startsMatchSql(registry, f));
                 f.trace.add(
                         "O01-N negative witness: real SQL terminal effect=1, intentionally omitted"
-                            + " start metric=0; independent checker rejected it");
+                                + " start metric=0; independent checker rejected it");
                 f.evidence("i5_m02");
+            }
+        }
+    }
+
+    static void discoveryCount(MeterRegistry registry, int expected) {
+        assertEquals(
+                expected,
+                count(
+                        registry,
+                        "pocoma.v3.rotation.tours",
+                        "consumption",
+                        "Command",
+                        "loop",
+                        "discovery"),
+                "independent page/owner boundary oracle");
+    }
+
+    @Test
+    void i5_m03() throws Exception {
+        for (String scenario :
+                List.of(
+                        "multipage",
+                        "omitted",
+                        "premature",
+                        "empty",
+                        "capacity",
+                        "no-owner",
+                        "rollback",
+                        "observer-failure")) {
+            try (var f = new Fixture(PG)) {
+                var registry = new SimpleMeterRegistry();
+                f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "90000");
+                var metrics = new MicrometerV3ConsumptionObservation(registry);
+                ConsumptionObservation observation =
+                        (id, phase, outcome, n, elapsed) -> {
+                            if (!scenario.equals("omitted")
+                                    || phase != ConsumptionObservation.Phase.DISCOVERY_TOUR)
+                                metrics.record(id, phase, outcome, n, elapsed);
+                            if (scenario.equals("premature")
+                                    && phase == ConsumptionObservation.Phase.DISCOVERY_EXAMINED)
+                                metrics.record(
+                                        id,
+                                        ConsumptionObservation.Phase.DISCOVERY_TOUR,
+                                        ConsumptionObservation.Outcome.CONFIRMED,
+                                        1,
+                                        java.time.Duration.ZERO);
+                            if (scenario.equals("observer-failure"))
+                                throw new AssertionError("observer failure after recording");
+                        };
+                try (var runtime = new V3WorkerPostgresTest.Runtime(f, observation)) {
+                    var binding = runtime.bindings.getFirst();
+                    var definition = binding.definition();
+                    var requests = new ArrayList<UUID>();
+                    if (!scenario.equals("empty"))
+                        for (int i = 0; i < 3; i++)
+                            requests.add(pendingAtPartition(f, 700000 + i * 100, 0));
+                    requests.sort(
+                            com.kartaguez.pocoma.engine.consumption.v3.port.SlotKeyNavigation
+                                    ::compare);
+                    replace(
+                            binding.discovery(),
+                            "settings",
+                            new DiscoveryEngine.Settings(
+                                    32,
+                                    1,
+                                    32,
+                                    scenario.equals("capacity") ? 1 : 100,
+                                    java.time.Duration.ofMillis(500),
+                                    java.time.Duration.ofSeconds(2)));
+                    replace(
+                            runtime.worker,
+                            "bindings",
+                            List.of(
+                                    new V3ConsumptionWorker.Binding(
+                                            definition,
+                                            binding.engine(),
+                                            binding.discovery(),
+                                            List.of(0))));
+                    if (scenario.equals("no-owner"))
+                        f.write.update(
+                                "update partition_ownership set"
+                                    + " owner_token=?,owned_until=clock_timestamp()+interval '90"
+                                    + " seconds' where consumption_id=? and partition_id=0",
+                                UUID.randomUUID(),
+                                definition.id().value());
+                    if (scenario.equals("rollback")) {
+                        var owner =
+                                (com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions)
+                                        field(binding.discovery(), "effects");
+                        replace(
+                                binding.discovery(),
+                                "effects",
+                                new com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions() {
+                                    public <T> T read(
+                                            java.util.function.Function<
+                                                            com.kartaguez.pocoma.port.transaction.v3
+                                                                    .RecoveryReadContext,
+                                                            T>
+                                                    body) {
+                                        return owner.read(body);
+                                    }
+
+                                    public <T> T write(java.util.function.Supplier<T> body) {
+                                        return owner.write(
+                                                () -> {
+                                                    body.get();
+                                                    throw new IllegalStateException(
+                                                            "actual rollback after admission");
+                                                });
+                                    }
+
+                                    public void poison(Throwable failure) {
+                                        owner.poison(failure);
+                                    }
+
+                                    public void requirePublicationClosed() {
+                                        owner.requirePublicationClosed();
+                                    }
+                                });
+                    }
+                    replace(runtime.worker, "state", V3ConsumptionWorker.State.RUNNING);
+                    var loop =
+                            (com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3DiscoveryLoop)
+                                    field(runtime.worker, "discovery");
+                    try {
+                        if (scenario.equals("rollback")) {
+                            assertThrows(
+                                    com.kartaguez.pocoma.port.transaction.v3.AttemptTransactions
+                                            .Failure.class,
+                                    loop::runOnePass);
+                            discoveryCount(registry, 0);
+                            assertEquals(
+                                    0,
+                                    f.write.queryForObject(
+                                            "select count(*) from consumption_slot",
+                                            Integer.class));
+                        } else if (scenario.equals("no-owner")) {
+                            loop.runOnePass();
+                            discoveryCount(registry, 0);
+                            assertEquals(
+                                    0,
+                                    f.write.queryForObject(
+                                            "select count(*) from consumption_slot",
+                                            Integer.class));
+                        } else if (scenario.equals("empty")) {
+                            assertFalse(loop.runOnePass());
+                            discoveryCount(registry, 1);
+                            assertNotNull(
+                                    registry.find("pocoma.v3.rotation.tours")
+                                            .tags("consumption", "Command", "loop", "discovery")
+                                            .counter());
+                        } else {
+                            for (int page = 0; page < 3; page++) {
+                                loop.runOnePass();
+                                int slots =
+                                        f.write.queryForObject(
+                                                "select count(*) from consumption_slot",
+                                                Integer.class);
+                                assertEquals(scenario.equals("capacity") ? 1 : page + 1, slots);
+                                int expected = page == 2 && !scenario.equals("capacity") ? 1 : 0;
+                                if (scenario.equals("premature")
+                                        || scenario.equals("omitted") && page == 2)
+                                    assertThrows(
+                                            AssertionError.class,
+                                            () -> discoveryCount(registry, expected));
+                                else discoveryCount(registry, expected);
+                            }
+                            if (scenario.equals("multipage")
+                                    || scenario.equals("observer-failure")) {
+                                // A full repeat with all slots already present has no new
+                                // admissions.
+                                for (int page = 0; page < 3; page++) {
+                                    loop.runOnePass();
+                                    discoveryCount(registry, page == 2 ? 2 : 1);
+                                }
+                                assertEquals(
+                                        3,
+                                        f.write.queryForObject(
+                                                "select count(*) from consumption_slot",
+                                                Integer.class));
+                                assertEquals(
+                                        3,
+                                        count(
+                                                registry,
+                                                "pocoma.v3.discovery.references",
+                                                "consumption",
+                                                "Command",
+                                                "kind",
+                                                "admitted"));
+                            }
+                        }
+                        f.trace.add(
+                                "m03 scenario="
+                                        + scenario
+                                        + " orderedSource="
+                                        + requests
+                                        + " registry="
+                                        + registry.getMeters().stream()
+                                                .filter(
+                                                        m ->
+                                                                m.getId()
+                                                                        .getName()
+                                                                        .startsWith("pocoma.v3."))
+                                                .map(m -> m.getId() + "=" + m.measure())
+                                                .toList()
+                                        + " SQL ownership="
+                                        + f.write.queryForList(
+                                                "select"
+                                                    + " consumption_id,partition_id,owner_token,owned_until"
+                                                    + " from partition_ownership where owner_token"
+                                                    + " is not null")
+                                        + " slots="
+                                        + f.write.queryForList(
+                                                "select consumption_id,consumable_id from"
+                                                    + " consumption_slot"));
+                        f.evidence("i5_m03-" + scenario);
+                    } finally {
+                        // The manual fixture launches no schedulers; start the existing drain path
+                        // for resource closure.
+                        replace(runtime.worker, "state", V3ConsumptionWorker.State.STARTING);
+                    }
+                }
             }
         }
     }

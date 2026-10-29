@@ -104,3 +104,21 @@ Acquisitions synchrones : elles peuvent retarder les autres Consumptions. La rot
 L3 Identity, L4 projections métier, L5 HTTP/Bruno/Invitation, L6 charge/reconstruction intégrées, L7 convergence historique et L8 distribution restent différés. Un jar exécutable et un Command réel ne ferment pas ces lots.
 
 Une inspection de recovery ou observation RO en issue UNKNOWN exclut aussi la voie de maintenance : aucune nouvelle inspection ne peut servir de preuve de résolution de cette unité ; le ticket concerné et l’arrêt restent conservateurs jusqu’à terminaison/reprise. Une omission de lease SKIP LOCKED physiquement qualifiée suit une autre règle : usage local suspendu, revalidation bornée par la voie existante et réouverture seulement sur CAS SQL positif de la même incarnation. Le budget local ne prouve ni expiration DB, ni takeover, ni fin d’une transaction.
+
+## Qualification corrective temporelle et tours Discovery
+
+Le correctif AUD-I5-01 utilise exclusivement l'override expérimental existant :
+
+```properties
+pocoma.v3.worker.lifecycle.lease-duration-ms=90000
+```
+
+Le défaut productif de 30 secondes reste inchangé et **NON CERTIFIÉ** par le modèle conservateur. Un résultat à 90 secondes ne qualifie ni production, ni toutes les charges/concentrations de Workers, ni panne PostgreSQL/réseau durable, ni pause JVM non bornée. Le takeover après crash peut attendre l'échéance de 90 secondes : les délais de reprise des anciens essais à 30 secondes ne sont pas transférés.
+
+Le contrat versionné [I5-C-90-v1](../testing/evidence/L2-I5-audit-remediation/temporal-contract-v1.properties) est archivé avant campagne et identifié par SHA-256 dans chaque preuve. Les seuils fixes sont T=5s pour l'opération complète (emprunt, unité physique, retour/nettoyage), δ=5s de vieillissement, J=1s de retard cumulé hors temps actif, I=10s de cadence, P=1s d'attente inactive, q=10ms par passage et S=2s de sécurité. C(N,R)=(N+R)×T+P+(N+R)×q+J ; δ+I+C+S doit être strictement inférieur au TTL. Le maximum N=8/R=1 donne 64,09s<90s ; le modèle nominal N=8 refuse 30s. Les claims singleton gardent 60s, H≤M_W et une voie disponible pour les autres handles non en vol.
+
+Enveloppe : W=1 ou 2 ; M_W=1 ou 4 ; M_C Command=1/ProbePot=2/ProbeCompletion=3 ; B=1 ou32 ; 4 partitions par C, réparties 0|1 et2|3 en W2. Chaque Worker conserve ses quatre pools Business=M_W+2 et Control=M_W+6 par autorité. W2 établit 40 ou64 connexions de rôles sur un serveur de100, avec16 réservées aux autres connexions. Les variantes gardent des préparations RO réelles et injectent un GC. Deux cycles sont exigés : nominal, puis une omission SKIP LOCKED transitoire par Worker/autorité, libérée au premier retour omis. **R=1 est une limite contrôlée de ces scénarios**, aucune garantie générale du runtime. Toute omission supplémentaire est conservée et invalide l'enveloppe.
+
+Les vecteurs extérieurs PostgreSQL couvrent toutes les12 leases et tous les claims retenus, avec mêmes tokens, nouvelles échéances et horloge DB. Une métrique JVM ne remplace jamais ce constat. Les maxima mesurés restent descriptifs ; ils ne révisent aucun seuil. Une calibration est NON CERTIFIANTE ; un dépassement admis est FAIL ; un constat manquant ou un run interrompu est INCONCLUSIVE.
+
+`pocoma.v3.rotation.tours{consumption="Command",loop="discovery"}` compte une seule fois chaque tour burnable réellement terminé après retour transactionnel normal et conservation de `RequestProgress.next()`. Une page intermédiaire, une rotation C/p, une admission, CAPACITY, absence d'ownership, exception ou résultat perdu ne crée aucun tour. Une source vide ou un tour sans nouvelle admission compte après confirmation protégée. Les sources Event non burnables suivent leur checkpoint et ne produisent aucun tour burnable. Les métriques locales sont volatiles ; une panne d'observer peut perdre l'observation sans modifier la transaction ni le progrès.

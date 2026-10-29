@@ -51,6 +51,9 @@ public final class V3DiscoveryLoop {
                 walks.put(
                         pair,
                         result.next()); // Only the confirmed I4 result controls source progress.
+                if (result.tourFinished())
+                    worker.event(
+                            binding, Phase.DISCOVERY_TOUR, Outcome.CONFIRMED, 1, Duration.ZERO);
                 status = result.status();
                 examined = result.examined();
                 advanced = result.advanced();
