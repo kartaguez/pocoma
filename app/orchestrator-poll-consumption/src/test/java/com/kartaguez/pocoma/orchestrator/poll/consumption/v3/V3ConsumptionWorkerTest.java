@@ -727,6 +727,57 @@ class V3ConsumptionWorkerTest {
     }
 
     @Test
+    void i5_v2_selector_bound() throws Exception {
+        // Use the real service. Every older contender omits repeatedly; no R limit.
+        for (int configuration : List.of(2, 4, 8, -8)) {
+            int n = Math.abs(configuration);
+            try (var f = new Fixture(n, 1, true, null)) {
+                for (var binding : f.bindings) f.worker.lease(binding, 0);
+                var entries = new ArrayList<>(f.worker.leases.values());
+                long base = System.nanoTime() - Duration.ofSeconds(1).toNanos();
+                for (int i = 0; i < n; i++) {
+                    var entry = entries.get(i);
+                    entry.renewedAt = base + (configuration < 0 ? 0 : i); // Include all ties.
+                    var engine = entry.pair.binding().engine();
+                    var member = ConsumptionEngine.class.getDeclaredField("ownership");
+                    member.setAccessible(true);
+                    var owner = (PartitionOwnershipStore) member.get(engine);
+                    member.set(
+                            engine,
+                            Proxy.newProxyInstance(
+                                    getClass().getClassLoader(),
+                                    new Class[] {PartitionOwnershipStore.class},
+                                    (proxy, method, args) -> {
+                                        if (method.getName().equals("renew")) return List.of();
+                                        try {
+                                            return method.invoke(owner, args);
+                                        } catch (InvocationTargetException error) {
+                                            throw error.getCause();
+                                        }
+                                    }));
+                }
+                var service = new V3RenewalService(f.worker);
+                var visited = new HashSet<V3ConsumptionWorker.LeaseEntry>();
+                for (int step = 0; step < n; step++) {
+                    var before = new IdentityHashMap<V3ConsumptionWorker.LeaseEntry, Long>();
+                    entries.forEach(e -> before.put(e, e.renewedAt));
+                    assertTrue(service.renewLeasesOnce(ConsumptionDefinition.Authority.WRITE));
+                    var changed =
+                            entries.stream().filter(e -> e.renewedAt != before.get(e)).toList();
+                    assertEquals(1, changed.size());
+                    assertTrue(
+                            visited.add(changed.getFirst()),
+                            "omitted contender jumped ahead twice");
+                }
+                assertEquals(n, visited.size());
+                assertFalse(entries.getLast().usable);
+                assertEquals(0, f.worker.snapshot().renewalCalls());
+                assertEquals(0, f.capacity.snapshot().worker());
+            }
+        }
+    }
+
+    @Test
     void i5_u09() throws Exception {
         for (boolean discovery : List.of(true, false)) {
             for (boolean raw : List.of(true, false)) {
