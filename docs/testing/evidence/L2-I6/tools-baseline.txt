@@ -1,0 +1,32 @@
+.fatal: path 'proof.bin' does not exist in '0000000000000000000000000000000000000000'
+......................................
+----------------------------------------------------------------------
+Ran 39 tests in 1.203s
+
+OK
+{
+  "tested": "c4a8e9af7155c842b192d082f654752505a1d90e",
+  "published": "d325591b617211899ad4962adbb67bd1e9166392",
+  "remote": null,
+  "verified_final_gates": [],
+  "documentary_commit_history": {
+    "d325591b617211899ad4962adbb67bd1e9166392": [
+      "docs/v3/L1_E_Execution_Report.md"
+    ]
+  },
+  "changes": [
+    "docs/v3/L1_E_Execution_Report.md"
+  ],
+  "exclusions": [
+    "docs/testing/evidence/L1-AB/",
+    "docs/v3/L1_AB_Execution_Report.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/testing/evidence/L1-C/",
+    "docs/v3/L1_C_Execution_Report.md",
+    "docs/testing/evidence/L1-DE/",
+    "docs/v3/L1_D_Execution_Report.md",
+    "docs/v3/L1_E_Execution_Report.md"
+  ],
+  "verdict": "PASS",
+  "input_digest": "9bcb4ef4a918112351ce1a564fe6716128a4b9f141a1d706dfdd13b7e051c997"
+}

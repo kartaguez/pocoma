@@ -1,0 +1,264 @@
+{
+  "scope": "DOCUMENTATION / PROOF CHECKER; Maven slices NONE; no independent I7 audit",
+  "initial_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+  "baseline_checks": [
+    {
+      "command": "python3 -B -m unittest scripts/testing/test_evidence_storage.py scripts/testing/test_i2_evidence.py scripts/testing/test_i3_evidence.py scripts/testing/test_i4_evidence.py scripts/testing/test_i5_evidence.py scripts/testing/test_summarize_v3.py scripts/testing/test_l1_provenance.py",
+      "cwd": "repository root",
+      "tested_checkout_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+      "exit_code": 0,
+      "output": "docs/testing/evidence/L2-I6/tools-baseline.txt",
+      "sha256": "8bbea644e8b55a4b39316853fb9cdc0929a57fe7cbd38bc49732280924cfaaf3",
+      "meaning": "Tool/documentary check only; no application campaign"
+    },
+    {
+      "command": "python3 -B docs/v3/check_l2_manifest.py",
+      "cwd": "repository root",
+      "tested_checkout_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+      "exit_code": 0,
+      "output": "docs/testing/evidence/L2-I6/manifest-baseline.txt",
+      "sha256": "4a5083e9d83839b2d9623c81afd168dffbbdfb0c9202bb6bc06ed10ce590601c",
+      "meaning": "Tool/documentary check only; no application campaign"
+    },
+    {
+      "command": "python3 -B scripts/v3/check-routing-vectors.py",
+      "cwd": "repository root",
+      "tested_checkout_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+      "exit_code": 0,
+      "output": "docs/testing/evidence/L2-I6/routing-baseline.txt",
+      "sha256": "58ab847be2073eaaea3e11f6743a70be02c05b2d1cd20093356caec77d8b1cf2",
+      "meaning": "Tool/documentary check only; no application campaign"
+    },
+    {
+      "command": "python3 -B scripts/testing/evidence-storage.py check",
+      "cwd": "repository root",
+      "tested_checkout_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+      "exit_code": 0,
+      "output": "docs/testing/evidence/L2-I6/storage-baseline.txt",
+      "sha256": "f96c81c367a3ec04d36e8cefb0969cfb84d3aceefd92d965c1488949d32a2e6a",
+      "meaning": "Tool/documentary check only; no application campaign"
+    }
+  ],
+  "qualification_status": "Source freeze; final qualification receipt follows in a documentary commit",
+  "prequalification_archive_review": {
+    "kind": "DOCUMENTARY VERIFICATION ONLY",
+    "checked_sha": "5ab89dd3e58a7bfd617cdd6526f730e6d6854c80",
+    "rows": 380,
+    "L2": 324,
+    "deferred": 56,
+    "verdicts": {
+      "FAIL": 0,
+      "INCONCLUSIVE": 293,
+      "NOT APPLICABLE": 56,
+      "NOT RUN": 5,
+      "PASS": 26
+    },
+    "input_hashes": 83,
+    "application_and_campaign_inputs": "UNCHANGED",
+    "independent_I7_audit": "NOT PERFORMED",
+    "Maven": "NOT RUN",
+    "archive_review": [
+      {
+        "archive": "I1-A",
+        "sha256": "cdff7c7d84dc71a9659558495f96e324405a2f834b268add9507b9bbcb0dddaf",
+        "members": 309,
+        "xml_cases": 1551,
+        "required_cases_checked": 33,
+        "member_hashes_checked": 0,
+        "receipt_shas": [],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 1550,
+          "FAIL": 0,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I2-C",
+        "sha256": "c57a65babea3633b1b012026e93ae3072cbaf5c40faa9f29307312989cf57bb1",
+        "members": 645,
+        "xml_cases": 1444,
+        "required_cases_checked": 196,
+        "member_hashes_checked": 643,
+        "receipt_shas": [
+          "4f2264ae6e11e7e6e1511577064bca5e31ad1336"
+        ],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 1443,
+          "FAIL": 0,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I3-C",
+        "sha256": "7223417bb1afb2a15d0129756f858980464a39c4fb0696886343bcf699f45966",
+        "members": 748,
+        "xml_cases": 1513,
+        "required_cases_checked": 265,
+        "member_hashes_checked": 746,
+        "receipt_shas": [
+          "3ee575940669feb56b73b10122b5a3406bce6a08"
+        ],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 1512,
+          "FAIL": 0,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I4-C",
+        "sha256": "fcb8fa18b58d14d1d01c6603aa8ef1b49c66048632fc5059831199c2adb2a8ed",
+        "members": 1057,
+        "xml_cases": 1573,
+        "required_cases_checked": 333,
+        "member_hashes_checked": 1055,
+        "receipt_shas": [
+          "0b08d3bf0bfce1334260cfd5249b13c3040a67bb"
+        ],
+        "historical_source_hashes_checked": 1281,
+        "explicit_checkout_encodings": [
+          {
+            "path": "app/mvnw.cmd",
+            "representation": "CRLF_WINDOWS_WRAPPER",
+            "git_raw_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+            "receipt_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+          }
+        ],
+        "xml_states": {
+          "PASS": 1572,
+          "FAIL": 0,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I5-F",
+        "sha256": "8b6d77c8e637eb2fd82d428f36bff0a3d792692c26d458eaf3e4eeed458427aa",
+        "members": 1250,
+        "xml_cases": 1905,
+        "required_cases_checked": 420,
+        "member_hashes_checked": 1247,
+        "receipt_shas": [
+          "9a315e16567042d0b9bd017486d9043216b3ecd7"
+        ],
+        "historical_source_hashes_checked": 1308,
+        "explicit_checkout_encodings": [
+          {
+            "path": "app/mvnw.cmd",
+            "representation": "CRLF_WINDOWS_WRAPPER",
+            "git_raw_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+            "receipt_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+          }
+        ],
+        "xml_states": {
+          "PASS": 1904,
+          "FAIL": 0,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I5-REM",
+        "sha256": "3aa6b1355fb6eea4d13df43488e4749599e69697cdff202890bceb0b8b47462a",
+        "members": 1209,
+        "xml_cases": 1649,
+        "required_cases_checked": 405,
+        "member_hashes_checked": 0,
+        "receipt_shas": [
+          "05b74814abe810a22f1f6a4c5125d4374325f6fa"
+        ],
+        "historical_source_hashes_checked": 1231,
+        "explicit_checkout_encodings": [
+          {
+            "path": "app/mvnw.cmd",
+            "representation": "CRLF_WINDOWS_WRAPPER",
+            "git_raw_sha256": "4a361e1374a3e5ad6d03e18e9adc0cf181ac5058ac6203b76f0ba3b456b56481",
+            "receipt_sha256": "46eedb8419bd14fe70d5bb2916d7b6f51806e51b39d5b76a42610384ca929c1c"
+          }
+        ],
+        "xml_states": {
+          "PASS": 1647,
+          "FAIL": 1,
+          "SKIP": 1
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I5-R2",
+        "sha256": "8fb26e8f55f99b4c1ac48f9e1f57ccdc3e3a5fd59277c020f54e35674a6f6094",
+        "members": 15,
+        "xml_cases": 2,
+        "required_cases_checked": 2,
+        "member_hashes_checked": 0,
+        "receipt_shas": [],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 1,
+          "FAIL": 1,
+          "SKIP": 0
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I5-V2",
+        "sha256": "fa510d8d477ce65dbf16c723c69c52c5569f711d0f078944da6a4c44084a7fe3",
+        "members": 12,
+        "xml_cases": 17,
+        "required_cases_checked": 2,
+        "member_hashes_checked": 0,
+        "receipt_shas": [],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 16,
+          "FAIL": 1,
+          "SKIP": 0
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      },
+      {
+        "archive": "I5-FINAL",
+        "sha256": "3432e9c930a4a6aa0f69de590fda2b0ca0747e46a34e8d297b86a417c86a46e2",
+        "members": 17,
+        "xml_cases": 3,
+        "required_cases_checked": 1,
+        "member_hashes_checked": 0,
+        "receipt_shas": [],
+        "historical_source_hashes_checked": 0,
+        "explicit_checkout_encodings": [],
+        "xml_states": {
+          "PASS": 2,
+          "FAIL": 1,
+          "SKIP": 0
+        },
+        "meaning": "Historical bytes/XML checked; no application execution"
+      }
+    ]
+  },
+  "diagnostics_preserved": [
+    {
+      "check": "Strict source-vs-blob hash comparison before explicit checkout representation handling",
+      "result": "FAIL at app/mvnw.cmd",
+      "classification": "Existing CRLF Windows checkout representation vs LF Git blob; no Java/SQL/oracle or application defect",
+      "correction": "Checker compares both exact hashes only for app/mvnw.cmd; raw bytes required elsewhere; added negative tests"
+    },
+    {
+      "check": "git ls-remote under restricted network",
+      "result": "DNS resolution failure",
+      "followup": "Same read-only command with environment permission returned exact baseline; no approval rejection"
+    }
+  ],
+  "application_tests_reexecuted": false,
+  "Maven_commands_actually_executed": [],
+  "global_gate": "NOT RUN in I6; required later at G3 when preconditions hold",
+  "full_reactor": "NOT RUN in I6; no runtime delta, G3 preconditions absent, temporal replay unauthorized"
+}
