@@ -427,6 +427,7 @@ class V3WorkerMetricsTest {
                     } finally {
                         // The manual fixture launches no schedulers; start the existing drain path
                         // for resource closure.
+                        replace(runtime.worker, "bindings", runtime.bindings);
                         replace(runtime.worker, "state", V3ConsumptionWorker.State.STARTING);
                     }
                 }

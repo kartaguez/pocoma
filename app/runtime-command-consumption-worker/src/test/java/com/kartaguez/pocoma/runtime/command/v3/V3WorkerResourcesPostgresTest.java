@@ -915,7 +915,7 @@ class V3WorkerResourcesPostgresTest {
                     var configs = new ArrayList<Map<String, Object>>();
                     for (int worker = 0; worker < 2; worker++) {
                         var values = new LinkedHashMap<>(f.properties);
-                        values.put("pocoma.v3.worker.worker-name", "i5-C90-validation-" + worker);
+                        values.put("pocoma.v3.worker.worker-name", "i5-c90-validation-" + worker);
                         values.put("pocoma.v3.worker.worker-limit", "" + mw);
                         values.put("pocoma.v3.worker.lifecycle.batch-size", "" + batch);
                         values.put(
