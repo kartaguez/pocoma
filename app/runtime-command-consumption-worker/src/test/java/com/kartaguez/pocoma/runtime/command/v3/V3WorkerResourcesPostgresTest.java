@@ -893,7 +893,7 @@ class V3WorkerResourcesPostgresTest {
 
     @Test
     void i5_r12() throws Exception {
-        I5TemporalV2Postgres.campaign(PG, 2, 32);
+        I5TemporalV2Postgres.campaign(PG, 2, 32, true);
     }
 
     @Test

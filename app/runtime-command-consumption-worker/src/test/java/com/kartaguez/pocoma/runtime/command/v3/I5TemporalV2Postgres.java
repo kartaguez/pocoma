@@ -35,6 +35,7 @@ final class I5TemporalV2Postgres {
         final long start = System.nanoTime();
         final Set<String> keys = ConcurrentHashMap.newKeySet();
         volatile long end = Long.MAX_VALUE;
+        volatile boolean guarded, renewal, injected;
         volatile int pid;
         volatile String xid = "", resolution = "ACTIVE";
 
@@ -52,6 +53,12 @@ final class I5TemporalV2Postgres {
                     + start
                     + ","
                     + end
+                    + ",guarded="
+                    + guarded
+                    + ",renewal="
+                    + renewal
+                    + ",injected="
+                    + injected
                     + ",pid="
                     + pid
                     + ",xid="
@@ -132,6 +139,7 @@ final class I5TemporalV2Postgres {
             connection = sql.getDataSource().getConnection();
             connection.setAutoCommit(false);
             span = new Tx(authority);
+            span.injected = true;
             span.keys.add(key(lease));
             all.add(span);
             try (var q =
@@ -180,9 +188,11 @@ final class I5TemporalV2Postgres {
         final Map<String, Holder> releaseOnOmission = new ConcurrentHashMap<>();
         final AtomicInteger suspensions = new AtomicInteger();
         final int index, workers;
+        final I5PhysicalWindow window;
         V3WorkerPostgresTest.Runtime runtime;
 
-        Journal(Fixture f, List<Tx> transactions, int index, int workers) {
+        Journal(Fixture f, List<Tx> transactions, int index, int workers, I5PhysicalWindow window) {
+            this.window = window;
             fixture = f;
             this.transactions = transactions;
             this.index = index;
@@ -231,6 +241,8 @@ final class I5TemporalV2Postgres {
                                     (proxy, m, args) -> {
                                         if (!m.getName().equals("write"))
                                             return invoke(owner, m, args);
+                                        var admission = window == null ? null : window.admission();
+                                        if (admission != null) admission.lockInterruptibly();
                                         var tx = new Tx(authority);
                                         transactions.add(tx);
                                         var action = (Supplier<?>) args[0];
@@ -238,6 +250,7 @@ final class I5TemporalV2Postgres {
                                             (Supplier<Object>)
                                                     () -> {
                                                         currentTx.set(tx);
+                                                        if (window != null) window.guard(sql, tx);
                                                         var row =
                                                                 sql.queryForMap(
                                                                         "select pg_backend_pid()"
@@ -262,6 +275,7 @@ final class I5TemporalV2Postgres {
                                         } finally {
                                             tx.end = System.nanoTime();
                                             currentTx.remove();
+                                            if (admission != null) admission.unlock();
                                         }
                                     }));
                     var store = (PartitionOwnershipStore) field(component, "ownership");
@@ -287,6 +301,14 @@ final class I5TemporalV2Postgres {
                                         else if (m.getName().equals("renew"))
                                             for (var l : (List<PartitionLease>) args[1])
                                                 tx.keys.add(key(l));
+                                        if (window != null)
+                                            window.ownership(
+                                                    tx,
+                                                    m.getName(),
+                                                    m.getName().equals("renew")
+                                                            ? (List<PartitionLease>) args[1]
+                                                            : List.of(),
+                                                    index);
                                         if (!m.getName().equals("renew"))
                                             return invoke(store, m, args);
                                         Object call;
@@ -335,7 +357,10 @@ final class I5TemporalV2Postgres {
                                                 if (a.returned.stream()
                                                         .noneMatch(v -> key(v).equals(key(l)))) {
                                                     var h = releaseOnOmission.remove(key(l));
-                                                    if (h != null) h.close();
+                                                    if (h != null) {
+                                                        h.close();
+                                                        if (window != null) window.released(h, l);
+                                                    }
                                                 }
                                             return a.returned;
                                         } finally {
@@ -356,6 +381,8 @@ final class I5TemporalV2Postgres {
         }
 
         void assertSuspended(String key) throws Exception {
+            if (window != null)
+                assertFalse(removed(key), "incarnation absent before suspension witness");
             synchronized (field(runtime.worker, "monitor")) {
                 for (var e : ((Map<?, ?>) field(runtime.worker, "leases")).values())
                     if (key((PartitionLease) field(e, "lease")).equals(key))
@@ -382,6 +409,8 @@ final class I5TemporalV2Postgres {
 
         void verify(int from, boolean availabilityRequired) {
             assertTrue(errors.isEmpty(), errors.toString());
+            if (window != null)
+                coverage(transactions.stream().allMatch(t -> t.guarded || t.injected));
             coverage(
                     transactions.stream()
                             .filter(t -> t.end != Long.MAX_VALUE)
@@ -430,7 +459,10 @@ final class I5TemporalV2Postgres {
                     if (retryUntil != 0)
                         below(a.end, retryUntil, "B local retry5s frozen original cutoff");
                     var conflicts = conflicts(a, key(lease));
-                    boolean available = free(a.storeStart, a.storeEnd, conflicts);
+                    boolean available =
+                            window == null
+                                    ? free(a.storeStart, a.storeEnd, conflicts)
+                                    : window.available(a, lease, transactions);
                     fixture.trace.add(
                             "AVAILABILITY key="
                                     + key(lease)
@@ -492,10 +524,23 @@ final class I5TemporalV2Postgres {
                                                     a.leases.stream()
                                                                     .anyMatch(
                                                                             l -> key(l).equals(key))
-                                                            && free(
-                                                                    a.storeStart,
-                                                                    a.storeEnd,
-                                                                    conflicts(a, key))),
+                                                            && (window == null
+                                                                    ? free(
+                                                                            a.storeStart,
+                                                                            a.storeEnd,
+                                                                            conflicts(a, key))
+                                                                    : a.leases.stream()
+                                                                            .filter(
+                                                                                    l ->
+                                                                                            key(l).equals(
+                                                                                                            key))
+                                                                            .anyMatch(
+                                                                                    l ->
+                                                                                            window
+                                                                                                    .available(
+                                                                                                            a,
+                                                                                                            l,
+                                                                                                            transactions)))),
                             "B missing independent available window " + key);
             }
             fixture.trace.add("ATTEMPTS worker=" + index + " " + selected);
@@ -503,6 +548,11 @@ final class I5TemporalV2Postgres {
     }
 
     static void campaign(PostgreSQLContainer pg, int workers, int batch) throws Exception {
+        campaign(pg, workers, batch, false);
+    }
+
+    static void campaign(PostgreSQLContainer pg, int workers, int batch, boolean controlled)
+            throws Exception {
         String variant = "W" + workers + "-B" + batch + "-MW4";
         try (var f = new Fixture(pg)) {
             try (var setup = new V3WorkerPostgresTest.Runtime(f, ConsumptionObservation.noop())) {
@@ -512,11 +562,13 @@ final class I5TemporalV2Postgres {
                     admitBeforeStart(f, setup, id);
                 }
             }
+            var window = controlled ? new I5PhysicalWindow(f) : null;
             var txs = new CopyOnWriteArrayList<Tx>();
             var journals = new ArrayList<Journal>();
             var runtimes = new ArrayList<V3WorkerPostgresTest.Runtime>();
             var release = new CountDownLatch(1);
             var holders = new ArrayList<Holder>();
+            var retired = new ArrayList<String>();
             var held = ConcurrentHashMap.<UUID>newKeySet();
             var preparations = new ConcurrentHashMap<UUID, Map<String, Object>>();
             try {
@@ -535,7 +587,7 @@ final class I5TemporalV2Postgres {
                                     + ps
                                     + ";I5ReadCompletionProbe="
                                     + ps);
-                    var j = new Journal(f, txs, w, workers);
+                    var j = new Journal(f, txs, w, workers, window);
                     journals.add(j);
                     var r = new V3WorkerPostgresTest.Runtime(properties, j::observe);
                     runtimes.add(r);
@@ -628,6 +680,7 @@ final class I5TemporalV2Postgres {
                                                 + " pg_stat_activity where usename is not null"));
                 for (int cycle = 1; cycle <= 2; cycle++) {
                     int stage = cycle;
+                    if (window != null) window.begin(journals);
                     var starts = journals.stream().map(j -> j.attempts.size()).toList();
                     var vectors =
                             Map.of(
@@ -659,6 +712,7 @@ final class I5TemporalV2Postgres {
                                                                                                                 authority)))
                                                 .findFirst()
                                                 .orElseThrow();
+                                if (window != null) window.obstruct(lease);
                                 var h =
                                         new Holder(
                                                 authority.equals("WRITE") ? f.write : f.read,
@@ -725,9 +779,15 @@ final class I5TemporalV2Postgres {
                         if (cycle == 2)
                             assertTrue(j.suspensions.get() >= 2, "WRITE/READ suspend observed");
                     }
-                    f.evidence("temporal-v2-" + variant + "-stage" + cycle);
+                    f.evidence(
+                            (controlled ? "temporal-v3-" : "temporal-v2-")
+                                    + variant
+                                    + "-stage"
+                                    + cycle);
+                    if (window != null) window.close();
                 }
                 // Deliberately violate availability; prove safe local retirement without extension.
+                if (window != null) window.begin(journals);
                 for (var j : journals)
                     for (String authority : List.of("WRITE", "READ")) {
                         var lease =
@@ -750,6 +810,7 @@ final class I5TemporalV2Postgres {
                                         .findFirst()
                                         .orElseThrow();
                         var sql = authority.equals("WRITE") ? f.write : f.read;
+                        if (window != null) window.obstruct(lease);
                         var h = new Holder(sql, authority, lease, txs);
                         holders.add(h);
                         await(
@@ -808,14 +869,67 @@ final class I5TemporalV2Postgres {
                                         + " holder="
                                         + h.span);
                         h.close();
+                        retired.add(key(lease));
                     }
+                if (window != null) {
+                    var beforeClaims =
+                            Map.of(
+                                    f.write,
+                                    V3WorkerResourcesPostgresTest.cVector(f.write, held),
+                                    f.read,
+                                    V3WorkerResourcesPostgresTest.cVector(f.read, held));
+                    for (var entry : beforeClaims.entrySet()) {
+                        var claims =
+                                entry.getValue().entrySet().stream()
+                                        .filter(e -> !e.getKey().startsWith("lease/"))
+                                        .toList();
+                        await(
+                                () -> {
+                                    var after =
+                                            V3WorkerResourcesPostgresTest.cVector(
+                                                    entry.getKey(), held);
+                                    return claims.stream()
+                                            .allMatch(
+                                                    e ->
+                                                            after.containsKey(e.getKey())
+                                                                    && after.get(e.getKey())
+                                                                            .until()
+                                                                            .isAfter(
+                                                                                    e.getValue()
+                                                                                            .until()));
+                                },
+                                Duration.ofNanos(ns("watchdog")));
+                        var after = V3WorkerResourcesPostgresTest.cVector(entry.getKey(), held);
+                        for (var e : claims) {
+                            var next = after.get(e.getKey());
+                            extension(
+                                    e.getValue().token(),
+                                    next.token(),
+                                    e.getValue().until(),
+                                    next.until(),
+                                    next.now());
+                        }
+                        f.trace.add(
+                                "CLAIMS AFTER LOCAL LEASE RETIREMENT before="
+                                        + claims
+                                        + " after="
+                                        + after);
+                    }
+                    for (var j : journals) {
+                        for (var key : retired)
+                            assertTrue(j.removed(key), "C retired incarnation reactivated");
+                        assertTrue(j.errors.isEmpty(), j.errors.toString());
+                        assertEquals(4, j.runtime.capacity.snapshot().worker());
+                    }
+                    window.seal(journals);
+                }
                 f.trace.add(
-                        "V2 QUALIFICATION PASS "
+                        (controlled ? "V3 QUALIFICATION PASS " : "V2 QUALIFICATION PASS ")
                                 + variant
                                 + " WRITE/READ nominal/admissible/excessive; no 30s certificate");
             } finally {
                 for (var h : holders) h.close();
-                release.countDown();
+                if (window == null) release.countDown();
                 f.trace.add("ALL_TRANSACTIONS " + txs);
                 for (var j : journals)
                     f.trace.add(
@@ -825,7 +939,11 @@ final class I5TemporalV2Postgres {
                                     + j.attempts
                                     + " errors="
                                     + j.errors);
-                f.evidence("temporal-v2-" + variant + "-final");
+                f.evidence((controlled ? "temporal-v3-" : "temporal-v2-") + variant + "-final");
+                if (window != null) {
+                    window.close();
+                }
+                release.countDown();
                 for (var r : runtimes) r.close();
             }
         }
