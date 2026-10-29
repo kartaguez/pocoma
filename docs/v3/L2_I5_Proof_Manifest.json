@@ -933,5 +933,21 @@
         "infra-persistence-primary-jpa/ConsumptionLifecyclePostgresTest.i3_c05_j"
       ]
     }
-  }
+  },
+  "verification_adjustments": [
+    {
+      "id": "I5-T01",
+      "methods": [
+        "i5_w08",
+        "i5_w18",
+        "i5_r02"
+      ],
+      "scope": "TEST ONLY; production source unchanged from ac9f7642",
+      "details": [
+        "D1: held Consumption L1 plus optional returning Discovery L1; bounded1..2, then zero after qualified stop",
+        "Quarantine: explicit MW1 claim10s lease20s renewal1s; unchanged64 active slots +Q, ordinary expiry and restricted reactivation; per-verification watchdog180s, no absolute R10 latency assertion",
+        "Borrower inventory: eight seeded READ effects before deliberate UNKNOWN; real Command outcome/two publications/slot removal plus R9 and cession inventory; no new READ dispatch required during drain"
+      ]
+    }
+  ]
 }

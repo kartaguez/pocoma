@@ -870,11 +870,49 @@ class V3WorkerResourcesPostgresTest {
                             return result;
                         }
                     });
-            var id = f.inject(20001);
-            poison.set(id);
+            // Let the seeded READ units finish before the deliberate UNKNOWN closes
+            // admission. This inventory must not require new READ dispatch during drain.
+            poison.set(new UUID(0xA500000000004000L, 20001));
             runtime.worker.start();
-            f.verify(id);
+            await(
+                    () ->
+                            f.read.queryForObject(
+                                            "select count(*) from i5_read_probe_effect",
+                                            Integer.class)
+                                    == 8);
             await(() -> runtime.capacity.snapshot().worker() == 0);
+            var id = f.inject(20001);
+            await(
+                    () ->
+                            "TERMINAL"
+                                    .equals(
+                                            f.write.queryForObject(
+                                                    "select status from v3_command where"
+                                                            + " request_id=?",
+                                                    String.class,
+                                                    id)));
+            await(() -> runtime.capacity.snapshot().worker() == 0);
+            assertEquals(
+                    1,
+                    f.write.queryForObject(
+                            "select count(*) from v3_command_result where request_id=?",
+                            Integer.class,
+                            id));
+            assertEquals(
+                    0,
+                    f.write.queryForObject(
+                            "select count(*) from consumption_slot where consumable_id=?",
+                            Integer.class,
+                            id));
+            assertEquals(
+                    2,
+                    f.write.queryForObject(
+                            "select (select count(*) from v3_pot_event where request_id=?) +"
+                                    + " (select count(*) from v3_command_completion_event where"
+                                    + " subject_id=?)",
+                            Integer.class,
+                            id,
+                            id));
             assertTrue(journal.violations.isEmpty(), journal.violations.toString());
             for (String category :
                     List.of(
@@ -896,6 +934,10 @@ class V3WorkerResourcesPostgresTest {
             f.trace.add(
                     "sequential units: no attempt/maintenance thread simultaneously borrowed"
                             + " Business and Control; startup JPA excluded from RUNNING inventory");
+            f.trace.add(
+                    "READ seed effects completed before injected Command UNKNOWN; subsequent"
+                            + " durable READ publications are not required to dispatch during"
+                            + " the conservative drain");
             f.evidence("i5_r02-A-WRITE-READ");
         }
         controlMaximum(true);

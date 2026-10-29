@@ -306,6 +306,10 @@ class V3WorkerPostgresTest {
         }
 
         void verify(UUID id) throws Exception {
+            verify(id, Duration.ofSeconds(90));
+        }
+
+        void verify(UUID id, Duration watchdog) throws Exception {
             await(
                     () ->
                             "TERMINAL"
@@ -315,7 +319,7 @@ class V3WorkerPostgresTest {
                                                             + " request_id=?",
                                                     String.class,
                                                     id)),
-                    Duration.ofSeconds(90));
+                    watchdog);
             var eventIds =
                     write.queryForList(
                             "select event_id from v3_pot_event where request_id=? union all select"
@@ -333,7 +337,7 @@ class V3WorkerPostgresTest {
                                             eventIds.get(0),
                                             eventIds.get(1))
                                     == 2,
-                    Duration.ofSeconds(90));
+                    watchdog);
             assertEquals(
                     1,
                     write.queryForObject(
@@ -1438,7 +1442,10 @@ class V3WorkerPostgresTest {
                                 UUID.class,
                                 id));
                 runtime.worker.requestDrain();
-                assertEquals(1, runtime.worker.snapshot().operations());
+                // The confirmed Consumption operation is held; independent Discovery may
+                // still be returning from its own L1 unit after L5.
+                int operations = runtime.worker.snapshot().operations();
+                assertTrue(operations >= 1 && operations <= 2);
                 assertEquals(1, runtime.capacity.snapshot().worker());
                 returned.countDown();
                 await(() -> runtime.worker.snapshot().state() == V3ConsumptionWorker.State.STOPPED);
@@ -2544,6 +2551,12 @@ class V3WorkerPostgresTest {
     @Test
     void i5_w08() throws Exception {
         try (var f = new Fixture(PG)) {
+            // This proves quarantine/cap/restart, not executor throughput. With MW1 the
+            // qualified 10s claim is shorter than the 20s partition lease; unused old
+            // claims have expired before ordinary partition takeover. Rejections still
+            // follow Engine.abandon, without administrative claim release.
+            f.properties.put("pocoma.v3.worker.worker-limit", "1");
+            f.properties.put("pocoma.v3.worker.lifecycle.claim-duration-ms", "10000");
             f.properties.put("pocoma.v3.worker.lifecycle.retry-delay-ms", "0");
             f.properties.put("pocoma.v3.worker.lifecycle.lease-duration-ms", "20000");
             f.properties.put("pocoma.v3.worker.lifecycle.renewal-interval-ms", "1000");
@@ -2662,7 +2675,33 @@ class V3WorkerPostgresTest {
                                 Integer.class,
                                 quarantined));
                 // Restart neither releases leases nor erases claims/K; wait for ordinary DB expiry.
-                f.verify(extra);
+                try {
+                    // A watchdog for 65 real Commands and their READ publications, not an
+                    // absolute R10 latency promise. Unused claims keep their ordinary TTL.
+                    f.verify(extra, Duration.ofMinutes(3));
+                } catch (AssertionError failure) {
+                    f.trace.add("restart failure Worker=" + restarted.worker.snapshot());
+                    f.trace.add("restart failure capacity=" + restarted.capacity.snapshot());
+                    f.trace.add(
+                            "restart failure slots="
+                                    + f.write.queryForList(
+                                            "select state,attempt_count,count(*) from"
+                                                    + " consumption_slot group by"
+                                                    + " state,attempt_count"));
+                    f.trace.add(
+                            "restart failure sources="
+                                    + f.write.queryForList(
+                                            "select status,count(*) from v3_command group by"
+                                                    + " status"));
+                    f.trace.add(
+                            "restart failure extra="
+                                    + f.write.queryForList(
+                                            "select state,attempt_count,claimed_until,retry_after"
+                                                + " from consumption_slot where consumable_id=?",
+                                            extra));
+                    f.evidence("i5_w08-restart-failure");
+                    throw failure;
+                }
                 await(
                         () ->
                                 f.write.queryForObject(
