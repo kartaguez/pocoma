@@ -122,9 +122,9 @@ Les suites métier C appliquent uniquement les migrations V3 V1+V2 explicites ; 
 Preuves durables publiées hors `target/` :
 
 - [Index de tous les gates retenus et remplacés](../testing/evidence/L1-C/Gate-index.json), [évaluation automatique et skip exact](../testing/evidence/L1-C/Gate-assessment.json).
-- [Archive brute des trois gates finaux](../testing/evidence/L1-C/Gates-raw.tar.gz) et [SHA-256](../testing/evidence/L1-C/Gates-raw.sha256).
-- [Archive des gates remplacés](../testing/evidence/L1-C/Superseded-raw.tar.gz) et [SHA-256](../testing/evidence/L1-C/Superseded-raw.sha256), incluant le premier gate FAIL.
-- [Diagnostics conservés](../testing/evidence/L1-C/Diagnostics.tar.gz) et [SHA-256](../testing/evidence/L1-C/Diagnostics.sha256).
+- [Archive brute des trois gates finaux](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-C/Gates-raw.tar.gz) et [SHA-256](../testing/evidence/L1-C/Gates-raw.sha256).
+- [Archive des gates remplacés](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-C/Superseded-raw.tar.gz) et [SHA-256](../testing/evidence/L1-C/Superseded-raw.sha256), incluant le premier gate FAIL.
+- [Diagnostics conservés](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-C/Diagnostics.tar.gz) et [SHA-256](../testing/evidence/L1-C/Diagnostics.sha256).
 - [Populations d’architecture](../testing/evidence/L1-C/Architecture-populations.json) : 17 classes de ports de premier niveau et 99 classes de ports imbriqués (types de valeur imbriqués inclus).
 - [Inventaire exact des fichiers](../testing/evidence/L1-C/changed-files.json), [worktrees préexistants préservés](../testing/evidence/L1-C/Preserved-worktrees.json).
 

@@ -92,9 +92,9 @@ Le test V1…V9 compare chaque champ/identité/enveloppe avec un oracle littéra
 Le manifeste associe les méthodes aux lots. L1A-01…14 correspondent aux méthodes `l1a01`…`l1a14` ; L1A-15 aux cinq méthodes ArchUnit. B : b01 catalogue/restart ; b02 V1…V9 ; b03 bornes ; b04 D01-M ; b05 rollback/no-op ; b06 sélectivité/histoire ; b07 usage exhaustif ; b08 rationnels ; b09 corruption ; b10 contraintes/FK ; b11 snapshot concurrent ; b12 requêtes groupées ; b13 transaction/isolation ; b14 JPA ; b15 absence de faux fait négatif ; b16 rollback dernière création ; b17 contraintes différées/SQLSTATE 23514 ; b18 révision tardive ; b19 époque xid8. Les variantes sont des assertions tabulaires déterministes, sans paramètres JUnit cachés ou tests désactivés.
 
 - [Index des gates](../testing/evidence/L1-AB/Gate-index.json) : commandes, SHAs, compteurs, verdicts globaux/obligatoires, exécutions retenues/remplacées.
-- [Archive A brute](../testing/evidence/L1-AB/A-raw.tar.gz) et [SHA-256 A](../testing/evidence/L1-AB/A-raw.sha256).
-- [Archive B brute](../testing/evidence/L1-AB/B-raw.tar.gz) et [SHA-256 B](../testing/evidence/L1-AB/B-raw.sha256).
-- [Diagnostics B](../testing/evidence/L1-AB/B-diagnostics.tar.gz), [populations architecture](../testing/evidence/L1-AB/Architecture-populations.json), [inventaire fichiers](../testing/evidence/L1-AB/changed-files.json).
+- [Archive A brute](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-AB/A-raw.tar.gz) et [SHA-256 A](../testing/evidence/L1-AB/A-raw.sha256).
+- [Archive B brute](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-AB/B-raw.tar.gz) et [SHA-256 B](../testing/evidence/L1-AB/B-raw.sha256).
+- [Diagnostics B](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-AB/B-diagnostics.tar.gz), [populations architecture](../testing/evidence/L1-AB/Architecture-populations.json), [inventaire fichiers](../testing/evidence/L1-AB/changed-files.json).
 
 Extraire les archives avec `tar -xzf <archive>`. Chaque répertoire de gate contient `maven.log`, XML frais, `summary.json`, manifeste attendu, entrées Git et contrôles avant/après, environnement/dépendances. B inclut `app/infra-persistence-primary-jpa/target/v3-pot-evidence/` : catalogue, fonctions/triggers, snapshots/intervalles, références, requêtes et témoins physiques. Les artefacts sont committés hors de target ; l’audit ne dépend pas d’un target local conservé.
 

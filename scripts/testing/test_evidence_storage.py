@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import lzma
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -14,6 +15,31 @@ SPEC.loader.exec_module(STORAGE)
 
 
 class StorageTest(unittest.TestCase):
+    def test_git_restore_exact_bytes_tampering_missing_commit_and_no_overwrite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            payload = b'Unique failed physical observation\n'
+            (root / 'proof.bin').write_bytes(payload)
+            subprocess.run(['git', 'add', 'proof.bin'], cwd=root, check=True)
+            subprocess.run(['git', '-c', 'user.name=Storage test', '-c',
+                            'user.email=storage@example.invalid', 'commit', '-qm', 'proof'],
+                           cwd=root, check=True)
+            commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+            entry = {'commit': commit, 'path': 'proof.bin', 'bytes': len(payload),
+                     'sha256': hashlib.sha256(payload).hexdigest()}
+            (root / 'proof.bin').unlink()
+            destination = root / 'restored.bin'
+            STORAGE.restore_historical(entry, destination, root)
+            self.assertEqual(destination.read_bytes(), payload)
+            with self.assertRaises(FileExistsError):
+                STORAGE.restore_historical(entry, destination, root)
+            for delta in ({'sha256': '0' * 64}, {'bytes': 1}, {'commit': '0' * 40}):
+                rejected = root / 'rejected.bin'
+                with self.assertRaises(ValueError):
+                    STORAGE.restore_historical({**entry, **delta}, rejected, root)
+                self.assertFalse(rejected.exists())
+
     def test_exact_envelope_roundtrip_tampering_and_no_overwrite(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

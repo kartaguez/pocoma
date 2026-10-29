@@ -11,10 +11,12 @@ import json
 import lzma
 from pathlib import Path
 import sys
+import subprocess
 import zlib
 
 ROOT = Path(__file__).resolve().parents[2]
 INVENTORY = ROOT / 'docs/testing/Evidence_Inventory.json'
+RETENTION = ROOT / 'docs/testing/Evidence_Retention.json'
 
 
 def chunks(stream):
@@ -96,6 +98,43 @@ def restore(entry, destination):
             raise
 
 
+def historical_bytes(entry, output=None, root=None):
+    """Read an immutable Git blob; verify exact bytes, never regenerate evidence."""
+    root = root or ROOT
+    locator = entry['commit'] + ':' + entry.get('historical_path', entry['path'])
+    process = subprocess.Popen(['git', 'show', locator], cwd=root, stdout=subprocess.PIPE)
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        for data in chunks(process.stdout):
+            digest.update(data)
+            size += len(data)
+            if output is not None:
+                output.write(data)
+    finally:
+        process.stdout.close()
+        returncode = process.wait()
+    if returncode or size != entry['bytes'] or digest.hexdigest() != entry['sha256']:
+        raise ValueError('Historical Git bytes unavailable or changed: ' + locator)
+
+
+def restore_historical(entry, destination, root=None):
+    with destination.open('xb') as output:
+        try:
+            historical_bytes(entry, output, root)
+        except BaseException:
+            output.close()
+            destination.unlink()
+            raise
+
+
+def retained_sources(retention):
+    historical = {row['path']: row['historical'] for row in retention['artifacts']
+                  if row['category'] == 'B'}
+    historical.update({row['path']: row for row in retention['historical_gzip_aliases']})
+    return historical
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('operation', choices=('check', 'resolve', 'restore'))
@@ -103,32 +142,56 @@ def main():
     parser.add_argument('--destination', type=Path)
     args = parser.parse_args()
     inventory = json.loads(INVENTORY.read_text())
+    retention = json.loads(RETENTION.read_text()) if RETENTION.exists() else {}
+    historical = retained_sources(retention) if retention else {}
+    updates = retention.get('head_updates', {})
     entries = inventory['artifacts']
     if args.operation == 'check':
-        checked = restored = 0
+        checked = transcoded = git_blobs = 0
         for entry in entries:
-            if 'replacement' in entry:
+            if entry['path'] in historical:
+                historical_bytes(historical[entry['path']])
+                git_blobs += 1
+            elif 'replacement' in entry:
                 historical_gzip(entry)
-                restored += 1
-            elif digest(ROOT / entry['path']) != entry.get('current_sha256', entry['sha256']):
+                transcoded += 1
+            elif digest(ROOT / entry['path']) != updates.get(entry['path'], entry.get('current_sha256', entry['sha256'])):
                 raise ValueError('Changed retained artifact: ' + entry['path'])
             checked += 1
-        print(f'OK: {checked} baseline artifacts; {restored} exact historical gzip reconstructions; '
-              '0 unresolved inventory paths; no application certification')
+        # Includes the XZ identity independently of its original gzip alias.
+        for row in retention.get('artifacts', []):
+            if row['category'] == 'B':
+                historical_bytes(row['historical'])
+            elif digest(ROOT / row['path']) != updates.get(row['path'], row['sha256']):
+                raise ValueError('Changed HEAD artifact: ' + row['path'])
+        print(f'OK: {checked} baseline artifacts; {git_blobs} historical Git sources; '
+              f'{transcoded} local gzip reconstructions; all retention rows verified; '
+              'no application certification')
         return
     if not args.path:
         parser.error('path is required')
     requested = Path(args.path)
     if requested.is_absolute():
         requested = requested.resolve().relative_to(ROOT.resolve())
-    entry = next((e for e in entries if e['path'] == requested.as_posix()), None)
-    if entry is None:
-        parser.error('path is not in the baseline inventory')
-    if args.operation == 'resolve':
+    path = requested.as_posix()
+    entry = next((e for e in entries if e['path'] == path), None)
+    if path in historical:
+        source = historical[path]
+        if args.operation == 'resolve':
+            historical_bytes(source)
+            print('git:' + source['commit'] + ':' + source.get('historical_path', source['path']))
+        else:
+            if not args.destination:
+                parser.error('restore requires --destination (new file)')
+            restore_historical(source, args.destination)
+            print(f'OK: {args.destination}; historical SHA-256 {source["sha256"]}')
+    elif entry is None:
+        parser.error('path is not in the inventories')
+    elif args.operation == 'resolve':
         print(ROOT / entry.get('replacement', entry)['path'])
     else:
         if not args.destination or 'replacement' not in entry:
-            parser.error('restore requires --destination and a transcoded archive')
+            parser.error('restore requires --destination and a historical/transcoded archive')
         restore(entry, args.destination)
         print(f'OK: {args.destination}; historical SHA-256 {entry["sha256"]}')
 

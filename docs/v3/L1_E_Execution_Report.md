@@ -88,8 +88,8 @@ Production effectivement modifiée : **six fichiers dans trois modules**, `domai
 Preuves accessibles hors target :
 
 - [Index de tous les gates retenus et remplacés](../testing/evidence/L1-DE/Gate-index.json).
-- [Archives brutes D](../testing/evidence/L1-DE/D-gates-raw.tar.gz), [E finales](../testing/evidence/L1-DE/E-gates-raw.tar.gz), [E remplacées/FAIL](../testing/evidence/L1-DE/E-superseded-raw.tar.gz) et SHA-256 adjacents.
-- [Diagnostics D](../testing/evidence/L1-DE/D-diagnostics.tar.gz), [diagnostics E](../testing/evidence/L1-DE/E-diagnostics.tar.gz).
+- [Archives brutes D](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-DE/D-gates-raw.tar.gz), [E finales](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-DE/E-gates-raw.tar.gz), [E remplacées/FAIL](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-DE/E-superseded-raw.tar.gz) et SHA-256 adjacents.
+- [Diagnostics D](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-DE/D-diagnostics.tar.gz), [diagnostics E](https://github.com/kartaguez/pocoma/blob/3c6315cfd52dfee9d764a3cb00c16248793cdd8a/docs/testing/evidence/L1-DE/E-diagnostics.tar.gz).
 - [Matrice SPEC-10](../testing/evidence/L1-DE/SPEC10-matrix.json), [populations architecture](../testing/evidence/L1-DE/Architecture-populations.json), [reproduction et extraction](../testing/evidence/L1-DE/README.md).
 
 Les snapshots PG bruts, catalogues B, intervalles, tables métier/résultats/événements/slots, chronologies, PID/XID et fautes réseau C sont dans `app/*/target/v3-pot-evidence/` des archives. D ajoute les valeurs attendues/observées à chaque V, neuf requêtes pour une comme pour 21 Expenses sans Details/N+1, coûts indicatifs et rollback financier. E ajoute les oracles huit composantes, les parcours financiers avec la factory Spring/JPA et les vérifications des événements durables. Les données sensibles sont exclues des exports ; aucune fixture d'autorité n'est assimilée au cycle Identity réel.
