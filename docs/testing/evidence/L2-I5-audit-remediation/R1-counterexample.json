@@ -1,0 +1,107 @@
+{
+  "status": "FAIL \u2014 qualification stopped",
+  "contract_version": "I5-C-90-v1",
+  "contract_sha256": "4e07d322074d020f0734d29f05a95b24a073e8caf94d60ba2dae853cda3dc806",
+  "tested_sha": "8990737ce0b6f7df155d7e80aa698657815dc5ef",
+  "variant": "W2-B32-MW1-mixed",
+  "worker": 1,
+  "authority": "READ",
+  "lane": 2,
+  "cycle": 2,
+  "N": 4,
+  "R_allowed": 1,
+  "maximum_calls": 5,
+  "observed_calls": 6,
+  "observed_extra_calls": 2,
+  "planned_omission": "a5000000-0000-4000-8000-000000000001/2",
+  "unplanned_omission": "a5000000-0000-4000-8000-000000000002/2",
+  "read_calls": [
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451947849142541,
+      "began_ns": 2451947931135166,
+      "ended_ns": 2451947932720875,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000001/2"
+      ],
+      "omitted": [
+        "a5000000-0000-4000-8000-000000000001/2"
+      ],
+      "service": "PT0.083568209S",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451947865027375,
+      "began_ns": 2451947942786291,
+      "ended_ns": 2451947943940541,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000002/2"
+      ],
+      "omitted": [
+        "a5000000-0000-4000-8000-000000000002/2"
+      ],
+      "service": "PT0.0789085S",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451947849142541,
+      "began_ns": 2451947958466625,
+      "ended_ns": 2451947961272833,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000001/2"
+      ],
+      "omitted": [],
+      "service": "PT0.112123459S",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451947865027375,
+      "began_ns": 2451947972346750,
+      "ended_ns": 2451947973752458,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000002/2"
+      ],
+      "omitted": [],
+      "service": "PT0.10871525S",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451948880415833,
+      "began_ns": 2451948988231083,
+      "ended_ns": 2451948990061833,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000001/3"
+      ],
+      "omitted": [],
+      "service": "PT0.10964075S",
+      "outcome": "CONFIRMED"
+    },
+    {
+      "authority": "READ",
+      "lane": 2,
+      "due_ns": 2451948892437708,
+      "began_ns": 2451949000405708,
+      "ended_ns": 2451949002134416,
+      "candidates": [
+        "a5000000-0000-4000-8000-000000000002/3"
+      ],
+      "omitted": [],
+      "service": "PT0.109690542S",
+      "outcome": "CONFIRMED"
+    }
+  ],
+  "physical_path": "app/runtime-command-consumption-worker/target/v3-i5-evidence/audit-C-W2-B32-MW1-mixed-cycle2.txt",
+  "physical_sha256": "9a90e192fc306d06c376671ae375c9a9ff34add7d3e7b1f2e3e11efb47274441",
+  "lock_holder_of_unplanned_omission": "NOT OBSERVED at the instant; no unsupported attribution to Discovery/network/PostgreSQL failure",
+  "SQL_oracle": "same tokens, durable extension and old deadline safety checked before R assertion; no evidence of deadline or fencing violation",
+  "decision": "Do not raise R or exclude sample. No 90s certificate. Separate explicit decision and new immutable contract/campaign required before resuming."
+}
