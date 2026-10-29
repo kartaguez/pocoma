@@ -272,6 +272,7 @@ class V3WorkerResourcesPostgresTest {
 
         final Fixture fixture;
         final int worker, workers, mw, batch;
+        final String variant;
         final List<Sample> samples = new CopyOnWriteArrayList<>();
         final List<String> errors = new CopyOnWriteArrayList<>();
         final AtomicInteger captured = new AtomicInteger();
@@ -284,7 +285,8 @@ class V3WorkerResourcesPostgresTest {
         volatile int cycle;
         V3WorkerPostgresTest.Runtime runtime;
 
-        CJournal(Fixture fixture, int worker, int workers, int mw, int batch) {
+        CJournal(Fixture fixture, int worker, int workers, int mw, int batch, String variant) {
+            this.variant = variant;
             this.fixture = fixture;
             this.worker = worker;
             this.workers = workers;
@@ -743,7 +745,7 @@ class V3WorkerResourcesPostgresTest {
         int external =
                 f.write.queryForObject(
                         "select count(*) from pg_stat_activity where usename is not null and"
-                            + " usename not in (?,?)",
+                                + " usename not in (?,?)",
                         Integer.class,
                         f.writeRole,
                         f.readRole);
@@ -760,7 +762,7 @@ class V3WorkerResourcesPostgresTest {
                         + " sessions="
                         + f.write.queryForList(
                                 "select usename,count(*) from pg_stat_activity where usename is not"
-                                    + " null group by usename"));
+                                        + " null group by usename"));
         for (int cycle = 1; cycle <= 2; cycle++) {
             var initial = Map.of(f.write, cVector(f.write, held), f.read, cVector(f.read, held));
             assertEquals(12 + held.size(), initial.values().stream().mapToInt(Map::size).sum());
@@ -861,6 +863,8 @@ class V3WorkerResourcesPostgresTest {
                                 + journals.getFirst().batch
                                 + "-MW"
                                 + journals.getFirst().mw
+                                + "-"
+                                + journals.getFirst().variant
                                 + "-cycle"
                                 + cycle);
             }
@@ -938,8 +942,8 @@ class V3WorkerResourcesPostgresTest {
                                     + "s claim60s cadence10s op5s JVM1s safety2s; all12 C/p"
                                     + " jointly; server budget pool maxima plus16"
                                     + " external/reserved");
-                    var ja = new CJournal(f, 0, 2, mw, batch);
-                    var jb = new CJournal(f, 1, 2, mw, batch);
+                    var ja = new CJournal(f, 0, 2, mw, batch, "mixed");
+                    var jb = new CJournal(f, 1, 2, mw, batch, "mixed");
                     try (var a = new V3WorkerPostgresTest.Runtime(configs.get(0), ja::observe);
                             var b = new V3WorkerPostgresTest.Runtime(configs.get(1), jb::observe)) {
                         ja.attach(a);
@@ -2321,7 +2325,7 @@ class V3WorkerResourcesPostgresTest {
                 f.properties.put(
                         "pocoma.v3.worker.lifecycle.lease-duration-ms",
                         Long.toString(leaseSeconds * 1000));
-                var journal = new CJournal(f, 0, 1, mw, batch);
+                var journal = new CJournal(f, 0, 1, mw, batch, "held" + held);
                 try (var runtime = new V3WorkerPostgresTest.Runtime(f, journal::observe)) {
                     journal.attach(runtime);
                     seedPublications(f, runtime, 6);
