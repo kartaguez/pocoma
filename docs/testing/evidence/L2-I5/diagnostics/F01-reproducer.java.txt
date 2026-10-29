@@ -1,0 +1,15 @@
+package com.kartaguez.pocoma.runtime.command.v3;
+import java.util.*;import com.kartaguez.pocoma.engine.consumption.v3.port.*;import org.testcontainers.postgresql.PostgreSQLContainer;import org.testcontainers.utility.DockerImageName;
+public class I5ReadUnknownProbe {public static void main(String[] args)throws Exception {
+ try(var pg=new PostgreSQLContainer(DockerImageName.parse(V3WorkerPostgresTest.IMAGE).asCompatibleSubstituteFor("postgres"))) {
+  pg.start();V3WorkerPostgresTest.initialize(pg);
+  try(var f=new V3WorkerPostgresTest.Fixture(pg);var runtime=new V3WorkerPostgresTest.Runtime(f,ConsumptionObservation.noop())) {
+   var b=runtime.bindings.getFirst();var id=V3WorkerPostgresTest.pendingAtPartitionZero(f,99100);var lease=b.engine().acquirePartition(0).orElseThrow();b.discovery().discoverRequests(lease,com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngine.RequestWalk.fresh());var claim=b.engine().acquire(lease,List.of(id)).claims().getFirst();
+   var fault=V3WorkerResourcesPostgresTest.businessFault(runtime,true);fault.armed.set(true);
+   try {
+    Thread.currentThread().setName("v3-attempt-private-probe");var result=b.engine().execute(claim);Thread.currentThread().setName("main");System.out.println("READ_PROBE status="+result.status()+" resolution="+result.resolution()+" retained="+(fault.physical.get()!=null));
+    if(fault.physical.get()!=null){int pid=fault.pid.get();boolean active=f.write.queryForObject("select exists(select 1 from pg_stat_activity where pid=? and xact_start is not null)",Boolean.class,pid);int released=b.engine().settlePending();System.out.println("READ_PROBE active="+active+" released="+released+" capacity="+runtime.capacity.snapshot().worker());}
+   }finally{fault.resolveRollback();b.engine().settlePending();}
+  }
+ }
+}}

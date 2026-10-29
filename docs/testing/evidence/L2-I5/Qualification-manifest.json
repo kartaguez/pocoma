@@ -1,0 +1,1290 @@
+{
+  "milestone": "L2-I5",
+  "baseline": "73a588f3b24ca48d16573a5d757b0d0c9e50c93b",
+  "authorization": "Explicit human GO, 2026-10-28",
+  "status": "NOT RUN",
+  "audit_reservation": "R-AUD-I3-03 OPEN",
+  "scope": "COMMAND; READ JDBC; MONOLITH; architecture and full final gates",
+  "required_methods": {
+    "V3ConsumptionWorkerTest": [
+      "i5_u01",
+      "i5_u02",
+      "i5_u03",
+      "i5_u04",
+      "i5_u05",
+      "i5_u06",
+      "i5_u07",
+      "i5_u08",
+      "i5_u09",
+      "i5_u10"
+    ],
+    "SlotNavigationPostgresTest": [
+      "i5_n01",
+      "i5_n02",
+      "i5_n03",
+      "i5_n04",
+      "i5_n05",
+      "i5_n06",
+      "i5_n07",
+      "i5_n08"
+    ],
+    "V3WorkerPostgresTest": [
+      "i5_w01",
+      "i5_w02",
+      "i5_w03",
+      "i5_w04",
+      "i5_w05",
+      "i5_w06",
+      "i5_w07",
+      "i5_w08",
+      "i5_w09",
+      "i5_w10",
+      "i5_w11",
+      "i5_w12",
+      "i5_w13",
+      "i5_w14",
+      "i5_w15",
+      "i5_w16",
+      "i5_w17",
+      "i5_w18",
+      "i5_w19",
+      "i5_w20",
+      "i5_w21"
+    ],
+    "V3WorkerResourcesPostgresTest": [
+      "i5_r01",
+      "i5_r02",
+      "i5_r03",
+      "i5_r04",
+      "i5_r05",
+      "i5_r06",
+      "i5_r07",
+      "i5_r08",
+      "i5_r09",
+      "i5_r10",
+      "i5_r11",
+      "i5_r12"
+    ],
+    "V3WorkerCompositionPostgresTest": [
+      "i5_c01",
+      "i5_c02",
+      "i5_c03",
+      "i5_c04",
+      "i5_c05"
+    ],
+    "V3WorkerMetricsTest": [
+      "i5_m01",
+      "i5_m02"
+    ],
+    "V3WorkerMonolithPostgresTest": [
+      "i5_mono01"
+    ],
+    "ReadDiscoveryPrivilegesPostgresTest": [
+      "i5_read_pools"
+    ],
+    "ConsumptionFailureClassificationTest": [
+      "countableRequiresKnownCauseAndRollback",
+      "oneShotAndCancellation",
+      "committedPreparationAckCanBeInspected",
+      "rawPreparationExitCannotBeSettledFromSlot",
+      "unusedConfirmedClaimCanBeAbandoned",
+      "unresolvedRecoveryCannotBeRetriedOrSettled"
+    ]
+  },
+  "required_variants": {
+    "i5_w17": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ],
+    "i5_w18": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6"
+    ],
+    "i5_r09": [
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5",
+      "P6",
+      "P7"
+    ],
+    "i5_r12": [
+      "B32-MW1",
+      "B32-MW4",
+      "B1-MW1",
+      "B1-MW4"
+    ]
+  },
+  "resource_proofs": {
+    "WRITE": {
+      "A": "NOT RUN",
+      "B": "NOT RUN",
+      "C": "NOT RUN"
+    },
+    "READ": {
+      "A": "NOT RUN",
+      "B": "NOT RUN",
+      "C": "NOT RUN"
+    }
+  },
+  "inherited_manifests": [
+    "L2_I2_Proof_Manifest.json",
+    "L2_I3_Post_Audit_Proof_Manifest.json",
+    "L2_I4_Proof_Manifest.json"
+  ],
+  "gates": {
+    "C": "NOT RUN",
+    "R": "NOT RUN",
+    "M": "NOT RUN",
+    "A": "NOT RUN",
+    "F": "NOT RUN"
+  },
+  "read_probes": "TECHNICAL_ONLY",
+  "global_L2": "NOT_CERTIFIED",
+  "method_modules": {
+    "V3ConsumptionWorkerTest": "orchestrator-poll-consumption",
+    "SlotNavigationPostgresTest": "infra-persistence-primary-jpa",
+    "V3WorkerPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerResourcesPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerCompositionPostgresTest": "runtime-command-consumption-worker",
+    "V3WorkerMetricsTest": "runtime-command-consumption-worker",
+    "V3WorkerMonolithPostgresTest": "runtime-monolith",
+    "ReadDiscoveryPrivilegesPostgresTest": "infra-persistence-read-jdbc",
+    "ConsumptionFailureClassificationTest": "engine-consumption"
+  },
+  "class_names": {
+    "V3ConsumptionWorkerTest": "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest",
+    "SlotNavigationPostgresTest": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+    "V3WorkerPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest",
+    "V3WorkerResourcesPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+    "V3WorkerCompositionPostgresTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+    "V3WorkerMetricsTest": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerMetricsTest",
+    "V3WorkerMonolithPostgresTest": "com.kartaguez.pocoma.V3WorkerMonolithPostgresTest",
+    "ReadDiscoveryPrivilegesPostgresTest": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest",
+    "ConsumptionFailureClassificationTest": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest"
+  },
+  "gate_modules": {
+    "C": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-command-consumption-worker"
+    ],
+    "R": [
+      "engine-consumption",
+      "infra-persistence-read-jdbc"
+    ],
+    "M": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-monolith"
+    ],
+    "A": [
+      "engine-consumption",
+      "orchestrator-poll-consumption",
+      "infra-persistence-primary-jpa",
+      "infra-persistence-read-jdbc",
+      "runtime-command-consumption-worker",
+      "runtime-monolith",
+      "architecture-tests"
+    ]
+  },
+  "physical_requirements": [
+    {
+      "id": "N1",
+      "glob": "**/i5_n01-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N2",
+      "glob": "**/i5_n02-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N3",
+      "glob": "**/i5_n03-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N4",
+      "glob": "**/i5_n04-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N5",
+      "glob": "**/i5_n05-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N6",
+      "glob": "**/i5_n06-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N7",
+      "glob": "**/i5_n07-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "N8",
+      "glob": "**/i5_n08-*.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H1",
+      "glob": "**/i5_w17-H1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-WRITE",
+      "glob": "**/i5_w17-H2-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-WRITE",
+      "glob": "**/i5_w17-H3-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-false",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-WRITE-true",
+      "glob": "**/i5_physical-WRITE-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-WRITE",
+      "glob": "**/i5_physical-WRITE-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-WRITE",
+      "glob": "**/i5_r02-P2-WRITE.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-WRITE",
+      "glob": "**/i5_r03-P1-WRITE.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-WRITE",
+      "glob": "**/i5_r03-P3-P6-WRITE.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-WRITE",
+      "glob": "**/i5_r04-P4-WRITE.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-BEFORE",
+      "glob": "**/i5_r06-P5-WRITE-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-AFTER",
+      "glob": "**/i5_r06-P5-WRITE-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-WRITE-RETAIN",
+      "glob": "**/i5_r06-P5-WRITE-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-WRITE",
+      "glob": "**/i5_r09-P7-WRITE.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-WRITE",
+      "glob": "**/i5_r02-joint-WRITE.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H2-READ",
+      "glob": "**/i5_w17-H2-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H3-READ",
+      "glob": "**/i5_w17-H3-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetirefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "H4-READ-true",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse-H4-afterRetiretrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-false",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "physical-READ-true",
+      "glob": "**/i5_physical-READ-cessiontrue-deadlinefalse.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D6-READ",
+      "glob": "**/i5_physical-READ-cessionfalse-deadlinetrue.txt",
+      "contains": [
+        "external physical rollback",
+        "transport fault scoped to target envelope thread; target wrapper exited with its own ticket retained"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P2-READ",
+      "glob": "**/i5_r02-P2-READ.txt",
+      "contains": [
+        "7 identified",
+        "all10 blocked"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P1-READ",
+      "glob": "**/i5_r03-P1-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P3-P6-READ",
+      "glob": "**/i5_r03-P3-P6-READ.txt",
+      "contains": [
+        "P3/P6: S2 singleton"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P4-READ",
+      "glob": "**/i5_r04-P4-READ.txt",
+      "contains": [
+        "P4 actual relation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-BEFORE",
+      "glob": "**/i5_r06-P5-READ-BEFORE.txt",
+      "contains": [
+        "wire=BEFORE"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-AFTER",
+      "glob": "**/i5_r06-P5-READ-AFTER.txt",
+      "contains": [
+        "wire=AFTER"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P5-READ-RETAIN",
+      "glob": "**/i5_r06-P5-READ-RETAIN.txt",
+      "contains": [
+        "wire=RETAIN"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "P7-READ",
+      "glob": "**/i5_r09-P7-READ.txt",
+      "contains": [
+        "no local rearm/stop callback"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "joint-READ",
+      "glob": "**/i5_r02-joint-READ.txt",
+      "contains": [
+        "four true post-rollback cessions"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D1",
+      "glob": "**/i5_w18-D1.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D4",
+      "glob": "**/i5_w18-D4.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D2",
+      "glob": "**/i5_w05-D2.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "D3",
+      "glob": "**/i5_w05-D3.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-admission",
+      "glob": "**/i5_w14-admission.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-acquire",
+      "glob": "**/i5_w14-acquire.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-delete",
+      "glob": "**/i5_w14-delete.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-publication",
+      "glob": "**/i5_w14-publication.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-commit",
+      "glob": "**/i5_w14-commit.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "crash-cession",
+      "glob": "**/i5_w14-cession.txt",
+      "contains": [
+        "normal expiry/fenced takeover"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "idle",
+      "glob": "**/i5_w16.txt",
+      "contains": [
+        "idle=before",
+        "idle=after"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW1-held0",
+      "glob": "**/i5_r05-C-B32-MW1-held0.txt",
+      "contains": [
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW1-held1",
+      "glob": "**/i5_r05-C-B32-MW1-held1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-32-MW4-held-1",
+      "glob": "**/i5_r05-C-B32-MW4-held-1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "cadence-1-MW4-held-1",
+      "glob": "**/i5_r05-C-B1-MW4-held-1.txt",
+      "contains": [
+        "due->physical commit/cleanup samples=",
+        "all12leases renewed",
+        "partial-batch conservative"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "A-inventory",
+      "glob": "**/i5_r02-A-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "B-business",
+      "glob": "**/i5_r01-B-WRITE-READ.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "activation",
+      "glob": "**/i5_c05.txt",
+      "contains": [],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "mono",
+      "glob": "**/i5_mono01.txt",
+      "contains": [],
+      "gates": [
+        "M",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F01-WRITE",
+      "glob": "**/i5_w13-READ-PREPARATION-WRITE.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F01-READ",
+      "glob": "**/i5_w13-READ-PREPARATION-READ.txt",
+      "contains": [
+        "read-only preparation still physically active",
+        "no release/rearm via current ports",
+        "normal lease/claim expiry"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-lease-aging",
+      "glob": "**/i5_r10-lease-rotation-WRITE-READ.txt",
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ],
+      "contains": [
+        "real lease SQL wait WRITE",
+        "real lease SQL wait READ",
+        "lease authority=WRITE",
+        "lease authority=READ",
+        "all12leases renewed",
+        "priorDeadlineMarginNs"
+      ]
+    },
+    {
+      "id": "I5-F03-WRITE",
+      "glob": "**/i5_w20-control-unknown-WRITE.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F03-READ",
+      "glob": "**/i5_w20-control-unknown-READ.txt",
+      "contains": [
+        "Control physical UNKNOWN after local return PID=",
+        "L1 retained with capacity0",
+        "external rollback and deadline did not close pools",
+        "normal fenced restart; one real Command and two READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-CONTROL-WRITE",
+      "glob": "**/i5_w21-recovery-CONTROL-WRITE.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-CONTROL-READ",
+      "glob": "**/i5_w21-recovery-CONTROL-READ.txt",
+      "contains": [
+        "Recovery CONTROL physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-WRITE",
+      "glob": "**/i5_w21-recovery-READ-WRITE.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F04-READ-READ",
+      "glob": "**/i5_w21-recovery-READ-READ.txt",
+      "contains": [
+        "Recovery READ physically active after local UNKNOWN PID=",
+        "Repeated drain and later inspection cannot reuse uncertain recovery unit",
+        "external rollback/deadline do not qualify STOPPED",
+        "Normal restart retains one Command result and exactly two technical READ effects"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F05-WRITE",
+      "glob": "**/i5_r11-lease-skip-WRITE.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=WRITE",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "I5-F05-READ",
+      "glob": "**/i5_r11-lease-skip-READ.txt",
+      "contains": [
+        "SKIP LOCKED omitted live lease authority=READ",
+        "blockerPID=",
+        "renewPID=",
+        "same incarnation renewed before prior PG deadline with safety2s",
+        "no new ticket or owner",
+        "original due retained across revalidation"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B32-MW1",
+      "glob": "**/i5_r12-C-W2-B32-MW1.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B32-MW4",
+      "glob": "**/i5_r12-C-W2-B32-MW4.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B1-MW1",
+      "glob": "**/i5_r12-C-W2-B1-MW1.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    },
+    {
+      "id": "C-W2-B1-MW4",
+      "glob": "**/i5_r12-C-W2-B1-MW4.txt",
+      "contains": [
+        "predeclared W2 C:",
+        "W2 held real RO preparation",
+        "W2 all12 leases and",
+        "actual role connections=",
+        "original due->commit/cleanup",
+        "W2 both qualified STOPPED, physical role connections0",
+        "incomplete slots not purged; READ remains technical only"
+      ],
+      "gates": [
+        "C",
+        "A",
+        "F"
+      ]
+    }
+  ],
+  "variant_coverage": {
+    "H1": "w17-H1",
+    "H2": "w17-H2 WRITE/READ",
+    "H3": "w17-H3 WRITE/READ",
+    "H4": "w17 physical WRITE/READ before/after retirement",
+    "D1": "w18-D1",
+    "D2": "w05-D2",
+    "D3": "w05-D3",
+    "D4": "w18-D4",
+    "D5": "w11 physical WRITE/READ; w06 cancellation physical active",
+    "D6": "w13 physical deadline WRITE/READ",
+    "P1": "r03 row SKIP LOCKED WRITE/READ",
+    "P2": "r01/r02 saturation natural joint and artificial stress WRITE/READ",
+    "P3": "r03 targeted lock wait WRITE/READ",
+    "P4": "r04 relation WRITE/READ",
+    "P5": "r06 real TCP before/after/residual WRITE/READ",
+    "P6": "r03 confirmed PostgreSQL timeout and normal resumption",
+    "P7": "r09 child UNKNOWN sticky WRITE/READ"
+  },
+  "implementation_findings": {
+    "I5-F01": {
+      "status": "UNDER VERIFICATION",
+      "normative_invariant": "UNKNOWN read-only physical unit cannot be resolved by unlocked slot inspection",
+      "resolution": "Engine retains ticket with a local monotone unresolvedPreparation flag; Worker drains on UNKNOWN; no new owner/SQL/durable state/API",
+      "proof_methods": [
+        "ConsumptionFailureClassificationTest",
+        "ConsumptionLifecyclePostgresTest.i3_c05_j",
+        "V3WorkerPostgresTest.i5_w13 WRITE/READ child variants"
+      ],
+      "historical_assertions_strengthened": [
+        "engine-consumption/ConsumptionFailureClassificationTest",
+        "infra-persistence-primary-jpa/ConsumptionLifecyclePostgresTest.i3_c05_j"
+      ]
+    },
+    "I5-F02": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02 / R-AUD-I3-03 / OR-EQ-RENEW",
+      "counterexample": "Fixed first-due order can repeatedly renew early entries and starve a later lease. Unit negative and real PostgreSQL B1/1.5s SQL negative recorded.",
+      "change": "Oldest local renewal age selects the binding and orders its bounded batch; no new state/owner/pool/queue. SQL authority unchanged.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u08",
+        "V3WorkerResourcesPostgresTest.i5_r10",
+        "V3WorkerResourcesPostgresTest.i5_r05 all12 lease deadlines and partial-batch calibration"
+      ],
+      "limit": "Nominal configured batch count is only an initial guard; C qualification counts candidates and full measured paths plus polling/JVM margins, then checks every PG deadline. No unconditional production guarantee."
+    },
+    "I5-F03": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-03 / OR-AT-UNIT / drain physical qualification",
+      "counterexample": "Unchanged 3efcb8cc: local Control UNKNOWN returned with operations=0 and capacity=0 while PostgreSQL backend remained active; worker reported stopped=true and closed resources with activeAtPoolClose=true.",
+      "change": "Retain existing L1 registration on UNKNOWN or raw unqualified opportunity exit and request DRAINING. No new owner, ticket, durable state, recovery API or pool. Only a normal return or physically qualified Failure(COMMITTED/ROLLED_BACK) retires L1.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u09",
+        "V3WorkerPostgresTest.i5_w20 WRITE/READ child variants"
+      ],
+      "limit": "Current opportunity ports expose no physical witness after UNKNOWN. Even later external rollback cannot clear L1; incomplete drain remains DRAINING with pools open and no successful callback until JVM termination classified CRASH."
+    },
+    "I5-F04": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02/R-I5-03; inspection and read-only recovery physical uncertainty",
+      "counterexample": "On c8b0815b, real Command committed with lost ACK then maintenance inspect UNKNOWN; repeated authorized requestDrain wakes let later inspection release the ticket and close pools with original PostgreSQL PID/XID still active. No timeout or SQL policy changed.",
+      "change": "Engine retains a monotone local unresolvedRecovery exclusion for unqualified inspection/observation; its existing handles retain any uncertain recovery read. Read-only hasUnresolvedRecovery view lets the existing maintenance lane stop reuse and lets supervisor refuse STOPPED. No new owner, transaction protocol, SQL, pool, tickets or durable machine.",
+      "proofs": [
+        "ConsumptionFailureClassificationTest.unresolvedRecoveryCannotBeRetriedOrSettled",
+        "V3WorkerPostgresTest.i5_w21 CONTROL/READ x WRITE/READ"
+      ],
+      "limit": "No local clear/rearm even after independent external rollback; incomplete drain needs process termination classified CRASH and normal successor. Known COMMITTED/ROLLED_BACK units remain retryable for fresh inspection; valid individual claim renewals continue."
+    },
+    "I5-F05": {
+      "status": "UNDER VERIFICATION",
+      "reservation": "R-I5-02 / OR-EQ-RENEW; qualified SKIP LOCKED lease omission",
+      "counterexample": "r05 held READ failed with one unchanged lease while other11 leases and held claim advanced. On 3599e770, deterministic r11 WRITE actual row blocker caused qualified omission; after blocker release target was not renewed before the5s watchdog, although prior lease deadline remained future. Unit u10 also fails before fix.",
+      "change": "Existing LeaseEntry retains an unusable incarnation for a bounded revalidation window after a physically qualified omission. Normal CAS renewals only; positive same-incarnation result restores local usability. UNKNOWN remains excluded with its Call, never retried. Retry window exhaustion removes local entry without asserting durable loss. Two local timing fields preserve original due/service measurement separately from the retry work budget; bounded list and existing lane only.",
+      "proofs": [
+        "V3ConsumptionWorkerTest.i5_u10",
+        "V3WorkerResourcesPostgresTest.i5_r11 WRITE/READ",
+        "V3WorkerResourcesPostgresTest.i5_r05",
+        "V3WorkerResourcesPostgresTest.i5_r10"
+      ],
+      "limit": "Window bounds starts of fresh revalidation opportunities, not physical resolution of an in-flight call. Original due-to-completion remains measured. Persistent lock/loss may require ordinary DB expiry and reacquisition; no guarantee under outage, no release/takeover inferred from local timeout.",
+      "measurement": "r11 holds real lock path for PostgreSQL pg_sleep0.1 and verifies second complete service retains original due; r05 budget takes max of conservative candidate operation sum and measured complete due-to-commit service plus JVM margin, against predeclared TTL and independent old SQL deadlines."
+    }
+  },
+  "verification_adjustments": [
+    {
+      "id": "I5-T01",
+      "methods": [
+        "i5_w08",
+        "i5_w18",
+        "i5_r02"
+      ],
+      "scope": "TEST ONLY; production source unchanged from ac9f7642",
+      "details": [
+        "D1: held Consumption L1 plus optional returning Discovery L1; bounded1..2, then zero after qualified stop",
+        "Quarantine: explicit MW1 claim10s lease20s renewal1s; unchanged64 active slots +Q, ordinary expiry and restricted reactivation; per-verification watchdog180s, no absolute R10 latency assertion",
+        "Borrower inventory: eight seeded READ effects before deliberate UNKNOWN; real Command outcome/two publications/slot removal plus R9 and cession inventory; no new READ dispatch required during drain"
+      ]
+    },
+    {
+      "id": "I5-T02",
+      "methods": [
+        "i5_r01",
+        "i5_r05"
+      ],
+      "scope": "TEST ORACLES alongside productive I5-F03",
+      "details": [
+        "r01 first proves actual WRITE/READ background renewals under MW4 RUNNING, then prohibits new opportunities before synthetic Business loan exhaustion; held claims still renew in DRAINING and finish their real effects. No post-drain source borrow or new dispatch is required.",
+        "r05 tracks only genuinely started held preparation IDs, checks abandoned unused claims do not renew, and requires all12 leases to advance. Startup lease ownership requires a future PostgreSQL deadline. Detailed independent SQL/local snapshots retained on failure."
+      ]
+    },
+    {
+      "id": "I5-T03",
+      "methods": [
+        "i5_u01"
+      ],
+      "scope": "TEST ONLY; source code executor policy unchanged",
+      "counterexample": "F at c8b0815b: third single-pass dispatch rejected because previous effect count became visible before the zero-queue executor returned to waiting handoff; 5s condition failed.",
+      "change": "Wait for both Engine capacity0 and activeCount0 and actual attempt thread parked in SynchronousQueue before each next single-pass assertion; effects/rotation expectations unchanged. This local unit oracle is not a PostgreSQL resolution witness."
+    },
+    {
+      "id": "I5-T04",
+      "methods": [
+        "i5_r12"
+      ],
+      "scope": "TEST ONLY; production byte-identical to7296e11c",
+      "purpose": "Complete planned section22 r05 two-loaded-Worker calibration; existing w02 overlap safety was insufficient for C.",
+      "cases": "B1/B32 x MW1/4; two real compositions, disjoint candidates0|1 vs2|3 jointly own all12 C/p; overlapping ownership remains w02.",
+      "oracles": "Real RO preparation PID/XID; MC/MW per Worker, distinct capacity/four pools each,40/64 actual role connections with server100 and reserved16, complete measured paths including original retry due, PG old deadlines safety2s, JVM gap1s, qualified dual drain and unique effects/no incomplete slot purge."
+    },
+    {
+      "id": "I5-T05",
+      "methods": [
+        "i5_w11",
+        "i5_w13",
+        "i5_w17"
+      ],
+      "scope": "TEST ONLY; production unchanged since7296e11c",
+      "counterexample": "At e257c381 C/R/M/A passed; F w13 READ saw target effect1 while another READ transaction was held UNKNOWN. The RetainingSource shared by both probes selected any v3-attempt thread, so a sibling commit could consume the armed fault.",
+      "change": "Capture the exact target attempt Thread in its participant, restrict fault predicate to that object, await that envelope wrapper exit under the existing monitor, and verify Engine retainsCapacity for its exact handle. No production policy change, no weakened outcome/slot/physical assertions.",
+      "targeted_result": "w11/w13/w17 WRITE/READ targeted PASS; final common gates must rerun."
+    }
+  ]
+}

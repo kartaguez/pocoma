@@ -1,0 +1,131 @@
+{
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "baseline": "73a588f3b24ca48d16573a5d757b0d0c9e50c93b",
+  "scope": "I5 LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING; global L2 NOT CERTIFIED",
+  "gates": {
+    "C": {
+      "archive": "C-9a315e16.tar.gz",
+      "sha256": "0414940228529a0596e2be4bf1cb446932bf2e6bcbcd693d50a1a4bdfaff858a",
+      "verdict": "PASS",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-command-consumption-worker",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "checkout": "/private/tmp/pocoma-i5-gate-command",
+      "tests": 1637,
+      "required_methods": 396,
+      "elapsed_seconds": 3813.044,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "result_sha256": "7cb3eed75b4f90f0dbbafcf651584f641136451898b7c6694d1720835f3a53a3",
+      "physical_artifacts": 943,
+      "xml_artifacts": 247
+    },
+    "R": {
+      "archive": "R-9a315e16.tar.gz",
+      "sha256": "cf29979bfe5a9d8a0c1819b7500a38bf1cb76cfcbf3ed4c3232b2d500e7d8750",
+      "verdict": "PASS",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "infra-persistence-read-jdbc",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "checkout": "/private/tmp/pocoma-i5-gate-monolith",
+      "tests": 378,
+      "required_methods": 17,
+      "elapsed_seconds": 41.796,
+      "skips": [],
+      "result_sha256": "634b221580cb433c2b23860b2a5698681f37bedc731d6b09dc73ca44cc01c237",
+      "physical_artifacts": 4,
+      "xml_artifacts": 85
+    },
+    "M": {
+      "archive": "M-9a315e16.tar.gz",
+      "sha256": "a5b621340bab97bba726340599c2662f51bd32934c5f5747721b5090753f01fe",
+      "verdict": "PASS",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "runtime-monolith",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "checkout": "/private/tmp/pocoma-i5-gate-monolith",
+      "tests": 1355,
+      "required_methods": 334,
+      "elapsed_seconds": 1991.647,
+      "skips": [],
+      "result_sha256": "458028b79e89162b4b3fa22f23802d90febc52c373a9cb3aae3f2e86ef487120",
+      "physical_artifacts": 823,
+      "xml_artifacts": 220
+    },
+    "A": {
+      "archive": "A-9a315e16.tar.gz",
+      "sha256": "17a5a2c2f456e3ba3d0d31051191101b595473e131a57e875ac3b99f1b42b11a",
+      "verdict": "PASS",
+      "command": [
+        "./mvnw",
+        "-pl",
+        "architecture-tests",
+        "-am",
+        "test"
+      ],
+      "cwd": "app/",
+      "checkout": "/private/tmp/pocoma-i5-gate-architecture",
+      "tests": 1905,
+      "required_methods": 420,
+      "elapsed_seconds": 3933.894,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "result_sha256": "83fb60271ede6d0935b8bcdb0b2efeb8fca51f81f2fdc8e598d9b92c42cd7631",
+      "physical_artifacts": 944,
+      "xml_artifacts": 302
+    },
+    "F": {
+      "archive": "F-9a315e16.tar.gz",
+      "sha256": "8b6d77c8e637eb2fd82d428f36bff0a3d792692c26d458eaf3e4eeed458427aa",
+      "verdict": "PASS",
+      "command": [
+        "./mvnw",
+        "test"
+      ],
+      "cwd": "app/",
+      "checkout": "/private/tmp/pocoma-v3-postaud",
+      "tests": 1905,
+      "required_methods": 420,
+      "elapsed_seconds": 3933.802,
+      "skips": [
+        {
+          "class": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+          "method": "zExploratoryContentionSeparateFromCorrectness",
+          "state": "SKIP"
+        }
+      ],
+      "result_sha256": "dd9ffc099098d599ed4f269b3a3927f6ff7603988e2cbe910675ecfccfcf7d6f",
+      "physical_artifacts": 944,
+      "xml_artifacts": 302
+    }
+  },
+  "qualification_manifest_sha256": "107e1d62ae96783c937d2646920b398aae8a08a21dec3c08ae2ba8c2fd87c035",
+  "development_jar_sha256": "75cb7c59f222c74f6173a68ab888397f860fe069bedca72e5203552f81f6a697",
+  "development_build_sha": "7296e11caaca33c58392880091aabd491a1ae188",
+  "development_equivalent_tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7"
+}

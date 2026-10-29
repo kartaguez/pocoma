@@ -1,0 +1,817 @@
+{
+  "baseline": "73a588f3b24ca48d16573a5d757b0d0c9e50c93b",
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "scope": "Final tracked delivery, no deletion or unrelated checkout change",
+  "files": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionFoundationArchitectureTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/command/v3/V3PotCommandComposition.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/MicrometerV3ConsumptionObservation.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3BootstrapGuard.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionDiscoveryComposition.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionLifecycleComposition.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerConfiguration.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3FixturePotActorAuthority.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/dev/V3TechnicalReadParticipant.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionEngine.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacity.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/ConsumptionObservation.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/engine-consumption/src/main/java/com/kartaguez/pocoma/engine/consumption/v3/port/SlotKeyNavigation.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/ConsumptionFailureClassificationTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/engine-consumption/src/test/java/com/kartaguez/pocoma/engine/consumption/v3/WorkerCapacityTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/consumption/JdbcSlotKeyNavigation.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/ConsumptionLifecyclePostgresTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/SlotNavigationPostgresTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/infra-persistence-read-jdbc/src/test/java/com/kartaguez/pocoma/infra/persistence/read/jdbc/v3/consumption/ReadDiscoveryPrivilegesPostgresTest.java",
+      "operation": "MODIFY",
+      "category": "TEST"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/pom.xml",
+      "operation": "MODIFY",
+      "category": "BUILD"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionLoop.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorker.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3DiscoveryLoop.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/src/main/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3RenewalService.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/orchestrator-poll-consumption/src/test/java/com/kartaguez/pocoma/orchestrator/poll/consumption/v3/V3ConsumptionWorkerTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/pom.xml",
+      "operation": "MODIFY",
+      "category": "BUILD"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/main/java/com/kartaguez/pocoma/PocomaCommandConsumptionWorkerApplication.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/main/java/com/kartaguez/pocoma/runtime/command/v3/dev/V3WorkerDevelopmentTools.java",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/main/resources/application-v3-consumption-worker-dev.properties",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerCompositionPostgresTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerMetricsTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerPostgresTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "app/runtime-monolith/src/main/java/com/kartaguez/pocoma/PocomaRuntimeMonolithApplication.java",
+      "operation": "MODIFY",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/runtime-monolith/src/main/resources/application-v3-consumption-worker-dev.properties",
+      "operation": "CREATE",
+      "category": "PRODUCTION"
+    },
+    {
+      "path": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3WorkerMonolithPostgresTest.java",
+      "operation": "CREATE",
+      "category": "TEST"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/A-9a315e16.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/C-9a315e16.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Changed-files.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Development-compiled-equivalence.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/F-9a315e16.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Gate-index.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Independent-compilation-check.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Integrity-check.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/M-9a315e16.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Qualification-manifest.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/R-9a315e16.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/README.md",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/Raw-artifact-encoding.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/development/demonstration.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/development/input-sha256.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/development/prometheus.txt.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/development/result.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/development/worker.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-22362595-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-3efcb8cc-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-7296e11c-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-ac9f7642-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-c8b0815b-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/A-e257c381-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-22362595-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-3efcb8cc-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-7296e11c-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-8e6a3601-interrupted.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-ac9f7642-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-c8b0815b-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/C-e257c381-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/Development-compiled-F01.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/Development-compiled-F02.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/Development-compiled-F03.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-22362595-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-3efcb8cc-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-7296e11c-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-ac9f7642-discarded-provenance.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-ac9f7642-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-c8b0815b-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F-e257c381-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F01-pre-fix.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F01-reproducer.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F02-local-counterexample.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F02-negative-tests.patch.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F02-postgresql-counterexample.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F02-reproducer.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F02-selector-before.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F03-pre-fix.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F03-reproducer.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F04-initial-no-wakeup.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F04-pre-fix-repeated-stop.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F04-reproducer.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F04-scope.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F05-negative-tests.patch.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F05-postgresql-counterexample.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F05-renewal-before.java.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/F05-scope.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/Findings-index.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-22362595-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-3efcb8cc-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-7296e11c-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-ac9f7642-discarded-provenance.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-ac9f7642-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-c8b0815b-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/M-e257c381-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/R-22362595-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/R-3efcb8cc-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/R-7296e11c-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/R-c8b0815b-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/R-e257c381-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/W2-scope.txt",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/development-F01-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/development-F02-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/development-F03-superseded.tar.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-F03-complete-resources.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-F05-complete-resources.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-F05-service-final.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-W2-loaded.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-control-stop-runtime.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-calibration-final.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-order-fixed.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-order-negative.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-pg-negative.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-pg-negative2.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-fixed.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-fixed2.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-negative.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-negative2.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-negative3.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-lease-skip-unit-negative.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-package-F02.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-package-F03.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-package-F05.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-package-final.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-quarantine-drain-diagnostic.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-read-safety.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-read-safety2.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-read-safety3.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-recovery-F04-regression.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-recovery-F04-targeted.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-recovery-unit-first.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-resource-held-claims-diagnostic2.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-targeted-fault-scope.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-test-oracle-corrections.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/diagnostics/pocoma-i5-test-oracle-final.log.gz",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/READ-A.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/READ-B.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/READ-C.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/WRITE-A.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/WRITE-B.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/testing/evidence/L2-I5/resources/WRITE-C.json",
+      "operation": "CREATE",
+      "category": "EVIDENCE"
+    },
+    {
+      "path": "docs/v3/L2_Certification_Coverage_Manifest.md",
+      "operation": "MODIFY",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/L2_Design_and_Verification_Plan.md",
+      "operation": "MODIFY",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/L2_I5_Execution_Report.md",
+      "operation": "CREATE",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/L2_I5_Implementation_Plan.md",
+      "operation": "MODIFY",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/L2_I5_Proof_Manifest.json",
+      "operation": "CREATE",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/L2_I5_Worker_Development_Runbook.md",
+      "operation": "CREATE",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "docs/v3/V3_Implementation_Master_Plan.md",
+      "operation": "MODIFY",
+      "category": "DOCUMENTATION"
+    },
+    {
+      "path": "scripts/testing/test_i5_evidence.py",
+      "operation": "CREATE",
+      "category": "DEV_OR_TEST_TOOL"
+    },
+    {
+      "path": "scripts/testing/verify-v3-l2-i5.py",
+      "operation": "CREATE",
+      "category": "DEV_OR_TEST_TOOL"
+    },
+    {
+      "path": "scripts/v3/bootstrap-l2-worker-dev.sql",
+      "operation": "CREATE",
+      "category": "DEV_OR_TEST_TOOL"
+    },
+    {
+      "path": "scripts/v3/grant-l2-worker-dev.sql",
+      "operation": "CREATE",
+      "category": "DEV_OR_TEST_TOOL"
+    },
+    {
+      "path": "scripts/v3/worker-dev.py",
+      "operation": "CREATE",
+      "category": "DEV_OR_TEST_TOOL"
+    }
+  ]
+}

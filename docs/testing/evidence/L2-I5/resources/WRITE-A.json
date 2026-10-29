@@ -1,0 +1,27 @@
+{
+  "authority": "WRITE",
+  "proof": "A",
+  "status": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "gate": "F",
+  "gate_result_sha256": "dd9ffc099098d599ed4f269b3a3927f6ff7603988e2cbe910675ecfccfcf7d6f",
+  "invariant": "Exhaustive inventory for the explicit DEV composition; no unexpected borrower/bean/pool/owner allowed.",
+  "evidence": [
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r02-A-WRITE-READ.txt",
+      "sha256": "4fe5f34d24f340755fb43c195adb7c54b3d9fc9f33f49256b5aadf5de10ffefd"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r08.txt",
+      "sha256": "fc6dbafa0eb9e3cace1edeeb3261d62e974541cb098054290d07cb1570dfe24d"
+    }
+  ],
+  "assumptions": [
+    "DEV-only preflight; four physical pools; MW1/4; Business MW+2 Control MW+6",
+    "Control borrow1s lock0.5s SQL2s transaction3s socket5s; no unlisted borrower",
+    "Nominal batch count is an initial guard only; C requires measured whole paths, candidate counts and all PG deadlines",
+    "Cadence/leases/claims validated together; B1 lease90s; deployment envelope must be requalified",
+    "Two-loaded-Worker calibration splits candidates0|1 vs2|3 and jointly covers all12 C/p; two-Worker overlap safety remains w02; server100, pool maxima40/64 plus16 reserved"
+  ],
+  "failure_rule": "No guarantee during durable DB/network outage, global relation blocking or unbounded JVM pause. UNKNOWN remains excluded; incomplete drain is not STOPPED. No fifth pool. R-AUD-I3-03 remains subject to independent audit."
+}

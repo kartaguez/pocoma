@@ -1,0 +1,91 @@
+{
+  "authority": "WRITE",
+  "proof": "B",
+  "status": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "gate": "F",
+  "gate_result_sha256": "dd9ffc099098d599ed4f269b3a3927f6ff7603988e2cbe910675ecfccfcf7d6f",
+  "invariant": "Real Business saturation, reachable Control joint maximum, separate synthetic stress, independent S1/S2/lease lanes; network and physical residual classified. UNKNOWN cannot rearm; recovery inspection/RO observation retain their own exclusion, and qualified lease skips revalidate without restoring rights until positive same-incarnation CAS.",
+  "evidence": [
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r01-B-WRITE-READ.txt",
+      "sha256": "4d5435fccfec301d94fce8416bf62b14587cbdfa5b4339a51dd2f9f185bb6459"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r02-P2-WRITE.txt",
+      "sha256": "1d8ee335f6778cd08fd5b884f5ab2e8b93642792683d809e08abb99ce865b7c7"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r02-joint-WRITE.txt",
+      "sha256": "5e94ad335759d685ce5381ac10876cfb9a62148c0e789f929365808636e3cf9f"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r03-P1-WRITE.txt",
+      "sha256": "3de7d9a55afab9ded5ab182d3348968568975b3c8c01f6c476cdb7e54561bea0"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r03-P3-P6-WRITE.txt",
+      "sha256": "be70e86e6b4cde5fd91fb33e087f9164179f880fd4539b3d2128f42c4ed9cabe"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r04-P4-WRITE.txt",
+      "sha256": "26f958f1f0802a2127bcd07c203bf173bdee21723d09c499a6f94848fbc98166"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r06-P5-WRITE-AFTER.txt",
+      "sha256": "45f6eee71135b713b0022c405652ec3fb88293abf564eb80f2acd27d72c0bca2"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r06-P5-WRITE-BEFORE.txt",
+      "sha256": "c5a40c0e6532db4c3bfc2808daf6f934233ae0170a60a5d516bcc6bac4093413"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r06-P5-WRITE-RETAIN.txt",
+      "sha256": "6393b7408562269805e73364c52bc019561cfb073e33378c1c9a0b8f1d0aed3c"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r09-P7-WRITE.txt",
+      "sha256": "b89fc3dc0c25dc03eafc31de3e4764195ec817a59cfb5960de1f020a75d43041"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r11-lease-skip-WRITE.txt",
+      "sha256": "b5ee8c8f85bb3b760d0b3b583d6feec578d1e446113d0c20b3ac27ab9bcbf1ce"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B1-MW1.txt",
+      "sha256": "7923d5294124a612ba52422a3c3c379cd5046cba0856061e88838906b7cb8d25"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B1-MW4.txt",
+      "sha256": "076bc229bebc6df43929479b9be425f005940df5d11630be4c0547f24439a352"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B32-MW1.txt",
+      "sha256": "f44755a09afd3df95eea0672543f6e14f9bbc4003c65e01ff65f12bb3426cd09"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_r12-C-W2-B32-MW4.txt",
+      "sha256": "caedbdc355206e82db4a42e4c1c34e22f8dc6d9c8a872c8191cfa8693618426f"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_w20-control-unknown-WRITE.txt",
+      "sha256": "cae4ee195e707b3a4e2ffe9e16424eeb066347bad7f4854f2a825e124284ec63"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_w21-recovery-CONTROL-WRITE.txt",
+      "sha256": "51953d985e5689018850dee6bb9518035e0c2e456a25d7a667d0905689e31d99"
+    },
+    {
+      "path_in_F_archive": "F/physical/runtime-command-consumption-worker/v3-i5-evidence/i5_w21-recovery-READ-WRITE.txt",
+      "sha256": "4c66ea439664964eb187edd128638f7e0e6deb178b8fa9d24361f67cc1506e21"
+    }
+  ],
+  "assumptions": [
+    "DEV-only preflight; four physical pools; MW1/4; Business MW+2 Control MW+6",
+    "Control borrow1s lock0.5s SQL2s transaction3s socket5s; no unlisted borrower",
+    "Nominal batch count is an initial guard only; C requires measured whole paths, candidate counts and all PG deadlines",
+    "Cadence/leases/claims validated together; B1 lease90s; deployment envelope must be requalified",
+    "Two-loaded-Worker calibration splits candidates0|1 vs2|3 and jointly covers all12 C/p; two-Worker overlap safety remains w02; server100, pool maxima40/64 plus16 reserved"
+  ],
+  "failure_rule": "No guarantee during durable DB/network outage, global relation blocking or unbounded JVM pause. UNKNOWN remains excluded; incomplete drain is not STOPPED. No fifth pool. R-AUD-I3-03 remains subject to independent audit."
+}

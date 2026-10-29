@@ -449,3 +449,12 @@ GO humain sur le [plan I4 approuvé](L2_I4_Implementation_Plan.md), référence 
 **État courant : I4 LOCAL BOUNDED PASS sur le code figé `0b08d3bf0bfce1334260cfd5249b13c3040a67bb` — audit indépendant encore attendu.** Les 49 méthodes PostgreSQL et leurs sous-variantes obligatoires ont passé sans skip I4 ; les quatre gates canoniques sans filtre passent au même SHA, avec archives et empreintes concordantes. Contribution bornée aux primitives disponibles Command/POT/COMMAND_COMPLETION ; autres producteurs et effets métier absents restent explicitement techniques dans les preuves. Cette contribution ne promeut aucune des 380 allocations ni les 56 reports normatifs.
 
 L2 global demeure **INCONCLUSIVE**, G1/G2/G3 non franchis. I5, les Workers, HTTP et les parcours métier L3/L4/L5 restent hors GO. Audit indépendant du code et des preuves encore attendu ; le rapport d’implémentation n’en tient pas lieu.
+
+
+## Contribution I5 — Workers sous GO distinct, 28 octobre 2026
+
+Le GO humain explicite d’implémentation du [plan I5 amendé](L2_I5_Implementation_Plan.md) remplace, pour I5 seulement, l’interdiction historique du mandat documentaire. Deux boucles, navigation R10, capacité unique, renewals indépendants, quatre pools, drain et activation DEV fail-closed sont implémentés et qualifiés localement au gel `9a315e16`, avec cinq gates canoniques PASS ; audit indépendant encore requis. [Rapport d’exécution I5](L2_I5_Execution_Report.md), [manifeste additionnel](L2_I5_Proof_Manifest.json), [runtime de développement](L2_I5_Worker_Development_Runbook.md).
+
+Les preuves I5 sont additionnelles aux allocations existantes : aucune ligne de couverture, obligation, oracle, sous-variante ou report historique n’est supprimé ni promu automatiquement. Les cinq réserves R-I5-01…05 ont des variantes obligatoires H1…H4/D1…D6/P1…P7 et des oracles de lenteur/activation ; R-AUD-I3-03 nécessite les preuves A/B/C distinctes WRITE/READ. Le statut effectif des campagnes et les empreintes du gel se lisent dans le manifeste/rapport, pas dans ce paragraphe.
+
+Command est réel, Identity reste fixture de développement et les deux probes READ sont techniques ; elles ne certifient aucune projection L4. L3–L8, G1/G2/G3, les 56 reports normatifs et l’acceptation globale L2 restent gouvernés par leurs décisions propres. **L2 global INCONCLUSIVE ; I5 audit indépendant encore requis.** Les résultats de l’auteur ne remplacent pas cet audit.

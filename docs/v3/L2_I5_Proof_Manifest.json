@@ -2,8 +2,8 @@
   "milestone": "L2-I5",
   "baseline": "73a588f3b24ca48d16573a5d757b0d0c9e50c93b",
   "authorization": "Explicit human GO, 2026-10-28",
-  "status": "NOT RUN",
-  "audit_reservation": "R-AUD-I3-03 OPEN",
+  "status": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+  "audit_reservation": "R-AUD-I3-03 OPEN — bounded A/B/C provided on both authorities, independent audit and deployment qualification pending",
   "scope": "COMMAND; READ JDBC; MONOLITH; architecture and full final gates",
   "required_methods": {
     "V3ConsumptionWorkerTest": [
@@ -124,14 +124,14 @@
   },
   "resource_proofs": {
     "WRITE": {
-      "A": "NOT RUN",
-      "B": "NOT RUN",
-      "C": "NOT RUN"
+      "A": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+      "B": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+      "C": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING"
     },
     "READ": {
-      "A": "NOT RUN",
-      "B": "NOT RUN",
-      "C": "NOT RUN"
+      "A": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+      "B": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING",
+      "C": "LOCAL BOUNDED PASS — INDEPENDENT AUDIT PENDING"
     }
   },
   "inherited_manifests": [
@@ -140,11 +140,11 @@
     "L2_I4_Proof_Manifest.json"
   ],
   "gates": {
-    "C": "NOT RUN",
-    "R": "NOT RUN",
-    "M": "NOT RUN",
-    "A": "NOT RUN",
-    "F": "NOT RUN"
+    "C": "PASS",
+    "R": "PASS",
+    "M": "PASS",
+    "A": "PASS",
+    "F": "PASS"
   },
   "read_probes": "TECHNICAL_ONLY",
   "global_L2": "NOT_CERTIFIED",
@@ -1166,7 +1166,7 @@
   },
   "implementation_findings": {
     "I5-F01": {
-      "status": "UNDER VERIFICATION",
+      "status": "FIXED — VERIFIED LOCALLY — INDEPENDENT AUDIT PENDING",
       "normative_invariant": "UNKNOWN read-only physical unit cannot be resolved by unlocked slot inspection",
       "resolution": "Engine retains ticket with a local monotone unresolvedPreparation flag; Worker drains on UNKNOWN; no new owner/SQL/durable state/API",
       "proof_methods": [
@@ -1180,7 +1180,7 @@
       ]
     },
     "I5-F02": {
-      "status": "UNDER VERIFICATION",
+      "status": "FIXED — VERIFIED LOCALLY — INDEPENDENT AUDIT PENDING",
       "reservation": "R-I5-02 / R-AUD-I3-03 / OR-EQ-RENEW",
       "counterexample": "Fixed first-due order can repeatedly renew early entries and starve a later lease. Unit negative and real PostgreSQL B1/1.5s SQL negative recorded.",
       "change": "Oldest local renewal age selects the binding and orders its bounded batch; no new state/owner/pool/queue. SQL authority unchanged.",
@@ -1192,7 +1192,7 @@
       "limit": "Nominal configured batch count is only an initial guard; C qualification counts candidates and full measured paths plus polling/JVM margins, then checks every PG deadline. No unconditional production guarantee."
     },
     "I5-F03": {
-      "status": "UNDER VERIFICATION",
+      "status": "FIXED — VERIFIED LOCALLY — INDEPENDENT AUDIT PENDING",
       "reservation": "R-I5-03 / OR-AT-UNIT / drain physical qualification",
       "counterexample": "Unchanged 3efcb8cc: local Control UNKNOWN returned with operations=0 and capacity=0 while PostgreSQL backend remained active; worker reported stopped=true and closed resources with activeAtPoolClose=true.",
       "change": "Retain existing L1 registration on UNKNOWN or raw unqualified opportunity exit and request DRAINING. No new owner, ticket, durable state, recovery API or pool. Only a normal return or physically qualified Failure(COMMITTED/ROLLED_BACK) retires L1.",
@@ -1203,7 +1203,7 @@
       "limit": "Current opportunity ports expose no physical witness after UNKNOWN. Even later external rollback cannot clear L1; incomplete drain remains DRAINING with pools open and no successful callback until JVM termination classified CRASH."
     },
     "I5-F04": {
-      "status": "UNDER VERIFICATION",
+      "status": "FIXED — VERIFIED LOCALLY — INDEPENDENT AUDIT PENDING",
       "reservation": "R-I5-02/R-I5-03; inspection and read-only recovery physical uncertainty",
       "counterexample": "On c8b0815b, real Command committed with lost ACK then maintenance inspect UNKNOWN; repeated authorized requestDrain wakes let later inspection release the ticket and close pools with original PostgreSQL PID/XID still active. No timeout or SQL policy changed.",
       "change": "Engine retains a monotone local unresolvedRecovery exclusion for unqualified inspection/observation; its existing handles retain any uncertain recovery read. Read-only hasUnresolvedRecovery view lets the existing maintenance lane stop reuse and lets supervisor refuse STOPPED. No new owner, transaction protocol, SQL, pool, tickets or durable machine.",
@@ -1214,7 +1214,7 @@
       "limit": "No local clear/rearm even after independent external rollback; incomplete drain needs process termination classified CRASH and normal successor. Known COMMITTED/ROLLED_BACK units remain retryable for fresh inspection; valid individual claim renewals continue."
     },
     "I5-F05": {
-      "status": "UNDER VERIFICATION",
+      "status": "FIXED — VERIFIED LOCALLY — INDEPENDENT AUDIT PENDING",
       "reservation": "R-I5-02 / OR-EQ-RENEW; qualified SKIP LOCKED lease omission",
       "counterexample": "r05 held READ failed with one unchanged lease while other11 leases and held claim advanced. On 3599e770, deterministic r11 WRITE actual row blocker caused qualified omission; after blocker release target was not renewed before the5s watchdog, although prior lease deadline remained future. Unit u10 also fails before fix.",
       "change": "Existing LeaseEntry retains an unusable incarnation for a bounded revalidation window after a physically qualified omission. Normal CAS renewals only; positive same-incarnation result restores local usability. UNKNOWN remains excluded with its Call, never retried. Retry window exhaustion removes local entry without asserting durable loss. Two local timing fields preserve original due/service measurement separately from the retry work budget; bounded list and existing lane only.",
@@ -1286,5 +1286,17 @@
       "change": "Capture the exact target attempt Thread in its participant, restrict fault predicate to that object, await that envelope wrapper exit under the existing monitor, and verify Engine retainsCapacity for its exact handle. No production policy change, no weakened outcome/slot/physical assertions.",
       "targeted_result": "w11/w13/w17 WRITE/READ targeted PASS; final common gates must rerun."
     }
-  ]
+  ],
+  "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+  "qualification": {
+    "tested_sha": "9a315e16567042d0b9bd017486d9043216b3ecd7",
+    "gate_index": "../testing/evidence/L2-I5/Gate-index.json",
+    "frozen_manifest": "../testing/evidence/L2-I5/Qualification-manifest.json",
+    "frozen_manifest_sha256": "107e1d62ae96783c937d2646920b398aae8a08a21dec3c08ae2ba8c2fd87c035",
+    "required_I5_methods": 66,
+    "required_physical_allocations": 75,
+    "development_build_sha": "7296e11caaca33c58392880091aabd491a1ae188",
+    "development_classes_equivalent": 888,
+    "scope": "DEV; Command real; READ technical; one and two loaded Workers B1/B32 x MW1/4; no global L2 certification"
+  }
 }
