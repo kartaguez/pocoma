@@ -82,7 +82,10 @@ def prepare(args) -> None:
             "identity_authority": values.get("pocoma.v3.worker.identity-authority", "fixture"),
             "identity_read_role": values["pocoma.v3.pilot.read.username"],
         }
-        for script in ("bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"):
+        stages = ["bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"]
+        if parameters["identity_authority"] == "real" and authority == "write":
+            stages.insert(0, "configure-l3-identity-logging.sql")
+        for script in stages:
             command = ["psql", "-X", "--dbname", endpoint, "--username", admin, "-v", "ON_ERROR_STOP=1"]
             for key, value in parameters.items():
                 command.extend(("-v", key + "=" + value))

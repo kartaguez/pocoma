@@ -1,3 +1,4 @@
+\set ON_ERROR_STOP on
 \if :{?identity_authority}
 \else
 \set identity_authority fixture
@@ -22,7 +23,7 @@ select set_config('pocoma.dev_environment', :'environment', true);
 select set_config('pocoma.dev_runtime', :'runtime_role', true);
 select set_config('pocoma.dev_injector', :'injector_role', true);
 do $$
-declare r text:=current_setting('pocoma.dev_runtime');i text:=current_setting('pocoma.dev_injector');
+declare r text:=current_setting('pocoma.dev_runtime');i text:=current_setting('pocoma.dev_injector');t text;col record;sel boolean;
 begin
  if current_database()<>current_setting('pocoma.expected_database') or current_schema()<>current_setting('pocoma.expected_schema')
     or current_user<>current_setting('pocoma.expected_admin') or current_schema()='public'
@@ -52,14 +53,24 @@ begin
     execute format('grant select on v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_position,consumption_slot to %I',i);
     execute format('grant select(created_request_id) on v3_pocoma_user to %I',i);
     execute format('grant select(request_id) on v3_eui_version to %I',i);
-    if has_any_column_privilege(i,'v3_eui_authority','INSERT,UPDATE,REFERENCES')
-       or has_any_column_privilege(i,'v3_eui_version','INSERT,UPDATE,REFERENCES')
-       or has_any_column_privilege(i,'v3_pocoma_user','INSERT,UPDATE,REFERENCES')
-       or has_any_column_privilege(i,'v3_identity_request_result','INSERT,UPDATE,REFERENCES')
-       or has_any_column_privilege(i,'consumption_slot','INSERT,UPDATE,REFERENCES')
-       or has_any_column_privilege(i,'v3_identity_request','UPDATE,REFERENCES')
-       or has_table_privilege(i,'v3_identity_request','DELETE,TRUNCATE,TRIGGER')
-    then raise exception 'unsafe Identity internal injector';end if;
+    -- Exhaustive effective allowlist: table-only rights are not column rights.
+    foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+         'v3_identity_request_result','v3_identity_event','v3_identity_completion_event',
+         'v3_event_position','consumption_slot'] loop
+     if has_table_privilege(i,t,'DELETE,TRUNCATE,TRIGGER')
+        or has_table_privilege(i,t,'INSERT')<>(t='v3_identity_request')
+        or has_any_column_privilege(i,t,'UPDATE,REFERENCES') then
+      raise exception 'unsafe Identity internal injector table rights on %',t using errcode='42501';end if;
+     for col in select column_name from information_schema.columns where table_schema=current_schema() and table_name=t loop
+      sel:=t in ('v3_identity_request','v3_identity_request_result','v3_identity_event',
+            'v3_identity_completion_event','v3_event_position','consumption_slot')
+        or (t='v3_pocoma_user' and col.column_name='created_request_id')
+        or (t='v3_eui_version' and col.column_name='request_id');
+      if has_column_privilege(i,t,col.column_name,'SELECT')<>sel
+         or has_column_privilege(i,t,col.column_name,'INSERT')<>(t='v3_identity_request') then
+       raise exception 'unsafe Identity internal injector column rights on %.%',t,col.column_name using errcode='42501';end if;
+     end loop;
+    end loop;
  end if;
 end $$;
 commit;

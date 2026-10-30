@@ -117,3 +117,82 @@ The monolith accepts the same DEV configuration/profile through its existing roo
 Historical Pot fixture benches explicitly select `identity-authority=fixture` and
 `command-enabled=true`; the real mode refuses them. The pilot profile remains inert.
 Historical `i5_r05`/`i5_r12` reservations remain open.
+
+## I3 counter-audit corrections: trust and diagnostics
+
+The [counter-audit](L3_I3_Contradictory_Audit_Report.md) remains FAIL historically;
+[the resolution report](L3_I3_Findings_Resolution_Report.md) records the separate
+before/after evidence. This does not approve I4 or close i5_r05/i5_r12.
+
+Real Identity DEV uses a dedicated closed WRITE database. Lifecycle/Discovery
+provisioning refuses every user view/materialized view readable by the named READ
+principal on WRITE, across all schemas (including PUBLIC and column grants),
+and every user SECURITY DEFINER routine outside system schemas. Even an invoker
+view is refused: it is not part of the delivered profile. No view dependency graph
+or SQL-function body inspection is claimed to establish confidentiality. Shipped
+V6 invoker functions remain usable by their legitimate writers; READ does not
+gain their underlying table privileges. READ must have an explicit nonprivileged
+role with no memberships in the WRITE catalog too; absent or divergent role
+catalogs are not silently accepted as safe.
+
+Run lifecycle before Discovery when first provisioning; revalidate the combined
+profile with `grant-l2-discovery.sql` and `grant-l2-worker-dev.sql`. These two
+administrative stages certify the explicitly named reactivation/injector roles.
+The runtime knows WRITE and READ, not auxiliary credentials; its startup check
+does not replace the administrative certification of those auxiliary roles.
+The scripts refuse excess effective DELETE/TRUNCATE/TRIGGER on all seven Identity
+tables; the injector also has an exhaustive SELECT/INSERT column allowlist.
+They roll back on refusal and never silently normalize grants. An operator must
+explicitly REVOKE an accidental grant (including its PUBLIC/membership source),
+remove an unauthorized intermediary, rerun those stages, and restart the pools.
+TRUNCATE is not protected by the V6 UPDATE/DELETE immutability triggers.
+
+The schema/object owner, SQL provisioner, server administrator and installed
+extensions are trusted. A PostgreSQL superuser can bypass or change these controls.
+No continuous surveillance or protection against such an administrator is claimed.
+The injector can read admitted tokens/provenance by design; its credentials and
+files remain confidential, with no per-request isolation implied.
+
+Start the disposable PostgreSQL server with an error prefix carrying SQLSTATE,
+PID and XID, for example append these server arguments to its usual launch:
+
+```sh
+-c 'log_line_prefix=%m [%p] xid=%x state=%e '
+```
+
+For real mode, `worker-dev.py prepare` now invokes the explicit administrative
+`configure-l3-identity-logging.sql` stage on the new WRITE database before grants.
+It installs database defaults for new sessions: `log_error_verbosity=terse`,
+`log_min_error_statement=panic`, no statement/duration/sampled-transaction logs,
+and zero logged bind-parameter lengths. A manual administrative preparation must
+run this same stage with `expected_database`, `expected_schema`, `expected_admin`
+and the exact non-public search_path. It refuses an insufficient server prefix.
+Existing sessions retain their old settings: reconnect every pool and operator
+connection. Startup checks effective settings on both actual WRITE pools and
+refuses an unsafe role/session override. Preparation never changes ALTER SYSTEM
+or the logging settings of another database.
+
+The UNIQUE constraint on `v3_eui_version.binding_token` is unchanged. PostgreSQL
+normally writes the conflicting value in its UNIQUE DETAIL; CHECK DETAIL can
+include the entire failing request row. Parameter-length limits and the Java
+exception sanitizer alone do not suppress these server-generated details.
+The tested policy retains ERROR, SQLSTATE, PID/XID and safe constraint names,
+while removing DETAIL/CONTEXT and raw statement traces for these failures.
+Use application request UUIDs and these technical identifiers to correlate errors;
+never temporarily enable raw SQL/bind or row details on this sensitive database.
+
+New tests exercise PostgreSQL stderr through the Docker log collector and Java
+exception graphs. A different collector, audit extension, tracing agent, manually
+logged literal, client debug logger or production logging pipeline needs its own
+qualification. Do not infer zero secret exposure in an untested pipeline. Never
+export raw server logs to establish absence: inspect markers in memory and export
+only booleans, SQLSTATE/correlation, and explicitly redacted diagnostics.
+
+The delivered WRITE Business owner is JPA in both roots. A JDBC ConnectionHolder
+prebound outside a transaction is refused before the participant callback; tests
+protect this composition after commit/rollback and confirm physical locks with
+NOWAIT. A manually assembled DataSourceTransactionManager owner retaining that
+holder across attempts remains outside the delivered runtime composition and is
+not certified here. Any future change of that manager/composition must first
+address the conditional CT-001 reproduction. The common L2 owner and transaction
+semantics are unchanged by these corrections.

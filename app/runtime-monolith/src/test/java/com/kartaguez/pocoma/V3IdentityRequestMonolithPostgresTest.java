@@ -41,7 +41,8 @@ class V3IdentityRequestMonolithPostgresTest {
     @Container
     static final PostgreSQLContainer PG =
             new PostgreSQLContainer(
-                    DockerImageName.parse(IMAGE).asCompatibleSubstituteFor("postgres"));
+                            DockerImageName.parse(IMAGE).asCompatibleSubstituteFor("postgres"))
+                    .withCommand("postgres", "-c", "log_line_prefix=%m [%p] xid=%x state=%e ");
 
     @BeforeAll
     static void initialize() throws Exception {
@@ -157,6 +158,7 @@ class V3IdentityRequestMonolithPostgresTest {
                                         role))
                         .load()
                         .migrate();
+                if (w) script("configure-l3-identity-logging.sql", true);
                 for (String script :
                         List.of(
                                 "bootstrap-l2-routing.sql",
@@ -539,7 +541,7 @@ class V3IdentityRequestMonolithPostgresTest {
                                 .contains(
                                         scope.equals("read-principal")
                                                 ? "READ principal has Identity WRITE authority"
-                                                      + " privileges"
+                                                        + " privileges"
                                                 : "PUBLIC privileges expose Identity authority"));
                 refused(f, Map.of());
                 f.write.execute(
@@ -566,6 +568,268 @@ class V3IdentityRequestMonolithPostgresTest {
                     0,
                     f.write.queryForObject("select count(*) from consumption_slot", Integer.class));
             f.evidence("l3_preflight_negative");
+        }
+    }
+
+    @Test
+    void l3_indirect_exposure_refused() throws Exception {
+        try (var f = new Fixture(PG)) {
+            var seed = f.admit("REGISTRATION", "exposure", "exposure", null);
+            var running = f.start();
+            f.verify(seed);
+            f.drain(running);
+            f.admit("LINK", "exposure", "other", f.ownToken("exposure"));
+            f.write.execute("grant usage on schema " + f.schema + " to " + f.readRole);
+            var reader =
+                    new JdbcTemplate(
+                            new DriverManagerDataSource(f.writeUrl, f.readRole, "i5-fixture"));
+            String aux = f.schema + "_aux";
+            f.write.execute("create schema " + aux);
+            f.write.execute("grant usage on schema " + aux + " to " + f.readRole);
+            try {
+                // Include owner/invoker, materialization, PUBLIC and external/dynamic SQL.
+                for (String mode :
+                        List.of("history", "admission", "materialized", "invoker", "definer")) {
+                    boolean function = mode.equals("definer");
+                    String object = aux + ".exposed";
+                    String data =
+                            mode.equals("admission")
+                                    ? "select binding_token from "
+                                            + f.schema
+                                            + ".v3_identity_request where binding_token is not null"
+                                    : "select binding_token from " + f.schema + ".v3_eui_version";
+                    f.write.execute(
+                            function
+                                    ? "create function "
+                                            + object
+                                            + "() returns setof text language plpgsql security"
+                                            + " definer as $$ begin return query execute '"
+                                            + data
+                                            + "'; end $$"
+                                    : "create "
+                                            + (mode.equals("materialized") ? "materialized " : "")
+                                            + "view "
+                                            + object
+                                            + (mode.equals("invoker")
+                                                    ? " with (security_invoker=true)"
+                                                    : "")
+                                            + " as "
+                                            + data);
+                    if (!function)
+                        f.write.execute(
+                                "grant select on "
+                                        + object
+                                        + " to "
+                                        + (mode.equals("materialized") ? "public" : f.readRole));
+                    String query =
+                            function
+                                    ? "select count(*) from " + object + "()"
+                                    : "select count(binding_token) from " + object;
+                    if (mode.equals("invoker")) {
+                        assertThrows(
+                                org.springframework.dao.DataAccessException.class,
+                                () -> reader.queryForObject(query, Integer.class));
+                    } else
+                        assertTrue(
+                                reader.queryForObject(query, Integer.class) > 0,
+                                "nonempty indirect leak witness");
+                    if (!function) {
+                        assertEquals(
+                                PG.getUsername(),
+                                f.write.queryForObject(
+                                        "select r.rolname from pg_class c join pg_roles r on"
+                                                + " r.oid=c.relowner where c.oid=?::regclass",
+                                        String.class,
+                                        object));
+                        assertEquals(
+                                mode.equals("invoker"),
+                                f.write.queryForObject(
+                                        "select"
+                                            + " coalesce('security_invoker=true'=any(reloptions),false)"
+                                            + " from pg_class where oid=?::regclass",
+                                        Boolean.class,
+                                        object));
+                    }
+                    var grant =
+                            assertThrows(
+                                    AssertionError.class,
+                                    () -> f.script("grant-l2-discovery.sql", true));
+                    assertTrue(grant.getMessage().contains("Identity indirect exposure"));
+                    refused(f, Map.of());
+                    // Refusal does not repair SQL permissions. Explicit administrative remediation.
+                    if (function) {
+                        f.write.execute("revoke execute on function " + object + "() from public");
+                        assertThrows(
+                                org.springframework.dao.DataAccessException.class,
+                                () -> reader.queryForObject(query, Integer.class));
+                        f.write.execute("drop function " + object + "()");
+                    } else {
+                        f.write.execute(
+                                "revoke select on " + object + " from " + f.readRole + ",public");
+                        assertThrows(
+                                org.springframework.dao.DataAccessException.class,
+                                () -> reader.queryForObject(query, Integer.class));
+                        f.write.execute(
+                                "drop "
+                                        + (mode.equals("materialized") ? "materialized " : "")
+                                        + "view "
+                                        + object);
+                    }
+                    f.script("grant-l2-discovery.sql", true);
+                    f.trace.add(
+                            mode
+                                    + ": nonempty witness (invoker denied), grants/root refused;"
+                                    + " explicit revoke gives SQLSTATE permission refusal; object"
+                                    + " removed");
+                }
+            } finally {
+                f.write.execute("drop schema " + aux + " cascade");
+            }
+            f.write.execute("revoke usage on schema " + f.schema + " from " + f.readRole);
+            var legitimate = f.start();
+            f.drain(legitimate);
+            f.evidence("l3_indirect_exposure_refused");
+        }
+    }
+
+    @Test
+    void l3_delivered_jpa_rejects_prebound_holder() throws Exception {
+        try (var f = new Fixture(PG)) {
+            var context = f.start();
+            var resources = context.getBean("v3WorkerResources");
+            var field = resources.getClass().getDeclaredField("writeEffects");
+            field.setAccessible(true);
+            var owner = (SpringAttemptTransactions) field.get(resources);
+            var pool = context.getBean("writeBusiness", com.zaxxer.hikari.HikariDataSource.class);
+            var authority = new JdbcIdentityAuthority(pool, owner);
+            var key = new ExternalIdentity("prebound", "anchor");
+            f.write.update(
+                    "insert into v3_eui_authority(eui_id,issuer,subject) values (?,"
+                            + " 'prebound','anchor')",
+                    UUID.randomUUID());
+            var holders = new ArrayList<Object>();
+            for (boolean rollback : List.of(false, true)) {
+                try {
+                    owner.write(
+                            () -> {
+                                authority.lockInCanonicalOrder(List.of(key));
+                                holders.add(
+                                        org.springframework.transaction.support
+                                                .TransactionSynchronizationManager.getResource(
+                                                pool));
+                                try (var c =
+                                        DriverManager.getConnection(
+                                                f.writeUrl, PG.getUsername(), PG.getPassword())) {
+                                    c.setAutoCommit(false);
+                                    try (var s = c.createStatement()) {
+                                        var denied =
+                                                assertThrows(
+                                                        SQLException.class,
+                                                        () ->
+                                                                s.executeQuery(
+                                                                        "select eui_id from"
+                                                                            + " v3_eui_authority"
+                                                                            + " where"
+                                                                            + " issuer='prebound'"
+                                                                            + " and subject='anchor'"
+                                                                            + " for update"
+                                                                            + " nowait"));
+                                        assertEquals("55P03", denied.getSQLState());
+                                    } finally {
+                                        c.rollback();
+                                    }
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                if (rollback)
+                                    throw new IllegalStateException("intentional rollback");
+                                return null;
+                            });
+                    assertFalse(rollback);
+                } catch (AttemptTransactions.Failure failed) {
+                    assertTrue(rollback);
+                    assertEquals(AttemptTransactions.Resolution.ROLLED_BACK, failed.resolution());
+                }
+                assertThrows(
+                        AttemptTransactions.Failure.class,
+                        () -> owner.write(() -> authority.current(key)));
+                var id =
+                        new com.kartaguez.pocoma.domain.useridentity.v3.ExternalUserIdentityId(
+                                f.write.queryForObject(
+                                        "select eui_id from v3_eui_authority where"
+                                            + " issuer='prebound' and subject='anchor'",
+                                        UUID.class));
+                var change =
+                        new com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionResult
+                                .Changed(
+                                Optional.empty(),
+                                new com.kartaguez.pocoma.domain.useridentity.v3
+                                        .ExternalUserIdentity(
+                                        id,
+                                        key,
+                                        1,
+                                        new com.kartaguez.pocoma.domain.useridentity.PocomaUserId(
+                                                UUID.randomUUID()),
+                                        new BindingToken("prebound-negative-fixture")));
+                var unprotected =
+                        assertThrows(
+                                AttemptTransactions.Failure.class,
+                                () ->
+                                        owner.write(
+                                                () -> {
+                                                    authority.apply(change, UUID.randomUUID());
+                                                    return null;
+                                                }));
+                assertEquals(
+                        "EUI was not protected by this attempt",
+                        unprotected.getCause().getMessage());
+
+                try (var c = pool.getConnection()) {
+                    org.springframework.transaction.support.TransactionSynchronizationManager
+                            .bindResource(
+                                    pool,
+                                    new org.springframework.jdbc.datasource.ConnectionHolder(c));
+                    var called = new AtomicBoolean();
+                    try {
+                        assertThrows(
+                                AttemptTransactions.Failure.class,
+                                () ->
+                                        owner.write(
+                                                () -> {
+                                                    called.set(true);
+                                                    return authority.current(key);
+                                                }));
+                        assertFalse(
+                                called.get(),
+                                "JPA must refuse retained JDBC holder before callback");
+                    } finally {
+                        org.springframework.transaction.support.TransactionSynchronizationManager
+                                .unbindResourceIfPossible(pool);
+                    }
+                }
+            }
+            assertNotSame(holders.get(0), holders.get(1));
+            f.trace.add(
+                    "real-root JPA owner: NOWAIT=55P03 in commit/rollback units; distinct holders;"
+                            + " current without acquisition and prebound holder refused before"
+                            + " callback");
+            f.drain(context);
+            f.evidence("l3_delivered_jpa_rejects_prebound_holder");
+        }
+    }
+
+    @Test
+    void l3_logging_override_refused() throws Exception {
+        try (var f = new Fixture(PG)) {
+            f.write.execute("alter role " + f.writeRole + " set log_error_verbosity='default'");
+            try {
+                refused(f, Map.of());
+            } finally {
+                f.write.execute("alter role " + f.writeRole + " reset log_error_verbosity");
+            }
+            var legitimate = f.start();
+            f.drain(legitimate);
+            f.evidence("l3_logging_override_refused");
         }
     }
 }

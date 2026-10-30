@@ -61,7 +61,15 @@ grant select on v3_identity_request,v3_eui_authority,v3_pocoma_user,v3_eui_versi
 grant insert on v3_eui_authority,v3_pocoma_user,v3_eui_version,v3_identity_request_result,v3_identity_event,v3_identity_completion_event to :"runtime_role";
 grant update(current_version) on v3_eui_authority to :"runtime_role";
 grant update(status) on v3_identity_request to :"runtime_role";
-do $$ begin
+do $$
+declare t text;a text:=current_setting('pocoma.reactivation_role');
+begin
+ foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+  if has_any_column_privilege(a,t,'SELECT,INSERT,UPDATE,REFERENCES')
+     or has_table_privilege(a,t,'DELETE,TRUNCATE,TRIGGER')
+  then raise exception 'unsafe Identity reactivation rights' using errcode='42501';end if;
+ end loop;
  if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
     lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
     and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
@@ -102,6 +110,19 @@ begin
  if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
   if reader='' or reader=current_setting('pocoma.runtime_role') or not exists(select 1 from pg_roles where rolname=reader)
   then raise exception 'distinct explicit Identity READ principal required' using errcode='42501';end if;
+
+  -- Closed real-DEV profile, across the entire WRITE database. Owner views and
+  -- opaque/dynamic SECURITY DEFINER bodies cannot be proved safe by table ACLs.
+  if exists(select 1 from pg_roles where rolname=reader and
+       (rolsuper or rolcreatedb or rolcreaterole or rolreplication or rolbypassrls))
+     or exists(select 1 from pg_roles where rolname<>reader and pg_has_role(reader,oid,'MEMBER'))
+  then raise exception 'unsafe Identity READ principal or membership on WRITE' using errcode='42501';end if;
+  if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+       where c.relkind in ('v','m') and n.nspname not in ('pg_catalog','information_schema')
+       and (has_any_column_privilege(reader,c.oid,'SELECT') or has_table_privilege(reader,c.oid,'SELECT')))
+     or exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+       where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
+  then raise exception 'Identity indirect exposure: READ view or user SECURITY DEFINER on WRITE' using errcode='42501';end if;
   foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
        'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
    if has_any_column_privilege(reader,t,'SELECT,INSERT,UPDATE,REFERENCES') or has_table_privilege(reader,t,'DELETE,TRUNCATE,TRIGGER')

@@ -405,9 +405,50 @@ public final class V3BootstrapGuard {
             c.setAutoCommit(false);
             try (var statement = c.createStatement()) {
                 inspectIdentity(statement);
+                try (var rows =
+                        statement.executeQuery(
+                                """
+select current_setting('log_error_verbosity')='terse'
+ and current_setting('log_min_messages')='warning'
+ and current_setting('log_min_error_statement')='panic'
+ and current_setting('log_statement')='none' and current_setting('log_duration')='off'
+ and current_setting('log_min_duration_statement')='-1'
+ and current_setting('log_min_duration_sample')='-1'
+ and current_setting('log_transaction_sample_rate')='0'
+ and current_setting('log_parameter_max_length')='0'
+ and current_setting('log_parameter_max_length_on_error')='0'
+ and position('%e' in current_setting('log_line_prefix'))>0
+ and position('%p' in current_setting('log_line_prefix'))>0
+ and position('%x' in current_setting('log_line_prefix'))>0
+""")) {
+                    rows.next();
+                    require(rows.getBoolean(1), "Identity PostgreSQL logging policy required");
+                }
                 require(
                         !read.runtimeRole().equals(write.runtimeRole()),
                         "distinct READ/WRITE principals required for real DEV");
+                try (var query =
+                        c.prepareStatement(
+                                """
+select exists(select 1 from pg_roles where rolname=? and
+    (rolsuper or rolcreatedb or rolcreaterole or rolreplication or rolbypassrls))
+ or not exists(select 1 from pg_roles where rolname=?)
+ or exists(select 1 from pg_roles where rolname<>? and pg_has_role(?,oid,'MEMBER'))
+ or exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+    where c.relkind in ('v','m') and n.nspname not in ('pg_catalog','information_schema')
+    and (has_any_column_privilege(?,c.oid,'SELECT') or has_table_privilege(?,c.oid,'SELECT')))
+ or exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where p.prosecdef and n.nspname not in ('pg_catalog','information_schema'))
+""")) {
+                    for (int parameter = 1; parameter <= 6; parameter++)
+                        query.setString(parameter, read.runtimeRole());
+                    try (var rows = query.executeQuery()) {
+                        rows.next();
+                        require(
+                                !rows.getBoolean(1),
+                                "Identity indirect exposure or unsafe READ principal on WRITE");
+                    }
+                }
                 for (String table : IDENTITY_TABLES) {
                     try (var rows =
                             statement.executeQuery(
