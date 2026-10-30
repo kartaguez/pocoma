@@ -2,9 +2,9 @@
 
 ## Programme V3 courant
 
-- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne, L2–L8 DESIGN PENDING. Dossier L2 préparé pour revue ; aucune implémentation L2 commencée.
+- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS, officiellement clos le 30-10-2026 ; L3 DESIGN PENDING, cadrage autorisé ; L4–L8 DESIGN PENDING.
 - [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.
-- Dossier L2 : [plan de conception et vérification](v3/L2_Design_and_Verification_Plan.md), [douze décisions validées](v3/L2_Decision_Register.md), [consolidation R1–R10](v3/L2_R1_R10_Normative_Consolidation.md), [contre-audit indépendant et état de G0](v3/L2_Independent_Counter_Audit_and_G0_Assessment.md). Le rapport Gemini erroné est conservé uniquement dans l'historique Git. DESIGN PENDING, checkpoint humain avant code ; aucun résultat PostgreSQL L2.
+- [Clôture officielle L2](v3/L2_Documentary_Closure.md) : décision humaine, statuts I1–I7, réserves R-L2-01 à R-L2-05, SHAs testés et transition L3. G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. [Plan L2](v3/L2_Design_and_Verification_Plan.md), [dossier historique I6](v3/L2_I6_I7_Consolidation.md) et [récupération des preuves](testing/Evidence_Recovery.md). Prochaine intervention : cadrage L3 — Identity uniquement.
 - [Clôture L1](v3/L1_Documentary_Closure.md), [plan L1](v3/L1_Design_and_Verification_Plan.md), [rapport final](v3/L1_E_Execution_Report.md) et [manifeste historique](v3/L1_Proof_Manifest.json) : preuves et limites, sans certificat V3 complet.
 
 ## Architecture historique encore livrée
