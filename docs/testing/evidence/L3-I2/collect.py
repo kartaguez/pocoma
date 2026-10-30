@@ -57,7 +57,8 @@ if args.xml:
                               seconds=case.get('time'), detail=detail))
 if args.i2_traces:
     traces = sorted((ROOT / 'app/infra-persistence-primary-jpa/target/l3-i2-evidence').glob('*.txt'))
-    assert len(traces) == 23
+    expected_traces = sum(s["tests"] for s in suites if ".v3.identity." in s["name"] and s["name"].endswith("PostgresTest"))
+    assert len(traces) == expected_traces, (len(traces), expected_traces)
     for trace in traces:
         archive_files[str(trace.relative_to(ROOT))] = trace.read_bytes()
 buffer = io.BytesIO()

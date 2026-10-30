@@ -310,8 +310,11 @@ begin
     end if;
     return new;
 end $$;
+-- Crucial: a POT/COMMAND suffix must never open Identity business relations at commit.
+-- Identity event/unit triggers still reject a wrong-family position via the missing exact position.
 create constraint trigger v3_identity_position_unit after insert on v3_event_position
-    deferrable initially deferred for each row execute function v3_identity_require_position();
+    deferrable initially deferred for each row when (new.family in ('IDENTITY','IDENTITY_COMPLETION'))
+    execute function v3_identity_require_position();
 
 -- Suffix-only checks: counters/positions, no business relation or lock.
 create function v3_identity_position_step() returns trigger language plpgsql as $$

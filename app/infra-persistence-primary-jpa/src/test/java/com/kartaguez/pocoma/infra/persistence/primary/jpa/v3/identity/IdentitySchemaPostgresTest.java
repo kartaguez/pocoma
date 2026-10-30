@@ -194,7 +194,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
         sqlFail(
                 "v3_identity_version_state",
                 "insert into v3_eui_version(eui_id,version,user_id,binding_token,request_id) values"
-                    + " ('"
+                        + " ('"
                         + zero
                         + "',1,'"
                         + state.userId().value()
@@ -226,6 +226,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                 List.of(
                         "missing",
                         "wrong-family",
+                        "pot-family",
                         "wrong-subject",
                         "extra-event",
                         "rejected-effect",
@@ -243,7 +244,9 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                                             position(
                                                     corruption.equals("wrong-family")
                                                             ? "IDENTITY_COMPLETION"
-                                                            : "IDENTITY",
+                                                            : corruption.equals("pot-family")
+                                                                    ? "POT"
+                                                                    : "IDENTITY",
                                                     List.of(staged.userEvent(), staged.euiEvent()));
                                             position(
                                                     "IDENTITY_COMPLETION",
@@ -285,17 +288,17 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                 "FK catalog="
                         + admin.queryForList(
                                 "select conname,condeferrable,condeferred,pg_get_constraintdef(oid)"
-                                    + " definition from pg_constraint where"
-                                    + " connamespace=current_schema()::regnamespace and conname"
-                                    + " like 'v3_identity_%' order by conname"));
+                                        + " definition from pg_constraint where"
+                                        + " connamespace=current_schema()::regnamespace and conname"
+                                        + " like 'v3_identity_%' order by conname"));
         evidence.add(
                 "trigger catalog="
                         + admin.queryForList(
                                 "select tgname,tgdeferrable,tginitdeferred,pg_get_triggerdef(oid)"
-                                    + " definition from pg_trigger where tgrelid in (select oid"
-                                    + " from pg_class where"
-                                    + " relnamespace=current_schema()::regnamespace) and tgname"
-                                    + " like 'v3_identity_%' order by tgname"));
+                                        + " definition from pg_trigger where tgrelid in (select oid"
+                                        + " from pg_class where"
+                                        + " relnamespace=current_schema()::regnamespace) and tgname"
+                                        + " like 'v3_identity_%' order by tgname"));
         for (String f : terminalFunctions())
             evidence.add(
                     "terminal function "
@@ -303,23 +306,23 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                             + "="
                             + admin.queryForObject(
                                     "select prosrc from pg_proc where"
-                                        + " pronamespace=current_schema()::regnamespace and"
-                                        + " proname=?",
+                                            + " pronamespace=current_schema()::regnamespace and"
+                                            + " proname=?",
                                     String.class,
                                     f));
         admin.execute(
                 "alter table v3_identity_event add constraint fixture_deferred_business_fk foreign"
-                    + " key(subject_id) references v3_pocoma_user(user_id) deferrable initially"
-                    + " deferred");
+                        + " key(subject_id) references v3_pocoma_user(user_id) deferrable initially"
+                        + " deferred");
         assertThrows(AssertionError.class, this::assertCatalog);
         admin.execute("alter table v3_identity_event drop constraint fixture_deferred_business_fk");
         admin.execute(
                 "create function fixture_bad_terminal() returns trigger language plpgsql as $$"
-                    + " begin perform 1 from v3_pocoma_user for update; return new; end $$");
+                        + " begin perform 1 from v3_pocoma_user for update; return new; end $$");
         admin.execute(
                 "create constraint trigger fixture_bad_terminal after insert on v3_identity_event"
-                    + " deferrable initially deferred for each row execute function"
-                    + " fixture_bad_terminal()");
+                        + " deferrable initially deferred for each row execute function"
+                        + " fixture_bad_terminal()");
         assertThrows(AssertionError.class, this::assertCatalog);
     }
 
@@ -372,7 +375,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                             .getSQLState());
             evidence.add(
                     "JDBC rejected non-UTF8 client encoding with SQLSTATE 08006 before any EUI"
-                        + " write");
+                            + " write");
         }
     }
 
@@ -412,7 +415,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                     0,
                     admin.queryForObject(
                             "select count(*) from pg_locks where pid=? and"
-                                + " relation='v3_event_counter'::regclass",
+                                    + " relation='v3_event_counter'::regclass",
                             Integer.class,
                             pid.get()));
             evidence.add("FK wait before apply returns; no sequence-counter relation opened");
@@ -461,7 +464,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
             try (var s =
                     probe.prepareStatement(
                             "select version from v3_eui_version where eui_id=? and version=2 for"
-                                + " update nowait")) {
+                                    + " update nowait")) {
                 s.setObject(1, first.id().value());
                 s.executeQuery().close();
             }
@@ -471,7 +474,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                 try (var s =
                         anchorProbe.prepareStatement(
                                 "select eui_id from v3_eui_authority where eui_id=? for update"
-                                    + " nowait")) {
+                                        + " nowait")) {
                     s.setObject(1, first.id().value());
                     assertEquals(
                             "55P03",
@@ -498,7 +501,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
             // Commit completed while the independent predecessor FOR UPDATE remains held.
             evidence.add(
                     "physical commit succeeded with predecessor row exclusively held by independent"
-                        + " PID="
+                            + " PID="
                             + probe.unwrap(org.postgresql.PGConnection.class).getBackendPID());
             probe.rollback();
         } finally {
@@ -508,21 +511,92 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
         assertCatalog();
     }
 
+    @Test
+    void l3_bad_server_encoding_preflight() {
+        String database = schema + "_encoding";
+        admin.execute(
+                "create database "
+                        + database
+                        + " template template0 encoding 'SQL_ASCII' lc_collate 'C' lc_ctype 'C'");
+        var url = PG.getJdbcUrl().replace("/" + PG.getDatabaseName() + "?", "/" + database + "?");
+        var wrong =
+                new org.springframework.jdbc.core.JdbcTemplate(
+                        new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                                url, PG.getUsername(), PG.getPassword()));
+        assertEquals("SQL_ASCII", wrong.queryForObject("show server_encoding", String.class));
+        assertThrows(AssertionError.class, () -> assertEncodingAndCollation(wrong));
+        evidence.add(
+                "I2 harness preflight rejects real SQL_ASCII database before any EUI access; no"
+                        + " runtime activation");
+    }
+
+    @Test
+    void l3_other_family_suffix_is_untouched() {
+        probeOtherFamilies();
+        // Reproduce the original I2 defect in a disposable negative schema: no bypass or PASS
+        // filter.
+        admin.execute("drop trigger v3_identity_position_unit on v3_event_position");
+        admin.execute(
+                "create constraint trigger v3_identity_position_unit after insert on"
+                        + " v3_event_position deferrable initially deferred for each row execute"
+                        + " function v3_identity_require_position()");
+        assertThrows(AssertionError.class, this::assertCatalog);
+        assertThrows(AssertionError.class, this::probeOtherFamilies);
+        admin.execute("drop trigger v3_identity_position_unit on v3_event_position");
+        admin.execute(
+                "create constraint trigger v3_identity_position_unit after insert on"
+                        + " v3_event_position deferrable initially deferred for each row when"
+                        + " (new.family in ('IDENTITY','IDENTITY_COMPLETION')) execute function"
+                        + " v3_identity_require_position()");
+        assertCatalog();
+    }
+
+    void probeOtherFamilies() {
+        tx.write(
+                () -> {
+                    int pid = jdbc.queryForObject("select pg_backend_pid()", Integer.class);
+                    // Technical sequence probe only: no claim of a real Pot/Command participant
+                    // here.
+                    com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions
+                            .closePublication(source);
+                    position("POT", List.of(UUID.randomUUID()));
+                    position("COMMAND_COMPLETION", List.of(UUID.randomUUID()));
+                    // Execute precisely the deferred new trigger as commit would, retaining locks
+                    // for the probe.
+                    jdbc.execute("set constraints v3_identity_position_unit immediate");
+                    var opened = relations(pid);
+                    evidence.add("other-family suffix relations=" + opened);
+                    assertTrue(
+                            opened.stream()
+                                    .noneMatch(
+                                            n ->
+                                                    n.startsWith("v3_identity_")
+                                                            || n.startsWith("v3_eui_")
+                                                            || n.startsWith("v3_pocoma_")),
+                            "Other-family suffix must not open Identity business relations");
+                    return null;
+                });
+    }
+
     Set<String> relations(int pid) {
         return new HashSet<>(
                 admin.queryForList(
                         "select distinct c.relname from pg_locks l join pg_class c on"
-                            + " c.oid=l.relation where l.pid=? and"
-                            + " c.relnamespace=current_schema()::regnamespace and l.granted",
+                                + " c.oid=l.relation where l.pid=? and"
+                                + " c.relnamespace=current_schema()::regnamespace and l.granted",
                         String.class,
                         pid));
     }
 
     void assertEncodingAndCollation() {
-        assertEquals("UTF8", jdbc.queryForObject("show server_encoding", String.class));
-        assertEquals("UTF8", jdbc.queryForObject("show client_encoding", String.class));
+        assertEncodingAndCollation(jdbc);
+    }
+
+    void assertEncodingAndCollation(org.springframework.jdbc.core.JdbcTemplate target) {
+        assertEquals("UTF8", target.queryForObject("show server_encoding", String.class));
+        assertEquals("UTF8", target.queryForObject("show client_encoding", String.class));
         var collations =
-                jdbc.queryForList(
+                target.queryForList(
                         "select col.collname from pg_attribute a join pg_collation col on"
                             + " col.oid=a.attcollation where a.attrelid in"
                             + " ('v3_eui_authority'::regclass,'v3_identity_request'::regclass) and"
@@ -544,6 +618,15 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
     }
 
     void assertCatalog() {
+        String positionTrigger =
+                admin.queryForObject(
+                        "select pg_get_triggerdef(oid) from pg_trigger where"
+                                + " tgrelid='v3_event_position'::regclass and"
+                                + " tgname='v3_identity_position_unit'",
+                        String.class);
+        assertTrue(
+                positionTrigger.contains("WHEN") && positionTrigger.contains("IDENTITY_COMPLETION"),
+                "Identity position trigger must be family-scoped");
         var fks =
                 admin.queryForList(
                         "select"
@@ -622,8 +705,8 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
             String body =
                     admin.queryForObject(
                                     "select prosrc from pg_proc where"
-                                        + " pronamespace=current_schema()::regnamespace and"
-                                        + " proname=?",
+                                            + " pronamespace=current_schema()::regnamespace and"
+                                            + " proname=?",
                                     String.class,
                                     f)
                             .toLowerCase(Locale.ROOT)
@@ -646,7 +729,7 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
     Staged stageRegistration(Work w, String corruption) {
         jdbc.queryForList(
                 "select 1 from consumption_slot where consumption_id=? and consumable_id=? for"
-                    + " update",
+                        + " update",
                 CONSUMPTION,
                 w.id());
         var ids = authority.lockInCanonicalOrder(List.of(w.requester()));
@@ -686,11 +769,8 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
             event(w.id(), "EXTERNAL_USER_IDENTITY", UUID.randomUUID(), 2);
         if (corruption.equals("request-target")) {
             var other =
-                    admit(
-                            registration(
-                                    key(
-                                            "other"))); // Wrong provenance cannot replace the exact
-                                                        // result/state pairing.
+                    admit(registration(key("other"))); // Wrong provenance cannot replace the exact
+            // result/state pairing.
             jdbc.update(
                     "insert into v3_identity_request_result values (?,'CHANGED',?,1,null)",
                     other.id(),
@@ -730,8 +810,8 @@ class IdentitySchemaPostgresTest extends IdentityPostgresFixture {
                         1,
                         admin.queryForObject(
                                 "select count(*) from pg_trigger where"
-                                    + " tgrelid='v3_event_position'::regclass and"
-                                    + " tgname='v3_position_immutable'",
+                                        + " tgrelid='v3_event_position'::regclass and"
+                                        + " tgname='v3_position_immutable'",
                                 Integer.class));
             } else
                 assertEquals(

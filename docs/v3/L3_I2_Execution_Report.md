@@ -73,3 +73,31 @@ filtré, aucune gate canonique n'en est déduite. Les premières itérations ont
 produit des FAIL de compilation/harness/oracles I2 ; leurs journaux sont conservés.
 La gate non filtrée reste à exécuter ; son résultat peut empêcher tout verdict
 technique canonique. L'arbitrage I1 ne la dispense pas.
+
+## Finding interne I2 — suffixe des autres familles
+
+La revue après gel `6ed1599a` a identifié un défaut I2 : le trigger
+`v3_identity_position_unit` se déclenchait pour toute position, puis consultait
+les tables Identity avant de reconnaître POT/COMMAND. Des SELECT simples peuvent
+ainsi prendre de nouveaux verrous de relations métier dans un suffixe L2 qui ne
+les a pas ouvertes. Le feedback Link seul ne démontrait pas leur absence pour
+les autres familles. La première gate canonique a été arrêtée intentionnellement
+(SIGTERM, exit 143), après 996 tests terminés sans échec : **INTERRUPTED**, pas
+PASS ni échec imputé aux tests L2. Journal et SHA candidat conservés.
+
+Correction minimale annoncée avant modification : condition WHEN sur les deux
+familles Identity, conformément au §4.2.1 du plan. Aucun contrôle affaibli : les
+triggers d'unité/enveloppe exigent toujours une position exacte de la bonne
+famille, même si une position POT est tentée pour un événement Identity. Une sonde
+PostgreSQL des suffixes POT/COMMAND doit démontrer zéro relation métier Identity
+ouverte ; sa variante négative recrée le trigger non borné et doit être détectée.
+Aucun changement de l'owner ou des writers/contraintes Pot/Command existants.
+Ajout aussi d'un préflight de harness négatif sur une vraie DB SQL_ASCII ; il ne
+livre aucun préflight runtime I3.
+
+Feedback après correction : **27 tests I2 + 21 contrôles structurels ciblés,
+48/0/0/0**. La sonde négative retrouve le défaut original et la version corrigée
+passe ; la tentative de position POT pour une enveloppe Identity est rejetée au
+commit et annule toute l'unité. Le premier feedback correctif comportait une
+variante de harness POT encore mal sélectionnée (27 tests / 1 failure), corrigée
+et conservée dans `suffix-correction-initial` ; aucun test L2 modifié.
