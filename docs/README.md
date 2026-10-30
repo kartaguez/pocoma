@@ -2,6 +2,8 @@
 
 ## Programme V3 courant
 
+- [Audit contradictoire indépendant L3/I3](v3/L3_I3_Contradictory_Audit_Report.md) au SHA `2b3567b1` : **FAIL — CORRECTIONS REQUIRED** sur protections EUI et privilèges/confidentialité Identity ; deux findings MAJOR et deux MINOR, avec [preuves et reproduction](testing/evidence/L3-I3-CT/README.md). Aucun correctif appliqué, aucune gate canonique requalifiée, aucun GO I4.
+
 - [Livraison L3/I3 — IdentityRequest et R-ID](v3/L3_I3_Execution_Report.md) : Registration/Link/Unlink via Discovery et Engine L2, deux racines et exec jar PostgreSQL redémarré sans reset ; [runbook interne DEV](v3/L3_I3_Identity_Development_Runbook.md). 37 cas I3 PASS ; gate finale **FAIL `i5_r12`**, Architecture **SKIPPED** ; FAIL/SKIP/INCONCLUSIVE dans le rapport ; aucune acceptation indépendante ou GO I4/I5, réserves `i5_r05`/`i5_r12` conservées.
 
 - [Arbitrage L3/I2](v3/L3_I2_Acceptance_Decision_2026-10-30.md) : **ACCEPTED WITH EXPLICIT RESERVATIONS**, GO borné L3/I3 après publication documentaire ; I3 non commencé par cette publication. [Livraison et preuves I2](v3/L3_I2_Execution_Report.md) : 27 tests PostgreSQL et 21 contrôles ciblés PASS ; gate canonique **FAIL sur `i5_r12`**, Architecture **SKIPPED** ; aucun I2 LOCAL BOUNDED PASS ni PASS technique canonique ou global, aucune certification du participant IdentityRequest ou du runtime futur.

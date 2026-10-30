@@ -1,0 +1,82 @@
+{
+  "audited_sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+  "publication_parent_sha": "2b3567b1f77051c399772ee7ac787f7dd61ba407",
+  "publication_scope": "documentation and byte-preserved evidence only; no new application execution",
+  "verdict": "FAIL — CORRECTIONS REQUIRED",
+  "report_original_sha256": "c6f28e2e2348b2d33b99bb7d86511cd3a9ccfe2bf2d0abc3f06dcaba795f2d6a",
+  "report_published_path": "docs/v3/L3_I3_Contradictory_Audit_Report.md",
+  "report_adaptations": "Markdown destinations only: original evidence links now target published files; source links are pinned to audited GitHub SHA. Technical content unchanged.",
+  "archive_members_manifest": "docs/testing/evidence/L3-I3-CT/evidence-manifest.json",
+  "files": [
+    {
+      "path": "docs/README.md",
+      "bytes": 8418,
+      "sha256": "c13356434b11f1d5e31628059d62efe641b93516cb7d94b4b95835b656d4c91c"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/README.md",
+      "bytes": 4127,
+      "sha256": "79a64369f5799b72b41178e394064dd85b9e9bb4808331cc4d742def3dc3333b"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/evidence-manifest.json",
+      "bytes": 8352,
+      "sha256": "51a44558094c40896ceff900448f50872aee39e2d2e48bee904b75c33ac03f63"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/independent-audit.tar.gz",
+      "bytes": 102789,
+      "sha256": "f6c083ccc298ec16a722961f55089d14af4a1b15813d0e4bbfc5f3dbf2791a4c"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/IndependentAudit.java",
+      "bytes": 26028,
+      "sha256": "5f196d384f9aae1f2bd340360632d73665ab4a345ed7ff414389f1f49460eddc"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/README.md",
+      "bytes": 3732,
+      "sha256": "923ff429fe6f70642ef0cd001bbbfc820d4df6fd72a3e2fe71eaf564b7948041"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/capture_classpath.py",
+      "bytes": 631,
+      "sha256": "8b0a7f4020ad97d0ecb84cc7958c1486020c4b45501412e512db015170a3a3d3"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/commit_probes.py",
+      "bytes": 1465,
+      "sha256": "2ae9e993d0d79402c7aa4b8d4b394558e0f50d4f4be0b653f76274c1d239e7fb"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/prepare.py",
+      "bytes": 2636,
+      "sha256": "c09b373bf3e3662a98d095de3432ca887ccb7fe8ef106b44efd9fdb3fdf0b815"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/run_java.py",
+      "bytes": 540,
+      "sha256": "45b6ccd79374882fb767781a5265a25983d5fac3096a47a17afa2fcfa4e9d271"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/reproduction/security_probes.py",
+      "bytes": 1769,
+      "sha256": "2fcc66b1a0e538138d883f43b41ada3a1e0852233853701febeb0830db3fe318"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/results.json",
+      "bytes": 1290,
+      "sha256": "2fc18ac1a2ec173390d1b711c7a06f63c86898e530b7b27fefd9042abd60357a"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-CT/sources-manifest.json",
+      "bytes": 10309,
+      "sha256": "86fe1bd5c4a947026d55fbe1880c6399b27cd8903026eb99eb3f32490fe3807a"
+    },
+    {
+      "path": "docs/v3/L3_I3_Contradictory_Audit_Report.md",
+      "bytes": 38748,
+      "sha256": "5dbae3462358c2b04aeec4763ced144ddcda3020499eacbaea58054cc9201cdc"
+    }
+  ]
+}
