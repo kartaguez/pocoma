@@ -1,0 +1,2 @@
+00cdc16253ef9900224c7c6be90a0a814d2baf73 refs/heads/feat/v3-architecture
+Read freshly with git ls-remote; no force update is authorized.

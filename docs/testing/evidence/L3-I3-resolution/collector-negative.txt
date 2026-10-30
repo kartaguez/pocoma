@@ -1,0 +1,13 @@
+workspace default; expected refusal
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-v3-postaud/docs/testing/evidence/L3-I3-resolution/collect.py", line 52, in <module>
+    assert summary['classes'], 'No freshly executed JUnit results; stale XML cannot establish a proof'
+           ~~~~~~~^^^^^^^^^^^
+AssertionError: No freshly executed JUnit results; stale XML cannot establish a proof
+
+workspace /private/tmp/pocoma-i3-architecture-fresh; expected refusal
+Traceback (most recent call last):
+  File "/private/tmp/pocoma-v3-postaud/docs/testing/evidence/L3-I3-resolution/collect.py", line 52, in <module>
+    assert summary['classes'], 'No freshly executed JUnit results; stale XML cannot establish a proof'
+           ~~~~~~~^^^^^^^^^^^
+AssertionError: No freshly executed JUnit results; stale XML cannot establish a proof

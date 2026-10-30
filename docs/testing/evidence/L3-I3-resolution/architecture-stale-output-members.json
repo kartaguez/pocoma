@@ -1,0 +1,152 @@
+[
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.xml",
+    "bytes": 56646,
+    "sha256": "1074a9f2792c798388da707c492cf2748d1f0b7a90fd4223f5836d3588ba40a2"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.xml",
+    "bytes": 54931,
+    "sha256": "28518c51a4e96046e6e4ab4e5f746d4176d791cd62fd1bf1a11783a0d19e36bd"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.xml",
+    "bytes": 57878,
+    "sha256": "9e512b4720cba71f5ad7a3e79b7c6883e073f17f06d54c56a0baee69cfa7932d"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml",
+    "bytes": 63922,
+    "sha256": "93394dfd01fe665531f3e328f6f656eb2032c09d472c7adfc8ea57080ed0b47c"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.xml",
+    "bytes": 54771,
+    "sha256": "39eeba9178fa61a416dd286383f65cd2cf5385128afbf3917802f581f8798ad4"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.xml",
+    "bytes": 54951,
+    "sha256": "31b60d468974b2ed858d494efcee675a86741e2711309d45e68d42829d24c9bf"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.xml",
+    "bytes": 55309,
+    "sha256": "0ecf424fc302c1cb016d4af505119ae61746f07bc9e6748185ec16fb4fe580eb"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.xml",
+    "bytes": 55391,
+    "sha256": "f5302d6c41106a287d51c9c6199ea9649d6d8003566bdd4963c488c97b52bffe"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.xml",
+    "bytes": 54951,
+    "sha256": "bd87146eb4954da571d567ea542c9d484669153fe020841b73ad86a82860e79c"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.xml",
+    "bytes": 74085,
+    "sha256": "65b30d4d8ba2d5de94ce303e8195798ac450bc7db94de94e3cadddef70cedf18"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.xml",
+    "bytes": 54714,
+    "sha256": "d9e11525eddd181e1950568cafed3ceac4c023fbafd3180eb3db7a7ddd6d1f53"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.xml",
+    "bytes": 54797,
+    "sha256": "13781097bd7d2528f14a7cc5a9b0e5e3d49adde275259607eaa03fd07fe3899d"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.xml",
+    "bytes": 54815,
+    "sha256": "9a8ae38f9ce7b3876827a94db7d494efaf2e227ae77dd45ae0050996948113ff"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.xml",
+    "bytes": 55148,
+    "sha256": "27b84a22cf64dc58184c2760e3d3484ca69d82334dfc0bb3a8a597d6ad401259"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp2BoundaryTest.xml",
+    "bytes": 54835,
+    "sha256": "c031cb2e905bb324188ffee1a5a7b08addff066f5e39d05a068f4ba3ee5442ba"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp3BoundaryTest.xml",
+    "bytes": 55461,
+    "sha256": "f78475512db5ad1b08fa14a6ee470aa0b6c94611f5652dcec783c37df5a683d4"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp4BoundaryTest.xml",
+    "bytes": 55674,
+    "sha256": "cfef5bb503f8f3c16f8330b3c9eac36ebeff4ef033cad42cabdde90c56d13211"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.xml",
+    "bytes": 54915,
+    "sha256": "2c703222ca16db8c0ddd5fa23527f092c2c00b55811f28fc0f122ce23b7911f2"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml",
+    "bytes": 232851,
+    "sha256": "145108a0d75d3b9ca065f48b3667b2cd7842c568f2325b3ce11d037088ad9ba7"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.xml",
+    "bytes": 69616,
+    "sha256": "c5bbc73f25822d1bae805c4a9d96922639cbf58e26c6bea072586b9e310f38ed"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.xml",
+    "bytes": 73941,
+    "sha256": "c252aefcb576f9a3ccb74f17e2662d3684bad40c1f628fd930f83e4717ab4c9e"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.xml",
+    "bytes": 73649,
+    "sha256": "1d113ce3cc0ce81c3d4de449d6b47b8e8cd7d1987599f77aceb07d1e34092678"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.xml",
+    "bytes": 69906,
+    "sha256": "6cdf5a9916818666e33175c3b511e29406d0938ede81a6a3b72e97a1e869c85a"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.xml",
+    "bytes": 56308,
+    "sha256": "0ce73682ca3ea7dd77bce180741a0c1b5966baa0eb04759b95a0dd0a3366d99a"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.xml",
+    "bytes": 54840,
+    "sha256": "1c986350d9a11bcff1098d6644eda46e97a841eef175ddbfb79abef4b5a80638"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.xml",
+    "bytes": 55781,
+    "sha256": "a8bb5ca2cb102a2b66acd561628dd6e0adb9df69ff9d81879f9f9a6884bcf9da"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
+    "bytes": 55506,
+    "sha256": "87c21eb3371e9dc1f6acb13619b898e212d72891ae67c74c8f326adf953cbbcd"
+  },
+  {
+    "path": "architecture-stale-output/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.xml",
+    "bytes": 55495,
+    "sha256": "d965a6649a8b2938150d93ec81e89f1233f6059d44f45622e880d01054d57bfb"
+  },
+  {
+    "path": "architecture-stale-output/maven.log",
+    "bytes": 364635,
+    "sha256": "e38cab396cc295b07dfabfaed24640fec5fb2549244ca54676f7ea0cc1da1e0d"
+  },
+  {
+    "path": "architecture-stale-output/summary.json",
+    "bytes": 32644,
+    "sha256": "155d0922babf9ed2d8d02bec31aa9df01df4fc9dc4ac937024f206aba05ad2cb"
+  }
+]

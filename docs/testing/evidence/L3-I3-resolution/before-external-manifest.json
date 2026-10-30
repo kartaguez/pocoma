@@ -1,0 +1,122 @@
+[
+  {
+    "path": "before/IndependentAudit.java",
+    "bytes": 26028,
+    "sha256": "58c7195e00989f64c3c82420d4ffee45909eaf59a903627316f57c7c0efe772e"
+  },
+  {
+    "path": "before/boot-view-v2.log",
+    "bytes": 7661,
+    "sha256": "641c27ed488e1fd74540b2134d9190dba4324a7a6c8d25df1930b96656576b5a"
+  },
+  {
+    "path": "before/capture_classpath.py",
+    "bytes": 631,
+    "sha256": "8b0a7f4020ad97d0ecb84cc7958c1486020c4b45501412e512db015170a3a3d3"
+  },
+  {
+    "path": "before/classpath.txt",
+    "bytes": 19214,
+    "sha256": "7c119abddfe25d3f77eea4ee400a4dce539a0a2caa59f186b5ed207f9cc45fda"
+  },
+  {
+    "path": "before/collision-final.log",
+    "bytes": 455,
+    "sha256": "67be05cf1d569486f398e85460f510d58f5dd62dbb592e9896d4dfd56442f217"
+  },
+  {
+    "path": "before/commit_probes.py",
+    "bytes": 1459,
+    "sha256": "630d7ecac7643ed1e337d1a54a77cf815336bddfb6ff2a072aa37c1824a649b1"
+  },
+  {
+    "path": "before/container-provenance.json",
+    "bytes": 385,
+    "sha256": "aba04a8ebedbce4705561ca66ef65c79aca3c85558b6baf3afe6c5b7206a332b"
+  },
+  {
+    "path": "before/final-cardinalities.json",
+    "bytes": 192,
+    "sha256": "ea5506f88dfbb1a02c66ec2deac5315e24ab01e3915a7a1ddcc44c6b0cffbc4a"
+  },
+  {
+    "path": "before/image.txt",
+    "bytes": 72,
+    "sha256": "4c8eeb85e106478aac8167ff24ee8dd0602c30c3a776e0e302c4fe01ca9310bb"
+  },
+  {
+    "path": "before/permissions-v2.log",
+    "bytes": 1747,
+    "sha256": "0ac54550aeb4e2354aa379fc9c5125332506205f995478a4cf4e7ba05ca2454c"
+  },
+  {
+    "path": "before/preflight-final.log",
+    "bytes": 23,
+    "sha256": "ab10f73d5a930cfea18b32fe3e5d301ed5d990fc096d37a5113ad06952f9b252"
+  },
+  {
+    "path": "before/preflight-v2.log",
+    "bytes": 23,
+    "sha256": "ab10f73d5a930cfea18b32fe3e5d301ed5d990fc096d37a5113ad06952f9b252"
+  },
+  {
+    "path": "before/prepare.py",
+    "bytes": 2630,
+    "sha256": "339941025d0d5533d07dfbaef193535413e594f3bd5ba56f936b1f5b5f8156da"
+  },
+  {
+    "path": "before/results-summary.json",
+    "bytes": 1084,
+    "sha256": "7a3ac5dc83e4a5890c7c640377093c94316043a49d875aeb5d93f1b024bbc5a9"
+  },
+  {
+    "path": "before/retained-final.log",
+    "bytes": 590,
+    "sha256": "b485e854dd6b7b777d0cb659a786f0df2b2f34be4a8ee7780d38431713e0b967"
+  },
+  {
+    "path": "before/run_java.py",
+    "bytes": 540,
+    "sha256": "45b6ccd79374882fb767781a5265a25983d5fac3096a47a17afa2fcfa4e9d271"
+  },
+  {
+    "path": "before/security_probes.py",
+    "bytes": 1763,
+    "sha256": "50e7f00343e52fdfaf183c951ef298e96c55d97e5902bea718b03d42b3e233de"
+  },
+  {
+    "path": "before/seed-final.log",
+    "bytes": 468,
+    "sha256": "79227b94a0bb46dda4c09dfcf9da9f10d897fc4b275c2bb9236e1743f1b09c5d"
+  },
+  {
+    "path": "before/server-log-observation.json",
+    "bytes": 185,
+    "sha256": "6d6b12df5d79cc20542e629695fc1008c8fc517e9851970195cd55bfff70e691"
+  },
+  {
+    "path": "before/setup.json",
+    "bytes": 248,
+    "sha256": "5f06cf53e64808641a10931ad92192994fc12ade39977262bc8e9b10d6c5d8af"
+  },
+  {
+    "path": "before/truncate-audit_a-v3_identity_event.log",
+    "bytes": 114,
+    "sha256": "807fb2b2478f0e3c4371cfc50f2e9d977a0807bb2d4a76762a09d3650929a59e"
+  },
+  {
+    "path": "before/truncate-audit_i-v3_identity_event.log",
+    "bytes": 114,
+    "sha256": "68f73f490092ac8010d535e5f194ce95489149e77e964a20ce09e110f0438111"
+  },
+  {
+    "path": "before/truncate-commit-audit_a-final.log",
+    "bytes": 80,
+    "sha256": "674252965799fb4553e8c36bf098251a1560ebc21f51ac106b654d112f4ae5ea"
+  },
+  {
+    "path": "before/truncate-commit-audit_i-final.log",
+    "bytes": 91,
+    "sha256": "c46300bcd18196181d74196c48753039b5f47fa1960aae5268c86792e63533ca"
+  }
+]

@@ -1,0 +1,163 @@
+{
+  "code_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+  "base_sha": "00cdc16253ef9900224c7c6be90a0a814d2baf73",
+  "canonical_verdict": "FAIL i5_r12; source/bytecode qualification retained",
+  "clean_focused_tests": 232,
+  "clean_focused_failures": 0,
+  "global_gate_acquired": false,
+  "full_reactor_run": false,
+  "i4_authorized": false,
+  "manifest_self_excluded": true,
+  "files": [
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Architecture-population.json",
+      "bytes": 2262,
+      "sha256": "4510ee93e326be71a370a28fa8bc1a492e557d1d5fc7539ebad679081332ef7e"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Bytecode-qualification.json",
+      "bytes": 2742,
+      "sha256": "e75507d9cb58dee250a35a40fad5ebdf9d1706e4c0d5ecd93557450435606a32"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Commands.json",
+      "bytes": 4980,
+      "sha256": "2d240e8145385849b909f1463a7ed1db57c05007127da504599d1de45785fe43"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Correction-code.diff.patch.gz",
+      "bytes": 15718,
+      "sha256": "12969b2affb3fc9783e6d2de9883de9a769dd39f3be384f2e3ea14674180ce4d"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/ExternalIdentityBindingFactJdbcRepository-before-javap.txt",
+      "bytes": 1184,
+      "sha256": "122efcd60ebf963f475d4a01bee757ea0cc29deea6689c4264ab099d3e414d54"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/ExternalIdentityBindingFactJdbcRepository-fresh-javap.txt",
+      "bytes": 1205,
+      "sha256": "cdc98ca00e61b1c6912e4639974d73c45ea2b25472b83118d7de1d5ff0e0bb8a"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/MissingTerminalConsumptionFailureException-before-javap.txt",
+      "bytes": 536,
+      "sha256": "9a3fd6a269774fad3b2f6d8fd8cc1acfe0c15e98e51bfd681e8365e03294e298"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/MissingTerminalConsumptionFailureException-fresh-javap.txt",
+      "bytes": 556,
+      "sha256": "d68d5adda56dd047b6b492e5fb2773a4da4dc847e1aa0369d6cb172e719d0729"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Preserved-primary-status.txt",
+      "bytes": 1627,
+      "sha256": "ad1d6a58e8d8341d26705a87f4d41e3f4fc933ff0a0f4cec401ad7b1ffc2fbeb"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Proof-inputs.json",
+      "bytes": 4472,
+      "sha256": "00e1646cb6a2f1a6148795a7bfba9c9ac3557935fa2cee9f126ea7d116f1af05"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/README.md",
+      "bytes": 7439,
+      "sha256": "3571729f5925526eca062f4730ae273cc9e8ab5b7dbca816bb9700d37897444b"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/Remote-before-publication.txt",
+      "bytes": 137,
+      "sha256": "f6bbcd0b7dd7bbc22698e9b483a8c69449a2b2caa53635fdcbc06cb6a673d73e"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/after-external-manifest.json",
+      "bytes": 2818,
+      "sha256": "ba5ad936c73e4bd80dcd1d80ca44fc1783ef9116418a67437359d22c777a2ac1"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/after-external.tar.gz",
+      "bytes": 16788,
+      "sha256": "bfd07fbbb53f340feaffa783d18e747b8933a01b84e65d5f5e0c915026aed07f"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/architecture-stale-output-members.json",
+      "bytes": 7356,
+      "sha256": "d81f06464282353b4c72e4f64caeeeb20e881d4b36ff4e8a5603e252c2112d20"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/architecture-stale-output-summary.json",
+      "bytes": 32644,
+      "sha256": "155d0922babf9ed2d8d02bec31aa9df01df4fc9dc4ac937024f206aba05ad2cb"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/architecture-stale-output.tar.gz",
+      "bytes": 139263,
+      "sha256": "de8f66b3309ed378fd24220aa5f41e99682297df055300cf33c283f3325843fd"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/before-external-manifest.json",
+      "bytes": 3638,
+      "sha256": "4d2262a43de14c88b2c033366a03e81b30f86eb17d798eca44fb3e327d7ae2d2"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/before-external.tar.gz",
+      "bytes": 16050,
+      "sha256": "178bdac46ba9b507fd5584f1baf86573070cdcd16edd6541b8b3bade195ff333"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/canonical-members.json",
+      "bytes": 84953,
+      "sha256": "faa2a2b885f63b3bbc2a2ac100f11c539c0703bc2d12c8f80d663129e3470b73"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/canonical-summary.json",
+      "bytes": 345208,
+      "sha256": "276e806e4a6a41aabe898358d65d3c9035687c4e5cee355bf86435716ddda5fc"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/canonical.tar.gz",
+      "bytes": 1839044,
+      "sha256": "ff3764d8e045daf2f799069290dfb12299c089dd4e59dccb070633f5de4053d1"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/collect.py",
+      "bytes": 4085,
+      "sha256": "f4c0b830631a6b9b03ca97eea0eb97e2880f10cd486a3c3fc724dc433ef2e49c"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/collector-negative.txt",
+      "bytes": 839,
+      "sha256": "e8914f411ee89f976005e7eb977175a7a269744f6ad9a128a9a4e92f60cf707b"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/feedback-intermediate-members.json",
+      "bytes": 13083,
+      "sha256": "d503a84c53bcde38b9dc3fd2f9e8da09e65b75d666df2d621eb31c4eef7b6ba1"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/feedback-intermediate.tar.gz",
+      "bytes": 175284,
+      "sha256": "c3bb677be3bc5e9bc89781101de911c6772c69717e456769565133d64416da5f"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/fresh-feedback-members.json",
+      "bytes": 19251,
+      "sha256": "c5a3788ff17be52b17f42241be9110811388471f18a074e47ead67a86ce2306d"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/fresh-feedback-summary.json",
+      "bytes": 44660,
+      "sha256": "68761af89b9856783fe45d6f6df36bd33b4f403daac448de143d6c3904c5bbbc"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3-resolution/fresh-feedback.tar.gz",
+      "bytes": 299069,
+      "sha256": "088393435b936e2181d88ef28e1bbd51c2837dcba887143763bba2e31f495743"
+    },
+    {
+      "path": "docs/v3/L3_I3_Findings_Resolution_Report.md",
+      "bytes": 18154,
+      "sha256": "587a717c29d9a9dd390f8a19e4f924d206ba227beabc1bccfbf40b688c9e4dd0"
+    }
+  ]
+}

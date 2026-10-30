@@ -1,0 +1,1105 @@
+{
+  "label": "architecture-stale-output",
+  "tested_code_sha": "c1172bf4a758a9077415d827ca88b359b6360ebb",
+  "exit_code": 1,
+  "fresh_since_epoch": 1793399551.294778,
+  "classes": [
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.BindingLockOwnershipTest",
+      "tests": 4,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "everyProductionSourceHasImportedBytecode",
+          "seconds": "0.102",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "guardRejectsDirectCompositionAndEachSideOfAnIndirectComposition",
+          "seconds": "0.074",
+          "outcome": "success"
+        },
+        {
+          "name": "repositoriesCannotEscapeThroughNewCallersOrDelegates",
+          "seconds": "0.081",
+          "outcome": "success"
+        },
+        {
+          "name": "noProductionDelegateCanExposeAnIndependentStreamAcquisition",
+          "seconds": "0.029",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "distributedCompositionRunsAndScrapesTheCommandConsumptionWorker",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "distributedWorkersDeclareTheirCanonicalProjectionTypesAndTaskSegments",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "taskRuntimePackagesTheStandardPostgresProfile",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "distributedCompositionHasNoResidualNatsDependency",
+          "seconds": "0.001",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest",
+      "tests": 8,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "businessProductionAndNarrowTransactionContractRemainTechnologyFree",
+          "seconds": "0.028",
+          "outcome": "success"
+        },
+        {
+          "name": "incompatibleExternalDurableCompositionIsRejectedBeforeSending",
+          "seconds": "0.019",
+          "outcome": "success"
+        },
+        {
+          "name": "realWritersAreBodyGuardedAndProducersCannotInvokeSequencingOrReserveDirectly",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "knownParticipantsHaveNoIndependentResolutionOrExternalEffects",
+          "seconds": "0.009",
+          "outcome": "success"
+        },
+        {
+          "name": "currentParticipantAnnotationsAndBodyGuardsCannotDisappear",
+          "seconds": "0.001",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "allDurablePortImplementationsAndPublicationFactoriesAreInventoried",
+          "seconds": "0.022",
+          "outcome": "success"
+        },
+        {
+          "name": "negativeFixturesRejectRepositoryBypassSplitTransactionsSavepointsAndWriterCallbacks",
+          "seconds": "0.049",
+          "outcome": "success"
+        },
+        {
+          "name": "onlyTheReadContextIsAllowedAndTransactionOwnershipStillFails",
+          "seconds": "0.041",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.HexagonalArchitectureTest",
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "primaryLkvAdaptersDependOnlyOnTheFinalLkvSupraContracts",
+          "seconds": "0.014",
+          "outcome": "success"
+        },
+        {
+          "name": "transactionalConsumptionExecutionDoesNotDependOnLegacyExecutionGuard",
+          "seconds": "0.009",
+          "outcome": "success"
+        },
+        {
+          "name": "functionalCommandUseCasesDoNotDependOnDurableConsumption",
+          "seconds": "0.011",
+          "outcome": "success"
+        },
+        {
+          "name": "potProjectionContractsDependOnlyOnTheProjectionDomainAndTheJdk",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "canonicalProjectionPersistenceDependsOnlyOnProjectionContractsAndInfrastructureLibraries",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "readPersistenceDoesNotDependOnPrimaryPersistenceOrOuterLayers",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "genericConsumptionPullLayersStayIndependentFromWorkFamiliesAndFrameworks",
+          "seconds": "0.094",
+          "outcome": "success"
+        },
+        {
+          "name": "foundationContractsAndPortsStayInwardOnly",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "applicationUseCasesDoNotDependOnWorkersOrClaims",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "domainDoesNotDependOnOuterLayersOrFrameworks",
+          "seconds": "0.004",
+          "outcome": "success"
+        },
+        {
+          "name": "projectionContractsEngineDependsOnlyOnTheJdkAndProjectionDomain",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "exactReadPotBoundaryKnowsNoLegacySelectionOrDeliverySubsystem",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "commandResultReadDependsOnlyOnImmutableResultStore",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "synchronousCommandDispatchIsGoneWhilePotBusinessPortsRemain",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "springSecurityAuthenticationRemainsInTheDedicatedSupra",
+          "seconds": "0.004",
+          "outcome": "success"
+        },
+        {
+          "name": "projectionNDoesNotRequireLatestKnownVersionAtLeastN",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "targetApplicationAndProcessingPackagesDoNotDependOnLegacyEngineTypes",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "commandLocatorOwnsConsumptionIdentityAndStaysIndependentFromPotAndOuterLayers",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "processingReconciliationDoesNotDependOnExecutionGuardsAndObsoleteDecoratorsAreGone",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "httpLayersDoNotAccessTheUserIdentityPersistenceAuthorityDirectly",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "httpAdmissionCannotMutateThePotWriteModelDirectly",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "httpControllersDoNotDependOnJpa",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "consumptionEngineDoesNotDependOnOuterLayers",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "functionalBalanceProjectionDoesNotDependOnWorkersOrConsumption",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "targetCommandConsumptionKeepsIdentityResolutionInsideTheWriteWorkerBoundary",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "commandAdmissionConsumesOnlyTheProviderNeutralAuthenticatedPrincipal",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "potCommandAdaptersStayOutsideTransactionsInfrastructureAndEventSerialization",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "consumptionDiscoveryDoesNotDecodeBusinessPayloads",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "recordedProcessingModelsDoNotCarryClaimOrLeaseState",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "potDomainIsSelfContainedAndUsesItsExplicitNamespace",
+          "seconds": "0.005",
+          "outcome": "success"
+        },
+        {
+          "name": "latestKnownVersionIsADirectGenericConsumptionWithoutTaskOrProjectionArtifacts",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "genericCommandEngineDependsOnlyOnGenericCommandAndTerminalReasonContracts",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "consumptionDomainDoesNotDependOnApplicationOrOuterLayers",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "deadEventSchedulingTypesAreAbsent",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "exactProjectionReadEngineDependsOnlyOnItsPureContracts",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "projectionCoreDependsOnlyOnTheJdkAndItself",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "potPoliciesAndBalanceProjectionRemainPureDomainCode",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "targetConsumptionPersistenceDoesNotDependOnLegacyClaimTokens",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "lkvSupraDependsOnlyOnItsSpecializedEngineAndGenericConsumption",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "genericReadProjectionFoundationKeepsFunctionalSemanticsInside",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "bindingLifecycleWriterIsAtomicWhileReadProjectionRemainsOutsideWriteAuthorityAndCommandRuntime",
+          "seconds": "0.006",
+          "outcome": "success"
+        },
+        {
+          "name": "genericConsumptionHasNoCapabilitySpecificDependencies",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "projectionTaskEngineRemainsPureAndKnowsNoLegacyExecutionConcept",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "legacyTaskRuntimeTypesAreAbsent",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "commandConsumptionRuntimeComposesGenericPollingWithoutKnowingCommandPayloadsOrHttp",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "authorizationDomainIsGenericAndLegacyAuthorizationScopesAreGone",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "userIdentityOwnsItsCanonicalTypesAndRemainsFrameworkFree",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "engineDoesNotDependOnOuterLayersOrFrameworks",
+          "seconds": "0.01",
+          "outcome": "success"
+        },
+        {
+          "name": "potReadEngineDependsOnlyOnItsPureApplicationAndDomainContracts",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "commandPersistenceDependsInwardAndIntroducesNoJpaEntity",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "potBusinessEventsAndRecordingMetadataBelongToTheDomain",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "authenticatedPrincipalBelongsToTheNeutralAuthenticationBoundary",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "functionalUseCaseFamiliesDoNotDependOnConsumptionDomain",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "potAuthorizationKernelRemainsPureAndProviderNeutral",
+          "seconds": "0.001",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "activeProductionHasNoLegacyTaskOrOldStoreWriterType",
+          "seconds": "0.307",
+          "outcome": "success"
+        },
+        {
+          "name": "reactorContainsNoPcl3LegacyModuleOrDependencyEdge",
+          "seconds": "0.103",
+          "outcome": "success"
+        },
+        {
+          "name": "activeProductionHasNoTaskTableReaderWriterMappingOrConfiguration",
+          "seconds": "0.137",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "canonicalReadResponsibilitiesRemain",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "reactorContainsNoLegacyQueryModuleOrDependencyEdge",
+          "seconds": "0.1",
+          "outcome": "success"
+        },
+        {
+          "name": "activeProductionContainsNoLegacyQueryReadTypeWiringOrProperty",
+          "seconds": "0.441",
+          "outcome": "success"
+        },
+        {
+          "name": "activeProductionContainsNoLegacyReadStoreTableAccess",
+          "seconds": "0.197",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "historicalLifecycleMigrationExistsExactlyOnceAndIsPreserved",
+          "seconds": "0.137",
+          "outcome": "success"
+        },
+        {
+          "name": "productionContainsNoPipelineLifecycleOrServingContract",
+          "seconds": "0.275",
+          "outcome": "success"
+        },
+        {
+          "name": "lifecycleTablesHaveNoActiveProductionAccess",
+          "seconds": "0.137",
+          "outcome": "success"
+        },
+        {
+          "name": "reactorAndPomsContainNoPcl5LegacyModuleOrDependencyEdge",
+          "seconds": "0.164",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "activeRuntimeSurfacesDoNotReferenceTheMonolith",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "functionalMonolithIsACompositionRootAndNotAReplacementForDistributedRuntimes",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "canonicalResponsibilitiesRemainPresent",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "legacyTablesHaveNoActiveRuntimeAccess",
+          "seconds": "0.141",
+          "outcome": "success"
+        },
+        {
+          "name": "primaryMigrationsV1ToV3HaveOneOwnerAndPreservedBytes",
+          "seconds": "0.293",
+          "outcome": "success"
+        },
+        {
+          "name": "productionContainsNoLegacyBalanceOrProjectionTaskRuntime",
+          "seconds": "0.217",
+          "outcome": "success"
+        },
+        {
+          "name": "reactorAndPomsContainNoRemovedRuntimeOrDependencyEdge",
+          "seconds": "0.097",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "pcl8CandidatesHaveNoApplicationOrRuntimeConfigurationReference",
+          "seconds": "0.428",
+          "outcome": "success"
+        },
+        {
+          "name": "removedStructuralResidueStaysOutOfProduction",
+          "seconds": "0.217",
+          "outcome": "success"
+        },
+        {
+          "name": "canonicalInfrastructureRemainsConcrete",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "removedModulesAndTheirMavenEdgesStayAbsent",
+          "seconds": "0.097",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "prePclUpgradeAndCleanBootstrapProduceTheSameCanonicalSchema",
+          "seconds": "1.414",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "historicalMigrationsRemainByteForByteImmutable",
+          "seconds": "0.038",
+          "outcome": "success"
+        },
+        {
+          "name": "noSupportedProductionPathReferencesRemovedStructures",
+          "seconds": "0.525",
+          "outcome": "success"
+        },
+        {
+          "name": "demolitionMigrationsAreStrictOrderedAndProtectCanonicalObjects",
+          "seconds": "0.002",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "durableContractsContainOnlyIntakeLanguage",
+          "seconds": "0.005",
+          "outcome": "success"
+        },
+        {
+          "name": "admissionAndPublishedReadsDoNotImportExecution",
+          "seconds": "0.006",
+          "outcome": "success"
+        },
+        {
+          "name": "potReadsProjectedBindingAndResultsReadNeitherBindingNorTask",
+          "seconds": "0.004",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "registrationLegacyFacadeIsGoneAndExecutionRemainsInTargetEngine",
+          "seconds": "0.002",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "bindingFactsAreAppendOnlyAndBindingMutationsLockStreamBeforeAuthority",
+          "seconds": "0.132",
+          "outcome": "success"
+        },
+        {
+          "name": "commandV2ObservesWithoutBindingLockAndFencesBeforeOutcomeAndClaim",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "readRuntimeDiscoversOnlyFactsAndHasNoPrimaryBootstrap",
+          "seconds": "0.0",
+          "outcome": "success"
+        },
+        {
+          "name": "directProductionSqlAccessesStayInsideTheirDeclaredOwners",
+          "seconds": "0.771",
+          "outcome": "success"
+        },
+        {
+          "name": "currentRuntimeHasOnlyTheCanonicalCommandAndExactResultShape",
+          "seconds": "0.11",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Wp2BoundaryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "projectorHasOnlyPureDomainDependenciesAndNoTechnicalImports",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "enginesNeverDependOnRuntimeAndExactReaderHasUniqueIdentity",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "genericConsumptionAndCurrentBindingReadKeepTheirWp2Boundaries",
+          "seconds": "0.004",
+          "outcome": "success"
+        },
+        {
+          "name": "physicalOwnersKeepTheirArchitecturalJavaNamespaces",
+          "seconds": "0.011",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Wp3BoundaryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "capabilitySpecificSuprasDoNotImportSqlAdapters",
+          "seconds": "0.005",
+          "outcome": "success"
+        },
+        {
+          "name": "enginesDoNotImportRuntimeHttpOrConcreteInfrastructure",
+          "seconds": "0.026",
+          "outcome": "success"
+        },
+        {
+          "name": "newPomNamesOwnTheirJavaNamespaces",
+          "seconds": "0.008",
+          "outcome": "success"
+        },
+        {
+          "name": "admissionEnginesDoNotImportSpringSecurity",
+          "seconds": "0.002",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Wp4BoundaryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "directResultsStayOutOfProjectionAndCurrentBinding",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "pomNamesMatchJavaNamespaces",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "readAndMaterializationEnginesContainNoOuterLayer",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "specificConsumersAndHttpHaveNoConcretePersistence",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "moduleDependenciesProtectDirectResultBoundary",
+          "seconds": "0.0",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "domainConsumptionExportsOnlyTheExplicitTargetProtocolSurface",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "pureFamiliesHaveNoFrameworkOrPersistenceImports",
+          "seconds": "0.007",
+          "outcome": "success"
+        },
+        {
+          "name": "legacyModulesAreGoneAndLkvHasFinalSpecializedOwners",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "graphAndRoleBoundariesHaveNoCyclesOrForbiddenArcs",
+          "seconds": "0.07",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "eventFeedsIndependentLkvAndExactProjectionPipelines",
+          "seconds": "2.698",
+          "outcome": "success"
+        },
+        {
+          "name": "httpCreateAndUpdateTraverseWorkersAndReadAuthorizedExactPotVersions",
+          "seconds": "3.986",
+          "outcome": "success"
+        },
+        {
+          "name": "admissionThroughCommandTerminalEventAndResultProducesAllTerminalResultsDurably",
+          "seconds": "1.446",
+          "outcome": "success"
+        },
+        {
+          "name": "registrationThroughBothReadConsumersFeedsFirstCommandAndRejectedRegistration",
+          "seconds": "3.715",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "lostClaimBeforeCommitPublishesNoResult",
+          "seconds": "0.073",
+          "outcome": "success"
+        },
+        {
+          "name": "staleClaimReachesFenceAndRollsBackBeforeWinnerFinalizes",
+          "seconds": "0.09",
+          "outcome": "success"
+        },
+        {
+          "name": "twoWorkersRaceWithoutDivergentPublication",
+          "seconds": "0.037",
+          "outcome": "success"
+        },
+        {
+          "name": "expiredClaimCanStillFinalizeBeforeTakeover",
+          "seconds": "0.029",
+          "outcome": "success"
+        },
+        {
+          "name": "takeoverFencesStaleWorkerAndConvergesToOneResult",
+          "seconds": "0.045",
+          "outcome": "success"
+        },
+        {
+          "name": "validClaimPublishesResultAndFinalizesExactlyOnce",
+          "seconds": "0.021",
+          "outcome": "success"
+        },
+        {
+          "name": "exceptionAfterInsertRollsBackResultAndSlotFinalization",
+          "seconds": "0.017",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "twoConcurrentTakeoversInstallOnlyOneCurrentClaim",
+          "seconds": "0.49",
+          "outcome": "success"
+        },
+        {
+          "name": "inFlightPublicationLosesFenceAndUnblocksWinnerPublication",
+          "seconds": "0.05",
+          "outcome": "success"
+        },
+        {
+          "name": "rolledBackFinalCasReleasesSlotAndAllowsTakeover",
+          "seconds": "0.049",
+          "outcome": "success"
+        },
+        {
+          "name": "committedFinalCasMakesWaitingTakeoverObserveDone",
+          "seconds": "0.034",
+          "outcome": "success"
+        },
+        {
+          "name": "rolledBackTakeoverLetsWaitingContenderReuseAttemptTwo",
+          "seconds": "0.055",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "durableEventOutputIsTheIndependentProjectionTaskRuntimeInput",
+          "seconds": "3.744",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "evolvedCurrentPolicyBackfillsOnlyTheNewHistoricalEventConsequence",
+          "seconds": "0.962",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "lifecycleHasOneHandleAndNoSchedulerOrOwner",
+          "seconds": "0.008",
+          "outcome": "success"
+        },
+        {
+          "name": "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+          "seconds": "0.006",
+          "outcome": "success"
+        },
+        {
+          "name": "negativeExamplesReallyFailRules",
+          "seconds": "0.046",
+          "outcome": "success"
+        },
+        {
+          "name": "engineAndContractsPureAndAgnostic",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards",
+          "seconds": "0.04",
+          "outcome": "success"
+        },
+        {
+          "name": "rejectedAbstractionsAndPotOwnerAbsent",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority",
+          "seconds": "0.111",
+          "outcome": "success"
+        },
+        {
+          "name": "discoveryPortsAndWritersRemainBounded",
+          "seconds": "0.041",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "discoveryFactoryIsExplicitAndKeepsTheNineDefinitions",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "v3RoutingDomainRemainsPure",
+          "seconds": "0.016",
+          "outcome": "success"
+        },
+        {
+          "name": "commonSqlIsByteIdenticalAndHistoricalMigrationsAreUnmodifiedByConstruction",
+          "seconds": "0.0",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "eachForbiddenDependencyIsActuallyDetected",
+          "seconds": "0.063",
+          "outcome": "success"
+        },
+        {
+          "name": "productionImportsAreNonemptyAndExcludeFixtures",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "nestedPortsCannotEscapeTheSelectorOrLeakImplementations",
+          "seconds": "0.147",
+          "outcome": "success"
+        },
+        {
+          "name": "positiveFixturesSatisfyTheSameRules",
+          "seconds": "0.018",
+          "outcome": "success"
+        },
+        {
+          "name": "productionKeepsPureDomainsAndInwardApplicationPorts",
+          "seconds": "0.03",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "l3_identity_authority_has_no_owner_or_runtime",
+          "seconds": "0.002",
+          "outcome": "success"
+        },
+        {
+          "name": "l3_canonical_acquisition_is_the_only_eui_writer_path",
+          "seconds": "0.003",
+          "outcome": "success"
+        },
+        {
+          "name": "l3_identity_participant_and_factory_keep_l2_ownership",
+          "seconds": "0.002",
+          "outcome": "success"
+        }
+      ]
+    },
+    {
+      "module": "architecture-tests",
+      "class": "com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "carch02AllExecutionAndRevisionWritersUsePhysicalOwnerGuards",
+          "seconds": "0.006",
+          "outcome": "success"
+        },
+        {
+          "name": "carch03ExplicitCompositionAndNoIdentityFixtureInProduction",
+          "seconds": "0.001",
+          "outcome": "success"
+        },
+        {
+          "name": "carch01OrchestrationAndContractsRemainPure",
+          "seconds": "0.001",
+          "outcome": "success"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "tests": 162,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "raw_log_sha256": "e38cab396cc295b07dfabfaed24640fec5fb2549244ca54676f7ea0cc1da1e0d"
+}

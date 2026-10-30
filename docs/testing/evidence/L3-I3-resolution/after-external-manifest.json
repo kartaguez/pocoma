@@ -1,0 +1,97 @@
+[
+  {
+    "path": "after/IndependentAudit.java",
+    "bytes": 26028,
+    "sha256": "81d007c1a6a9881319f287b292dc9eed9d2d58b48f3f363b62ca3f53e0ab6836"
+  },
+  {
+    "path": "after/after_checks.py",
+    "bytes": 4535,
+    "sha256": "78f2129c7b2bd5112a0a4af5acde9182ce02b98dd695894ea44ff8675a34b1f3"
+  },
+  {
+    "path": "after/auxiliary-after.json",
+    "bytes": 508,
+    "sha256": "ddb844d33c0289bea30752ed2facf5fdaf3cd8e785d6d29a9ecf72bd59b4ef35"
+  },
+  {
+    "path": "after/boot-view-final.log",
+    "bytes": 3325,
+    "sha256": "4fad1a11627283d6245ab0f8e306b97e7a41e09ab281640f2408b2b810f44905"
+  },
+  {
+    "path": "after/classpath.txt",
+    "bytes": 18915,
+    "sha256": "e409baed78c926ec8849c26a639746a24aa9ca8aec498c109eaf60e99d454cbe"
+  },
+  {
+    "path": "after/collision-final.log",
+    "bytes": 455,
+    "sha256": "d042ffc37be732588ec0689c0eeb8779256ef99426782cddac9a6c8a8d1fb560"
+  },
+  {
+    "path": "after/commit_probes.py",
+    "bytes": 1456,
+    "sha256": "ef9dd307814edd5d8f617f3fa8fc19f5258eda84472e06b3d35b91ed47183789"
+  },
+  {
+    "path": "after/container-provenance.json",
+    "bytes": 402,
+    "sha256": "4c8571b20b2102e5ca5f3976de57880ebb519c31e4851cff393276c3611869f3"
+  },
+  {
+    "path": "after/effective-rights.json",
+    "bytes": 5005,
+    "sha256": "3badc8ecf3352648d20b012fdf2742fd930e89ec714b889036d8543301caf281"
+  },
+  {
+    "path": "after/final-cardinalities.json",
+    "bytes": 192,
+    "sha256": "901ec3d11be4344fa4da1463b0bfb89e0a3f4abbd8f0666eff9733e67406aa15"
+  },
+  {
+    "path": "after/normal-final.log",
+    "bytes": 709,
+    "sha256": "492485dc2112eb4c36d9807a9ed95bc3c07f98adf96116b992b1cff8b5aac843"
+  },
+  {
+    "path": "after/permissions-final.log",
+    "bytes": 1912,
+    "sha256": "fbd7a003a66ddac73f9dc4f98ab14ba307d224830f226016b3e0468354400ab5"
+  },
+  {
+    "path": "after/prepare.py",
+    "bytes": 2697,
+    "sha256": "2be269180f875f32b9feb02be2112c761c5ab8624325a39f77a83f91e016d148"
+  },
+  {
+    "path": "after/run_java.py",
+    "bytes": 540,
+    "sha256": "45b6ccd79374882fb767781a5265a25983d5fac3096a47a17afa2fcfa4e9d271"
+  },
+  {
+    "path": "after/security_probes.py",
+    "bytes": 1760,
+    "sha256": "39bfe151251ebdfa145590499dd793ff1b8b8cbc2cfd84ba1420909a30e0d9a8"
+  },
+  {
+    "path": "after/seed-final.log",
+    "bytes": 468,
+    "sha256": "e5bc8532cfef876e9c61cb9f94c9dc7871c53f2a6954a4f83061fd0a84e863b0"
+  },
+  {
+    "path": "after/sequences.txt",
+    "bytes": 1452,
+    "sha256": "36be7ab863cca6f5c176f27ec4679d142b4503e2755ed8de783df869377d4595"
+  },
+  {
+    "path": "after/server-log-observation.json",
+    "bytes": 225,
+    "sha256": "fa14f65e4db3b90f0c1e46132b8b6ea450b1f939404c76f3f0f76f58cda938f5"
+  },
+  {
+    "path": "after/setup.json",
+    "bytes": 248,
+    "sha256": "5f06cf53e64808641a10931ad92192994fc12ade39977262bc8e9b10d6c5d8af"
+  }
+]

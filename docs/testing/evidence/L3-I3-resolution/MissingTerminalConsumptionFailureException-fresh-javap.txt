@@ -1,0 +1,6 @@
+Compiled from "MissingTerminalConsumptionFailureException.java"
+public final class com.kartaguez.pocoma.engine.write.pot.exception.MissingTerminalConsumptionFailureException extends java.lang.IllegalStateException {
+  private final com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey consumptionKey;
+  public com.kartaguez.pocoma.engine.write.pot.exception.MissingTerminalConsumptionFailureException(com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey);
+  public com.kartaguez.pocoma.domain.consumption.key.ConsumptionKey consumptionKey();
+}
