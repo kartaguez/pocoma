@@ -6,6 +6,7 @@ import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.SqlArrayValue;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.sql.Connection;
@@ -70,10 +71,13 @@ final class PotHistoryRows {
 
     Map<UUID, Long> identities(String kind, PotId pot, Set<UUID> selected, Long version) {
         if (selected != null && selected.isEmpty()) return Map.of();
-        String condition = selected == null ? "" : " and object_id in (:ids)";
+        // Keep identity selection even for exhaustive callers: orphan/future identities must
+        // retain their existing exclusion and corruption diagnostics. One typed JDBC array
+        // preserves that predicate without one bind parameter per historical identity.
+        String condition = selected == null ? "" : " and object_id = any(:ids)";
         var params = new HashMap<String, Object>();
         params.put("pot", pot.value());
-        if (selected != null) params.put("ids", selected);
+        if (selected != null) params.put("ids", new SqlArrayValue("uuid", selected.toArray()));
         if (version != null) {
             params.put("version", version);
             condition += " and created_at<=:version";
@@ -152,9 +156,15 @@ final class PotHistoryRows {
                                 + columns
                                 + " from v3_"
                                 + table
-                                + " where pot_id=:pot and object_id in (:ids) and "
+                                + " where pot_id=:pot and object_id = any(:ids) and "
                                 + interval,
-                        Map.of("pot", pot.value(), "ids", births.keySet(), "version", version));
+                        Map.of(
+                                "pot",
+                                pot.value(),
+                                "ids",
+                                new SqlArrayValue("uuid", births.keySet().toArray()),
+                                "version",
+                                version));
         var result = new LinkedHashMap<UUID, Map<String, Object>>();
         for (var row : applicable) {
             UUID id = uuid(row, "object_id");
@@ -208,8 +218,12 @@ final class PotHistoryRows {
                                 + relation
                                 + " where pot_id=c.pot_id and object_id=c.object_id order by"
                                 + " local_version desc limit 1) l on true where c.pot_id=:pot and"
-                                + " c.object_id in (:ids) and c.active_to is null",
-                        Map.of("pot", pot.value(), "ids", births.keySet()));
+                                + " c.object_id = any(:ids) and c.active_to is null",
+                        Map.of(
+                                "pot",
+                                pot.value(),
+                                "ids",
+                                new SqlArrayValue("uuid", births.keySet().toArray())));
         var result = new LinkedHashMap<UUID, Map<String, Object>>();
         for (var row : current) {
             UUID id = uuid(row, "object_id");
@@ -272,9 +286,13 @@ final class PotHistoryRows {
                                 + columns
                                 + " from v3_"
                                 + table
-                                + " where pot_id=:pot and object_id in (:ids) order by"
+                                + " where pot_id=:pot and object_id = any(:ids) order by"
                                 + " object_id,local_version",
-                        Map.of("pot", pot.value(), "ids", births.keySet()));
+                        Map.of(
+                                "pot",
+                                pot.value(),
+                                "ids",
+                                new SqlArrayValue("uuid", births.keySet().toArray())));
         var groups = new HashMap<UUID, List<Map<String, Object>>>();
         for (var row : all)
             groups.computeIfAbsent(uuid(row, "object_id"), key -> new ArrayList<>()).add(row);

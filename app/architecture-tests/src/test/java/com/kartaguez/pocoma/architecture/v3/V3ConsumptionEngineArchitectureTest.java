@@ -44,7 +44,8 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".runtime..",
                         ROOT + ".domain.pot..",
                         ROOT + ".domain.identity..",
-                        ROOT + ".engine.write.pot..");
+                        ROOT + ".domain.useridentity..",
+                        ROOT + ".engine.write..");
     }
 
     static ArchRule noOwnerInParticipant() {
@@ -72,7 +73,11 @@ class V3ConsumptionEngineArchitectureTest {
                         ROOT + ".infra..",
                         ROOT + ".runtime..",
                         ROOT + ".port.transaction.v3.AttemptTransactions",
-                        ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket");
+                        ROOT + ".engine.consumption.v3.WorkerCapacity$Ticket",
+                        ROOT + ".domain.pot..",
+                        ROOT + ".domain.identity..",
+                        ROOT + ".domain.useridentity..",
+                        ROOT + ".engine.write..");
     }
 
     @Test
@@ -385,6 +390,29 @@ class V3ConsumptionEngineArchitectureTest {
 
     static class BadDomainDependency {
         com.kartaguez.pocoma.domain.pot.value.id.PotId pot;
+    }
+
+    @Test
+    void businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards() {
+        var imported =
+                new ClassFileImporter()
+                        .importClasses(
+                                BadIdentityDependency.class, BadBusinessEngineDependency.class);
+        for (var witness :
+                List.of(BadIdentityDependency.class, BadBusinessEngineDependency.class)) {
+            var isolated = select(imported, c -> c.getName().equals(witness.getName()));
+            assertTrue(pureEngine().evaluate(isolated).hasViolation(), witness.getName());
+            assertTrue(purePollWorker().evaluate(isolated).hasViolation(), witness.getName());
+        }
+    }
+
+    // Confined to architecture-tests; engine-consumption gains no business dependency.
+    static class BadIdentityDependency {
+        com.kartaguez.pocoma.domain.useridentity.PocomaUserId user;
+    }
+
+    static class BadBusinessEngineDependency {
+        com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand engine;
     }
 
     static class BadOwner {

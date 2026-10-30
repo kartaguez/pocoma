@@ -10,6 +10,8 @@ import com.kartaguez.pocoma.domain.pot.value.id.*;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.ComponentRead;
 import com.kartaguez.pocoma.engine.write.pot.port.persistence.v3.PotHistoryPort;
 
+import org.springframework.jdbc.support.SqlArrayValue;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
@@ -361,9 +363,9 @@ public final class JdbcPotHistoryAdapter implements PotHistoryPort {
                 .forEach(row -> owners.put(number(row, "revision_id"), uuid(row, "pot_id")));
         for (var row :
                 rows.named.queryForList(
-                        "select * from v3_expense_participant where financial_revision_id in"
-                                + " (:ids)",
-                        Map.of("ids", revisionIds))) {
+                        "select * from v3_expense_participant where financial_revision_id"
+                                + " = any(:ids)",
+                        Map.of("ids", new SqlArrayValue("bigint", revisionIds.toArray())))) {
             if (!Objects.equals(
                     owners.get(number(row, "financial_revision_id")), uuid(row, "pot_id")))
                 throw bad("Mixed participant owner");
