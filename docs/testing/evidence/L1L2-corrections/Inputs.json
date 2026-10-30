@@ -1,0 +1,68 @@
+{
+  "tested_sha": "3dd15a666e782df653507fcbf19c07178dfc9069",
+  "initial_sha": "9780ac88bcea8d87081bce9c7589c8f323806934",
+  "app_git_tree": "7c7ac6a90aac06f5e0dfb248f65035c00e6d8b9c",
+  "modified_app_inputs": [
+    {
+      "path": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+      "sha256": "db6e6a1d1994370ae84ef9f5ce6ef3825eae3898c9db253957cfe8709458264e"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java",
+      "sha256": "505be10b2c0cca499e314de48e3acc3fbadf10a952eeb496a186743538daafea"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryRows.java",
+      "sha256": "528edbc1bffd78bc3ebf2bd59f748c26f1b6fe63120b9aa3ffaf94392b05a63a"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryCardinalityPostgresTest.java",
+      "sha256": "19082d658462f6b4e6e60621799e19b8efe1a320f380ea87bbe01a037f4854f1"
+    },
+    {
+      "path": "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java",
+      "sha256": "cf49a7e9570a6ed12d9f029d991d3a39b2869a1da237250d34ad20a6dd0f4fe3"
+    }
+  ],
+  "environment": {
+    "java": "Temurin 21+35-LTS",
+    "maven": "3.9.14",
+    "postgres": "17.11",
+    "driver": "42.7.10",
+    "spring_jdbc": "7.0.6",
+    "image": "postgres:17-alpine",
+    "repo_digest": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+    "docker": "29.8.2",
+    "os": "macOS 27.0 aarch64",
+    "locale": "fr_FR"
+  },
+  "verification": {
+    "primary_slice": "COMMAND",
+    "secondary_slices": [],
+    "global_architecture": "REQUIRED",
+    "full_reactor": "NOT REQUIRED / NOT RUN",
+    "database": "CURRENT V3; existing historical migration tests transitively in authorized gates; two temporal methods excluded by human arbitration",
+    "new_migrations": false,
+    "unexpected_production_crossings": [],
+    "final_command": "./mvnw -pl runtime-command-consumption-worker,architecture-tests -am test -Dsurefire.excludesFile=/private/tmp/pocoma-v3-postaud/docs/testing/evidence/L1L2-corrections/I5-temporal-exclusions.txt",
+    "composition": "Policy proportionate-certification: both anchors, shared closure once. Only i5_r05 and i5_r12 excluded by explicit human arbitration; no test include override, no changed production oracles; global gate coverage reserve."
+  },
+  "audit_sources": {
+    "codex_report": "/private/tmp/Pocoma_V3_Audit_L1L2_9780ac88.md",
+    "codex_report_sha256": "23a4dfabc90f3f205d2d0f38416c6ee18e47881085c93d1ad62e72aa1013239e",
+    "codex_thread": "01a18b2f-d2ad-7830-a1fb-d77f91c799e5",
+    "gemini_report_thread": "6ae22226-1b40-83ed-a5ce-2350c5933719",
+    "gemini_connector_limit": "20,000 characters; partial retrieval acknowledged; mandate supplies exact requested findings"
+  },
+  "human_arbitration": {
+    "answer": "Les exclure nominativement ; les conserver NOT RUN et signaler la réserve de gate (recommandé).",
+    "methods": [
+      "V3WorkerResourcesPostgresTest#i5_r05",
+      "V3WorkerResourcesPostgresTest#i5_r12"
+    ],
+    "status": "NOT RUN",
+    "excludes_file": "docs/testing/evidence/L1L2-corrections/I5-temporal-exclusions.txt",
+    "sha256": "23825eaca4d13be9fbd65f8f04ff55ad10edea2dfa7938dbb66dd043057bfb90",
+    "source_code_sha": "6f282b1dfbde30044fefb89b772661c9bd9f5466"
+  }
+}

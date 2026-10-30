@@ -1,0 +1,57 @@
+{
+  "tested_sha": "6f282b1dfbde30044fefb89b772661c9bd9f5466",
+  "command": "./mvnw -pl architecture-tests -am test -Dtest=V3ConsumptionEngineArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false",
+  "status": "TARGETED PASS; not an unfiltered global gate",
+  "tests": 8,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "maven_seconds": 10.087,
+  "methods": [
+    {
+      "name": "lifecycleHasOneHandleAndNoSchedulerOrOwner",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.076"
+    },
+    {
+      "name": "persistenceParticipantsCannotOpenTransactionsOrRawEntityManagers",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.014"
+    },
+    {
+      "name": "negativeExamplesReallyFailRules",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.077"
+    },
+    {
+      "name": "engineAndContractsPureAndAgnostic",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.007"
+    },
+    {
+      "name": "businessIdentityAndEnginesAreRejectedByEngineAndWorkerGuards",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.06"
+    },
+    {
+      "name": "rejectedAbstractionsAndPotOwnerAbsent",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.002"
+    },
+    {
+      "name": "i5WorkerHasNoTransactionOwnerSqlOrTicketAuthority",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.142"
+    },
+    {
+      "name": "discoveryPortsAndWritersRemainBounded",
+      "classname": "com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest",
+      "time": "0.051"
+    }
+  ],
+  "raw": {
+    "path": "docs/testing/evidence/L1L2-corrections/architecture-targeted-final.tar.xz",
+    "bytes": 10156,
+    "sha256": "bdaa454c85ea43fb8c3b844a3b2816410e4c0d5c5a8880739004407667818d0d"
+  }
+}

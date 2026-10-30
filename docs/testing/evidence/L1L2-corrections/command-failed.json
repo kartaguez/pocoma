@@ -1,0 +1,2372 @@
+{
+  "label": "command-failed",
+  "tested_sha": "f42efc09ee467e9ecb14550f12d3a3e7081c7021",
+  "command": "./mvnw -pl runtime-command-consumption-worker -am test",
+  "cwd": "app",
+  "maven": "BUILD FAILURE",
+  "scope_result": "FAIL",
+  "global_coverage": "FAIL",
+  "totals": {
+    "tests": 1311,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 0
+  },
+  "xml_suites": 208,
+  "xml_fresh_after_log_birth": 1793341841.5394323,
+  "modules": [
+    "domain-authorization",
+    "domain-event",
+    "domain-user-identity",
+    "contracts-authentication",
+    "domain-pot",
+    "domain-projection",
+    "domain-consumption",
+    "port-transaction",
+    "port-binding-authority",
+    "engine-consumption",
+    "contracts-command",
+    "engine-write-pot",
+    "engine-consume-command",
+    "orchestrator-consumption",
+    "supra-consume-command",
+    "engine-read-command-result",
+    "engine-materialize-command-result",
+    "supra-consume-command-result",
+    "contracts-registration",
+    "engine-admit-registration",
+    "engine-consume-registration",
+    "supra-consume-registration",
+    "engine-read-registration-result",
+    "engine-materialize-registration-result",
+    "supra-consume-registration-result",
+    "port-projection",
+    "engine-produce-projection-task",
+    "engine-read-projection",
+    "projector-pot",
+    "engine-consume-projection-task",
+    "supra-consume-projection-task",
+    "engine-read-current-binding",
+    "engine-read-pot",
+    "engine-materialize-current-binding",
+    "engine-materialize-latest-known-version",
+    "infra-persistence-projection-jdbc",
+    "infra-persistence-read-jdbc",
+    "contracts-observability",
+    "infra-tx-spring",
+    "engine-admit-command",
+    "supra-consume-lkv",
+    "infra-persistence-primary-jpa"
+  ],
+  "skips": [],
+  "required_cases": [
+    {
+      "name": "d13GroupedSelectiveFinanceReadsAndCorruptionFailClosed",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "1.516",
+      "status": "PASS"
+    },
+    {
+      "name": "d11AttachmentsAllSpecificWeightsAndArbitraryRationals",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "0.6",
+      "status": "PASS"
+    },
+    {
+      "name": "d14FinancialRollbackAtEveryPublicationBoundary",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "2.207",
+      "status": "PASS"
+    },
+    {
+      "name": "d10HistoricalDefaultSpecificAndFinancialChangesThroughC",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "0.929",
+      "status": "PASS"
+    },
+    {
+      "name": "d12FinancialWeightCollisionRecalculatesFromFreshFacts",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "0.552",
+      "status": "PASS"
+    },
+    {
+      "name": "d15OneVersionComposesWeightAndFinancialPrimitives",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time": "0.462",
+      "status": "PASS"
+    },
+    {
+      "name": "representativeHistorySelectionAndFinancialsRetainLiteralOracles",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest",
+      "time": "0.403",
+      "status": "PASS"
+    },
+    {
+      "name": "uuidAndBigintArraysCrossProtocolBoundaryWithFixedArity",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest",
+      "time": "1.172",
+      "status": "PASS"
+    },
+    {
+      "name": "selectionExclusionAndIntegrityFailureStillRollBackPhysicalTransaction",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest",
+      "time": "0.28",
+      "status": "PASS"
+    },
+    {
+      "name": "b15CorruptReferencesAndMissingParticipantsAreNeverNegativeFacts",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.185",
+      "status": "PASS"
+    },
+    {
+      "name": "b17DeferredIntegrityRejectsEmptyVersionAndIncompleteCreation",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.094",
+      "status": "PASS"
+    },
+    {
+      "name": "b18CommittedVersionCannotReceiveAnotherProposalLater",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.154",
+      "status": "PASS"
+    },
+    {
+      "name": "b06SelectiveReadsDistinguishAbsentAndNotLoadedAndHistoricalRights",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.242",
+      "status": "PASS"
+    },
+    {
+      "name": "b01FreshSchemaRestartAndExactCatalog",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.163",
+      "status": "PASS"
+    },
+    {
+      "name": "b11SnapshotRemainsCoherentWhileAnotherConnectionCommits",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.158",
+      "status": "PASS"
+    },
+    {
+      "name": "b10DatabaseConstraintsRejectDuplicateOpenCrossPotAndMalformedRationals",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.16",
+      "status": "PASS"
+    },
+    {
+      "name": "b02ReconstructsV1ThroughV9IndependentlyInRandomOrder",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.42",
+      "status": "PASS"
+    },
+    {
+      "name": "b08ExactArbitraryRationalsRoundTripAndOptionalOverride",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.222",
+      "status": "PASS"
+    },
+    {
+      "name": "f01MaintenanceAuditRetainsEveryGlobalChainCheck",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.284",
+      "status": "PASS"
+    },
+    {
+      "name": "b05RollbackAndNoopPreserveMetadataAndIntervals",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.149",
+      "status": "PASS"
+    },
+    {
+      "name": "b14SharesJpaPhysicalTransactionAndRollback",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.2",
+      "status": "PASS"
+    },
+    {
+      "name": "b03HalfOpenIntervalsAndOnlyChangedComponents",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.235",
+      "status": "PASS"
+    },
+    {
+      "name": "b12GroupedReadCountDoesNotGrowPerExpense",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.441",
+      "status": "PASS"
+    },
+    {
+      "name": "b09RejectsGapsOverlapsMissingComponentsAndNoncanonicalRationals",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.278",
+      "status": "PASS"
+    },
+    {
+      "name": "b13CallerTransactionAndIsolationAreMandatory",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.105",
+      "status": "PASS"
+    },
+    {
+      "name": "b16LastCreationFailureRollsBackEveryComponentAndVersion",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.141",
+      "status": "PASS"
+    },
+    {
+      "name": "f01PointQueriesUseIndexesAndBoundedBuffersAcrossHistoryDepth",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.879",
+      "status": "PASS"
+    },
+    {
+      "name": "b07ReferenceSearchIsExhaustiveForPayerAndParticipantAndIgnoresDeletedExpenses",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.74",
+      "status": "PASS"
+    },
+    {
+      "name": "b04ShareholderDeletionD01MRetainsAllOldStates",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.231",
+      "status": "PASS"
+    },
+    {
+      "name": "b19PhysicalTransactionIdentityKeepsItsEpoch",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time": "0.139",
+      "status": "PASS"
+    },
+    {
+      "name": "f206SameRevisionCannotCloseTwiceUnderActualLockWait",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.12",
+      "status": "PASS"
+    },
+    {
+      "name": "f204FinancialReferenceAndIdentityCorruptionBlockWrite",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.404",
+      "status": "PASS"
+    },
+    {
+      "name": "f207EffectIndexAvoidsScanningOldRevisions",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.726",
+      "status": "PASS"
+    },
+    {
+      "name": "f205GroupedBatchesAndNotLoadedRemainSelective",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.346",
+      "status": "PASS"
+    },
+    {
+      "name": "f202RejectsLocalCorruptionAndRollsBackCandidate",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.73",
+      "status": "PASS"
+    },
+    {
+      "name": "f203UnrelatedOldGapDoesNotBlockWriteButAuditRejects",
+      "classname": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time": "0.213",
+      "status": "PASS"
+    }
+  ],
+  "suites": [
+    {
+      "name": "com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest",
+      "time_seconds": "0.026",
+      "file": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.CapabilitySetsTest.xml",
+      "sha256": "d26f3509cd36eec8bf388ba279cd2b08660358c3a908c561b05c7c47b6765c34",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest",
+      "time_seconds": "0.004",
+      "file": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.ExternalAuthorityPermissionTranslatorTest.xml",
+      "sha256": "328af480763884aa5bac175dab301a39ee6daed49023946dda7172fc8e077829",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.authorization.PermissionTest",
+      "time_seconds": "0.004",
+      "file": "app/domain-authorization/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.authorization.PermissionTest.xml",
+      "sha256": "3af237ac2e5c1f589343024d15f81f7e1a2003e41250de2e20cc8850ddbaf0a3",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.event.EventTypeTest",
+      "time_seconds": "0.019",
+      "file": "app/domain-event/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.event.EventTypeTest.xml",
+      "sha256": "768050c8e3cf775864b2de474b43f6fc6ba29b9fd086e4de429197a4f468f383",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest",
+      "time_seconds": "0.037",
+      "file": "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.xml",
+      "sha256": "99429e37950811b0ceeff8d4e4fe0a63c81eb3e07e2ed0b50ce737f945bc8c3e",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest",
+      "time_seconds": "0.01",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ExpenseHeaderTest.xml",
+      "sha256": "0cacb22bea426fa372ea3f2d3388d3d0d6eb900286f655869780e1038c6cde51",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest",
+      "time_seconds": "0.005",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ExpenseSharesTest.xml",
+      "sha256": "11f8e96b4e57a6bda708e66b278a474dbe48932b214952142454e24f2fbd422d",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest",
+      "time_seconds": "0.006",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.PotHeaderTest.xml",
+      "sha256": "fcb9ba405cd535e8f9a6209944742d8a632c2baece819fc01ba8254cb5ce3598",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest",
+      "time_seconds": "0.01",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.PotShareholdersTest.xml",
+      "sha256": "e6675940d383af3531aaee4931393e471faee20a88ffe6eee1a06b6004f8aacb",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.xml",
+      "sha256": "c5b345303ba053c2f2d690f9e85d12d1a718be96a3d5765b34c4223ebbbda3b0",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.association.ExpenseShareTest.xml",
+      "sha256": "867a122aa8a267ca72eb42788ce2ff7c8899289d819b076ce75345a04eb7a1c2",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest",
+      "time_seconds": "0.004",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.AuthorizationKernelTest.xml",
+      "sha256": "d6560a7469925a1ca02baed44fa3ad7bc0eb4a10cfc6f8e7e8a9233bdb03f548",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotActionRequirementsTest.xml",
+      "sha256": "412cda6a100bb30f2fe712fb9111ab50eb1c2a73515863c3fd44220fd183d8f2",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotAuthorizationFactResolverTest.xml",
+      "sha256": "f0d439b54199e945c50c42b9aaedcadb1cc3e878fcef5b110dfb593e266449ff",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.PotBusinessAuthorizationPolicyTest.xml",
+      "sha256": "1b86dd9e20ac381692e9066c4f669fae8b04ddfeafa27f14551f4446cdd1d1fa",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.authorization.TokenCapabilityPolicyTest.xml",
+      "sha256": "3f934f636f40a47e19dca1301572f32b2ea99bd59fe3d4384dee64a24c8cd5a9",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest",
+      "time_seconds": "0.005",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.created.ExpenseCreatedTest.xml",
+      "sha256": "d7cd5369baf2993f564c65d0dcf460be92b92baff0725ec4e05275f72d775146",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.created.PotCreatedTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.created.PotCreatedTest.xml",
+      "sha256": "bf2ace8b173574f56f231e1bd1223aecae412986d09f4eef30ece4fb1b322251",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest",
+      "time_seconds": "0.04",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.draft.ExpenseShareDraftTest.xml",
+      "sha256": "4ae6f8936b57e29615a20a66b9d5b276136eecc3720ea0c16ef53b1bfd6131a4",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.entity.ShareholderTest",
+      "time_seconds": "0.005",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.entity.ShareholderTest.xml",
+      "sha256": "228c4fa05017c7c56e84105129abaea0ca650ea1c74b3e4913f5bc3d13e2cc12",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.BusinessEventContractTest.xml",
+      "sha256": "b688c830dbf20837ab311f72daa5852dcd3522c7d4453077ae7fa9ec367bbcc1",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotCreatedEventTest.xml",
+      "sha256": "d6ad95dc7a131774f74580fe5bc34627ed5a0cc4d64dff4472bdf8c8c3f153b6",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotDeletedEventTest.xml",
+      "sha256": "9c13d7aa307cd6ca959c6541ae8eb5b5157adab14a7a137c081e76360dd1eaec",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotDetailsUpdatedEventTest.xml",
+      "sha256": "4d2dbcfb90820e581921c1a92b61b0f2f9ff9cd42c0dcd2cc1150db6dcd3a078",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.PotShareholdersAddedEventTest.xml",
+      "sha256": "141ef322976f07a470ce5b8db4571adaeaddfe23db087ddb469d6d9555443298",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.event.RecordedEventTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.event.RecordedEventTest.xml",
+      "sha256": "634697e09ad02fc1a8b97ff284b817800e04711422af5e7bafeb0c8841533173",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.exception.BusinessRuleViolationExceptionTest.xml",
+      "sha256": "883893813a1ee8883f86df2b3f20dc35531733b7d2484823bbb1622004d61f6a",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.factory.ExpenseFactoryTest.xml",
+      "sha256": "14d5d48551d1ef0e84a06434c8c3f9465a13703ef8659730eaf5eab8c3033215",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.factory.PotFactoryTest.xml",
+      "sha256": "37f3de3f7ec65a79e3a740776bfad5d2ee89e8a7784f63e9959f403a9a83c415",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.policy.CreatePotAuthorizationPolicyTest.xml",
+      "sha256": "aa1bb901f34d22894579b485b8d856edebebc79ce16752562b38ad6efe9a3561",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml",
+      "sha256": "df71beb19e5a90225820cdc5d89e051396fb4afc1fc0d54847bb6c056bb1781c",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest",
+      "time_seconds": "0.01",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.xml",
+      "sha256": "2103f0600f3c0ae72e46558dab5fae0eb2862858789c46a7f7ff0b4a735b8032",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest",
+      "time_seconds": "0.727",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotBalanceCalculatorTest.xml",
+      "sha256": "03787a226ba91359538feaa58f7a8b51d8c7ed442156a2641002123a03f8fffa",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest",
+      "time_seconds": "0.009",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml",
+      "sha256": "4a66ffa8d405905bbc936d2e21812988132c4dd2f671447fdeec81ee9a9b9186",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.AmountTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.AmountTest.xml",
+      "sha256": "ec8d19abbaf2e5b6cb868fbcd928b4656a7d819dbf6e42e9ae8be64c332b5a21",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.FractionTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.FractionTest.xml",
+      "sha256": "5545c7e02d05f7a4956b6f6c3c3c6cc4e0aa337e618055929f4a80873055fff9",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.LabelTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.LabelTest.xml",
+      "sha256": "dd0c2d7ae56cac80e9ad1409824e892b4dcd72d933ab76c70e14f6817e343a4c",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.NameTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.NameTest.xml",
+      "sha256": "95a6f651d9250dc489e860ade79e6d0337e0462566a64dd866a4b7ddd58c072c",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.UserIdTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.UserIdTest.xml",
+      "sha256": "4f507b8a32f7ee012bdaa6606a1499e0c4e390d61b4c37c65af856cf14e4c2a4",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.WeightTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.WeightTest.xml",
+      "sha256": "1608a0151b4507cd72903ab54ccffa97c803d4fb556ec99b564757ea18ef093f",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.EntityIdTest.xml",
+      "sha256": "6250f8753dea8e88b2feda388800c64fec7f1c20504b98d914e2e85a242a8c77",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ExpenseIdTest.xml",
+      "sha256": "68bafbd195f323cbe0ae36bd36c77dc957d40914faa747dc4d89892d257b3a37",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.id.PotIdTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.PotIdTest.xml",
+      "sha256": "feae801e0025dcceafdd62bc77270ac6e2b103e35993422edbfc3ca5362a8127",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.value.id.ShareholderIdTest.xml",
+      "sha256": "17548e3ca428e8cfb78bca2d012aafa6b06f8e0284077f30220e6fb9a0ab67c6",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.version.PotGlobalVersionTest.xml",
+      "sha256": "abce9936a870761d8a73e6551a5296ca805d814fc0ec862eae92068d5ebab1f8",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.BalanceMapOperationsTest.xml",
+      "sha256": "2a963fb116ea57eb68c0690909c01dbcd2492be217dfd4c9d3ea5b5c396ef5e2",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.balance.BalanceTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.BalanceTest.xml",
+      "sha256": "11067687402cc467d6d2c7b8ffa9cd2d0b00ca5caefc69f554c820a5edb2fba8",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest",
+      "time_seconds": "0.004",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalancesCalculatorTest.xml",
+      "sha256": "6bceb58bd0d044ef5392a72488d339242d16e5f75b41c55f1b8bb3565b68adb7",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.balance.PotBalancesTest.xml",
+      "sha256": "c81896681c4a8a948d91994c6a171af5d156a4f7973a40baa4daa9ac6f701cf7",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest",
+      "time_seconds": "0.007",
+      "file": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.JsonAndDefinitionTest.xml",
+      "sha256": "9d0d720db34a6cd95d99eb9c3a76883f93697c0da89fd2482402101192861a96",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest",
+      "time_seconds": "0.04",
+      "file": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.ProjectionValidatorTest.xml",
+      "sha256": "2489e32693c397ece0ac4cca60c4aa18a8fcf2c289c9cdc26a53ded90741ae45",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest",
+      "time_seconds": "0.02",
+      "file": "app/domain-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.projection.ProjectionValueObjectsTest.xml",
+      "sha256": "69943ceffe0c41d29c22749028217c5cb8102f49f78dd4773b872bc56f40dfe9",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ClaimLeaseTest.xml",
+      "sha256": "06f4d2e1446db298aabb0e315eb6094ab4397d7767a66ef636591a04a04c36e8",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.claim.ClaimTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ClaimTest.xml",
+      "sha256": "5f0049831fd4f0e55279da3c7b2b75c3f35daa82856b1fdf98a6f25f035ad2fc",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest",
+      "time_seconds": "0.004",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.ConsumptionSlotTest.xml",
+      "sha256": "92f9fe66bb8938b93d9ebe697677cc4d9d4770603b031dbf5ec95882bcfd2206",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.claim.WorkerIdTest.xml",
+      "sha256": "326ceb7cd938b2defc1b9b62ff3b4beb2c9939e1b5e003114a72aa4f0c45b730",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest",
+      "time_seconds": "0.003",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.key.ConsumptionKeyTest.xml",
+      "sha256": "a0708e94c95b71bc24463a54f76e43d48a43a9878bc945dd5aa51c50559a5f88",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureCodeTest.xml",
+      "sha256": "dcdd14ca809fa4d00a014705c0b706a825cc0715b189c3cabf1e41ec30c3b662",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest",
+      "time_seconds": "0.007",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.ProcessingFailureTest.xml",
+      "sha256": "8aa15d0500f78a8de0ed3332fbbe6015bb41bc096b6058fd6b67122b70e5b2bd",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest",
+      "time_seconds": "0.001",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.lifecycle.TerminalReasonTest.xml",
+      "sha256": "e200dcfd28c927e8ea3bcc345b93877f447ad631c923ee9909b04874ca8f1472",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest",
+      "time_seconds": "0.002",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.provenance.ConsumptionProvenanceTest.xml",
+      "sha256": "cc4132ee42112760965068e9b2ca629b9c6ba34ea065855853de7295692b6fcb",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest",
+      "time_seconds": "0.028",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.segmentation.PartitionHashTest.xml",
+      "sha256": "8b2ec44f85a60d50a076e5d72a91dabcde38c9a7195e78f09551f1b54764cee2",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest",
+      "time_seconds": "0.005",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.segmentation.WorkerSegmentTest.xml",
+      "sha256": "d1e83891aa75dc7277996afdbc00dc9f6d20e25b200196a22048281a6ecca02b",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test",
+      "time_seconds": "0.015",
+      "file": "app/domain-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.consumption.v3.RoutingV1Test.xml",
+      "sha256": "6c152d6d46f3c56c7b89766cfbb980657d5353532ba4c43b544d3b8e1b217407",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest",
+      "time_seconds": "0.019",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consumption.v3.ConsumptionFailureClassificationTest.xml",
+      "sha256": "bda9245adf6b223426d272db3efbcc683372351ebe1186ef0309b585cf10891b",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest",
+      "time_seconds": "0.019",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consumption.v3.DiscoveryEngineTest.xml",
+      "sha256": "76d0aecf38195aa65c2c1410ca6a1f69f5be00c7f4126c8a1d99bb1fa6888ad2",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest",
+      "time_seconds": "0.034",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consumption.v3.WorkerCapacityTest.xml",
+      "sha256": "f99422c749bf466880d15af0d1010dab5f3b9861f6b77073aaef7ac1dcf4481d",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest",
+      "time_seconds": "0.006",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.AcquireConsumptionPreconditionTest.xml",
+      "sha256": "74967822aa2899f28ade7845bf56ba00621526a934b62120a7747025755b454b",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.DefaultConsumptionFailurePolicyTest.xml",
+      "sha256": "372aaf3133dfa7c9d53eecde1d8c9c1ca3cfcc66ca3046ed3ff8007ba6efcfb8",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.ExecuteConsumptionServiceTest.xml",
+      "sha256": "4f412623a5cd8223b8d00214bc78d89933fcebdf530d59ef4df061d70a93d1d3",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.consumption.FinalizeConsumptionServiceTest.xml",
+      "sha256": "251e7f21814de81c19b4b4bfc04293d512cdacc386e6f175bc4de9a7f0a2782d",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.service.transaction.consumption.TransactionalConsumptionUseCaseTest.xml",
+      "sha256": "6c95d92e940d20acd2eb4eccab2f6a6632e6d05cf2272450547a7edb4dd54a7e",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContextTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.AddPotShareholdersContextTest.xml",
+      "sha256": "a52998ef1df2b6870c6777accd00fe14e0fd20728ecd2f1d69692c98a3fc62ab",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.CommandObsolescenceContextsTest",
+      "time_seconds": "0.025",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.CommandObsolescenceContextsTest.xml",
+      "sha256": "257efb92f2dbf08ba7b22b7f3c0335788359f844ab91fb5900183338fccd4d2e",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.DeletePotContextTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.DeletePotContextTest.xml",
+      "sha256": "fb283734f0e02440dfb068522951d61c0f7c76472b20d4cc20e9bb5579e0547e",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.TerminalPotDeleteExpenseContextsTest.xml",
+      "sha256": "7c6535a3c82633ba7e9c89f2b6501d4dc2c8d7c104a15846be63818cf951c161",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.UpdateExpenseSharesContextTest.xml",
+      "sha256": "dba9a7aabe43f9fc643289984872ac264fde156fb41717071163acd564aa9b3e",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContextTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.context.UpdatePotDetailsContextTest.xml",
+      "sha256": "e0bbc2b3acdd5f5f6f43192b2e7f979bb9f0db628d186644798bdd8afea166e8",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundExceptionTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.exception.BusinessEntityNotFoundExceptionTest.xml",
+      "sha256": "3a55b23e2c4f2ecbbf54a6a34eeff8e254c90b00e6a845fd069077678fd6d20e",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.security.UserContextTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.security.UserContextTest.xml",
+      "sha256": "8176b5ae5a19d7fd91d345c37b6737ac5fe5149959142e434804d52c6cee2bbb",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.AddPotShareholdersServiceTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.AddPotShareholdersServiceTest.xml",
+      "sha256": "eb724facc336e9212f152e48e1627bf449f4cda2748653b92b4c26e16d3afcaa",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest",
+      "time_seconds": "0.008",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.CreateExpenseServiceTest.xml",
+      "sha256": "e46867c6563e8c7af52b11bd312535c969ac086b0592c088434ab3ebe4d38485",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.CreatePotServiceTest",
+      "time_seconds": "0.005",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.CreatePotServiceTest.xml",
+      "sha256": "547f323a937fe620d1a1a18572b7936be573e9b9025d9fe5bd8a0fb44f75125b",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.DeleteExpenseServiceTest.xml",
+      "sha256": "40864422fb4598f672eef9d64677d621bb3f3863cd1d586fbacda76396ce92c2",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.DeletePotServiceTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.DeletePotServiceTest.xml",
+      "sha256": "8abf2f603dd26873b474234072409c04749667e4b6c649678816ec93242c83e8",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.ExistingExpenseAuthorizationContextTest.xml",
+      "sha256": "ebdc65924ecfa5a233b74700992ec5228037b7388e2d15f2fff3fcfed418954f",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.NonPersistentEventPublicationTest.xml",
+      "sha256": "7cd72585f84c407f95ed31016d4118d931231384442cb34ae17f806ae718839a",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.ServiceVisibilityTest",
+      "time_seconds": "0.0",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.ServiceVisibilityTest.xml",
+      "sha256": "41985ec26f07f3745437454c8f423e9205038b0360930c6b88ebb05751a5704f",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseDetailsServiceTest.xml",
+      "sha256": "0508a01fc216733c677fd7405fb866fa8d3f243f71c3630586a98695b1ef43e5",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.UpdateExpenseSharesServiceTest.xml",
+      "sha256": "2325b07ef57da35fac89930ae0736bef44affa1c22932d33cce28047108d8acd",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotDetailsServiceTest",
+      "time_seconds": "0.007",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.UpdatePotDetailsServiceTest.xml",
+      "sha256": "2a32c708d2b116d7e8299dd42a3540647ab88e3ed9126a0778b52027f7b68b22",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersDetailsServiceTest",
+      "time_seconds": "0.007",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersDetailsServiceTest.xml",
+      "sha256": "27cd295026fb75818a2ad8f8ceaebcbbb647f7501cfbed02f2d32ea947a62485",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersWeightsServiceTest",
+      "time_seconds": "0.005",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.service.UpdatePotShareholdersWeightsServiceTest.xml",
+      "sha256": "07ceaa4267ab035dc9a2300e1181ec8d063b5af5e0b1bf78301163baf52dd580",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.snapshot.PotHeaderSnapshotTest",
+      "time_seconds": "0.04",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.snapshot.PotHeaderSnapshotTest.xml",
+      "sha256": "0134364ed61e56e82a9bebab9fec9f20270e052ade7e0debec620760c2e7c8cd",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest",
+      "time_seconds": "0.019",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommandTest.xml",
+      "sha256": "a8c162c3d68a24b947bdb913fa9996912af69b7e095c6bce62bdcbea671d9653",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-write-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.write.pot.v3.PotCommandIntentTest.xml",
+      "sha256": "756ff35becc6bf8bf875d5717b199214cc3f2521dd63d91bf86c0a68f12fb3be",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecutionTest",
+      "time_seconds": "0.042",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.consumption.CommandConsumptionExecutionTest.xml",
+      "sha256": "40485b85ced29c0c0f1b97cbcae3d117a2f00e2d40214e230ab338e0dc50db45",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistryTest",
+      "time_seconds": "0.005",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.decode.CommandDecoderRegistryTest.xml",
+      "sha256": "c9401bc13a62aa5db62deb4ee6c7c9a148f38b26cac07a2fe3eed52f40ce791d",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionDiscoveryModelTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.discovery.CommandConsumptionDiscoveryModelTest.xml",
+      "sha256": "86369a79efc7a340778e8deed3c098b61b8cb17886237c6aae0d72cd51f0be3d",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcherTest",
+      "time_seconds": "0.005",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.dispatch.CommandDispatcherTest.xml",
+      "sha256": "e56984f706faf3e791b2f7527a879623f5421a4d00d070d6b58ac6d05ab66473",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandServiceTest",
+      "time_seconds": "0.009",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.execution.ExecuteRecordedCommandServiceTest.xml",
+      "sha256": "03305a0ceb8666cc305e9918d97b223de6f54c901f308e7e3236912e3d8eb538",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.model.CommandModelTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.model.CommandModelTest.xml",
+      "sha256": "2f45bd156cd0481e9a749773715afa085240d4e0fab42a4b7c110e79118226a8",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.model.PublicationAcceptanceContractTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.model.PublicationAcceptanceContractTest.xml",
+      "sha256": "36955b735dc87a4219c93953051af2a7a400ea209a88a094e1de7de8d01c4647",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandPayloadDecodersTest",
+      "time_seconds": "0.137",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.decode.PotCommandPayloadDecodersTest.xml",
+      "sha256": "244f14d7c27759d9c0c632488603f0b2f847702779b3cbc134e112a61f974076",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.dispatch.NonPersistentDispatchRelayTest.xml",
+      "sha256": "2c3bac1a2a39ce5bbe5670e56486a9c19388fd3f312a1b396892a259a8500110",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.dispatch.PotCommandUseCaseAdapterTest",
+      "time_seconds": "0.021",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.dispatch.PotCommandUseCaseAdapterTest.xml",
+      "sha256": "39afd89c00b79b08dee9414505b0e7dba69c041fc676a786adf82e64e6d1ca44",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommandTest",
+      "time_seconds": "0.005",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.AddPotShareholdersCommandTest.xml",
+      "sha256": "d28f2f44cb1dda27df909ad331c386db567661201d3a99d3798be4d0b0506b12",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.CreateExpenseCommandTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.CreateExpenseCommandTest.xml",
+      "sha256": "04b03cc7b815bec4998dc877048cf093893dd23ad22bddda45575518d19de824",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.DeleteExpenseCommandTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.DeleteExpenseCommandTest.xml",
+      "sha256": "d6087539819b015aed318905b6eaf53dad605d011992088d702bf40612978d7e",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.DeletePotCommandTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.DeletePotCommandTest.xml",
+      "sha256": "6be16fabaed9937e88ef2caf823e7acda167684aeb526b412f36c3f24c774b95",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseDetailsCommandTest",
+      "time_seconds": "0.007",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseDetailsCommandTest.xml",
+      "sha256": "4d74aa69dea7984d72772ac62bd4290f2d84dcc3d2182aa17f530dc2d7a0e1b4",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseSharesCommandTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdateExpenseSharesCommandTest.xml",
+      "sha256": "770b02942807e9e2570b0a11b1b28f6d9e24576b14b8aae1dcf433867b0e1604",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotDetailsCommandTest",
+      "time_seconds": "0.001",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotDetailsCommandTest.xml",
+      "sha256": "dab0c7f59a6e90e82fab9643b0d3ca14de19fe5d4df9ae6f0a38c6d50faf8e39",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersDetailsCommandTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersDetailsCommandTest.xml",
+      "sha256": "0d9ad560c9768b52538fa62b946ae2f17960fd1634ec9bdd8768fd1b5e240042",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersWeightsCommandTest",
+      "time_seconds": "0.004",
+      "file": "app/engine-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.command.pot.intent.UpdatePotShareholdersWeightsCommandTest.xml",
+      "sha256": "e3e800632346ce8b0a0b624a4b7acd33e5d9f7e1b0f5be369823edce53821b71",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestratorTest",
+      "time_seconds": "0.007",
+      "file": "app/orchestrator-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.AcquireThenFinalizeConsumptionOrchestratorTest.xml",
+      "sha256": "7dbd8d9c567cefe75d8c356bf78311dc03c98a03a95ca139cc1551e0272e6586",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestratorTest",
+      "time_seconds": "0.05",
+      "file": "app/orchestrator-consumption/target/surefire-reports/TEST-com.kartaguez.pocoma.orchestrator.consumption.SequentialConsumptionOrchestratorTest.xml",
+      "sha256": "d5ef6f011370341f5f8ae90a84a21aa52a4b33d36f0bf77cf155fc083bf04224",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeysTest",
+      "time_seconds": "0.002",
+      "file": "app/supra-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.command.CommandConsumptionKeysTest.xml",
+      "sha256": "cfe738e18bae6709d93d695f6513701ef0e31622bc7511f7f153ce127e6a15cc",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocatorTest",
+      "time_seconds": "0.038",
+      "file": "app/supra-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.command.CommandConsumptionLocatorTest.xml",
+      "sha256": "ae72fb2291c6de2e03eac7199de1461786580ae23341ca69f37d18370ead7043",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicyTest",
+      "time_seconds": "0.003",
+      "file": "app/supra-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionFailurePolicyTest.xml",
+      "sha256": "95070c3ef787dc297e3bc714a1b4fef27c2d1cc842d0781c4d4cdfbcbb14e8ae",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifierTest",
+      "time_seconds": "0.008",
+      "file": "app/supra-consume-command/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.command.failure.CommandConsumptionTechnicalFailureClassifierTest.xml",
+      "sha256": "bf79fd949c562389e09eeabebe3b7760afd1b4ebce816dd7dd7b9694a1142187",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultTest",
+      "time_seconds": "0.048",
+      "file": "app/engine-materialize-command-result/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.commandresult.CommandResultTest.xml",
+      "sha256": "500b12bf37bcd224ea2c1fa9e45f53dbb37b221fc0e9df7f931da6c95c4a5e3b",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.registration.RegistrationPublicationContractTest",
+      "time_seconds": "0.037",
+      "file": "app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.RegistrationPublicationContractTest.xml",
+      "sha256": "577a8a0704684c81590f60429d9b5bb75a9b5f6ba6e003709dc9c5c17b9fe8c2",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultServiceTest",
+      "time_seconds": "0.041",
+      "file": "app/engine-materialize-registration-result/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.registrationresult.RegistrationResultServiceTest.xml",
+      "sha256": "116f04595e9feedc2e38f75a293068f72b8ceb3710db3217d105e5fab8a23d99",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationDiscoveryModelTest",
+      "time_seconds": "0.029",
+      "file": "app/engine-produce-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationDiscoveryModelTest.xml",
+      "sha256": "2a773fb9b1fb1b15c03ef3aa1431f424650e57a7b95b5505dc93d378954f8a6f",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationPolicyTest",
+      "time_seconds": "0.008",
+      "file": "app/engine-produce-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.produce.projectiontask.ProjectionMaterializationPolicyTest.xml",
+      "sha256": "3461089757d2522f7345eb66838f6fda26fc88c6f6ca1ad23f01854c197a2434",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReadServiceTest",
+      "time_seconds": "0.042",
+      "file": "app/engine-read-projection/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.projection.service.ExactProjectionReadServiceTest.xml",
+      "sha256": "b0b1a83e44be547903b859dca869e0a5b9e4072f16db95cd02eac6407aaa7686",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.projector.pot.ProjectorDeterminismTest",
+      "time_seconds": "0.028",
+      "file": "app/projector-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.projector.pot.ProjectorDeterminismTest.xml",
+      "sha256": "137547eafa2d2f6875f362aa96b9d8ec72ca00f643f5d46019cf063f1d233dfa",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionServiceTest",
+      "time_seconds": "0.017",
+      "file": "app/engine-consume-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.projectiontask.ProjectionTaskConsumptionServiceTest.xml",
+      "sha256": "a0026c2662bca1af6d5ead49fa9c3bed532010f07ea6d499b503a1e394a812cd",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineServiceTest",
+      "time_seconds": "0.011",
+      "file": "app/engine-consume-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.projectiontask.engine.ProjectionEngineServiceTest.xml",
+      "sha256": "1b272902e73936e64c29bfc89ddecbd3daf7916413f332356fbd27f11bc46973",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectorTest",
+      "time_seconds": "0.033",
+      "file": "app/engine-consume-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.projectiontask.input.AuthProjectorTest.xml",
+      "sha256": "0122233bb66d3a2c18401fc67d943f9a312dc3b12300d3e636c5b11448cbf811",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectorTest",
+      "time_seconds": "0.011",
+      "file": "app/engine-consume-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.projectiontask.input.PotBalancesProjectorTest.xml",
+      "sha256": "25e6a238d14baae7339979f911ab81671da27768b906829da544ac89a042e198",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectorTest",
+      "time_seconds": "0.002",
+      "file": "app/engine-consume-projection-task/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.projectiontask.input.ReadPotProjectorTest.xml",
+      "sha256": "b25e96e552bd278bcbd9a87463288c7c072654a7030f0a501a18a8adbffccf55",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest",
+      "time_seconds": "0.041",
+      "file": "app/engine-read-current-binding/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.currentbinding.GetCurrentBindingServiceTest.xml",
+      "sha256": "57d811a43a2a710ba842ef6386313ddeaad1537c7be72631582a84991f0bf352",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.pot.PotReadApiTest",
+      "time_seconds": "0.009",
+      "file": "app/engine-read-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.pot.PotReadApiTest.xml",
+      "sha256": "b0494d037449a96a0c6b9e6fd0f71a9ed317c71305e31f0a78dc0e93105f49d1",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.pot.ProjectionDefinitionsTest",
+      "time_seconds": "0.034",
+      "file": "app/engine-read-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.pot.ProjectionDefinitionsTest.xml",
+      "sha256": "6169a4067d0779df18630b7b920e8f714e3513991e6c1fa9d811d193c7fdb946",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.pot.ProjectionInterpretersTest",
+      "time_seconds": "0.012",
+      "file": "app/engine-read-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.pot.ProjectionInterpretersTest.xml",
+      "sha256": "cea0b0bcd387d011c65b4857e7c654ec9e6d79c0313e29484cc6b3b131452c02",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.read.pot.ReadPotServiceTest",
+      "time_seconds": "0.022",
+      "file": "app/engine-read-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.read.pot.ReadPotServiceTest.xml",
+      "sha256": "f92629f4507f577fd308c19efe04b9c8db52a5460b718a02416d0ca45b409c60",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest",
+      "time_seconds": "0.037",
+      "file": "app/engine-materialize-latest-known-version/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.latestknownversion.AdvanceLatestKnownVersionServiceTest.xml",
+      "sha256": "61f075e9b5011f0a6b08cb0f4adb74f6791af1ad224618196e924a1278bc1c28",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-materialize-latest-known-version/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.materialize.latestknownversion.LatestKnownVersionTest.xml",
+      "sha256": "7ea853a49006aea973f523601dc9ad5d6ed7ecd6ef8609c3b4c7702a4a363840",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest",
+      "time_seconds": "0.091",
+      "file": "app/infra-persistence-projection-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.projection.jdbc.JsonValueCodecTest.xml",
+      "sha256": "8fa4d356dabb3f2ea7c909490736dd5193748c68d7c87c1a1bfd943af73fb162",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest",
+      "time_seconds": "1.542",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CommandResultExactIdentityCutoverMigrationPostgresTest.xml",
+      "sha256": "9c550a9972ed4e3592fa124b04f49abf2455a218d1320993e655ffe908be7240",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest",
+      "time_seconds": "1.902",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingPersistencePostgresTest.xml",
+      "sha256": "92698b4f0e9955c0a160a1b5c2de84d160a4fdd99be956ca86bf6081afa77732",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest",
+      "time_seconds": "1.87",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.CurrentBindingTerminalCutoverMigrationPostgresTest.xml",
+      "sha256": "d3bcc04ac60ec4379b38f4f909033f5becc29e1317b979dc251303f7bd2dbc39",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest",
+      "time_seconds": "4.271",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.JdbcProjectionStoreAdapterPostgresTest.xml",
+      "sha256": "0c4af921cc3af41763445e94b97f0c4041271511c41b44205d6ddfb6c781f108",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest",
+      "time_seconds": "1.128",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.LatestKnownVersionPersistencePostgresTest.xml",
+      "sha256": "930a61ffd70fa6a2215eefaba301c1b106c1a7e63c8940ad56b0f657395b126f",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest",
+      "time_seconds": "1.399",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.ReadStorePersistencePostgresTest.xml",
+      "sha256": "1e240fc31582e07ed8529f116b41e0068c71c43b825a432b061f8511f9c5f14e",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest",
+      "time_seconds": "1.126",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionFoundationPostgresTest.xml",
+      "sha256": "05d54b623f0d7fb433c03ec4441745cc54cc7aa45671c27f5d9045e2373e32dc",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest",
+      "time_seconds": "1.086",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadConsumptionLifecyclePrivilegesPostgresTest.xml",
+      "sha256": "e7ea7454c922aaca589d502c68c0e5ee043a518ee207f66644ceb12d66440f26",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest",
+      "time_seconds": "1.806",
+      "file": "app/infra-persistence-read-jdbc/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.read.jdbc.v3.consumption.ReadDiscoveryPrivilegesPostgresTest.xml",
+      "sha256": "99e16c846eccf5995305ca48216fd19190067e54e80b6894af1e57f96f52e725",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolderTest",
+      "time_seconds": "0.024",
+      "file": "app/contracts-observability/target/surefire-reports/TEST-com.kartaguez.pocoma.contracts.observability.trace.TraceContextHolderTest.xml",
+      "sha256": "8a78ed09893dd0018db26f4e71c01d0215d26683e30da2d5de89db6a234fd096",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest",
+      "time_seconds": "0.095",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml",
+      "sha256": "a61b62b74866b81e32cbe18a4cc2ebe75aab30cea0fb104409b7cc7b25640136",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest",
+      "time_seconds": "3.781",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+      "sha256": "8451dd0b7340b17fd183ff430945cc648e55620bd77b4574a9cdfd726629a301",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest",
+      "time_seconds": "1.339",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+      "sha256": "7085f7aa1057813b8470cc8e615a4e879920f6339c8cbc71e604a84dbf9eb723",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest",
+      "time_seconds": "1.412",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+      "sha256": "87fdfb4ec98ae238a7cc4fc410de9df367b33a29a4a704f9422dd4cbd72a8eb1",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest",
+      "time_seconds": "1.204",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+      "sha256": "394991664cae1afcaa1a75cf924124e4858efc071da380198e65502371bc2503",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest",
+      "time_seconds": "1.719",
+      "file": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+      "sha256": "19c1fe75c95a5f26c7aecf576c953dc2f81ebebbe7b8d0fe49058c9d7095363c",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactoryTest",
+      "time_seconds": "0.003",
+      "file": "app/engine-admit-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.command.CommandAuthenticationEvidenceFactoryTest.xml",
+      "sha256": "3852824ce82e16ec395d71bb221c8c1038752c8ebb89228e3bd1f8019cbded9a",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandServiceTest",
+      "time_seconds": "0.042",
+      "file": "app/engine-admit-command/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.admit.command.SubmitRecordedCommandServiceTest.xml",
+      "sha256": "cac6f8b932b1845fedf8e800b13efb76e13507bd6dc80f15cc1d65adf69c7815",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKeyTest",
+      "time_seconds": "0.027",
+      "file": "app/supra-consume-lkv/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.lkv.EventOrderingKeyTest.xml",
+      "sha256": "7fc5c7fe438c4ae514c26723ad4d66837826df3bc3e56870fc45de5193dd1ab6",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocatorTest",
+      "time_seconds": "0.019",
+      "file": "app/supra-consume-lkv/target/surefire-reports/TEST-com.kartaguez.pocoma.supra.consume.lkv.LatestKnownVersionConsumptionLocatorTest.xml",
+      "sha256": "b5a15738337080e5cca4108519ead82befa5d912b00c8a485e2d508f3cc58bf7",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest",
+      "time_seconds": "0.174",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.JpaPotGlobalVersionAdapterTest.xml",
+      "sha256": "46567692913f242518933e37b71cbc00610c505a94af6735d55ec759e69be66d",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest",
+      "time_seconds": "2.335",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.CommandConsumptionPostgresTest.xml",
+      "sha256": "4771b9d1fa7c745a8e086daccafd3c889ebba3ee587ff53154d13c6fc02cb18b",
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest",
+      "time_seconds": "1.158",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JdbcCommandResultStorePostgresTest.xml",
+      "sha256": "9703a3477c54bcd1f60ccc38f365c4640950391b194e62df2f253ab992f43221",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapterPostgresTest",
+      "time_seconds": "1.231",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.JpaRecordedCommandAdapterPostgresTest.xml",
+      "sha256": "0213daf4b0f2d6f28eed8b57b472295dbcb353141a5938a2242238bf7aa90848",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.RecordedCommandRecordMapperTest",
+      "time_seconds": "0.006",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.command.RecordedCommandRecordMapperTest.xml",
+      "sha256": "f18a541b7dee083bd7310deed639909bdfdb5932a9e2dc2ce8b76df71cf86f57",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest",
+      "time_seconds": "1.357",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.JpaConsumptionLifecycleAdapterPostgresTest.xml",
+      "sha256": "e0bae327efee989627140dc34c88698f3ac3dd3bb75d802b8393dae8e4cdae28",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest",
+      "time_seconds": "1.823",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.consumption.TransactionalConsumptionExecutionPostgresTest.xml",
+      "sha256": "bdf28a1a70daa02b428863fe22726e8d9890088adfe4b928c1948a35e3b65da3",
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest",
+      "time_seconds": "2.192",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.CommandObsolescencePostgresTest.xml",
+      "sha256": "319847dd09f06c538c990face6c2e4a5e969e79d830b06a1f68546c267a8f9ae",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest",
+      "time_seconds": "0.167",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaExpenseContextAdapterTest.xml",
+      "sha256": "1ee730376fb73972be7661acd0bd9feea2c2ed03469036322b62cb96307c4d14",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapterTest",
+      "time_seconds": "0.345",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.JpaPotContextAdapterTest.xml",
+      "sha256": "9f6d9284ceb4682db317021856b6213c96b76259d4f7291c06a3fb626b2b292a",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest",
+      "time_seconds": "1.786",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.context.UpdateExpenseSharesConcurrencyPostgresTest.xml",
+      "sha256": "3157d888f23d3583c842d8a08c630c6e0f9e3d85e83d8f38e789a1445c40cde1",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest",
+      "time_seconds": "0.148",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseHeaderAdapterTest.xml",
+      "sha256": "09ec920e286f86573b219c44bbacd0f45a35f302f2af787af5cae9e2168ea61f",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest",
+      "time_seconds": "0.192",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaExpenseSharesAdapterTest.xml",
+      "sha256": "ba4f11d2532b8e4bcd12675457d0f508da334e01681a58ea0fb1abd89cdc5d1b",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapterTest",
+      "time_seconds": "0.169",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotHeaderAdapterTest.xml",
+      "sha256": "ca82c688567937bd54c017f41a7096f4c83f3be5a13670c48ba08c7264b7ba7a",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapterTest",
+      "time_seconds": "0.144",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.core.JpaPotShareholdersAdapterTest.xml",
+      "sha256": "c6a9acd5971fb88b941eb69f6eb455220e16d6960ae6fdad479c7270543d526a",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest",
+      "time_seconds": "0.901",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.BindingOptimisticCasSemanticsPostgresTest.xml",
+      "sha256": "75c52da81ac557f699b90ea4cd1d1e7c1a188c4e6a9ab8e7eb13c6cf7800e5a0",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.ExternalIdentityBindingFactRecordMapperTest",
+      "time_seconds": "0.001",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.ExternalIdentityBindingFactRecordMapperTest.xml",
+      "sha256": "a6440fb392187158b3d195d5c02eb1cef9bb4f80e3c348deb87ce97ffc2a7f54",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest",
+      "time_seconds": "1.198",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaExternalIdentityBindingLifecycleAdapterPostgresTest.xml",
+      "sha256": "6938250ddb0569f3c59c2a984d72d440c6babf3115f641cb99fc81528204b5bf",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest",
+      "time_seconds": "1.296",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.identity.JpaUserIdentityAuthorityAdapterPostgresTest.xml",
+      "sha256": "8bd4d47e87248ccaf483cc761c81b9d6fdccf631585e5211516a1bcb138b220d",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapperTest",
+      "time_seconds": "0.033",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.BusinessEventRecordMapperTest.xml",
+      "sha256": "9ba241e8ae771e674b931626ed1b2b27a55ff26b796da4d1a28c3c8aaa3af3f8",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapterTest",
+      "time_seconds": "0.567",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.outbox.JpaPotCommandEventAppendAdapterTest.xml",
+      "sha256": "3e841f183598a95e40c33ae659eaacf1ca47f88a49a1e02002714a564289fb55",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapterPostgresTest",
+      "time_seconds": "1.305",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JdbcProjectionMaterializationDiscoveryAdapterPostgresTest.xml",
+      "sha256": "8b78f76471c6c94ad840830e485791e78f3602567a0a371e64090e6a90fb6468",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPortPostgresTest",
+      "time_seconds": "0.975",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.processing.event.JpaEventPortPostgresTest.xml",
+      "sha256": "89e2f67828dc3e476ec7a97a4009e946d59a74d7a53a55d5288bc60769bd9794",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapterPostgresTest",
+      "time_seconds": "1.195",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JdbcProjectionTaskStoreAdapterPostgresTest.xml",
+      "sha256": "eb2f53e1466bbd5108eb7def8af16472800a442d3165b09a45e67368b7cb92bf",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapterTest",
+      "time_seconds": "0.135",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.projection.JpaProjectedExpenseAdapterTest.xml",
+      "sha256": "68538180994492632f19bb6583505e45b2fe611d692f91c663444fbddcdfadd3",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest",
+      "time_seconds": "3.254",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.adapter.registration.RegistrationAuthorityPostgresTest.xml",
+      "sha256": "54ca3f008c9a9931681492006d0ff03b9a108858a8e458bae82dcde0b6c3bfde",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.PotPartitionerTest",
+      "time_seconds": "0.005",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.entity.outbox.PotPartitionerTest.xml",
+      "sha256": "01aa737f416d654b9d8ad7ceb9c7e28a8d399014e42951502ef147fc76e28eb7",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CanonicalBusinessEventTypesMigrationPostgresTest",
+      "time_seconds": "1.806",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CanonicalBusinessEventTypesMigrationPostgresTest.xml",
+      "sha256": "7b366c282559ef0c68fdd913098922dec7e22c08ad9b8a2c89838130b2b3feee",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CommandResultBackfillMigrationPostgresTest",
+      "time_seconds": "1.531",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.CommandResultBackfillMigrationPostgresTest.xml",
+      "sha256": "750a1525a995a822bab588089e1d8042e42cb09030c1f73ffa94a44bcea620b8",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest",
+      "time_seconds": "3.258",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingCanonicalMigrationPostgresTest.xml",
+      "sha256": "dc3fe661d337c71f52a25f5e93ee80abe83463644b492ffac5a57c57d6d5793f",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest",
+      "time_seconds": "1.247",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.ExternalIdentityBindingLifecycleMigrationPostgresTest.xml",
+      "sha256": "c8345a6c21504c8ddc004b9c5d16a54e8e1b803b9ecdbad814d13ca29da17d0d",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest",
+      "time_seconds": "2.084",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.PrimaryMigrationsPostgresTest.xml",
+      "sha256": "8ab46c86046dd0800a0de14ac5c9bc9a4da153aff2a47471397a7388fd22c0f2",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.RecordedCommandContractionMigrationPostgresTest",
+      "time_seconds": "1.859",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.migration.RecordedCommandContractionMigrationPostgresTest.xml",
+      "sha256": "bbf918c7245801aba084420b227ff442ed2cb51cb3663c1fcb6aa0a1ceafd057",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepositoryFencingQueryTest",
+      "time_seconds": "0.02",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.repository.consumption.JpaConsumptionSlotRepositoryFencingQueryTest.xml",
+      "sha256": "1f0910883fed611877525b2b806e8bdb8334dd27b28eb97050d41a049d254dae",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest",
+      "time_seconds": "23.253",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.CommandExecutionPostgresTest.xml",
+      "sha256": "fe12e3781261ce9cd7f1e70f16553bb8076f21905d836a0af2b21e614ea99c79",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest",
+      "time_seconds": "55.384",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.ConsumptionLifecyclePostgresTest.xml",
+      "sha256": "f1124b64aa463733d78762a9f10a7c2ee1e58cf1777c97e6d91212ea691b3535",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest",
+      "time_seconds": "505.173",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.DiscoveryPostgresTest.xml",
+      "sha256": "289041b6364116fcf1d04eb8683dc7906b2775544befdec62422079351a981d9",
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1IntegrationPostgresTest",
+      "time_seconds": "4.011",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L1IntegrationPostgresTest.xml",
+      "sha256": "4e4cc1875d36d37332e24d76c2ef1b7e15bf317e8cd38c61b9737abecc4f64e6",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof",
+      "time_seconds": "98.228",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof.xml",
+      "sha256": "8319506cd66a2a31d26e15ea500f63f05dd44801b5db0d24fa0ddfff8090dc28",
+      "tests": 142,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest",
+      "time_seconds": "0.003",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJsonTest.xml",
+      "sha256": "465b45a9719a4f548bff72694233c53eb57ace8a91fb75d3ee0778907d1dca0f",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest",
+      "time_seconds": "7.156",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotFinancePostgresTest.xml",
+      "sha256": "0f5528bb4354d89bca1a2d8db80f673251c09e4c4d12b63a8d5053c6e3adff94",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest",
+      "time_seconds": "2.754",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryCardinalityPostgresTest.xml",
+      "sha256": "fecf5740b4973d541dc56195b24012be3ffccd8e02ce4eeb7bd3238d5999e795",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest",
+      "time_seconds": "6.515",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotHistoryPostgresTest.xml",
+      "sha256": "e5dd5bf71c04cddebcf5cc813b63061df158fdebc1cc8408736de5ee1ab85f75",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest",
+      "time_seconds": "57.737",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.SlotNavigationPostgresTest.xml",
+      "sha256": "209ef7a5fadeb1f8786636aaff3f34a4169c702f48b295653a4505fb6f12c305",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest",
+      "time_seconds": "2.096",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPerformancePostgresTest.xml",
+      "sha256": "c5d8167de8a5c74cd12a58c636141803090857a0e00dbb654f02ea2b7cbc1476",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest",
+      "time_seconds": "3.463",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.WriteRevisionPostgresTest.xml",
+      "sha256": "c537e268c89c8c93e0efc86ca8d9a25f9ef7590b7f4c74d31ce86271117dce19",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest",
+      "time_seconds": "4.55",
+      "file": "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.consumption.ConsumptionFoundationPostgresTest.xml",
+      "sha256": "44b8152e0e6fb5a719237388f7a8b5c34513ace6d5e6bd0160fb26933912b64f",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "total_time": "14:36 min",
+  "boundary_observations": [
+    "ARITY_BOUNDARY rows=65536 elapsed_ms=1102"
+  ],
+  "raw": {
+    "path": "docs/testing/evidence/L1L2-corrections/command-failed-raw.tar.xz",
+    "size": 318124,
+    "sha256": "5997396044c649c2d0525fee84c197745e7f2a3956ca3169a29fe76606627edb"
+  },
+  "log_sha256": "060ee430b266d40eff5310b8d57a529fbc66a76123e32e1a5c3ce22b80f2f7e1"
+}

@@ -1,0 +1,21 @@
+{
+  "tested_sha": "6f282b1dfbde30044fefb89b772661c9bd9f5466",
+  "command": "./mvnw -pl runtime-command-consumption-worker,architecture-tests -am test",
+  "maven": "BUILD FAILURE",
+  "status": "INTERRUPTED / GLOBAL GATES NOT COMPLETED",
+  "process_exit": 143,
+  "reason": "Stopped before runtime Worker: unfiltered closure contains i5_r05 and i5_r12 calling I5TemporalV2Postgres.campaign; mandate explicitly prohibits replay. No I5 temporal campaign entered. Human arbitration requested.",
+  "elapsed_maven": "08:38 min",
+  "fresh_completed_xml_totals": {
+    "tests": 969,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "xml_suites": 192,
+  "raw": {
+    "path": "docs/testing/evidence/L1L2-corrections/interrupted-raw.tar.xz",
+    "bytes": 133904,
+    "sha256": "0f5aff081a798e3c947e8f6c9c23ce73660a93bd36ef1847c3141462a5222004"
+  }
+}
