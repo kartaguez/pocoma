@@ -1,5 +1,16 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
+**État courant — décision humaine consignée le 31-10-2026 : I3 ACCEPTED WITH
+EXPLICIT RESERVATIONS**, [acceptation, findings et réserves](L3_I3_Acceptance_Decision.md).
+Implémentation et corrections de sécurité acceptées après
+[contre-vérification indépendante Gemini](L3_I3_Independent_Reaudit_Report.md) ;
+aucune nouvelle correction I3 requise à ce stade. **GO pour le cadrage et la
+préparation I4**, sans démarrer son implémentation. I4 doit préserver I1–I3 et
+les frontières transactionnelles L2 ; I5 et la suite restent à réaliser selon
+ce plan. L3 reste en réalisation, les réserves historiques et l'absence de
+certification canonique globale demeurent. Les encadrés antérieurs ci-dessous
+conservent l'historique ; les prescriptions techniques du plan restent applicables.
+
 **Livraison L3/I3 du 30-10-2026 : IMPLEMENTED — R-ID interne démontré.**
 [Rapport, gates, commits et limites](L3_I3_Execution_Report.md),
 [runbook DEV contrôlé](L3_I3_Identity_Development_Runbook.md).

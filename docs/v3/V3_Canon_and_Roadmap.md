@@ -1,5 +1,14 @@
 # Pocoma V3 — Canon et feuille de route
 
+**Progression L3/I3 — décision humaine consignée le 31-10-2026 : ACCEPTED WITH
+EXPLICIT RESERVATIONS**, [décision et réserves R1–R4](L3_I3_Acceptance_Decision.md).
+Après corrections et [contre-vérification Gemini](L3_I3_Independent_Reaudit_Report.md),
+les quatre findings sont clos dans leur périmètre qualifié. **GO pour le cadrage
+et la préparation I4 seulement** ; I5 et la suite restent à réaliser, L3 reste
+en réalisation. Aucun PASS canonique, aucune levée de `i5_r05`/`i5_r12`.
+Cette note de programme ne modifie aucune exigence normative ; les encadrés
+antérieurs ci-dessous sont historiques pour les statuts et autorisations.
+
 **Livraison L3/I3 du 30-10-2026 : IMPLEMENTED — R-ID interne démontré.**
 [Rapport, gates, commits et limites](L3_I3_Execution_Report.md),
 [runbook DEV contrôlé](L3_I3_Identity_Development_Runbook.md).
