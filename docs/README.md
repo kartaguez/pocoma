@@ -2,6 +2,8 @@
 
 ## Programme V3 courant
 
+- [Livraison L3/I2](v3/L3_I2_Execution_Report.md) : autorité Identity PostgreSQL implémentée, 27 tests I2 PASS ; gate canonique FAIL (`i5_r12`), Architecture SKIPPED ; audit indépendant avant tout GO I3.
+
 - [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS ; L3 en réalisation, I1 ACCEPTED WITH EXPLICIT RESERVATIONS et GO I2 limité à l'autorité PostgreSQL Identity ; L4–L8 DESIGN PENDING.
 - [Arbitrage L3/I1 et GO I2](v3/L3_I1_Arbitration_and_I2_GO.md) : 35 nouveaux tests PASS, gate COMMAND + Architecture FAIL (`i5_r05`, `i5_r12`), aucun I1 LOCAL BOUNDED PASS ; réserves et gates ultérieures conservées.
 - [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.

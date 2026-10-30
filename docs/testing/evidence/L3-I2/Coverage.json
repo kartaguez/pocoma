@@ -1,0 +1,373 @@
+{
+  "tested_candidate": "49ae298d879a41b29d1caf14e7597dffb947713a",
+  "scope": "I2 real PostgreSQL WRITE authority, controlled admission/completion harness; not a global SPEC-10 certificate",
+  "methods": [
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_vs_initiator_unlink",
+      "status": "PASS",
+      "seconds": "0.829",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_disjoint_progress",
+      "status": "PASS",
+      "seconds": "0.339",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_unicode",
+      "status": "PASS",
+      "seconds": "0.876",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_races",
+      "status": "PASS",
+      "seconds": "0.728",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_anchor_id_race",
+      "status": "PASS",
+      "seconds": "0.404",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_cross_unlinks",
+      "status": "PASS",
+      "seconds": "0.359",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_lock_paths",
+      "status": "PASS",
+      "seconds": "0.284",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_registration_race",
+      "status": "PASS",
+      "seconds": "0.414",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_position_constraints",
+      "status": "PASS",
+      "seconds": "0.587",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_anchor_negative_invariants",
+      "status": "PASS",
+      "seconds": "1.256",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_unstorable_keys",
+      "status": "PASS",
+      "seconds": "0.692",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_deferred_commit_has_no_new_business_locks",
+      "status": "PASS",
+      "seconds": "0.386",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_publication_closure",
+      "status": "PASS",
+      "seconds": "1.045",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_negative_shapes",
+      "status": "PASS",
+      "seconds": "1.2",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_history_rewrite_forbidden",
+      "status": "PASS",
+      "seconds": "1.347",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_fk_wait_is_in_prefix",
+      "status": "PASS",
+      "seconds": "0.304",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_bad_server_encoding_preflight",
+      "status": "PASS",
+      "seconds": "0.268",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_other_family_suffix_is_untouched",
+      "status": "PASS",
+      "seconds": "0.293",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_constraint_catalog",
+      "status": "PASS",
+      "seconds": "0.31",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_generator_contract",
+      "status": "PASS",
+      "seconds": "0.003",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_real_secure_random_encoding",
+      "status": "PASS",
+      "seconds": "0.003",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_rollback_boundaries",
+      "status": "PASS",
+      "seconds": "1.579",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_history_exact",
+      "status": "PASS",
+      "seconds": "0.545",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_anchor_absence",
+      "status": "PASS",
+      "seconds": "0.32",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_last_unlink_and_registration_free",
+      "status": "PASS",
+      "seconds": "0.34",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_forced_token_collision",
+      "status": "PASS",
+      "seconds": "0.464",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_guards_and_caught_failure_poison",
+      "status": "PASS",
+      "seconds": "0.376",
+      "detail": null
+    }
+  ],
+  "allocations": [
+    {
+      "id": "I2-HISTORY",
+      "requirements": [
+        "I01-A",
+        "I01-B",
+        "I01-H",
+        "I01-L"
+      ],
+      "methods": [
+        "IdentityAuthorityPostgresTest.l3_history_exact",
+        "IdentityAuthorityPostgresTest.l3_last_unlink_and_registration_free"
+      ],
+      "oracles": [
+        "E2 U1/bound v1 -> free v2 -> U2/bound v3 -> free v4 -> U1/bound v5",
+        "Exact PK history; same User relink gets a fresh token; last Unlink preserves User"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-ABSENCE",
+      "requirements": [
+        "AUD-L3-002",
+        "I01-A",
+        "I01-E"
+      ],
+      "methods": [
+        "IdentityAuthorityPostgresTest.l3_anchor_absence",
+        "IdentityConcurrencyPostgresTest.l3_anchor_id_race",
+        "IdentitySchemaPostgresTest.l3_anchor_negative_invariants"
+      ],
+      "oracles": [
+        "No anchor vs committed zero anchor both absent; at(id,0) refused",
+        "Stable winning ID on commit; new reservation disappears on rollback; committed zero ID remains",
+        "Direct SQL refuses identity/key rewrites, zero business version, fictitious initial free state and inconsistent cursors"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-RACES",
+      "requirements": [
+        "I01-D",
+        "I01-F",
+        "I01-J",
+        "I01-K",
+        "I02-I",
+        "I02-J",
+        "I02-N"
+      ],
+      "methods": [
+        "IdentityConcurrencyPostgresTest.l3_registration_race",
+        "IdentityConcurrencyPostgresTest.l3_link_races",
+        "IdentityConcurrencyPostgresTest.l3_cross_unlinks",
+        "IdentityConcurrencyPostgresTest.l3_link_vs_initiator_unlink"
+      ],
+      "oracles": [
+        "Registration/Registration unknown and known free",
+        "Registration/Link unknown and known free, each winning order; Link/Link",
+        "Cross Unlinks; Link vs self-Unlink in both protected winning orders",
+        "Latch at acquired EUI set; independent pg_blocking_pids edge before release; physical completion and independent durable rows"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-ORDER",
+      "requirements": [
+        "AUD-L3-003",
+        "SPEC-02 section 7"
+      ],
+      "methods": [
+        "IdentityConcurrencyPostgresTest.l3_canonical_lock_paths",
+        "IdentityConcurrencyPostgresTest.l3_canonical_unicode",
+        "IdentityConcurrencyPostgresTest.l3_disjoint_progress",
+        "IdentitySchemaPostgresTest.l3_unstorable_keys",
+        "IdentitySchemaPostgresTest.l3_bad_server_encoding_preflight"
+      ],
+      "oracles": [
+        "Opposite lists: both unknown, mixed, both known; duplicate and self key",
+        "UTF8/C independent expected vectors and SQL ORDER BY; prefix, DEL/U+0080, E000/U+10000, composed/decomposed, same subject at distinct issuers",
+        "INSERT/FOR UPDATE trace by PID; full validation before first EUI access; no sleep oracle",
+        "Non-UTF8 byte conversion rejected; real SQL_ASCII server, non-UTF8 client and altered collation rejected by harness/driver checks",
+        "Disjoint transition completes while another authority prefix holds its own key"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-TOKENS",
+      "requirements": [
+        "I01-L",
+        "I01-N"
+      ],
+      "methods": [
+        "BindingTokenGeneratorTest.l3_generator_contract",
+        "BindingTokenGeneratorTest.l3_real_secure_random_encoding",
+        "IdentityAuthorityPostgresTest.l3_forced_token_collision"
+      ],
+      "oracles": [
+        "SecureRandom.nextBytes exactly 32 fresh bytes; Base64 URL no padding; redacted toString",
+        "Current and historical forced collisions are technical SQLSTATE 23505 with full durable rollback and no token in exception chain"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-ATOMICITY",
+      "requirements": [
+        "I01-N",
+        "E02-F",
+        "CON-06 contribution"
+      ],
+      "methods": [
+        "IdentityAuthorityPostgresTest.l3_rollback_boundaries",
+        "IdentityAuthorityPostgresTest.l3_guards_and_caught_failure_poison"
+      ],
+      "oracles": [
+        "12 injected boundaries from acquired protections through positions/precommit, plus SQL fault after User INSERT",
+        "Independent before/after digest vector plus redacted durable rows; original PENDING and exact slot retained",
+        "Missing owner/protections and caught late writer failure roll back through unchanged L2 owner"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-DDL",
+      "requirements": [
+        "AUD-L3-001",
+        "E02-I"
+      ],
+      "methods": [
+        "IdentitySchemaPostgresTest.l3_sql_negative_shapes",
+        "IdentitySchemaPostgresTest.l3_history_rewrite_forbidden",
+        "IdentitySchemaPostgresTest.l3_sql_publication_closure",
+        "IdentitySchemaPostgresTest.l3_position_constraints",
+        "IdentitySchemaPostgresTest.l3_constraint_catalog"
+      ],
+      "oracles": [
+        "Runtime role without superuser/schema ownership/DDL/TRUNCATE; named SQLSTATE/constraint outcomes",
+        "Exact eight nondeferred FK targets, no CASCADE; ten named structural/terminal deferred triggers",
+        "Wrong subject/provenance/outcome/slot/position family, extra or missing publication rejected; complete unit rolls back",
+        "Negative schema variants: deferred business FK, locking terminal trigger and unscoped position trigger are detected"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    },
+    {
+      "id": "I2-SUFFIX",
+      "requirements": [
+        "AUD-L3-001",
+        "R1 compatibility contribution"
+      ],
+      "methods": [
+        "IdentitySchemaPostgresTest.l3_fk_wait_is_in_prefix",
+        "IdentitySchemaPostgresTest.l3_deferred_commit_has_no_new_business_locks",
+        "IdentitySchemaPostgresTest.l3_other_family_suffix_is_untouched"
+      ],
+      "oracles": [
+        "Existing User FOR UPDATE blocks immediate FK before apply returns and before opening counter relations",
+        "At prefix barrier all terminal business relations already open; suffix adds counter relations only; anchor NOWAIT fails; independent predecessor FOR UPDATE succeeds and stays held through physical commit",
+        "All terminal function bodies and custom transitive calls inspected from real PostgreSQL catalog",
+        "POT/COMMAND technical suffix probe opens zero Identity business relations; negative unscoped trigger reproduces the finding",
+        "No claim of an actual Identity participant, Pot/Identity integration or active runtime"
+      ],
+      "feedback_verdict": "PASS (bounded)",
+      "proof": "corrected-feedback.tar.gz"
+    }
+  ],
+  "deferred": [
+    "I3 production IdentityRequest participant, real R1 completion/fencing/recovery/discovery/runtime/grants",
+    "I4 actual Pot actor authority and Identity/Pot command integration",
+    "I5 closure and independent audit",
+    "L4 READ and token disclosure security",
+    "L5 external authentication/consent/admission/HTTP",
+    "L2 temporal availability reserves and global release certification"
+  ]
+}

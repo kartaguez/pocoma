@@ -1,5 +1,13 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
+**Livraison L3/I2 du 30-10-2026 : I2 IMPLEMENTED, preuves locales satisfaites,
+gate canonique FAIL — aucun I2 LOCAL BOUNDED PASS ni GO I3.**
+27 tests I2 PASS sur PostgreSQL réel ; gate COMMAND + Architecture :
+1 822 tests / 1 failure (`i5_r12`) / 0 error / 1 skip ; Architecture canonique
+SKIPPED, contribution ciblée distincte. [Rapport et preuves I2](L3_I2_Execution_Report.md).
+Audit indépendant requis avant toute décision I3. L'arbitrage et les échecs
+historiques I1, ainsi que les acceptations/réserves L1/L2, restent inchangés.
+
 **État courant au 30-10-2026 : I1 ACCEPTED WITH EXPLICIT RESERVATIONS — GO I2.**
 L'[arbitrage humain](L3_I1_Arbitration_and_I2_GO.md) autorise I2 uniquement,
 selon le périmètre et les preuves prévus ci-dessous. I1 est implémenté ; sa gate

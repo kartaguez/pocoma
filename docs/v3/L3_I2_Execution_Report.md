@@ -1,6 +1,7 @@
 # L3 / I2 — Autorité Identity PostgreSQL
 
-État : IN PROGRESS. Aucun verdict PASS ni GO I3.
+État : I2 IMPLEMENTED — preuves locales satisfaites, gate canonique FAIL.
+Aucun I2 LOCAL BOUNDED PASS ni GO I3.
 
 ## Référence et préalable
 
@@ -65,7 +66,8 @@ additionnelles counter/position empêchent des allocations orphelines ou à trou
 elles ne consultent que les structures de séquence dans le suffixe. Le premier
 état des opérations livrées doit être lié (pas de v1 libre fictive). La phase
 structurelle est forcée par ses deux noms, jamais SET CONSTRAINTS ALL.
-Aucune incompatibilité du DDL avec R1/suffixe L2 identifiée par les preuves I2.
+Ce premier feedback n’avait pas identifié le défaut inter-familles décrit et
+corrigé ci-dessous ; il ne certifiait donc pas toute la compatibilité du suffixe.
 
 Feedback candidat avant gate : 25 tests I2 et 21 contrôles d'architecture ciblés,
 46/0/0/0, PostgreSQL 17.11 aarch64, image épinglée par digest. C'est un feedback
@@ -101,3 +103,136 @@ passe ; la tentative de position POT pour une enveloppe Identity est rejetée au
 commit et annule toute l'unité. Le premier feedback correctif comportait une
 variante de harness POT encore mal sélectionnée (27 tests / 1 failure), corrigée
 et conservée dans `suffix-correction-initial` ; aucun test L2 modifié.
+
+## Commandes applicatives réellement exécutées
+
+Depuis `app/`. Les reçus stockent la commande complète et les comptes tirés du
+journal ; le collecteur ne recompte aucun XML résiduel non mentionné par ce journal.
+
+```sh
+# A — deux premiers feedbacks (compilation, puis autorité/générateur)
+./mvnw -pl infra-persistence-primary-jpa -am -Dtest=IdentityAuthorityPostgresTest,BindingTokenGeneratorTest -Dsurefire.failIfNoSpecifiedTests=false test
+# B — trois feedbacks des quatre classes I2 avant formatage
+./mvnw -pl infra-persistence-primary-jpa -am -Dtest=IdentityAuthorityPostgresTest,IdentityConcurrencyPostgresTest,IdentitySchemaPostgresTest,BindingTokenGeneratorTest -Dsurefire.failIfNoSpecifiedTests=false test
+# C — premier contrôle structurel ciblé
+./mvnw -pl architecture-tests -am -Dtest=V3IdentityAuthorityArchitectureTest,V3ConsumptionEngineArchitectureTest,V3PotExecutionArchitectureTest,EventPublicationContractArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test
+# D — candidat formaté, correction initiale, correction finale
+./mvnw -pl architecture-tests -am -Dtest=IdentityAuthorityPostgresTest,IdentityConcurrencyPostgresTest,IdentitySchemaPostgresTest,BindingTokenGeneratorTest,V3IdentityAuthorityArchitectureTest,V3ConsumptionEngineArchitectureTest,V3PotExecutionArchitectureTest,EventPublicationContractArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test
+# E — première tentative interrompue, puis nouvelle gate sur 49ae298d
+./mvnw -pl runtime-command-consumption-worker,architecture-tests -am test
+```
+
+| Exécution | Commande | Résultat / portée |
+|---|---|---|
+| compile-initial | A | FAILURE compilation, zéro test ; erreur de typage d'assertion I2 |
+| authority-initial | A | 8 / 1 failure / 0 error / 0 skip ; exception de version 0 correctement encapsulée par l'owner, attente du test à corriger |
+| local-iteration-1 | B | 25 / 2 failures / 3 errors / 0 skip ; erreurs d'oracle/instrumentation I2 conservées |
+| local-iteration-2 | B | 25/0/0/0 |
+| local-before-format | B | 25/0/0/0 |
+| architecture-before-format | C | 21/0/0/0 ; feedback uniquement |
+| candidate-feedback, arbre identique à 6ed1599a | D | 46/0/0/0 ; avant découverte du trigger de position non borné |
+| canonical-interrupted, 6ed1599a | E | 996 tests terminés, 0 failure/error/skip ; interruption volontaire, exit 143 ; gate non complétée |
+| suffix-correction-initial | D | 27 / 1 failure / 0 error / 0 skip ; variante de harness POT mal sélectionnée |
+| corrected-feedback, arbre identique à 49ae298d | D | 48/0/0/0 : 27 I2 + 21 architecture ciblés |
+
+Les résultats intermédiaires restent des observations de leurs versions propres.
+Aucun FAIL n'est effacé ni attribué au candidat final ; aucune répétition d'une
+gate inchangée pour rechercher un succès. La relance E suit une correction SQL
+matérielle, accompagnée de son contre-exemple déterministe.
+
+Commandes d'outillage : contrôles Git (`status`, `worktree list`, `show-ref`,
+`rev-parse`, `log`, `diff`, `ls-remote`, `add`, `commit`, `push`), lectures `rg`/
+`cat`/`sed`, vérifications SHA-256/gzip/tar/XML et liens par Python ;
+`analyze.py` I1 avant tout code ; `collect.py` I2 avec commandes/exit explicites ;
+formatage des seuls sept nouveaux fichiers Java via google-java-format 1.24.0
+`--aosp --replace`. Docker est uniquement utilisé pour les PostgreSQL jetables
+de Testcontainers. Les commandes d'arrêt ciblent exclusivement les PID Maven/
+Surefire de la première gate, jamais un service de l'utilisateur.
+
+## Preuves PostgreSQL et limites
+
+Les [allocations I2](../testing/evidence/L3-I2/Coverage.json) relient les 27
+méthodes aux variantes et aux oracles indépendants ; le [catalogue DDL](../testing/evidence/L3-I2/DDL.json)
+inventorie les objets. Les archives de chaque exécution contiennent journal,
+XML correspondants et traces I2 : PID/XID, attentes `pg_blocking_pids`, ordre exact
+INSERT/FOR UPDATE, résolution physique, catalogues/fonctions et photographies
+SQL durables. Les valeurs sensibles sont omises ; les comparaisons de tokens
+restent dans les assertions privées, les vecteurs avant/après exportent seulement
+des empreintes de lignes. Les lignes publiques exportées incluent versions,
+UserId, provenance et positions mais jamais token ou contexte d'admission brut.
+
+Les succès de courses sont observés après commit depuis une connexion indépendante,
+les perdants sont des rejets sans User supplémentaire. Les fautes de persistance
+et collisions de tokens restent techniques et annulent l'unité entière. Les
+barrières et arêtes de blocage serveur constituent les preuves d'entrelacement ;
+aucun sleep n'est utilisé comme oracle.
+
+Le harness I2 est explicitement contrôlé : il admet les demandes, protège et
+supprime leurs slots puis finalise leurs enveloppes et positions avec toutes les
+contraintes actives. Il ne livre pas l'admission externe, le participant I3,
+le raccord Pot I4, un Worker ou des projections. Les sondes du suffixe des autres
+familles prouvent seulement l'absence de régression du nouveau trigger sur ces
+structures techniques ; elles ne certifient pas un nouveau parcours Pot/Command.
+Le préflight testé est celui du harness/driver ; aucun runtime I3 n'est activé.
+
+## Résolution de la gate finale et verdict
+
+SHA testé : **`49ae298d879a41b29d1caf14e7597dffb947713a`** ; aucun changement
+sous `app/` après ce gel. [Reçu canonique](../testing/evidence/L3-I2/canonical-final.json)
+et archive correspondante : commande E sans filtre, exit **1**, **BUILD FAILURE**,
+**45 min 27 s**, terminée le 30-10-2026 à 15:32:43 +01:00.
+
+| Observation fraîche | Résultat exact |
+|---|---|
+| Gate composée COMMAND + Architecture | **1 822 tests, 1 failure, 0 error, 1 skip** |
+| IdentityAuthorityPostgresTest | 6/0/0/0 |
+| IdentityConcurrencyPostgresTest | 8/0/0/0 |
+| IdentitySchemaPostgresTest | 11/0/0/0 |
+| BindingTokenGeneratorTest | 2/0/0/0 |
+| `i5_r05` L2 | PASS, 52,451 s ; son FAIL historique I1 reste conservé |
+| `i5_r12` L2 | **FAIL**, 95,825 s, `runtime condition deadline ==> expected: <true> but was: <false>` |
+| Architecture canonique | **SKIPPED**, arrêt Maven dans COMMAND ; gate globale **NON SATISFAITE** |
+| Architecture ciblée après correction | 21/0/0/0 ; contribution structurelle, jamais substitution à la gate |
+| Skip | `TerminalSequencingPostgresTest.zExploratoryContentionSeparateFromCorrectness` : `System property [step3b.measure] does not exist` |
+
+La pile `i5_r12` mène à `V3WorkerPostgresTest.Runtime.close:553`, via
+`I5TemporalV2Postgres.campaign:947`. Cette observation appartient à la campagne
+L2 inchangée et à son périmètre de fermeture ; le même nom/message a déjà échoué
+historiquement. **Aucune causalité I2 n'est établie**, et aucune non-régression
+globale n'est déduite de ce constat. La cause physique détaillée de cette nouvelle
+exécution n'est pas réauditée ni automatiquement assimilée au diagnostic I1.
+Le journal, les XML et les traces L2 fraîches sont préservés séparément ; aucun
+seuil, test, filtre de gate, durée physique ou mécanisme L2 modifié.
+La gate n'est pas relancée à entrées identiques pour rechercher un succès.
+
+**Verdict : I2 IMPLEMENTED — PREUVES LOCALES SATISFAITES ; GATE CANONIQUE FAIL,
+AUCUN I2 LOCAL BOUNDED PASS PRONONCÉ.** Livraison pour audit indépendant,
+**arrêt après I2 ; aucun GO I3**. I1 reste ACCEPTED WITH EXPLICIT RESERVATIONS,
+avec ses deux échecs historiques et sa gate non satisfaite. Les acceptations et
+réserves L1/L2 ne sont pas modifiées.
+
+## Impact observé, écarts et livraison
+
+- Slice déclarée/exécutée : **COMMAND**, secondaires **NONE** ; composition avec
+  la gate Architecture requise. Franchissement inattendu de slice : **NONE**.
+  Le défaut de périmètre du nouveau trigger a été corrigé dans PRIMARY avant
+  publication, sans élargir l'owner, les consommateurs ou les writers existants.
+- Gate globale : **REQUIRED / ATTEMPTED / NOT SATISFIED**, module Architecture
+  sauté dans la commande canonique ; contribution ciblée explicitement distincte.
+- Full reactor : **NOT REQUIRED / NOT RUN** ; étape bornée, pas clôture de Wave
+  majeure, restructuration large ou intégration main.
+- DB : PostgreSQL réel CURRENT WRITE V1…V6 pour les nouveaux tests ; anciens
+  bootstraps V1…V5 conservés. Migrations historiques V2 jusqu'à V31 exécutées
+  transitivement dans la gate non filtrée, aucune campagne historique séparée.
+- Écarts de réalisation : aucune adaptation Maven nécessaire ; garde
+  `V3IdentityAuthorityArchitectureTest` ajoutée dès I2 pour les writers ; garde
+  counter/position complémentaire, préflight de harness négatif SQL_ASCII et
+  sonde inter-familles ajoutés pour fermer la preuve physique. Aucun I3/I4/I5.
+- Fichiers exacts : [Files.json](../testing/evidence/L3-I2/Files.json), distinguant
+  la clôture I1 préexistante vérifiée des ajouts I2. Le reçu
+  [Verification.json](../testing/evidence/L3-I2/Verification.json) relie les
+  sources, commits, exécutions et archives ; aucune attribution d'un XML résiduel.
+- Publication : push normal sur `feat/v3-architecture` après ultime contrôle
+  distant, sans force. SHA documentaire final et confirmation distante donnés
+  après création du commit pour éviter une auto-référence circulaire.
+  Le checkout principal et tous les autres worktrees demeurent préservés.

@@ -1,0 +1,288 @@
+{
+  "initial_sha": "02c7bfbf85936f1f1a633e9097bc2b49f878708e",
+  "initial_target_branch": "feat/v3-architecture",
+  "initial_main_checkout": {
+    "branch": "feat/runtime-monolith",
+    "sha": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+    "preexisting_work": "PRESERVED; target worktree reused without checkout/reset/stash/clean"
+  },
+  "i1_documentary_commit": "a93a83d5cdbe6c043b5f6618d6b6297f40a59241",
+  "implementation_commits": [
+    "6ed1599ac41c22844882cf1df7fb1e70f23002e9",
+    "49ae298d879a41b29d1caf14e7597dffb947713a"
+  ],
+  "tested_sha": "49ae298d879a41b29d1caf14e7597dffb947713a",
+  "source_sha256": {
+    "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java": "181cba9f07d5826f1da1d6602e11973601ea001cbf4e27ee467434bf47d23244",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/JdbcIdentityAuthority.java": "8a38429bd52c47755673d5a638acaaf5a5a7f982cfe77a7911dc4aacd19dd158",
+    "app/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/SecureBindingTokenGenerator.java": "70da6efc3dfeb9cf68c5abac52741e47146e5b78e11bb57447da889b8f29fccc",
+    "app/infra-persistence-primary-jpa/src/main/resources/db/v3-identity/migration/V6__identity_authority_and_requests.sql": "f1d21844ff391a67bf693c9b21c92c9950a9d9e76cf43dabd50c445ab212293e",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/BindingTokenGeneratorTest.java": "4a5656c0ae4c0e945d5a5104e7049ee2e676fc918a4f3a618dcb8320aab5a5ef",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityAuthorityPostgresTest.java": "23ab347b0400511de8957759886fcde63e4dcc6d975bbb7fe3fb9111fb4f57b8",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentityConcurrencyPostgresTest.java": "de7e9f5451ca9787feb277113d20e08327db2b8afc4f99cb44260b39473e2a07",
+    "app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/IdentitySchemaPostgresTest.java": "1fe505370e8edf8c882fbbbd4e82d4fe1b01770f0d7f1cdb0993784af1cc4dc7"
+  },
+  "scope": {
+    "primary": "COMMAND",
+    "secondary": [],
+    "global_architecture": "REQUIRED / ATTEMPTED / NOT SATISFIED; architecture module SKIPPED in canonical invocation",
+    "full_reactor": "NOT REQUIRED / NOT RUN",
+    "database": "CURRENT V3 V1..V6, real PostgreSQL 17.11; legacy V2 V31 transitive only",
+    "unexpected_slice_crossing": "NONE",
+    "runtime_activation": "NONE; no I3/I4/I5"
+  },
+  "verdict": "I2 IMPLEMENTED; local proofs satisfied; canonical gate FAIL; no I2 LOCAL BOUNDED PASS; independent audit before any GO I3",
+  "canonical": {
+    "receipt": "canonical-final.json",
+    "totals": {
+      "tests": 1822,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 1
+    },
+    "build": "FAILURE",
+    "exit_code": 1,
+    "seconds": null,
+    "duration": [
+      " 45:27 min"
+    ],
+    "architecture": "SKIPPED",
+    "failed_cases": [
+      {
+        "suite": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+        "name": "i5_r12",
+        "status": "FAIL",
+        "seconds": "95.825",
+        "detail": "runtime condition deadline ==> expected: <true> but was: <false>"
+      }
+    ],
+    "skipped_cases": [
+      {
+        "suite": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest",
+        "name": "zExploratoryContentionSeparateFromCorrectness",
+        "status": "SKIP",
+        "seconds": "0.0",
+        "detail": "System property [step3b.measure] does not exist"
+      }
+    ]
+  },
+  "required_i2_cases": [
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_vs_initiator_unlink",
+      "status": "PASS",
+      "seconds": "0.489",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_disjoint_progress",
+      "status": "PASS",
+      "seconds": "0.338",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_unicode",
+      "status": "PASS",
+      "seconds": "0.795",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_link_races",
+      "status": "PASS",
+      "seconds": "0.709",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_anchor_id_race",
+      "status": "PASS",
+      "seconds": "0.43",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_cross_unlinks",
+      "status": "PASS",
+      "seconds": "0.377",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_canonical_lock_paths",
+      "status": "PASS",
+      "seconds": "0.315",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest",
+      "name": "l3_registration_race",
+      "status": "PASS",
+      "seconds": "0.446",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_position_constraints",
+      "status": "PASS",
+      "seconds": "0.65",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_anchor_negative_invariants",
+      "status": "PASS",
+      "seconds": "1.286",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_unstorable_keys",
+      "status": "PASS",
+      "seconds": "0.641",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_deferred_commit_has_no_new_business_locks",
+      "status": "PASS",
+      "seconds": "0.363",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_publication_closure",
+      "status": "PASS",
+      "seconds": "1.114",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_sql_negative_shapes",
+      "status": "PASS",
+      "seconds": "1.196",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_history_rewrite_forbidden",
+      "status": "PASS",
+      "seconds": "1.439",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_fk_wait_is_in_prefix",
+      "status": "PASS",
+      "seconds": "0.273",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_bad_server_encoding_preflight",
+      "status": "PASS",
+      "seconds": "0.258",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_other_family_suffix_is_untouched",
+      "status": "PASS",
+      "seconds": "0.324",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest",
+      "name": "l3_constraint_catalog",
+      "status": "PASS",
+      "seconds": "0.366",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_generator_contract",
+      "status": "PASS",
+      "seconds": "0.003",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest",
+      "name": "l3_real_secure_random_encoding",
+      "status": "PASS",
+      "seconds": "0.002",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_rollback_boundaries",
+      "status": "PASS",
+      "seconds": "1.617",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_history_exact",
+      "status": "PASS",
+      "seconds": "0.583",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_anchor_absence",
+      "status": "PASS",
+      "seconds": "0.369",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_last_unlink_and_registration_free",
+      "status": "PASS",
+      "seconds": "0.358",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_forced_token_collision",
+      "status": "PASS",
+      "seconds": "0.499",
+      "detail": null
+    },
+    {
+      "suite": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest",
+      "name": "l3_guards_and_caught_failure_poison",
+      "status": "PASS",
+      "seconds": "0.39",
+      "detail": null
+    }
+  ],
+  "structural_feedback": {
+    "receipt": "corrected-feedback.json",
+    "tests": 21,
+    "status": "PASS as targeted contribution only"
+  },
+  "history": {
+    "i1": "ACCEPTED WITH EXPLICIT RESERVATIONS; i5_r05/i5_r12 historical FAIL preserved, no canonical PASS",
+    "reserves": "L1/L2 acceptances and open reserves unchanged"
+  },
+  "toolchain": {
+    "java.version": "21",
+    "java.vendor": "Eclipse Adoptium",
+    "os.name": "Mac OS X",
+    "os.version": "27.0",
+    "os.arch": "aarch64",
+    "file.encoding": "UTF-8"
+  },
+  "postgres_image": "postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "receipts": [
+    "iterations.json",
+    "candidate-feedback.json",
+    "canonical-interrupted.json",
+    "suffix-correction-initial.json",
+    "corrected-feedback.json",
+    "canonical-final.json",
+    "canonical-l2-traces.json"
+  ],
+  "delivery": "Normal push after final Git checks; final documentary SHA and remote identity reported after commit, no circular self-reference"
+}
