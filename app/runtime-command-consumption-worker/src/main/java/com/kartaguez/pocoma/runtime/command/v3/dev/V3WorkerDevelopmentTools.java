@@ -362,9 +362,7 @@ public final class V3WorkerDevelopmentTools {
             throw new IllegalStateException("explicit real IdentityRequest required");
     }
 
-    static void injectIdentity(V3ConsumptionWorkerSettings settings, Path intention)
-            throws Exception {
-        realIdentity(settings);
+    static IdentityRequest internalRequest(Path intention) throws Exception {
         var p = protectedProperties(intention);
         var requester =
                 new ExternalIdentity(
@@ -376,12 +374,27 @@ public final class V3WorkerDevelopmentTools {
         UUID id = UUID.fromString(p.getProperty("request-id"));
         var time = Instant.parse(p.getProperty("created-at"));
         String token = p.getProperty("binding-token");
-        // Fingerprint is bound to all supplied bytes; never printed or used as external consent.
-        String fingerprint =
-                HexFormat.of()
-                        .formatHex(
-                                java.security.MessageDigest.getInstance("SHA-256")
-                                        .digest(Files.readAllBytes(intention)));
+        // Canonical decoded intention; file layout/comments never change provenance.
+        var digest = java.security.MessageDigest.getInstance("SHA-256");
+        for (String field :
+                Arrays.asList(
+                        id.toString(),
+                        requester.issuer(),
+                        requester.subject(),
+                        p.getProperty("operation"),
+                        target.issuer(),
+                        target.subject(),
+                        token,
+                        time.toString())) {
+            byte[] bytes =
+                    field == null ? null : field.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            digest.update(
+                    java.nio.ByteBuffer.allocate(4)
+                            .putInt(bytes == null ? -1 : bytes.length)
+                            .array());
+            if (bytes != null) digest.update(bytes);
+        }
+        String fingerprint = HexFormat.of().formatHex(digest.digest());
         var request =
                 new IdentityRequest(
                         id,
@@ -399,6 +412,14 @@ public final class V3WorkerDevelopmentTools {
                                 time,
                                 Map.of("scope", "internal-test-only"),
                                 IdentityRequest.Origin.CONTROLLED_INTERNAL));
+        return request;
+    }
+
+    static void injectIdentity(V3ConsumptionWorkerSettings settings, Path intention)
+            throws Exception {
+        realIdentity(settings);
+        var request = internalRequest(intention);
+        UUID id = request.requestId();
         String role = identifier(required("POCOMA_I5_INJECTOR_ROLE"));
         if (role.equals(settings.writeBusiness().username()))
             throw new IllegalArgumentException("distinct injector required");

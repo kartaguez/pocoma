@@ -84,8 +84,8 @@ target.subject=<same subject for Registration>
 ```
 
 Link/Unlink use their exact target and a `binding-token` in that private file.
-The request and captured provenance are immutable. Same UUID plus exactly the same
-file/intention observes the original request/result; changed intention under that
+The request and captured provenance are immutable. Same UUID plus the same decoded
+intention/provenance (including its original timestamp), independently of file layout, observes the original request/result; changed intention under that
 UUID is refused. Insertion creates PENDING only, never a slot. `verify-identity
 --request-id <UUID>` observes terminal evidence without exposing a token/UserId.
 
