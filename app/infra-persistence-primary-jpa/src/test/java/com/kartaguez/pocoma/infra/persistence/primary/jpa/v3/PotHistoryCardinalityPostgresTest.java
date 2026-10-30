@@ -126,11 +126,13 @@ class PotHistoryCardinalityPostgresTest {
                                                     "select 1 where 1 in (:ids)",
                                                     Map.of("ids", Arrays.asList(revisions)),
                                                     Integer.class));
+                    System.out.println(
+                            "OLD_EXPANSION_CAUSE " + oldExpansion.getMostSpecificCause());
                     assertTrue(
                             oldExpansion
                                     .getMostSpecificCause()
                                     .getMessage()
-                                    .replace(",", "")
+                                    .replaceAll("\\D", "")
                                     .contains("65535"));
                     return null;
                 });
