@@ -1,5 +1,15 @@
 # Pocoma V3 — Canon et feuille de route
 
+**Arbitrage humain L3/I1 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
+GO I2**, [décision et portée](L3_I1_Arbitration_and_I2_GO.md). Les 35 nouveaux
+tests I1 sont PASS ; la gate COMMAND + Architecture reste FAIL (`i5_r05`,
+`i5_r12`), la contribution Architecture ciblée ne certifie pas sa gate canonique
+et I1 LOCAL BOUNDED PASS reste non prononcé. Démarrage I2 autorisé uniquement
+pour l'autorité PostgreSQL Identity et les preuves du plan L3. Aucun changement
+des acceptations L1/L2, aucune certification globale ou de disponibilité Worker,
+aucune dispense des gates ultérieures. Cette décision prévaut sur les anciennes
+mentions de cadrage L3 ou d'arrêt avant I2 pour la progression autorisée.
+
 **Correctifs transverses L1/L2 du 30-10-2026 :** [rapport correctif borné](L1L2_Targeted_Corrections_Report.md). Corrections de l'arité JDBC et de la garde Identity ; observation Discovery traitée sans changement de timeout. **CLOSED WITH EXPLICIT RESERVATIONS** : deux findings FIXED, gate composée COMMAND + Architecture réussie sur le périmètre autorisé ; exclusion humaine nominative des seules campagnes I5 `i5_r05` et `i5_r12`, conservées NOT RUN, SKIP historique et réserve de couverture globale. Aucun développement L3, aucun changement des acceptations L1/L2, de G1/G2/G3 ou des réserves I5.
 
 **Décision humaine du 30-10-2026 : L2 — ACCEPTED WITH EXPLICIT RESERVATIONS, officiellement clos.** [Clôture documentaire unique](L2_Documentary_Closure.md) : I1–I4 CLOSED / LOCAL BOUNDED PASS (réserves I3 conservées), I5 CLOSED BY HUMAN ACCEPTANCE WITH AVAILABILITY RESERVE, I6 COMPLETED ; I7 est une revue indépendante favorable sur le périmètre examiné, non exhaustive. **G1/G2 INCONCLUSIVE ; G3 NOT PASSED / NOT COMPLETED.** Acceptation humaine distincte de PASS technique global ; R-L2-01 à R-L2-05 ouvertes, aucun GO production ni certificat de release V3. **Passage à L3 autorisé sous son propre cadrage, ses critères de vérification et ses décisions d'implémentation ; prochaine intervention : cadrage L3 — Identity uniquement.** Cette décision prévaut pour les statuts de programme sur les mentions historiques ci-dessous, sans réécriture des résultats ni réouverture d'I5.

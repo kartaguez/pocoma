@@ -1,5 +1,11 @@
 # Pocoma V3 — L3 Identity — Rapport I1
 
+**Statut courant après arbitrage humain du 30-10-2026 : I1 ACCEPTED WITH EXPLICIT
+RESERVATIONS — GO I2**, selon la [décision enregistrée](L3_I1_Arbitration_and_I2_GO.md).
+I1 LOCAL BOUNDED PASS reste non prononcé ; les résultats et la gate FAIL
+ci-dessous sont conservés. Les mentions d'arrêt avant I2 décrivent la livraison
+historique et sont supplantées par ce GO pour la seule autorisation de poursuite.
+
 **30 octobre 2026 — I1 implémenté ; gates obligatoires non satisfaites.**
 
 Verdict **I1 LOCAL BOUNDED PASS : NON PRONONCÉ**. Les contrats et tests I1 sont

@@ -2,9 +2,10 @@
 
 ## Programme V3 courant
 
-- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS, officiellement clos le 30-10-2026 ; L3 DESIGN PENDING, cadrage autorisé ; L4–L8 DESIGN PENDING.
+- [Plan directeur L0–L8](v3/V3_Implementation_Master_Plan.md) : point d’entrée opérationnel unique ; L0/L1 ACCEPTED dans leur portée interne ; L2 ACCEPTED WITH EXPLICIT RESERVATIONS ; L3 en réalisation, I1 ACCEPTED WITH EXPLICIT RESERVATIONS et GO I2 limité à l'autorité PostgreSQL Identity ; L4–L8 DESIGN PENDING.
+- [Arbitrage L3/I1 et GO I2](v3/L3_I1_Arbitration_and_I2_GO.md) : 35 nouveaux tests PASS, gate COMMAND + Architecture FAIL (`i5_r05`, `i5_r12`), aucun I1 LOCAL BOUNDED PASS ; réserves et gates ultérieures conservées.
 - [Canon et SPEC](v3/V3_Canon_and_Roadmap.md) : décisions normatives V3.
-- [Clôture officielle L2](v3/L2_Documentary_Closure.md) : décision humaine, statuts I1–I7, réserves R-L2-01 à R-L2-05, SHAs testés et transition L3. G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. [Plan L2](v3/L2_Design_and_Verification_Plan.md), [dossier historique I6](v3/L2_I6_I7_Consolidation.md) et [récupération des preuves](testing/Evidence_Recovery.md). Prochaine intervention : cadrage L3 — Identity uniquement.
+- [Clôture officielle L2](v3/L2_Documentary_Closure.md) : décision humaine, statuts I1–I7, réserves R-L2-01 à R-L2-05, SHAs testés et transition L3. G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; aucun PASS technique global ni GO production. [Plan L2](v3/L2_Design_and_Verification_Plan.md), [dossier historique I6](v3/L2_I6_I7_Consolidation.md) et [récupération des preuves](testing/Evidence_Recovery.md). La progression L3 courante est portée par le plan directeur et l'arbitrage I1 ci-dessus.
 - [Clôture L1](v3/L1_Documentary_Closure.md), [plan L1](v3/L1_Design_and_Verification_Plan.md), [rapport final](v3/L1_E_Execution_Report.md) et [manifeste historique](v3/L1_Proof_Manifest.json) : preuves et limites, sans certificat V3 complet.
 
 ## Architecture historique encore livrée

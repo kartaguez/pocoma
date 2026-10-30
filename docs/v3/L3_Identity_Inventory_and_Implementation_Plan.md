@@ -1,5 +1,12 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
+**État courant au 30-10-2026 : I1 ACCEPTED WITH EXPLICIT RESERVATIONS — GO I2.**
+L'[arbitrage humain](L3_I1_Arbitration_and_I2_GO.md) autorise I2 uniquement,
+selon le périmètre et les preuves prévus ci-dessous. I1 est implémenté ; sa gate
+COMMAND + Architecture reste FAIL, aucun I1 LOCAL BOUNDED PASS. Les mentions
+« plan non exécuté / aucun GO » ci-dessous décrivent la préparation historique ;
+les clauses techniques restent applicables. I3–I5 restent soumis à leurs GO.
+
 **30 octobre 2026 — READY FOR IMPLEMENTATION GO — PLAN NON EXÉCUTÉ.**
 
 Référence examinée : `kartaguez/pocoma`, branche `feat/v3-architecture`,

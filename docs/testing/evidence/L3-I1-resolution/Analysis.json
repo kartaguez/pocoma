@@ -1,0 +1,322 @@
+{
+  "verdict": "I1 NOT CLOSED",
+  "audited_sha": "02c7bfbf85936f1f1a633e9097bc2b49f878708e",
+  "baseline": "140d13c3101a4e297bdea5141d167d189b7dcd02",
+  "new_maven_executions": 0,
+  "new_temporal_campaigns": 0,
+  "integrity": "PASS for listed evidence checks; not an application gate PASS",
+  "original_runs": [
+    {
+      "name": "local",
+      "command": "./mvnw -pl domain-user-identity,contracts-registration,engine-consume-registration -am test",
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 109,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive_sha256": "73d5d0ba843500233c477ee7b2342bc440bfe44839d7ed8add7a91c5daaa906b"
+    },
+    {
+      "name": "local-final",
+      "command": "./mvnw -pl domain-user-identity,contracts-registration,engine-consume-registration -am test",
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 109,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive_sha256": "3b38350eebd011c3f63110a4f243026e94da9bd647bef409f1cd6c02c1c63a17"
+    },
+    {
+      "name": "gates",
+      "command": "./mvnw -pl runtime-command-consumption-worker,architecture-tests -am test",
+      "build": "FAILURE",
+      "totals": {
+        "tests": 1795,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 1
+      },
+      "archive_sha256": "b620bbc0efb8a7c8ad1d4d0b8528f81195b0e1eae1ef649ab957cb5162753297"
+    },
+    {
+      "name": "architecture-feedback",
+      "command": "./mvnw -pl architecture-tests -am -Dtest=com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "build": "SUCCESS",
+      "totals": {
+        "tests": 159,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "archive_sha256": "0de93ae0a7218e10d5c939bffcb55ce67057d49b070df9b321de54e32163e377"
+    }
+  ],
+  "required_i1_tests": {
+    "com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest": 17,
+    "com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest": 8,
+    "com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest": 10
+  },
+  "failures": {
+    "i5_r05": {
+      "seconds": "19.009",
+      "message": "B missing independent available window 98f7268d-d340-581c-b83d-010926223e14/1 ==> expected: <true> but was: <false>",
+      "stack": "org.opentest4j.AssertionFailedError: B missing independent available window 98f7268d-d340-581c-b83d-010926223e14/1 ==> expected: <true> but was: <false>\n\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)\n\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)\n\tat org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:69)\n\tat org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:41)\n\tat org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:228)\n\tat com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres$Journal.verify(I5TemporalV2Postgres.java:520)\n\tat com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:778)\n\tat com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:551)\n\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r05(V3WorkerResourcesPostgresTest.java:1948)\n",
+      "physical_schema": "i5_3eb62a006d624ca4948c922cd0e74fad"
+    },
+    "i5_r12": {
+      "seconds": "94.762",
+      "message": "runtime condition deadline ==> expected: <true> but was: <false>",
+      "stack": "org.opentest4j.AssertionFailedError: runtime condition deadline ==> expected: <true> but was: <false>\n\tat org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)\n\tat org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)\n\tat org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:69)\n\tat org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:41)\n\tat org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:228)\n\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.await(V3WorkerPostgresTest.java:79)\n\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest.await(V3WorkerPostgresTest.java:73)\n\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerPostgresTest$Runtime.close(V3WorkerPostgresTest.java:553)\n\tat com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Postgres.campaign(I5TemporalV2Postgres.java:947)\n\tat com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.i5_r12(V3WorkerResourcesPostgresTest.java:896)\n",
+      "physical_schema": "i5_6088fc72773a4000a56038af96f102d0"
+    }
+  },
+  "auxiliary": {
+    "attribution": "Surviving I1 target files captured after audit; not originally sealed in Verification.json. XML cases match original sealed observations and log. Physical traces are auxiliary, not a new execution.",
+    "files": [
+      {
+        "source": "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+        "original_mtime_ns": 1793360790790667493,
+        "file": "auxiliary/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml.gz",
+        "raw_sha256": "5526242a912a796b3de82184d3c44a76b1fe6929cb8d4e64ea7c09741dbd3dfe",
+        "compressed_sha256": "a471762ad1b2606789a04155db50e84eb704f80f4b5b41c93e74d036e7f96a1f"
+      },
+      {
+        "source": "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-final.txt",
+        "original_mtime_ns": 1793360570664943125,
+        "file": "auxiliary/temporal-v2-W1-B1-MW4-final.txt.gz",
+        "raw_sha256": "7dad58c8f62d6d1d3a16a152c096d4a871d3028af50a7fe9c0d9bdef11708326",
+        "compressed_sha256": "24f83d35e64d87dad521036668315ffd9ae275ab7a91179585219e7d2dc62354"
+      },
+      {
+        "source": "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v3-W2-B32-MW4-final.txt",
+        "original_mtime_ns": 1793360775503607021,
+        "file": "auxiliary/temporal-v3-W2-B32-MW4-final.txt.gz",
+        "raw_sha256": "d04d5e7a3d310662a584497711642f9270dd2efd4010d5aa3f0e81d97afff315",
+        "compressed_sha256": "ca47cd7f746d6f74b4a1b2873f79d2c22e6781aa719c5fc5cd52f2b6e4e8a975"
+      }
+    ]
+  },
+  "baseline_comparison": {
+    "changed_files": [
+      "A\tapp/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/IdentityRequest.java",
+      "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/BindingToken.java",
+      "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentity.java",
+      "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentityId.java",
+      "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionResult.java",
+      "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitions.java",
+      "A\tapp/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionsTest.java",
+      "A\tapp/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityValueContractsTest.java",
+      "M\tapp/engine-consume-registration/pom.xml",
+      "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityAuthority.java",
+      "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestObservation.java",
+      "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestStore.java",
+      "A\tapp/engine-consume-registration/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestContractTest.java"
+    ],
+    "unchanged_tracked_app_files": 1227,
+    "unchanged_files_digest": "f0df213ab06a49a2b1d902b4bdfc56b32bb0630570aee726e7de4021057c9b8e",
+    "new_execution_on_baseline": "NOT RUN; no formal scheduling equivalence claimed"
+  },
+  "histories": [
+    {
+      "folder": "L2-I5-temporal-v2",
+      "tested_sha": "5eab2e94379ef40c3f9ff54c14a4d04a8f13dcbd",
+      "archive_sha256": "fa510d8d477ce65dbf16c723c69c52c5569f711d0f078944da6a4c44084a7fe3",
+      "cases": [
+        {
+          "method": "i5_r05",
+          "seconds": "53.598",
+          "status": "PASS"
+        },
+        {
+          "method": "i5_r12",
+          "seconds": "21.747",
+          "status": "FAIL"
+        }
+      ],
+      "verdict": "FAIL",
+      "members": [
+        "receipt.json",
+        "W1-B1-MW4/maven.log",
+        "W1-B1-MW4/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+        "W1-B1-MW4/temporal-v2-W1-B1-MW4-final.txt",
+        "W1-B1-MW4/temporal-v2-W1-B1-MW4-stage1.txt",
+        "W1-B1-MW4/temporal-v2-W1-B1-MW4-stage2.txt",
+        "W2-B32-MW4/maven.log",
+        "W2-B32-MW4/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+        "W2-B32-MW4/temporal-v2-W2-B32-MW4-final.txt",
+        "deterministic/pocoma-i5-v2-deterministic-prefreeze.log",
+        "deterministic/TEST-com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorkerTest.xml",
+        "deterministic/TEST-com.kartaguez.pocoma.runtime.command.v3.I5TemporalV2Test.xml"
+      ]
+    },
+    {
+      "folder": "L2-I5-temporal-final",
+      "tested_sha": "a2133b6b43a74999374bc26a222f70c7500fadda",
+      "archive_sha256": "3432e9c930a4a6aa0f69de590fda2b0ca0747e46a34e8d297b86a417c86a46e2",
+      "cases": [
+        {
+          "method": "i5_r12",
+          "seconds": "96.788",
+          "status": "FAIL"
+        }
+      ],
+      "verdict": "INCONCLUSIVE / availability reserve",
+      "members": [
+        "W2-B32-MW4/maven.log",
+        "W2-B32-MW4/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
+        "W2-B32-MW4/temporal-v3-W2-B32-MW4-final.txt",
+        "W2-B32-MW4/temporal-v3-W2-B32-MW4-stage1.txt",
+        "W2-B32-MW4/temporal-v3-W2-B32-MW4-stage2.txt",
+        "prefreeze/TEST-com.kartaguez.pocoma.runtime.command.v3.I5PhysicalWindowTest.xml",
+        "prefreeze/closure-classification.json",
+        "prefreeze/frozen.diff",
+        "prefreeze/pocoma-i5-final-before.json",
+        "prefreeze/pocoma-i5-final-extract.py",
+        "prefreeze/pocoma-i5-final-helper-2.log",
+        "prefreeze/pocoma-i5-final-helper-3.log",
+        "prefreeze/pocoma-i5-final-helper.log",
+        "prefreeze/pocoma-i5-final-metrics.json",
+        "prefreeze/pocoma-i5-final-provenance.txt",
+        "prefreeze/pocoma-i5-main-status-before.txt",
+        "receipt.json"
+      ]
+    }
+  ],
+  "unchanged_historical_semantic_inputs_sha256": {
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5PhysicalWindow.java": "f1c680879936df3243f857769645eee2d32cf4fa4020e98753e91e37e90b7d2d",
+    "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/I5TemporalV2Test.java": "48ef57cc48fc9be99535186eb1be8ff6df72fd90a1474777cce9d8a0e83d25a3",
+    "app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionWorkerSettings.java": "00803f76951fb8996165b9fbcf85d46e90ac8aa83afe9cc5f58bd255d67cba4f",
+    "docs/testing/evidence/L2-I5-temporal-v2/temporal-contract-v2.properties": "b37ccf05c97813ad135b25643c78bad8a1d0893db75eaf3ed9e9778edc82d478",
+    "docs/testing/evidence/L2-I5-temporal-final/temporal-contract-v3.properties": "a17342a7a6edcaf72838168614a70402d48c46096f733753c306884d658e73ac"
+  },
+  "historical_to_I1_app_delta": [
+    "M\tapp/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3ConsumptionEngineArchitectureTest.java",
+    "A\tapp/contracts-registration/src/main/java/com/kartaguez/pocoma/contracts/registration/v3/IdentityRequest.java",
+    "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/BindingToken.java",
+    "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentity.java",
+    "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/ExternalUserIdentityId.java",
+    "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionResult.java",
+    "A\tapp/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitions.java",
+    "A\tapp/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitionsTest.java",
+    "A\tapp/domain-user-identity/src/test/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityValueContractsTest.java",
+    "M\tapp/engine-consume-registration/pom.xml",
+    "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityAuthority.java",
+    "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestObservation.java",
+    "A\tapp/engine-consume-registration/src/main/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestStore.java",
+    "A\tapp/engine-consume-registration/src/test/java/com/kartaguez/pocoma/engine/consume/registration/v3/IdentityRequestContractTest.java",
+    "M\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/JdbcPotHistoryAdapter.java",
+    "M\tapp/infra-persistence-primary-jpa/src/main/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryRows.java",
+    "A\tapp/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/PotHistoryCardinalityPostgresTest.java",
+    "M\tapp/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/WriteRevisionPerformancePostgresTest.java"
+  ],
+  "historical_classpath_comparison": {
+    "jar_entries": 142,
+    "module_entries": 39,
+    "ordered_jars_equal": true,
+    "ordered_module_paths_equal_after_worktree_normalization": true,
+    "toolchain": {
+      "java.version": [
+        "21",
+        "21"
+      ],
+      "java.vendor": [
+        "Eclipse Adoptium",
+        "Eclipse Adoptium"
+      ],
+      "os.name": [
+        "Mac OS X",
+        "Mac OS X"
+      ],
+      "os.version": [
+        "27.0",
+        "27.0"
+      ],
+      "os.arch": [
+        "aarch64",
+        "aarch64"
+      ],
+      "user.language": [
+        "fr",
+        "fr"
+      ],
+      "file.encoding": [
+        "UTF-8",
+        "UTF-8"
+      ]
+    },
+    "limit": "Same ordered paths and versions, not a hash proof of JAR or class bytes; process load, scheduling and full-suite order are not equivalent."
+  },
+  "r05": {
+    "key": "98f7268d-d340-581c-b83d-010926223e14/1",
+    "stage": 1,
+    "store_ns": [
+      2518166614111458,
+      2518166615034958
+    ],
+    "attempt": "Attempt[retryDeadlines={98f7268d-d340-581c-b83d-010926223e14/1=0},w=0,WRITE,due=2518166611586250,start=2518166613298083,store=2518166614111458..2518166615034958,end=2518166615160125,CONFIRMED,candidates=[PartitionLease[consumptionId=ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], partitionId=1, ownerToken=3aaf77f4-700e-4916-b6a0-bca2e313ffa5, ownedUntil=2026-10-30T11:44:09.542521Z]],returned=[PartitionLease[consumptionId=ConsumptionId[value=98f7268d-d340-581c-b83d-010926223e14], partitionId=1, ownerToken=3aaf77f4-700e-4916-b6a0-bca2e313ffa5, ownedUntil=2026-10-30T11:44:19.546830Z]]]",
+    "overlapping_transactions": [
+      [
+        "WRITE",
+        "v3-renew-WRITE-2-0",
+        "2518166613309958",
+        "2518166615148375",
+        "false",
+        "false",
+        "false",
+        "6807",
+        "5833",
+        "COMMITTED",
+        "98f7268d-d340-581c-b83d-010926223e14/1"
+      ],
+      [
+        "WRITE",
+        "v3-discovery-0",
+        "2518166613998583",
+        "2518166615125083",
+        "false",
+        "false",
+        "false",
+        "6806",
+        "5834",
+        "COMMITTED",
+        "98f7268d-d340-581c-b83d-010926223e14/1"
+      ]
+    ],
+    "candidate": [
+      "98f7268d-d340-581c-b83d-010926223e14",
+      "1",
+      "3aaf77f4-700e-4916-b6a0-bca2e313ffa5",
+      "2026-10-30T11:44:09.542521Z"
+    ],
+    "returned": [
+      "98f7268d-d340-581c-b83d-010926223e14",
+      "1",
+      "3aaf77f4-700e-4916-b6a0-bca2e313ffa5",
+      "2026-10-30T11:44:19.546830Z"
+    ],
+    "conclusion": "Required independent availability witness missing; same-token extension observed. Envelope overlap is not proof of a row lock at the exact CAS."
+  },
+  "r12": {
+    "stages": [
+      1,
+      2
+    ],
+    "excessive_witnesses": 4,
+    "journal_sealed": true,
+    "prepared_before_or_at": "2026-10-30T11:45:04.119207+00:00",
+    "before_release": "2026-10-30T12:46:15.496348+01:00",
+    "preparation_retention_lower_bound_seconds": 71.377141,
+    "business_transaction_timeout_ms": 65000,
+    "business_config_sha256": "5ab846bb4908db8ed41e69d9d0c6550313af8fa44744bf34fab4ce50244a1a98",
+    "conclusion": "Fixture retains preparations beyond physical lifetime; transaction-timeout errors and STOPPED deadline failure observed. Exact residual worker responsibility after release not captured."
+  },
+  "required_gate": "COMMAND + global architecture, unfiltered; prior FAIL and architecture SKIPPED unchanged",
+  "full_reactor": "NOT REQUIRED / NOT RUN",
+  "database": "No new execution or migration",
+  "unexpected_slice_crossing": "NONE",
+  "independent_audit": "User-supplied CODE REVIEW PASS; no separate complete audit artifact found in inspected local files"
+}
