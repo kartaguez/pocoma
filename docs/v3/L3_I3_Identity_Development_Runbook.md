@@ -40,6 +40,10 @@ Administrative environment uses the existing `POCOMA_I5_ADMIN_URL`,
 `POCOMA_I5_PSQL_CONTAINER` must identify the same disposable TCP server. Preparation
 refuses existing roles/databases before its first DDL. It installs WRITE V1–V6,
 READ technical V1, canonical routing and explicit real grants, without a fixture.
+The wrapper passes `identity_read_role` to the real-mode grant scripts. Direct
+administrative psql use must supply that exact runtime READ role too. PUBLIC
+rights on Identity tables/columns, or Identity WRITE rights held by the READ
+principal, are refused rather than normalized.
 
 Build from `app/`. The normal packaging command is:
 
@@ -50,6 +54,18 @@ Build from `app/`. The normal packaging command is:
 A failed historical transitive gate is a failed gate; do not retry it unchanged to
 obtain a different result. A filtered packaging contribution must be identified as
 such in its receipt and never represented as canonical PASS.
+
+For a reproducible internal DEV build, this bounded packaging command runs the
+I3 participant, PostgreSQL, composition and tool tests (Docker required):
+
+```sh
+./mvnw -pl runtime-command-consumption-worker -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3WorkerDevelopmentToolsTest -Dsurefire.failIfNoSpecifiedTests=false package
+```
+
+Record it as filtered I3 feedback/packaging. Keep the unfiltered COMMAND,
+monolith and Architecture gate verdict alongside it; this command does not
+satisfy that gate or lift i5_r05/i5_r12. The execution report records the packaging
+commands actually used for the delivered jar.
 
 From the repository root, with your private external configuration:
 
@@ -84,6 +100,8 @@ target.subject=<same subject for Registration>
 ```
 
 Link/Unlink use their exact target and a `binding-token` in that private file.
+These inputs follow Java Properties syntax, including Unicode escapes for keys
+that cannot be represented directly in its ISO-8859-1 input encoding.
 The request and captured provenance are immutable. Same UUID plus the same decoded
 intention/provenance (including its original timestamp), independently of file layout, observes the original request/result; changed intention under that
 UUID is refused. Insertion creates PENDING only, never a slot. `verify-identity

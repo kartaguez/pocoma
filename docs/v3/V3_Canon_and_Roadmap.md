@@ -1,5 +1,18 @@
 # Pocoma V3 — Canon et feuille de route
 
+**Livraison L3/I3 du 30-10-2026 : IMPLEMENTED — R-ID interne démontré.**
+[Rapport, gates, commits et limites](L3_I3_Execution_Report.md),
+[runbook DEV contrôlé](L3_I3_Identity_Development_Runbook.md).
+IdentityRequest est raccordée au vrai moteur L2 pour Registration/Link/Unlink,
+avec V6/grants, les deux racines et un exec jar redémarré sans reset. Les 37 cas
+I3 sont PASS ; la gate finale est FAIL (`i5_r12`, 1 859 tests, 1 failure, 0 error,
+1 skip historique), Architecture SKIPPED. Les FAIL/SKIP/INCONCLUSIVE sont conservés
+dans le rapport ;
+aucune acceptation indépendante, certification externe, levée des réserves
+`i5_r05`/`i5_r12` ou autorisation I4/I5 n'est déduite de cette livraison.
+Les formulations « I3 non commencé par cette publication » ci-dessous décrivent
+la publication historique de l'arbitrage I2, antérieure à cette implémentation.
+
 **Arbitrage humain L3/I2 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
 GO borné L3/I3 après publication documentaire**, [décision et réserves](L3_I2_Acceptance_Decision_2026-10-30.md).
 Les 27 tests I2 PostgreSQL et les 21 contrôles d'architecture ciblés sont PASS

@@ -1,0 +1,1205 @@
+{
+  "start_head": "6f0cf7d98f402ad29400e879c1efee75f147537a",
+  "code_head": "3ae0966baacc81ffc23aac9c1d9c2f29af578fcf",
+  "runs": [
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/compile.log.gz",
+      "raw_sha256": "0afbd0e9d6153998cfba13d3d3181229b6c526bcc65d077408f6fd7f7981a9fb",
+      "archived_plain_sha256": "0afbd0e9d6153998cfba13d3d3181229b6c526bcc65d077408f6fd7f7981a9fb",
+      "compressed_sha256": "7627f04c52b33bd250af963866a6832f242fe310eca501d8a2a3e521a7ae0436",
+      "redacted": false,
+      "original_bytes": 80726,
+      "name": "compile",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=IdentityValueContractsTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "initial compilation feedback",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback1.log.gz",
+      "raw_sha256": "8b18a1db91ca1fac820b93862aa5c23fecde61b70210550181a5109cc00c4d93",
+      "archived_plain_sha256": "8b18a1db91ca1fac820b93862aa5c23fecde61b70210550181a5109cc00c4d93",
+      "compressed_sha256": "f8249429216f79d97679105c1e704fcfc3218b8830d947409dd849c98ffddae6",
+      "redacted": false,
+      "original_bytes": 71223,
+      "name": "feedback1",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "test compilation failures; corrected generic inference and claim partition lookup",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [
+        "pocoma-infra-projection-validation-networknt",
+        "pocoma-orchestrator-poll-consumption",
+        "pocoma-supra-consume-event",
+        "pocoma-supra-consume-binding",
+        "pocoma-supra-http-write",
+        "pocoma-supra-http-read",
+        "pocoma-composition-runtime-spring",
+        "pocoma-runtime-command-consumption-worker"
+      ],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback2.log.gz",
+      "raw_sha256": "e318994ef628376c5257daa5150205db285fa6de47df83386158fdc566e49f8e",
+      "archived_plain_sha256": "25d1585eeae3d5845de4272cd32423442a01ed4fb7b2e13d455753cfe836d66a",
+      "compressed_sha256": "c6b49572bf9c3756c79946bf3b6948ff590c62d8a94dee4293024f66bef66588",
+      "redacted": true,
+      "original_bytes": 93379,
+      "name": "feedback2",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 11,
+        "failures": 1,
+        "errors": 1,
+        "skips": 0
+      },
+      "note": "one failure and one error in new test inputs/oracles: AVAILABLE state and exact guard exception",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [
+        "pocoma-infra-projection-validation-networknt",
+        "pocoma-orchestrator-poll-consumption",
+        "pocoma-supra-consume-event",
+        "pocoma-supra-consume-binding",
+        "pocoma-supra-http-write",
+        "pocoma-supra-http-read",
+        "pocoma-composition-runtime-spring",
+        "pocoma-runtime-command-consumption-worker"
+      ],
+      "failed_test_names": [
+        "IdentityRequestExecutionPostgresTest.l3_observation_corruption",
+        "IdentityRequestExecutionPostgresTest.l3_retry_quarantine"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback3.log.gz",
+      "raw_sha256": "d618f895c25c789f8328ad57962e0c92a81abbf66410cc2fff2c6eafc6bd81c1",
+      "archived_plain_sha256": "d618f895c25c789f8328ad57962e0c92a81abbf66410cc2fff2c6eafc6bd81c1",
+      "compressed_sha256": "800e9d7529e1f32383be6633475d8576d75a26d02428b609a806e026f9573f21",
+      "redacted": false,
+      "original_bytes": 69494,
+      "name": "feedback3",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "test compilation failure: non-final lambda capture",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [
+        "pocoma-infra-projection-validation-networknt",
+        "pocoma-orchestrator-poll-consumption",
+        "pocoma-supra-consume-event",
+        "pocoma-supra-consume-binding",
+        "pocoma-supra-http-write",
+        "pocoma-supra-http-read",
+        "pocoma-composition-runtime-spring",
+        "pocoma-runtime-command-consumption-worker"
+      ],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback4.log.gz",
+      "raw_sha256": "16c6353055387825aee50b8bbf3b94d1a283dd2eff32664b3549798c940dbe44",
+      "archived_plain_sha256": "16c6353055387825aee50b8bbf3b94d1a283dd2eff32664b3549798c940dbe44",
+      "compressed_sha256": "7c5deb47c4b5576844473f0f98b767b9387a3d80f92cc8158c280943c4b17b22",
+      "redacted": false,
+      "original_bytes": 118607,
+      "name": "feedback4",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 2,
+        "skips": 0
+      },
+      "note": "two test errors: DataSourceTransactionManager nesting not disabled; L2 guard correctly refused",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [
+        "pocoma-infra-projection-validation-networknt",
+        "pocoma-orchestrator-poll-consumption",
+        "pocoma-supra-consume-event",
+        "pocoma-supra-consume-binding",
+        "pocoma-supra-http-write",
+        "pocoma-supra-http-read",
+        "pocoma-composition-runtime-spring",
+        "pocoma-runtime-monolith",
+        "pocoma-runtime-command-consumption-worker"
+      ],
+      "failed_test_names": [
+        "IdentityPrivilegesPostgresTest.l3_effective_privileges",
+        "IdentityRequestExecutionPostgresTest.l3_unknown_commit"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback5.log.gz",
+      "raw_sha256": "c653552b51c75effd370fa06f6d25c6ee88ffafd5bb315e186f5a3f31ed194a9",
+      "archived_plain_sha256": "c653552b51c75effd370fa06f6d25c6ee88ffafd5bb315e186f5a3f31ed194a9",
+      "compressed_sha256": "60df5818d4f3172c59f6375d17db78dc192f9b0b09a7deff88f2aa89ab441944",
+      "redacted": false,
+      "original_bytes": 527465,
+      "name": "feedback5",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "bounded feedback before added adverse variants",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/feedback6.log.gz",
+      "raw_sha256": "5e81d3613ce1916d60d6a18ec0d380458f3fd4e58d0523a014390e87c83f9314",
+      "archived_plain_sha256": "5e81d3613ce1916d60d6a18ec0d380458f3fd4e58d0523a014390e87c83f9314",
+      "compressed_sha256": "b5885e5203d7031ae784908f6c0885e7a562d7b68403f6d0b6f1e5f09add9b5f",
+      "redacted": false,
+      "original_bytes": 555456,
+      "name": "feedback6",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,V3IdentityAuthorityArchitectureTest,V3ConsumptionEngineArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 43,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "bounded feedback including targeted architecture; later tool/provenance additions listed separately",
+      "tested_input_attribution": "uncommitted implementation draft; not an execution of the final code head",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/package.log.gz",
+      "raw_sha256": "12cd2efd3abf26b76e89d1e2a3ea8fc7512afa7ea05c2a95ed2c580fd35f1ff0",
+      "archived_plain_sha256": "12cd2efd3abf26b76e89d1e2a3ea8fc7512afa7ea05c2a95ed2c580fd35f1ff0",
+      "compressed_sha256": "9e4bd263f3ade0ef99af91514a65710a9fd93d0add1745a24d1a5c3c786e35b3",
+      "redacted": false,
+      "original_bytes": 380484,
+      "name": "package",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=ExecuteIdentityRequestTest,IdentityRequestExecutionPostgresTest,IdentityPublicationPostgresTest,IdentityDiscoveryPostgresTest,IdentityPrivilegesPostgresTest,V3IdentityRequestCompositionPostgresTest -Dsurefire.failIfNoSpecifiedTests=false package",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 33,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "bounded packaging contribution; 27 new PG variants, 3 pure participant cases, 3 runtime cases",
+      "tested_input_attribution": "f905a3c9b93d9aac8463dc76a786f8c30a345329",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/canonical-interrupted.log.gz",
+      "raw_sha256": "2ca06c294fe3f61c86f95abd6cbf9068d156b2152cae9a534281139caa2cb51d",
+      "archived_plain_sha256": "d5d5eddc449502e2b41451e7f9aaf178d443e67dfd79d169bbaf7e7a1ca41c00",
+      "compressed_sha256": "edae1fb5f80659e1ef9b49af18d4bae3aefe61d38f8862b05c0094c5e7840d91",
+      "redacted": true,
+      "original_bytes": 1978033,
+      "name": "canonical-interrupted",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am test",
+      "cwd": "app/",
+      "exit_code": 143,
+      "status": "INCONCLUSIVE",
+      "completed_class_totals": {
+        "tests": 999,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "INCONCLUSIVE: deliberately interrupted for canonical internal fingerprint correction; no PASS inferred",
+      "tested_input_attribution": "3629af4a2c5fe5ec7abc00af33ecbb74355a468f (same app/scripts contents, gate began before test-only commit)",
+      "skipped_reactor_modules": [
+        "pocoma-infra-projection-validation-networknt",
+        "pocoma-orchestrator-poll-consumption",
+        "pocoma-supra-consume-event",
+        "pocoma-supra-consume-binding",
+        "pocoma-supra-http-write",
+        "pocoma-supra-http-read",
+        "pocoma-composition-runtime-spring",
+        "pocoma-runtime-monolith",
+        "pocoma-runtime-web-api",
+        "pocoma-runtime-event-consumption-worker",
+        "pocoma-runtime-command-result-consumption-worker",
+        "pocoma-runtime-registration-consumption-worker",
+        "pocoma-runtime-binding-consumption-worker",
+        "pocoma-runtime-task-consumption-worker",
+        "pocoma-runtime-command-consumption-worker",
+        "pocoma-architecture-tests"
+      ],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/tools-correction.log.gz",
+      "raw_sha256": "50beaf216d58a04f206666cfe4f99133ec4ae085448facd2dfbdc8d040e52a52",
+      "archived_plain_sha256": "50beaf216d58a04f206666cfe4f99133ec4ae085448facd2dfbdc8d040e52a52",
+      "compressed_sha256": "c924799a1b33b5779ef2e66af65700795a231a3298c189aa4e29d1d3a6d9d126",
+      "redacted": false,
+      "original_bytes": 93228,
+      "name": "tools-correction",
+      "command": "./mvnw -pl runtime-command-consumption-worker -am -Dtest=V3WorkerDevelopmentToolsTest -Dsurefire.failIfNoSpecifiedTests=false package",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "two discriminating private-file/canonical-intention tests; final jar rebuilt",
+      "tested_input_attribution": "970609cd556b08addcec20d77e155144656763dd",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/canonical-before-acl.log.gz",
+      "raw_sha256": "eb05e1d225e6b09e16162a17aeb365e826f9d521a54269f04945888656b0f995",
+      "archived_plain_sha256": "2aa6b4ccd44e28670887df192751bd865ba00628c76fd3e82394742eb9393b60",
+      "compressed_sha256": "a86c597fb8abe098d5bd23aa46c02e7ce9c1fd1d6a92182d3625dd7083488a13",
+      "redacted": true,
+      "original_bytes": 8359687,
+      "name": "canonical-before-acl",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 1859,
+        "failures": 1,
+        "errors": 0,
+        "skips": 1
+      },
+      "note": "970609cd unfiltered gate: FAIL i5_r12; Architecture SKIPPED; preserved before genuine ACL correction",
+      "tested_input_attribution": "970609cd556b08addcec20d77e155144656763dd",
+      "skipped_reactor_modules": [
+        "pocoma-architecture-tests"
+      ],
+      "failed_test_names": [
+        "V3WorkerResourcesPostgresTest.i5_r12"
+      ]
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/acl-correction.log.gz",
+      "raw_sha256": "3581cd04106a2056f1950518e32e86d85ab31c3789cf5f999faf36461ebaf68b",
+      "archived_plain_sha256": "3581cd04106a2056f1950518e32e86d85ab31c3789cf5f999faf36461ebaf68b",
+      "compressed_sha256": "85fbe5c424cf86853bac535d4e3cee40aa5856e97e6fedf70223fd28f6c9b309",
+      "redacted": false,
+      "original_bytes": 627665,
+      "name": "acl-correction",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am '-Dtest=V3WorkerDevelopmentToolsTest,V3IdentityRequestCompositionPostgresTest,V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.architecture.*Test,com.kartaguez.pocoma.architecture.v3.*Test' -Dsurefire.failIfNoSpecifiedTests=false package",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 151,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "Current ACL negatives, both roots and all architecture classes as explicitly filtered structural feedback; not a substitute for the unfiltered gate",
+      "tested_input_attribution": "3ae0966baacc81ffc23aac9c1d9c2f29af578fcf",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/architecture-postgres.log.gz",
+      "raw_sha256": "203e6e3a9451f221a592530f1d07db1262c5f66f473bf236641eea9ffbfe569d",
+      "archived_plain_sha256": "203e6e3a9451f221a592530f1d07db1262c5f66f473bf236641eea9ffbfe569d",
+      "compressed_sha256": "3aab5e963c4c509b94195952c3666b688b05c8a5c46efb36916a758da92f5dff",
+      "redacted": false,
+      "original_bytes": 347044,
+      "name": "architecture-postgres",
+      "command": "./mvnw -pl architecture-tests -am '-Dtest=CommandCompletionE2EPostgresTest,CommandResultConsumptionChainPostgresTest,CommandResultTakeoverRacePostgresTest,DurableEventToProjectionPostgresTest,HistoricalEventRouteEvolutionPostgresTest' -Dsurefire.failIfNoSpecifiedTests=false test",
+      "cwd": "app/",
+      "exit_code": 0,
+      "status": "PASS",
+      "completed_class_totals": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "note": "18 PG cases complement the 144 structural cases; all 28 architecture-module classes covered as filtered feedback",
+      "tested_input_attribution": "3ae0966baacc81ffc23aac9c1d9c2f29af578fcf",
+      "skipped_reactor_modules": [],
+      "failed_test_names": []
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/logs/canonical-final.log.gz",
+      "raw_sha256": "f85ef55f44c6d5f5a2f31b66c6540dfdb34a9136d261bbd57a044de251eec84a",
+      "archived_plain_sha256": "9fd6b3ad0d0319ad7e2999590b0a9516c92c8d11dc1b564755f475153fece261",
+      "compressed_sha256": "6bf2927fbb5bf3b2b131a997fcbbe31ed9b150946a0f6a398cc9becee9c83572",
+      "redacted": true,
+      "original_bytes": 8465602,
+      "name": "canonical-final",
+      "command": "./mvnw -pl runtime-command-consumption-worker,runtime-monolith,architecture-tests -am test",
+      "cwd": "app/",
+      "exit_code": 1,
+      "status": "FAIL",
+      "completed_class_totals": {
+        "tests": 1859,
+        "failures": 1,
+        "errors": 0,
+        "skips": 1
+      },
+      "note": "one final unfiltered composed gate; no unchanged retry",
+      "tested_input_attribution": "3ae0966baacc81ffc23aac9c1d9c2f29af578fcf",
+      "skipped_reactor_modules": [
+        "pocoma-architecture-tests"
+      ],
+      "failed_test_names": [
+        "V3WorkerResourcesPostgresTest.i5_r12"
+      ]
+    }
+  ],
+  "postgres_evidence": [
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_burnable_discovery.txt.gz",
+      "raw_sha256": "9d76bddf02551ad452bca2699a5b6fbe8ae01320e1d8e4c468b735a5711362b7",
+      "archived_plain_sha256": "9d76bddf02551ad452bca2699a5b6fbe8ae01320e1d8e4c468b735a5711362b7",
+      "compressed_sha256": "b4cdd5711ee6974069813c8498ca776647bcea69a7026236efb7f0d33b9e6712",
+      "redacted": false,
+      "original_bytes": 11394
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_discovery_source_slot_race.txt.gz",
+      "raw_sha256": "14f661b430289dad0fa0982a0612c2521cb017d2b6aa3960e3e1aee7dcfc267b",
+      "archived_plain_sha256": "14f661b430289dad0fa0982a0612c2521cb017d2b6aa3960e3e1aee7dcfc267b",
+      "compressed_sha256": "bc8b85d77dbf4b47810756d1093af8baa63d61c85e953e839dde6e2e580c13c3",
+      "redacted": false,
+      "original_bytes": 9391
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityDiscoveryPostgresTest-l3_identity_windows.txt.gz",
+      "raw_sha256": "560415450fb8d7388430e8a6bd30599327afa79dfb3729b3d174acaf5c001e9f",
+      "archived_plain_sha256": "560415450fb8d7388430e8a6bd30599327afa79dfb3729b3d174acaf5c001e9f",
+      "compressed_sha256": "bfacdccd31133ce49479e396d4a864275c1ce7f5b875ccad7c4a528db90fac84",
+      "redacted": false,
+      "original_bytes": 24188
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_effective_privileges.txt.gz",
+      "raw_sha256": "0ecc94af83e61323969689b2db3d502e27a3079402963aab29ef99b7416e02df",
+      "archived_plain_sha256": "0ecc94af83e61323969689b2db3d502e27a3079402963aab29ef99b7416e02df",
+      "compressed_sha256": "aa79d2c0013374659b4e7a7bc0da7702bc3bdd17f59c9b1594ed65f7ef63615f",
+      "redacted": false,
+      "original_bytes": 20753
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_internal_admission_idempotence.txt.gz",
+      "raw_sha256": "5a83d3c0611cd05aedb9ce79e147a6dfafafaa6c2294345253b442b7d5c6acc5",
+      "archived_plain_sha256": "5a83d3c0611cd05aedb9ce79e147a6dfafafaa6c2294345253b442b7d5c6acc5",
+      "compressed_sha256": "690f90001e10e36db599db5067f04264e3c91f790d8280678e5995c861119af1",
+      "redacted": false,
+      "original_bytes": 9279
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPrivilegesPostgresTest-l3_wrong_authority.txt.gz",
+      "raw_sha256": "02a963962663bb001a5c306d1d42b2c85ecf4c1f5c223640e4f47e0811c98c91",
+      "archived_plain_sha256": "02a963962663bb001a5c306d1d42b2c85ecf4c1f5c223640e4f47e0811c98c91",
+      "compressed_sha256": "a16ef03ef0f92699ace6e82bab15ed8c31d34c924ae0e17bb9c54087935d70f3",
+      "redacted": false,
+      "original_bytes": 502
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_constraints_before_close.txt.gz",
+      "raw_sha256": "00f9a05da870d6fe6f211ab2d88b383eb826b2bcd7b6561bcbabdb44b21402da",
+      "archived_plain_sha256": "00f9a05da870d6fe6f211ab2d88b383eb826b2bcd7b6561bcbabdb44b21402da",
+      "compressed_sha256": "2008b19682082269e4b21947917a3b97800c19354f4a5ce188d5fedeb3ac7a0c",
+      "redacted": false,
+      "original_bytes": 14407
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_deferred_commit_checks.txt.gz",
+      "raw_sha256": "de5af8f07ee345430cf3dd9344cfa85d975f35819faea5db4a0c8486aad9582f",
+      "archived_plain_sha256": "de5af8f07ee345430cf3dd9344cfa85d975f35819faea5db4a0c8486aad9582f",
+      "compressed_sha256": "49e9ea9ea741d0c895202a72bc736a7e8e98b3d0a9849e7c40659f88b468a6e4",
+      "redacted": false,
+      "original_bytes": 15216
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_dense_rollback.txt.gz",
+      "raw_sha256": "8bc72c401c9c72676c74119542d33821f8589c192fd16f2b9f3c592f55394098",
+      "archived_plain_sha256": "8bc72c401c9c72676c74119542d33821f8589c192fd16f2b9f3c592f55394098",
+      "compressed_sha256": "874fb3dad8cd3cbe4f6e08774178fd61346f7ced966b1339609029151fffc840",
+      "redacted": false,
+      "original_bytes": 13778
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_identity_batch.txt.gz",
+      "raw_sha256": "1ecf4e49321af56b4c2576d845444b82ea6de4c15bcb8c7f70d064752aa3b71e",
+      "archived_plain_sha256": "1ecf4e49321af56b4c2576d845444b82ea6de4c15bcb8c7f70d064752aa3b71e",
+      "compressed_sha256": "15a309f7af5cfd283d051a62e280a8defad4bc9583b15bc3727412060b44a8f6",
+      "redacted": false,
+      "original_bytes": 21267
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_identity_pair_contention.txt.gz",
+      "raw_sha256": "4b506630124c97e454b6db4c323a4b6947373cc8d8309738d99ffaccafbfc986",
+      "archived_plain_sha256": "4b506630124c97e454b6db4c323a4b6947373cc8d8309738d99ffaccafbfc986",
+      "compressed_sha256": "05879cc88ce87c2dbe446f6710c89e0c60c6ec0b2e4b4466dd08bd00c0d042eb",
+      "redacted": false,
+      "original_bytes": 40191
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_physical_unit.txt.gz",
+      "raw_sha256": "3c3da3a1930acb808b2ac31b064600b8c4d13ad0cd951eca03d7015842999d3c",
+      "archived_plain_sha256": "3c3da3a1930acb808b2ac31b064600b8c4d13ad0cd951eca03d7015842999d3c",
+      "compressed_sha256": "5c8d11aa55007eb41fe10ca73db2febacfba424668e05f491426cdc7587973e2",
+      "redacted": false,
+      "original_bytes": 7207
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_structural_poison_before_counter.txt.gz",
+      "raw_sha256": "6e0d796250ebff960a8cf39fc2ed13c421376a062db426d15d57ab91a54b6e61",
+      "archived_plain_sha256": "6e0d796250ebff960a8cf39fc2ed13c421376a062db426d15d57ab91a54b6e61",
+      "compressed_sha256": "0746ac1456e6265a5b94bec95ab5aa741729be1cf7d9f84d79a4fd063740e047",
+      "redacted": false,
+      "original_bytes": 7483
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityPublicationPostgresTest-l3_suffix_closed.txt.gz",
+      "raw_sha256": "e2c6d47dc4cb92e00cfc8213175722ef86a3ae1b7de47d34be5b643c45b6abff",
+      "archived_plain_sha256": "e2c6d47dc4cb92e00cfc8213175722ef86a3ae1b7de47d34be5b643c45b6abff",
+      "compressed_sha256": "637e2535156826f33294a18a2fd14464f8dd06dffcb49511b27895d53b8efc82",
+      "redacted": false,
+      "original_bytes": 7809
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_atomic_link_unlink.txt.gz",
+      "raw_sha256": "443386f5a660346a78a75292f05e9f07de135508fdbc577bd5787bafe24bc330",
+      "archived_plain_sha256": "443386f5a660346a78a75292f05e9f07de135508fdbc577bd5787bafe24bc330",
+      "compressed_sha256": "c4b26c83e98e2c65ea870cb9bea3008de8477e14e77085e6406e2cdd34a434e9",
+      "redacted": false,
+      "original_bytes": 50556
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_atomic_registration.txt.gz",
+      "raw_sha256": "49c0bba1f52cdd2f10c89ded62ca87ab52aebc721168e0586ed7703130a4cb23",
+      "archived_plain_sha256": "49c0bba1f52cdd2f10c89ded62ca87ab52aebc721168e0586ed7703130a4cb23",
+      "compressed_sha256": "dabfbf8e6a27e58d7edc78ba9de1088d30bbbe293e72efaa1f1c034de1ff3099",
+      "redacted": false,
+      "original_bytes": 8353
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_completion_misuse.txt.gz",
+      "raw_sha256": "59625e01a7add15813c7f2377d53abf9123093395e0614184044cab6e803fd42",
+      "archived_plain_sha256": "59625e01a7add15813c7f2377d53abf9123093395e0614184044cab6e803fd42",
+      "compressed_sha256": "7f0a06e0c258f753659b96a8c05a55ca42cc89f3f6e170686ebf4ca4d8cdbc32",
+      "redacted": false,
+      "original_bytes": 26054
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_fencing.txt.gz",
+      "raw_sha256": "a624b58f8562a4df10eb6fadddecfb7ba8f95aa4d35bedfd60a1e56da0527926",
+      "archived_plain_sha256": "a624b58f8562a4df10eb6fadddecfb7ba8f95aa4d35bedfd60a1e56da0527926",
+      "compressed_sha256": "5b3e155102c3c409b35fe7db19376a06a7b641a9bbe30827b4e307a2db4acfa9",
+      "redacted": false,
+      "original_bytes": 15125
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_final_lock_clock.txt.gz",
+      "raw_sha256": "ceaffe9bc269c3c386e26966b52866242f96d99d7e6b3d3b97b4a9f47e847d80",
+      "archived_plain_sha256": "ceaffe9bc269c3c386e26966b52866242f96d99d7e6b3d3b97b4a9f47e847d80",
+      "compressed_sha256": "9ae2fa52dd3145a27fa709c42e1a08334e30af7db516b8e638c586bdd598db83",
+      "redacted": false,
+      "original_bytes": 11508
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_observation_corruption.txt.gz",
+      "raw_sha256": "9b5b173d0f4dd51b34f81bcde482860bbb366360a87c9bf2953047f8ec3e3f10",
+      "archived_plain_sha256": "9b5b173d0f4dd51b34f81bcde482860bbb366360a87c9bf2953047f8ec3e3f10",
+      "compressed_sha256": "1a8364c72f26303047dc5befc25c9f7f59462bbf5a835aa6f25d2f9516a17615",
+      "redacted": false,
+      "original_bytes": 9253
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_rejection_terminal.txt.gz",
+      "raw_sha256": "1a018f7ece38a1442602381fff1f8dcf872795cc792c5a3bc5af4c614ef64339",
+      "archived_plain_sha256": "1a018f7ece38a1442602381fff1f8dcf872795cc792c5a3bc5af4c614ef64339",
+      "compressed_sha256": "3ac88e33691a7010b5c808b97e73de53fe392b02f497786ce2d599dae6d3155b",
+      "redacted": false,
+      "original_bytes": 14678
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_retry_quarantine.txt.gz",
+      "raw_sha256": "323142dfa80cec0e715e069884a70d49570326d4c505e3de095b4c9f7eb5658e",
+      "archived_plain_sha256": "323142dfa80cec0e715e069884a70d49570326d4c505e3de095b4c9f7eb5658e",
+      "compressed_sha256": "3a0b6c338181e3761185ae9de967d05ab5cbe7a0520122ee8625290d510520fe",
+      "redacted": false,
+      "original_bytes": 21051
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_rollback_each_boundary.txt.gz",
+      "raw_sha256": "34307d0f9533c7754e8d6df958250a3a8e277b6aab16efd181467c3fa264b382",
+      "archived_plain_sha256": "34307d0f9533c7754e8d6df958250a3a8e277b6aab16efd181467c3fa264b382",
+      "compressed_sha256": "e1d23c1ea0b88d2598e245198669b8bef411b4a577dbac309ab25622bf68bcbd",
+      "redacted": false,
+      "original_bytes": 239678
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_technical_not_rejected_and_redacted.txt.gz",
+      "raw_sha256": "97f26d33b1873615391c4c2b49b83a9962b6062a1a4ef57b4e46dfc9f236b6c2",
+      "archived_plain_sha256": "97f26d33b1873615391c4c2b49b83a9962b6062a1a4ef57b4e46dfc9f236b6c2",
+      "compressed_sha256": "754c801eb6d69093dfc2f36c248cdd4e276e90a2ef3b3ef28dbbf78a375a1403",
+      "redacted": false,
+      "original_bytes": 13452
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_unavailable_observation.txt.gz",
+      "raw_sha256": "a1c350dfd9392dc3b9c5bb7322471f609244802c818a188804619636a8d098c9",
+      "archived_plain_sha256": "a1c350dfd9392dc3b9c5bb7322471f609244802c818a188804619636a8d098c9",
+      "compressed_sha256": "cdddeaad311826c6ab5da4b83825843a4c58dc151222088359edfaa4092ebf8c",
+      "redacted": false,
+      "original_bytes": 4210
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_unknown_commit.txt.gz",
+      "raw_sha256": "bc550d2312cd6b660c84e64f3c8de4407a3733052e3e1461cc99bc437b854f3d",
+      "archived_plain_sha256": "bc550d2312cd6b660c84e64f3c8de4407a3733052e3e1461cc99bc437b854f3d",
+      "compressed_sha256": "c3bc883b6addd0b3ce3494b41189c164fe6aa29a4fe19272da200488460384ac",
+      "redacted": false,
+      "original_bytes": 8517
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/infra-persistence-primary-jpa/IdentityRequestExecutionPostgresTest-l3_workers_concurrent_registration.txt.gz",
+      "raw_sha256": "acc7b7a02acd2e31616f8c886e0ded6489be72d5b73f48540752e5f54736cab9",
+      "archived_plain_sha256": "acc7b7a02acd2e31616f8c886e0ded6489be72d5b73f48540752e5f54736cab9",
+      "compressed_sha256": "47a0056b3f2ffc63088d909d1420f209f0f7c73be7395b070effa0e321f86c44",
+      "redacted": false,
+      "original_bytes": 13772
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/runtime-command-consumption-worker/l3_identity_discovery_checkpoint.txt.gz",
+      "raw_sha256": "31e77355829bac125243711999848815d6e1aab6a20bfde9dd7fc70e2535f5b0",
+      "archived_plain_sha256": "31e77355829bac125243711999848815d6e1aab6a20bfde9dd7fc70e2535f5b0",
+      "compressed_sha256": "775d2146f659f94e0056494452c330e6310eaf256dae9bade2cde6661bd2b5cb",
+      "redacted": false,
+      "original_bytes": 1300
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/runtime-command-consumption-worker/l3_preflight_negative.txt.gz",
+      "raw_sha256": "70032650bb1c5e0637d66f586e82961d2c4f8d24fbb567e0bdd1a05fb78a1083",
+      "archived_plain_sha256": "70032650bb1c5e0637d66f586e82961d2c4f8d24fbb567e0bdd1a05fb78a1083",
+      "compressed_sha256": "341691bb623a856c24643d754b7ba03f934c1c3bceeda88d5dd4609954ca6ac3",
+      "redacted": false,
+      "original_bytes": 1312
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/runtime-command-consumption-worker/l3_runtime_identity.txt.gz",
+      "raw_sha256": "5d4b03d4f9adf029071c63ed48c7bba167965bdf7cfd0f4cfd2224357f83701d",
+      "archived_plain_sha256": "5d4b03d4f9adf029071c63ed48c7bba167965bdf7cfd0f4cfd2224357f83701d",
+      "compressed_sha256": "b0e76971e9b5beef00dd2030f4f31060d40564af8eb3ee29ea8749dfc49ef1b1",
+      "redacted": false,
+      "original_bytes": 2100
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/runtime-monolith/l3_preflight_negative.txt.gz",
+      "raw_sha256": "5d76ca6a2c6dd3d11bc6d8d73e89a34b9856265d8d009615420af5ae0433e2af",
+      "archived_plain_sha256": "5d76ca6a2c6dd3d11bc6d8d73e89a34b9856265d8d009615420af5ae0433e2af",
+      "compressed_sha256": "6391abfdd37170fd8dc12e31e473bd75526bdd27efe565d3188e3a50c34d6469",
+      "redacted": false,
+      "original_bytes": 1312
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/postgres/runtime-monolith/l3_runtime_identity.txt.gz",
+      "raw_sha256": "5901a4bc67ba37e2ed92a6b0f16df2c0b830ce36c95574ad725aeb289d1e10a1",
+      "archived_plain_sha256": "5901a4bc67ba37e2ed92a6b0f16df2c0b830ce36c95574ad725aeb289d1e10a1",
+      "compressed_sha256": "73c5cf9445a6acddd6a93cabad49b77550e760a7b99ced81fb94b033cd5e18cd",
+      "redacted": false,
+      "original_bytes": 2101
+    }
+  ],
+  "smoke_receipts": [
+    "smoke-pocoma-l3-i3-jar-rrjrvuw6.json",
+    "smoke-pocoma-l3-i3-jar-2vur1qzz.json",
+    "smoke-pocoma-l3-i3-jar-86_rn2_h.json",
+    "smoke-pocoma-l3-i3-jar-d1xrz3ru.json",
+    "smoke-pocoma-l3-i3-jar-y199ahd5.json"
+  ],
+  "limits": [
+    "No I4/I5 GO",
+    "i5_r05 and i5_r12 reservations remain OPEN",
+    "No full reactor",
+    "No external consent, HTTP or READ business certification"
+  ],
+  "historical_gate_diagnostics": [
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/before-acl/temporal-v3-W2-B32-MW4-final.txt.gz",
+      "raw_sha256": "e46a3f9cc8d237d02ac2de2f4bd60400cd2b040835873f3270e7bb3599dc8920",
+      "archived_plain_sha256": "e46a3f9cc8d237d02ac2de2f4bd60400cd2b040835873f3270e7bb3599dc8920",
+      "compressed_sha256": "8488f51e2aad88641b293eeaaf6c3dd3ecbced01d2adff8a977d3556b0541c25",
+      "redacted": false,
+      "original_bytes": 910387,
+      "tested_input_attribution": "970609cd; captured only files whose mtimes were within that unfiltered gate"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/before-acl/temporal-v3-W2-B32-MW4-stage1.txt.gz",
+      "raw_sha256": "31e221dfcf591aa981a12c674c5c7f0a3af15d79862d864047b927542bef1581",
+      "archived_plain_sha256": "31e221dfcf591aa981a12c674c5c7f0a3af15d79862d864047b927542bef1581",
+      "compressed_sha256": "5e49a91456b7b23e2165e8aba9f9075568cb8eaaa813a35aa38eef7e91f96e2e",
+      "redacted": false,
+      "original_bytes": 46145,
+      "tested_input_attribution": "970609cd; captured only files whose mtimes were within that unfiltered gate"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/before-acl/temporal-v3-W2-B32-MW4-stage2.txt.gz",
+      "raw_sha256": "0ed4099b5bc079ac5662a3dd608c54d7ce2cf5e4cd84be9b0a78260972dd2b52",
+      "archived_plain_sha256": "0ed4099b5bc079ac5662a3dd608c54d7ce2cf5e4cd84be9b0a78260972dd2b52",
+      "compressed_sha256": "ba8f51f199f177bd61ea0dffa7fd99b4a51bd71aefe221c4753bdcd0690906cc",
+      "redacted": false,
+      "original_bytes": 89256,
+      "tested_input_attribution": "970609cd; captured only files whose mtimes were within that unfiltered gate"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/before-acl/resources.xml.gz",
+      "raw_sha256": "00313fd2849f56df25c7686aa06da8e7db8c91ffe468fddbe3d101bb5aebac7c",
+      "archived_plain_sha256": "00313fd2849f56df25c7686aa06da8e7db8c91ffe468fddbe3d101bb5aebac7c",
+      "compressed_sha256": "66917dab158cdd1d2ba5114b67b31595d0d94602b62cc8f2054983a58ac3014a",
+      "redacted": false,
+      "original_bytes": 573882
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v2-W1-B1-MW4-final.txt.gz",
+      "raw_sha256": "27357605df1ca651544383050491f7eaa9dcf5fc05408509dba695e759f04d56",
+      "archived_plain_sha256": "27357605df1ca651544383050491f7eaa9dcf5fc05408509dba695e759f04d56",
+      "compressed_sha256": "2ddf6e0630d9b525cbab793eb8f4a7d8011b512ce93aca1f0b6e56630466d37d",
+      "redacted": false,
+      "original_bytes": 985232,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v2-W1-B1-MW4-stage1.txt.gz",
+      "raw_sha256": "5f6e6479a941b0140e50d874a8b49baeb795ab36060d6a3127ce3a3cdcd5f46b",
+      "archived_plain_sha256": "5f6e6479a941b0140e50d874a8b49baeb795ab36060d6a3127ce3a3cdcd5f46b",
+      "compressed_sha256": "1d299019a8fb810943734e8fdb0fa327659fe6347f164aefaebad811c78d6805",
+      "redacted": false,
+      "original_bytes": 51093,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v2-W1-B1-MW4-stage2.txt.gz",
+      "raw_sha256": "2ac058abb602704d1b35e7c29105ac01f85b49fc3b3110f62a6f0a834b4365d0",
+      "archived_plain_sha256": "2ac058abb602704d1b35e7c29105ac01f85b49fc3b3110f62a6f0a834b4365d0",
+      "compressed_sha256": "9d75437466e33d04d537d8558b550238f42c5987e1da585f752dc49079bbd85b",
+      "redacted": false,
+      "original_bytes": 118987,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v3-W2-B32-MW4-final.txt.gz",
+      "raw_sha256": "0ede5b0df36878a00af5933a9eb9a0b67d477138ede6f9248b9d981c84b73735",
+      "archived_plain_sha256": "0ede5b0df36878a00af5933a9eb9a0b67d477138ede6f9248b9d981c84b73735",
+      "compressed_sha256": "ec8497c68683666d9a5e982859fadf78adaf541aa43c757dd04e4ba003e8c4ce",
+      "redacted": false,
+      "original_bytes": 905358,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v3-W2-B32-MW4-stage1.txt.gz",
+      "raw_sha256": "d36b7235c349715ec8b440f082afb3e38299de2b3f52f77464a81c946670de38",
+      "archived_plain_sha256": "d36b7235c349715ec8b440f082afb3e38299de2b3f52f77464a81c946670de38",
+      "compressed_sha256": "0d4d2ce4f2cb4679d560f7e3b1c08ffa4db6d07860461bae7335e2a9cbee8a25",
+      "redacted": false,
+      "original_bytes": 46336,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/historical-gate-diagnostics/final/temporal-v3-W2-B32-MW4-stage2.txt.gz",
+      "raw_sha256": "fbf4002b2effb894a213425116c1b3132a0957c2790b747f0cc5ca0a5cf2627c",
+      "archived_plain_sha256": "fbf4002b2effb894a213425116c1b3132a0957c2790b747f0cc5ca0a5cf2627c",
+      "compressed_sha256": "77fecd017c5487deb040b18a60ba078f4c3b561861f922adad4bff1af47dc378",
+      "redacted": false,
+      "original_bytes": 89372,
+      "tested_input_attribution": "3ae0966b; physical diagnostics from final gate only, not new I5 certification"
+    }
+  ],
+  "junit_evidence": [
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/engine-consume-registration/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.xml.gz",
+      "raw_sha256": "7d7444f121e1428b92132c1d6c5dca0cddcedbf57ba498e5f8042720488be35b",
+      "archived_plain_sha256": "7d7444f121e1428b92132c1d6c5dca0cddcedbf57ba498e5f8042720488be35b",
+      "compressed_sha256": "77978599552172d4cd031588bda00b2d83304d0ce737ccfd21d879ddc94caeaa",
+      "redacted": false,
+      "original_bytes": 8248,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml.gz",
+      "raw_sha256": "9031d12084ad96ae870024920a4681c140ca5b84aeb4a90c437006a54ea9277f",
+      "archived_plain_sha256": "9031d12084ad96ae870024920a4681c140ca5b84aeb4a90c437006a54ea9277f",
+      "compressed_sha256": "2497648a3b23a106f123b4cd6a150a26faba93a125994c5b4c526e347615c41b",
+      "redacted": false,
+      "original_bytes": 45607,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest.xml.gz",
+      "raw_sha256": "2346bdc052054073e1a07da335f6638f7b3f115913d7f6412ef59a6858754584",
+      "archived_plain_sha256": "2346bdc052054073e1a07da335f6638f7b3f115913d7f6412ef59a6858754584",
+      "compressed_sha256": "d19cafdb4232a0a497c3d80bf9aa27eafbe5cd21573b6e4f8275678240f5cc5b",
+      "redacted": false,
+      "original_bytes": 45614,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest.xml.gz",
+      "raw_sha256": "efe0341986a69436a77bc40c7d5e2e90ad10bbc4f643491e6c95c145267400ed",
+      "archived_plain_sha256": "efe0341986a69436a77bc40c7d5e2e90ad10bbc4f643491e6c95c145267400ed",
+      "compressed_sha256": "06257985047da9eeb5301df695c89cfb034fb3fd6f540897a80cf785cf014d98",
+      "redacted": false,
+      "original_bytes": 61271,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/infra-persistence-primary-jpa/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest.xml.gz",
+      "raw_sha256": "73ebf2eb054535ccbba6d55b8f1d79cd4ef82a4a9f9ce7ad6a07b6314e51b3f2",
+      "archived_plain_sha256": "73ebf2eb054535ccbba6d55b8f1d79cd4ef82a4a9f9ce7ad6a07b6314e51b3f2",
+      "compressed_sha256": "9aaee85f836cf71c72a92b7e4ae0014fc5f65b764f2c48383286c32e893659ce",
+      "redacted": false,
+      "original_bytes": 99300,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest.xml.gz",
+      "raw_sha256": "7769ce204af3abe73433410fa58b6baf932c5a06520d4439d7069e58242a606f",
+      "archived_plain_sha256": "7769ce204af3abe73433410fa58b6baf932c5a06520d4439d7069e58242a606f",
+      "compressed_sha256": "aae28a8bc9fbfef10fa9ccc120b2b998cde14d2d93cdbca28000c4cd1d515e39",
+      "redacted": false,
+      "original_bytes": 52303,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml.gz",
+      "raw_sha256": "993e22195f8d58570bac5683d632ff2932783278fad36d2a8295025c4ae35dc2",
+      "archived_plain_sha256": "993e22195f8d58570bac5683d632ff2932783278fad36d2a8295025c4ae35dc2",
+      "compressed_sha256": "357c461a20e852562beefc3ff28a64cda3f3ac502442012bf27b0e32b9f4180f",
+      "redacted": false,
+      "original_bytes": 288722,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml.gz",
+      "raw_sha256": "438af2232cdeae89e02a1bed01b85d995d7270dca68a1ed62373862c908533bd",
+      "archived_plain_sha256": "438af2232cdeae89e02a1bed01b85d995d7270dca68a1ed62373862c908533bd",
+      "compressed_sha256": "97853a04ae1c68b2b2a3ce525fbbbfc4482934b9ffaf2c13e2a88c201308fe48",
+      "redacted": false,
+      "original_bytes": 573885,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/runtime-command-consumption-worker/TEST-com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentToolsTest.xml.gz",
+      "raw_sha256": "bf7e1d949c484ec15089f7d6e3770349d2964929b82c2a89838b2d5358936542",
+      "archived_plain_sha256": "bf7e1d949c484ec15089f7d6e3770349d2964929b82c2a89838b2d5358936542",
+      "compressed_sha256": "2d02f4193686a96d6be4cefc88a655c102a2a38f8a03b9a91057924531374d49",
+      "redacted": false,
+      "original_bytes": 43735,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/runtime-monolith/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml.gz",
+      "raw_sha256": "72d30a6cb44bd4241fcd83b0432a6f31180dad3372ab23fae1a0cd6fc6fdbcda",
+      "archived_plain_sha256": "72d30a6cb44bd4241fcd83b0432a6f31180dad3372ab23fae1a0cd6fc6fdbcda",
+      "compressed_sha256": "c6b94e96c43299ff19b5d4a60bc669f2d7835668cd5a12e321d5b92751dc7ae2",
+      "redacted": false,
+      "original_bytes": 283500,
+      "fresh_final_gate": true,
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.BindingLockOwnershipTest.xml.gz",
+      "raw_sha256": "59d3d9543f08dbf995ef807adf49df7f5d5eb4f4eef88a09803998f69b9be47a",
+      "archived_plain_sha256": "59d3d9543f08dbf995ef807adf49df7f5d5eb4f4eef88a09803998f69b9be47a",
+      "compressed_sha256": "5b8e70fe6f19cef0c0cc3e612842464df5ff569563c4313700be9ee57ee4386d",
+      "redacted": false,
+      "original_bytes": 60242,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest.xml.gz",
+      "raw_sha256": "938e90826df8cf9ccd98d1cd19fe8084b8399828adeaa124e91c5477e6e34211",
+      "archived_plain_sha256": "938e90826df8cf9ccd98d1cd19fe8084b8399828adeaa124e91c5477e6e34211",
+      "compressed_sha256": "a7db8fb8b8d95234d6df384b225519ce0c640a30d81f2f0c0ea16b54acf29290",
+      "redacted": false,
+      "original_bytes": 60157,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest.xml.gz",
+      "raw_sha256": "b1816dd21b4335d33af52b250ab8ca50f0e6d469347396241db7bf996f5f3460",
+      "archived_plain_sha256": "b1816dd21b4335d33af52b250ab8ca50f0e6d469347396241db7bf996f5f3460",
+      "compressed_sha256": "e6286ac3a5078c95b5cf2783e92c32d19bdce0b58aa93be17af8909c41e3f771",
+      "redacted": false,
+      "original_bytes": 61200,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.HexagonalArchitectureTest.xml.gz",
+      "raw_sha256": "31bd82c25a64088517b9331bb744c95c46e9748231e0c07eb77970b55c724ae6",
+      "archived_plain_sha256": "31bd82c25a64088517b9331bb744c95c46e9748231e0c07eb77970b55c724ae6",
+      "compressed_sha256": "ae8e11d78fbe1fb3c33d67ebb510cb81d3f37fb1e0f9e5dbea117bbcd7e9e790",
+      "redacted": false,
+      "original_bytes": 68465,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest.xml.gz",
+      "raw_sha256": "11fa6fc23e715df8effa6406341ea5fe2fea042fd90833f744a2e25f835de077",
+      "archived_plain_sha256": "11fa6fc23e715df8effa6406341ea5fe2fea042fd90833f744a2e25f835de077",
+      "compressed_sha256": "a57c5265965d66b59406f868c1789de657078aa605b3cf364e8ab6c7eb89e7a6",
+      "redacted": false,
+      "original_bytes": 60001,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest.xml.gz",
+      "raw_sha256": "f58b20754299bfce15bd9daafc31cdb1819d3abfa28bb3fc558efb062415501d",
+      "archived_plain_sha256": "f58b20754299bfce15bd9daafc31cdb1819d3abfa28bb3fc558efb062415501d",
+      "compressed_sha256": "1b1faca130494435077c0067965fae1452df1933af633622d8f3c094941b610b",
+      "redacted": false,
+      "original_bytes": 60181,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest.xml.gz",
+      "raw_sha256": "a691453cc57b04b1f0e5934203e52d193ea1f1fade0829a22010c663dc84faf3",
+      "archived_plain_sha256": "a691453cc57b04b1f0e5934203e52d193ea1f1fade0829a22010c663dc84faf3",
+      "compressed_sha256": "5f0e47706e8836cf1e21383eb390aba188b22fd13dd3a2a1c214dde719f65c96",
+      "redacted": false,
+      "original_bytes": 60205,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest.xml.gz",
+      "raw_sha256": "652f9b16f06e9230dde11b5e49f923cbd90c232053216bb03452693b533af2d8",
+      "archived_plain_sha256": "652f9b16f06e9230dde11b5e49f923cbd90c232053216bb03452693b533af2d8",
+      "compressed_sha256": "6140f98c2264d6cdc098d33e981a2b71599bded31acc647204269f0761866029",
+      "redacted": false,
+      "original_bytes": 60618,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest.xml.gz",
+      "raw_sha256": "ac7c3365ff082f2676bafb0db862c06edad05bcd0da7f54f4d336807db40f78f",
+      "archived_plain_sha256": "ac7c3365ff082f2676bafb0db862c06edad05bcd0da7f54f4d336807db40f78f",
+      "compressed_sha256": "9d9c0a5e935c0c53afc0bfc4c8f5952273a6a2aea5e8307465e01c94f1a27ae7",
+      "redacted": false,
+      "original_bytes": 60179,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest.xml.gz",
+      "raw_sha256": "2ab57a2c6dc2d30c1c852955036c15399458592d1138ea392e7aa4ca851292c3",
+      "archived_plain_sha256": "2ab57a2c6dc2d30c1c852955036c15399458592d1138ea392e7aa4ca851292c3",
+      "compressed_sha256": "1a5b74d105088913a6d9117c4466f1369596dd8438c1dbfbf02c462cda46cfe9",
+      "redacted": false,
+      "original_bytes": 79315,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest.xml.gz",
+      "raw_sha256": "a89bd58fd45605ae765cb9c5bfca82262dc8657c2b58628226bf1c0bbc9f902c",
+      "archived_plain_sha256": "a89bd58fd45605ae765cb9c5bfca82262dc8657c2b58628226bf1c0bbc9f902c",
+      "compressed_sha256": "a0f06277b0bbf3548641a8fd2d2262bcef7b53e9b9eb76268594b071965301f9",
+      "redacted": false,
+      "original_bytes": 59944,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest.xml.gz",
+      "raw_sha256": "0bb5031680afcb40994865c0e29bf330f1aae599340c0067e78abdccc837bc86",
+      "archived_plain_sha256": "0bb5031680afcb40994865c0e29bf330f1aae599340c0067e78abdccc837bc86",
+      "compressed_sha256": "2721a6a8272f62eba78515f7b276772e95ba5f32e24d93a9521c59486875aaf2",
+      "redacted": false,
+      "original_bytes": 60027,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest.xml.gz",
+      "raw_sha256": "2f2af09724e9b2a350fd6f6c8f26de5eed890044c99484880fe15524620b5ebf",
+      "archived_plain_sha256": "2f2af09724e9b2a350fd6f6c8f26de5eed890044c99484880fe15524620b5ebf",
+      "compressed_sha256": "8d826866c47e1247149180e678c0eef54909b3efa0987dcc304878bef5ca4a2d",
+      "redacted": false,
+      "original_bytes": 59712,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest.xml.gz",
+      "raw_sha256": "e0f27c99eebc774f8c3540e8da5ae0bbc2bec02efd25032e68ec34daad13f2ec",
+      "archived_plain_sha256": "e0f27c99eebc774f8c3540e8da5ae0bbc2bec02efd25032e68ec34daad13f2ec",
+      "compressed_sha256": "17b0f68c260d7823885706af661c60d781e92c8f64ac6724b35068888d374641",
+      "redacted": false,
+      "original_bytes": 60378,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp2BoundaryTest.xml.gz",
+      "raw_sha256": "a79e3f88203fef296636167db6ee9cc554538d47886f1af6304367913e5973a8",
+      "archived_plain_sha256": "a79e3f88203fef296636167db6ee9cc554538d47886f1af6304367913e5973a8",
+      "compressed_sha256": "624736145e20a74c7788560786ec831ea5c883763078674e9f3700ec1dd60e77",
+      "redacted": false,
+      "original_bytes": 60065,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp3BoundaryTest.xml.gz",
+      "raw_sha256": "2bd492ef25aa8c04bb2f2bb3c08cddf6284830cd5103577ee33b06fbfb47b3fb",
+      "archived_plain_sha256": "2bd492ef25aa8c04bb2f2bb3c08cddf6284830cd5103577ee33b06fbfb47b3fb",
+      "compressed_sha256": "4be43422667556d6166d35b761782de307ac970da8593dead6594c3d605d6ac4",
+      "redacted": false,
+      "original_bytes": 60010,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp4BoundaryTest.xml.gz",
+      "raw_sha256": "dce08b4adfbccfa0f4091abcbb0baa7081f8139399ef4590fd69785d43cd9a66",
+      "archived_plain_sha256": "dce08b4adfbccfa0f4091abcbb0baa7081f8139399ef4590fd69785d43cd9a66",
+      "compressed_sha256": "19e87cc7b07b07cdbf2312bca25f97d91de3735df837e9ca3e5bf47a12cbf467",
+      "redacted": false,
+      "original_bytes": 60223,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest.xml.gz",
+      "raw_sha256": "4629a9a72e3bb58724cd223484167c65a134df9d5e9aef807950911b36db2c90",
+      "archived_plain_sha256": "4629a9a72e3bb58724cd223484167c65a134df9d5e9aef807950911b36db2c90",
+      "compressed_sha256": "f2c35b2984fc0de0ae6fb86af6de51a15193ed5ce70a730194c2161b0474e939",
+      "redacted": false,
+      "original_bytes": 60147,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest.xml.gz",
+      "raw_sha256": "5dbda2cdc04a9622122dffec1267f8e009a0599b310cfea7e3f985ce7c35ee33",
+      "archived_plain_sha256": "5dbda2cdc04a9622122dffec1267f8e009a0599b310cfea7e3f985ce7c35ee33",
+      "compressed_sha256": "4daa7406806d0806b37f05937e5b2c675d89cd0412e1ae6a35bf3187881db71d",
+      "redacted": false,
+      "original_bytes": 232877,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "architecture-postgres",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest.xml.gz",
+      "raw_sha256": "5a366ae39e8a0841c65f7d705e04a5bb4b906cd46ec97f590f4990a47823861e",
+      "archived_plain_sha256": "5a366ae39e8a0841c65f7d705e04a5bb4b906cd46ec97f590f4990a47823861e",
+      "compressed_sha256": "ff1b7753af252c7308c21eee87e496cf34801f570faf6398af150c105cf0d11f",
+      "redacted": false,
+      "original_bytes": 69637,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "architecture-postgres",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest.xml.gz",
+      "raw_sha256": "7540d9446aad973af363d7265bf65652c8033c1a80d8c3373c2f655e350fd043",
+      "archived_plain_sha256": "7540d9446aad973af363d7265bf65652c8033c1a80d8c3373c2f655e350fd043",
+      "compressed_sha256": "cb3b5a0023f2268579c1197b269e23283ba50bfb26575b3611f123a3b5853e03",
+      "redacted": false,
+      "original_bytes": 73964,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "architecture-postgres",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest.xml.gz",
+      "raw_sha256": "b7ca82be174076a6171624e6d8fe7a5972fe784a7db2178eee36b5d436876ab4",
+      "archived_plain_sha256": "b7ca82be174076a6171624e6d8fe7a5972fe784a7db2178eee36b5d436876ab4",
+      "compressed_sha256": "6a8bcad31d037b1b62f44df91e9fc202a9f77a4e8bb412a21806de047cacebf9",
+      "redacted": false,
+      "original_bytes": 75894,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "architecture-postgres",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest.xml.gz",
+      "raw_sha256": "adba425b90f7bdaf8d2e84e97802fc50b2fee2f59250fe7c4f7178f2341484a2",
+      "archived_plain_sha256": "adba425b90f7bdaf8d2e84e97802fc50b2fee2f59250fe7c4f7178f2341484a2",
+      "compressed_sha256": "4a825024c1ad2fc6d05e3a457b37811b17acab5d32eb51d8bf71ef0c9249403c",
+      "redacted": false,
+      "original_bytes": 69926,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "architecture-postgres",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest.xml.gz",
+      "raw_sha256": "75205cc16ebb7163554c4107c198a4233aed347a49556735e304ae953c4c7a7f",
+      "archived_plain_sha256": "75205cc16ebb7163554c4107c198a4233aed347a49556735e304ae953c4c7a7f",
+      "compressed_sha256": "a80005b61f523b95318f3c2a6bec40cee2bedd8c38de529c48db913e37e9e739",
+      "redacted": false,
+      "original_bytes": 60857,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest.xml.gz",
+      "raw_sha256": "df8a84d6b6a717c4678c8e61c76240bc4c0b0d7d5cc75e01b484546d341b16dc",
+      "archived_plain_sha256": "df8a84d6b6a717c4678c8e61c76240bc4c0b0d7d5cc75e01b484546d341b16dc",
+      "compressed_sha256": "454610e3c885cb7e32f59f1ff76d3a8357f0d1bc2a9251aaa037759d1b41c442",
+      "redacted": false,
+      "original_bytes": 60073,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest.xml.gz",
+      "raw_sha256": "3102565df23bf534dd98a5b611488b833d6289f5e2f7ecaa6cd14dd2bae8bf13",
+      "archived_plain_sha256": "3102565df23bf534dd98a5b611488b833d6289f5e2f7ecaa6cd14dd2bae8bf13",
+      "compressed_sha256": "8a6800cf55a83700d56bd3b346f4968170e1482b761aeeb7f8dd2ca1ded6c3da",
+      "redacted": false,
+      "original_bytes": 60331,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml.gz",
+      "raw_sha256": "6fc17a58b87c466f28f5633e709a443b4d604100803fafd7a90beb580ffe264e",
+      "archived_plain_sha256": "6fc17a58b87c466f28f5633e709a443b4d604100803fafd7a90beb580ffe264e",
+      "compressed_sha256": "8e4cf5632371af65d9fb289caefb7b5565ab5fee6e86b121eb5b65cc52ea0272",
+      "redacted": false,
+      "original_bytes": 60055,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    },
+    {
+      "path": "docs/testing/evidence/L3-I3/junit/architecture-tests/TEST-com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest.xml.gz",
+      "raw_sha256": "5b612ac0994d654d926403e0093daa5ee86fe466f1351e6de19d1f3e72e5316e",
+      "archived_plain_sha256": "5b612ac0994d654d926403e0093daa5ee86fe466f1351e6de19d1f3e72e5316e",
+      "compressed_sha256": "b6e35f0047f35687c4677500f0ab61a4b293f2ea795d542d737a19ee884ee690",
+      "redacted": false,
+      "original_bytes": 60044,
+      "fresh_final_gate": false,
+      "filtered_feedback_source": "acl-correction",
+      "provenance_note": "Use final gate log for fresh verdicts; stale targeted XML is explicitly labelled."
+    }
+  ],
+  "foreign_checkout": {
+    "head": "90a3e9bc1a1fdd325d0c36e543824239cd85a431",
+    "branch": "feat/runtime-monolith",
+    "status": [
+      " M docker/keycloak/pocoma-realm.json",
+      " M docs/README.md",
+      " D \"scripts/bruno/00 Pot E2E/01 Create Pot.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/02 Get Create Command Result.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/03 Read Pot V1.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/04 Update Pot Details.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/05 Get Update Command Result.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/06 Read Pot V2.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/07 Re-read Pot V1.bru\"",
+      " M \"scripts/bruno/00 Pot E2E/folder.bru\"",
+      "?? app/infra-persistence-primary-jpa/src/test/java/com/kartaguez/pocoma/infra/persistence/primary/jpa/adapter/context/UpdateExpenseSharesConcurrencyPostgresTest.java",
+      "?? docs/architecture/Event_Late_Locking_Protocol_Viability_Audit_2026-10-18.md",
+      "?? docs/architecture/Event_Late_Transactional_Numbering_Study_2026-10-18.md",
+      "?? docs/architecture/Mutation_Authorities_Ordered_Publication_Consolidated_Study_2026-10-18.md",
+      "?? docs/architecture/Transactional_Authorities_Fencing_Locks_Audit_2026-10-18.md",
+      "?? docs/testing/evidence/",
+      "?? docs/v3/",
+      "?? \"scripts/bruno/00 Pot E2E/001 Registrations.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/002 RegistrationResult.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/003 Me-Binding.bru\"",
+      "?? \"scripts/bruno/00 Pot E2E/004 Create Pot.bru\""
+    ]
+  },
+  "read_only_diagnostic": {
+    "path": "docs/testing/evidence/L3-I3/diagnostics/canonical-before-acl-thread.txt.gz",
+    "raw_sha256": "bff1d9de47bd216574bfb70ce1740998c254644fb0f5e5dab2c14056c2f6cc99",
+    "archived_plain_sha256": "bff1d9de47bd216574bfb70ce1740998c254644fb0f5e5dab2c14056c2f6cc99",
+    "compressed_sha256": "5122a2071201f45160dd7ff3f02dd9978888e29a34f0335eedbff2b7671fcbf6",
+    "redacted": false,
+    "original_bytes": 74930,
+    "conclusion": "main in i5_w16 idleWindow; two intentional five-minute measurement windows, unchanged"
+  },
+  "unchanged_l2_and_ddl": []
+}
