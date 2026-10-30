@@ -11,6 +11,7 @@ import com.kartaguez.pocoma.port.transaction.v3.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.*;
+import org.springframework.jdbc.support.SqlArrayValue;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -316,8 +317,17 @@ class WriteRevisionPerformancePostgresTest {
                                 && args != null
                                 && args.length >= 2
                                 && args[0] instanceof Integer position)
+                            // EXPLAIN runs after statement cleanup. Retain values/type rather
+                            // than a driver Array that SqlArrayValue has already freed.
                             parameters.put(
-                                    position, method.getName().equals("setNull") ? null : args[1]);
+                                    position,
+                                    method.getName().equals("setNull")
+                                            ? null
+                                            : args[1] instanceof java.sql.Array array
+                                                    ? new SqlArrayValue(
+                                                            array.getBaseTypeName(),
+                                                            (Object[]) array.getArray())
+                                                    : args[1]);
                         if (enabled && method.getName().startsWith("execute")) {
                             statements++;
                             queries.add(new Query(sql, parameters.values().toArray()));
