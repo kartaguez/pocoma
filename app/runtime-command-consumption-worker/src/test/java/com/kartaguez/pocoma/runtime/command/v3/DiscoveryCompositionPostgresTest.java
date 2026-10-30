@@ -367,7 +367,7 @@ class DiscoveryCompositionPostgresTest {
                     () ->
                             V3ConsumptionDiscoveryComposition.requests(
                                     f.guard(),
-                                    definition(ConsumableFamily.IDENTITY_REQUEST),
+                                    definition(ConsumableFamily.IDENTITY_EVENT),
                                     f.w.source(),
                                     write,
                                     SETTINGS,
