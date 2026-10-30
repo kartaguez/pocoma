@@ -263,6 +263,8 @@ class V3IdentityRequestCompositionPostgresTest {
                             "-v",
                             "identity_authority=real",
                             "-v",
+                            "identity_read_role=" + readRole,
+                            "-v",
                             "technical_probes=false",
                             "-f",
                             destination);
@@ -545,19 +547,19 @@ class V3IdentityRequestCompositionPostgresTest {
                     List.of(2L, 2L, 2L, 2L),
                     f.read.queryForList(
                             "select position from discovery_checkpoint where consumption_id=? order"
-                                + " by partition_id",
+                                    + " by partition_id",
                             Long.class,
                             definition.id().value()));
             assertEquals(
                     1,
                     f.write.queryForObject(
                             "select count(*) from v3_identity_event e join v3_event_position p"
-                                + " using(event_id) where e.subject_type='POCOMA_USER' and"
-                                + " p.position=1",
+                                    + " using(event_id) where e.subject_type='POCOMA_USER' and"
+                                    + " p.position=1",
                             Integer.class));
             f.trace.add(
                     "canonical READ Identity Discovery: User ignored, K=2 on all four partitions,"
-                        + " exactly one EUI slot; technical only");
+                            + " exactly one EUI slot; technical only");
             f.evidence("l3_identity_discovery_checkpoint");
         }
     }
@@ -596,6 +598,47 @@ class V3IdentityRequestCompositionPostgresTest {
             f.write.execute("grant " + f.schema + "_excess to " + f.writeRole);
             refused(f, Map.of());
             f.write.execute("revoke " + f.schema + "_excess from " + f.writeRole);
+            f.write.execute("grant usage on schema " + f.schema + " to " + f.readRole);
+            var wrongRealm =
+                    new JdbcTemplate(
+                            new DriverManagerDataSource(f.writeUrl, f.readRole, "i5-fixture"));
+            for (String scope : List.of("column", "table", "read-principal")) {
+                f.write.execute(
+                        "grant select"
+                                + (!scope.equals("table") ? "(binding_token)" : "")
+                                + " on v3_eui_version to "
+                                + (scope.equals("read-principal") ? f.readRole : "public"));
+                // Real PostgreSQL counterexample: a READ principal can select a WRITE token
+                // column through PUBLIC. No token value is returned by this aggregate.
+                assertEquals(
+                        0,
+                        wrongRealm.queryForObject(
+                                "select count(binding_token) from v3_eui_version", Integer.class));
+                var refusedGrant =
+                        assertThrows(
+                                AssertionError.class,
+                                () -> f.script("grant-l2-discovery.sql", true));
+                assertTrue(
+                        refusedGrant
+                                .getMessage()
+                                .contains(
+                                        scope.equals("read-principal")
+                                                ? "READ principal has Identity WRITE authority"
+                                                      + " privileges"
+                                                : "PUBLIC privileges expose Identity authority"));
+                refused(f, Map.of());
+                f.write.execute(
+                        "revoke select"
+                                + (!scope.equals("table") ? "(binding_token)" : "")
+                                + " on v3_eui_version from "
+                                + (scope.equals("read-principal") ? f.readRole : "public"));
+                f.trace.add(
+                        "PUBLIC "
+                                + scope
+                                + " SELECT exposed WRITE to READ principal; root refused before"
+                                + " loop");
+            }
+            f.write.execute("revoke usage on schema " + f.schema + " from " + f.readRole);
             f.write.execute("create table i5_fixture_identity(x int)");
             refused(f, Map.of());
             f.write.execute("drop table i5_fixture_identity");

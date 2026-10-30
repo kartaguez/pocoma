@@ -262,6 +262,8 @@ class V3IdentityRequestMonolithPostgresTest {
                             "-v",
                             "identity_authority=real",
                             "-v",
+                            "identity_read_role=" + readRole,
+                            "-v",
                             "technical_probes=false",
                             "-f",
                             destination);
@@ -511,6 +513,47 @@ class V3IdentityRequestMonolithPostgresTest {
             f.write.execute("grant " + f.schema + "_excess to " + f.writeRole);
             refused(f, Map.of());
             f.write.execute("revoke " + f.schema + "_excess from " + f.writeRole);
+            f.write.execute("grant usage on schema " + f.schema + " to " + f.readRole);
+            var wrongRealm =
+                    new JdbcTemplate(
+                            new DriverManagerDataSource(f.writeUrl, f.readRole, "i5-fixture"));
+            for (String scope : List.of("column", "table", "read-principal")) {
+                f.write.execute(
+                        "grant select"
+                                + (!scope.equals("table") ? "(binding_token)" : "")
+                                + " on v3_eui_version to "
+                                + (scope.equals("read-principal") ? f.readRole : "public"));
+                // Real PostgreSQL counterexample: a READ principal can select a WRITE token
+                // column through PUBLIC. No token value is returned by this aggregate.
+                assertEquals(
+                        0,
+                        wrongRealm.queryForObject(
+                                "select count(binding_token) from v3_eui_version", Integer.class));
+                var refusedGrant =
+                        assertThrows(
+                                AssertionError.class,
+                                () -> f.script("grant-l2-discovery.sql", true));
+                assertTrue(
+                        refusedGrant
+                                .getMessage()
+                                .contains(
+                                        scope.equals("read-principal")
+                                                ? "READ principal has Identity WRITE authority"
+                                                      + " privileges"
+                                                : "PUBLIC privileges expose Identity authority"));
+                refused(f, Map.of());
+                f.write.execute(
+                        "revoke select"
+                                + (!scope.equals("table") ? "(binding_token)" : "")
+                                + " on v3_eui_version from "
+                                + (scope.equals("read-principal") ? f.readRole : "public"));
+                f.trace.add(
+                        "PUBLIC "
+                                + scope
+                                + " SELECT exposed WRITE to READ principal; root refused before"
+                                + " loop");
+            }
+            f.write.execute("revoke usage on schema " + f.schema + " from " + f.readRole);
             f.write.execute("create table i5_fixture_identity(x int)");
             refused(f, Map.of());
             f.write.execute("drop table i5_fixture_identity");

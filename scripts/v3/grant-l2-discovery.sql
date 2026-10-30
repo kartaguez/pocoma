@@ -1,3 +1,7 @@
+\if :{?identity_read_role}
+\else
+\set identity_read_role ''
+\endif
 \if :{?identity_authority}
 \else
 \set identity_authority fixture
@@ -8,10 +12,21 @@
 begin;
 -- L3 real is explicit, requires V6, and never installs the fixture.
 select set_config('pocoma.identity_authority', :'identity_authority', true);
+select set_config('pocoma.identity_read_role', :'identity_read_role', true);
 do $$
 begin
  if current_setting('pocoma.identity_authority') not in ('fixture','real') then raise exception 'invalid Identity authority';end if;
  if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+ if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
+    lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
+    and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event') and acl.grantee=0)
+    or exists(select 1 from pg_attribute att join pg_class c on c.oid=att.attrelid
+      join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(att.attacl) acl
+      where n.nspname=current_schema() and c.relname in ('v3_identity_request','v3_eui_authority',
+      'v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event',
+      'v3_identity_completion_event') and acl.grantee=0)
+ then raise exception 'PUBLIC privileges expose Identity authority' using errcode='42501';end if;
   if to_regclass('v3_identity_request') is null or to_regprocedure('v3_identity_check_unit(uuid,boolean)') is null
     or to_regclass('i5_fixture_identity') is not null then raise exception 'Identity real requires V6 without fixture';end if;
  end if;
@@ -106,6 +121,16 @@ do $$
 declare r text:=current_setting('pocoma.runtime_role');a text:=current_setting('pocoma.reactivation_role');t text;col record;ins boolean;upd boolean;
 begin
  if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+ if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
+    lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
+    and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+      'v3_identity_request_result','v3_identity_event','v3_identity_completion_event') and acl.grantee=0)
+    or exists(select 1 from pg_attribute att join pg_class c on c.oid=att.attrelid
+      join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(att.attacl) acl
+      where n.nspname=current_schema() and c.relname in ('v3_identity_request','v3_eui_authority',
+      'v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event',
+      'v3_identity_completion_event') and acl.grantee=0)
+ then raise exception 'PUBLIC privileges expose Identity authority' using errcode='42501';end if;
   foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
    ins:=t<>'v3_identity_request';
    if not has_table_privilege(r,t,'SELECT') or has_table_privilege(r,t,'INSERT')<>ins
@@ -116,6 +141,19 @@ begin
     if has_column_privilege(r,t,col.column_name,'INSERT')<>ins or has_column_privilege(r,t,col.column_name,'UPDATE')<>upd
        or has_column_privilege(r,t,col.column_name,'REFERENCES') then raise exception 'unsafe Identity column rights';end if;
    end loop;
+  end loop;
+ end if;
+end $$;
+do $$
+declare reader text:=current_setting('pocoma.identity_read_role');t text;
+begin
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  if reader='' or reader=current_setting('pocoma.runtime_role') or not exists(select 1 from pg_roles where rolname=reader)
+  then raise exception 'distinct explicit Identity READ principal required' using errcode='42501';end if;
+  foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+       'v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+   if has_any_column_privilege(reader,t,'SELECT,INSERT,UPDATE,REFERENCES') or has_table_privilege(reader,t,'DELETE,TRUNCATE,TRIGGER')
+   then raise exception 'READ principal has Identity WRITE authority privileges' using errcode='42501';end if;
   end loop;
  end if;
 end $$;

@@ -80,6 +80,7 @@ def prepare(args) -> None:
             "environment": "DEV", "fixture_identity": values["pocoma.v3.worker.fixture-identity"],
             "technical_probes": values["pocoma.v3.worker.technical-probes"],
             "identity_authority": values.get("pocoma.v3.worker.identity-authority", "fixture"),
+            "identity_read_role": values["pocoma.v3.pilot.read.username"],
         }
         for script in ("bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"):
             command = ["psql", "-X", "--dbname", endpoint, "--username", admin, "-v", "ON_ERROR_STOP=1"]

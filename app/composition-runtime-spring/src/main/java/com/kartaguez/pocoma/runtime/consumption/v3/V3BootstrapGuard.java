@@ -405,6 +405,26 @@ public final class V3BootstrapGuard {
             c.setAutoCommit(false);
             try (var statement = c.createStatement()) {
                 inspectIdentity(statement);
+                require(
+                        !read.runtimeRole().equals(write.runtimeRole()),
+                        "distinct READ/WRITE principals required for real DEV");
+                for (String table : IDENTITY_TABLES) {
+                    try (var rows =
+                            statement.executeQuery(
+                                    "select exists(select 1 from pg_roles where rolname='"
+                                            + read.runtimeRole()
+                                            + "' and (has_any_column_privilege(oid,'"
+                                            + table
+                                            + "','SELECT,INSERT,UPDATE,REFERENCES')"
+                                            + " or has_table_privilege(oid,'"
+                                            + table
+                                            + "','DELETE,TRUNCATE,TRIGGER')))")) {
+                        rows.next();
+                        require(
+                                !rows.getBoolean(1),
+                                "READ principal has Identity WRITE authority privileges");
+                    }
+                }
             } finally {
                 c.rollback();
             }
@@ -448,6 +468,24 @@ public final class V3BootstrapGuard {
                                 + " ('IDENTITY','IDENTITY_COMPLETION')")) {
             rows.next();
             require(rows.getBoolean(1), "Identity publication counters required");
+        }
+        // Identity contains tokens: even PUBLIC SELECT is excessive. The L2 technical
+        // tables keep their existing policy; this check is specific to the real authority.
+        try (var rows =
+                statement.executeQuery(
+                        """
+select exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace,
+    lateral aclexplode(c.relacl) acl where n.nspname=current_schema()
+    and c.relname in ('v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version',
+        'v3_identity_request_result','v3_identity_event','v3_identity_completion_event') and acl.grantee=0)
+or exists(select 1 from pg_attribute a join pg_class c on c.oid=a.attrelid
+    join pg_namespace n on n.oid=c.relnamespace,lateral aclexplode(a.attacl) acl
+    where n.nspname=current_schema() and c.relname in ('v3_identity_request','v3_eui_authority',
+        'v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event',
+        'v3_identity_completion_event') and acl.grantee=0)
+""")) {
+            rows.next();
+            require(!rows.getBoolean(1), "PUBLIC privileges expose Identity authority");
         }
         for (String table : IDENTITY_TABLES) {
             boolean insert = !table.equals("v3_identity_request");
