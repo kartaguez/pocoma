@@ -1,11 +1,19 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
-**30 octobre 2026 — READY FOR INDEPENDENT AUDIT — PLAN NON EXÉCUTÉ.**
+**30 octobre 2026 — READY FOR IMPLEMENTATION GO — PLAN NON EXÉCUTÉ.**
 
 Référence examinée : `kartaguez/pocoma`, branche `feat/v3-architecture`,
 `8182fef0700d78e42d7d199d61c71847cd67bd4c`. Aucun GO d'implémentation.
 Le présent document propose une réalisation ; les SPEC restent normatives.
 Aucun résultat prospectif ci-dessous ne vaut test écrit, exécuté ou PASS.
+
+Amendements ciblés depuis le SHA audité
+`17562aa031a861adabf197e69a95d7c7c411f38b`, après verdict indépendant
+**PASS WITH TARGETED AMENDMENTS** transmis par le responsable. Le worktree cible
+est propre à la reprise ; HEAD local et distant identiques, divergence 0/0.
+Les travaux préexistants du checkout principal sont préservés. Seuls
+AUD-L3-001…004 sont traités ; architecture, I1–I5 et frontières L3/L4/L5 inchangés.
+Le §10 relie chaque finding aux précisions et oracles prospectifs correspondants.
 
 ## 1. Mandat, état vérifié et autorités
 
@@ -194,54 +202,115 @@ même résultat. Ne pas rendre mutable un résultat partagé entre tentatives.
 
 ### 3.2 Verrous, EUI inconnues et autorité Pot
 
-Proposition physique : une ancre technique durable `v3_eui_authority` par couple
-opaque, avec ID stable et `current_version=0` tant qu'aucune EUI métier n'existe.
-**Zéro est un témoin technique d'absence, jamais EUI@0.** La première histoire
-métier est directement liée v1 ; pas de faux état libre v1, d'événement de
-création intermédiaire ou d'User précréé. Une ancre seule peut subsister après
-un rejet négatif ; elle ne constitue ni mutation métier ni EUI publiable.
-Cette adaptation interne borne le verrou d'absence exigé par SPEC-05 et le témoin
-négatif de Pot. Elle doit être vérifiée explicitement par l'audit.
+**Ancre technique d'absence — AUD-L3-002.** `v3_eui_authority` réserve une clé
+opaque et son `eui_id` ; l'existence métier exige une ligne `v3_eui_version` de
+version positive. Les lectures d'autorité retournent donc « EUI absente » pour
+une clé sans ancre **ou** une ancre à zéro ; elles ne fabriquent pas un objet
+`ExternalUserIdentity(version=0)`. Une EUI existante libre à N≥1 reste un état
+métier distinct de ces deux absences, même si aucun des trois cas n'autorise Pot.
 
-Pour les clés E1/E2 dédoublonnées et triées lexicographiquement `(issuer,subject)` :
+| État durable | Invariant / passage autorisé |
+|---|---|
+| Clé sans ancre | Aucun ID durable attribué ; la préparation RO ne crée rien |
+| Ancre à zéro | ID réservé, aucune version/histoire/User créé pour cette réservation, aucun événement ni résultat de mutation ; `at(id,0)` n'est jamais une lecture métier valide |
+| Première transition Registration/Link gagnante | Sous le verrou de l'ancre, insérer directement EUI@1 liée, puis passer le curseur 0→1 dans la même unité que résultat/publications ; aucune version libre intermédiaire |
+| EUI existante à N≥1 | Le curseur désigne exactement EUI@N ; Link/Unlink effectif crée N+1, jamais une nouvelle ancre ni un nouvel ID |
+| Rejet ou rollback | Un rejet peut conserver une ancre zéro, sans mutation métier ; un rollback annule toute réservation créée par cette tentative et tout passage 0→1. Une ancre déjà committée reste inchangée |
 
-1. Après protection finale du slot, pour **chaque clé successivement dans cet
-   ordre**, `INSERT ... ON CONFLICT (issuer,subject) DO NOTHING` de l'ancre,
-   puis `SELECT ... FOR UPDATE` de cette même ancre. Ne pas insérer toutes les
-   cibles dans un ordre arbitraire avant le tri ; l'INSERT conflictuel attend aussi.
-2. Comparaison opaque déterministe commune Java/SQL, sans lowercase, trim ni
-   normalisation URL. Définir l'ordre comme ordre des octets UTF-8 non signés,
-   issuer puis subject ; colonnes PostgreSQL `COLLATE "C"`. Tester accents,
-   caractères hors BMP et préfixes. Un comparateur Java UTF-16 par défaut ne
-   suffit pas à garantir cet ordre. PostgreSQL text exclut U+0000 ; son refus
-   intrinsèque à la frontière de stockage ne doit pas transformer la clé.
-3. Lire les états actuels **après** ces verrous et vérifier E1/token puis E2.
-   E1==E2 prend un seul verrou ; Link se rejette car cible déjà liée, self-Unlink
-   est valide. Le User destinataire est résolu d'E1 sous verrou. Aucun verrou de
-   partition dans la finalisation ; le claim individuel est l'autorité Engine.
-4. Registration vérifie l'absence/liberté puis crée son User dans cette unité.
-   La tentative concurrente attend puis voit l'état lié et se rejette sans User.
-   Registration/Link et deux Links n'ont aucune priorité ; la première transition
-   validée sous les verrous gagne. Unlink croisé ne peut conserver deux initiateurs
-   valides ; l'Unlink concurrent d'E1 ne peut se glisser entre contrôle et mutation.
-5. Retenir tous les verrous jusqu'au commit/rollback. User ne se supprime jamais ;
-   ses FK ne créent pas un second protocole de verrouillage User. Aucun appel
-   ultérieur ne reprend une clé EUI inférieure à une clé déjà détenue.
+Le candidat UUID est interne à l'adaptateur, indépendant des identifiants fournis
+par l'appelant. `INSERT ... ON CONFLICT (issuer,subject) DO NOTHING` ne remplace
+aucun ID : après conflit, le `SELECT ... FOR UPDATE` fournit l'ID effectivement
+retenu, qui seul peut être transmis à la transition. Un conflit de PK `eui_id`
+avec **une autre clé** est une faute technique et annule l'unité ; ne pas le
+masquer par un `ON CONFLICT DO NOTHING` sans cible, réaffecter l'ID ou fusionner
+les clés. L'ID devient stable dès le commit de la réservation, y compris à zéro,
+puis reste identique après première création, Unlink et re-Link. Un candidat
+annulé avant commit n'établit aucun ID durable à retrouver lors de la reprise.
+Issuer/subject/ID ne sont ni modifiés ni supprimés ; le curseur ne revient jamais
+à zéro. Ces contrôles immédiats et la cohérence curseur/histoire du §4.2 valent
+aussi contre SQL direct. L'ancre zéro n'est pas exposable comme EUI créée et ne
+satisfait aucune référence d'événement/version/résultat de mutation. Cette
+adaptation interne protège l'absence sans changer les états permis par SPEC-02 ;
+une véritable EUI libre préexistante conserve son histoire, pas une absence zéro.
 
-Pas d'advisory lock hashé pour remplacer les verrous EUI normatifs ; pas de
-verrou global Identity. Le tri évite les cycles EUI, sans promettre l'absence
-universelle de deadlock de toute l'application : tester aussi FK, source,
-Discovery et suffixe ; un deadlock SQL technique reste rollback/reprise L2.
+**Ordre commun — AUD-L3-003.** Définir dans le fichier pur déjà prévu
+`ExternalUserIdentity.java` (§6, préfixe D) une unique fonction statique
+`compareKeys(ExternalIdentity,ExternalIdentity)`. Chaque chaîne est validée et
+encodée par un encodeur UTF-8 strict (`CodingErrorAction.REPORT` pour entrées
+malformées/non encodables), puis comparée par `Arrays.compareUnsigned(byte[],byte[])` :
+premier octet différent, ou chaîne la plus courte en cas de préfixe commun.
+Comparer issuer d'abord, puis subject seulement à égalité d'issuer ; ne pas
+concaténer les champs avec un séparateur. Pas de `String.compareTo`, comparaison
+d'octets signés, ordre des UUID, trim, changement de casse ou normalisation Unicode/URL.
+Le comparateur n'est ni un nouveau service ni une abstraction de verrouillage.
 
-`JdbcIdentityPotActorAuthority` implémente le port Pot inchangé : observation RO
-par couple exact, revision=version métier ou zéro si absence ; actor présent
-uniquement si token présenté correspond à l'état lié. Protection finale par la
-**même ancre** que Identity, puis comparaison complète du Witness. Changement
-entre observation et protection ⇒ Collision, jamais faux INVALID_BINDING figé.
-Inconnu stable ⇒ rejet INVALID_BINDING protégé sans lecture/verrou Pot. Une
-ancre à zéro ne change pas le Witness ; EUI réellement créée ⇒ version positive.
-Le mapping PocomaUserId→UserId est explicite à l'adaptateur, sans dépendance du
-domaine Identity au domaine Pot. Aucun changement à `ExecutePotCommand` requis.
+La cible PostgreSQL exige `server_encoding=UTF8`, des connexions client UTF8 et
+les colonnes/clés textuelles en `COLLATE "C"` ; les vérifier dans le préflight
+existant, avec un ordre SQL explicite
+`ORDER BY issuer COLLATE "C", subject COLLATE "C"` dans l'oracle indépendant.
+Refuser U+0000 et toute séquence UTF-16 mal formée (surrogate isolé) avant le
+premier INSERT/verrou EUI, sans substitution par U+FFFD ni suppression de
+caractère. Les entrées UTF-8 invalides ne deviennent pas des clés de remplacement.
+Ce bornage intrinsèque des clés stockables ne crée aucune admission HTTP L3.
+
+Pour **toutes** les clés E1/E2, connues, inconnues ou mixtes :
+
+1. Valider le jeu complet, dédoublonner par égalité exacte et trier avec cette
+   fonction avant le premier accès EUI susceptible de prendre un verrou.
+2. Après protection finale du slot, pour **chaque clé successivement dans cet
+   ordre**, INSERT de l'ancre avec conflit ciblé, puis SELECT de cette même clé
+   FOR UPDATE ; terminer cette paire avant de passer à la clé suivante. Une
+   insertion conflictuelle peut déjà attendre : il est interdit d'insérer en
+   bloc dans l'ordre d'entrée puis de trier seulement les FOR UPDATE.
+3. Lire les états actuels après les verrous, puis vérifier E1/token et E2.
+   E1==E2 prend une seule paire INSERT/protection ; Link se rejette car cible
+   déjà liée, self-Unlink est valide. Résoudre U d'E1 sous verrou ; aucun verrou
+   final de partition ne remplace le claim individuel Engine.
+4. Registration vérifie absence/liberté puis crée User. Les concurrents attendent
+   et relisent : aucun User perdant, aucune priorité Registration/Link. Unlink
+   croisé et Unlink d'E1 concurrent de Link gardent les contrôles jusqu'au commit.
+5. Retenir les protections jusqu'à résolution physique. Aucun appel n'ajoute
+   ensuite une clé inférieure ou une nouvelle cible non déclarée. User n'est
+   jamais supprimé ; les vérifications FK pré-suffixe sont précisées au §4.2.1.
+
+`JdbcIdentityAuthority.lockInCanonicalOrder` est l'unique chemin concret des
+INSERT/protections EUI. `JdbcIdentityPotActorAuthority` lui délègue sa protection
+sur le singleton, après conversion explicite de PotCommand.Eui en ExternalIdentity ;
+`apply` suppose les mêmes ancres déjà protégées et n'en crée/verrouille pas d'autres.
+Les stores de demandes/publication ne contiennent aucun SQL d'acquisition EUI.
+Les lectures préparatoires restent sans verrou ni création. La preuve structurelle
+et la trace SQL de chaque adaptateur doivent exclure un contournement de ce
+chemin (§7.2). Pas d'advisory lock hashé ni verrou global Identity. Le tri prévient
+les cycles EUI ; les erreurs SQL de concurrence restent rollback/reprise L2.
+
+**Témoin Pot inchangé — AUD-L3-004.** Pour la commande durable c, calculer
+`W(c)=(revision,actor?)` : revision=0 pour absence métier, sinon version EUI ;
+actor=User uniquement si cette EUI est liée et son token courant égale celui de c.
+`observe` est RO ; `protect` relit après protection de la même ancre et renvoie
+**l'égalité des deux Witness complets**, pas « binding valide » ni la comparaison
+avec un User résolu en ignorant le token présenté.
+
+| Observation puis état protégé | Résultat de protect / suite existante ExecutePotCommand |
+|---|---|
+| Clé inconnue puis ancre zéro, ou zéro inchangé | `(0,empty)` identique : true, rejet INVALID_BINDING terminal ; la création technique de l'ancre ne provoque pas de Collision |
+| EUI libre à N inchangée | `(N,empty)` identique : true, même rejet stable |
+| EUI liée à N, token inventé/tiers/ancien déjà invalide lors d'observe, aucun changement | `(N,empty)` aux deux lectures : true, même rejet ; ne pas boucler en Collision à version inchangée |
+| EUI liée à N, token exact, aucun changement | `(N,U)` identique : true ; seulement alors le chemin Pot habituel peut protéger le Pot |
+| Absence devenue EUI@1, ou EUI N devenue N+1 (même si actor reste empty) | Witness différent : false → Collision ; aucune terminalisation/complétion de ce rejet préparé, rollback puis nouvelle acquisition/tentative selon L2 |
+| Unlink puis re-Link au même U entre observe/protect | Version supérieure et nouveau token : false même si le User final est identique ; pas d'ABA masqué par l'égalité du User |
+
+Un changement de rattachement/token sans incrément de version est interdit par
+l'immuabilité de l'histoire et le curseur (§4.2), pas un état valide que Witness
+devrait encoder par de nouveaux champs. La nouvelle tentative conserve intention
+et token déclaré : après une vraie modification d'autorité, elle peut donc
+aboutir ensuite à INVALID_BINDING **stable**, sans mutation Pot. Pour tout témoin
+négatif stable, aucun accès à l'histoire, au curseur, au verrou ou aux révisions
+Pot, durant préparation **et** finalisation ; seules demande/résultat/complétion
+Command sont permis. Une collision issue d'un témoin initialement positif peut
+avoir fait une lecture préparatoire Pot ; elle ne doit effectuer aucune protection
+ou écriture Pot finale après le refus de protect. Vérifier les deux cas séparément.
+Le mapping PocomaUserId→UserId reste dans l'adaptateur ; aucun changement au port
+PotActorAuthority, à ExecutePotCommand ou au protocole de retry L2.
 
 ### 3.3 Une transaction physique, R1 et suffixe
 
@@ -266,10 +335,12 @@ requestId dupliqué, version artificielle, résultat ni token. Mutation :
 token, User recopié ni état complet. Registration publie User v1 puis EUI@V dans
 le même lot IDENTITY ; Link/Unlink publient un événement EUI.
 
-Les FK/contraintes métier différées pouvant acquérir des verrous sont forcées
-avant fermeture. Les contraintes terminales/publication, **lectures seulement**,
-restent différées jusqu'au commit ; lister leurs noms exacts lors de la migration.
-Après fermeture : seuls UPDATE des compteurs préexistants et INSERT des positions.
+Les contrôles et leurs phases sont fixés au §4.2.1 (AUD-L3-001) : FK immédiates,
+contraintes structurelles différées forcées avant fermeture, puis seuls contrôles
+terminaux en SELECT simple au commit. Après le dernier flush et ces validations,
+`closePublication` conserve la fermeture/clear JPA L2. Aucun callback, trigger ou
+fonction ne peut alors muter le métier ni prendre un nouveau verrou métier.
+Seuls UPDATE des compteurs préexistants et INSERT des positions sont permis.
 Pour Registration, une allocation transactionnelle de deux positions consécutives
 préserve l'ordre User puis EUI ; pas d'intercalation, pas de nextval. Aucun ordre
 global POT/IDENTITY n'est instauré. `SpringAttemptTransactions.guarded` condamne
@@ -299,7 +370,8 @@ n'est présumée nécessaire.
 
 DDL de conception, complété impérativement par les contraintes §4.2 dans V6 ;
 il n'est pas un script prêt à exécuter isolément. Tous les objets sont dans le
-schéma WRITE explicite. Noms de contraintes stables à donner dans la réalisation.
+schéma WRITE explicite. Le §4.2.1 fixe les noms/phases des contraintes à reporter
+dans V6 ; les FK ci-dessous sont explicitement NOT DEFERRABLE.
 
 ```sql
 create table v3_identity_request (
@@ -329,15 +401,19 @@ create table v3_eui_authority (
 );
 create table v3_pocoma_user (
   user_id uuid primary key,
-  created_request_id uuid not null unique references v3_identity_request(request_id),
+  created_request_id uuid not null unique constraint v3_identity_user_request_fk
+    references v3_identity_request(request_id) not deferrable,
   writer_xid xid8 not null default pg_current_xact_id()
 );
 create table v3_eui_version (
-  eui_id uuid not null references v3_eui_authority(eui_id),
+  eui_id uuid not null constraint v3_identity_eui_anchor_fk
+    references v3_eui_authority(eui_id) not deferrable,
   version bigint not null check(version>=1),
-  user_id uuid references v3_pocoma_user(user_id),
+  user_id uuid constraint v3_identity_eui_user_fk
+    references v3_pocoma_user(user_id) not deferrable,
   binding_token text unique,
-  request_id uuid not null unique references v3_identity_request(request_id),
+  request_id uuid not null unique constraint v3_identity_eui_request_fk
+    references v3_identity_request(request_id) not deferrable,
   writer_xid xid8 not null default pg_current_xact_id(),
   primary key(eui_id,version),
   check((user_id is null)=(binding_token is null))
@@ -346,12 +422,14 @@ create table v3_eui_version (
 -- Pas d'index inverse par User requis ; l'état courant se joint au curseur.
 
 create table v3_identity_request_result (
-  request_id uuid primary key references v3_identity_request(request_id),
+  request_id uuid primary key constraint v3_identity_result_request_fk
+    references v3_identity_request(request_id) not deferrable,
   outcome text not null check(outcome in ('CHANGED','REJECTED')),
   target_eui_id uuid,
   target_version bigint,
   rejection text,
-  foreign key(target_eui_id,target_version) references v3_eui_version(eui_id,version),
+  constraint v3_identity_result_target_fk foreign key(target_eui_id,target_version)
+    references v3_eui_version(eui_id,version) not deferrable,
   check ((outcome='CHANGED' and target_eui_id is not null and target_version is not null and target_version>=1
                             and rejection is null)
       or (outcome='REJECTED' and target_eui_id is null and target_version is null
@@ -362,7 +440,8 @@ create table v3_identity_event (
   subject_type text not null check(subject_type in ('POCOMA_USER','EXTERNAL_USER_IDENTITY')),
   subject_id uuid not null,
   subject_version bigint not null check(subject_version>=1),
-  request_id uuid not null references v3_identity_request(request_id),
+  request_id uuid not null constraint v3_identity_event_request_fk
+    references v3_identity_request(request_id) not deferrable,
   recorded_at timestamptz not null,
   unique(subject_type,subject_id,subject_version),
   unique(request_id,subject_type)
@@ -370,7 +449,8 @@ create table v3_identity_event (
 create table v3_identity_completion_event (
   event_id uuid primary key,
   subject_type text not null check(subject_type in ('REGISTRATION','LINK','UNLINK')),
-  subject_id uuid not null unique references v3_identity_request_result(request_id),
+  subject_id uuid not null unique constraint v3_identity_completion_result_fk
+    references v3_identity_request_result(request_id) not deferrable,
   recorded_at timestamptz not null
 );
 ```
@@ -400,8 +480,8 @@ EUI après un Unlink légitime.
 
 L'extension de CHECK doit utiliser le nom réellement trouvé dans `pg_constraint`
 (au bootstrap V2 V3 : `v3_event_counter_family_check`), sans drop/recréation des
-compteurs ou positions. Décrire les nouveaux triggers différés exacts et les
-contraintes forcées avant suffixe dans le contrat physique I2. Tester de manière
+compteurs ou positions. Le classement précis ci-dessous s'ajoute au contrat
+physique I2 sans modifier l'owner ou les contraintes Pot/Command. Tester de manière
 adversariale les écritures directes sous rôle runtime, pas seulement le chemin
 Java heureux. Les ACL ne peuvent distinguer à elles seules un appel R1 d'un SQL
 arbitraire disposant du même DELETE : garder le périmètre de writers de confiance
@@ -416,6 +496,71 @@ forcée du token ⇒ rollback intégral technique, nouvelle acquisition/nouvelle
 tentative ; jamais succès réutilisant le token, rejet métier simulé ou retry
 interne sous le claim. Pas de valeur de token dans assertions exportées,
 exceptions SQL publiques, toString des demandes, logs ou labels métriques.
+
+### 4.2.1 Contraintes différées et suffixe fermé — AUD-L3-001
+
+Les noms suivants sont ceux **proposés pour V6**, pas des objets déjà livrés.
+Les huit FK du §4.1 sont NOT DEFERRABLE, sans CASCADE : leur contrôle référentiel
+et les éventuelles protections de lignes référencées (notamment KEY SHARE),
+attentes d'unicité et verrous de relations se produisent dans le préfixe.
+PK/UNIQUE/CHECK, immuabilité et attribution de writer_xid restent immédiats.
+L'avancement éventuel du curseur est une écriture pré-suffixe de l'adaptateur,
+jamais une réparation effectuée par un trigger différé.
+
+| Contraintes proposées / attachement | Vérification et phase d'exécution |
+|---|---|
+| `v3_identity_anchor_state` sur INSERT/UPDATE de v3_eui_authority ; `v3_identity_version_state` sur INSERT de v3_eui_version | Constraint triggers DEFERRABLE INITIALLY DEFERRED, SELECT locaux : ancre zéro sans histoire ; curseur positif égal à la version exacte insérée, prédécesseur N−1 présent si N>1, identité et paire User/token cohérentes. Le pas 0→1/N→N+1 est contrôlé immédiatement sous verrou lors de l'écriture. Forcer ces deux contraintes avant fermeture |
+| `v3_identity_request_unit` sur INSERT/UPDATE de demande ; `v3_identity_result_unit` sur INSERT de résultat ; `v3_identity_user_unit` sur INSERT de User ; `v3_identity_version_unit` sur INSERT d'histoire | Constraint triggers DEFERRABLE INITIALLY DEFERRED, uniquement SELECT au commit : unité terminale exacte par requestId, ownership des effets et cardinalités du §4.2 ; PENDING admise sans effet/résultat/publication est valide |
+| `v3_identity_event_unit` sur INSERT d'événement ; `v3_identity_completion_unit` sur INSERT de complétion ; `v3_identity_position_unit` sur INSERT de position, limité aux familles IDENTITY/IDENTITY_COMPLETION | Même phase terminale ; sujet/version/requestId exacts, enveloppes et positions en bijection de la bonne famille, demande terminale et absence du slot canonique. Aucune FK différée position→enveloppe métier : la vérification polymorphe est en SELECT simple |
+
+Après staging des enveloppes et suppression R1 du slot, le writer effectue le
+flush existant et force **seulement** le jeu structurel :
+
+```sql
+SET CONSTRAINTS v3_identity_anchor_state, v3_identity_version_state IMMEDIATE;
+```
+
+Ne jamais utiliser SET CONSTRAINTS ALL : les contrôles terminaux exigent les
+positions encore absentes et doivent rester différés. Les deux contraintes
+forcées restent IMMEDIATE pour la fin de l'unité, dont aucune écriture ultérieure
+ne touche ancre/histoire. Un échec, même intercepté, condamne l'unité avant tout
+UPDATE de compteur. Les 22 contraintes Pot et le jeu terminal Command L1/L2
+restent inchangés et ne sont pas forcés par le participant Identity.
+
+Cas Command : `JdbcIdentityPotActorAuthority.protect` peut créer une ancre zéro.
+Après acquisition/relecture et avant de rendre le booléen de comparaison, cet
+adaptateur force le même jeu structurel nommé sous la garde existante. Aucun
+effet EUI métier n'étant permis à Command, ces contraintes peuvent rester
+IMMEDIATE jusqu'au commit. Ainsi la Command ne laisse aucun contrôle d'ancre
+nouvellement en attente après son suffixe ; ni ExecutePotCommand ni les 22
+contraintes de JdbcPotCommandStore ne sont modifiés pour ce raccord.
+
+Avant `closePublication`, exécuter aussi les vérifications de correspondance
+état/résultat/enveloppes déjà possibles, et lire les relations requises par les
+contrôles terminaux (y compris slot et positions, encore absentes pour ces IDs).
+Ainsi leurs verrous de relations en lecture sont déjà détenus ; aucun premier
+accès à une autre relation métier n'est reporté au commit. L'absence de positions
+à ce stade est normale : seule leur complétude finale attend le commit.
+
+Les fonctions terminales et tous leurs appels transitifs n'exécutent que des
+SELECT sans clause de verrouillage ; pas de DML, FOR UPDATE/SHARE/KEY SHARE,
+advisory lock, nextval, SQL dynamique ou appel réparateur. Elles lisent l'état
+final dans la même unité et peuvent lever une exception, sans prendre de nouveau
+verrou de ligne métier ou renforcer les protections déjà détenues. Les objets
+qu'elles lisent sont soit propres à la demande et immuables, soit protégés depuis
+le préfixe (ancres et source/slot) : aucune revalidation tardive avec verrou n'est
+nécessaire. Un trigger différé évalue l'état final en table, pas un NEW ancien
+qui représenterait encore PENDING/curseur zéro.
+
+Dans le suffixe, la FK existante `v3_event_position.family`→compteur reste
+immédiate : elle concerne le compteur de séquence déjà protégé par son UPDATE,
+pas une nouvelle protection métier. Les contraintes d'unicité des positions sont
+également immédiates. Aucun INSERT d'enveloppe, accès de writer métier, flush
+supplémentaire ou callback de mutation n'est admis après fermeture, y compris
+pendant les triggers/commit. La garde et le clear JPA L2 restent ceux livrés.
+Le catalogue pg_constraint/pg_trigger, les fonctions et les attentes réellement
+observées doivent confirmer ce classement : « différé » ou « lecture seule »
+déclaré dans un commentaire ne constitue pas la preuve. Oracles au §7.2.
 
 ## 5. Catalogues, Discovery, permissions et compositions
 
@@ -518,6 +663,9 @@ déclarer directement `port-transaction` si le contrat référence RecoveryReadC
 au lieu de dépendre implicitement du port Binding V2. Cette arête est volontaire
 et impose le gate architecture annoncé. Ni domaine ni contrats ne dépendent de
 l'Engine.
+
+La fonction statique compareKeys du §3.2 reste dans D:`ExternalUserIdentity.java`,
+réutilisée par les deux adaptateurs ; aucun fichier/service de tri supplémentaire.
 
 Créer DT:`IdentityTransitionsTest.java`, `IdentityValueContractsTest.java` ;
 ET:`IdentityRequestContractTest.java`. Conserver tests V2 et valeurs réutilisées,
@@ -663,19 +811,19 @@ Les noms `l3_*` ci-dessous sont des méthodes proposées dans les classes exacte
 | I2 IdentityAuthorityPostgresTest | `l3_history_exact`, `l3_last_unlink` | I01-A/B/H/L : histoire U1/B→libre→U2/C→libre→U1/D exacte par PK ; anciennes valeurs immuables ; User demeure |
 | I2 IdentitySchemaPostgresTest | `l3_sql_negative_shapes`, `l3_sql_publication_closure` | I01-M/N ; E02-I et contraintes de C06-B : doublon couple, état hybride, trou de version, faux xid, version réécrite, mutation sans bonne demande/événement, publication sans état refusés |
 | I2 BindingTokenGeneratorTest | `l3_generator_contract`, `l3_forced_token_collision` (SQL dans AuthorityPostgresTest) | I01-L/N et preuve qualité du générateur : SecureRandom/256 bits, encodage, masquage ; ancien token forcé provoque rollback technique sans User/état partiel |
-| I2 IdentityConcurrencyPostgresTest | `l3_registration_race` connu libre + inconnu ; `l3_link_races` deux Links + Registration/Link ; `l3_cross_unlinks` ; `l3_link_vs_initiator_unlink` | I01-D/F/J/K, I02-I/J/N interne : un seul gagnant, perdant rejet terminal après nouvelle lecture sous verrou, aucun User perdant, ordre EUI identique entre partitions |
-| I2 même classe | `l3_canonical_unicode`, `l3_unknown_key_race`, `l3_disjoint_progress` | SPEC-02 §7 / C06-B : INSERT inconnus en ordre, E1/E2 inversées, même sujet/deux issuers, collisions de clés ; EUI indépendantes sans verrou global métier |
+| I2 IdentityConcurrencyPostgresTest | `l3_registration_race` connu libre + inconnu ; `l3_link_races` deux Links + Registration/Link ; `l3_cross_unlinks` ; `l3_link_vs_initiator_unlink` | I01-D/F/J/K, I02-I/J/N interne : un seul gagnant, perdant rejet terminal après nouvelle lecture sous verrou, aucun User perdant, ordre EUI identique entre partitions ; variantes AUD-L3-002/003 détaillées au §7.2 |
+| I2 même classe | `l3_canonical_unicode`, `l3_unknown_key_race`, `l3_disjoint_progress` | SPEC-02 §7 / C06-B : INSERT inconnus en ordre, E1/E2 inversées, même sujet/deux issuers, collisions de clés ; EUI indépendantes sans verrou global métier ; comparateur et interdiction de contournement au §7.2 |
 | I3 ExecuteIdentityRequestTest | `l3_participant_order`, `l3_rejection_terminal`, `l3_technical_not_rejected` | R1, E02-D/E/F : résultat avant complete avant suffixe ; actual result dans requireCompletionReady ; erreur technique jamais convertie en rejet |
 | I3 IdentityRequestExecutionPostgresTest | `l3_atomic_registration`, `l3_atomic_link_unlink`, `l3_rollback_each_boundary` | I01-N, E02-D/E/F, C06-B/E/F/G : coupure avant métier, après User, état, résultat, TERMINAL, DELETE, premier événement, complétion, fermeture et positions ; vecteur intégralement annulé |
 | I3 même classe | `l3_fencing`, `l3_completion_misuse` | C03-A…K applicables, C04-A/B/C/G/H/I, R1 : horloge après attente slot, token remplacé/A→B→A, claim expiré avant verrou, expiration après verrou valide, perte partition claim encore valide ; complete absent/double/étranger/tardif/ mauvais thread échoue et poison |
 | I3 même classe | `l3_unknown_commit`, `l3_terminal_retry`, `l3_observation_corruption` | I01-O/P, E02-G/H/J, R9 : vrai ACK perdu après commit vs rollback, même requestId résultat identique sans token/User nouveau ; nouveau requestId rejoue les préconditions ; quatre observations et zéro réparation |
 | I3 même classe | `l3_retry_quarantine`, `l3_slot_delete_paths` | C05-A/B/D…M, C04-L et extension QUARANTINED de CON-05 : une tentative/claim, collision classée, échec technique compté une fois après rollback certain, N configurable, Q persistante et non réenrôlée, admin réactive le même slot, aucune autre voie DELETE ; UNKNOWN/crash/expiration ne consomment pas le budget supposé |
 | I3 IdentityPublicationPostgresTest | `l3_identity_batch`, `l3_dense_rollback`, `l3_rejection_completion_only`, `l3_identity_pair_contention` | E01-A…F, variante G ID/IDCOMP, E02-D/E ; lot User puis EUI consécutif, aucun nextval, IDENTITY→IDENTITY_COMPLETION ; rollback ne consomme aucune position |
-| I3 même classe | `l3_suffix_closed`, `l3_physical_unit` | C06-B/E/F/G/H/I/L/M, R1 : même connexion/PID/XID effets/slot/publications, pas nouveau verrou métier après fermeture, faute writer interceptée/manager faux/ambiante/REQUIRES_NEW refusés. Ne pas modifier l'owner pour simplifier le test |
+| I3 même classe | `l3_suffix_closed`, `l3_physical_unit` | C06-B/E/F/G/H/I/L/M, R1 : même connexion/PID/XID effets/slot/publications, pas nouveau verrou métier après fermeture, faute writer interceptée/manager faux/ambiante/REQUIRES_NEW refusés. Ne pas modifier l'owner pour simplifier le test ; catalogue/phases de contraintes et suffixe détaillés au §7.2 |
 | I3 IdentityDiscoveryPostgresTest | `l3_burnable_discovery`, `l3_discovery_source_slot_race`, `l3_identity_windows` | CON-01/02, EVT-03 : PENDING sans slot puis enrôlement asynchrone unique, TERMINAL jamais réenrôlé, Q conservée ; concurrence Discovery B/source/slot sans cycle ; fenêtre cohérente et K examinant aussi User ignoré |
 | I3 IdentityPrivilegesPostgresTest | `l3_effective_privileges`, `l3_wrong_authority`, `l3_internal_admission_idempotence` | C06-H/I/M et S-03 contribution interne : moindre privilège, roles hérités excessifs rejetés, pas accès READ→WRITE, insertion même requestId/intention retourne même source ; autre intention sous cet ID refusée, rollback/réponse perdue n'invente pas une seconde demande |
 | I3 V3IdentityRequestCompositionPostgresTest | `l3_runtime_identity`, `l3_preflight_negative` | E02-J, C06-M et adaptation Identity de K : jar/contexte et Engine réels, 3 opérations, opt-in absent, mauvais catalogue/rôle/migration, fixture en real, bean Legacy/factory inconnu refusés avant boucle/effet |
-| I4 IdentityPotAuthorityPostgresTest | `l3_positive_negative_witness`, `l3_observation_change`, `l3_foreign_token` | Contrat L1-C/F/F2, S02-C, I01-K/M : witness négatif stable, inconnu créé, version/token changés, token tiers même User refusé ; zéro accès Pot si INVALID_BINDING |
+| I4 IdentityPotAuthorityPostgresTest | `l3_positive_negative_witness`, `l3_observation_change`, `l3_foreign_token` | Contrat L1-C/F/F2, S02-C, I01-K/M : witness négatif stable, inconnu créé, version/token changés, token tiers même User refusé ; zéro accès Pot si INVALID_BINDING ; cas stables, token invalide et changement réel séparés au §7.2 |
 | I4 V3IdentityPotCommandPostgresTest | `l3_registration_command`, `l3_command_vs_unlink`, `l3_relink_old_token` | C06-A/B/L, E02-A/C/H, I02-H/I/K internes : vraie Registration donne autorité Command ; EUI verrouillée jusqu'au commit ; re-Link au même User change token, READ retardé sans effet sur WRITE ; intention/observedVersion Pot intactes |
 | I5 V3IdentityMonolithPostgresTest / V3IdentityArchitectureTest | `l3_monolith_real`, `l3_no_legacy_or_second_owner` | C06-M, A-01/I-01 : deux racines mêmes constructs, pas de binding V2 actif, pas worker en plus, pas dépendance Spring au domaine ou dépendance Identity→Pot |
 
@@ -718,6 +866,35 @@ au public. Une origine contrôlée n'est pas une validation fournisseur qualifi�
 | I01-Q, SEC-01/02, C06-O | Ports historiques exacts livrés ; aucune projection ou HTTP certifié | L4 CurrentBinding/IdentityResult, L5 contrôle d'accès ; aucune lecture WRITE synchrone par Supra |
 | CON/EVT globaux, REC/OPS/PERF | Variantes Identity nommées seulement | L6–L8 selon plan directeur ; réserves L2 inchangées |
 
+### 7.2 Oracles ciblés après audit (NOT RUN)
+
+Ces variantes précisent les lignes existantes du §7, dans les mêmes classes et
+étapes ; aucun fichier de test supplémentaire n'est demandé par les amendements.
+Les attendus sont fixés indépendamment du code productif. Les cas SQL fautifs
+utilisent une cible de test jetable et n'autorisent aucun contournement runtime.
+
+| Finding / classe déjà prévue | Méthodes et variantes obligatoires / oracle déterministe |
+|---|---|
+| AUD-L3-001 — I2 IdentitySchemaPostgresTest | `l3_constraint_catalog` : comparer les noms, FK et leurs cibles, modes NOT DEFERRABLE/INITIALLY DEFERRED, triggers et corps/appels transitifs réels au §4.2.1 ; aucun CASCADE ni FK métier différée après fermeture ; jeux Pot/Command inchangés. Variante négative de schéma de test ajoutant un FK métier différé ou un trigger terminal qui écrit/verrouille : le contrôle structurel doit échouer, pas déclarer le suffixe conforme |
+| AUD-L3-001 — I3 IdentityPublicationPostgresTest | `l3_constraints_before_close` : bloquer par une autre connexion une ligne référencée nécessitant un contrôle FK, identifier PID/bloqueur ; l'attente et sa résolution sont **avant** closePublication, jamais sous compteur. Provoquer curseur/histoire incohérents : SET CONSTRAINTS nommé échoue avant fermeture, compteur intact et rollback complet, même faute interceptée. Variante Command avec EUI inconnue dans I4 IdentityPotAuthorityPostgresTest : création d'ancre zéro puis contrôle structurel dans protect avant son retour et le suffixe Command, aucun trigger structurel laissé en attente au commit |
+| AUD-L3-001 — même classe | `l3_deferred_commit_checks` : succès Registration/Link/Unlink et rejet ; barrières avant fermeture, après positionnement puis avant résolution physique. Omettre une position, en altérer la famille ou injecter une enveloppe de trop : le contrôle terminal différé refuse le commit ; Users/histoire/résultat/TERMINAL/événements/compteurs/DELETE du slot sont tous annulés. Une admission PENDING sans slot ni effet et une ancre zéro seule restent valides |
+| AUD-L3-001 — même classe et I5 V3IdentityArchitectureTest | Compléter `l3_suffix_closed` : catalogue/fonctions fermés + trace SQL du writer/callbacks et observations externes aux barrières. Après fermeture, seul suffixe compteurs/positions puis SELECT terminaux sur relations déjà ouvertes ; zéro DML métier/nouveau verrou métier. Contention de compteur réelle, verrou EUI concurrent et probes NOWAIT de lignes référencées attestent les protections avant/après ; pg_locks seul ne remplace pas ces probes. Tentative de writer/callback tardif ⇒ garde refuse et rollback ; aucun INSERT d'instrumentation dans la transaction après fermeture |
+| AUD-L3-002 — I2 IdentityAuthorityPostgresTest | `l3_anchor_absence` : absence sans ancre et ancre zéro donnent toutes deux EUI absente, `at(id,0)` refusé ; EUI libre positive reste présente. Registration/Link après ancre zéro réutilise exactement son ID et crée directement v1 liée ; cardinalités 0→1 version, aucun état libre intermédiaire, événements exacts I01-A/E |
+| AUD-L3-002 — I2 IdentityConcurrencyPostgresTest | `l3_anchor_id_race` : deux connexions proposent IDs distincts sur la même clé, bloquer la première réservation puis commit/rollback ; après commit tous utilisent l'ID gagnant, aucun ID perdant dans histoire/événement/résultat ; après rollback d'une réservation neuve aucun ID durable n'est présumé. Refaire sur ancre zéro déjà committée : son ID persiste quel que soit le perdant |
+| AUD-L3-002 — I2 IdentitySchemaPostgresTest | `l3_anchor_negative_invariants` : ID réutilisé pour une autre clé, remplacement d'ID/issuer/subject, DELETE d'ancre, retour N→0, version métier 0, curseur 0 avec histoire, curseur positif sans état exact, événement/résultat de mutation sur ancre seule : refus immédiat ou à la contrainte structurelle/terminale désignée au §4.2.1, rollback intégral. Réserver une ancre seule ne crée aucun User ni mutation ; ne pas rejeter un User légitimement sans EUI après Unlink |
+| AUD-L3-003 — I1 IdentityValueContractsTest et I2 IdentityConcurrencyPostgresTest | `l3_canonical_vectors` et extension `l3_canonical_unicode` : vecteurs attendus et ORDER BY PostgreSQL C indépendants de compareKeys, concordance Java/SQL sur issuer puis subject. Inclure ASCII/non-ASCII, préfixes, U+007F/U+0080, U+E000/U+10000 (ordre opposé à UTF-16), accents composés/décomposés distincts, hors BMP, même subject chez deux issuers ; toutes permutations et égalités exactes dédoublonnées |
+| AUD-L3-003 — I2 même classe | `l3_canonical_lock_paths` : deux transactions avec listes opposées, variantes deux connues/deux inconnues/mixtes et E1==E2 ; capturer ordre exact des INSERT et FOR UPDATE, barrières et attentes serveur. Toujours clés croissantes et une paire par clé ; aucune insertion préalable non triée. Reprendre courses Registration/Link/Unlink I01-D/F/J/K sur ces chemins, sans sleep comme preuve |
+| AUD-L3-003 — I1 IdentityValueContractsTest et I2 IdentitySchemaPostgresTest | `l3_unstorable_keys` : U+0000 dans issuer/subject et surrogate haut/bas isolé refusés avant premier INSERT/verrou EUI côté adaptateur, aucune clé remplacée/supprimée ni effet durable. Les Strings Java n'encodent pas d'octets UTF-8 invalides : tester séparément le refus de telles séquences par PostgreSQL (conversion bytea→text stricte), sans inventer d'entrée HTTP L3. Mauvais encodage serveur/client ou collation de clé ⇒ préflight négatif |
+| AUD-L3-003 — I5 V3IdentityArchitectureTest | `l3_no_eui_lock_bypass` : tous chemins IdentityRequest et Pot réel délèguent à l'unique acquisition triée de JdbcIdentityAuthority ; aucun INSERT d'ancre ni verrou EUI dans store/codec/autre adaptateur, apply ne rouvre pas de cible. Corroborer la règle structurelle par traces SQL réelles des deux adaptateurs, y compris entrée singleton et jeu mixte |
+| AUD-L3-004 — I4 IdentityPotAuthorityPostgresTest | Scinder `l3_positive_negative_witness` en variantes `l3_absent_stable`, `l3_free_stable`, `l3_invalid_token_same_version`, `l3_valid_binding_stable`. Après observe, barrière puis protect : Witness exactement (0,empty)/(N,empty)/(N,U), protect=true dans chaque cas inchangé ; token tiers même User testé. Espions des ports Pot et capture SQL : zéro accès Pot pour les trois négatifs, une terminalisation Command INVALID_BINDING et complétion uniques, aucun retry technique causé par le seul token invalide |
+| AUD-L3-004 — même classe et I4 V3IdentityPotCommandPostgresTest | Compléter `l3_observation_change` / `l3_command_vs_unlink` : observer puis committer une transition réelle via une autre connexion avant protect. Variantes 0→1, N→N+1 avec actor restant empty, positif→détaché, Unlink/re-Link au même U. Ancien Witness refusé ⇒ Collision, zéro finalisation/complétion/écriture Pot de cette tentative, nouvelle acquisition et relecture entière ; rejet stable possible ensuite avec token initial inchangé. Dans les variantes initialement négatives, zéro lecture Pot sur les deux tentatives ; pour positif initial, lecture préparatoire permise mais aucun verrou/effet Pot final après collision. Une mutation à version inchangée est refusée par le schéma, pas assimilée à une transition régulière |
+
+Rattachement normatif : AUD-L3-001 → EVT-01/02, E02-F/I et CON-06/R1 ;
+AUD-L3-002 → I01-A/D/E/M/N ; AUD-L3-003 → SPEC-02 §7, SPEC-05 §4,
+I01-D/F/J/K/M et CON-06 ; AUD-L3-004 → contrat PotActorAuthority L1/L2,
+I01-K/L, C05-C/E et S02-C (WRITE). Ces contributions ne certifient ni READ L4,
+ni consentement externe L5, ni les réserves temporelles historiques L2.
+
 ## 8. Slices, commandes et limites de vérification
 
 ### 8.1 Déclaration du présent mandat
@@ -727,7 +904,7 @@ Architecture globale **NOT REQUIRED / NOT RUN**, full reactor **NOT REQUIRED /
 NOT RUN**, DB/migrations/packaging/runtime **NOT RUN**. Aucun test Maven, Python,
 PostgreSQL, Docker, Bruno/k6 ou campagne temporelle exécuté. Lectures statiques,
 état Git/distant, résolution de chemins et `git diff --check` seulement.
-Aucun franchissement inattendu de slice. Un seul document ajouté dans `docs/v3`.
+Aucun franchissement inattendu de slice. Un seul document de plan modifié dans `docs/v3`.
 
 ### 8.2 Déclarations prospectives avant implémentation
 
@@ -873,12 +1050,21 @@ Les décisions fonctionnelles requises sont déjà dans les SPEC ; ne pas rouvri
 l'acceptation L1/L2 ou inventer un transfert d'EUI, une récupération de User
 abandonné, un Binding autonome ou un consentement implicite.
 
-Choix d'implémentation proposés à contrôler pendant l'audit : ancre d'absence
-technique zéro distincte d'EUI@1 ; ordre UTF-8/C ; tokens aléatoires 256 bits et
-unicité historique ; packages V3 dans modules existants ; contrats de completion
-et contraintes locales exactes ; raccord actif dès fin I3. Ils ne prétendent pas
-être des amendements normatifs. Si l'audit démontre une contradiction normative,
-la traiter avant code, sans extension silencieuse de L3.
+L'audit indépendant transmis accepte les orientations avec quatre amendements.
+Le présent traitement reste documentaire : les invariants sont explicités et
+leurs preuves futures allouées, sans prétendre avoir exécuté ces preuves.
+
+| Finding | Sections amendées | Oracles précisés au §7.2 / état documentaire |
+|---|---|---|
+| AUD-L3-001 | §3.3, §4.1–4.2.1 | Catalogue, validation pré-fermeture, contrôle différé au commit et suffixe sans mutation/verrou métier tardif ; traité, sans réserve bloquante |
+| AUD-L3-002 | §3.2, §4.2.1 | Absence métier, attribution/stabilité UUID, création directe v1 et négatifs SQL/concurrents ; traité, sans réserve bloquante |
+| AUD-L3-003 | §3.2, I1 §6 | Comparateur commun UTF-8 strict, vecteurs PostgreSQL C, chemins connus/inconnus/mixtes et absence de contournement ; traité, sans réserve bloquante |
+| AUD-L3-004 | §3.2 | Témoins négatifs stables, token invalide à version constante, changements réels et Collision/reprise sans accès Pot indu ; traité, sans réserve bloquante |
+
+**Décision réellement bloquante identifiée : aucune pour ces quatre findings.**
+Les noms/phases de contraintes et le comparateur sont des précisions de
+réalisation dans les fichiers déjà prévus, sans amendement des SPEC, du protocole
+physique L1/L2 ou du découpage I1–I5. Les autres choix du plan restent inchangés.
 
 Restent des décisions de lots ultérieurs, **non bloquantes pour ce plan** :
 format/produit et qualification du consentement externe, canonicalisation/clé
@@ -887,9 +1073,10 @@ client/rétention S-03, protection et restitution HTTP du token (L5), schéma RE
 des gates futures et le traitement de leurs tests temporels transitifs doivent
 être résolus avant leur exécution, sans requalification implicite de L2.
 
-**Verdict : READY FOR INDEPENDENT AUDIT.** Ce verdict porte sur la préparation du
-plan, pas sur son acceptation ni sur la disponibilité d'Identity. Arrêt après
-publication documentaire ; implémentation exclusivement après GO humain distinct.
+**Verdict : READY FOR IMPLEMENTATION GO.** Les quatre amendements ciblés sont
+traités sans réserve bloquante ; leurs tests restent NOT RUN. Ce verdict ne vaut
+ni GO d'exécution, ni livraison Identity, ni nouveau certificat L1/L2. Arrêt après
+publication de ce seul plan ; implémentation exclusivement après GO humain distinct.
 
 ## Annexe A — Inventaire nominatif et destination
 
@@ -1620,6 +1807,12 @@ tables par module, 29 compléments transversaux/distribution).
 | 10. Runtime | Fin I3 seulement si raccord actif/outils/grants livrés et démontrés ensemble : R-ID interne ; fin I4 R-ID-POT ; HTTP/READ/consentement et distribution finale ultérieurs. §9.1 |
 
 ## Annexe C — Contrôles documentaires et publication
+
+Pour les amendements AUD-L3-001…004 : référence de reprise vérifiée
+`17562aa031a861adabf197e69a95d7c7c411f38b`, worktree cible propre, tête distante
+identique et travaux étrangers préservés. Les références/chemins et le diff
+limité à ce plan sont contrôlés ; aucune exécution applicative, migration,
+création de test ou campagne temporelle. Les annexes d'inventaire restent intactes.
 
 Commandes réellement exécutées : `pwd`, `git status --short`,
 `git branch --show-current`, `git branch -avv`, `git rev-parse HEAD`,
