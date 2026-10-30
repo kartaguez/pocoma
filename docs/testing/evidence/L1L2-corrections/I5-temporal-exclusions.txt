@@ -1,0 +1,4 @@
+# Human arbitration, 2026-10-30: exclude only these two temporal campaigns.
+# Keep both NOT RUN; retain the explicit global-gate coverage reserve.
+com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05
+com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r12
