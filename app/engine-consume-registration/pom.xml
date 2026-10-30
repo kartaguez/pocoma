@@ -6,6 +6,9 @@
   <dependencies>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-binding-authority</artifactId><version>${project.version}</version></dependency>
+    <!-- V3 observation uses RecoveryObservation and the explicit read-snapshot capability. -->
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-consumption</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>
     <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
   </dependencies>
 </project>
