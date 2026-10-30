@@ -1,5 +1,18 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
+**Arbitrage humain L3/I2 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
+GO borné L3/I3 après publication documentaire**, [décision et réserves](L3_I2_Acceptance_Decision_2026-10-30.md).
+Les 27 tests I2 PostgreSQL et les 21 contrôles d'architecture ciblés sont PASS
+sur leurs périmètres ; la gate canonique COMMAND + Architecture reste **FAIL
+sur `i5_r12`**, Architecture **SKIPPED**. Aucun I2 LOCAL BOUNDED PASS ni PASS
+technique canonique ou global n'est prononcé. Le harness I2 ne certifie ni
+le participant IdentityRequest ni la composition runtime future. Les acceptations
+et réserves L1/L2 restent inchangées ; aucune dispense des gates ultérieures.
+I3 n'est pas commencé par cette publication ; I4/I5 restent soumis à leurs GO.
+Cet arbitrage supplante les seuls arrêts procéduraux avant I3 de la livraison I2,
+sans réécrire les résultats historiques ni les réserves de certification.
+
+**Livraison technique I2 — état historique avant arbitrage ci-dessus.**
 **Livraison L3/I2 du 30-10-2026 : I2 IMPLEMENTED, preuves locales satisfaites,
 gate canonique FAIL — aucun I2 LOCAL BOUNDED PASS ni GO I3.**
 27 tests I2 PASS sur PostgreSQL réel ; gate COMMAND + Architecture :
@@ -8,7 +21,7 @@ SKIPPED, contribution ciblée distincte. [Rapport et preuves I2](L3_I2_Execution
 Audit indépendant requis avant toute décision I3. L'arbitrage et les échecs
 historiques I1, ainsi que les acceptations/réserves L1/L2, restent inchangés.
 
-**État courant au 30-10-2026 : I1 ACCEPTED WITH EXPLICIT RESERVATIONS — GO I2.**
+**Arbitrage historique I1 au 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS — GO I2.**
 L'[arbitrage humain](L3_I1_Arbitration_and_I2_GO.md) autorise I2 uniquement,
 selon le périmètre et les preuves prévus ci-dessous. I1 est implémenté ; sa gate
 COMMAND + Architecture reste FAIL, aucun I1 LOCAL BOUNDED PASS. Les mentions

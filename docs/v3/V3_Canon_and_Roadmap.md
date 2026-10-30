@@ -1,6 +1,18 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Arbitrage humain L3/I1 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
+**Arbitrage humain L3/I2 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
+GO borné L3/I3 après publication documentaire**, [décision et réserves](L3_I2_Acceptance_Decision_2026-10-30.md).
+Les 27 tests I2 PostgreSQL et les 21 contrôles d'architecture ciblés sont PASS
+sur leurs périmètres ; la gate canonique COMMAND + Architecture reste **FAIL
+sur `i5_r12`**, Architecture **SKIPPED**. Aucun I2 LOCAL BOUNDED PASS ni PASS
+technique canonique ou global n'est prononcé. Le harness I2 ne certifie ni
+le participant IdentityRequest ni la composition runtime future. Les acceptations
+et réserves L1/L2 restent inchangées ; aucune dispense des gates ultérieures.
+I3 n'est pas commencé par cette publication ; I4/I5 restent soumis à leurs GO.
+Cet arbitrage supplante les seuls arrêts procéduraux avant I3 de la livraison I2,
+sans réécrire les résultats historiques ni les réserves de certification.
+
+**Arbitrage historique L3/I1 du 30-10-2026 : ACCEPTED WITH EXPLICIT RESERVATIONS —
 GO I2**, [décision et portée](L3_I1_Arbitration_and_I2_GO.md). Les 35 nouveaux
 tests I1 sont PASS ; la gate COMMAND + Architecture reste FAIL (`i5_r05`,
 `i5_r12`), la contribution Architecture ciblée ne certifie pas sa gate canonique
