@@ -109,7 +109,7 @@ where a.issuer=? and a.subject=?
                     if (changes.createdUser().isPresent())
                         jdbc.update(
                                 "insert into v3_pocoma_user(user_id,created_request_id) values"
-                                    + " (?,?)",
+                                        + " (?,?)",
                                 changes.createdUser().get().id().value(),
                                 requestId);
                     jdbc.update(
@@ -213,7 +213,9 @@ where v.eui_id=? and v.version=?
                     failure.getMostSpecificCause() instanceof SQLException sql
                             ? sql.getSQLState()
                             : "unavailable";
-            throw new IllegalStateException("Identity persistence failure; SQLSTATE=" + state);
+            throw new IllegalStateException(
+                    "Identity persistence failure; SQLSTATE=" + state,
+                    new SQLException("Redacted Identity failure", state));
         }
     }
 }

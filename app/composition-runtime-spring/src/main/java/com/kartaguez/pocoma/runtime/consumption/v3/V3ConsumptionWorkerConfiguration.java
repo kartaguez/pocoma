@@ -119,6 +119,7 @@ public class V3ConsumptionWorkerConfiguration {
                             settings.technicalProbes(),
                             settings.fixtureIdentity());
             guard.validateLifecyclePrivileges(V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+            if (settings.identityRequest()) guard.validateIdentitySource(w);
             factory.registerSingleton("v3WorkerSettings", settings);
             factory.registerSingleton("v3WorkerGuard", guard);
         }
@@ -184,12 +185,36 @@ public class V3ConsumptionWorkerConfiguration {
                             64,
                             settings.lifecycle().lockTimeout(),
                             settings.lifecycle().statementTimeout());
-            for (String name : List.of("Command", "I5ReadPotProbe", "I5ReadCompletionProbe")) {
+            for (String name :
+                    List.of(
+                            "IdentityRequest",
+                            "Command",
+                            "I5ReadPotProbe",
+                            "I5ReadCompletionProbe")) {
                 if (!settings.consumptionLimits().containsKey(name)) continue;
                 var definition = V3ConsumptionWorkerSettings.definition(name);
                 ConsumptionEngine engine;
                 DiscoveryEngine discovery;
-                if (name.equals("Command")) {
+                if (name.equals("IdentityRequest")) {
+                    engine =
+                            V3IdentityRequestComposition.assemble(
+                                    resources.writeBusiness,
+                                    resources.writeEffects,
+                                    resources.writeControl,
+                                    resources.writeTechnical,
+                                    guard,
+                                    settings.lifecycle(),
+                                    capacity,
+                                    observation);
+                    discovery =
+                            V3ConsumptionDiscoveryComposition.requests(
+                                    guard,
+                                    definition,
+                                    resources.writeControl,
+                                    resources.writeTechnical,
+                                    ds,
+                                    V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+                } else if (name.equals("Command")) {
                     engine =
                             V3PotCommandComposition.assemble(
                                     resources.writeBusiness,

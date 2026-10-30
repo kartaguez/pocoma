@@ -18,7 +18,8 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
     private final JdbcTemplate jdbc;
     private final Settings settings;
     private final ConsumableFamily family;
-    private final String sequence, table, subject;
+    private final String sequence, table;
+    private final Set<String> subjects;
 
     public JdbcEventDiscoveryReferences(
             DataSource source, ConsumableFamily family, Settings settings) {
@@ -30,12 +31,22 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
             case POT_EVENT -> {
                 sequence = "POT";
                 table = "v3_pot_event";
-                subject = "POT";
+                subjects = Set.of("POT");
             }
             case COMMAND_COMPLETION_EVENT -> {
                 sequence = "COMMAND_COMPLETION";
                 table = "v3_command_completion_event";
-                subject = "COMMAND";
+                subjects = Set.of("COMMAND");
+            }
+            case IDENTITY_EVENT -> {
+                sequence = "IDENTITY";
+                table = "v3_identity_event";
+                subjects = Set.of("POCOMA_USER", "EXTERNAL_USER_IDENTITY");
+            }
+            case IDENTITY_COMPLETION_EVENT -> {
+                sequence = "IDENTITY_COMPLETION";
+                table = "v3_identity_completion_event";
+                subjects = Set.of("REGISTRATION", "LINK", "UNLINK");
             }
             default ->
                     throw new IllegalArgumentException(
@@ -76,7 +87,7 @@ public final class JdbcEventDiscoveryReferences implements NonBurnableReferences
                                 + " e on e.event_id=p.event_id where p.family=? and p.position>?"
                                 + " and p.position<=? order by p.position",
                         (r, n) -> {
-                            if (!subject.equals(r.getString(3)))
+                            if (!subjects.contains(r.getString(3)))
                                 throw new IllegalStateException(
                                         "missing or incompatible event envelope");
                             return new Reference(

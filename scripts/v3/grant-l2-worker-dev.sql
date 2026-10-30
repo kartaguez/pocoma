@@ -1,5 +1,20 @@
+\if :{?identity_authority}
+\else
+\set identity_authority fixture
+\endif
 -- DEV fixtures and internal injector only. Existing lifecycle/discovery grants stay unchanged.
 begin;
+-- L3 real is explicit, requires V6, and never installs the fixture.
+select set_config('pocoma.identity_authority', :'identity_authority', true);
+do $$
+begin
+ if current_setting('pocoma.identity_authority') not in ('fixture','real') then raise exception 'invalid Identity authority';end if;
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  if to_regclass('v3_identity_request') is null or to_regprocedure('v3_identity_check_unit(uuid,boolean)') is null
+    or to_regclass('i5_fixture_identity') is not null then raise exception 'Identity real requires V6 without fixture';end if;
+ end if;
+end $$;
+
 select set_config('pocoma.expected_database', :'expected_database', true);
 select set_config('pocoma.expected_schema', :'expected_schema', true);
 select set_config('pocoma.expected_admin', :'expected_admin', true);
@@ -24,11 +39,27 @@ begin
  if to_regclass('i5_read_probe_effect') is not null then
     execute format('grant select,insert on i5_read_probe_effect to %I',r);
  end if;
- if to_regclass('v3_command') is not null then
+ if to_regclass('v3_command') is not null and current_setting('pocoma.identity_authority')='fixture' then
     execute format('grant usage on schema %I to %I',current_schema(),i);
     -- The deferred admission constraint reads the result even for PENDING.
     execute format('grant select on v3_command_result to %I',i);
     execute format('grant select,insert(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload) on v3_command to %I',i);
+ end if;
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_identity_request') is not null then
+    execute format('grant usage on schema %I to %I',current_schema(),i);
+    execute format('grant select,insert on v3_identity_request to %I',i);
+    -- Invoker PENDING-unit check: no token column or business mutation granted.
+    execute format('grant select on v3_identity_request_result,v3_identity_event,v3_identity_completion_event,v3_event_position,consumption_slot to %I',i);
+    execute format('grant select(created_request_id) on v3_pocoma_user to %I',i);
+    execute format('grant select(request_id) on v3_eui_version to %I',i);
+    if has_any_column_privilege(i,'v3_eui_authority','INSERT,UPDATE,REFERENCES')
+       or has_any_column_privilege(i,'v3_eui_version','INSERT,UPDATE,REFERENCES')
+       or has_any_column_privilege(i,'v3_pocoma_user','INSERT,UPDATE,REFERENCES')
+       or has_any_column_privilege(i,'v3_identity_request_result','INSERT,UPDATE,REFERENCES')
+       or has_any_column_privilege(i,'consumption_slot','INSERT,UPDATE,REFERENCES')
+       or has_any_column_privilege(i,'v3_identity_request','UPDATE,REFERENCES')
+       or has_table_privilege(i,'v3_identity_request','DELETE,TRUNCATE,TRIGGER')
+    then raise exception 'unsafe Identity internal injector';end if;
  end if;
 end $$;
 commit;

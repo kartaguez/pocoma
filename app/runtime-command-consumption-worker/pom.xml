@@ -4,6 +4,8 @@
 	<parent><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma</artifactId><version>0.0.1-SNAPSHOT</version><relativePath>../pom.xml</relativePath></parent>
 	<artifactId>pocoma-runtime-command-consumption-worker</artifactId>
 	<dependencies>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-contracts-registration</artifactId><version>${project.version}</version></dependency>
+    <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-engine-consume-registration</artifactId><version>${project.version}</version></dependency>
         <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-infra-persistence-read-jdbc</artifactId><version>${project.version}</version></dependency>
 		<dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-composition-runtime-spring</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>com.kartaguez.pocoma</groupId><artifactId>pocoma-port-transaction</artifactId><version>${project.version}</version></dependency>

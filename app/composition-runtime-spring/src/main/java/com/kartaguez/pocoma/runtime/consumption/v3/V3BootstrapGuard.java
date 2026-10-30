@@ -386,6 +386,121 @@ public final class V3BootstrapGuard {
         }
     }
 
+    private static final Set<String> IDENTITY_TABLES =
+            Set.of(
+                    "v3_identity_request",
+                    "v3_eui_authority",
+                    "v3_pocoma_user",
+                    "v3_eui_version",
+                    "v3_identity_request_result",
+                    "v3_identity_event",
+                    "v3_identity_completion_event");
+
+    public void validateIdentitySource(DataSource source) {
+        if (fixtureIdentity)
+            throw new IllegalStateException("Real Identity refuses fixture authority");
+        validateLifecycleSource(source, Authority.WRITE, Privileges.LIFECYCLE_AND_DISCOVERY);
+        try (var c = source.getConnection()) {
+            c.setReadOnly(true);
+            c.setAutoCommit(false);
+            try (var statement = c.createStatement()) {
+                inspectIdentity(statement);
+            } finally {
+                c.rollback();
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Identity V6 authority refused");
+        }
+    }
+
+    private static void inspectIdentity(Statement statement) throws SQLException {
+        try (var rows =
+                statement.executeQuery(
+                        "select current_setting('server_encoding')='UTF8' and"
+                            + " current_setting('client_encoding')='UTF8',to_regprocedure('v3_identity_check_unit(uuid,boolean)')"
+                            + " is not null and to_regclass('v3_identity_request') is not null")) {
+            rows.next();
+            require(rows.getBoolean(1) && rows.getBoolean(2), "Identity V6/encoding required");
+        }
+        try (var rows =
+                statement.executeQuery(
+                        "select count(*)=2 from pg_trigger where tgrelid in"
+                            + " ('v3_eui_authority'::regclass,'v3_eui_version'::regclass) and"
+                            + " tgname in ('v3_identity_anchor_state','v3_identity_version_state')"
+                            + " and tgdeferrable and tginitdeferred")) {
+            rows.next();
+            require(rows.getBoolean(1), "Identity structural constraints required");
+        }
+        try (var rows =
+                statement.executeQuery(
+                        "select count(*)=6 from pg_attribute a join pg_collation c on"
+                            + " c.oid=a.attcollation where a.attrelid in"
+                            + " ('v3_eui_authority'::regclass,'v3_identity_request'::regclass) and"
+                            + " a.attname in"
+                            + " ('issuer','subject','requester_issuer','requester_subject','target_issuer','target_subject')"
+                            + " and c.collname='C'")) {
+            rows.next();
+            require(rows.getBoolean(1), "Identity C collation required");
+        }
+        try (var rows =
+                statement.executeQuery(
+                        "select count(*)=2 from v3_event_counter where family in"
+                                + " ('IDENTITY','IDENTITY_COMPLETION')")) {
+            rows.next();
+            require(rows.getBoolean(1), "Identity publication counters required");
+        }
+        for (String table : IDENTITY_TABLES) {
+            boolean insert = !table.equals("v3_identity_request");
+            try (var rows =
+                    statement.executeQuery(
+                            "select has_table_privilege('"
+                                    + table
+                                    + "','SELECT'),has_table_privilege('"
+                                    + table
+                                    + "','INSERT'),"
+                                    + "has_table_privilege('"
+                                    + table
+                                    + "','UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'),pg_has_role(current_user,(select"
+                                    + " relowner from pg_class where oid='"
+                                    + table
+                                    + "'::regclass),'MEMBER')")) {
+                rows.next();
+                require(
+                        rows.getBoolean(1)
+                                && rows.getBoolean(2) == insert
+                                && !rows.getBoolean(3)
+                                && !rows.getBoolean(4),
+                        "unsafe Identity table rights: " + table);
+            }
+            try (var rows =
+                    statement.executeQuery(
+                            "select column_name,has_column_privilege('"
+                                    + table
+                                    + "',column_name,'INSERT'),"
+                                    + "has_column_privilege('"
+                                    + table
+                                    + "',column_name,'UPDATE'),has_column_privilege('"
+                                    + table
+                                    + "',column_name,'REFERENCES') from information_schema.columns"
+                                    + " where table_schema=current_schema() and table_name='"
+                                    + table
+                                    + "'")) {
+                while (rows.next()) {
+                    boolean update =
+                            table.equals("v3_identity_request")
+                                            && rows.getString(1).equals("status")
+                                    || table.equals("v3_eui_authority")
+                                            && rows.getString(1).equals("current_version");
+                    require(
+                            rows.getBoolean(2) == insert
+                                    && rows.getBoolean(3) == update
+                                    && !rows.getBoolean(4),
+                            "unsafe Identity column rights");
+                }
+            }
+        }
+    }
+
     private static void inspectDiscoveryWrite(Statement statement) throws SQLException {
         var insertTables =
                 Set.of(
@@ -573,7 +688,9 @@ public final class V3BootstrapGuard {
                 String table = rows.getString(1);
                 if (TABLES.contains(table)
                         || (enabled && table.equals(fixture))
-                        || (authority == Authority.WRITE && writeTables.contains(table))) continue;
+                        || (authority == Authority.WRITE
+                                && (writeTables.contains(table)
+                                        || IDENTITY_TABLES.contains(table)))) continue;
                 require(!rows.getBoolean(2), "unallocated runtime table privileges");
             }
         }

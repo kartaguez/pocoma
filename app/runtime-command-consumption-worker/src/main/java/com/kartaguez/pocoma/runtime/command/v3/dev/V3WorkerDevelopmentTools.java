@@ -1,13 +1,19 @@
 package com.kartaguez.pocoma.runtime.command.v3.dev;
 
+import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
 import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
+import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
+import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.runtime.consumption.v3.*;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.core.env.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.nio.file.*;
@@ -38,6 +44,26 @@ public final class V3WorkerDevelopmentTools {
                 case "prepare" -> prepare(settings);
                 case "validate" -> validate(settings);
                 case "inspect" -> inspect(settings);
+                case "inject-identity" -> {
+                    if (args.length != 3)
+                        throw new IllegalArgumentException("protected intention file required");
+                    injectIdentity(settings, Path.of(args[2]));
+                }
+                case "verify-identity" -> {
+                    if (args.length != 4 && args.length != 5)
+                        throw new IllegalArgumentException("request UUID/wait required");
+                    verifyIdentity(
+                            settings,
+                            UUID.fromString(args[2]),
+                            Integer.parseInt(args[3]),
+                            args.length == 5 ? args[4] : null);
+                }
+                case "identity-token" -> {
+                    if (args.length != 4)
+                        throw new IllegalArgumentException(
+                                "protected own-key/output files required");
+                    identityToken(settings, Path.of(args[2]), Path.of(args[3]));
+                }
                 case "inject-command" -> {
                     if (args.length != 3)
                         throw new IllegalArgumentException("request UUID required");
@@ -183,7 +209,10 @@ public final class V3WorkerDevelopmentTools {
                                     ? new String[] {
                                         "classpath:db/v3-pot/migration",
                                         "classpath:db/v3-pot-execution/migration",
-                                        "classpath:db/v3-consumption-write/migration"
+                                        "classpath:db/v3-consumption-write/migration",
+                                        settings.identityAuthority().equals("real")
+                                                ? "classpath:db/v3-identity/migration"
+                                                : "classpath:db/v3-consumption-write/migration"
                                     }
                                     : new String[] {"classpath:db/v3-consumption-read/migration"})
                     .placeholders(
@@ -216,7 +245,8 @@ public final class V3WorkerDevelopmentTools {
                         settings.readControl().password());
         settings.validateTarget(settings.writeControl(), w);
         settings.validateTarget(settings.readControl(), r);
-        V3BootstrapGuard.development(
+        var guard =
+                V3BootstrapGuard.development(
                         new V3BootstrapGuard.Target(
                                 w,
                                 settings.writeControl().database(),
@@ -229,8 +259,9 @@ public final class V3WorkerDevelopmentTools {
                                 settings.readControl().username()),
                         settings.catalog(),
                         settings.technicalProbes(),
-                        settings.fixtureIdentity())
-                .validateLifecyclePrivileges(V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+                        settings.fixtureIdentity());
+        guard.validateLifecyclePrivileges(V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
+        if (settings.identityRequest()) guard.validateIdentitySource(w);
         System.out.println(
                 "I5_DEV_VALIDATED two authorities; no Worker threads or coordination mutation");
     }
@@ -304,6 +335,151 @@ public final class V3WorkerDevelopmentTools {
                         + " unit");
     }
 
+    static DataSourceTransactionManager manager(javax.sql.DataSource source) {
+        var manager = new DataSourceTransactionManager(source);
+        manager.setNestedTransactionAllowed(false);
+        return manager;
+    }
+
+    static Properties protectedProperties(Path path) throws Exception {
+        if (Files.isSymbolicLink(path) || !Files.isRegularFile(path))
+            throw new IllegalArgumentException("regular private file required");
+        var permissions = Files.getPosixFilePermissions(path);
+        if (permissions.stream()
+                .anyMatch(p -> p.name().startsWith("GROUP_") || p.name().startsWith("OTHERS_")))
+            throw new IllegalArgumentException("private file permissions required");
+        var result = new Properties();
+        try (var in = Files.newInputStream(path)) {
+            result.load(in);
+        }
+        return result;
+    }
+
+    static void realIdentity(V3ConsumptionWorkerSettings settings) {
+        if (!settings.identityRequest()
+                || !settings.identityAuthority().equals("real")
+                || settings.fixtureIdentity())
+            throw new IllegalStateException("explicit real IdentityRequest required");
+    }
+
+    static void injectIdentity(V3ConsumptionWorkerSettings settings, Path intention)
+            throws Exception {
+        realIdentity(settings);
+        var p = protectedProperties(intention);
+        var requester =
+                new ExternalIdentity(
+                        p.getProperty("requester.issuer"), p.getProperty("requester.subject"));
+        var target =
+                new ExternalIdentity(
+                        p.getProperty("target.issuer"), p.getProperty("target.subject"));
+        var operation = IdentityRequestJson.operation(p.getProperty("operation"), target);
+        UUID id = UUID.fromString(p.getProperty("request-id"));
+        var time = Instant.parse(p.getProperty("created-at"));
+        String token = p.getProperty("binding-token");
+        // Fingerprint is bound to all supplied bytes; never printed or used as external consent.
+        String fingerprint =
+                HexFormat.of()
+                        .formatHex(
+                                java.security.MessageDigest.getInstance("SHA-256")
+                                        .digest(Files.readAllBytes(intention)));
+        var request =
+                new IdentityRequest(
+                        id,
+                        requester,
+                        operation,
+                        token == null ? null : new BindingToken(token),
+                        time,
+                        new IdentityRequest.AdmissionContext(
+                                "pocoma-controlled-dev",
+                                "L3/I3",
+                                requester,
+                                target,
+                                fingerprint,
+                                id.toString(),
+                                time,
+                                Map.of("scope", "internal-test-only"),
+                                IdentityRequest.Origin.CONTROLLED_INTERNAL));
+        String role = identifier(required("POCOMA_I5_INJECTOR_ROLE"));
+        if (role.equals(settings.writeBusiness().username()))
+            throw new IllegalArgumentException("distinct injector required");
+        var source =
+                new DriverManagerDataSource(
+                        settings.writeBusiness().url(),
+                        role,
+                        required("POCOMA_I5_INJECTOR_PASSWORD"));
+        var tx = new SpringAttemptTransactions(source, manager(source), 5);
+        var store = new JdbcIdentityRequestStore(source, tx);
+        var stored = tx.write(() -> store.insertPending(request));
+        System.out.println(
+                "L3_DEV_IDENTITY_ADMITTED request="
+                        + id
+                        + " status="
+                        + stored.status()
+                        + " origin=CONTROLLED_INTERNAL");
+    }
+
+    static void identityToken(V3ConsumptionWorkerSettings settings, Path ownKey, Path destination)
+            throws Exception {
+        realIdentity(settings);
+        var p = protectedProperties(ownKey);
+        // Confidential operator helper only, using admin credentials; never a client API/result.
+        var sql = new JdbcTemplate(admin(settings.writeBusiness()));
+        String token =
+                sql.queryForObject(
+                        "select v.binding_token from v3_eui_authority a join v3_eui_version v on"
+                            + " v.eui_id=a.eui_id and v.version=a.current_version where a.issuer=?"
+                            + " and a.subject=? and v.binding_token is not null",
+                        String.class,
+                        p.getProperty("issuer"),
+                        p.getProperty("subject"));
+        Files.createFile(
+                destination,
+                java.nio.file.attribute.PosixFilePermissions.asFileAttribute(
+                        java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")));
+        Files.writeString(destination, token, StandardOpenOption.WRITE);
+        System.out.println("L3_DEV_CONFIDENTIAL_OWN_TOKEN_WRITTEN");
+    }
+
+    static void verifyIdentity(
+            V3ConsumptionWorkerSettings settings, UUID id, int seconds, String expected)
+            throws Exception {
+        realIdentity(settings);
+        if (seconds < 1 || seconds > 300)
+            throw new IllegalArgumentException("bounded observation required");
+        var sql = new JdbcTemplate(admin(settings.writeControl()));
+        long end = System.nanoTime() + Duration.ofSeconds(seconds).toNanos();
+        while (System.nanoTime() < end) {
+            var rows =
+                    sql.queryForList(
+                            "select outcome,target_eui_id,target_version,rejection from"
+                                    + " v3_identity_request_result where request_id=?",
+                            id);
+            if (rows.size() == 1) {
+                if (expected != null && !expected.equals(rows.getFirst().get("outcome")))
+                    throw new IllegalStateException("Unexpected Identity outcome");
+                var source = admin(settings.writeControl());
+                var tx = new SpringAttemptTransactions(source, manager(source), 5);
+                var observation = new JdbcIdentityRequestObservation(source);
+                if (tx.read(ctx -> observation.observe(id, ctx))
+                                != com.kartaguez.pocoma.engine.consumption.v3.RecoveryObservation
+                                        .COMPLETED
+                        || sql.queryForObject(
+                                        "select count(*) from consumption_slot where"
+                                            + " consumption_id='2999e75c-272d-5afe-a966-c9364ef021fe'"
+                                            + " and consumable_id=?",
+                                        Integer.class,
+                                        id)
+                                != 0)
+                    throw new IllegalStateException("Identity terminal evidence inconsistent");
+                System.out.println(
+                        "L3_DEV_IDENTITY_VERIFIED request=" + id + " result=" + rows.getFirst());
+                return;
+            }
+            Thread.sleep(100);
+        }
+        throw new IllegalStateException("Identity observation incomplete");
+    }
+
     static void verify(V3ConsumptionWorkerSettings settings, UUID request, int seconds)
             throws Exception {
         if (seconds < 1 || seconds > 300)
@@ -350,7 +526,7 @@ public final class V3WorkerDevelopmentTools {
                                 != 1
                         || write.queryForObject(
                                         "select count(*) from v3_event_position where event_id in"
-                                            + " (?,?)",
+                                                + " (?,?)",
                                         Integer.class,
                                         events.get(0),
                                         events.get(1))
@@ -359,15 +535,15 @@ public final class V3WorkerDevelopmentTools {
                 if (!settings.technicalProbes()
                         || read.queryForObject(
                                                 "select count(*) from i5_read_probe_effect where"
-                                                    + " consumable_id in (?,?) and"
-                                                    + " value='technical'",
+                                                        + " consumable_id in (?,?) and"
+                                                        + " value='technical'",
                                                 Integer.class,
                                                 events.get(0),
                                                 events.get(1))
                                         == 2
                                 && read.queryForObject(
                                                 "select count(*) from consumption_slot where"
-                                                    + " consumable_id in (?,?)",
+                                                        + " consumable_id in (?,?)",
                                                 Integer.class,
                                                 events.get(0),
                                                 events.get(1))

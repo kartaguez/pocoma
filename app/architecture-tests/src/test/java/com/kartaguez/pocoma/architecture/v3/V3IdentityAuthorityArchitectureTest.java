@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.*;
 import java.util.*;
 
-/**
- * I2 only: physical primitives exist without an active participant, composition or Pot authority.
- */
+/** I2/I3: primitives and participant share the existing L2 owner; real Pot authority remains I4. */
 class V3IdentityAuthorityArchitectureTest {
     static final String ROOT = "com.kartaguez.pocoma";
     static final com.tngtech.archunit.core.domain.JavaClasses CLASSES =
@@ -82,6 +80,54 @@ class V3IdentityAuthorityArchitectureTest {
                                                             .equals(c.getName())),
                     c.getName());
         }
+    }
+
+    @Test
+    void l3_identity_participant_and_factory_keep_l2_ownership() {
+        noClasses()
+                .that()
+                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage(
+                        "org.springframework..",
+                        "jakarta.persistence..",
+                        "java.sql..",
+                        "javax.sql..",
+                        ROOT + ".infra..",
+                        ROOT + ".runtime..")
+                .check(CLASSES);
+        noClasses()
+                .that()
+                .haveNameMatching(".*engine.consume.registration.v3.ExecuteIdentityRequest.*")
+                .should()
+                .dependOnClassesThat()
+                .haveFullyQualifiedName(ROOT + ".port.transaction.v3.AttemptTransactions")
+                .check(CLASSES);
+        var factory =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("V3IdentityRequestComposition"))
+                        .findFirst()
+                        .orElseThrow();
+        assertFalse(
+                factory.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        Set.of(
+                                                        "commit",
+                                                        "rollback",
+                                                        "getConnection",
+                                                        "write",
+                                                        "read")
+                                                .contains(c.getTarget().getName())));
+        assertTrue(
+                factory.getMethodCallsFromSelf().stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("V3ConsumptionLifecycleComposition")
+                                                && c.getTarget().getName().equals("assemble")));
     }
 
     @Test

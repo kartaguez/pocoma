@@ -160,6 +160,8 @@ class V3WorkerMonolithPostgresTest {
             properties.put(prefix + "enabled", "true");
             properties.put(prefix + "environment", "DEV");
             properties.put(prefix + "fixture-identity", "true");
+            properties.put(prefix + "identity-authority", "fixture");
+            properties.put(prefix + "command-enabled", "true");
             properties.put(prefix + "technical-probes", "true");
             properties.put(prefix + "worker-name", "i5-test");
             properties.put(prefix + "worker-limit", "4");

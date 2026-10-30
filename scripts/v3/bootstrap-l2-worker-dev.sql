@@ -1,7 +1,22 @@
+\if :{?identity_authority}
+\else
+\set identity_authority fixture
+\endif
 -- Administrative DEV fixture only. Never called by a Worker or on restart.
 -- Required psql variables: expected_database/schema/admin, authority, environment,
 -- fixture_identity, technical_probes. Canonical bootstrap must already be installed.
 begin;
+-- L3 real is explicit, requires V6, and never installs the fixture.
+select set_config('pocoma.identity_authority', :'identity_authority', true);
+do $$
+begin
+ if current_setting('pocoma.identity_authority') not in ('fixture','real') then raise exception 'invalid Identity authority';end if;
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  if to_regclass('v3_identity_request') is null or to_regprocedure('v3_identity_check_unit(uuid,boolean)') is null
+    or to_regclass('i5_fixture_identity') is not null then raise exception 'Identity real requires V6 without fixture';end if;
+ end if;
+end $$;
+
 select set_config('pocoma.expected_database', :'expected_database', true);
 select set_config('pocoma.expected_schema', :'expected_schema', true);
 select set_config('pocoma.expected_admin', :'expected_admin', true);
@@ -17,6 +32,7 @@ begin
     or current_schema()<>current_setting('pocoma.expected_schema') or current_schema()='public'
     or current_user<>current_setting('pocoma.expected_admin')
     or current_setting('pocoma.dev_environment')<>'DEV' or a not in ('WRITE','READ')
+    or (current_setting('pocoma.identity_authority')='real' and current_setting('pocoma.dev_fixture')<>'false')
     or current_setting('pocoma.dev_fixture') not in ('true','false')
     or current_setting('pocoma.dev_probes') not in ('true','false')
     or ((a='WRITE')<>(to_regclass('v3_command') is not null))

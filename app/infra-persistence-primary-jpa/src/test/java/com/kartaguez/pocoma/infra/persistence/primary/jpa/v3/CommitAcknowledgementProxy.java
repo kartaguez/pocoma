@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.*;
  * Test-only plain PostgreSQL wire proxy. AFTER_COMMIT consumes the server's real
  * COMMIT/ReadyForQuery reply without sending it to JDBC, then breaks TCP.
  */
-final class CommitAcknowledgementProxy implements AutoCloseable {
-    enum Fault {
+public final class CommitAcknowledgementProxy implements AutoCloseable {
+    public enum Fault {
         NONE,
         BEFORE_COMMIT,
         AFTER_COMMIT
@@ -24,7 +24,7 @@ final class CommitAcknowledgementProxy implements AutoCloseable {
     final Set<Socket> sockets = ConcurrentHashMap.newKeySet();
     final ExecutorService tasks = Executors.newVirtualThreadPerTaskExecutor();
 
-    CommitAcknowledgementProxy(String host, int port) throws IOException {
+    public CommitAcknowledgementProxy(String host, int port) throws IOException {
         listener = new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
         tasks.submit(
                 () -> {
@@ -46,7 +46,19 @@ final class CommitAcknowledgementProxy implements AutoCloseable {
                 });
     }
 
-    int localPort() {
+    public void arm(Fault fault) {
+        armed.set(fault);
+    }
+
+    public int interceptedCount() {
+        return intercepted.get();
+    }
+
+    public int committedReplyCount() {
+        return committedReplies.get();
+    }
+
+    public int localPort() {
         return listener.getLocalPort();
     }
 

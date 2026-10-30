@@ -16,6 +16,8 @@ import sys
 import tempfile
 import time
 import zipfile
+import uuid
+from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_JAR = ROOT / "app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar"
@@ -77,6 +79,7 @@ def prepare(args) -> None:
             "reactivation_role": os.environ["POCOMA_I5_REACTIVATION_ROLE"], "injector_role": os.environ["POCOMA_I5_INJECTOR_ROLE"],
             "environment": "DEV", "fixture_identity": values["pocoma.v3.worker.fixture-identity"],
             "technical_probes": values["pocoma.v3.worker.technical-probes"],
+            "identity_authority": values.get("pocoma.v3.worker.identity-authority", "fixture"),
         }
         for script in ("bootstrap-l2-routing.sql", "grant-l2-lifecycle.sql", "grant-l2-discovery.sql", "bootstrap-l2-worker-dev.sql", "grant-l2-worker-dev.sql"):
             command = ["psql", "-X", "--dbname", endpoint, "--username", admin, "-v", "ON_ERROR_STOP=1"]
@@ -110,6 +113,47 @@ def prepare(args) -> None:
     with os.fdopen(fd, "w") as file:
         json.dump(receipt, file, indent=2)
     print("I5_DEV_PREPARED; start/restart never calls prepare")
+
+
+def demo_identity(args) -> None:
+    """Confidential controlled bench. The Worker must already run in explicit real mode."""
+    values = properties(args.config)
+    if values.get("pocoma.v3.worker.identity-authority") != "real" or values.get("pocoma.v3.worker.identity-request") != "true":
+        raise ValueError("explicit real IdentityRequest required")
+    issuer = "controlled-l3-dev-" + uuid.uuid4().hex
+    with tempfile.TemporaryDirectory(prefix="pocoma-l3-private-") as directory:
+        folder = Path(directory)
+        def private_file(name, text):
+            path = folder / name
+            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(fd, "w") as file:
+                file.write(text)
+            return path
+        def own_token(actor):
+            key = private_file(uuid.uuid4().hex, f"issuer={issuer}\nsubject={actor}\n")
+            token_path = folder / uuid.uuid4().hex
+            java_operation(args, "identity-token", str(key), str(token_path))
+            return token_path.read_text()
+        def submit(operation, actor, target, token=None, expected="CHANGED"):
+            request_id = str(uuid.uuid4())
+            time = datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+            text = f"request-id={request_id}\ncreated-at={time}\noperation={operation}\nrequester.issuer={issuer}\nrequester.subject={actor}\ntarget.issuer={issuer}\ntarget.subject={target}\n"
+            if token is not None:
+                text += "binding-token=" + token + "\n"
+            intention = private_file(request_id, text)
+            java_operation(args, "inject-identity", str(intention))
+            java_operation(args, "verify-identity", request_id, str(args.await_seconds), expected)
+            return request_id
+        submit("REGISTRATION", "a", "a")
+        submit("REGISTRATION", "c", "c")
+        token_a = own_token("a")
+        submit("LINK", "a", "b", token_a)
+        submit("UNLINK", "a", "b", token_a)
+        submit("LINK", "a", "b", token_a)
+        submit("UNLINK", "b", "b", own_token("b"))
+        submit("UNLINK", "a", "a", token_a)
+        submit("LINK", "a", "never", token_a, "REJECTED")
+    print("L3_DEV_R_ID_SCENARIO_COMPLETED controlled internal only; external consent/READ/Pot authority unqualified")
 
 
 def process_identity(pid: int) -> str | None:
@@ -150,10 +194,13 @@ def stop(args) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("prepare", "validate", "inspect", "inject-command", "verify", "stop"))
+    parser.add_argument("operation", choices=("prepare", "validate", "inspect", "inject-command", "inject-identity", "verify-identity", "identity-token", "demo-identity", "verify", "stop"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--jar", type=Path, default=DEFAULT_JAR)
     parser.add_argument("--request-id")
+    parser.add_argument("--intention-file", type=Path)
+    parser.add_argument("--own-key-file", type=Path)
+    parser.add_argument("--token-output", type=Path)
     parser.add_argument("--scenario", choices=("create-pot",), default="create-pot")
     parser.add_argument("--await-seconds", type=int, default=90)
     parser.add_argument("--pid", type=int)
@@ -165,10 +212,18 @@ def main() -> int:
         if args.pid is None:
             parser.error("stop requires --pid")
         return stop(args)
-    elif args.operation in ("inject-command", "verify"):
+    elif args.operation == "demo-identity":
+        demo_identity(args)
+    elif args.operation == "inject-identity":
+        if args.intention_file is None: parser.error("protected --intention-file required")
+        java_operation(args, args.operation, str(args.intention_file.resolve()))
+    elif args.operation == "identity-token":
+        if args.own_key_file is None or args.token_output is None: parser.error("private key/output files required")
+        java_operation(args, args.operation, str(args.own_key_file.resolve()), str(args.token_output.resolve()))
+    elif args.operation in ("inject-command", "verify", "verify-identity"):
         if args.request_id is None:
             parser.error("request UUID required")
-        extra = [args.request_id] + ([str(args.await_seconds)] if args.operation == "verify" else [])
+        extra = [args.request_id] + ([str(args.await_seconds)] if args.operation in ("verify", "verify-identity") else [])
         java_operation(args, args.operation, *extra)
     else:
         java_operation(args, args.operation)

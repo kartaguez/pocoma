@@ -162,6 +162,8 @@ class V3WorkerPostgresTest {
             properties.put(prefix + "enabled", "true");
             properties.put(prefix + "environment", "DEV");
             properties.put(prefix + "fixture-identity", "true");
+            properties.put(prefix + "identity-authority", "fixture");
+            properties.put(prefix + "command-enabled", "true");
             properties.put(prefix + "technical-probes", "true");
             properties.put(prefix + "worker-name", "i5-test");
             properties.put(prefix + "worker-limit", "4");
@@ -1929,7 +1931,7 @@ class V3WorkerPostgresTest {
                             "the target handle, not another Consumption, retains its ticket");
                     f.trace.add(
                             "transport fault scoped to target envelope thread; target wrapper"
-                                + " exited with its own ticket retained");
+                                    + " exited with its own ticket retained");
                     assertTrue(
                             sql.queryForObject(
                                     "select exists(select 1 from pg_stat_activity where pid=? and"

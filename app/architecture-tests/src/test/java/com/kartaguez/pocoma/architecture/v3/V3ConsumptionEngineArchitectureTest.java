@@ -317,9 +317,10 @@ class V3ConsumptionEngineArchitectureTest {
                                 java.util.Set.of(
                                                 "JdbcDiscoveryAdmissionStore",
                                                 "JdbcCommandDiscoveryReferences",
+                                                "JdbcIdentityRequestDiscoveryReferences",
                                                 "JdbcEventDiscoveryReferences")
                                         .contains(c.getSimpleName()));
-        assertEquals(3, writers.size());
+        assertEquals(4, writers.size());
         noHiddenTransactionOwner().check(writers);
         var rawCommit = noClasses().should().callMethod(java.sql.Connection.class, "commit");
         rawCommit.check(writers);

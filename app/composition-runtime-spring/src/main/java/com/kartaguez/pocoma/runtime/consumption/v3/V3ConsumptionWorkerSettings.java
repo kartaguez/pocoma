@@ -20,6 +20,9 @@ public record V3ConsumptionWorkerSettings(
         String workerName,
         int workerLimit,
         boolean fixtureIdentity,
+        String identityAuthority,
+        boolean identityRequest,
+        boolean commandEnabled,
         boolean technicalProbes,
         Map<String, Integer> consumptionLimits,
         Map<String, List<Integer>> partitions,
@@ -100,7 +103,9 @@ public record V3ConsumptionWorkerSettings(
                 profile
                         || env.containsProperty(PREFIX + "enabled")
                         || env.containsProperty(PREFIX + "fixture-identity")
-                        || env.containsProperty(PREFIX + "technical-probes");
+                        || env.containsProperty(PREFIX + "technical-probes")
+                        || env.containsProperty(PREFIX + "identity-authority")
+                        || env.containsProperty(PREFIX + "identity-request");
         if (!any) return false;
         if (!profile
                 || env.getActiveProfiles().length != 1
@@ -133,7 +138,19 @@ public record V3ConsumptionWorkerSettings(
         int mw = positive(env, "worker-limit");
         boolean fixture = flag(env, "fixture-identity"), probes = flag(env, "technical-probes");
         var expected = new LinkedHashSet<String>();
-        if (fixture) expected.add("Command");
+        String mode = env.getRequiredProperty(PREFIX + "identity-authority");
+        if (!Set.of("fixture", "real").contains(mode))
+            throw new IllegalArgumentException("explicit Identity authority mode required");
+        boolean identity =
+                env.containsProperty(PREFIX + "identity-request") && flag(env, "identity-request");
+        boolean command =
+                env.containsProperty(PREFIX + "command-enabled") && flag(env, "command-enabled");
+        if (identity && !mode.equals("real") || mode.equals("real") && (fixture || command))
+            throw new IllegalArgumentException(
+                    "I3 real requires IdentityRequest only and no fixture/Command");
+        if (command && !fixture) throw new IllegalArgumentException("Command real requires I4");
+        if (identity) expected.add("IdentityRequest");
+        if (command) expected.add("Command");
         if (probes) expected.addAll(List.of("I5ReadPotProbe", "I5ReadCompletionProbe"));
         if (expected.isEmpty())
             throw new IllegalArgumentException("at least one implemented pair required");
@@ -236,6 +253,9 @@ public record V3ConsumptionWorkerSettings(
                 name,
                 mw,
                 fixture,
+                mode,
+                identity,
+                command,
                 probes,
                 limits,
                 partitions,
@@ -342,6 +362,11 @@ public record V3ConsumptionWorkerSettings(
 
     public static ConsumptionDefinition definition(String name) {
         return switch (name) {
+            case "IdentityRequest" ->
+                    V3ConsumptionCatalogConfiguration.definitions().stream()
+                            .filter(d -> d.family() == ConsumableFamily.IDENTITY_REQUEST)
+                            .findFirst()
+                            .orElseThrow();
             case "Command" -> V3ConsumptionCatalogConfiguration.definitions().getFirst();
             case "I5ReadPotProbe" -> probeDefinitions().get(0);
             case "I5ReadCompletionProbe" -> probeDefinitions().get(1);

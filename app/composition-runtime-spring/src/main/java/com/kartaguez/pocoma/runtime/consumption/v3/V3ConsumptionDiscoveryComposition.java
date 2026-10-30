@@ -38,7 +38,8 @@ public final class V3ConsumptionDiscoveryComposition {
             SpringAttemptTransactions owner,
             DiscoveryEngine.Settings settings,
             V3BootstrapGuard.Privileges privileges) {
-        if (definition.family() != ConsumableFamily.COMMAND)
+        if (definition.family() != ConsumableFamily.COMMAND
+                && definition.family() != ConsumableFamily.IDENTITY_REQUEST)
             throw new IllegalArgumentException(
                     "production request source not delivered: " + definition.family());
         effects(guard, definition, source, owner, privileges);
@@ -48,7 +49,9 @@ public final class V3ConsumptionDiscoveryComposition {
                 new JdbcPartitionOwnershipStore(source),
                 new JdbcDiscoveryAdmissionStore(source, settings),
                 settings,
-                new JdbcCommandDiscoveryReferences(source, settings));
+                definition.family() == ConsumableFamily.IDENTITY_REQUEST
+                        ? new JdbcIdentityRequestDiscoveryReferences(source, settings)
+                        : new JdbcCommandDiscoveryReferences(source, settings));
     }
 
     public static DiscoveryEngine events(
@@ -61,7 +64,9 @@ public final class V3ConsumptionDiscoveryComposition {
             DiscoveryEngine.Settings settings,
             V3BootstrapGuard.Privileges privileges) {
         if (definition.family() != ConsumableFamily.POT_EVENT
-                && definition.family() != ConsumableFamily.COMMAND_COMPLETION_EVENT)
+                && definition.family() != ConsumableFamily.COMMAND_COMPLETION_EVENT
+                && definition.family() != ConsumableFamily.IDENTITY_EVENT
+                && definition.family() != ConsumableFamily.IDENTITY_COMPLETION_EVENT)
             throw new IllegalArgumentException(
                     "production publication source not delivered: " + definition.family());
         effects(guard, definition, effectsSource, effectsOwner, privileges);
@@ -76,6 +81,8 @@ public final class V3ConsumptionDiscoveryComposition {
                 settings,
                 sourceReads,
                 new JdbcEventDiscoveryReferences(writeSource, definition.family(), settings),
-                r -> true);
+                r ->
+                        definition.family() != ConsumableFamily.IDENTITY_EVENT
+                                || r.subjectType().equals("EXTERNAL_USER_IDENTITY"));
     }
 }

@@ -1,6 +1,21 @@
+\if :{?identity_authority}
+\else
+\set identity_authority fixture
+\endif
 -- Post-bootstrap only. Existing roles, exact target; no credentials, role creation or runtime DDL.
 \set ON_ERROR_STOP on
 begin;
+-- L3 real is explicit, requires V6, and never installs the fixture.
+select set_config('pocoma.identity_authority', :'identity_authority', true);
+do $$
+begin
+ if current_setting('pocoma.identity_authority') not in ('fixture','real') then raise exception 'invalid Identity authority';end if;
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  if to_regclass('v3_identity_request') is null or to_regprocedure('v3_identity_check_unit(uuid,boolean)') is null
+    or to_regclass('i5_fixture_identity') is not null then raise exception 'Identity real requires V6 without fixture';end if;
+ end if;
+end $$;
+
 select set_config('pocoma.expected_database', :'expected_database', true);
 select set_config('pocoma.expected_schema', :'expected_schema', true);
 select set_config('pocoma.expected_admin', :'expected_admin', true);
@@ -34,6 +49,13 @@ grant update(active_to) on v3_pot_header,v3_pot_details,v3_shareholder_header,v3
 grant update(current_version) on v3_pot_identity to :"runtime_role";
 grant update(status) on v3_command to :"runtime_role";
 grant update(position) on v3_event_counter to :"runtime_role";
+\endif
+select (:'identity_authority'='real' and to_regclass('v3_command') is not null) as identity_real \gset
+\if :identity_real
+grant select on v3_identity_request,v3_eui_authority,v3_pocoma_user,v3_eui_version,v3_identity_request_result,v3_identity_event,v3_identity_completion_event to :"runtime_role";
+grant insert on v3_eui_authority,v3_pocoma_user,v3_eui_version,v3_identity_request_result,v3_identity_event,v3_identity_completion_event to :"runtime_role";
+grant update(current_version) on v3_eui_authority to :"runtime_role";
+grant update(status) on v3_identity_request to :"runtime_role";
 \endif
 -- Refuse preexisting broader effective grants; reexecution never silently normalizes an unsafe role.
 do $$

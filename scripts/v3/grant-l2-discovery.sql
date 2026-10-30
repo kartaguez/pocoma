@@ -1,7 +1,22 @@
+\if :{?identity_authority}
+\else
+\set identity_authority fixture
+\endif
 -- Explicit I4 union after grant-l2-lifecycle.sql. Administrative psql -X only; never runtime startup.
 -- Existing strict I1/I3 scripts remain unchanged. Reexecution refuses excess effective rights.
 \set ON_ERROR_STOP on
 begin;
+-- L3 real is explicit, requires V6, and never installs the fixture.
+select set_config('pocoma.identity_authority', :'identity_authority', true);
+do $$
+begin
+ if current_setting('pocoma.identity_authority') not in ('fixture','real') then raise exception 'invalid Identity authority';end if;
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  if to_regclass('v3_identity_request') is null or to_regprocedure('v3_identity_check_unit(uuid,boolean)') is null
+    or to_regclass('i5_fixture_identity') is not null then raise exception 'Identity real requires V6 without fixture';end if;
+ end if;
+end $$;
+
 select set_config('pocoma.expected_database', :'expected_database', true);
 select set_config('pocoma.expected_schema', :'expected_schema', true);
 select set_config('pocoma.expected_admin', :'expected_admin', true);
@@ -87,4 +102,21 @@ begin
  then raise exception 'SECURITY DEFINER forbidden in combined authority' using errcode='42501'; end if;
 end $$;
 \endif
+do $$
+declare r text:=current_setting('pocoma.runtime_role');a text:=current_setting('pocoma.reactivation_role');t text;col record;ins boolean;upd boolean;
+begin
+ if current_setting('pocoma.identity_authority')='real' and to_regclass('v3_command') is not null then
+  foreach t in array array['v3_identity_request','v3_eui_authority','v3_pocoma_user','v3_eui_version','v3_identity_request_result','v3_identity_event','v3_identity_completion_event'] loop
+   ins:=t<>'v3_identity_request';
+   if not has_table_privilege(r,t,'SELECT') or has_table_privilege(r,t,'INSERT')<>ins
+     or has_table_privilege(r,t,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+     or has_any_column_privilege(a,t,'SELECT,INSERT,UPDATE,REFERENCES') then raise exception 'unsafe Identity rights';end if;
+   for col in select column_name from information_schema.columns where table_schema=current_schema() and table_name=t loop
+    upd:=(t='v3_identity_request' and col.column_name='status') or (t='v3_eui_authority' and col.column_name='current_version');
+    if has_column_privilege(r,t,col.column_name,'INSERT')<>ins or has_column_privilege(r,t,col.column_name,'UPDATE')<>upd
+       or has_column_privilege(r,t,col.column_name,'REFERENCES') then raise exception 'unsafe Identity column rights';end if;
+   end loop;
+  end loop;
+ end if;
+end $$;
 commit;
