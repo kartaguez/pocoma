@@ -1,0 +1,7 @@
+{
+  "path": "app/domain-user-identity/src/main/java/com/kartaguez/pocoma/domain/useridentity/v3/IdentityTransitions.java",
+  "original_sha256": "4add9a8d3d14226b945a9bbd5ac6c38fe5fff7c27c6c2d26f436f9f528047e8f",
+  "kind": "Nonfunctional temporary Java comment; identical bytes restored in finally",
+  "modified_sha256": "ec317e97533abd9e4aa3eac1d2b0f7fc5fca20706bb5d4cf1accb294c06f27c9",
+  "restored_sha256": "4add9a8d3d14226b945a9bbd5ac6c38fe5fff7c27c6c2d26f436f9f528047e8f"
+}

@@ -1,0 +1,190 @@
+{
+  "start_head": "8bc2eca60390efe1da2c82f3af7f4d78e93ddfea",
+  "files": [
+    {
+      "path": "docs/testing/Reactor_Verification_Policy.md",
+      "sha256": "027e8264c31737a349a646748e4e656f397ed79e648eee74cff32d99e7283688"
+    },
+    {
+      "path": "docs/testing/Verification_Optimization_Report.md",
+      "sha256": "f2eea09291e7f210ab137f1c36651735c8486822eaced92be025c59b45ba3f94"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/archive-checks.json",
+      "sha256": "dcd7524c77c7656093965adf579204a33d3428da74bd8316bd59dc5ed69ab441"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-builds.json",
+      "sha256": "c339229516f8d31d6de6286949a83bd60f97e842eca6d7a1182ecde63f0337c2"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-builds.tar.gz",
+      "sha256": "189efb646557c9fe7150035937f8c23629642f901d065acb5840b78b8031c914"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-inputs.json",
+      "sha256": "b4ae4eb5a38894194ac7dcaf5208480a0f00096929e0f6b79869db1bd527d03a"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-physical.json",
+      "sha256": "6d3c81941be4f55e6d2f478afb47862a69d76b431b4c264e478e1a663f67bedd"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-physical.tar.gz",
+      "sha256": "02a02022af546ddb5227759986b117a75b6cc8fd80c67344ca6275cf6993b7f5"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/baseline-summary.json",
+      "sha256": "89755c622dc6616e91cebff89c34b6e3aba5be78ff799a4ddd87f8ce7fe0aa1f"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/certification-selection.json",
+      "sha256": "cb20379c993752e012f156aea789ce1e167eef8ec1e570472a1d86988bafbca0"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/change-identity/plan.json",
+      "sha256": "76033b39e8a428958076438b58485489efd8194d63c1e1b3a0a75b3d701ae05c"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/change-identity/provenance.json",
+      "sha256": "f5d7c11dacc2061ba377a0914faf9512cc0d7d709236eaeebe3ef38d7c5b11ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/change-identity/raw.tar.gz",
+      "sha256": "ff275bfb013006ac8c5f470fd59668e37d30e41109cbcd88634147572815d9d7"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/change-identity/result.json",
+      "sha256": "2e83c26882b5b2b139305848933d97af9a72b250c6d0722add753bf1da48a917"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/comparable-test-observations.json",
+      "sha256": "a31c2b0c1e4f756ecfd88492615489f9910ed9af716c271a248c6726647062ee"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/compilation-observations.json",
+      "sha256": "a62c7cd98ac490c832b7632cbfb460993c2443d785352f1ceec5f137d67398d2"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/compile-plugin-safety.json",
+      "sha256": "ec1cef37af6ec1e7a9b486ae7b83e1de46839ec9104e81947cf75535349a36f8"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/delivery-checks.json",
+      "sha256": "cd8aaba32e91ab9b5ae23914eb3a53d4cbfa095a66dfbe754628248118bed8e3"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/delivery-files.json",
+      "sha256": null
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/fast/plan.json",
+      "sha256": "3d66546cc8ca8b73680fcc704dab2fa4b03ce5ef78bc753cb807129e82f28754"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/fast/provenance.json",
+      "sha256": "f5d7c11dacc2061ba377a0914faf9512cc0d7d709236eaeebe3ef38d7c5b11ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/fast/raw.tar.gz",
+      "sha256": "b0264f7c98aa4ebed1112d8b5c6156e308ee39e7b6e70e907e8c047247c2672a"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/fast/result.json",
+      "sha256": "971a296b5b1c487f02b6d8e7de9fa127cbbf50b8cdee817e3bf327ad6ec37537"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/followup-builds.json",
+      "sha256": "d33b0d31e4ab5e14972f6a880380592954cf1a5c9f4d53203ed8aef0339522ef"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/followup-builds.tar.gz",
+      "sha256": "c13676d133ea4e63c61a966facd4b53373311f7d93885e77706cd53a8b22f822"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/incremental-mutation.json",
+      "sha256": "8146cffbb8b5fe3fa509635f3e02ecced06a24ff85752cbfc6a5e955b59a89c3"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/integration-identity/plan.json",
+      "sha256": "7e7cfba8716f34b66943668ff4caabf116ae6fece413bba81d37b9b821a72cd8"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/integration-identity/provenance.json",
+      "sha256": "f5d7c11dacc2061ba377a0914faf9512cc0d7d709236eaeebe3ef38d7c5b11ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/integration-identity/raw.tar.gz",
+      "sha256": "4d18f3f1f8fbc4c9a0553b740acd8dd5fabf24f40cfdc9ed9a5ffbd9c6a0dac9"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/integration-identity/result.json",
+      "sha256": "a6a728d14fe53bc07deca3eb75e2d635b60932bbfc4c21f71333215fa44b6eba"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/inventory.json",
+      "sha256": "d74c8748c8a95c5c990943f1e94a1017bb4bc619d863f190641e350cd1a92a33"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/measurement-drivers.tar.gz",
+      "sha256": "49fdb663eb93f9fa7426958577852ccd867dd3e184b20ab96ce7daad57df0826"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/module-graph.json",
+      "sha256": "b3846dd152b23109984f27abe047377af7916c97b69b8fa55f799916e5cbfdc2"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r05/plan.json",
+      "sha256": "cb8b6c5a998ba232fe43c2bdad005d184ffd5d88982311fdf6bb72b42f28788b"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r05/provenance.json",
+      "sha256": "f5d7c11dacc2061ba377a0914faf9512cc0d7d709236eaeebe3ef38d7c5b11ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r05/raw.tar.gz",
+      "sha256": "be1ace15f3ec74bfe96dccc260331988831a668e71abc49fbbc815cdd4505761"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r05/result.json",
+      "sha256": "3ae0dbbe720c0e1426d2a818ef931a6317c4a2a6332a63e8c6eaf50f33dce3ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r12/plan.json",
+      "sha256": "5d14571eac76012de696bcd7011bf2216838cf0e618b5aab2526d340885e2dca"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r12/provenance.json",
+      "sha256": "f5d7c11dacc2061ba377a0914faf9512cc0d7d709236eaeebe3ef38d7c5b11ae"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r12/raw.tar.gz",
+      "sha256": "888702d4caf0169db66dea9d85936c9170585671a43e3460ba68a07f994fbffe"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/quarantine-i5_r12/result.json",
+      "sha256": "af1e8d46168c5d9c40d0f1eca4b7d1a97bb66bdc5b1ad6781bfc60b04747a14e"
+    },
+    {
+      "path": "docs/testing/evidence/verification-optimization/selector-tests.txt",
+      "sha256": "b508101f27ae5dfde0062a5916500c373ca1322260772fedfc9260fdae276af0"
+    },
+    {
+      "path": "scripts/testing/inventory-verification.py",
+      "sha256": "2bd59a20f140de4c3bb7522197dbfaae6f375477a2beef640a85c79f5a44c14e"
+    },
+    {
+      "path": "scripts/testing/test_verification.py",
+      "sha256": "563d4179a2fcb5a0192be190fd262838febacdf2347ff5c3e8336db00562433a"
+    },
+    {
+      "path": "scripts/testing/verification-campaigns.json",
+      "sha256": "65cab1ae0fcd15beeba2647aaddd734275db2b9033baf46f84915aa45108931c"
+    },
+    {
+      "path": "scripts/testing/verify.py",
+      "sha256": "b3ad3f4344b7b119f6bc7882d5f1029160dd68c0b85b2226b6343fe0dfdd73d4"
+    }
+  ],
+  "self_hash_note": "Self listed without hash to avoid a circular digest. Git commit identifies the complete delivery."
+}

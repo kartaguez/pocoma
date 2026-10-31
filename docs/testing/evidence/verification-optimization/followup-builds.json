@@ -1,0 +1,147 @@
+[
+  {
+    "label": "full-clean-compile",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "clean",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 13.13306,
+    "started_ns": 1793428713638120000
+  },
+  {
+    "label": "full-compile-hot",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 8.886396,
+    "started_ns": 1793428726771584000
+  },
+  {
+    "label": "identity-clean-compile",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "clean",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 10.364742,
+    "started_ns": 1793428735658378000
+  },
+  {
+    "label": "identity-compile-hot",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 7.733707,
+    "started_ns": 1793428746023826000
+  },
+  {
+    "label": "identity-compile-after-change",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 7.768312,
+    "started_ns": 1793428753758391000
+  },
+  {
+    "label": "identity-compile-after-restore",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 8.243935,
+    "started_ns": 1793428761527573000
+  },
+  {
+    "label": "full-package-no-test-compilation",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "package",
+      "-Dmaven.test.skip=true"
+    ],
+    "exit_code": 0,
+    "seconds": 12.017317,
+    "started_ns": 1793428769771944000
+  },
+  {
+    "label": "identity-test-compile",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "test-compile"
+    ],
+    "exit_code": 0,
+    "seconds": 14.993223,
+    "started_ns": 1793428781789594000
+  },
+  {
+    "label": "identity-local-clean-compile",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "clean",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 4.113073,
+    "started_ns": 1793428796783342000
+  },
+  {
+    "label": "identity-local-compile-hot",
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "compile"
+    ],
+    "exit_code": 0,
+    "seconds": 3.166129,
+    "started_ns": 1793428800896955000
+  }
+]

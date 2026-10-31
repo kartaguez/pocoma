@@ -1,0 +1,89 @@
+{
+  "verdict": "PASS",
+  "counts": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "issues": [],
+  "executions": [
+    {
+      "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "seconds": 55.678,
+      "outcome": "PASS"
+    }
+  ],
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "-pl",
+    "runtime-command-consumption-worker",
+    "-am",
+    "-Dtest=com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest#i5_r05",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "test"
+  ],
+  "level": "QUARANTINE",
+  "scope": "i5_r05",
+  "seconds": 66.345408,
+  "started_ns": 1793429174591138000,
+  "exit_code": 0,
+  "artifacts": {
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml": "c7b6b3d3481db0ac2298176ec6c052d49e773c1864902ef18affa7a62a8ea4a4",
+    "app/runtime-command-consumption-worker/target/surefire-reports/com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.txt": "aea3c8ae1ff61394ad51f7aaf6f16d0f81ee101dd199159ddeffb99ff6407da4",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-final.txt": "26dab996a4b83b484cf916529483c6847c42a022574e82e1557f66fa9dd31c11",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-stage1.txt": "adcde9ef34f2b7f5cc74172f5b6d7d9a2ced9b993b07f32fa7dc1a88ad3c0345",
+    "app/runtime-command-consumption-worker/target/v3-i5-evidence/temporal-v2-W1-B1-MW4-stage2.txt": "3c9b874f38c9c5a0006a7fc370556c471ee160916bcf6004b2287d117a785402"
+  },
+  "raw_sha256": "be1ace15f3ec74bfe96dccc260331988831a668e71abc49fbbc815cdd4505761",
+  "previous_reports_not_counted": [
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.xml",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml",
+    "app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.xml",
+    "app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest.xml",
+    "app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.xml",
+    "app/runtime-monolith/target/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
+    "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+    "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+    "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+    "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+    "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest.xml",
+    "app/infra-persistence-primary-jpa/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest.xml",
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest.xml",
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
+    "app/runtime-command-consumption-worker/target/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest.xml",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest.xml",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest.xml",
+    "app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.xml"
+  ],
+  "not_selected": "All methods outside plan.expected for filtered feedback; NOT RUN, never PASS",
+  "quarantined_scenarios": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    }
+  }
+}

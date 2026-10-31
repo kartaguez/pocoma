@@ -1,0 +1,67 @@
+[
+  {
+    "campaign": "fast",
+    "archive_verified": true,
+    "artifacts": 18,
+    "verdict": "PASS",
+    "tests": {
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 6.685618
+  },
+  {
+    "campaign": "change-identity",
+    "archive_verified": true,
+    "artifacts": 123,
+    "verdict": "PASS",
+    "tests": {
+      "tests": 127,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 144.100439
+  },
+  {
+    "campaign": "integration-identity",
+    "archive_verified": true,
+    "artifacts": 151,
+    "verdict": "PASS",
+    "tests": {
+      "tests": 162,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 216.262795
+  },
+  {
+    "campaign": "quarantine-i5_r05",
+    "archive_verified": true,
+    "artifacts": 5,
+    "verdict": "PASS",
+    "tests": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 66.345408
+  },
+  {
+    "campaign": "quarantine-i5_r12",
+    "archive_verified": true,
+    "artifacts": 5,
+    "verdict": "FAIL",
+    "tests": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 107.701943
+  }
+]

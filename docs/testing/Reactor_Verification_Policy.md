@@ -2,6 +2,10 @@ Pocoma Reactor Verification Policy
 
 Status: NORMATIVE
 
+Operational commands and risk matrix: [§35 — FAST / CHANGE / INTEGRATION /
+CERTIFICATION](#35-operational-verification-and-build-cycle--fast--change--integration--certification).
+These levels do not replace the canonical slice/lot gates below or V3 milestones G0–G3.
+
 This document defines how implementation changes in Pocoma are verified.
 
 Its purpose is to preserve strong engineering proof while avoiding the systematic cost of rebuilding and retesting the complete Maven reactor for changes whose expected impact is local.
@@ -1249,3 +1253,197 @@ Evidence retention, byte-preserving storage aliases and the I5 human acceptance
 are documented in [the rationalization dossier](Certification_Evidence_Rationalization.md).
 Any future change to a SPEC-10 requirement, oracle, threshold, variant allocation
 or explicit mandatory gate is normative and requires separate human arbitration.
+
+⸻
+
+## 35. Operational verification and build cycle — FAST / CHANGE / INTEGRATION / CERTIFICATION
+
+Adopted for future development on 2026-10-31. These are **operational levels**,
+not the normative V3 milestones G0/G1/G2/G3. SPEC-10, the lot contracts and the
+unfiltered commands above retain their authority. Historical acceptance and FAILs
+are unchanged. A filtered operational PASS cannot satisfy an explicitly required
+unfiltered lot/architecture/release gate.
+
+### Declare the change before selecting feedback
+
+Record modified modules, affected contracts/risks, primary and secondary slices,
+required level, selected campaigns, deferred campaigns and reasons. Choose risks
+from Domain/Pot, Identity/Invitation, Security/Authorization, Transaction/Atomicity,
+Events/Publication, Consumption/Discovery, Projection/READ, Runtime/Assembly,
+Architecture, Concurrency/Recovery and Performance/Capacity. Source review and the
+actual physical authority determine coverage; a module or class name alone does not.
+
+| Level | Trigger and build strategy | Proof and indicative budget |
+|---|---|---|
+| FAST | Significant local iteration; targeted incremental `test`, no automatic `clean`, `install` or packaging. | Reviewed pure domain/application invariants and applicable cheap local structural checks; aim 1–3 min. Heavy PG/contention/capacity is deferred explicitly. |
+| CHANGE | Before significant commit/delivery; compile changed scope and upstream dependencies in one reactor. Add consumers when APIs/shared contracts change. | FAST plus affected canonical slice, required PG/security/atomicity and direct interaction proofs; aim 3–8 min where possible. A reviewed filtered recipe is bounded feedback, not the canonical unfiltered slice gate. |
+| INTEGRATION | Shared infrastructure, transaction boundaries, substantial refactoring, multiple modules or runtime assembly. | Deeper affected PG/interleaving/recovery/contract proofs; complete global architecture gate when §17 requires it. Aim 10–20 min where possible; never remove an oracle to fit a budget. |
+| CERTIFICATION | Required lot closure, major milestone, release or explicit global decision. | Unfiltered full reactor plus all applicable SPEC-10/PG/concurrency/recovery/capacity and release/distribution proofs. Includes quarantined scenarios. `clean install` remains due wherever the applicable contract requires it. No local budget caps this gate. |
+
+Observed Identity recipe Maven process times on 2026-10-31: FAST **6.686 s**
+(65 tests), CHANGE **144.100 s** (127), INTEGRATION **216.263 s** (162), all without
+failure/error/skip. These are different scopes, not equal-coverage speedups;
+collector preparation/archiving is outside these timings. The full diagnostic
+`clean install` took **3079.751 s** and failed on `i5_r12` (1867 tests, one failure,
+one skip). [Measurements and limits](Verification_Optimization_Report.md).
+
+The current source-reviewed Identity recipe is centralized in
+[`verification-campaigns.json`](../../scripts/testing/verification-campaigns.json).
+It is intentionally narrow. It does not auto-classify an arbitrary diff or claim
+coverage of future Identity/Pot/invitation features. Add a test to the appropriate
+recipe when adding an invariant; review the resulting plan before execution.
+Unknown scopes and missing/ambiguous sources fail closed.
+
+Commands from repository root (Maven commands execute inside `app/`):
+
+```sh
+python3 -B scripts/testing/verify.py FAST identity
+python3 -B scripts/testing/verify.py CHANGE identity
+python3 -B scripts/testing/verify.py INTEGRATION identity
+python3 -B scripts/testing/verify.py CHANGE COMMAND,EVENT
+python3 -B scripts/testing/verify.py CERTIFICATION --dry-run
+python3 -B scripts/testing/verify.py CERTIFICATION
+python3 -B scripts/testing/verify.py QUARANTINE i5_r05
+python3 -B scripts/testing/verify.py QUARANTINE i5_r12
+```
+
+`--dry-run` prints the exact Maven command, expected methods, unselected JUnit
+sources/sibling methods and filtering status;
+it executes no Maven test. `--output /absolute/new/directory` selects the evidence
+destination, which must not already exist. Default: unique temporary directory.
+Keep/publish required raw evidence before removing temporary outputs.
+
+Only `identity` has a FAST recipe currently. Its local unit-feedback anchors are
+`engine-consume-registration,domain-pot`; they avoid compiling the runtime/SQL
+closure for pure feedback. This is a bounded contribution inside COMMAND, never
+its canonical slice proof. CHANGE Identity uses the canonical COMMAND anchor. CHANGE/INTEGRATION also accept the
+canonical uppercase slice identifiers, comma-separated. Those commands are the
+**unfiltered** canonical `-pl <anchors> -am test`; they include heavy tests and the
+quarantined methods if Maven pulls their module. INTEGRATION does not silently add
+architecture-tests: declare that requirement and execute its canonical command
+when §17 applies. CERTIFICATION is exactly `./mvnw --batch-mode
+--no-transfer-progress test`, without a module/test filter or skip property. It
+is the Maven portion of certification, not an automatic SPEC-10 certificate.
+Required external protocols, environment variants, packaging and acceptance remain
+due even when Maven succeeds.
+
+### Coverage matrix for selection
+
+| Component / risk | Reviewed decisive contributions | Selection and escalation |
+|---|---|---|
+| Domain / Pot | `PotTransitionsTest`, `PotAuthorizationTest`: versions, deletion and authorization; `InvitationAttachmentTest`, `ShareholderIdentityCollisionTest`: attachment/collision outcomes. | Identity FAST includes the adjacent invariants; changed Pot execution requires COMMAND and its actual SQL tests, not only this recipe. |
+| Identity / Invitation | `IdentityValueContractsTest`, `IdentityTransitionsTest`, `ExecuteIdentityRequestTest`, `IdentityRequestContractTest`: immutable identity, stale token rejection, Link/Unlink, durable request contract. | FAST; CHANGE adds authority/history/schema and runtime tests. Future invitation/admission/consent changes need their own proofs; external ID-02 is not certified here. |
+| Security / Authorization | `IdentityPrivilegesPostgresTest`: effective runtime permissions; `V3IdentityRequestCompositionPostgresTest`: preflight refusal, indirect exposure, logging and auxiliary privilege matrix. | CHANGE Identity. Shared security or HTTP/AuthN changes add WEB and every affected consumer, plus qualified external protocols. |
+| Transaction / Atomicity | `IdentityConcurrencyPostgresTest`, `IdentityRequestExecutionPostgresTest`: races, rollback and durable effects; `AttemptTransactionsPostgresTest`, foundation transaction tests: real physical transaction boundaries. | CHANGE for Identity-local behavior; INTEGRATION for shared transaction changes, with every affected consumer and applicable adverse interleavings. |
+| Events / Publication | `IdentityPublicationPostgresTest`: FK prefix/commit publication; `IdentitySchemaPostgresTest`: deferred constraints and non-Identity suffix access; global `EventPublicationContractArchitectureTest` when its gate is required: publication structure. | CHANGE Identity; INTEGRATION adds transaction/composition checks. Shared publication changes add COMMAND/EVENT/PROJECTION as actually affected. |
+| Consumption / Discovery | `IdentityDiscoveryPostgresTest`, `V3IdentityRequestCompositionPostgresTest`: Identity source/checkpoints and real runtime; full `DiscoveryPostgresTest` proves broader windows and recovery. | Identity CHANGE does not run the entire Discovery stress suite. Discovery algorithm/routing/claim changes require its real affected campaigns and consumers. |
+| Projection / READ | Existing READ JDBC/projection and task-runtime tests prove current binding/results/projection contracts; no complete L4 business projection is inferred. | PROJECTION plus actual changed READ owners; Identity recipe alone is insufficient. |
+| Runtime / Assembly | `V3IdentityRequestCompositionPostgresTest`, `V3IdentityRequestMonolithPostgresTest`, `V3WorkerCompositionPostgresTest`, `V3PotCommandCompositionPostgresTest`: actual roots and neighboring participants. | CHANGE Worker root; INTEGRATION adds monolith/adjacent composition. Distribution changes add package/start/restart proofs. |
+| Architecture | IdentityRequestContractTest checks sealed operations, interfaces and public record components locally; no global module added to Identity feedback. | Dependency/module/forbidden-boundary/isolation changes require §17's unfiltered global gate. |
+| Concurrency / Recovery | Identity concurrency/publication tests retain independent SQL observations; broad L2 lifecycle/Discovery/Worker suites retain their own interleavings. | Identity races in CHANGE. Leases/claims/fencing/recovery changes require pertinent L2 adverse cases, including quarantined methods when their contract is affected. |
+| Performance / Capacity | `V3WorkerPostgresTest`, `V3WorkerResourcesPostgresTest`, I5 temporal campaigns and SPEC-09/10 load protocols. | Applicable INTEGRATION and CERTIFICATION; excluded from Identity feedback by positive selection because these contracts are unchanged. Speed and reliability are separate dimensions. |
+
+### Build commands and freshness
+
+Native commands from `app/`, using the canonical affected consumer anchor(s):
+
+```sh
+./mvnw -pl runtime-command-consumption-worker -am compile
+./mvnw -pl runtime-command-consumption-worker -am test-compile
+./mvnw -pl runtime-command-consumption-worker -am test
+./mvnw -pl runtime-command-consumption-worker -am package -DskipTests
+./mvnw -pl runtime-command-consumption-worker -am install -DskipTests
+```
+
+For pure Identity/domain feedback, the smaller native command is
+`./mvnw -pl engine-consume-registration,domain-pot -am compile`; it does not prove
+the runtime consumers. Use `compile` for production compilation, `test-compile` when checking test code,
+`test` for proof, `package` only when validating a deliverable, and `install` only
+when another independent build really needs local artifacts. A composed reactor
+resolves participating upstream projects without a preceding install. No automatic
+`-amd`: explicitly add all affected consumers; `-am` only includes upstream closure.
+`-DskipTests` skips execution but still permits test compilation; no test PASS is
+produced. `-Dmaven.test.skip=true` also skips test compilation and is acceptable
+only for an explicitly production-only artifact experiment, never a test proof.
+
+Incremental compilation saves unchanged work but is not a source/bytecode
+certification. Following deletions, package moves, branch switches or suspicious
+stale output, clean the affected closure and rerun the required proof; use a fresh
+checkout when qualification requires it. Record cold/clean, warm unchanged and
+after-modification measurements separately. A warm no-op is not an incremental
+change measurement. Do not depend on artifacts installed by a different SHA.
+
+`-T 2` is an optional compilation experiment only after checking plugin safety and
+measuring the same scope. It is not enabled by the supplied commands. PostgreSQL
+campaigns remain serial at reactor level; fixtures, target directories and evidence
+must not be shared by simultaneous Maven invocations. No container/context reuse
+is introduced across isolated test fixtures, and no hidden local cache certifies
+unchanged hypotheses. Maven/JDK, semantic settings, input hashes and PG image/
+server observations belong to the evidence.
+
+### Nominative quarantine, independent of cost
+
+The sole register is `quarantine` in `verification-campaigns.json`: the exact
+`V3WorkerResourcesPostgresTest#i5_r05` and `#i5_r12` methods. The present explicit
+mandate authorizes operational isolation of these two scenarios only. It does
+not exempt them from any mandatory contract/gate. No POM exclusion, annotation,
+or assertion changes are made; all sibling methods remain available. Identity
+feedback positively selects its relevant tests; it does not blacklist the Worker
+class. Canonical slice/full commands remain completely unfiltered.
+
+Each QUARANTINE invocation executes exactly one registered method with its real
+oracle, captures raw diagnostics and reports its own PASS/FAIL/SKIP/INCONCLUSIVE.
+A failure remains blocking whenever that scenario is normatively required.
+`i5_r05` has both historical failure and later success observations. `i5_r12`'s
+observed `runtime condition deadline` in runtime close is an unresolved physical
+availability diagnostic, not a proven test-only defect. No timeout is increased.
+Do not retry unchanged failures to manufacture success.
+
+New quarantine entries require an explicit documented decision, exact methods,
+failure evidence, affected invariant and retained canonical inclusion. Reintegration
+requires diagnosis/correction, reproduction of the original failing condition and
+applicable fresh integration/gates; remove the entry by a reviewed decision. A
+single independent success does not close historical availability reserves.
+
+### Evidence, selection controls and reuse
+
+The selector records the exact command/expected methods, input hashes, tested HEAD
+and dirty state, toolchain and settings hash. It refuses implicit Maven/JVM options.
+It moves old XML to `previous-reports/` before execution and never counts it. New
+XML, logs and freshly modified evidence directories are archived with SHA-256.
+Missing/duplicate/unexpected methods, malformed counters and skips prevent a
+filtered PASS. Parameterized boolean invocations are checked separately. New
+unsupported dynamic/nested/provider forms require extending the reviewed collector;
+they are never silently dropped. The checkout lock prevents concurrent selector
+runs; native Maven commands must follow the same single-owner discipline.
+
+These receipts supplement rather than replace SPEC-10's physical traces and lot
+collectors. Test results alone do not prove every required variant. Save official
+raw evidence under the retention policy; temporary logs are not durable proof.
+Reuse follows §34: accessible verified artifacts, tested SHA, exact old→new
+hypotheses/config/SQL/test/environment comparison and explicit attribution. An old
+SHA never certifies a new SHA automatically. Changed assumptions or a required
+fresh gate prohibit substitution.
+
+Concise report convention:
+
+```
+Change / modified modules: ...
+Risks: ...
+Declared slices / primary / secondary: ...
+Required operational level and mandatory unfiltered gates: ...
+Executed commands / tested SHA / input hashes / counts / evidence: ...
+Deferred campaigns and contract-based reason: ...
+Result: PASS / FAIL / SKIP / NOT RUN / INCONCLUSIVE
+Unexpected slice crossing: NONE / ...
+Global architecture gate: NOT REQUIRED / RUN / NOT RUN (reason)
+Full reactor: NOT REQUIRED / RUN / NOT RUN (reason)
+Database: NONE / CURRENT / BASELINE / HISTORICAL (including transitive history)
+Certification: NOT RUN / FAIL / INCONCLUSIVE / qualified PASS
+```
+
+Measured durations, costs, limitations and actual delivery commands are in the
+[optimization report](Verification_Optimization_Report.md); the method-level
+[inventory](evidence/verification-optimization/inventory.json) records observed
+historical costs and source dependencies without turning missing observations
+into PASS. Budgets above are targets, never measured claims.

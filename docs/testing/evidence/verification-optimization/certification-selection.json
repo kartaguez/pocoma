@@ -1,0 +1,40 @@
+{
+  "level": "CERTIFICATION",
+  "scope": null,
+  "command": [
+    "./mvnw",
+    "--batch-mode",
+    "--no-transfer-progress",
+    "test"
+  ],
+  "expected": {
+    "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest": [
+      "i5_r05",
+      "i5_r12"
+    ]
+  },
+  "filtered": false,
+  "normative_gate": true,
+  "not_selected_test_sources": [],
+  "not_selected_methods_in_selected_classes": {},
+  "added_permanent_exclusions": [],
+  "quarantine": {
+    "i5_r05": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r05",
+      "anchor": "COMMAND",
+      "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    },
+    "i5_r12": {
+      "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
+      "method": "i5_r12",
+      "anchor": "COMMAND",
+      "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
+      "reference": "docs/v3/L3_I2_Execution_Report.md",
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    }
+  },
+  "config_sha256": "65cab1ae0fcd15beeba2647aaddd734275db2b9033baf46f84915aa45108931c"
+}

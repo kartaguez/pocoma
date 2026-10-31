@@ -1,0 +1,29 @@
+[
+  {
+    "campaign": "fast",
+    "identical_method_set_observed_in_baseline": true,
+    "tests": 65,
+    "baseline_selected_suite_seconds": 0.268,
+    "selected_campaign_suite_seconds": 0.444,
+    "selected_campaign_maven_seconds": 6.685618,
+    "limitation": "Suite time sums for the same source/method scope, not isolated baseline wall time; JVM warmup/context and host load differ. No intrinsic speedup claimed."
+  },
+  {
+    "campaign": "change-identity",
+    "identical_method_set_observed_in_baseline": true,
+    "tests": 127,
+    "baseline_selected_suite_seconds": 139.796,
+    "selected_campaign_suite_seconds": 127.69300000000001,
+    "selected_campaign_maven_seconds": 144.100439,
+    "limitation": "Suite time sums for the same source/method scope, not isolated baseline wall time; JVM warmup/context and host load differ. No intrinsic speedup claimed."
+  },
+  {
+    "campaign": "integration-identity",
+    "identical_method_set_observed_in_baseline": true,
+    "tests": 162,
+    "baseline_selected_suite_seconds": 221.485,
+    "selected_campaign_suite_seconds": 204.60600000000002,
+    "selected_campaign_maven_seconds": 216.262795,
+    "limitation": "Suite time sums for the same source/method scope, not isolated baseline wall time; JVM warmup/context and host load differ. No intrinsic speedup claimed."
+  }
+]
