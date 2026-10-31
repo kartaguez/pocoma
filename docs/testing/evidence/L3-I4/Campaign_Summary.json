@@ -1,0 +1,484 @@
+{
+  "fast-01": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 2.204833,
+    "invocation_id": "3a75110956434eb494e6fc6eafd199a1",
+    "expected_invocations": 65,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=3a75110956434eb494e6fc6eafd199a1",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-fast-01/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+    "files": {
+      "campaigns/fast-01/plan.json.gz": {
+        "bytes": 6639,
+        "sha256": "6636df45a659732ed3c5d79f6e20922aad3f209c456779352053e0b6f32179f0"
+      },
+      "campaigns/fast-01/provenance.json.gz": {
+        "bytes": 65382,
+        "sha256": "0df5be1f97ff9b4881c975f2336961037c6ec8277449812960464de933686c0c"
+      },
+      "campaigns/fast-01/raw.tar.gz": {
+        "bytes": 222631,
+        "sha256": "1e918701c6069db8383cc8d54c416d6ee5c1f4131f3ff3695d3877946e79d402"
+      },
+      "campaigns/fast-01/result.json.gz": {
+        "bytes": 4996,
+        "sha256": "9b8532616e1de1ffe84ad8c2b9bb65ff05bc1fc58253053f303bd9c685b65b52"
+      }
+    }
+  },
+  "change-01": {
+    "verdict": "FAIL",
+    "counts": {
+      "tests": 128,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 1,
+    "seconds": 75.134979,
+    "invocation_id": "5ba0aadbf5ab474b862e02cec43b6cd7",
+    "expected_invocations": 144,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=5ba0aadbf5ab474b862e02cec43b6cd7",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-change-01/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+    "files": {
+      "campaigns/change-01/plan.json.gz": {
+        "bytes": 7977,
+        "sha256": "b399b81a5e086082811fe636c0dab67cbae1d1ed8cb710b99e5973f3d801a009"
+      },
+      "campaigns/change-01/provenance.json.gz": {
+        "bytes": 65912,
+        "sha256": "444c46674fe1145efd847f77dffc423321872a5be68e6a214f2a83b73cb0177c"
+      },
+      "campaigns/change-01/raw.tar.gz": {
+        "bytes": 1183438,
+        "sha256": "f4afbe7c774b76926b63c953835df7ae7e35cb3dba3c4f336b75b48fa2659543"
+      },
+      "campaigns/change-01/result.json.gz": {
+        "bytes": 12825,
+        "sha256": "92b0cfc6cf33e7ca23541e62d3e06dd6a6be826caa2b63a952916c3b0078d10a"
+      }
+    }
+  },
+  "feedback-01": {
+    "verdict": "FAIL",
+    "counts": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 2,
+      "skipped": 0
+    },
+    "exit_code": 1,
+    "seconds": 74.915049,
+    "invocation_id": "5aa29947b06f4069962ca61529f64d47",
+    "expected_invocations": 36,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-monolith",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=5aa29947b06f4069962ca61529f64d47",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-feedback-01/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+    "files": {
+      "campaigns/feedback-01/plan.json.gz": {
+        "bytes": 5566,
+        "sha256": "189d8d328d7919dd2c381b137fab6b6f3fd66568c222105c32827b88e3606bc7"
+      },
+      "campaigns/feedback-01/provenance.json.gz": {
+        "bytes": 65913,
+        "sha256": "27abeceeec81cb517db86c748f82408a5794354aba14b0e4b2916e0106c7ced9"
+      },
+      "campaigns/feedback-01/raw.tar.gz": {
+        "bytes": 1095785,
+        "sha256": "5f56000b0c4e1e50f16c01aa47c419227e511c78885308389abc44f2b5eb412b"
+      },
+      "campaigns/feedback-01/result.json.gz": {
+        "bytes": 4516,
+        "sha256": "2034c9d0d15e7a2820637a5bf1888a450de655e53619c50813824404b3228034"
+      }
+    }
+  },
+  "feedback-02": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 424.490291,
+    "invocation_id": "172b2643c1e8459d9b578fd74c7e68a5",
+    "expected_invocations": 36,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-monolith",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=172b2643c1e8459d9b578fd74c7e68a5",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-feedback-02/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "def1c11eda27bd5a846c9d7563b6a2c545652e9e",
+    "files": {
+      "campaigns/feedback-02/plan.json.gz": {
+        "bytes": 5568,
+        "sha256": "5c2adfe514d49059250c602c92ffd6ffcb5287bdbb7dc672e2d21b66ea6d3c2c"
+      },
+      "campaigns/feedback-02/provenance.json.gz": {
+        "bytes": 65957,
+        "sha256": "05a494d3d2c8cad0b416a64bc547b351d1b769bd41e1c223963758b8b35eff18"
+      },
+      "campaigns/feedback-02/raw.tar.gz": {
+        "bytes": 1215072,
+        "sha256": "fe6c5a2e048baa66543e39dd453fd59b31b24703da09e4fa7aab101c77feecb1"
+      },
+      "campaigns/feedback-02/result.json.gz": {
+        "bytes": 6222,
+        "sha256": "fcbf5af7a2853a681fee24fa989b8431135529bb213ba52ead1956c44facd9bc"
+      }
+    }
+  },
+  "fast-final": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 2.205219,
+    "invocation_id": "6e235feadfa74799a704dfbcc07965bc",
+    "expected_invocations": 65,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "engine-consume-registration,domain-pot",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=6e235feadfa74799a704dfbcc07965bc",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-fast-final/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/fast-final/plan.json.gz": {
+        "bytes": 6657,
+        "sha256": "e57ad9e7864741e5dc42366fca39d841ec5728142aeb83f409e9b648d34d418c"
+      },
+      "campaigns/fast-final/provenance.json.gz": {
+        "bytes": 65460,
+        "sha256": "37b6ba290416b2d70d6a83e1887381196ea320ace5146c1431f5f107a39384d5"
+      },
+      "campaigns/fast-final/raw.tar.gz": {
+        "bytes": 222622,
+        "sha256": "814c1ffbd0ef6e9ce471a093a5f8f8650421f581a4742a62b411c6e9f4252abc"
+      },
+      "campaigns/fast-final/result.json.gz": {
+        "bytes": 4680,
+        "sha256": "2d32bc6447d48f083b47d3b49745c50cd85a3ee840267ed9551c78ac1c047f9a"
+      }
+    }
+  },
+  "change-final": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 149,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 475.719747,
+    "invocation_id": "975d185b96fd4d52a01bf2af020870cf",
+    "expected_invocations": 149,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=975d185b96fd4d52a01bf2af020870cf",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-change-final/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/change-final/plan.json.gz": {
+        "bytes": 8057,
+        "sha256": "08cd5a0bc8a3dea828806a2963cfee23b04426bd95c210eb179df104911c82a9"
+      },
+      "campaigns/change-final/provenance.json.gz": {
+        "bytes": 65782,
+        "sha256": "ac98d41c4736366ec4961454ac19d256568854e7706f12692eb137b57c0dc022"
+      },
+      "campaigns/change-final/raw.tar.gz": {
+        "bytes": 1335689,
+        "sha256": "ad56255997e1014165d678ac5f2185854ea6051bee5a31b7c4b62571013622af"
+      },
+      "campaigns/change-final/result.json.gz": {
+        "bytes": 14632,
+        "sha256": "82335668d62c7f9ff9563fdff2298f52eed0cf27e116a82b2584421841287804"
+      }
+    }
+  },
+  "integration-final": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 187,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 574.830033,
+    "invocation_id": "d1d49b45949b49f19424f8198bff0e9f",
+    "expected_invocations": 187,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-monolith",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest,com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.BindingTokenGeneratorTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityConcurrencyPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityDiscoveryPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPotAuthorityPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPrivilegesPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityPublicationPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentityRequestExecutionPostgresTest,com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.IdentitySchemaPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest,com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3PotCommandCompositionPostgresTest,com.kartaguez.pocoma.runtime.command.v3.V3WorkerCompositionPostgresTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=d1d49b45949b49f19424f8198bff0e9f",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-integration-final/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/integration-final/plan.json.gz": {
+        "bytes": 8893,
+        "sha256": "600273be42facae4fc677b953c1c131687857fc6c36d9965650524dbabb550dd"
+      },
+      "campaigns/integration-final/provenance.json.gz": {
+        "bytes": 65869,
+        "sha256": "756d841eb705ef47917e3b4a2007a8ac2c4a49fe6923b3274dd7a8a78330de8b"
+      },
+      "campaigns/integration-final/raw.tar.gz": {
+        "bytes": 1478705,
+        "sha256": "6dd4f01aa1c05b7b84c9f05db3af9f33ad02aec86081452e11bf0b7e3f6fedf7"
+      },
+      "campaigns/integration-final/result.json.gz": {
+        "bytes": 17303,
+        "sha256": "f2bffd11b198575aa312d38febd27a57e3827ef22506ff2ab5c8282882380508"
+      }
+    }
+  },
+  "architecture-bounded": {
+    "verdict": "PASS",
+    "counts": {
+      "tests": 163,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "seconds": 37.21429,
+    "invocation_id": "c1e783c4f0874ce19abc872475df3cfa",
+    "expected_invocations": 163,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "-Dtest=com.kartaguez.pocoma.architecture.BindingLockOwnershipTest,com.kartaguez.pocoma.architecture.DistributedComposeConfigurationTest,com.kartaguez.pocoma.architecture.EventPublicationContractArchitectureTest,com.kartaguez.pocoma.architecture.HexagonalArchitectureTest,com.kartaguez.pocoma.architecture.Pcl3LegacyAbsenceTest,com.kartaguez.pocoma.architecture.Pcl4LegacyQueryReadAbsenceTest,com.kartaguez.pocoma.architecture.Pcl5PipelineLifecycleAbsenceTest,com.kartaguez.pocoma.architecture.Pcl6MonolithAbsenceTest,com.kartaguez.pocoma.architecture.Pcl7ModuleDependencyCollapseTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionPostgresTest,com.kartaguez.pocoma.architecture.Pcl8DatabaseDemolitionTest,com.kartaguez.pocoma.architecture.PostWp4OwnershipArchitectureTest,com.kartaguez.pocoma.architecture.RegistrationModuleBoundaryTest,com.kartaguez.pocoma.architecture.Wa67BindingArchitectureTest,com.kartaguez.pocoma.architecture.Wp2BoundaryTest,com.kartaguez.pocoma.architecture.Wp3BoundaryTest,com.kartaguez.pocoma.architecture.Wp4BoundaryTest,com.kartaguez.pocoma.architecture.Wp5TargetTopologyTest,com.kartaguez.pocoma.architecture.ccr.CommandCompletionE2EPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultConsumptionChainPostgresTest,com.kartaguez.pocoma.architecture.ccr.CommandResultTakeoverRacePostgresTest,com.kartaguez.pocoma.architecture.ept.DurableEventToProjectionPostgresTest,com.kartaguez.pocoma.architecture.ept.HistoricalEventRouteEvolutionPostgresTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionEngineArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3ConsumptionFoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3FoundationArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest,com.kartaguez.pocoma.architecture.v3.V3PotExecutionArchitectureTest",
+      "-Dsurefire.failIfNoSpecifiedTests=false",
+      "-Dpocoma.verification.id=c1e783c4f0874ce19abc872475df3cfa",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-architecture-bounded/reports",
+      "test"
+    ],
+    "qualification_receipt": "result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/architecture-bounded/plan.json.gz": {
+        "bytes": 5803,
+        "sha256": "459dddd6d028704712bc129a03f31ceecd078e64a488173b41e08852b2c5b48b"
+      },
+      "campaigns/architecture-bounded/provenance.json.gz": {
+        "bytes": 65489,
+        "sha256": "605a61f172a782ed0beb30709a6ca9856d3c6790b19ba08418c5eed756b239af"
+      },
+      "campaigns/architecture-bounded/raw.tar.gz": {
+        "bytes": 1330844,
+        "sha256": "187ca5dbe0666bbc8d7dea8290ac129566d72a464de5bba1bbadf912e466b102"
+      },
+      "campaigns/architecture-bounded/result.json.gz": {
+        "bytes": 10249,
+        "sha256": "8214f2d665ea18d0be4d5df920523eaf251d7a01aa81c4ddf65fa1d6ff26c0df"
+      }
+    }
+  },
+  "native-command": {
+    "verdict": "FAIL",
+    "counts": {
+      "tests": 1789,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 1
+    },
+    "exit_code": 1,
+    "seconds": 3211.070173,
+    "invocation_id": "ef1fd20f15364747b0bf0ef71053857d",
+    "expected_invocations": 1182,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "runtime-command-consumption-worker,runtime-monolith",
+      "-am",
+      "-Pverification-provenance",
+      "-Dpocoma.verification.id=ef1fd20f15364747b0bf0ef71053857d",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-native-command/reports",
+      "test"
+    ],
+    "qualification_receipt": "qualified-result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/native-command/plan.json.gz": {
+        "bytes": 23775,
+        "sha256": "01684273c56b69ad2420581250e1188c4d46abfb42efd9fc4deff1d6fea7dcec"
+      },
+      "campaigns/native-command/provenance.json.gz": {
+        "bytes": 65886,
+        "sha256": "a0b1cfee9eb80f3834711476f904dfb994bf57b76ff5f02e76be46477423da7e"
+      },
+      "campaigns/native-command/qualified-result.json.gz": {
+        "bytes": 135243,
+        "sha256": "468e04f53d50999847cc5428fd2c6dd0be8cf2f69870122239299c1c592e82aa"
+      },
+      "campaigns/native-command/raw.tar.gz": {
+        "bytes": 35952854,
+        "sha256": "8c2d2af5bbc3ff4eadf0297d58513287b371aa40e43ed7788f15f30912d62529"
+      },
+      "campaigns/native-command/result.json.gz": {
+        "bytes": 135284,
+        "sha256": "b8772b65fb698098afca60bcbea7941b7b58c6d1ab447659bff487d67f665d52"
+      },
+      "campaigns/native-command/source-attribution-review.json.gz": {
+        "bytes": 645,
+        "sha256": "65e16eac5b89ac4f8334307a0fb8581d30061762f225bbdf77570ae82984cdb3"
+      },
+      "campaigns/native-command/source-inventory.json.gz": {
+        "bytes": 18134,
+        "sha256": "f4ab898b237c8ba0dcdbd523ef2a5c97ba3ac13e912cf2f3b8f605839e42e866"
+      }
+    }
+  },
+  "native-architecture": {
+    "verdict": "FAIL",
+    "counts": {
+      "tests": 1892,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 1
+    },
+    "exit_code": 1,
+    "seconds": 3242.034372,
+    "invocation_id": "a639e9be6b4f4641a139d1a703caee82",
+    "expected_invocations": 1345,
+    "command": [
+      "./mvnw",
+      "--batch-mode",
+      "--no-transfer-progress",
+      "-pl",
+      "architecture-tests",
+      "-am",
+      "-Pverification-provenance",
+      "-Dpocoma.verification.id=a639e9be6b4f4641a139d1a703caee82",
+      "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i4-native-architecture/reports",
+      "test"
+    ],
+    "qualification_receipt": "qualified-result.json.gz",
+    "tested_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "files": {
+      "campaigns/native-architecture/plan.json.gz": {
+        "bytes": 28359,
+        "sha256": "acb61d38c53a4ed2587f1dd462c604205b8457ee05040fdb9654f00606f88d7d"
+      },
+      "campaigns/native-architecture/provenance.json.gz": {
+        "bytes": 65905,
+        "sha256": "9f44c4f3caa2690af448a4cf61c8f613d3aa14991a36eb1ca8654334b7c49c60"
+      },
+      "campaigns/native-architecture/qualified-result.json.gz": {
+        "bytes": 146365,
+        "sha256": "7f7659cb5dcdee67cc1153969f7248c9cb76903ac1239efb473d4d8279610444"
+      },
+      "campaigns/native-architecture/raw.tar.gz": {
+        "bytes": 36168553,
+        "sha256": "fbf85075ca37c1fb9778c6ffb7834bcb97ea41585f45e4d3ea2b3df886e3443b"
+      },
+      "campaigns/native-architecture/result.json.gz": {
+        "bytes": 146411,
+        "sha256": "606fceebaee00c5698bc2d1e1fd7296fc8c7efa6746496926ca9213c6985797f"
+      },
+      "campaigns/native-architecture/source-attribution-review.json.gz": {
+        "bytes": 647,
+        "sha256": "a81c6d812a10a9d00b42e21d5f446adcceab7d7dbf32ce96f4311a375cd53f4a"
+      },
+      "campaigns/native-architecture/source-inventory.json.gz": {
+        "bytes": 22489,
+        "sha256": "d84703a3f78c2eb2fee9b46b9bbd44dbefc2e22c592f73a5454641c877dff407"
+      }
+    }
+  }
+}

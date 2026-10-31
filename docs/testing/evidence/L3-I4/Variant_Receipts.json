@@ -1,0 +1,675 @@
+{
+  "tested_code_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+  "archive": "docs/testing/evidence/L3-I4/campaigns/integration-final/raw.tar.gz",
+  "derivation": "Markers are copied from fresh physical traces. Source-sequence labels enumerate the fixed calls in the frozen test; no new execution or token value is inferred.",
+  "receipts": [
+    {
+      "case": "absent-stable/no-anchor",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_absent_stable.txt",
+      "line": 8,
+      "line_sha256": "01f03c8c68e19e4032a910e1126b7bebdff44251694f45bcd36790bfce600fd1",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=f3b1d8a6-f033-4782-b976-4d3b73c1b17d witness=Witness[revision=0, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "revision": 0,
+        "actor_present": false
+      }
+    },
+    {
+      "case": "absent-stable/preexisting-zero-anchor",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_absent_stable.txt",
+      "line": 15,
+      "line_sha256": "01f03c8c68e19e4032a910e1126b7bebdff44251694f45bcd36790bfce600fd1",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=f3b1d8a6-f033-4782-b976-4d3b73c1b17d witness=Witness[revision=0, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "revision": 0,
+        "actor_present": false
+      }
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link/variant command vs UNLINK rollback=false",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link.txt",
+      "line": 68,
+      "line_sha256": "c1c60fd41ab186fab25cc30bd6dcfcf6aa0df489a2859dc9c27d122dd0cb7118",
+      "kind": "runtime-marker",
+      "observed_line": "variant command vs UNLINK rollback=false",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link/variant command vs LINK rollback=false",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link.txt",
+      "line": 137,
+      "line_sha256": "f85b0b5b52861a92fe6b9585a0f8547cf488dea09732f8fd98cb3254bcb3b362",
+      "kind": "runtime-marker",
+      "observed_line": "variant command vs LINK rollback=false",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link/variant command vs UNLINK rollback=true",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link.txt",
+      "line": 204,
+      "line_sha256": "1616bc7e866d7638f4a18b669b3f6e5271213746e8f2e54f40c8428bc34ff285",
+      "kind": "runtime-marker",
+      "observed_line": "variant command vs UNLINK rollback=true",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link/variant command vs LINK rollback=true",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_command_vs_unlink_and_link.txt",
+      "line": 273,
+      "line_sha256": "4fc3d9e620b3fe09c2b7d54ebf7d2896558f411247fa699d72fb17326d7653f4",
+      "kind": "runtime-marker",
+      "observed_line": "variant command vs LINK rollback=true",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_ABSENT rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 41,
+      "line_sha256": "13a8e955013f726ed6ba47ee070277d747234e467ac735864d3d73b2bec49db1",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_ABSENT rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_ABSENT rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 67,
+      "line_sha256": "5bcca66160e16a9a16e48b34c8f492f5aa51bd1d61845d80cfc8cce0684932cf",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_ABSENT rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_ZERO rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 114,
+      "line_sha256": "289f49640680fe92c73e044cf3f0d89f9f4f4ec817bf7e379eb073e629984d86",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_ZERO rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_ZERO rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 147,
+      "line_sha256": "76f15a76ee67996f5d6e2bef34a145f6c2ec177e1e37d30b58f85c837cff320a",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_ZERO rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_FREE rollback=false observed=Witness[revision=2, actor=Optional.empty] afterResolution=Witness[revision=3, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 242,
+      "line_sha256": "daa05f0c4a879865ea2928f1c9943a6efbddd43ea917fb248248ac0df32a0ffe",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_FREE rollback=false observed=Witness[revision=2, actor=Optional.empty] afterResolution=Witness[revision=3, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=REGISTRATION_FREE rollback=true observed=Witness[revision=2, actor=Optional.empty] afterResolution=Witness[revision=2, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 323,
+      "line_sha256": "01cc84d3d1d379a175845e3fbc45bb56f99b341c82deb435f0bba3efee4d4f4d",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=REGISTRATION_FREE rollback=true observed=Witness[revision=2, actor=Optional.empty] afterResolution=Witness[revision=2, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=LINK rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 391,
+      "line_sha256": "d92cbb8507fa4134b511fd5779edc5ced4378c282ae67567915130c97022bb57",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=LINK rollback=false observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=1, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=LINK rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 447,
+      "line_sha256": "0768bad4de9e7997e05b288c10a12b968816f4e3934c4b3215951fcdcf96fd2e",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=LINK rollback=true observed=Witness[revision=0, actor=Optional.empty] afterResolution=Witness[revision=0, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=UNLINK rollback=false observed=Witness[revision=1, actor=Optional[02423710-1c2c-4239-bf99-8e5711450abd]] afterResolution=Witness[revision=2, actor=Optional.empty]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 513,
+      "line_sha256": "35c2c3120af416afa9e3393a7bcb3206d5f586a6172b7550ce02d19f6f80b074",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=UNLINK rollback=false observed=Witness[revision=1, actor=Optional[02423710-1c2c-4239-bf99-8e5711450abd]] afterResolution=Witness[revision=2, actor=Optional.empty]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback/Identity first variant=UNLINK rollback=true observed=Witness[revision=1, actor=Optional[6f7e9c28-5fd6-43b8-b60b-29e245b2af5b]] afterResolution=Witness[revision=1, actor=Optional[6f7e9c28-5fd6-43b8-b60b-29e245b2af5b]]",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_identity_first_commit_and_rollback.txt",
+      "line": 567,
+      "line_sha256": "6fb2e4f55a7c0078896a47f4f549c6bc80c6899063c1dccc3f27e3c4629ed0cd",
+      "kind": "runtime-marker",
+      "observed_line": "Identity first variant=UNLINK rollback=true observed=Witness[revision=1, actor=Optional[6f7e9c28-5fd6-43b8-b60b-29e245b2af5b]] afterResolution=Witness[revision=1, actor=Optional[6f7e9c28-5fd6-43b8-b60b-29e245b2af5b]]",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration absent holderRollback=false",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 46,
+      "line_sha256": "dd80e24d0da82fcbb9c0ba5f66121066ca525ba0be3f44b5c778f2ba2d400dff",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration absent holderRollback=false",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration absent holderRollback=true",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 91,
+      "line_sha256": "2387df151fa1eb932218ee5c5a31cdc8a9bdbb0ee2e8e46666b6a5cdaf6e1766",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration absent holderRollback=true",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration zero holderRollback=false",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 143,
+      "line_sha256": "3f64f23ac22f18b575caf7f3e32c0142c6654e8697241a31d89bd3fd5ac3e85f",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration zero holderRollback=false",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration zero holderRollback=true",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 195,
+      "line_sha256": "fcdc25ade654be8be88214a68d927899b0403aeedd285aad7930797bf2aba6b2",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration zero holderRollback=true",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration free holderRollback=false",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 295,
+      "line_sha256": "358554ecc265cf9db839d46226ec2c17b02ff9ac25be999b72b8d0f6d2e2fb81",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration free holderRollback=false",
+      "observations": {}
+    },
+    {
+      "case": "IdentityPotAuthorityPostgresTest-l3_registration_vs_command/variant registration free holderRollback=true",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_registration_vs_command.txt",
+      "line": 395,
+      "line_sha256": "5b37cb7f1783eb7ac7f74a5bbe44de9762340269fbc3786a0dbd8dad5503bc4e",
+      "kind": "runtime-marker",
+      "observed_line": "variant registration free holderRollback=true",
+      "observations": {}
+    },
+    {
+      "case": "opaque-authority/different-issuer/same-subject/own-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 65,
+      "line_sha256": "673a271c45d8a86514b1020e637c4128a3e36bf537993f71d9d09cefe7853bd4",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=0d066df2-a568-4c71-b6f9-91fb006e4bc3 witness=Witness[revision=1, actor=Optional[895adbae-a8e8-48c9-a4dd-92f3195d1f8f]]",
+      "observations": {
+        "stable": true,
+        "actor_present": true,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/different-issuer/same-subject/first-EUI-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 72,
+      "line_sha256": "2c80c97add54d6c5cb147ecb2269c7d2b0866d476eea548fd3b64e96bf8e37dd",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=4950b4dc-c47a-41de-850c-30be1312ff4f witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/different-issuer/same-subject-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 79,
+      "line_sha256": "1537d85b3ef06c1d80cc2b44865592068f1f4f9652c5c040a97b3ec3942be02c",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=ab79fac9-e655-4a63-a222-33c27458533b witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/case-distinct/own-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 114,
+      "line_sha256": "5f8a96dd08c7ed8905b43098b922f847eb68bd0e804cbf5c9f4c5086a4d20906",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=97885fd3-6c64-428e-86ac-e89d0ea8264e witness=Witness[revision=1, actor=Optional[895adbae-a8e8-48c9-a4dd-92f3195d1f8f]]",
+      "observations": {
+        "stable": true,
+        "actor_present": true,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/case-distinct/first-EUI-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 121,
+      "line_sha256": "159d2406a63c32f55351fd5ca8d55f4540eed06f2e2ca828345cb0c846a43b2d",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=17947ce8-1b72-46db-819b-dada1e36682c witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/case-distinct-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 128,
+      "line_sha256": "8d6fe849a2ece82e9c7306f6b0cf66d03b3558b81960fda4e972ec38eef3ba92",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=f7b310a0-a87a-4ad5-9c64-3e6403ac3bd0 witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/composed-Unicode/own-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 163,
+      "line_sha256": "81136586f0aab23556212a16e8d26ea1b9fa802ef887e22830e8012ff8e5ecb0",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=37b2c884-91e6-4242-bbba-cdd33b20f3be witness=Witness[revision=1, actor=Optional[895adbae-a8e8-48c9-a4dd-92f3195d1f8f]]",
+      "observations": {
+        "stable": true,
+        "actor_present": true,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/composed-Unicode/first-EUI-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 170,
+      "line_sha256": "c1ecd0268c01b196b860aa7c6ce531d686d7f291ea27e55c077cc1488a4ed726",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=d74dc090-a8ae-4e58-802b-22dd9db438e5 witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/composed-Unicode-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 177,
+      "line_sha256": "2c684ee734870934367483facb14187dc088bbfe459621f6455dfb571e565f3f",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=643192b0-dbef-4850-911a-024273e02d16 witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/decomposed-Unicode/own-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 212,
+      "line_sha256": "bcde1eced33be297c2430c85bf55df0d9d25b2de6c8bb47af90ff302bdc731e8",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=fbc17e0a-df98-48dd-b963-c64490939aef witness=Witness[revision=1, actor=Optional[895adbae-a8e8-48c9-a4dd-92f3195d1f8f]]",
+      "observations": {
+        "stable": true,
+        "actor_present": true,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/decomposed-Unicode/first-EUI-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 219,
+      "line_sha256": "bcce3f30875d73a89f0da8c5fdb0f95072298b3e9380f8e084b73447fa04ef5e",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=bfec5369-fe3c-4de9-8300-d0b52daa35d6 witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/decomposed-Unicode-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 226,
+      "line_sha256": "d1a4c65a752af01766c73f338cc5bd42f72f77077e8fb9575e74b6c3af26db0e",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=4726ca0a-47da-4729-b5fb-186a1affcb3c witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/own-token",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 233,
+      "line_sha256": "868fc96142f335ecc23c80e8aa84b8547d8b2d0c1574999c2fa86efc7ca67c73",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=23173e00-e156-4f55-b7c2-9d82e1d335b0 witness=Witness[revision=1, actor=Optional[895adbae-a8e8-48c9-a4dd-92f3195d1f8f]]",
+      "observations": {
+        "stable": true,
+        "actor_present": true,
+        "revision": 1
+      }
+    },
+    {
+      "case": "opaque-authority/first-EUI/token-plus-space",
+      "member": "app/infra-persistence-primary-jpa/target/l3-i2-evidence/IdentityPotAuthorityPostgresTest-l3_valid_binding_and_foreign_token.txt",
+      "line": 240,
+      "line_sha256": "4f7030424ca0a75fc5d50cd2cc6b6a08433fb1ea4d727556cbe22c504eca9f54",
+      "kind": "reviewed-source-sequence-label",
+      "observed_line": "stable request=0ace3f22-7f76-4f53-b6bb-f9f040821d04 witness=Witness[revision=1, actor=Optional.empty]",
+      "observations": {
+        "stable": true,
+        "actor_present": false,
+        "revision": 1
+      }
+    },
+    {
+      "case": "l3_command_lock_until_resolution_CHANGED_rollback_false/server blocker=20502 after completion/closed suffix outcome=CHANGED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_CHANGED_rollback_false.txt",
+      "line": 194,
+      "line_sha256": "18a3a0df6c2f1ab9d1f8490aa93e6846271a2283822a6a20863d097cc76cf5ec",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=20502 after completion/closed suffix outcome=CHANGED",
+      "observations": {}
+    },
+    {
+      "case": "l3_command_lock_until_resolution_CHANGED_rollback_true/server blocker=20713 after completion/closed suffix outcome=CHANGED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_CHANGED_rollback_true.txt",
+      "line": 194,
+      "line_sha256": "621ea35edfd64484ddbc98819ba87597015df025c20b94106ed2c62fbb1f7602",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=20713 after completion/closed suffix outcome=CHANGED",
+      "observations": {}
+    },
+    {
+      "case": "l3_command_lock_until_resolution_REJECTED_rollback_false/server blocker=21386 after completion/closed suffix outcome=REJECTED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_REJECTED_rollback_false.txt",
+      "line": 177,
+      "line_sha256": "6a75a7bb1273ad0170bfa7a9fd361b9c48755480f579badb61e6771e4c681f3d",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=21386 after completion/closed suffix outcome=REJECTED",
+      "observations": {}
+    },
+    {
+      "case": "l3_command_lock_until_resolution_REJECTED_rollback_true/server blocker=21616 after completion/closed suffix outcome=REJECTED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_REJECTED_rollback_true.txt",
+      "line": 177,
+      "line_sha256": "eacabd448b4396de7e0c8cd9f40834b6a1119f3fc145f8ad7ba3fd5f2e1a82bd",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=21616 after completion/closed suffix outcome=REJECTED",
+      "observations": {}
+    },
+    {
+      "case": "l3_command_lock_until_resolution_UNCHANGED_rollback_false/server blocker=20927 after completion/closed suffix outcome=UNCHANGED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_UNCHANGED_rollback_false.txt",
+      "line": 177,
+      "line_sha256": "fc2c393e241a2867d7a00494e74071a3b0fe4dad46c4b47b644852179f2c190f",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=20927 after completion/closed suffix outcome=UNCHANGED",
+      "observations": {}
+    },
+    {
+      "case": "l3_command_lock_until_resolution_UNCHANGED_rollback_true/server blocker=21151 after completion/closed suffix outcome=UNCHANGED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_command_lock_until_resolution_UNCHANGED_rollback_true.txt",
+      "line": 177,
+      "line_sha256": "ec59fe0a78639e6469dc8acfb2b473e7c60b00df20869add3eff4bf32520e46d",
+      "kind": "runtime-marker",
+      "observed_line": "server blocker=21151 after completion/closed suffix outcome=UNCHANGED",
+      "observations": {}
+    },
+    {
+      "case": "A1 variant=absent",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_negative_stable_and_a1_sql.txt",
+      "line": 173,
+      "line_sha256": "72d3a1110f2ebb3a72f4e08dc9034ccc4aa834d8da4f4de3363dc03a7e7d803b",
+      "kind": "runtime-marker",
+      "observed_line": "A1 variant=absent business Pot SQL=0; technical SELECT=1; NOWAIT passed; no advisory lock; no retry",
+      "observations": {
+        "technical_select": "pid=21864 SQL select coalesce((select writer_xid=pg_current_xact_id() from v3_pot_version where pot_id=? order by version desc limit 1),false)",
+        "business_pot_sql_count": 0,
+        "technical_select_count": 1,
+        "request_boundary": "acquired request=c4817a7c-c533-43ee-89fe-2225e93d7c0b partition=2",
+        "new_pot_row_lock": false,
+        "new_pot_advisory_lock": false
+      }
+    },
+    {
+      "case": "A1 variant=zero",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_negative_stable_and_a1_sql.txt",
+      "line": 213,
+      "line_sha256": "94b3b9fd92ea9caf6ae0ec5ffa5fa198cf5c2b6fdb1a19d6c4d6ae28c4b2db4c",
+      "kind": "runtime-marker",
+      "observed_line": "A1 variant=zero business Pot SQL=0; technical SELECT=1; NOWAIT passed; no advisory lock; no retry",
+      "observations": {
+        "technical_select": "pid=21881 SQL select coalesce((select writer_xid=pg_current_xact_id() from v3_pot_version where pot_id=? order by version desc limit 1),false)",
+        "business_pot_sql_count": 0,
+        "technical_select_count": 1,
+        "request_boundary": "acquired request=0d3d9587-e57f-4788-a0b9-1d913fc47a22 partition=0",
+        "new_pot_row_lock": false,
+        "new_pot_advisory_lock": false
+      }
+    },
+    {
+      "case": "A1 variant=free",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_negative_stable_and_a1_sql.txt",
+      "line": 256,
+      "line_sha256": "534ad3b9c374222c96357af85a3197639adb2ec456f7533b85f46edb6532fa2d",
+      "kind": "runtime-marker",
+      "observed_line": "A1 variant=free business Pot SQL=0; technical SELECT=1; NOWAIT passed; no advisory lock; no retry",
+      "observations": {
+        "technical_select": "pid=21898 SQL select coalesce((select writer_xid=pg_current_xact_id() from v3_pot_version where pot_id=? order by version desc limit 1),false)",
+        "business_pot_sql_count": 0,
+        "technical_select_count": 1,
+        "request_boundary": "acquired request=4b18edd5-2d89-4cd5-9773-63fe2889c38e partition=1",
+        "new_pot_row_lock": false,
+        "new_pot_advisory_lock": false
+      }
+    },
+    {
+      "case": "A1 variant=invalid",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_negative_stable_and_a1_sql.txt",
+      "line": 292,
+      "line_sha256": "4432112a2622ae4b6e91a9b01579c16bef97428699cb2639d0a4622c3da26445",
+      "kind": "runtime-marker",
+      "observed_line": "A1 variant=invalid business Pot SQL=0; technical SELECT=1; NOWAIT passed; no advisory lock; no retry",
+      "observations": {
+        "technical_select": "pid=21914 SQL select coalesce((select writer_xid=pg_current_xact_id() from v3_pot_version where pot_id=? order by version desc limit 1),false)",
+        "business_pot_sql_count": 0,
+        "technical_select_count": 1,
+        "request_boundary": "acquired request=a465897b-933a-447c-9e4b-e1b664367564 partition=2",
+        "new_pot_row_lock": false,
+        "new_pot_advisory_lock": false
+      }
+    },
+    {
+      "case": "l3_observation_change_false/variant initial positive=false",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_observation_change_false.txt",
+      "line": 192,
+      "line_sha256": "b5004bd3fb6110feafc8870186d9df13cc975f74632fff02bd27367fb2966d3f",
+      "kind": "runtime-marker",
+      "observed_line": "variant initial positive=false; original intention/token retained; new acquisition terminal stable negative",
+      "observations": {}
+    },
+    {
+      "case": "l3_observation_change_true/variant initial positive=true",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_observation_change_true.txt",
+      "line": 194,
+      "line_sha256": "77c26b2bd5a10765675f9a924485b8ab73445630e3c2a346770323ed3e91e8bf",
+      "kind": "runtime-marker",
+      "observed_line": "variant initial positive=true; original intention/token retained; new acquisition terminal stable negative",
+      "observations": {}
+    },
+    {
+      "case": "l3_real_authority_preserves_claim_fencing/real Authority fencing variant=takeover request=f72167cd-4d54-4887-b95d-a97ad6e05f87 status=CLAIM_LOST",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_real_authority_preserves_claim_fencing.txt",
+      "line": 95,
+      "line_sha256": "c864b54b82490828295a20cd91ead347c845bf8b354766095aa283aba9eb75c1",
+      "kind": "runtime-marker",
+      "observed_line": "real Authority fencing variant=takeover request=f72167cd-4d54-4887-b95d-a97ad6e05f87 status=CLAIM_LOST",
+      "observations": {}
+    },
+    {
+      "case": "l3_real_authority_preserves_claim_fencing/real Authority fencing variant=expired request=e1e43bc9-f136-4a58-a8f8-9d1f8ca08785 status=CLAIM_LOST",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_real_authority_preserves_claim_fencing.txt",
+      "line": 121,
+      "line_sha256": "288b6a356ca02ef7613e428b57e4584910bfbc316ae4ae98859d70e324b746cd",
+      "kind": "runtime-marker",
+      "observed_line": "real Authority fencing variant=expired request=e1e43bc9-f136-4a58-a8f8-9d1f8ca08785 status=CLAIM_LOST",
+      "observations": {}
+    },
+    {
+      "case": "l3_real_authority_preserves_claim_fencing/real Authority fencing variant=partition-handover request=6b6d07a1-b62b-44e0-a905-b57cf47da72b status=COMMITTED",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_real_authority_preserves_claim_fencing.txt",
+      "line": 183,
+      "line_sha256": "764ea8f7e2859a48297254a426ccbf5c64a44101b92e30f970f38ce268b61a54",
+      "kind": "runtime-marker",
+      "observed_line": "real Authority fencing variant=partition-handover request=6b6d07a1-b62b-44e0-a905-b57cf47da72b status=COMMITTED",
+      "observations": {}
+    },
+    {
+      "case": "l3_registration_relink_collision_absent/engine variant=absent",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_absent.txt",
+      "line": 192,
+      "line_sha256": "0e00108489354f01634f8e97c0da19b341d14776a1b0091c2a3c2b3b88f39319",
+      "kind": "runtime-marker",
+      "observed_line": "engine variant=absent; collision even absent/absent or same User; original token retained",
+      "observations": {}
+    },
+    {
+      "case": "l3_registration_relink_collision_free/engine variant=free",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_free.txt",
+      "line": 192,
+      "line_sha256": "274b41c1de1567ce9610e9c331cf95422eea9a6cfd8dba573cd08836c74aacaf",
+      "kind": "runtime-marker",
+      "observed_line": "engine variant=free; collision even absent/absent or same User; original token retained",
+      "observations": {}
+    },
+    {
+      "case": "l3_registration_relink_collision_same-user-relink/engine variant=same-user-relink",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_same-user-relink.txt",
+      "line": 194,
+      "line_sha256": "449dabc701141f3fcb701eae8d53a05f63be197da18f08661616ee3f4c30c2e1",
+      "kind": "runtime-marker",
+      "observed_line": "engine variant=same-user-relink; collision even absent/absent or same User; original token retained",
+      "observations": {}
+    },
+    {
+      "case": "l3_registration_relink_collision_zero/engine variant=zero",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_registration_relink_collision_zero.txt",
+      "line": 196,
+      "line_sha256": "045b65fcdd68f58d023b2665b770dd48ed37b62da45c718b71ad18ba9f5dbbc2",
+      "kind": "runtime-marker",
+      "observed_line": "engine variant=zero; collision even absent/absent or same User; original token retained",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_protect durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 109,
+      "line_sha256": "e0ff77e341ff3dfa97d5e8ea19d58de14b84009c8343aaa14c6f6aa206a2d985",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_protect durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_revision durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 155,
+      "line_sha256": "e6aff2e262b78f5a5a1e1686a54011544cdcdb61cd672f085321318b55a18806",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_revision durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_result durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 202,
+      "line_sha256": "f9298bbb44c372619e169a5dc606e863020848a030b7546c95e829dbf2c22ba8",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_result durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_terminal durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 243,
+      "line_sha256": "75726f0bc2c20f1f754d6af75489fc49f1df964fadeb81cd6fb13a7a02375135",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_terminal durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_complete durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 295,
+      "line_sha256": "649bf2b5d1f14962a598f974b1c84c9bef0eb69f901be6b5cf56b8c2b6f3d76e",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_complete durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_prefix durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 351,
+      "line_sha256": "a2fa31ad4eee87ce1eed960d9a3df29667a105899dd1fb01e17565fc925122bc",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_prefix durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_rollback_boundaries/rollback boundary=after_positions durable snapshot identical",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_rollback_boundaries.txt",
+      "line": 410,
+      "line_sha256": "a835764ae07c0fdb56513c76731ff168f5cbd356593a4bd7918ab02c51f30459",
+      "kind": "runtime-marker",
+      "observed_line": "rollback boundary=after_positions durable snapshot identical",
+      "observations": {}
+    },
+    {
+      "case": "l3_unknown_commit_AFTER_COMMIT/wire=AFTER_COMMIT physical independent reread",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_unknown_commit_AFTER_COMMIT.txt",
+      "line": 184,
+      "line_sha256": "00642d2e2a5319a2272c232b8e6829ad1b3d7110e52621ed9953049acf6e949e",
+      "kind": "runtime-marker",
+      "observed_line": "wire=AFTER_COMMIT physical independent reread; no invented retry budget",
+      "observations": {}
+    },
+    {
+      "case": "l3_unknown_commit_BEFORE_COMMIT/wire=BEFORE_COMMIT physical independent reread",
+      "member": "app/runtime-command-consumption-worker/target/l3-i4-evidence/l3_unknown_commit_BEFORE_COMMIT.txt",
+      "line": 294,
+      "line_sha256": "ff64f11cf55af4a1247582795677ac55a44769d3bf49dab4ad50f252b6cfa171",
+      "kind": "runtime-marker",
+      "observed_line": "wire=BEFORE_COMMIT physical independent reread; no invented retry budget",
+      "observations": {}
+    }
+  ]
+}
