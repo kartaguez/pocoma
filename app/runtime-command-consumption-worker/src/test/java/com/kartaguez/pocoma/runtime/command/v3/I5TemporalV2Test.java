@@ -111,4 +111,89 @@ class I5TemporalV2Test {
                 AssertionError.class,
                 () -> extension("a", "a", now.plusSeconds(1), now.plusSeconds(90), now));
     }
+
+    @Test
+    void v2_oracle_counter_examples() {
+        var key = "cons-1/0";
+        var attemptTx = new I5TemporalV2Postgres.Tx("WRITE");
+        attemptTx.end = 20;
+
+        // Counter-example 1: Injected blocker on same key -> must be recognized as conflict
+        var injectedTx = new I5TemporalV2Postgres.Tx("WRITE");
+        injectedTx.injected = true;
+        injectedTx.keys.add(key);
+        injectedTx.end = 25;
+        assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, injectedTx, key));
+        assertFalse(free(10, 20, List.of(new long[] {15, injectedTx.end})));
+
+        // Counter-example 2: Stuck / unresolved transaction (end == Long.MAX_VALUE) -> must conflict
+        var stuckTx = new I5TemporalV2Postgres.Tx("WRITE");
+        assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, stuckTx, key));
+
+        // Counter-example 3: Competing mutation on same key -> must conflict
+        var competingTx = new I5TemporalV2Postgres.Tx("WRITE");
+        competingTx.keys.add(key);
+        competingTx.end = 25;
+        assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, competingTx, key));
+
+        // Counter-example 4: Non-blocking routine Discovery on same key -> must NOT conflict (prevents false failure)
+        var discoveryTx = new I5TemporalV2Postgres.Tx("WRITE");
+        discoveryTx.discovery = true;
+        discoveryTx.keys.add(key);
+        discoveryTx.end = 25;
+        assertFalse(I5TemporalV2Postgres.isConflict(attemptTx, discoveryTx, key));
+
+        // Counter-example 5: Different authority -> must NOT conflict
+        var readTx = new I5TemporalV2Postgres.Tx("READ");
+        readTx.keys.add(key);
+        readTx.end = 25;
+        assertFalse(I5TemporalV2Postgres.isConflict(attemptTx, readTx, key));
+
+        // Counter-example 6: Renewal uncommitted or resolution not COMMITTED
+        assertThrows(AssertionError.class, () -> assertEquals("COMMITTED", "ROLLED_BACK"));
+        assertThrows(AssertionError.class, () -> assertEquals("CONFIRMED", "OMITTED"));
+
+        // Counter-example 7: Token lost or replaced
+        var now = Instant.parse("2026-10-31T00:00:00Z");
+        assertThrows(
+                AssertionError.class,
+                () ->
+                        extension(
+                                "tokenA",
+                                "tokenB",
+                                now.plusSeconds(30),
+                                now.plusSeconds(90),
+                                now));
+
+        // Counter-example 8: Deadline not extended
+        assertThrows(
+                AssertionError.class,
+                () ->
+                        extension(
+                                "tokenA",
+                                "tokenA",
+                                now.plusSeconds(30),
+                                now.plusSeconds(30),
+                                now));
+
+        // Counter-example 9: Expiration safety margin violated
+        assertThrows(
+                AssertionError.class,
+                () ->
+                        extension(
+                                "tokenA",
+                                "tokenA",
+                                now.plusSeconds(1),
+                                now.plusSeconds(90),
+                                now));
+
+        // Counter-example 10: Operation time exceeded under saturation
+        assertThrows(
+                AssertionError.class,
+                () ->
+                        below(
+                                ns("operation") + 1,
+                                ns("operation"),
+                                "B physical complete operation"));
+    }
 }

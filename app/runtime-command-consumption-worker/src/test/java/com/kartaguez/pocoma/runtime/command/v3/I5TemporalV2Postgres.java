@@ -35,7 +35,7 @@ final class I5TemporalV2Postgres {
         final long start = System.nanoTime();
         final Set<String> keys = ConcurrentHashMap.newKeySet();
         volatile long end = Long.MAX_VALUE;
-        volatile boolean guarded, renewal, injected;
+        volatile boolean guarded, renewal, injected, discovery;
         volatile int pid;
         volatile String xid = "", resolution = "ACTIVE";
 
@@ -178,6 +178,13 @@ final class I5TemporalV2Postgres {
         }
     }
 
+    static boolean isConflict(Tx attemptTx, Tx candidateTx, String key) {
+        return candidateTx != attemptTx
+                && candidateTx.authority.equals(attemptTx.authority)
+                && ((candidateTx.keys.contains(key) && !candidateTx.discovery)
+                        || candidateTx.end == Long.MAX_VALUE);
+    }
+
     static final class Journal {
         final Fixture fixture;
         final List<Tx> transactions;
@@ -244,6 +251,7 @@ final class I5TemporalV2Postgres {
                                         var admission = window == null ? null : window.admission();
                                         if (admission != null) admission.lockInterruptibly();
                                         var tx = new Tx(authority);
+                                        tx.discovery = (component instanceof DiscoveryEngine);
                                         transactions.add(tx);
                                         var action = (Supplier<?>) args[0];
                                         Object[] wrapped = {
@@ -398,11 +406,7 @@ final class I5TemporalV2Postgres {
 
         List<long[]> conflicts(Attempt attempt, String key) {
             return transactions.stream()
-                    .filter(
-                            t ->
-                                    t != attempt.tx
-                                            && t.authority.equals(attempt.authority)
-                                            && (t.keys.contains(key) || t.end == Long.MAX_VALUE))
+                    .filter(t -> isConflict(attempt.tx, t, key))
                     .map(t -> new long[] {t.start, t.end})
                     .toList();
         }
@@ -788,6 +792,25 @@ final class I5TemporalV2Postgres {
                 }
                 // Deliberately violate availability; prove safe local retirement without extension.
                 if (window != null) window.begin(journals);
+                class ExcessiveTarget {
+                    final Journal journal;
+                    final PartitionLease lease;
+                    final Holder holder;
+                    final JdbcTemplate sql;
+                    final AtomicLong omittedAt = new AtomicLong();
+
+                    ExcessiveTarget(
+                            Journal journal,
+                            PartitionLease lease,
+                            Holder holder,
+                            JdbcTemplate sql) {
+                        this.journal = journal;
+                        this.lease = lease;
+                        this.holder = holder;
+                        this.sql = sql;
+                    }
+                }
+                var targets = new ArrayList<ExcessiveTarget>();
                 for (var j : journals)
                     for (String authority : List.of("WRITE", "READ")) {
                         var lease =
@@ -813,64 +836,71 @@ final class I5TemporalV2Postgres {
                         if (window != null) window.obstruct(lease);
                         var h = new Holder(sql, authority, lease, txs);
                         holders.add(h);
-                        await(
-                                () ->
-                                        j.attempts.stream()
-                                                .anyMatch(
-                                                        a ->
-                                                                a.start >= h.span.start
-                                                                        && a.end > 0
-                                                                        && a.leases.stream()
-                                                                                .anyMatch(
-                                                                                        l ->
-                                                                                                key(l).equals(
-                                                                                                                key(
-                                                                                                                        lease)))
-                                                                        && a.returned.stream()
-                                                                                .noneMatch(
-                                                                                        l ->
-                                                                                                key(l).equals(
-                                                                                                                key(
-                                                                                                                        lease)))));
-                        j.assertSuspended(key(lease));
-                        long omittedAt = System.nanoTime();
-                        await(
-                                () -> {
-                                    try {
-                                        return j.removed(key(lease));
-                                    } catch (Exception e) {
-                                        throw new IllegalStateException(e);
-                                    }
-                                },
-                                Duration.ofSeconds(7));
-                        await(
-                                () -> System.nanoTime() - omittedAt >= ns("excessive.hold"),
-                                Duration.ofSeconds(7));
-                        var row =
-                                sql.queryForMap(
-                                        "select owner_token,owned_until,clock_timestamp() now from"
-                                                + " partition_ownership where consumption_id=? and"
-                                                + " partition_id=?",
-                                        lease.consumptionId().value(),
-                                        lease.partitionId());
-                        assertEquals(lease.ownerToken(), row.get("owner_token"));
-                        assertEquals(h.oldUntil, ((Timestamp) row.get("owned_until")).toInstant());
-                        assertTrue(
-                                System.nanoTime() - omittedAt
-                                        >= ns("revalidation") - ns("operation"));
-                        assertTrue(
-                                h.span.end == Long.MAX_VALUE,
-                                "physical holder still unresolved before release");
-                        f.trace.add(
-                                "C-EXCESS key="
-                                        + key(lease)
-                                        + " removed=true suspended=true unextended="
-                                        + row
-                                        + " holder="
-                                        + h.span);
-                        h.close();
-                        retired.add(key(lease));
+                        targets.add(new ExcessiveTarget(j, lease, h, sql));
                     }
+                for (var target : targets) {
+                    await(
+                            () ->
+                                    target.journal.attempts.stream()
+                                            .anyMatch(
+                                                    a ->
+                                                            a.start >= target.holder.span.start
+                                                                    && a.end > 0
+                                                                    && a.leases.stream()
+                                                                            .anyMatch(
+                                                                                    l ->
+                                                                                            key(l).equals(
+                                                                                                            key(
+                                                                                                                    target.lease)))
+                                                                    && a.returned.stream()
+                                                                            .noneMatch(
+                                                                                    l ->
+                                                                                            key(l).equals(
+                                                                                                            key(
+                                                                                                                    target.lease)))));
+                    target.journal.assertSuspended(key(target.lease));
+                    target.omittedAt.set(System.nanoTime());
+                }
+                for (var target : targets) {
+                    await(
+                            () -> {
+                                try {
+                                    return target.journal.removed(key(target.lease));
+                                } catch (Exception e) {
+                                    throw new IllegalStateException(e);
+                                }
+                            },
+                            Duration.ofSeconds(7));
+                }
+                for (var target : targets) {
+                    await(
+                            () -> System.nanoTime() - target.omittedAt.get() >= ns("excessive.hold"),
+                            Duration.ofSeconds(7));
+                    var row =
+                            target.sql.queryForMap(
+                                    "select owner_token,owned_until,clock_timestamp() now from"
+                                            + " partition_ownership where consumption_id=? and"
+                                            + " partition_id=?",
+                                    target.lease.consumptionId().value(),
+                                    target.lease.partitionId());
+                    assertEquals(target.lease.ownerToken(), row.get("owner_token"));
+                    assertEquals(target.holder.oldUntil, ((Timestamp) row.get("owned_until")).toInstant());
+                    assertTrue(
+                            System.nanoTime() - target.omittedAt.get()
+                                    >= ns("revalidation") - ns("operation"));
+                    assertTrue(
+                            target.holder.span.end == Long.MAX_VALUE,
+                            "physical holder still unresolved before release");
+                    f.trace.add(
+                            "C-EXCESS key="
+                                    + key(target.lease)
+                                    + " removed=true suspended=true unextended="
+                                    + row
+                                    + " holder="
+                                    + target.holder.span);
+                    target.holder.close();
+                    retired.add(key(target.lease));
+                }
                 if (window != null) {
                     var beforeClaims =
                             Map.of(
@@ -923,13 +953,14 @@ final class I5TemporalV2Postgres {
                     }
                     window.seal(journals);
                 }
+                release.countDown();
                 f.trace.add(
                         (controlled ? "V3 QUALIFICATION PASS " : "V2 QUALIFICATION PASS ")
                                 + variant
                                 + " WRITE/READ nominal/admissible/excessive; no 30s certificate");
             } finally {
                 for (var h : holders) h.close();
-                if (window == null) release.countDown();
+                release.countDown();
                 f.trace.add("ALL_TRANSACTIONS " + txs);
                 for (var j : journals)
                     f.trace.add(
