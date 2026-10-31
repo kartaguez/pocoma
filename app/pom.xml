@@ -113,4 +113,48 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<!-- Only the verification CLI activates this profile. Compilation outputs stay
+	     incremental; the report producers write directly into a new run directory. -->
+	<profiles>
+		<profile>
+			<id>verification-provenance</id>
+			<activation>
+				<property><name>pocoma.verification.id</name></property>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-plugin</artifactId>
+							<configuration>
+								<reportsDirectory>${pocoma.verification.reports}/${project.artifactId}/surefire-reports</reportsDirectory>
+								<enablePropertiesElement>true</enablePropertiesElement>
+								<systemPropertyVariables>
+									<pocoma.verification.id>${pocoma.verification.id}</pocoma.verification.id>
+									<pocoma.verification.module>${project.artifactId}</pocoma.verification.module>
+									<pocoma.verification.producer>surefire</pocoma.verification.producer>
+								</systemPropertyVariables>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-failsafe-plugin</artifactId>
+							<configuration>
+								<reportsDirectory>${pocoma.verification.reports}/${project.artifactId}/failsafe-reports</reportsDirectory>
+								<summaryFile>${pocoma.verification.reports}/${project.artifactId}/failsafe-reports/failsafe-summary.xml</summaryFile>
+								<enablePropertiesElement>true</enablePropertiesElement>
+								<systemPropertyVariables>
+									<pocoma.verification.id>${pocoma.verification.id}</pocoma.verification.id>
+									<pocoma.verification.module>${project.artifactId}</pocoma.verification.module>
+									<pocoma.verification.producer>failsafe</pocoma.verification.producer>
+								</systemPropertyVariables>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
 </project>

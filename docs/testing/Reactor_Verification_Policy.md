@@ -1307,12 +1307,15 @@ python3 -B scripts/testing/verify.py QUARANTINE i5_r05
 python3 -B scripts/testing/verify.py QUARANTINE i5_r12
 ```
 
-`--dry-run` prints the exact Maven command, recipe methods, unselected JUnit
+`--dry-run` prints the Maven selection/lifecycle command, recipe methods, unselected JUnit
 sources/sibling methods and filtering status; canonical expected identities are
 resolved at execution from Maven's effective reactor and source inventory, not
 from prior XML. Dry-run's pending canonical inventory is not a coverage proof;
 it executes no Maven test. `--output /absolute/new/directory` selects the evidence
 destination, which must not already exist. Default: unique temporary directory.
+At execution the CLI adds only the two `pocoma.verification.id` and
+`pocoma.verification.reports` properties for producer isolation; their actual
+values and complete command are retained in the run plan and receipt.
 Keep/publish required raw evidence before removing temporary outputs.
 
 The explicit `identity` and `foundation` recipes share cumulative expansion in
@@ -1330,7 +1333,7 @@ comma-separated. Those commands are the
 **unfiltered** canonical `-pl <anchors> -am test`; they include heavy tests and the
 quarantined methods if Maven pulls their module. INTEGRATION does not silently add
 architecture-tests: declare that requirement and execute its canonical command
-when §17 applies. CERTIFICATION is exactly `./mvnw --batch-mode
+when §17 applies. CERTIFICATION's selection/lifecycle is exactly `./mvnw --batch-mode
 --no-transfer-progress test`, without a module/test filter or skip property. It
 is the Maven portion of certification, not an automatic SPEC-10 certificate.
 Required external protocols, environment variants, packaging and acceptance remain
@@ -1419,7 +1422,7 @@ single independent success does not close historical availability reserves.
 The selector records the exact command/expected invocation identities, input hashes,
 tested HEAD and dirty state, toolchain and settings hash. Before any Java/Maven
 subprocess it rejects nonempty `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`,
-`JDK_JAVA_OPTIONS` and `_JAVA_OPTIONS`, and unreviewed `.mvn/maven.config`,
+`JDK_JAVA_OPTIONS`, `_JAVA_OPTIONS`, `MAVEN_BASEDIR`, `MAVEN_PROJECTBASEDIR`, and unreviewed `.mvn/maven.config`,
 `jvm.config` or `extensions.xml`. Recipe `-Dtest`/`failIfNoSpecifiedTests=false`
 remain explicit argv, never implicit environment configuration.
 
@@ -1433,16 +1436,38 @@ separate invocation names; other providers require an explicit collector review.
 There is no promise that every canonical slice's current JUnit forms are supported.
 Refusal/INCONCLUSIVE is preferable to an unproven canonical PASS.
 
-The selector moves old XML to `previous-reports/` before execution and never counts
-it. New XML, logs, effective model and freshly modified physical evidence are
-archived with SHA-256. **Every** PASS, including canonical commands, requires a
+The selector creates a new evidence directory and invocation ID before execution.
+The opt-in parent POM profile `verification-provenance` configures Surefire and
+Failsafe producers to write directly to `<output>/reports/<artifactId>/<producer>-reports`,
+with the invocation ID, module and producer in the JVM system properties recorded
+in each XML. The effective Surefire configuration is checked before test execution;
+the CLI currently executes the `test` lifecycle only and refuses bound Failsafe
+executions pending discovery/lifecycle review. No existing lifecycle is extended.
+Only reports from the new authorized directories with matching provenance and
+source-module attribution contribute. Shared `target/*-reports` and other run
+directories are ignored, regardless of mtime. Historical bytes copied even into
+the isolated directory cannot satisfy the new invocation ID. IDs are correlation
+markers, not cryptographic authentication against a process with the same write
+rights deliberately forging both current markers and results.
+
+Compilation classes/artifacts are retained: no implicit `clean` or `install`.
+XML bytes used for validation are the same bytes archived with SHA-256; hashes
+protect evidence integrity, not authenticity of execution. Logs, effective model
+and freshly modified physical evidence are also retained. **Every** PASS,
+including canonical commands, requires a
 nonempty expected inventory, exactly one fresh successful execution of every
 expected identity, no unexpected/duplicate identity, consistent XML counters and
 zero skips. Equal totals with different identities are insufficient. Missing,
 stale or incomplete reports cannot pass. A nonzero Maven exit/failure/error is FAIL;
 insufficient coverage or discovery is INCONCLUSIVE (preflight refusal exits 2).
-The checkout lock prevents concurrent selector runs; native Maven commands must
-follow the same single-owner discipline. Removing tests from sources changes the
+The atomic checkout lock refuses concurrent selector runs before Maven. On caught
+interruptions the CLI terminates/reaps Maven and its fork process group before
+releasing ownership and writes a non-PASS diagnostic. An uncatchable kill leaves
+the lock in place: inspect processes before manually removing it. Native Maven
+commands must follow the same single-owner discipline; the lock cannot control
+uncooperative external writers. Evidence directories are retained on success and
+failure; preflight refusals create no campaign. Collection/discovery errors cannot
+produce PASS. Removing tests from sources changes the
 obligation/input fingerprint and requires source review; old coverage is not reused.
 
 External SQL fingerprints follow the selected test classes and referenced test
@@ -1470,6 +1495,9 @@ the test Maven process; `discovery_seconds` separately covers model discovery.
 The [resolution report](../v3/Verification_Rationalization_Resolution.md) records
 the independent audit counterexample, regression controls, FOUNDATION and Identity
 replays, corrected historical counts and measured build comparisons.
+The [provenance correction](../v3/Verification_AUD_VERIFY_001_Provenance_Resolution.md)
+supersedes its report-reuse claim with real CLI replay and producer isolation
+proofs; the original independent counter-audit remains unchanged.
 
 These receipts supplement rather than replace SPEC-10's physical traces and lot
 collectors. Test results alone do not prove every required variant. Save official

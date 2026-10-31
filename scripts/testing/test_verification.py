@@ -132,8 +132,7 @@ class AuditRegressionTests(unittest.TestCase):
                 model += f'<m:project><m:artifactId>pocoma-{module}</m:artifactId><m:build><m:sourceDirectory>{base}/src/main/java</m:sourceDirectory><m:testSourceDirectory>{base}/src/test/java</m:testSourceDirectory></m:build></m:project>'
             (output / 'effective-pom.xml').write_text(model + '</projects>')
             definition = v.plan('CHANGE', 'FOUNDATION')
-            with patch.object(v.subprocess, 'run') as run:
-                run.return_value.returncode = 0
+            with patch.object(v, 'execute_maven', return_value=0) as run:
                 _, issues = v.effective_inventory(definition, output)
             self.assertEqual(issues, [])
             self.assertEqual(sum(map(len, definition['expected'].values())), 28)
@@ -236,36 +235,38 @@ class AuditRegressionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Missing external SQL'):
                 fingerprint()
 
-    def test_freshness_pipeline_old_absent_partial_and_current_reports(self):
+    def test_isolated_pipeline_provenance_and_input_changes(self):
         import os
         import tempfile
-        import types
         from unittest.mock import patch
-        for scenario in ['old-only', 'absent', 'partial', 'stale-copied', 'complete', 'sql-changed', 'discovery-uncertain']:
+        for scenario in ['old-only', 'absent', 'partial', 'historical-copy', 'complete', 'sql-changed', 'discovery-uncertain']:
             with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as tmp, patch.object(v, 'ROOT', Path(tmp)), patch.dict(os.environ, {}, clear=True):
                 base = Path(tmp); (base/'app').mkdir()
-                report = base/'app/p/target/surefire-reports/TEST-C.xml'; report.parent.mkdir(parents=True)
-                report.write_bytes(xml(('a','b')))
+                old = base/'app/p/target/surefire-reports/TEST-C.xml'; old.parent.mkdir(parents=True)
+                old.write_bytes(xml(('a','b')))
                 sql = base/'used.sql'; sql.write_text('select 1')
                 definition = dict(command=['./mvnw','test'], expected={'C':['a','b']}, filtered=False, level='CHANGE', scope='FOUNDATION', quarantine={})
                 output = base/'evidence'
                 def discover(d, o):
                     (o/'effective-pom.xml').write_text('<projects/>'); (o/'discovery.log').write_text('model')
-                    return [], ['uncertain discovery'] if scenario == 'discovery-uncertain' else []
+                    d['expected_modules'] = {'C':'p'}
+                    return [dict(module='p', artifact='p', main_root=str(base/'src/main'), test_root=str(base/'src/test'))], ['uncertain discovery'] if scenario == 'discovery-uncertain' else []
                 def execute(*args, **kwargs):
                     if scenario not in ['old-only', 'absent']:
-                        report.write_bytes(xml(('a',) if scenario == 'partial' else ('a','b')))
-                        if scenario == 'stale-copied':
-                            os.utime(report, (1,1))
+                        raw = xml(('a',) if scenario == 'partial' else ('a','b'))
+                        if scenario != 'historical-copy':
+                            props = '<properties>' + ''.join(f'<property name="pocoma.verification.{k}" value="{val}"/>' for k,val in [('id',definition['invocation_id']),('module','p'),('producer','surefire')]) + '</properties>'
+                            raw = raw.replace(b'</testsuite>', props.encode()+b'</testsuite>')
+                        (output/'reports/p/surefire-reports/TEST-C.xml').write_bytes(raw)
                     if scenario == 'sql-changed':
                         sql.write_text('select 2')
-                    return types.SimpleNamespace(returncode=0)
-                with patch.object(v, 'effective_inventory', side_effect=discover), patch.object(v, 'external_sql_inputs', return_value=['used.sql']), patch.object(v, 'capture', return_value={}), patch.object(v, 'app_inputs', return_value={}), patch.object(v.subprocess, 'run', side_effect=execute):
+                    return 0
+                with patch.object(v, 'effective_inventory', side_effect=discover), patch.object(v, 'external_sql_inputs', return_value=['used.sql']), patch.object(v, 'capture', return_value={}), patch.object(v, 'app_inputs', return_value={}), patch.object(v, 'execute_maven', side_effect=execute):
                     rc = v.run(definition, output)
                 result = json.loads((output/'result.json').read_text())
                 self.assertEqual(result['verdict'], 'PASS' if scenario == 'complete' else 'INCONCLUSIVE')
-                self.assertEqual(rc, 0 if scenario == 'complete' else 1)
-                self.assertTrue((output/'previous-reports/app/p/target/surefire-reports/TEST-C.xml').is_file())
+                self.assertEqual(rc, 0 if scenario == 'complete' else (2 if scenario == 'discovery-uncertain' else 1))
+                self.assertEqual(old.read_bytes(), xml(('a','b')))
                 self.assertFalse((base/'app/.verification.lock').exists())
 
 
@@ -284,8 +285,7 @@ class DiscoveryTests(unittest.TestCase):
             model = f'<projects xmlns:m="http://maven.apache.org/POM/4.0.0"><m:project><m:artifactId>p</m:artifactId><m:build><m:sourceDirectory>{base}/src/main/java</m:sourceDirectory><m:testSourceDirectory>{base}/src/test/java</m:testSourceDirectory>{extra}</m:build></m:project></projects>'
             (output/'effective-pom.xml').write_text(model)
             d = dict(command=['./mvnw', 'test'], expected={}, filtered=False)
-            with patch.object(v.subprocess, 'run') as proc:
-                proc.return_value.returncode = 0
+            with patch.object(v, 'execute_maven', return_value=0) as proc:
                 _, issues = v.effective_inventory(d, output)
             return d, issues
 

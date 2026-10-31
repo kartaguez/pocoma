@@ -3,16 +3,18 @@
 import argparse
 import collections
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import re
-import shutil
+import signal
 import subprocess
 import sys
 import tarfile
 import tempfile
 import time
+import uuid
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -84,7 +86,8 @@ def required_methods(fqcn, path):
 
 
 def reject_implicit_options():
-    for key in ['MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS']:
+    for key in ['MAVEN_ARGS', 'MAVEN_OPTS', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS',
+                'MAVEN_BASEDIR', 'MAVEN_PROJECTBASEDIR']:
         if os.environ.get(key):
             raise ValueError(f'{key} is set: remove implicit command configuration before reproducible verification')
     # These files can inject -Dtest, profiles, skips or JVM options as well.
@@ -99,6 +102,54 @@ def control_inputs():
     return {str(p): digest(p) if p.is_file() else None for p in paths}
 
 
+class VerificationInterrupted(Exception):
+    pass
+
+
+def interrupt(signum, frame):
+    raise VerificationInterrupted(f'Interrupted by signal {signum}; Maven execution not completed')
+
+
+def execute_maven(command, log):
+    # Keep the checkout locked until Maven and its forked JVM process group stop.
+    with subprocess.Popen(command, cwd=ROOT / 'app', stdout=log,
+                          stderr=subprocess.STDOUT, start_new_session=True) as process:
+        try:
+            return process.wait()
+        except BaseException:
+            for sig in [signal.SIGTERM, signal.SIGKILL]:
+                try:
+                    os.killpg(process.pid, sig)
+                except ProcessLookupError:
+                    break
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    continue
+                # Also terminate any surviving forks before releasing the lock.
+                if sig == signal.SIGTERM:
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                break
+            raise
+
+
+def producer_config(artifact, producer, definition):
+    """Exact effective producer contract, including per-module attribution."""
+    directory = Path(definition['reports_root']) / artifact / (producer + '-reports')
+    return dict(reportsDirectory=str(directory), enablePropertiesElement='true',
+                systemPropertyVariables={
+                    'pocoma.verification.id': definition['invocation_id'],
+                    'pocoma.verification.module': artifact,
+                    'pocoma.verification.producer': producer})
+
+
+def config_value(item):
+    return {child.tag.split('}')[-1]: child.text for child in item} if len(item) else item.text
+
+
 def effective_inventory(definition, output):
     """Let Maven select the reactor; independently enumerate its source obligations.
 
@@ -107,7 +158,7 @@ def effective_inventory(definition, output):
     """
     command = definition['command'][:-1] + ['help:effective-pom', '-Doutput=' + str(output / 'effective-pom.xml')]
     with (output / 'discovery.log').open('wb') as log:
-        rc = subprocess.run(command, cwd=ROOT / 'app', stdout=log, stderr=subprocess.STDOUT).returncode
+        rc = execute_maven(command, log)
     if rc:
         raise ValueError(f'Maven effective-model discovery failed ({rc}); see {output}/discovery.log; no PASS')
     document = ET.parse(output / 'effective-pom.xml').getroot()
@@ -116,6 +167,7 @@ def effective_inventory(definition, output):
     issues = []
     module_paths = {ET.parse(p).getroot().findtext('m:artifactId', '', NS): p.parent for p in (ROOT / 'app').glob('*/pom.xml')}
     found = {}
+    expected_modules = {}
     index = sources()
     for project in projects:
         if project.findtext('m:packaging', 'jar', NS) == 'pom':
@@ -125,10 +177,13 @@ def effective_inventory(definition, output):
         if module is None or test_root != module / 'src/test/java':
             issues.append(f'Unreviewed test source root: {test_root}')
             continue
-        model.append(dict(module=module.name, artifact=project.findtext('m:artifactId', '', NS),
+        artifact_id = project.findtext('m:artifactId', '', NS)
+        model.append(dict(module=module.name, artifact=artifact_id,
             main_root=project.findtext('m:build/m:sourceDirectory', '', NS), test_root=str(test_root)))
         for plugin in project.findall('m:build/m:plugins/m:plugin', NS):
             artifact = plugin.findtext('m:artifactId', '', NS)
+            if artifact == 'maven-failsafe-plugin':
+                issues.append(f'{module.name}: Failsafe lifecycle discovery requires review; CLI currently executes test only')
             if artifact == 'maven-surefire-plugin':
                 configs = [plugin.find('m:configuration', NS)] + plugin.findall('m:executions/m:execution/m:configuration', NS)
                 # POM's existing standard patterns + L2ManifestProof are reviewed.
@@ -136,11 +191,20 @@ def effective_inventory(definition, output):
                     for item in [] if config is None else config:
                         tag = item.tag.split('}')[-1]
                         patterns = [p.text for p in item]
+                        contract = producer_config(artifact_id, 'surefire', definition) if 'invocation_id' in definition else {}
+                        if tag in contract and config_value(item) == contract[tag]:
+                            continue
                         if tag != 'includes' or patterns != ['**/Test*.java', '**/*Test.java', '**/*Tests.java', '**/*TestCase.java', '**/L2ManifestProof.java']:
                             issues.append(f'{module.name}: unreviewed effective Surefire configuration: {tag}')
                 executions = plugin.findall('m:executions/m:execution', NS)
                 if len(executions) != 1 or executions[0].findtext('m:id', '', NS) != 'default-test':
                     issues.append(f'{module.name}: unreviewed Surefire executions')
+                if 'invocation_id' in definition:
+                    contract = producer_config(artifact_id, 'surefire', definition)
+                    for config in configs:
+                        actual = {} if config is None else {c.tag.split('}')[-1]: config_value(c) for c in config}
+                        if any(actual.get(key) != value for key, value in contract.items()):
+                            issues.append(f'{module.name}: producer provenance configuration missing or overridden')
         for path in sorted(test_root.rglob('*.java')):
             content = java_structure(path.read_text())
             if definition['filtered'] and path.stem not in {name.split('.')[-1] for name in definition['expected']}:
@@ -175,6 +239,7 @@ def effective_inventory(definition, output):
                 if fqcn in found:
                     raise ValueError(f'{fqcn}: duplicate source identity')
                 found[fqcn] = methods
+                expected_modules[fqcn] = artifact_id
             except ValueError as error:
                 issues.append(str(error))
     if definition['filtered']:
@@ -190,6 +255,7 @@ def effective_inventory(definition, output):
     definition['discovery'] = 'effective-model-and-source-identities'
     definition['reactor_modules'] = [p['module'] for p in model]
     definition['discovery_issues'] = issues
+    definition['expected_modules'] = expected_modules
     return model, issues
 
 
@@ -354,7 +420,7 @@ def plan(level, scope, config=None, root=ROOT):
                 quarantine=config['quarantine'], config_sha256=digest(CONFIG))
 
 
-def assess(reports, expected, exit_code, filtered):
+def assess(reports, expected, exit_code, filtered, provenance=None):
     counts = dict(tests=0, failures=0, errors=0, skipped=0)
     executions = []
     issues = []
@@ -365,6 +431,20 @@ def assess(reports, expected, exit_code, filtered):
             declared = {k: int(suite.get(k, '0')) for k in counts}
             if suite.tag != 'testsuite':
                 raise ValueError('Expected Surefire testsuite')
+            if provenance is not None:
+                parts = Path(name).parts
+                if len(parts) != 4 or parts[0] != 'reports' or parts[2] not in ['surefire-reports', 'failsafe-reports']:
+                    raise ValueError('Report outside authorized producer directory')
+                artifact, producer = parts[1], parts[2].removesuffix('-reports')
+                required = {'pocoma.verification.id': provenance['invocation_id'],
+                            'pocoma.verification.module': artifact,
+                            'pocoma.verification.producer': producer}
+                for key, value in required.items():
+                    properties = suite.findall(f"properties/property[@name='{key}']")
+                    if len(properties) != 1 or properties[0].get('value') != value:
+                        raise ValueError(f'Provenance mismatch: {key}; historical or unattributed report')
+                if provenance['expected_modules'].get(suite.get('name')) != artifact:
+                    raise ValueError('Provenance mismatch: report attributed to wrong source module')
         except (ET.ParseError, ValueError) as error:
             issues.append(f'Invalid report {name}: {error}')
             continue
@@ -405,6 +485,8 @@ def assess(reports, expected, exit_code, filtered):
         issues.append('No complete expected test inventory: cannot prove coverage')
     if not counts['tests'] or counts['skipped']:
         issues.append('Absent or skipped tests: coverage incomplete')
+    if exit_code:
+        issues.append(f'Maven execution failed or interrupted (exit {exit_code}); no PASS')
     verdict = 'FAIL' if exit_code or counts['failures'] or counts['errors'] else ('INCONCLUSIVE' if issues else 'PASS')
     return dict(verdict=verdict, counts=counts, issues=issues, executions=executions)
 
@@ -427,13 +509,28 @@ def run(definition, output):
         lock.mkdir()
     except FileExistsError:
         raise ValueError('Another verification owns app targets (or stale app/.verification.lock; inspect before removal)')
+    handlers = {sig: signal.signal(sig, interrupt) for sig in [signal.SIGTERM, signal.SIGHUP]}
+    created_output = False
     try:
         output.mkdir(parents=True, exist_ok=False)
+        created_output = True
+        definition['invocation_id'] = uuid.uuid4().hex
+        definition['reports_root'] = str(output / 'reports')
+        (output / 'reports').mkdir()
+        definition['command'] = definition['command'][:-1] + [
+            '-Dpocoma.verification.id=' + definition['invocation_id'],
+            '-Dpocoma.verification.reports=' + definition['reports_root'], definition['command'][-1]]
         inputs = app_inputs()
         controls = control_inputs()
         discovery_started = time.monotonic()
         model, discovery_issues = effective_inventory(definition, output)
         discovery_seconds = time.monotonic() - discovery_started
+        for project in model:
+            for producer in ['surefire', 'failsafe']:
+                directory = output / 'reports' / project['artifact'] / (producer + '-reports')
+                directory.mkdir(parents=True, exist_ok=False)
+        if discovery_issues:
+            raise ValueError('Unproven producer/discovery configuration: ' + '; '.join(discovery_issues))
         external_paths = external_sql_inputs(definition['expected'])
         definition['external_sql_inputs'] = external_paths
         (output / 'plan.json').write_text(json.dumps(definition, indent=2) + '\n')
@@ -444,34 +541,48 @@ def run(definition, output):
             app_inputs=inputs, external_sql_inputs=external, control_inputs=controls, selector_sha256=digest(Path(__file__)),
             maven_settings_sha256=digest(Path.home()/'.m2/settings.xml') if (Path.home()/'.m2/settings.xml').is_file() else None)
         (output / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
-        # Move previous XML aside: wall-clock freshness alone cannot establish provenance.
-        prior = []
-        for path in (ROOT / 'app').glob('*/target/*-reports/TEST-*.xml'):
-            destination = output / 'previous-reports' / path.relative_to(ROOT)
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(path, destination)
-            prior.append(str(path.relative_to(ROOT)))
+        # Shared target reports are diagnostic only, never inputs to this verdict.
+        prior = sorted(str(p.relative_to(ROOT)) for p in (ROOT / 'app').glob('*/target/*-reports/TEST-*.xml'))
         started = time.time_ns()
         print(' '.join(definition['command']), '\nEvidence:', output, flush=True)
         with (output / 'maven.log').open('wb') as log:
-            rc = subprocess.run(definition['command'], cwd=ROOT / 'app', stdout=log, stderr=subprocess.STDOUT).returncode
+            rc = execute_maven(definition['command'], log)
         seconds = (time.time_ns() - started)/1e9
         reports = []
         artifacts = {}
+        allowed = {output / 'reports' / p['artifact'] / (producer + '-reports')
+                   for p in model for producer in ['surefire', 'failsafe']}
+        for directory in [output / 'reports', *(p.parent for p in allowed), *allowed]:
+            if directory.is_symlink() or not directory.is_dir():
+                raise ValueError(f'Provenance: producer directory replaced or absent: {directory}')
         with tarfile.open(output / 'raw.tar.gz', 'w:gz') as bundle:
             for filename in ['maven.log', 'effective-pom.xml', 'discovery.log']:
                 bundle.add(output / filename, arcname=filename)
                 artifacts[filename] = digest(output / filename)
+            for path in sorted((output / 'reports').rglob('*')):
+                if path.is_symlink():
+                    raise ValueError(f'Provenance: symbolic link in producer output: {path}')
+                if path.is_dir():
+                    continue
+                if path.parent not in allowed or path.stat().st_nlink != 1:
+                    raise ValueError(f'Provenance: unauthorized report location/link: {path}')
+                relative = str(path.relative_to(output))
+                raw = path.read_bytes()
+                # Archive exactly the bytes assessed (no second read of a mutable XML).
+                info = tarfile.TarInfo(relative)
+                info.size = len(raw)
+                bundle.addfile(info, io.BytesIO(raw))
+                artifacts[relative] = hashlib.sha256(raw).hexdigest()
+                if path.name.startswith('TEST-') and path.suffix == '.xml':
+                    reports.append((relative, raw))
             for path in sorted((ROOT / 'app').glob('*/target/**/*')):
                 if not path.is_file() or path.stat().st_mtime_ns < started:
                     continue
                 relative = str(path.relative_to(ROOT))
-                if '/surefire-reports/' in relative or '/failsafe-reports/' in relative or 'evidence' in relative.lower():
+                if 'evidence' in relative.lower() and '/surefire-reports/' not in relative and '/failsafe-reports/' not in relative:
                     bundle.add(path, arcname=relative)
                     artifacts[relative] = digest(path)
-                    if '/surefire-reports/TEST-' in relative and relative.endswith('.xml'):
-                        reports.append((relative, path.read_bytes()))
-        result = assess(reports, definition['expected'], rc, definition['filtered'])
+        result = assess(reports, definition['expected'], rc, definition['filtered'], definition)
         for project in model:
             if any((ROOT / 'app' / project['module'] / 'target/generated-test-sources').rglob('*.java')):
                 discovery_issues.append(f"{project['module']}: generated test discovery requires review")
@@ -486,13 +597,26 @@ def run(definition, output):
         result['compilation'] = compilation_metrics((output / 'maven.log').read_text(), model)
         result.update(command=definition['command'], level=definition['level'], scope=definition['scope'],
             seconds=seconds, discovery_seconds=discovery_seconds, expected_invocations=sum(map(len, definition['expected'].values())), started_ns=started, exit_code=rc, artifacts=artifacts,
+            invocation_id=definition['invocation_id'], reports_root=definition['reports_root'],
             raw_sha256=digest(output / 'raw.tar.gz'), previous_reports_not_counted=prior,
             not_selected='All methods outside plan.expected for filtered feedback; NOT RUN, never PASS',
             quarantined_scenarios=definition['quarantine'])
         (output / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps({k: result[k] for k in ['verdict', 'counts', 'seconds', 'issues']}, ensure_ascii=False), flush=True)
         return 0 if result['verdict'] == 'PASS' else 1
+    except (ValueError, OSError, ET.ParseError, VerificationInterrupted, KeyboardInterrupt) as error:
+        diagnostic = str(error) or 'Interrupted by keyboard; Maven execution not completed'
+        if created_output:
+            result = dict(verdict='FAIL' if isinstance(error, (VerificationInterrupted, KeyboardInterrupt)) else 'INCONCLUSIVE',
+                          counts=dict(tests=0, failures=0, errors=0, skipped=0),
+                          issues=[diagnostic], command=definition['command'],
+                          invocation_id=definition.get('invocation_id'), exit_code=None)
+            (output / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
+        print(diagnostic, file=sys.stderr)
+        return 2
     finally:
+        for sig, handler in handlers.items():
+            signal.signal(sig, handler)
         lock.rmdir()
 
 
