@@ -1,0 +1,675 @@
+{
+  "repository": "kartaguez/pocoma",
+  "branch": "feat/v3-architecture",
+  "audited_sha": "6d40ed17496709ce75175c4651dbaaaedc78343e",
+  "initial_implementation": "d0927d9410ebcd65c221e73c5ecd04e5242fe4e9",
+  "initial_audit": "33f02f4512af0dbafb5c482ec84171801815d82c",
+  "verdict": "CHANGES REQUIRED",
+  "date": "2026-10-31",
+  "scope": [
+    "AUD-VERIFY-001 only",
+    "FOUNDATION canonical",
+    "COMMAND/Identity FAST local contribution"
+  ],
+  "C1": {
+    "result": "confirmed",
+    "exit_code": 2,
+    "original_xml_reassessment": "INCONCLUSIVE, 24 missing"
+  },
+  "C2": {
+    "result": "confirmed",
+    "expected": 28,
+    "executed": 28,
+    "verdict": "PASS",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "C3": {
+    "result": "identity multiplicity and exact membership confirmed for current 28/65 sources; provenance and future discovery reserves",
+    "reserves": [
+      "module is not part of report identity",
+      "qualified @org.junit.jupiter.api.Test can be omitted by restricted source parser in mixed-annotation fixture, absent from certified 28/65 sources"
+    ]
+  },
+  "C4": {
+    "result": "failed",
+    "finding": "AUD-VERIFY-001-R1",
+    "severity": "MAJOR",
+    "demonstration": "unmodified CLI: 4 fresh H2 tests + 24 old byte-identical PostgreSQL XML testcases copied with new mtime -> PASS 28/28, exit 0",
+    "unfiltered_plan": true,
+    "implicit_MAVEN_BASEDIR_filter_without_replay": "INCONCLUSIVE 4/28, exit 1"
+  },
+  "C5": {
+    "result": "confirmed",
+    "expected": 65,
+    "executed": 65,
+    "verdict": "PASS",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "campaign_commands": [
+    {
+      "evidence": "c2-foundation",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c2-foundation/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 5,
+        "skipped": 0
+      },
+      "recorded_verdict": "FAIL",
+      "maven_exit_code": 1,
+      "maven_seconds": 2.555394,
+      "discovery_issues": [],
+      "qualification": "environmental failure"
+    },
+    {
+      "evidence": "c2-foundation-docker",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c2-foundation-docker/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "PASS",
+      "maven_exit_code": 0,
+      "maven_seconds": 12.423472,
+      "discovery_issues": [],
+      "qualification": "fresh nominal proof"
+    },
+    {
+      "evidence": "c5-fast-identity",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-consume-registration,domain-pot",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "engine-consume-registration,domain-pot",
+        "-am",
+        "-Dtest=com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest,com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest,com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest,com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest,com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest,com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest,com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest,com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest",
+        "-Dsurefire.failIfNoSpecifiedTests=false",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c5-fast-identity/effective-pom.xml"
+      ],
+      "required": 65,
+      "counts": {
+        "tests": 65,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "PASS",
+      "maven_exit_code": 0,
+      "maven_seconds": 3.726411,
+      "discovery_issues": [],
+      "qualification": "fresh nominal proof"
+    },
+    {
+      "evidence": "c4-partial-no-replay",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-partial-no-replay/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "INCONCLUSIVE",
+      "maven_exit_code": 0,
+      "maven_seconds": 1.676951,
+      "discovery_issues": [],
+      "qualification": "negative fault injection, never a qualifying PASS"
+    },
+    {
+      "evidence": "c4-stale-preserved-mtime",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-stale-preserved-mtime/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "INCONCLUSIVE",
+      "maven_exit_code": 0,
+      "maven_seconds": 1.671249,
+      "discovery_issues": [],
+      "qualification": "negative fault injection, never a qualifying PASS"
+    },
+    {
+      "evidence": "c4-stale-copyfile-fresh-mtime",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-stale-copyfile-fresh-mtime/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "PASS",
+      "maven_exit_code": 0,
+      "maven_seconds": 1.66988,
+      "discovery_issues": [],
+      "qualification": "negative fault injection, never a qualifying PASS"
+    },
+    {
+      "evidence": "c4-cli-implicit-base-filter",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-cli-implicit-base-filter/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "INCONCLUSIVE",
+      "maven_exit_code": 0,
+      "maven_seconds": 1.610521,
+      "discovery_issues": [],
+      "qualification": "negative fault injection, never a qualifying PASS"
+    },
+    {
+      "evidence": "c4-cli-replay",
+      "declared_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "test"
+      ],
+      "discovery_maven_command": [
+        "./mvnw",
+        "--batch-mode",
+        "--no-transfer-progress",
+        "-pl",
+        "infra-tx-spring",
+        "-am",
+        "help:effective-pom",
+        "-Doutput=/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-cli-replay/effective-pom.xml"
+      ],
+      "required": 28,
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "recorded_verdict": "PASS",
+      "maven_exit_code": 0,
+      "maven_seconds": 1.580687,
+      "discovery_issues": [],
+      "qualification": "negative fault injection, never a qualifying PASS"
+    }
+  ],
+  "cli_replay": {
+    "c4-cli-implicit-base-filter": {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "FOUNDATION",
+        "--output",
+        "/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-cli-implicit-base-filter"
+      ],
+      "environment": {
+        "MAVEN_BASEDIR": "/private/tmp/pocoma-counter-audit-6d40ed17/external-maven-base"
+      },
+      "external_jvm_config": "-Dtest=SpringTransactionRunnerTest -Dsurefire.failIfNoSpecifiedTests=false\n",
+      "process_exit_code": 1,
+      "maven_exit_code": 0,
+      "real_executed_tests": 4,
+      "required_tests": 28,
+      "collector_verdict": "INCONCLUSIVE",
+      "collector_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#jpaJdbcSamePidXidAndClosedContextCannotDirtyWriteAtCommit, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#guardedLateCallbackRefusedBeforeSqlAndRollback, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#autonomousRevisionCaughtFailurePoisonsJpaAndJdbcCallers, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#requiresNewJpaAndJdbcCannotCommitEffectOrDelete, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#nestedAmbientWrongSourceAndWrongEmfRefused, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#sameOwnerReadAuthorityAtomicAndContextCannotCrossAuthorityOrLifetime, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#commitServerRejectionRollbackAndMaskedCommitRemainDistinct, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest#originalCallbackCauseSurvivesRollbackFailureAndConfirmedCommitWinsCleanup, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#existingConfigurationInjectsTheActualManagerWithoutApplicationBootstrap, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#ambiguousManagersAreRefusedInsteadOfSilentlyChoosingAnAuthority, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest#explicitRealmCompositionUsesIndependentPhysicalTransactions, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#resolvesSemiOpenBoundariesAndOpenEndInAnyOrder, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#closesAndOpensAtomicallyAndRollbackPreservesHistory, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#rejectsInvalidIntervalsAndDuplicateOpenVersions, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest#reportsGapsAndOverlapsInsteadOfFallingBackToCurrent, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#installsOnlyTheExplicitFoundationFixtureOnRealPostgres, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest#restartValidatesWithoutReexecutingAndKeepsIndependentHistories, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#jpaAndJdbcSharePhysicalTransactionAndBecomeVisibleOnlyAfterCommit, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#rollbackInBothWriteOrdersLeavesNoJpaOrJdbcEffect, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#caughtRequiredParticipantFailureStillRollsBackTheOwner, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#deferredConstraintFailureAtCommitRestoresAllEffects, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#observerFailureAfterCommitDoesNotMeanRollback, found 0",
+        "Expected one fresh execution: com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest#contendingConnectionsWaitForPhysicalRollbackBeforeCommitting, found 0"
+      ],
+      "transfers": []
+    },
+    "c4-cli-replay": {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/testing/verify.py",
+        "CHANGE",
+        "FOUNDATION",
+        "--output",
+        "/private/tmp/pocoma-counter-audit-6d40ed17/evidence/c4-cli-replay"
+      ],
+      "environment": {
+        "MAVEN_BASEDIR": "/private/tmp/pocoma-counter-audit-6d40ed17/external-maven-base"
+      },
+      "external_jvm_config": "-Dtest=SpringTransactionRunnerTest -Dsurefire.failIfNoSpecifiedTests=false\n",
+      "process_exit_code": 0,
+      "maven_exit_code": 0,
+      "real_executed_tests": 4,
+      "required_tests": 28,
+      "collector_verdict": "PASS",
+      "collector_counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "issues": [],
+      "transfers": [
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438852658430939,
+          "case_count": 9
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438852659597776,
+          "case_count": 3
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438852660228986,
+          "case_count": 4
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438852660850155,
+          "case_count": 2
+        },
+        {
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae",
+          "matches_nominal_xml": true,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438852661398532,
+          "case_count": 6
+        }
+      ]
+    }
+  },
+  "negative_pipeline": {
+    "partial-no-replay": {
+      "collector_exit_code": 1,
+      "collector_verdict": "INCONCLUSIVE",
+      "collector_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "real_maven_test_count": 4,
+      "real_maven_exit_code": 0,
+      "commands": [
+        {
+          "declared": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "test"
+          ],
+          "actual": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "-Dtest=SpringTransactionRunnerTest",
+            "-Dsurefire.failIfNoSpecifiedTests=false",
+            "test"
+          ],
+          "note": "Controlled fault injection: execute H2 only, return actual Maven exit code."
+        }
+      ],
+      "transfers": [],
+      "input_state_unchanged": true
+    },
+    "stale-preserved-mtime": {
+      "collector_exit_code": 1,
+      "collector_verdict": "INCONCLUSIVE",
+      "collector_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "real_maven_test_count": 4,
+      "real_maven_exit_code": 0,
+      "commands": [
+        {
+          "declared": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "test"
+          ],
+          "actual": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "-Dtest=SpringTransactionRunnerTest",
+            "-Dsurefire.failIfNoSpecifiedTests=false",
+            "test"
+          ],
+          "note": "Controlled fault injection: execute H2 only, return actual Maven exit code."
+        }
+      ],
+      "transfers": [
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1000000000
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1000000000
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1000000000
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1000000000
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1000000000
+        }
+      ],
+      "input_state_unchanged": true
+    },
+    "stale-copyfile-fresh-mtime": {
+      "collector_exit_code": 0,
+      "collector_verdict": "PASS",
+      "collector_counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "real_maven_test_count": 4,
+      "real_maven_exit_code": 0,
+      "commands": [
+        {
+          "declared": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "test"
+          ],
+          "actual": [
+            "./mvnw",
+            "--batch-mode",
+            "--no-transfer-progress",
+            "-pl",
+            "infra-tx-spring",
+            "-am",
+            "-Dtest=SpringTransactionRunnerTest",
+            "-Dsurefire.failIfNoSpecifiedTests=false",
+            "test"
+          ],
+          "note": "Controlled fault injection: execute H2 only, return actual Maven exit code."
+        }
+      ],
+      "transfers": [
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml",
+          "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438796370260278
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml",
+          "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438796370907488
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml",
+          "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438796371273615
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml",
+          "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438796371630782
+        },
+        {
+          "source": "/private/tmp/pocoma-counter-audit-6d40ed17/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "destination": "app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml",
+          "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae",
+          "xml_timestamp": null,
+          "source_mtime_ns": 1000000000,
+          "destination_mtime_ns": 1793438796371961575
+        }
+      ],
+      "input_state_unchanged": true
+    }
+  },
+  "regression_tests": {
+    "methods": 30,
+    "result": "PASS",
+    "seconds": 0.617
+  },
+  "production_changes": "NONE",
+  "unexpected_slice_crossing": "NONE",
+  "global_architecture_gate": "NOT REQUIRED / NOT RUN",
+  "full_reactor": "NOT REQUIRED / NOT RUN; bounded audit, no global milestone",
+  "certification": "SPEC-10 NOT RUN",
+  "deferred": [
+    "CHANGE Identity",
+    "INTEGRATION Identity",
+    "I5",
+    "heavy PostgreSQL suites",
+    "global architecture",
+    "full reactor"
+  ],
+  "standard_operational_adoption": "NOT independently validated as reliable automatic gate for Identity or FOUNDATION while MAJOR replay false PASS remains",
+  "publication_scope": "five new documentation/evidence files only"
+}

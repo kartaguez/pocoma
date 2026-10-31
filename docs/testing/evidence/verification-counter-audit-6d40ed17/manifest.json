@@ -1,0 +1,529 @@
+{
+  "audited_sha": "6d40ed17496709ce75175c4651dbaaaedc78343e",
+  "verdict": "CHANGES REQUIRED",
+  "created_files": [
+    "docs/v3/Verification_AUD_VERIFY_001_Independent_Counter_Audit.md",
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/README.md",
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/summary.json",
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/manifest.json",
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/counter-audit-evidence.tar.gz"
+  ],
+  "published_files": {
+    "docs/v3/Verification_AUD_VERIFY_001_Independent_Counter_Audit.md": {
+      "bytes": 14684,
+      "sha256": "91d604e1cafb8dcaf6376e9386fc17088084bce83bbc40e917df5f1da08d7d64"
+    },
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/README.md": {
+      "bytes": 4004,
+      "sha256": "fe31851928c3f13dd9864a2eba379d9a25c87660a352f92e16fefa0669f59fa9"
+    },
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/summary.json": {
+      "bytes": 27580,
+      "sha256": "0cb66666c9c62e03ce8eb8f8e4b0550e427933daa71a7b5d733ed26424bb9dfc"
+    },
+    "docs/testing/evidence/verification-counter-audit-6d40ed17/counter-audit-evidence.tar.gz": {
+      "bytes": 2193848,
+      "sha256": "04cb10009e7b1cd492e9dd58f5db18be0e0a9fd8199f22706882d79a2889af3a"
+    }
+  },
+  "archive_member_count": 124,
+  "archive_members": {
+    "counter-audit/evidence/audit-probes.log": {
+      "bytes": 9713,
+      "sha256": "f6566bff2d7927a907cdaefcf2249888c2bebf35074c07e7047d572fb9d03d9c"
+    },
+    "counter-audit/evidence/author-regression-tests.log": {
+      "bytes": 7088,
+      "sha256": "04bb7886feb3842869f9b95eac07a7afdaa7f824b8e3344efac45caac0edc53f"
+    },
+    "counter-audit/evidence/c1-hidden-filter.json": {
+      "bytes": 500,
+      "sha256": "59ae13a88aa5e9cdb9d85b2443facfe9ada1986a79e8e8db8eac2b4db9dc61f7"
+    },
+    "counter-audit/evidence/c2-foundation/discovery.log": {
+      "bytes": 2170,
+      "sha256": "74baa53cb8e562aeb759a348bce8e9a0b0e8864ce9689136a726a45e133c6504"
+    },
+    "counter-audit/evidence/c2-foundation/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c2-foundation/maven.log": {
+      "bytes": 41497,
+      "sha256": "5d182c831279768cf4517c2362b59de21b7dd753c5f30215a4b3178fd3d2fecb"
+    },
+    "counter-audit/evidence/c2-foundation/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c2-foundation/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c2-foundation/raw.tar.gz": {
+      "bytes": 75852,
+      "sha256": "31412d59a349abfdc6697294010c80005483496635a10221d884e0415cbc1f4b"
+    },
+    "counter-audit/evidence/c2-foundation/result.json": {
+      "bytes": 13762,
+      "sha256": "61be6a9a2ae79c80eb8a95dc6a9fb79e1006b4b7acf6fda5e934696d7ecefa82"
+    },
+    "counter-audit/evidence/c2-foundation-docker/discovery.log": {
+      "bytes": 2177,
+      "sha256": "f46a95c1b01ab81df7ac23f8f0f1c53ca0e74486f61bdabd21f09f6dfb55875b"
+    },
+    "counter-audit/evidence/c2-foundation-docker/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c2-foundation-docker/maven.log": {
+      "bytes": 148075,
+      "sha256": "09dd8849afab120d4b3f87175a8ec2dc4af97aba90c809203cf466d49b27bdd4"
+    },
+    "counter-audit/evidence/c2-foundation-docker/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 29908,
+      "sha256": "74ae4c321e2605a3264db082119202f04f9b1d1f9ab9e18a6ef4834325a25fb0"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+      "bytes": 51935,
+      "sha256": "c0bdf927ca3b632e60c5a299b44a2f68f7b873045d5b722fc538a8588fc24ed3"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+      "bytes": 29516,
+      "sha256": "9afe47aa7692d4a1ca689da5e8aeb8ff45c1eb027827925e406a00e32d4239d8"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+      "bytes": 29526,
+      "sha256": "ff949b348eea36d11514ff81b7a697820ce9ad70d60c6e249f51ac5007e587d3"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+      "bytes": 29520,
+      "sha256": "1c2158a855668e4fd19d04362602654e8ee9c5d251bb44e9d0a2ed0a7eedc51c"
+    },
+    "counter-audit/evidence/c2-foundation-docker/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+      "bytes": 29532,
+      "sha256": "26ed2021d4583dc2c223aae24ac5c09fce7fbc7e139c3a11e728808b1c42282c"
+    },
+    "counter-audit/evidence/c2-foundation-docker/provenance.json": {
+      "bytes": 241464,
+      "sha256": "b8b8e94730843b78986962ef0d4cf130279f00becd6df862f11c14859cc59c59"
+    },
+    "counter-audit/evidence/c2-foundation-docker/raw.tar.gz": {
+      "bytes": 99835,
+      "sha256": "fdf2e802df73f05ce5afbda7ee614bac0aac6481066293dc238bd7234d631c78"
+    },
+    "counter-audit/evidence/c2-foundation-docker/result.json": {
+      "bytes": 12539,
+      "sha256": "6131cd752217072b530b8730e6b044d4ce2b3deef3c3233bfa90a5be4bdbc36a"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/discovery.log": {
+      "bytes": 2184,
+      "sha256": "efadbc21e928c6286f8596460fc5ae34b2f23b3a35fae1ce51f3642fbe828ff4"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/maven.log": {
+      "bytes": 6669,
+      "sha256": "519182469bf2e793a749b9fb083b7f323579b536fa7c4f5a2c260db2fa432b96"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 30049,
+      "sha256": "49a043abdb2fd5504e96705a4a6d15a6b796d2d62dd8ea3644ae72de46885742"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+      "bytes": 89334,
+      "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+      "bytes": 45076,
+      "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+      "bytes": 49714,
+      "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+      "bytes": 40294,
+      "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+      "bytes": 60363,
+      "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/raw.tar.gz": {
+      "bytes": 63987,
+      "sha256": "aba1dc3bc76df1a9332600d8062956dc4b1948479f49196cdc34e8f6e9349f77"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter/result.json": {
+      "bytes": 9234,
+      "sha256": "0f1d1c6756e90379df4c8adb1078cd7e9af1127a9b4b568bce060ad26d5e4eb7"
+    },
+    "counter-audit/evidence/c4-cli-implicit-base-filter-console.log": {
+      "bytes": 4388,
+      "sha256": "9f295b68fe8f28418e3e0dbc28248b88ddc58804ecd7cf984ce612cdf608447f"
+    },
+    "counter-audit/evidence/c4-cli-replay/discovery.log": {
+      "bytes": 2170,
+      "sha256": "2e2ada3f47ccda1677e2b13d703f22fc38fcafd4e1f74478131870500776a0f2"
+    },
+    "counter-audit/evidence/c4-cli-replay/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c4-cli-replay/maven.log": {
+      "bytes": 6669,
+      "sha256": "d95ce2e3dee0cb6072851b854eb9bbe9c09b839b75c1ca1c9edaf316ea1683a7"
+    },
+    "counter-audit/evidence/c4-cli-replay/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c4-cli-replay/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 29916,
+      "sha256": "0903511d28ef691d4d7533cb33eeec17bb7315899d7802d02cb4b0d93941c32a"
+    },
+    "counter-audit/evidence/c4-cli-replay/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c4-cli-replay/raw.tar.gz": {
+      "bytes": 89239,
+      "sha256": "53bd3616a7c9b4375afcc7592ddad01f929a073c62e0b769adddbfe2563e7581"
+    },
+    "counter-audit/evidence/c4-cli-replay/result.json": {
+      "bytes": 10909,
+      "sha256": "f14ffc37447b61c443769965c4c05d293e4649a017ac8a64be67ba3fe7ca5250"
+    },
+    "counter-audit/evidence/c4-cli-replay-console.log": {
+      "bytes": 271,
+      "sha256": "a69c8758cebe29f7af2c96014fa890a4d970c23c881d8235d91d2a81077b53ed"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/discovery.log": {
+      "bytes": 2177,
+      "sha256": "586e317a84418b4ae07a0b1ea091ca4fb4890eb0b511dfa9322bb2423937be94"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/maven.log": {
+      "bytes": 6669,
+      "sha256": "32f1460436e0aee1027e71a836aa7014ab1c47a6fa3988d811cfbfcf60f96865"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.aggregate.ShareholderIdentityCollisionTest.xml": {
+      "bytes": 7975,
+      "sha256": "c11f0d4894ea2481a8e926c5fa8c40d722614cdb81f19e2c67864b8be50190b4"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.InvitationAttachmentTest.xml": {
+      "bytes": 8263,
+      "sha256": "22b2a18313435d16be3246a3cc2c3c0d1a8c38ba61b2f330b1abb20c85b3552a"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotAuthorizationTest.xml": {
+      "bytes": 8208,
+      "sha256": "0f88ea750b7a35d9d45f313538c8f406eeec9c49d94df5f88f4413424ba51cb4"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-pot/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.pot.v3.PotTransitionsTest.xml": {
+      "bytes": 9806,
+      "sha256": "740159ec69bec5a6b41d5f81f2576de5df098b664e71c3a57118c0cb5e9714f3"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.UserIdentityModelTest.xml": {
+      "bytes": 8462,
+      "sha256": "87ed8608d593ef48fe5a4772646c19d53d87a78d417fcfed743fcc9605739e90"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityTransitionsTest.xml": {
+      "bytes": 10349,
+      "sha256": "c230c9223b6ccff54585ba0dba377405bd78427af315eea8ac975cd1f025ce71"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/domain-user-identity/target/surefire-reports/TEST-com.kartaguez.pocoma.domain.useridentity.v3.IdentityValueContractsTest.xml": {
+      "bytes": 8953,
+      "sha256": "355b76e7cc7759e978241c3094ae68769dbc2d4e633fd6174fbe070e3af96aeb"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.ExecuteIdentityRequestTest.xml": {
+      "bytes": 9132,
+      "sha256": "d1d0bc95df300d11829f0ad33c7f74acfb4b9a58ab9a21dd1b41ae8ac42a6e2a"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/previous-reports/app/engine-consume-registration/target/surefire-reports/TEST-com.kartaguez.pocoma.engine.consume.registration.v3.IdentityRequestContractTest.xml": {
+      "bytes": 10584,
+      "sha256": "f43af5b138090869449199d1d748647af1b410e5de94634c9bc3f6cc4d48a8a7"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/raw.tar.gz": {
+      "bytes": 64018,
+      "sha256": "12f42a3ac8f1acc5439612bb95de3c14df1fa46893d5586eb76c3eef13db2846"
+    },
+    "counter-audit/evidence/c4-partial-no-replay/result.json": {
+      "bytes": 9615,
+      "sha256": "024f1ee41858658dfb5a5723e1102515fa91cda56124b20493fc382eb8406705"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/discovery.log": {
+      "bytes": 2186,
+      "sha256": "39bf57f264adaefdce160371d0a41772b2a39df9547f5d4fe19f05b5b012b6a5"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/maven.log": {
+      "bytes": 6669,
+      "sha256": "ed92f3c90a279567d30de41d8b8ffd7b351dc663bcff5a4a75a4a604a1aad722"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 30049,
+      "sha256": "1e89998fc2e4e389287ab8b3ca3d9e72537a1090f1fdf8917b35ba4e94a97ca7"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+      "bytes": 89334,
+      "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+      "bytes": 45076,
+      "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+      "bytes": 49714,
+      "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+      "bytes": 40294,
+      "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+      "bytes": 60363,
+      "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/raw.tar.gz": {
+      "bytes": 89267,
+      "sha256": "53bd000ea8fe269803100b7f59072491811a5b6a3d1f0f55e15e82be40e5c35f"
+    },
+    "counter-audit/evidence/c4-stale-copyfile-fresh-mtime/result.json": {
+      "bytes": 11567,
+      "sha256": "bb28878612588e7165076903844dd5a9bd8efbb120f31cba8c841fad77b21bd4"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/discovery.log": {
+      "bytes": 2181,
+      "sha256": "f53598771a1e4e8dcad9fc860dc42d32948abddb93c089bb57100dad772de72f"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/effective-pom.xml": {
+      "bytes": 1130424,
+      "sha256": "97761b3b8b5b2e151be70dad0d2ab075812435d8bf412f6140172804fe9c8cea"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/maven.log": {
+      "bytes": 6669,
+      "sha256": "d658bbebb097b7485b24db6575ffaab48fb536a196038faa8229d8d283089da2"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/plan.json": {
+      "bytes": 3943,
+      "sha256": "a511a0f8204f139aac9bb2a92b0ee02583ed663b80ffd072b40eab10fa887e35"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 30049,
+      "sha256": "cf1b3795cf9d6f963ca83fefe1c848980e210a1648a4d7d97581787c9ada450e"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/raw.tar.gz": {
+      "bytes": 64014,
+      "sha256": "d3e65d4605fb85514631efddb813a8ae49b3915ab3321c866d1b649fc7f8aff9"
+    },
+    "counter-audit/evidence/c4-stale-preserved-mtime/result.json": {
+      "bytes": 8574,
+      "sha256": "344a263eff64923fccf408ff114c0da6a0b4d0726526f8e35c655e6a3ed6accd"
+    },
+    "counter-audit/evidence/c5-fast-identity/discovery.log": {
+      "bytes": 3357,
+      "sha256": "13c35a13eba1f186d1e6ad14dc3879bb7144619c1d28a255646994d79b4307b0"
+    },
+    "counter-audit/evidence/c5-fast-identity/effective-pom.xml": {
+      "bytes": 4139775,
+      "sha256": "3f56f40858513583454c22a8809985e19ab59d17003973e6a9cd3c7b63cf95c2"
+    },
+    "counter-audit/evidence/c5-fast-identity/maven.log": {
+      "bytes": 21619,
+      "sha256": "869577b3f2c0973735029a9a815ab343e92f4ee307f0b63aa0efc4af29267235"
+    },
+    "counter-audit/evidence/c5-fast-identity/plan.json": {
+      "bytes": 48355,
+      "sha256": "630ccdd6a4247b9d03d2b1914ceb0fef176f37dcd0a4265431f94211a4a38917"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 30248,
+      "sha256": "97ee3789505d24a7e2643d25e6c5d5b9b8195a4373b7b00abd2e755b894e4bde"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+      "bytes": 89334,
+      "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+      "bytes": 45076,
+      "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+      "bytes": 49714,
+      "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+      "bytes": 40294,
+      "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447"
+    },
+    "counter-audit/evidence/c5-fast-identity/previous-reports/app/infra-tx-spring/target/surefire-reports/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+      "bytes": 60363,
+      "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae"
+    },
+    "counter-audit/evidence/c5-fast-identity/provenance.json": {
+      "bytes": 241577,
+      "sha256": "616d2e67329068851c0b3b79c5814dfb18d37deaca94eff54b7139726b1da124"
+    },
+    "counter-audit/evidence/c5-fast-identity/raw.tar.gz": {
+      "bytes": 219676,
+      "sha256": "7d14361ec2425f69a37bb0a7ef51d0ed254eb722a221162a2163b6dc0c314e78"
+    },
+    "counter-audit/evidence/c5-fast-identity/result.json": {
+      "bytes": 27451,
+      "sha256": "951a46a86fadf8875c110cac1d0ff5ef3dc457863c521474a0a47cb3c6b8aedf"
+    },
+    "counter-audit/evidence/cli-replay-probe.log": {
+      "bytes": 175,
+      "sha256": "54dbe3576c1b589e2a8478d2fb07582b714a6e70700f9f7e86217eea24a291f9"
+    },
+    "counter-audit/evidence/cli-replay-results.json": {
+      "bytes": 7836,
+      "sha256": "cc8dc7e479897776bc2b541b4678d85815b3f7fa304491c7816cacbb45ab06f5"
+    },
+    "counter-audit/evidence/counterexample.json": {
+      "bytes": 2465,
+      "sha256": "4249f045d2cc09649f774c62af67bf87774b65b8c77b7f876159fec12f7f0050"
+    },
+    "counter-audit/evidence/fix.diff": {
+      "bytes": 255249,
+      "sha256": "5b697e64fd0bbc9d1d3e192c883a5086c3aff1ed303672e6bc25618569beabd6"
+    },
+    "counter-audit/evidence/hidden-filter-h2-command.json": {
+      "bytes": 684,
+      "sha256": "8525f4ed58c88990d7fd446509488bd55bb8642eb9a37c6096dbd36873bcb77a"
+    },
+    "counter-audit/evidence/implicit-environment-probes.json": {
+      "bytes": 2621,
+      "sha256": "1c6572fb02bcff03b912533b5659468097dc18210158a1be36a1244bf7c3f2e5"
+    },
+    "counter-audit/evidence/independent-reconstruction.json": {
+      "bytes": 22750,
+      "sha256": "61357755176bed1bd7595376d1c78cb2c273be714bcd4d079a26b63daf56c3b5"
+    },
+    "counter-audit/evidence/initial-state.txt": {
+      "bytes": 54,
+      "sha256": "1896b89a33db1efc0f483071e942f7fdacc9e081ab45668ce191be911c8c1bbb"
+    },
+    "counter-audit/evidence/negative-assessments.json": {
+      "bytes": 63704,
+      "sha256": "4caf6d88cf79bae4db38949dda5db6e476303aeafbdb86652b2d58d78f3194b8"
+    },
+    "counter-audit/evidence/negative-pipeline.json": {
+      "bytes": 8167,
+      "sha256": "a4063839d21000f871bee9c85f2b4cd549fea70a6b3dbd4867c6209bfa968c85"
+    },
+    "counter-audit/evidence/original-result.json": {
+      "bytes": 3023,
+      "sha256": "8b3b04aafe89d9c5f8b5bf051df56cc0a2ed32bb3105d4aa163c56054578326c"
+    },
+    "counter-audit/evidence/receipt-verification.json": {
+      "bytes": 23713,
+      "sha256": "3d296ec310eadf98d540a037a55fe47001de6c3fa99502d85dc2022690ee7fa5"
+    },
+    "counter-audit/evidence/remote-before-publication.txt": {
+      "bytes": 73,
+      "sha256": "368b07e29a96ccda9247eca14410b0e796566cd8f946c311048fcdcda5aaf051"
+    },
+    "counter-audit/evidence/source-discovery-limit.json": {
+      "bytes": 217,
+      "sha256": "072d9b474c5976da8d27a8fb47a15d1cb7f4b0bf186e2cdc467d6272dd18c27c"
+    },
+    "counter-audit/evidence/verification-independent-audit-d0927d94-manifest-reviewed.json": {
+      "bytes": 12872,
+      "sha256": "700774508ffb42eda2722be8c8b1dfc5c15d422139ff42ad224b6b6ba9a68c16"
+    },
+    "counter-audit/evidence/verification-resolution-33f02f45-manifest-reviewed.json": {
+      "bytes": 18469,
+      "sha256": "b8f20ce607516381dcb9cbef574c0bc0406a54ae66db7bdf528d25b7f5e6a604"
+    },
+    "counter-audit/evidence/verify-receipts.log": {
+      "bytes": 203,
+      "sha256": "50ad6e094b120aa0aa8909f6c5f56ecaf4bb3e62fe6eaecad7fd30f7a6e28b72"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.SpringTransactionRunnerTest.xml": {
+      "bytes": 30248,
+      "sha256": "97ee3789505d24a7e2643d25e6c5d5b9b8195a4373b7b00abd2e755b894e4bde"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.AttemptTransactionsPostgresTest.xml": {
+      "bytes": 89334,
+      "sha256": "3d5df963b06b35a76d32835ff89663e1a33a5eb76531854bac8e4d9ea3313b68"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3FoundationCompositionTest.xml": {
+      "bytes": 45076,
+      "sha256": "f8663f455e2dd488f2880a6f7b20e3b83bdedd96fb4743eeb55454ab66830141"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3HistoricalIntervalPostgresTest.xml": {
+      "bytes": 49714,
+      "sha256": "a0006ca61a948496d90125072bb63e14a888f7befd7376dea472dcdc7f9d5d08"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3SchemaIsolationPostgresTest.xml": {
+      "bytes": 40294,
+      "sha256": "1d538592c04681696e25f40cf1d211eab706725d561c8f907a5d1d52fa925447"
+    },
+    "counter-audit/baseline-xml/TEST-com.kartaguez.pocoma.infra.tx.spring.v3.V3TransactionFoundationPostgresTest.xml": {
+      "bytes": 60363,
+      "sha256": "098eb9ef5640688884eaae525008ac4e3e14ed317da575421f927c8c144372ae"
+    },
+    "counter-audit/audit-probes.py.txt": {
+      "bytes": 8486,
+      "sha256": "e66fa0c15bfe9b65ea2b209bfff5daa70bff56a9053ea59dc5d6eec4fe75d3b2"
+    },
+    "counter-audit/cli-replay-probe.py.txt": {
+      "bytes": 3301,
+      "sha256": "6487f95699aebc259c653487897df37ea3fc165da3364ef9ffdfd916cf2896b4"
+    },
+    "counter-audit/verify-receipts.py.txt": {
+      "bytes": 4874,
+      "sha256": "fd09742e403d33eef0c44ff9f2699b29f1c2377cb3960293772c9b0795fcf565"
+    },
+    "counter-audit/QualifiedTest.java.txt": {
+      "bytes": 108,
+      "sha256": "7ea34ccb9fce0cad0afa54b1746e113d7f43cdebc3b51bc0a5ad1725a62fb4b6"
+    },
+    "counter-audit/external-jvm-config.txt": {
+      "bytes": 75,
+      "sha256": "8e96aae898ef47c3ebf7a0ea45144df2cfacadd197d12ec7916073e5f1a842e8"
+    }
+  },
+  "self_identity": "manifest.json is excluded from its own hashes; publication commit identifies exact bytes"
+}
