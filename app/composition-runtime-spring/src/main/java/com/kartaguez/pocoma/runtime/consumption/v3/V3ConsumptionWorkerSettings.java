@@ -145,10 +145,11 @@ public record V3ConsumptionWorkerSettings(
                 env.containsProperty(PREFIX + "identity-request") && flag(env, "identity-request");
         boolean command =
                 env.containsProperty(PREFIX + "command-enabled") && flag(env, "command-enabled");
-        if (identity && !mode.equals("real") || mode.equals("real") && (fixture || command))
+        if (identity && !mode.equals("real") || mode.equals("real") && fixture)
             throw new IllegalArgumentException(
-                    "I3 real requires IdentityRequest only and no fixture/Command");
-        if (command && !fixture) throw new IllegalArgumentException("Command real requires I4");
+                    "Real Identity forbids fixtures; IdentityRequest requires real authority");
+        if (command && mode.equals("fixture") && !fixture)
+            throw new IllegalArgumentException("Fixture Command requires explicit fixture authority");
         if (identity) expected.add("IdentityRequest");
         if (command) expected.add("Command");
         if (probes) expected.addAll(List.of("I5ReadPotProbe", "I5ReadCompletionProbe"));

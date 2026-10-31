@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.*;
 import java.util.*;
 
-/** I2/I3: primitives and participant share the existing L2 owner; real Pot authority remains I4. */
+/** Identity and its Pot adapter share the existing L2 owner and unique EUI protection path. */
 class V3IdentityAuthorityArchitectureTest {
     static final String ROOT = "com.kartaguez.pocoma";
     static final com.tngtech.archunit.core.domain.JavaClasses CLASSES =
@@ -48,9 +48,26 @@ class V3IdentityAuthorityArchitectureTest {
                         "org.springframework.orm.jpa..",
                         "jakarta.persistence..",
                         ROOT + ".runtime..",
-                        ROOT + ".infra.persistence.read..",
-                        ROOT + ".domain.pot..")
+                        ROOT + ".infra.persistence.read..")
                 .check(CLASSES);
+        for (var c :
+                CLASSES.stream()
+                        .filter(
+                                c ->
+                                        c.getPackageName()
+                                                .startsWith(
+                                                        ROOT
+                                                                + ".infra.persistence.primary.jpa.v3.identity"))
+                        .toList()) {
+            for (var dependency : c.getDirectDependenciesFromSelf()) {
+                if (dependency.getTargetClass().getPackageName().startsWith(ROOT + ".domain.pot")) {
+                    assertEquals("JdbcIdentityPotActorAuthority", c.getSimpleName());
+                    assertEquals(
+                            ROOT + ".domain.pot.value.UserId",
+                            dependency.getTargetClass().getName());
+                }
+            }
+        }
         for (var c :
                 CLASSES.stream()
                         .filter(
@@ -80,6 +97,50 @@ class V3IdentityAuthorityArchitectureTest {
                                                             .equals(c.getName())),
                     c.getName());
         }
+    }
+
+    @Test
+    void l3_real_authority_delegates_without_a_second_lock_protocol() throws Exception {
+        var adapter =
+                CLASSES.stream()
+                        .filter(c -> c.getSimpleName().equals("JdbcIdentityPotActorAuthority"))
+                        .findFirst()
+                        .orElseThrow();
+        assertTrue(
+                adapter.getAllRawInterfaces().stream()
+                        .anyMatch(c -> c.getSimpleName().equals("PotActorAuthority")));
+        var calls = adapter.getMethodCallsFromSelf();
+        assertEquals(
+                1,
+                calls.stream()
+                        .filter(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("JdbcIdentityAuthority")
+                                                && c.getTarget()
+                                                        .getName()
+                                                        .equals("lockInCanonicalOrder"))
+                        .count());
+        assertTrue(
+                calls.stream()
+                        .anyMatch(
+                                c ->
+                                        c.getTargetOwner()
+                                                        .getSimpleName()
+                                                        .equals("JdbcIdentityAuthority")
+                                                && c.getTarget().getName().equals("current")));
+        var code =
+                Files.readString(
+                        Path.of(
+                                "../infra-persistence-primary-jpa/src/main/java/"
+                                    + "com/kartaguez/pocoma/infra/persistence/primary/jpa/v3/identity/"
+                                    + "JdbcIdentityPotActorAuthority.java"));
+        assertFalse(code.toLowerCase(Locale.ROOT).contains("for update"));
+        assertFalse(code.contains("pg_advisory"));
+        assertFalse(code.contains("v3_pot_"));
+        assertTrue(code.contains("v3_identity_anchor_state,"));
+        assertTrue(code.contains("v3_identity_version_state immediate"));
     }
 
     @Test

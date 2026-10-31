@@ -50,7 +50,9 @@
         "IdentityRequestExecutionPostgresTest",
         "IdentityDiscoveryPostgresTest",
         "IdentityPublicationPostgresTest",
-        "V3IdentityRequestCompositionPostgresTest"
+        "V3IdentityRequestCompositionPostgresTest",
+        "IdentityPotAuthorityPostgresTest",
+        "V3IdentityPotCommandPostgresTest"
       ],
       "INTEGRATION": [
         "V3IdentityRequestMonolithPostgresTest",

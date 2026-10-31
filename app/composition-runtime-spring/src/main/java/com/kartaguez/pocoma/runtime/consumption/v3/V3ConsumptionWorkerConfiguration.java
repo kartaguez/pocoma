@@ -3,6 +3,7 @@ package com.kartaguez.pocoma.runtime.consumption.v3;
 import com.kartaguez.pocoma.domain.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.JdbcIdentityPotActorAuthority;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
 import com.kartaguez.pocoma.runtime.command.v3.V3PotCommandComposition;
@@ -119,7 +120,7 @@ public class V3ConsumptionWorkerConfiguration {
                             settings.technicalProbes(),
                             settings.fixtureIdentity());
             guard.validateLifecyclePrivileges(V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
-            if (settings.identityRequest()) guard.validateIdentitySource(w);
+            if (settings.identityAuthority().equals("real")) guard.validateIdentitySource(w);
             factory.registerSingleton("v3WorkerSettings", settings);
             factory.registerSingleton("v3WorkerGuard", guard);
         }
@@ -215,13 +216,18 @@ public class V3ConsumptionWorkerConfiguration {
                                     ds,
                                     V3BootstrapGuard.Privileges.LIFECYCLE_AND_DISCOVERY);
                 } else if (name.equals("Command")) {
+                    boolean real = settings.identityAuthority().equals("real");
+                    if (real) guard.validateIdentitySource(resources.writeBusiness);
                     engine =
                             V3PotCommandComposition.assemble(
                                     resources.writeBusiness,
                                     resources.writeEffects,
                                     resources.writeControl,
                                     resources.writeTechnical,
-                                    new V3FixturePotActorAuthority(resources.writeBusiness),
+                                    real
+                                            ? new JdbcIdentityPotActorAuthority(
+                                                    resources.writeBusiness, resources.writeEffects)
+                                            : new V3FixturePotActorAuthority(resources.writeBusiness),
                                     Clock.systemUTC(),
                                     guard,
                                     settings.lifecycle(),

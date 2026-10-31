@@ -3,10 +3,14 @@ package com.kartaguez.pocoma;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.kartaguez.pocoma.contracts.registration.v3.IdentityRequest;
+import com.kartaguez.pocoma.domain.pot.value.Label;
+import com.kartaguez.pocoma.domain.pot.value.id.PotId;
 import com.kartaguez.pocoma.domain.useridentity.ExternalIdentity;
 import com.kartaguez.pocoma.domain.useridentity.v3.BindingToken;
 import com.kartaguez.pocoma.engine.consumption.v3.*;
 import com.kartaguez.pocoma.engine.consumption.v3.port.*;
+import com.kartaguez.pocoma.engine.write.pot.port.execution.v3.PotCommand;
+import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.PotCommandJson;
 import com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.identity.*;
 import com.kartaguez.pocoma.infra.tx.spring.v3.SpringAttemptTransactions;
 import com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker;
@@ -355,6 +359,88 @@ class V3IdentityRequestMonolithPostgresTest {
                             + " terminal and positioned; slot absent");
         }
 
+        void enableCommands() {
+            properties.put("pocoma.v3.worker.command-enabled", "true");
+            properties.put("pocoma.v3.worker.consumption-limits", "IdentityRequest=4,Command=4");
+            properties.put(
+                    "pocoma.v3.worker.partitions", "IdentityRequest=0|1|2|3;Command=0|1|2|3");
+        }
+
+        PotCommand admitCommand(
+                String subject, String token, PotId pot, long observed, PotCommand.Intent intent) {
+            var command =
+                    new PotCommand(
+                            UUID.randomUUID(),
+                            new PotCommand.Eui("controlled-runtime", subject),
+                            token,
+                            pot,
+                            observed,
+                            intent);
+            // Controlled internal fixture admission; the Identity-only injector has no Command
+            // grant.
+            write.update(
+                    "insert into"
+                        + " v3_command(request_id,requester_issuer,requester_subject,binding_token,pot_id,observed_version,operation,payload)"
+                        + " values (?,?,?,?,?,?,?,?::jsonb)",
+                    command.requestId(),
+                    command.requester().issuer(),
+                    command.requester().subject(),
+                    command.bindingToken(),
+                    pot.value(),
+                    observed,
+                    intent.getClass().getSimpleName(),
+                    PotCommandJson.encode(intent));
+            return command;
+        }
+
+        void verifyCommand(PotCommand command, String outcome, String rejection) throws Exception {
+            await(
+                    () ->
+                            "TERMINAL"
+                                    .equals(
+                                            write.queryForObject(
+                                                    "select status from v3_command where"
+                                                        + " request_id=?",
+                                                    String.class,
+                                                    command.requestId())),
+                    Duration.ofSeconds(90));
+            var result =
+                    write.queryForMap(
+                            "select outcome,rejection from v3_command_result where request_id=?",
+                            command.requestId());
+            assertEquals(outcome, result.get("outcome"));
+            assertEquals(rejection, result.get("rejection"));
+            assertEquals(
+                    1,
+                    write.queryForObject(
+                            "select count(*) from v3_command_completion_event "
+                                    + "where subject_id=?",
+                            Integer.class,
+                            command.requestId()));
+            assertEquals(
+                    0,
+                    write.queryForObject(
+                            "select count(*) from consumption_slot where consumable_id=?",
+                            Integer.class,
+                            command.requestId()));
+            trace.add(
+                    "I4 Command request="
+                            + command.requestId()
+                            + " outcome="
+                            + outcome
+                            + " rejection="
+                            + rejection);
+        }
+
+        UUID user(String subject) {
+            return write.queryForObject(
+                    "select user_id from v3_eui_authority a join v3_eui_version v "
+                            + "on a.eui_id=v.eui_id and a.current_version=v.version where "
+                            + "a.issuer='controlled-runtime' and a.subject=?",
+                    UUID.class,
+                    subject);
+        }
+
         BindingToken ownToken(String subject) {
             return new BindingToken(
                     write.queryForObject(
@@ -426,6 +512,169 @@ class V3IdentityRequestMonolithPostgresTest {
 
         public void close() throws Exception {
             for (var ctx : List.copyOf(contexts)) drain(ctx);
+        }
+    }
+
+    @Test
+    void l3_registration_command_and_relink_restart() throws Exception {
+        try (var f = new Fixture(PG)) {
+            f.enableCommands();
+            var registration = f.admit("REGISTRATION", "a", "a", null);
+            var ctx = f.start();
+            f.verify(registration);
+            var a = f.ownToken("a");
+            var user = f.user("a");
+            var pot = new PotId(UUID.randomUUID());
+            var create =
+                    f.admitCommand(
+                            "a", a.value(), pot, 0, new PotCommand.CreatePot(new Label("created")));
+            f.verifyCommand(create, "CHANGED", null);
+            assertEquals(
+                    user,
+                    f.write.queryForObject(
+                            "select creator_id from v3_pot_details where pot_id=?",
+                            UUID.class,
+                            pot.value()));
+            var update =
+                    f.admitCommand(
+                            "a",
+                            a.value(),
+                            pot,
+                            1,
+                            new PotCommand.UpdatePotDetails(new Label("updated")));
+            f.verifyCommand(update, "CHANGED", null);
+            var link = f.admit("LINK", "a", "b", a);
+            f.verify(link);
+            var b = f.ownToken("b");
+            assertEquals(user, f.user("b"));
+            var foreign =
+                    f.admitCommand(
+                            "b",
+                            a.value(),
+                            pot,
+                            2,
+                            new PotCommand.UpdatePotDetails(new Label("forbidden")));
+            f.verifyCommand(foreign, "REJECTED", "INVALID_BINDING");
+            var unlink = f.admit("UNLINK", "a", "b", a);
+            f.verify(unlink);
+            f.verify(f.admit("LINK", "a", "b", a));
+            var fresh = f.ownToken("b");
+            assertTrue(!b.equals(fresh));
+            var stale =
+                    f.admitCommand(
+                            "b",
+                            b.value(),
+                            pot,
+                            2,
+                            new PotCommand.UpdatePotDetails(new Label("old")));
+            f.verifyCommand(stale, "REJECTED", "INVALID_BINDING");
+            var current =
+                    f.admitCommand(
+                            "b",
+                            fresh.value(),
+                            pot,
+                            2,
+                            new PotCommand.UpdatePotDetails(new Label("third")));
+            f.verifyCommand(current, "CHANGED", null);
+            var stranger = f.admit("REGISTRATION", "other", "other", null);
+            f.verify(stranger);
+            var unauthorized =
+                    f.admitCommand(
+                            "other",
+                            f.ownToken("other").value(),
+                            pot,
+                            3,
+                            new PotCommand.UpdatePotDetails(new Label("not allowed")));
+            f.verifyCommand(unauthorized, "REJECTED", "FORBIDDEN");
+            f.verify(f.admit("UNLINK", "a", "b", a));
+            f.verify(f.admit("UNLINK", "a", "a", a));
+            assertEquals(
+                    1,
+                    f.write.queryForObject(
+                            "select count(*) from v3_pocoma_user where user_id=?",
+                            Integer.class,
+                            user));
+            f.verify(f.admit("REGISTRATION", "a", "a", null));
+            assertNotEquals(user, f.user("a"));
+            var abandoned =
+                    f.admitCommand(
+                            "a",
+                            f.ownToken("a").value(),
+                            pot,
+                            3,
+                            new PotCommand.UpdatePotDetails(new Label("abandoned creator")));
+            f.verifyCommand(abandoned, "REJECTED", "FORBIDDEN");
+            f.drain(ctx);
+            var before =
+                    f.write.queryForMap(
+                            "select (select count(*) from v3_pot_version) versions,(select count(*)"
+                                + " from v3_command_completion_event) completions");
+            var restarted = f.start();
+            f.drain(restarted);
+            assertEquals(
+                    before,
+                    f.write.queryForMap(
+                            "select (select count(*) from v3_pot_version) versions,(select count(*)"
+                                + " from v3_command_completion_event) completions"));
+            assertEquals(3, ((Number) before.get("versions")).intValue());
+            f.trace.add(
+                    "I4 real Registration -> CreatePot -> UpdatePot; re-Link old/foreign token"
+                        + " rejected; last Unlink retains abandoned User; restart no duplicate"
+                        + " effect; creator="
+                            + user);
+            f.evidence("l3_i4_registration_command_relink_restart");
+        }
+    }
+
+    @Test
+    void l3_command_only_preflight() throws Exception {
+        try (var f = new Fixture(PG)) {
+            var commandOnly =
+                    Map.<String, Object>of(
+                            "pocoma.v3.worker.command-enabled",
+                            "true",
+                            "pocoma.v3.worker.identity-request",
+                            "false",
+                            "pocoma.v3.worker.consumption-limits",
+                            "Command=4",
+                            "pocoma.v3.worker.partitions",
+                            "Command=0|1|2|3");
+            f.write.execute("grant update on v3_eui_version to " + f.writeRole);
+            refused(f, commandOnly);
+            f.write.execute("revoke update on v3_eui_version from " + f.writeRole);
+            f.write.execute("create table i5_fixture_identity(x int)");
+            refused(f, commandOnly);
+            f.write.execute("drop table i5_fixture_identity");
+            f.write.execute(
+                    "alter function v3_identity_check_unit(uuid,boolean) rename to"
+                        + " hidden_identity_check");
+            refused(f, commandOnly);
+            f.write.execute(
+                    "alter function hidden_identity_check(uuid,boolean) rename to"
+                        + " v3_identity_check_unit");
+            f.write.execute("grant usage on schema " + f.schema + " to " + f.readRole);
+            f.write.execute("create view indirect_i4 as select binding_token from v3_eui_version");
+            f.write.execute("grant select on indirect_i4 to " + f.readRole);
+            refused(f, commandOnly);
+            f.write.execute("drop view indirect_i4");
+            f.write.execute("revoke usage on schema " + f.schema + " from " + f.readRole);
+            f.write.execute("alter role " + f.writeRole + " set log_error_verbosity='default'");
+            refused(f, commandOnly);
+            f.write.execute("alter role " + f.writeRole + " reset log_error_verbosity");
+            var ctx = f.start(commandOnly);
+            var command =
+                    f.admitCommand(
+                            "unknown",
+                            "invalid",
+                            new PotId(UUID.randomUUID()),
+                            0,
+                            new PotCommand.CreatePot(new Label("no authority")));
+            f.verifyCommand(command, "REJECTED", "INVALID_BINDING");
+            f.drain(ctx);
+            assertEquals(
+                    0,
+                    f.write.queryForObject("select count(*) from v3_pot_version", Integer.class));
+            f.evidence("l3_i4_command_only_preflight");
         }
     }
 
@@ -504,6 +753,7 @@ class V3IdentityRequestMonolithPostgresTest {
             String p = "pocoma.v3.worker.";
             refused(f, Map.of(p + "fixture-identity", "true"));
             refused(f, Map.of(p + "identity-authority", "fixture"));
+            // Command real is valid only with its exact limits and partitions.
             refused(f, Map.of(p + "command-enabled", "true"));
             refused(f, Map.of(p + "enabled", "false"));
             refused(f, Map.of(p + "consumption-limits", "Unknown=1"));

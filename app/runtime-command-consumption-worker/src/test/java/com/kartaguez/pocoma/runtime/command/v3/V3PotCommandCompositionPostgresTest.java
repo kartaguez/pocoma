@@ -49,10 +49,12 @@ import java.util.*;
 @Testcontainers
 class V3PotCommandCompositionPostgresTest {
     @Container static final PostgreSQLContainer POSTGRES = ConsumptionBootstrapPostgresTest.PG;
+    @Container static final PostgreSQLContainer IDENTITY_POSTGRES = V3IdentityRequestCompositionPostgresTest.PG;
 
     @BeforeAll
     static void initialize() throws Exception {
         ConsumptionBootstrapPostgresTest.databases();
+        V3IdentityRequestCompositionPostgresTest.initialize(IDENTITY_POSTGRES);
     }
 
     static void assertInjectedCompositeClassifier(ConsumptionEngine execution) {
@@ -370,6 +372,28 @@ class V3PotCommandCompositionPostgresTest {
                                     8));
         } finally {
             factory.destroy();
+        }
+    }
+
+    @Test
+    void l3_composition_real_authority_and_classifier() throws Exception {
+        try (var h = new V3IdentityPotCommandPostgresTest.Harness()) {
+            var token = h.register("factory-real");
+            assertInjectedCompositeClassifier(h.engine);
+            var command = h.command("factory-real", token, new PotId(UUID.randomUUID()), 0,
+                    new PotCommand.CreatePot(new Label("real factory")));
+            h.completed(command, "CHANGED", null);
+            assertEquals(h.f.user("factory-real"), h.f.write.queryForObject(
+                    "select creator_id from v3_pot_details where pot_id=?", UUID.class, command.potId().value()));
+            var before = h.business();
+            assertTrue(h.owner.<Boolean>read(c -> new com.kartaguez.pocoma.engine.write.pot.v3.ExecutePotCommand(
+                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotCommandStore(h.source, h.owner),
+                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotCommandObservation(h.source),
+                    h.real, new JdbcPotHistoryAdapter(h.source),
+                    new com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.JdbcPotRevisionAdapter(h.source),
+                    Clock.systemUTC()).prepare(command.requestId()).isEmpty()));
+            assertEquals(before, h.business());
+            h.evidence("l3_composition_real_authority_and_classifier");
         }
     }
 
