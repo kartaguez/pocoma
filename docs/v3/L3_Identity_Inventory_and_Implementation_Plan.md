@@ -1,6 +1,16 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
-**État courant — décision humaine consignée le 31-10-2026 : I3 ACCEPTED WITH
+**État courant — décision humaine du 31-10-2026 : L3/I4 DOCUMENTARY CLOSED /
+ACCEPTED WITH EXPLICIT RESERVATIONS**, [décision I4 et reprise autonome I5](L3_I4_Acceptance_Decision.md).
+R-ID-POT interne accepté avec A1 dans les seules configurations testées ; aucun
+correctif I4 requis. **L3/I5 — READY FOR FRAMING ONLY ; NEXT — cadrage/préparation
+autorisés, implémentation non autorisée. L3 — OPEN.** Réserves L2 et I3 R1–R4,
+`i5_r05`/`i5_r12`, gates canoniques FAIL et limites de découverte/attribution
+conservées ; Architecture canonique complète et PASS non acquise, full reactor
+non exécuté. Aucune certification globale. Les sections prospectives I5 ci-dessous
+restent des attendus à inventorier au cadrage, sans plan I5 nouveau ni GO de code.
+
+**État historique — décision humaine I3 consignée le 31-10-2026 : I3 ACCEPTED WITH
 EXPLICIT RESERVATIONS**, [acceptation, findings et réserves](L3_I3_Acceptance_Decision.md).
 Implémentation et corrections de sécurité acceptées après
 [contre-vérification indépendante Gemini](L3_I3_Independent_Reaudit_Report.md) ;
@@ -253,6 +263,18 @@ sous verrous EUI, sans proposition spéculative coûteuse ni CAS métier parall�
 même résultat. Ne pas rendre mutable un résultat partagé entre tentatives.
 
 ### 3.2 Verrous, EUI inconnues et autorité Pot
+
+**Précision A1 acceptée pour I4 — 31-10-2026 :** les formulations historiques
+« aucun accès à l'histoire, au curseur, au verrou ou aux révisions Pot », « zéro
+accès Pot » et « sans Pot » (§§3.2, 6/I4 et 7.2) interdisent les accès **métier**
+Pot pour les témoins négatifs stables. Seul reste autorisé le SELECT technique
+préexistant de `JdbcPotCommandStore.requireCompletionReady` sur `v3_pot_version`,
+contrôlant l'absence d'effet de la tentative, sans décision d'autorisation,
+verrou de ligne métier ni mutation. La garde est conservée inchangée et tracée
+séparément. Cette exception précise A1 sans élargir la règle générale ; voir la
+[décision I4 §6](L3_I4_Acceptance_Decision.md#6-arbitrage-a1-accepté) et le
+[rapport d'exécution](L3_I4_Execution_Report.md). Les autres accès métier Pot
+restent interdits dans ce cas ; aucun invariant du canon ou des SPEC n'est modifié.
 
 **Ancre technique d'absence — AUD-L3-002.** `v3_eui_authority` réserve une clé
 opaque et son `eui_id` ; l'existence métier exige une ligne `v3_eui_version` de
