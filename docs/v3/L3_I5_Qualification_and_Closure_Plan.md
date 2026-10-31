@@ -1,20 +1,25 @@
 # Pocoma V3 — L3/I5 — Qualification finale et clôture Identity
 
-**31 octobre 2026 — PLAN LOCAL, NON EXÉCUTÉ, À AUDITER.**
+**31 octobre 2026 — PLAN FINALISÉ, ARBITRAGE ARB-I5-01 RATIFIÉ, NON EXÉCUTÉ.**
 
 **Conclusion contradictoire : aucun développement productif indispensable identifié.**
 Les créations de tests prévues historiquement pour I5 ont déjà leurs équivalents
 livrés. Il reste **trois observations WRITE directes à obtenir sur deux variantes
-ID-01 partiellement démontrées**, le dossier final et l'audit indépendant. Une
-seule campagne interne, utilisant les outils DEV existants, suffit pour ces
-observations ; aucun ajout de test Java n'est proposé.
+ID-01 partiellement démontrées** (I01-I et I01-P), le dossier final et l'audit indépendant.
+Une seule campagne interne Q-ID, utilisant les outils DEV existants, suffit pour ces
+observations ; aucun ajout de test Java n'est proposé. L'audit contradictoire externe
+ChatGPT a conclu « APPROVABLE WITH RESERVATIONS — aucune refonte nécessaire ».
 
-**Blocage préalable : ARB-I5-01 (§11).** Les gates canoniques I4 sont FAIL ;
-Architecture reste REQUIRED dans le plan L3. L'acceptation I4 n'autorise pas leur
-dispense pour I5. La coexistence des clauses de clôture bornée (§34 de la politique)
-et du niveau CERTIFICATION (§35) doit aussi être explicitée avant GO. Le présent
-plan ne tranche ni ne modifie ces autorités. **L3 reste OPEN. Aucun GO d'exécution,
-de publication ou de production n'est prononcé.**
+**Arbitrage ARB-I5-01 ratifié (§11) :** Le responsable du programme autorise nominativement
+la préparation d'une acceptation humaine interne bornée du raccord Identity L3 avec
+les gates canoniques I4 (COMMAND + Monolithe et Architecture) demeurant FAIL, sans
+substitution par Architecture bornée, sans modification de la politique Reactor ni PASS
+canonique. Le jalon est formellement qualifié de clôture humaine documentaire bornée
+(relevant du §34 de la politique Reactor et du plan L3 §8.2), et non de niveau de
+certification globale V3 (§35). Les deux ajustements R-I5-01 (clarification normative des
+gates et consignation d'ARB-I5-01) et R-I5-02 (préflight statique complet outillage et SQL)
+sont intégrés. **L3 reste OPEN. I5 est NON EXÉCUTÉ. Q-ID est NOT RUN. Aucun GO d'exécution,
+de développement productif ou de mise en production n'est prononcé par ce mandat.**
 
 ## 1. Baseline Git vérifiée
 
@@ -23,14 +28,15 @@ Lectures effectuées dans `/Users/julien.guezennec/Dev/projects/pocoma`, dépôt
 
 | Référence | Constat du présent examen |
 |---|---|
-| HEAD distant réel, obtenu par `git ls-remote origin refs/heads/feat/v3-architecture` | `af5416706c27be52722b480d2f27cfb50570a253` |
-| HEAD local et remote-tracking local | Même SHA ; divergence locale `0/0` |
+| HEAD distant réel, obtenu par `git ls-remote origin refs/heads/feat/v3-architecture` | `55d17c7db18dcc8fa3be077e10f7bdcc23476974` |
+| HEAD local et remote-tracking local | Même SHA (`55d17c7d`) ; divergence locale `0/0` |
 | Code testé I4 | `145f42731a4e35488e9aaa56a7de3c3f453a9231` |
 | Livraison I4 | `126dc10ef6ac3fc304ad098b5d9dc85a24f40f17` |
 | Acceptation documentaire I4 | `af5416706c27be52722b480d2f27cfb50570a253` |
-| Commits depuis le code testé | Ces deux seuls commits, exclusivement documentaires/preuves ; aucun commit après l'acceptation I4 |
-| Arbre Git `app/`, testé et courant | `0b6fb8865600e853b859136187af7afb0de9700a` dans les deux cas |
-| Arbre Git `scripts/`, testé et courant | `2e1644e0f5d8c5a0a844d2a306719f857ba6c333` dans les deux cas |
+| Publication initiale du plan I5 | `55d17c7db18dcc8fa3be077e10f7bdcc23476974` |
+| Commits depuis le code testé | Exclusivement documentaires/preuves ; aucun commit applicatif |
+| Arbre Git `app/`, testé et courant | `0b6fb8865600e853b859136187af7afb0de9700a` dans tous les cas |
+| Arbre Git `scripts/`, testé et courant | `2e1644e0f5d8c5a0a844d2a306719f857ba6c333` dans tous les cas |
 | Checkout/index à l'ouverture | Propres, aucun travail préexistant à déplacer |
 
 Le premier accès distant a échoué sur la résolution DNS dans le sandbox ; la
@@ -162,9 +168,9 @@ transforment pas l'exécution en preuve de harness I2 ; lire l'appelant réel.
 | O17 | Plan L3 §6/I4, §7.2 AUD-L3-004 ; SPEC-02 §6 ; S02-C WRITE | Autorité réelle et témoins positifs/négatifs stables, token tiers, collision après vraie transition | `JdbcIdentityPotActorAuthority`, composition real | `IdentityPotAuthorityPostgresTest#l3_absent_stable`, `#l3_free_stable`, `#l3_invalid_token_same_version`, `#l3_valid_binding_and_foreign_token`, `#l3_observation_change` ; `V3IdentityPotCommandPostgresTest#l3_observation_change_and_l2_retry` | Witness exact, Collision puis acquisition normale, intention conservée PASS | E4, reçus I4 | Retard READ simulé par token ancien, pas I01-Q | SR | Réemployer |
 | O18 | Plan L3 §6/I4, §9.1 ; C06-A/B/L | Registration → vraie Command, locks jusqu'à résolution, rollback/UNKNOWN ; User abandonné reste sans droits récupérables | Autorité Identity + moteur Pot inchangé | Deux racines `#l3_registration_command_and_relink_restart` ; `V3IdentityPotCommandPostgresTest#l3_command_lock_until_resolution`, `#l3_atomic_command_physical_unit_and_closed_suffix`, `#l3_rollback_boundaries`, `#l3_unknown_commit`, `#l3_real_authority_preserves_claim_fencing` | R-ID-POT deux racines, restart sans doublon, 7 coupures Command et 2 issues COMMIT PASS | E4 et 64 reçus nominatifs | Configuration interne ; garde A1 séparée | SR | Réemployer, pas nouvelle démo équivalente |
 | O19 | Décision I4 §6 ; plan I4 §16/A1 | Négatif stable sans métier Pot, SELECT technique anti-effets conservé | `JdbcPotCommandStore.requireCompletionReady` inchangé | `V3IdentityPotCommandPostgresTest#l3_negative_stable_and_a1_sql`, `#l3_a1_illicit_version_rejected` | SQL technique isolé, probes sans verrou métier, injection refusée/rollback PASS | E4 | Ne pas écrire « zéro SELECT Pot » | S | Reproduire exactement A1 dans le dossier |
-| O20 | Plan L3 §6/I5, §8.2 ; politique §§17/34/35 | Architecture globale REQUIRED | Règles existantes suffisantes ; aucune règle à modifier | 28 classes /163 tests X4 ; gate N4-A | X4 PASS borné ; N4-A FAIL, module SKIPPED | SHA I4, archives distinctes | Gate canonique non acquise ; 67 limites de découverte | ND | ARB-I5-01, aucune substitution par X4 |
-| O21 | Plan L3 §8.2 ; politique §§6/34 | Gate COMMAND + Monolithe | Deux ancres existantes | N4-C, non filtrée | 1789 tests /1 failure/1 skip, FAIL | SHA I4 | r12 ; 46 limites de découverte | ND | ARB-I5-01 ; pas de relance inchangée |
-| O22 | Plan L3 §8.2 ; politique §§18–21/34/35 | Full conditionnel et niveau de clôture | Aucun nouveau code/graphe | Aucune exécution full I5 | NOT RUN | Aucun SHA frais prétendu | Ambiguïté CERTIFICATION §35 ; pas de Wave majeure/main/release dans mandat | SR | Décision explicite §11 ; FULL seulement si déclencheur ratifié |
+| O20 | Plan L3 §6/I5, §8.2 ; politique §§17/34/35 | Architecture globale REQUIRED | Règles existantes suffisantes ; aucune règle à modifier | 28 classes /163 tests X4 ; gate N4-A | X4 PASS borné ; N4-A FAIL, module SKIPPED | SHA I4, archives distinctes | Gate canonique non acquise ; 67 limites de découverte | ND | ARB-I5-01 ratifié ; dette canonique ouverte, aucune substitution par X4 |
+| O21 | Plan L3 §8.2 ; politique §§6/34 | Gate COMMAND + Monolithe | Deux ancres existantes | N4-C, non filtrée | 1789 tests /1 failure/1 skip, FAIL | SHA I4 | r12 ; 46 limites de découverte | ND | ARB-I5-01 ratifié ; dette canonique ouverte, pas de relance inchangée |
+| O22 | Plan L3 §8.2 ; politique §§18–21/34/35 | Full conditionnel et niveau de clôture | Aucun nouveau code/graphe | Aucune exécution full I5 | NOT RUN | Aucun SHA frais prétendu | Voie interne bornée §34 retenue par ARB-I5-01 ; pas de Wave majeure/main/release dans mandat | SR | ARB-I5-01 ratifié ; FULL réservé aux déclencheurs majeurs ultérieurs |
 | O23 | Plan L3 §6/I5, §9.2 ; politique §34 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | Archives/manifestes et vérificateur I4 présents | Contrôles statiques §7 | 686 XML, 68 artefacts de preuve, 64 reçus contrôlés ; entrées app/SQL égales | Code I4 → HEAD actuel, pas rejeu | Hash ≠ authenticité ; limites JUnit restent ouvertes | SR | Manifeste final avec réemploi explicite et probes fraîches |
 | O24 | Plan L3 §6/I5, §9.1/9.2 | Rapport, runbook, manifeste et clôture autoporteurs | Dossiers I1–I4 et runbook I3 réutilisables | Pas une méthode de test | Quatre livrables finaux non produits par ce mandat | Future campagne seulement | Pas de placeholders ni décision anticipée | ND | Contenus/recevabilité §15 |
 | O25 | Plan L3 §6/I5 et §9.2 ; plan directeur §4 | Audit indépendant et décision humaine L3 | Acceptations I1–I4 acquises, pas audit I5 | Audit des sources/reçus/diff puis décision nominative | NOT RUN / PENDING I5 | Dossier gelé futur | Auteur du plan ≠ auditeur indépendant ; avis I4 rapporté ne vaut pas audit I5 | ND | Phase 4, aucun ACCEPTED automatique |
@@ -295,19 +301,21 @@ Identity violé. Les FAIL restent des FAIL de leurs gates.
 
 ### 6.4 Recevabilité d'une clôture avec réserves
 
-**Pas de clôture technique conforme déductible aujourd'hui des seules décisions
-I1–I4.** Le plan L3 §8.2 exige Architecture ; la politique §§34–35 interdit de
+**Pas de clôture technique conforme déductible des seules décisions I1–I4.**
+Le plan L3 §8.2 exige Architecture ; la politique §§34–35 interdit de
 substituer un filtrage réussi à la gate explicite. Les réserves L2 ne dispensent
 pas automatiquement de cette obligation L3.
 
-**Une acceptation humaine interne de programme avec réserves est envisageable,
-mais exige un arbitrage nominatif nouveau avant GO**, conformément à la
-clarification SPEC-10 §1 : choisir la voie bornée, maintenir les gates
-REQUIRED/RUN/FAIL et leur dette, expliciter l'exception de recevabilité de la
-clôture documentaire et sa portée. Ce n'est ni un PASS technique, ni une gate
-satisfaite, ni une certification globale. Si le responsable exige la satisfaction
-technique canonique préalable, la clôture reste bloquée ; une simple formule
-« accepté avec réserves » ne suffit pas. Arbitrage minimal détaillé au §11.
+**L'arbitrage humain ARB-I5-01 a été ratifié le 31 octobre 2026 (§11) :**
+conformément à la clarification SPEC-10 §1, le responsable du programme choisit
+la voie de clôture interne bornée, maintient les gates REQUIRED/RUN/FAIL et leur dette
+technique ouverte, et accorde l'exception explicite de recevabilité de la clôture
+documentaire. Ce n'est ni un PASS technique, ni une gate satisfaite, ni une
+dispense générale, ni une certification globale. Cette décision humaine accepte
+que la qualification interne bornée soit instruite malgré cette dette technique, sans
+prétendre la résoudre. La clôture finale L3 reste conditionnée aux preuves
+complémentaires, à l'audit indépendant et à une nouvelle décision humaine explicite.
+Détail exhaustif de l'arbitrage consigné au §11.
 
 ## 7. Preuves réutilisables et contrôle de provenance
 
@@ -429,116 +437,172 @@ préventive ni extension L4–L8.
 
 ## 10. Stratégie FAST / CHANGE / INTEGRATION / CERTIFICATION
 
-### 10.1 Déclaration de portée de la future campagne bornée proposée
+### 10.1 Déclaration de portée de la future campagne bornée
 
 Impact productif attendu **NONE** ; risques examinés : Identity, autorisation,
 atomicité, publication, runtime et provenance. Primaire **COMMAND** ; secondaires
 canoniques **NONE** ; Monolithe = racine complémentaire **déjà prouvée/réemployée**.
 BINDING V2 n'est pas requis par le mot Identity ; WEB/EVENT/PROJECTION/LKV n'ont
 aucun comportement productif modifié. Architecture **REQUIRED, résultat I4 FAIL** ;
-traitement suspendu à ARB-I5-01. FULL **conditionnel, non planifié dans la voie
-interne proposée**, décision §11 requise. DB **CURRENT V3 neuve**, WRITE V1–V6,
+couvert par l'arbitrage nominatif ARB-I5-01 (§11). FULL **non planifié dans la voie
+interne bornée**, conformément à ARB-I5-01. DB **CURRENT V3 neuve**, WRITE V1–V6,
 READ technique V1 ; baseline TRUSTED **NONE** ; aucun historique autonome.
 
 Niveaux : FAST/CHANGE/INTEGRATION I4 **réemployés**, pas de rejeu automatique de
 65/149/187 tests ; complément fonctionnel de niveau INTEGRATION interne à petite
-échelle. **CERTIFICATION globale NOT RUN**, sans utiliser ce mot pour attribuer
-un certificat au dossier interne. Ce choix reste une proposition soumise à
-l'arbitrage §11, pas une dérogation implicite au §35.
+échelle (campagne Q-ID). **CERTIFICATION globale NOT RUN et NOT CLAIMED**, ce jalon
+relevant de la clôture humaine documentaire bornée du raccord Identity L3 (§34 de
+la politique Reactor et plan L3 §8.2), sans prétendre à un certificat V3 global (§35).
 
-### 10.2 Exécution Q-ID : trois observations dans un seul runtime
+### 10.2 Exécution Q-ID et préflight statique approfondi (Résolution R-I5-02)
 
-Après audit et GO incluant ARB-I5-01, une seule préparation, un seul Worker,
-**4 demandes de mise en état +3 probes**, en série. Les deux racines utilisent
-déjà le même participant qualifié par E4 : refaire ces trois négatifs dans le
-Monolithe n'ajouterait pas de frontière nouvelle. Aucune concurrence hostile
-nouvelle n'est utile pour ces trois contrats séquentiels ; les courses sont E4.
+Avant d'autoriser l'exécution de la campagne Q-ID, l'exécutabilité du protocole a
+fait l'objet d'un contrôle statique approfondi contre l'outillage et le DDL existants.
+Après audit indépendant et GO formel (intégrant ARB-I5-01 consigné au §11), une seule
+préparation, un seul Worker, **4 demandes de mise en état (R1–R4) + 3 probes (R5–R7)**,
+en série. Les deux racines partagent le même participant qualifié par E4 : réexécuter
+ces négatifs dans le Monolithe n'introduirait aucune frontière nouvelle.
 
-**Environnement :** nouveau serveur jetable PostgreSQL17.11 avec l'image épinglée
-§7, deux bases WRITE/READ distinctes et schémas non publics, rôles DEV nommés
-selon le runbook I3, quatre pools/budgets inchangés et owner Business JPA livré.
-Admin/injecteur/observateur identifiés, aucune activité concurrente étrangère.
-Configurer le préfixe serveur SQLSTATE/PID/XID et la politique de logs livrée ;
-ne pas exposer les valeurs de tokens/configurations dans le dossier public.
-Le GO valide les cibles jetables exactes avant leur préparation ; aucun reset
-d'une cible existante. Un refus de préparation est INCONCLUSIVE, sans réparation
-automatique des ACL ni augmentation de budget.
+#### A. Contrôle statique de l'outillage et de l'environnement DEV
 
-**Build :** si un jar actuel ne dispose pas déjà d'une provenance vérifiée au
-même code, compiler/packager proprement la seule fermeture COMMAND, depuis `app/` :
+Les interfaces réelles de `scripts/v3/worker-dev.py` et de la classe Java sous-jacente
+`com.kartaguez.pocoma.runtime.command.v3.dev.V3WorkerDevelopmentTools` ont été
+confrontées au protocole :
 
-```sh
-./mvnw -pl runtime-command-consumption-worker -am clean package -DskipTests
-```
+1. **Phase `prepare` :**
+   - Commande : `python3 -B scripts/v3/worker-dev.py prepare --config <config_privée>`
+   - Options : `--config` (Path, fichier de propriétés 0600), optionnel `--jar` (par défaut le jar exécutable du Worker).
+   - Préconditions et environnement : variables d'environnement obligatoires `POCOMA_I5_ADMIN_URL`,
+     `POCOMA_I5_ADMIN_USER`, `POCOMA_I5_ADMIN_PASSWORD`, `POCOMA_I5_REACTIVATION_ROLE`,
+     `POCOMA_I5_REACTIVATION_PASSWORD`, `POCOMA_I5_INJECTOR_ROLE`, `POCOMA_I5_INJECTOR_PASSWORD`.
+     Optionnel : `POCOMA_I5_PSQL_CONTAINER` si Docker est utilisé pour psql.
+   - Séquence exécutée : `java_operation("prepare")` applique Flyway (WRITE V1–V6, READ V1) ;
+     exécution administrative de `configure-l3-identity-logging.sql`, `bootstrap-l2-routing.sql`,
+     `grant-l2-lifecycle.sql`, `grant-l2-discovery.sql`, `bootstrap-l2-worker-dev.sql`, `grant-l2-worker-dev.sql` ;
+     `java_operation("validate")` contrôle les privilèges et la source Identity.
+   - Restitution : affiche `I5_DEV_STAGE ...`, `I5_DEV_VALIDATED ...`, écrit le reçu
+     `<config>.prepared.json` (mode 0600) et termine avec le message
+     `I5_DEV_PREPARED; start/restart never calls prepare`. Code de sortie : 0 (succès), 2 (refus).
 
-Cette commande est **un build sans tests exécutés**, aucun PASS de gate. Le clean
-Maven est borné aux sorties de cette fermeture, distinct d'un clean Git interdit ;
-il écarte l'hypothèse de bytecode ancien. Méthodes sélectionnées : **NONE**.
-Les 50 modules de `change-final/plan.json.gz:reactor_modules` constituent la
-fermeture observée de cette ancre : domaines/contrats/ports/engines, PRIMARY,
-READ/projection historiques nécessaires au graphe, transaction, orchestration,
-Supras, composition et Worker. Conserver la liste réellement annoncée par ce
-nouveau build ; ce n'est pas une exécution des tests de tous ces modules.
-Aucun install préalable, `-amd`, full, test filtré ou packaging Monolithe requis.
-Si un build propre exige du code, arrêter (§9).
+2. **Build du jar exécutable :**
+   - Commande depuis `app/` :
+     ```sh
+     ./mvnw -pl runtime-command-consumption-worker -am clean package -DskipTests
+     ```
+   - Paramètres : compilation sans tests exécutés (`-DskipTests`), écartant tout bytecode ancien.
+     Produit le jar exécutable `app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar`.
+   - Fermeture : 50 modules Maven (domaine, contrats, persistence JPA, transaction, supras, composition, worker).
 
-Depuis la racine, reprendre la configuration **Identity seule** livrée par le
-[runbook I3](L3_I3_Identity_Development_Runbook.md) : real, fixture=false,
-IdentityRequest=true, Command=false, technical-probes=false, IdentityRequest=4,
-partitions0|1|2|3. Le fichier privé externe contient cibles/credentials exacts ;
-aucune nouvelle topologie n'est qualifiée.
+3. **Lancement du Worker DEV :**
+   - Profil actif : `--spring.profiles.active=v3-consumption-worker-dev`.
+   - Configuration dans `<config_privée>` :
+     `pocoma.v3.worker.enabled=true`, `pocoma.v3.worker.environment=DEV`,
+     `pocoma.v3.worker.identity-authority=real`, `pocoma.v3.worker.identity-request=true`,
+     `pocoma.v3.worker.fixture-identity=false`, `pocoma.v3.worker.command-enabled=false`,
+     `pocoma.v3.worker.technical-probes=false`, `pocoma.v3.worker.worker-name=l3-identity`,
+     `pocoma.v3.worker.worker-limit=4`, `pocoma.v3.worker.consumption-limits=IdentityRequest=4`,
+     `pocoma.v3.worker.partitions=IdentityRequest=0|1|2|3` (4 partitions disjointes 0, 1, 2, 3).
+   - Propriétaire transactionnel : JPA (`JpaTransactionManager` / `SpringAttemptTransactions`).
+   - Lancement en arrière-plan avec redirection des logs :
+     ```sh
+     java -jar "$PWD/app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar" \
+       --spring.profiles.active=v3-consumption-worker-dev \
+       --spring.config.additional-location=file:/private/tmp/l3-i5-private/runtime.properties \
+       > /private/tmp/l3-i5-private/worker.log 2>&1 &
+     ```
+   - **Point d'attention statique vérifié :** `worker-dev.py stop` contrôle l'identité du processus
+     via `ps -ww -p <PID>` en vérifiant la présence exacte de `str(args.jar.resolve())`
+     (chemin absolu). Le lancement avec le chemin absolu (`$PWD/...`) garantit la reconnaissance
+     du processus par la commande d'arrêt sans divergence de chemin relatif.
 
-```sh
-python3 -B scripts/v3/worker-dev.py prepare --config /private/tmp/l3-i5-private/runtime.properties
-java -jar app/runtime-command-consumption-worker/target/pocoma-runtime-command-consumption-worker-0.0.1-SNAPSHOT-exec.jar --spring.profiles.active=v3-consumption-worker-dev --spring.config.additional-location=file:/private/tmp/l3-i5-private/runtime.properties
-```
+4. **Phase `inject-identity` :**
+   - Commande : `python3 -B scripts/v3/worker-dev.py inject-identity --config <config> --intention-file <fichier_intention>`
+   - Options : `--config` (Path), `--intention-file` (Path).
+   - Format de l'intention (fichier régulier, permissions POSIX strictes 0600) :
+     ```properties
+     request-id=<UUID>
+     created-at=<ISO-8601 UTC instant, e.g. 2026-10-31T20:00:00Z>
+     operation=REGISTRATION|LINK|UNLINK
+     requester.issuer=<issuer>
+     requester.subject=<subject>
+     target.issuer=<issuer>
+     target.subject=<subject>
+     binding-token=<token>
+     ```
+     (`binding-token` obligatoire pour LINK et UNLINK ; absent ou omis pour REGISTRATION. Pour REGISTRATION,
+     `requester` et `target` doivent être strictement identiques).
+   - Préconditions : variables `POCOMA_I5_INJECTOR_ROLE` et `POCOMA_I5_INJECTOR_PASSWORD`.
+   - Restitution : stdout `L3_DEV_IDENTITY_ADMITTED request=<id> status=PENDING origin=CONTROLLED_INTERNAL`. Code 0 (succès), 2 (refus).
 
-Le répertoire et les fichiers privés sont nouveaux, permissions0700/0600 ;
-les credentials sont fournis selon le runbook, jamais en argv. Lancer la JVM
-séparément pour garder les commandes d'observation disponibles. Préparation
-unique, jamais au restart. Archiver hash du jar, SHA/diff, fichiers productifs,
-scripts SQL/configuration non secrète, JVM/Maven/PG observés et journaux expurgés.
+5. **Phase `verify-identity` :**
+   - Commande : `python3 -B scripts/v3/worker-dev.py verify-identity --config <config> --request-id <UUID> --await-seconds 90`
+   - Options : `--config`, `--request-id`, `--await-seconds` (défaut 90).
+   - **Constat statique du CLI public :** le CLI python n'expose pas d'option `--expected` (paramètre
+     interne Java). `verify-identity` attend l'apparition d'un résultat terminal dans
+     `v3_identity_request_result`, vérifie que `observation.observe(id)` renvoie `COMPLETED`
+     et que le slot dans `consumption_slot` (contrat `'2999e75c-272d-5afe-a966-c9364ef021fe'`)
+     est à 0.
+   - Restitution : stdout `L3_DEV_IDENTITY_VERIFIED request=<id> result={outcome=..., target_eui_id=..., target_version=..., rejection=...}`. Code 0 (succès), 2 (délai dépassé ou incohérence).
+   - **Conséquence :** le code de rejet exact (`rejection`) et l'absence totale de mutation métier
+     sont formellement validés par les assertions SQL indépendantes décrites ci-après.
 
-Pour chaque intention préparée selon les champs exacts du runbook :
+6. **Phase `identity-token` :**
+   - Commande : `python3 -B scripts/v3/worker-dev.py identity-token --config <config> --own-key-file <key_file> --token-output <token_file>`
+   - Format de `own-key-file` (0600) : `issuer=<issuer>\nsubject=<subject>\n`.
+   - Restitution : fichier `token-output` créé en permissions 0600 contenant le token courant (issu de `v3_eui_authority` join `v3_eui_version`) ; stdout `L3_DEV_CONFIDENTIAL_OWN_TOKEN_WRITTEN`. Code 0 (succès), 2 (refus).
 
-```sh
-python3 -B scripts/v3/worker-dev.py inject-identity --config /private/tmp/l3-i5-private/runtime.properties --intention-file /private/tmp/l3-i5-private/request.properties
-python3 -B scripts/v3/worker-dev.py verify-identity --config /private/tmp/l3-i5-private/runtime.properties --request-id <UUID> --await-seconds 90
-python3 -B scripts/v3/worker-dev.py identity-token --config /private/tmp/l3-i5-private/runtime.properties --own-key-file /private/tmp/l3-i5-private/own-key.properties --token-output /private/tmp/l3-i5-private/own-token
-```
+7. **Phase `stop` et drain :**
+   - Commande : `python3 -B scripts/v3/worker-dev.py stop --config <config> --pid <PID> --log-file <log_worker>`
+   - Options : `--config`, `--pid` (obligatoire), `--log-file` (obligatoire pour la qualification du drain).
+   - Comportement : envoi de SIGTERM, attente jusqu'à 105s, recherche du marqueur physique
+     `I5_WORKER_STOPPED pid=<PID>` dans `log-file` après l'envoi du signal.
+   - Codes de sortie :
+     * 0 (`I5_DEV_STOPPED`) : callback clean observé après drain physique complet.
+     * 3 (`I5_DEV_STOP_INCONCLUSIVE`) : processus terminé mais callback non observé dans le journal.
+     * 2 (`I5_DEV_CRASH`) : délai dépassé sans arrêt, envoi forcé de SIGKILL.
 
-UUID/intention/token-output distincts à chaque création, timestamp conservé pour
-un retry du même ID ; `own-key.properties` contient `issuer`/`subject` exacts.
-Lire le token confidentiellement et le copier au champ `binding-token` du fichier
-0600 de l'intention Link/Unlink ; aucune impression console. Le token est une
-valeur Properties à encoder sans altération ; les clés de campagne sont ASCII
-pour ne pas introduire une variante d'encodage nouvelle. `verify-identity` attend
-la terminalisation/R9 et l'absence du slot ; **la CLI publique n'impose pas le
-motif attendu** : vérifier celui-ci par les assertions SQL suivantes, ne pas
-prendre le seul exit0 pour oracle du scénario.
+#### B. Contrôle statique du schéma et du DDL PostgreSQL
 
-| Ordre / ID de reçu | Intention contrôlée | Préconditions à constater indépendamment | Oracle attendu |
+Toutes les relations, colonnes, contraintes et identifiants utilisés ont été vérifiés
+contre les migrations `V5__consumption_foundation.sql` et `V6__identity_authority_and_requests.sql` :
+
+- **Tables et colonnes vérifiées :**
+  * `v3_pocoma_user` (`user_id`, `created_request_id`, `writer_xid`) ;
+  * `v3_eui_authority` (`eui_id`, `issuer`, `subject`, `current_version`) ;
+  * `v3_eui_version` (`eui_id`, `version`, `user_id`, `binding_token`, `request_id`, `writer_xid`) ;
+  * `v3_identity_request` (`request_id`, `requester_issuer`, `requester_subject`, `operation`, `binding_token`, `target_issuer`, `target_subject`, `admission_context`, `created_at`, `status`) ;
+  * `v3_identity_request_result` (`request_id`, `outcome`, `target_eui_id`, `target_version`, `rejection`) ;
+  * `v3_identity_event` (`event_id`, `subject_type`, `subject_id`, `subject_version`, `request_id`, `recorded_at`) ;
+  * `v3_identity_completion_event` (`event_id`, `subject_type`, `subject_id`, `recorded_at`) ;
+  * `consumption_routing_contract` et `consumption_slot` (`consumption_id`, `consumable_id`, `partition_id`, `state`) ;
+  * `v3_event_counter` (`family`, `position`) et `v3_event_position` (`family`, `position`, `event_id`).
+- **UUID de contrat de routage :** `'2999e75c-272d-5afe-a966-c9364ef021fe'` (`IDENTITY_REQUEST` dans `WRITE`).
+- **Familles d'événements :** `IDENTITY` pour les mutations métier, `IDENTITY_COMPLETION` pour les complétions.
+- **États et issues normatifs :**
+  * Status : `PENDING`, `TERMINAL`.
+  * Outcome : `CHANGED`, `REJECTED`.
+  * Motifs de rejet : `'INVALID_BINDING'`, `'TARGET_ALREADY_BOUND'`, `'TARGET_NOT_BOUND'`, `'TARGET_BOUND_TO_ANOTHER_USER'`.
+
+#### C. Plan d'exécution des 7 demandes et oracles SQL exploitables
+
+| Ordre / ID de reçu | Intention contrôlée | Préconditions à constater | Oracle attendu |
 |---|---|---|---|
-| Setup R1 | Registration A, inconnue | A absente | CHANGED, User UA, A liée v1 ; récupérer seulement token A par helper DEV |
+| Setup R1 | Registration A, inconnue | A absente d'autorité | CHANGED, User UA, A liée v1 ; extraire token A via helper DEV |
 | Setup R2 | Link A→B, inconnue, token A | A liée à UA | CHANGED, B liée v1 à UA, sans nouveau User |
-| Setup R3 | Unlink A→B, token A | A/B même UA | CHANGED, B libre v2, token nul |
-| Setup R4 | Registration C, inconnue | C absente | CHANGED, nouveau UC différent de UA, C liée v1 |
-| Q-UFREE / R5 | Unlink A→B, token A courant | B libre v2 ; A encore liée UA | REJECTED / TARGET_NOT_BOUND ; aucun changement du domaine |
-| Q-UOTHER / R6 | Unlink A→C, token A courant | C liée UC ; UC≠UA | REJECTED / TARGET_BOUND_TO_ANOTHER_USER ; aucun changement du domaine |
-| Q-REGNEW / R7 | Registration A, nouvel UUID **après** succès R1 ; même intention métier | A liée v1 ; R1 déjà TERMINAL/CHANGED | REJECTED / TARGET_ALREADY_BOUND ; aucun nouveau User, token ou version |
+| Setup R3 | Unlink A→B, token A | A/B même UA | CHANGED, B libre v2, token nul ; UA inchangé |
+| Setup R4 | Registration C, inconnue | C absente d'autorité | CHANGED, nouveau UC distinct de UA, C liée v1 |
+| Q-UFREE / R5 | Unlink A→B, token A courant | B libre v2 ; A encore liée UA | REJECTED / `TARGET_NOT_BOUND` ; zéro mutation métier |
+| Q-UOTHER / R6 | Unlink A→C, token A courant | C liée UC ; UC≠UA | REJECTED / `TARGET_BOUND_TO_ANOTHER_USER` ; zéro mutation métier |
+| Q-REGNEW / R7 | Registration A, nouvel UUID post-succès R1 | A liée v1 ; R1 déjà TERMINAL/CHANGED | REJECTED / `TARGET_ALREADY_BOUND` ; aucun nouveau User, token ou version |
 
-Méthodes Java sélectionnées : **NONE pour les probes opérateur** ; parcours réel
-`V3WorkerDevelopmentTools.internalRequest/injectIdentity/verifyIdentity`,
-Discovery/Engine → `ExecuteIdentityRequest.finalizeIn` → transitions/store.
-Les méthodes JUnit déjà exécutées qui motivent les lacunes sont identifiées §5 ;
-aucune méthode inexistante n'est annoncée comme sélectionnable.
+**Connexion d'observation SQL indépendante obligatoire :** session `psql -X -v ON_ERROR_STOP=1`
+distincte de la JVM, avec rôle d'observation autorisé et search_path explicite.
 
-**Oracle SQL indépendant obligatoire**, via connexion d'observation externe
-à la JVM et sans appel aux transitions productives. Pour chaque probe, obtenir
-une photographie REPEATABLE READ READ ONLY avant injection et une après le retour
-de vérification. Cible neuve sans autre source active ; agréger en base pour ne
-jamais exporter un token. Exemple de vecteur métier, exécuté via `psql -X
--v ON_ERROR_STOP=1` avec service/PGPASSFILE privé et search_path explicite :
+##### 1. Oracle d'immutabilité absolue du domaine métier (avant et après chaque probe)
+
+Avant l'injection de chaque probe (R5, R6, R7) et après retour de `verify-identity`,
+exécuter la requête suivante sous transaction REPEATABLE READ READ ONLY pour capturer
+l'état et l'empreinte compacte du domaine :
 
 ```sql
 begin isolation level repeatable read read only;
@@ -557,67 +621,108 @@ union all
 select 'mutations',count(*),
        md5(coalesce(string_agg(row_to_json(t)::text,E'\n' order by event_id),''))
 from v3_identity_event t;
-select family,position from v3_event_counter order by family;
+select family, position from v3_event_counter order by family;
 commit;
 ```
 
-Comparer **identiquement** les quatre `(relation,n,fingerprint)` avant/après.
-Le digest sert de témoin compact de non-changement, pas d'authentification de la
-preuve ; les comptages et assertions relationnelles ci-dessous sont décisifs.
-Archiver les reçus SQL et les booléens d'égalité, pas les données sensibles.
-Pour chaque `rid` et `expected_rejection`, utiliser des variables psql (valeurs
-non secrètes) et contrôler toutes les colonnes de cet oracle :
+**Assertion d'immutabilité :**
+- Les 4 paires `(n, fingerprint)` de `users`, `anchors`, `history`, `mutations` doivent être
+  **strictement identiques** avant et après la probe (démontrant l'absence de nouveau User,
+  l'absence de nouvelle version EUI, l'absence de mutation d'ancre, et l'absence de nouvel événement de mutation).
+- Le compteur `IDENTITY` doit rester **strictement inchangé**.
+- Le compteur `IDENTITY_COMPLETION` doit progresser de **exactement +1**.
+
+##### 2. Oracle d'assertion booléenne pour chaque probe rejetée
+
+Pour chaque probe (`rid` = UUID de la demande, `expected_rejection` = motif attendu),
+exécuter la requête d'assertion unifiée :
 
 ```sql
 begin isolation level repeatable read read only;
-select q.request_id, q.status, r.outcome, r.rejection,
-       r.target_eui_id is null and r.target_version is null as no_changed_target,
-       (select count(*) from v3_identity_event e where e.request_id=q.request_id) as mutations,
-       (select count(*) from v3_identity_completion_event c where c.subject_id=q.request_id) as completions,
-       (select count(*) from consumption_slot s
-        where s.consumption_id='2999e75c-272d-5afe-a966-c9364ef021fe'
-          and s.consumable_id=q.request_id) as slots,
-       (select count(*) from v3_event_position p join v3_identity_completion_event c using(event_id)
-        where c.subject_id=q.request_id and p.family='IDENTITY_COMPLETION') as completion_positions
-from v3_identity_request q join v3_identity_request_result r using(request_id)
-where q.request_id=:'rid'::uuid;
-select count(*)=1 as exact_expected_result
-from v3_identity_request q join v3_identity_request_result r using(request_id)
-where q.request_id=:'rid'::uuid and q.status='TERMINAL'
-  and r.outcome='REJECTED' and r.rejection=:'expected_rejection'
-  and r.target_eui_id is null and r.target_version is null;
-select c.family,c.position,count(p.event_id) as published,
-       coalesce(min(p.position),0) as first_position,coalesce(max(p.position),0) as last_position
-from v3_event_counter c left join v3_event_position p on p.family=c.family
-group by c.family,c.position order by c.family;
+select
+    count(*) = 1 as exact_rejection_record,
+    bool_and(
+        q.status = 'TERMINAL'
+        and r.outcome = 'REJECTED'
+        and r.rejection = :'expected_rejection'
+        and r.target_eui_id is null
+        and r.target_version is null
+        and (select count(*) from v3_identity_event e where e.request_id = q.request_id) = 0
+        and (select count(*) from v3_identity_completion_event c where c.subject_id = q.request_id) = 1
+        and (select count(*) from consumption_slot s
+             where s.consumption_id = '2999e75c-272d-5afe-a966-c9364ef021fe'
+               and s.consumable_id = q.request_id) = 0
+        and (select count(*) from v3_event_position p
+             join v3_identity_completion_event c using(event_id)
+             where c.subject_id = q.request_id and p.family = 'IDENTITY_COMPLETION') = 1
+    ) as probe_isolation_and_completion_pass
+from v3_identity_request q
+join v3_identity_request_result r using(request_id)
+where q.request_id = :'rid'::uuid;
+
+select
+    c.family,
+    c.position = count(p.event_id)
+      and (c.position = 0 or (min(p.position) = 1 and max(p.position) = c.position)) as is_dense
+from v3_event_counter c
+left join v3_event_position p on p.family = c.family
+where c.family in ('IDENTITY', 'IDENTITY_COMPLETION')
+group by c.family, c.position
+order by c.family;
 commit;
 ```
 
-Recevabilité par probe : exactement une ligne résultat conforme, `no_changed_target=true`,
-mutations0, completions1, slots0, completion_positions1 ; compteur IDENTITY
-inchangé, IDENTITY_COMPLETION +1 ; suite dense sans doublon (PK), autres familles
-inchangées ; mêmes empreintes métier. Vérifier aussi avant/après l'égalité privée
-du token A courant, B libre v2, C liée UC, UA≠UC, sans exporter les tokens.
-Les instantanés des R1…R4 existants restent identiques après R5…R7, hors nouvelles
-lignes de demandes/résultats/complétions. Sur cette base dédiée, bilan final :
-**2 Users, 3 ancres, 4 versions EUI, 7 sources TERMINAL, 7 résultats, 6 événements
-Identity, 7 complétions ; positions IDENTITY1…6 et IDENTITY_COMPLETION1…7**.
-Les contrôles d'empreinte seuls ne remplacent pas ces oracles indépendants.
+**Critères décisifs de succès par probe :**
+- `exact_rejection_record` = `true` ;
+- `probe_isolation_and_completion_pass` = `true` ;
+- `is_dense` = `true` pour les deux familles `IDENTITY` et `IDENTITY_COMPLETION`.
 
-Terminer avec la commande `worker-dev.py stop --pid <PID> --log-file <log_privé>
---config <config_privée>` existante ; conserver sortie physique et verdict du
-drain. Un arrêt incomplet reste INCONCLUSIVE pour la campagne, sans tuer le
-processus puis présenter cette terminaison comme clean stop. Si une terminaison
-est indispensable pour libérer le banc, la classer CRASH et garder le diagnostic.
+##### 3. Oracle d'assertion cumulatif final après l'ensemble des 7 demandes
 
-**Coût relatif : faible à moyen**, 50 modules de build sans tests puis un
-serveur/Worker et sept demandes séquentielles ; nettement inférieur aux deux
-gates d'environ54min chacune. Aucune durée garantie inventée ; le watchdog
-d'observation90s est celui du CLI existant, pas un budget de performance certifié.
-**PASS Q-ID** = trois oracles complets + provenance + arrêt qualifié ; **FAIL** =
-oracle violé/erreur réelle ; **INCONCLUSIVE** = environnement refusé, source/jar
-non attribuable, observation incomplète ou drain non qualifié sans défaut établi.
-Ne pas réessayer sans diagnostic et changement d'hypothèse documenté.
+Après exécution des demandes R1 à R7, exécuter l'assertion globale sur l'état complet du banc :
+
+```sql
+begin isolation level repeatable read read only;
+select
+    (select count(*) from v3_pocoma_user) = 2 as users_count_ok,
+    (select count(*) from v3_eui_authority) = 3 as anchors_count_ok,
+    (select count(*) from v3_eui_version) = 4 as versions_count_ok,
+    (select count(*) from v3_identity_request where status = 'TERMINAL') = 7 as terminal_requests_ok,
+    (select count(*) from v3_identity_request_result where outcome = 'CHANGED') = 4 as changed_results_ok,
+    (select count(*) from v3_identity_request_result where outcome = 'REJECTED') = 3 as rejected_results_ok,
+    (select count(*) from v3_identity_event) = 6 as identity_events_ok,
+    (select count(*) from v3_identity_completion_event) = 7 as completion_events_ok,
+    (select count(*) from consumption_slot where consumption_id = '2999e75c-272d-5afe-a966-c9364ef021fe') = 0 as zero_slots_ok,
+    (select position from v3_event_counter where family = 'IDENTITY') = 6 as counter_identity_ok,
+    (select position from v3_event_counter where family = 'IDENTITY_COMPLETION') = 7 as counter_completion_ok;
+commit;
+```
+
+Toutes les colonnes booléennes doivent évaluer à `true`.
+
+#### D. Qualification des arrêts et verdicts de la campagne Q-ID
+
+- **PASS Q-ID :**
+  1. Les 4 demandes de setup (R1–R4) et les 3 probes (R5–R7) atteignent l'état TERMINAL sous 90s ;
+  2. Toutes les assertions booléennes des requêtes oracles ci-dessus évaluent à `true` ;
+  3. Les empreintes du domaine métier avant/après chaque probe sont rigoureusement identiques ;
+  4. L'arrêt final du Worker via `worker-dev.py stop` avec `--log-file` retourne le code 0 avec le callback `I5_WORKER_STOPPED` confirmé.
+- **FAIL :**
+  Toute violation d'oracle métier :
+  * Mutation constatée sur une probe de rejet (nouvel utilisateur, nouvelle version EUI, nouvel événement de mutation, altération d'empreinte) ;
+  * Motif de rejet différent du motif attendu ou issue non REJECTED ;
+  * Présence de cibles non nulles sur un résultat rejeté ;
+  * Absence ou duplication d'événement de complétion ;
+  * Présence d'un slot résiduel non consommé ;
+  * Rupture de densité dans les positions d'événements.
+  Un verdict FAIL interdit toute clôture et impose un plan correctif (§9).
+- **INCONCLUSIVE :**
+  Tout échec d'infrastructure ou d'observation ne constituant pas une violation d'oracle métier :
+  * Refus de connexion, droits insuffisants ou configuration divergente de PostgreSQL ;
+  * Jar ou source non attribuable ;
+  * Dépassement du watchdog de 90s sans état terminal ;
+  * Arrêt incomplet du Worker (code 3 `I5_DEV_STOP_INCONCLUSIVE`).
+  Un verdict INCONCLUSIVE ne permet ni de valider la qualification ni de réitérer sans diagnostic formel.
 
 ### 10.3 Exécutions non proposées par défaut
 
@@ -666,66 +771,146 @@ jamais à une exclusion silencieuse.
 
 ## 11. Gates, frontières, full reactor et ARB-I5-01
 
-### 11.1 Contradiction de recevabilité à trancher
+### 11.1 Cadrage normatif et articulation des exigences (Résolution R-I5-01)
 
-Le plan L3 §6/I5 prévoit une qualification interne avec audit/décision humaine,
-§9.2 exclut ID-01 global tant que Q/externes manquent ; §8.2 exige néanmoins
-COMMAND+Monolithe et **Architecture REQUIRED**, sans dispense. La politique §34
-autorise le réemploi attribué et précise « no automatic FULL for every small lot
-or documentary human acceptance », mais maintient les gates explicites. Le §35,
-ligne CERTIFICATION, cite « Required lot closure » et prescrit le full non filtré.
-Le niveau opérationnel ne remplace pas les gates, mais la lecture « toute clôture
-I5 déclenche CERTIFICATION/FULL » contredirait la voie bornée conditionnelle
-explicitement conservée par le plan L3. Aucun des textes ne permet au rédacteur
-de choisir seul la lecture la plus économique ni de considérer les FAIL satisfaits.
+L'instruction de la qualification et de la clôture de l'étape L3/I5 exige une
+distinction rigoureuse et permanente entre quatre plans conceptuels :
 
-Les gates I4 ont **été exécutées** au même code ; elles ne sont pas acquises.
-Les réemployer conserve une obligation **non satisfaite**, pas une gate fraîche
-I5 PASS. Relancer les mêmes commandes sans changement ni exigence de fraîcheur
-arbitrée ne résout pas la contradiction et ne justifie pas une recherche de PASS.
+1. **L'obligation normative d'exécuter et de satisfaire les gates :**
+   Le plan L3 §8.2 maintient les gates canoniques `COMMAND + Monolithe` et
+   `Architecture` au statut `REQUIRED`. La politique Reactor (§§17, 34–35)
+   définit leurs commandes canoniques non filtrées et interdit toute substitution
+   d'une gate canonique par une sélection filtrée de tests.
+2. **Les résultats techniques effectivement obtenus :**
+   Les gates canoniques I4 réemployées demeurent en échec technique avéré :
+   `COMMAND + Monolithe` est **FAIL** (1 789 tests, 1 failure sur `i5_r12`, 1 skip) ;
+   `Architecture` est **FAIL** (1 892 tests, 2 failures sur `i5_r05` et `i5_r12`, 1 skip ;
+   le module `architecture-tests` n'a pas été exécuté suite à l'échec amont dans le Worker).
+   La campagne Architecture bornée (163 tests PASS) est une contribution locale utile,
+   mais ne satisfait ni ne remplace la gate canonique globale.
+3. **La possibilité d'une acceptation humaine documentaire exceptionnelle avec réserves :**
+   Conformément à SPEC-10 §1 et à la politique Reactor §34 (« no automatic FULL for
+   every small lot or documentary human acceptance »), l'autorité de programme
+   peut décider nominativement d'instruire une clôture documentaire bornée malgré
+   des gates canoniques non acquises, en consignant explicitement cette dette technique.
+4. **La certification technique globale ultérieure :**
+   La certification V3 globale (milestones G1/G2/G3, SPEC-10 intégrale, niveau
+   CERTIFICATION du §35 avec full reactor non filtré `./mvnw test`) relève des étapes
+   d'intégration majeure, de convergence (L6) ou de release (L8). Elle ne peut en
+   aucun cas être revendiquée ou préemptée par une clôture interne bornée d'un sous-lot.
 
-### 11.2 Arbitrage minimal proposé, à consigner séparément avant GO
+**Articulation normative des §§34 et 35 de la politique Reactor :**
+Le §34 n'annule ni ne supplante le §35. Le §34 encadre la proportionnalité de la
+vérification et autorise le réemploi traçable d'observations pour des acceptations
+documentaires ou des clôtures de lots internes bornés, sans imposer systématiquement
+un full reactor. Le §35 régit les niveaux opérationnels (FAST, CHANGE, INTEGRATION,
+CERTIFICATION). Le niveau CERTIFICATION prescrit le full reactor pour les jalons
+d'intégration majeure ou de release. L'arbitrage de programme retient ici la voie
+d'une clôture humaine interne documentaire bornée (§34 et plan L3 §8.2), sans
+confondre ce choix avec un verdict CERTIFICATION (§35). Les gates FAIL ne sont pas
+déclarées satisfaites, et le full reactor n'est pas « globalement dispensé » : il
+est simplement non requis par le mandat documentaire borné actuel.
 
-**ARB-I5-01 demande une décision explicite sur les trois clauses suivantes :**
+### 11.2 Décision humaine ARB-I5-01 ratifiée (31 octobre 2026)
 
-1. **Nature du jalon :** I5 termine un raccord métier interne borné, sans changement
-   productif, sans intégration main, restructuration ni nouvelle baseline globale.
-   Il ne prononce pas CERTIFICATION globale. Confirmer que cette clôture humaine
-   documentaire relève de la voie §34/plan L3 §8.2, ou décider qu'elle relève de
-   CERTIFICATION §35. En cas de seconde lecture, FULL et protocoles applicables
-   deviennent obligatoires ; le présent mandat économique n'est plus exécutable
-   tel quel et doit revenir au responsable avant lancement.
-2. **Recevabilité avec gates non acquises :** autoriser nominativement, si retenu,
-   la préparation d'une acceptation de programme L3 avec O20/O21 **REQUIRED /
-   RUN I4 / FAIL**, Architecture canonique non acquise, sans PASS canonique L3.
-   Le réemploi X4/E4 ne satisfait pas ces gates. Cette décision est l'exception
-   explicite de recevabilité de la clôture documentaire, permise seulement après
-   arbitrage distinct au sens de SPEC-10 §1 ; ce n'est pas une dispense implicite
-   tirée d'I4 ni une suppression de gate. Si l'autorité normative refuse cette
-   exception ou exige un amendement préalable des plans, **STOP** : aucune
-   modification normative n'est autorisée dans cette intervention.
-3. **Dette et échéance :** conserver r05/r12, limites JUnit/skip et absence FULL,
-   affecter leur résolution/qualification à un mandat explicite avant la première
-   gate qui exige leur satisfaction technique, au plus tard convergence/main/
-   release concernée. Aucune exemption permanente L6–L8, aucun GO production.
-   Un lien causal nouveau avec Identity ou un invariant de sûreté violé rouvre
-   seulement le périmètre prouvé nécessaire, sans autorisation de redesign global.
+Le responsable du programme Pocoma V3 a rendu et ratifié la décision suivante :
 
-Ce texte est **une proposition non ratifiée**, pas une modification normative
-accomplie. Un GO générique ne doit pas être interprété comme acceptation tacite
-des trois clauses ; la décision écrite doit les référencer et choisir la voie.
-L'audit du présent plan peut être conduit avant cet arbitrage ; **l'exécution
-et la proposition finale de clôture en dépendent**.
+#### Clause A — Nature du jalon
 
-### 11.3 Déclencheurs d'escalade
+L3/I5 est formellement qualifié comme une **clôture humaine interne bornée du raccord
+métier Identity**, et **non comme une certification technique globale V3**.
 
-FULL requis si jalon ratifié Wave majeure/CERTIFICATION globale, intégration
-main, restructuration Maven large, infrastructure transverse non bornable ou
-stabilisation globale (§§19/21/35). Aucun de ces changements n'est démontré dans
-le diff documentaire présent. Architecture demeure REQUIRED pour I5 par son
-plan, même sans nouvelle arête. Une nouvelle arête/frontière/manager/routage
-nécessaire impose arrêt et nouvelle déclaration, pas extension silencieuse.
-Un FAIL de disponibilité ne déclenche pas automatiquement FULL (§20).
+Le périmètre considéré est strictement celui des capacités WRITE Identity
+(Registration, Link, Unlink, autorité EUI, tokens, atomicité, publication) et de leur
+intégration effective dans les deux racines Worker et Monolithe.
+
+Il n'inclut pas :
+- L'intégration dans la branche `main` ;
+- Une nouvelle baseline globale certifiée ;
+- Une restructuration majeure des modules Maven ;
+- La distribution ou l'activation de production ;
+- Les fonctionnalités READ et HTTP futures (différées à L4/L5) ;
+- La qualification du consentement externe (différée à L5) ;
+- La certification complète SPEC-10.
+
+Les critères de certification des jalons ultérieurs demeurent pleinement applicables.
+
+#### Clause B — Recevabilité exceptionnelle avec gates non acquises
+
+Le responsable du programme autorise nominativement la préparation d'une acceptation
+humaine interne de clôture L3 avec les gates canoniques `COMMAND + Monolithe` et
+`Architecture` demeurant **FAIL**.
+
+Les résultats historiques observés au code gelé restent strictement inchangés :
+- `COMMAND + Monolithe` : **FAIL**, 1 789 tests, 1 failure sur `i5_r12`, 1 skip.
+- `Architecture` : **FAIL**, 1 892 tests, 2 failures sur `i5_r05` et `i5_r12`, 1 skip ;
+  module Architecture non exécuté dans cette gate suite à l'échec amont.
+- `Architecture bornée` : **163 tests PASS**, sans substitution à la gate canonique.
+
+L'exigence Architecture demeure **REQUIRED** dans le plan L3.
+
+Cette décision constitue une **exception humaine explicite de recevabilité de la
+clôture documentaire**, et non :
+- Un PASS des gates ;
+- Une dispense générale ou permanente ;
+- Une modification rétroactive de la politique Reactor ;
+- Une suppression de tests obligatoires ;
+- Une certification de non-régression globale ;
+- Une preuve de disponibilité générale du Worker ;
+- Un précédent automatiquement applicable aux lots suivants.
+
+Une gate obligatoire non satisfaite demeure identifiée comme telle. La décision
+humaine accepte que la qualification interne bornée soit instruite malgré cette
+dette technique, sans prétendre la résoudre à ce stade. La clôture finale L3 reste
+conditionnée aux preuves complémentaires de la campagne Q-ID, à l'audit contradictoire
+indépendant et à une nouvelle décision humaine explicite.
+
+#### Clause C — Réserves et dette technique
+
+Les réserves suivantes restent formellement ouvertes :
+- Échecs temporels `i5_r05` et `i5_r12` ;
+- Réserves historiques L2 : R-L2-01 à R-L2-05 ;
+- Réserves historiques I3 : R1 à R4 (composition JPA seule, confiance admin/PostgreSQL, logs qualifiés) ;
+- Absence de PASS canonique sur les gates COMMAND et Architecture ;
+- Absence de full reactor final qualifiant L3 ;
+- Limites de découverte (46 et 67) et d'attribution nominative des tests ;
+- Milestones globaux G1/G2 INCONCLUSIVE et G3 non franchi ;
+- Certification globale SPEC-10 non acquise ;
+- Parcours externes, READ (L4), HTTP (L5), consentement (L5), performances et production non certifiés.
+
+Ces garanties temporelles et gates globales devront être réexaminées et satisfaites
+lorsqu'un jalon ultérieur les exigera expressément, notamment les étapes de
+convergence (L6), d'intégration majeure ou de release (L8). Aucune exemption
+permanente n'est accordée. Si un défaut nouveau de sûreté Identity est démontré,
+cet arbitrage interdit formellement de l'accepter silencieusement.
+
+#### Clause D — Portée de l'autorisation
+
+ARB-I5-01 est ratifié pour le cadrage et la finalisation documentaire du plan I5.
+
+Il autorise la finalisation documentaire du présent document.
+Il ne constitue pas encore :
+- Un GO d'exécution de la campagne Q-ID ;
+- Un GO de développement correctif ;
+- Un GO de certification globale ;
+- Une acceptation finale L3 ;
+- Un GO de mise en production.
+
+Si cette décision venait à entrer en contradiction irréductible avec une exigence
+normative applicable, la contradiction doit être identifiée précisément avant toute
+modification, sans réécriture silencieuse de la norme.
+
+### 11.3 Déclencheurs d'escalade et niveaux de vérification
+
+Le full reactor (`./mvnw test`) demeure exigé lors des jalons majeurs :
+clôture de Wave majeure, intégration dans `main`, restructuration large de
+dépendances Maven, refonte d'infrastructure transverse non bornable ou décision
+explicite d'établissement d'une baseline globale (§§19, 21, 35).
+
+Aucun de ces déclencheurs n'est présent dans le périmètre du présent jalon borné.
+L'échec de disponibilité L2 ne constitue pas un déclencheur automatique de FULL (§20).
+L'exigence Architecture globale reste REQUIRED au plan L3 et figure au registre
+de dette technique ouverte consigné par ARB-I5-01.
 
 ## 12. Une campagne, quatre phases après audit et GO
 
@@ -785,7 +970,7 @@ consignée. Aucun GO L4 n'est déduit de la seule réalisation technique d'I5.
 | Même baseline/hypothèses ; trois probes PASS, dossier complet, ARB ratifié | **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT PENDING** ; pas PASS canonique/global, décision humaine encore due |
 | Probes métier violées | **FAIL — CORRECTIVE PLAN REQUIRED**, invariant/preuve/cause/fichiers/slices ; aucun correctif autonome |
 | Preuve inaccessible, ambiguë, environnement divergent, jar/source non attribuable, observation/drain non qualifié | **INCONCLUSIVE**, périmètre précis ; ne pas convertir en succès ni réessayer aveuglément |
-| Arbitrage absent/refusé, gate obligatoire non satisfaite sans voie de recevabilité ratifiée | **NORMATIVE ARBITRATION REQUIRED / NO CLOSURE** |
+| Arbitrage révoqué/contesté, gate obligatoire non satisfaite sans voie de recevabilité ratifiée | **NORMATIVE ARBITRATION REQUIRED / NO CLOSURE** |
 | Échec canonique historique réobservé lors d'une gate fraîche requise | **FAIL de cette gate**, diagnostic conservé ; pas arrêt transformé en PASS borné ; appliquer la décision écrite ou retourner au responsable |
 | Découverte de frontière imprévue, changement SQL/POM/manager/logging nécessaire | Arrêt dépendant, plan compact de redéclaration et GO correctif ; pas de développement L4–L8 |
 
@@ -806,7 +991,7 @@ pas une démonstration universelle d'absence de défaut.
 | I3 R2 confiance PostgreSQL | Profil DEV fermé, admin/propriétaires/provisionneurs de confiance, rôles auxiliaires certifiés administrativement ; pas surveillance continue ACL | Hypothèse changée, grant/objet indirect excessif ou mutation destructive non protégée sur canal qualifié |
 | I3 R3 logs | Serveur PG/journaux Docker qualifiés ; pas APM/audit/collecteurs externes/production | Fuite nouvelle sur canal qualifié ou nouveau canal présenté comme certifié |
 | I3 R4, r05/r12 | FAIL/réserves explicitement conservés ; pas faux positif ni test-only affirmé | Gate obligatoire exigée comme PASS sans résolution ou arbitrage de recevabilité |
-| Architecture canonique non acquise, COMMAND+Monolithe FAIL | **Bloquant tant que ARB-I5-01 non ratifié** ; ensuite dette canonique ouverte, jamais S | Rejet de l'exception ou exigence fraîche non satisfaite |
+| Architecture canonique non acquise, COMMAND+Monolithe FAIL | Dette canonique ouverte sous ARB-I5-01 ratifié ; jamais S, bloque toute prétention de PASS canonique ou certification globale | Rejet de l'exception ou exigence fraîche non satisfaite |
 | Full reactor final absent | Conservable seulement si jalon interne confirmé §11 ; NOT RUN explicite | Déclencheur majeur/main/CERTIFICATION/global retenu |
 | Découverte/attribution 46/67, skip exploratoire, revue classe secondaire | Conservables pour les contributions nominatives prouvées ; pas complétude canonique | Méthode nécessaire non attribuée ou obligation interne encore ND |
 | H3 reçu public expurgé, audit I3 bruts indépendants non fournis, avis I4 rapporté | Limites de provenance conservées ; E4 apporte sa preuve propre du cœur exécuté | Nouvelle affirmation dépendant uniquement de bruts indisponibles |
@@ -879,47 +1064,45 @@ création automatique de test au seul motif d'une préférence de nommage.
 
 ## 17. Conditions précises de GO et contrôle de ce plan
 
-Avant le GO de campagne :
+Avant le GO d'exécution de la campagne Q-ID :
 
-1. Audit indépendant du présent document, notamment trois probes, suffisance
-   composée des 14 autres variantes internes et attribution E4/H3.
-2. **ARB-I5-01 écrit et ratifié**, avec nature du jalon, traitement nominatif
-   des deux gates FAIL/Architecture REQUIRED, dette et application §34/§35/FULL.
-   Si la décision impose une autre voie, ne pas démarrer la campagne proposée.
-3. Autorisation de la campagne Q-ID et de son éventuel build sans tests, cibles
-   PostgreSQL neuves exactes et profil DEV existant ; aucun code/test/migration/
-   POM/outillage modifiable. Les commandes §10 sont alors prospectivement
-   autorisées ; elles ne sont pas exécutées pour préparer ce document.
-4. Autorisation de préparer localement les quatre livrables complets et les
+1. Audit contradictoire indépendant du présent plan finalisé, notamment trois probes,
+   suffisance composée des 14 autres variantes internes et attribution E4/H3.
+2. **Arbitrage ARB-I5-01 écrit et ratifié le 31 octobre 2026 (§11) :**
+   La décision humaine formelle est actée et consignée dans ce plan. Elle qualifie
+   le jalon de clôture humaine documentaire bornée (§34) et autorise l'instruction
+   de la clôture avec les gates canoniques demeurant FAIL et réserves ouvertes.
+   Cette condition préalable est **SATISFAITE pour le cadrage et la recevabilité du plan**.
+3. Autorisation formelle (GO) de la campagne Q-ID et de son build sans tests, cibles
+   PostgreSQL neuves exactes et profil DEV existant ; aucun code/test/migration/POM/outillage
+   modifiable. Les commandes §10 sont alors autorisées à l'exécution ; elles n'ont
+   pas été exécutées pour ce mandat d'amendement documentaire.
+4. Autorisation de préparer localement les quatre livrables complets (§15) et les
    mises à jour factuelles ; périmètre de publication explicite séparément.
 5. Revalidation de baseline/équivalence au démarrage ; aucun défaut bloquant
    nouveau ni hypothèse de manager/privilèges/logging/PG non qualifiée.
 
-La campagne s'exécute alors en une passe selon §12, avec arrêt exceptionnel
+La campagne s'exécutera alors en une passe selon §12, avec arrêt exceptionnel
 uniquement sur défaut bloquant réel, preuve impossible ou nouvelle contradiction.
-L'acceptation finale de L3 appartient à la décision humaine après audit du dossier.
+L'acceptation finale de L3 appartiendra à une décision humaine distincte après audit du dossier.
 
-**Présent mandat :** seul
-`docs/v3/L3_I5_Qualification_and_Closure_Plan.md` est créé. Slices primaire et
+**Mandat d'amendement et finalisation :** seul
+`docs/v3/L3_I5_Qualification_and_Closure_Plan.md` est modifié. Slices primaire et
 secondaires **NONE**, impact productif **NONE**, franchissement inattendu **NONE**.
-Gate globale/full **NOT REQUIRED / NOT RUN pour ce plan documentaire** ; cette
+Gate globale/full **NOT REQUIRED / NOT RUN pour cet amendement documentaire** ; cette
 déclaration ne dispense pas I5 de ses obligations O20–O22. DB/migrations,
-Maven/Java/Docker/Bruno/k6 et tests applicatifs **NOT RUN**.
+Maven/Java/Docker/Bruno/k6 et tests applicatifs **NOT RUN**. Campagne Q-ID **NOT RUN**.
 
-Commandes réellement utilisées : `pwd`, `git status --short --branch`,
-`git worktree list --porcelain`, `git -C <worktree> status --porcelain=v1`,
-`git remote -v`, `git ls-remote origin refs/heads/feat/v3-architecture`,
-`git log`, `git diff`/`git diff --stat`, `git rev-list --left-right --count`,
-`git rev-parse <ref>:<path>`, `git show`, lectures `rg`/`rg --files`/`cat`/`sed`,
-scripts ponctuels `python3 -B -` de lecture Git/JSON/gzip/tar/XML/empreintes et
-de références, `python3 -B docs/testing/evidence/L3-I4/verify_evidence.py`,
-`git diff --check` et contrôle du nouveau Markdown avec
-`git diff --no-index --check /dev/null docs/v3/L3_I5_Qualification_and_Closure_Plan.md`.
-Ces contrôles statiques ne constituent aucune campagne de tests. Aucun autre
-fichier du dépôt modifié ; aucune publication effectuée.
+Commandes réellement utilisées : `pwd`, `git status`, `git log`, `git worktree list`,
+`git remote -v`, `git ls-remote`, `git diff`, `git diff --check`, lectures de code et
+de DDL `find`, `git grep`, inspection de scripts et de fichiers sources.
+Ces contrôles statiques ne constituent aucune exécution de tests. Aucun autre
+fichier du dépôt modifié.
 
-**Recommandation : conserver l'hypothèse sans développement productif et faire
-arbitrer la recevabilité normative avant tout GO.** Le plan opérationnel des
-compléments est prêt à l'audit ; ni exécution ni clôture L3 ne sont autorisées.
+**Recommandation :** L'arbitrage ARB-I5-01 étant consigné et ratifié, les ajustements
+R-I5-01 et R-I5-02 étant intégrés avec succès, et le préflight statique confirmant
+l'exécutabilité du protocole sans modification de code ou d'outillage, le plan de
+qualification est finalisé, cohérent et recevable. Il est prêt pour le GO d'exécution
+de la campagne Q-ID.
 
-**I5 — NORMATIVE ARBITRATION REQUIRED**
+**I5 — QUALIFICATION PLAN APPROVED / READY FOR EXECUTION GO**
