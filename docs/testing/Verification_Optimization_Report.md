@@ -201,15 +201,20 @@ rédactionnels, pas de nouveaux modules ou profils.
 | `compile` | Complet chaud, après reprise | 8,886 s | SUCCESS |
 | `C clean compile` | Fermeture COMMAND propre | 10,365 s | SUCCESS |
 | `C compile` | Fermeture COMMAND chaude sans changement | 7,734 s | SUCCESS |
-| `C compile` | Après ajout contrôlé d'un commentaire Identity | 7,768 s | SUCCESS, 22 modules / 448 sources recompilés |
+| `C compile` | Après ajout contrôlé d'un commentaire Identity | 7,768 s | SUCCESS, 22 modules / 452 sources recompilés (recompte AUD-VERIFY-004) |
 | `C compile` | Après restauration exacte des octets source | 8,244 s | SUCCESS |
 | `package -Dmaven.test.skip=true` | Complet, sans compilation ni exécution des tests | 12,017 s | SUCCESS, pas une preuve de tests |
 | `C test-compile` | Fermeture COMMAND après nettoyage | 14,993 s | SUCCESS |
 | `L clean compile` | Feedback local propre | 4,113 s | SUCCESS, 10 modules Java / 225 sources |
 | `L compile` | Feedback local chaud sans changement | 3,166 s | SUCCESS |
 
-La compilation propre complète a compilé 59 modules Java et 743 sources. Les
-chiffres viennent des lignes Compiler, pas d'une estimation. La mutation de
+La compilation propre complète a annoncé 59 compilations de modules Java et
+757 sources en entrée du compilateur. Ces totaux corrigés incluent les 14 lignes
+singulières `Compiling 1 source file` omises par l'agrégat initial de 743 ; le
+recompte COMMAND après mutation corrige également 448 en 452. Les JSON et logs
+historiques restent conservés comme observations originales ; leurs anciens
+agrégats sont remplacés par le [recompte de résolution](../v3/Verification_Rationalization_Resolution.md).
+Ces annonces ne dénombrent ni les sources présentes ni le réemploi exact de chaque fichier. La mutation de
 mesure, son hash original/modifié/restauré et les commandes figurent dans
 [incremental-mutation.json](evidence/verification-optimization/incremental-mutation.json),
 [compilation-observations.json](evidence/verification-optimization/compilation-observations.json),

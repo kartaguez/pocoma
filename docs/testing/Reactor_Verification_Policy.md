@@ -1307,17 +1307,26 @@ python3 -B scripts/testing/verify.py QUARANTINE i5_r05
 python3 -B scripts/testing/verify.py QUARANTINE i5_r12
 ```
 
-`--dry-run` prints the exact Maven command, expected methods, unselected JUnit
-sources/sibling methods and filtering status;
+`--dry-run` prints the exact Maven command, recipe methods, unselected JUnit
+sources/sibling methods and filtering status; canonical expected identities are
+resolved at execution from Maven's effective reactor and source inventory, not
+from prior XML. Dry-run's pending canonical inventory is not a coverage proof;
 it executes no Maven test. `--output /absolute/new/directory` selects the evidence
 destination, which must not already exist. Default: unique temporary directory.
 Keep/publish required raw evidence before removing temporary outputs.
 
-Only `identity` has a FAST recipe currently. Its local unit-feedback anchors are
+The explicit `identity` and `foundation` recipes share cumulative expansion in
+the selector; only their class lists/anchors differ in the registry. Identity's
+local unit-feedback anchors are
 `engine-consume-registration,domain-pot`; they avoid compiling the runtime/SQL
 closure for pure feedback. This is a bounded contribution inside COMMAND, never
-its canonical slice proof. CHANGE Identity uses the canonical COMMAND anchor. CHANGE/INTEGRATION also accept the
-canonical uppercase slice identifiers, comma-separated. Those commands are the
+its canonical slice proof. CHANGE Identity uses the canonical COMMAND anchor.
+The `foundation` recipe uses `infra-tx-spring`: FAST selects four H2 tests;
+CHANGE and INTEGRATION select all 28 current foundation invocations. Its filtered
+PASS remains operational feedback. `CHANGE FOUNDATION` is the unfiltered canonical
+command and derives its own expected inventory from the effective model.
+CHANGE/INTEGRATION also accept the canonical uppercase slice identifiers,
+comma-separated. Those commands are the
 **unfiltered** canonical `-pl <anchors> -am test`; they include heavy tests and the
 quarantined methods if Maven pulls their module. INTEGRATION does not silently add
 architecture-tests: declare that requirement and execute its canonical command
@@ -1407,15 +1416,60 @@ single independent success does not close historical availability reserves.
 
 ### Evidence, selection controls and reuse
 
-The selector records the exact command/expected methods, input hashes, tested HEAD
-and dirty state, toolchain and settings hash. It refuses implicit Maven/JVM options.
-It moves old XML to `previous-reports/` before execution and never counts it. New
-XML, logs and freshly modified evidence directories are archived with SHA-256.
-Missing/duplicate/unexpected methods, malformed counters and skips prevent a
-filtered PASS. Parameterized boolean invocations are checked separately. New
-unsupported dynamic/nested/provider forms require extending the reviewed collector;
-they are never silently dropped. The checkout lock prevents concurrent selector
-runs; native Maven commands must follow the same single-owner discipline.
+The selector records the exact command/expected invocation identities, input hashes,
+tested HEAD and dirty state, toolchain and settings hash. Before any Java/Maven
+subprocess it rejects nonempty `MAVEN_ARGS`, `MAVEN_OPTS`, `JAVA_TOOL_OPTIONS`,
+`JDK_JAVA_OPTIONS` and `_JAVA_OPTIONS`, and unreviewed `.mvn/maven.config`,
+`jvm.config` or `extensions.xml`. Recipe `-Dtest`/`failIfNoSpecifiedTests=false`
+remain explicit argv, never implicit environment configuration.
+
+Every run first executes `help:effective-pom` with the same selection and retains
+the model and discovery log. Maven owns the reactor closure; current test sources
+own the expected identities. Standard source roots, the effective Surefire
+configuration and fixture ancestors are checked. Unreviewed configuration,
+composed/inherited/dynamic/generated test discovery or providers cannot produce
+PASS. The currently reviewed parameterized boolean provider is expanded to both
+separate invocation names; other providers require an explicit collector review.
+There is no promise that every canonical slice's current JUnit forms are supported.
+Refusal/INCONCLUSIVE is preferable to an unproven canonical PASS.
+
+The selector moves old XML to `previous-reports/` before execution and never counts
+it. New XML, logs, effective model and freshly modified physical evidence are
+archived with SHA-256. **Every** PASS, including canonical commands, requires a
+nonempty expected inventory, exactly one fresh successful execution of every
+expected identity, no unexpected/duplicate identity, consistent XML counters and
+zero skips. Equal totals with different identities are insufficient. Missing,
+stale or incomplete reports cannot pass. A nonzero Maven exit/failure/error is FAIL;
+insufficient coverage or discovery is INCONCLUSIVE (preflight refusal exits 2).
+The checkout lock prevents concurrent selector runs; native Maven commands must
+follow the same single-owner discipline. Removing tests from sources changes the
+obligation/input fingerprint and requires source review; old coverage is not reused.
+
+External SQL fingerprints follow the selected test classes and referenced test
+helpers, then the literal `scripts/v3/` loader inputs. The sorted paths and SHA-256
+values are recorded and compared before/after test execution, alongside `app/`,
+selector/registry and settings. A missing SQL file is refused. Helpers are traced
+conservatively at file granularity (including their other SQL literals); this does
+not hash every SQL file globally. FAST Identity and FOUNDATION have no external
+SQL inputs; CHANGE Identity has six; current INTEGRATION has seven through the
+Worker helper. App-local fixtures/migrations/resources and POM generation inputs
+remain in the `app/` inventory. New loader idioms or indirect nonliteral filenames
+require review; no inference of arbitrary external dependencies is claimed. Changed
+SQL prevents proof equivalence/reuse; this tool introduces no result cache.
+
+Compilation metrics distinguish files present under main/test/generated roots,
+files in the configured source roots of selected Maven modules, and Compiler
+announcements of recompilation. Singular/plural `source file(s)` and main/test
+compiler invocations are counted. Generated inventories may overlap source roots;
+do not add them together. These announcements count compiler input files, not
+class outputs or independently observed javac reads. Exact per-file reuse is
+UNKNOWN/null; resource copies are not Java compilation. No-op module messages and
+announced recompilations remain inspectable in raw logs. Durations `seconds` cover
+the test Maven process; `discovery_seconds` separately covers model discovery.
+
+The [resolution report](../v3/Verification_Rationalization_Resolution.md) records
+the independent audit counterexample, regression controls, FOUNDATION and Identity
+replays, corrected historical counts and measured build comparisons.
 
 These receipts supplement rather than replace SPEC-10's physical traces and lot
 collectors. Test results alone do not prove every required variant. Save official

@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "anchors": {
     "WEB": "runtime-web-api",
     "COMMAND": "runtime-command-consumption-worker",
@@ -8,48 +8,6 @@
     "BINDING": "runtime-binding-consumption-worker",
     "LKV": "runtime-latest-known-version-consumption-worker",
     "FOUNDATION": "infra-tx-spring"
-  },
-  "identity": {
-    "anchor": "COMMAND",
-    "FAST": [
-      "IdentityValueContractsTest",
-      "IdentityTransitionsTest",
-      "UserIdentityModelTest",
-      "IdentityRequestContractTest",
-      "ExecuteIdentityRequestTest",
-      "PotAuthorizationTest",
-      "PotTransitionsTest",
-      "InvitationAttachmentTest",
-      "ShareholderIdentityCollisionTest"
-    ],
-    "CHANGE": [
-      "BindingTokenGeneratorTest",
-      "IdentityAuthorityPostgresTest",
-      "IdentityConcurrencyPostgresTest",
-      "IdentitySchemaPostgresTest",
-      "IdentityPrivilegesPostgresTest",
-      "IdentityRequestExecutionPostgresTest",
-      "IdentityDiscoveryPostgresTest",
-      "IdentityPublicationPostgresTest",
-      "V3IdentityRequestCompositionPostgresTest"
-    ],
-    "INTEGRATION": [
-      "V3IdentityRequestMonolithPostgresTest",
-      "V3WorkerCompositionPostgresTest",
-      "V3PotCommandCompositionPostgresTest",
-      "AttemptTransactionsPostgresTest",
-      "V3TransactionFoundationPostgresTest",
-      "V3HistoricalIntervalPostgresTest",
-      "V3SchemaIsolationPostgresTest",
-      "V3FoundationCompositionTest"
-    ],
-    "integration_extra_modules": [
-      "runtime-monolith"
-    ],
-    "fast_modules": [
-      "engine-consume-registration",
-      "domain-pot"
-    ]
   },
   "quarantine": {
     "i5_r05": {
@@ -67,6 +25,64 @@
       "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
       "reference": "docs/v3/L3_I2_Execution_Report.md",
       "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+    }
+  },
+  "recipes": {
+    "identity": {
+      "anchor": "COMMAND",
+      "FAST": [
+        "IdentityValueContractsTest",
+        "IdentityTransitionsTest",
+        "UserIdentityModelTest",
+        "IdentityRequestContractTest",
+        "ExecuteIdentityRequestTest",
+        "PotAuthorizationTest",
+        "PotTransitionsTest",
+        "InvitationAttachmentTest",
+        "ShareholderIdentityCollisionTest"
+      ],
+      "CHANGE": [
+        "BindingTokenGeneratorTest",
+        "IdentityAuthorityPostgresTest",
+        "IdentityConcurrencyPostgresTest",
+        "IdentitySchemaPostgresTest",
+        "IdentityPrivilegesPostgresTest",
+        "IdentityRequestExecutionPostgresTest",
+        "IdentityDiscoveryPostgresTest",
+        "IdentityPublicationPostgresTest",
+        "V3IdentityRequestCompositionPostgresTest"
+      ],
+      "INTEGRATION": [
+        "V3IdentityRequestMonolithPostgresTest",
+        "V3WorkerCompositionPostgresTest",
+        "V3PotCommandCompositionPostgresTest",
+        "AttemptTransactionsPostgresTest",
+        "V3TransactionFoundationPostgresTest",
+        "V3HistoricalIntervalPostgresTest",
+        "V3SchemaIsolationPostgresTest",
+        "V3FoundationCompositionTest"
+      ],
+      "integration_extra_modules": [
+        "runtime-monolith"
+      ],
+      "fast_modules": [
+        "engine-consume-registration",
+        "domain-pot"
+      ]
+    },
+    "foundation": {
+      "anchor": "FOUNDATION",
+      "FAST": [
+        "SpringTransactionRunnerTest"
+      ],
+      "CHANGE": [
+        "AttemptTransactionsPostgresTest",
+        "V3FoundationCompositionTest",
+        "V3HistoricalIntervalPostgresTest",
+        "V3SchemaIsolationPostgresTest",
+        "V3TransactionFoundationPostgresTest"
+      ],
+      "INTEGRATION": []
     }
   }
 }
