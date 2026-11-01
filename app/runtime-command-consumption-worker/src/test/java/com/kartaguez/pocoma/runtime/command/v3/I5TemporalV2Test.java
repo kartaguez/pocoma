@@ -112,13 +112,44 @@ class I5TemporalV2Test {
                 () -> extension("a", "a", now.plusSeconds(1), now.plusSeconds(90), now));
     }
 
+    private static I5TemporalV2Postgres.Journal journalWithAttempt(
+            java.util.function.Consumer<I5TemporalV2Postgres.Attempt> mutator) {
+        var now = Instant.parse("2026-10-31T00:00:00Z");
+        var lease =
+                new com.kartaguez.pocoma.engine.consumption.v3.PartitionLease(
+                        new com.kartaguez.pocoma.domain.consumption.v3.ConsumptionId(UUID.randomUUID()),
+                        0,
+                        UUID.randomUUID(),
+                        now.plusSeconds(30));
+        var tx = new I5TemporalV2Postgres.Tx("WRITE");
+        tx.pid = 1000;
+        tx.xid = "2000";
+        tx.resolution = "COMMITTED";
+        tx.end = 500;
+        var txs = new ArrayList<I5TemporalV2Postgres.Tx>();
+        txs.add(tx);
+        var attempt =
+                new I5TemporalV2Postgres.Attempt(
+                        "WRITE", 0, 100, 100, 200, List.of(lease), tx);
+        attempt.storeEnd = 300;
+        attempt.end = 400;
+        attempt.outcome = "CONFIRMED";
+        attempt.returned = List.of(lease);
+        if (mutator != null) {
+            mutator.accept(attempt);
+        }
+        var journal = new I5TemporalV2Postgres.Journal(txs, 0, 1);
+        journal.attempts.add(attempt);
+        return journal;
+    }
+
     @Test
     void v2_oracle_counter_examples() {
         var key = "cons-1/0";
         var attemptTx = new I5TemporalV2Postgres.Tx("WRITE");
         attemptTx.end = 20;
 
-        // Counter-example 1: Injected blocker on same key -> must be recognized as conflict
+        // Counter-example 1: Injected blocker on same key -> recognized as conflict and window blocked
         var injectedTx = new I5TemporalV2Postgres.Tx("WRITE");
         injectedTx.injected = true;
         injectedTx.keys.add(key);
@@ -129,6 +160,9 @@ class I5TemporalV2Test {
         // Counter-example 2: Stuck / unresolved transaction (end == Long.MAX_VALUE) -> must conflict
         var stuckTx = new I5TemporalV2Postgres.Tx("WRITE");
         assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, stuckTx, key));
+        assertThrows(
+                AssertionError.class,
+                () -> journalWithAttempt(a -> a.tx.end = Long.MAX_VALUE).verify(0, false));
 
         // Counter-example 3: Competing mutation on same key -> must conflict
         var competingTx = new I5TemporalV2Postgres.Tx("WRITE");
@@ -136,7 +170,7 @@ class I5TemporalV2Test {
         competingTx.end = 25;
         assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, competingTx, key));
 
-        // Counter-example 4: Non-blocking routine Discovery on same key -> must NOT conflict (prevents false failure)
+        // Counter-example 4: Non-blocking routine Discovery on same key -> must NOT conflict
         var discoveryTx = new I5TemporalV2Postgres.Tx("WRITE");
         discoveryTx.discovery = true;
         discoveryTx.keys.add(key);
@@ -149,51 +183,84 @@ class I5TemporalV2Test {
         readTx.end = 25;
         assertFalse(I5TemporalV2Postgres.isConflict(attemptTx, readTx, key));
 
-        // Counter-example 6: Renewal uncommitted or resolution not COMMITTED
-        assertThrows(AssertionError.class, () -> assertEquals("COMMITTED", "ROLLED_BACK"));
-        assertThrows(AssertionError.class, () -> assertEquals("CONFIRMED", "OMITTED"));
+        // Counter-example 6: Renewal uncommitted in real oracle evaluation path
+        var errUncommitted =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                journalWithAttempt(a -> a.tx.resolution = "ROLLED_BACK")
+                                        .verify(0, false));
+        assertTrue(errUncommitted.getMessage().contains("expected: <COMMITTED> but was: <ROLLED_BACK>"));
 
-        // Counter-example 7: Token lost or replaced
+        // Counter-example 7: Renewal outcome OMITTED in real oracle evaluation path
+        var errOmitted =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                journalWithAttempt(a -> a.outcome = "OMITTED")
+                                        .verify(0, false));
+        assertTrue(errOmitted.getMessage().contains("expected: <CONFIRMED> but was: <OMITTED>"));
+
+        // Counter-example 8: Renewal absent during available window (missing same-token CAS)
+        var errAbsent =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                journalWithAttempt(a -> a.returned = List.of())
+                                        .verify(0, false));
+        assertTrue(errAbsent.getMessage().contains("B available physical window without same-token CAS"));
+
+        // Counter-example 9: Operation time exceeded under saturation in real oracle evaluation path
+        var errBudget =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                journalWithAttempt(
+                                                a ->
+                                                        a.end =
+                                                                a.start
+                                                                        + ns("operation")
+                                                                        + 1_000_000L)
+                                        .verify(0, false));
+        assertTrue(errBudget.getMessage().contains("B physical complete operation"));
+
+        // Counter-example 10: PostgreSQL extension oracle violations (token replaced, unextended, safety margin)
+        // Note: nominal and negative behavior is also verified in v2_negative_checkers() lines 103-112.
         var now = Instant.parse("2026-10-31T00:00:00Z");
-        assertThrows(
-                AssertionError.class,
-                () ->
-                        extension(
-                                "tokenA",
-                                "tokenB",
-                                now.plusSeconds(30),
-                                now.plusSeconds(90),
-                                now));
+        var errToken =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                extension(
+                                        "tokenA",
+                                        "tokenB",
+                                        now.plusSeconds(30),
+                                        now.plusSeconds(90),
+                                        now));
+        assertTrue(errToken.getMessage().contains("B-PG token replaced"));
 
-        // Counter-example 8: Deadline not extended
-        assertThrows(
-                AssertionError.class,
-                () ->
-                        extension(
-                                "tokenA",
-                                "tokenA",
-                                now.plusSeconds(30),
-                                now.plusSeconds(30),
-                                now));
+        var errDeadline =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                extension(
+                                        "tokenA",
+                                        "tokenA",
+                                        now.plusSeconds(30),
+                                        now.plusSeconds(30),
+                                        now));
+        assertTrue(errDeadline.getMessage().contains("B-PG no durable extension"));
 
-        // Counter-example 9: Expiration safety margin violated
-        assertThrows(
-                AssertionError.class,
-                () ->
-                        extension(
-                                "tokenA",
-                                "tokenA",
-                                now.plusSeconds(1),
-                                now.plusSeconds(90),
-                                now));
-
-        // Counter-example 10: Operation time exceeded under saturation
-        assertThrows(
-                AssertionError.class,
-                () ->
-                        below(
-                                ns("operation") + 1,
-                                ns("operation"),
-                                "B physical complete operation"));
+        var errMargin =
+                assertThrows(
+                        AssertionError.class,
+                        () ->
+                                extension(
+                                        "tokenA",
+                                        "tokenA",
+                                        now.plusSeconds(1),
+                                        now.plusSeconds(90),
+                                        now));
+        assertTrue(errMargin.getMessage().contains("B-PG observed too late"));
     }
 }

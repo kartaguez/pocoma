@@ -98,6 +98,23 @@ final class I5TemporalV2Postgres {
             }
         }
 
+        Attempt(
+                String authority,
+                int worker,
+                long due,
+                long start,
+                long storeStart,
+                List<PartitionLease> leases,
+                Tx tx) {
+            this.authority = authority;
+            this.worker = worker;
+            this.due = due;
+            this.start = start;
+            this.storeStart = storeStart;
+            this.leases = List.copyOf(leases);
+            this.tx = tx;
+        }
+
         public String toString() {
             return "Attempt[retryDeadlines="
                     + retryDeadlines
@@ -204,6 +221,10 @@ final class I5TemporalV2Postgres {
             this.transactions = transactions;
             this.index = index;
             this.workers = workers;
+        }
+
+        Journal(List<Tx> transactions, int index, int workers) {
+            this(null, transactions, index, workers, null);
         }
 
         void observe(
@@ -467,17 +488,18 @@ final class I5TemporalV2Postgres {
                             window == null
                                     ? free(a.storeStart, a.storeEnd, conflicts)
                                     : window.available(a, lease, transactions);
-                    fixture.trace.add(
-                            "AVAILABILITY key="
-                                    + key(lease)
-                                    + " window="
-                                    + a.storeStart
-                                    + ".."
-                                    + a.storeEnd
-                                    + " physicalFree="
-                                    + available
-                                    + " physicalConflictSpans="
-                                    + conflicts.stream().map(java.util.Arrays::toString).toList());
+                    if (fixture != null)
+                        fixture.trace.add(
+                                "AVAILABILITY key="
+                                        + key(lease)
+                                        + " window="
+                                        + a.storeStart
+                                        + ".."
+                                        + a.storeEnd
+                                        + " physicalFree="
+                                        + available
+                                        + " physicalConflictSpans="
+                                        + conflicts.stream().map(java.util.Arrays::toString).toList());
                     boolean returned =
                             a.returned.stream()
                                     .anyMatch(
@@ -547,7 +569,8 @@ final class I5TemporalV2Postgres {
                                                                                                             transactions)))),
                             "B missing independent available window " + key);
             }
-            fixture.trace.add("ATTEMPTS worker=" + index + " " + selected);
+            if (fixture != null)
+                fixture.trace.add("ATTEMPTS worker=" + index + " " + selected);
         }
     }
 
