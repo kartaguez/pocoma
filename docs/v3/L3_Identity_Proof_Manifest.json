@@ -1,0 +1,698 @@
+{
+  "schema": 1,
+  "lot": "L3",
+  "step": "I5",
+  "milestone": "L3-IDENTITY-QUALIFICATION-AND-CLOSURE",
+  "title": "Pocoma V3 L3 Identity Qualification and Definitive Closure Proof Manifest",
+  "shas": {
+    "initial_baseline_sha": "145f42731a4e35488e9aaa56a7de3c3f453a9231",
+    "l2_i5_counter_audit_sha": "32504fca0f8d5ba6f236cf3111145d346ddc7930",
+    "l2_i5_rectification_sha": "028930e071c35fc12d1b8fc94c03b1238e8ec434",
+    "tested_code_sha": "028930e071c35fc12d1b8fc94c03b1238e8ec434",
+    "published_code_sha": "028930e071c35fc12d1b8fc94c03b1238e8ec434"
+  },
+  "publication": {
+    "branch": "feat/v3-architecture",
+    "delivery_commit_locator": "git log -1 --format=%H -- docs/v3/L3_Identity_Proof_Manifest.json",
+    "remote_verification": "Remote branch origin/feat/v3-architecture updated via fast-forward push"
+  },
+  "scope": {
+    "primary": "COMMAND",
+    "secondary": [],
+    "additional_roots": [
+      "runtime-monolith"
+    ],
+    "global_architecture_gate": "REQUIRED / SATISFIED (BUILD SUCCESS, 163 tests, 0 failures, 0 errors, 35.24s)",
+    "canonical_command_gate": "REQUIRED / SATISFIED (BUILD SUCCESS, 51 modules, 1,777 tests, 0 failures, 0 errors, 1 skip, 50:57 min)",
+    "full_reactor": "NOT REQUIRED per Reactor_Verification_Policy.md §34 and ARB-I5-01 / NOT RUN",
+    "unexpected_slice_crossing": "NONE",
+    "database": "CURRENT V3 WRITE V1-V6 / READ technical V1; historical chains only transitively in native gates",
+    "new_or_modified_migrations": [],
+    "new_or_modified_grants": []
+  },
+  "equivalence_demonstration": {
+    "production_code_diff_i4_vs_tested": "0 files changed, 0 insertions, 0 deletions",
+    "sql_migrations_diff_i4_vs_tested": "0 files changed, 0 insertions, 0 deletions",
+    "worker_dev_script_diff_i4_vs_tested": "0 files changed, 0 insertions, 0 deletions",
+    "finding": "Production code under app/*/src/main/** is 100% byte-for-byte identical between I4 baseline (145f4273) and tested code SHA (028930e0). All 64 I4 variant receipts and physical traces remain strictly valid."
+  },
+  "campaigns_executed": {
+    "FAST_identity": {
+      "command": "python3 -B scripts/testing/verify.py FAST identity",
+      "modules": 2,
+      "tests": 65,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 2.2,
+      "verdict": "PASS"
+    },
+    "CHANGE_identity": {
+      "command": "python3 -B scripts/testing/verify.py CHANGE identity",
+      "modules": 5,
+      "tests": 149,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 473.81,
+      "verdict": "PASS"
+    },
+    "INTEGRATION_identity": {
+      "command": "python3 -B scripts/testing/verify.py INTEGRATION identity",
+      "modules": 5,
+      "tests": 187,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 571.94,
+      "verdict": "PASS"
+    },
+    "CHANGE_foundation": {
+      "command": "python3 -B scripts/testing/verify.py CHANGE foundation",
+      "modules": 2,
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 11.45,
+      "verdict": "PASS"
+    },
+    "architecture_tests": {
+      "command": "./mvnw -pl architecture-tests -am test",
+      "modules": 61,
+      "tests": 163,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 35.24,
+      "verdict": "BUILD SUCCESS"
+    },
+    "composition_real_postgres": {
+      "command": "./mvnw -pl runtime-command-consumption-worker -am test -Dtest=V3IdentityRequestCompositionPostgresTest",
+      "modules": 51,
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 85.04,
+      "verdict": "BUILD SUCCESS"
+    },
+    "native_command_canonical_gate": {
+      "command": "./mvnw --batch-mode --no-transfer-progress -pl runtime-command-consumption-worker -am test",
+      "modules": 51,
+      "tests": 1777,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skip_detail": "com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.TerminalSequencingPostgresTest#measureStep3bLatencyUnderLoad",
+      "wall_clock_time": "50:57 min",
+      "verdict": "BUILD SUCCESS"
+    },
+    "verification_framework_tests": {
+      "command": "python3 -m unittest scripts/testing/test_verification.py scripts/testing/test_verification_cli.py",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_seconds": 86.5,
+      "verdict": "PASS"
+    }
+  },
+  "obligations": {
+    "O01": {
+      "normative_source": "Plan L3 §6/I1, §7 ; SPEC-02 §§2–4",
+      "property_guaranteed": "Valeurs pures, transitions strictes, aucun binding autonome",
+      "primary_physical_proof": "IdentityTransitionsTest (17 tests), IdentityValueContractsTest (8 tests)",
+      "test_module": "model-identity-contract",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Portée domaine pur, pas de dépendance d'exécution externe."
+    },
+    "O02": {
+      "normative_source": "Plan L3 §6/I2 ; SPEC-02 §§2–3/8",
+      "property_guaranteed": "Histoire exacte, ID stable, ancre zéro distincte de v1",
+      "primary_physical_proof": "IdentityAuthorityPostgresTest#l3_history_exact, #l3_anchor_absence, IdentitySchemaPostgresTest#l3_anchor_negative_invariants",
+      "test_module": "infra-persistence-primary-jpa",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Primitives PostgreSQL réelles V6, ordre d'histoire UTF-8/C."
+    },
+    "O03": {
+      "normative_source": "Plan L3 §7.2 ; SPEC-02 §7, SPEC-05 §4",
+      "property_guaranteed": "Tri avant INSERT/verrou, Unicode opaque, chemins disjoints",
+      "primary_physical_proof": "IdentityConcurrencyPostgresTest#l3_canonical_lock_paths, #l3_canonical_unicode, #l3_anchor_id_race, #l3_disjoint_progress",
+      "test_module": "infra-persistence-primary-jpa",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Ordre SQL canonique prouvé contre interblocages."
+    },
+    "O04": {
+      "normative_source": "Plan L3 §6/I2 ; SPEC-02 §§2/6",
+      "property_guaranteed": "Aléa non prédictible 32 octets, unicité historique 23505",
+      "primary_physical_proof": "BindingTokenGeneratorTest#l3_generator_contract, IdentityAuthorityPostgresTest#l3_forced_token_collision",
+      "test_module": "infra-persistence-primary-jpa",
+      "status": "SATISFIED",
+      "bounds_and_limits": "SecureRandom, masquage toString(), collision active et rollback validés."
+    },
+    "O05": {
+      "normative_source": "Plan L3 §7 ; SPEC-02 §7 ; I01-D/F/J/K",
+      "property_guaranteed": "Un seul gagnant sous course, aucun User perdant",
+      "primary_physical_proof": "IdentityConcurrencyPostgresTest#l3_registration_race, #l3_link_races, IdentityRequestExecutionPostgresTest#l3_workers_concurrent_registration",
+      "test_module": "infra-persistence-primary-jpa, runtime-command-consumption-worker",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Courses multi-threads et multi-engines avec barrières physiques."
+    },
+    "O06": {
+      "normative_source": "SPEC-10 I01-I/P ; plan L3 §§7, 9.2",
+      "property_guaranteed": "Négatifs Unlink (cible libre/autre user) et nouvelle demande post-succès",
+      "primary_physical_proof": "IdentityTransitionsTest#unlinkRejectsAbsentFreeAndAnotherUsersTarget, IdentityAuthorityPostgresTest#l3_history_exact, IdentityRequestExecutionPostgresTest#l3_rejection_terminal",
+      "test_module": "model-identity-contract, infra-persistence-primary-jpa, runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Rejet domaine et isolation terminale PostgreSQL démontrés ; requêtes HTTP/Bruno différées à L5."
+    },
+    "O07": {
+      "normative_source": "Plan L3 §6/I3 ; SPEC-03 §§1/3/6",
+      "property_guaranteed": "Demande PENDING, 3 opérations, résultat terminal et complétion",
+      "primary_physical_proof": "ExecuteIdentityRequest, IdentityRequestContractTest, IdentityRequestExecutionPostgresTest#l3_atomic_registration, #l3_rejection_terminal",
+      "test_module": "service-command-v3, runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Moteur réel et SQL restreint validés ; AuthN fournisseur différée."
+    },
+    "O08": {
+      "normative_source": "Plan L3 §7 ; SPEC-10 I01-N ; CON-06",
+      "property_guaranteed": "Rollback à chaque frontière, erreur technique jamais rejet métier, poisoning",
+      "primary_physical_proof": "IdentityRequestExecutionPostgresTest#l3_rollback_each_boundary, AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders",
+      "test_module": "runtime-command-consumption-worker, infra-persistence-primary-jpa",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "28 coupures testées, sentinelles JPA/JDBC d'un même owner transactionnel."
+    },
+    "O09": {
+      "normative_source": "Plan L3 §7 ; SPEC-10 I01-O ; R9",
+      "property_guaranteed": "Perte d'ACK après commit, retry terminal idempotent, observation sans réparation",
+      "primary_physical_proof": "IdentityRequestExecutionPostgresTest#l3_unknown_commit, #l3_observation_corruption, reçu H3",
+      "test_module": "runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Interception COMMIT réel, UNKNOWN→COMPLETED, idempotence sans effet résiduel."
+    },
+    "O10": {
+      "normative_source": "Plan L3 §7 ; SPEC-05 §§4–5 ; C03/C04",
+      "property_guaranteed": "Fencing claim remplacé/expiré, horloge après verrou, complétion mono-usage",
+      "primary_physical_proof": "IdentityRequestExecutionPostgresTest#l3_fencing, #l3_final_lock_clock, #l3_completion_misuse",
+      "test_module": "runtime-command-consumption-worker",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Fencing d'ownership et rejet d'usage abusif de slot prouvés."
+    },
+    "O11": {
+      "normative_source": "Plan L3 §7 ; SPEC-05 §§5/7 ; C05/R8",
+      "property_guaranteed": "Budget technique borné N=3, slot QUARANTINED, pas de purge",
+      "primary_physical_proof": "IdentityRequestExecutionPostgresTest#l3_retry_quarantine, #l3_technical_not_rejected_and_redacted",
+      "test_module": "runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "N=3, slot en quarantaine sans perte, réactivation administrative CAS."
+    },
+    "O12": {
+      "normative_source": "Plan L3 §7 ; SPEC-03 §§4–6 ; E01",
+      "property_guaranteed": "Événements minimaux, User puis EUI contigus, densité d'événements",
+      "primary_physical_proof": "IdentityPublicationPostgresTest#l3_identity_batch, #l3_dense_rollback, #l3_identity_pair_contention",
+      "test_module": "infra-persistence-primary-jpa",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Ordre strict et densité sans trous dans v3_event_position."
+    },
+    "O13": {
+      "normative_source": "Plan L3 §7.2 ; E02-I, CON-06/R1",
+      "property_guaranteed": "Contraintes avant clôture, terminal différé read-only, zéro verrou tardif",
+      "primary_physical_proof": "IdentitySchemaPostgresTest#l3_constraint_catalog, #l3_deferred_commit_has_no_new_business_locks, IdentityPublicationPostgresTest#l3_suffix_closed",
+      "test_module": "infra-persistence-primary-jpa",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Probes NOWAIT confirmant l'absence de verrou métier résiduel en suffixe."
+    },
+    "O14": {
+      "normative_source": "Plan L3 §5.1 ; CON-01/02, EVT-03",
+      "property_guaranteed": "Discovery burnable séparé, publication atomique et idempotent terminal",
+      "primary_physical_proof": "IdentityPublicationPostgresTest#l3_identity_batch, #l3_dense_rollback, IdentityRequestExecutionPostgresTest#l3_unknown_commit",
+      "test_module": "infra-persistence-primary-jpa, runtime-command-consumption-worker",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Séparation stricte des tables et canaux de publication."
+    },
+    "O15": {
+      "normative_source": "Plan L3 §6/I4, §7.2 ; A1",
+      "property_guaranteed": "A1 strict respecté : un seul porteur, SELECT pur, transaction unique, zéro lock nouveau",
+      "primary_physical_proof": "V3IdentityAuthorityArchitectureTest#pot_actor_authority_only_imports_allowed_packages, IdentityPotAuthorityPostgresTest (16 tests), V3IdentityPotCommandPostgresTest (11 tests)",
+      "test_module": "architecture-tests, infra-persistence-primary-jpa, runtime-command-consumption-worker",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Conforme à la décision humaine A1 et vérifié par ArchUnit."
+    },
+    "O16": {
+      "normative_source": "Plan L3 §6/I4 ; SPEC-05 §4",
+      "property_guaranteed": "Vérification autonome Worker et Monolithe, injection conditionnelle",
+      "primary_physical_proof": "V3IdentityRequestCompositionPostgresTest (10 tests réels), Worker + Monolith profile integration",
+      "test_module": "runtime-command-consumption-worker, runtime-monolith",
+      "status": "SATISFIED",
+      "bounds_and_limits": "10/10 tests réels validés avec composant de production V3ConsumptionWorkerConfiguration."
+    },
+    "O17": {
+      "normative_source": "Plan L3 §6/I4 ; SPEC-03/05",
+      "property_guaranteed": "Drainage terminal propre, pas de slot orphelin en arrêt ordonné",
+      "primary_physical_proof": "V3IdentityRequestCompositionPostgresTest#l3_worker_graceful_drain, V3WorkerResourcesPostgresTest#i5_r12",
+      "test_module": "runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Drainage nominal et transition UNKNOWN→DRAINING sous interruption."
+    },
+    "O18": {
+      "normative_source": "Plan L3 §7 ; SPEC-03 §6, SPEC-05 §7",
+      "property_guaranteed": "Zéro payload brut, token ou secret en log/diagnostic clair",
+      "primary_physical_proof": "IdentityRequestExecutionPostgresTest#l3_technical_not_rejected_and_redacted, BindingToken.toString() masking, verification-campaigns audit",
+      "test_module": "runtime-command-consumption-worker, model-identity-contract",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Vérification statique et assertions runtime sur journaux ; audit externe L5."
+    },
+    "O19": {
+      "normative_source": "Plan L3 §8.2 ; politique §§18–21",
+      "property_guaranteed": "Suite architecture-tests PASS sans régression globale",
+      "primary_physical_proof": "architecture-tests : 28 classes, 163 tests, 0 échec, 0 erreur, BUILD SUCCESS (35.24s)",
+      "test_module": "architecture-tests",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Passage complet sans exception."
+    },
+    "O20": {
+      "normative_source": "Plan L3 §8.2 ; politique §§6/34",
+      "property_guaranteed": "Campagnes FAST/CHANGE/INTEGRATION Identity PASS",
+      "primary_physical_proof": "FAST identity (65/65), CHANGE identity (149/149), INTEGRATION identity (187/187), CHANGE foundation (28/28)",
+      "test_module": "scripts/testing/verify.py",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Campagnes ciblées 100% PASS ; reactor global non requis selon §34 / ARB-I5-01."
+    },
+    "O21": {
+      "normative_source": "Plan L3 §8.2 ; politique §6/34",
+      "property_guaranteed": "Gate canonique COMMAND + Monolithe BUILD SUCCESS",
+      "primary_physical_proof": "runtime-command-consumption-worker -am test : 51 modules, 1 777 tests, 0 échec, 0 erreur, 1 skip, BUILD SUCCESS (50:57 min)",
+      "test_module": "runtime-command-consumption-worker",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Succès canonique acquis sans échec ; 1 skip historique documenté (step3b.measure)."
+    },
+    "O22": {
+      "normative_source": "Plan L3 §8.2 ; politique §§18–21/34/35",
+      "property_guaranteed": "Full reactor conditionnel et niveau de clôture",
+      "primary_physical_proof": "Procédure §34 / ARB-I5-01 appliquée ; full reactor non requis pour clôture documentaire bornée",
+      "test_module": "N/A",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Full reactor réservé à la clôture de Wave majeure ou intégration main."
+    },
+    "O23": {
+      "normative_source": "Plan L3 §6/I5 ; politique §34",
+      "property_guaranteed": "Provenance, équivalence, traçabilité des preuves durables",
+      "primary_physical_proof": "Manifeste JSON complet L3_Identity_Proof_Manifest.json, Variant_Receipts.json (64 reçus) et archives XML Surefire",
+      "test_module": "docs/testing/evidence/L3-I4",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Empreintes SHA-256, XML et reçus archivés et vérifiés."
+    },
+    "O24": {
+      "normative_source": "Plan L3 §6/I5, §§9.1/9.2",
+      "property_guaranteed": "Livrables documentaires de qualification et d'exploitation",
+      "primary_physical_proof": "L3_Identity_Execution_Report.md, L3_Identity_Runtime_Runbook.md, L3_Identity_Proof_Manifest.json, L3_Identity_Closure.md",
+      "test_module": "docs/v3",
+      "status": "SATISFIED",
+      "bounds_and_limits": "Dossier documentaire complet produit."
+    },
+    "O25": {
+      "normative_source": "Plan L3 §6/I5 ; plan directeur §4",
+      "property_guaranteed": "Audit indépendant et décision humaine L3",
+      "primary_physical_proof": "Contre-audit indépendant Gemini exécuté ; décision humaine de clôture formulée avec réserves explicites",
+      "test_module": "docs/v3",
+      "status": "SATISFIED_WITH_RESERVATIONS",
+      "bounds_and_limits": "Clôture prononcée dans le périmètre borné interne avec réserves explicites (ARB-I5-01)."
+    },
+    "O26": {
+      "normative_source": "Plan L3 §7.1 ; SPEC-02/04/10",
+      "property_guaranteed": "READ projections, endpoints HTTP, consentement externe",
+      "primary_physical_proof": "Aucun test L3 (fonctionnalités L4/L5)",
+      "test_module": "N/A",
+      "status": "OUT_OF_SCOPE",
+      "bounds_and_limits": "Reporté nominativement à L4 (CurrentBinding) et L5 (HTTP / Consentement)."
+    },
+    "O27": {
+      "normative_source": "Plan L3 §7.1 ; SPEC-10 §§10–13",
+      "property_guaranteed": "Reconstruction complète, SLOs, convergence et release",
+      "primary_physical_proof": "Aucun test L3 (fonctionnalités L6–L8)",
+      "test_module": "N/A",
+      "status": "OUT_OF_SCOPE",
+      "bounds_and_limits": "Reporté nominativement aux lots de convergence L6 et release L8."
+    }
+  },
+  "variants_id01": {
+    "I01-A": {
+      "description": "Registration inconnue : subject/issuer jamais vus, EUI jamais vue. Déduction User, création ancre, génération token B1, persistance v1.",
+      "tests": [
+        "IdentityTransitionsTest#registrationTransitionPureContract",
+        "IdentityAuthorityPostgresTest#l3_registration_nominal",
+        "ExecuteIdentityRequestTest#l3_execute_registration_success",
+        "IdentityPublicationPostgresTest#l3_identity_batch"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r01",
+        "r02",
+        "r03",
+        "r04"
+      ],
+      "observations": "Création v1, ancre v0 intacte, token 32 octets généré, publication ordonnée."
+    },
+    "I01-B": {
+      "description": "Registration libre vN : subject/issuer existants ou nouveaux, EUI existe à l'état LIBRE à la version vN. Conservation User ID, successeur exact vN+1.",
+      "tests": [
+        "IdentityTransitionsTest#registrationTransitionPureContract",
+        "IdentityAuthorityPostgresTest#l3_history_exact",
+        "ExecuteIdentityRequestTest#l3_execute_registration_success"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r05",
+        "r06",
+        "r07"
+      ],
+      "observations": "EUI libre liée avec succès, numéro de version incrémenté, token nouveau."
+    },
+    "I01-C": {
+      "description": "Registration déjà liée : EUI existe et est déjà à l'état LIÉE. Rejet déterministe TARGET_ALREADY_BOUND sans mutation ni événement.",
+      "tests": [
+        "IdentityTransitionsTest#registrationRejectsBoundTarget",
+        "IdentityAuthorityPostgresTest#l3_registration_already_bound",
+        "IdentityRequestExecutionPostgresTest#l3_rejection_terminal"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r08",
+        "r09",
+        "r10"
+      ],
+      "observations": "Rejet strict sans mutation SQL ; état terminal REJECTED sans effet de bord."
+    },
+    "I01-D": {
+      "description": "Deux Registrations concurrentes sur la même EUI : deux requêtes concurrentes. Une réussit, l'autre échoue sous contrainte d'unicité.",
+      "tests": [
+        "IdentityConcurrencyPostgresTest#l3_registration_race",
+        "IdentityRequestExecutionPostgresTest#l3_workers_concurrent_registration"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r11",
+        "r12",
+        "r13",
+        "r14"
+      ],
+      "observations": "Barrière PostgreSQL réelle : exactement un gagnant, le second reçoit TARGET_ALREADY_BOUND."
+    },
+    "I01-E": {
+      "description": "Link cible inconnue/libre : initiateur valide, cible inconnue ou libre vN. Rapprochement sous le même User ID, version incrémentée.",
+      "tests": [
+        "IdentityTransitionsTest#linkTransitionPureContract",
+        "IdentityAuthorityPostgresTest#l3_link_nominal",
+        "ExecuteIdentityRequestTest#l3_execute_link_success"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r15",
+        "r16",
+        "r17"
+      ],
+      "observations": "Liaison nominale réussie, token de l'initiateur inchangé, nouveau token cible."
+    },
+    "I01-F": {
+      "description": "Deux Links concurrents ou Registration vs Link : sérialisation stricte sous verrou canonique.",
+      "tests": [
+        "IdentityConcurrencyPostgresTest#l3_link_races",
+        "IdentityConcurrencyPostgresTest#l3_canonical_lock_paths"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r18",
+        "r19",
+        "r20",
+        "r21"
+      ],
+      "observations": "Tri lexicographique des clés avant verrouillage ; aucun deadlock sous forte concurrence."
+    },
+    "I01-G": {
+      "description": "Link déjà liée (y compris au même user) : rejet déterministe TARGET_ALREADY_BOUND sans mutation.",
+      "tests": [
+        "IdentityTransitionsTest#linkRejectsBoundTarget",
+        "IdentityAuthorityPostgresTest#l3_link_already_bound"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r22",
+        "r23"
+      ],
+      "observations": "Rejet explicite même si la cible appartient déjà au même utilisateur."
+    },
+    "I01-H": {
+      "description": "Unlink autre / self / dernière EUI : désactivation d'une EUI liée, token révoqué/nul, persistance User orphelin.",
+      "tests": [
+        "IdentityTransitionsTest#unlinkTransitionPureContract",
+        "IdentityAuthorityPostgresTest#l3_unlink_nominal",
+        "IdentityAuthorityPostgresTest#l3_unlink_last_eui_persists_user"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r24",
+        "r25",
+        "r26",
+        "r27"
+      ],
+      "observations": "Passage à l'état LIBRE, token nul, l'entité User n'est jamais supprimée."
+    },
+    "I01-I": {
+      "description": "Initiateur obsolète ou cible libre/autre user : rejets INVALID_BINDING, TARGET_NOT_BOUND, TARGET_BOUND_TO_ANOTHER_USER.",
+      "tests": [
+        "IdentityTransitionsTest#unlinkRejectsAbsentFreeAndAnotherUsersTarget",
+        "IdentityAuthorityPostgresTest#l3_invalid_token_same_version",
+        "IdentityRequestExecutionPostgresTest#l3_rejection_terminal"
+      ],
+      "status": "PASS_WITH_RESERVATIONS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r28",
+        "r29",
+        "r30",
+        "r31"
+      ],
+      "observations": "Rejets domaine et SQL démontrés ; exposition HTTP et diagnostics Bruno différés à L5."
+    },
+    "I01-J": {
+      "description": "Deux Unlinks croisés concurrents : ordre canonique, sérialisation stricte, le second rejeté INVALID_BINDING.",
+      "tests": [
+        "IdentityConcurrencyPostgresTest#l3_unlink_races",
+        "IdentityConcurrencyPostgresTest#l3_canonical_lock_paths"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r32",
+        "r33",
+        "r34"
+      ],
+      "observations": "Unlink croisé sérialisé sans interblocage, second unlink rejeté."
+    },
+    "I01-K": {
+      "description": "Link vs Unlink sur le même initiateur : ordre garanti par lock canonique, détection d'obsolescence.",
+      "tests": [
+        "IdentityConcurrencyPostgresTest#l3_link_vs_unlink_race"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r35",
+        "r36"
+      ],
+      "observations": "L'un s'exécute, l'autre échoue pour invalidation de token."
+    },
+    "I01-L": {
+      "description": "Histoire complète 1..5 : successions d'opérations sur une EUI, at(id, v) exact, renouvellement des tokens, ancien token B refusé.",
+      "tests": [
+        "IdentityAuthorityPostgresTest#l3_history_exact",
+        "IdentityAuthorityPostgresTest#l3_forced_token_collision"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r37",
+        "r38",
+        "r39",
+        "r40",
+        "r41"
+      ],
+      "observations": "Traçabilité intégrale des 5 versions successives, unicité et non-réutilisation de token."
+    },
+    "I01-M": {
+      "description": "Même subject sur deux issuers différents : utilisateurs indépendants, ancres distinctes, UUIDs stables.",
+      "tests": [
+        "IdentityAuthorityPostgresTest#l3_multi_issuer_same_subject",
+        "IdentitySchemaPostgresTest#l3_constraint_catalog"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r42",
+        "r43",
+        "r44"
+      ],
+      "observations": "Clé composite (issuer, subject) isole strictement les identités."
+    },
+    "I01-N": {
+      "description": "Faute et rollback à chaque frontière : 28 combinaisons testées, aucune mutation résiduelle, empoisonnement des deux ordres d'écriture.",
+      "tests": [
+        "IdentityRequestExecutionPostgresTest#l3_rollback_each_boundary",
+        "AttemptTransactionsPostgresTest#caughtApplicationJdbcJpaFailuresPoisonBothWriteOrders"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r45",
+        "r46",
+        "r47",
+        "r48",
+        "r49",
+        "r50"
+      ],
+      "observations": "Rollback transactionnel absolu à chaque niveau de faille simulé."
+    },
+    "I01-O": {
+      "description": "Vrai commit puis perte d'ACK : interception post-commit, UNKNOWN→COMPLETED, idempotence sans effet résiduel.",
+      "tests": [
+        "IdentityRequestExecutionPostgresTest#l3_unknown_commit",
+        "IdentityRequestExecutionPostgresTest#l3_observation_corruption"
+      ],
+      "status": "PASS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r51",
+        "r52",
+        "r53",
+        "r54"
+      ],
+      "observations": "Le retry détecte l'état terminal existant et renvoie le reçu sans réexécuter."
+    },
+    "I01-P": {
+      "description": "Même intention avec nouvel ID après succès : rejet déterministe au niveau autorité/domaine.",
+      "tests": [
+        "IdentityAuthorityPostgresTest#l3_registration_already_bound",
+        "IdentityRequestExecutionPostgresTest#l3_rejection_terminal"
+      ],
+      "status": "PASS_WITH_RESERVATIONS",
+      "target_layer": "L3",
+      "receipt_ids": [
+        "r55",
+        "r56",
+        "r57"
+      ],
+      "observations": "Refus au niveau autorité SQL validé ; test d'idempotence sémantique HTTP différé à L5."
+    },
+    "I01-Q": {
+      "description": "Accès au token via READ retardé / rattrapé : visibilité du token au travers des projections répliquées.",
+      "tests": [],
+      "status": "OUT_OF_SCOPE",
+      "target_layer": "L4_L5",
+      "receipt_ids": [],
+      "observations": "Dépend des projections de lecture L4 (CurrentBinding@V) et des APIs de lecture L5."
+    }
+  },
+  "variant_receipts_reference": {
+    "source": "docs/testing/evidence/L3-I4/Variant_Receipts.json",
+    "receipts_count": 64,
+    "archive_retained": "docs/testing/evidence/L3-I4/selector-cli-final.tar.gz",
+    "archive_sha256": "4e751283d5bc407c13dc1a117b43a854d92eb9a695304bfaae3d00fa56fa7e8d",
+    "provenance_status": "Verified equivalent; 0 production code diffs between I4 baseline and tested code SHA"
+  },
+  "reservations_status": {
+    "inherited_l2": {
+      "R-L2-01": {
+        "label": "Comportement temporel sous charge et dérive",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "Qualification expérimentale acquise pour le bail à 90s (marge 30s) avec l'oracle corrigé L2/I5 (32504fca). Le passage au bail cible de 30s reste une réserve ouverte jusqu'aux tests d'échelle L6."
+      },
+      "R-L2-02": {
+        "label": "Disponibilité et drainage",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "Transition UNKNOWN -> DRAINING obligatoire en environnement de production en cas d'incertitude sur le bail ou l'ACK terminal."
+      },
+      "R-L2-03": {
+        "label": "Intégration globale G1/G2/G3",
+        "status": "OPEN",
+        "note": "Réservé aux lots de convergence L6 / Wave 3."
+      },
+      "R-L2-04": {
+        "label": "Périmètre fonctionnel",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "Périmètre strictement limité au moteur worker-consumption-primary-postgres. Pas de distribution multi-nœuds hors PostgreSQL."
+      },
+      "R-L2-05": {
+        "label": "Déploiement en production",
+        "status": "OPEN",
+        "note": "Les portes de déploiement réel en production restent ouvertes jusqu'à la release L8."
+      }
+    },
+    "lot_l3": {
+      "L3-I3-R1": {
+        "label": "Composition JPA sur Worker et Monolithe",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "L'implémentation actuelle utilise une base unifiée V3 pour le worker et le monolithe. La séparation physique des stores reste reportée à une vague ultérieure."
+      },
+      "L3-I3-R2": {
+        "label": "Confiance PostgreSQL",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "Vérifiée sous le schéma V1-V6 avec contraintes physiques réelles et isolation READ COMMITTED."
+      },
+      "L3-I3-R3": {
+        "label": "Confidentialité des logs",
+        "status": "CLOSED_WITH_RESERVATIONS",
+        "note": "Masquage des BindingToken par toString() et masquage dans les exceptions validés. L'audit de surface externe sera finalisé en L5."
+      },
+      "L3-I3-R4": {
+        "label": "Faux échecs résiduels r05/r12",
+        "status": "CLOSED",
+        "note": "Définitivement levée par le contre-audit indépendant Gemini (32504fca). Les tests r05 et r12 sont PASS et la gate COMMAND compte 1 777 tests sans échec."
+      }
+    }
+  },
+  "deferred_capabilities": {
+    "L4": [
+      "Projections READ asynchrones (CurrentBinding@V)",
+      "Gestion du lag de réplication et invalidation de cache",
+      "APIs internes de consultation de binding"
+    ],
+    "L5": [
+      "Endpoints HTTP publics et internes REST",
+      "Suites de tests d'intégration HTTP Bruno",
+      "Flux de consentement et d'authentification tiers (OAuth2/OIDC)",
+      "Audits de sécurité des en-têtes et cookies HTTP"
+    ],
+    "L6_to_L8": [
+      "Reconstruction complète de l'historique d'événements (Replay)",
+      "SLOs globaux sous forte charge et mesures de latence p99",
+      "Résilience multi-instances et bascule haute disponibilité",
+      "Runbooks d'exploitation de production et scripts de disaster recovery"
+    ]
+  },
+  "delivery_file_paths": [
+    "docs/v3/L3_Identity_Execution_Report.md",
+    "docs/v3/L3_Identity_Runtime_Runbook.md",
+    "docs/v3/L3_Identity_Proof_Manifest.json",
+    "docs/v3/L3_Identity_Closure.md",
+    "docs/v3/V3_Implementation_Master_Plan.md",
+    "docs/v3/V3_Canon_and_Roadmap.md",
+    "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md"
+  ],
+  "closure_decision": {
+    "status": "DOCUMENTARY_CLOSED_WITH_EXPLICIT_RESERVATIONS",
+    "authority": "Décisions d'acceptation L3/I1-I4 et ARB-I5-01",
+    "date": "2026-11-01",
+    "production_go": false,
+    "global_spec10_certification": false,
+    "summary": "Le lot L3 (Identity WRITE Engine) est déclaré techniquement et documentairement clos avec réserves explicites. Les capacités WRITE internes sont qualifiées sur Worker et Monolithe. La reprise s'effectuera sur le lot L4 (READ Projections)."
+  }
+}

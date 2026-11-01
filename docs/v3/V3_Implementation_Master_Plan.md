@@ -1,5 +1,20 @@
 # Pocoma V3 — Plan directeur de réalisation L0–L8
 
+**Décision humaine L3/I5 du 01-11-2026 : DOCUMENTARY CLOSED / ACCEPTED WITH
+EXPLICIT RESERVATIONS**, [clôture documentaire officielle L3](L3_Identity_Closure.md),
+[rapport d'exécution L3/I5](L3_Identity_Execution_Report.md), [runbook runtime](L3_Identity_Runtime_Runbook.md),
+[manifeste de preuves L3](L3_Identity_Proof_Manifest.json). Code testé `028930e071c35fc12d1b8fc94c03b1238e8ec434` ;
+code de production sous `app/*/src/main/**` strictement identique à I4 (`145f42731a4e35488e9aaa56a7de3c3f453a9231`).
+Le chantier des tests temporels historiques L2/I5 est définitivement clos par le contre-audit indépendant Gemini
+(`32504fca`, rectifié à `028930e0`), sortant `i5_r05` et `i5_r12` de quarantaine active.
+FAST Identity (65/65 PASS), CHANGE Identity (149/149 PASS), INTEGRATION Identity (187/187 PASS), CHANGE Foundation (28/28 PASS),
+Architecture tests (163/163 PASS), V3IdentityRequestCompositionPostgresTest (10/10 PASS).
+Gate canonique COMMAND : 51 modules, 1 777 tests, 0 échec, 0 erreur, 1 skip historique (`step3b.measure`), BUILD SUCCESS.
+Lot L3 déclaré clos avec réserves explicites dans son périmètre WRITE interne borné.
+Aucune certification globale SPEC-10, aucune qualification de la cible de bail 30s sous charge, aucune autorisation de déploiement en production.
+**Lot L3 — CLOSED WITH RESERVATIONS. Prochain lot : Lot L4 — READ Projections (`CurrentBinding@V`) — NEXT.**
+Les encadrés antérieurs restent historiques.
+
 **Décision humaine L3/I4 du 31-10-2026 : DOCUMENTARY CLOSED / ACCEPTED WITH
 EXPLICIT RESERVATIONS**, [décision, périmètre, réserves et reprise autonome I5](L3_I4_Acceptance_Decision.md).
 Code testé `145f42731a4e35488e9aaa56a7de3c3f453a9231` ; livraison et preuves
@@ -254,14 +269,14 @@ Plans examinés : [Discovery Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
 | L1-F | [F0](L1_F_Contradictory_Inventory.md), [rapport](L1_F_Closure_Report.md), [manifeste](L1_F_Proof_Manifest.json), archives/mesures/index | Corrections internes CLOSED/PASS ; cycle Invitation réel et READ explicitement aux lots futurs |
 | L1-F2 | [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [rapport](L1_F2_Closure_Report.md), [manifeste](L1_F2_Proof_Manifest.json), preuves PG/performance | CLOSED/PASS interne ; revue indépendante avant entrée L2 |
 | L2 | [Clôture documentaire officielle](L2_Documentary_Closure.md), [plan](L2_Design_and_Verification_Plan.md), [dossier I6 et preuves](L2_I6_I7_Consolidation.md), rapports et manifestes historiques I1–I5 | ACCEPTED WITH EXPLICIT RESERVATIONS ; aucun complément requis pour cette acceptation de programme ; réserves ouvertes et qualification technique restante conservées pour les jalons appropriés |
-| L3 | [Plan Identity](L3_Identity_Inventory_and_Implementation_Plan.md), contrats I1, autorité I2, [livraison I3/R-ID](L3_I3_Execution_Report.md), [résolution et preuves](L3_I3_Findings_Resolution_Report.md), [ré-audit Gemini](L3_I3_Independent_Reaudit_Report.md), [décision I3](L3_I3_Acceptance_Decision.md), [livraison I4](L3_I4_Execution_Report.md), [décision I4 et reprise I5](L3_I4_Acceptance_Decision.md), [runbook](L3_I3_Identity_Development_Runbook.md) | I4 DOCUMENTARY CLOSED / ACCEPTED WITH EXPLICIT RESERVATIONS ; I5 NEXT / READY FOR FRAMING ONLY ; aucun GO implémentation I5. L3 OPEN, réserves R1–R4 et L2 conservées |
+| L3 | [Plan Identity](L3_Identity_Inventory_and_Implementation_Plan.md), contrats I1, autorité I2, [livraison I3/R-ID](L3_I3_Execution_Report.md), [résolution et preuves](L3_I3_Findings_Resolution_Report.md), [ré-audit Gemini](L3_I3_Independent_Reaudit_Report.md), [décision I3](L3_I3_Acceptance_Decision.md), [livraison I4](L3_I4_Execution_Report.md), [décision I4](L3_I4_Acceptance_Decision.md), [rapport I5](L3_Identity_Execution_Report.md), [runbook](L3_Identity_Runtime_Runbook.md), [manifeste I5](L3_Identity_Proof_Manifest.json), [clôture L3](L3_Identity_Closure.md) | DOCUMENTARY CLOSED / ACCEPTED WITH EXPLICIT RESERVATIONS (01-11-2026). Capacités WRITE internes qualifiées (Worker et Monolithe). Gate COMMAND (1 777 tests) BUILD SUCCESS. Réserves L2/L3 conservées. L3 CLOSED WITH RESERVATIONS. L4 NEXT |
 | L4 | SPEC-04/05/10, sources historiques et calcul L1 | Plan L4, contrats physiques READ/lectures groupées, preuves de matérialisation et audit |
 | L5 | SPEC-01/02/04/06/10, Bruno historique | Plan L5, contrat de consentement/fournisseur, API/rétention/limites/secrets, preuves sécurité/parcours et audit |
 | L6 | SPEC-08/09/10, outils historiques | Plan L6 et protocole de mesure ratifié, procédure maintenance/READY, rapport/manifeste de certification et audit |
 | L7 | Chantier §6 et inventaires historiques | Plan de convergence/retrait et suites de remplacement ; manifeste des chemins, preuves sur code unifié et audit |
 | L8 | Existant Docker/Bruno/observabilité §8, contrat §7 | Plan packaging/installation, guides utilisateur/exploitant, manifeste de distribution, preuves installation/parité et audit |
 
-La conception L2 et A01–A12/R1–R10 restent validés. L2 est officiellement clos avec réserves, sans certification technique globale ni réouverture d'I5. Le plan détaillé L3 est livré ; I1/I2/I3/I4 sont acceptés avec réserves ; I4 est documentairement clos ; le GO courant porte uniquement sur le cadrage et la préparation I5 selon la [décision I4](L3_I4_Acceptance_Decision.md). Les plans détaillés L4–L8 restent à produire lors de leurs cadrages ; I5 reste sans GO d’implémentation, L3 OPEN et sans certification globale. Les [dépendances L2 pour L3](L2_Documentary_Closure.md#6-exigences-reportées-et-dépendances-pour-l3--identity) identifient les contrats réutilisables, les fixtures à remplacer et les réserves de disponibilité sans imposer de redesign automatique. Les invariants et scénarios normatifs existants restent les autorités de leurs contrats.
+La conception L2 et A01–A12/R1–R10 restent validés. L2 est officiellement clos avec réserves, sans certification technique globale ni réouverture d'I5. Le lot L3 est officiellement clos avec réserves explicites selon la [clôture documentaire L3](L3_Identity_Closure.md) et la décision humaine du 01-11-2026. L3 est DOCUMENTARY CLOSED / ACCEPTED WITH EXPLICIT RESERVATIONS. Le prochain lot ouvert au cadrage est L4 (READ Projections `CurrentBinding@V`). Les plans détaillés L4–L8 restent à produire lors de leurs cadrages respectifs. Les dépendances L3 pour L4 et L5 sont documentées sans prétention de certification globale SPEC-10 ni GO de production. Les invariants et scénarios normatifs existants restent les autorités de leurs contrats.
 
 **Décisions ouvertes pour les lots suivants :** cadrer et préparer I5 selon le plan L3 et la décision I4, soumettre le futur plan à audit avant tout GO d’implémentation, en préservant I1–I4 et les frontières transactionnelles L2 ; cadrer L4–L8 et les transferts L4/L5 (invitations)/L6–L8 (certification), en conservant les réserves de clôture L2 et les critères G3 pour les jalons appropriés ; autorité Identity réelle L3 ; formes physiques READ L4 ; qualification réelle du consentement (Keycloak/RAR ou autre), rétention d’idempotence et bornes de protection L5 ; protocole Grand Pot/historiques/sondes L6 ; carte de retrait/noms/schémas neufs L7 et éventuel besoin réel de données V2 ; topologies/images/bootstrap et exigences d’exploitation L8. Révocation anticipée des invitations reste hors périmètre jusqu’à arbitrage du canon. Aucun changement métier décidé silencieusement ici.
 

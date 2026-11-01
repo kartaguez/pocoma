@@ -1,5 +1,18 @@
 # Pocoma V3 — Canon et feuille de route
 
+**Progression L3/I5 — décision humaine du 01-11-2026 : DOCUMENTARY CLOSED /
+ACCEPTED WITH EXPLICIT RESERVATIONS**, [clôture documentaire officielle L3](L3_Identity_Closure.md),
+[rapport d'exécution L3/I5](L3_Identity_Execution_Report.md), [runbook runtime](L3_Identity_Runtime_Runbook.md),
+[manifeste de preuves L3](L3_Identity_Proof_Manifest.json). Code testé `028930e071c35fc12d1b8fc94c03b1238e8ec434` ;
+code de production strictement identique à `145f4273`. Le contre-audit indépendant Gemini L2/I5
+(`32504fca`, rectifié à `028930e0`) clôture définitivement les faux FAIL de `i5_r05` et `i5_r12`.
+Gate canonique COMMAND : 51 modules, 1 777 tests, 0 échec, 0 erreur, 1 skip historique (`step3b.measure`), BUILD SUCCESS.
+Architecture tests : 163 tests, 0 échec, 0 erreur, BUILD SUCCESS.
+Lot L3 déclaré clos avec réserves explicites dans son périmètre WRITE interne borné.
+Aucune certification globale SPEC-10, aucune qualification de la cible de bail 30s sous charge, aucune autorisation de déploiement en production.
+**Lot L3 — CLOSED WITH RESERVATIONS. Prochain lot : Lot L4 — READ Projections (`CurrentBinding@V`) — NEXT.**
+Les encadrés antérieurs restent historiques.
+
 **Progression L3/I4 — décision humaine du 31-10-2026 : DOCUMENTARY CLOSED /
 ACCEPTED WITH EXPLICIT RESERVATIONS**, [décision, réserves et reprise I5](L3_I4_Acceptance_Decision.md).
 **L3/I5 — READY FOR FRAMING ONLY ; NEXT — cadrage/préparation autorisés,
@@ -111,7 +124,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
 | V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
-| V3-6 | Réaliser les capacités et leurs tests | Programme détaillé dans le [plan directeur](V3_Implementation_Master_Plan.md) ; fondations internes L1 et L2 acceptées dans leurs limites ; L3 OPEN, I4 accepté avec réserves, I5 cadrage/préparation seuls autorisés selon la [décision I4](L3_I4_Acceptance_Decision.md) |
+| V3-6 | Réaliser les capacités et leurs tests | Programme détaillé dans le [plan directeur](V3_Implementation_Master_Plan.md) ; fondations internes L1, L2 et L3 acceptées dans leurs limites ; L3 DOCUMENTARY CLOSED / ACCEPTED WITH EXPLICIT RESERVATIONS, L4 NEXT selon la [clôture L3](L3_Identity_Closure.md) |
 | V3-7 | Qualification transversale PostgreSQL/Bruno/k6, budgets et décision de certification | Certification complète non acquise ; contributions et gates internes L1 conservés ; allocation proposée L6/L7/L8 dans le plan directeur |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.
