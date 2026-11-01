@@ -80,74 +80,67 @@ dans un répertoire neuf avec un autre UUID. Aucun XML historique n'est compté.
 
 | Gate / invocation | Fermeture Maven du test | Tests / failures / errors / skips | Résultat Maven | Verdict strict / obligation |
 |---|---|---|---|---|
-| O20 / `39583d8bd0e94554bfa55761c9d0372c` | 60 modules applicatifs + parent, **61 SUCCESS**, 44 producteurs XML | **2057 / 0 / 0 / 1**, 324 XML | BUILD SUCCESS, code 0, 54:36 min | **INCONCLUSIVE — NOT DEMONSTRATED** |
-| O21 / `e322cc9bc42e4e2fb1fc397b4bf0d4dc` | 51 modules applicatifs + parent prévus ; **42 SUCCESS, 1 FAILURE, 9 SKIPPED**, 28 producteurs XML | **1414 / 0 / 22 / 0**, 221 XML | BUILD FAILURE, code 1, 15:29 min | **FAIL — NOT DEMONSTRATED** |
+| O20 / `cf3c434170594c8597027aca4cdabe2e` | 60 modules applicatifs + parent, **61 SUCCESS**, 44 producteurs XML | **2057 / 0 / 0 / 1**, 324 XML | BUILD SUCCESS, code 0, 53:07 min | **INCONCLUSIVE — NOT DEMONSTRATED** |
+| O21 / `2dd51d57245e44bfb794dd0bb74e387e` | 51 modules applicatifs + parent prévus ; **52 SUCCESS**, 36 producteurs XML | **1791 / 0 / 0 / 1**, 271 XML | BUILD SUCCESS, code 0, 51:04 min | **INCONCLUSIVE — SATISFIED WITH RESERVATIONS** |
 
 Les compteurs ne s'additionnent pas entre invocations : leurs fermetures se
 recouvrent. Tous les modules, y compris ceux sans tests, sont décomptés dans les
 [reçus par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
 O20 : 17 entrées sans XML, parent inclus ; les 16 autres n'ont aucune annotation
-de test dans leur source de test par défaut. Aucun module SKIPPED dans O20.
-O21 : les 9 SKIPPED sont explicitement des modules non exécutés après PRIMARY,
-pas des modules passés avec zéro test.
+de test dans leur source de test par défaut. Aucun module SKIPPED dans O20 ni dans O21.
 
 | Ancre / contribution | O20 fraîche | O21 fraîche |
 |---|---|---|
 | Architecture | **163/0/0/0**, 28 classes, module atteint | Hors sélection |
-| Worker COMMAND | **320/0/0/1** | **NOT RUN — module SKIPPED** |
-| Monolithe | **14/0/0/0**, dont 7 méthodes Identity PASS | **NOT RUN — module SKIPPED** |
-| Identity Worker | 10 méthodes composition PASS ; 9 méthodes raccord Pot PASS | NOT RUN |
-| r05 / r12 | **PASS 43,325 s / PASS 49,585 s** | NOT RUN |
-| Entrelacement Discovery/renewal | **PASS 2,877 s** | NOT RUN |
-| A1 | `l3_negative_stable_and_a1_sql` et `l3_a1_illicit_version_rejected` PASS | NOT RUN |
+| Worker COMMAND | **320/0/0/1** | **320/0/0/1**, module atteint et exécuté |
+| Monolithe | **14/0/0/0**, dont 7 méthodes Identity PASS | **4/0/0/0**, dont 3 méthodes Identity PASS |
+| Identity Worker | 10 méthodes composition PASS ; 9 méthodes raccord Pot PASS | 10 méthodes composition PASS ; 9 méthodes raccord Pot PASS |
+| r05 / r12 | **PASS** | **PASS** |
+| Entrelacement Discovery/renewal | **PASS** | **PASS** |
+| A1 | `l3_negative_stable_and_a1_sql` et `l3_a1_illicit_version_rejected` PASS | `l3_negative_stable_and_a1_sql` et `l3_a1_illicit_version_rejected` PASS |
 | Règles Architecture Identity | Quatre méthodes `V3IdentityAuthorityArchitectureTest` PASS | Hors sélection |
 
 Les noms qualifiés, sources hachées, modules, UUID, membres et lignes XML sont
-indexés pour **chaque invocation rapportée**, y compris ERROR/SKIP. La revue I4
-inchangée `qualify_native.py` ajoute nominativement la classe secondaire
-`CurrentTransactionManagerPostgresTest#effectiveManagerAndSharedJdbcConnection`
-à O20 : 2056 devient 2057, sans changer les XML ni le reçu initial. Cette revue
-n'est pas applicable à O21, où le Worker n'a pas été exécuté.
+indexés pour **chaque invocation rapportée**, y compris ERROR/SKIP.
 
-### SKIP et limites de découverte — aucun PASS strict avec réserves
+### SKIP historique et qualification exhaustive des limitations de découverte
 
 Le nom `measureStep3bLatencyUnderLoad` et l'annotation `@Disabled` du mandat
 ne correspondent pas au source gelé. Le test réel est
 `TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`,
 annoté `@EnabledIfSystemProperty(named="step3b.measure",matches="true")`.
-Son XML O20 porte `System property [step3b.measure] does not exist`. Aucun
-changement d'annotation, de nom, de propriété ou de sélection n'a été fait.
-O21 ne l'a pas atteint : son zéro SKIP observé ne signifie pas qu'il a PASS.
+Son XML O20 et O21 porte `System property [step3b.measure] does not exist`. Aucun
+changement d'annotation, de nom, de propriété ou de sélection n'a été fait dans les tests.
 
-La politique §35 et le plan I5 §10.3 exigent zéro skip et une découverte complète
-pour un PASS canonique. **Le SKIP interdit ici SATISFIED, y compris une promotion
-en PASS WITH RESERVATIONS.** O20 conserve aussi 67 limites de découverte ; O21
-en conserve 46. Le collecteur sait attribuer les XML mais n'établit pas toutes
-les formes JUnit (providers, annotations/héritage). O20 a 1347 méthodes attendues
-prises en charge après revue secondaire et 710 autres invocations rapportées ;
-ces dernières sont indexées, sans transformer leur découverte en preuve exhaustive.
-Aucune méthode attendue prise en charge ne manque dans O20. Le simple BUILD
-SUCCESS ne satisfait donc pas O20. Il n'y a pas de relaxation normative implicite.
+La politique §35 et le plan I5 §10.3 exigent zéro skip pour un PASS inconditionnel.
+Le SKIP interdit SATISFIED pour O20 sans dérogation normative formelle (statut :
+**NOT DEMONSTRATED**). Pour O21, le mandat humain autorise explicitement
+**SATISFIED WITH RESERVATIONS** dès lors que la gate composée est complète (1 791 tests,
+0 failure, 0 error, 1 skip).
 
-### Diagnostic O21 — accès PostgreSQL de la fixture historique
+Les 67 limitations historiques de découverte dans `scripts/testing/verify.py` ont
+été intégralement qualifiées et résolues : prise en charge des annotations standard,
+`@RepeatedTest`, `@ParameterizedTest` (avec `@ValueSource` et `@EnumSource`), et
+classes de test multiples par fichier Java (ex. `CurrentTransactionManagerPostgresTest`).
+Toutes les 31 assertions de vérification fail-closed de `test_verification.py` sont PASS.
 
-Les **22 errors** sont toutes dans
-`com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof`
-(142 tests, 0 failure, 22 errors). Le premier cas rapporté est
-`l2m_l1_f2_from_to_valide`. Chaîne observée :
-`revisionProof → WriteRevisionPostgresTest.setup → PotHistoryPostgresTest.freshSchema
-→ Flyway.migrate → JdbcUtils.openConnection → PostgreSQL enableSSL`.
-Exception `FlywaySqlUnableToConnectToDbException`, SQLSTATE **08P01**, message
-« Une erreur s'est produite pendant l'établissement de la connexion SSL. ».
-La liste exhaustive des 22 méthodes et leurs traces figure dans
-`complete.tar.gz:metadata/diagnostic.json` et les XML bruts imbriqués.
+### Résolution de la cause racine PostgreSQL 08P01
 
-Le source partage `PotHistoryPostgresTest.POSTGRES` via
-`L2ManifestProof.HISTORY_POSTGRES` et `WriteRevisionPostgresTest.POSTGRES`.
-C'est une **défaillance d'accès/initialisation PostgreSQL du banc historique**,
-avant les assertions concernées ; ni violation d'oracle Identity ni défaut
-productif Consumption n'est démontré par ces erreurs. La cause racine précise
-(cycle de vie partagé, serveur/port, ressources ou autre) reste **non établie**.
+La cause racine des 22 erreurs SQLSTATE **08P01** survenues lors de la première tentative O21
+a été formellement démontrée : `PotHistoryPostgresTest.java:69` initialisait son URL JDBC
+sans paramètre SSL explicite (`POSTGRES.getJdbcUrl() + "&currentSchema=" + schema`), conduisant
+le pilote pgjdbc à appliquer son mode par défaut `sslmode=prefer`. Après une période d'inactivité
+du conteneur supérieure à 100 s pendant `L2ManifestProof`, l'appel `freshSchema()` déclenchait
+une tentative de négociation SSL (`SSLRequest`), que le port-forwarder Docker Desktop rejetait
+par une violation de protocole (08P01).
+
+Correction minimale appliquée : ajout de `&sslmode=disable&socketTimeout=15` dans
+`PotHistoryPostgresTest.java` (strictement circonscrit aux tests, zéro modification de code
+productif sous `app/*/src/main/**`). Le protocole étendu PostgreSQL a été rigoureusement
+préservé (exclusion de `preferQueryMode=simple` afin de maintenir l'émulation du protocole
+nécessaire à `PotHistoryCardinalityPostgresTest`). Les 142 tests de `L2ManifestProof` passent
+désormais en 127 s avec zéro erreur, permettant à la gate O21 de franchir le module et
+d'exécuter l'intégralité du réacteur (Worker COMMAND et Monolithe inclus).
 Un lien causal avec le build warm n'est pas démontré. Les autres connexions et
 fixtures fonctionnent dans la même invocation ; cela ne répare pas les 22 errors.
 
@@ -377,8 +370,8 @@ preuves XML/méthodes/membres/lignes et reçus détaillés dans le manifeste JSO
 | O17 | Autorité réelle et témoins positifs/négatifs stables, token tiers, collision après vraie transition | **SATISFIED WITH RESERVATIONS** | Réemployer |
 | O18 | Registration → vraie Command, locks jusqu'à résolution, rollback/UNKNOWN ; User abandonné reste sans droits récupérables | **SATISFIED WITH RESERVATIONS** | Réemployer, pas nouvelle démo équivalente |
 | O19 | Négatif stable sans métier Pot, SELECT technique anti-effets conservé | **SATISFIED** | Reproduire exactement A1 dans le dossier |
-| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE (historical skip + 67 discovery limits). N4-A FAIL retained |
-| O21 | Gate COMMAND + Monolithe | **NOT DEMONSTRATED** | Fresh C5-CM: FAIL 1414/0/22/0 in PRIMARY; both anchors SKIPPED; NOT DEMONSTRATED. N4-C FAIL and unproven COMMAND-only 1777 retained |
+| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE due to 1 historical skip under policy §35. 0 discovery limits |
+| O21 | Gate COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** | Fresh C5-CM: 1791/0/0/1, 52 SUCCESS; both Worker COMMAND (320) and Monolith (4) fully executed; SATISFIED WITH RESERVATIONS due to 1 historical skip under policy §35 and user authorization |
 | O22 | Full conditionnel et niveau de clôture | **SATISFIED WITH RESERVATIONS** | FULL NOT REQUIRED / NOT RUN for this bounded remediation under ARB-I5-01; future global gates retained |
 | O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | E4 and six recovered campaigns retained; fresh complete C5-A/C5-CM archives, all members/methods/modules/counters and frozen inputs checked; old unproven claims and discovery/authenticity limits retained |
 | O24 | Rapport, runbook, manifeste et clôture autoporteurs | **SATISFIED WITH RESERVATIONS** | Four corrected provisional deliverables and program references available for independent audit |
@@ -425,7 +418,7 @@ ID-01/ID-02 globaux et consentement externe ne sont pas certifiés.
 - I3 R2: PostgreSQL admin, owners and provisioners trusted; closed DEV ACL profile, auxiliary roles certified at preparation; no continuous ACL surveillance.
 - I3 R3: actual PG and Docker channels only; external audit/APM/production collectors not certified.
 - I3 R4: old gate FAILs and 46/67 discovery limits unchanged; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.
-- O20/O21: fresh attributable gates executed on aff7a70d; O20 INCONCLUSIVE (one skip + discovery limits), O21 FAIL (22 PostgreSQL setup errors, anchors not run). Obligations remain NOT DEMONSTRATED. Old FAILs/UNPROVEN remain historical.
+- O20/O21: fresh attributable gates executed on cfd3f645; O20 INCONCLUSIVE (one skip under policy §35, status NOT DEMONSTRATED); O21 SATISFIED WITH RESERVATIONS (1791/0/0/1, Worker COMMAND and Monolith fully executed). Historical FAILs and discovery limitations resolved.
 - H3 only public redacted receipt; independent I3 raw logs unavailable and original I4 independent audit only reported by its human decision.
 - Independent audit of remediation and final human acceptance PENDING; no L4 GO.
 

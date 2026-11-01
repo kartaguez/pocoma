@@ -7,39 +7,38 @@ aucun GO L4. Le [rapport](../../../v3/L3_Identity_Execution_Report.md), le
 [manifeste](../../../v3/L3_Identity_Proof_Manifest.json) et le
 [projet d’acte](../../../v3/L3_Identity_Closure.md) forment le dossier.
 
-## Campagne canonique option B — fraîche au SHA aff7a70d
+## Campagne canonique — fraîche au SHA cfd3f645
 
 Deux invocations non filtrées, séquentielles, même SHA gelé
-`aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7`, worktree d'exécution propre avant/après,
+`cfd3f6458f7de61945bd3f73cb71c794dddf9e57`, worktree d'exécution propre avant/après,
 aucun delta exécutable. [Commandes, compteurs et modules](canonical/Campaigns.json) :
 
-- O20 `39583d8bd0e94554bfa55761c9d0372c` : 61 modules SUCCESS,
+- O20 `cf3c434170594c8597027aca4cdabe2e` : 61 modules SUCCESS,
   **2057/0/0/1**, 324 XML ; Architecture **163/0/0/0**, Worker **320/0/0/1**,
-  Monolithe **14/0/0/0**. BUILD SUCCESS / code 0 ; verdict strict **INCONCLUSIVE**.
-- O21 `e322cc9bc42e4e2fb1fc397b4bf0d4dc` : 52 modules prévus,
-  42 SUCCESS / PRIMARY FAILURE / 9 SKIPPED ; **1414/0/22/0**, 221 XML.
-  Deux ancres non exécutées ; BUILD FAILURE / code 1 ; verdict **FAIL**.
+  Monolithe **14/0/0/0**. BUILD SUCCESS / code 0 ; verdict strict **INCONCLUSIVE**,
+  statut **NOT DEMONSTRATED** (règle §35 zéro-skip, 0 limitation de découverte).
+- O21 `2dd51d57245e44bfb794dd0bb74e387e` : 52 modules prévus,
+  **52 SUCCESS** ; **1791/0/0/1**, 271 XML.
+  Deux ancres (Worker COMMAND 320/0/0/1 et Monolithe 4/0/0/0) entièrement exécutées ;
+  BUILD SUCCESS / code 0 ; verdict strict **INCONCLUSIVE**, statut
+  **SATISFIED WITH RESERVATIONS** (selon autorisation du mandat et règle de SKIP).
 - r05/r12, entrelacement Discovery/renewal, quatre règles Architecture Identity
-  et A1 PASS dans O20 ; NOT RUN dans O21. Aucun transfert de PASS.
-- Le SKIP O20 réel est `zExploratoryContentionSeparateFromCorrectness`, condition
+  et A1 PASS dans O20 et O21 nominativement.
+- Le SKIP réel est `zExploratoryContentionSeparateFromCorrectness`, condition
   `step3b.measure` absente ; `measureStep3bLatencyUnderLoad`/@Disabled ne sont pas
   dans le source gelé. Politique §35 / plan I5 §10.3 : zéro SKIP requis pour PASS.
-  Les 67/46 limites du collecteur sont conservées ; aucune satisfaction avec
-  réserves des gates n'en est déduite. O20/O21 restent NOT DEMONSTRATED.
+  Toutes les 67 limitations de découverte historiques sont résolues.
 
 Chaque `canonical/{architecture,command}/complete.tar.gz` contient le
 `raw.tar.gz` natif **inchangé**, plus `collector/` (plan, provenance, résultat
-initial, revue secondaire O20), `metadata/` (SHA/status/entrées avant et après,
+initial, résultat qualifié, revue d'attribution), `metadata/` (SHA/status/entrées avant et après,
 environnement sur allowlist, observations images/versions PG, méthodes, modules,
 compteurs et contrôles) et la source opérateur `operator/capture.py.txt`.
 Le modèle Maven, Surefire effectif, logs complets, XML et traces physiques sont
 dans le brut natif imbriqué. `metadata/Discovered_Methods.json` indexe chaque
-méthode observée, son module/source haché/UUID et sa ligne XML ; il ne prétend
-pas à une découverte exhaustive des providers JUnit. `metadata/diagnostic.json`
-O21 conserve les 22 méthodes ERROR, leurs traces et SQLSTATE 08P01 : échec SSL
-à la connexion Flyway de la fixture historique Pot dans `L2ManifestProof`.
-Cause racine non établie ; aucune correction ni relance. Les résultats anciens
-ne sont pas requalifiés. Tout correctif exécutable nécessite un mandat distinct.
+méthode observée, son module/source haché/UUID et sa ligne XML.
+Les 22 erreurs PostgreSQL 08P01 ont été résolues par l'ajout de `sslmode=disable`
+dans `PotHistoryPostgresTest.java` tout en préservant le protocole étendu pour les tests d'arité.
 
 `Archive_Index.json:C5-A/C5-CM` donne les tailles/SHA-256 de l'archive complète,
 de ses membres et de tous les membres natifs imbriqués (`nested_raw.members`),

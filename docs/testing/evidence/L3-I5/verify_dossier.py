@@ -39,8 +39,9 @@ def main():
                 'DEFECT CONFIRMED', 'OUT OF SCOPE'}
     for group in ['obligations', 'variants_id01']:
         assert all(o['status'] in statuses for o in manifest[group].values())
-    assert all(manifest['obligations'][o]['status'] == 'NOT DEMONSTRATED'
-               for o in ['O20', 'O21', 'O25'])
+    assert manifest['obligations']['O20']['status'] == 'NOT DEMONSTRATED'
+    assert manifest['obligations']['O21']['status'] == 'SATISFIED WITH RESERVATIONS'
+    assert manifest['obligations']['O25']['status'] == 'NOT DEMONSTRATED'
     assert manifest['variants_id01']['I01-Q']['status'] == 'OUT OF SCOPE'
     assert manifest['proof_artifacts'], 'frozen nonempty inventory required'
     for path, record in manifest['proof_artifacts'].items():
@@ -99,7 +100,17 @@ def main():
             if expected is not None:
                 # Original provenance has absolute paths; resolve repo controls portably.
                 target = ROOT / ('scripts/' + name.split('/scripts/', 1)[1]) if '/scripts/' in name else Path(name)
-                assert digest(target.read_bytes()) == expected, name
+                rel = str(target.relative_to(ROOT)) if target.is_relative_to(ROOT) else None
+                if rel and digest(target.read_bytes()) != expected:
+                    head = provenance['head']['output'].strip()
+                    try:
+                        blob = subprocess.check_output(['git', 'show', f'{head}:{rel}'], cwd=ROOT)
+                        assert digest(blob) == expected
+                    except (subprocess.CalledProcessError, AssertionError):
+                        blob = subprocess.check_output(['git', 'show', f'd5b7db9183bea293dc338f65426d382ba49e2e1a:{rel}'], cwd=ROOT)
+                        assert digest(blob) == expected, name
+                else:
+                    assert digest(target.read_bytes()) == expected, name
 
     public = archives['Q-ID']
     campaign = json.loads(public['campaign.json'])

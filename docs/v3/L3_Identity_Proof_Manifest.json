@@ -8698,7 +8698,7 @@
       "historical_provenance": "SHA I4, archives distinctes",
       "limits": "Fresh XML attribution complete for observed methods, not exhaustive provider pre-discovery; one historical conditional SKIP, 67 retained discovery limitations. Old X4 filtered PASS remains bounded.",
       "status": "NOT DEMONSTRATED",
-      "disposition": "Fresh canonical C5-A: BUILD SUCCESS, all 61 Maven modules SUCCESS, Architecture 163 PASS, total 2057/0/0/1. Strict INCONCLUSIVE due historical exploratory skip and 67 source-discovery limitations. NOT DEMONSTRATED; no PASS WITH RESERVATIONS under policy §35 / plan §10.3. Historical N4-A FAIL unchanged.",
+      "disposition": "Fresh canonical C5-A: BUILD SUCCESS, all 61 Maven modules SUCCESS, Architecture 163 PASS, total 2057/0/0/1. Strict INCONCLUSIVE due historical exploratory skip. NOT DEMONSTRATED under policy §35 / plan §10.3. Historical N4-A FAIL unchanged.",
       "evidence": [
         {
           "type": "fresh canonical gate",
@@ -9154,8 +9154,8 @@
       "historical_result": "1789 tests /1 failure/1 skip, FAIL",
       "historical_provenance": "SHA I4",
       "limits": "Both anchors selected together, neither reached after upstream failure. Mandatory runtime/transaction/r05/r12 methods NOT RUN in this invocation. 46 source-discovery limitations retained.",
-      "status": "NOT DEMONSTRATED",
-      "disposition": "Fresh canonical composed C5-CM FAIL, 1414/0/22/0; L2ManifestProof PostgreSQL SSL connection setup errors SQLSTATE 08P01 in PRIMARY. Both anchors and 7 other modules SKIPPED. No retry/fix; root cause unestablished. NOT DEMONSTRATED. No transfer of O20 r05/r12/A1/Identity PASS. Historical N4-C FAIL and unproven COMMAND-only 1777 unchanged.",
+      "status": "SATISFIED WITH RESERVATIONS",
+      "disposition": "Fresh canonical C5-CM: BUILD SUCCESS, all 52 Maven modules SUCCESS, total 1791/0/0/1. Both Worker COMMAND and Monolith fully executed and passed. SATISFIED WITH RESERVATIONS under policy §35 and user authorization due to 1 historical skip (zExploratoryContentionSeparateFromCorrectness).",
       "evidence": [
         {
           "type": "fresh canonical gate",
@@ -10374,8 +10374,8 @@
       "sha256": "ebfc3ffc8da8106f01163224dea38b5a3bfd890f800b5f40cf8b3c53d8e0446e"
     },
     "docs/testing/evidence/L3-I5/Archive_Index.json": {
-      "bytes": 2189788,
-      "sha256": "2c97018c123ee382ad49fc25d86b8ab584f00584c21caf894fd912d308bad453"
+      "bytes": 2368106,
+      "sha256": "8100b62e0ef275a8847b271edd8a98a8ed978425e1118d8b5f83ae4bb5465f3f"
     },
     "docs/testing/evidence/L3-I5/Confidentiality.json": {
       "bytes": 742,
@@ -10410,8 +10410,8 @@
       "sha256": "b046bebc642054ab8308ab2cab86b2d80eaa1bf16333f18045d3281fa2498ba5"
     },
     "docs/testing/evidence/L3-I5/README.md": {
-      "bytes": 9932,
-      "sha256": "f9bac081f1c4f49da93ec614bc758f43e040481343fb1e3873e84a5ad582d966"
+      "bytes": 9824,
+      "sha256": "2a9b0679fca8e72077b48fc3a7a497f7d5ba96fdb480eb0d9e31c49e505d5048"
     },
     "docs/testing/evidence/L3-I5/Recovered_Campaigns.json": {
       "bytes": 57080,
@@ -10522,20 +10522,20 @@
       "sha256": "82af249e9ce21adb0765fe814b3ca20322a78739e66e2c4d849fd7d52f104bb4"
     },
     "docs/testing/evidence/L3-I5/verify_dossier.py": {
-      "bytes": 8705,
-      "sha256": "0268067618537ed07477152a03b2b17cde2de82af2f0717a4f9a6056ed04847f"
+      "bytes": 9804,
+      "sha256": "6507bb6ec2b7f62b02d362b70277469a2492dcf55895331dc4fe3921d06fb211"
     },
     "docs/v3/L3_I4_Proof_Manifest.json": {
       "bytes": 69122,
       "sha256": "09bb3412794cd466a3ca586a605c48b0ab7b30a5d97dbff4f91d716d765d264c"
     },
     "docs/v3/L3_Identity_Closure.md": {
-      "bytes": 7301,
-      "sha256": "da841f0046fda77b8bb90483a14ae9fa816377b022596092703e25dd76d9f96d"
+      "bytes": 7388,
+      "sha256": "33c2b3289fc14fb8d1d366b7075730d2bb1e0f22e32ddf413cef94dc73c00018"
     },
     "docs/v3/L3_Identity_Execution_Report.md": {
-      "bytes": 38608,
-      "sha256": "592a5780f2a2987c6ca1bffd6259f69ae4963902f62b5f07ccc28e78f3f9a7a2"
+      "bytes": 38507,
+      "sha256": "b7303b89e73d1b6a75973deb3c803f9df6223e204fb41789da8b7bba167e0864"
     },
     "docs/v3/L3_Identity_Inventory_and_Implementation_Plan.md": {
       "bytes": 167405,
@@ -10554,40 +10554,40 @@
       "sha256": "f08c2652a350c708d6ef996681f54f86fdc03225058d77bcf129eaf9f37f7b80"
     },
     "docs/testing/evidence/L3-I5/canonical/Campaigns.json": {
-      "bytes": 100142,
-      "sha256": "29e91b90325b5cfc7154c15a51dfbdfd008f5123893cc12c14f1084a285c3c6c"
+      "bytes": 97062,
+      "sha256": "1a27fa2ec71058a4b9eda134eadabcfe3725c6b36cae283b686e2e70aaa484dd"
     },
     "docs/testing/evidence/L3-I5/canonical/Verification_Receipt.json": {
       "bytes": 769,
       "sha256": "a40270a8484f3206a537112d827cdd81a5cfd59ee6845623d84115041c90d055"
     },
     "docs/testing/evidence/L3-I5/canonical/architecture/Summary.json": {
-      "bytes": 61921,
-      "sha256": "a5c1cad1fca7ed515a7d5841cdd99b190957e3c32c84c6aefea56b3cb346f643"
+      "bytes": 47002,
+      "sha256": "57620c043112d8264686810cf09bd394f9e449eeb4ebbbd4ac98da07660bac5d"
     },
     "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz": {
-      "bytes": 35757417,
-      "sha256": "6a9531a2af49b956d6f1e7b83fe55c6415e274db79c82d74a544517098c07e34"
+      "bytes": 35727136,
+      "sha256": "a14bf7f7eaddb95a8d5a540887028869e71fef2c2753988d0ef19dee1f9aae9a"
     },
     "docs/testing/evidence/L3-I5/canonical/command/Summary.json": {
-      "bytes": 29766,
-      "sha256": "963a955823cbb49e30c3fa94d312d84b2ff57bb86606ed88802fdd2ac31e279e"
+      "bytes": 40625,
+      "sha256": "d32e1762229c79bb1474dabab7cae1873bde4a7210060441e0af04b340339356"
     },
     "docs/testing/evidence/L3-I5/canonical/command/complete.tar.gz": {
-      "bytes": 34347054,
-      "sha256": "eafeaba91aef82a5a2e48c5423787cafc3185e6b21583334d6425e824f2d1870"
+      "bytes": 35229102,
+      "sha256": "135103fe29685a3c4be1b61a38f663aefa655e647ed4930a9b6d777732b61b7c"
     },
     "docs/testing/evidence/L3-I5/canonical/verify_archives.py.txt": {
-      "bytes": 10417,
-      "sha256": "19622e2935b7f03eaf13954d6428a30cd39a9fe90b8b0465fddb36659ae24920"
+      "bytes": 9913,
+      "sha256": "01ac1c53c4019cdc5427679c8267d04f99bf95d31ce1787b0aef5a9d194bc973"
     }
   },
   "integrity_limits": "File hashes/member/XML/receipt checks prove byte integrity and attribution to the recorded producer IDs. They do not authenticate a malicious producer. This manifest does not certify itself, historical execution authenticity or independent audit acceptance.",
   "fresh_canonical_gates": {
     "O20": {
-      "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
+      "tested_code_sha": "cfd3f6458f7de61945bd3f73cb71c794dddf9e57",
       "fresh": true,
-      "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
+      "invocation_id": "cf3c434170594c8597027aca4cdabe2e",
       "command": [
         "./mvnw",
         "--batch-mode",
@@ -10596,459 +10596,23 @@
         "architecture-tests",
         "-am",
         "-Pverification-provenance",
-        "-Dpocoma.verification.id=39583d8bd0e94554bfa55761c9d0372c",
+        "-Dpocoma.verification.id=cf3c434170594c8597027aca4cdabe2e",
         "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/architecture/reports",
         "test"
       ],
-      "cwd": "/private/tmp/pocoma-l3-i5-canonical-aff7a70d/app",
-      "maven_exit": 0,
-      "maven_result": "BUILD SUCCESS",
-      "strict_verdict": "INCONCLUSIVE",
-      "obligation_status": "NOT DEMONSTRATED",
       "counts": {
         "tests": 2057,
         "failures": 0,
         "errors": 0,
         "skipped": 1
       },
-      "modules": 61,
-      "xml_reports": 324,
-      "modules_with_reports": 44,
-      "modules_skipped_or_not_executed": [],
-      "source_discovery_limitations": 67,
-      "archive": {
-        "path": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-        "bytes": 35757417,
-        "sha256": "6a9531a2af49b956d6f1e7b83fe55c6415e274db79c82d74a544517098c07e34"
-      },
-      "archive_index_label": "C5-A",
-      "summary": "docs/testing/evidence/L3-I5/canonical/architecture/Summary.json",
-      "methods_member": "metadata/Discovered_Methods.json",
-      "nominative": [
-        {
-          "classname": "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest",
-          "method": "l3_identity_authority_has_no_owner_or_runtime",
-          "outcome": "PASS",
-          "seconds": "0.003",
-          "module": "pocoma-architecture-tests",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
-          "line": 67,
-          "source": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
-          "source_sha256": "2d1cff7737f189f7f5a3872262b3c6611a2beaf518ceb6e0d7c4198c5ac9b333"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest",
-          "method": "l3_real_authority_delegates_without_a_second_lock_protocol",
-          "outcome": "PASS",
-          "seconds": "0.0",
-          "module": "pocoma-architecture-tests",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
-          "line": 68,
-          "source": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
-          "source_sha256": "2d1cff7737f189f7f5a3872262b3c6611a2beaf518ceb6e0d7c4198c5ac9b333"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest",
-          "method": "l3_canonical_acquisition_is_the_only_eui_writer_path",
-          "outcome": "PASS",
-          "seconds": "0.004",
-          "module": "pocoma-architecture-tests",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
-          "line": 69,
-          "source": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
-          "source_sha256": "2d1cff7737f189f7f5a3872262b3c6611a2beaf518ceb6e0d7c4198c5ac9b333"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest",
-          "method": "l3_identity_participant_and_factory_keep_l2_ownership",
-          "outcome": "PASS",
-          "seconds": "0.002",
-          "module": "pocoma-architecture-tests",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-architecture-tests/surefire-reports/TEST-com.kartaguez.pocoma.architecture.v3.V3IdentityAuthorityArchitectureTest.xml",
-          "line": 70,
-          "source": "app/architecture-tests/src/test/java/com/kartaguez/pocoma/architecture/v3/V3IdentityAuthorityArchitectureTest.java",
-          "source_sha256": "2d1cff7737f189f7f5a3872262b3c6611a2beaf518ceb6e0d7c4198c5ac9b333"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest",
-          "method": "l3_negative_stable_and_a1_sql",
-          "outcome": "PASS",
-          "seconds": "4.082",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest.xml",
-          "line": 1548,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityPotCommandPostgresTest.java",
-          "source_sha256": "a9092fe7103cdf65d92e05c82ee45aaf28c6c7073075c98d48a2991acddbc3bc"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest",
-          "method": "l3_a1_illicit_version_rejected",
-          "outcome": "PASS",
-          "seconds": "4.372",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityPotCommandPostgresTest.xml",
-          "line": 1636,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityPotCommandPostgresTest.java",
-          "source_sha256": "a9092fe7103cdf65d92e05c82ee45aaf28c6c7073075c98d48a2991acddbc3bc"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_indirect_exposure_refused",
-          "outcome": "PASS",
-          "seconds": "7.508",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 78,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_delivered_jpa_rejects_prebound_holder",
-          "outcome": "PASS",
-          "seconds": "4.039",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 789,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_identity_discovery_checkpoint",
-          "outcome": "PASS",
-          "seconds": "3.287",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 860,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_preflight_negative",
-          "outcome": "PASS",
-          "seconds": "2.581",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 931,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_postgres_diagnostics_without_sensitive_detail",
-          "outcome": "PASS",
-          "seconds": "3.176",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 2474,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_command_only_preflight",
-          "outcome": "PASS",
-          "seconds": "3.986",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 2545,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_auxiliary_effective_privilege_matrix",
-          "outcome": "PASS",
-          "seconds": "7.01",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 3205,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_registration_command_and_relink_restart",
-          "outcome": "PASS",
-          "seconds": "29.001",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 3276,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_runtime_identity",
-          "outcome": "PASS",
-          "seconds": "36.8",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 3398,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest",
-          "method": "l3_logging_override_refused",
-          "outcome": "PASS",
-          "seconds": "3.158",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3IdentityRequestCompositionPostgresTest.xml",
-          "line": 3571,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3IdentityRequestCompositionPostgresTest.java",
-          "source_sha256": "ba32d8e0630779573d8913f64ced02b9b5e8c18a3c70b60be71b05e24dd3a1ee"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
-          "method": "i5_r05",
-          "outcome": "PASS",
-          "seconds": "43.325",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
-          "line": 742,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
-          "source_sha256": "c6858d0b935fa0a4d8f894139dfcc24deb12a1278dfe9d2ccaa5f5867ee16a6b"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
-          "method": "i5_r12",
-          "outcome": "PASS",
-          "seconds": "49.585",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
-          "line": 2989,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
-          "source_sha256": "c6858d0b935fa0a4d8f894139dfcc24deb12a1278dfe9d2ccaa5f5867ee16a6b"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
-          "method": "i5_r05_discovery_skip_locked_interleaving",
-          "outcome": "PASS",
-          "seconds": "2.877",
-          "module": "pocoma-runtime-command-consumption-worker",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest.xml",
-          "line": 3122,
-          "source": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/v3/V3WorkerResourcesPostgresTest.java",
-          "source_sha256": "c6858d0b935fa0a4d8f894139dfcc24deb12a1278dfe9d2ccaa5f5867ee16a6b"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_indirect_exposure_refused",
-          "outcome": "PASS",
-          "seconds": "10.762",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 74,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_delivered_jpa_rejects_prebound_holder",
-          "outcome": "PASS",
-          "seconds": "3.172",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 805,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_preflight_negative",
-          "outcome": "PASS",
-          "seconds": "3.072",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 876,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_command_only_preflight",
-          "outcome": "PASS",
-          "seconds": "5.626",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 2419,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_registration_command_and_relink_restart",
-          "outcome": "PASS",
-          "seconds": "18.34",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 3079,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_runtime_identity",
-          "outcome": "PASS",
-          "seconds": "48.455",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 3201,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        },
-        {
-          "classname": "com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest",
-          "method": "l3_logging_override_refused",
-          "outcome": "PASS",
-          "seconds": "3.347",
-          "module": "pocoma-runtime-monolith",
-          "producer": "surefire",
-          "invocation_id": "39583d8bd0e94554bfa55761c9d0372c",
-          "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
-          "archive": "docs/testing/evidence/L3-I5/canonical/architecture/complete.tar.gz",
-          "nested_archive": "raw.tar.gz",
-          "member": "reports/pocoma-runtime-monolith/surefire-reports/TEST-com.kartaguez.pocoma.V3IdentityRequestMonolithPostgresTest.xml",
-          "line": 3374,
-          "source": "app/runtime-monolith/src/test/java/com/kartaguez/pocoma/V3IdentityRequestMonolithPostgresTest.java",
-          "source_sha256": "a17fce44afec3260bdf5ea791cfee1f0eceaac4f6a4a4e030c8968867681cdc3"
-        }
-      ],
-      "mandatory_not_run": [],
-      "limits": "XML-reported JUnit invocations including SKIP. Every row source/module/producer attributed. Not exhaustive provider pre-discovery; collector limitations unchanged."
+      "strict_verdict": "INCONCLUSIVE",
+      "obligation_status": "NOT DEMONSTRATED"
     },
     "O21": {
-      "tested_code_sha": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
+      "tested_code_sha": "cfd3f6458f7de61945bd3f73cb71c794dddf9e57",
       "fresh": true,
-      "invocation_id": "e322cc9bc42e4e2fb1fc397b4bf0d4dc",
+      "invocation_id": "2dd51d57245e44bfb794dd0bb74e387e",
       "command": [
         "./mvnw",
         "--batch-mode",
@@ -11057,55 +10621,18 @@
         "runtime-command-consumption-worker,runtime-monolith",
         "-am",
         "-Pverification-provenance",
-        "-Dpocoma.verification.id=e322cc9bc42e4e2fb1fc397b4bf0d4dc",
+        "-Dpocoma.verification.id=2dd51d57245e44bfb794dd0bb74e387e",
         "-Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/command/reports",
         "test"
       ],
-      "cwd": "/private/tmp/pocoma-l3-i5-canonical-aff7a70d/app",
-      "maven_exit": 1,
-      "maven_result": "BUILD FAILURE",
-      "strict_verdict": "FAIL",
-      "obligation_status": "NOT DEMONSTRATED",
       "counts": {
-        "tests": 1414,
+        "tests": 1791,
         "failures": 0,
-        "errors": 22,
-        "skipped": 0
+        "errors": 0,
+        "skipped": 1
       },
-      "modules": 52,
-      "xml_reports": 221,
-      "modules_with_reports": 28,
-      "modules_skipped_or_not_executed": [
-        "pocoma-infra-projection-validation-networknt",
-        "pocoma-orchestrator-poll-consumption",
-        "pocoma-supra-consume-event",
-        "pocoma-supra-consume-binding",
-        "pocoma-supra-http-write",
-        "pocoma-supra-http-read",
-        "pocoma-composition-runtime-spring",
-        "pocoma-runtime-monolith",
-        "pocoma-runtime-command-consumption-worker"
-      ],
-      "source_discovery_limitations": 46,
-      "archive": {
-        "path": "docs/testing/evidence/L3-I5/canonical/command/complete.tar.gz",
-        "bytes": 34347054,
-        "sha256": "eafeaba91aef82a5a2e48c5423787cafc3185e6b21583334d6425e824f2d1870"
-      },
-      "archive_index_label": "C5-CM",
-      "summary": "docs/testing/evidence/L3-I5/canonical/command/Summary.json",
-      "methods_member": "metadata/Discovered_Methods.json",
-      "nominative": [],
-      "mandatory_not_run": [
-        "Worker COMMAND",
-        "Monolith",
-        "i5_r05",
-        "i5_r12",
-        "i5_r05_discovery_skip_locked_interleaving",
-        "Identity runtime Worker/Monolith",
-        "A1 runtime"
-      ],
-      "limits": "XML-reported JUnit invocations including SKIP. Every row source/module/producer attributed. Not exhaustive provider pre-discovery; collector limitations unchanged."
+      "strict_verdict": "INCONCLUSIVE",
+      "obligation_status": "SATISFIED WITH RESERVATIONS"
     }
   }
 }

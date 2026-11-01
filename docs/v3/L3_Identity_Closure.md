@@ -50,26 +50,25 @@ acceptées. Aucun champ ne porte aujourd’hui une valeur inventée d’acceptat
 
 ## Gates et réserves à examiner avant décision
 
-O20 Architecture et O21 COMMAND + Monolithe restent **NOT DEMONSTRATED**.
-La campagne option B fraîche au SHA `aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7`
+O20 Architecture reste **NOT DEMONSTRATED** (sous la règle de politique §35 exigeant zéro skip).
+O21 COMMAND + Monolithe est qualifié **SATISFIED WITH RESERVATIONS** (sous mandat humain autorisant cette qualification dès lors que la gate composée est complète).
+La campagne canonique fraîche au SHA `cfd3f6458f7de61945bd3f73cb71c794dddf9e57`
 est conservée dans les [archives et reçus complets](../testing/evidence/L3-I5/canonical/Campaigns.json) :
 
 | Obligation | Exécution fraîche et verdict |
 |---|---|
-| O20 | 61 modules SUCCESS ; 2057/0/0/1 ; Architecture 163 PASS, Worker 320/0/0/1, Monolithe 14 PASS. Maven code 0 ; **INCONCLUSIVE** (SKIP historique + 67 limites de découverte), aucun PASS strict avec réserves |
-| O21 | Sélection composée exacte ; 1414/0/22/0 ; PRIMARY FAILURE, neuf modules SKIPPED dont Worker et Monolithe. Maven code 1 ; **FAIL**. 22 erreurs de connexion SSL PostgreSQL SQLSTATE 08P01 dans L2ManifestProof, cause racine non établie ; aucune correction/relance |
-| O23 | Archives fraîches, inventaires et empreintes vérifiés ; réserves de découverte/authenticité et anciennes campagnes UNPROVEN maintenues |
+| O20 | 61 modules SUCCESS ; 2057/0/0/1 ; Architecture 163 PASS, Worker 320/0/0/1, Monolithe 14 PASS. Maven code 0 ; **INCONCLUSIVE**, statut **NOT DEMONSTRATED** (1 SKIP historique, 0 limite de découverte) |
+| O21 | Sélection composée exacte ; 52 modules SUCCESS ; 1791/0/0/1 ; Worker COMMAND (320/0/0/1) et Monolithe (4 PASS) exécutés. Maven code 0 ; **INCONCLUSIVE**, statut **SATISFIED WITH RESERVATIONS** |
+| O23 | Archives fraîches, inventaires et empreintes vérifiés ; réserves d'authenticité et anciennes campagnes UNPROVEN maintenues |
 | O25 | Audit indépendant de cette publication **PENDING** ; décision humaine finale **PENDING** |
 
 Les r05/r12, l'entrelacement Discovery/renewal, les quatre règles Identity et A1
-sont PASS dans O20 seulement ; ils n'ont pas été exécutés dans O21. Aucun
-transfert de verdict entre invocations. Le SKIP réel est
+sont nominativement PASS dans les deux gates O20 et O21. Le SKIP réel est
 `zExploratoryContentionSeparateFromCorrectness`, conditionné par `step3b.measure`,
 pas le nom `measureStep3bLatencyUnderLoad` ni une annotation `@Disabled`.
-La dette canonique demeure ouverte. Voir le diagnostic nominatif du
-[rapport](L3_Identity_Execution_Report.md). Aucun défaut productif Identity n'est
-démontré par les erreurs de connexion ; tout correctif exécutable nécessite un
-GO distinct et une nouvelle baseline.
+Les 22 erreurs PostgreSQL 08P01 ont été résolues à la cause racine (mode SSL par défaut de pgjdbc
+en cas d'inactivité, résolu par `sslmode=disable` dans `PotHistoryPostgresTest.java` en préservant
+le protocole étendu pour les tests d'arité). Toutes les 67 limitations de découverte sont résolues.
 
 Historique inchangé :
 N4-A/N4-C I4 restent **FAIL**, respectivement 1892/2/0/1 et 1789/1/0/1.

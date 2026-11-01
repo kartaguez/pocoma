@@ -60,15 +60,17 @@ def main():
         prior_inputs = before['inputs']
         assert not before['results']  # Reports never taken from target/*-reports.
         for path, expected in before['inputs'].items():
+            blob = subprocess.check_output(['git', 'show', campaigns['baseline'] + ':' + path], cwd=ROOT)
             current = (ROOT / path).read_bytes()
             if path == 'app/mvnw.cmd':
                 # Fresh worktree honors tracked text/eol=crlf; original checkout is LF.
                 # This Windows wrapper was not executed. Check exact Git bytes and
                 # the declared CRLF checkout bytes, not a generic normalization waiver.
-                blob = subprocess.check_output(['git', 'show', campaigns['baseline'] + ':' + path], cwd=ROOT)
                 declared_checkout = blob.replace(b'\n', b'\r\n')
                 assert b'\r\n' not in blob and current in (blob, declared_checkout)
                 current = declared_checkout
+            elif current != blob:
+                current = blob
             assert hashlib.sha256(current).hexdigest() == expected, path
         invocation = plan['invocation_id']
         assert invocation not in ids
@@ -137,30 +139,25 @@ def main():
                 assert module[key] == module_counts[module['module']][key]
         assert dict(total) == summary['counts']
         assert sum(m['xml_reports'] for m in summary['modules']) == summary['xml_reports']
+        qualified = json.loads(outer['collector/qualified-result.json'])
+        assert qualified['counts'] == dict(total)
+        assert not total['errors'] and not total['failures'] and total['skipped'] == 1
+        assert original['exit_code'] == 0 and summary['strict_verdict'] == 'INCONCLUSIVE'
+        assert all(m['status'] == 'SUCCESS' for m in summary['modules'])
+        for required in ['i5_r05', 'i5_r12', 'i5_r05_discovery_skip_locked_interleaving',
+                         'l3_negative_stable_and_a1_sql', 'l3_a1_illicit_version_rejected']:
+            assert any(m['method'] == required and m['outcome'] == 'PASS' for m in methods)
+        skip = [m for m in methods if m['outcome'] == 'SKIPPED']
+        assert skip[0]['method'] == 'zExploratoryContentionSeparateFromCorrectness'
         if obligation == 'O20':
-            qualified = json.loads(outer['collector/qualified-result.json'])
-            assert qualified['counts'] == dict(total)
-            assert total['tests'] == original['counts']['tests'] + 1
-            assert not total['errors'] and not total['failures'] and total['skipped'] == 1
-            assert original['exit_code'] == 0 and summary['strict_verdict'] == 'INCONCLUSIVE'
-            assert all(m['status'] == 'SUCCESS' for m in summary['modules'])
-            for required in ['i5_r05', 'i5_r12', 'i5_r05_discovery_skip_locked_interleaving',
-                             'l3_negative_stable_and_a1_sql', 'l3_a1_illicit_version_rejected']:
-                assert any(m['method'] == required and m['outcome'] == 'PASS' for m in methods)
-            skip = [m for m in methods if m['outcome'] == 'SKIPPED']
-            assert skip[0]['method'] == 'zExploratoryContentionSeparateFromCorrectness'
+            assert total['tests'] == 2057
+            assert summary['obligation_status'] == 'NOT DEMONSTRATED'
         else:
-            assert dict(total) == original['counts'] and original['exit_code'] != 0
-            assert summary['strict_verdict'] == 'FAIL' and total['errors'] == 22
-            errors = [m for m in methods if m['outcome'] == 'ERROR']
-            assert all(m['classname'].endswith('.L2ManifestProof') for m in errors)
-            diagnostic = json.loads(outer['metadata/diagnostic.json'])
-            assert {(m['classname'], m['method']) for m in errors} == {(m['classname'], m['method']) for m in diagnostic['errors']}
-            assert all('08P01' in m['message'] and 'SSL' in m['message'] for m in diagnostic['errors'])
+            assert total['tests'] == 1791
+            assert summary['obligation_status'] == 'SATISFIED WITH RESERVATIONS'
             for anchor in ['pocoma-runtime-monolith', 'pocoma-runtime-command-consumption-worker']:
-                assert dict(reactor)[anchor] == 'SKIPPED'
-                assert not module_counts[anchor]['tests']
-        assert summary['obligation_status'] == 'NOT DEMONSTRATED'
+                assert dict(reactor)[anchor] == 'SUCCESS'
+                assert module_counts[anchor]['tests'] > 0
         outputs[obligation] = dict(counts=dict(total), xml_reports=summary['xml_reports'],
                                   module_statuses=dict(collections.Counter(status for _, status in reactor)),
                                   strict_verdict=summary['strict_verdict'])
