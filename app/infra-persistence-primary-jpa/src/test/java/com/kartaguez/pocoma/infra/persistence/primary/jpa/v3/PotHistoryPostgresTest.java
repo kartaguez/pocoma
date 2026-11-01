@@ -69,7 +69,7 @@ class PotHistoryPostgresTest {
                         POSTGRES.getJdbcUrl()
                                 + "&currentSchema="
                                 + schema
-                                + "&sslmode=disable&preferQueryMode=simple&socketTimeout=15",
+                                + "&sslmode=disable&socketTimeout=15",
                         POSTGRES.getUsername(),
                         POSTGRES.getPassword());
         source = new RecordingDataSource(delegate);
