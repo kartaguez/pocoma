@@ -7,12 +7,14 @@
 
 ---
 
-## 1. SHA Initial et Final
+## 1. SHA Initial, Intermédiaire et Final
 
-| Repère | Commit SHA | Description |
+| Repère | Commit SHA / Référence | Description |
 | :--- | :--- | :--- |
-| **SHA initial** | `0092b4d188aa1d575c3f3fa599bbdf38865d1309` | HEAD d'entrée de mission (« test(v3): requalify i5_r05 and i5_r12 »). Synchronisé avec `origin/feat/v3-architecture`. |
-| **SHA final** | `7e01f82b` (publication commit sur `feat/v3-architecture`) | Commit de publication fermant les réserves R1/R2, qualifiant le registre et l'oracle, et documentant la preuve. |
+| **SHA initial / baseline testée** | `0092b4d188aa1d575c3f3fa599bbdf38865d1309` | HEAD d'entrée de mission (« test(v3): requalify i5_r05 and i5_r12 »). Base Git avant contre-audit. |
+| **État applicatif / tests exécuté** | Arbre Git de `32504fca` (sur base `0092b4d1`) | Code et tests effectivement exécutés lors des campagnes de qualification (oracle corrigé, contre-exemples unitaires, banc postgres réel d'entrelacement et scripts de vérification). Code productif (`app/**/src/main/**`) strictement identique à `0092b4d1`. |
+| **SHA intermédiaire de qualification** | `7e01f82b97b5af916aed86804008864d14d3588e` | Commit local intermédiaire avant amendement final de livraison documentaire. |
+| **SHA de publication documentaire** | `32504fca0f8d5ba6f236cf3111145d346ddc7930` | Commit de publication effectif poussé sur `origin/feat/v3-architecture`. |
 
 Aucune modification du code productif (`app/**/src/main/**`) n'a été effectuée (`0` octets modifiés). Les modifications sont strictement restreintes aux tests unitaires/d'intégration de qualification (`src/test/**`), à l'outillage de test (`scripts/testing/**`) et à la documentation (`docs/v3/**`).
 
