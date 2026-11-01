@@ -1,0 +1,13 @@
+{
+  "public_files_scanned": 51,
+  "known_private_values_checked": 8,
+  "no_known_private_value_in_export": true,
+  "no_literal_token_json_in_export": true,
+  "worker_and_postgres_logs": {
+    "worker_and_postgres_logs_no_known_secret": true,
+    "public_no_known_secret": true
+  },
+  "public_tokens": "presence/null and SHA-256 only; no raw values",
+  "private_retention": "0700 directory /private/tmp/pocoma-l3-i5-remediation-private; files 0600; exact rows/config/intentions/token/logs never published",
+  "limitations": "Known-value scan and reviewed field allowlist, not a universal secret detector. Original recovered test artifacts have no literal binding-token field values; their recorded producer/test context remains historical."
+}

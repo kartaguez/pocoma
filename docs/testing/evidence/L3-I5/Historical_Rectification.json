@@ -1,0 +1,60 @@
+{
+  "historical_documents": {
+    "L3_Identity_Execution_Report.md": {
+      "commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+      "path": "docs/v3/L3_Identity_Execution_Report.md",
+      "bytes": 18341,
+      "sha256": "337f0f240d4afd9f8a3a998d40772df70f45fb37cdb1c889924ea117e6bdbe50",
+      "restore": [
+        "git",
+        "show",
+        "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3:docs/v3/L3_Identity_Execution_Report.md"
+      ],
+      "status": "Superseded historical Gemini conclusion; retained in Git, not an effective acceptance"
+    },
+    "L3_Identity_Runtime_Runbook.md": {
+      "commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+      "path": "docs/v3/L3_Identity_Runtime_Runbook.md",
+      "bytes": 12114,
+      "sha256": "0c2fb924d471f5fe3595aefd5ac384967df4b6e06d2c12864e704f2846a4a1ba",
+      "restore": [
+        "git",
+        "show",
+        "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3:docs/v3/L3_Identity_Runtime_Runbook.md"
+      ],
+      "status": "Superseded historical Gemini conclusion; retained in Git, not an effective acceptance"
+    },
+    "L3_Identity_Proof_Manifest.json": {
+      "commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+      "path": "docs/v3/L3_Identity_Proof_Manifest.json",
+      "bytes": 33073,
+      "sha256": "1eb91c428d324006eb46bfca72e66aff58ff12edd765ade18f619ce5485e8e1a",
+      "restore": [
+        "git",
+        "show",
+        "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3:docs/v3/L3_Identity_Proof_Manifest.json"
+      ],
+      "status": "Superseded historical Gemini conclusion; retained in Git, not an effective acceptance"
+    },
+    "L3_Identity_Closure.md": {
+      "commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+      "path": "docs/v3/L3_Identity_Closure.md",
+      "bytes": 17544,
+      "sha256": "4cf210655b2d801b6ab2d032daa73f74705e2566b1b259008984e44d95e10ebb",
+      "restore": [
+        "git",
+        "show",
+        "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3:docs/v3/L3_Identity_Closure.md"
+      ],
+      "status": "Superseded historical Gemini conclusion; retained in Git, not an effective acceptance"
+    }
+  },
+  "mandate_sha": "0ba18ec188d40fe93eec688842c1611ce0c6d595",
+  "mandate_sha_present": false,
+  "actual_gemini_commit": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
+  "other_misattributed_sha": "028930e071c35fc12d1b8fc94c03b1238e8ec434",
+  "actual_028930e0": "028930e09c680823dc2ee1f24da3e48df1d0ceae",
+  "independent_audit_source": "Findings AUD-I5-01..05 transmitted verbatim in human remediation mandate; no original independent I5 audit artifact supplied or invented",
+  "human_go": "Targeted remediation and provisional publication; no final L3 acceptance, no L4 GO",
+  "arb": "ARB-I5-01 permits preparation only"
+}

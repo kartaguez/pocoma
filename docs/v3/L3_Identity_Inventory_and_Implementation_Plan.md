@@ -1,6 +1,24 @@
 # Pocoma V3 — L3 Identity : inventaire et plan d'implémentation
 
-**État courant — décision humaine du 31-10-2026 : L3/I4 DOCUMENTARY CLOSED /
+**Rectification L3/I5 — 1er novembre 2026 : QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE.**
+[Rapport de remédiation Q-ID](L3_Identity_Execution_Report.md),
+[runbook corrigé](L3_Identity_Runtime_Runbook.md),
+[manifeste vérifiable](L3_Identity_Proof_Manifest.json),
+[projet d’acte de clôture](L3_Identity_Closure.md).
+Les conclusions de clôture et de GO L4 du dossier Gemini `0ba18ec1` sont rectifiées ;
+leurs originaux restent dans Git avec provenance explicite. ARB-I5-01 autorisait
+la préparation d’une acceptation bornée, pas cette acceptation.
+Q-UFREE, Q-UOTHER et Q-REGNEW : trois observations fraîches PASS, sept demandes,
+SQL avant/après, deux drains et restart contrôlés au code
+`0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Acquis I1–I4 conservés.
+Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
+O20/O21 restent NOT DEMONSTRATED : gates I4 FAIL, Architecture 163 filtrée,
+COMMAND seule 1777 rapportée mais UNPROVEN ici. Campagnes historiques récupérées
+et attribuées séparément ; aucune campagne réutilisée déclarée nouvelle I5.
+**L3 OPEN ; aucune décision humaine finale, aucun GO L4 ou production.**
+Les encadrés antérieurs sont historiques ; les exigences normatives restent inchangées.
+
+**État historique — décision humaine du 31-10-2026 : L3/I4 DOCUMENTARY CLOSED /
 ACCEPTED WITH EXPLICIT RESERVATIONS**, [décision I4 et reprise autonome I5](L3_I4_Acceptance_Decision.md).
 R-ID-POT interne accepté avec A1 dans les seules configurations testées ; aucun
 correctif I4 requis. **L3/I5 — READY FOR FRAMING ONLY ; NEXT — cadrage/préparation
