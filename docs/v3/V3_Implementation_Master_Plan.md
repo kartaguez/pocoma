@@ -1,32 +1,25 @@
 # Pocoma V3 — Plan directeur de réalisation L0–L8
 
-**Rectification L3/I5 — 1er novembre 2026 : QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE.**
-[Rapport de remédiation Q-ID](L3_Identity_Execution_Report.md),
-[runbook corrigé](L3_Identity_Runtime_Runbook.md),
-[manifeste vérifiable](L3_Identity_Proof_Manifest.json),
-[projet d’acte de clôture](L3_Identity_Closure.md).
-Les conclusions de clôture et de GO L4 du dossier Gemini `0ba18ec1` sont rectifiées ;
-leurs originaux restent dans Git avec provenance explicite. ARB-I5-01 autorisait
-la préparation d’une acceptation bornée, pas cette acceptation.
-Q-UFREE, Q-UOTHER et Q-REGNEW : trois observations fraîches PASS, sept demandes,
-SQL avant/après, deux drains et restart contrôlés au code
-`0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Acquis I1–I4 conservés.
-Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
-Campagnes courantes au SHA gelé `cfd3f645` : O20 BUILD SUCCESS,
-2057/0/0/1, Architecture 163 PASS ; O21 BUILD SUCCESS, 1791/0/0/1,
-Worker et Monolithe exécutés. Zéro limitation de découverte résiduelle rapportée.
-Les deux verdicts stricts restent **INCONCLUSIVE**. O20 : **NOT DEMONSTRATED —
-NORMATIVE ARBITRATION REQUIRED** ; O21 : **SATISFIED WITH RESERVATIONS** pour
-la seule recevabilité interne du mandat antérieur. La classification nominative
-`OPTIONAL_EXPLORATORY_PERFORMANCE` du SKIP est proposée, non ratifiée ;
-[analyse et décision à soumettre](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026).
-La tentative `aff7a70d` (O21 FAIL 1414/0/22/0) demeure historique, récupérable
-au commit `d5b7db91`. La politique Reactor demeure inchangée.
-[Archives, méthodes et compteurs par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
-Gates I4 FAIL et résultats historiques UNPROVEN inchangés ; aucun transfert de
-PASS entre invocations. La présente passe est exclusivement documentaire, sans relance.
-**L3 OPEN ; aucune décision humaine finale, aucun GO L4 ou production.**
-Les encadrés antérieurs sont historiques ; les exigences normatives restent inchangées.
+**Ratification humaine du 1er novembre 2026 — L3 — Identity WRITE Engine : CLOSED WITH EXPLICIT RESERVATIONS.**
+
+L’[acte de clôture unique](L3_Identity_Closure.md) consigne la décision explicite du
+responsable du programme, l’avis favorable O25 transmis dans le mandat et ses limites.
+Baseline documentaire examinée : `ece3f5057808c4c99afd31d276acf043fe7872b4`.
+O20 et O25 : **SATISFIED WITH EXPLICIT RESERVATIONS** ; O21 : **SATISFIED WITH RESERVATIONS**.
+La classification `OPTIONAL_EXPLORATORY_PERFORMANCE` et la recevabilité du SKIP de
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+sont ratifiées nominativement pour la seule qualification interne L3/I5.
+O20 **2057/0/0/1** et O21 **1791/0/0/1** restent strictement **INCONCLUSIVE** ;
+[archives, compteurs et sources](../testing/evidence/L3-I5/canonical/Campaigns.json) inchangés.
+Les FAIL/UNPROVEN antérieurs et toutes les réserves L2/L3 sont conservés.
+La clôture est bornée au WRITE Identity qualifié ; aucun certificat global SPEC-10,
+de performance, de disponibilité universelle ou de production n’est accordé.
+**L4 est autorisé à s’ouvrir au cadrage après publication et vérification de cet acte ;
+aucune implémentation L4 n’est autorisée par cette mission.**
+L’orientation Fondation/Branchement est à instruire dans le
+[plan directeur](V3_Implementation_Master_Plan.md#orientation-à-instruire-au-cadrage-l4--qualification-réutilisable-de-l2-fondation).
+La politique Reactor et les gates existantes restent inchangées.
+Les encadrés antérieurs ci-dessous sont historiques et ne fixent pas le statut courant.
 
 **Décision humaine historique L3/I4 du 31-10-2026 : DOCUMENTARY CLOSED / ACCEPTED WITH
 EXPLICIT RESERVATIONS**, [décision, périmètre, réserves et reprise autonome I5](L3_I4_Acceptance_Decision.md).
@@ -108,7 +101,7 @@ Date : 2026-10-25. Référence inventoriée : `f50a413ee200a60b7747107abf96b6235
 
 **Décision humaine du 26-10-2026 : G0 franchi, I1 autorisé.** Le responsable lève explicitement la réserve procédurale d’audit indépendant L1-F2 et accepte les preuves existantes avec leurs limites documentées. Aucun rapport historique n’est modifié ; aucune certification globale, aucun PASS technique I1 ni G1/G2/G3 n’en découle. [Dossier G0 courant](L2_I1_G0_Readiness_and_Implementation_Plan.md#décision-courante--g0-franchi-le-26-octobre-2026).
 
-**Point d’entrée opérationnel unique du programme. L0 : ACCEPTED pour la poursuite. L1 : ACCEPTED — internal V3 foundation. L2 : ACCEPTED WITH EXPLICIT RESERVATIONS par décision humaine du 30 octobre 2026 ; [statuts, preuves, réserves et transition](L2_Documentary_Closure.md). L3 : en réalisation, I1/I2/I3/I4 ACCEPTED WITH EXPLICIT RESERVATIONS ; I4 DOCUMENTARY CLOSED ; I5 remédiation Q-ID démontrée avec réserves ; audit indépendant et acceptation humaine finale PENDING ; L3 OPEN ; L4–L8 : DESIGN PENDING.** **L1-F CLOSED / PASS interne** : corrections post-audit et preuves dans le [rapport L1-F](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE distinct depuis `b3df3f3e`, avant L2. [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [rapport](L1_F2_Closure_Report.md). Le responsable a donné son **GO humain d'implémentation le 26-10-2026** et ratifié neuf UUID/`P=4` pour le pilote. L'audit L1-F2 historique a été retrouvé ; son PASS a été contesté par le [contre-audit](L2_Independent_Counter_Audit_and_G0_Assessment.md#8-l1-f2-axes-daudit-et-actions). La réserve de recevabilité est levée par la décision humaine ci-dessus, avec les limites conservées. Aucun nouvel audit L1-F2 requis pour I1 ; les verdicts de clôture G1/G2/G3 figurent ci-dessus.
+**Point d’entrée opérationnel unique du programme. L0 : ACCEPTED pour la poursuite. L1 : ACCEPTED — internal V3 foundation. L2 : ACCEPTED WITH EXPLICIT RESERVATIONS par décision humaine du 30 octobre 2026 ; [statuts, preuves, réserves et transition](L2_Documentary_Closure.md). L3 : CLOSED WITH EXPLICIT RESERVATIONS, décision humaine du 01-11-2026 ; L4 : ouverture au cadrage autorisée après publication vérifiée ; L5–L8 : DESIGN PENDING.** **L1-F CLOSED / PASS interne** : corrections post-audit et preuves dans le [rapport L1-F](L1_F_Closure_Report.md). **L1-F2 CLOSED / PASS interne**, complément correctif WRITE distinct depuis `b3df3f3e`, avant L2. [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [rapport](L1_F2_Closure_Report.md). Le responsable a donné son **GO humain d'implémentation le 26-10-2026** et ratifié neuf UUID/`P=4` pour le pilote. L'audit L1-F2 historique a été retrouvé ; son PASS a été contesté par le [contre-audit](L2_Independent_Counter_Audit_and_G0_Assessment.md#8-l1-f2-axes-daudit-et-actions). La réserve de recevabilité est levée par la décision humaine ci-dessus, avec les limites conservées. Aucun nouvel audit L1-F2 requis pour I1 ; les verdicts de clôture G1/G2/G3 figurent ci-dessus.
 
 ## 1. Autorités, vision et périmètre
 
@@ -128,7 +121,12 @@ Architecture hexagonale : domaine pur, engines orchestrant des ports explicites,
 
 Le corpus courant approuve L0, L1-A…E et les jalons conceptuels V3-CADRE, V3-6 (réalisation), V3-7 (qualification). Lors de la rédaction initiale de ce plan, aucun plan directeur L0–L8 ni plan détaillé L2–L8 n’avait été trouvé dans les fichiers suivis. Le dossier L2 a ensuite été approuvé : G0 franchi le 26-10-2026, I1 seul autorisé. La recherche Git du canon et des anciens plans ne fournit pas d’affectation L2–L8 approuvée. L’audit conceptuel ancien évoque « Lot 2 — Séquencement, Slots, Discovery, Engine », « Lot 3 — Identity », « Lots 4 et 5 — READ et Supras » ; ces mentions corroborent un ordre de travail mais ne constituent pas une approbation de plans d’exécution.
 
-La proposition ci-dessous conserve cet ordre et les objectifs approuvés. **L2 est accepté avec réserves explicites ; L3 est en réalisation selon son [plan](L3_Identity_Inventory_and_Implementation_Plan.md), I1/I2/I3/I4 acceptés avec réserves ; I4 DOCUMENTARY CLOSED ; I5 remédié selon le [rapport Q-ID](L3_Identity_Execution_Report.md) ; L4–L8 restent à cadrer**. L3 reste OPEN ; aucune acceptation humaine finale L3, aucun GO L4 ni certification globale n’est accordé. L7 convergence/certification et L8 distribution reprennent l’orientation du mandat, sans renommer V3-7 en L7 : V3-7 reste le jalon de qualification transversal, auquel contribuent L6/L7/L8. Aucun périmètre historique approuvé n’est écrasé.
+La proposition ci-dessous conserve cet ordre et les objectifs approuvés. **L2 est
+accepté avec réserves explicites ; L3 est CLOSED WITH EXPLICIT RESERVATIONS selon
+l’[acte unique](L3_Identity_Closure.md) du 01-11-2026 ; L4 est autorisé au cadrage
+après publication vérifiée ; L5–L8 restent à cadrer.** L7 convergence/certification
+et L8 distribution gardent leurs obligations ; V3-7 reste le jalon transversal
+auquel contribuent L6/L7/L8. Aucun certificat global ni GO production n’est accordé.
 
 | Statut de programme | Signification |
 |---|---|
@@ -146,7 +144,7 @@ PASS/FAIL/INCONCLUSIVE sont des verdicts de preuve, distincts du statut de progr
 
 ## 3. Tableau directeur
 
-Les critères détaillés des §§4–8 font partie de chaque ligne. Pour L3–L8, « livrables » et « sortie » désignent des obligations futures, pas des réalisations. Pour L2, la sortie humaine avec réserves est distinguée des critères techniques non franchis. Les gates proposés doivent être revalidés sur le graphe réel avant code selon le §5.
+Les critères détaillés des §§4–8 font partie de chaque ligne. Pour L4–L8, « livrables » et « sortie » désignent des obligations futures, pas des réalisations ; L3 distingue sa clôture interne des certifications encore dues. Pour L2, la sortie humaine avec réserves est distinguée des critères techniques non franchis. Les gates proposés doivent être revalidés sur le graphe réel avant code selon le §5.
 
 | Lot / statut | Objectif, périmètre et livrables | Dépendances et critères d’entrée | Critères de sortie, gates et preuves | Références, risques et décisions ouvertes |
 |---|---|---|---|---|
@@ -155,8 +153,8 @@ Les critères détaillés des §§4–8 font partie de chaque ligne. Pour L3–L
 | **L1-F — CLOSED / PASS interne** | Correctifs post-audit L1, sans réécriture A…E : lectures temporelles, INVALID_BINDING, structure des intentions, socle invitation, contraintes statiques, profilage exact, catalogues et préparation L2 | L1 accepté ; baseline `2fb9a536f3894e797923c0b49aeba1a9b5adfda2` ; mandat autonome L1-F | COMMAND+EVENT+PROJECTION 1306/0/0/1, 100 obligatoires PASS ; architecture 1511/0/0/1, 108 obligatoires PASS sur c94e7a4b ; couverture complète INCONCLUSIVE (skip exploratoire V2). PG/EXPLAIN/mesures ; full non requis/non exécuté | [F0 contradictoire](L1_F_Contradictory_Inventory.md), [rapport](L1_F_Closure_Report.md). Parcours Invitation réel toujours L5 ; aucune nouvelle autorité Identity/READ/Consumption |
 | **L1-F2 — CLOSED / PASS interne** | Supprimer les chaînes historiques des préconditions WRITE ; accès directs/groupés, fermeture exacte, audit intégral explicite | L1-F historiquement clos ; baseline `b3df3f3e` ; mandat autonome F2-0…7 | COMMAND 1265/0/0/1, 107 obligatoires PASS sur e154276a ; corruptions/concurrence et avant/après 100/1000/10000, 28 lignes Java ; architecture/full non requis/non exécutés | [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [manifeste](L1_F2_Proof_Manifest.json), [rapport](L1_F2_Closure_Report.md). Audit avant L2 ; aucune activation |
 | **L2 — ACCEPTED WITH EXPLICIT RESERVATIONS** | Fondation Consumption/Discovery livrée : slots/routage/ownership, Engine et participant Command Pot, lifecycle, Discovery, workers et banc READ technique ; I6 documentaire COMPLETED | Décision humaine définitive du 30-10-2026, suffisante pour poursuivre avec les réserves R-L2-01 à R-L2-05 ; invariants SPEC inchangés | I1–I4 CLOSED / LOCAL BOUNDED PASS avec réserves I3 ; I5 CLOSED BY HUMAN ACCEPTANCE WITH AVAILABILITY RESERVE ; I7 favorable sur le périmètre examiné, non exhaustif ; G1/G2 INCONCLUSIVE, G3 NOT PASSED / NOT COMPLETED ; architecture/full de clôture non exécutés sur le gel final | [Clôture officielle, preuves et SHAs](L2_Documentary_Closure.md), [dossier historique I6](L2_I6_I7_Consolidation.md), [plan L2](L2_Design_and_Verification_Plan.md). Aucun PASS technique global, Identity/Invitation réelles et projections métier non certifiées par L2 ; aucun GO production |
-| **L3 — OPEN ; I1/I2/I3/I4 ACCEPTED WITH EXPLICIT RESERVATIONS ; I4 DOCUMENTARY CLOSED ; I5 QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE** | Autorité Identity réelle : EUI@version, User, Registration/Link/Unlink, histoire/tokens, exécution durable et événements ; remplacement des fixtures d’autorité L1 | L2 fondations acceptées avec réserves ; [dépendances à reprendre en L3](L2_Documentary_Closure.md#6-exigences-reportées-et-dépendances-pour-l3--identity), contrats SPEC-02 et ordre canonique des EUI ; frontière avec qualification externe L5 explicitée | ID-01 interne, EVT/CON Identity, races à deux EUI, rollback et absence d’User orphelin ; tests Command avec vrai fournisseur d’autorité. I2 : gate canonique FAIL (`i5_r12`), Architecture SKIPPED, aucun I2 LOCAL BOUNDED PASS. I3 accepté avec réserves après corrections et ré-audit ; R-ID interne démontré. Gates non filtrées I3 et résolution FAIL (`i5_r12`), Architecture canonique non acquise ; 232 tests ciblés frais PASS distincts. I4 accepté humainement après contre-audit favorable rapporté ; R-ID-POT interne et A1 acceptés, gates natives FAIL conservées ; I5 : trois probes Q-ID fraîches PASS ; dossier soumis à audit indépendant, décision humaine finale PENDING ; aucune certification globale | [Plan L3](L3_Identity_Inventory_and_Implementation_Plan.md), [décision I4 et reprise I5](L3_I4_Acceptance_Decision.md), [décision I3 et réserves R1–R4](L3_I3_Acceptance_Decision.md), [arbitrage I2 / GO I3](L3_I2_Acceptance_Decision_2026-10-30.md), [arbitrage historique I1](L3_I1_Arbitration_and_I2_GO.md), [SPEC-02](SPEC-02_Identity_Domain.md), [SPEC-03](SPEC-03_Events_Requests_Consumables.md), [contrat C](L1_C_Transaction_Contract.md). Ne pas certifier ID-02 externe avec fixture ; qualification du consentement préparée ici, prouvée à L5 |
-| **L4 — DESIGN PENDING** | READ et matérialisations : PotVersion/SubobjectVersion/CurrentPot, Balance, Visibility, CurrentBinding et deux résultats ; contrat CurrentInvitation réservé au cycle L5 ; accès internes depuis READ | L1 histoire/calcul, L2 slots READ et Discovery acceptés, L3 histoire Identity réelle ; schémas/contrats des neuf projections validés avant code | PRJ-01…03, READ-01 interne, résultats requesterEui, sous-versions par lots, hors ordre, immutabilité et conflits de contenu ; D terminale sans Balance(D). PROJECTION/EVENT/BINDING et consommateurs READ affectés ; architecture si frontières | [SPEC-04](SPEC-04_Read_Projections.md), [SPEC-05](SPEC-05_Consumption_Discovery.md). Stockage physique et API de lots à cadrer ; coût des manifestes complets et historiques longs ; CurrentInvitation achevée L5, aucune certification des neuf projections avant cela |
+| **L3 — CLOSED WITH EXPLICIT RESERVATIONS (01-11-2026)** | Autorité Identity réelle : EUI@version, User, Registration/Link/Unlink, histoire/tokens, exécution durable et événements ; remplacement des fixtures d’autorité L1 | L2 fondations acceptées avec réserves ; [dépendances à reprendre en L3](L2_Documentary_Closure.md#6-exigences-reportées-et-dépendances-pour-l3--identity), contrats SPEC-02 et ordre canonique des EUI ; frontière avec qualification externe L5 explicitée | ID-01 interne, EVT/CON Identity, races à deux EUI, rollback et absence d’User orphelin ; tests Command avec vrai fournisseur d’autorité. I2 : gate canonique FAIL (`i5_r12`), Architecture SKIPPED, aucun I2 LOCAL BOUNDED PASS. I3 accepté avec réserves après corrections et ré-audit ; R-ID interne démontré. Gates non filtrées I3 et résolution FAIL (`i5_r12`), Architecture canonique non acquise ; 232 tests ciblés frais PASS distincts. I4 accepté humainement après contre-audit favorable rapporté ; R-ID-POT interne et A1 acceptés, gates natives FAIL conservées ; I5 : trois probes Q-ID fraîches PASS ; O20/O25 SATISFIED WITH EXPLICIT RESERVATIONS, O21 SATISFIED WITH RESERVATIONS par décision humaine finale ; verdicts O20/O21 strict INCONCLUSIVE conservés ; aucune certification globale | [Plan L3](L3_Identity_Inventory_and_Implementation_Plan.md), [décision I4 et reprise I5](L3_I4_Acceptance_Decision.md), [décision I3 et réserves R1–R4](L3_I3_Acceptance_Decision.md), [arbitrage I2 / GO I3](L3_I2_Acceptance_Decision_2026-10-30.md), [arbitrage historique I1](L3_I1_Arbitration_and_I2_GO.md), [SPEC-02](SPEC-02_Identity_Domain.md), [SPEC-03](SPEC-03_Events_Requests_Consumables.md), [contrat C](L1_C_Transaction_Contract.md). Ne pas certifier ID-02 externe avec fixture ; qualification du consentement préparée ici, prouvée à L5 |
+| **L4 — FRAMING AUTHORIZED ; DESIGN PENDING** | READ et matérialisations : PotVersion/SubobjectVersion/CurrentPot, Balance, Visibility, CurrentBinding et deux résultats ; contrat CurrentInvitation réservé au cycle L5 ; accès internes depuis READ | L1 histoire/calcul, L2 slots READ et Discovery acceptés, L3 histoire Identity réelle ; schémas/contrats des neuf projections validés avant code | PRJ-01…03, READ-01 interne, résultats requesterEui, sous-versions par lots, hors ordre, immutabilité et conflits de contenu ; D terminale sans Balance(D). PROJECTION/EVENT/BINDING et consommateurs READ affectés ; architecture si frontières | [SPEC-04](SPEC-04_Read_Projections.md), [SPEC-05](SPEC-05_Consumption_Discovery.md). Cadrage autorisé après publication L3 vérifiée ; orientation Fondation/Branchement ci-dessous à instruire. Stockage physique et API de lots à cadrer ; coût des manifestes complets et historiques longs ; CurrentInvitation achevée L5, aucune certification des neuf projections avant cela |
 | **L5 — DESIGN PENDING** | Supras et parcours externes complets : AuthN, admission/idempotence, autorisation READ, consentement Link qualifié, invitations WRITE→événement→CurrentInvitation→auto-rattachement ; Bruno de travail | L2/L3/L4 acceptés, protocoles HTTP et secrets/consentement décidés ; fournisseur qualifié avant acceptation des parcours Link | ADM-01, S-01…03, SEC-01/02, ID-02/C-01, INV-01, A10/A11 et compléments DOM/READ via HTTP/Bruno ; limites/admission atomique. WEB primaire et slices métier modifiées explicites, gates consommateurs correspondants | [SPEC-01 §8](SPEC-01_Pot_Domain.md#8-invitations-et-auto-rattachement), [SPEC-06](SPEC-06_Supra_Contracts.md), [SPEC-10](SPEC-10_Test_Certification.md). Keycloak/RAR à qualifier ; encodage/rétention idempotence, limites/erreurs et protection du lien récupérable à cadrer |
 | **L6 — DESIGN PENDING** | Intégration exploitable, reconstruction READ exclusive, instrumentation O-01 et préparation/qualification de performance ; dossier complet des exigences sur composants réels | L2–L5 acceptés ; neuf Consumptions/productions réelles, protocoles de mesure ratifiés avant campagnes | REC-01/C-02, OPS-01 et PERF-01 F01-A…J sur environnements fixés ; Bruno/JUnit/PG/k6, données brutes, métriques validées et défauts traités ; gates slices réelles, architecture/full au jalon majeur | [SPEC-08](SPEC-08_Observability.md), [SPEC-09](SPEC-09_Performance.md), [SPEC-10 §§10–12](SPEC-10_Test_Certification.md#10-reconstruction). Durées/sondes/échantillons, coûts Grand Pot/long historique à ratifier ; qualification à reconfirmer après convergence L7 |
 | **L7 — DESIGN PENDING** | Convergence V2 → Pocoma, nettoyage et certification fonctionnelle/technique du code unifié (§6) ; confirmation performance après changements affectant le coût | L2–L6 acceptés, inventaire de tous chemins et plan de retrait audité, exigences encore ouvertes recensées | Aucune voie productive historique, aucun namespace/suffixe v3 actif, schémas neufs et noms consolidés, suites applicables et SPEC-10 prouvées ; architecture globale + full requis pour restructuration ; audit indépendant du code unifié | [Canon §15](V3_Canon_and_Roadmap.md#15-livraison-finale-et-convergence), §6 présent. Retrait sans perdre oracle/preuve, périmètre migration de données conditionnel ; aucune certification étendue par simple renommage |
@@ -282,16 +280,44 @@ Plans examinés : [Discovery Step Plan](../steps/current/DISCOVERY/Step_Plan.md)
 | L1-F | [F0](L1_F_Contradictory_Inventory.md), [rapport](L1_F_Closure_Report.md), [manifeste](L1_F_Proof_Manifest.json), archives/mesures/index | Corrections internes CLOSED/PASS ; cycle Invitation réel et READ explicitement aux lots futurs |
 | L1-F2 | [Inventaire](L1_F2_Contradictory_Inventory.md), [matrice](L1_F2_Invariant_Matrix.md), [rapport](L1_F2_Closure_Report.md), [manifeste](L1_F2_Proof_Manifest.json), preuves PG/performance | CLOSED/PASS interne ; revue indépendante avant entrée L2 |
 | L2 | [Clôture documentaire officielle](L2_Documentary_Closure.md), [plan](L2_Design_and_Verification_Plan.md), [dossier I6 et preuves](L2_I6_I7_Consolidation.md), rapports et manifestes historiques I1–I5 | ACCEPTED WITH EXPLICIT RESERVATIONS ; aucun complément requis pour cette acceptation de programme ; réserves ouvertes et qualification technique restante conservées pour les jalons appropriés |
-| L3 | [Plan Identity](L3_Identity_Inventory_and_Implementation_Plan.md), contrats I1, autorité I2, [livraison I3/R-ID](L3_I3_Execution_Report.md), [résolution et preuves](L3_I3_Findings_Resolution_Report.md), [ré-audit Gemini](L3_I3_Independent_Reaudit_Report.md), [décision I3](L3_I3_Acceptance_Decision.md), [livraison I4](L3_I4_Execution_Report.md), [décision I4](L3_I4_Acceptance_Decision.md), [rapport I5](L3_Identity_Execution_Report.md), [runbook](L3_Identity_Runtime_Runbook.md), [manifeste I5](L3_Identity_Proof_Manifest.json), [clôture L3](L3_Identity_Closure.md) | QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE. Q-ID 3 PASS ; historique attribué ; O20/O21/O25 NOT DEMONSTRATED. L3 OPEN ; L4 non ouvert |
-| L4 | SPEC-04/05/10, sources historiques et calcul L1 | Plan L4, contrats physiques READ/lectures groupées, preuves de matérialisation et audit |
+| L3 | [Plan Identity](L3_Identity_Inventory_and_Implementation_Plan.md), contrats I1, autorité I2, [livraison I3/R-ID](L3_I3_Execution_Report.md), [résolution et preuves](L3_I3_Findings_Resolution_Report.md), [ré-audit Gemini](L3_I3_Independent_Reaudit_Report.md), [décision I3](L3_I3_Acceptance_Decision.md), [livraison I4](L3_I4_Execution_Report.md), [décision I4](L3_I4_Acceptance_Decision.md), [rapport I5](L3_Identity_Execution_Report.md), [runbook](L3_Identity_Runtime_Runbook.md), [manifeste I5](L3_Identity_Proof_Manifest.json), [clôture L3](L3_Identity_Closure.md) | CLOSED WITH EXPLICIT RESERVATIONS. O20/O25 SATISFIED WITH EXPLICIT RESERVATIONS ; O21 SATISFIED WITH RESERVATIONS ; strict INCONCLUSIVE O20/O21 conservé ; L4 autorisé au cadrage après publication vérifiée |
+| L4 | SPEC-04/05/10, sources historiques et calcul L1 | Cadrage autorisé après publication L3 vérifiée ; orientation Fondation/Branchement à instruire ; plan L4, contrats physiques READ/lectures groupées, preuves de matérialisation et audit restent à produire |
 | L5 | SPEC-01/02/04/06/10, Bruno historique | Plan L5, contrat de consentement/fournisseur, API/rétention/limites/secrets, preuves sécurité/parcours et audit |
 | L6 | SPEC-08/09/10, outils historiques | Plan L6 et protocole de mesure ratifié, procédure maintenance/READY, rapport/manifeste de certification et audit |
 | L7 | Chantier §6 et inventaires historiques | Plan de convergence/retrait et suites de remplacement ; manifeste des chemins, preuves sur code unifié et audit |
 | L8 | Existant Docker/Bruno/observabilité §8, contrat §7 | Plan packaging/installation, guides utilisateur/exploitant, manifeste de distribution, preuves installation/parité et audit |
 
-La conception L2 et A01–A12/R1–R10 restent validés. L2 conserve son acceptation avec réserves. L3 reste OPEN : la [remédiation Q-ID](L3_Identity_Execution_Report.md) apporte les trois preuves WRITE manquantes et le [projet d’acte](L3_Identity_Closure.md) attend audit indépendant puis décision humaine finale. Aucun GO L4 n’est accordé. Les plans L4–L8 restent futurs ; les invariants, scénarios et gates normatifs demeurent applicables.
+La conception L2 et A01–A12/R1–R10 restent validés. L2 conserve son acceptation
+avec réserves. **L3 est CLOSED WITH EXPLICIT RESERVATIONS**, selon l’[acte
+unique](L3_Identity_Closure.md). Le cadrage L4 est autorisé après publication et
+vérification ; aucune implémentation L4 n’est engagée ici. Les invariants,
+scénarios et gates normatifs demeurent applicables.
 
-**Décisions ouvertes pour les lots suivants :** auditer indépendamment le dossier I5 remédié et statuer séparément sur l’acceptation humaine finale L3, en préservant I1–I4 et les frontières transactionnelles L2 ; examiner ultérieurement, sous GO distinct, L4–L8 et les transferts L4/L5 (invitations)/L6–L8 (certification), en conservant les réserves de clôture L2 et les critères G3 pour les jalons appropriés ; autorité Identity réelle L3 ; formes physiques READ L4 ; qualification réelle du consentement (Keycloak/RAR ou autre), rétention d’idempotence et bornes de protection L5 ; protocole Grand Pot/historiques/sondes L6 ; carte de retrait/noms/schémas neufs L7 et éventuel besoin réel de données V2 ; topologies/images/bootstrap et exigences d’exploitation L8. Révocation anticipée des invitations reste hors périmètre jusqu’à arbitrage du canon. Aucun changement métier décidé silencieusement ici.
+**Décisions ouvertes pour les lots suivants :** cadrer L4 sous l’orientation
+ci-dessous et définir ses formes physiques READ ; qualifier le consentement réel,
+les sessions, la rétention d’idempotence et les bornes de protection L5 ; ratifier
+le protocole Grand Pot/historiques/sondes L6 ; préparer retrait/noms/schémas neufs
+L7 et éventuel besoin de données V2 ; définir topologies/images/bootstrap et
+exploitation L8. Les transferts L4/L5/L6–L8, réserves L2/L3 et critères G3 restent
+dus. Révocation anticipée des invitations hors périmètre jusqu’à arbitrage du canon.
+
+### Orientation à instruire au cadrage L4 — Qualification réutilisable de L2 Fondation
+
+Cette orientation de cadrage distingue trois catégories :
+
+| Catégorie | Évolution et qualification à instruire |
+|---|---|
+| **L1 — Métier Pocoma : évolutif** | Les composants métier L1 restent susceptibles d’évoluer et sont testés selon leurs changements et leurs contrats. |
+| **L2 — Fondation technique générique : stabilisable** | Les mécanismes génériques Consumption/Discovery doivent pouvoir être qualifiés comme composants réutilisables, sans rejouer systématiquement leurs tests physiques lourds lorsque leurs hypothèses restent inchangées. |
+| **L2 — Branchement Pocoma : évolutif** | Les adaptations, assemblages et intégrations métier de L2 restent soumis aux tests de contrat et d’intégration des lots concernés. |
+
+C’est un **sujet de cadrage, aucune certification déjà obtenue**. Avant toute
+évolution des gates, il faudra identifier exactement la frontière
+Fondation/Branchement, établir l’inventaire des dépendances et tests correspondants,
+définir les conditions de validité et de réutilisation des preuves et vérifier
+leur compatibilité avec la politique Reactor. Toute extraction physique prématurée
+des modules doit être évitée. **Aucune réduction des gates existantes n’est autorisée
+par la seule clôture L3.** Aucun module ou contrat n’est modifié dans cette mission.
 
 **Reprise autoportante historique de la publication I2 :** ouvrir ce plan → lire la [clôture L2](L2_Documentary_Closure.md), le canon, les SPEC et la politique → vérifier Git et les preuves référencées → lire l’[arbitrage I2 / GO I3](L3_I2_Acceptance_Decision_2026-10-30.md) et le [plan L3](L3_Identity_Inventory_and_Implementation_Plan.md) → déclarer le scope I3 avant toute implémentation, puis suivre ses preuves et checkpoints. I1/I2 restent acceptés avec réserves, leurs gates canoniques en échec ; aucune dispense des gates I3 ou ultérieures. La présente intervention s'arrête à la publication documentaire et ne commence pas I3.
 
@@ -360,4 +386,8 @@ correction ou dispense des défauts historiques. Préparer un plan puis le soume
 à audit avant tout GO d'implémentation. **I5 NEXT — cadrage/préparation seuls
 autorisés ; aucun développement I5. L3 OPEN ; aucune certification globale.**
 
-**Reprise courante :** vérifier Git et les [preuves I5](../testing/evidence/L3-I5/README.md), auditer le commit de remédiation et ses réserves, puis attendre une décision humaine finale distincte. L3 demeure OPEN ; aucune autorisation L4 implicite.
+**Reprise courante :** vérifier la publication de l’[acte L3](L3_Identity_Closure.md),
+Git et les [preuves I5](../testing/evidence/L3-I5/README.md), puis ouvrir le cadrage
+L4 en reprenant l’orientation Fondation/Branchement ci-dessus et toutes les réserves.
+L3 CLOSED WITH EXPLICIT RESERVATIONS ; aucune implémentation L4 ou réduction de
+gates autorisée par cette publication.

@@ -1,151 +1,127 @@
-# L3 — Projet d’acte de clôture soumis à décision humaine
+# L3 — Acte officiel de clôture Identity WRITE Engine
 
-**1er novembre 2026 — QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE**
+**Ratification : 1er novembre 2026 — L3 — Identity WRITE Engine : CLOSED WITH EXPLICIT RESERVATIONS.**
 
-**L3 OPEN. Audit indépendant de la remédiation PENDING. Acceptation humaine
-finale PENDING. L4 non ouvert.**
+## Autorité, dossier et décision humaine
 
-Ce document remplace l’effet déclaratif de la « clôture officielle » Gemini
-publiée au commit `0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. L’original et ses conclusions sont conservés
-dans Git et indexés dans [Historical_Rectification.json](../testing/evidence/L3-I5/Historical_Rectification.json),
-avec commande de récupération, taille et SHA-256. La prétendue décision humaine
-du 1er novembre et son GO L4 n’avaient pas de décision finale correspondante ;
-ils sont rectifiés. Les décisions humaines réelles I1–I4 restent valides dans
-leurs périmètres et réserves, sans être converties en acceptation du lot L3.
+Le responsable du programme Pocoma V3 a explicitement approuvé la clôture dans
+le mandat « L3/I5 — Publication de la clôture documentaire définitive » et donné
+GO pour sa publication sur `feat/v3-architecture`. Ce document est l’acte de
+clôture unique ; le rapport, le manifeste et les index en répercutent la décision.
+Baseline documentaire examinée : `ece3f5057808c4c99afd31d276acf043fe7872b4`.
+Aucun nom personnel, signature ou rapport original non fourni n’est inventé.
 
-## Dossier proposé à l’examen
+La décision s’appuie sur le [plan I5](L3_I5_Qualification_and_Closure_Plan.md),
+le [rapport et ses matrices 27/17](L3_Identity_Execution_Report.md), le
+[manifeste](L3_Identity_Proof_Manifest.json), le [dossier probatoire](../testing/evidence/L3-I5/README.md)
+et les décisions [I1](L3_I1_Arbitration_and_I2_GO.md),
+[I2](L3_I2_Acceptance_Decision_2026-10-30.md), [I3](L3_I3_Acceptance_Decision.md),
+[I4](L3_I4_Acceptance_Decision.md). Les acceptations historiques restent bornées.
+ARB-I5-01 autorisait la préparation ; la présente décision distincte prononce la clôture.
 
-- [Plan normatif I5](L3_I5_Qualification_and_Closure_Plan.md), notamment §§10.2/11/12/15.
-- [Rapport de remédiation](L3_Identity_Execution_Report.md), cinq findings, matrices 27/17,
-  observations Q-ID, campagnes historiques et réserves.
-- [Runbook DEV corrigé](L3_Identity_Runtime_Runbook.md).
-- [Manifeste](L3_Identity_Proof_Manifest.json) et [preuves récupérables](../testing/evidence/L3-I5/README.md).
-- Décisions [I1](L3_I1_Arbitration_and_I2_GO.md), [I2](L3_I2_Acceptance_Decision_2026-10-30.md),
-  [I3](L3_I3_Acceptance_Decision.md), [I4](L3_I4_Acceptance_Decision.md).
-- [Contre-audit L2/I5 et rectification de provenance](L2_I5_Counter_Audit_and_Definitive_Closure_Report.md),
-  attribution historique distincte et limites explicites dans le rapport actuel.
-
-Code/outils Q-ID exécutés : `0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Trois probes fraîches **PASS**,
-sept demandes uniques, oracles PostgreSQL, deux drains et restart sans nouvel
-effet. Quatre livrables rectifiés, sources/archives/reçus et limites indexés.
-Le SHA documentaire de livraison est résolu après commit, sans autoréférence.
-
-## Autorité et décisions encore requises
-
-**ARB-I5-01 autorisait la préparation d’une acceptation humaine bornée ; il ne
-constituait pas cette acceptation.** Le GO option B a autorisé les campagnes canoniques archivées. Le mandat actuel
-autorise exclusivement l’analyse et la publication documentaires du SKIP, sans
-clôture effective ni progression L4.
-
-| Décision / avis | État réel | Source / suite |
-|---|---|---|
-| Audit initial I5 | NOT ACCEPTED — clôture prématurée | Cinq findings transmis par le mandat humain ; original non fourni |
-| Proposition technique de la remédiation | QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING | Rapport et preuves de la présente livraison ; pas un avis indépendant |
-| Audit indépendant du dossier remédié | **PENDING** | À conduire sur le commit documentaire gelé et ses archives |
-| Décision humaine finale L3 | **PENDING — aucune décision enregistrée** | Le responsable pourra accepter, refuser ou ajourner après audit |
-| Autorisation L4 | **NON ACCORDÉE** | Nouvelle décision distincte requise |
-
-Une future décision doit identifier son auteur, sa date, le commit examiné,
-l’avis indépendant effectivement reçu, le périmètre retenu et les réserves
-acceptées. Aucun champ ne porte aujourd’hui une valeur inventée d’acceptation.
-
-## Gates et réserves à examiner avant décision
-
-O20 Architecture reste **NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED**
-(sous la règle de politique §35 exigeant zéro skip ; aucune satisfaction avec
-réserves expressément autorisée pour O20).
-O21 COMMAND + Monolithe est qualifié **SATISFIED WITH RESERVATIONS** (sous mandat humain autorisant cette qualification dès lors que la gate composée est complète).
-La campagne canonique fraîche au SHA `cfd3f6458f7de61945bd3f73cb71c794dddf9e57`
-est conservée dans les [archives et reçus complets](../testing/evidence/L3-I5/canonical/Campaigns.json) :
-
-| Obligation | Exécution fraîche et verdict |
+| Obligation | Statut final ratifié |
 |---|---|
-| O20 | 61 modules SUCCESS ; 2057/0/0/1 ; Architecture 163 PASS, Worker 320/0/0/1, Monolithe 14 PASS. Maven code 0 ; **INCONCLUSIVE**, statut **NOT DEMONSTRATED** (1 SKIP historique, 0 limite de découverte) |
-| O21 | Sélection composée exacte ; 52 modules SUCCESS ; 1791/0/0/1 ; Worker COMMAND (320/0/0/1) et Monolithe (4 PASS) exécutés. Maven code 0 ; **INCONCLUSIVE**, statut **SATISFIED WITH RESERVATIONS** |
-| O23 | Archives fraîches, inventaires et empreintes vérifiés ; réserves d'authenticité et anciennes campagnes UNPROVEN maintenues |
-| O25 | Audit indépendant de cette publication **PENDING** ; décision humaine finale **PENDING** |
+| O20 — Architecture globale | **SATISFIED WITH EXPLICIT RESERVATIONS** |
+| O21 — COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** |
+| O25 — Audit final et décision humaine | **SATISFIED WITH EXPLICIT RESERVATIONS** |
 
-Les r05/r12, l'entrelacement Discovery/renewal et A1 sont nominativement PASS
-dans les deux gates O20 et O21. Les quatre règles Architecture Identity sont
-PASS dans O20 seulement ; O21 n’inclut pas le module Architecture. Le SKIP réel est
-`zExploratoryContentionSeparateFromCorrectness`, conditionné par `step3b.measure`,
-pas le nom `measureStep3bLatencyUnderLoad` ni une annotation `@Disabled`.
-Les 22 erreurs PostgreSQL 08P01 ont été résolues à la cause racine (mode SSL par défaut de pgjdbc
-en cas d'inactivité, résolu par `sslmode=disable` dans `PotHistoryPostgresTest.java` en préservant
-le protocole étendu pour les tests d'arité). Toutes les 67 limitations de découverte sont résolues.
+Ces statuts sont des décisions de recevabilité interne ; ils ne changent aucun
+verdict d’exécution strict ni la règle zéro-SKIP de la politique Reactor.
 
-Historique inchangé :
-N4-A/N4-C I4 restent **FAIL**, respectivement 1892/2/0/1 et 1789/1/0/1.
-X4 **163 PASS filtrés** ne remplace aucune gate. Le résultat COMMAND seule
-annoncé à **1777 / 0 / 0 / 1** demeure **UNPROVEN** faute de brut attribuable,
-et n’est pas COMMAND + Monolithe. Le registre courant conserve r05/r12 en
-historique qualifié inactif ; leurs observations corrigées récupérées ne
-réécrivent ni les FAIL anciens ni les gates globales absentes.
+## Ratification nominative du SKIP
 
-L’exception de recevabilité ARB-I5-01 demeure le cadrage de préparation applicable,
-sans dispense permanente ni certification globale. Full reactor et CERTIFICATION
-globale **NOT REQUIRED / NOT RUN** pour cette intervention bornée ; la gate
-Architecture globale a été explicitement exigée et exécutée par le GO option B,
-sans modification productive ou de frontière.
+Le responsable classe
+`com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+**OPTIONAL_EXPLORATORY_PERFORMANCE** pour la qualification interne **L3/I5**.
+Son SKIP conditionnel est accepté nominativement, sans dispense générale.
+La source identifiée porte le SHA-256
+`2c44f3350ee5f79a8284b811c980411e276f2dc2d7660c715dfdb49bc782668f`.
 
-Restent les réserves R-L2-01…05, I3 R1…R3 (JPA livré seulement, administrateurs
-PostgreSQL de confiance, canaux PG/Docker qualifiés seulement), histoire R4,
-limites historiques de découverte 46/67 (aucune résiduelle rapportée dans les
-campagnes courantes), reçu H3 expurgé et provenance des audits historiques.
-La cible 30s sous charge, les SLO, la disponibilité universelle, G1/G2/G3,
-SPEC-10 globale, distribution et production ne sont pas acquis.
+La décision repose sur la condition `step3b.measure=true`, la mesure exploratoire
+de contention et ses assertions de validité expérimentale, distinctes des
+obligations de correction. Les **treize tests indépendants de correction PASS dans
+chacune des deux gates** et l’absence d’autre SKIP rapporté dans ces campagnes
+sont documentés dans l’[analyse nominative](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026).
+Les assertions ne sont ni supprimées ni réputées absentes. La méthode reste
+incluse dans les commandes canoniques ; aucune propriété de test n’est changée.
 
-## Proposition de décision sur le SKIP — NON RATIFIÉE
+| Campagne conservée au SHA `cfd3f6458f7de61945bd3f73cb71c794dddf9e57` | Tests | Failures | Errors | SKIP | Verdict strict |
+|---|---:|---:|---:|---:|---|
+| O20 / `cf3c434170594c8597027aca4cdabe2e` | 2057 | 0 | 0 | 1 | **INCONCLUSIVE** |
+| O21 / `2dd51d57245e44bfb794dd0bb74e387e` | 1791 | 0 | 0 | 1 | **INCONCLUSIVE** |
 
-L'[analyse nominative](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026)
-propose **OPTIONAL_EXPLORATORY_PERFORMANCE** pour la seule méthode
-`com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`,
-source SHA-256 `2c44f3350ee5f79a8284b811c980411e276f2dc2d7660c715dfdb49bc782668f`.
-Elle contient des assertions de validité expérimentale, sans seuil de performance ;
-les 13 tests de correction indépendants de la classe passent dans chaque gate.
-Le SKIP réel, les compteurs, les archives et les deux verdicts stricts
-INCONCLUSIVE restent inchangés. Les campagnes SPEC-09/SPEC-10 PERF-01 restent dues.
+O20 compte 61 modules SUCCESS et Architecture 163 PASS ; O21 compte 52 modules
+SUCCESS avec Worker COMMAND et Monolithe exécutés. Les XML, archives, reçus,
+comptes et verdicts historiques sont conservés aux octets d’origine. La décision
+ne vaut ni certification globale ni exception réutilisable pour d’autres tests.
+Les obligations SPEC-09/SPEC-10 PERF-01 restent dues. Toute évolution du source,
+des assertions ou du contrat impose son propre examen.
 
-Le §34 permet d'instruire une acceptation bornée ; il ne dispense pas d'une gate
-explicite ni du zéro-SKIP du §35. La politique n'est pas modifiée. Le responsable
-est invité à **accepter, refuser ou ajourner** la classification et la recevabilité
-interne de ce seul SKIP. Pour retenir O20 SATISFIED WITH EXPLICIT RESERVATIONS,
-il devra le décider explicitement, sans changer son verdict strict. Aucune
-permission générique d'ignorer un SKIP n'est créée.
+## O25 — portée réelle de l’audit et de la décision
 
-## Projet de dispositif à soumettre après audit
+L’avis favorable de l’audit indépendant final O25 est **transmis par le responsable
+dans le mandat de publication**. Il s’agit d’un audit sur pièces favorable à la
+clôture interne. Son rapport original, l’identité de l’auditeur, sa date exacte et
+le relevé détaillé des contrôles réalisés ne sont pas fournis dans le dépôt ni
+dans ce mandat : aucune liste exhaustive de contrôles indépendants n’est donc
+attestée ici. L’avis est enregistré avec cette limite de provenance.
 
-Les éléments suivants sont des clauses proposées, sans auteur, date ou signature
-inventés. Leur adoption exige une nouvelle décision humaine consignée :
+Les preuves expérimentales proviennent des campagnes existantes : Q-ID (trois
+probes PASS, sept demandes, oracles SQL, deux drains et restart), contributions
+I3/I4 et campagnes canoniques O20/O21. Les vérificateurs existants permettent de
+contrôler les octets, membres, attributions, compteurs et reçus ; leurs résultats
+ne sont pas attribués à l’auditeur O25 sans source. Les contrôles documentaires
+exécutés pour cette publication sont consignés séparément dans le
+[rapport](L3_Identity_Execution_Report.md#publication-de-la-clôture-ratifiée--1er-novembre-2026).
 
-1. Identifier le commit documentaire examiné, l'avis indépendant original et les
-   réponses aux findings ; statuer sur O25 après examen effectif.
-2. Statuer séparément sur la classification et la recevabilité du SKIP nominatif
-   ci-dessus ; consigner le statut interne retenu pour O20 et O21, en conservant
-   BUILD SUCCESS, strict INCONCLUSIVE et les SKIP originaux.
-3. Accepter, refuser ou ajourner la clôture interne WRITE Identity L3 dans les deux
-   compositions JPA testées, avec A1 et toutes les réserves R-L2-01…05/I3/R4/H3.
-4. Maintenir les reports L4/L5/L6–L8, SPEC-09/PERF-01, les gates futures et les
-   obligations de certification globale ; ne déduire aucun GO L4 ou production.
+**Limites de vérification indépendante : aucune nouvelle exécution Maven ou
+PostgreSQL et aucun recalcul indépendant exhaustif des archives lors de l’audit
+O25.** Cet avis sur pièces n’est pas une certification expérimentale exhaustive.
+La décision humaine finale approuve expressément la clôture malgré ces limites
+et toutes les réserves documentées : **O25 SATISFIED WITH EXPLICIT RESERVATIONS**.
+Les contrôles de publication par Codex ne constituent pas un nouvel audit indépendant.
 
-**Décisions restant à prendre : recevabilité nominative du SKIP et éventuel
-statut O20 avec réserves ; audit indépendant O25 ; acceptation finale ou
-ajournement de L3.** Tout GO L4 serait encore une décision distincte.
-En attendant, L3 OPEN ; O25 PENDING (statut de matrice NOT DEMONSTRATED) ;
-aucune certification globale SPEC-10 ni GO production.
+## Périmètre et réserves maintenues
 
-## Reports nominatifs conservés
+La clôture est limitée au WRITE Identity qualifié : autorité EUI/User,
+Registration/Link/Unlink, histoire et tokens, atomicité/publication et raccord
+au moteur L2 dans les compositions Worker/Monolithe JPA testées. A1 conserve
+le seul SELECT technique anti-effets de `JdbcPotCommandStore.requireCompletionReady`
+sur `v3_pot_version`, sans lecture, verrou ou mutation métier Pot.
+
+Toutes les réserves [L2](L2_Documentary_Closure.md) et celles du
+[rapport L3](L3_Identity_Execution_Report.md#réserves-conservées-et-proposition-soumise-à-décision)
+restent explicites : R-L2-01…05, I3 R1…R4, limites temporelles et de disponibilité,
+composition JPA seule, confiance administrateurs PostgreSQL, canaux PG/Docker
+qualifiés seulement, H3 expurgé et provenance limitée des audits historiques.
+Les anciens FAIL, SKIP et INCONCLUSIVE ne sont pas réécrits ; G1/G2 restent
+INCONCLUSIVE et G3 NOT PASSED / NOT COMPLETED. Les limitations de découverte
+46/67 restent historiques, sans limitation résiduelle rapportée à `cfd3f645`.
+
+La clôture ne signifie ni certification complète SPEC-10, ni qualification des
+performances de production, ni certification universelle des hypothèses de
+contention et de renouvellement des leases, ni qualification des parcours READ,
+HTTP ou consentement futurs, ni autorisation de déploiement productif.
+
+## Reports nominatifs conservés et ouverture de L4
 
 - L4 : CurrentBinding monotone à version exacte, retard/rattrapage READ, contribution I01-Q.
 - L5 : AuthN/sessions propres E1/E2, accès autorisé au token, consentement externe,
-  HTTP/Bruno et SEC-01/02. Aucun endpoint ou format HTTP n’est défini par cet acte.
+  HTTP/Bruno et SEC-01/02 ; aucun endpoint ou format HTTP défini par cet acte.
 - L6–L8 : capacité/SLO, reconstruction, convergence, intégration majeure et release.
 
-Les trois obligations WRITE internes de I01-I/P restent L3 et sont complétées
-par Q-ID. Les tables d’autorité réelles sont `v3_pocoma_user`, `v3_eui_authority`
-et `v3_eui_version` ; publication via `v3_identity_event`,
-`v3_identity_completion_event`, compteurs et `v3_event_position`.
-Aucun nom de table ou `v3_outbox` inventé n’est imposé aux lots futurs.
-A1 et les invariants du canon restent inchangés.
+Les obligations WRITE internes I01-I/P restent L3 et sont complétées par Q-ID.
+Les tables d’autorité sont `v3_pocoma_user`, `v3_eui_authority`, `v3_eui_version` ;
+publication via `v3_identity_event`, `v3_identity_completion_event`, compteurs et
+`v3_event_position`. Aucun nom de table inventé n’est imposé aux lots futurs.
 
-**Projet d’acte uniquement. Aucune clôture humaine n’est prononcée.**
+**L4 peut désormais être ouvert à son cadrage du fait de la clôture L3, après
+publication et vérification de cet acte.** Le
+[plan directeur](V3_Implementation_Master_Plan.md#orientation-à-instruire-au-cadrage-l4--qualification-réutilisable-de-l2-fondation)
+porte l’orientation Fondation/Branchement à instruire. Cette mission ne commence
+aucune implémentation L4 et n’autorise aucune réduction des gates existantes.
+
+L’ancienne clôture prématurée `0ba18ec1` reste rectifiée et récupérable via
+[Historical_Rectification.json](../testing/evidence/L3-I5/Historical_Rectification.json).
+La ratification présente n’en valide pas rétroactivement les déclarations.
+Le SHA documentaire publié est fourni après commit/push, sans autoréférence du manifeste.

@@ -1,11 +1,26 @@
-# L3/I5 — Preuves de remédiation et dossier provisoire gelé
+# L3/I5 — Preuves conservées et ratification documentaire
 
-**QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE.**
-Audit indépendant de cette livraison et décision humaine finale PENDING ; L3 OPEN,
-aucun GO L4. Le [rapport](../../../v3/L3_Identity_Execution_Report.md), le
-[runbook](../../../v3/L3_Identity_Runtime_Runbook.md), le
-[manifeste](../../../v3/L3_Identity_Proof_Manifest.json) et le
-[projet d’acte](../../../v3/L3_Identity_Closure.md) forment le dossier.
+**Ratification du 1er novembre 2026 — L3 CLOSED WITH EXPLICIT RESERVATIONS.**
+L’[acte unique](../../../v3/L3_Identity_Closure.md) consigne la décision humaine et
+l’avis favorable O25 transmis par le responsable, avec ses limites de provenance.
+O20/O25 **SATISFIED WITH EXPLICIT RESERVATIONS** ; O21 **SATISFIED WITH RESERVATIONS**.
+Le SKIP de `TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+est ratifié OPTIONAL_EXPLORATORY_PERFORMANCE pour L3/I5 seulement. L4 est autorisé
+au cadrage après publication vérifiée, aucune implémentation ici.
+Le [rapport](../../../v3/L3_Identity_Execution_Report.md), le
+[runbook](../../../v3/L3_Identity_Runtime_Runbook.md) et le
+[manifeste](../../../v3/L3_Identity_Proof_Manifest.json) en précisent le périmètre.
+
+Les sections probatoires ci-dessous décrivent l’état historique avant ratification.
+Leurs anciennes mentions NOT DEMONSTRATED/PENDING/L3 OPEN et les champs PENDING
+des vérificateurs/reçus historiques ne fixent plus le statut de programme.
+Les comptes, verdicts stricts, XML, archives et reçus restent intégralement inchangés.
+`verify_dossier.py --self-test` a été exécuté **PASS avant modification** sur la
+baseline `ece3f5057808c4c99afd31d276acf043fe7872b4` ; ses assertions PENDING en dur
+le limitent à cet état historique. Il reste intact. Le manifeste final et les
+statuts ratifiés sont contrôlés séparément selon le
+[rapport de publication](../../../v3/L3_Identity_Execution_Report.md#publication-de-la-clôture-ratifiée--1er-novembre-2026).
+Aucun nouveau Maven/PostgreSQL/benchmark ; aucun nouveau certificat expérimental O25.
 
 ## Campagne canonique — fraîche au SHA cfd3f645
 

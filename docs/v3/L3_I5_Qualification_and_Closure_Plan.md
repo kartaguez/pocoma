@@ -1,9 +1,11 @@
 # Pocoma V3 — L3/I5 — Qualification finale et clôture Identity
 
-**État courant, 1er novembre 2026 : Q-ID exécuté ; dossier remédié et gates
-O20/O21 publiés ; analyse documentaire du SKIP soumise à arbitrage. L3 OPEN,
-O25 PENDING, aucune acceptation finale.** Voir l'actualisation §18 ; le corps
-du plan du 31 octobre et ARB-I5-01 sont conservés avec leur portée historique.
+**État courant — ratification du 1er novembre 2026 : L3 CLOSED WITH EXPLICIT
+RESERVATIONS ; O20/O25 SATISFIED WITH EXPLICIT RESERVATIONS ; O21 SATISFIED WITH
+RESERVATIONS.** Voir §19 et l’[acte unique](L3_Identity_Closure.md).
+Les §§1–18 sont conservés comme historique de préparation et d’instruction,
+y compris les statuts ND/PENDING antérieurs ; aucune prescription de preuve
+future ni aucun résultat d’exécution n’est rétroactivement modifié.
 
 **31 octobre 2026 — PLAN FINALISÉ, ARBITRAGE ARB-I5-01 RATIFIÉ, NON EXÉCUTÉ (état historique).**
 
@@ -1112,7 +1114,7 @@ de la campagne Q-ID.
 
 **I5 — QUALIFICATION PLAN APPROVED / READY FOR EXECUTION GO**
 
-## 18. Actualisation documentaire du 1er novembre 2026 — sans nouvelle ratification
+## 18. Actualisation documentaire historique du 1er novembre 2026 — avant ratification finale
 
 Le [rapport courant](L3_Identity_Execution_Report.md), le
 [manifeste](L3_Identity_Proof_Manifest.json) et le
@@ -1148,3 +1150,33 @@ pour cette passe. Les gates déjà archivées demeurent REQUIRED / RUN historiqu
 L3 OPEN ; O25 PENDING jusqu'à audit indépendant et décision humaine distincte ;
 aucun GO L4, SPEC-10 global ou production. Les clauses de décision proposées
 figurent dans le projet d'acte, sans acceptation préremplie.
+
+## 19. Ratification finale et publication documentaire — 1er novembre 2026
+
+Le responsable du programme a reçu l’avis favorable O25 et donné GO explicite
+pour publier la clôture. L’[acte de clôture unique](L3_Identity_Closure.md) consigne
+la classification nominative OPTIONAL_EXPLORATORY_PERFORMANCE, la recevabilité
+interne L3/I5 du seul SKIP conditionnel de
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`,
+les statuts O20/O25 **SATISFIED WITH EXPLICIT RESERVATIONS**, O21 **SATISFIED WITH
+RESERVATIONS** et **L3 CLOSED WITH EXPLICIT RESERVATIONS**.
+Cette décision humaine distincte satisfait l’arbitrage encore demandé au §18 ;
+ARB-I5-01 reste un acte de préparation historique.
+
+Les comptes O20 2057/0/0/1 et O21 1791/0/0/1 et leurs verdicts stricts
+**INCONCLUSIVE** restent inchangés. La règle zéro-SKIP, la politique Reactor,
+les archives et les obligations futures restent intégrales. L’avis O25 est
+transmis par le mandat : rapport original/détail des contrôles non fournis,
+aucun nouveau Maven/PostgreSQL ni recalcul indépendant exhaustif des archives.
+La décision accepte explicitement ces réserves de vérification indépendante.
+
+L4 peut s’ouvrir au cadrage après publication et vérification, sans implémentation.
+L’orientation « Qualification réutilisable de L2 Fondation » est à instruire dans
+le [plan directeur](V3_Implementation_Master_Plan.md#orientation-à-instruire-au-cadrage-l4--qualification-réutilisable-de-l2-fondation).
+Elle ne constitue aucune certification obtenue ni réduction des gates.
+
+Portée de cette publication : slices **NONE**, impact productif/franchissement
+inattendu **NONE**, Architecture globale **NOT REQUIRED**, full reactor
+**NOT REQUIRED / NOT RUN**, DB/Maven/benchmark/tests temporels **NOT RUN**.
+Contrôles documentaires et protocole d’empreintes :
+[rapport final](L3_Identity_Execution_Report.md#publication-de-la-clôture-ratifiée--1er-novembre-2026).

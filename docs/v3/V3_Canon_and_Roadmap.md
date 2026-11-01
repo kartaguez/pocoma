@@ -1,32 +1,25 @@
 # Pocoma V3 — Canon et feuille de route
 
-**Rectification L3/I5 — 1er novembre 2026 : QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE.**
-[Rapport de remédiation Q-ID](L3_Identity_Execution_Report.md),
-[runbook corrigé](L3_Identity_Runtime_Runbook.md),
-[manifeste vérifiable](L3_Identity_Proof_Manifest.json),
-[projet d’acte de clôture](L3_Identity_Closure.md).
-Les conclusions de clôture et de GO L4 du dossier Gemini `0ba18ec1` sont rectifiées ;
-leurs originaux restent dans Git avec provenance explicite. ARB-I5-01 autorisait
-la préparation d’une acceptation bornée, pas cette acceptation.
-Q-UFREE, Q-UOTHER et Q-REGNEW : trois observations fraîches PASS, sept demandes,
-SQL avant/après, deux drains et restart contrôlés au code
-`0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Acquis I1–I4 conservés.
-Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
-Campagnes courantes au SHA gelé `cfd3f645` : O20 BUILD SUCCESS,
-2057/0/0/1, Architecture 163 PASS ; O21 BUILD SUCCESS, 1791/0/0/1,
-Worker et Monolithe exécutés. Zéro limitation de découverte résiduelle rapportée.
-Les deux verdicts stricts restent **INCONCLUSIVE**. O20 : **NOT DEMONSTRATED —
-NORMATIVE ARBITRATION REQUIRED** ; O21 : **SATISFIED WITH RESERVATIONS** pour
-la seule recevabilité interne du mandat antérieur. La classification nominative
-`OPTIONAL_EXPLORATORY_PERFORMANCE` du SKIP est proposée, non ratifiée ;
-[analyse et décision à soumettre](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026).
-La tentative `aff7a70d` (O21 FAIL 1414/0/22/0) demeure historique, récupérable
-au commit `d5b7db91`. La politique Reactor demeure inchangée.
-[Archives, méthodes et compteurs par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
-Gates I4 FAIL et résultats historiques UNPROVEN inchangés ; aucun transfert de
-PASS entre invocations. La présente passe est exclusivement documentaire, sans relance.
-**L3 OPEN ; aucune décision humaine finale, aucun GO L4 ou production.**
-Les encadrés antérieurs sont historiques ; les exigences normatives restent inchangées.
+**Ratification humaine du 1er novembre 2026 — L3 — Identity WRITE Engine : CLOSED WITH EXPLICIT RESERVATIONS.**
+
+L’[acte de clôture unique](L3_Identity_Closure.md) consigne la décision explicite du
+responsable du programme, l’avis favorable O25 transmis dans le mandat et ses limites.
+Baseline documentaire examinée : `ece3f5057808c4c99afd31d276acf043fe7872b4`.
+O20 et O25 : **SATISFIED WITH EXPLICIT RESERVATIONS** ; O21 : **SATISFIED WITH RESERVATIONS**.
+La classification `OPTIONAL_EXPLORATORY_PERFORMANCE` et la recevabilité du SKIP de
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+sont ratifiées nominativement pour la seule qualification interne L3/I5.
+O20 **2057/0/0/1** et O21 **1791/0/0/1** restent strictement **INCONCLUSIVE** ;
+[archives, compteurs et sources](../testing/evidence/L3-I5/canonical/Campaigns.json) inchangés.
+Les FAIL/UNPROVEN antérieurs et toutes les réserves L2/L3 sont conservés.
+La clôture est bornée au WRITE Identity qualifié ; aucun certificat global SPEC-10,
+de performance, de disponibilité universelle ou de production n’est accordé.
+**L4 est autorisé à s’ouvrir au cadrage après publication et vérification de cet acte ;
+aucune implémentation L4 n’est autorisée par cette mission.**
+L’orientation Fondation/Branchement est à instruire dans le
+[plan directeur](V3_Implementation_Master_Plan.md#orientation-à-instruire-au-cadrage-l4--qualification-réutilisable-de-l2-fondation).
+La politique Reactor et les gates existantes restent inchangées.
+Les encadrés antérieurs ci-dessous sont historiques et ne fixent pas le statut courant.
 
 **Progression historique L3/I4 — décision humaine du 31-10-2026 : DOCUMENTARY CLOSED /
 ACCEPTED WITH EXPLICIT RESERVATIONS**, [décision, réserves et reprise I5](L3_I4_Acceptance_Decision.md).
@@ -139,7 +132,7 @@ Les identifiants **SPEC-01 à SPEC-10** désignent des documents, **pas des jalo
 |---|---|---|
 | V3-0 à V3-5 | Concevoir et mettre en cohérence le corpus conceptuel | Conception arbitrée ; consolidation documentaire AUD-V3-012 |
 | V3-CADRE | Autoriser conceptuellement l'entrée en réalisation après cohérence globale | GO confirmé le 2026-10-24 après contre-audits ; autorise V3-6, sans certification |
-| V3-6 | Réaliser les capacités et leurs tests | Programme détaillé dans le [plan directeur](V3_Implementation_Master_Plan.md) ; fondations internes L1 et L2 acceptées dans leurs limites ; I1–I4 acceptés, L3 OPEN ; I5 QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE selon le [projet d’acte L3](L3_Identity_Closure.md) ; aucun GO L4 |
+| V3-6 | Réaliser les capacités et leurs tests | Programme détaillé dans le [plan directeur](V3_Implementation_Master_Plan.md) ; fondations internes L1 et L2 acceptées dans leurs limites ; I1–I4 acceptés, **L3 CLOSED WITH EXPLICIT RESERVATIONS** selon l’[acte unique](L3_Identity_Closure.md) ; L4 autorisé au cadrage après publication vérifiée, aucune implémentation engagée |
 | V3-7 | Qualification transversale PostgreSQL/Bruno/k6, budgets et décision de certification | Certification complète non acquise ; contributions et gates internes L1 conservés ; allocation proposée L6/L7/L8 dans le plan directeur |
 
 Aucun prérequis de compatibilité avec une V1/V2 en production. Les invariants historiques utiles doivent être prouvés à nouveau sous les contrats V3 ; les PASS anciens ne valent pas PASS V3. Un changement fonctionnel structurant pendant V3-6 nécessite nouvel arbitrage documenté.

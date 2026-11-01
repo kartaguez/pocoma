@@ -1,11 +1,19 @@
 # L3/I5 — Remédiation Q-ID, requalification canonique et dossier pour audit
 
-**1er novembre 2026 — QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE**
+**1er novembre 2026 — L3 CLOSED WITH EXPLICIT RESERVATIONS.**
 
-Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
-Auteur de la remédiation : Codex. Audit indépendant de cette livraison **PENDING**.
-L3 reste OPEN ; L4 n’est pas ouvert. Les mandats précédents ont autorisé la remédiation et les gates archivées. Le GO
-actuel autorise leur finalisation documentaire et sa publication, sans acceptation finale.
+Décision humaine du responsable du programme : O20/O25 **SATISFIED WITH EXPLICIT
+RESERVATIONS**, O21 **SATISFIED WITH RESERVATIONS** ; SKIP nominatif ratifié.
+L’[acte unique](L3_Identity_Closure.md) fixe l’autorité, le périmètre et les réserves.
+Les matrices finales ci-dessous portent ces statuts. Les analyses et propositions
+antérieures jusqu’à ces matrices sont conservées comme **historique avant la
+ratification finale**, y compris leurs mentions PENDING / L3 OPEN / NON RATIFIÉ.
+Elles ne fixent plus le statut courant. Voir la
+[publication finale](#publication-de-la-clôture-ratifiée--1er-novembre-2026).
+
+## Historique des cinq findings et de leur remédiation avant ratification
+
+Auteur de la remédiation : Codex, distinct de l’auditeur indépendant.
 
 | Finding initial | Constat de l’audit transmis | Traitement factuel | État proposé à l’audit |
 |---|---|---|---|
@@ -543,12 +551,12 @@ preuves XML/méthodes/membres/lignes et reçus détaillés dans le manifeste JSO
 | O17 | Autorité réelle et témoins positifs/négatifs stables, token tiers, collision après vraie transition | **SATISFIED WITH RESERVATIONS** | Réemployer |
 | O18 | Registration → vraie Command, locks jusqu'à résolution, rollback/UNKNOWN ; User abandonné reste sans droits récupérables | **SATISFIED WITH RESERVATIONS** | Réemployer, pas nouvelle démo équivalente |
 | O19 | Négatif stable sans métier Pot, SELECT technique anti-effets conservé | **SATISFIED** | Reproduire exactement A1 dans le dossier |
-| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE due to 1 historical skip under policy §35. 0 discovery limits; NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED |
-| O21 | Gate COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** | Fresh C5-CM: 1791/0/0/1, 52 SUCCESS; both Worker COMMAND (320) and Monolith (4) fully executed; strict INCONCLUSIVE under policy §35; SATISFIED WITH RESERVATIONS is internal admissibility under prior human authorization only |
+| O20 | Architecture globale REQUIRED | **SATISFIED WITH EXPLICIT RESERVATIONS** | Décision humaine du 01-11-2026, recevabilité interne L3/I5 du seul SKIP nommé ; C5-A 2057/0/0/1, Architecture 163 PASS, strict INCONCLUSIVE inchangé |
+| O21 | Gate COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** | Fresh C5-CM: 1791/0/0/1, 52 SUCCESS; both Worker COMMAND (320) and Monolith (4) fully executed; strict INCONCLUSIVE under policy §35; Recevabilité interne maintenue par ratification humaine du 01-11-2026, jamais PASS strict |
 | O22 | Full conditionnel et niveau de clôture | **SATISFIED WITH RESERVATIONS** | FULL NOT REQUIRED / NOT RUN for this bounded remediation under ARB-I5-01; future global gates retained |
 | O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | E4 and six recovered campaigns retained; fresh complete C5-A/C5-CM archives, all members/methods/modules/counters and frozen inputs checked; old unproven claims, historical discovery limits and producer authenticity limits retained; no residual discovery limit reported for cfd3f645 |
-| O24 | Rapport, runbook, manifeste et clôture autoporteurs | **SATISFIED WITH RESERVATIONS** | Four corrected provisional deliverables and program references available for independent audit |
-| O25 | Audit indépendant et décision humaine L3 | **NOT DEMONSTRATED** | Independent audit of this frozen remediation PENDING; final human acceptance PENDING; no L4 GO |
+| O24 | Rapport, runbook, manifeste et clôture autoporteurs | **SATISFIED WITH RESERVATIONS** | Livrables documentaires synchronisés avec la décision finale ; historique conservé |
+| O25 | Audit indépendant et décision humaine L3 | **SATISFIED WITH EXPLICIT RESERVATIONS** | Avis favorable sur pièces transmis par le responsable ; détail original des contrôles non fourni ; aucun nouveau Maven/PG ni recalcul indépendant exhaustif ; clôture humaine explicite du 01-11-2026 |
 | O26 | READ, HTTP, consentement externe, qualification serveur | **OUT OF SCOPE** | Transfert L4/L5, aucune implémentation I5 |
 | O27 | Reconstruction métier, capacité/SLO, convergence/release/production | **OUT OF SCOPE** | Reports L6–L8, aucun GO production |
 
@@ -591,20 +599,82 @@ ID-01/ID-02 globaux et consentement externe ne sont pas certifiés.
 - I3 R2: PostgreSQL admin, owners and provisioners trusted; closed DEV ACL profile, auxiliary roles certified at preparation; no continuous ACL surveillance.
 - I3 R3: actual PG and Docker channels only; external audit/APM/production collectors not certified.
 - I3 R4: old gate FAILs and historical 46/67 discovery limits retained; no residual discovery limit reported for cfd3f645; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.
-- O20/O21: fresh attributable gates executed on cfd3f645; O20 INCONCLUSIVE (one skip under policy §35, status NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED); O21 SATISFIED WITH RESERVATIONS (1791/0/0/1, Worker COMMAND and Monolith fully executed). Historical FAILs retained; discovery limitations resolved for the cfd3f645 campaigns only.
+- O20/O21: fresh attributable gates executed on cfd3f645; O20 strict INCONCLUSIVE (one skip under policy §35), statut interne SATISFIED WITH EXPLICIT RESERVATIONS ratifié le 01-11-2026; O21 SATISFIED WITH RESERVATIONS (1791/0/0/1, Worker COMMAND and Monolith fully executed). Historical FAILs retained; discovery limitations resolved for the cfd3f645 campaigns only.
 - H3 only public redacted receipt; independent I3 raw logs unavailable and original I4 independent audit only reported by its human decision.
-- Independent audit of remediation and final human acceptance PENDING; no L4 GO.
+- O25 favorable sur pièces transmis par le responsable ; rapport original et détail des contrôles non fournis, aucun rejeu Maven/PG ni recalcul indépendant exhaustif. Acceptation humaine du 01-11-2026 avec ces réserves ; L4 ouvert au cadrage après publication vérifiée.
 
 A1 conserve uniquement le SELECT technique anti-effets de
 `JdbcPotCommandStore.requireCompletionReady` sur `v3_pot_version`, sans lecture,
 verrou ou mutation métier Pot. Aucun contrat Identity/L2 modifié.
 
-Les findings documentaires sont soumis au prochain audit indépendant avec leurs
-réserves. **O25 reste NOT DEMONSTRATED** : aucun auteur, date ou décision humaine
-finale n’est prérempli. ARB-I5-01 autorisait la préparation, pas cette acceptation.
-Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**. Statut de programme : **QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE**.
+Les findings et les résultats historiques demeurent consignés. La décision humaine
+finale distincte d’ARB-I5-01 clôt L3 avec réserves ; elle ne convertit pas les
+verdicts stricts en PASS. Aucune obligation future n’est supprimée.
 
-Les contrôles reproductibles sont décrits dans le [dossier de preuves](../testing/evidence/L3-I5/README.md).
-L’intégrité, les liens, le diff et l’absence de delta productif sont contrôlés
-avant publication ; le SHA publié et la concordance distante sont fournis après
-commit/push. Aucun succès de publication ou avis d’audit n’est anticipé ici.
+## Publication de la clôture ratifiée — 1er novembre 2026
+
+Le responsable du programme approuve nominativement la classification
+`OPTIONAL_EXPLORATORY_PERFORMANCE` et le SKIP conditionnel de
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`
+pour L3/I5 seulement. La condition `step3b.measure=true`, les assertions de
+validité des mesures, les treize tests de correction PASS dans chaque gate et
+l’absence d’autre SKIP rapporté constituent la base documentée de la décision.
+O20/O25 **SATISFIED WITH EXPLICIT RESERVATIONS**, O21 **SATISFIED WITH RESERVATIONS**,
+L3 **CLOSED WITH EXPLICIT RESERVATIONS**. L4 est autorisé au cadrage après
+publication et vérification ; aucune implémentation commencée.
+
+L’[acte unique](L3_Identity_Closure.md#o25--portée-réelle-de-laudit-et-de-la-décision)
+distingue l’avis O25 transmis, ses limites de provenance, les preuves anciennes
+et la décision humaine. Aucun nouveau contrôle expérimental n’est attribué à
+l’audit indépendant. Les contrôles ci-dessous appartiennent à cette publication.
+
+Préflight : branche `feat/v3-architecture`, HEAD local/distant
+`ece3f5057808c4c99afd31d276acf043fe7872b4`, divergence 0/0 après fetch ; cinq
+worktrees propres, aucun changement concurrent ni travail préexistant à écraser.
+Déclaration : slices primaire/secondaires **NONE**, impact productif **NONE**,
+franchissement inattendu **NONE**, Architecture globale **NOT REQUIRED**,
+full reactor **NOT REQUIRED / NOT RUN**, DB/migrations **NOT RUN** (§34).
+Les gates O20/O21 archivées restent des exécutions antérieures à leur SHA testé.
+Aucun Maven, PostgreSQL, test temporel ou benchmark n’est exécuté ici.
+
+Contrôles exécutés depuis la racine :
+
+```sh
+python3 -B docs/testing/evidence/L3-I5/verify_dossier.py --self-test
+python3 -B docs/testing/evidence/L3-I5/canonical/verify_archives.py.txt
+python3 -B docs/testing/evidence/L3-I4/verify_evidence.py
+python3 -B -m json.tool docs/v3/L3_Identity_Proof_Manifest.json > /dev/null
+python3 -B /tmp/pocoma-check-l3-closure.py
+git diff --check
+git diff --name-only -- app scripts
+```
+
+Le self-test historique I5 est **PASS sur la baseline avant modification** : il
+impose PENDING/L3 OPEN en dur et reste inchangé. Le contrôle d’archives reste
+**PASS** pour intégrité/attribution (324/271 XML, 61/52 SUCCESS, strict INCONCLUSIVE) ;
+ses champs finaux PENDING sont historiques, pas des statuts de programme actuels.
+I4 : **PASS**, 686 XML et 64 reçus vérifiés. Le contrôle final de publication
+valide séparément JSON, statuts ratifiés, empreintes du manifeste, invariance des
+preuves brutes et exécutables, liens/ancres et préservation des autres worktrees.
+Il ne modifie aucun vérificateur historique et ne rejoue aucune qualification.
+
+Le contrôle local `/tmp` est un contrôle de livraison, pas une preuve métier
+indispensable au dossier. Les empreintes finales restent directement vérifiables :
+
+```python
+import hashlib, json
+from pathlib import Path
+m = json.loads(Path("docs/v3/L3_Identity_Proof_Manifest.json").read_text())
+for path, record in m["proof_artifacts"].items():
+    raw = Path(path).read_bytes()
+    assert len(raw) == record["bytes"]
+    assert hashlib.sha256(raw).hexdigest() == record["sha256"]
+```
+
+Le contrôle final couvre **18 JSON, 57 entrées du manifeste, 422 liens/ancres
+locaux et 2076 fichiers probatoires/exécutables inchangés** ; les quatre worktrees
+secondaires sont préservés. La recherche des statuts contradictoires ne conserve
+les mentions OPEN/PENDING que dans les historiques explicitement identifiés.
+Les résultats de ces contrôles sont **PASS** ; la liste exacte du diff et le SHA
+publié sont fournis dans le reçu final de livraison après push normal. Toutes
+les réserves ci-dessus et les reports L4/L5/L6–L8 demeurent applicables.

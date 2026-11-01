@@ -2,8 +2,8 @@
   "schema": 2,
   "lot": "L3",
   "step": "I5",
-  "status": "QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE",
-  "proposed_technical_verdict": "QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING",
+  "status": "CLOSED WITH EXPLICIT RESERVATIONS",
+  "proposed_technical_verdict": "Historical proposal superseded by the program owner’s final bounded human acceptance on 2026-11-01; strict execution verdicts unchanged",
   "date": "2026-11-01",
   "tested_code_sha": "0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3",
   "branch": "feat/v3-architecture",
@@ -83,15 +83,35 @@
       "database": "NOT RUN; no PostgreSQL, migrations, temporal tests or Maven",
       "policy_modified": false,
       "other_worktrees": "Four other worktrees clean at preflight; preserve HEADs and work"
+    },
+    "closure_publication": {
+      "baseline_local_and_remote": "ece3f5057808c4c99afd31d276acf043fe7872b4",
+      "date": "2026-11-01",
+      "initial_checkout_status": "clean",
+      "concurrent_changes_after_baseline": "NONE",
+      "worktrees": "Five clean; all four secondary HEADs/statuses preserved",
+      "declared_primary_slice": "NONE",
+      "secondary_slices": [],
+      "production_impact": "NONE",
+      "unexpected_slice_crossing": "NONE",
+      "global_architecture_gate": "NOT REQUIRED",
+      "full_reactor": "NOT REQUIRED / NOT RUN",
+      "database": "NOT RUN",
+      "maven_temporal_benchmark": "NOT RUN",
+      "policy_modified": false
     }
   },
   "human_acceptance": {
-    "status": "PENDING",
-    "authority": "Program owner; separate future decision after independent audit",
-    "decision": null,
+    "status": "RATIFIED",
+    "authority": "Responsable du programme Pocoma V3 — explicit human publication mandate",
+    "decision": "CLOSED WITH EXPLICIT RESERVATIONS",
     "arb_i5_01": "Preparation authorized, not final acceptance",
-    "l4_go": false,
-    "production_go": false
+    "l4_go": true,
+    "production_go": false,
+    "date": "2026-11-01",
+    "reviewed_documentary_sha": "ece3f5057808c4c99afd31d276acf043fe7872b4",
+    "l4_go_scope": "Framing only after publication and verification; no L4 implementation",
+    "source": "docs/v3/L3_Identity_Closure.md"
   },
   "historical_rectification": {
     "path": "docs/testing/evidence/L3-I5/Historical_Rectification.json",
@@ -8722,8 +8742,8 @@
       "historical_result": "X4 PASS borné ; N4-A FAIL, module SKIPPED",
       "historical_provenance": "SHA I4, archives distinctes",
       "limits": "One historical conditional SKIP; zero residual source-discovery limitations reported for cfd3f645. Historical I4 FAILs and 46/67 limitations retained at their own SHA. Producer authenticity is not cryptographically certified.",
-      "status": "NOT DEMONSTRATED",
-      "disposition": "C5-A at cfd3f645: BUILD SUCCESS, 61 SUCCESS, Architecture 163 PASS, 2057/0/0/1; strict INCONCLUSIVE. O20 remains NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED; no express policy permission for satisfaction with this SKIP.",
+      "status": "SATISFIED WITH EXPLICIT RESERVATIONS",
+      "disposition": "Human ratification 2026-11-01 for internal L3/I5 only: nominative conditional SKIP accepted. C5-A remains 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE. No policy amendment or general exemption.",
       "evidence": [
         {
           "type": "fresh canonical gate",
@@ -9396,8 +9416,8 @@
       "fresh_canonical_gate": "O20",
       "historical_limits": "Fresh XML attribution complete for observed methods, not exhaustive provider pre-discovery; one historical conditional SKIP, 67 retained discovery limitations. Old X4 filtered PASS remains bounded.",
       "strict_verdict": "INCONCLUSIVE",
-      "internal_admissibility": "NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED",
-      "classification_decision": "PENDING; proposed OPTIONAL_EXPLORATORY_PERFORMANCE does not change strict verdict or counters"
+      "internal_admissibility": "SATISFIED WITH EXPLICIT RESERVATIONS — human ratification 2026-11-01, internal L3/I5 only",
+      "classification_decision": "RATIFIED 2026-11-01: OPTIONAL_EXPLORATORY_PERFORMANCE, exact named method only; strict verdict and counters unchanged"
     },
     "O21": {
       "normative_source": "Plan L3 §8.2 ; politique §§6/34",
@@ -9408,7 +9428,7 @@
       "historical_provenance": "SHA I4",
       "limits": "One historical conditional SKIP; zero residual source-discovery limitations reported for cfd3f645. Historical I4 FAILs and 46/67 limitations retained at their own SHA. Producer authenticity is not cryptographically certified.",
       "status": "SATISFIED WITH RESERVATIONS",
-      "disposition": "C5-CM at cfd3f645: BUILD SUCCESS, 52 SUCCESS, 1791/0/0/1; Worker COMMAND and Monolith executed. Strict INCONCLUSIVE; SATISFIED WITH RESERVATIONS is internal admissibility under the prior human mandate, never strict certification PASS.",
+      "disposition": "Maintained by human ratification 2026-11-01: SATISFIED WITH RESERVATIONS for internal L3/I5 only. C5-CM remains 1791/0/0/1, 52 SUCCESS, Worker COMMAND and Monolith executed; strict INCONCLUSIVE.",
       "evidence": [
         {
           "type": "fresh canonical gate",
@@ -9744,8 +9764,8 @@
       "fresh_canonical_gate": "O21",
       "historical_limits": "Both anchors selected together, neither reached after upstream failure. Mandatory runtime/transaction/r05/r12 methods NOT RUN in this invocation. 46 source-discovery limitations retained.",
       "strict_verdict": "INCONCLUSIVE",
-      "internal_admissibility": "SATISFIED WITH RESERVATIONS — internal admissibility only under prior human mandate",
-      "classification_decision": "PENDING; proposed OPTIONAL_EXPLORATORY_PERFORMANCE does not change strict verdict or counters"
+      "internal_admissibility": "SATISFIED WITH RESERVATIONS — human ratification 2026-11-01, internal L3/I5 only",
+      "classification_decision": "RATIFIED 2026-11-01: OPTIONAL_EXPLORATORY_PERFORMANCE, exact named method only; strict verdict and counters unchanged"
     },
     "O22": {
       "normative_source": "Plan L3 §8.2 ; politique §§18–21/34/35",
@@ -9788,22 +9808,34 @@
       "methods": "Pas une méthode de test",
       "historical_result": "Quatre livrables finaux non produits par ce mandat",
       "historical_provenance": "Future campagne seulement",
-      "limits": "Audit pending; closure document is a draft",
+      "limits": "Historical verifier hardcodes PENDING and is retained unchanged; PASS at pre-edit baseline, final manifest/statuses checked separately. O25 original report/checklist not supplied.",
       "status": "SATISFIED WITH RESERVATIONS",
-      "disposition": "Four corrected provisional deliverables and program references available for independent audit",
+      "disposition": "Final documentary deliverables synchronized with the unique closure act; historical evidence unchanged.",
       "evidence": []
     },
     "O25": {
       "normative_source": "Plan L3 §6/I5 et §9.2 ; plan directeur §4",
       "scenario": "Audit indépendant et décision humaine L3",
-      "implementation": "Acceptations I1–I4 acquises, pas audit I5",
-      "methods": "Audit des sources/reçus/diff puis décision nominative",
+      "implementation": "Final favorable O25 opinion reported by program owner; explicit bounded human closure ratified 2026-11-01",
+      "methods": "Documentary opinion reported by program owner; detailed independent checklist not supplied; explicit human ratification",
       "historical_result": "NOT RUN / PENDING I5",
       "historical_provenance": "Dossier gelé futur",
-      "limits": "Auteur du plan ≠ auditeur indépendant ; avis I4 rapporté ne vaut pas audit I5",
-      "status": "NOT DEMONSTRATED",
-      "disposition": "Independent final O25 audit of the published option B dossier PENDING; final human acceptance PENDING. Archive integrity checks are not that audit. L3 OPEN; L4 NOT AUTHORIZED.",
-      "evidence": []
+      "limits": "Original independent O25 report, auditor identity/date and detailed checklist not supplied. No new Maven/PostgreSQL execution or independent exhaustive archive recalculation in O25. Publication checks by Codex are separate.",
+      "status": "SATISFIED WITH EXPLICIT RESERVATIONS",
+      "disposition": "Program owner explicitly accepts internal L3 closure despite documented reservations; L4 framing authorized after verified publication, no implementation or production GO.",
+      "evidence": [
+        {
+          "type": "Human mandate reporting independent opinion and approving closure",
+          "date": "2026-11-01",
+          "document": "docs/v3/L3_Identity_Closure.md",
+          "reviewed_documentary_sha": "ece3f5057808c4c99afd31d276acf043fe7872b4",
+          "independent_opinion": "Favorable to internal L3 closure",
+          "independent_controls": "Documentary audit reported; detailed controls not supplied, not reconstructed",
+          "experimental_evidence": "Existing I3/I4/Q-ID and C5-A/C5-CM campaigns and verifiers, not new O25 executions",
+          "new_maven_postgresql_execution": false,
+          "independent_exhaustive_archive_recalculation": false
+        }
+      ]
     },
     "O26": {
       "normative_source": "Plan L3 §7.1, §9.1 ; SPEC-02 §§5–6 ; SPEC-04 §§6–8 ; SPEC-10 I01-Q/ID-02/SEC",
@@ -10911,9 +10943,9 @@
     "I3 R2: PostgreSQL admin, owners and provisioners trusted; closed DEV ACL profile, auxiliary roles certified at preparation; no continuous ACL surveillance.",
     "I3 R3: actual PG and Docker channels only; external audit/APM/production collectors not certified.",
     "I3 R4: old gate FAILs and historical 46/67 discovery limits preserved; zero residual limitations reported for cfd3f645; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.",
-    "O20/O21 at cfd3f645: BUILD SUCCESS, 2057/0/0/1 and 1791/0/0/1; both strict INCONCLUSIVE. O20 NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED; O21 internal admissibility with reservations only. Single SKIP classification proposed, not ratified.",
+    "O20/O21 at cfd3f645: BUILD SUCCESS, 2057/0/0/1 and 1791/0/0/1; both strict INCONCLUSIVE. Human ratification 2026-11-01: O20 SATISFIED WITH EXPLICIT RESERVATIONS; O21 SATISFIED WITH RESERVATIONS. Nominative SKIP admissible only for internal L3/I5; no global certificate or general exception.",
     "H3 only public redacted receipt; independent I3 raw logs unavailable and original I4 independent audit only reported by its human decision.",
-    "Independent audit of remediation and final human acceptance PENDING; no L4 GO."
+    "Original independent O25 report, auditor identity/date and detailed checklist not supplied. No new Maven/PostgreSQL execution or independent exhaustive archive recalculation in O25. Publication checks by Codex are separate. Human acceptance preserves all reservations; L4 framing only after verified publication."
   ],
   "deferred": {
     "L4": "CurrentBinding monotonic@version and delayed/caught-up READ; I01-Q only",
@@ -10921,17 +10953,18 @@
     "L6_L8": "Capacity/SLO/recovery/reconstruction/convergence/distribution/global release certificates"
   },
   "publication": {
-    "authorized": "Current human mandate authorizes documentary corrections and normal push on feat/v3-architecture; no force, final L3 acceptance, L4 or production GO",
+    "authorized": "Explicit human GO to publish final bounded L3 closure on feat/v3-architecture without force push; L4 framing only after verified publication, no implementation or production GO",
     "delivery_locator": "git log --diff-filter=A -1 --format=%H -- docs/testing/evidence/L3-I5/canonical/Campaigns.json",
     "commit_sha": "Resolved externally after commit, never self-referenced",
     "remote_verification": "Reported after actual normal push, not asserted in advance",
     "historical_remediation_delivery_locator": "git log --diff-filter=A -1 --format=%H -- docs/testing/evidence/L3-I5/README.md",
-    "documentary_delivery_locator": "git log -1 --format=%H -- docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json"
+    "documentary_delivery_locator": "git log -1 --format=%H -- docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json",
+    "closure_delivery_locator": "git log -1 --format=%H -- docs/v3/L3_Identity_Closure.md"
   },
   "proof_artifacts": {
     "docs/README.md": {
-      "bytes": 11950,
-      "sha256": "604d548f253ce56876c9c86d6e9203ca73f5169163c8a30b32a540cdcd4defd2"
+      "bytes": 11540,
+      "sha256": "d627b907a8aac872b019ab9bd7e900a80d6e78a3df39921ba370ed6edf9e1e65"
     },
     "docs/testing/evidence/L3-I4/Variant_Receipts.json": {
       "bytes": 39187,
@@ -10974,8 +11007,8 @@
       "sha256": "b046bebc642054ab8308ab2cab86b2d80eaa1bf16333f18045d3281fa2498ba5"
     },
     "docs/testing/evidence/L3-I5/README.md": {
-      "bytes": 10648,
-      "sha256": "13757d100860667a8fd91f1b089621413562f343ac21056d5a6d53f2e555d9d8"
+      "bytes": 11871,
+      "sha256": "3a0dc429373f9313937f11f65500e07cb90b23a04c74d53beedcfd45ff804cd5"
     },
     "docs/testing/evidence/L3-I5/Recovered_Campaigns.json": {
       "bytes": 57080,
@@ -11094,37 +11127,37 @@
       "sha256": "09bb3412794cd466a3ca586a605c48b0ab7b30a5d97dbff4f91d716d765d264c"
     },
     "docs/v3/L3_Identity_Closure.md": {
-      "bytes": 10240,
-      "sha256": "010799d0ffe8e57aae1e73c0c30108ddcea1e7593aeff53ba2e7feab85e4e27a"
+      "bytes": 8176,
+      "sha256": "723e232d54d69744b70e77b1234cddb91828a880cb6abb5fadc4db919bda730a"
     },
     "docs/v3/L3_Identity_Execution_Report.md": {
-      "bytes": 51420,
-      "sha256": "54780f4c9d3d180abb7c40626b7219bda4914e3effcac0c01f010af3a4f0a660"
+      "bytes": 55302,
+      "sha256": "070c5b532ff0b1848d34b0bae40f565b9053a4411f63c97cd442eafa95fa11d6"
     },
     "docs/v3/L3_Identity_Inventory_and_Implementation_Plan.md": {
-      "bytes": 167936,
-      "sha256": "38d1ef7655a03306be1a3ad47d23a5e654bbdee742c8c36e9a35d8e4c3d73e2b"
+      "bytes": 167397,
+      "sha256": "52431cb434b19a96b67a868a8e5a47388faf23b71874c35dd7361abe54adf3e7"
     },
     "docs/v3/L3_Identity_Runtime_Runbook.md": {
-      "bytes": 15953,
-      "sha256": "2b920cb94f0568134214433e0eaff01173ba9546b6dabc209cbca30d09ee0652"
+      "bytes": 16140,
+      "sha256": "bf1c2e058c1f359033f32c2448b7c22f360ccbdc9e34333da98a38bb901e36ed"
     },
     "docs/v3/V3_Canon_and_Roadmap.md": {
-      "bytes": 46861,
-      "sha256": "55523d1ab779ba3549e2e54366174977818fc088e87b8eb150c3d1e910536113"
+      "bytes": 46356,
+      "sha256": "8912897151fb238fc3a3066ef9b6c80d6f668185b88b2cf3f8a9fdbcc9054b08"
     },
     "docs/v3/V3_Implementation_Master_Plan.md": {
-      "bytes": 60860,
-      "sha256": "4098f9372ecedd72bc2893039c7327d1beb58921b1df74d595c8452bdd295d42"
+      "bytes": 61539,
+      "sha256": "e17bc4260fdbc8c3749430e8cd9531bc8ff816e285f3f625f4694f623e30ee45"
     },
     "docs/testing/evidence/L3-I5/canonical/Campaigns.json": {
       "bytes": 97062,
       "sha256": "1a27fa2ec71058a4b9eda134eadabcfe3725c6b36cae283b686e2e70aaa484dd"
     },
     "docs/testing/evidence/L3-I5/canonical/Verification_Receipt.json": {
-      "path": "docs/testing/evidence/L3-I5/canonical/Verification_Receipt.json",
       "bytes": 769,
-      "sha256": "a40270a8484f3206a537112d827cdd81a5cfd59ee6845623d84115041c90d055"
+      "sha256": "a40270a8484f3206a537112d827cdd81a5cfd59ee6845623d84115041c90d055",
+      "path": "docs/testing/evidence/L3-I5/canonical/Verification_Receipt.json"
     },
     "docs/testing/evidence/L3-I5/canonical/architecture/Summary.json": {
       "bytes": 47002,
@@ -11147,19 +11180,19 @@
       "sha256": "01ac1c53c4019cdc5427679c8267d04f99bf95d31ce1787b0aef5a9d194bc973"
     },
     "docs/v3/L3_I5_Qualification_and_Closure_Plan.md": {
-      "path": "docs/v3/L3_I5_Qualification_and_Closure_Plan.md",
-      "bytes": 99204,
-      "sha256": "e8aa5523ecb336c768cd14ae6d149ae545cdc62ddfdf8995a6523d143a4ead8b"
+      "bytes": 101345,
+      "sha256": "cb8130f179932ddd179d24f4ade6e1f15172b0f204d3cfe1dc64f9f7c28556c7",
+      "path": "docs/v3/L3_I5_Qualification_and_Closure_Plan.md"
     },
     "docs/testing/Reactor_Verification_Policy.md": {
-      "path": "docs/testing/Reactor_Verification_Policy.md",
       "bytes": 53755,
-      "sha256": "0e88e4d78782b22c653aea34db659e9afc62a92d1067065837d27e751ecf1cc5"
+      "sha256": "0e88e4d78782b22c653aea34db659e9afc62a92d1067065837d27e751ecf1cc5",
+      "path": "docs/testing/Reactor_Verification_Policy.md"
     },
     "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json": {
-      "path": "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json",
       "bytes": 6432,
-      "sha256": "1418cb5f3468be1d665abf591999335740dbdde8a5ecfc023054cc466f942682"
+      "sha256": "1418cb5f3468be1d665abf591999335740dbdde8a5ecfc023054cc466f942682",
+      "path": "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json"
     }
   },
   "integrity_limits": "File hashes/member/XML/receipt checks prove byte integrity and attribution to the recorded producer IDs. They do not authenticate a malicious producer. This manifest does not certify itself, historical execution authenticity or independent audit acceptance.",
@@ -11187,7 +11220,7 @@
         "skipped": 1
       },
       "strict_verdict": "INCONCLUSIVE",
-      "obligation_status": "NOT DEMONSTRATED"
+      "obligation_status": "SATISFIED WITH EXPLICIT RESERVATIONS"
     },
     "O21": {
       "tested_code_sha": "cfd3f6458f7de61945bd3f73cb71c794dddf9e57",
@@ -11267,7 +11300,7 @@
   "historical_skip_qualification": {
     "method": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness",
     "proposed_classification": "OPTIONAL_EXPLORATORY_PERFORMANCE",
-    "decision_status": "PENDING — NOT RATIFIED",
+    "decision_status": "RATIFIED — INTERNAL L3/I5 ONLY",
     "category_scope": "This exact method at this source hash only; no general SKIP exemption",
     "source": {
       "path": "app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingPostgresTest.java",
@@ -11747,15 +11780,31 @@
       "docs/v3/SPEC-09_Performance.md §§2–3/6",
       "docs/v3/SPEC-10_Test_Certification.md §§12–13; PERF-01 F01-A…J"
     ],
-    "policy_assessment": "Case B for proposed O20 satisfaction with reservations: no express exemption; policy unchanged. Bounded human review may proceed, strict PASS still requires zero skips.",
+    "policy_assessment": "Explicit nominative human arbitration received 2026-11-01 for bounded internal L3/I5 admissibility. Policy unchanged; strict PASS still requires zero skips; no reusable exemption.",
     "strict_execution_obligation": "Unfiltered canonical discovery retains this method. Under current zero-skip rule, strict PASS requires successful execution in the gate, with step3b.measure=true and all other proof conditions. No rerun authorized by this mandate.",
     "future_performance_obligations": "SPEC-09 and SPEC-10 PERF-01 remain due at applicable later milestones; especially F01-E/G/H. Historical fixture benchmark cannot certify them.",
-    "human_proposal": "Accept/reject/defer nominative classification and bounded internal admissibility; decide any O20 SATISFIED WITH EXPLICIT RESERVATIONS explicitly. Preserve strict INCONCLUSIVE and all reserves. Separate O25 audit and final L3 decision.",
-    "l3": "OPEN",
-    "O25": "PENDING",
-    "l4_go": false,
+    "human_proposal": "Historical proposal ratified by explicit human decision on 2026-11-01; see unique closure act. Strict INCONCLUSIVE and all reservations retained.",
+    "l3": "CLOSED WITH EXPLICIT RESERVATIONS",
+    "O25": "SATISFIED WITH EXPLICIT RESERVATIONS",
+    "l4_go": true,
     "global_spec10_certification": false,
-    "production_go": false
+    "production_go": false,
+    "classification": "OPTIONAL_EXPLORATORY_PERFORMANCE",
+    "decision_date": "2026-11-01",
+    "decision_authority": "Responsable du programme Pocoma V3",
+    "decision_source": "docs/v3/L3_Identity_Closure.md",
+    "l4_go_scope": "Framing only after verified publication"
   },
-  "documentary_qualification_receipt": "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json"
+  "documentary_qualification_receipt": "docs/testing/evidence/L3-I5/Documentary_Qualification_Receipt.json",
+  "l4_framing_orientation": {
+    "status": "TO INVESTIGATE — NOT CERTIFIED",
+    "source": "docs/v3/V3_Implementation_Master_Plan.md",
+    "categories": [
+      "L1 — Métier Pocoma : évolutif",
+      "L2 — Fondation technique générique : stabilisable",
+      "L2 — Branchement Pocoma : évolutif"
+    ],
+    "existing_gate_reduction_authorized": false,
+    "physical_extraction_authorized": false
+  }
 }

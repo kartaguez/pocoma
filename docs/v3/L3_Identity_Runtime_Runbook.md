@@ -1,6 +1,10 @@
 # L3 — Runbook DEV Identity et protocole Q-ID
 
-**1er novembre 2026 — QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE.**
+**1er novembre 2026 — L3 CLOSED WITH EXPLICIT RESERVATIONS.**
+
+Décision humaine et réserves : [acte de clôture unique](L3_Identity_Closure.md).
+Le présent runbook DEV conserve ses limites ; aucune nouvelle exécution dans la
+publication de clôture, aucun GO production.
 
 Ce document rectifie le runbook Gemini `0ba18ec1`, conservé aux octets d’origine
 dans Git et indexé dans Historical_Rectification.json. Q-ID a réellement exécuté
