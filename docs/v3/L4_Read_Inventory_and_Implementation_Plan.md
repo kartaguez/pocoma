@@ -17,11 +17,34 @@
 > certification ou levée de réserve L2/L3/L4. Aucun fichier applicatif, migration,
 > test, configuration, POM, script ou document normatif n’est modifié.
 
+**Amendement humain du 1er novembre 2026 — stabilité structurelle L4–L6.**
+Le plan publié au commit `5482a6a6` est amendé dans ce même document : la
+rationalisation des modules Maven et des runtimes est reportée **après la clôture
+fonctionnelle et la qualification de L6, idéalement en première étape de L7**.
+Les décisions D1–D4 du §5 précisent ce report. Les constats de code et le bilan
+de la mission initiale restent attribués à leur référence d’examen ci-dessus ;
+ils ne constituent pas une nouvelle vérification applicative.
+Cet amendement documentaire ne vaut ni acceptation globale du plan, ni GO L4/I1.
+Le plan amendé reste soumis à audit indépendant avant décision humaine distincte.
+
 ## 1. Synthèse exécutive
 
 **Le plan L4 peut être soumis à audit indépendant, avec un arbitrage technique ouvert sur la frontière de préparation et de recovery du moteur L2. Aucun démarrage d’implémentation n’est proposé dans cette mission.**
 
 L’approche A est conservée : modules Maven actuels, classification logique Fondation/Branchement, réutilisation conditionnelle des preuves. Aucune extraction Maven ni nouvelle certification L2 n’est nécessaire au cadrage.
+
+**L4 doit livrer les matérialisations READ dans l’organisation technique existante,
+sans anticiper la rationalisation structurelle post-L6.** Le découpage Maven, les
+runtimes et leurs frontières d’exécution sont conservés par défaut pendant L4,
+L5 et L6. Les branchements indispensables restent dus, notamment l’évolution
+contrôlée L2 en I2 et l’activation fonctionnelle en I8.
+
+La cible de rationalisation distingue trois familles fonctionnelles de workers :
+**traitement WRITE, matérialisation des résultats READ, matérialisation métier READ**.
+Elles réutilisent les mécanismes Consumption/Discovery L2 ; elles ne prescrivent
+ni trois modules Maven ni trois processus, et leur convergence définitive n’est
+pas un prérequis de L4. Le nombre final de modules et de processus sera déterminé
+par le chantier post-L6, sur inventaire et mesures.
 
 La cible comporte **six participants READ pour huit projections logiques livrées en L4** :
 
@@ -51,9 +74,13 @@ Je recommande **huit incréments**, pour isoler ces risques :
 | I5 | Visibility et navigation interne |
 | I6 | CurrentBinding |
 | I7 | Résultats terminaux |
-| I8 | Assemblage actif, lectures internes, convergence fonctionnelle et qualification L4 |
+| I8 | Activation dans les runtimes existants, lectures internes, convergence fonctionnelle READ et qualification L4 |
 
 Cette séquence évite que l’I1 réalise implicitement toutes les projections.
+**Les objectifs, livrables fonctionnels et l’ordre I1–I8 restent inchangés.**
+La convergence fonctionnelle I8 désigne le fonctionnement effectif des projections
+et lectures L4, pas le regroupement définitif des familles de workers. Aucun
+développement nécessaire au fonctionnement réel de L4 n’est reporté à L7.
 
 ## 2. État Git et sources examinées
 
@@ -142,6 +169,27 @@ Le registre actuel indique QUALIFIED, active:false pour i5_r05/r12, avec une ré
 
 **Conséquence :** ces scénarios restent exécutables et inclus dans les gates canoniques. Le présent plan ne réattribue aucun ancien FAIL et ne prononce aucune nouvelle clôture de réserve.
 
+### Cohérence de l’amendement structurel avec les autorités supérieures
+
+Le [plan directeur §6](V3_Implementation_Master_Plan.md#6-convergence-finale-v2--pocoma--chantier-l7-proposé)
+place déjà la rationalisation Maven et le retrait exhaustif des compositions et
+runtimes obsolètes en L7, après L2–L6 acceptés (§3). Son §5 maintient les ancres
+existantes jusqu’à cette rationalisation ; son §7 laisse le nombre de runtimes à
+cadrer. Le [canon §15](V3_Canon_and_Roadmap.md#15-livraison-finale-et-convergence)
+porte une obligation finale de convergence, sans imposer cette refonte en L4.
+Le retrait progressif des usages inutiles pendant L2–L6 mentionné par le plan
+directeur reste compatible avec la désactivation ciblée des anciens chemins dans
+les compositions V3 ; il ne crée pas une obligation de fusion ou de suppression
+physique des modules et runtimes avant la qualification de L6.
+
+Les [SPEC-04 §8](SPEC-04_Read_Projections.md#8-consumptions-des-événements) et
+[SPEC-05 §1](SPEC-05_Consumption_Discovery.md#1-identité-et-composition) distinguent
+Consumptions indépendantes et Workers physiques, sans nombre de services imposé.
+D1–D4 préservent ces contrats, les frontières PRIMARY/READ et la politique Reactor.
+**Aucune modification d’un document supérieur n’est identifiée comme nécessaire
+pour cet amendement ; aucun n’est modifié.** Toute contradiction ultérieure devra
+être signalée et arbitrée dans son autorité, sans modification silencieuse.
+
 ## 4. Cartographie du code actuel — REUSE / ADAPT / REPLACE
 
 ### Inventaire des neuf projections
@@ -175,8 +223,8 @@ L’inventaire normatif figure dans [SPEC-04, lignes 12–24](SPEC-04_Read_Proje
 | CurrentBinding historique | ADAPT l’algorithme, REPLACE le modèle/source | Monotonie et divergence utiles ; BindingId/Fact ne représentent pas EUI@V |
 | CommandResult historique | ADAPT les principes, remplacer source et formes V3 | Comparaison immuable et propriétaire EUI utiles ; APPLIED/FAILED ne doivent pas être repris aveuglément |
 | RegistrationResult historique | REPLACE pour V3 | Doit couvrir Registration, Link et Unlink |
-| ProjectionTask, locators et finaliseurs historiques | RETIRE des compositions V3 | Supplantés par les consommations directes |
-| Suppression exhaustive des modules historiques | DEFER L7 | Hors mandat et hors objectif L4 |
+| ProjectionTask, locators et finaliseurs historiques | Désactiver dans les compositions V3 concernées | Consommations directes ; aucune suppression physique générale imposée en L4 |
+| Suppression exhaustive et rationalisation des modules/runtimes historiques | DEFER après qualification de L6, idéalement début L7 | Chantier dédié D3, hors objectif L4 |
 
 Repères vérifiés :
 
@@ -195,7 +243,85 @@ Le test [firstPublishedProjectionWinsWithoutContentComparison, lignes 167–177]
 
 ## 5. Architecture cible READ
 
-Tout ce chapitre est **INFERRED — proposition à auditer**.
+Les décisions D1–D4 ci-dessous consignent l’arbitrage humain complémentaire.
+Les choix d’hébergement, de classes et de ports restent **INFERRED — propositions
+à auditer**, sous ces décisions ; l’arbitrage ne vaut pas acceptation de ces choix.
+
+### D1 — Stabilité structurelle pendant L4, L5 et L6
+
+Pendant les trois lots, conserver par défaut le découpage Maven existant, les
+runtimes existants et leurs frontières d’exécution. Privilégier le branchement
+et l’activation des composants nécessaires ; éviter déplacements, fusions et
+renommages de modules. Ne créer aucun module Maven ni runtime dédié à un
+participant si une structure existante peut l’héberger correctement.
+
+Les frontières transactionnelles et les responsabilités L2 ne doivent pas être
+modifiées pour simplifier l’organisation physique. Cette stabilité n’interdit
+pas les adaptations indispensables au fonctionnement de L4–L6, notamment
+l’évolution contrôlée de préparation/recovery prévue en I2. Toute exception
+structurelle nécessaire doit être explicitement justifiée, bornée et qualifiée :
+besoin fonctionnel, insuffisance de l’hébergement existant, périmètre exact,
+contrats/preuves affectés et gates à rejouer doivent être déclarés avant réalisation.
+
+### D2 — Trois familles fonctionnelles de workers, cible après L6
+
+| Famille cible | Participants et responsabilités |
+|---|---|
+| 1 — Traitement WRITE | Commands et IdentityRequests ; exécution des opérations métier ; écritures et résultats durables PRIMARY |
+| 2 — Matérialisation des résultats READ | CommandResult et IdentityRequestResult ; consommation des événements de complétion ; écriture des résultats consultables côté READ |
+| 3 — Matérialisation métier READ | PotVersion et SubobjectVersion, CurrentPot, PotBalance, PotVisibility et CurrentUserPotList, CurrentBinding ; CurrentInvitation lorsque livrée en L5 ; autres projections métier explicitement prévues au périmètre V3 |
+
+Les trois familles réutilisent le protocole technique Consumption L2, **sans
+duplication des moteurs Discovery/Consumption**. Chaque Consumption garde ses
+propres identifiants, slots, capacités et transactions, ainsi que ses checkpoints
+lorsque son contrat le prévoit. Les familles de workers ne sont pas les familles
+canoniques de sources événementielles du catalogue (§8).
+
+| Niveau à distinguer | Sens et conséquence |
+|---|---|
+| Participants métier | Transformations/Consumptions ; six participants READ L4, indépendamment de leur hébergement |
+| Modules Maven | Unités de code et de dépendances ; plusieurs participants peuvent résider dans un module existant |
+| Compositions Spring | Assemblages explicites de composants, owners et ressources ; branchement adapté aux participants activés |
+| Runtimes déployables | Points d’entrée exécutables ; leur frontière reste stable par défaut pendant L4–L6 |
+| Instances physiques de workers | Exécutions concrètes avec capacité et partitions configurées ; leur nombre ne se déduit ni des participants ni des modules |
+
+Cette cible ne signifie **ni nécessairement trois modules Maven, ni trois processus
+dès L4**. Le nombre final de modules et de processus sera déterminé lors du
+chantier D3 selon les contraintes réelles d’isolation, capacité, exploitation et
+performance. Elle n’impose aucune convergence structurelle avant la clôture
+fonctionnelle et la qualification de L6.
+
+### D3 — Chantier dédié de rationalisation après L6
+
+Ouvrir ce chantier après la clôture fonctionnelle et la qualification de L6,
+idéalement en première étape de L7, dans le chantier de convergence du plan
+directeur. Son inventaire devra examiner :
+
+- les fusions éventuelles de modules Maven fonctionnellement proches, sans préjuger des regroupements concrets ;
+- la simplification des compositions Spring et la convergence vers les trois familles ;
+- le retrait des compositions et runtimes historiques devenus inutiles ;
+- la réduction des dépendances et configurations redondantes ;
+- le maintien des frontières PRIMARY/READ et les besoins de capacité et d’isolation de chaque famille ;
+- l’impact sur les gates Maven et sur les preuves acquises.
+
+La simplification devra être mesurée et démontrée par comparaison avant/après
+des dépendances, assemblages, configurations et contraintes d’exploitation et de
+performance pertinentes. Le seul nombre de modules ne suffit pas à la justifier.
+Aucune fusion ni topologie finale n’est décidée par le présent plan.
+
+### D4 — Préservation des preuves L2/L3 et des invariants
+
+Le report vise notamment à éviter de fragiliser les qualifications déjà obtenues
+sur L2 et L3, avec leurs limites et réserves. La rationalisation future devra :
+
+- identifier les contrats, hypothèses et preuves affectés ;
+- distinguer refactoring physique et modification comportementale ;
+- préserver les invariants transactionnels et déterminer précisément les gates à rejouer ;
+- justifier la validité des preuves conservées et exclure toute réutilisation automatique de preuves devenues invalides.
+
+**Aucune requalification anticipée de L2 ou L3 n’est demandée par ce seul amendement
+documentaire.** Les requalifications réellement dues aux adaptations futures I2/I8
+restent celles du §11 ; D4 ne les supprime ni ne les déclenche maintenant.
 
 ### Responsabilités et modules
 
@@ -215,9 +341,11 @@ Conserver les modules existants :
 | infra-persistence-primary-jpa | Sources SQL WRITE historiques et complétions |
 | infra-persistence-read-jdbc | Stores et lectures SQL READ V3 |
 | composition-runtime-spring | Assemblage explicite, propriétaires transactionnels, préflights |
-| Runtimes existants | Hébergement des Workers ; aucun nouveau module imposé |
+| Runtimes existants | Hébergement des Workers selon leurs frontières d’exécution ; activation ciblée, sans nouveau runtime dédié si un hôte existant convient |
 
-Le nom historique d’un module ne réintroduit pas son ancien protocole. Les renommages globaux restent à L7.
+Le nom historique d’un module ne réintroduit pas son ancien protocole. Ce tableau
+affecte des responsabilités aux modules existants ; il ne préjuge d’aucune fusion
+post-L6. Les déplacements, fusions et renommages structurels relèvent de D3.
 
 ### Classes proposées
 
@@ -552,7 +680,7 @@ Les préflights vérifient les droits effectifs : héritage, PUBLIC, appartenanc
 
 Les neuf définitions existent déjà dans [V3ConsumptionCatalogConfiguration, lignes 18–55](../../app/composition-runtime-spring/src/main/java/com/kartaguez/pocoma/runtime/consumption/v3/V3ConsumptionCatalogConfiguration.java#L18).
 
-| Participant | UUID existant à conserver | Famille |
+| Participant | UUID existant à conserver | Famille source canonique |
 |---|---|---|
 | PotVersion | 3dec1c8b-6e3e-57e1-82aa-aa0b5f297a4a | POT_EVENT |
 | PotBalance | 190a93c6-b8af-5ac7-8001-72e2ec53c2df | POT_EVENT |
@@ -592,14 +720,30 @@ Voir [assemblage actif, lignes 189–268](../../app/composition-runtime-spring/s
 
 ### Hébergement proposé
 
+Cet hébergement concerne le branchement fonctionnel L4 dans les structures
+existantes, sous D1. Il ne réalise pas la convergence définitive des trois
+familles D2 et ne modifie pas les frontières d’exécution pour les aligner sur
+ces familles.
+
 - conserver le Worker L2 et ses deux boucles ;
 - utiliser le runtime PROJECTION existant comme racine READ V3 ;
 - partager la factory explicite avec le monolithe ;
 - conserver le runtime WRITE existant ;
-- aucun nouveau processus métier ou conteneur requis par définition ;
-- rendre les anciens composants Task/Binding/Result inactifs dans le profil V3 concerné.
+- conserver les autres runtimes existants et leurs frontières d’exécution, sans fusion, renommage ni retrait physique anticipé ;
+- aucun nouveau module, runtime, processus métier ou conteneur dédié requis par participant si un hébergement existant convient ;
+- rendre les anciens composants Task/Binding/Result inactifs dans le profil V3 concerné, sans imposer leur suppression structurelle avant la qualification de L6.
 
-Les participants sont d’abord prouvés par factories inactives. L’activation centrale intervient en I8, pour ne pas modifier les règles d’isolation à chaque incrément.
+Les participants sont d’abord prouvés par factories inactives. **L’activation
+fonctionnelle des six participants est maintenue en I8**, avec les adaptations
+indispensables des settings, factories, permissions, préflights et allowlists
+dans les compositions existantes. Les gardes d’assemblage doivent accueillir ces
+participants sans affaiblir les invariants d’isolation L2 ni déplacer les frontières
+transactionnelles. Une exception structurelle indispensable relève du traitement
+explicite D1, pas d’une rationalisation implicite.
+
+I8 doit livrer un fonctionnement READ réel et qualifié ; il ne peut se limiter à
+des participants inactifs en attendant L7. L’inventaire, les regroupements et la
+topologie définitive des trois familles restent au chantier D3 après L6.
 
 **Architecture REQUIRED en I8**, car les racines, allowlists et règles d’activation évoluent.
 
@@ -632,6 +776,15 @@ Les observations reprennent les phases L2. Diagnostics sans token ni payload sen
 
 Tous les livrables suivants sont futurs, **UNVERIFIED**.
 
+**Amendement de séquencement : aucun changement fonctionnel I1–I8.** Les mentions
+« créer » visent les classes, ports, stores, migrations et services nécessaires,
+dans les modules existants ; elles ne demandent pas la création d’un module ou
+d’un runtime. I1 reste borné au stockage/atomicité ; I2 conserve l’évolution L2
+contrôlée ; I3–I7 livrent les matérialisations prévues ; I8 les active et qualifie
+les lectures internes. Les préconditions, tests et gates futurs restent dus.
+Seule la portée structurelle est précisée par D1–D4 : aucune rationalisation
+Maven/runtimes n’est un préalable ou un critère de sortie I1–I8.
+
 ### I1 — Stockage immuable READ minimal
 
 **Objectif :** établir le contrat physique de SubobjectVersion et son atomicité avec un slot L2, sans source métier WRITE.
@@ -652,6 +805,10 @@ Tous les livrables suivants sont futurs, **UNVERIFIED**.
 ### I2 — Préparation et recovery interautorités dans L2
 
 **Objectif :** résoudre le finding du §6.2 dans l’unique Engine.
+
+Cette adaptation indispensable reste dans L4 ; D1 n’interdit pas l’évolution
+contrôlée des contrats L2 nécessaire aux transactions READ. Elle ne doit servir
+ni à déplacer les responsabilités L2 ni à simplifier l’organisation des modules.
 
 - **Préconditions :** arbitrage explicite de la frontière ; I1 accepté.
 - **Adapter :** contrat de préparation, orchestration Engine, préparation des observations, compositions et participants WRITE existants.
@@ -758,10 +915,10 @@ CurrentBinding@V signifie ici « état projeté de cette EUI à sa version local
 
 ### I8 — Assemblage actif et qualification L4
 
-**Objectif :** faire fonctionner les six participants dans les vrais Workers et livrer les lectures internes cohérentes.
+**Objectif :** faire fonctionner les six participants dans les vrais Workers des runtimes existants et livrer les lectures internes cohérentes, sans convergence structurelle anticipée.
 
 - **Préconditions :** I1… I7 acceptés ; arbitrages d’assemblage et permissions arrêtés.
-- **Adapter :** settings, noms de définitions, racine PROJECTION, monolithe, préflights, allowlists, assemblage constructor.
+- **Adapter :** settings, noms de définitions, branchement dans la racine PROJECTION et le monolithe existants, préflights, allowlists, assemblage constructor ; sans renommage de module/runtime ni refonte de leurs frontières.
 - **Créer :** factory READ explicite, services internes courants/historiques et lots d’Expenses.
 - **Migrations :** grants finaux ; aucune modification implicite du routage.
 - **Tests :** trois checkpoints POT indépendants ; arrêt d’un participant sans bloquer les autres ; mélanges d’ordres ; D ; résultats avant métier ; lecteur pendant avance CurrentPot ; saturation, renewal, drainage et restart.
@@ -769,10 +926,13 @@ CurrentBinding@V signifie ici « état projeté de cette EUI à sa version local
 - **Capitalisation :** preuves techniques inchangées avec attribution ; aucune substitution aux gates fraîches.
 - **Acceptation :** toutes les obligations internes L4 allouées exécutées ; aucun chemin V2 actif dans la composition V3 testée ; réserves et reports explicités.
 - **Risques :** allowlist trop large, composant legacy indirect, capacité insuffisante.
-- **Livrables :** runtime READ actif, dossier de qualification, matrice SPEC-10, rapport et manifeste futurs.
+- **Livrables :** six participants READ actifs dans les runtimes existants, lectures internes, dossier de qualification, matrice SPEC-10, rapport et manifeste futurs ; aucun nouveau runtime dédié requis.
 - **Passage :** audit indépendant du code et des preuves, puis décision humaine de clôture L4.
 
 Aucune reconstruction administrative complète, certification HTTP, performance globale ou distribution n’est incluse dans cette acceptation interne.
+La convergence fonctionnelle READ est requise à I8 ; la convergence définitive
+des familles, les fusions Maven et le retrait physique des runtimes historiques
+ne conditionnent pas cette acceptation et relèvent de D3 après qualification de L6.
 
 ## 10. Matrice de tests et allocation SPEC-10
 
@@ -823,6 +983,13 @@ Références : [PRJ-01…03, lignes 689–826](SPEC-10_Test_Certification.md#7-p
 Chaque future preuve doit relier : scénario, méthode, variantes, oracle indépendant, commande, SHA, configuration, autorité réelle/fixture, artefacts et verdict.
 
 ## 11. Gates et réutilisation des preuves L2
+
+Les gates ci-dessous restent prospectives et inchangées par l’amendement D1–D4.
+Elles qualifient les adaptations réellement nécessaires à L4, y compris I2 et
+l’activation I8 ; elles n’imposent aucune rationalisation Maven/runtimes préalable.
+Le seul amendement documentaire ne déclenche aucune campagne ni requalification
+L2/L3. Le chantier D3 devra redéclarer ses propres frontières et gates sur la base
+de son inventaire, sans hériter automatiquement de la validité des preuves L4–L6.
 
 ### 11.1 Matrice prospective par incrément
 
@@ -1012,6 +1179,7 @@ Les mesures Identity FAST/CHANGE/INTEGRATION — environ 6,686 s, 144,100 s et 2
 | R25 — Moyenne | Baseline supposée fiable | CURRENT V3 explicite ; aucune baseline TRUSTED inventée | Bootstrap neuf/extension I1… I8 |
 | R26 — Moyenne | Statuts r05/r12 mal interprétés | Attribution des campagnes et réserves séparées | Audit probatoire avant capitalisation |
 | R27 — Moyenne | Références de manifeste sans contrôle d’appartenance | Lot résolu dans PotVersion exacte | Références étrangères/substituées, I8/L5 |
+| R28 — Haute | Rationalisation anticipée ou activation I8 reportée à L7 par confusion des niveaux | D1–D4 ; distinction participants/modules/compositions/runtimes/instances ; activation maintenue | Audit du plan amendé puis diffs et gates des futurs incréments |
 
 L’ordre des verrous proposé évite notamment de verrouiller CurrentPot avant des insertions immuables susceptibles d’attendre une autre transaction. Les lots multiclés utilisent le même ordre total dans tous les writers.
 
@@ -1028,7 +1196,8 @@ L’ordre des verrous proposé évite notamment de verrouiller CurrentPot avant 
 - requesterEui propriétaire immuable ;
 - aucune expiration fonctionnelle des résultats ;
 - moteur L2 unique, pas de transaction distribuée ;
-- scopes L5/L6/L7/L8.
+- scopes L5/L6/L7/L8 ;
+- D1–D4 : stabilité structurelle L4–L6, trois familles fonctionnelles cibles, rationalisation après clôture fonctionnelle et qualification de L6, préservation des preuves.
 
 ### Choix techniques proposés
 
@@ -1050,7 +1219,13 @@ Accepter ou amender la proposition du §6.2 : préparation hors transaction ambi
 
 **A2 — Assemblage runtime.**
 
-Ratifier l’hébergement READ dans la racine PROJECTION existante et son partage avec le monolithe, avec évolution des règles d’isolation à I8. Aucun processus supplémentaire n’est requis par le plan.
+Ratifier le branchement READ dans la racine PROJECTION existante et son partage
+avec le monolithe, ainsi que les gardes d’activation adaptées en I8, dans le respect
+des frontières d’exécution et des invariants d’isolation L2. L’audit devra vérifier
+la compatibilité de cet hébergement avec les ressources et permissions nécessaires.
+Toute exception structurelle indispensable doit suivre D1. Aucun processus
+supplémentaire ni convergence définitive vers trois familles n’est requis pour L4.
+Cet arbitrage porte sur l’activation fonctionnelle, pas sur une fusion de runtimes.
 
 **A3 — Ordre et représentation interne du manifeste.**
 
@@ -1064,8 +1239,16 @@ Faire confirmer à l’audit la portée utilisable du dossier r05/r12 face aux f
 
 - L5 : CurrentInvitation, consentement réel, AuthN, HTTP/Bruno, limites publiques ;
 - L6 : reconstruction exclusive, maintenance, O-01, capacité et SLO complets ;
-- L7 : convergence et retrait exhaustif V2, rationalisation des noms/modules ;
+- après clôture fonctionnelle et qualification de L6, idéalement première étape de L7 : chantier D3 de rationalisation Maven/compositions/runtimes et convergence vers les trois familles D2, avec inventaire, mesures, analyse des preuves et gates selon D4 ;
+- L7 : convergence finale et retrait exhaustif V2, rationalisation des noms et certification du code unifié selon le plan directeur ;
 - L8 : distribution, installation vierge et exploitation finale.
+
+L’affectation définitive des participants aux modules, compositions et processus,
+les fusions concrètes et le nombre final d’instances restent à déterminer dans D3 à
+partir des besoins d’isolation, capacité, exploitation et performance. Ces choix
+futurs ne sont pas des arbitrages bloquant L4. Aucun mécanisme nécessaire au
+fonctionnement réel de L4–L6 n’est transféré à ce chantier ; leurs adaptations
+indispensables et leurs qualifications restent dans les lots concernés.
 
 ## 15. Proposition de périmètre précis de L4/I1
 
@@ -1095,7 +1278,8 @@ Faire confirmer à l’audit la portée utilisable du dossier r05/r12 face aux f
 - activation Worker métier ;
 - endpoint HTTP ;
 - reset/reconstruction ;
-- extraction Maven ou modification des scripts de vérification.
+- déplacement, fusion, renommage ou création de module/runtime au titre d’une rationalisation anticipée ;
+- modification des scripts de vérification.
 
 ### Critère de sortie
 
@@ -1118,7 +1302,7 @@ Avant tout GO d’implémentation :
 
 Avant I2, A1 doit en outre être tranché et l’adaptation exacte des contrats L2 auditée. Avant I8, l’assemblage et ses règles d’isolation doivent recevoir leur propre revue.
 
-**Bilan de cette mission :**
+**Bilan de la mission initiale de cadrage, conservé comme historique :**
 
 | Champ | État |
 |---|---|
@@ -1137,3 +1321,12 @@ Avant I2, A1 doit en outre être tranché et l’adaptation exacte des contrats 
 Le périmètre, les propriétaires d’invariants, les stores, les participants, les incréments et les preuves attendues sont suffisamment définis pour un audit indépendant. L’arbitrage principal concerne une adaptation explicite de la frontière L2, nécessaire pour respecter les lectures WRITE hors transaction READ et le recovery sans reçu supplémentaire.
 
 Ce verdict autorise la revue du plan. **Il ne constitue aucun GO L4/I1. La mission s’arrête ici, sans implémentation.**
+
+**Portée du présent amendement :** seul ce plan L4 est amendé ; les documents
+supérieurs, qualifications et preuves existantes sont conservés. Vérification
+documentaire seulement, aucune slice applicative, gate globale non requise,
+aucun full reactor ni PostgreSQL. Les incréments I1–I8 restent fonctionnellement
+inchangés, y compris I2 et l’activation I8. Le report D1–D4 ne crée aucune
+obligation implicite de rationalisation avant la clôture fonctionnelle et la
+qualification de L6, ni nouvelle certification L2/L3. **Audit indépendant du plan
+amendé, puis décision humaine de GO L4/I1 distincte restent requis.**
