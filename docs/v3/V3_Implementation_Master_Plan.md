@@ -12,13 +12,19 @@ Q-UFREE, Q-UOTHER et Q-REGNEW : trois observations fraîches PASS, sept demandes
 SQL avant/après, deux drains et restart contrôlés au code
 `0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Acquis I1–I4 conservés.
 Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
-O20/O21 restent NOT DEMONSTRATED après la campagne fraîche option B au SHA
-`aff7a70d` : Architecture canonique BUILD SUCCESS, 2057/0/0/1, mais INCONCLUSIVE
-(SKIP historique et découverte incomplète) ; COMMAND+Monolithe FAIL,
-1414/0/22/0, erreurs de connexion PostgreSQL dans PRIMARY, deux ancres SKIPPED.
+Campagnes courantes au SHA gelé `cfd3f645` : O20 BUILD SUCCESS,
+2057/0/0/1, Architecture 163 PASS ; O21 BUILD SUCCESS, 1791/0/0/1,
+Worker et Monolithe exécutés. Zéro limitation de découverte résiduelle rapportée.
+Les deux verdicts stricts restent **INCONCLUSIVE**. O20 : **NOT DEMONSTRATED —
+NORMATIVE ARBITRATION REQUIRED** ; O21 : **SATISFIED WITH RESERVATIONS** pour
+la seule recevabilité interne du mandat antérieur. La classification nominative
+`OPTIONAL_EXPLORATORY_PERFORMANCE` du SKIP est proposée, non ratifiée ;
+[analyse et décision à soumettre](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026).
+La tentative `aff7a70d` (O21 FAIL 1414/0/22/0) demeure historique, récupérable
+au commit `d5b7db91`. La politique Reactor demeure inchangée.
 [Archives, méthodes et compteurs par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
 Gates I4 FAIL et résultats historiques UNPROVEN inchangés ; aucun transfert de
-PASS entre invocations, aucune correction productive ni relance.
+PASS entre invocations. La présente passe est exclusivement documentaire, sans relance.
 **L3 OPEN ; aucune décision humaine finale, aucun GO L4 ou production.**
 Les encadrés antérieurs sont historiques ; les exigences normatives restent inchangées.
 

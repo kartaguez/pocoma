@@ -33,8 +33,9 @@ Le SHA documentaire de livraison est résolu après commit, sans autoréférence
 ## Autorité et décisions encore requises
 
 **ARB-I5-01 autorisait la préparation d’une acceptation humaine bornée ; il ne
-constituait pas cette acceptation.** Le GO actuel option B autorise la requalification canonique complète et la
-publication factuelle des résultats, sans clôture effective ni progression L4.
+constituait pas cette acceptation.** Le GO option B a autorisé les campagnes canoniques archivées. Le mandat actuel
+autorise exclusivement l’analyse et la publication documentaires du SKIP, sans
+clôture effective ni progression L4.
 
 | Décision / avis | État réel | Source / suite |
 |---|---|---|
@@ -50,7 +51,9 @@ acceptées. Aucun champ ne porte aujourd’hui une valeur inventée d’acceptat
 
 ## Gates et réserves à examiner avant décision
 
-O20 Architecture reste **NOT DEMONSTRATED** (sous la règle de politique §35 exigeant zéro skip).
+O20 Architecture reste **NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED**
+(sous la règle de politique §35 exigeant zéro skip ; aucune satisfaction avec
+réserves expressément autorisée pour O20).
 O21 COMMAND + Monolithe est qualifié **SATISFIED WITH RESERVATIONS** (sous mandat humain autorisant cette qualification dès lors que la gate composée est complète).
 La campagne canonique fraîche au SHA `cfd3f6458f7de61945bd3f73cb71c794dddf9e57`
 est conservée dans les [archives et reçus complets](../testing/evidence/L3-I5/canonical/Campaigns.json) :
@@ -62,8 +65,9 @@ est conservée dans les [archives et reçus complets](../testing/evidence/L3-I5/
 | O23 | Archives fraîches, inventaires et empreintes vérifiés ; réserves d'authenticité et anciennes campagnes UNPROVEN maintenues |
 | O25 | Audit indépendant de cette publication **PENDING** ; décision humaine finale **PENDING** |
 
-Les r05/r12, l'entrelacement Discovery/renewal, les quatre règles Identity et A1
-sont nominativement PASS dans les deux gates O20 et O21. Le SKIP réel est
+Les r05/r12, l'entrelacement Discovery/renewal et A1 sont nominativement PASS
+dans les deux gates O20 et O21. Les quatre règles Architecture Identity sont
+PASS dans O20 seulement ; O21 n’inclut pas le module Architecture. Le SKIP réel est
 `zExploratoryContentionSeparateFromCorrectness`, conditionné par `step3b.measure`,
 pas le nom `measureStep3bLatencyUnderLoad` ni une annotation `@Disabled`.
 Les 22 erreurs PostgreSQL 08P01 ont été résolues à la cause racine (mode SSL par défaut de pgjdbc
@@ -86,9 +90,49 @@ sans modification productive ou de frontière.
 
 Restent les réserves R-L2-01…05, I3 R1…R3 (JPA livré seulement, administrateurs
 PostgreSQL de confiance, canaux PG/Docker qualifiés seulement), histoire R4,
-limites de découverte 46/67, reçu H3 expurgé et provenance des audits historiques.
+limites historiques de découverte 46/67 (aucune résiduelle rapportée dans les
+campagnes courantes), reçu H3 expurgé et provenance des audits historiques.
 La cible 30s sous charge, les SLO, la disponibilité universelle, G1/G2/G3,
 SPEC-10 globale, distribution et production ne sont pas acquis.
+
+## Proposition de décision sur le SKIP — NON RATIFIÉE
+
+L'[analyse nominative](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026)
+propose **OPTIONAL_EXPLORATORY_PERFORMANCE** pour la seule méthode
+`com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`,
+source SHA-256 `2c44f3350ee5f79a8284b811c980411e276f2dc2d7660c715dfdb49bc782668f`.
+Elle contient des assertions de validité expérimentale, sans seuil de performance ;
+les 13 tests de correction indépendants de la classe passent dans chaque gate.
+Le SKIP réel, les compteurs, les archives et les deux verdicts stricts
+INCONCLUSIVE restent inchangés. Les campagnes SPEC-09/SPEC-10 PERF-01 restent dues.
+
+Le §34 permet d'instruire une acceptation bornée ; il ne dispense pas d'une gate
+explicite ni du zéro-SKIP du §35. La politique n'est pas modifiée. Le responsable
+est invité à **accepter, refuser ou ajourner** la classification et la recevabilité
+interne de ce seul SKIP. Pour retenir O20 SATISFIED WITH EXPLICIT RESERVATIONS,
+il devra le décider explicitement, sans changer son verdict strict. Aucune
+permission générique d'ignorer un SKIP n'est créée.
+
+## Projet de dispositif à soumettre après audit
+
+Les éléments suivants sont des clauses proposées, sans auteur, date ou signature
+inventés. Leur adoption exige une nouvelle décision humaine consignée :
+
+1. Identifier le commit documentaire examiné, l'avis indépendant original et les
+   réponses aux findings ; statuer sur O25 après examen effectif.
+2. Statuer séparément sur la classification et la recevabilité du SKIP nominatif
+   ci-dessus ; consigner le statut interne retenu pour O20 et O21, en conservant
+   BUILD SUCCESS, strict INCONCLUSIVE et les SKIP originaux.
+3. Accepter, refuser ou ajourner la clôture interne WRITE Identity L3 dans les deux
+   compositions JPA testées, avec A1 et toutes les réserves R-L2-01…05/I3/R4/H3.
+4. Maintenir les reports L4/L5/L6–L8, SPEC-09/PERF-01, les gates futures et les
+   obligations de certification globale ; ne déduire aucun GO L4 ou production.
+
+**Décisions restant à prendre : recevabilité nominative du SKIP et éventuel
+statut O20 avec réserves ; audit indépendant O25 ; acceptation finale ou
+ajournement de L3.** Tout GO L4 serait encore une décision distincte.
+En attendant, L3 OPEN ; O25 PENDING (statut de matrice NOT DEMONSTRATED) ;
+aucune certification globale SPEC-10 ni GO production.
 
 ## Reports nominatifs conservés
 

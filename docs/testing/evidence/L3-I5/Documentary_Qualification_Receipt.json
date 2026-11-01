@@ -1,0 +1,164 @@
+{
+  "schema": "pocoma-l3-i5-documentary-qualification-v1",
+  "date": "2026-11-01",
+  "scope": "Documentary/static checks only; no Maven, PostgreSQL, temporal or runtime tests. Not independent O25 audit.",
+  "preflight_local_and_remote": "2a88c6c2cec48a7ccb4488f61b1a0a31775a09c0",
+  "branch": "feat/v3-architecture",
+  "initial_worktrees": [
+    {
+      "path": "/Users/julien.guezennec/Dev/projects/pocoma",
+      "head": "2a88c6c2cec48a7ccb4488f61b1a0a31775a09c0",
+      "initial_status": "clean; checked before edits"
+    },
+    {
+      "path": "/private/tmp/pocoma-verification-audit-d0927d94",
+      "head": "d0927d9410ebcd65c221e73c5ecd04e5242fe4e9",
+      "initial_status": "clean; checked before edits"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/debt-wa6-integration/pocoma",
+      "head": "2eef3ab9785c524c2fab86f586fc12580c8b1c2e",
+      "initial_status": "clean; checked before edits"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/v3-l2-documentation/pocoma",
+      "head": "f81cbd72590a5cb6bdaa083641f8b8ab59371a55",
+      "initial_status": "clean; checked before edits"
+    },
+    {
+      "path": "/Users/julien.guezennec/.codex/worktrees/v3-l2-i1-close-i2-plan/pocoma",
+      "head": "1fd9ce7529e5da439f32f889f92cec39de2c79fa",
+      "initial_status": "clean; checked before edits"
+    }
+  ],
+  "tested_canonical_sha": "cfd3f6458f7de61945bd3f73cb71c794dddf9e57",
+  "archived_gates": {
+    "O20": {
+      "invocation_id": "cf3c434170594c8597027aca4cdabe2e",
+      "maven_exit": 0,
+      "collector_exit": 1,
+      "maven_result": "BUILD SUCCESS",
+      "strict_verdict": "INCONCLUSIVE",
+      "obligation_status": "NOT DEMONSTRATED",
+      "counts": {
+        "tests": 2057,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "source_discovery_limitations": []
+    },
+    "O21": {
+      "invocation_id": "2dd51d57245e44bfb794dd0bb74e387e",
+      "maven_exit": 0,
+      "collector_exit": 1,
+      "maven_result": "BUILD SUCCESS",
+      "strict_verdict": "INCONCLUSIVE",
+      "obligation_status": "SATISFIED WITH RESERVATIONS",
+      "counts": {
+        "tests": 1791,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "source_discovery_limitations": []
+    }
+  },
+  "historical_verification_receipt": {
+    "path": "docs/testing/evidence/L3-I5/canonical/Verification_Receipt.json",
+    "baseline": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
+    "role": "Historical attempts only; unchanged; not the validation of current archives"
+  },
+  "classification": {
+    "method": "com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness",
+    "proposed": "OPTIONAL_EXPLORATORY_PERFORMANCE",
+    "human_decision": "PENDING — NOT RATIFIED",
+    "policy_modified": false,
+    "strict_verdicts_modified": false,
+    "raw_archives_modified": false
+  },
+  "verification_scope": {
+    "primary_slice": "NONE",
+    "secondary_slices": [],
+    "production_impact": "NONE",
+    "unexpected_slice_crossing": "NONE",
+    "global_gate": "NOT REQUIRED / NOT RUN for this documentary pass",
+    "full_reactor": "NOT REQUIRED / NOT RUN; documentation only",
+    "database": "NOT RUN"
+  },
+  "commands": [
+    "git ls-remote origin refs/heads/feat/v3-architecture",
+    "git worktree list --porcelain",
+    "python3 -B -m json.tool docs/v3/L3_Identity_Proof_Manifest.json",
+    "python3 -B docs/testing/evidence/L3-I5/canonical/verify_archives.py.txt",
+    "python3 -B docs/testing/evidence/L3-I5/verify_dossier.py --self-test",
+    "python3 -B /private/tmp/pocoma-i5-static-audit.py",
+    "git diff --check",
+    "git diff --name-only -- app scripts/testing"
+  ],
+  "checks": {
+    "archive_integrity_and_recount": "PASS; final read-only archive recheck, exact output retained below",
+    "i4_i5_qid_and_historical_proofs": "PASS; 686 I4 XML, six historical campaigns, 7 Q-ID requests / 3 receipts / 2 drains / restart, matrices 27/17, 64 I4 receipts",
+    "current_manifest_attribution": "PASS",
+    "correction_class_per_gate": "13 PASS + 1 SKIP, all 14 source/module/UUID/XML attributed",
+    "links_and_anchors": {
+      "result": "PASS",
+      "local_links_checked": 426,
+      "broken_links": [],
+      "scope": "Inline local Markdown targets and heading fragments in all changed Markdown, outside fenced examples; no external URL network check"
+    },
+    "json": "PASS; manifest and new receipt parsed, changed JSON validated",
+    "diff_check": "PASS; git diff --check; only documentation .md/.json changed; no app/**, scripts/testing/**, policy, raw archive or historical receipt changes",
+    "initial_link_diagnostic": "First pass found only the receipt target before creation; final complete dossier passes. No application failure or test rerun."
+  },
+  "limits": [
+    "SHA-256 proves byte integrity, not producer authenticity",
+    "Historical results are not fresh executions at documentary HEAD",
+    "No independent audit, human acceptance, performance campaign or certification supplied by this receipt"
+  ],
+  "human_actions_pending": [
+    "Accept/reject/defer exact SKIP classification and internal admissibility",
+    "Explicitly arbitrate any O20 satisfaction with reservations; current status NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED",
+    "Independent O25 audit followed by separate human L3 acceptance/rejection/deferral"
+  ],
+  "l3": "OPEN",
+  "O25": "PENDING",
+  "human_acceptance": "PENDING",
+  "l4_go": false,
+  "global_spec10_certification": false,
+  "production_go": false,
+  "archive_verification_output": {
+    "result": "PASS: archive integrity and attribution checks only",
+    "baseline": "cfd3f6458f7de61945bd3f73cb71c794dddf9e57",
+    "gates": {
+      "O20": {
+        "counts": {
+          "tests": 2057,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "xml_reports": 324,
+        "module_statuses": {
+          "SUCCESS": 61
+        },
+        "strict_verdict": "INCONCLUSIVE"
+      },
+      "O21": {
+        "counts": {
+          "tests": 1791,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 1
+        },
+        "xml_reports": 271,
+        "module_statuses": {
+          "SUCCESS": 52
+        },
+        "strict_verdict": "INCONCLUSIVE"
+      }
+    },
+    "independent_O25_audit": "PENDING",
+    "human_acceptance": "PENDING"
+  }
+}

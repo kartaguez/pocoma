@@ -22,8 +22,8 @@ aucun delta exécutable. [Commandes, compteurs et modules](canonical/Campaigns.j
   Deux ancres (Worker COMMAND 320/0/0/1 et Monolithe 4/0/0/0) entièrement exécutées ;
   BUILD SUCCESS / code 0 ; verdict strict **INCONCLUSIVE**, statut
   **SATISFIED WITH RESERVATIONS** (selon autorisation du mandat et règle de SKIP).
-- r05/r12, entrelacement Discovery/renewal, quatre règles Architecture Identity
-  et A1 PASS dans O20 et O21 nominativement.
+- r05/r12, entrelacement Discovery/renewal et A1 PASS dans les deux gates ;
+  quatre règles Architecture Identity PASS dans O20 seulement (hors sélection O21).
 - Le SKIP réel est `zExploratoryContentionSeparateFromCorrectness`, condition
   `step3b.measure` absente ; `measureStep3bLatencyUnderLoad`/@Disabled ne sont pas
   dans le source gelé. Politique §35 / plan I5 §10.3 : zéro SKIP requis pour PASS.
@@ -65,6 +65,15 @@ Ce contrôle de preuves n'est pas l'audit indépendant O25. Archives conservées
 dans Git ; aucun `/tmp` indispensable à leur audit. SHA de publication fourni
 après commit/push normal ; SHA exécuté distinct, sans autoréférence documentaire.
 L3 OPEN ; audit indépendant et décision humaine PENDING ; L4 NOT AUTHORIZED.
+
+Le reçu `canonical/Verification_Receipt.json` est **historique**, au SHA `aff7a70d`
+(O21 FAIL 1414/0/22/0). Il est conservé sans réécriture et ne valide pas les archives
+courantes. Le nouveau contrôle documentaire est consigné dans
+[Documentary_Qualification_Receipt.json](Documentary_Qualification_Receipt.json).
+Les tentatives anciennes restent récupérables dans Git au commit `d5b7db91`,
+avec empreintes dans `superseded_canonical_attempts` du manifeste.
+La [qualification nominative proposée](../../../v3/L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026)
+ne vaut ni ratification du SKIP ni PASS strict. La politique Reactor est inchangée.
 
 ## Remédiation Q-ID et historique conservés
 
@@ -111,7 +120,7 @@ avec leur archive INTEGRATION, membre et ligne ; aucune duplication ni série
 fictive r01…r64. La gate COMMAND seule annoncée 1777, l’Architecture tardive 163
 et la composition autonome 10 sans brut attribuable restent **UNPROVEN** ; les
 contributions E4 correspondantes conservent leurs preuves propres. Une sélection
-Architecture 163 PASS ne satisfait pas la gate non filtrée. O20/O21/O25 ND.
+Architecture 163 PASS ne satisfait pas la gate non filtrée. O20 ND — NORMATIVE ARBITRATION REQUIRED ; O21 recevabilité interne avec réserves ; O25 PENDING.
 
 `Archive_Index.json` donne tailles/SHA-256 de chaque archive/membre, noms JUnit
 qualifiés, méthode, module/producteur/invocation et ligne de testcase. Les trois

@@ -1,6 +1,11 @@
 # Pocoma V3 — L3/I5 — Qualification finale et clôture Identity
 
-**31 octobre 2026 — PLAN FINALISÉ, ARBITRAGE ARB-I5-01 RATIFIÉ, NON EXÉCUTÉ.**
+**État courant, 1er novembre 2026 : Q-ID exécuté ; dossier remédié et gates
+O20/O21 publiés ; analyse documentaire du SKIP soumise à arbitrage. L3 OPEN,
+O25 PENDING, aucune acceptation finale.** Voir l'actualisation §18 ; le corps
+du plan du 31 octobre et ARB-I5-01 sont conservés avec leur portée historique.
+
+**31 octobre 2026 — PLAN FINALISÉ, ARBITRAGE ARB-I5-01 RATIFIÉ, NON EXÉCUTÉ (état historique).**
 
 **Conclusion contradictoire : aucun développement productif indispensable identifié.**
 Les créations de tests prévues historiquement pour I5 ont déjà leurs équivalents
@@ -1106,3 +1111,40 @@ qualification est finalisé, cohérent et recevable. Il est prêt pour le GO d'e
 de la campagne Q-ID.
 
 **I5 — QUALIFICATION PLAN APPROVED / READY FOR EXECUTION GO**
+
+## 18. Actualisation documentaire du 1er novembre 2026 — sans nouvelle ratification
+
+Le [rapport courant](L3_Identity_Execution_Report.md), le
+[manifeste](L3_Identity_Proof_Manifest.json) et le
+[projet d'acte](L3_Identity_Closure.md) portent l'exécution effective Q-ID et les
+campagnes canoniques postérieures au plan. Leurs résultats n'actualisent pas
+rétrospectivement les observations I4 ni les clauses ratifiées d'ARB-I5-01.
+Q-ID : trois probes PASS, sept demandes ; O20/O21 à `cfd3f645` : respectivement
+2057/0/0/1 et 1791/0/0/1, BUILD SUCCESS, strict INCONCLUSIVE pour les deux.
+Les limitations 46/67 restent historiques ; aucune résiduelle n'est rapportée
+pour ces campagnes. O20 Architecture : 163 PASS ; O21 : deux ancres atteintes.
+
+L'[analyse nominative du SKIP](L3_Identity_Execution_Report.md#qualification-nominative-du-skip--proposition-du-1er-novembre-2026)
+propose OPTIONAL_EXPLORATORY_PERFORMANCE pour la seule méthode
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`.
+Les assertions de validité de ses mesures et les treize scénarios de correction
+indépendants sont examinés, pas supprimés. Les obligations SPEC-09/PERF-01 restent
+entières ; cette mesure de fixture n'en est pas un substitut.
+
+Les §§10.3/11 et la politique §§34–35 restent applicables : aucun PASS canonique
+avec SKIP. Le §34 permet l'instruction de la recevabilité interne avec réserves,
+mais ne permet pas expressément de déclarer O20 satisfaite. **O20 reste NOT
+DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED**. O21 conserve **SATISFIED WITH
+RESERVATIONS**, recevabilité interne du mandat précédent, strict INCONCLUSIVE.
+La proposition humaine est limitée au SKIP nommé ; elle ne modifie pas la politique
+et n'est pas ratifiée par ce mandat. Une éventuelle satisfaction O20 avec réserves
+requiert une décision supplémentaire explicite, sans certification globale.
+
+Le présent GO autorise seulement analyse, corrections documentaires, contrôles
+statiques et publication sans force. Slices primaire/secondaires NONE ; impact
+productif et franchissement inattendu NONE. Gate globale et full reactor NOT
+REQUIRED / NOT RUN ici ; DB/migrations, Maven, tests temporels et Q-ID NOT RUN
+pour cette passe. Les gates déjà archivées demeurent REQUIRED / RUN historiquement.
+L3 OPEN ; O25 PENDING jusqu'à audit indépendant et décision humaine distincte ;
+aucun GO L4, SPEC-10 global ou production. Les clauses de décision proposées
+figurent dans le projet d'acte, sans acceptation préremplie.

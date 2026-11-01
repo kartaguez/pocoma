@@ -4,14 +4,14 @@
 
 Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
 Auteur de la remédiation : Codex. Audit indépendant de cette livraison **PENDING**.
-L3 reste OPEN ; L4 n’est pas ouvert. Le GO humain actuel autorise la remédiation
-et la publication provisoire, sans acceptation finale.
+L3 reste OPEN ; L4 n’est pas ouvert. Les mandats précédents ont autorisé la remédiation et les gates archivées. Le GO
+actuel autorise leur finalisation documentaire et sa publication, sans acceptation finale.
 
 | Finding initial | Constat de l’audit transmis | Traitement factuel | État proposé à l’audit |
 |---|---|---|---|
 | AUD-I5-01 — BLOQUANT | Trois observations PostgreSQL Q-ID absentes | Sept demandes uniques ; trois probes directes PASS, snapshots et oracles §10.2 archivés | Remédiation technique démontrée |
 | AUD-I5-02 — BLOQUANT | Clôture humaine inventée | Acte converti en projet PENDING ; ARB-I5-01 limité à la préparation ; aucun GO L4 | Rectifié, décision finale absente |
-| AUD-I5-03 — MAJEUR | Preuves partielles présentées complètes | O06/I/P distinguent historique partiel et preuves Q-ID fraîches ; O20/O21/O25 non démontrées | Rectifié ; réserves conservées |
+| AUD-I5-03 — MAJEUR | Preuves partielles présentées complètes | O06/I/P distinguent historique partiel et preuves Q-ID fraîches ; O20 non démontrée, O21 recevabilité interne avec réserves, O25 PENDING | Rectifié ; réserves conservées |
 | AUD-I5-04 — MAJEUR | Gates/campagnes mal attribuées | Six campagnes historiques récupérées et vérifiées ; SHA, état dirty, argv, modèles, inventaires et limites archivés ; autres assertions UNPROVEN | Traité avec réserve de bruts non retrouvés |
 | AUD-I5-05 — MAJEUR | Manifeste non autoporteur | Matrices normatives restaurées, XML/membres/lignes/reçus/tailles/hashes indexés ; 64 reçus I4 référencés sans duplication | Dossier vérifiable soumis à audit, sans autocertification |
 
@@ -26,13 +26,19 @@ publication factuelle, sans correction exécutable, clôture humaine, ouverture 
 certification SPEC-10 ou GO production. Cette campagne complète la remédiation
 historique décrite plus bas ; elle ne réécrit aucun résultat ancien.
 
-Préflight : branche `feat/v3-architecture`, HEAD local et distant réel
-`aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7`, checkout principal et quatre autres
-worktrees propres. Les worktrees existants sont préservés. Exécution dans un
-nouveau worktree détaché `/private/tmp/pocoma-l3-i5-canonical-aff7a70d` au même
-SHA, propre avant/après chaque gate. Les inventaires avant/après prouvent les
-mêmes entrées suivies `app/` et `scripts/` entre les deux gates. Aucun source,
-test, POM, SQL, script de vérification existant ou paramètre exécutable modifié.
+La tentative initiale à `aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7` est
+historique : O20 INCONCLUSIVE, O21 FAIL (1414/0/22/0, ancres non atteintes).
+Les archives initiales restent récupérables au commit `d5b7db91` et le reçu
+`canonical/Verification_Receipt.json` les décrit encore ; il ne décrit pas les
+archives courantes. Le manifeste conserve leurs empreintes et leur restitution Git.
+
+Après correction ciblée de fixture, les **deux campagnes courantes** ont exécuté le
+SHA gelé `cfd3f6458f7de61945bd3f73cb71c794dddf9e57`, dans
+`/private/tmp/pocoma-l3-i5-canonical-cfd3f645`. Leurs métadonnées avant/après
+attestent un checkout propre et les mêmes entrées `app/`/`scripts/` entre gates.
+Les corrections de fixture et de découverte ont été publiées avant ce mandat
+au commit `2a88c6c2cec48a7ccb4488f61b1a0a31775a09c0` ; aucune n'est réalisée
+par la présente passe documentaire. Les attributions restent celles des reçus.
 Le wrapper Windows non exécuté `app/mvnw.cmd` est CRLF dans le checkout neuf
 conformément à `.gitattributes` (189 octets de plus), LF dans le checkout
 principal ; les blobs Git sont identiques, et les octets d'exécution sont
@@ -61,11 +67,11 @@ Commandes réellement exécutées depuis le `app/` du worktree d'exécution :
 ```sh
 ./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am \
   -Pverification-provenance \
-  -Dpocoma.verification.id=39583d8bd0e94554bfa55761c9d0372c \
+  -Dpocoma.verification.id=cf3c434170594c8597027aca4cdabe2e \
   -Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/architecture/reports test
 ./mvnw --batch-mode --no-transfer-progress -pl runtime-command-consumption-worker,runtime-monolith -am \
   -Pverification-provenance \
-  -Dpocoma.verification.id=e322cc9bc42e4e2fb1fc397b4bf0d4dc \
+  -Dpocoma.verification.id=2dd51d57245e44bfb794dd0bb74e387e \
   -Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/command/reports test
 ```
 
@@ -81,7 +87,7 @@ dans un répertoire neuf avec un autre UUID. Aucun XML historique n'est compté.
 | Gate / invocation | Fermeture Maven du test | Tests / failures / errors / skips | Résultat Maven | Verdict strict / obligation |
 |---|---|---|---|---|
 | O20 / `cf3c434170594c8597027aca4cdabe2e` | 60 modules applicatifs + parent, **61 SUCCESS**, 44 producteurs XML | **2057 / 0 / 0 / 1**, 324 XML | BUILD SUCCESS, code 0, 53:07 min | **INCONCLUSIVE — NOT DEMONSTRATED** |
-| O21 / `2dd51d57245e44bfb794dd0bb74e387e` | 51 modules applicatifs + parent prévus ; **52 SUCCESS**, 36 producteurs XML | **1791 / 0 / 0 / 1**, 271 XML | BUILD SUCCESS, code 0, 51:04 min | **INCONCLUSIVE — SATISFIED WITH RESERVATIONS** |
+| O21 / `2dd51d57245e44bfb794dd0bb74e387e` | 51 modules applicatifs + parent prévus ; **52 SUCCESS**, 35 producteurs XML | **1791 / 0 / 0 / 1**, 271 XML | BUILD SUCCESS, code 0, 51:04 min | **INCONCLUSIVE — SATISFIED WITH RESERVATIONS** |
 
 Les compteurs ne s'additionnent pas entre invocations : leurs fermetures se
 recouvrent. Tous les modules, y compris ceux sans tests, sont décomptés dans les
@@ -112,17 +118,189 @@ annoté `@EnabledIfSystemProperty(named="step3b.measure",matches="true")`.
 Son XML O20 et O21 porte `System property [step3b.measure] does not exist`. Aucun
 changement d'annotation, de nom, de propriété ou de sélection n'a été fait dans les tests.
 
-La politique §35 et le plan I5 §10.3 exigent zéro skip pour un PASS inconditionnel.
-Le SKIP interdit SATISFIED pour O20 sans dérogation normative formelle (statut :
-**NOT DEMONSTRATED**). Pour O21, le mandat humain autorise explicitement
-**SATISFIED WITH RESERVATIONS** dès lors que la gate composée est complète (1 791 tests,
-0 failure, 0 error, 1 skip).
+La politique §35 et le plan I5 §10.3 exigent zéro skip pour un PASS strict.
+O20 reste **NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED** ; le §34
+n'autorise pas expressément sa conversion en satisfaction avec un SKIP.
+Pour O21, **SATISFIED WITH RESERVATIONS** désigne uniquement la recevabilité
+interne autorisée par le mandat antérieur. Son verdict strict est toujours
+**INCONCLUSIVE**. L'analyse nominative et la proposition humaine ci-dessous
+ne constituent aucune dérogation ratifiée.
 
 Les 67 limitations historiques de découverte dans `scripts/testing/verify.py` ont
 été intégralement qualifiées et résolues : prise en charge des annotations standard,
 `@RepeatedTest`, `@ParameterizedTest` (avec `@ValueSource` et `@EnumSource`), et
 classes de test multiples par fichier Java (ex. `CurrentTransactionManagerPostgresTest`).
 Toutes les 31 assertions de vérification fail-closed de `test_verification.py` sont PASS.
+Ce résultat appartient à la livraison précédente ; ces tests ne sont pas rejoués ici.
+
+### Qualification nominative du SKIP — proposition du 1er novembre 2026
+
+**Conclusion technique proposée : `OPTIONAL_EXPLORATORY_PERFORMANCE`, pour la
+seule méthode pleinement qualifiée
+`com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`.**
+Sa ratification normative et sa recevabilité interne restent **PENDING**.
+Cette conclusion repose sur le contenu et les contrats, pas sur la seule
+présence d'une condition JUnit.
+
+Le [source exact](../../app/runtime-command-consumption-worker/src/test/java/com/kartaguez/pocoma/runtime/command/consumption/sequencing/TerminalSequencingPostgresTest.java)
+est identique au blob exécuté à `cfd3f645` : SHA-256
+`2c44f3350ee5f79a8284b811c980411e276f2dc2d7660c715dfdb49bc782668f`.
+Lignes 294–333, la méthode compare la fixture avec/sans suffixe E, concurrence
+1/4, 1/8 Events par famille et 1/2 familles, trois répétitions appariées en ordre
+alterné, huit transactions de chauffe puis quarante mesurées par worker.
+Elle imprime débit et moyenne/médiane/p95/max/écart-type des latences, attentes
+et rétentions. La connexion neuve est incluse dans la latence ; le delta comprend
+réservation E, associations EventPosition, contraintes/index et commit associé.
+L'attente client n'est pas une mesure pure du lock wait, ni la rétention un
+horodatage serveur du déverrouillage. Aucun seuil de débit, de latence, de
+régression ou de SLO n'est asserté. Le schéma est `experiment`, sans contexte
+applicatif de production : ce n'est pas une campagne de capacité du runtime V3.
+
+**Il existe des assertions de correction dans ce benchmark.** Elles vérifient
+le nombre total d'Events, les compteurs et la continuité avec E, l'absence de
+positions sans E ; barrières, futures et arrêt des workers détectent aussi une
+mesure incomplète. Ce sont des contrôles de validité expérimentale, à conserver
+intacts. Ils ne constituent pas ici un oracle fonctionnel indispensable unique :
+la classe contrôle séparément ces invariants par des scénarios adverses dédiés.
+La couverture des variantes de charge du benchmark n'est pas revendiquée comme
+exécutée dans O20/O21.
+
+| Invariant associé | Méthodes de correction indépendantes dans la même classe | Preuve O20 et O21 |
+|---|---|---|
+| Positions liées à l'ordre terminal, bloc exact et densité | `aStartOrderDoesNotAssignPosition`, `dExactBlockAndDeterministicUuidOrder` | PASS ; `continuous` vérifie compteur, cardinalité et jointure de toutes les positions |
+| Attente réelle E, progression après commit, réutilisation après rollback | `bRealEWaitThenCommitProgress`, `cRollbackReusesEntireReservation` | PASS ; observation `pg_stat_activity`/`pg_blocking_pids`, effets durables indépendants |
+| Ordre commun des familles et atomicité des associations | `eOppositePublicationUsesOneTotalFamilyOrder`, `fAssociationFailureRollsBackAllFamiliesAndBusiness` | PASS ; continuité par famille, rollback sans effet partiel |
+| Transaction sans Event, suffixe physique et nettoyage | `gEmptyTransactionDoesNotTouchOrWaitOnE`, `hCollectorIsPhysicalAndCleanOnSameThread`, `jRunnerAndTransactionalSharePhysicalSuffixAfterFlush` | PASS ; absence d'accès E, PID/xid, ordre SQL et commit |
+| Résolution propriétaire et publication tardive | `jConsumptionOwnerConfirmsCommitAndSuffixRollback`, `jLateSynchronizationPublicationRejectedWithRollback` | PASS ; résultat durable/rollback et refus tardif |
+
+Les **13 méthodes de correction de cette classe sont PASS dans chacune des deux
+gates** ; la quatorzième est le SKIP. L'inventaire complet est
+`metadata/Discovered_Methods.json` dans chaque archive C5-A/C5-CM ; le XML est
+`raw.tar.gz` → `reports/pocoma-runtime-command-consumption-worker/surefire-reports/TEST-com.kartaguez.pocoma.runtime.command.consumption.sequencing.TerminalSequencingPostgresTest.xml`.
+Le testcase SKIPPED est à la ligne **154** dans chaque XML, avec le motif
+`System property [step3b.measure] does not exist`. UUID, source, empreinte,
+membre et ligne figurent aussi dans le manifeste. Aucun SKIP Identity n'est observé.
+
+L'[expérience 3B historique](../architecture/Event_Terminal_Sequencing_Step_3B_PostgreSQL_Proof_2026-10-19.md),
+§§5/7/9, distingue déjà treize tests de correction d'une campagne exploratoire,
+sans seuil ni intégration runtime ; elle rapporte une exécution séparée des
+mesures (14/0/0/0) et une slice canonique (995/0/0/1). Ses
+[traces](../testing/evidence/Event_Terminal_Sequencing_Step_3B_2026-10-19.txt)
+et [CSV](../testing/evidence/Event_Terminal_Sequencing_Step_3B_2026-10-19.csv)
+restent historiques, sans transfert de PASS à `cfd3f645`.
+Les rapports [L1-E](L1_E_Execution_Report.md), [L2-I2](L2_I2_Execution_Report.md)
+et [L2-I4](L2_I4_Execution_Report.md) conservent ce SKIP hors obligations métier
+de leurs lots ; ce précédent documente son intention, sans créer une dispense.
+
+**Exigences de performance distinctes :** aucune clause de
+[SPEC-09](SPEC-09_Performance.md) ou de
+[SPEC-10](SPEC-10_Test_Certification.md) ne nomme cette méthode comme oracle
+obligatoire. SPEC-09 §§2–3/6 et SPEC-10 §12/PERF-01 imposent des campagnes
+représentatives distinctes F01-A…J, notamment F01-E (Identity E2E), F01-G
+(rattrapage), F01-H (contention métier), ainsi que les profils/SLO et les
+configurations A/B applicables. Le benchmark E sans vrai travail métier ne
+les satisfait pas. Ces obligations futures restent dues selon L6–L8 et les
+jalons de certification ; ni leur report ni leur PASS ne sont décidés ici.
+
+### Compatibilité Reactor et décision humaine proposée
+
+La politique reste **inchangée**. Le §34, lignes « Documentation / evidence
+encoding only » et « Lot closure », autorise les contrôles documentaires sans
+rejeu et distingue acceptation humaine bornée et full reactor. Il dit aussi
+« An explicit lot gate is not silently waived » et préserve SKIP/INCONCLUSIVE.
+Le §35, « Evidence, selection controls and reuse », exige pour **tout PASS**, y
+compris canonique, chaque invocation attendue fraîche et réussie, et zéro SKIP.
+Le plan I5 §10.3 reprend cette règle ; ARB-I5-01 §11.2/B autorise l'instruction
+d'une acceptation interne avec dette identifiée, sans déclarer les gates satisfaites.
+
+**Cas B pour l'éventuelle satisfaction O20 avec réserves :** les textes permettent
+l'instruction documentaire, mais aucune clause n'autorise expressément à convertir
+O20 en satisfaction malgré ce SKIP. Une telle conversion serait un arbitrage
+nominatif supplémentaire, pas une simple correction rédactionnelle du §35.
+Aucune relaxation normative n'est adoptée automatiquement, aucun ajout à la
+politique n'est nécessaire pour déposer la présente proposition. O20 reste
+**NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED**. Si le responsable souhaite
+le statut **SATISFIED WITH EXPLICIT RESERVATIONS**, il doit en ratifier la portée
+interne et la réserve nominative ; ce statut ne serait toujours pas un PASS strict.
+
+| Critère | O20 Architecture globale | O21 COMMAND + Monolithe |
+|---|---|---|
+| Sélection canonique non filtrée, SHA/UUID/archives attribués | Oui, 61 modules SUCCESS | Oui, 52 modules SUCCESS, deux ancres exécutées |
+| Maven | BUILD SUCCESS, code 0 | BUILD SUCCESS, code 0 |
+| Tests / failures / errors / skips | 2057 / 0 / 0 / 1 | 1791 / 0 / 0 / 1 |
+| Architecture requise | 163 PASS, aucune limite de découverte résiduelle rapportée | Gate séparée O20 ; aucune inclusion implicite |
+| PostgreSQL / Identity / Worker / Monolithe | Contributions exécutées, détails ci-dessus | Contributions exécutées, détails ci-dessus |
+| Zéro SKIP exigé par le collecteur | Non | Non |
+| Verdict strict conservé | INCONCLUSIVE | INCONCLUSIVE |
+| Recevabilité interne | NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED | SATISFIED WITH RESERVATIONS, mandat antérieur ; pas PASS strict |
+| Certification globale / acceptation finale | NOT ACQUIRED / PENDING | NOT ACQUIRED / PENDING |
+
+La méthode reste incluse dans les deux commandes canoniques : sa classification
+proposée ne crée aucun filtre et ne modifie pas le collecteur. **Un PASS strict
+selon les règles actuelles nécessiterait son exécution réussie dans toute gate
+qui la découvre**, avec `step3b.measure=true`, et toutes les autres conditions
+de preuve ; un benchmark exécuté séparément ne convertirait pas ces reçus.
+Une telle exécution requiert un nouveau mandat ; elle n'est ni prescrite ni
+autorisée par la présente clarification documentaire. Elle ne suffirait pas
+à certifier PERF-01.
+
+**Texte proposé au responsable, NON RATIFIÉ :** « Reconnaître exclusivement
+la méthode ci-dessus, au source haché identifié, comme
+OPTIONAL_EXPLORATORY_PERFORMANCE ; accepter son SKIP conservé pour l'examen
+interne borné du raccord WRITE Identity, avec O20 éventuellement qualifiée
+SATISFIED WITH EXPLICIT RESERVATIONS après décision explicite. Maintenir les
+deux verdicts stricts INCONCLUSIVE, toutes les réserves, les gates futures et
+SPEC-09/SPEC-10. Cette recevabilité ne vaut ni PASS de certification, ni
+acceptation finale L3, ni précédent applicable aux autres SKIP. »
+
+Le responsable peut accepter, refuser ou ajourner cette proposition. O25 (audit
+indépendant puis décision humaine), la clôture L3 et tout GO L4 demeurent distincts.
+Tout changement du source, des assertions, du contrat ou de l'allocation de cette
+méthode impose un nouvel examen ; un test obligatoire conditionnel reste bloquant.
+
+### Vérification de la présente passe documentaire
+
+Préflight courant : HEAD local et distant `2a88c6c2cec48a7ccb4488f61b1a0a31775a09c0`,
+branche `feat/v3-architecture`, checkout propre, cinq worktrees propres. Les quatre
+worktrees secondaires sont préservés, à `d0927d94`, `2eef3ab9`, `f81cbd72` et
+`1fd9ce75`. Lecture d'AGENTS.md, des autorités I5/Reactor, du source gelé,
+des SPEC, des réserves et des reçus avant modification.
+
+**Slices primaire/secondaires NONE ; impact productif NONE ; franchissement
+inattendu NONE. Gate globale NOT REQUIRED / NOT RUN pour cette passe ; full
+reactor NOT REQUIRED / NOT RUN, car exclusivement documentaire (§34).** Les
+gates O20/O21 demeurent des exécutions antérieures, jamais de nouveaux résultats.
+Maven, PostgreSQL, migrations, tests temporels et Q-ID **NOT RUN** ici.
+
+Contrôles exécutés depuis la racine :
+
+```sh
+python3 -B -m json.tool docs/v3/L3_Identity_Proof_Manifest.json > /dev/null
+python3 -B docs/testing/evidence/L3-I5/canonical/verify_archives.py.txt
+python3 -B docs/testing/evidence/L3-I5/verify_dossier.py --self-test
+git diff --check
+git diff --name-only -- app scripts/testing
+```
+
+Le vérificateur I5 appelle celui d'I4 : 686 XML I4, six campagnes récupérées,
+Q-ID (sept demandes/trois reçus/deux drains/restart), matrices 27/17 et 64 reçus
+contrôlés sans exécution applicative. Le contrôle canonique recompte 324/271 XML,
+vérifie les archives/membres/SHA-256, les producteurs/UUID et les entrées gelées.
+Un contrôle Python local en lecture seule vérifie en plus JSON, liens/ancres des
+documents modifiés, cohérence manifeste/reçus courants et quatorze invocations
+de la classe par gate (13 PASS, 1 SKIP). Ses résultats sont consignés dans le
+[reçu documentaire](../testing/evidence/L3-I5/Documentary_Qualification_Receipt.json).
+Le premier passage des liens a signalé ce reçu encore à créer ; le contrôle final
+porte sur le dossier complet. Le reçu d'archives ancien à `aff7a70d` reste inchangé,
+identifié comme historique ; il n'est pas réutilisé pour valider `cfd3f645`.
+
+Les corrections d'attribution actualisent les SHA/UUID/hashes courants du manifeste,
+les encadrés du canon/plan directeur/plan L3, l'index et le projet d'acte. Le plan
+I5 conserve son texte historique et ajoute une actualisation identifiée. Aucun
+fichier exécutable, archive brute, reçu d'exécution historique, SPEC ou politique
+Reactor n'est modifié. Ces contrôles documentaires ne valent ni audit O25 ni
+ratification normative. Le commit publié et l'égalité locale/distante sont
+rapportés après publication normale, sans auto-référence dans le manifeste.
 
 ### Résolution de la cause racine PostgreSQL 08P01
 
@@ -141,15 +319,10 @@ préservé (exclusion de `preferQueryMode=simple` afin de maintenir l'émulation
 nécessaire à `PotHistoryCardinalityPostgresTest`). Les 142 tests de `L2ManifestProof` passent
 désormais en 127 s avec zéro erreur, permettant à la gate O21 de franchir le module et
 d'exécuter l'intégralité du réacteur (Worker COMMAND et Monolithe inclus).
-Un lien causal avec le build warm n'est pas démontré. Les autres connexions et
-fixtures fonctionnent dans la même invocation ; cela ne répare pas les 22 errors.
-
-Aucune correction, modification de SSL, de pool, de timeout, d'assertion ou de
-paramètres PostgreSQL ; **aucune relance**. Une investigation distincte devra
-corréler le serveur/port et le cycle de vie de cette fixture à la première erreur,
-avant de proposer une correction minimale. Tout correctif exécutable requiert
-un GO distinct, une nouvelle baseline et le réexamen des preuves invalidées.
-Ce FAIL n'est ni effacé par O20, ni requalifié comme PASS d'infrastructure.
+La tentative FAIL initiale reste inchangée dans Git et dans son reçu historique.
+La réussite des campagnes corrigées ne transforme pas ses 22 ERROR en PASS.
+La présente passe ne rejoue ni le diagnostic ni les campagnes et ne modifie
+aucun paramètre de fixture, de SSL ou de timeout.
 
 ### Provenance, intégrité et portée de la publication
 
@@ -180,7 +353,7 @@ git diff --check
 
 Ces contrôles établissent l'intégrité et l'attribution ; **ils ne constituent
 pas l'audit indépendant O25**. O23 conserve SATISFIED WITH RESERVATIONS : archives
-fraîches accessibles, limites des providers et de l'authenticité du producteur
+fraîches accessibles, limites historiques des providers et de l'authenticité du producteur
 explicites, anciennes campagnes UNPROVEN inchangées. O25 et la décision humaine
 restent PENDING. Les trois probes Q-ID PASS et les matrices 27/17 sont conservées.
 
@@ -370,10 +543,10 @@ preuves XML/méthodes/membres/lignes et reçus détaillés dans le manifeste JSO
 | O17 | Autorité réelle et témoins positifs/négatifs stables, token tiers, collision après vraie transition | **SATISFIED WITH RESERVATIONS** | Réemployer |
 | O18 | Registration → vraie Command, locks jusqu'à résolution, rollback/UNKNOWN ; User abandonné reste sans droits récupérables | **SATISFIED WITH RESERVATIONS** | Réemployer, pas nouvelle démo équivalente |
 | O19 | Négatif stable sans métier Pot, SELECT technique anti-effets conservé | **SATISFIED** | Reproduire exactement A1 dans le dossier |
-| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE due to 1 historical skip under policy §35. 0 discovery limits |
-| O21 | Gate COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** | Fresh C5-CM: 1791/0/0/1, 52 SUCCESS; both Worker COMMAND (320) and Monolith (4) fully executed; SATISFIED WITH RESERVATIONS due to 1 historical skip under policy §35 and user authorization |
+| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE due to 1 historical skip under policy §35. 0 discovery limits; NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED |
+| O21 | Gate COMMAND + Monolithe | **SATISFIED WITH RESERVATIONS** | Fresh C5-CM: 1791/0/0/1, 52 SUCCESS; both Worker COMMAND (320) and Monolith (4) fully executed; strict INCONCLUSIVE under policy §35; SATISFIED WITH RESERVATIONS is internal admissibility under prior human authorization only |
 | O22 | Full conditionnel et niveau de clôture | **SATISFIED WITH RESERVATIONS** | FULL NOT REQUIRED / NOT RUN for this bounded remediation under ARB-I5-01; future global gates retained |
-| O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | E4 and six recovered campaigns retained; fresh complete C5-A/C5-CM archives, all members/methods/modules/counters and frozen inputs checked; old unproven claims and discovery/authenticity limits retained |
+| O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | E4 and six recovered campaigns retained; fresh complete C5-A/C5-CM archives, all members/methods/modules/counters and frozen inputs checked; old unproven claims, historical discovery limits and producer authenticity limits retained; no residual discovery limit reported for cfd3f645 |
 | O24 | Rapport, runbook, manifeste et clôture autoporteurs | **SATISFIED WITH RESERVATIONS** | Four corrected provisional deliverables and program references available for independent audit |
 | O25 | Audit indépendant et décision humaine L3 | **NOT DEMONSTRATED** | Independent audit of this frozen remediation PENDING; final human acceptance PENDING; no L4 GO |
 | O26 | READ, HTTP, consentement externe, qualification serveur | **OUT OF SCOPE** | Transfert L4/L5, aucune implémentation I5 |
@@ -417,8 +590,8 @@ ID-01/ID-02 globaux et consentement externe ne sont pas certifiés.
 - I3 R1: delivered Worker/Monolith JPA only; manual DataSourceTransactionManager with prebound holder remains outside qualification.
 - I3 R2: PostgreSQL admin, owners and provisioners trusted; closed DEV ACL profile, auxiliary roles certified at preparation; no continuous ACL surveillance.
 - I3 R3: actual PG and Docker channels only; external audit/APM/production collectors not certified.
-- I3 R4: old gate FAILs and 46/67 discovery limits unchanged; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.
-- O20/O21: fresh attributable gates executed on cfd3f645; O20 INCONCLUSIVE (one skip under policy §35, status NOT DEMONSTRATED); O21 SATISFIED WITH RESERVATIONS (1791/0/0/1, Worker COMMAND and Monolith fully executed). Historical FAILs and discovery limitations resolved.
+- I3 R4: old gate FAILs and historical 46/67 discovery limits retained; no residual discovery limit reported for cfd3f645; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.
+- O20/O21: fresh attributable gates executed on cfd3f645; O20 INCONCLUSIVE (one skip under policy §35, status NOT DEMONSTRATED — NORMATIVE ARBITRATION REQUIRED); O21 SATISFIED WITH RESERVATIONS (1791/0/0/1, Worker COMMAND and Monolith fully executed). Historical FAILs retained; discovery limitations resolved for the cfd3f645 campaigns only.
 - H3 only public redacted receipt; independent I3 raw logs unavailable and original I4 independent audit only reported by its human decision.
 - Independent audit of remediation and final human acceptance PENDING; no L4 GO.
 
