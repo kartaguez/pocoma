@@ -66,7 +66,10 @@ class PotHistoryPostgresTest {
         schema = "v3_pot_" + UUID.randomUUID().toString().replace("-", "");
         var delegate =
                 new DriverManagerDataSource(
-                        POSTGRES.getJdbcUrl() + "&currentSchema=" + schema,
+                        POSTGRES.getJdbcUrl()
+                                + "&currentSchema="
+                                + schema
+                                + "&sslmode=disable&preferQueryMode=simple&socketTimeout=15",
                         POSTGRES.getUsername(),
                         POSTGRES.getPassword());
         source = new RecordingDataSource(delegate);

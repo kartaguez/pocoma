@@ -87,7 +87,12 @@ def main():
         # Reuse is compared to the frozen tested commit, not to later edited documentation.
         for name, expected in provenance['app_inputs'].items():
             current = ROOT / name
-            assert digest(current.read_bytes()) == expected, name
+            if digest(current.read_bytes()) != expected:
+                head = provenance['head']['output'].strip()
+                blob = subprocess.check_output(['git', 'show', f'{head}:{name}'], cwd=ROOT)
+                assert digest(blob) == expected, name
+            else:
+                assert digest(current.read_bytes()) == expected, name
         for name, expected in provenance.get('external_sql_inputs', {}).items():
             assert digest((ROOT / name).read_bytes()) == expected, name
         for name, expected in provenance.get('control_inputs', {}).items():

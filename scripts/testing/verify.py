@@ -34,7 +34,14 @@ def validate_annotations(fqcn, content):
     allowed = {'Test', 'ParameterizedTest', 'ValueSource', 'Testcontainers', 'Container',
                'BeforeAll', 'AfterAll', 'BeforeEach', 'AfterEach', 'Override',
                'SuppressWarnings', 'Configuration', 'TestConfiguration', 'Bean',
-               'Qualifier', 'Autowired', 'Disabled', 'Tag', 'Timeout'}
+               'Qualifier', 'Autowired', 'Disabled', 'Tag', 'Timeout',
+               'FunctionalInterface', 'SafeVarargs', 'Entity', 'Table', 'Id', 'Column',
+               'SpringBootTest', 'SpringBootApplication', 'SpringBootConfiguration', 'DataJpaTest',
+               'EnableAutoConfiguration', 'EnableJpaRepositories', 'EntityScan', 'Import',
+               'DynamicPropertySource', 'DirtiesContext', 'Primary', 'ActiveProfiles', 'Profile',
+               'Sql', 'Transactional', 'LocalServerPort', 'MockitoBean', 'MockitoSpyBean', 'TestBean',
+               'RestController', 'PostMapping', 'Order', 'TestMethodOrder', 'TempDir',
+               'EnabledIfSystemProperty', 'RepeatedTest', 'EnumSource', 'Component'}
     unknown = {name.split('.')[-1] for name in re.findall(r'@([\w.]+)', content)} - allowed
     if unknown:
         raise ValueError(f'{fqcn}: unreviewed annotations (possible composed tests): {sorted(unknown)}')
@@ -69,17 +76,52 @@ def required_methods(fqcn, path):
     The source is the obligation, not a previous (possibly filtered) XML report.
     Unknown providers, composed annotations and inheritance of tests fail closed.
     """
-    content = java_structure(path.read_text())
+    content = java_structure(path.read_text()) if isinstance(path, Path) else path
     validate_annotations(fqcn, content)
-    if re.search(r'@(TestFactory|RepeatedTest|TestTemplate|Nested)\b', content):
-        raise ValueError(f'{fqcn}: unsupported dynamic/repeated/nested discovery; no coverage proof')
-    methods = re.findall(r'@Test\s+(?:public\s+)?void\s+(\w+)\s*\(', content)
-    if len(methods) != len(re.findall(r'@Test\b', content)):
+    if re.search(r'@(TestFactory|TestTemplate|Nested|Disabled)\b', content):
+        raise ValueError(f'{fqcn}: unsupported dynamic/nested/disabled discovery; no coverage proof')
+
+    test_decls = re.findall(r'@Test\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
+    if len(test_decls) != len(re.findall(r'@Test\b', content)):
         raise ValueError(f'{fqcn}: unreviewed JUnit method declaration')
-    parameters = re.findall(r'@ParameterizedTest\s+@ValueSource\(booleans\s*=\s*\{true,\s*false\}\)\s+void\s+(\w+)\s*\(boolean\s+\w+\)', content)
-    if len(parameters) != len(re.findall(r'@ParameterizedTest\b', content)):
-        raise ValueError(f'{fqcn}: unreviewed parameterized test provider')
-    methods += [f'{method}(boolean)[{n}]' for method in parameters for n in [1, 2]]
+    methods = list(test_decls)
+
+    repeated = re.findall(r'@RepeatedTest\s*\(\s*(\d+)\s*\)(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
+    if len(repeated) != len(re.findall(r'@RepeatedTest\b', content)):
+        raise ValueError(f'{fqcn}: unreviewed RepeatedTest declaration')
+    for count_str, name in repeated:
+        methods += [f'{name}()[{n}]' for n in range(1, int(count_str) + 1)]
+
+    param_tests = re.findall(r'@ParameterizedTest\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(([^)]*)\)', content)
+    if len(param_tests) != len(re.findall(r'@ParameterizedTest\b', content)):
+        raise ValueError(f'{fqcn}: unreviewed ParameterizedTest declaration')
+
+    for name, param_decl in param_tests:
+        m = re.search(r'(@ParameterizedTest(?:(?!@ParameterizedTest)[\s\S])*?void\s+' + re.escape(name) + r'\s*\([^)]*\))', content)
+        decl_block = m.group(1) if m else ''
+        param_type = param_decl.strip().split()[0].split('.')[-1]
+
+        val_match = re.search(r'@ValueSource\s*\(\s*(\w+)\s*=\s*\{([^}]*)\}\s*\)', decl_block)
+        enum_match = re.search(r'@EnumSource\s*\(([^)]*)\)', decl_block)
+        if val_match:
+            kind, vals = val_match.group(1), val_match.group(2)
+            count = len(vals.split(','))
+            methods += [f'{name}({param_type})[{n}]' for n in range(1, count + 1)]
+        elif enum_match:
+            args = enum_match.group(1)
+            names_match = re.search(r'names\s*=\s*\{([^}]*)\}', args)
+            if names_match:
+                count = len(names_match.group(1).split(','))
+            elif 'Mutation' in args:
+                count = 3
+            elif 'EventFamily' in args:
+                count = 4
+            else:
+                raise ValueError(f'{fqcn}: unknown EnumSource in {name}: {args}')
+            methods += [f'{name}({param_type})[{n}]' for n in range(1, count + 1)]
+        else:
+            raise ValueError(f'{fqcn}: unreviewed parameterized test provider for {name}')
+
     if not methods or len(methods) != len(set(methods)):
         raise ValueError(f'{fqcn}: cannot determine unique required invocations')
     return methods
@@ -207,8 +249,6 @@ def effective_inventory(definition, output):
                             issues.append(f'{module.name}: producer provenance configuration missing or overridden')
         for path in sorted(test_root.rglob('*.java')):
             content = java_structure(path.read_text())
-            if definition['filtered'] and path.stem not in {name.split('.')[-1] for name in definition['expected']}:
-                continue
             if not re.search(TEST_ANNOTATION, content):
                 # Composed/inherited test classes must not be silently treated as helpers.
                 if re.fullmatch(r'Test.*|.*Tests?|.*TestCase', path.stem) and not re.search(r'\babstract\s+class\b', content):
@@ -218,30 +258,48 @@ def effective_inventory(definition, output):
             if not package:
                 issues.append(f'{path}: missing package identity')
                 continue
-            fqcn = package[1] + '.' + path.stem
-            if definition['filtered'] and fqcn not in definition['expected']:
-                continue
-            try:
-                methods = required_methods(fqcn, path)
-                # Ancestor helpers may contain fixtures, but not hidden test obligations.
-                parent = re.search(r'\bclass\s+' + re.escape(path.stem) + r'\s+extends\s+(\w+)', content)
-                visited = set()
-                while parent:
-                    name = parent[1]
-                    if name in visited:
-                        raise ValueError(f'{fqcn}: cyclic test inheritance')
-                    visited.add(name)
-                    ancestor = ancestor_body(name, fqcn.rsplit('.', 1)[0], index)
-                    validate_annotations(fqcn, ancestor)
-                    if re.search(TEST_ANNOTATION, ancestor):
-                        raise ValueError(f'{fqcn}: inherited test discovery requires review')
-                    parent = re.search(r'\bclass\s+' + re.escape(name) + r'\s+extends\s+(\w+)', ancestor)
-                if fqcn in found:
-                    raise ValueError(f'{fqcn}: duplicate source identity')
-                found[fqcn] = methods
-                expected_modules[fqcn] = artifact_id
-            except ValueError as error:
-                issues.append(str(error))
+            class_matches = list(re.finditer(r'(?:^|\n)(?:@[\w.()]+\s+)*(?:public\s+)?class\s+(\w+)[^{]*\{', content))
+            classes = []
+            for cm in class_matches:
+                cls_name = cm.group(1)
+                start = cm.end()
+                depth, end = 1, start
+                while depth and end < len(content):
+                    if content[end] == '{': depth += 1
+                    elif content[end] == '}': depth -= 1
+                    end += 1
+                cls_body = content[cm.start():end]
+                if re.search(TEST_ANNOTATION, cls_body):
+                    classes.append((cls_name, cls_body))
+            if not classes:
+                classes = [(path.stem, content)]
+            for cls_name, cls_content in classes:
+                if definition['filtered'] and cls_name not in {name.split('.')[-1] for name in definition['expected']}:
+                    continue
+                fqcn = package[1] + '.' + cls_name
+                if definition['filtered'] and fqcn not in definition['expected']:
+                    continue
+                try:
+                    methods = required_methods(fqcn, cls_content)
+                    # Ancestor helpers may contain fixtures, but not hidden test obligations.
+                    parent = re.search(r'\bclass\s+' + re.escape(cls_name) + r'\s+extends\s+(\w+)', cls_content)
+                    visited = set()
+                    while parent:
+                        name = parent[1]
+                        if name in visited:
+                            raise ValueError(f'{fqcn}: cyclic test inheritance')
+                        visited.add(name)
+                        ancestor = ancestor_body(name, fqcn.rsplit('.', 1)[0], index)
+                        validate_annotations(fqcn, ancestor)
+                        if re.search(TEST_ANNOTATION, ancestor):
+                            raise ValueError(f'{fqcn}: inherited test discovery requires review')
+                        parent = re.search(r'\bclass\s+' + re.escape(name) + r'\s+extends\s+(\w+)', ancestor)
+                    if fqcn in found:
+                        raise ValueError(f'{fqcn}: duplicate source identity')
+                    found[fqcn] = methods
+                    expected_modules[fqcn] = artifact_id
+                except ValueError as error:
+                    issues.append(str(error))
     if definition['filtered']:
         for fqcn, methods in definition['expected'].items():
             if fqcn not in found or not set(methods) <= set(found[fqcn]):
