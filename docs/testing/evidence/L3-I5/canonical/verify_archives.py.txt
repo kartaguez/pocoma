@@ -1,0 +1,172 @@
+"""Read-only independent archive/XML recount. No Maven, DB, retry or O25 audit."""
+import collections
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import subprocess
+import tarfile
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parents[5]
+HERE = Path(__file__).resolve().parent
+
+
+def check(raw, expected):
+    assert len(raw) == expected['bytes']
+    assert hashlib.sha256(raw).hexdigest() == expected['sha256']
+
+
+def unpack(raw, expected):
+    result = {}
+    with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
+        for member in archive:
+            assert member.isfile() and member.name not in result
+            assert not member.name.startswith('/') and '..' not in Path(member.name).parts
+            result[member.name] = archive.extractfile(member).read()
+    assert set(result) == {m['member'] for m in expected}
+    for record in expected:
+        check(result[record['member']], record)
+    return result
+
+
+def main():
+    index = json.loads((HERE.parent / 'Archive_Index.json').read_text())
+    campaigns = json.loads((HERE / 'Campaigns.json').read_text())
+    prior_inputs = None
+    ids = set()
+    outputs = {}
+    for obligation, label in [('O20', 'C5-A'), ('O21', 'C5-CM')]:
+        record = index[label]
+        raw = (ROOT / record['archive']['path']).read_bytes()
+        check(raw, record['archive'])
+        outer = unpack(raw, record['members'])
+        nested = record['nested_raw']
+        check(outer[nested['member']], nested)
+        inner = unpack(outer[nested['member']], nested['members'])
+        plan = json.loads(outer['collector/plan.json'])
+        original = json.loads(outer['collector/result.json'])
+        prov = json.loads(outer['collector/provenance.json'])
+        before = json.loads(outer['metadata/before.json'])
+        after = json.loads(outer['metadata/after.json'])
+        summary = json.loads(outer['metadata/Summary.json'])
+        assert summary == campaigns['campaigns'][obligation]
+        assert summary == json.loads((HERE / ('architecture' if obligation == 'O20' else 'command') / 'Summary.json').read_text())
+        assert before['head']['stdout'].strip() == after['head']['stdout'].strip() == campaigns['baseline']
+        assert not before['status']['stdout'] and not after['status']['stdout']
+        assert before['inputs'] == after['inputs']
+        if prior_inputs is not None: assert prior_inputs == before['inputs']
+        prior_inputs = before['inputs']
+        assert not before['results']  # Reports never taken from target/*-reports.
+        for path, expected in before['inputs'].items():
+            current = (ROOT / path).read_bytes()
+            if path == 'app/mvnw.cmd':
+                # Fresh worktree honors tracked text/eol=crlf; original checkout is LF.
+                # This Windows wrapper was not executed. Check exact Git bytes and
+                # the declared CRLF checkout bytes, not a generic normalization waiver.
+                blob = subprocess.check_output(['git', 'show', campaigns['baseline'] + ':' + path], cwd=ROOT)
+                declared_checkout = blob.replace(b'\n', b'\r\n')
+                assert b'\r\n' not in blob and current in (blob, declared_checkout)
+                current = declared_checkout
+            assert hashlib.sha256(current).hexdigest() == expected, path
+        invocation = plan['invocation_id']
+        assert invocation not in ids
+        ids.add(invocation)
+        assert summary['invocation_id'] == record['invocation_id'] == invocation
+        assert not plan['filtered']
+        assert not any(arg.startswith(('-Dtest=', '-Dskip', '-Dmaven.test.skip', '-Dexclude')) for arg in plan['command'])
+        anchors = plan['command'][plan['command'].index('-pl') + 1]
+        assert anchors == ('architecture-tests' if obligation == 'O20' else 'runtime-command-consumption-worker,runtime-monolith')
+        assert '-am' in plan['command'] and plan['command'][-1] == 'test'
+        assert {n: hashlib.sha256(b).hexdigest() for n, b in inner.items()} == original['artifacts']
+        assert hashlib.sha256(outer['raw.tar.gz']).hexdigest() == original['raw_sha256']
+        model = ET.fromstring(inner['effective-pom.xml'])
+        ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+        projects = list(model) if model.tag == 'projects' else [model]
+        artifacts = [p.findtext('m:artifactId', '', ns) for p in projects]
+        assert artifacts == [m['module'] for m in summary['modules']]
+        log = inner['maven.log'].decode().splitlines()
+        start = max(i for i, line in enumerate(log) if 'Reactor Summary' in line)
+        reactor = []
+        for line in log[start + 1:]:
+            m = re.match(r'^\[INFO\] (pocoma\S*)\s+(?:\.+\s+)?(SUCCESS|FAILURE|SKIPPED)\s*(.*)$', line)
+            if m: reactor.append((m[1], m[2]))
+        assert reactor == [(m['module'], m['status']) for m in summary['modules']]
+        module_counts = collections.defaultdict(lambda: collections.Counter(tests=0, failures=0, errors=0, skipped=0, xml_reports=0))
+        seen, actual_methods = set(), {}
+        total = collections.Counter(tests=0, failures=0, errors=0, skipped=0)
+        for member in nested['members']:
+            name = member['member']
+            if not name.startswith('reports/') or not Path(name).name.startswith('TEST-') or not name.endswith('.xml'): continue
+            content = inner[name]
+            suite = ET.fromstring(content)
+            module = name.split('/')[1]
+            props = {p.get('name'): p.get('value') for p in suite.findall('properties/property')}
+            assert props['pocoma.verification.id'] == invocation
+            assert props['pocoma.verification.module'] == module
+            assert props['pocoma.verification.producer'] == 'surefire'
+            cases = suite.findall('testcase')
+            counts = dict(tests=len(cases), failures=sum(c.find('failure') is not None for c in cases),
+                          errors=sum(c.find('error') is not None for c in cases),
+                          skipped=sum(c.find('skipped') is not None for c in cases))
+            assert counts == {k: int(suite.get(k)) for k in counts}
+            total.update(counts)
+            module_counts[module].update(counts)
+            module_counts[module]['xml_reports'] += 1
+            lines = [n + 1 for n, line in enumerate(content.decode().splitlines()) if '<testcase ' in line]
+            assert len(lines) == len(cases) == len(member['testcases'])
+            for case, line, indexed in zip(cases, lines, member['testcases']):
+                cls, method = case.get('classname'), case.get('name')
+                identity = (module, cls, method)
+                assert identity not in seen
+                seen.add(identity)
+                outcome = next((tag.upper() for tag in ['failure', 'error', 'skipped'] if case.find(tag) is not None), 'PASS')
+                assert indexed == dict(classname=cls, method=method, line=line, outcome=outcome)
+                actual_methods[identity] = (name, line, outcome)
+        methods = json.loads(outer['metadata/Discovered_Methods.json'])
+        assert len(methods) == len(seen)
+        for method in methods:
+            identity = (method['module'], method['classname'], method['method'])
+            assert actual_methods[identity] == (method['member'], method['line'], method['outcome'])
+            assert method['invocation_id'] == invocation and method['tested_code_sha'] == campaigns['baseline']
+            assert method['source'].split('/')[1] == method['module'].removeprefix('pocoma-')
+            assert method['source_sha256'] == prov['app_inputs'][method['source']]
+        for module in summary['modules']:
+            for key in ['tests', 'failures', 'errors', 'skipped', 'xml_reports']:
+                assert module[key] == module_counts[module['module']][key]
+        assert dict(total) == summary['counts']
+        assert sum(m['xml_reports'] for m in summary['modules']) == summary['xml_reports']
+        if obligation == 'O20':
+            qualified = json.loads(outer['collector/qualified-result.json'])
+            assert qualified['counts'] == dict(total)
+            assert total['tests'] == original['counts']['tests'] + 1
+            assert not total['errors'] and not total['failures'] and total['skipped'] == 1
+            assert original['exit_code'] == 0 and summary['strict_verdict'] == 'INCONCLUSIVE'
+            assert all(m['status'] == 'SUCCESS' for m in summary['modules'])
+            for required in ['i5_r05', 'i5_r12', 'i5_r05_discovery_skip_locked_interleaving',
+                             'l3_negative_stable_and_a1_sql', 'l3_a1_illicit_version_rejected']:
+                assert any(m['method'] == required and m['outcome'] == 'PASS' for m in methods)
+            skip = [m for m in methods if m['outcome'] == 'SKIPPED']
+            assert skip[0]['method'] == 'zExploratoryContentionSeparateFromCorrectness'
+        else:
+            assert dict(total) == original['counts'] and original['exit_code'] != 0
+            assert summary['strict_verdict'] == 'FAIL' and total['errors'] == 22
+            errors = [m for m in methods if m['outcome'] == 'ERROR']
+            assert all(m['classname'].endswith('.L2ManifestProof') for m in errors)
+            diagnostic = json.loads(outer['metadata/diagnostic.json'])
+            assert {(m['classname'], m['method']) for m in errors} == {(m['classname'], m['method']) for m in diagnostic['errors']}
+            assert all('08P01' in m['message'] and 'SSL' in m['message'] for m in diagnostic['errors'])
+            for anchor in ['pocoma-runtime-monolith', 'pocoma-runtime-command-consumption-worker']:
+                assert dict(reactor)[anchor] == 'SKIPPED'
+                assert not module_counts[anchor]['tests']
+        assert summary['obligation_status'] == 'NOT DEMONSTRATED'
+        outputs[obligation] = dict(counts=dict(total), xml_reports=summary['xml_reports'],
+                                  module_statuses=dict(collections.Counter(status for _, status in reactor)),
+                                  strict_verdict=summary['strict_verdict'])
+    print(json.dumps(dict(result='PASS: archive integrity and attribution checks only', baseline=campaigns['baseline'],
+                         gates=outputs, independent_O25_audit='PENDING', human_acceptance='PENDING'), indent=2))
+
+
+if __name__ == '__main__':
+    main()

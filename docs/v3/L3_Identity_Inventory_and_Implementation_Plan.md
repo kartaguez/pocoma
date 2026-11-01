@@ -12,9 +12,13 @@ Q-UFREE, Q-UOTHER et Q-REGNEW : trois observations fraîches PASS, sept demandes
 SQL avant/après, deux drains et restart contrôlés au code
 `0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3`. Acquis I1–I4 conservés.
 Proposition technique : **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING**.
-O20/O21 restent NOT DEMONSTRATED : gates I4 FAIL, Architecture 163 filtrée,
-COMMAND seule 1777 rapportée mais UNPROVEN ici. Campagnes historiques récupérées
-et attribuées séparément ; aucune campagne réutilisée déclarée nouvelle I5.
+O20/O21 restent NOT DEMONSTRATED après la campagne fraîche option B au SHA
+`aff7a70d` : Architecture canonique BUILD SUCCESS, 2057/0/0/1, mais INCONCLUSIVE
+(SKIP historique et découverte incomplète) ; COMMAND+Monolithe FAIL,
+1414/0/22/0, erreurs de connexion PostgreSQL dans PRIMARY, deux ancres SKIPPED.
+[Archives, méthodes et compteurs par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
+Gates I4 FAIL et résultats historiques UNPROVEN inchangés ; aucun transfert de
+PASS entre invocations, aucune correction productive ni relance.
 **L3 OPEN ; aucune décision humaine finale, aucun GO L4 ou production.**
 Les encadrés antérieurs sont historiques ; les exigences normatives restent inchangées.
 

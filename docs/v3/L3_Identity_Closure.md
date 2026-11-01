@@ -33,8 +33,8 @@ Le SHA documentaire de livraison est résolu après commit, sans autoréférence
 ## Autorité et décisions encore requises
 
 **ARB-I5-01 autorisait la préparation d’une acceptation humaine bornée ; il ne
-constituait pas cette acceptation.** Le GO actuel autorise la remédiation et la
-publication provisoire des résultats, sans clôture effective ni progression L4.
+constituait pas cette acceptation.** Le GO actuel option B autorise la requalification canonique complète et la
+publication factuelle des résultats, sans clôture effective ni progression L4.
 
 | Décision / avis | État réel | Source / suite |
 |---|---|---|
@@ -51,6 +51,27 @@ acceptées. Aucun champ ne porte aujourd’hui une valeur inventée d’acceptat
 ## Gates et réserves à examiner avant décision
 
 O20 Architecture et O21 COMMAND + Monolithe restent **NOT DEMONSTRATED**.
+La campagne option B fraîche au SHA `aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7`
+est conservée dans les [archives et reçus complets](../testing/evidence/L3-I5/canonical/Campaigns.json) :
+
+| Obligation | Exécution fraîche et verdict |
+|---|---|
+| O20 | 61 modules SUCCESS ; 2057/0/0/1 ; Architecture 163 PASS, Worker 320/0/0/1, Monolithe 14 PASS. Maven code 0 ; **INCONCLUSIVE** (SKIP historique + 67 limites de découverte), aucun PASS strict avec réserves |
+| O21 | Sélection composée exacte ; 1414/0/22/0 ; PRIMARY FAILURE, neuf modules SKIPPED dont Worker et Monolithe. Maven code 1 ; **FAIL**. 22 erreurs de connexion SSL PostgreSQL SQLSTATE 08P01 dans L2ManifestProof, cause racine non établie ; aucune correction/relance |
+| O23 | Archives fraîches, inventaires et empreintes vérifiés ; réserves de découverte/authenticité et anciennes campagnes UNPROVEN maintenues |
+| O25 | Audit indépendant de cette publication **PENDING** ; décision humaine finale **PENDING** |
+
+Les r05/r12, l'entrelacement Discovery/renewal, les quatre règles Identity et A1
+sont PASS dans O20 seulement ; ils n'ont pas été exécutés dans O21. Aucun
+transfert de verdict entre invocations. Le SKIP réel est
+`zExploratoryContentionSeparateFromCorrectness`, conditionné par `step3b.measure`,
+pas le nom `measureStep3bLatencyUnderLoad` ni une annotation `@Disabled`.
+La dette canonique demeure ouverte. Voir le diagnostic nominatif du
+[rapport](L3_Identity_Execution_Report.md). Aucun défaut productif Identity n'est
+démontré par les erreurs de connexion ; tout correctif exécutable nécessite un
+GO distinct et une nouvelle baseline.
+
+Historique inchangé :
 N4-A/N4-C I4 restent **FAIL**, respectivement 1892/2/0/1 et 1789/1/0/1.
 X4 **163 PASS filtrés** ne remplace aucune gate. Le résultat COMMAND seule
 annoncé à **1777 / 0 / 0 / 1** demeure **UNPROVEN** faute de brut attribuable,
@@ -60,8 +81,9 @@ réécrivent ni les FAIL anciens ni les gates globales absentes.
 
 L’exception de recevabilité ARB-I5-01 demeure le cadrage de préparation applicable,
 sans dispense permanente ni certification globale. Full reactor et CERTIFICATION
-globale **NOT RUN** pour cette intervention bornée ; aucune modification productive
-ou de frontière ne déclenche une nouvelle gate globale.
+globale **NOT REQUIRED / NOT RUN** pour cette intervention bornée ; la gate
+Architecture globale a été explicitement exigée et exécutée par le GO option B,
+sans modification productive ou de frontière.
 
 Restent les réserves R-L2-01…05, I3 R1…R3 (JPA livré seulement, administrateurs
 PostgreSQL de confiance, canaux PG/Docker qualifiés seulement), histoire R4,

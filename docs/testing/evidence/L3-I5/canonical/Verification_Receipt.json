@@ -1,0 +1,36 @@
+{
+  "result": "PASS: archive integrity and attribution checks only",
+  "baseline": "aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7",
+  "gates": {
+    "O20": {
+      "counts": {
+        "tests": 2057,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "xml_reports": 324,
+      "module_statuses": {
+        "SUCCESS": 61
+      },
+      "strict_verdict": "INCONCLUSIVE"
+    },
+    "O21": {
+      "counts": {
+        "tests": 1414,
+        "failures": 0,
+        "errors": 22,
+        "skipped": 0
+      },
+      "xml_reports": 221,
+      "module_statuses": {
+        "SUCCESS": 42,
+        "FAILURE": 1,
+        "SKIPPED": 9
+      },
+      "strict_verdict": "FAIL"
+    }
+  },
+  "independent_O25_audit": "PENDING",
+  "human_acceptance": "PENDING"
+}

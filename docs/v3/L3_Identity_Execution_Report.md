@@ -1,4 +1,4 @@
-# L3/I5 — Remédiation Q-ID et dossier provisoire pour audit
+# L3/I5 — Remédiation Q-ID, requalification canonique et dossier pour audit
 
 **1er novembre 2026 — QUALIFICATION IN PROGRESS — CLOSURE PENDING HUMAN ACCEPTANCE**
 
@@ -19,7 +19,185 @@ Le contre-audit I5 initial « NOT ACCEPTED — clôture prématurée » et ses c
 findings sont transmis par le mandat humain ; aucun original distinct n’a été
 fourni dans le dépôt. Le présent auteur ne se déclare pas auditeur indépendant.
 
-## Provenance et rectification de l’histoire
+## Requalification canonique fraîche — option B, 1er novembre 2026
+
+Le GO humain option B autorise les deux gates non filtrées, leurs preuves et la
+publication factuelle, sans correction exécutable, clôture humaine, ouverture L4,
+certification SPEC-10 ou GO production. Cette campagne complète la remédiation
+historique décrite plus bas ; elle ne réécrit aucun résultat ancien.
+
+Préflight : branche `feat/v3-architecture`, HEAD local et distant réel
+`aff7a70d1e468ac92fd4e8fc91fed8ba7986d3f7`, checkout principal et quatre autres
+worktrees propres. Les worktrees existants sont préservés. Exécution dans un
+nouveau worktree détaché `/private/tmp/pocoma-l3-i5-canonical-aff7a70d` au même
+SHA, propre avant/après chaque gate. Les inventaires avant/après prouvent les
+mêmes entrées suivies `app/` et `scripts/` entre les deux gates. Aucun source,
+test, POM, SQL, script de vérification existant ou paramètre exécutable modifié.
+Le wrapper Windows non exécuté `app/mvnw.cmd` est CRLF dans le checkout neuf
+conformément à `.gitattributes` (189 octets de plus), LF dans le checkout
+principal ; les blobs Git sont identiques, et les octets d'exécution sont
+constants entre les deux gates. Le wrapper Unix exécuté est identique.
+
+Slices déclarées avant exécution : **COMMAND**, racine complémentaire
+**Monolithe**, et **Architecture globale REQUIRED / RUN** explicitement pour O20.
+Impact productif attendu/observé **NONE** ; franchissement imprévu **NONE**.
+Full reactor **NOT REQUIRED / NOT RUN** : ni Wave majeure, ni main/release,
+ni nouvelle baseline globale certifiée. CERTIFICATION globale **NOT RUN**.
+DB : CURRENT V3 et migrations historiques transitives jusqu'à V31 incluses par
+les fermetures canoniques ; baseline TRUSTED NONE ; aucune campagne historique
+supplémentaire. Architecture n'est pas ajoutée à O21.
+
+Le sélecteur `scripts/testing/verify.py` n'expose ni l'ancre Architecture ni la
+sélection COMMAND+Monolithe exacte. Le collecteur natif I4 **inchangé**
+`docs/testing/evidence/L3-I4/collect_native.py` est donc réutilisé, conformément
+au plan I5 §10.3. Ses libellés historiques « I4 native » restent dans les reçus
+originaux ; les nouveaux UUID/SHA les attribuent à cette campagne I5.
+Il appelle `verify.py` pour le modèle et la provenance, sans modifier ses limites.
+Seuls le profil de provenance validé et ses deux propriétés sont ajoutés :
+aucun `-Dtest`, exclusion, skip, ajustement de timeout ou profil de contournement.
+
+Commandes réellement exécutées depuis le `app/` du worktree d'exécution :
+
+```sh
+./mvnw --batch-mode --no-transfer-progress -pl architecture-tests -am \
+  -Pverification-provenance \
+  -Dpocoma.verification.id=39583d8bd0e94554bfa55761c9d0372c \
+  -Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/architecture/reports test
+./mvnw --batch-mode --no-transfer-progress -pl runtime-command-consumption-worker,runtime-monolith -am \
+  -Pverification-provenance \
+  -Dpocoma.verification.id=e322cc9bc42e4e2fb1fc397b4bf0d4dc \
+  -Dpocoma.verification.reports=/private/tmp/pocoma-l3-i5-canonical-evidence/command/reports test
+```
+
+Chaque commande est précédée de `help:effective-pom` avec la même sélection et
+les mêmes propriétés, sortie dans son `effective-pom.xml`. Ce sous-processus
+sert à la découverte ; ses lignes SKIPPED ne décrivent pas le réacteur `test`.
+Les argv exacts des deux sous-processus et leurs logs sont conservés.
+Les campagnes sont séquentielles : O20 terminée et son archive contrôlée avant
+O21. O20 part sans aucun `target/` ; O21 réutilise seulement la compilation
+produite par O20 au même SHA gelé, avec entrées inchangées. Ses XML sont produits
+dans un répertoire neuf avec un autre UUID. Aucun XML historique n'est compté.
+
+| Gate / invocation | Fermeture Maven du test | Tests / failures / errors / skips | Résultat Maven | Verdict strict / obligation |
+|---|---|---|---|---|
+| O20 / `39583d8bd0e94554bfa55761c9d0372c` | 60 modules applicatifs + parent, **61 SUCCESS**, 44 producteurs XML | **2057 / 0 / 0 / 1**, 324 XML | BUILD SUCCESS, code 0, 54:36 min | **INCONCLUSIVE — NOT DEMONSTRATED** |
+| O21 / `e322cc9bc42e4e2fb1fc397b4bf0d4dc` | 51 modules applicatifs + parent prévus ; **42 SUCCESS, 1 FAILURE, 9 SKIPPED**, 28 producteurs XML | **1414 / 0 / 22 / 0**, 221 XML | BUILD FAILURE, code 1, 15:29 min | **FAIL — NOT DEMONSTRATED** |
+
+Les compteurs ne s'additionnent pas entre invocations : leurs fermetures se
+recouvrent. Tous les modules, y compris ceux sans tests, sont décomptés dans les
+[reçus par module](../testing/evidence/L3-I5/canonical/Campaigns.json).
+O20 : 17 entrées sans XML, parent inclus ; les 16 autres n'ont aucune annotation
+de test dans leur source de test par défaut. Aucun module SKIPPED dans O20.
+O21 : les 9 SKIPPED sont explicitement des modules non exécutés après PRIMARY,
+pas des modules passés avec zéro test.
+
+| Ancre / contribution | O20 fraîche | O21 fraîche |
+|---|---|---|
+| Architecture | **163/0/0/0**, 28 classes, module atteint | Hors sélection |
+| Worker COMMAND | **320/0/0/1** | **NOT RUN — module SKIPPED** |
+| Monolithe | **14/0/0/0**, dont 7 méthodes Identity PASS | **NOT RUN — module SKIPPED** |
+| Identity Worker | 10 méthodes composition PASS ; 9 méthodes raccord Pot PASS | NOT RUN |
+| r05 / r12 | **PASS 43,325 s / PASS 49,585 s** | NOT RUN |
+| Entrelacement Discovery/renewal | **PASS 2,877 s** | NOT RUN |
+| A1 | `l3_negative_stable_and_a1_sql` et `l3_a1_illicit_version_rejected` PASS | NOT RUN |
+| Règles Architecture Identity | Quatre méthodes `V3IdentityAuthorityArchitectureTest` PASS | Hors sélection |
+
+Les noms qualifiés, sources hachées, modules, UUID, membres et lignes XML sont
+indexés pour **chaque invocation rapportée**, y compris ERROR/SKIP. La revue I4
+inchangée `qualify_native.py` ajoute nominativement la classe secondaire
+`CurrentTransactionManagerPostgresTest#effectiveManagerAndSharedJdbcConnection`
+à O20 : 2056 devient 2057, sans changer les XML ni le reçu initial. Cette revue
+n'est pas applicable à O21, où le Worker n'a pas été exécuté.
+
+### SKIP et limites de découverte — aucun PASS strict avec réserves
+
+Le nom `measureStep3bLatencyUnderLoad` et l'annotation `@Disabled` du mandat
+ne correspondent pas au source gelé. Le test réel est
+`TerminalSequencingPostgresTest#zExploratoryContentionSeparateFromCorrectness`,
+annoté `@EnabledIfSystemProperty(named="step3b.measure",matches="true")`.
+Son XML O20 porte `System property [step3b.measure] does not exist`. Aucun
+changement d'annotation, de nom, de propriété ou de sélection n'a été fait.
+O21 ne l'a pas atteint : son zéro SKIP observé ne signifie pas qu'il a PASS.
+
+La politique §35 et le plan I5 §10.3 exigent zéro skip et une découverte complète
+pour un PASS canonique. **Le SKIP interdit ici SATISFIED, y compris une promotion
+en PASS WITH RESERVATIONS.** O20 conserve aussi 67 limites de découverte ; O21
+en conserve 46. Le collecteur sait attribuer les XML mais n'établit pas toutes
+les formes JUnit (providers, annotations/héritage). O20 a 1347 méthodes attendues
+prises en charge après revue secondaire et 710 autres invocations rapportées ;
+ces dernières sont indexées, sans transformer leur découverte en preuve exhaustive.
+Aucune méthode attendue prise en charge ne manque dans O20. Le simple BUILD
+SUCCESS ne satisfait donc pas O20. Il n'y a pas de relaxation normative implicite.
+
+### Diagnostic O21 — accès PostgreSQL de la fixture historique
+
+Les **22 errors** sont toutes dans
+`com.kartaguez.pocoma.infra.persistence.primary.jpa.v3.L2ManifestProof`
+(142 tests, 0 failure, 22 errors). Le premier cas rapporté est
+`l2m_l1_f2_from_to_valide`. Chaîne observée :
+`revisionProof → WriteRevisionPostgresTest.setup → PotHistoryPostgresTest.freshSchema
+→ Flyway.migrate → JdbcUtils.openConnection → PostgreSQL enableSSL`.
+Exception `FlywaySqlUnableToConnectToDbException`, SQLSTATE **08P01**, message
+« Une erreur s'est produite pendant l'établissement de la connexion SSL. ».
+La liste exhaustive des 22 méthodes et leurs traces figure dans
+`complete.tar.gz:metadata/diagnostic.json` et les XML bruts imbriqués.
+
+Le source partage `PotHistoryPostgresTest.POSTGRES` via
+`L2ManifestProof.HISTORY_POSTGRES` et `WriteRevisionPostgresTest.POSTGRES`.
+C'est une **défaillance d'accès/initialisation PostgreSQL du banc historique**,
+avant les assertions concernées ; ni violation d'oracle Identity ni défaut
+productif Consumption n'est démontré par ces erreurs. La cause racine précise
+(cycle de vie partagé, serveur/port, ressources ou autre) reste **non établie**.
+Un lien causal avec le build warm n'est pas démontré. Les autres connexions et
+fixtures fonctionnent dans la même invocation ; cela ne répare pas les 22 errors.
+
+Aucune correction, modification de SSL, de pool, de timeout, d'assertion ou de
+paramètres PostgreSQL ; **aucune relance**. Une investigation distincte devra
+corréler le serveur/port et le cycle de vie de cette fixture à la première erreur,
+avant de proposer une correction minimale. Tout correctif exécutable requiert
+un GO distinct, une nouvelle baseline et le réexamen des preuves invalidées.
+Ce FAIL n'est ni effacé par O20, ni requalifié comme PASS d'infrastructure.
+
+### Provenance, intégrité et portée de la publication
+
+Java Temurin 21+35, Maven 3.9.14, Docker 29.9.2, PostgreSQL 17.11 ; image observée
+`postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73`.
+Les versions sont capturées dans les métadonnées, les observations Docker et les
+logs JDBC/Flyway ; les variables pertinentes sont sur allowlist, sans secrets.
+Chaque archive complète conserve `raw.tar.gz` natif aux octets exacts, modèles,
+Surefire effectif, sorties Maven, rapports XML, traces physiques, plan/provenance,
+reçus originaux et revue secondaire éventuelle, inventaires avant/après,
+observations PostgreSQL, inventaire des méthodes et source de l'opérateur local.
+Les tailles/SHA-256 de l'archive, de chaque membre externe et de chaque membre
+natif imbriqué figurent dans [Archive_Index.json](../testing/evidence/L3-I5/Archive_Index.json).
+Les archives sont conservées dans Git, sans dépendance indispensable à `/tmp`.
+
+Le vérificateur d'archives additionnel en texte probatoire effectue en lecture
+seule un recomptage indépendant des XML, UUID/producteurs/modules, méthodes,
+lignes, modèles/ordre Maven, entrées gelées et erreurs. Il ne modifie aucun
+harnais de test. Les vérificateurs I4 et I5 existants restent inchangés.
+Commandes de contrôle réellement exécutées depuis la racine :
+
+```sh
+python3 -B docs/testing/evidence/L3-I4/verify_evidence.py
+python3 -B docs/testing/evidence/L3-I5/verify_dossier.py --self-test
+python3 -B docs/testing/evidence/L3-I5/canonical/verify_archives.py.txt
+git diff --check
+```
+
+Ces contrôles établissent l'intégrité et l'attribution ; **ils ne constituent
+pas l'audit indépendant O25**. O23 conserve SATISFIED WITH RESERVATIONS : archives
+fraîches accessibles, limites des providers et de l'authenticité du producteur
+explicites, anciennes campagnes UNPROVEN inchangées. O25 et la décision humaine
+restent PENDING. Les trois probes Q-ID PASS et les matrices 27/17 sont conservées.
+
+**Résultat option B : dette canonique non fermée. L3 OPEN.** La proposition
+WRITE interne demeure **QUALIFICATION INTERNE DÉMONTRÉE AVEC RÉSERVES — AUDIT
+INDÉPENDANT PENDING — HUMAN ACCEPTANCE PENDING** ; elle ne qualifie pas les gates
+non satisfaites. Le présent mandat publie le diagnostic et ses preuves, sans
+clôture humaine, L4, certificat SPEC-10 global ou GO production.
+
+## Provenance historique et rectification de l’histoire
 
 Le dossier Gemini historique demeure récupérable, aux octets d’origine, par
 `git show 0ba18ec1e2fb9d9ead4e6ff84b9c839048c82dc3:docs/v3/L3_Identity_Closure.md` et les trois autres chemins
@@ -47,7 +225,7 @@ globale d’exécutables I4→courant n’est prétendue. Les sources spécifiqu
 et leurs assertions restent attribuées à E4 ; les recettes Gemini récupérées
 vérifient aussi les 1 265 entrées `app/` courantes et leurs SQL/contrôles.
 
-## Portée déclarée et commandes effectivement exécutées
+## Portée et commandes historiques de la remédiation Q-ID
 
 Impact productif attendu/observé **NONE**. Primaire **COMMAND**, secondaires
 canoniques **NONE** ; Monolithe = racine historique réemployée, pas nouvelle slice.
@@ -62,7 +240,7 @@ modifiée (§§17/34, ARB-I5-01). Full reactor **NOT REQUIRED / NOT RUN** : ni W
 majeure, ni main/release, ni restructuration ; CERTIFICATION globale **NOT RUN**.
 Les gates non acquises ne sont pas effacées par cette déclaration.
 
-Commandes exécutées dans cette intervention :
+Commandes exécutées lors de la remédiation Q-ID antérieure :
 
 ```sh
 # Depuis app/ : fabrication seulement, aucun PASS de test produit.
@@ -199,10 +377,10 @@ preuves XML/méthodes/membres/lignes et reçus détaillés dans le manifeste JSO
 | O17 | Autorité réelle et témoins positifs/négatifs stables, token tiers, collision après vraie transition | **SATISFIED WITH RESERVATIONS** | Réemployer |
 | O18 | Registration → vraie Command, locks jusqu'à résolution, rollback/UNKNOWN ; User abandonné reste sans droits récupérables | **SATISFIED WITH RESERVATIONS** | Réemployer, pas nouvelle démo équivalente |
 | O19 | Négatif stable sans métier Pot, SELECT technique anti-effets conservé | **SATISFIED** | Reproduire exactement A1 dans le dossier |
-| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | REQUIRED. N4-A remains FAIL. X4 163 PASS is filtered. Later reported 163 also filtered and not independently attributable here; no global PASS |
-| O21 | Gate COMMAND + Monolithe | **NOT DEMONSTRATED** | REQUIRED COMMAND + Monolith. N4-C remains FAIL. Reported later COMMAND-only 1777 BUILD SUCCESS is UNPROVEN here, has one skip and omits the Monolith anchor |
+| O20 | Architecture globale REQUIRED | **NOT DEMONSTRATED** | Fresh C5-A: 2057/0/0/1, 61 SUCCESS, Architecture 163 PASS; strict INCONCLUSIVE (historical skip + 67 discovery limits). N4-A FAIL retained |
+| O21 | Gate COMMAND + Monolithe | **NOT DEMONSTRATED** | Fresh C5-CM: FAIL 1414/0/22/0 in PRIMARY; both anchors SKIPPED; NOT DEMONSTRATED. N4-C FAIL and unproven COMMAND-only 1777 retained |
 | O22 | Full conditionnel et niveau de clôture | **SATISFIED WITH RESERVATIONS** | FULL NOT REQUIRED / NOT RUN for this bounded remediation under ARB-I5-01; future global gates retained |
-| O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | Recoverable E4 and six Gemini campaign artifacts checked and indexed; missing native 1777/late architecture/standalone composition bruts explicitly UNPROVEN; no inference from src/main alone |
+| O23 | Provenance/équivalence, preuves durables, attribution méthodes/oracles | **SATISFIED WITH RESERVATIONS** | E4 and six recovered campaigns retained; fresh complete C5-A/C5-CM archives, all members/methods/modules/counters and frozen inputs checked; old unproven claims and discovery/authenticity limits retained |
 | O24 | Rapport, runbook, manifeste et clôture autoporteurs | **SATISFIED WITH RESERVATIONS** | Four corrected provisional deliverables and program references available for independent audit |
 | O25 | Audit indépendant et décision humaine L3 | **NOT DEMONSTRATED** | Independent audit of this frozen remediation PENDING; final human acceptance PENDING; no L4 GO |
 | O26 | READ, HTTP, consentement externe, qualification serveur | **OUT OF SCOPE** | Transfert L4/L5, aucune implémentation I5 |
@@ -247,7 +425,7 @@ ID-01/ID-02 globaux et consentement externe ne sont pas certifiés.
 - I3 R2: PostgreSQL admin, owners and provisioners trusted; closed DEV ACL profile, auxiliary roles certified at preparation; no continuous ACL surveillance.
 - I3 R3: actual PG and Docker channels only; external audit/APM/production collectors not certified.
 - I3 R4: old gate FAILs and 46/67 discovery limits unchanged; r05/r12 later corrected and inactive in current quarantine registry, with no retroactive rewriting.
-- O20/O21: required unfiltered gates unacquired in attributable evidence. Reported 1777 COMMAND-only result is UNPROVEN and has one skip; X4 163 is filtered.
+- O20/O21: fresh attributable gates executed on aff7a70d; O20 INCONCLUSIVE (one skip + discovery limits), O21 FAIL (22 PostgreSQL setup errors, anchors not run). Obligations remain NOT DEMONSTRATED. Old FAILs/UNPROVEN remain historical.
 - H3 only public redacted receipt; independent I3 raw logs unavailable and original I4 independent audit only reported by its human decision.
 - Independent audit of remediation and final human acceptance PENDING; no L4 GO.
 
