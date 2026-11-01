@@ -170,12 +170,15 @@ class I5TemporalV2Test {
         competingTx.end = 25;
         assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, competingTx, key));
 
-        // Counter-example 4: Non-blocking routine Discovery on same key -> must NOT conflict
+        // Counter-example 4: Non-blocking routine Discovery on same key when Renewal succeeds -> must NOT conflict
         var discoveryTx = new I5TemporalV2Postgres.Tx("WRITE");
         discoveryTx.discovery = true;
         discoveryTx.keys.add(key);
         discoveryTx.end = 25;
-        assertFalse(I5TemporalV2Postgres.isConflict(attemptTx, discoveryTx, key));
+        assertFalse(I5TemporalV2Postgres.isConflict(attemptTx, discoveryTx, key, true));
+
+        // Counter-example 4b: Discovery holding row lock causing omission under SKIP LOCKED -> MUST conflict
+        assertTrue(I5TemporalV2Postgres.isConflict(attemptTx, discoveryTx, key, false));
 
         // Counter-example 5: Different authority -> must NOT conflict
         var readTx = new I5TemporalV2Postgres.Tx("READ");
@@ -209,6 +212,18 @@ class I5TemporalV2Test {
                                 journalWithAttempt(a -> a.returned = List.of())
                                         .verify(0, false));
         assertTrue(errAbsent.getMessage().contains("B available physical window without same-token CAS"));
+
+        // Counter-example 8b: Legitimate omission under Discovery SKIP LOCKED -> recognized as non-available window, no false fail
+        var journalSkipLocked = journalWithAttempt(a -> a.returned = List.of());
+        var dTx = new I5TemporalV2Postgres.Tx("WRITE", 150);
+        dTx.discovery = true;
+        dTx.keys.add(I5TemporalV2Postgres.key(journalSkipLocked.attempts.getFirst().leases.getFirst()));
+        dTx.end = 350;
+        dTx.pid = 1001;
+        dTx.xid = "2001";
+        dTx.resolution = "COMMITTED";
+        journalSkipLocked.transactions.add(dTx);
+        assertDoesNotThrow(() -> journalSkipLocked.verify(0, false));
 
         // Counter-example 9: Operation time exceeded under saturation in real oracle evaluation path
         var errBudget =

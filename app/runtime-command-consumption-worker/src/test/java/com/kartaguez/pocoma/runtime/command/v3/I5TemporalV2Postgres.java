@@ -32,7 +32,7 @@ final class I5TemporalV2Postgres {
 
     static final class Tx {
         final String authority, thread;
-        final long start = System.nanoTime();
+        final long start;
         final Set<String> keys = ConcurrentHashMap.newKeySet();
         volatile long end = Long.MAX_VALUE;
         volatile boolean guarded, renewal, injected, discovery;
@@ -40,8 +40,13 @@ final class I5TemporalV2Postgres {
         volatile String xid = "", resolution = "ACTIVE";
 
         Tx(String authority) {
+            this(authority, System.nanoTime());
+        }
+
+        Tx(String authority, long start) {
             this.authority = authority;
-            thread = Thread.currentThread().getName();
+            this.thread = Thread.currentThread().getName();
+            this.start = start;
         }
 
         public String toString() {
@@ -195,11 +200,15 @@ final class I5TemporalV2Postgres {
         }
     }
 
-    static boolean isConflict(Tx attemptTx, Tx candidateTx, String key) {
+    static boolean isConflict(Tx attemptTx, Tx candidateTx, String key, boolean returned) {
         return candidateTx != attemptTx
                 && candidateTx.authority.equals(attemptTx.authority)
-                && ((candidateTx.keys.contains(key) && !candidateTx.discovery)
+                && ((candidateTx.keys.contains(key) && (!candidateTx.discovery || !returned))
                         || candidateTx.end == Long.MAX_VALUE);
+    }
+
+    static boolean isConflict(Tx attemptTx, Tx candidateTx, String key) {
+        return isConflict(attemptTx, candidateTx, key, false);
     }
 
     static final class Journal {
@@ -426,8 +435,11 @@ final class I5TemporalV2Postgres {
         }
 
         List<long[]> conflicts(Attempt attempt, String key) {
+            boolean returned =
+                    attempt.returned != null
+                            && attempt.returned.stream().anyMatch(l -> key(l).equals(key));
             return transactions.stream()
-                    .filter(t -> isConflict(attempt.tx, t, key))
+                    .filter(t -> isConflict(attempt.tx, t, key, returned))
                     .map(t -> new long[] {t.start, t.end})
                     .toList();
         }

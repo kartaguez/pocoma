@@ -411,13 +411,18 @@ def plan(level, scope, config=None, root=ROOT):
                     omitted = sorted(set(methods) - set(expected[fqcn]))
                     if omitted:
                         unselected_methods[fqcn] = omitted
+    active_quarantine = {k: v for k, v in config['quarantine'].items() if v.get('active', True)}
+    historical_quarantine = {k: v for k, v in config['quarantine'].items() if not v.get('active', True)}
     return dict(level=level, scope=scope, command=command, expected=expected,
                 discovery='recipe-source' if selectors else 'pending-effective-model',
                 filtered=bool(selectors), normative_gate=not selectors,
                 not_selected_test_sources=sorted(unselected_sources),
                 not_selected_methods_in_selected_classes=unselected_methods,
                 added_permanent_exclusions=[],
-                quarantine=config['quarantine'], config_sha256=digest(CONFIG))
+                quarantine=config['quarantine'],
+                active_quarantine=active_quarantine,
+                historical_quarantine=historical_quarantine,
+                config_sha256=digest(CONFIG))
 
 
 def assess(reports, expected, exit_code, filtered, provenance=None):
@@ -600,7 +605,9 @@ def run(definition, output):
             invocation_id=definition['invocation_id'], reports_root=definition['reports_root'],
             raw_sha256=digest(output / 'raw.tar.gz'), previous_reports_not_counted=prior,
             not_selected='All methods outside plan.expected for filtered feedback; NOT RUN, never PASS',
-            quarantined_scenarios=definition['quarantine'])
+            quarantined_scenarios=definition['quarantine'],
+            active_quarantined_scenarios=definition.get('active_quarantine', {}),
+            historical_quarantined_scenarios=definition.get('historical_quarantine', {}))
         (output / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
         print(json.dumps({k: result[k] for k in ['verdict', 'counts', 'seconds', 'issues']}, ensure_ascii=False), flush=True)
         return 0 if result['verdict'] == 'PASS' else 1

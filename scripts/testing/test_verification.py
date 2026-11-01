@@ -59,6 +59,17 @@ class SelectionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             v.plan('QUARANTINE', 'other')
 
+    def test_quarantine_historical_distinction_and_active_quarantine_empty(self):
+        plan = v.plan('CERTIFICATION', None)
+        self.assertEqual(len(plan['active_quarantine']), 0)
+        self.assertEqual(set(plan['historical_quarantine']), {'i5_r05', 'i5_r12'})
+        for name in ['i5_r05', 'i5_r12']:
+            scenario = plan['quarantine'][name]
+            self.assertEqual(scenario['status'], 'QUALIFIED')
+            self.assertFalse(scenario['active'])
+            self.assertIn('resolution', scenario)
+            self.assertIn('resolution_reference', scenario)
+
     def test_missing_source_and_ambiguous_source_rejected(self):
         for index in [{}, {'C': [('C', Path('/x')), ('C', Path('/y'))]}]:
             with self.assertRaises(ValueError):

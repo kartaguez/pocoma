@@ -1948,6 +1948,228 @@ class V3WorkerResourcesPostgresTest {
         I5TemporalV2Postgres.campaign(PG, 1, 1);
     }
 
+    @Test
+    void i5_r05_discovery_skip_locked_interleaving() throws Exception {
+        try (var f = new Fixture(PG);
+                var runtime = new V3WorkerPostgresTest.Runtime(f, ConsumptionObservation.noop())) {
+            seedPublications(f, runtime, 2);
+            var b = runtime.bindings.getFirst();
+            var def = b.definition();
+            var store = (PartitionOwnershipStore) field(b.engine(), "ownership");
+            var pool = runtime.pool("writeControl");
+
+            // Setup lease on partition 0
+            var optLease = b.engine().acquirePartition(0);
+            assertTrue(optLease.isPresent(), "initial acquire on partition 0");
+            var lease = optLease.get();
+            var token = lease.ownerToken();
+            var key = I5TemporalV2Postgres.key(lease);
+
+            var txs = new CopyOnWriteArrayList<I5TemporalV2Postgres.Tx>();
+            var journal = new I5TemporalV2Postgres.Journal(f, txs, 0, 1, null);
+            journal.attach(runtime);
+
+            // Step 1 & 2: Discovery acquires row lock and stays open
+            var discoveryStarted = new CountDownLatch(1);
+            var discoveryHold = new CountDownLatch(1);
+            var discoveryPid = new AtomicInteger();
+            var discoveryXid = new AtomicReference<String>();
+            var discoveryThread =
+                    new Thread(
+                            () -> {
+                                try {
+                                    var effects =
+                                            (AttemptTransactions) field(b.discovery(), "effects");
+                                    effects.write(
+                                            () -> {
+                                                try {
+                                                    var sql = new JdbcTemplate(pool);
+                                                    var row =
+                                                            sql.queryForMap(
+                                                                    "select pg_backend_pid()"
+                                                                            + " pid,pg_current_xact_id()::text"
+                                                                            + " xid");
+                                                    discoveryPid.set(
+                                                            ((Number) row.get("pid")).intValue());
+                                                    discoveryXid.set(row.get("xid").toString());
+
+                                                    var storeProxy =
+                                                            (PartitionOwnershipStore)
+                                                                    field(
+                                                                            b.discovery(),
+                                                                            "ownership");
+                                                    var locked =
+                                                            storeProxy.protectAcquisition(
+                                                                    def, lease);
+                                                    assertTrue(
+                                                            locked.isPresent(),
+                                                            "Discovery acquired row lock");
+                                                    discoveryStarted.countDown();
+                                                    latch(discoveryHold);
+                                                    return null;
+                                                } catch (Exception e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            });
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+            discoveryThread.start();
+            latch(discoveryStarted);
+
+            assertTrue(discoveryPid.get() > 0);
+            assertNotNull(discoveryXid.get());
+
+            // Step 3, 4, 5: Renewal attempts to renew exactly this partition under SKIP LOCKED
+            var pairClass =
+                    Class.forName(
+                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$Pair");
+            var pairConstructor = pairClass.getDeclaredConstructors()[0];
+            pairConstructor.setAccessible(true);
+            var pair = pairConstructor.newInstance(b, 0);
+
+            var entryClass =
+                    Class.forName(
+                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$LeaseEntry");
+            var entryConstructor = entryClass.getDeclaredConstructors()[0];
+            entryConstructor.setAccessible(true);
+            var entry = entryConstructor.newInstance(pair, lease);
+
+            var renewalCalls = (Collection<Object>) field(runtime.worker, "renewalCalls");
+            var callClass =
+                    Class.forName(
+                            "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3RenewalService$Call");
+            var callConstructor = callClass.getDeclaredConstructors()[0];
+            callConstructor.setAccessible(true);
+            var call =
+                    callConstructor.newInstance(
+                            def.authority(), 2, null, List.of(entry), System.nanoTime());
+            renewalCalls.add(call);
+
+            var renewalPid = new AtomicInteger();
+            var renewalXid = new AtomicReference<String>();
+            var renewalReturned = new AtomicReference<List<PartitionLease>>();
+
+            var controlTx = (AttemptTransactions) field(b.engine(), "controlTransactions");
+            controlTx.write(
+                    () -> {
+                        try {
+                            var sql = new JdbcTemplate(pool);
+                            var row =
+                                    sql.queryForMap(
+                                            "select pg_backend_pid()"
+                                                    + " pid,pg_current_xact_id()::text xid");
+                            renewalPid.set(((Number) row.get("pid")).intValue());
+                            renewalXid.set(row.get("xid").toString());
+
+                            var storeProxy =
+                                    (PartitionOwnershipStore) field(b.engine(), "ownership");
+                            var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
+                            renewalReturned.set(res);
+                            journal.observe(
+                                    def.id(),
+                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                            .Phase.RENEWAL_LEASE,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                            .Outcome.CONFIRMED,
+                                    1,
+                                    Duration.ofMillis(1));
+                            return null;
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+            // Verify physical outcome: renewal was skipped because Discovery held row lock
+            assertNotEquals(
+                    discoveryPid.get(),
+                    renewalPid.get(),
+                    "Discovery and Renewal on separate backends");
+            assertTrue(
+                    renewalReturned.get().isEmpty(),
+                    "PostgreSQL SKIP LOCKED omitted the partition for Renewal");
+            System.out.println(
+                    "DISCOVERY_RENEWAL_INTERLEAVING"
+                            + " discoveryPid=" + discoveryPid.get()
+                            + " discoveryXid=" + discoveryXid.get()
+                            + " renewalPid=" + renewalPid.get()
+                            + " renewalXid=" + renewalXid.get()
+                            + " renewalReturned=" + renewalReturned.get().size());
+
+            // Step 6: Discovery completes and commits its transaction
+            discoveryHold.countDown();
+            discoveryThread.join(5000);
+            assertFalse(discoveryThread.isAlive());
+
+            // Step 7: The oracle evaluates the complete window
+            assertEquals(1, journal.attempts.size());
+            var attempt1 = journal.attempts.getFirst();
+            assertTrue(attempt1.returned.isEmpty());
+
+            // Check that the corrected oracle accepts this legitimate omission without throwing
+            assertDoesNotThrow(() -> journal.verify(0, false));
+
+            // Positive counter-check: if no Discovery transaction was present on this key,
+            // the oracle MUST throw "B available physical window without same-token CAS"
+            var fakeJournal =
+                    new I5TemporalV2Postgres.Journal(
+                            f, new ArrayList<>(List.of(attempt1.tx)), 0, 1, null);
+            fakeJournal.attempts.add(attempt1);
+            var err =
+                    assertThrows(AssertionError.class, () -> fakeJournal.verify(0, false));
+            assertTrue(
+                    err.getMessage()
+                            .contains("B available physical window without same-token CAS"));
+
+            // Step 8: Subsequent Renewal attempt without Discovery lock succeeds with same-token CAS
+            var call2 =
+                    callConstructor.newInstance(
+                            def.authority(), 2, null, List.of(entry), System.nanoTime());
+            renewalCalls.add(call2);
+            controlTx.write(
+                    () -> {
+                        try {
+                            var storeProxy =
+                                    (PartitionOwnershipStore) field(b.engine(), "ownership");
+                            var res = storeProxy.renew(def, List.of(lease), Duration.ofSeconds(90));
+                            journal.observe(
+                                    def.id(),
+                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                            .Phase.RENEWAL_LEASE,
+                                    com.kartaguez.pocoma.engine.consumption.v3.port.ConsumptionObservation
+                                            .Outcome.CONFIRMED,
+                                    1,
+                                    Duration.ofMillis(1));
+                            return res;
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            assertEquals(2, journal.attempts.size());
+            var attempt2 = journal.attempts.get(1);
+            assertEquals(1, attempt2.returned.size());
+            assertEquals(token, attempt2.returned.getFirst().ownerToken());
+            assertTrue(attempt2.returned.getFirst().ownedUntil().isAfter(lease.ownedUntil()));
+
+            // Now journal.verify(1, false) passes on attempt2 because attempt2 successfully renewed
+            assertDoesNotThrow(() -> journal.verify(1, false));
+            List<long[]> conflictsAttempt2 = journal.conflicts(attempt2, key);
+            assertTrue(
+                    I5TemporalV2Test.free(
+                            attempt2.storeStart, attempt2.storeEnd, conflictsAttempt2),
+                    "Attempt 2 was free and available for renewal");
+
+            // Mark worker as STOPPED to allow clean runtime close without waiting
+            @SuppressWarnings("unchecked")
+            Class<Enum> stateClass =
+                    (Class<Enum>)
+                            Class.forName(
+                                    "com.kartaguez.pocoma.orchestrator.poll.consumption.v3.V3ConsumptionWorker$State");
+            replace(runtime.worker, "state", Enum.valueOf(stateClass, "STOPPED"));
+        }
+    }
+
     static boolean allAdvanced(JdbcTemplate sql, Map<UUID, Instant> initial) {
         var current = deadlines(sql);
         return initial.entrySet().stream()

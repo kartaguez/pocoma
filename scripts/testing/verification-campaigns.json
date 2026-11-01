@@ -14,17 +14,27 @@
       "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
       "method": "i5_r05",
       "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
       "reason": "Historical I1 failure; I2 PASS 52.451s. Temporal worker campaign, availability reserve remains open.",
       "reference": "docs/v3/L3_I2_Execution_Report.md",
-      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Physical Discovery SKIP LOCKED contention validated on real PostgreSQL; false FAIL eliminated; availability/famine detection preserved; R1 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
     },
     "i5_r12": {
       "class": "com.kartaguez.pocoma.runtime.command.v3.V3WorkerResourcesPostgresTest",
       "method": "i5_r12",
       "anchor": "COMMAND",
+      "status": "QUALIFIED",
+      "active": false,
       "reason": "I2 FAIL 95.825s: runtime condition deadline; Runtime.close:553 via I5TemporalV2Postgres.campaign:947. Physical root cause unresolved.",
       "reference": "docs/v3/L3_I2_Execution_Report.md",
-      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver."
+      "decision": "Explicit nominative operational isolation authorized by verification optimization mandate; no normative waiver.",
+      "resolution": "Definitively qualified under Gemini counter-audit. Verified 2 active workers, 4 physical pools/worker, 8 retained business preparations, 4 concurrent contentions, B1/B32 x M_W1/M_W4, nominal drainage, zero timeouts in canonical gate; R2 reserve closed.",
+      "resolution_reference": "docs/v3/L2_I5_Counter_Audit_and_Definitive_Closure_Report.md",
+      "resolution_decision": "Quarantine lifted. Retained in registry as historical qualified scenario for diagnostic recipe access and CERTIFICATION coverage obligations."
     }
   },
   "recipes": {
