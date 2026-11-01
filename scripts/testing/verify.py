@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = Path(__file__).with_name('verification-campaigns.json')
 NS = {'m': 'http://maven.apache.org/POM/4.0.0'}
-TEST_ANNOTATION = r'@(Test|ParameterizedTest|TestFactory|TestTemplate|RepeatedTest)\b'
+TEST_ANNOTATION = r'@(?:[\w.]+\.)?(Test|ParameterizedTest|TestFactory|TestTemplate|RepeatedTest)\b'
 
 
 def java_structure(content):
@@ -78,31 +78,31 @@ def required_methods(fqcn, path):
     """
     content = java_structure(path.read_text()) if isinstance(path, Path) else path
     validate_annotations(fqcn, content)
-    if re.search(r'@(TestFactory|TestTemplate|Nested|Disabled)\b', content):
+    if re.search(r'@(?:[\w.]+\.)?(TestFactory|TestTemplate|Nested|Disabled)\b', content):
         raise ValueError(f'{fqcn}: unsupported dynamic/nested/disabled discovery; no coverage proof')
 
-    test_decls = re.findall(r'@Test\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
-    if len(test_decls) != len(re.findall(r'@Test\b', content)):
+    test_decls = re.findall(r'@(?:[\w.]+\.)?Test\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
+    if len(test_decls) != len(re.findall(r'@(?:[\w.]+\.)?Test\b', content)):
         raise ValueError(f'{fqcn}: unreviewed JUnit method declaration')
     methods = list(test_decls)
 
-    repeated = re.findall(r'@RepeatedTest\s*\(\s*(\d+)\s*\)(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
-    if len(repeated) != len(re.findall(r'@RepeatedTest\b', content)):
+    repeated = re.findall(r'@(?:[\w.]+\.)?RepeatedTest\s*\(\s*(\d+)\s*\)(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(', content)
+    if len(repeated) != len(re.findall(r'@(?:[\w.]+\.)?RepeatedTest\b', content)):
         raise ValueError(f'{fqcn}: unreviewed RepeatedTest declaration')
     for count_str, name in repeated:
         methods += [f'{name}()[{n}]' for n in range(1, int(count_str) + 1)]
 
-    param_tests = re.findall(r'@ParameterizedTest\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(([^)]*)\)', content)
-    if len(param_tests) != len(re.findall(r'@ParameterizedTest\b', content)):
+    param_tests = re.findall(r'@(?:[\w.]+\.)?ParameterizedTest\b(?:(?!void\b)[\s\S])*?void\s+(\w+)\s*\(([^)]*)\)', content)
+    if len(param_tests) != len(re.findall(r'@(?:[\w.]+\.)?ParameterizedTest\b', content)):
         raise ValueError(f'{fqcn}: unreviewed ParameterizedTest declaration')
 
     for name, param_decl in param_tests:
-        m = re.search(r'(@ParameterizedTest(?:(?!@ParameterizedTest)[\s\S])*?void\s+' + re.escape(name) + r'\s*\([^)]*\))', content)
+        m = re.search(r'(@(?:[\w.]+\.)?ParameterizedTest(?:(?!@(?:[\w.]+\.)?ParameterizedTest)[\s\S])*?void\s+' + re.escape(name) + r'\s*\([^)]*\))', content)
         decl_block = m.group(1) if m else ''
         param_type = param_decl.strip().split()[0].split('.')[-1]
 
-        val_match = re.search(r'@ValueSource\s*\(\s*(\w+)\s*=\s*\{([^}]*)\}\s*\)', decl_block)
-        enum_match = re.search(r'@EnumSource\s*\(([^)]*)\)', decl_block)
+        val_match = re.search(r'@(?:[\w.]+\.)?ValueSource\s*\(\s*(\w+)\s*=\s*\{([^}]*)\}\s*\)', decl_block)
+        enum_match = re.search(r'@(?:[\w.]+\.)?EnumSource\s*\(([^)]*)\)', decl_block)
         if val_match:
             kind, vals = val_match.group(1), val_match.group(2)
             count = len(vals.split(','))
