@@ -257,13 +257,15 @@ class HexagonalArchitectureTest {
 		Set<String> dependenciesOutsideProjectionCore = CLASSES.stream()
 				.filter(javaClass -> isProjectionCorePackage(javaClass.getPackageName()))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+                .filter(dependency -> !isI1DomainDependency(dependency.getOriginClass().getPackageName(),
+                        dependency.getTargetClass().getPackageName()))
 				.map(Dependency::getTargetClass)
 				.filter(target -> !target.getPackageName().startsWith("java."))
 				.filter(target -> !isProjectionCorePackage(target.getPackageName()))
 				.map(target -> target.getName())
 				.collect(Collectors.toUnmodifiableSet());
 		assertEquals(Set.of(), dependenciesOutsideProjectionCore,
-				"domain-projection core must depend only on the JDK and itself");
+				"domain-projection core permits Pot values only from the I1 v3 package");
 	}
 
 	@Test
@@ -350,6 +352,8 @@ class HexagonalArchitectureTest {
 		Set<String> dependenciesOutsideProjectionContracts = CLASSES.stream()
 				.filter(javaClass -> javaClass.getPackageName().startsWith(contractsPackage))
 				.flatMap(javaClass -> javaClass.getDirectDependenciesFromSelf().stream())
+                .filter(dependency -> !isI1PortDependency(dependency.getOriginClass().getPackageName(),
+                        dependency.getTargetClass().getName()))
 				.map(Dependency::getTargetClass)
 				.filter(target -> !target.getPackageName().startsWith("java."))
 				.filter(target -> !target.getPackageName().equals(contractsPackage)
@@ -360,6 +364,33 @@ class HexagonalArchitectureTest {
 		assertEquals(Set.of(), dependenciesOutsideProjectionContracts,
 				"engine-projection-contracts must depend only on the JDK and domain-projection");
 	}
+
+    private static boolean isI1DomainDependency(String originPackage, String targetPackage) {
+        return originPackage.equals(ROOT_PACKAGE + ".domain.projection.v3")
+                && (targetPackage.equals(ROOT_PACKAGE + ".domain.pot.v3")
+                    || targetPackage.equals(ROOT_PACKAGE + ".domain.pot.value")
+                    || targetPackage.equals(ROOT_PACKAGE + ".domain.pot.value.id"));
+    }
+
+    private static boolean isI1PortDependency(String originPackage, String targetName) {
+        return originPackage.equals(ROOT_PACKAGE + ".port.projection.v3")
+                && targetName.equals(ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext");
+    }
+
+    @Test
+    void i1ExceptionsDoNotOpenHistoricalPortsOrFrameworks() {
+        String v3 = ROOT_PACKAGE + ".port.projection.v3";
+        String context = ROOT_PACKAGE + ".port.transaction.v3.RecoveryReadContext";
+        assertEquals(true, isI1PortDependency(v3, context));
+        assertEquals(false, isI1PortDependency(ROOT_PACKAGE + ".port.projection", context));
+        for (String forbidden : Set.of("org.springframework.transaction.TransactionStatus",
+                ROOT_PACKAGE + ".port.transaction.v3.AttemptTransactions",
+                ROOT_PACKAGE + ".infra.tx.spring.v3.SpringAttemptTransactions",
+                ROOT_PACKAGE + ".engine.consumption.v3.ConsumptionEngine"))
+            assertEquals(false, isI1PortDependency(v3, forbidden));
+        assertEquals(false, isI1DomainDependency(ROOT_PACKAGE + ".domain.projection", ROOT_PACKAGE + ".domain.pot.v3"));
+        assertEquals(false, isI1DomainDependency(ROOT_PACKAGE + ".domain.projection.v3", ROOT_PACKAGE + ".infra.persistence.read.jdbc.v3"));
+    }
 
 	@Test
 	void exactProjectionReadEngineDependsOnlyOnItsPureContracts() {
